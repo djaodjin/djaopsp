@@ -1,0 +1,10 @@
+{% block form_block %}
+<form{% if form.form_id %} id="{{form.form_id}}"{% endif %}
+    method="post" action=".{% if next %}/?next={{ next }}{% endif %}">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+    {{form.as_p}}
+    <div class="form-action text-center">
+        <button type="submit" class="btn btn-block btn-primary btn-lg">{% if form.submit_title %}{{form.submit_title}}{% else %}Submit{% endif %}</button>
+    </div>
+</form>
+{% endblock %}

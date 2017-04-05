@@ -1,0 +1,19 @@
+{% extends "_form.html" %}
+
+{% block form_block %}
+<form{% if form.form_id %} id="{{form.form_id}}"{% endif %}
+    method="post" action=".{% if next %}/?next={{ next }}{% endif %}">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+    {% for name, field in form.fields.items() %}
+      {{ input_field(form[name], form.hide_labels) }} {## creates a BoundField ##}
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-offset-4 col-sm-4">
+            <div class="form-action text-center">
+                <button type="submit" class="btn btn-block btn-primary btn-lg">{% if form.submit_title %}{{form.submit_title}}{% else %}Submit{% endif %}</button>
+            </div>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+</form>
+{% endblock %}

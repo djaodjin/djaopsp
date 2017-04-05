@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+	
+
+{% with form.instance.question.survey as survey %}
+<h1>{{survey.name|title}}</h1>
+<div>
+{% if survey.published %}
+<form method="post" action=".">
+        {% csrf_token %}
+        {{form|crispy}}
+        <div class="form-actions text-center">
+            <button class="btn btn-warning" type="submit" name="submit" value="Next">Next &gt;</button>
+        </div>
+</form>
+<p>
+<span class="text-danger pull-right">* required fields</span>
+</p>
+{% else %}
+<em>Sorry, this {% if survey.quizz_mode %}quizz{% else %}survey{% endif %} is no longer available. Thank you.</em>
+{% endif %}
+</div>
+{% endwith %}
+</div>
+{% endblock %}

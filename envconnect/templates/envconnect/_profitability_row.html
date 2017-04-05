@@ -1,0 +1,12 @@
+{% extends "envconnect/_detail_row_basic.html" %}
+{% block detail_row %}
+{{block.super}}
+{% for col_header in icon.profitability_headers %}
+<td class="text-center cell-fix-width editable-consumption"
+    data-key="{{col_header.slug}}"
+    ng-click="editConsumption($event, practice[0])"
+    ng-if="practice[0].consumption !== null">
+    [[practice[0].consumption.{{col_header.slug}}]]
+</td>
+{% endfor %}
+{% endblock %}

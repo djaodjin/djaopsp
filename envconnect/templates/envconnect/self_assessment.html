@@ -1,0 +1,169 @@
+{% extends "envconnect/base_folding_icons.html" %}
+{% load pages_tags %}
+{% load static from staticfiles %}
+
+{% block app_content %}
+<div class="tab-content collapse{% if active %} in{% endif %}">
+    {% for icon_tuple in root.1 %}
+        {% with icon_tuple.0 as icon %}
+        {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
+        <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
+            <div ng-if="getEntriesByTag('{{prefix}}', 'system').length === 0">
+            <div class="row">
+                <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
+                    <a class="btn btn-primary" href="{% url 'report_organization_download' organization "/"|add:root.0.slug %}" target="_blank"><i class="fa fa-wrench"></i> Download Self-assessment</a>
+                    <!-- WORKAROUND: we set data-width and data-height
+                         otherwise bootstrap-toggle will crop the size
+                         inside a class="tab-content collapse". -->
+                    <input id="toggle-results-{{icon.slug}}"
+                           type="checkbox" toggle-checkbox data-toggle="toggle"
+                           data-on="Self-assessment"
+                           data-off="Results" data-offstyle="green-level-2"
+                           data-width="125px" data-height="34px"
+                           ng-model="scoreToggle"
+                           ng-disabled="allAnswered('tab-{{icon.slug}}')">
+                </div>
+            </div>
+            <table class="table table-striped table-bordered table-self-assessment" ng-show="!scoreToggle">
+                {% with icon.tag|assessment_choices as choices %}
+                <thead>
+                    <tr>
+                      <th rowspan="2">Practices</th>
+                      <th class="text-center" colspan="{{choices|length}}">Implemented?</th>
+                    </tr>
+                    <tr>
+                      {% for choice in choices %}
+                      <th class="text-center cell-fix-width">{{choice}}</th>
+                      {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-id="[[getPath(practice, '{{prefix}}')]]"
+                        class="best-practice-row"
+                        ng-repeat="practice in getEntries('{{prefix}}')"
+                        ng-show="getEntries('{{prefix}}').length > 0">
+                        <td colspan="{{choices|length|add:1}}" ng-if="practice[0].consumption === null">
+                            <h4 class="text-blue" ng-if="practice[0].tag === 'system'"><a href="{% if organization %}{% url 'benchmark_organization' organization path %}{% else %}{% url 'benchmark' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a></h4>
+                            <h4 class="text-blue" ng-if="practice[0].tag !== 'system'">[[practice[0].title]]</h4>
+                        </td>
+                        <td class="td-fix-width"
+                            ng-if="practice[0].consumption !== null">
+                            <a class="text-muted"  style="margin-left: 20px;"
+                               href="{% if organization %}{% url 'best_practice_detail_organization' organization path %}{% else %}{% url 'best_practice_detail' path %}{% endif %}[[practice[0].slug]]/">
+                                [[practice[0].title]]
+                            </a>
+                        </td>
+                        {% for choice in choices %}
+                        <td class="text-center cell-fix-width"
+                            ng-if="practice[0].consumption !== null">
+                            <label for="{{choice|slugify}}-[[practice[0].consumption.rank]]" style="margin-bottom:0">
+                                <input id="{{choice|slugify}}-[[practice[0].consumption.rank]]" type="radio"
+                                       value="{{choice}}"
+                                       name="implemented-[[practice[0].consumption.rank]]"
+                                       ng-checked="practice[0].consumption.implemented === '{{choice}}'"
+                                       ng-change="updateImprovement()"
+                                       ng-model="practice[0].consumption.implemented" />
+                            </label>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr ng-show="getEntries('{{prefix}}').length === 0">
+                        <td colspan="{{choices|length|add:1}}"><em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em></td>
+                    </tr>
+                    {% if icon_tuple.1|nb_self_assessment_questions > 0 %}
+                    <tr>
+                        <td colspan="{{choices|length|add:1}}" class="text-right">
+                            <a id="assess-button"
+                               class="btn btn-warning btn-lg btn-assess"
+                               href="{% url 'report_organization' organization path %}?active={{icon.slug}}&toggle=1"
+                               ng-disabled="allAnswered('tab-{{icon.slug}}')">Assess</a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+                {% endwith %}
+            </table>
+            <table class="table table-striped table-bordered" ng-show="scoreToggle">
+                <thead>
+                    <th>Practices</th>
+                    <th class="text-center custom_header cell-fix-width" data-toggle="tooltip" data-placement="top" title="Percentage of respondents that have implemented a best practice.">
+                        <button class="btn-link btn-sort" ng-click="sortBy('rate')">
+                            <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
+                        </button>
+                            Implementation rate
+                    </th>
+                    <th class="text-center custom_header cell-fix-width">
+                        <button class="btn-link btn-sort" ng-click="sortBy('implemented')">
+                            <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
+                        </button>
+                            Implemented by you?
+                    </th>
+                    {% if '/sustainability/' in request.path %}
+                    <th class="text-center custom_header cell-fix-width" data-toggle="tooltip" data-placement="top" title="Higher numbers equate to higher priority opportunities based on the following calculation: Practice green level * (1 + implementation rate / 100). Practice green levels: Dark green = 3; medium green = 2, light green = 1">
+                        <button class="btn-link btn-sort" ng-click="sortBy('opportunity')">
+                            <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
+                        </button>
+                            Opportunity score
+                    </th>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    <tr ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
+                        ng-show="getEntries('{{prefix}}').length > 0">
+                        <td colspan="{% if '/sustainability/' in request.path %}4{% else %}3{% endif %}" ng-if="practice[0].consumption === null">
+                            <h4 class="text-blue" ng-if="practice[0].tag === 'system'"><a id="[[practice[0].slug]]" href="{% if organization %}{% url 'benchmark_organization' organization path %}{% else %}{% url 'benchmark' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a></h4>
+                            <h4 class="text-blue" ng-if="practice[0].tag !== 'system'">[[practice[0].title]]</h4>
+                        </td>
+                        <td class="td-fix-width"
+                            ng-if="practice[0].consumption !== null">
+                            <a id="best-[[practice[0].slug]]"
+                               class="text-muted"
+                               href="{% if organization %}{% url 'best_practice_detail_organization' organization path %}{% else %}{% url 'best_practice_detail' path %}{% endif %}[[practice[0].slug]]/">
+                                [[practice[0].title]]
+                            </a>
+                        </td>
+                        <td class="text-center cell-fix-width"
+                            ng-if="practice[0].consumption !== null">
+                            [[practice[0].consumption.nb_respondents]] respondents
+                            <div class="progress" style="margin:0">
+                                <div class="progress-bar progress-bar-success green-level-{% if '/sustainability/' in request.path %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" style="width: [[practice[0].consumption.rate]]%;">
+                                    [[practice[0].consumption.rate]]%
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center cell-fix-width"
+                            ng-if="practice[0].consumption !== null">
+                            <i class="fa fa-check fa-lg text-success" ng-if="isImplemented(practice[0].consumption)"></i>
+                            <i class="fa fa-times fa-lg text-danger"  ng-if="!isImplemented(practice[0].consumption)"></i>
+                        </td>
+                        {% if '/sustainability/' in request.path %}
+                        <td class="text-center cell-fix-width"
+                            ng-if="practice[0].consumption !== null">
+                            [[practice[0].consumption.opportunity|number:2]]
+                        </td>
+                        {% endif %}
+                   </tr>
+                    <tr ng-show="getEntries('{{prefix}}').length === 0">
+                        <td colspan="{% if '/sustainability/' in request.path %}4{% else %}3{% endif %}"><em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em></td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+        {% endwith %}
+        {% endwith %}
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block bodyscripts %}
+{{block.super}}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $(".best-practice-row").selfAssessment({
+        survey_api_response: "{% url 'survey_api_response' organization response %}",
+        api_improvement_base: "{% url 'api_improvement_base' organization %}"
+    });
+});
+</script>
+{% endblock %}

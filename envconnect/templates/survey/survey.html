@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block content %}
+<div class="container">
+<div class="col-lg-7 center">
+<h1>Welcome to {{survey.name|title}}</h1>
+{% if not form %}
+<div class="survey-description">
+        {{survey.description|safe}}
+</div>
+{% endif %}
+{% if survey.published %}
+
+	{% if responseform %}
+        <form action="" method="post">
+			{% csrf_token %}
+		   <form method="post" class="form-horizontal">
+			   {% csrf_token %}
+		       {{responseform|crispy}}
+                <div class="form-actions">
+                    <input type="submit" name="submit" value="Next" class="btn btn-primary" id="submit-id-submit">
+                </div>
+		   </form>
+        </form>
+	{% endif %}
+	{% if form %}
+        <form action="" method="post">
+			{% csrf_token %}
+		   <form method="post" class="form-horizontal">
+			   {% csrf_token %}
+		       {{form|crispy}}
+                <div class="form-actions">
+                    <input type="submit" name="submit" value="Next" class="btn btn-primary" id="submit-id-submit">
+                </div>
+		   </form>
+        </form>
+	{% endif %}
+</div>
+{% else %}
+<h3><em class="text-muted">Sorry this survey is no longer available!</em></h3>
+{% endif %}
+</div>
+{% endblock %}

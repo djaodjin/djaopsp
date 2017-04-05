@@ -1,0 +1,81 @@
+{% load navactive %}
+
+<div class="improvement-planning">
+  <div>
+    <button class="btn btn-primary" type="button"
+            data-toggle="collapse" data-target="#improvement-dashboard"
+            aria-expanded="false" aria-controls="improvement-dashboard">
+        Click for planning dashboard
+    </button>
+    <div id="improvement-dashboard" class="text-center inner collapse">
+      <div style="display: inline-block;">
+        <h3>Planning Dashboard</h3>
+        <p>Estimated impacts of your improvement plan selections</p>
+      </div>
+      <div class="pull-right" style="margin-top:5px;margin-right:5px;">
+      <a class="btn btn-primary" href="{% url 'improve_organization_download' organization %}" target="_blank"><i class="fa fa-wrench"></i> Download improvements list</a>
+      </div>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="score-card"
+               style="flex:auto;">
+            <h4>Total Score <span id="improvement-score"></span></h4>
+            <div id="total-score" class="distribution-chart chart-content">
+            </div>
+          </div>
+          <div id="{{page_icon.slug}}" class="benchmark distribution-chart bordered-left">
+            <div class="chart-title">
+              <div class="icon-benchmark {% if page_icon.tag == 'management' %} grey{% else %} orange{% endif %}">
+                {% if page_icon.text %}
+                <img class="icon-equipment" src="{{page_icon.text}}">
+                {% else %}
+                <div class="icon-equipment">{{page_icon.title}}</div>
+                {% endif %}
+              </div>
+              <div class="title">
+                <h3>{{page_icon.title}}</h3>
+                {% with breadcrumbs|as_icon as icon %}
+                {% if icon.subtitle %}
+                <h4>{{icon.subtitle}}</h4>
+                {% endif %}
+                {% endwith %}
+              </div>
+            </div>
+            <div>
+              <div class="chart-content c3" style="width:250px;height:120px;">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="row">
+            <div class="distribution-chart bordered-left">
+              <h4>Cost</h4>
+              <p>as % of overhead</p>
+              <div class="cost"></div>
+            </div>
+            <div class="distribution-chart">
+              <h4>Savings</h4>
+              <p>as % of overhead</p>
+              <div class="savings"></div>
+            </div>
+          </div>
+          <div class="row">
+            <p style="display:inline-block;width:500px;">
+Note: Where practices are associated with costs or savings,<br />
+averages will be registered by these value gauges.
+            </p>
+          </div>
+        </div>
+      </div>
+      <script type="text/javascript">
+jQuery(document).ready(function($) {
+    $("#improvement-dashboard").improvementDashboard({
+        api_account_benchmark: "{% url 'api_benchmark' organization path %}",
+        benchmark: "{{root.0.slug}}"
+    });
+});
+      </script>
+    </div>
+  </div>
+</div>

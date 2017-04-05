@@ -1,0 +1,1746 @@
+[
+{ "fields" : {
+    "slug" : "best-practices-report",
+    "title" : "Best Practices Report",
+    "description" : "Best Practices Report",
+    "account" : 6,
+    "published": true
+  },
+  "model" : "survey.surveymodel", "pk" : 1
+},
+{
+    "fields": {
+        "path": "/boxes-and-enclosures/management-basics",
+        "slug": "avg_energy_saving",
+        "hidden": true
+    },
+    "model": "envconnect.ColumnHeader", "pk": 1
+},
+{
+    "fields": {
+        "path": "/boxes-and-enclosures/management-basics",
+        "slug": "capital_cost",
+        "hidden": true
+    },
+    "model": "envconnect.ColumnHeader", "pk": 2
+},
+{
+    "fields": {
+        "path": "/boxes-and-enclosures/management-basics",
+        "slug": "payback_period",
+        "hidden": true
+    },
+    "model": "envconnect.ColumnHeader", "pk": 3
+},
+{
+    "fields": {
+        "path": "/boxes-and-enclosures/management-basics",
+        "slug": "environmental_value",
+        "hidden": true
+    },
+    "model": "envconnect.ColumnHeader", "pk": 4
+},
+{
+    "fields": {
+        "path": "/boxes-and-enclosures/management-basics",
+        "slug": "business_value",
+        "hidden": true
+    },
+    "model": "envconnect.ColumnHeader", "pk": 5
+},
+{
+    "fields": {
+        "path": "/boxes-and-enclosures/management-basics",
+        "slug": "profitability",
+        "hidden": true
+    },
+    "model": "envconnect.ColumnHeader", "pk": 6
+},
+{
+    "fields": {
+        "path": "/boxes-and-enclosures/management-basics",
+        "slug": "implementation_ease",
+        "hidden": true
+    },
+    "model": "envconnect.ColumnHeader", "pk": 7
+},
+{
+  "fields": {
+    "title": "Boxes & enclosures",
+    "slug": "boxes-and-enclosures",
+    "tag": "industry,enabled"
+  },
+  "model": "pages.PageElement", "pk": 1
+},
+{
+  "fields": {
+    "title": "Management",
+    "slug": "management-basics",
+    "text": "/media/envconnect/management-basics.png",
+    "tag": "management"
+  },
+  "model": "pages.PageElement", "pk": 4
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 4
+  },
+  "model": "pages.relationship", "pk": 3
+},
+{
+  "fields": {
+    "title": "Design",
+    "slug": "design",
+    "text": "/media/envconnect/design.png",
+    "tag": "life-cycle"
+  },
+  "model": "pages.PageElement", "pk": 5
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 5
+  },
+  "model": "pages.relationship", "pk": 4
+},
+{
+  "fields": {
+    "title": "Sourcing",
+    "slug": "sourcing",
+    "text": "/media/envconnect/sourcing.png",
+    "tag": "life-cycle"
+  },
+  "model": "pages.PageElement", "pk": 6
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 6
+  },
+  "model": "pages.relationship", "pk": 5
+},
+{
+  "fields": {
+    "title": "Production",
+    "slug": "production",
+    "text": "/media/envconnect/production.png",
+    "tag": "life-cycle"
+  },
+  "model": "pages.PageElement", "pk": 7
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 7
+  },
+  "model": "pages.relationship", "pk": 6
+},
+{
+  "fields": {
+    "title": "Distribution",
+    "slug": "boxes-distribution",
+    "text": "/media/envconnect/distribution.png",
+    "tag": "life-cycle"
+  },
+  "model": "pages.PageElement", "pk": 8
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 8
+  },
+  "model": "pages.relationship", "pk": 7
+},
+{
+  "fields": {
+    "title": "End of Life",
+    "slug": "end-of-life",
+    "text": "/media/envconnect/end-of-life.png",
+    "tag": "life-cycle"
+  },
+  "model": "pages.PageElement", "pk": 9
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 9
+  },
+  "model": "pages.relationship", "pk": 8
+},
+{
+  "fields": {
+    "title": "Product Design",
+    "slug": "product-design"
+  },
+  "model": "pages.PageElement", "pk": 10
+},
+{
+  "fields": {
+    "orig_element": 5,
+    "dest_element": 10
+  },
+  "model": "pages.relationship", "pk": 9
+},
+{
+  "fields": {
+    "title": "Product Design",
+    "slug": "product-design",
+    "submit_date": "2016-01-01T00:00:00-09:00"
+  },
+  "model": "answers.Question", "pk": 1
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "Product Design",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 1
+  },
+  "model": "survey.Question", "pk": 1
+},
+{
+  "fields": {
+    "path": "/boxes-and-enclosures/design/product-design",
+    "question": 1,
+    "implementation_ease": 1,
+    "avg_energy_saving": "* * *",
+    "profitability": 1,
+    "capital_cost": "$$$",
+    "ranking": null,
+    "business_value": 1,
+    "payback_period": "3-12",
+    "environmental_value": 1
+  },
+  "model": "envconnect.Consumption", "pk": 1
+},
+{
+  "fields": {
+    "title": "Packaging Design",
+    "slug": "packaging-design"
+  },
+  "model": "pages.PageElement", "pk": 11
+},
+{
+  "fields": {
+    "title": "Packaging Design",
+    "slug": "packaging-design",
+    "submit_date": "2016-01-01T00:00:00-09:00"
+  },
+  "model": "answers.Question", "pk": 2
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "Packaging Design",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 2
+  },
+  "model": "survey.Question", "pk": 2
+},
+{
+  "fields": {
+    "path": "/boxes-and-enclosures/design/packaging-design",
+    "question": 2,
+    "implementation_ease": 2,
+    "avg_energy_saving": "* * * *",
+    "profitability": 2,
+    "capital_cost": "$$$",
+    "ranking": null,
+    "business_value": 2,
+    "payback_period": "0-1.8 (0.3)",
+    "environmental_value": 2
+  },
+  "model": "envconnect.Consumption", "pk": 2
+},
+{
+  "fields": {
+    "orig_element": 5,
+    "dest_element": 11
+  },
+  "model": "pages.relationship", "pk": 10
+},
+{
+  "fields": {
+    "title": "Energy Efficiency",
+    "slug": "energy-efficiency",
+    "tag": "system"
+  },
+  "model": "pages.PageElement", "pk": 12
+},
+{
+  "fields": {
+    "orig_element": 7,
+    "dest_element": 12
+  },
+  "model": "pages.relationship", "pk": 11
+},
+{
+  "fields": {
+    "title": "Management",
+    "slug": "energy-efficiency-management-basics",
+    "text": "/media/envconnect/management-basics.png",
+    "tag": "management"
+  },
+  "model": "pages.PageElement", "pk": 16
+},
+{
+  "fields": {
+    "orig_element": 12,
+    "dest_element": 16
+  },
+  "model": "pages.relationship", "pk": 15
+},
+{
+  "fields": {
+    "title": "Lighting",
+    "slug": "energy-efficiency-lighting",
+    "text": "/media/envconnect/lighting.png",
+    "tag": "load"
+  },
+  "model": "pages.PageElement", "pk": 17
+},
+{
+  "fields": {
+    "orig_element": 12,
+    "dest_element": 17
+  },
+  "model": "pages.relationship", "pk": 16
+},
+{
+  "fields": {
+    "title": "HVAC",
+    "slug": "hvac",
+    "text": "/media/envconnect/hvac.png",
+    "tag": "load"
+  },
+  "model": "pages.PageElement", "pk": 18
+},
+{
+  "fields": {
+    "orig_element": 12,
+    "dest_element": 18
+  },
+  "model": "pages.relationship", "pk": 17
+},
+{
+  "fields": {
+    "title": "Compressed air",
+    "slug": "energy-efficiency-compressed-air",
+    "text": "/media/envconnect/compressed-air.png",
+    "tag": "load"
+  },
+  "model": "pages.PageElement", "pk": 19
+},
+{
+  "fields": {
+    "orig_element": 12,
+    "dest_element": 19
+  },
+  "model": "pages.relationship", "pk": 18
+},
+{
+  "fields": {
+    "title": "Process equipment",
+    "slug": "energy-efficiency-process-equipment",
+    "text": "/media/envconnect/process-equipment.png",
+    "tag": "load"
+  },
+  "model": "pages.PageElement", "pk": 20
+},
+{
+  "fields": {
+    "orig_element": 12,
+    "dest_element": 20
+  },
+  "model": "pages.relationship", "pk": 19
+},
+{
+  "fields": {
+    "title": "Mechanical drives",
+    "slug": "energy-efficiency-mechanical-drives",
+    "text": "/media/envconnect/mechanical-drives.png",
+    "tag": "load"
+  },
+  "model": "pages.PageElement", "pk": 21
+},
+{
+  "fields": {
+    "orig_element": 12,
+    "dest_element": 21
+  },
+  "model": "pages.relationship", "pk": 20
+},
+{
+  "fields": {
+    "title": "Process heating",
+    "slug": "process-heating",
+    "text": "/media/envconnect/process-heating.png",
+    "tag": "load"
+  },
+  "model": "pages.PageElement", "pk": 22
+},
+{
+  "fields": {
+    "orig_element": 12,
+    "dest_element": 22
+  },
+  "model": "pages.relationship", "pk": 21
+},
+{
+  "fields": {
+    "title": "Process cooling",
+    "slug": "energy-efficiency-process-cooling",
+    "text": "/media/envconnect/process-cooling.png",
+    "tag": "load"
+  },
+  "model": "pages.PageElement", "pk": 23
+},
+{
+  "fields": {
+    "orig_element": 12,
+    "dest_element": 23
+  },
+  "model": "pages.relationship", "pk": 22
+},
+{
+  "fields": {
+    "title": "Other",
+    "slug": "energy-efficiency-other",
+    "text": "/media/envconnect/other.png",
+    "tag": "load"
+  },
+  "model": "pages.PageElement", "pk": 24
+},
+{
+  "fields": {
+    "orig_element": 12,
+    "dest_element": 24
+  },
+  "model": "pages.relationship", "pk": 23
+},
+{
+  "fields": {
+    "title": "Combustion",
+    "slug": "combustion"
+  },
+  "model": "pages.PageElement", "pk": 25
+},
+{
+  "fields": {
+    "orig_element": 22,
+    "dest_element": 25
+  },
+  "model": "pages.relationship", "pk": 24
+},
+{
+  "fields": {
+    "title": "Adjust air/fuel ratio",
+    "slug": "adjust-air-fuel-ratio",
+    "text": "<h2>Mandatory</h2><h3>First Step</h3><p>blablabla...</p>",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 26
+},
+{
+  "fields": {
+    "orig_element": 25,
+    "dest_element": 26
+  },
+  "model": "pages.relationship", "pk": 25
+},
+{
+  "fields": {
+    "title": "Adjust air/fuel ratio",
+    "slug": "adjust-air-fuel-ratio",
+    "submit_date": "2016-01-01T00:00:00-09:00"
+  },
+  "model": "answers.Question", "pk": 3
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "Adjust air/fuel ratio",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 3
+  },
+  "model": "survey.Question", "pk": 3
+},
+{
+  "fields": {
+    "path": "/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
+    "question": 3,
+    "implementation_ease": 1,
+    "avg_energy_saving": "* * * *",
+    "profitability": 3,
+    "capital_cost": "$$",
+    "ranking": null,
+    "business_value": 1,
+    "payback_period": "0-1.8 (0.3)",
+    "environmental_value": 1
+  },
+  "model": "envconnect.Consumption", "pk": 3
+},
+{
+  "fields": {
+    "title": "Reduce combustion air flow to optimum",
+    "slug": "reduce-combustion-air-flow-to-optimum"
+  },
+  "model": "pages.PageElement", "pk": 27
+},
+{
+  "fields": {
+    "orig_element": 25,
+    "dest_element": 27
+  },
+  "model": "pages.relationship", "pk": 26
+},
+{
+  "fields": {
+    "title": "Reduce combustion air flow to optimum",
+    "slug": "reduce-combustion-air-flow-to-optimum",
+    "submit_date": "2016-01-01T00:00:00-09:00"
+  },
+  "model": "answers.Question", "pk": 4
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "Reduce combustion air flow to optimum",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 4
+  },
+  "model": "survey.Question", "pk": 4
+},
+{
+  "fields": {
+    "path": "/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
+    "question": 4,
+    "implementation_ease": 2,
+    "avg_energy_saving": "* * *",
+    "profitability": 1,
+    "capital_cost": "$$",
+    "ranking": null,
+    "business_value": 1,
+    "payback_period": "0-1.8 (0.3)",
+    "environmental_value": 1
+  },
+  "model": "envconnect.Consumption", "pk": 4
+},
+{
+  "fields": {
+    "title": "Construction",
+    "slug": "construction",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 28
+},
+{
+  "fields": {
+    "title": "Boxes & enclosures",
+    "slug": "basic-boxes-and-enclosures",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 31
+},
+{
+  "fields": {
+    "title": "Management basics",
+    "slug": "boxes-and-enclosures-basic-manage",
+    "tag": "management"
+  },
+  "model": "pages.PageElement", "pk": 34
+},
+{
+  "fields": {
+    "orig_element": 31,
+    "dest_element": 34
+  },
+  "model": "pages.Relationship", "pk": 31
+},
+{
+  "fields": {
+    "title": "Production",
+    "slug": "basic-production"
+  },
+  "model": "pages.PageElement", "pk": 35
+},
+{
+  "fields": {
+    "orig_element": 31,
+    "dest_element": 35
+  },
+  "model": "pages.Relationship", "pk": 32
+},
+{
+  "fields": {
+    "title": "Distribution",
+    "slug": "boxes-and-enclosures-basic-distribution"
+  },
+  "model": "pages.PageElement", "pk": 36
+},
+{
+  "fields": {
+    "orig_element": 31,
+    "dest_element": 36
+  },
+  "model": "pages.Relationship", "pk": 33
+},
+{
+  "fields": {
+    "title": "End of life",
+    "slug": "boxes-and-enclosures-basic-end-of-life"
+  },
+  "model": "pages.PageElement", "pk": 37
+},
+{
+  "fields": {
+    "orig_element": 31,
+    "dest_element": 37
+  },
+  "model": "pages.Relationship", "pk": 34
+},
+{
+  "fields": {
+    "title": "Waste Management",
+    "slug": "waste-management",
+    "tag": "system"
+  },
+  "model": "pages.PageElement", "pk": 38
+},
+{
+  "fields": {
+    "orig_element": 7,
+    "dest_element": 38
+  },
+  "model": "pages.relationship", "pk": 35
+},
+{
+  "fields": {
+    "title": "Green Chemistry",
+    "slug": "green-chemistry",
+    "tag": "system"
+  },
+  "model": "pages.PageElement", "pk": 39
+},
+{
+  "fields": {
+    "orig_element": 7,
+    "dest_element": 39
+  },
+  "model": "pages.relationship", "pk": 36
+},
+{
+  "fields": {
+    "title": "Production BP",
+    "slug": "basic-production-bp"
+  },
+  "model": "pages.PageElement", "pk": 40
+},
+{
+  "fields": {
+    "title": "Production BP",
+    "slug": "basic-production-bp",
+    "submit_date": "2016-01-01T00:00:00-09:00"
+  },
+  "model": "answers.Question", "pk": 5
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "Production BP",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 5
+  },
+  "model": "survey.Question", "pk": 5
+},
+{
+  "fields": {
+    "path": "/basic-boxes-and-enclosures/basic-production/basic-production-bp",
+    "question": 5,
+    "implementation_ease": 1,
+    "avg_fuel_saving": "*",
+    "avg_energy_saving": "* * *",
+    "profitability": 1,
+    "capital_cost": "$$$",
+    "ranking": null,
+    "business_value": 1,
+    "payback_period": "3-12",
+    "environmental_value": 1
+  },
+  "model": "envconnect.Consumption", "pk": 5
+},
+{
+  "fields": {
+    "orig_element": 35,
+    "dest_element": 40
+  },
+  "model": "pages.Relationship", "pk": 37
+},
+{
+  "fields": {
+    "title": "Hot Water System",
+    "slug": "hot-water-system"
+  },
+  "model": "pages.PageElement", "pk": 41
+},
+{
+  "fields": {
+    "orig_element": 22,
+    "dest_element": 41
+  },
+  "model": "pages.relationship", "pk": 38
+},
+{
+  "fields": {
+    "title": "Recover heat from hot waste water",
+    "slug": "recover-heat-from-hot-waste-water"
+  },
+  "model": "pages.PageElement", "pk": 42
+},
+{
+  "fields": {
+    "orig_element": 41,
+    "dest_element": 42
+  },
+  "model": "pages.relationship", "pk": 39
+},
+{
+  "fields": {
+    "title": "Recover heat from hot waste water",
+    "slug": "recover-heat-from-hot-waste-water",
+    "submit_date": "2016-01-01T00:00:00-09:00"
+  },
+  "model": "answers.Question", "pk": 6
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "Recover heat from hot waste water",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 6
+  },
+  "model": "survey.Question", "pk": 6
+},
+{
+  "fields": {
+    "path": "/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
+    "question": 6,
+    "implementation_ease": 1,
+    "avg_fuel_saving": "-",
+    "avg_energy_saving": "* * * *",
+    "profitability": 1,
+    "capital_cost": "$$",
+    "ranking": null,
+    "business_value": 2,
+    "payback_period": "0-1.8 (0.3)",
+    "environmental_value": 1
+  },
+  "model": "envconnect.Consumption", "pk": 6
+},
+{
+  "fields": {
+    "title": "Reduce hot water temperature to minimum required",
+    "slug": "reduce-hot-water-temperature-to-minimum-required"
+  },
+  "model": "pages.PageElement", "pk": 43
+},
+{
+  "fields": {
+    "orig_element": 41,
+    "dest_element": 43
+  },
+  "model": "pages.relationship", "pk": 40
+},
+{
+  "fields": {
+    "title": "Reduce hot water temperature to minimum required",
+    "slug": "reduce-hot-water-temperature-to-minimum-required",
+    "submit_date": "2016-01-01T00:00:00-09:00"
+  },
+  "model": "answers.Question", "pk": 7
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "Reduce hot water temperature to minimum required",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 7
+  },
+  "model": "survey.Question", "pk": 7
+},
+{
+  "fields": {
+    "path": "/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
+    "question": 7,
+    "implementation_ease": 1,
+    "avg_fuel_saving": "-",
+    "avg_energy_saving": "* * * *",
+    "profitability": 1,
+    "capital_cost": "$$",
+    "ranking": null,
+    "business_value": 1,
+    "payback_period": "0-1.8 (0.3)",
+    "environmental_value": 2
+  },
+  "model": "envconnect.Consumption", "pk": 7
+},
+{
+  "fields": {
+    "title": "Energy",
+    "slug": "construction-energy",
+    "text": "/media/envconnect/lightning.png"
+  },
+  "model": "pages.PageElement", "pk": 44
+},
+{
+  "fields": {
+    "orig_element": 28,
+    "dest_element": 44
+  },
+  "model": "pages.relationship", "pk": 41
+},
+{
+  "fields": {
+    "title": "Transport",
+    "slug": "construction-transport",
+    "text": "/media/envconnect/distribution.png"
+  },
+  "model": "pages.PageElement", "pk": 45
+},
+{
+  "fields": {
+    "orig_element": 28,
+    "dest_element": 45
+  },
+  "model": "pages.relationship", "pk": 42
+},
+{
+  "fields": {
+    "title": "Purchasing",
+    "slug": "construction-purchasing",
+    "text": "/media/envconnect/purchasing.png"
+  },
+  "model": "pages.PageElement", "pk": 46
+},
+{
+  "fields": {
+    "orig_element": 28,
+    "dest_element": 46
+  },
+  "model": "pages.relationship", "pk": 43
+},
+{
+  "fields": {
+    "title": "Other",
+    "slug": "construction-other",
+    "text": "/media/envconnect/etc.png"
+  },
+  "model": "pages.PageElement", "pk": 47
+},
+{
+  "fields": {
+    "orig_element": 28,
+    "dest_element": 47
+  },
+  "model": "pages.relationship", "pk": 44
+},
+{
+  "fields": {
+    "title": "Waste",
+    "slug": "construction-waste",
+    "text": "/media/envconnect/waste.png"
+  },
+  "model": "pages.PageElement", "pk": 48
+},
+{
+  "fields": {
+    "orig_element": 28,
+    "dest_element": 48
+  },
+  "model": "pages.relationship", "pk": 45
+},
+{
+  "fields": {
+    "title": "Water",
+    "slug": "construction-water",
+    "text": "/media/envconnect/water.png"
+  },
+  "model": "pages.PageElement", "pk": 49
+},
+{
+  "fields": {
+    "orig_element": 28,
+    "dest_element": 49
+  },
+  "model": "pages.relationship", "pk": 46
+},
+{
+  "fields": {
+    "title": "Chemicals",
+    "slug": "construction-chemicals",
+    "text": "/media/envconnect/chemicals.png"
+  },
+  "model": "pages.PageElement", "pk": 50
+},
+{
+  "fields": {
+    "orig_element": 28,
+    "dest_element": 50
+  },
+  "model": "pages.relationship", "pk": 47
+},
+{
+  "fields": {
+    "title": "Air Emissions",
+    "slug": "construction-air-emissions",
+    "text": "/media/envconnect/air-emissions.png"
+  },
+  "model": "pages.PageElement", "pk": 51
+},
+{
+  "fields": {
+    "orig_element": 28,
+    "dest_element": 51
+  },
+  "model": "pages.relationship", "pk": 48
+},
+{
+  "fields": {
+    "title": "Professional services",
+    "slug": "office-space-only",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 52
+},
+{
+  "fields": {
+    "title": "Waste",
+    "slug": "office-waste",
+    "text": "/media/envconnect/waste.png"
+  },
+  "model": "pages.PageElement", "pk": 55
+},
+{
+  "fields": {
+    "orig_element": 52,
+    "dest_element": 55
+  },
+  "model": "pages.relationship", "pk": 51
+},
+{
+  "fields": {
+    "title": "Water",
+    "slug": "office-water",
+    "text": "/media/envconnect/water.png"
+  },
+  "model": "pages.PageElement", "pk": 56
+},
+{
+  "fields": {
+    "orig_element": 52,
+    "dest_element": 56
+  },
+  "model": "pages.relationship", "pk": 52
+},
+{
+  "fields": {
+    "title": "Electricity",
+    "slug": "office-electricity",
+    "text": "/media/envconnect/energy.png"
+  },
+  "model": "pages.PageElement", "pk": 57
+},
+{
+  "fields": {
+    "orig_element": 52,
+    "dest_element": 57
+  },
+  "model": "pages.relationship", "pk": 53
+},
+{
+  "fields": {
+    "title": "Purchasing",
+    "slug": "office-purchasing",
+    "text": "/media/envconnect/purchasing.png"
+  },
+  "model": "pages.PageElement", "pk": 58
+},
+{
+  "fields": {
+    "orig_element": 52,
+    "dest_element": 58
+  },
+  "model": "pages.relationship", "pk": 54
+},
+{
+  "fields": {
+    "title": "Transport",
+    "slug": "office-transport",
+    "text": "/media/envconnect/personal-car.png"
+  },
+  "model": "pages.PageElement", "pk": 59
+},
+{
+  "fields": {
+    "orig_element": 52,
+    "dest_element": 59
+  },
+  "model": "pages.relationship", "pk": 55
+},
+{
+  "fields": {
+    "title": "Other",
+    "slug": "office-other",
+    "text": "/media/envconnect/etc.png"
+  },
+  "model": "pages.PageElement", "pk": 60
+},
+{
+  "fields": {
+    "orig_element": 52,
+    "dest_element": 60
+  },
+  "model": "pages.relationship", "pk": 56
+},
+{
+  "fields": {
+    "title": "Packaging",
+    "slug": "packaging",
+    "tag": "system"
+  },
+  "model": "pages.PageElement", "pk": 61
+},
+{
+  "fields": {
+    "orig_element": 8,
+    "dest_element": 61
+  },
+  "model": "pages.relationship", "pk": 57
+},
+{
+  "fields": {
+    "title": "Fleet",
+    "slug": "fleet",
+    "tag": "system"
+  },
+  "model": "pages.PageElement", "pk": 62
+},
+{
+  "fields": {
+    "orig_element": 8,
+    "dest_element": 62
+  },
+  "model": "pages.relationship", "pk": 58
+},
+{
+  "fields": {
+    "title": "Take-back program",
+    "slug": "take-back-program",
+    "tag": "system"
+  },
+  "model": "pages.PageElement", "pk": 63
+},
+{
+  "fields": {
+    "orig_element": 9,
+    "dest_element": 63
+  },
+  "model": "pages.relationship", "pk": 59
+},
+{
+  "fields": {
+    "title": "Recycling",
+    "slug": "recycling",
+    "tag": "system"
+  },
+  "model": "pages.PageElement", "pk": 64
+},
+{
+  "fields": {
+    "orig_element": 9,
+    "dest_element": 64
+  },
+  "model": "pages.relationship", "pk": 60
+},
+
+{
+  "fields": {
+    "title": "Assessment",
+    "slug": "assessment",
+    "tag": "heading"
+  },
+  "model": "pages.PageElement", "pk": 65
+},
+{
+  "fields": {
+    "orig_element": 4,
+    "dest_element": 65
+  },
+  "model": "pages.Relationship", "pk": 61
+},
+{
+  "fields": {
+    "title": "General",
+    "slug": "general",
+    "tag": "heading"
+  },
+  "model": "pages.PageElement", "pk": 66
+},
+{
+  "fields": {
+    "orig_element": 4,
+    "dest_element": 66
+  },
+  "model": "pages.Relationship", "pk": 62
+},
+{
+  "fields": {
+    "title": "The assessment process is rigorous and thorough*",
+    "slug": "the-assessment-process-is-rigorous"
+  },
+  "model": "pages.PageElement", "pk": 67
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "The assessment process is rigorous and thorough*",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 8
+  },
+  "model": "survey.Question", "pk": 8
+},
+{
+  "fields": {
+    "path": "/boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
+    "question": 8,
+    "implementation_ease": 1,
+    "avg_fuel_saving": "*",
+    "avg_energy_saving": "* * *",
+    "profitability": 1,
+    "capital_cost": "$$$",
+    "ranking": null,
+    "business_value": 1,
+    "payback_period": "3-12",
+    "environmental_value": 1
+  },
+  "model": "envconnect.Consumption", "pk": 8
+},
+{
+  "fields": {
+    "orig_element": 65,
+    "dest_element": 67
+  },
+  "model": "pages.Relationship", "pk": 63
+},
+{
+  "fields": {
+    "title": "A policy is in place appropriate to the nature and scale of the organization*",
+    "slug": "a-policy-is-in-place-appropriate-to-the-nature-and-scale"
+  },
+  "model": "pages.PageElement", "pk": 68
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "The assessment process is rigorous and thorough*",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 9
+  },
+  "model": "survey.Question", "pk": 9
+},
+{
+  "fields": {
+    "path": "/boxes-and-enclosures/management-basics/general/a-policy-is-in-place-appropriate-to-the-nature-and-scale",
+    "question": 9,
+    "implementation_ease": 1,
+    "avg_fuel_saving": "*",
+    "avg_energy_saving": "* * *",
+    "profitability": 1,
+    "capital_cost": "$$$",
+    "ranking": null,
+    "business_value": 1,
+    "payback_period": "3-12",
+    "environmental_value": 1
+  },
+  "model": "envconnect.Consumption", "pk": 9
+},
+{
+  "fields": {
+    "orig_element": 66,
+    "dest_element": 68
+  },
+  "model": "pages.Relationship", "pk": 64
+},
+{
+  "fields": {
+    "slug": "0e4586c916eb494b90f9ff0a3698234f",
+    "created_at": "2016-07-15T00:35:26.565Z",
+    "survey": 1,
+    "account": 8,
+    "time_spent": "0:00:00",
+    "is_frozen": false
+  },
+  "model": "survey.response", "pk": 1
+},
+{
+  "fields": {
+    "slug": "0e4586c916eb494b90f9ff0a3698234f",
+    "created_at": "2016-07-15T00:35:26.565Z",
+    "survey": 1,
+    "account": 6,
+    "time_spent": "0:00:00",
+    "is_frozen": false
+  },
+  "model": "survey.response", "pk": 2
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:35:38.945Z",
+    "updated_at": "2016-07-15T00:35:38.945Z",
+    "question": 8,
+    "response": 1,
+    "rank": 8,
+    "text": "Yes"
+  },
+  "model": "survey.answer", "pk": 1
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:35:42.110Z",
+    "updated_at": "2016-07-15T00:35:42.110Z",
+    "question": 9,
+    "response": 1,
+    "rank": 9,
+    "text": "Optimizing"
+  },
+  "model": "survey.answer", "pk": 2
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:35:55.915Z",
+    "updated_at": "2016-07-15T00:35:55.915Z",
+    "question": 1,
+    "response": 1,
+    "rank": 1,
+    "text": "Yes"
+  },
+  "model": "survey.answer", "pk": 3
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:35:58.183Z",
+    "updated_at": "2016-07-15T00:35:58.183Z",
+    "question": 2,
+    "response": 1,
+    "rank": 2,
+    "text": "Yes"
+  },
+  "model": "survey.answer", "pk": 4
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:36:16.558Z",
+    "updated_at": "2016-07-15T00:36:16.558Z",
+    "question": 3,
+    "response": 1,
+    "rank": 3,
+    "text": "Yes"
+  },
+  "model": "survey.answer", "pk": 5
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:36:17.276Z",
+    "updated_at": "2016-07-15T00:36:17.276Z",
+    "question": 4,
+    "response": 1,
+    "rank": 4,
+    "text": "Yes"
+  },
+  "model": "survey.answer", "pk": 6
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:36:18.464Z",
+    "updated_at": "2016-07-15T00:36:18.464Z",
+    "question": 6,
+    "response": 1,
+    "rank": 6,
+    "text": "No/needs improvement"
+  },
+  "model": "survey.answer", "pk": 7
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:36:19.448Z",
+    "updated_at": "2016-07-15T00:36:19.448Z",
+    "question": 7,
+    "response": 1,
+    "rank": 7,
+    "text": "Yes"
+  },
+  "model": "survey.answer", "pk": 8
+},
+{
+  "fields": {
+    "created_at": "2016-05-01T00:36:19.448Z",
+    "updated_at": "2016-05-01T00:36:19.448Z",
+    "question": 7,
+    "response": 2,
+    "rank": 7,
+    "text": "Yes"
+  },
+  "model": "survey.answer", "pk": 9
+},
+{
+  "fields": {
+    "slug": "totals",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "Total score",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 1
+},
+{
+  "fields": {
+    "slug": "pge-suppliers",
+    "created_at": "2016-07-14T00:17:43.890Z",
+    "updated_at": "2016-07-14T00:17:43.890Z",
+    "title": "PG&E suppliers",
+    "tags": "cohort, aggregate"
+  },
+  "model": "survey.editablefilter", "pk": 2
+},
+{
+  "fields": {
+    "created_at": "2016-07-14T17:21:00.873Z",
+    "updated_at": "2016-07-14T17:21:00.873Z",
+    "rank": 0,
+    "editable_filter": 2,
+    "operator": "contains",
+    "operand": "PGE",
+    "field": "extra",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 2
+},
+{
+  "fields": {
+    "slug": "us-suppliers",
+    "created_at": "2016-07-14T00:17:43.890Z",
+    "updated_at": "2016-07-14T00:17:43.890Z",
+    "title": "US suppliers",
+    "tags": "cohort, aggregate"
+  },
+  "model": "survey.editablefilter", "pk": 3
+},
+{
+  "fields": {
+    "created_at": "2016-07-14T17:21:00.873Z",
+    "updated_at": "2016-07-14T17:21:00.873Z",
+    "rank": 0,
+    "editable_filter": 3,
+    "operator": "equals",
+    "operand": "US",
+    "field": "country",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 3
+},
+{
+  "fields": {
+    "slug": "management-basics",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "Management basics (Boxes and enclosures)",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 4
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:25:50.719Z",
+    "updated_at": "2016-07-15T00:25:50.719Z",
+    "rank": 0,
+    "editable_filter": 4,
+    "operator": "startsWith",
+    "operand": "/boxes-and-enclosures/management-basics/",
+    "field": "path",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 4
+},
+{
+  "fields": {
+    "slug": "design",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "Design (Boxes and enclosures)",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 5
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:25:50.719Z",
+    "updated_at": "2016-07-15T00:25:50.719Z",
+    "rank": 0,
+    "editable_filter": 5,
+    "operator": "startsWith",
+    "operand": "/boxes-and-enclosures/design/",
+    "field": "path",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 5
+},
+{
+  "fields": {
+    "slug": "energy-efficiency",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "Production / Energy efficiency (Boxes and enclosures)",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 6
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:25:50.719Z",
+    "updated_at": "2016-07-15T00:25:50.719Z",
+    "rank": 0,
+    "editable_filter": 6,
+    "operator": "startsWith",
+    "operand": "/boxes-and-enclosures/production/energy-efficiency/",
+    "field": "path",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 6
+},
+{
+  "fields": {
+    "slug": "waste-management",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "Production / Waste management (Boxes and enclosures)",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 7
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:25:50.719Z",
+    "updated_at": "2016-07-15T00:25:50.719Z",
+    "rank": 0,
+    "editable_filter": 7,
+    "operator": "startsWith",
+    "operand": "/boxes-and-enclosures/production/waste-management/",
+    "field": "path",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 7
+},
+{
+  "fields": {
+    "slug": "green-chemistry",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "Production / Green chemistry (Boxes and enclosures)",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 8
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:25:50.719Z",
+    "updated_at": "2016-07-15T00:25:50.719Z",
+    "rank": 0,
+    "editable_filter": 8,
+    "operator": "startsWith",
+    "operand": "/boxes-and-enclosures/production/green-chemistry/",
+    "field": "path",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 8
+},
+{
+  "fields": {
+    "slug": "packaging",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "Distribution / Packaging (Boxes and enclosures)",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 9
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:25:50.719Z",
+    "updated_at": "2016-07-15T00:25:50.719Z",
+    "rank": 0,
+    "editable_filter": 9,
+    "operator": "startsWith",
+    "operand": "/boxes-and-enclosures/boxes-distribution/packaging/",
+    "field": "path",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 9
+},
+{
+  "fields": {
+    "slug": "fleet",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "Distribution / Fleet (Boxes and enclosures)",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 10
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:25:50.719Z",
+    "updated_at": "2016-07-15T00:25:50.719Z",
+    "rank": 0,
+    "editable_filter": 10,
+    "operator": "startsWith",
+    "operand": "/boxes-and-enclosures/boxes-distribution/fleet/",
+    "field": "path",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 10
+},
+{
+  "fields": {
+    "slug": "take-back-program",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "End of life / Take back program (Boxes and enclosures)",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 11
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:25:50.719Z",
+    "updated_at": "2016-07-15T00:25:50.719Z",
+    "rank": 0,
+    "editable_filter": 11,
+    "operator": "startsWith",
+    "operand": "/boxes-and-enclosures/boxes-distribution/take-back-program/",
+    "field": "path",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 11
+},
+{
+  "fields": {
+    "slug": "recycling",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "End of life / Take back program (Boxes and enclosures)",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 12
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:25:50.719Z",
+    "updated_at": "2016-07-15T00:25:50.719Z",
+    "rank": 0,
+    "editable_filter": 12,
+    "operator": "startsWith",
+    "operand": "/boxes-and-enclosures/boxes-distribution/recycling/",
+    "field": "path",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 12
+},
+{
+  "fields": {
+    "slug": "boxes-and-enclosures-1",
+    "created_at": "2016-07-14T00:17:43.890Z",
+    "updated_at": "2016-07-14T00:17:43.890Z",
+    "title": "Boxes & enclosures",
+    "tags": "cohort"
+  },
+  "model": "survey.editablefilter", "pk": 13
+},
+{
+  "fields": {
+    "created_at": "2016-07-14T17:21:00.873Z",
+    "updated_at": "2016-07-14T17:21:00.873Z",
+    "rank": 0,
+    "editable_filter": 13,
+    "operator": "contains",
+    "operand": "boxes-and-enclosures",
+    "field": "extra",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 13
+},
+{
+  "fields": {
+    "slug": "construction",
+    "created_at": "2016-07-14T00:17:43.890Z",
+    "updated_at": "2016-07-14T00:17:43.890Z",
+    "title": "Construction",
+    "tags": "cohort"
+  },
+  "model": "survey.editablefilter", "pk": 14
+},
+{
+  "fields": {
+    "created_at": "2016-07-14T17:21:00.873Z",
+    "updated_at": "2016-07-14T17:21:00.873Z",
+    "rank": 0,
+    "editable_filter": 14,
+    "operator": "contains",
+    "operand": "construction",
+    "field": "extra",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 14
+},
+{
+  "fields": {
+    "slug": "totals",
+    "account": 6,
+    "created_at": "2016-07-14T00:17:17.096Z",
+    "title": "Total scores by supplier industry sub-sector",
+    "metric": 1,
+    "cohorts": [13, 14, 2, 3]
+  },
+  "model": "survey.matrix", "pk": 1
+},
+{
+  "fields": {
+    "slug": "supplier-totals",
+    "account": 6,
+    "created_at": "2016-07-14T00:17:17.096Z",
+    "title": "Total scores by suppliers",
+    "metric": 1,
+    "cohorts": [2, 3]
+  },
+  "model": "survey.matrix", "pk": 2
+},
+{
+  "fields": {
+    "slug": "construction-supplier-totals",
+    "account": 6,
+    "created_at": "2016-07-14T00:17:17.096Z",
+    "title": "Total scores by suppliers in construction",
+    "metric": 1,
+    "cut": 14,
+    "cohorts": [2, 3]
+  },
+  "model": "survey.matrix", "pk": 3
+},
+{
+   "fields": {
+    "slug": "boxes-and-enclosures",
+    "title": "Boxes and enclosures scores by suppliers",
+    "account": 6,
+    "created_at": "2016-07-14T00:17:17.096Z",
+    "metric": 15,
+    "cut": 13,
+    "cohorts": [2, 3]
+  },
+  "model": "survey.matrix", "pk": 5
+},
+{
+  "fields": {
+    "slug": "boxes-and-enclosures",
+    "created_at": "2016-07-15T00:16:39.487Z",
+    "updated_at": "2016-07-15T00:25:50.716Z",
+    "title": "Boxes and enclosures",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 15
+},
+{
+  "fields": {
+    "created_at": "2016-07-15T00:25:50.719Z",
+    "updated_at": "2016-07-15T00:25:50.719Z",
+    "rank": 0,
+    "editable_filter": 15,
+    "operator": "startsWith",
+    "operand": "/boxes-and-enclosures/",
+    "field": "path",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 15
+},
+{
+  "fields": {
+    "title": "Distribution",
+    "slug": "distribution",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 69
+},
+{
+  "fields": {
+    "title": "Diversified, corporate level",
+    "slug": "diversified-corporate-level",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 70
+},
+{
+  "fields": {
+    "title": "Fuel supply",
+    "slug": "fuel-supply",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 71
+},
+{
+  "fields": {
+    "title": "Shipping & logistics",
+    "slug": "shipping-and-logistics",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 72
+},
+{
+  "fields": {
+    "title": "Vehicle equipment & parts",
+    "slug": "vehicle-equipment-and-parts",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 73
+},
+{
+  "fields": {
+    "title": "Distribution transformers",
+    "slug": "distribution-transformers",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 74
+},
+{
+  "fields": {
+    "title": "Fabricated metals",
+    "slug": "fabricated-metals",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 75
+},
+{
+  "fields": {
+    "title": "Wire & cable",
+    "slug": "wire-and-cable",
+    "tag": "industry"
+  },
+  "model": "pages.PageElement", "pk": 76
+}]

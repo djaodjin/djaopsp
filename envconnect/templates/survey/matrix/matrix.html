@@ -1,0 +1,312 @@
+{% extends "envconnect/base.html" %}
+{% load static from staticfiles %}
+
+{% block supplier_menus %}{% endblock %}
+
+{% block consumption_content %}
+<div class="clearfix"></div>
+<section id="charts">
+  <div>
+    <h1 class="text-center">Performance graphs</h1>
+  </div>
+  <div class="row">
+    <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
+      <!-- WORKAROUND: we set data-width and data-height
+           otherwise bootstrap-toggle will crop the size
+           inside a class="tab-content collapse". -->
+      <input id="toggle-results"
+             type="checkbox" toggle-checkbox data-toggle="toggle"
+             data-on="Performance graphs"
+             data-off="Reporting entities" data-offstyle="green-level-2"
+             data-width="150px" data-height="34px"
+             ng-model="scoreToggle"
+             ng-change="toggleMyTSP($event, '{% url 'envconnect_share_requests' %}')">
+    </div>
+  </div>
+<div id="planel-icons" class="panel-icons{% block extra_panel_icons_classes %} panel-icons-no-benchmark{% endblock %}">
+  <div class="panel-body">
+  <!-- global metric -->
+  <div id="matrixChart" class="row">
+    <div class="text-center" style="margin-left:auto;margin-right:auto;">
+      <div class="col-md-8">
+        <h2>{{object.title}}</h2>
+        <div class="chart text-center" style="display: inline-block;">
+          <svg><text x="50" y="100" font-family="Verdana">Loading ...</text></svg>
+        </div>
+        <div id="edit-matrix" class="container text-left" style="display:none;">
+          <form id="chart-title">
+            <div id="axis" class="row">
+              <div class="col-sm-6">
+                <h3>Cohorts</h3>
+                {% for entry in cohorts %}
+                <div>
+                  <label for="{{forloop.counter}}">
+                    <input id="cohort-{{forloop.counter}}" type="checkbox" name="cohorts" value="{{entry.slug}}" {% if entry.is_selected %}checked{% endif %}>
+              {{entry.title}}
+                  </label>
+                  <a href="{% url 'accounts_list' account entry %}"><i class="fa fa-edit"></i></a>
+                </div>
+                {% endfor %}
+                <div>
+                <button id="new-cohort-start"
+                        class="btn btn-primary"
+                        data-toggle="modal"
+                        data-target="#new-cohort-modal">New portfolio ...</button>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <h3>Metrics</h3>
+                {% for entry in metrics %}
+                <div>
+                  <label for="{{forloop.counter}}">
+                    <input id="metric-{{forloop.counter}}" type="radio" name="metric" value="{{entry.slug}}" {% if entry.is_selected %}checked{% endif %}>
+                    {{ entry.title }}
+                  </label>
+                  <a href="{% url 'questions_list' account entry %}"><i class="fa fa-edit"></i></a>
+                </div>
+                {% endfor %}
+                <div>
+                  <button id="new-metric-start"
+                          class="btn btn-primary"
+                          data-toggle="modal"
+                          data-target="#new-metric-modal">New metric ...</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top: 25px;">
+              <label class="form-control-label">Title</label>
+              <input class="form-control" type="text" name="title" value="{{object.title}}">
+            </div>
+            <!--      <button class="btn btn-primary save">Update</button> -->
+          </form>
+        </div>
+      </div>
+      <div class="col-md-4 text-left">
+        <!-- dialog to create new portfolio analysis -->
+        <div id="new-portfolio-analysis" class="modal fade" tabindex="-1"
+             role="dialog" aria-labelledby="New portfolio analysis"
+             aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">New portfolio analysis ...</h4>
+              </div>
+              <form id="new-matrix" class="form-inline" style="width: 100%;">
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label>Title</label>
+                    <input class="form-control"
+                           type="text" max-length="150"
+                           name="title" placeholder="My portfolio analysis"
+                           autofocus />
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default"
+                          data-dismiss="modal">Cancel</button>
+                  <button id="new-portfolio-analysis-submit"
+                          type="submit" class="btn btn-primary">New</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- end of modal dialog -->
+      </div>
+    </div>
+  </div>
+  <!-- dialog to create new cohort -->
+  <div id="new-cohort-modal" class="modal fade" tabindex="-1"
+       role="dialog" aria-labelledby="New portfolio "
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close"
+                  data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">New portfolio ...</h4>
+        </div>
+        <form id="new-cohort" class="form-inline" style="width: 100%;">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Title</label>
+              <input class="form-control"
+                     type="text" max-length="150"
+                     name="cohort-title" placeholder="My portfolio"
+                     autofocus />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default"
+                    data-dismiss="modal">Cancel</button>
+            <button id="new-cohort-submit"
+                    type="submit" class="btn btn-primary">New</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- end of modal dialog -->
+  <!-- dialog to create new metric -->
+  <div id="new-metric-modal" class="modal fade" tabindex="-1"
+       role="dialog" aria-labelledby="New metric "
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close"
+                  data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">New metric ...</h4>
+        </div>
+        <form id="new-metric" class="form-inline" style="width: 100%;">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Title</label>
+              <input class="form-control"
+                     type="text" max-length="150"
+                     name="metric-title" placeholder="My metric"
+                     autofocus />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default"
+                    data-dismiss="modal">Cancel</button>
+            <button id="new-metric-submit"
+                    type="submit" class="btn btn-primary">New</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- end of modal dialog -->
+
+<!-- sub-metrics -->
+{% block submetrics %}
+{% if charts %}
+<div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
+  <h2 style="margin-left: 5px;">Portfolios: Topic drill-down</h2>
+  <div>
+    <div class="row row-flex">
+      {% for chart in charts %}
+      {% if forloop.counter0|divisibleby:3 %}
+      </div>
+      <div class="row row-flex">
+      {% endif %}
+      {% with practice=chart %}
+      <div class="col-md-4">
+          <div id="{{practice.slug}}" class="chart-container">
+              <div class="chart-title">
+                  <div class="icon-benchmark {% if practice.tag == 'management' %} grey{% else %} orange{% endif %}">
+                      {% if practice.text %}
+                      <img class="icon-equipment" src="{{practice.text}}">
+                      {% else %}
+                      <div id="{{practice.slug}}" class="icon-equipment">{{practice.title}}</div>
+                      {% endif %}
+                  </div>
+                  <div class="title">
+                      <h3>{{practice.title}}</h3>
+                      {% if practice.subtitle %}
+                      <h4>{{practice.subtitle}}</h4>
+                      {% endif %}
+                  </div>
+              </div>
+              <div>
+                  <div class="chart-content c3" id="chart_{{practice.slug}}" style="width:250px;height:120px;">
+                    <div id="chart-{{practice.slug}}" class="distribution-chart c3">
+                      <div class="chart text-center">
+                        <svg>
+                          <text x="50" y="100" font-family="Verdana">Loading ...</text>
+                        </svg>
+                      </div>
+                    </div>
+                    <script type="text/javascript">
+jQuery(document).ready(function($) {
+  $("#matrixChart").on("matrix.loaded", function () {
+      $("#chart-{{practice.slug}}").djmatrixChart({
+          selection_element: "#chart-title",
+          editable_filter_api: "{{editable_filter_api_base}}",
+          matrix_api: "{{practice.urls.matrix_api}}"
+       });
+  });
+});
+                    </script>
+                  </div>
+              </div>
+          </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
+      </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+  </div>
+</div>
+</section>
+{% endblock %}
+
+{% block bodyscripts %}
+{{block.super}}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+  $("#edit-matrix-btn").click(function(event) {
+      event.preventDefault();
+      $("#edit-matrix").show();
+  });
+
+  $("#new-matrix").submit(function() {
+      var self = $(this);
+      var title = self.find("[name=\"title\"]").val();
+      $.ajax({
+          method: "POST",
+          url: "{{matrix_api_base}}",
+          data: JSON.stringify({title: title, cohorts: []}),
+          datatype: "json",
+          contentType: "application/json; charset=utf-8",
+          success: function(data){
+              window.location = data.slug + "/";
+          }
+      });
+      return false;
+  });
+
+  $("#new-cohort").submit(function() {
+      var self = $(this);
+      var title = self.find("[name=\"cohort-title\"]").val();
+      $.ajax({
+          method: "POST",
+          url: "{{editable_filter_api_base}}",
+          data: JSON.stringify({title: title, tags: "cohort", predicates: []}),
+          datatype: "json",
+          contentType: "application/json; charset=utf-8",
+          success: function(data){
+              window.location = "{% url 'accounts_base' account %}" + data.slug;
+          }
+      });
+      return false;
+  });
+  $("#new-metric").submit(function() {
+      var self = $(this);
+      var title = self.find("[name=\"metric-title\"]").val();
+      $.ajax({
+          method: "POST",
+          url: "{{editable_filter_api_base}}",
+          data: JSON.stringify({title: title, tags: "metric", predicates: []}),
+          datatype: "json",
+          contentType: "application/json; charset=utf-8",
+          success: function(data){
+              window.location = "{% url 'questions_base' account %}" + data.slug;
+          }
+      });
+      return false;
+  });
+  $("#matrixChart").djmatrixChart({
+      editable_filter_api: "{{editable_filter_api_base}}",
+      matrix_api: "{{matrix_api}}",
+  });
+});
+</script>
+{% endblock %}

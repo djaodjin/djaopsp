@@ -1,0 +1,41 @@
+{% block detail_row %}
+<td id="[[practice[0].slug]]" colspan="4" ng-if="practice[0].consumption === null">
+{% if request|is_broker_manager and not organization %}
+    <div class="btn btn-primary btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;">
+        <i class="fa fa-bars"></i>
+    </div>
+{% endif %}
+<h4 ng-if="practice[0].tag !== 'system'" class="text-blue" style="display:inline-block;">
+[[practice[0].title]]
+{% if request|is_broker_manager and not organization %}
+<a class="edit"
+   href="" data-toggle="modal" data-target="#edit-element-modal"
+   ng-click="setBestPractice(getPath(practice, '{{prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>
+<a class="text-danger delete"
+   href="" data-toggle="modal" data-target="#confirm-delete"
+   ng-click="setBestPractice(getPath(practice, '{{prefix}}'))"><i class="fa fa-trash-o"></i></a>
+{% endif %}
+{% if request|is_broker_manager and not organization %}
+<button id="header-[[practice[0].slug]]" class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}/' + practice[0].slug, 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
+{% endif %}
+</h4>
+</td>
+<td ng-if="practice[0].consumption !== null" class="td-fix-width">
+{% if request|is_broker_manager and not organization %}
+    <div class="btn btn-primary btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;">
+        <i class="fa fa-bars"></i>
+    </div>
+{% endif %}
+    <a id="best-[[practice[0].slug]]"
+       class="text-muted" style="margin-left: 20px;"
+       href="{% if organization %}{% url 'best_practice_detail_organization' organization path %}{% else %}{% url 'best_practice_detail' path %}{% endif %}[[practice[0].slug]]/">
+       [[practice[0].title]]
+    </a>
+    {% if request|is_broker_manager and not organization %}
+    <a id="link_delete_best_practice_[[practice[0].slug]]"
+       class="text-danger" href=""
+       data-toggle="modal" data-target="#confirm-delete"
+       ng-click="setBestPractice(getPath(practice, '{{prefix}}'))"><i class="fa fa-trash-o"></i></a>
+    {% endif %}
+</td>
+{% endblock %}

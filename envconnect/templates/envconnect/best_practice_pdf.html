@@ -1,0 +1,40 @@
+{% load assets %}
+{% load navactive %}
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+
+<body>
+	<!-- XXX - HACK to customize PDF, add style into tags -->
+	<h1 style="font-size:30px;font-family:'Helvetica Neue';text-align:center;margin-bottom:0px">Report: {{industry.title}}</h1> 
+    <h3 style="font-size:30px;font-family:'Helvetica Neue';font-weight:200;margin-bottom:0px;margin-top:0px;text-align:center"> Best practices</h3>  
+    <hr>
+	{% for item in report_items %}
+
+
+	<h3 style="font-size:20px;font-family:'Helvetica Neue';margin-bottom:0px;margin-top:10px">{{item.consumption.best_practice.title}} </h3>
+    <h5 style="font-size:10px;font-family:'Helvetica Neue';margin-bottom:0px;font-style:italic;color:grey;">Implemented at you organization/facility? {{item.answer.text}}</small></h5>
+	<div>
+        {{item.consumption.best_practice.text|safe}}
+    </div>
+
+{% comment %}
+<form method="post" action=".">
+				<div>
+					<div>
+						<label>
+							<input type="radio" name="{{cartitem.consumption.best_practice.slug}}" id="id_{{cartitem.consumption.best_practice.slug}}_0" value="well">We do this well.
+						</label>
+						<label>
+							<input type="radio" name="{{cartitem.consumption.best_practice.slug}}" id="id_{{cartitem.consumption.best_practice.slug}}_0" value="improve">We can improve here.
+						</label>
+						<label>
+							<input type="radio" name="{{cartitem.consumption.best_practice.slug}}" id="id_{{cartitem.consumption.best_practice.slug}}_0" value="no">What is this?
+						</label>
+					</div>
+</form>
+{% endcomment %}
+{% endfor %}
+</body>
+</html>

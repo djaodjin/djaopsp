@@ -1,0 +1,63 @@
+{% extends "envconnect/base.html" %}
+{% load assets %}
+
+{% block bodyscripts %}
+{{block.super}}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('a[data-toggle="tab"]').click(function (e) {
+        e.preventDefault();
+        var self = $(this);
+        $("input[type=\"range\"]").trigger("mouseup");
+        if (!$(".tab-content").hasClass("in")){
+            $(".tab-content").addClass("in");
+        }
+        if ($(self.attr("href")).hasClass("active")){
+            $(self.attr("href")).removeClass("active");
+            $(".tab-content").removeClass("in");
+            self.parents("li").removeClass("active");
+            e.stopPropagation();
+            $($(this).data("parent-li")).removeClass("active");
+        } else {
+            $($(this).data("parent-li")).addClass("active");
+        }
+    });
+    if( window.location.hash !== "" ) {
+        $(window.location.hash).click();
+    }
+});
+</script>
+{% if request|is_broker_manager %}
+<script type="text/javascript">
+var pageElementUrl = "{% url 'page_elements' %}";
+
+$(document).ready(function() {
+    $(".icon-equipment").droppable({
+        drop: function( event, ui ) {
+            var $droppable = $(this);
+            var source = ui.draggable.attr("src").toLowerCase();
+            $droppable.attr("src", ui.draggable.attr("src"));
+            $(ui.helper).remove();
+            var idElement = $droppable.attr("id");
+            var data = {slug: idElement, text: $droppable.attr("src")};
+            $.ajax({
+                method: "PUT",
+                async: false,
+                url: "{% url 'page_elements' %}" + idElement + "/",
+                data: data,
+                success: function(response){
+                    // XXX console.log("saved")
+                }
+            });
+        }
+    });
+});
+</script>
+{% assets "css_editor" %}
+    <link rel="stylesheet" media="screen" href="{{ ASSET_URL }}" />
+{% endassets %}
+{% assets "js_editor" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endif %}
+{% endblock %}

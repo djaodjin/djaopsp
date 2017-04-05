@@ -1,0 +1,158 @@
+<?xml version="1.0" ?>
+<projects>
+  <project name="envconnect">
+    <title>envconnect webapp development</title>
+    <description>
+      Deploy envconnect prerequsites and clone the repository
+      for development on the envconnect webapp source code.
+    </description>
+    <maintainer>
+      <personname>Sebastien Mirolo</personname>
+      <email>smirolo@djaodjin.com</email>
+    </maintainer>
+    <repository>
+      <!-- XXX If srcTop is not *siteTop*/reps, this will not fetch
+           resources at the expected place. -->
+      <fetch>
+        <url>/var/www/envconnect/./reps/envconnect/htdocs</url>
+      </fetch>
+      <dep name="Django" target="python">
+        <lib>.*/(django)/__init__.py</lib>
+      </dep>
+      <dep name="gunicorn" target="python">
+        <lib>.*/(gunicorn)/__init__.py</lib>
+      </dep>
+      <dep name="django-crispy-forms" target="python">
+        <lib>.*/(crispy_forms)/__init__.py</lib>
+      </dep>
+      <dep name="django-assets" target="python">
+        <lib>.*/(django_assets)/__init__.py</lib>
+      </dep>
+      <dep name="django-urldecorators" target="python">
+        <lib>.*/(urldecorators)/__init__.py</lib>
+      </dep>
+      <dep name="django-analytical" target="python">
+        <lib>.*/(analytical)/__init__.py</lib>
+      </dep>
+      <dep name="Fabric" target="python">
+        <lib>.*/(fabric)/__init__.py</lib>
+      </dep>
+      <dep name="xhtml2pdf" target="python">
+        <lib>.*/(xhtml2pdf)/__init__.py</lib>
+      </dep>
+      <dep name="Markdown" target="python">
+        <lib>.*/(markdown)/__init__.py</lib>
+      </dep>
+      <dep name="django-requestlogging" target="python">
+        <lib>.*/(django_requestlogging)/__init__.py</lib>
+      </dep>
+      <!-- XXX weird semantics when we use target="python".
+           It will try to create a python/dws.mk, which is
+           correct behavior but unexpected and troublesome
+           in this case. -->
+      <dep name="djaodjin-deployutils" target="python">
+        <lib>.*/(deployutils)/__init__.py</lib>
+      </dep>
+      <dep name="djaodjin-pages" target="python">
+        <lib>.*/(pages)/__init__.py</lib>
+      </dep>
+      <dep name="djaodjin-answers" target="python">
+        <lib>.*/(answers)/__init__.py</lib>
+      </dep>
+      <dep name="djaodjin-survey" target="python">
+        <lib>.*/(survey)/__init__.py</lib>
+      </dep>
+      <dep name="djaodjin-saas" target="python">
+        <lib>.*/(saas)/__init__.py</lib>
+      </dep>
+      <dep name="djaodjin-extended-templates" target="python">
+        <lib>.*/(extended_templates)/__init__.py</lib>
+      </dep>
+      <!-- for development -->
+      <dep name="django-extensions" target="python">
+        <lib>.*/(django_extensions)/__init__.py</lib>
+      </dep>
+      <dep name="django-debug-panel" target="python">
+        <lib>.*/(debug_panel)/__init__.py</lib>
+      </dep>
+      <dep name="django-debug-toolbar" target="python" excludes="1.2.2">
+        <!-- XXX with 1.2.2 clicking makes the menu disappear instead
+             of showing information pane. -->
+        <lib>.*/(debug_toolbar)/__init__.py</lib>
+      </dep>
+      <dep name="sqlparse" target="python">
+        <!-- required by django-debug-toolbar without being a prerequisite -->
+        <lib>.*/(sqlparse)/__init__.py</lib>
+      </dep>
+      <!-- end of for development -->
+      <!-- XXX impossible to find setproctitle in MacPorts -->
+      <alternates>
+        <alternate name="Darwin">
+          <dep name="py27-coverage">
+            <bin>coverage</bin>
+          </dep>
+          <dep name="setproctitle" target="python">
+            <lib>.*/(setproctitle.so)</lib>
+          </dep>
+          <dep name="py27-psycopg2">
+            <!-- because we connect to postgresql and it is not automatically
+                 pulled from Django. Contains C code -->
+            <lib>.*/(psycopg2)/__init__.py</lib>
+          </dep>
+        </alternate>
+        <alternate name="Fedora">
+          <dep name="python-coverage">
+            <bin>coverage</bin>
+          </dep>
+          <dep name="python-setproctitle">
+            <lib>.*/(setproctitle.so)</lib>
+          </dep>
+          <dep name="python-psycopg2">
+            <!-- because we connect to postgresql and it is not automatically
+                 pulled from Django. Contains C code -->
+            <lib>.*/(psycopg2)/__init__.py</lib>
+          </dep>
+        </alternate>
+      </alternates>
+    </repository>
+  </project>
+  <project name="drop">
+    <title>inter-project dependencies tool</title>
+    <description>
+Drop is an inter-project dependencies tool that binds functionality of source
+control systems, autoconf scripts, make and package managers. Its efficiency
+is measured by the time it takes to setup a random machine for code development
+first and subsequently the time spent in rebuilding the source base after any
+change.
+    </description>
+    <maintainer>
+      <personname>Sebastien Mirolo</personname>
+      <email>smirolo@djaodjin.com</email>
+    </maintainer>
+    <repository>
+      <dep name="make">
+        <!-- For some reason the Python XML parser throws up a not well-formed
+             exception on "<3.81" -->
+        <bin excludes="[[0,3.81]]">make</bin>
+      </dep>
+      <dep name="git">
+        <bin>git</bin>
+        <share>(git-core)/templates</share>
+      </dep>
+    </repository>
+  </project>
+  <project name="contrib/django-voting">
+    <title>Patches to django-voting</title>
+    <description>
+These are the patches to django-voting used to support Django 1.6
+settings.AUTH_USER_MODEL.
+    </description>
+    <repository>
+      <sync>https://github.com/djaodjin/django-voting.git</sync>
+      <shell>
+cd $srcTop/contrib/django-voting
+python setup.py install --quiet
+      </shell>
+    </repository>
+  </project>
+</projects>

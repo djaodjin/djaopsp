@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <div class="col-lg-7 center">
+       <div class="panel panel-grey">
+           <div class="panel-body">
+               <div class="padding_20">
+                   <form method="post" class="">
+                       {% csrf_token %}
+                       {{form|crispy}}
+                       <div class="form-actions">
+                           <input type="submit" name="submit" value="Create" class="btn btn-warning" id="submit-id-submit">
+                       </div>
+                   </form>
+               </div>
+           </div>
+       </div>
+   </div>
+</div>
+{% endblock %}

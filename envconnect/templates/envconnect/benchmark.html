@@ -1,0 +1,121 @@
+{% extends "envconnect/base.html" %}
+{% load static from staticfiles %}
+
+{% block extra_panel_icons_classes %}{% endblock %}
+{% block extra_icon_classes %} active no-color-chage{% endblock %}
+{% block row_icons_classes %} benchmarks-box{% endblock %}
+
+{% block icon_row_title %}
+<h2 class="icon-row-title">Scorecard</h2>
+{% endblock %}
+
+{% block additional_icon %}
+<div class="score-card score-card-background" style="flex:auto;" data-toggle="tooltip" data-placement="top" title="The total score is the sum of all (icon score * icon weight).">
+  <h4>Total Score</h4>
+  <div id="total-score" style="width:300px;margin:auto;">
+  </div>
+  <p>
+Benchmarking is based on responses from <span id="nb-respondents"><i class="fa fa-spinner fa-spin"></i></span>
+companies in the &quot;{{breadcrumbs.0.0.title}}&quot; industry segment.
+Note: Your score will rise if the implementation rate for the best practices
+you have implemented rises, because implementation rate is used as value
+indicator for a best practice.
+  </p>
+  <div style="font-weight:900;margin-top:45px;">
+      <i class="fa fa-wrench"></i> Get this scorecard verified?<br />
+      <i class="fa fa-check-square-o fa-2x"></i>
+  </div>
+  <div{% if '/share/' in request.path %} class="active"{% endif %} style="margin-top:20px;">
+      <a id="submenu-share" href="{{''|site_prefixed}}/profile/{{organization}}/roles/contributors/"><i class="fa fa-wrench"></i> Share with client<br /></a>
+  </div>
+</div>
+{% endblock %}
+
+{% block score %}
+<div id="{{icon.slug}}-score" class="icon-score" data-toggle="tooltip" data-placement="top" title="An icon sore is the sum of all (opportunity scores where answered 'yes') * 100 / sum of all (opportunity column where answered 'yes' or 'no')">
+    <h3 class="rollup-score"><i class="fa fa-spinner fa-spin"></i></h3>
+    <div>
+        (<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{prefix}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)
+    </div>
+</div>
+{% endblock %}
+
+{% block systems_block %}
+<div class="system-menus">
+{% for system_tuple in icon_tuple.1|systems %}
+  {% with system_tuple.0 as system %}
+  <div id="{{system}}-score" class="system-menu {% if forloop.first %}system-menu-bordered{% endif %}">
+    {% if not forloop.first %}
+    <i class="fa fa-plus"></i>
+    {% endif %}
+    <p id="tab-{{system}}">{{system.title}}</p>
+    <div class="rollup-score">
+        <i class="fa fa-spinner fa-spin"></i>
+    </div>
+    <div>(<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{prefix|add:'/'|add:system.slug}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)</div>
+  </div>
+  {% endwith %}
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block app_content %}
+<div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
+  <h2 style="margin-left: 5px;">Benchmark graphs</h2>
+  <div>
+    <div class="row row-flex">
+      {% for chart in charts %}
+      {% if forloop.counter0|divisibleby:3 %}
+        </div>
+        <div class="row row-flex">
+      {% endif %}
+      {% with practice=chart %}
+      <div class="col-md-4">
+          <div id="{{practice.slug}}" class="chart-container">
+              <div class="chart-title">
+                  <div class="icon-benchmark {% if practice.tag == 'management' %} grey{% else %} orange{% endif %}">
+                      {% if practice.text %}
+                      <img class="icon-equipment" src="{{practice.text}}">
+                      {% else %}
+                      <div id="{{practice.slug}}" class="icon-equipment">{{practice.title}}</div>
+                      {% endif %}
+                  </div>
+                  <div class="title">
+                      <h3>{{practice.title}}</h3>
+                      {% if practice.subtitle %}
+                      <h4>{{practice.subtitle}}</h4>
+                      {% endif %}
+                  </div>
+              </div>
+              <div>
+                  <div class="chart-content c3" id="chart_{{practice.slug}}" style="width:250px;height:120px;">
+                  </div>
+              </div>
+          </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block bodyscripts %}
+{{block.super}}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $("#planel-icons").improvementDashboard({
+        api_account_benchmark: "{% url 'api_benchmark' organization path %}",
+        benchmark: "{{root.0.slug}}"
+    });
+});
+</script>
+{% if request|is_broker_manager %}
+{% assets "css_editor" %}
+    <link rel="stylesheet" media="screen" href="{{ ASSET_URL }}" />
+{% endassets %}
+{% assets "js_editor" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endif %}
+{% endblock %}

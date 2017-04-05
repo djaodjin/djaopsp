@@ -1,0 +1,44 @@
+# transitive dependencies from production and dev-
+acora==1.7
+astroid==1.3.6
+Beaker==1.6.4
+beautifulsoup4==4.3.2
+boto==2.38.0
+django-countries==3.3
+django-extra-views==0.6.5
+django-haystack==2.4.1
+django-localflavor==1.1
+django-mailchimp==0.1.30
+django-taggit==0.9.3
+ecdsa==0.13
+Fabric==1.10.1
+html5lib==0.999
+itty==0.8.1
+logilab-common==0.63.2
+# C/C++ module: lxml==3.5.0
+Mako==1.0.1
+Markdown==2.6.1
+MarkupSafe==0.23
+mimeparse==0.1.3
+nose==1.3.1
+numpy==1.9.2
+paramiko==1.15.2
+# C/C++ module: Pillow==3.1.1
+prettytable==0.6.1
+# C/C++ module: pycrypto==2.6.1
+# C/C++ module: psycopg2==2.6
+PyPDF2==1.24
+pyres==1.1
+pystache==0.3.1
+python-dateutil==2.4.2
+python-magic==0.4.2
+PyYAML==3.11
+reportlab==2.7
+requestbuilder==0.1.0
+requests==2.6.0
+six==1.9.0
+ssh==1.7.13
+stripe==1.22.2
+ujson==1.18
+webassets==0.11
+xhtml2pdf==0.0.6

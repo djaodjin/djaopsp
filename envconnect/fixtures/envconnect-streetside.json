@@ -1,0 +1,229 @@
+[
+{
+    "fields": {
+      "slug": "terms-of-use",
+      "title": "Terms Of Use",
+      "modified": "2012-08-14T00:00:00-09:00"
+    },
+    "model": "saas.agreement", "pk": 1
+},
+{
+    "fields": {
+      "created_at": "2012-09-14T14:16:55-09:00",
+      "slug": "manager",
+      "title": "Profile Manager"
+    },
+    "model": "saas.RoleDescription", "pk": 1
+},
+{
+    "fields": {
+      "created_at": "2012-09-14T14:16:55-09:00",
+      "slug": "contributor",
+      "title": "Contributor"
+    },
+    "model": "saas.RoleDescription", "pk": 2
+},
+{
+    "fields": {
+      "created_at": "2012-09-14T14:16:55-09:00",
+      "slug": "viewer",
+      "title": "Viewer"
+    },
+    "model": "saas.RoleDescription", "pk": 3
+},
+{ "fields": {
+    "slug": "envconnect",
+    "full_name": "The Sustainability Project",
+    "country": "US",
+    "created_at": "2014-01-01T00:00:00-09:00",
+    "email": "support@djaodjin.com",
+    "is_active": 1,
+    "is_provider": 1,
+    "locality": "San Francisco",
+    "phone": "+1 555 555 5555",
+    "postal_code": 94102,
+    "region": "CA",
+    "street_address": "588 Sutter St. #237A",
+    "processor": 1
+  },
+  "model": "saas.organization", "pk": 6
+},
+{
+    "fields": {
+      "last_signed": "2014-01-01T00:00:00-00:00",
+      "agreement": 1,
+      "user": 1
+    },
+    "model": "saas.signature", "pk": 1
+},
+{
+    "fields": {
+      "created_at": "2012-09-14T14:16:55-09:00",
+      "role_description": 1,
+      "organization": 6,
+      "user": 1
+    },
+    "model": "saas.Role", "pk": 1
+},
+{
+    "fields": {
+      "created_at": "2012-09-14T14:16:55-09:00",
+      "role_description": 3,
+      "organization": 8,
+      "user": 1
+    },
+    "model": "saas.Role", "pk": 2
+},
+{
+    "fields": {
+      "last_signed": "2014-01-01T00:00:00-00:00",
+      "agreement": 1,
+      "user": 7
+    },
+    "model": "saas.signature", "pk": 2
+},
+{
+    "fields": {
+      "created_at": "2012-09-14T14:16:55-09:00",
+      "role_description": 1,
+      "organization": 7,
+      "user": 7
+    },
+    "model": "saas.Role", "pk": 3
+},
+{
+    "fields": {
+      "last_signed": "2014-01-01T00:00:00-00:00",
+      "agreement": 1,
+      "user": 8
+    },
+    "model": "saas.signature", "pk": 3
+},
+{
+    "fields": {
+      "created_at": "2012-09-14T14:16:55-09:00",
+      "role_description": 1,
+      "organization": 8,
+      "user": 8
+    },
+    "model": "saas.Role", "pk": 4
+},
+{ "fields": {
+    "slug": "envconnect",
+    "account": 6,
+    "forward_session": 1,
+    "registration": 2,
+    "entry_point": "http://localhost:8040"
+  },
+  "model": "djagent.app", "pk": 6
+},
+{ "fields": {
+    "name": "envconnect",
+    "created_at": "2014-01-06T00:00:00-09:00",
+    "updated_at": "2014-01-06T00:00:00-09:00"
+  },
+  "model": "pages.ThemePackage", "pk": 6
+},
+{ "fields": {
+    "app": 6,
+    "rank": 1,
+    "path": "/api/content/",
+    "rule_op": 3
+  },
+  "model": "rules.Rule", "pk": 1
+},
+{ "fields": {
+    "app": 6,
+    "rank": 2,
+    "path": "/api/suppliers/",
+    "rule_op": 1
+  },
+  "model": "rules.Rule", "pk": 2
+},
+{ "fields": {
+    "app": 6,
+    "rank": 3,
+    "path": "/api/:organization/benchmark/",
+    "rule_op": 3,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"viewer\"}"
+  },
+  "model": "rules.Rule", "pk": 3
+},
+{ "fields": {
+    "app": 6,
+    "rank": 4,
+    "path": "/api/:organization/",
+    "rule_op": 3,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
+  },
+  "model": "rules.Rule", "pk": 4
+},
+{ "fields": {
+    "app": 6,
+    "rank": 5,
+    "path": "/api/",
+    "rule_op": 1
+  },
+  "model": "rules.Rule", "pk": 5
+},
+{ "fields": {
+    "app": 6,
+    "rank": 6,
+    "path": "/app/content/",
+    "rule_op": 3
+  },
+  "model": "rules.Rule", "pk": 6
+},
+{ "fields": {
+    "app": 6,
+    "rank": 7,
+    "path": "/app/info/",
+    "rule_op": 1
+  },
+  "model": "rules.Rule", "pk": 7
+},
+{ "fields": {
+    "app": 6,
+    "rank": 8,
+    "path": "/app/comments/",
+    "rule_op": 1
+  },
+  "model": "rules.Rule", "pk": 8
+},
+{ "fields": {
+    "app": 6,
+    "rank": 9,
+    "path": "/app/:organization/scorecard/",
+    "rule_op": 3,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"viewer\"}",
+    "engaged": "app"
+  },
+  "model": "rules.Rule", "pk": 9
+},
+{ "fields": {
+    "app": 6,
+    "rank": 10,
+    "path": "/app/:organization/",
+    "rule_op": 3,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
+    "engaged": "app"
+  },
+  "model": "rules.Rule", "pk": 10
+},
+{ "fields": {
+    "app": 6,
+    "rank": 11,
+    "path": "/app/",
+    "rule_op": 1
+  },
+  "model": "rules.Rule", "pk": 11
+},
+{ "fields": {
+    "app": 6,
+    "rank": 12,
+    "path": "/",
+    "rule_op": 0,
+    "engaged": "app"
+  },
+  "model": "rules.Rule", "pk": 12
+}]

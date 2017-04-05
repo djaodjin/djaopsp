@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block content %}
+<section id="best practices">
+    <div class="page-header">
+        <h1 class="text-green">Select the category</h1>
+    </div>
+	<legend class="text-grey"><span class="text-green">STEP 2: </span>Select what you want to replace, reduce, reuse or recycle</legend>
+    {% if category_list %}
+    <ul class="list-unstyled">
+    {% for key,value in category_list.items %}
+		{% if key = 1 %}
+        <li><a class="btn btn-link {% if not value %}disabled-link{% endif %}" href="{% url 'consumption_list' industry 'materials' %}" class="disabled">Materials</a></li>
+		{% elif key = 2 %}
+        <li><a class="btn btn-link {% if not value %}disabled-link{% endif %}" href="{% url 'consumption_list' industry 'energy' %}">Energy</a></li>
+		{% elif key = 3 %}
+        <li><a class="btn btn-link {% if not value %}disabled-link{% endif %}" href="{% url 'consumption_list' industry 'water' %}">Water</a></li>
+		{% elif key = 4 %}
+        <li><a class="btn btn-link {% if not value %}disabled-link{% endif %}" href="{% url 'consumption_list' industry 'scrap' %}">Scrap</a></li>
+		{% elif key = 5 %}
+        <li><a class="btn btn-link {% if not value %}disabled-link{% endif %}" href="{% url 'consumption_list' industry 'pollution' %}">Pollution</a></li>
+		{% elif key = 6 %}
+		<li><a class="btn btn-link {% if not value %}disabled-link{% endif %} " href="{% url 'consumption_list' industry 'product' %}">Product</a></li>
+		{% endif %}
+		{% endfor %}
+    </ul>
+    {% else %}
+    <em>No Cat</em>
+    {% endif %}
+</section>
+{% endblock %}

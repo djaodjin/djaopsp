@@ -1,0 +1,13 @@
+{% extends "envconnect/consumption_base.html" %}
+
+{% block consumption_content %}
+<section id="report" class="container">
+<div class="row">
+	<div class="col-md-12" style="text-align:right;">
+		<a id="download-report" class="btn btn-warning btn-sm" target="_blank" href="{% url 'envconnect_report_print' organization=survey.account industry=industry category=category %}">Export to PDF</a>
+	</div>
+</div>
+{% block response_content %}
+{% endblock %}
+</section>
+{% endblock %}

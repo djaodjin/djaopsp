@@ -1,0 +1,39 @@
+{% extends "accounts/base.html" %}
+
+{% block content %}
+<div class="backdrop">
+  <div class="container">
+    <div class="row auth-form">
+      <div class="col-md-6" >
+        <div class="panel panel-grey">
+          <div class="panel-body" style="padding: 0 15px;">
+            <h1><span class="fa fa-pencil"></span> Sign up</h1>
+            {% if form %}
+            {% include "_form.html" %}
+            {% endif %}
+            <hr />
+            <div class="row">
+              <div class="col-md-8">
+                You already have an account? <a id="login-instead" href="{{'login/'|site_prefixed}}{% if next %}?next={{next}}{% endif %}">Sign in</a>
+              </div>
+              <div class="col-md-4">
+                <span class="text-danger pull-right">* required fields</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h1>Why Register?</h1>
+        <p>
+In order to benchmark your company's performance against a selected comparison
+group, we need to create a profile of your organization. Unless you specify
+the release of data, all information you provide for benchmarking purposes
+is treated as <span style="text-decoration: underline;">confidential
+and anonymous</span> and displayed only in aggregated format.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

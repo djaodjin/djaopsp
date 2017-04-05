@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% load assets %}
+{% load static from staticfiles %}
+
+{% block content %}
+<div class="backdrop">
+    <div ng-app="envconnectApp">
+        <div ng-controller="EnvconnectCtrl">
+            <ol class="col-md-9 breadcrumb env-breadcrumb">
+                <li><a href="{% url 'homepage' %}">Home</a></li>
+                {% for breadcrumb_tuple in breadcrumbs %}
+                <li>
+                    <a id="bc-{{breadcrumb_tuple.0}}" href="{{breadcrumb_tuple.2}}">{{breadcrumb_tuple.0.title}}</a>
+                </li>
+                {% endfor %}
+            </ol>
+            <ol class="col-md-3 breadcrumb env-breadcrumb">
+                <li style="float:right;display:none;cursor:pointer;"><a id="help-request"><i class="fa fa-question-circle"></i> take a tour of the page &raquo;</a></li>
+            </ol>
+            <div class="container-fluid">
+                {% block supplier_menus %}
+                <div class="row">
+                    <div id="learn-action-header" data-trip data-trip-index="1" data-trip-content="Select a heading, then click on the icons below to browse content." data-trip-position="n">
+                        <div class="col-md-offset-2 col-md-3" data-trip data-trip-index="2" data-trip-content="<div style='text-align:left;'><strong>Basic practices</strong>: Basic compliance or risk –related management practices.<br /><strong>Sustainability practices</strong>: Practices beyond compliance and risk.</div>" data-trip-position="s">
+                            <h2>Learn <i class="fa fa-angle-right"></i></h2>
+                            <ul class="nav">
+                                <li{% if '/basic/' in request.path %} class="active"{% endif %}><a id="submenu-basic" href="{% url 'summary' breadcrumbs.0.1|no_anchor:'basic' %}"><i class="fa-li fa{% if '/basic/' in request.path %} fa-hand-o-right{% endif %}"></i> Basic practices</a></li>
+                                <li{% if '/sustainability/' in request.path %} class="active"{% endif %}><a id="submenu-sustainability" href="{% url 'summary' breadcrumbs.0.1|no_anchor:'sustainability' %}"><i class="fa-li fa{% if '/sustainability/' in request.path %} fa-hand-o-right{% endif %}"></i> Sustainability practices</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3" data-trip data-trip-index="3" data-trip-content="<div style='text-align:left;'><strong>Self-assessment</strong>: Assess performance against best practices, and identify opportunities<br />ranked by business value and peer implementation rate.<br /><strong>Score & Benchmark</strong>: Compare performance with peers through confidential,<br />anonymous, aggregated reports. THE SELF-ASSESSMENT MUST BE COMPLETED FIRST.</div>" data-trip-position="s">
+                            <h2>Measure <i class="fa fa-angle-right"></i></h2>
+                            <ul class="nav">
+                                <li{% if '/report/' in request.path %} class="active"{% endif %}><a id="submenu-self-assessment"{% if request|is_broker_manager %} class="disabled"{% else %} href="{% url 'report' breadcrumbs.0.1|no_anchor %}"{% endif %}><i class="fa-li fa{% if '/report/' in request.path %} fa-hand-o-right{% endif %}"></i> Self-assessment</a></li>
+                                <li{% if '/benchmark/' in request.path %} class="active"{% endif %}><a id="submenu-benchmark"{% if request|is_broker_manager %} disabled{% endif %} href="{% url 'benchmark' breadcrumbs.0.1|no_anchor %}"><i class="fa-li fa{% if '/benchmark/' in request.path %} fa-hand-o-right{% endif %}"></i> Score &amp; benchmark</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3" data-trip data-trip-index="4" data-trip-content="<div style='text-align:left;'><strong>Plan improvements</strong>: Select improvement actions on a value-prioritized basis<br />and see their impact on cost, savings and overall performance scores.<br /><strong>Find suppliers</strong>: Under construction - Ability to find best practice-linked<br />technologies, products and services.</div>" data-trip-position="s">
+                            <h2>Improve <i class="fa fa-angle-right"></i></h2>
+                            <ul class="nav">
+                                <li{% if '/improve/' in request.path %} class="active"{% endif %}><a id="submenu-improve"{% if request|is_broker_manager %} class="disabled"{% else %} href="{% url 'envconnect_improve' breadcrumbs.0.1|no_anchor %}"{% endif %}><i class="fa-li fa{% if '/improve/' in request.path %} fa-hand-o-right{% endif %}"></i> Plan improvements</a></li>
+                                <li{% if '/suppliers/' in request.path %} class="active"{% endif %}><button id="submenu-suppliers" disabled style="font-style:italic;">Find suppliers <i class="fa fa-wrench"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                {% endblock %}
+                {% block consumption_content %}
+                <div id="planel-icons" class="panel-icons{% block extra_panel_icons_classes %} panel-icons-no-benchmark{% endblock %}">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12 text-center" style="display:table-row;">
+                                <div class="row-icons{% block row_icons_classes %}{% endblock %}">
+                                    <div style="display:inline-block;float:left;flex:auto;">
+                                        {% block icon_row_title %}
+                                        {% endblock %}
+                                        <div class="header-tuple">
+                                            <ul class="nav nav-tabs squared-tabs">
+                                            {% for icon_tuple in root.1  %}
+                                            {% with icon_tuple.0 as icon %}
+                                                {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
+                                                <li class="squared-tabs-li{% ifchanged icon.tag %}{% if not forloop.first %} bordered-left{% endif %}{% endifchanged %}{% if root.0.tag == 'industry' and icon.tag != 'management' %} arrow-right{% endif %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
+                                                    <div class="icon-container">
+{% if request|is_broker_manager and not organization %}
+<div style="position:relative; vertical-align:top;">
+<a id="delete-{{icon.slug}}" href=""
+   class="text-danger" data-toggle="modal" data-target="#confirm-delete"
+   ng-click="setBestPractice('{{page_prefix|add:prefix}}', true)"
+   style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i></a>
+<a id="edit-{{icon.slug}}" href=""
+   data-toggle="modal" data-target="#edit-element-modal"
+   ng-click="setBestPractice('{{page_prefix|add:prefix}}', true, {title: '{{icon.title}}' })"
+   style="position:absolute;top:20px;left:0px;"><i class="fa fa-edit"></i></a>
+</div>
+{% endif %}
+{% include "envconnect/_icon.html" with icon=icon %}
+                                                        {% block score %}
+                                                        {% endblock %}
+                                                    </div>
+                                                    {% block systems_block %}
+                                                    <div class="system-menus" ng-if="getEntriesByTag('{{prefix}}', 'system').length > 0">
+                                                        <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{prefix}}', 'system')" ng-cloak>
+                                                            {% if '/report/' in request.path %}
+                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'report_organization' organization path %}{% else %}{% url 'report' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                            {% elif '/improve/' in request.path %}
+                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'improve_organization' organization path %}{% else %}{% url 'envconnect_improve' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                            {% elif '/info/' in request.path %}
+                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'summary_organization' organization path %}{% else %}{% url 'summary' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                            {% else %}
+                                                            <p id="[[practice[0].slug]]">[[practice[0].title]]</p>
+                                                            {% endif %}
+
+                                                            {% if request|is_broker_manager and not organization %}
+<a id="edit-[[practice[0].slug]]" href=""
+   data-toggle="modal" data-target="#edit-element-modal"
+   ng-click="setBestPractice(getPath(practice, '{{prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>
+<a id="delete-[[practice[0].slug]]" href=""
+   class="text-danger" data-toggle="modal" data-target="#confirm-delete"
+   ng-click="setBestPractice(getPath(practice, '{{prefix}}'))"><i class="fa fa-trash-o"></i></a>
+{% endif %}
+                                                        </div>
+                                                    </div>
+                                                    {% if request|is_broker_manager and not organization %}
+                                                    <div class="system-add">
+                                                        <button
+                                                            aria-controls="home"
+                                                            data-toggle="modal"
+                                                            data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}', 'system')">
+                                                            <i class="fa fa-plus"></i>
+                                                    </div>
+                                                    {% endif %}
+                                                    {% endblock %}
+                                                    {% endwith %}
+                                                </li>
+                                            {% endwith %}
+                                            {% endfor %}
+                                            {% if request|is_broker_manager %}
+                                                <li class="squared-tabs-li" style="min-width:150px;">
+                                                  <div class="icon-container">
+                                                    <button class="icon-inner fixed-width orange"
+                                                            aria-controls="home"
+                                                            data-toggle="modal"
+                                                            data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:"/"|add:root.0.slug}}')">
+                                                        <i class="fa fa-plus fa-5x" style="color:white;"></i>
+                                                    </button>
+                                                  </div>
+                                                </li>
+                                            {% endif %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    {% block additional_icon %}
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        </div>
+                        {% block app_content %}
+                        {% endblock app_content %}
+                    </div>
+                </div>
+                {% endblock %}
+                <div class="row">
+                    <div class="col-md-offset-3 col-md-6 content-sponsors">
+                        <h3>Content sponsors</h3>
+                        <p>
+Please <a href="{{'sponsors/'|site_prefixed}}">click here</a> to see a list of
+content sponsors responsible for funding the development of content for this
+section of the website, and for the subject matter experts responsible for
+content development.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- modals -->
+            <div id="add-pagelement-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addElement" style="color: #000;">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="addElement">Add...</h4>
+                        </div>
+                        <form class="form-inline" ng-submit="addElement($event)">
+                            <div class="modal-body">
+                                <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title">
+                                <div style="margin-top:5px;">
+                                    <div class="text-center">
+                                    <label>Optional tag</label>
+                                    <select class="form-control" name="tag">
+                                        <option value="">None</option>
+                                        <option value="management">Management</option>
+                                    </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-warning add-element" type="submit">Add</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div id="edit-element-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="edit element" style="color: #000;">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Edit ...</h4>
+                        </div>
+                        <form class="form-inline" ng-submit="editElement($event)">
+                            <div class="modal-body">
+                                <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title" ng-model="activeElement.title">
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-warning" type="submit">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- controller -->
+    </div>
+</div>
+{% endblock %}
+
+{% block bodyscripts %}
+{{block.super}}
+{% assets "js_angular" %}
+<script type="text/javascript" src="{{ASSET_URL}}"></script>
+{% endassets %}
+{% assets "js_envconnect" %}
+<script type="text/javascript" src="{{ASSET_URL}}"></script>
+{% endassets %}
+<script type="text/javascript">
+/* Implementation Note: Not including a list of dependent modules
+   (2nd parameter to `module`) "re-opens" the module for additional
+   configuration. */
+var app = angular.module('envconnectApp');
+/* Add the CSRF Token: */
+app.config(['$interpolateProvider', '$httpProvider',
+           function($interpolateProvider, $httpProvider) {
+    $httpProvider.defaults.headers.common['X-CSRFToken'] = '{{csrf_token|escapejs}}';
+    /* Makes it easier to separate between django and angularjs templates */
+    $interpolateProvider.startSymbol('[[');
+    $interpolateProvider.endSymbol(']]');
+}]);
+app.constant('settings', {
+{% if urls %}
+    urls: {{urls|to_json}},
+{% else %}
+    urls: {
+        api_best_practices: "{% url 'api_detail_base' %}",
+        api_columns: "{% url 'api_column_base' %}",
+        api_consumptions: "{% url 'api_consumption_base' %}",
+{% if organization %}
+        api_improvements: "{% url 'api_improvement_base' organization %}",
+{% endif %}
+        api_weights: "{% url 'api_score_base' %}",
+        api_page_elements: "{% url 'page_elements' %}",
+    },
+{% endif %}
+    root_prefix: "{{root.0.slug}}",
+    entries: {% if entries %}{{entries|safe}}{% else %}{}{% endif %},
+    hidden: {% if hidden %}{{hidden|safe}}{% else %}{}{% endif %},
+    valueSummaryToggle: {% if value_toggle %}true{% else %}false{% endif %},
+    scoreToggle: {% if score_toggle %}true{% else %}false{% endif %}
+});
+
+jQuery(document).ready(function($) {
+    if ($('[data-trip]').length > 0){
+        $("#help-request").parent().show();
+        $("#help-request").click(function(){
+            var trip = new Trip({
+                enableAnimation: false,
+                showCloseBox: true,
+                showNavigation: true,
+                delay:10000,
+                tripTheme:'black',
+            });
+            trip.start();
+        });
+    }
+});
+</script>
+{% endblock %}

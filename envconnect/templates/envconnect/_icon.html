@@ -1,0 +1,8 @@
+<a href="#tab-{{icon.slug}}"
+   class="icon-inner{% if icon.tag == 'management' %} grey{% else %} orange{% endif %}"
+   {% if role %}role="{{role}}" data-toggle="{{role}}"{% endif %}>
+    {% if icon.text %}
+    <img class="icon-equipment" src="{{icon.text}}">
+    {% endif %}
+    <div class="icon-caption">{{icon.title}}</div>
+</a>

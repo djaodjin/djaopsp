@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+	<div class="col-md-9 center">
+		<div class="panel panel-grey">
+			<div class="panel-body">
+				<div class="padding_20">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="padding_20">
+								<p><em>To add format, select text and click on icon below</em></p>
+								<div class="btn-group">
+									<button type="button" class="btn btn-warning btn-sm" id="title_h2">H2</button>
+									<button type="button" class="btn btn-warning btn-sm" id="title_h3">H3</button>
+									<button type="button" class="btn btn-warning btn-sm" id="title_h4">H4</button>
+									<button type="button" class="btn btn-warning btn-sm" id="italic"><i class="fa fa-italic"></i></button>
+									<button type="button" class="btn btn-warning btn-sm" id="bold"><i class="fa fa-bold"></i></button>
+									<button type="button" class="btn btn-warning btn-sm" id="list_ul"><i class="fa fa-list-ul"></i></button>
+									<button type="button" class="btn btn-warning btn-sm" id="list_ol"><i class="fa fa-list-ol"></i></button>
+									<button type="button" class="btn btn-warning btn-sm" id="link"><i class="fa fa-link"></i></button>
+									<button type="button" class="btn btn-warning btn-sm" id="img"><i class="fa fa-picture-o"></i></button>
+								</div>
+							</div>
+						</div>
+					</div>
+					{% crispy form %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block bodyscripts %}
+
+<script type="text/javascript">
+var line_number = null;
+$('#id_description').keyup(function() {
+    var pos = 0;
+    if (this.selectionStart) {
+        pos = this.selectionStart;
+    } else if (document.selection) {
+        this.focus();
+
+        var r = document.selection.createRange();
+        if (r == null) {
+            pos = 0;
+        } else {
+
+            var re = this.createTextRange(),
+            rc = re.duplicate();
+            re.moveToBookmark(r.getBookmark());
+            rc.setEndPoint('EndToStart', re);
+
+            pos = rc.text.length;
+        }
+    }
+    line_number = this.value.substr(0, pos).split("\n").length;
+});
+
+function checkNumberList(){
+	var lines = $('#id_description').val().split('\n');
+	if (lines[line_number-1-1].match("^[0-9]+. ")){
+		var index_dot = null;
+		$.each(lines[line_number-1-1].split(''), function(index, element){
+			if (element === '.'){
+				index_dot = index;
+			}
+		});
+		if (lines[line_number-1-1].substr(index_dot+2) !== ""){
+			new_number = parseInt(lines[line_number-1-1].substr(0, index_dot)) + 1
+			$('#id_description').selection('insert',{text: String(new_number) + '. ' ,mode:'before'});
+		}
+	}
+}
+
+$('#title_h2').click(function(){
+	$('#id_description').selection('insert',{text:'##' ,mode:'before'});
+});
+
+$('#title_h3').click(function(){
+	$('#id_description').selection('insert',{text:'###' ,mode:'before'});
+});
+
+$('#title_h4').click(function(){
+	$('#id_description').selection('insert',{text:'####' ,mode:'before'});
+});
+
+$('#list_ul').click(function(){
+	var text = "";
+	var selected_lines = $('#id_description').selection().split(/\r?\n/);
+	for( var i = 0; i < selected_lines.length; ++i ) {
+		if( selected_lines[i].length > 0 ) {
+			text += "- " + selected_lines[i] + "\n";
+		}
+	}
+	$('#id_description').selection('replace', {text: text});
+});
+
+$('#list_ol').click(function(){
+	var text = "";
+	var selected_lines = $('#id_description').selection().split(/\r?\n/);
+	for( var i = 0; i < selected_lines.length; ++i ) {
+		if( selected_lines[i].length > 0 ) {
+			text += (i+1).toString() + ". " + selected_lines[i] + "\n";
+		}
+	}
+	$('#id_description').selection('replace', {text: text});
+});
+
+$('#id_description').keyup(function(event) {
+	if (event.which == 13){
+		checkNumberList()
+	}
+});
+
+$('#link').click(function(){
+	var text = $('#id_description').selection();
+	if (text.indexOf("http://") >= 0){
+		$('#id_description').selection('insert',{text:'['+text+'](' ,mode:'before'}).selection('insert', {text: ')', mode: 'after'});
+	}else{
+		$('#id_description').selection('insert',{text:'[http://'+text+'](http://' ,mode:'before'}).selection('insert', {text: ')', mode: 'after'});
+	}
+	
+})
+
+$('#italic').click(function(){
+	$('#id_description').selection('insert',{text:'*' ,mode:'before'}).selection('insert', {text: '*', mode: 'after'});
+});
+
+$('#bold').click(function(){
+	$('#id_description').selection('insert',{text:'**' ,mode:'before'}).selection('insert', {text: '**', mode: 'after'});
+})
+
+$('#img').click(function(){
+	$('#id_description').selection('insert',{text:'![](' ,mode:'before'}).selection('insert', {text: ')', mode: 'after'});
+})
+
+</script>
+{% endblock %}

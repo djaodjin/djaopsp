@@ -1,0 +1,120 @@
+[
+{ "fields": {
+    "slug": "stripe",
+    "full_name": "Stripe",
+    "country": "US",
+    "created_at": "2014-01-01T00:00:00-09:00",
+    "email": "support@djaodjin.com",
+    "is_active": 1,
+    "locality": "San Francisco",
+    "phone": "+1 555 555 5555",
+    "postal_code": 94102,
+    "region": "CA",
+    "street_address": "588 Sutter St. #237A",
+    "processor": 1
+  },
+  "model": "saas.organization", "pk": 1
+},
+{ "fields": {
+    "slug": "envconnect",
+    "full_name": "The Sustainability Project",
+    "country": "US",
+    "created_at": "2014-01-01T00:00:00-09:00",
+    "email": "support@djaodjin.com",
+    "is_active": 1,
+    "locality": "San Francisco",
+    "phone": "+1 555 555 5555",
+    "postal_code": 94102,
+    "region": "CA",
+    "street_address": "588 Sutter St. #237A",
+    "processor": 1
+  },
+  "model": "saas.organization", "pk": 6
+},
+{
+  "fields": {
+    "date_joined": "2014-01-01T00:00:00-00:00",
+    "email": "donny@djaodjin.com",
+    "first_name": "Donny",
+    "is_active": true,
+    "is_staff": false,
+    "is_superuser": false,
+    "last_login": "2014-01-01T00:00:00-00:00",
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=", 
+    "username": "donny"
+  },
+  "model": "auth.User", "pk": 1
+},
+{ "fields": {
+    "date_joined": "2014-01-01T00:00:00-09:00",
+    "email": "steve@djaodjin.com",
+    "first_name": "Steve",
+    "is_active": true,
+    "last_login": "2014-01-01T00:00:00-09:00",
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "steve"
+  },
+  "model": "auth.User",
+  "pk": 7
+},
+{ "fields": {
+    "slug": "steve-shop",
+    "full_name": "Steve's Shop",
+    "country": "US",
+    "created_at": "2014-01-01T00:00:00-09:00",
+    "email": "support@djaodjin.com",
+    "is_active": 1,
+    "locality": "San Francisco",
+    "phone": "+1 555 555 5555",
+    "postal_code": 94102,
+    "region": "CA",
+    "street_address": "588 Sutter St. #237A",
+    "processor": 1,
+    "extra": "{\"industry\":\"construction\",\"supplies\":\"PGE\"}"
+  },
+  "model": "saas.organization", "pk": 7
+},
+{ "fields": {
+    "date_joined": "2014-01-01T00:00:00-09:00",
+    "email": "steve+andy@djaodjin.com",
+    "first_name": "Andy",
+    "is_active": true,
+    "last_login": "2014-01-01T00:00:00-09:00",
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "andy"
+  },
+  "model": "auth.User", "pk": 8
+},
+{ "fields": {
+    "slug": "andy-shop",
+    "full_name": "Andy's Shop",
+    "country": "US",
+    "created_at": "2014-01-01T00:00:00-09:00",
+    "email": "support@djaodjin.com",
+    "is_active": 1,
+    "locality": "San Francisco",
+    "phone": "+1 555 555 5555",
+    "postal_code": 94102,
+    "region": "CA",
+    "street_address": "588 Sutter St. #237A",
+    "processor": 1,
+    "extra": "{\"industry\":\"boxes-and-enclosures\"}"
+  },
+  "model": "saas.organization", "pk": 8
+},
+{ "fields": {
+    "slug": "janice-shop",
+    "full_name": "Janice's Shop",
+    "country": "US",
+    "created_at": "2014-01-01T00:00:00-09:00",
+    "email": "support@djaodjin.com",
+    "is_active": 1,
+    "locality": "San Francisco",
+    "phone": "+1 555 555 5555",
+    "postal_code": 94102,
+    "region": "CA",
+    "street_address": "588 Sutter St. #237A",
+    "processor": 1
+  },
+  "model": "saas.organization", "pk": 9
+}]

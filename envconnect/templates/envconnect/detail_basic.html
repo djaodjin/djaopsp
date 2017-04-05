@@ -1,0 +1,65 @@
+{% extends "envconnect/base_folding_icons.html" %}
+{% load pages_tags %}
+
+{% block app_content %}
+<div class="tab-content collapse{% if active %} in{% endif %}">
+    {% for icon_tuple in root.1 %}
+        {% with icon_tuple.0 as icon %}
+        {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
+        <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
+            <div ng-if="getEntriesByTag('{{prefix}}', 'system').length === 0">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <th style="vertical-align: middle;">Practices</th>
+                </thead>
+                <tbody>
+                    {% if request|is_broker_manager %}
+                    <tr>
+                        <td colspan="4">
+                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}', 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    <tr data-id="[[getPath(practice, '{{prefix}}')]]" ng-repeat="practice in getEntries('{{prefix}}')">
+                        {% include "envconnect/_detail_row_basic.html" %}
+                    </tr>
+                    <tr ng-show="getEntries('{{prefix}}').length === 0">
+                        <td colspan="4"><em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em></td>
+                    </tr>
+                    {% if request|is_broker_manager %}
+                    <tr>
+                        <td colspan="4">
+                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}', 'heading')"><i class="fa fa-plus"></i> Add practices header ...</button>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+        {% endwith %}
+        {% endwith %}
+    {% endfor %}
+</div>
+<!-- modal dialogs -->
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog"
+     aria-labelledby="ConfirmDelete" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                Delete best practice ...
+            </div>
+            <div class="modal-body">
+                Please confirm you want to delete <strong>[[tag]]</strong>.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary"
+                        data-dismiss="modal">Cancel</button>
+                <a id="delete-action-btn"
+                   class="btn btn-danger btn-ok delete" data-dismiss="modal"
+                   ng-click="deleteBestPractice()">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
