@@ -68,7 +68,8 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "tag": "industry,enabled"
+    "tag": "industry,enabled",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 1
 },
@@ -77,7 +78,8 @@
     "title": "Management",
     "slug": "management-basics",
     "text": "/media/envconnect/management-basics.png",
-    "tag": "management"
+    "tag": "management",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 4
 },
@@ -93,7 +95,8 @@
     "title": "Design",
     "slug": "design",
     "text": "/media/envconnect/design.png",
-    "tag": "life-cycle"
+    "tag": "life-cycle",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 5
 },
@@ -109,7 +112,8 @@
     "title": "Sourcing",
     "slug": "sourcing",
     "text": "/media/envconnect/sourcing.png",
-    "tag": "life-cycle"
+    "tag": "life-cycle",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 6
 },
@@ -125,7 +129,8 @@
     "title": "Production",
     "slug": "production",
     "text": "/media/envconnect/production.png",
-    "tag": "life-cycle"
+    "tag": "life-cycle",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 7
 },
@@ -141,7 +146,8 @@
     "title": "Distribution",
     "slug": "boxes-distribution",
     "text": "/media/envconnect/distribution.png",
-    "tag": "life-cycle"
+    "tag": "life-cycle",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 8
 },
@@ -157,7 +163,8 @@
     "title": "End of Life",
     "slug": "end-of-life",
     "text": "/media/envconnect/end-of-life.png",
-    "tag": "life-cycle"
+    "tag": "life-cycle",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 9
 },
@@ -171,7 +178,8 @@
 {
   "fields": {
     "title": "Product Design",
-    "slug": "product-design"
+    "slug": "product-design",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 10
 },
@@ -218,7 +226,8 @@
 {
   "fields": {
     "title": "Packaging Design",
-    "slug": "packaging-design"
+    "slug": "packaging-design",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 11
 },
@@ -266,7 +275,8 @@
   "fields": {
     "title": "Energy Efficiency",
     "slug": "energy-efficiency",
-    "tag": "system"
+    "tag": "system",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 12
 },
@@ -282,7 +292,8 @@
     "title": "Management",
     "slug": "energy-efficiency-management-basics",
     "text": "/media/envconnect/management-basics.png",
-    "tag": "management"
+    "tag": "management",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 16
 },
@@ -298,7 +309,8 @@
     "title": "Lighting",
     "slug": "energy-efficiency-lighting",
     "text": "/media/envconnect/lighting.png",
-    "tag": "load"
+    "tag": "load",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 17
 },
@@ -314,7 +326,8 @@
     "title": "HVAC",
     "slug": "hvac",
     "text": "/media/envconnect/hvac.png",
-    "tag": "load"
+    "tag": "load",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 18
 },
@@ -330,7 +343,8 @@
     "title": "Compressed air",
     "slug": "energy-efficiency-compressed-air",
     "text": "/media/envconnect/compressed-air.png",
-    "tag": "load"
+    "tag": "load",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 19
 },
@@ -346,7 +360,8 @@
     "title": "Process equipment",
     "slug": "energy-efficiency-process-equipment",
     "text": "/media/envconnect/process-equipment.png",
-    "tag": "load"
+    "tag": "load",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 20
 },
@@ -362,7 +377,8 @@
     "title": "Mechanical drives",
     "slug": "energy-efficiency-mechanical-drives",
     "text": "/media/envconnect/mechanical-drives.png",
-    "tag": "load"
+    "tag": "load",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 21
 },
@@ -378,7 +394,8 @@
     "title": "Process heating",
     "slug": "process-heating",
     "text": "/media/envconnect/process-heating.png",
-    "tag": "load"
+    "tag": "load",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 22
 },
@@ -394,7 +411,8 @@
     "title": "Process cooling",
     "slug": "energy-efficiency-process-cooling",
     "text": "/media/envconnect/process-cooling.png",
-    "tag": "load"
+    "tag": "load",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 23
 },
@@ -410,7 +428,8 @@
     "title": "Other",
     "slug": "energy-efficiency-other",
     "text": "/media/envconnect/other.png",
-    "tag": "load"
+    "tag": "load",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 24
 },
@@ -424,7 +443,8 @@
 {
   "fields": {
     "title": "Combustion",
-    "slug": "combustion"
+    "slug": "combustion",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 25
 },
@@ -439,7 +459,7 @@
   "fields": {
     "title": "Adjust air/fuel ratio",
     "slug": "adjust-air-fuel-ratio",
-    "text": "<h2>Mandatory</h2><h3>First Step</h3><p>blablabla...</p>",
+    "text": "<h2>Background</h2><p>Some manufacturing processes may involve heating operations. The basic process heating operations for metal fabrications are summarized in Table 1 below, extracted from process heating system sourcebook of Reference [2].</p><img src=\"/media/envconnect/bf8ee0d402f4e6861171957410b0a016c739f7ba.png\"><p>In addition to the process heating equipment summarized in Table 1, steam and hot water boilers are also used to generate heating for process requirements. Heat generation from the process heating equipment and boilers is achieved by fuel combustion for fuel-based equipment. Figure 1 shows a typical fuel-based process heating system.</p><img src=\"/media/envconnect/40a273422cf7319f205219c98be277ac9a23ad4f.png\"><p>During the combustion process, it is important to maintain a certain amount of excess air in order to maintain safe combustion (prevent the formation of dangerous carbon monoxide). On the other hand, if there is too much excess air (if the air-to-fuel ratio is too high), it can carry away large amounts of heat from the equipment, resulting in reduced heating equipment efficiency.</p><h2>Improvement opportunity</h2><p>Perform air-and-fuel or flue gas analysis and tune the combustion equipment on a regular basis (semi-annually or annually) to ensure that a proper air-to-fuel ratio is maintained. This will reduce the amount of waste heat and increase the heating equipment efficiency, resulting in fuel energy savings. According to the process heating sourcebook of Reference [2], controlling air-to-fuel ratio can result in fuel savings of 5% to 25%.</p><p>According to a Process Heating Tip Sheet (Reference [1]), most high temperature direct-fired furnaces and boilers operate with about 10% to 20% excess combustion air at high fire to prevent the formation of carbon monoxide and soot deposits on heat transfer surfaces. Hence, if the excess combustion air is over 20%, tune the furnaces and boilers need to be tuned. See Table 2 by way of further illustration, which shows the boiler combustion efficiency of natural gas. As an example, adjusting the air-to-fuel ratio of the steam boiler to 4% O2 (about 21% excess air) from 7% O2 (about 50% excess air) will increase combustion efficiency by 1.6% at the 360 oF combustion temperature.</p><p>Other factors that need to be carefully considered when setting the amount of excess air:<ul><li>Type of fuel</li><li>Type of burner</li><li>Process conditions</li><li>Process temperature</li></ul></p><img src=\"/media/envconnect/71d44d2e6f5d7491d4599bc1fa2e6a09d3755110.png\"><p>For information about checking burner air to fuel ratios, refer to Reference [1]. To learn the fundamentals of process heating systems, refer to Reference [2]. Additional information for process heating systems is included in References [3], [4] and [5].</p><h2>References</h2><ol><li><a href=\"http://www.energy.gov/eere/amo/downloads/check-burner-air-fuel-ratios\" target=\"_blank\">Process Heating Tip Sheet #2: Check Burner Air to Fuel Ratios, by Industrial Technologies Program of U.S. Department of Energy (DOE).</a> (accessed on 6/1/2015)</li><li><a href=\"http://www.energy.gov/eere/amo/downloads/improving-process-heating-system-performance-sourcebook-industry-second-edition\" target=\"_blank\">Improving Process Heating System Performance: A Sourcebook for Industry, Second Edition (February 2008), by U.S. Department of Energy’s Office of Energy Efficiency and the Industrial Heating Equipment Association (IHEA).</a> (accessed on 6/1/2015)</li><li>The Process Heating Assessment and Survey Tool (PHAST) is a free software tool developed by U.S. Department of Energy (DOE). PHAST helps industrial users survey process heating equipment that consumes fuel, steam, or electricity, and identifies the most energy-intensive equipment. The tool can be downloaded at:<a href=\"http://www.energy.gov/eere/amo/articles/process-heating-assessment-and-survey-tool\" target=\"_blank\">http://www.energy.gov/eere/amo/articles/process-heating-assessment-and-survey-tool</a> (accessed on 6/1/2015)</li><li>The Industrial Heating Equipment Association (IHEA):<a href=\"http://www.ihea.org\" target=\"_blank\">http://www.ihea.org</a> (accessed on 6/1/2015)</li><li>Industrial Technologies Program – Process Heating Systems:<a href=\"http://www.energy.gov/eere/amo/process-heating-systems\" target=\"_blank\">http://www.energy.gov/eere/amo/process-heating-systems</a> (accessed on 6/1/2015)</li></ol><h2>Financial incentives</h2><p><ul><li>PG&amp;E offers incentive for qualified customized energy efficiency projects. The incentive amounts are based on actual reductions in energy usage. The 2015 incentives rates are $1.00/therm for natural gas savings. Be sure to contact PG&amp;E early in the design process. For more information, please go to:<a href=\"http://www.pge.com/en/mybusiness/save/rebates/ief/index.page\" target=\"_blank\">http://www.pge.com/en/mybusiness/save/rebates/ief/index.page?</a> (accessed on 5/1/2015)</li></ul></p><p><em>[This section will be expanded in future phases for facilities located outside of PG&E territory.]</em></p><h2>Training</h2><p><ul><li>Process Heating Assessment and Survey Tool Trainings are available at:<a href=\"http://www.energy.gov/eere/amo/articles/training-process-heating-systems\" target=\"_blank\">http://www.energy.gov/eere/amo/articles/training-process-heating-systems</a> (accessed on 6/1/2015)</li></ul></p>",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 26
@@ -487,7 +507,8 @@
 {
   "fields": {
     "title": "Reduce combustion air flow to optimum",
-    "slug": "reduce-combustion-air-flow-to-optimum"
+    "slug": "reduce-combustion-air-flow-to-optimum",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 27
 },
@@ -535,7 +556,8 @@
   "fields": {
     "title": "Construction",
     "slug": "construction",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 28
 },
@@ -543,7 +565,8 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "basic-boxes-and-enclosures",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 31
 },
@@ -551,7 +574,8 @@
   "fields": {
     "title": "Management basics",
     "slug": "boxes-and-enclosures-basic-manage",
-    "tag": "management"
+    "tag": "management",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 34
 },
@@ -565,7 +589,8 @@
 {
   "fields": {
     "title": "Production",
-    "slug": "basic-production"
+    "slug": "basic-production",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 35
 },
@@ -579,7 +604,8 @@
 {
   "fields": {
     "title": "Distribution",
-    "slug": "boxes-and-enclosures-basic-distribution"
+    "slug": "boxes-and-enclosures-basic-distribution",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 36
 },
@@ -593,7 +619,8 @@
 {
   "fields": {
     "title": "End of life",
-    "slug": "boxes-and-enclosures-basic-end-of-life"
+    "slug": "boxes-and-enclosures-basic-end-of-life",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 37
 },
@@ -608,7 +635,8 @@
   "fields": {
     "title": "Waste Management",
     "slug": "waste-management",
-    "tag": "system"
+    "tag": "system",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 38
 },
@@ -623,7 +651,8 @@
   "fields": {
     "title": "Green Chemistry",
     "slug": "green-chemistry",
-    "tag": "system"
+    "tag": "system",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 39
 },
@@ -637,7 +666,8 @@
 {
   "fields": {
     "title": "Production BP",
-    "slug": "basic-production-bp"
+    "slug": "basic-production-bp",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 40
 },
@@ -685,7 +715,8 @@
 {
   "fields": {
     "title": "Hot Water System",
-    "slug": "hot-water-system"
+    "slug": "hot-water-system",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 41
 },
@@ -699,7 +730,8 @@
 {
   "fields": {
     "title": "Recover heat from hot waste water",
-    "slug": "recover-heat-from-hot-waste-water"
+    "slug": "recover-heat-from-hot-waste-water",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 42
 },
@@ -747,7 +779,8 @@
 {
   "fields": {
     "title": "Reduce hot water temperature to minimum required",
-    "slug": "reduce-hot-water-temperature-to-minimum-required"
+    "slug": "reduce-hot-water-temperature-to-minimum-required",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 43
 },
@@ -796,7 +829,8 @@
   "fields": {
     "title": "Energy",
     "slug": "construction-energy",
-    "text": "/media/envconnect/lightning.png"
+    "text": "/media/envconnect/lightning.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 44
 },
@@ -811,7 +845,8 @@
   "fields": {
     "title": "Transport",
     "slug": "construction-transport",
-    "text": "/media/envconnect/distribution.png"
+    "text": "/media/envconnect/distribution.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 45
 },
@@ -826,7 +861,8 @@
   "fields": {
     "title": "Purchasing",
     "slug": "construction-purchasing",
-    "text": "/media/envconnect/purchasing.png"
+    "text": "/media/envconnect/purchasing.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 46
 },
@@ -841,7 +877,8 @@
   "fields": {
     "title": "Other",
     "slug": "construction-other",
-    "text": "/media/envconnect/etc.png"
+    "text": "/media/envconnect/etc.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 47
 },
@@ -856,7 +893,8 @@
   "fields": {
     "title": "Waste",
     "slug": "construction-waste",
-    "text": "/media/envconnect/waste.png"
+    "text": "/media/envconnect/waste.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 48
 },
@@ -871,7 +909,8 @@
   "fields": {
     "title": "Water",
     "slug": "construction-water",
-    "text": "/media/envconnect/water.png"
+    "text": "/media/envconnect/water.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 49
 },
@@ -886,7 +925,8 @@
   "fields": {
     "title": "Chemicals",
     "slug": "construction-chemicals",
-    "text": "/media/envconnect/chemicals.png"
+    "text": "/media/envconnect/chemicals.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 50
 },
@@ -901,7 +941,8 @@
   "fields": {
     "title": "Air Emissions",
     "slug": "construction-air-emissions",
-    "text": "/media/envconnect/air-emissions.png"
+    "text": "/media/envconnect/air-emissions.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 51
 },
@@ -916,7 +957,8 @@
   "fields": {
     "title": "Professional services",
     "slug": "office-space-only",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 52
 },
@@ -924,7 +966,8 @@
   "fields": {
     "title": "Waste",
     "slug": "office-waste",
-    "text": "/media/envconnect/waste.png"
+    "text": "/media/envconnect/waste.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 55
 },
@@ -939,7 +982,8 @@
   "fields": {
     "title": "Water",
     "slug": "office-water",
-    "text": "/media/envconnect/water.png"
+    "text": "/media/envconnect/water.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 56
 },
@@ -954,7 +998,8 @@
   "fields": {
     "title": "Electricity",
     "slug": "office-electricity",
-    "text": "/media/envconnect/energy.png"
+    "text": "/media/envconnect/energy.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 57
 },
@@ -969,7 +1014,8 @@
   "fields": {
     "title": "Purchasing",
     "slug": "office-purchasing",
-    "text": "/media/envconnect/purchasing.png"
+    "text": "/media/envconnect/purchasing.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 58
 },
@@ -984,7 +1030,8 @@
   "fields": {
     "title": "Transport",
     "slug": "office-transport",
-    "text": "/media/envconnect/personal-car.png"
+    "text": "/media/envconnect/personal-car.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 59
 },
@@ -999,7 +1046,8 @@
   "fields": {
     "title": "Other",
     "slug": "office-other",
-    "text": "/media/envconnect/etc.png"
+    "text": "/media/envconnect/etc.png",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 60
 },
@@ -1014,7 +1062,8 @@
   "fields": {
     "title": "Packaging",
     "slug": "packaging",
-    "tag": "system"
+    "tag": "system",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 61
 },
@@ -1029,7 +1078,8 @@
   "fields": {
     "title": "Fleet",
     "slug": "fleet",
-    "tag": "system"
+    "tag": "system",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 62
 },
@@ -1044,7 +1094,8 @@
   "fields": {
     "title": "Take-back program",
     "slug": "take-back-program",
-    "tag": "system"
+    "tag": "system",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 63
 },
@@ -1059,7 +1110,8 @@
   "fields": {
     "title": "Recycling",
     "slug": "recycling",
-    "tag": "system"
+    "tag": "system",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 64
 },
@@ -1075,7 +1127,8 @@
   "fields": {
     "title": "Assessment",
     "slug": "assessment",
-    "tag": "heading"
+    "tag": "heading",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 65
 },
@@ -1090,7 +1143,8 @@
   "fields": {
     "title": "General",
     "slug": "general",
-    "tag": "heading"
+    "tag": "heading",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 66
 },
@@ -1104,7 +1158,8 @@
 {
   "fields": {
     "title": "The assessment process is rigorous and thorough*",
-    "slug": "the-assessment-process-is-rigorous"
+    "slug": "the-assessment-process-is-rigorous",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 67
 },
@@ -1144,7 +1199,8 @@
 {
   "fields": {
     "title": "A policy is in place appropriate to the nature and scale of the organization*",
-    "slug": "a-policy-is-in-place-appropriate-to-the-nature-and-scale"
+    "slug": "a-policy-is-in-place-appropriate-to-the-nature-and-scale",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 68
 },
@@ -1684,7 +1740,8 @@
   "fields": {
     "title": "Distribution",
     "slug": "distribution",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 69
 },
@@ -1692,7 +1749,8 @@
   "fields": {
     "title": "Diversified, corporate level",
     "slug": "diversified-corporate-level",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 70
 },
@@ -1700,7 +1758,8 @@
   "fields": {
     "title": "Fuel supply",
     "slug": "fuel-supply",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 71
 },
@@ -1708,7 +1767,8 @@
   "fields": {
     "title": "Shipping & logistics",
     "slug": "shipping-and-logistics",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 72
 },
@@ -1716,7 +1776,8 @@
   "fields": {
     "title": "Vehicle equipment & parts",
     "slug": "vehicle-equipment-and-parts",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 73
 },
@@ -1724,7 +1785,8 @@
   "fields": {
     "title": "Distribution transformers",
     "slug": "distribution-transformers",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 74
 },
@@ -1732,7 +1794,8 @@
   "fields": {
     "title": "Fabricated metals",
     "slug": "fabricated-metals",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 75
 },
@@ -1740,7 +1803,8 @@
   "fields": {
     "title": "Wire & cable",
     "slug": "wire-and-cable",
-    "tag": "industry"
+    "tag": "industry",
+    "account": 6
   },
   "model": "pages.PageElement", "pk": 76
 }]

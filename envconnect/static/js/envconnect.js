@@ -370,6 +370,13 @@ envconnectControllers.controller("EnvconnectCtrl",
                    + $scope.activeElement.slug + '/', data).then(
             function success(resp) {
                 form.parents('.modal').modal('hide');
+                if( $scope.reload ) {
+                    var captionElement = angular.element(
+                        '[href="#tab-' + $scope.activeElement.slug + '"]').find(
+                        '.icon-caption');
+                    captionElement.text(title);
+//                    window.location = "";
+                }
             }, function error(resp) {
                 form.parents('.modal').modal('hide');
                 showErrorMessages(resp);
