@@ -243,7 +243,10 @@ app.constant('settings', {
     entries: {% if entries %}{{entries|safe}}{% else %}{}{% endif %},
     hidden: {% if hidden %}{{hidden|safe}}{% else %}{}{% endif %},
     valueSummaryToggle: {% if value_toggle %}true{% else %}false{% endif %},
-    scoreToggle: {% if score_toggle %}true{% else %}false{% endif %}
+    scoreToggle: {% if score_toggle %}true{% else %}false{% endif %},
+{% if sort_by %}
+    sortBy:{{sort_by}}
+{% endif %}
 });
 
 jQuery(document).ready(function($) {

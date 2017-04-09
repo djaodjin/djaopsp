@@ -11,7 +11,6 @@ binDir        ?= $(installTop)/bin
 SYSCONFDIR    := $(installTop)/etc
 LOCALSTATEDIR := $(installTop)/var
 CONFIG_DIR    := $(SYSCONFDIR)/$(APP_NAME)
-djaodjinSrcDir:= $(abspath $(srcDir)/../../..)/djaodjin/reps/djaodjin
 
 ASSETS_DIR    := $(srcDir)/htdocs/static
 
@@ -140,8 +139,7 @@ $(DESTDIR)$(SYSCONFDIR)/%/site.conf: $(srcDir)/etc/site.conf
 			-e 's,%(SYSCONFDIR)s,$(SYSCONFDIR),' \
 			-e "s,%(ADMIN_EMAIL)s,`cd $(srcDir) && git config user.email`," \
 			-e "s,%(DB_NAME)s,$(notdir $(patsubst %/,%,$(dir $@)))," \
-			-e "s,%(binDir)s,$(binDir)," \
-			-e "s,%(djaodjinSrcDir)s,$(djaodjinSrcDir)," $< > $@
+			-e "s,%(binDir)s,$(binDir)," $< > $@
 
 $(DESTDIR)$(SYSCONFDIR)/%/credentials: $(srcDir)/etc/credentials
 	install -d $(dir $@)

@@ -62,7 +62,6 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'answers',
     'voting',
     'survey',
-    'djversion',
     'pages',
     'envconnect',  # project should be the last entry.
 )

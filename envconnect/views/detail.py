@@ -91,6 +91,8 @@ class DetailView(BreadcrumbMixin, TemplateView):
                     value_headers)
                 setattr(icon_tuple[0], 'value_headers_len',
                     len(value_headers) + 2)
+            if not is_envconnect_manager:
+                context.update({'sort_by': "{'agv_value': 'desc'}"})
             context.update({
                 'role': "tab",
                 'root': root,

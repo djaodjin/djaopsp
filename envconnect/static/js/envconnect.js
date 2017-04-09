@@ -310,10 +310,17 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
     };
 
+    // Initial sort order
     // XXX Forcing the initial sort order to ``avg_value`` will make
     // re-ordering of management best practices look random because
     // no avg_value columns is shown for management basics.
-    $scope.sortBy('avg_value', 'desc');  // initial sort order.
+    if( settings.sortBy ) {
+        for( var fieldName in settings.sortBy ) {
+            if ($scope.dir.hasOwnProperty(fieldName)) {
+                $scope.sortBy(fieldName, settings.sortBy[fieldName]);
+            }
+        }
+    }
 
     $scope.sortedOn = function(obj) {
         var key = "" + obj[0].header_num;
