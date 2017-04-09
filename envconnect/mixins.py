@@ -72,20 +72,17 @@ class BreadcrumbMixin(PermissionMixin):
 
     def _scan_candidates(self, root, slug):
         # hardcoded icon tags
-        self.icon = None
-        if root.tag in ['management', 'life-cycle', 'equipment']:
-            self.icon = root
         candidates = root.relationships.all()
         try:
             candidate = candidates.get(slug=slug)
-            return candidate, candidate.slug
+            return [candidate]
         except PageElement.DoesNotExist:
             pass
         for candidate in candidates:
-            node, suffix = self._scan_candidates(candidate, slug)
-            if node is not None:
-                return node, "%s/%s" % (candidate.slug, suffix)
-        return None, ""
+            suffix = self._scan_candidates(candidate, slug)
+            if len(suffix) > 0:
+                return [candidate] + suffix
+        return []
 
     @property
     def breadcrumbs(self):
@@ -116,7 +113,12 @@ class BreadcrumbMixin(PermissionMixin):
         from_root = '/' + root.slug
         results += [[root, ('/%s/' % self.get_breadcrumb_url()) + parts[0]]]
         for idx, part in enumerate(parts[1:]):
-            root, suffix = self._scan_candidates(root, part)
+            suffix = self._scan_candidates(root, part)
+            root = suffix[-1]
+            for sfx in reversed(suffix):
+                if sfx.text.endswith('.png'):
+                    self.icon = sfx
+            suffix = '/'.join([sfx.slug for sfx in suffix])
             from_root = "%s/%s" % (from_root, suffix)
             prefix = []
             for full_part in suffix.split('/'):
