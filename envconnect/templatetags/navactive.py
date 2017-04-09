@@ -127,6 +127,9 @@ def markdown_filter_pdf(value, request):
         font-weight:100;margin-top:0px;text-align : justify;\">")
     return mark_safe(html)
 
+@register.filter
+def previous_to_last(breadcrumbs):
+    return breadcrumbs[-2]
 
 @register.filter
 def systems(nodes):

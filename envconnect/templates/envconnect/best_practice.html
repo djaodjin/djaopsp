@@ -25,7 +25,7 @@
 							<h1 class="editable" data-key="title">{{best_practice.title}}</h1>
 {% if request|is_broker_manager %}
 <div>
-<button id="lock" type="submit" class="btn {% if best_practice.locked %}btn-warning{% else %}btn-primary{% endif %} btn-sm" style="margin-bottom:10px;">{% if best_practice.locked %}Re-Open{% else %}Complete{% endif %}</button>
+<button id="lock" type="submit" class="btn {% if 'locked' in best_practice.tag %}btn-warning{% else %}btn-primary{% endif %} btn-sm" style="margin-bottom:10px;">{% if 'locked' in best_practice.tag %}Re-Open{% else %}Complete{% endif %}</button>
 <span>To edit, mouse over the text, click and start typing.</span>
 <div class="clearfix" />
 </div>
@@ -72,17 +72,25 @@ $(document).ready(function(){
 
 	$("#lock").click(function (event) {
 		var self = $(this);
-		var locked = self.text() === "Re-Open" ? 0 : 1;
+		var url = "{% url 'page_elements' %}{{best_practice.slug}}/add-tags";
+		var locked = (self.text() === "Re-Open");
+		if( locked ) {
+			url = "{% url 'page_elements' %}{{best_practice.slug}}/remove-tags"
+		}
 		event.preventDefault();
 		$.ajax({
 			type: "PUT",
-			data: JSON.stringify({"locked": locked}),
+			url: url,
+			data: JSON.stringify({"tag": "locked"}),
 			datatype: "json",
 			contentType: "application/json; charset=utf-8",
 			success: function(data) {
 				self.toggleClass("btn-warning");
 				self.toggleClass("btn-primary");
-				self.text(locked ?  "Re-Open" : "Complete");
+				self.text(locked ? "Complete" : "Re-Open");
+{% with breadcrumbs|previous_to_last as last %}
+				window.location = "{{last.2}}";
+{% endwith %}
 			}
 		});
 	});
