@@ -245,7 +245,7 @@ app.constant('settings', {
     valueSummaryToggle: {% if value_toggle %}true{% else %}false{% endif %},
     scoreToggle: {% if score_toggle %}true{% else %}false{% endif %},
 {% if sort_by %}
-    sortBy:{{sort_by}}
+    sortBy:{{sort_by|safe}}
 {% endif %}
 });
 
