@@ -146,8 +146,8 @@ class Consumption(SurveyQuestion):
     """Consumption of externalities in the manufactoring process."""
 
     YES = 'Yes'
-    NEEDS_MODERATE_IMPROVEMENT = 'Needs moderate improvement'
-    NEEDS_SIGNIFICANT_IMPROVEMENT = 'Needs significant improvement'
+    NEEDS_MODERATE_IMPROVEMENT = 'Yes, but needs a little improvement'
+    NEEDS_SIGNIFICANT_IMPROVEMENT = 'Yes, but needs a lot of improvement'
     NO = 'No' #pylint:disable=invalid-name
     NO_NEEDS_IMPROVEMENT = 'No/needs improvement'
     NOT_APPLICABLE = 'Not applicable'
@@ -160,8 +160,9 @@ class Consumption(SurveyQuestion):
         'management': (YES, NEEDS_MODERATE_IMPROVEMENT,
             NEEDS_SIGNIFICANT_IMPROVEMENT, NO,
             NOT_APPLICABLE),
-        'default': (YES, WORK_IN_PROGRESS,
-            NO_NEEDS_IMPROVEMENT, NOT_APPLICABLE)}
+        'default': (YES, NEEDS_MODERATE_IMPROVEMENT,
+            NEEDS_SIGNIFICANT_IMPROVEMENT, NO,
+            NOT_APPLICABLE)}
 
     objects = ConsumptionQuerySet.as_manager()
 

@@ -129,7 +129,7 @@ class ReportPDFView(ImprovementQuerySetMixin, ListView):
     def get_queryset(self):
         survey = self.get_survey()
         return self.model.objects.filter(
-            survey=survey).exclude(answer__text="Not applicable")
+            survey=survey).exclude(answer__text=Consumption.NOT_APPLICABLE)
 
     def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
