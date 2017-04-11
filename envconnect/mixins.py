@@ -112,6 +112,7 @@ class BreadcrumbMixin(PermissionMixin):
             return path, results
         from_root = '/' + root.slug
         results += [[root, ('/%s/' % self.get_breadcrumb_url()) + parts[0]]]
+        self.icon = None
         for idx, part in enumerate(parts[1:]):
             suffix = self._scan_candidates(root, part)
             root = suffix[-1]
