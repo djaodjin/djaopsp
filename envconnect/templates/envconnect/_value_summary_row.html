@@ -21,6 +21,7 @@
     data-range-step="1" data-range-min="0" data-range-max="3"
     data-range-value="[[practice[0].consumption.{{col_header.slug}}]]"
     ng-click="editConsumption($event, practice[0])"
+    ng-keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice[0])"
     {% endif %}
     ng-if="practice[0].consumption !== null">
 </td>

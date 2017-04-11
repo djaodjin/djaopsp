@@ -451,6 +451,20 @@ envconnectControllers.controller("EnvconnectCtrl",
         });
     };
 
+    $scope.nextCell = function(event, practice) {
+        event.preventDefault();
+        var elem = angular.element(event.target);
+        while( elem[0] && elem[0].nodeName !== "TD" ) {
+            elem = elem.parent();
+        }
+        if( elem.next().length === 0 || elem.next().hasClass("total-sep") ) {
+            elem = angular.element(elem.parent().find('td')[0]);
+        }
+        $timeout(function() {
+            elem.next().trigger('click');
+        }, 0, false);
+    }
+
     $scope.editScoreWeight = function(event) {
         angular.element(event.target).editor({
             uniqueIdentifier: "data-id",
