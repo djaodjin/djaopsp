@@ -36,7 +36,8 @@ class BreadcrumbMixin(PermissionMixin):
 
     def get_prefix(self):
         if (not self.get_breadcrumb_url()
-            in ['sustainability', 'report', self.breadcrumb_url]):
+            in ['sustainability',
+                'report', 'benchmark', 'scorecard', 'improve']):
             return '%s-' % self.get_breadcrumb_url()
         return None
 
