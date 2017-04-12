@@ -10,13 +10,13 @@
 {% if request|is_broker_manager and not organization %}
 <a class="edit"
    href="" data-toggle="modal" data-target="#edit-element-modal"
-   ng-click="setBestPractice(getPath(practice, '{{prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>
+   ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>
 <a class="text-danger delete"
    href="" data-toggle="modal" data-target="#confirm-delete"
-   ng-click="setBestPractice(getPath(practice, '{{prefix}}'))"><i class="fa fa-trash-o"></i></a>
+   ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'))"><i class="fa fa-trash-o"></i></a>
 {% endif %}
 {% if request|is_broker_manager and not organization %}
-<button id="header-[[practice[0].slug]]" class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}/' + practice[0].slug, 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
+<button id="header-[[practice[0].slug]]" class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}/' + practice[0].slug, 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
 {% endif %}
 </h4>
 </td>
@@ -35,7 +35,7 @@
     <a id="link_delete_best_practice_[[practice[0].slug]]"
        class="text-danger" href=""
        data-toggle="modal" data-target="#confirm-delete"
-       ng-click="setBestPractice(getPath(practice, '{{prefix}}'))"><i class="fa fa-trash-o"></i></a>
+       ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'))"><i class="fa fa-trash-o"></i></a>
     {% endif %}
 </td>
 {% endblock %}

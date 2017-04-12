@@ -7,6 +7,7 @@
     {% for icon_tuple in root.1 %}
         {% with icon_tuple.0 as icon %}
         {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
+        {% with page_prefix|add:prefix as abs_prefix %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}" ng-cloak>
           <div ng-if="getEntriesByTag('{{prefix}}', 'system').length === 0">
             <div class="row">
@@ -37,8 +38,8 @@
                         {{col_header.title}}
                         </span>
                         {% if request|is_broker_manager %}
-                        <button class="btn-link btn-hide" ng-click="showHide('{{col_header.slug}}', '{{page_prefix|add:prefix}}')">
-                            <i class="fa fa-eye[[hidden['{{page_prefix|add:prefix}}'].{{col_header.slug}} ? '-slash' : '']]"></i>
+                        <button class="btn-link btn-hide" ng-click="showHide('{{col_header.slug}}', '{{abs_prefix}}')">
+                            <i class="fa fa-eye[[hidden['{{abs_prefix}}'].{{col_header.slug}} ? '-slash' : '']]"></i>
                         </button>
                         {% endif %}
                     </th>
@@ -46,18 +47,18 @@
                 </thead>
                 <tbody dnd-list="getEntries('{{prefix}}')">
                     {% if request|is_broker_manager %}
-                    <tr data-id="{{prefix}}">
+                    <tr data-id="{{abs_prefix}}">
                         <td colspan="{{icon.profitability_headers_len}}">
-                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}', 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
+                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
                         </td>
                     </tr>
                     {% endif %}
-                    <tr data-id="[[getPath(practice, '{{prefix}}')]]"
+                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
                         ng-repeat="practice in getEntries('{{prefix}}')"
                         ng-if="sortedOnKeys === 0">
                         {% include "envconnect/_profitability_row.html" %}
                     </tr>
-                    <tr data-id="[[getPath(practice, '{{prefix}}')]]"
+                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
                         ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
                         ng-if="sortedOnKeys > 0">
                         {% include "envconnect/_profitability_row.html" %}
@@ -65,7 +66,7 @@
                     {% if request|is_broker_manager %}
                     <tr>
                         <td colspan="{{icon.profitability_headers_len}}">
-                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}', 'heading')"><i class="fa fa-plus"></i> Add practices header ...</button>
+                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', 'heading')"><i class="fa fa-plus"></i> Add practices header ...</button>
                         </td>
                     </tr>
                     {% endif %}
@@ -87,20 +88,20 @@
                         </button>
                         {{col_header.title}}
                         {% if request|is_broker_manager %}
-                        <button class="btn-link btn-hide" ng-click="showHide('{{col_header.slug}}', '{{page_prefix|add:prefix}}')">
-                            <i class="fa fa-eye[[hidden['{{page_prefix|add:prefix}}'].{{col_header.slug}} ? '-slash' : '']]"></i>
+                        <button class="btn-link btn-hide" ng-click="showHide('{{col_header.slug}}', '{{abs_prefix}}')">
+                            <i class="fa fa-eye[[hidden['{{abs_prefix}}'].{{col_header.slug}} ? '-slash' : '']]"></i>
                         </button>
                         {% endif %}
                     </th>
                     {% endfor %}
                 </thead>
                 <tbody>
-                    <tr data-id="[[getPath(practice, '{{prefix}}')]]"
+                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
                         ng-repeat="practice in getEntries('{{prefix}}')"
                         ng-if="sortedOnKeys === 0">
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
-                    <tr data-id="[[getPath(practice, '{{prefix}}')]]"
+                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
                         ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
                         ng-if="sortedOnKeys > 0">
                         {% include "envconnect/_value_summary_row.html" %}
@@ -125,6 +126,7 @@
             </div>
           </div>
         </div>
+        {% endwith %}
         {% endwith %}
         {% endwith %}
     {% endfor %}

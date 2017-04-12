@@ -522,7 +522,7 @@ envconnectControllers.controller("EnvconnectCtrl",
             {attach_below: attachBelow}).then(
             function success(resp) {
                 $http.get(
-                    settings.urls.api_best_practices + '/' + settings.root_prefix + '/').then(
+                    settings.urls.api_best_practices + settings.root_prefix + '/').then(
                         function success(resp) {
                             $scope.entries = resp.data;
                         }, function(resp) { // error

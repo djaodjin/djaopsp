@@ -1,8 +1,11 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
+import os
+
 from django.db import transaction
 from django.http import Http404
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from pages.models import RelationShip
@@ -27,7 +30,7 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
             return Response(self.to_representation(root))
         raise Http404
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer): #pylint:disable=too-many-locals
         moved = self.kwargs.get('path')
         attach = serializer.validated_data['attach_below']
         _, moved_path_elements = self.get_breadcrumbs(moved)
@@ -54,6 +57,13 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
         with transaction.atomic():
             moved_node = moved_path_elements[-1][0]
+            new_path = "/%s/%s" % ('/'.join([
+                part[0].slug for part in prefix_elements]), moved_node.slug)
+            common_prefix = os.path.commonprefix([moved, new_path])
+            if len(common_prefix) == 0 or common_prefix == '/':
+                raise ValidationError(
+                    {'detail': "'%s' and '%s' do not share a root prefix." % (
+                    moved, attach)})
             RelationShip.objects.filter(
                 orig_element=moved_path_elements[-2][0],
                 dest_element=moved_node).delete()
@@ -61,9 +71,7 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
                 attach_root, moved_node, pos=pos)
             try:
                 consumption = Consumption.objects.get(path=moved)
-                new_prefix = '/'.join([
-                    part[0].slug for part in prefix_elements])
-                consumption.path = "/%s/%s" % (new_prefix, moved_node.slug)
+                consumption.path = new_path
                 consumption.save()
             except Consumption.DoesNotExist:
                 pass
