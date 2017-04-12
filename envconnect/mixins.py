@@ -1,6 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -26,7 +27,8 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
     def get_context_data(self, *args, **kwargs):
         context = super(
             PermissionMixin, self).get_context_data(*args, **kwargs)
-        context.update({'is_envconnect_manager': self.manages('envconnect')})
+        context.update({
+            'is_envconnect_manager': self.manages(settings.APP_NAME)})
         return context
 
 

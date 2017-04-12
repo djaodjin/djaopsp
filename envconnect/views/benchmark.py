@@ -3,6 +3,7 @@
 
 import logging, json
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect
@@ -75,7 +76,7 @@ class BenchmarkView(BenchmarkBaseView):
         try:
             self.sample
         except Http404:
-            if not self.manages('envconnect'):
+            if not self.manages(settings.APP_NAME):
                 messages.warning(request,
                     "You need to complete the self-assessment before"\
                     " moving on to benchmarks.")

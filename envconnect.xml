@@ -16,6 +16,10 @@
       <fetch>
         <url>/var/www/envconnect/./reps/envconnect/htdocs</url>
       </fetch>
+      <dep name="drop">
+        <bin>dws</bin>
+        <share>(dws)/prefix.mk</share>
+      </dep>
       <dep name="Django" target="python">
         <lib>.*/(django)/__init__.py</lib>
       </dep>
@@ -148,7 +152,7 @@ These are the patches to django-voting used to support Django 1.6
 settings.AUTH_USER_MODEL.
     </description>
     <repository>
-      <sync>https://github.com/djaodjin/django-voting.git</sync>
+      <sync>contrib/django-voting.git</sync>
       <shell>
 cd $srcTop/contrib/django-voting
 python setup.py install --quiet

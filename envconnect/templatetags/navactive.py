@@ -3,6 +3,7 @@
 
 import json, markdown
 
+from django.conf import settings
 from django import template
 from django.core.urlresolvers import reverse
 from django.utils import six
@@ -17,7 +18,7 @@ register = template.Library()
 def is_broker_manager(request):
     # inlined version of `deployutils.AccessiblesMixin.manages`
     for organization in request.session.get('roles', {}).get('manager', []):
-        if organization['slug'] == 'envconnect':
+        if organization['slug'] == settings.APP_NAME:
             return True
     return False
 

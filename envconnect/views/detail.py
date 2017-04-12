@@ -3,6 +3,7 @@
 
 import json
 
+from django.conf import settings
 from django.views.generic import TemplateView
 
 from ..mixins import BreadcrumbMixin
@@ -26,7 +27,7 @@ class DetailView(BreadcrumbMixin, TemplateView):
             root = self._build_tree(root, context['from_root'])
             # attach visible column headers
             hidden_columns = {}
-            is_envconnect_manager = self.manages('envconnect')
+            is_envconnect_manager = self.manages(settings.APP_NAME)
             for icon_tuple in root[1]:
                 path = '/'.join([context['from_root'], icon_tuple[0].slug])
                 hidden_columns[path] = {}
