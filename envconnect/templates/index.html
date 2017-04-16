@@ -149,6 +149,18 @@ header {
 							<li>
 								<div>
 {% if request|is_broker_manager %}
+<input type="checkbox" name="industry" value="general-manufacturing"
+{% if general_manufacturing_attrs %}{{general_manufacturing_attrs}}{% endif %} />
+<a id="general-manufacturing" role="menuitem" tabindex="-1">Fabricated metals</a>
+{% else %}
+<a id="general-manufacturing" role="menuitem" tabindex="-1"
+{% if not general_manufacturing_attrs %}disabled{% endif %}>General manufacturing{% if not general_manufacturing_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
+{% endif %}
+								</div>
+							</li>
+							<li>
+								<div>
+{% if request|is_broker_manager %}
 <input type="checkbox" name="industry" value="wire-and-cable"
 {% if wire_and_cable_attrs %}{{wire_and_cable_attrs}}{% endif %} />
 <a id="wire-and-cable" role="menuitem" tabindex="-1">Wire & cable</a>

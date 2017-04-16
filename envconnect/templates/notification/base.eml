@@ -153,7 +153,7 @@ ol li {
       <div class="content">
         <table cellpadding="0" cellspacing="0" border="0">
           <tr style="width:100%">
-            <td style="padding:10px;border-bottom:2px solid #{{app.dashboard_sidebar_bg}};">
+            <td style="padding:10px;border-bottom:2px solid #3ca65b;">
               <h3 style="margin:5px 0;line-height:40px; text-align:center;">{{broker.printable_name}}</h3>
             </td>
           </tr>
@@ -176,7 +176,7 @@ ol li {
       <div class="content">
         <table>
           <tr>
-            <td align="center" style="padding-top:20px;border-top: 2px solid #{{app.dashboard_sidebar_bg}};">
+            <td align="center" style="padding-top:20px;border-top: 2px solid #3ca65b;">
                 <p>Powered by <img src="https://djaodjin.com/static/img/logo-djaodjin-128.png" style="width:15px; height:15px; vertical-align:top;border:1px solid #FFF; border-radius:3px;"><a href="http://djaodjin.com">djaodjin.com</a>
                 </p>
             </td>
