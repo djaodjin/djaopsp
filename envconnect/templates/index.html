@@ -151,7 +151,7 @@ header {
 {% if request|is_broker_manager %}
 <input type="checkbox" name="industry" value="general-manufacturing"
 {% if general_manufacturing_attrs %}{{general_manufacturing_attrs}}{% endif %} />
-<a id="general-manufacturing" role="menuitem" tabindex="-1">Fabricated metals</a>
+<a id="general-manufacturing" role="menuitem" tabindex="-1">General manufacturing</a>
 {% else %}
 <a id="general-manufacturing" role="menuitem" tabindex="-1"
 {% if not general_manufacturing_attrs %}disabled{% endif %}>General manufacturing{% if not general_manufacturing_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
