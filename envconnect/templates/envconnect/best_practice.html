@@ -15,47 +15,89 @@
 				</ul>
 			</div>
 		</div>
-<div class="row">
-	<div class="tab-pane active in" id="box_1">
-		<div class="tab-content col-lg-12">
-			<div class="tab-pane active" id="tab_{{forloop.counter}}">
-				<div class="panel panel-grey panel-cartitem over-radius">
-					<div id="{{best_practice.slug}}" class="panel-body">
-						<div class="padding_20">
-							<h1 class="editable" data-key="title">{{best_practice.title}}</h1>
+		<div class="row">
+			<div class="tab-pane active in" id="box_1">
+				<div class="tab-content col-lg-12">
+					<div class="tab-pane active" id="tab_{{forloop.counter}}">
+						<div class="panel panel-grey panel-cartitem over-radius">
+							<div id="{{best_practice.slug}}" class="panel-body">
+								<div class="padding_20">
+									<h1 class="editable" data-key="title">{{best_practice.title}}</h1>
 {% if request|is_broker_manager %}
-<div>
-<button id="lock" type="submit" class="btn {% if 'locked' in best_practice.tag %}btn-warning{% else %}btn-primary{% endif %} btn-sm" style="margin-bottom:10px;">{% if 'locked' in best_practice.tag %}Re-Open{% else %}Complete{% endif %}</button>
-<span>To edit, mouse over the text, click and start typing.</span>
-<div class="clearfix" />
+									<div>
+										<button id="lock" type="submit" class="btn {% if 'locked' in best_practice.tag %}btn-warning{% else %}btn-primary{% endif %} btn-sm">{% if 'locked' in best_practice.tag %}Re-Open{% else %}Complete{% endif %}</button>
+<button id="duplicate-content-btn" class="btn btn-default btn-sm" href=""
+   data-toggle="modal" data-target="#duplicate-content">Copy content from ...</button>
+										<div class="clearfix" />
+									</div>
+                                    <div class="text-left" style="margin-top:5px;">
+										<p><i>To edit, mouse over the text, click and start typing.</i></p>
 </div>
 {% endif %}
-							<div class="text-justify markdown-description">
-								<div class="editable edit-formatted" data-key="text">
+									<div class="text-justify markdown-description">
+										<div class="editable edit-formatted" data-key="text">
 {% if best_practice.text %}
 {{best_practice.text|safe}}
 {% else %}
+<p>
 Content development in progress... To learn more about The
 Sustainability Project and how to contribute, please visit
 the <a href="{{'about/'|site_prefixed}}">about page &raquo;</a>.
+</p>
 {% endif %}
-								</div>
-							</div>
-							<hr class="featurette-divider">
+										</div>
+{% if request|is_broker_manager %}
+<div class="text-center">
+</div>
+{% endif %}
+									</div>
+									<hr class="featurette-divider">
 							{% block follow_vote %}
 							{% include "envconnect/follow_vote.html" %}
 							{% endblock %}
 							{% block comments %}
 							{% include "envconnect/comments.html" %}
 							{% endblock %}
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
-</div>
+    <!-- modals -->
+    <div id="duplicate-content" class="modal fade"
+         tabindex="-1" role="dialog" aria-labelledby="duplicateContent">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 id="duplicateContent" class="modal-title" style="color:#000;">Copy content from ...</h4>
+                </div>
+                <form class="form-inline" ng-submit="copyBestpracticeContent($event)">
+                    <div class="modal-body">
+                        <script type="text/ng-template" id="customTemplate.html">
+                            <a>
+                                <span ng-bind-html="match.title | uibTypeaheadHighlight:query"></span>
+                            </a>
+                        </script>
+                        <input name="bestpractice" type="text"
+                            placeholder="Title ..."
+                            autocomplete="off"
+                            ng-model="bestpractice"
+                            uib-typeahead="candidate as candidate.title for candidate in getBestPracticeCandidates($viewValue)"
+                            uib-typeahead-loading="loadingBestpractices"
+                            uib-typeahead-template-url="customTemplate.html"
+                            class="form-control" style="width: 100%;">
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" type="submit">Copy content</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </section>
 {% endblock %}
 

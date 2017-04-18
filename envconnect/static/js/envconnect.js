@@ -516,6 +516,24 @@ envconnectControllers.controller("EnvconnectCtrl",
             });
     };
 
+    $scope.bestpractice = null;
+
+    $scope.getBestPracticeCandidates = function(val) {
+        if( typeof settings.urls.api_page_elements === "undefined" ) {
+            return [];
+        }
+        return $http.get(settings.urls.api_page_elements, {
+            params: {q: val}
+        }).then(function(res){
+            return res.data.results;
+        });
+    };
+
+    $scope.copyBestpracticeContent = function() {
+        angular.element('#duplicate-content').modal("hide");
+        angular.element('[data-key="text"]').html($scope.bestpractice.text);
+        angular.element('[data-key="text"]').trigger('blur');
+    };
 
     $scope.moveBestPractice = function(path, attachBelow) {
         $http.patch(settings.urls.api_best_practices + path + '/',

@@ -486,6 +486,7 @@ HAYSTACK_CONNECTIONS = {
 
 PAGES = {
     'ACCOUNT_MODEL': 'saas.Organization',
+    'DEFAULT_ACCOUNT_CALLABLE': 'saas.models.get_broker',
     'PAGELEMENT_SERIALIZER' : "envconnect.serializers.PageElementSerializer"
 }
 
