@@ -6,6 +6,7 @@
     {% for icon_tuple in root.1 %}
         {% with icon_tuple.0 as icon %}
         {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
+        {% with page_prefix|add:prefix as abs_prefix %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
             <div ng-if="getEntriesByTag('{{prefix}}', 'system').length === 0">
             <table class="table table-striped table-bordered">
@@ -16,11 +17,11 @@
                     {% if request|is_broker_manager %}
                     <tr>
                         <td colspan="4">
-                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}', 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
+                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
                         </td>
                     </tr>
                     {% endif %}
-                    <tr data-id="[[getPath(practice, '{{prefix}}')]]" ng-repeat="practice in getEntries('{{prefix}}')">
+                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]" ng-repeat="practice in getEntries('{{prefix}}')">
                         {% include "envconnect/_detail_row_basic.html" %}
                     </tr>
                     <tr ng-show="getEntries('{{prefix}}').length === 0">
@@ -29,7 +30,7 @@
                     {% if request|is_broker_manager %}
                     <tr>
                         <td colspan="4">
-                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}', 'heading')"><i class="fa fa-plus"></i> Add practices header ...</button>
+                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', 'heading')"><i class="fa fa-plus"></i> Add practices header ...</button>
                         </td>
                     </tr>
                     {% endif %}
@@ -37,6 +38,7 @@
             </table>
             </div>
         </div>
+        {% endwith %}
         {% endwith %}
         {% endwith %}
     {% endfor %}
