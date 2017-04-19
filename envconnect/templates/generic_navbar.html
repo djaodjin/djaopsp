@@ -1,13 +1,6 @@
 {% if request|url_profile %}
 <li><a href="{{'/app/info/requests/'|site_prefixed}}">My TSP</a></li>
-{% if organization and urls and urls.organization and urls.organization.profile %}
-<!--[if !IE]><!-->
- <li class="divider-vertical hidden-xs"><li>
-<!--<![endif]-->
-<li{% if "/profile/" in request.path %} class="active"{% endif %}>
-<a id="organization" href="{{urls.organization.profile}}">{{organization.full_name}}'s Profile</a>
-</li>
-{% elif urls and urls.profiles|length > 1 %}
+{% if urls and urls.profiles|length > 1 %}
 <!--[if !IE]><!-->
  <li class="divider-vertical hidden-xs"><li>
 <!--<![endif]-->
