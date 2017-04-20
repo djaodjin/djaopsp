@@ -13,7 +13,7 @@
                 <thead>
                     <th style="vertical-align: middle;">Practices</th>
                 </thead>
-                <tbody>
+                <tbody dnd-list="getEntries('{{prefix}}')">
                     {% if request|is_broker_manager %}
                     <tr>
                         <td colspan="4">
