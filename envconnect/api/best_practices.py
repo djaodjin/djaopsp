@@ -40,9 +40,14 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
             attach_root = attach_path_elements[-2][0]
             attach_below = attach_path_elements[-1][0]
             prefix_elements = attach_path_elements[:-1]
-            pos = RelationShip.objects.filter(
-                orig_element=attach_root,
-                dest_element=attach_below).first().rank + 1
+            # Implementation Note:
+            # Edges are ordered loosily, that is until an edge is moved
+            # to a specific position, ranks will all be zero.
+            for index, edge in enumerate(RelationShip.objects.filter(
+                    orig_element=attach_root).order_by('rank', 'pk')):
+                if edge.dest_element.pk == attach_below.pk:
+                    pos = index + 1
+                    break
         elif len(moved_path_elements) > len(attach_path_elements):
             attach_root = attach_path_elements[-1][0]
             prefix_elements = attach_path_elements
@@ -51,10 +56,11 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
             attach_root = attach_path_elements[-3][0]
             attach_below = attach_path_elements[-2][0]
             prefix_elements = attach_path_elements[:-2]
-            pos = RelationShip.objects.filter(
-                orig_element=attach_root,
-                dest_element=attach_below).first().rank + 1
-
+            for index, edge in enumerate(RelationShip.objects.filter(
+                    orig_element=attach_root).order_by('rank', 'pk')):
+                if edge.dest_element.pk == attach_below.pk:
+                    pos = index + 1
+                    break
         with transaction.atomic():
             moved_node = moved_path_elements[-1][0]
             new_path = "/%s/%s" % ('/'.join([

@@ -23,7 +23,6 @@ class ConsumptionSerializer(serializers.ModelSerializer):
 
     path = serializers.CharField(required=False)
     text = serializers.CharField(required=False)
-    rank = serializers.SerializerMethodField()
     nb_respondents = serializers.SerializerMethodField()
     rate = serializers.SerializerMethodField()
     opportunity = serializers.SerializerMethodField()
@@ -41,16 +40,12 @@ class ConsumptionSerializer(serializers.ModelSerializer):
             "environmental_value", "business_value", "profitability",
             "implementation_ease", "avg_value",
             # benchmarks
-            "rank", "nb_respondents", "rate", "opportunity",
+            "nb_respondents", "rate", "opportunity",
             "implemented", "planned")
 
     @staticmethod
     def get_nb_respondents(obj):
         return obj.nb_respondents if hasattr(obj, 'nb_respondents') else 0
-
-    @staticmethod
-    def get_rank(obj):
-        return obj.rank
 
     @staticmethod
     def get_rate(obj):
@@ -106,10 +101,15 @@ class PageElementSerializer(BasePageElementSerializer):
 
     consumption = ConsumptionSerializer(required=False)
     is_empty = serializers.SerializerMethodField()
+    rank = serializers.SerializerMethodField()
 
     class Meta:
         model = PageElement
-        fields = ('slug', 'title', 'tag', 'is_empty', 'consumption')
+        fields = ('slug', 'title', 'tag', 'rank', 'is_empty', 'consumption')
+
+    @staticmethod
+    def get_rank(obj):
+        return obj.rank if hasattr(obj, 'rank') else None
 
     @staticmethod
     def get_is_empty(obj):

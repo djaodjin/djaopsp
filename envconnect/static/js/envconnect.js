@@ -342,7 +342,7 @@ envconnectControllers.controller("EnvconnectCtrl",
             // We always tail the `rank` such that we get a consistent ordering
             // We also "reverse" (in a way) the rank such that descending order
             // looks good.
-            key = key + "-" +  (1000000 - obj[0].consumption.rank);
+            key = key + "-" +  (1000000 - obj[0].rank);
         }
         return key;
     };

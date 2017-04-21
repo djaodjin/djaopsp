@@ -58,6 +58,7 @@ class BreadcrumbMixin(PermissionMixin):
                 # order. Without order postgres will not return the life-cycle
                 # in a consistent order.
                 node = edge.dest_element
+                setattr(node, 'rank', edge.rank)
                 results += [self._build_tree(
                     node, path='%s/%s' % (path, node.slug),
                     depth=depth, nocuts=nocuts)]

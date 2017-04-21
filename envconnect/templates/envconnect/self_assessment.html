@@ -57,10 +57,10 @@
                         {% for choice in choices %}
                         <td class="text-center cell-fix-width"
                             ng-if="practice[0].consumption !== null">
-                            <label for="{{choice|slugify}}-[[practice[0].consumption.rank]]" style="margin-bottom:0">
-                                <input id="{{choice|slugify}}-[[practice[0].consumption.rank]]" type="radio"
+                            <label for="{{choice|slugify}}-[[$index]]" style="margin-bottom:0">
+                                <input id="{{choice|slugify}}-[[$index]]" type="radio"
                                        value="{{choice}}"
-                                       name="implemented-[[practice[0].consumption.rank]]"
+                                       name="implemented-[[$index]]"
                                        ng-checked="practice[0].consumption.implemented === '{{choice}}'"
                                        ng-change="updateImprovement()"
                                        ng-model="practice[0].consumption.implemented" />

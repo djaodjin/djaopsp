@@ -178,7 +178,6 @@ class Consumption(SurveyQuestion):
     # Description fields
     avg_energy_saving = models.CharField(max_length=50, default="-")
     avg_fuel_saving = models.CharField(max_length=50, default="-")
-    ranking = models.IntegerField(null=True, blank=True)
     capital_cost_low = models.IntegerField(null=True)
     capital_cost_high = models.IntegerField(null=True)
     capital_cost = models.CharField(max_length=50, default="-")
