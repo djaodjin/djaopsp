@@ -60,7 +60,8 @@
                                             {% for icon_tuple in root.1  %}
                                             {% with icon_tuple.0 as icon %}
                                                 {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
-                                                <li class="squared-tabs-li{% ifchanged icon.tag %}{% if not forloop.first %} bordered-left{% endif %}{% endifchanged %}{% if root.0.tag == 'industry' and icon.tag != 'management' %} arrow-right{% endif %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
+                                                {% with forloop.first as draw_border %}
+                                                <li class="squared-tabs-li{% ifchanged icon.tag %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% if root.0.tag == 'industry' and icon.tag != 'management' %} arrow-right{% endif %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
                                                     <div class="icon-container">
 {% if request|is_broker_manager and not organization %}
 <div style="position:relative; vertical-align:top;">
@@ -79,8 +80,8 @@
                                                         {% endblock %}
                                                     </div>
                                                     {% block systems_block %}
-                                                    <div class="system-menus" ng-if="getEntriesByTag('{{prefix}}', 'system').length > 0">
-                                                        <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{prefix}}', 'system')" ng-cloak>
+                                                    <div class="system-menus" ng-if="getEntriesByTag('{{prefix}}', TAG_SYSTEM).length > 0">
+                                                        <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{prefix}}', TAG_SYSTEM)" ng-cloak>
                                                             {% if '/report/' in request.path %}
                                                             <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'report_organization' organization path %}{% else %}{% url 'report' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                             {% elif '/improve/' in request.path %}
@@ -92,6 +93,8 @@
                                                             {% endif %}
 
                                                             {% if request|is_broker_manager and not organization %}
+<a id="incl-[[practice[0].slug]]" href=""
+   ng-click="editElementTags(getPath(practice, '{{prefix}}'), false, practice[0])"><i class="fa fa-eye[[containsTag(practice[0],TAG_SCORECARD) ? '' : '-slash']]"></i></a>
 <a id="edit-[[practice[0].slug]]" href=""
    data-toggle="modal" data-target="#edit-element-modal"
    ng-click="setBestPractice(getPath(practice, '{{prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>
@@ -106,11 +109,12 @@
                                                         <button
                                                             aria-controls="home"
                                                             data-toggle="modal"
-                                                            data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}', 'system')">
+                                                            data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}', TAG_SYSTEM)">
                                                             <i class="fa fa-plus"></i>
                                                     </div>
                                                     {% endif %}
                                                     {% endblock %}
+                                                    {% endwith %}
                                                     {% endwith %}
                                                 </li>
                                             {% endwith %}

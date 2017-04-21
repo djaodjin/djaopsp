@@ -9,10 +9,9 @@
         {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
         {% with page_prefix|add:prefix as abs_prefix %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}" ng-cloak>
-          <div ng-if="getEntriesByTag('{{prefix}}', 'system').length === 0">
+          <div ng-if="getEntriesByTag('{{prefix}}', TAG_SYSTEM).length === 0">
             <div class="row">
                 <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
-                    {% if request|is_broker_manager or icon.tag != 'management' %}
                     <!-- WORKAROUND: we set data-width and data-height
                          otherwise bootstrap-toggle will crop the size
                          inside a class="tab-content collapse". -->
@@ -22,7 +21,6 @@
                            data-off="Value summary" data-offstyle="green-level-2"
                            data-width="125px" data-height="34px"
                            ng-model="valueSummaryToggle" />
-                    {% endif %}
                 </div>
             </div>
             <!-- cost, payback, etc. -->
@@ -66,7 +64,7 @@
                     {% if request|is_broker_manager %}
                     <tr>
                         <td colspan="{{icon.profitability_headers_len}}">
-                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', 'heading')"><i class="fa fa-plus"></i> Add practices header ...</button>
+                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', TAG_HEADING)"><i class="fa fa-plus"></i> Add practices header ...</button>
                         </td>
                     </tr>
                     {% endif %}

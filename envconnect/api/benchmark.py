@@ -3,6 +3,7 @@
 
 import logging
 
+from django.conf import settings
 from django.db import connection
 from django.http import Http404
 from pages.models import PageElement
@@ -104,15 +105,16 @@ class BenchmarkMixin(ReportMixin):
         for root in roots:
             base = path + '/' + root.slug
             levels = root.relationships.all()
-            if root.tag == 'system':
-                transparent_to_rollover = True
+            if root.tag and ('industry' in root.tag
+                    or settings.TAG_SCORECARD in root.tag):
+                transparent_to_rollover = False
             else:
                 transparent_to_rollover = True
                 for level in levels:
-                    transparent_to_rollover = (
-                        level.tag is None
-                        or level.tag == ''
-                        or level.tag == 'heading')
+#                    transparent_to_rollover &= (level.tag is None
+#                        or level.tag == '' or level.tag == 'heading')
+                    transparent_to_rollover &= (level.tag is None
+                        or settings.TAG_SCORECARD not in level.tag)
             metrics = {
                 'slug': root.slug,
                 'title': root.title,
@@ -129,7 +131,7 @@ class BenchmarkMixin(ReportMixin):
                     roots=levels, path=base)
                 level_details[0].update(metrics)
                 for level_detail in level_details[1].values():
-                    if level_detail[0].get('tag', '') == 'system':
+                    if settings.TAG_SCORECARD in level_detail[0].get('tag', ''):
                         level_detail[0].update({
                             'subtitle': level_detail[0].get('title', ''),
                             'title': root.title,
@@ -207,8 +209,7 @@ class BenchmarkMixin(ReportMixin):
             for practice_tuple in icon_tuple[1]:
                 transparent_to_rollover &= (
                     practice_tuple[0].tag is None
-                    or practice_tuple[0].tag == ''
-                    or practice_tuple[0].tag == 'heading')
+                    or settings.TAG_SCORECARD not in practice_tuple[0].tag)
             if transparent_to_rollover:
                 practice = {
                     'nb_questions': getattr(icon_tuple[0], 'nb_questions', 0),
@@ -219,23 +220,24 @@ class BenchmarkMixin(ReportMixin):
                 charts += [practice]
             else:
                 for practice_tuple in icon_tuple[1]:
-                    practice = {
-                        'slug': practice_tuple[0].slug,
-                        'title': icon_tuple[0].title,
-                        'text': icon_tuple[0].text,
-                        'tag': icon_tuple[0].tag,
-                        'subtitle': practice_tuple[0].title,
-                        'score_weight': ScoreWeight.objects.from_path(
-                            path + '/' + icon_tuple[0].slug
-                            + '/' + practice_tuple[0].slug),
-                        'nb_questions': getattr(
-                            practice_tuple[0], 'nb_questions', 0),
-                        'nb_answers': getattr(
-                            practice_tuple[0], 'nb_answers', 0),
-                        'distribution': getattr(
-                            practice_tuple[0], 'distribution', {})
-                    }
-                    charts += [practice]
+                    if settings.TAG_SCORECARD in practice_tuple[0].tag:
+                        practice = {
+                            'slug': practice_tuple[0].slug,
+                            'title': icon_tuple[0].title,
+                            'text': icon_tuple[0].text,
+                            'tag': icon_tuple[0].tag,
+                            'subtitle': practice_tuple[0].title,
+                            'score_weight': ScoreWeight.objects.from_path(
+                                path + '/' + icon_tuple[0].slug
+                                + '/' + practice_tuple[0].slug),
+                            'nb_questions': getattr(
+                                practice_tuple[0], 'nb_questions', 0),
+                            'nb_answers': getattr(
+                                practice_tuple[0], 'nb_answers', 0),
+                            'distribution': getattr(
+                                practice_tuple[0], 'distribution', {})
+                        }
+                        charts += [practice]
         return charts, complete
 
 

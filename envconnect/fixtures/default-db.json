@@ -275,7 +275,7 @@
   "fields": {
     "title": "Energy Efficiency",
     "slug": "energy-efficiency",
-    "tag": "system",
+    "tag": "system,scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 12
@@ -635,7 +635,7 @@
   "fields": {
     "title": "Waste Management",
     "slug": "waste-management",
-    "tag": "system",
+    "tag": "system,scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 38
@@ -651,7 +651,7 @@
   "fields": {
     "title": "Green Chemistry",
     "slug": "green-chemistry",
-    "tag": "system",
+    "tag": "system,scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 39
@@ -1062,7 +1062,7 @@
   "fields": {
     "title": "Packaging",
     "slug": "packaging",
-    "tag": "system",
+    "tag": "system,scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 61
@@ -1078,7 +1078,7 @@
   "fields": {
     "title": "Fleet",
     "slug": "fleet",
-    "tag": "system",
+    "tag": "system,scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 62
@@ -1094,7 +1094,7 @@
   "fields": {
     "title": "Take-back program",
     "slug": "take-back-program",
-    "tag": "system",
+    "tag": "system,scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 63
@@ -1110,7 +1110,7 @@
   "fields": {
     "title": "Recycling",
     "slug": "recycling",
-    "tag": "system",
+    "tag": "system,scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 64

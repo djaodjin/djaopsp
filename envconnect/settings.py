@@ -499,3 +499,7 @@ VERSION_REGISTERED_APP = (
 REST_FRAMEWORK = {
     'PAGE_SIZE': 25,
 }
+
+# envconnect
+TAG_SYSTEM = 'system'
+TAG_SCORECARD = 'scorecard'

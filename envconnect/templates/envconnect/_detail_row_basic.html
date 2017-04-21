@@ -5,9 +5,11 @@
         <i class="fa fa-bars"></i>
     </div>
 {% endif %}
-<h4 ng-if="practice[0].tag !== 'system'" class="text-blue" style="display:inline-block;">
+<h4 ng-if="!containsTag(practice[0], TAG_SYSTEM)" class="text-blue" style="display:inline-block;">
 [[practice[0].title]]
 {% if request|is_broker_manager and not organization %}
+<a class="incl" href=""
+   ng-click="editElementTags(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa fa-eye[[containsTag(practice[0],TAG_SCORECARD) ? '' : '-slash']]"></i></a>
 <a class="edit"
    href="" data-toggle="modal" data-target="#edit-element-modal"
    ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>

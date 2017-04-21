@@ -66,7 +66,8 @@ def nb_self_assessment_questions(practices):
     for practice in practices:
         if len(practice[1]) == 0:
             result += 1
-        elif len(practice[1]) > 0 and practice[0].tag != 'system':
+        elif (len(practice[1]) > 0
+              and settings.TAG_SYSTEM not in practice[0].tag):
             result += 1
     return result
 
@@ -134,7 +135,8 @@ def previous_to_last(breadcrumbs):
 
 @register.filter
 def systems(nodes):
-    return [node for node in nodes if node[0].tag == 'system']
+    return [node for node in nodes
+        if node[0].tag and settings.TAG_SCORECARD in node[0].tag]
 
 @register.filter
 def to_json(value):

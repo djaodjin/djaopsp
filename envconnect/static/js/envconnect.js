@@ -106,6 +106,14 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.valueSummaryToggle = settings.valueSummaryToggle;
     $scope.scoreToggle = settings.scoreToggle;
 
+    $scope.TAG_HEADING = 'heading';
+    $scope.TAG_SCORECARD = 'scorecard';
+    $scope.TAG_SYSTEM = 'system';
+
+    $scope.containsTag = function(bestpractise, tag) {
+        return bestpractise.tag && bestpractise.tag.indexOf(tag) >= 0;
+    }
+
     $scope.isImplemented = function (consumption) {
         return (consumption.implemented === 'Yes' || consumption.implemented === 'Work in progress');
     }
@@ -251,16 +259,16 @@ envconnectControllers.controller("EnvconnectCtrl",
             var results = [];
             for( var i = 0; i < node[1].length; ++i ) {
                 if( node[1][i][1].length > 0 ) {
-                    if( node[1][i][0].tag === tag ) {
+                    if( $scope.containsTag(node[1][i][0], tag) ) {
                         results.push(node[1][i]);
                     }
                     for( var j = 0; j < node[1][i][1].length; ++j ) {
-                        if( node[1][i][1][j][0].tag === tag ) {
+                        if( $scope.containsTag(node[1][i][1][j][0], tag) ) {
                             results.push(node[1][i][1][j]);
                         }
                     }
                 } else {
-                    if( node[1][i][0].tag === tag ) {
+                    if( $scope.containsTag(node[1][i][0], tag) ) {
                         results.push(node[1][i]);
                     }
                 }
@@ -369,27 +377,6 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
     };
 
-    $scope.editElement = function(event) {
-        var form = angular.element(event.target);
-        var title = form.find("[name='title']").val();
-        var data = {title: title};
-        $http.put(settings.urls.api_page_elements
-                   + $scope.activeElement.slug + '/', data).then(
-            function success(resp) {
-                form.parents('.modal').modal('hide');
-                if( $scope.reload ) {
-                    var captionElement = angular.element(
-                        '[href="#tab-' + $scope.activeElement.slug + '"]').find(
-                        '.icon-caption');
-                    captionElement.text(title);
-//                    window.location = "";
-                }
-            }, function error(resp) {
-                form.parents('.modal').modal('hide');
-                showErrorMessages(resp);
-            });
-    };
-
     $scope.addElement = function(event) {
         var form = angular.element(event.target);
         var title = form.find("[name='title']").val();
@@ -397,12 +384,12 @@ envconnectControllers.controller("EnvconnectCtrl",
         var parent = $scope.prefix.substring(
             $scope.prefix.lastIndexOf('/') + 1);
         var data = {title: title, orig_elements: [parent]};
-        if( tag ===  'management' || tag === 'system' ) {
+        if( tag ===  'management' || tag === $scope.TAG_SYSTEM ) {
             data.tag = tag;
         }
         $http.post(settings.urls.api_page_elements, data).then(
             function success(resp) {
-                if( $scope.tag === 'heading' || $scope.tag === 'system' ) {
+                if( $scope.tag === $scope.TAG_HEADING || $scope.tag === $scope.TAG_SYSTEM ) {
                     var node = $scope.getEntriesRecursive(
                         $scope.entries, $scope.prefix);
                     resp.data.consumption = null;
@@ -434,6 +421,50 @@ envconnectControllers.controller("EnvconnectCtrl",
                 showErrorMessages(resp);
             });
         return false;
+    };
+
+    $scope.editElement = function(event) {
+        var form = angular.element(event.target);
+        var title = form.find("[name='title']").val();
+        var data = {title: title};
+        $http.put(settings.urls.api_page_elements
+                   + $scope.activeElement.slug + '/', data).then(
+            function success(resp) {
+                form.parents('.modal').modal('hide');
+                if( $scope.reload ) {
+                    var captionElement = angular.element(
+                        '[href="#tab-' + $scope.activeElement.slug + '"]').find(
+                        '.icon-caption');
+                    captionElement.text(title);
+//                    window.location = "";
+                }
+            }, function error(resp) {
+                form.parents('.modal').modal('hide');
+                showErrorMessages(resp);
+            });
+    };
+
+    $scope.editElementTags = function(path, reload, element) {
+        event.preventDefault();
+        if( $scope.containsTag(element, $scope.TAG_SCORECARD) ) {
+            $http.put(
+                settings.urls.api_page_elements + element.slug + '/remove-tags',
+                {"tag": $scope.TAG_SCORECARD}).then(
+                function success(resp) {
+                    element.tag = resp.data.tag;
+                }, function error(resp) {
+                    showErrorMessage(resp);
+                });
+        } else {
+            $http.put(
+                settings.urls.api_page_elements + element.slug + '/add-tags',
+                {"tag": $scope.TAG_SCORECARD}).then(
+                function success(resp) {
+                    element.tag = resp.data.tag;
+                }, function error(resp) {
+                    showErrorMessage(resp);
+                });
+        }
     };
 
     $scope.editConsumption = function(event, practice) {

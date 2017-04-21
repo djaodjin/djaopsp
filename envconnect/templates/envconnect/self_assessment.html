@@ -9,7 +9,7 @@
         {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
         {% with page_prefix|add:prefix as abs_prefix %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
-            <div ng-if="getEntriesByTag('{{prefix}}', 'system').length === 0">
+            <div ng-if="getEntriesByTag('{{prefix}}', TAG_SYSTEM).length === 0">
             <div class="row">
                 <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
                     <a class="btn btn-primary" href="{% url 'report_organization_download' organization "/"|add:root.0.slug %}" target="_blank"><i class="fa fa-wrench"></i> Download Self-assessment</a>
@@ -44,8 +44,8 @@
                         ng-repeat="practice in getEntries('{{prefix}}')"
                         ng-show="getEntries('{{prefix}}').length > 0">
                         <td colspan="{{choices|length|add:1}}" ng-if="practice[0].consumption === null">
-                            <h4 class="text-blue" ng-if="practice[0].tag === 'system'"><a href="{% if organization %}{% url 'benchmark_organization' organization path %}{% else %}{% url 'benchmark' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a></h4>
-                            <h4 class="text-blue" ng-if="practice[0].tag !== 'system'">[[practice[0].title]]</h4>
+                            <h4 class="text-blue" ng-if="constainsTag(practice[0], TAG_SYSTEM)"><a href="{% if organization %}{% url 'benchmark_organization' organization path %}{% else %}{% url 'benchmark' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a></h4>
+                            <h4 class="text-blue" ng-if="!constainsTag(practice[0], TAG_SYSTEM)">[[practice[0].title]]</h4>
                         </td>
                         <td class="td-fix-width"
                             ng-if="practice[0].consumption !== null">
@@ -112,8 +112,8 @@
                     <tr ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
                         ng-show="getEntries('{{prefix}}').length > 0">
                         <td colspan="{% if '/sustainability/' in request.path %}4{% else %}3{% endif %}" ng-if="practice[0].consumption === null">
-                            <h4 class="text-blue" ng-if="practice[0].tag === 'system'"><a id="[[practice[0].slug]]" href="{% if organization %}{% url 'benchmark_organization' organization path %}{% else %}{% url 'benchmark' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a></h4>
-                            <h4 class="text-blue" ng-if="practice[0].tag !== 'system'">[[practice[0].title]]</h4>
+                            <h4 class="text-blue" ng-if="containsTag(practice[0], TAG_SYSTEM)"><a id="[[practice[0].slug]]" href="{% if organization %}{% url 'benchmark_organization' organization path %}{% else %}{% url 'benchmark' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a></h4>
+                            <h4 class="text-blue" ng-if="!containsTag(practice[0], TAG_SYSTEM)">[[practice[0].title]]</h4>
                         </td>
                         <td class="td-fix-width"
                             ng-if="practice[0].consumption !== null">

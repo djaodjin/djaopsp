@@ -8,7 +8,7 @@
         {% with icon_tuple.0 as icon %}
         {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
-            <div ng-if="getEntriesByTag('{{prefix}}', 'system').length === 0">
+            <div ng-if="getEntriesByTag('{{prefix}}', TAG_SYSTEM).length === 0">
             <table class="table table-striped table-bordered">
                 <thead>
                     <th>Practices</th>
@@ -38,8 +38,8 @@
                     <tr id="[[practice[0].slug]]" ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
                         ng-show="getEntries('{{prefix}}').length > 0">
                         <td colspan="{% if '/sustainability/' in request.path %}5{% else %}4{% endif %}" ng-if="practice[0].consumption === null">
-                            <h4 class="text-blue" ng-if="practice[0].tag === 'system'"><a id="[[practice[0].slug]]" href="{% if organization %}{% url 'benchmark_organization' organization path %}{% else %}{% url 'benchmark' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a></h4>
-                            <h4 class="text-blue" ng-if="practice[0].tag !== 'system'">[[practice[0].title]]</h4>
+                            <h4 class="text-blue" ng-if="containsTag(practice[0], TAG_SYSTEM)"><a id="[[practice[0].slug]]" href="{% if organization %}{% url 'benchmark_organization' organization path %}{% else %}{% url 'benchmark' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a></h4>
+                            <h4 class="text-blue" ng-if="containsTag(practice[0], TAG_SYSTEM)">[[practice[0].title]]</h4>
                         </td>
                         <td class="td-fix-width"
                             ng-if="practice[0].consumption !== null">
