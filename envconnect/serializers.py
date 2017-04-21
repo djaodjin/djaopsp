@@ -23,6 +23,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
 
     path = serializers.CharField(required=False)
     text = serializers.CharField(required=False)
+    rank = serializers.SerializerMethodField()
     nb_respondents = serializers.SerializerMethodField()
     rate = serializers.SerializerMethodField()
     opportunity = serializers.SerializerMethodField()
@@ -40,12 +41,16 @@ class ConsumptionSerializer(serializers.ModelSerializer):
             "environmental_value", "business_value", "profitability",
             "implementation_ease", "avg_value",
             # benchmarks
-            "nb_respondents", "rate", "opportunity",
+            "rank", "nb_respondents", "rate", "opportunity",
             "implemented", "planned")
 
     @staticmethod
     def get_nb_respondents(obj):
         return obj.nb_respondents if hasattr(obj, 'nb_respondents') else 0
+
+    @staticmethod
+    def get_rank(obj):
+        return obj.rank
 
     @staticmethod
     def get_rate(obj):

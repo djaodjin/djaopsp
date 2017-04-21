@@ -60,7 +60,7 @@
                             <label for="{{choice|slugify}}-[[$index]]" style="margin-bottom:0">
                                 <input id="{{choice|slugify}}-[[$index]]" type="radio"
                                        value="{{choice}}"
-                                       name="implemented-[[$index]]"
+                                       name="implemented-[[practice[0].consumption.rank]]"
                                        ng-checked="practice[0].consumption.implemented === '{{choice}}'"
                                        ng-change="updateImprovement()"
                                        ng-model="practice[0].consumption.implemented" />
