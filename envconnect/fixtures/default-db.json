@@ -68,7 +68,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "tag": "industry,enabled",
+    "tag": "industry,metal,enabled",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 1
@@ -1776,7 +1776,7 @@
   "fields": {
     "title": "Distribution transformers",
     "slug": "distribution-transformers",
-    "tag": "industry",
+    "tag": "industry,metal",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 74
@@ -1785,7 +1785,7 @@
   "fields": {
     "title": "Fabricated metals",
     "slug": "fabricated-metals",
-    "tag": "industry",
+    "tag": "industry,metal",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 75
@@ -1794,7 +1794,7 @@
   "fields": {
     "title": "Wire & cable",
     "slug": "wire-and-cable",
-    "tag": "industry",
+    "tag": "industry,metal",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 76

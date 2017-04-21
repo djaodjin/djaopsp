@@ -18,9 +18,23 @@ class IndexView(PermissionMixin, TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(IndexView, self).get_context_data(*args, **kwargs)
-        for element in PageElement.objects.filter(tag__contains='industry'):
+        pre_industries = []
+        metal_industries = []
+        post_industries = []
+        for element in PageElement.objects.filter(
+                tag__contains='industry').exclude(
+                slug__startswith='basic-').order_by('title'):
             tags = element.tag.split(',')
             if 'enabled' in tags:
-                context.update({
-                    "%s_attrs" % element.slug.replace('-', '_'): "checked"})
+                setattr(element, 'enabled', True)
+            if 'metal' in tags:
+                metal_industries += [element]
+            elif element.title[0] < 'M':
+                pre_industries += [element]
+            else:
+                post_industries += [element]
+        context.update({
+            'pre_industries': pre_industries,
+            'metal_industries': metal_industries,
+            'post_industries': post_industries})
         return context

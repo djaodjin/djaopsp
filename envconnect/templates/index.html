@@ -48,142 +48,57 @@ header {
 						<span class="caret-icon"><i class="fa fa-caret-down"></i></span>
 					</button>
 					<ul class="dropdown-menu" role="menu" aria-labelledby="industry_selector">
+{% for industry in pre_industries %}
 						<li>
 							<div>
 {% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="distribution"
-{% if distribution_attrs %}{{distribution_attrs}}{% endif %} />
-<a id="distribution" role="menuitem" tabindex="-1">Distribution</a>
+<input type="checkbox" name="industry" value="{{industry}}"
+{% if industry.enabled %}checked{% endif %} />
+<a id="{{industry}}" href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
 {% else %}
-<a id="distribution" role="menuitem" tabindex="-1"
-{% if not distribution_attrs %}disabled{% endif %}>Distribution{% if not distribution_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
+<a id="{{industry}}"{% if industry.enabled %} href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/"{% endif %} role="menuitem" tabindex="-1"
+{% if not industry.enabled %}disabled{% endif %}>{{industry.title}}{% if not industry.enabled %} <i class="fa fa-wrench"></i>{% endif %}</a>
 {% endif %}
 							</div>
 						</li>
+{% endfor %}
 						<li>
 							<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="energy-utility"
-{% if energy_utility_attrs %}{{energy_utility_attrs}}{% endif %} />
-<a id="energy-utility" role="menuitem" tabindex="-1">Energy utility</a>
-{% else %}
-<a id="energy-utility" role="menuitem" tabindex="-1"
-{% if not energy_utility_attrs %}disabled{% endif %}>Energy utility{% if not energy_utility_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
-{% endif %}
-							</div>
-						</li>
-						<li>
-							<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="diversified-corporate-level"
-{% if diversified_corporate_level_attrs %}{{diversified_corporate_level_attrs}}{% endif %} />
-<a id="diversified-corporate-level" role="menuitem" tabindex="-1">Enterprise / corporate</a>
-{% else %}
-<a id="diversified-corporate-level" role="menuitem" tabindex="-1"
-{% if not diversified_corporate_level_attrs %}disabled{% endif %}>Enterprise / corporate{% if not diversified_corporate_level_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
-{% endif %}
-							</div>
-						</li>
-						<li>
-							<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="construction"
-{% if construction_attrs %}{{construction_attrs}}{% endif %} />
-<a id="construction" role="menuitem" tabindex="-1">Engineering, Procurement, Construction</a>
-{% else %}
-<a id="construction" role="menuitem" tabindex="-1"
-{% if not construction_attrs %}disabled{% endif %}>Engineering, Procurement, Construction{% if not construction_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
-{% endif %}
-							</div>
-						</li>
-						<li>
-							<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="fuel-supply"
-{% if fuel_supply_attrs %}{{fuel_supply_attrs}}{% endif %} />
-<a id="fuel-supply" role="menuitem" tabindex="-1">Fuel supply</a>
-{% else %}
-<a id="fuel-supply" role="menuitem" tabindex="-1"
-{% if not fuel_supply_attrs %}disabled{% endif %}>Fuel supply{% if not fuel_supply_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
-{% endif %}
-							</div>
-						</li>
 						<li><button disabled>Metal structures &amp; equipment</button>
 						<ul class="submenu">
+{% for industry in metal_industries %}
 							<li>
 								<div>
 {% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="boxes-and-enclosures"
-{% if boxes_and_enclosures_attrs %}{{boxes_and_enclosures_attrs}}{% endif %} />
-<a id="boxes-and-enclosures" role="menuitem" tabindex="-1">Boxes &amp; enclosures</a>
+<input type="checkbox" name="industry" value="{{industry}}"
+{% if industry.enabled %}checked{% endif %} />
+<a id="{{industry}}" href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
 {% else %}
-<a id="boxes-and-enclosures" role="menuitem" tabindex="-1"
-{% if not boxes_and_enclosures_attrs %}disabled{% endif %}>Boxes &amp; enclosures{% if not boxes_and_enclosures_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
+<a id="{{industry}}"{% if industry.enabled %} href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/"{% endif %} role="menuitem" tabindex="-1"
+{% if not industry.enabled %}disabled{% endif %}>{{industry.title}}{% if not industry.enabled %} <i class="fa fa-wrench"></i>{% endif %}</a>
 {% endif %}
 								</div>
 							</li>
-							<li>
-								<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="distribution-transformers"
-{% if distribution_transformers_attrs %}{{distribution_transformers_attrs}}{% endif %} />
-<a id="distribution-transformers" role="menuitem" tabindex="-1">Distribution transformers</a>
-{% else %}
-<a id="distribution-transformers" role="menuitem" tabindex="-1"
-{% if not distribution_transformers_attrs %}disabled{% endif %}>Distribution transformers{% if not distribution_transformers_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
-{% endif %}
-								</div>
-							</li>
-							<li>
-								<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="fabricated-metals"
-{% if fabricated_metals_attrs %}{{fabricated_metals_attrs}}{% endif %} />
-<a id="fabricated-metals" role="menuitem" tabindex="-1">Fabricated metals</a>
-{% else %}
-<a id="fabricated-metals" role="menuitem" tabindex="-1"
-{% if not fabricated_metals_attrs %}disabled{% endif %}>Fabricated metals{% if not fabricated_metals_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
-{% endif %}
-								</div>
-							</li>
-							<li>
-								<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="general-manufacturing"
-{% if general_manufacturing_attrs %}{{general_manufacturing_attrs}}{% endif %} />
-<a id="general-manufacturing" role="menuitem" tabindex="-1">General manufacturing</a>
-{% else %}
-<a id="general-manufacturing" role="menuitem" tabindex="-1"
-{% if not general_manufacturing_attrs %}disabled{% endif %}>General manufacturing{% if not general_manufacturing_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
-{% endif %}
-								</div>
-							</li>
-							<li>
-								<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="wire-and-cable"
-{% if wire_and_cable_attrs %}{{wire_and_cable_attrs}}{% endif %} />
-<a id="wire-and-cable" role="menuitem" tabindex="-1">Wire & cable</a>
-{% else %}
-<a id="wire-and-cable" role="menuitem" tabindex="-1"
-{% if not wire_and_cable_attrs %}disabled{% endif %}>Wire & cable{% if not wire_and_cable_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
-{% endif %}
-								</div>
-							</li>
+{% endfor %}
 						</ul>
 						</li>
+{% for industry in post_industries %}
 						<li>
 							<div>
 {% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="office-space-only"
-{% if office_space_only_attrs %}{{office_space_only_attrs}}{% endif %} />
-<a id="office-space-only" role="menuitem" tabindex="-1">Professional services</a>
+<input type="checkbox" name="industry" value="{{industry}}"
+{% if industry.enabled %}checked{% endif %} />
+<a id="{{industry}}" href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
 {% else %}
-<a id="office-space-only" role="menuitem" tabindex="-1"
-{% if not office_space_only_attrs %}disabled{% endif %}>Professional services{% if not office_space_only_attrs %} <i class="fa fa-wrench"></i>{% endif %}</a>
+<a id="{{industry}}"{% if industry.enabled %} href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/"{% endif %} role="menuitem" tabindex="-1"
+{% if not industry.enabled %}disabled{% endif %}>{{industry.title}}{% if not industry.enabled %} <i class="fa fa-wrench"></i>{% endif %}</a>
 {% endif %}
 							</div>
 						</li>
+{% endfor %}
+{% if request|is_broker_manager %}
+<!-- <li><button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal"><i class="fa fa-plus"></i> Add industry ...</button></li> -->
+{% endif %}
 					</ul>
 				</div>
 			</div>
@@ -372,7 +287,43 @@ for private benefit or profit.
 		</div>
 	</div>
 </div>
-<!-- dialog boxes -->
+<!-- modals -->
+<div id="add-pagelement-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addElement" style="color: #000;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addElement">Add...</h4>
+            </div>
+            <form class="form-inline">
+                <div class="modal-body">
+                    <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-warning add-element" type="submit">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="edit-element-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="edit element" style="color: #000;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Edit ...</h4>
+            </div>
+            <form class="form-inline" ng-submit="editElement($event)">
+                <div class="modal-body">
+                    <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title" ng-model="activeElement.title">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-warning" type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div id="welcome-screen" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Welcome screen" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -463,6 +414,7 @@ for private benefit or profit.
 		</div>
 	</div>
 </div>
+<!-- /modals -->
 {% endblock %}
 
 {% block bodyscripts %}
@@ -478,40 +430,6 @@ jQuery(document).ready(function($) {
     return false;
   });
 
-  // Make a bootstrap dropdown a select menu
-  $(".dropdown-menu li a[role='menuitem']").bind("click touchstart", function(e){
-    var element = $(this);
-    var selText = element.text();
-    var selId = element.attr("id");
-    var selector = element.parents(".dropdown-select").children(".dropdown-toggle");
-    if( selId && (typeof element.attr("disabled") === "undefined")
-          && !element.parent('li').hasClass("disabled") ) {
-      selector.html("<span class=\"text\">" + selText + "</span>\n" +
-        "<span class=\"caret-icon\"><i class=\"fa fa-caret-down\"></i></span>"
-      ).attr("id", selId);
-    }
-    if( selector.attr("id") ) {
-      var industrySelected = selector.attr("id");
-      redirectTo = "{{'app/info/sustainability/'|site_prefixed}}" + industrySelected + '/';
-      {% if user.is_authenticated %}
-      window.location = redirectTo;
-      {% else %}
-      window.location = "{{'register/'|site_prefixed}}?next=" + redirectTo;
-      {% endif %}
-    }
-  });
-
-  $("[name='industry']").change(function() {
-      var element = $(this);
-      element.baseEditor({
-        baseUrl: "{{'/api/editables/'|site_prefixed}}",
-        uniqueIdentifier: "value"});
-      if( element.is(':checked') ) {
-        element.data('editor').addTags("enabled");
-      } else {
-        element.data('editor').removeTags("enabled");
-      }
-  });
 {% if request|is_authenticated and not request.session.last_visited %}
     if ($("[data-trip]").length > 0){
         var trip = new Trip({
@@ -523,6 +441,43 @@ jQuery(document).ready(function($) {
         });
         trip.start();
     }
+{% endif %}
+
+{% if request|is_broker_manager %}
+  $("[name='industry']").change(function() {
+      var element = $(this);
+      element.baseEditor({
+        baseUrl: "{{'/api/editables/'|site_prefixed}}",
+        uniqueIdentifier: "value"});
+      if( element.is(':checked') ) {
+        element.data('editor').addTags("enabled");
+      } else {
+        element.data('editor').removeTags("enabled");
+      }
+  });
+
+  $(".add-element").click(function(event) {
+     event.preventDefault();
+     var form = $(this).parents("form");
+     var title = form.find("[name='title']").val();
+     $.ajax({
+         // api_page_elements
+         url: "{{'/api/editables/'|site_prefixed}}",
+         method: "POST",
+         data: JSON.stringify({title: title, tag: 'industry'}),
+         datatype: "json",
+         contentType: "application/json; charset=utf-8",
+         success: function() {
+             form.parents('.modal').modal('hide');
+             window.location = "";
+         },
+         error: function(resp) {
+             form.parents('.modal').modal('hide');
+             showErrorMessages(resp);
+         }
+     });
+     return false;
+    });
 {% endif %}
 });
 </script>
