@@ -220,7 +220,8 @@ class BenchmarkMixin(ReportMixin):
                 charts += [practice]
             else:
                 for practice_tuple in icon_tuple[1]:
-                    if settings.TAG_SCORECARD in practice_tuple[0].tag:
+                    if (practice_tuple[0].tag
+                        and settings.TAG_SCORECARD in practice_tuple[0].tag):
                         practice = {
                             'slug': practice_tuple[0].slug,
                             'title': icon_tuple[0].title,
