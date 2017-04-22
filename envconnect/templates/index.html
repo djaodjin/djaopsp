@@ -443,6 +443,18 @@ jQuery(document).ready(function($) {
     }
 {% endif %}
 
+{% if not request|is_authenticated %}
+  $(".dropdown-menu li a[role='menuitem']").bind("click touchstart",
+    function(event) {
+      event.preventDefault();
+      var element = $(this);
+      if( element.attr("id") ) {
+        redirectTo = element.attr("href");
+        window.location = "{{'register/'|site_prefixed}}?next=" + redirectTo;
+      }
+  });
+{% endif %}
+
 {% if request|is_broker_manager %}
   $("[name='industry']").change(function() {
       var element = $(this);
