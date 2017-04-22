@@ -6,23 +6,20 @@
     <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
     <fieldset style="margin: 0 15px;">
         <legend>Login Credentials</legend>
-        {{input_field(form['full_name'], form.hide_labels, extra_label_classes="col-sm-4", extra_control_classes="col-sm-8")}}
-        {{input_field(form['username'], form.hide_labels, extra_label_classes="col-sm-4", extra_control_classes="col-sm-8")}}
-        {{input_field(form['email'], form.hide_labels, extra_label_classes="col-sm-4", extra_control_classes="col-sm-8")}}
-        {{input_field(form['new_password1'], form.hide_labels, extra_label_classes="col-sm-4", extra_control_classes="col-sm-8")}}
-        {{input_field(form['new_password2'], form.hide_labels, extra_label_classes="col-sm-4", extra_control_classes="col-sm-8")}}
+        {{input_field(form['full_name'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['username'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['email'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['new_password1'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['new_password2'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
     </fieldset>
     <fieldset style="margin: 0 15px;">
         <legend>Organization</legend>
         <div class="form-group{% if form.organization_name.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
-            <label class="col-sm-4 control-label requiredField">Organization name<span class="asteriskField">*</span></label>
+            <label class="col-sm-5 control-label requiredField">Organization name<span class="asteriskField"><a id="organization-tooltip" style="color:inherit;" href="" data-toggle="tooltip" data-placement="right" title="&quot;Organization&quot; refers to the name of the entity that will be creating a profile on this website. Examples include, but aren’t limited to a corporation, business unit, facility, office, department, etc."><i class="fa fa-question"></i></a></span></label>
             {% endif %}
-            <div class="col-sm-8 controls">
+            <div class="col-sm-7 controls">
                 <input class="form-control" type="text" name="organization_name"{% if form.organization_name.value() %} value="{{form.organization_name.value()}}"{% endif %} style="float:right;">
-                <span style="position:absolute;right:-6px;padding-top:7px;">
-                    <i class="fa fa-question" data-toggle="tooltip" data-placement="top" title="&quot;Organization&quot; refers to the name of the entity that will be creating a profile on this website. Examples include, but aren’t limited to a corporation, business unit, facility, office, department, etc."></i>
-                </span>
                 {% for error in form.organization_name.errors %}
                 <span class="help-block"><strong>{{error}}</strong></span>
                 {% endfor %}
@@ -33,9 +30,9 @@
         </div>
         <div class="form-group{% if form.function.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
-            <label class="col-sm-4 control-label{% if form.function.field.required %} requiredField{% endif %}">{{ form.function.label|safe }}{% if form.function.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
+            <label class="col-sm-5 control-label{% if form.function.field.required %} requiredField{% endif %}">{{ form.function.label|safe }}{% if form.function.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
             {% endif %}
-            <div class="col-sm-8 controls">
+            <div class="col-sm-7 controls">
                 <select class="form-control" name="{{form.function.name}}">
                     <option>Please select...</option>
                     <option {% if form.function.value() == "ehs" %}selected="1"{% endif %} value="ehs">EHS</option>
@@ -54,9 +51,9 @@
         </div>
         <div class="form-group{% if form.industry.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
-            <label class="col-sm-4 control-label{% if form.industry.field.required %} requiredField{% endif %}">{{ form.industry.label|safe }}{% if form.industry.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
+            <label class="col-sm-5 control-label{% if form.industry.field.required %} requiredField{% endif %}">{{ form.industry.label|safe }}{% if form.industry.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
             {% endif %}
-            <div class="col-sm-8 controls">
+            <div class="col-sm-7 controls">
                 <select class="form-control" name="{{form.industry.name}}">
                     <option>Please select...</option>
                     <option {% if form.industry.value() == "distribution" %}selected="1"{% endif %} value="distribution">Distribution</option>
@@ -79,10 +76,10 @@
                 {% endif %}
             </div>
         </div>
-        {{input_field(form['parent_corporation'], form.hide_labels, extra_label_classes="col-sm-4", extra_control_classes="col-sm-8")}}
-        {{input_field(form['country'], form.hide_labels, extra_label_classes="col-sm-4", extra_control_classes="col-sm-8")}}
-        {{input_field(form['region'], form.hide_labels, extra_label_classes="col-sm-4", extra_control_classes="col-sm-8")}}
-        {{input_field(form['locality'], form.hide_labels, extra_label_classes="col-sm-4", extra_control_classes="col-sm-8")}}
+        {{input_field(form['parent_corporation'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['country'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['region'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['locality'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
     </fieldset>
         <p>
 By clicking on the &quot;Register&quot; button below,

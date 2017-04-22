@@ -53,6 +53,7 @@ package-theme: build-django-assets
 		--build_dir=$(objDir) --install_dir=data/themes \
 		--exclude='_form.html' --exclude='.*/' \
 		--include='accounts/' --include='saas/' --include='notification/'
+	zip -d $(srcDir)/data/themes/envconnect.zip "envconnect/templates/accounts/base.html"
 
 
 build-django-assets: clean

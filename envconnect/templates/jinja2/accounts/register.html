@@ -92,6 +92,12 @@ jQuery(document).ready(function($) {
 {% if already_present_candidate %}
   $("#join-organization").modal("show");
 {% endif %}
+
+  $("#organization-tooltip").tooltip();
+  $("#organization-tooltip").click(function(event){
+    event.preventDefault();
+    $("#organization-tooltip").tooltip('show');
+  });
 });
 </script>
 {% endblock %}
