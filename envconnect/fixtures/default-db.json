@@ -78,7 +78,7 @@
     "title": "Management",
     "slug": "management-basics",
     "text": "/media/envconnect/management-basics.png",
-    "tag": "management",
+    "tag": "management,scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 4
@@ -95,7 +95,7 @@
     "title": "Design",
     "slug": "design",
     "text": "/media/envconnect/design.png",
-    "tag": "life-cycle",
+    "tag": "life-cycle,scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 5
@@ -112,7 +112,7 @@
     "title": "Sourcing",
     "slug": "sourcing",
     "text": "/media/envconnect/sourcing.png",
-    "tag": "life-cycle",
+    "tag": "life-cycle,scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 6

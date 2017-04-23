@@ -9,7 +9,7 @@
 [[practice[0].title]]
 {% if request|is_broker_manager and not organization %}
 <a class="incl" href=""
-   ng-click="editElementTags(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa fa-eye[[containsTag(practice[0],TAG_SCORECARD) ? '' : '-slash']]"></i></a>
+   ng-click="editElementTags(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
 <a class="edit"
    href="" data-toggle="modal" data-target="#edit-element-modal"
    ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>

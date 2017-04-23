@@ -61,7 +61,7 @@
                                             {% with icon_tuple.0 as icon %}
                                                 {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
                                                 {% with forloop.first as draw_border %}
-                                                <li class="squared-tabs-li{% ifchanged icon.tag %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% if root.0.tag == 'industry' and icon.tag != 'management' %} arrow-right{% endif %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
+                                                <li class="squared-tabs-li{% ifchanged icon.tag %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% if root.0.tag == 'industry' and icon|containsTag:'management' %} arrow-right{% endif %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
                                                     <div class="icon-container">
 {% if request|is_broker_manager and not organization %}
 <div style="position:relative; vertical-align:top;">
@@ -69,10 +69,13 @@
    class="text-danger" data-toggle="modal" data-target="#confirm-delete"
    ng-click="setBestPractice('{{page_prefix|add:prefix}}', true)"
    style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i></a>
+<a id="incl-{{icon.slug}}" href=""
+   ng-click="editElementTags('{{page_prefix|add:prefix}}', true, {slug: '{{icon.slug}}', tag: '{{icon.tag}}'})"
+   style="position:absolute;top:20px;left:0px;"><i class="fa [[containsTag({tag: '{{icon.tag}}'}, TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
 <a id="edit-{{icon.slug}}" href=""
    data-toggle="modal" data-target="#edit-element-modal"
    ng-click="setBestPractice('{{page_prefix|add:prefix}}', true, {slug: '{{icon.slug}}', title: '{{icon.title}}' })"
-   style="position:absolute;top:20px;left:0px;"><i class="fa fa-edit"></i></a>
+   style="position:absolute;top:40px;left:0px;"><i class="fa fa-edit"></i></a>
 </div>
 {% endif %}
 {% include "envconnect/_icon.html" with icon=icon %}
@@ -94,7 +97,7 @@
 
                                                             {% if request|is_broker_manager and not organization %}
 <a id="incl-[[practice[0].slug]]" href=""
-   ng-click="editElementTags(getPath(practice, '{{prefix}}'), false, practice[0])"><i class="fa fa-eye[[containsTag(practice[0],TAG_SCORECARD) ? '' : '-slash']]"></i></a>
+   ng-click="editElementTags(getPath(practice, '{{prefix}}'), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
 <a id="edit-[[practice[0].slug]]" href=""
    data-toggle="modal" data-target="#edit-element-modal"
    ng-click="setBestPractice(getPath(practice, '{{prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>

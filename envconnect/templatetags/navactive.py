@@ -134,6 +134,13 @@ def previous_to_last(breadcrumbs):
     return breadcrumbs[-2]
 
 @register.filter
+def containsTag(node, tag):#pylint:disable=invalid-name
+    try:
+        return tag in node.tag
+    except AttributeError:
+        return tag in node['tag']
+
+@register.filter
 def systems(nodes):
     return [node for node in nodes
         if node[0].tag and settings.TAG_SCORECARD in node[0].tag]

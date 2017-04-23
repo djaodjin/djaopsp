@@ -14,7 +14,7 @@
       <div class="col-md-4">
           <div id="{{practice.slug}}" class="chart-container">
               <div class="chart-title">
-                  <div class="icon-benchmark {% if practice.tag == 'management' %} grey{% else %} orange{% endif %}">
+                  <div class="icon-benchmark {% if practice|containsTag:'management' %} grey{% else %} orange{% endif %}">
                       {% if practice.text %}
                       <img class="icon-equipment" src="{{practice.text}}">
                       {% else %}

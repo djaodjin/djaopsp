@@ -452,6 +452,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 {"tag": $scope.TAG_SCORECARD}).then(
                 function success(resp) {
                     element.tag = resp.data.tag;
+                    if( reload ) { window.location = ""; }
                 }, function error(resp) {
                     showErrorMessage(resp);
                 });
@@ -461,6 +462,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 {"tag": $scope.TAG_SCORECARD}).then(
                 function success(resp) {
                     element.tag = resp.data.tag;
+                    if( reload ) { window.location = ""; }
                 }, function error(resp) {
                     showErrorMessage(resp);
                 });

@@ -25,7 +25,7 @@
           </div>
           <div id="{{page_icon.slug}}" class="benchmark distribution-chart bordered-left" ng-show="activeIcon === null">
             <div class="chart-title">
-              <div class="icon-benchmark {% if page_icon.tag == 'management' %} grey{% else %} orange{% endif %}">
+              <div class="icon-benchmark {% if page_icon|containsTag:'management' %} grey{% else %} orange{% endif %}">
                 {% if page_icon.text %}
                 <img class="icon-equipment" src="{{page_icon.text}}">
                 {% else %}
@@ -50,7 +50,7 @@
           {% with icon_tuple.0 as icon %}
           <div id="{{icon.slug}}" class="benchmark distribution-chart bordered-left" ng-show="activeIcon === '{{icon}}'">
             <div class="chart-title">
-              <div class="icon-benchmark {% if icon.tag == 'management' %} grey{% else %} orange{% endif %}">
+              <div class="icon-benchmark {% if icon|containsTag:'management' %} grey{% else %} orange{% endif %}">
                 {% if icon.text %}
                 <img class="icon-equipment" src="{{icon.text}}">
                 {% else %}

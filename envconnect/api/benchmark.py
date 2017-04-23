@@ -187,58 +187,43 @@ class BenchmarkMixin(ReportMixin):
             leafs.update(self.get_leafs(level_detail, path=key))
         return leafs
 
-    @staticmethod
-    def get_charts(groups, path=None):
+    def get_charts(self, groups, path=None, title=None, text=None, tag=None):
+        #pylint:disable=too-many-arguments
         charts = []
         complete = True
         if path is None:
             path = '/'
         for icon_tuple in groups:
-            icon = {
-                'slug': icon_tuple[0].slug,
-                'title': icon_tuple[0].title,
-                'text': icon_tuple[0].text,
-                'tag': icon_tuple[0].tag,
-                'score_weight': ScoreWeight.objects.from_path(
-                    path + '/' + icon_tuple[0].slug)
-            }
+            icon_path = path + '/' + icon_tuple[0].slug
             nb_answers = getattr(icon_tuple[0], 'nb_answers', 0)
             nb_questions = getattr(icon_tuple[0], 'nb_questions', 1)
             complete &= (nb_answers == nb_questions)
-            transparent_to_rollover = True
-            for practice_tuple in icon_tuple[1]:
-                transparent_to_rollover &= (
-                    practice_tuple[0].tag is None
-                    or settings.TAG_SCORECARD not in practice_tuple[0].tag)
-            if transparent_to_rollover:
-                practice = {
-                    'nb_questions': getattr(icon_tuple[0], 'nb_questions', 0),
-                    'nb_answers': nb_answers,
-                    'distribution': getattr(icon_tuple[0], 'distribution', {})
-                }
-                practice.update(icon)
-                charts += [practice]
-            else:
-                for practice_tuple in icon_tuple[1]:
-                    if (practice_tuple[0].tag
-                        and settings.TAG_SCORECARD in practice_tuple[0].tag):
-                        practice = {
-                            'slug': practice_tuple[0].slug,
-                            'title': icon_tuple[0].title,
-                            'text': icon_tuple[0].text,
-                            'tag': icon_tuple[0].tag,
-                            'subtitle': practice_tuple[0].title,
-                            'score_weight': ScoreWeight.objects.from_path(
-                                path + '/' + icon_tuple[0].slug
-                                + '/' + practice_tuple[0].slug),
-                            'nb_questions': getattr(
-                                practice_tuple[0], 'nb_questions', 0),
-                            'nb_answers': getattr(
-                                practice_tuple[0], 'nb_answers', 0),
-                            'distribution': getattr(
-                                practice_tuple[0], 'distribution', {})
-                        }
-                        charts += [practice]
+            icon = {
+                'slug': icon_tuple[0].slug,
+                'title': icon_tuple[0].title if title is None else title,
+                'text': icon_tuple[0].text if text is None else text,
+                'tag': icon_tuple[0].tag if tag is None else tag,
+                'subtitle': icon_tuple[0].title if title is not None else None,
+                'score_weight': ScoreWeight.objects.from_path(icon_path),
+                'nb_answers': nb_answers,
+                'nb_questions': getattr(icon_tuple[0], 'nb_questions', 0),
+                'distribution': getattr(icon_tuple[0], 'distribution', {})
+            }
+            if (icon_tuple[0].tag
+                and settings.TAG_SCORECARD in icon_tuple[0].tag):
+                charts += [icon]
+            sub_charts, _ = self.get_charts(
+                icon_tuple[1], path=icon_path,
+                title=icon_tuple[0].title
+                    if icon_tuple[0].text
+                        and icon_tuple[0].text.endswith('.png') else None,
+                text=icon_tuple[0].text
+                    if icon_tuple[0].text
+                        and icon_tuple[0].text.endswith('.png') else None,
+                tag=icon_tuple[0].tag
+                    if icon_tuple[0].text
+                        and icon_tuple[0].text.endswith('.png') else None)
+            charts += sub_charts
         return charts, complete
 
 
