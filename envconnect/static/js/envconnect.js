@@ -630,6 +630,15 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
     };
 
+    $scope.activeIcon = null;
+    $scope.toggleIcons = function(event, iconSlug) {
+        if( $scope.activeIcon === iconSlug ) {
+            $scope.activeIcon = null;
+        } else {
+            $scope.activeIcon = iconSlug;
+        }
+    };
+
     var savingsElements = angular.element("#improvement-dashboard").find(".savings");
     if( savingsElements.length > 0 ) {
         $scope.savingsChart = speedometer(savingsElements[0]);

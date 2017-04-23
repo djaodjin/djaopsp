@@ -23,7 +23,7 @@
             <div id="total-score" class="distribution-chart chart-content">
             </div>
           </div>
-          <div id="{{page_icon.slug}}" class="benchmark distribution-chart bordered-left">
+          <div id="{{page_icon.slug}}" class="benchmark distribution-chart bordered-left" ng-show="activeIcon === null">
             <div class="chart-title">
               <div class="icon-benchmark {% if page_icon.tag == 'management' %} grey{% else %} orange{% endif %}">
                 {% if page_icon.text %}
@@ -46,6 +46,28 @@
               </div>
             </div>
           </div>
+          {% for icon_tuple in root.1  %}
+          {% with icon_tuple.0 as icon %}
+          <div id="{{icon.slug}}" class="benchmark distribution-chart bordered-left" ng-show="activeIcon === '{{icon}}'">
+            <div class="chart-title">
+              <div class="icon-benchmark {% if icon.tag == 'management' %} grey{% else %} orange{% endif %}">
+                {% if icon.text %}
+                <img class="icon-equipment" src="{{icon.text}}">
+                {% else %}
+                <div class="icon-equipment">{{icon.title}}</div>
+                {% endif %}
+              </div>
+              <div class="title">
+                <h3>{{icon.title}}</h3>
+              </div>
+            </div>
+            <div>
+              <div class="chart-content c3" style="width:250px;height:120px;">
+              </div>
+            </div>
+          </div>
+          {% endwith %}
+          {% endfor %}
         </div>
         <div class="col-sm-6">
           <div class="row">

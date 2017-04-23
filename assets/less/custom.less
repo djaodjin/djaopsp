@@ -83,6 +83,7 @@ div.improvement-planning {
   margin: 0;
   bottom: -34px;
   left: 0;
+  z-index: 1; // displays under footer otherwise
 }
 
 div.improvement-planning>div {
@@ -92,6 +93,11 @@ div.improvement-planning>div {
   width: 95%;
   max-width: 1135px;
   margin: auto;
+  pointer-events: none;
+}
+
+div.improvement-planning>div>button {
+  pointer-events: all;
 }
 
 div.improvement-planning .inner {
