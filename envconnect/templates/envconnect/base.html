@@ -61,7 +61,7 @@
                                             {% with icon_tuple.0 as icon %}
                                                 {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
                                                 {% with forloop.first as draw_border %}
-                                                <li class="squared-tabs-li{% ifchanged icon.tag %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% if root.0.tag == 'industry' and icon|containsTag:'management' %} arrow-right{% endif %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
+                                                <li class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% if root.0.tag == 'industry' and icon|containsTag:'management' %} arrow-right{% endif %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
                                                     <div class="icon-container">
 {% if request|is_broker_manager and not organization %}
 <div style="position:relative; vertical-align:top;">
