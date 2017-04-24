@@ -133,12 +133,19 @@ def markdown_filter_pdf(value, request):
 def previous_to_last(breadcrumbs):
     return breadcrumbs[-2]
 
+
 @register.filter
 def containsTag(node, tag):#pylint:disable=invalid-name
     try:
-        return tag in node.tag
+        return node.tag and tag in node.tag
     except AttributeError:
-        return tag in node['tag']
+        pass
+    try:
+        return tag in node.get('tag', '')
+    except KeyError:
+        pass
+    return False
+
 
 @register.filter
 def systems(nodes):
