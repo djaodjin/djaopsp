@@ -18,14 +18,12 @@ You were added as a {{role}} to {{organization.printable_name|safe}}
 <p>
 You are receiving this email, because you have been added
 {% if request_user %}by {{request_user.printable_name}}{% endif %}
-as a {{role.title}} on {{organization.printable_name}} website for your
-<a href="{{back_url}}">organization’s profile</a>.
-You can access the account for your organization by clicking on the previous
-link, or by cutting and pasting the following link into your browser:
+as a {{role}} on {{broker.printable_name}} website for
+{{organization.printable_name}}'s organization profile.
+You can access the information on
+<a href="{{back_url}}">{{organization.printable_name}}</a> by clicking
+on the previous link, or by cutting and pasting the following link into
+your browser:
 {{back_url}}.
-</p>
-<p>
-As a {{role.title}} you are able to help complete the Self Assessment and
-Improvement Planning information for your organization.
 </p>
 {% endblock %}
