@@ -553,9 +553,9 @@ class BenchmarkMixin(ReportMixin):
             " survey_answer.id, expected_opportunities.response_id,"\
             " expected_opportunities.question_id, "\
           " CASE WHEN text = '%(yes)s' THEN (opportunity * 3)"\
-          " CASE WHEN text = '%(moderate_improvement)s' THEN (opportunity * 2)"\
-          " CASE WHEN text = '%(significant_improvement)s' THEN opportunity "\
-          " ELSE 0.0 END AS numerator,"\
+          "      WHEN text = '%(moderate_improvement)s' THEN (opportunity * 2)"\
+          "      WHEN text = '%(significant_improvement)s' THEN opportunity "\
+          "      ELSE 0.0 END AS numerator,"\
           " CASE WHEN text IN"\
             " %(yes_no)s THEN (opportunity * 3) ELSE 0.0 END AS denominator,"\
             " expected_opportunities.path AS path,"\
