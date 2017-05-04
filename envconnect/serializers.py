@@ -69,7 +69,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
             return obj.opportunity
         opportunities = self.context.get('opportunities', None)
         if opportunities is not None:
-            return opportunities.get(obj.pk, 0)
+            return opportunities.get(obj.pk, 0) * 3
         return 0
 
 

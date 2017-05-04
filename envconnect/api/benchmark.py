@@ -519,8 +519,9 @@ class BenchmarkMixin(ReportMixin):
         # ANSWER_TEXT = 7
         scored_improvements = "SELECT expected_opportunities.account_id,"\
             " envconnect_improvement.id, expected_opportunities.response_id,"\
-            " expected_opportunities.question_id, opportunity AS numerator,"\
-            " opportunity AS denominator,"\
+            " expected_opportunities.question_id,"\
+            " (opportunity * 3) AS numerator,"\
+            " (opportunity * 3) AS denominator,"\
             " expected_opportunities.path AS path"\
             " FROM (%(expected_opportunities)s) AS expected_opportunities"\
             " INNER JOIN envconnect_improvement "\
@@ -550,9 +551,13 @@ class BenchmarkMixin(ReportMixin):
         # ANSWER_CREATED_AT = 8
         scored_answers = "SELECT expected_opportunities.account_id,"\
             " survey_answer.id, expected_opportunities.response_id,"\
-            " expected_opportunities.question_id, CASE WHEN text IN %(yes)s"\
-            " THEN opportunity ELSE 0.0 END AS numerator, CASE WHEN text IN"\
-            " %(yes_no)s THEN opportunity ELSE 0.0 END AS denominator,"\
+            " expected_opportunities.question_id, "\
+          " CASE WHEN text = '%(yes)s' THEN (opportunity * 3)"\
+          " CASE WHEN text = '%(moderate_improvement)s' THEN (opportunity * 2)"\
+          " CASE WHEN text = '%(significant_improvement)s' THEN opportunity "\
+          " ELSE 0.0 END AS numerator,"\
+          " CASE WHEN text IN"\
+            " %(yes_no)s THEN (opportunity * 3) ELSE 0.0 END AS denominator,"\
             " expected_opportunities.path AS path,"\
             " survey_answer.text, survey_answer.created_at"\
             " FROM (%(expected_opportunities)s) AS expected_opportunities"\
@@ -560,7 +565,10 @@ class BenchmarkMixin(ReportMixin):
             " = expected_opportunities.question_id"\
             " AND survey_answer.response_id ="\
             " expected_opportunities.response_id" % {
-                'yes': tuple(Consumption.PRESENT),
+                'yes': Consumption.YES,
+                'moderate_improvement': Consumption.NEEDS_MODERATE_IMPROVEMENT,
+                'significant_improvement':
+                    Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
                 'yes_no': tuple(Consumption.PRESENT + Consumption.ABSENT),
                 'expected_opportunities': self.get_expected_opportunities()}
         self._show_query_and_result(scored_answers)

@@ -32,7 +32,7 @@ indicator for a best practice.
 {% endblock %}
 
 {% block score %}
-<div id="{{icon.slug}}-score" class="icon-score" data-toggle="tooltip" data-placement="top" title="An icon sore is the sum of all (opportunity scores where answered 'yes') * 100 / sum of all (opportunity column where answered 'yes' or 'no')">
+<div id="{{icon.slug}}-score" class="icon-score" data-toggle="tooltip" data-placement="top" title="An icon sore is the sum of all (3 * opportunity where answered 'yes', 2 * opportunity where answered 'needs little improvement', opportunity  where answered 'needs lot of improvement') * 100 / sum of all (opportunity where not answered 'Not applicable')">
     <h3 class="rollup-score"><i class="fa fa-spinner fa-spin"></i></h3>
     <div>
         (<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{prefix}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)
