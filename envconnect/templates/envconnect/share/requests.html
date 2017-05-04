@@ -122,7 +122,8 @@
 
   <!-- modal dialog to add a request to add a role to a user
        on an organization. -->
-  <div class="add-role-modal modal fade" tabindex="-1" role="dialog"
+  <div id="new-user-relation"
+       class="add-role-modal modal fade" tabindex="-1" role="dialog"
        aria-labelledby="Request access" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -134,8 +135,8 @@
         <form>
           <div class="modal-body">
             <p class="text-danger" ng-model="item">
-[[item.full_name]] was not found. This is an opportunity to invite
-a manager for [[item.full_name]] to join {{site.printable_name}}.
+[[item.printable_name]] was not found. This is an opportunity to invite
+a manager for [[item.printable_name]] to join The Sustainability Project.
             </p>
             <div class="form-group" style="margin-bottom: 15px;">
               <div class="col-sm-2">
@@ -151,13 +152,11 @@ a manager for [[item.full_name]] to join {{site.printable_name}}.
             <div id="div_id_new_user_relation" class="form-group">
               <div class="controls">
                 <label>The following invite message will be sent:</label>
-                <textarea class="form-control form-control"
-                          name="message"
-                          ng-model="item.message"
+                <textarea class="form-control" name="message"
                           maxlength="255" type="text" rows="10">
 Hello,
 
-I would like to request access to [[item.full_name]].
+I would like to request access to [[item.printable_name]].
 
 Thank you,
 - {{request.user.first_name}}

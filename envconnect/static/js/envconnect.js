@@ -851,6 +851,12 @@ envconnectControllers.controller("relationListCtrl",
 
     $scope.save = function($event) {
         $event.preventDefault();
+        if( typeof $scope.item.email === "undefined" ) {
+            // If we don't select from the drop-down list of candidates
+            // we only get an e-mail string.
+            $scope.item = {slug: $scope.item, email: $scope.item,
+                printable_name: $scope.item};
+        }
         $http.post(settings.urls.api_items, $scope.item).then(
             function(success) {
                 // XXX Couldn't figure out how to get the status code
