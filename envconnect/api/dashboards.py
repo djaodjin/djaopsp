@@ -4,6 +4,7 @@
 import re
 
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from survey.api.matrix import MatrixDetailAPIView
 from survey.models import EditableFilter
 from survey.utils import get_account_model
@@ -39,8 +40,21 @@ class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
         ]
     """
 
-    def aggregate_scores(self, metric, cohorts, cut=None):
+    def get_accounts(self):
+        queryset = super(TotalScoreBySubsectorAPIView, self).get_accounts()
+        # WHERE user = request.user
+        #     AND (request_key IS NULL
+        #          OR (request_key IS NOT NULL AND grant_key IS NOT NULL))
+        return queryset.filter(
+            Q(role__request_key__isnull=True)
+            | (Q(role__request_key__isnull=False)
+               & Q(role__grant_key__isnull=False)),
+            role__user=self.request.user)
+
+    def aggregate_scores(self, metric, cohorts, cut=None, accounts=None):
         #pylint:disable=unused-argument
+        if accounts is None:
+            accounts = get_account_model().objects.all()
         scores = {}
         rollup_tree = self.rollup_scores()
         rollup_scores = self.get_drilldown(rollup_tree, metric.slug)
@@ -48,10 +62,9 @@ class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
             score = 0
             if isinstance(cohort, EditableFilter):
                 includes, excludes = cohort.as_kwargs()
-                accounts = get_account_model().objects.filter(
-                    **includes).exclude(**excludes)
                 nb_accounts = 0
-                for account in accounts:
+                for account in accounts.filter(
+                        **includes).exclude(**excludes):
                     account_score = rollup_scores.get(account.pk, None)
                     if account_score is not None:
                         score += account_score.get('normalized_score', 0)
