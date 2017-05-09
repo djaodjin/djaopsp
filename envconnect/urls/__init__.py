@@ -82,6 +82,11 @@ urlpatterns += [
             pattern_name='matrix_chart',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='envconnect_portfolio'),
+    url_authenticated(r'app/info/requests/',
+        AccountRedirectBaseView.as_view(
+            pattern_name='organization_reporting_entities',
+            new_account_url='/%sapp/new/' % APP_PREFIX),
+        name='envconnect_share_requests'),
     url_authenticated(r'app/info/report(?P<path>%s)/' % settings.PATH_RE,
         AccountRedirectView.as_view(pattern_name='report_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX), name='report'),
@@ -95,9 +100,6 @@ urlpatterns += [
             pattern_name='benchmark_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='benchmark'),
-    url_authenticated(r'app/info/requests/',
-        ReportingEntitiesView.as_view(),
-        name='envconnect_share_requests'),
     url_authenticated(r'app/info/detail(?P<path>%s)/' % settings.PATH_RE,
         BestPracticeDetailView.as_view(), name='best_practice_detail'),
     url_authenticated(r'app/info(?P<path>%s)/' % settings.PATH_RE,
@@ -116,9 +118,13 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/report/print/'\
 '(?P<industry>%s)/' % (SLUG_RE, SLUG_RE),
         ReportPDFView.as_view(), name='envconnect_report_print'),
+    url_direct(r'app/(?P<organization>%s)/reporting/' % SLUG_RE,
+        ReportingEntitiesView.as_view(),
+        name='organization_reporting_entities'),
     url_direct(r'app/(?P<organization>%s)/portfolios(?P<path>%s)/'
                % (SLUG_RE, NON_EMPTY_PATH_RE),
         PortfoliosDetailView.as_view(), name='matrix_chart'),
+
     url_direct(r'app/(?P<organization>%s)/portfolios/' % SLUG_RE,
         include('survey.urls.matrix')),
     url_direct(r'app/(?P<organization>%s)/report(?P<path>%s)/download/' % (

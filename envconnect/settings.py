@@ -417,8 +417,6 @@ AUTHENTICATION_BACKENDS = (
 # ----------------
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 SESSION_ENGINE = 'deployutils.backends.encrypted_cookies'
-AUTHENTICATION_BACKENDS = (
-    'deployutils.backends.auth.ProxyUserBackend',) + AUTHENTICATION_BACKENDS
 
 DEPLOYUTILS = {
     # Hardcoded mockups here.

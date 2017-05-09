@@ -593,11 +593,17 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     $scope.toggleMyTSP = function(event, defaultUrl) {
-        if( !$scope.scoreToggle ) {
-            window.location = settings.urls.totals_chart;
-        } else {
-            window.location = defaultUrl;
+        var urlParts = window.location.href.split('/');
+        urlParts.pop();
+        if( window.location.href[window.location.href.length - 1] === '/' ) {
+            urlParts.pop();
         }
+        if( !$scope.scoreToggle ) {
+            urlParts.push('portfolios', 'totals');
+        } else {
+            urlParts.push('reporting');
+        }
+        window.location = urlParts.join('/') + '/';
     };
 
     /** Called when a user clicks on the "Improvement Planning" checkbox.
@@ -854,8 +860,7 @@ envconnectControllers.controller("relationListCtrl",
         if( typeof $scope.item.email === "undefined" ) {
             // If we don't select from the drop-down list of candidates
             // we only get an e-mail string.
-            $scope.item = {slug: $scope.item, email: $scope.item,
-                printable_name: $scope.item};
+            $scope.item = {email: $scope.item, printable_name: $scope.item};
         }
         $http.post(settings.urls.api_items, $scope.item).then(
             function(success) {
@@ -866,7 +871,6 @@ envconnectControllers.controller("relationListCtrl",
             },
             function(resp) {
                 if( resp.status === 404 ) {
-                    $scope.item.email = $scope.item.slug;
                     angular.element(settings.modalId).modal("show");
                 } else {
                     showErrorMessages(resp);
@@ -876,8 +880,12 @@ envconnectControllers.controller("relationListCtrl",
 
     $scope.remove = function ($event, idx) {
         $event.preventDefault();
-        $http.delete(settings.urls.api_items
-                + $scope.items.results[idx].organization.slug).then(
+        var removeUrl = settings.urls.api_items
+            + $scope.items.results[idx].organization.slug;
+        if( $scope.items.results[idx].role_description ) {
+            removeUrl += '/' + $scope.items.results[idx].role_description
+        }
+        $http.delete(removeUrl).then(
             function success(resp) {
                 $scope.items.results.splice(idx, 1);
             },
