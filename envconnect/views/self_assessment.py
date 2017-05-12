@@ -76,7 +76,7 @@ class SelfAssessmentCSVView(BenchmarkBaseView):
                         row += ['X']
                     else:
                         row += ['']
-                csv_writer.writerow(row)
+                csv_writer.writerow([rec.encode('utf-8') for rec in row])
         else:
             csv_writer.writerow([indent + root[0].title])
             for element in root[1]:
