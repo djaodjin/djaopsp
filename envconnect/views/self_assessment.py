@@ -83,7 +83,10 @@ class SelfAssessmentCSVView(BenchmarkBaseView):
                 self.write_tree(element, csv_writer, indent=indent + '  ')
 
     def get(self, *args, **kwargs): #pylint: disable=unused-argument
-        _ = self.get_context_data(**kwargs)
+        # All self-assessment questions for an industry, regardless
+        # of the actual from_path.
+        _, trail = self.breadcrumbs
+        self.root = self._build_tree(trail[0][0], nocuts=True)
         try:
             view_response = self.sample
         except Http404:
