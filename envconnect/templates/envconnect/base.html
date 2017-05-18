@@ -249,7 +249,7 @@ app.constant('settings', {
     root_prefix: {% if page_prefix and root %}"{{page_prefix|add:'/'|add:root.0.slug}}"{% elif root %}"{{'/'|add:root.0.slug}}"{% else %}""{% endif %},
     entries: {% if entries %}{{entries|safe}}{% else %}{}{% endif %},
     hidden: {% if hidden %}{{hidden|safe}}{% else %}{}{% endif %},
-    valueSummaryToggle: {% if value_toggle %}true{% else %}false{% endif %},
+    valueSummaryToggle: true,
     scoreToggle: {% if score_toggle %}true{% else %}false{% endif %},
 {% if sort_by %}
     sortBy:{{sort_by|safe}}
