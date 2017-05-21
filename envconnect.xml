@@ -20,7 +20,7 @@
         <bin>dws</bin>
         <share>(dws)/prefix.mk</share>
       </dep>
-      <dep name="Django" target="python">
+      <dep name="Django" target="python" includes="1.9.9">
         <lib>.*/(django)/__init__.py</lib>
       </dep>
       <dep name="gunicorn" target="python">
