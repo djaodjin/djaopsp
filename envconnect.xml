@@ -63,6 +63,12 @@
       <dep name="djaodjin-answers" target="python">
         <lib>.*/(answers)/__init__.py</lib>
       </dep>
+      <dep name="contrib/django-voting">
+        <!-- django-voting is specified in the requirements
+             for djaodjin-answers unfortunately the version currently
+             on pipy does not support recent versions of Django -->
+        <lib>.*/(voting)/__init__.py</lib>
+      </dep>
       <dep name="djaodjin-survey" target="python">
         <lib>.*/(survey)/__init__.py</lib>
       </dep>
@@ -154,8 +160,8 @@ settings.AUTH_USER_MODEL.
     <repository>
       <sync>contrib/django-voting.git</sync>
       <shell>
-cd $srcTop/contrib/django-voting
-python setup.py install --quiet
+cd ${srcTop}/contrib/django-voting
+${binDir}/python setup.py install --quiet
       </shell>
     </repository>
   </project>
