@@ -11,7 +11,7 @@ from pages.models import PageElement
 from survey.models import Answer, Question
 from survey.views.response import (
     ResponseUpdateView as BaseResponseUpdateView)
-from xhtml2pdf import pisa
+from extended_templates.backends.pdf import PdfTemplateResponse
 
 from ..mixins import BestPracticeMixin, ImprovementQuerySetMixin
 from ..models import Consumption
@@ -146,12 +146,4 @@ class ReportPDFView(ImprovementQuerySetMixin, ListView):
         industry = PageElement.objects.get(slug=self.kwargs.get('industry'))
         context.update({'industry':industry})
         context.update({'report_items':report_items})
-        response = HttpResponse(content_type="application/pdf")
-        html = self.render_to_response(context).render()
-        result = StringIO.StringIO()
-        pdf = pisa.pisaDocument(
-            StringIO.StringIO(html.content), result, encoding='UTF-8')
-        if not pdf.err:
-            response = HttpResponse(
-                result.getvalue(), content_type='application/pdf')
-        return response
+        return PdfTemplateResponse(request, self.template_name, context)

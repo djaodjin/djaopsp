@@ -19,9 +19,6 @@ class BestPracticeDetailView(BestPracticeMixin, PageElementDetailView):
     context_object_name = 'best_practice'
     template_name = 'envconnect/best_practice.html'
 
-    def get_breadcrumb_url(self):
-        return self.kwargs.get('category', self.breadcrumb_url)
-
     def get_object(self, queryset=None):
         return self.best_practice
 
@@ -32,8 +29,8 @@ class BestPracticeDetailView(BestPracticeMixin, PageElementDetailView):
             'icon': self.icon,
             'path': self.kwargs.get('path'),
             'question': self.question})
-        if 'organization' in self.kwargs:
-            organization = self.kwargs.get('organization')
+        organization = self.kwargs.get('organization', None)
+        if organization:
             context.update({'organization': organization})
         if self.request.user.is_authenticated:
             context.update({'is_following': Follow.objects.get_followers(

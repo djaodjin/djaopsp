@@ -17,6 +17,7 @@ ASSETS_DIR    := $(srcDir)/htdocs/static
 PIP           := $(binDir)/pip
 PYTHON        := $(binDir)/python
 installFiles  := install -p -m 644
+MANAGE        := ENVCONNECT_CONFIG_DIR=$(CONFIG_DIR) $(PYTHON) manage.py
 
 DB_FILENAME   := $(shell grep ^DB_NAME $(CONFIG_DIR)/site.conf | cut -f 2 -d '"')
 
@@ -24,7 +25,7 @@ DB_FILENAME   := $(shell grep ^DB_NAME $(CONFIG_DIR)/site.conf | cut -f 2 -d '"'
 # requires a --run-syncdb argument.
 # Implementation Note: We have to wait for the config files to be installed
 # before running the manage.py command (else missing SECRECT_KEY).
-RUNSYNCDB     = $(if $(findstring --run-syncdb,$(shell cd $(srcDir) && $(PYTHON) manage.py migrate --help 2>/dev/null)),--run-syncdb,)
+RUNSYNCDB     = $(if $(findstring --run-syncdb,$(shell cd $(srcDir) && $(MANAGE) migrate --help 2>/dev/null)),--run-syncdb,)
 
 # We generate the SECRET_KEY this way so it can be overriden
 # in test environments.
@@ -49,7 +50,7 @@ clean:
 
 package-theme: build-django-assets
 	cd $(srcDir) && DEBUG=0 FEATURES_REVERT_TO_DJANGO=0 \
-		$(PYTHON) manage.py package_theme \
+		$(MANAGE) package_theme \
 		--build_dir=$(objDir) --install_dir=data/themes \
 		--exclude='_form.html' --exclude='.*/' \
 		--include='accounts/' --include='saas/' --include='notification/'
@@ -57,7 +58,7 @@ package-theme: build-django-assets
 
 
 build-django-assets: clean
-	cd $(srcDir) && DEBUG=1 $(PYTHON) manage.py assets build
+	cd $(srcDir) && DEBUG=1 $(MANAGE) assets build
 
 
 # download and install prerequisites then create the db.
@@ -66,24 +67,22 @@ require: require-pip require-resources initdb
 # XXX streetsidelite is necessary for account field in pages_element.
 initdb: install-conf
 	-[ -f $(DB_FILENAME) ] && rm -f $(DB_FILENAME)
-	cd $(srcDir) && ENVCONNECT_CONFIG_DIR=$(CONFIG_DIR) \
-		$(PYTHON) ./manage.py migrate $(RUNSYNCDB) --noinput
-	cd $(srcDir) && ENVCONNECT_CONFIG_DIR=$(CONFIG_DIR) \
-		$(PYTHON) ./manage.py loaddata \
+	cd $(srcDir) && $(MANAGE) migrate $(RUNSYNCDB) --noinput
+	cd $(srcDir) && $(MANAGE) loaddata \
 			envconnect/fixtures/streetsidelite.json \
 			envconnect/fixtures/default-db.json
 
 # Once tests are completed, run 'coverage report'.
 run-coverage: initdb
-	cd $(srcDir) && coverage run --source='.,survey,answers' \
-		manage.py runserver 8040 --noreload
+	cd $(srcDir) && ENVCONNECT_CONFIG_DIR=$(CONFIG_DIR) \
+		coverage run --source='.,survey,answers' manage.py runserver 8040 --noreload
 
 
 require-pip:
 	$(PIP) install -r $(srcDir)/requirements.txt --upgrade
 
 require-resources:
-	cd $(srcDir) && $(PYTHON) ./manage.py download_resources
+	cd $(srcDir) && $(MANAGE) download_resources
 
 # Download prerequisites specified in package.json and install relevant files
 # in the directory assets are served from.

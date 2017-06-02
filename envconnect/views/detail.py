@@ -8,15 +8,16 @@ from django.views.generic import TemplateView
 
 from ..mixins import BreadcrumbMixin
 from ..models import ColumnHeader
+from ..templatetags.navactive import active_category
 
 class DetailView(BreadcrumbMixin, TemplateView):
 
     template_name = 'envconnect/detail.html'
-    breadcrumb_url = 'sustainability'
+    breadcrumb_url = 'summary'
 
     def get_template_names(self):
-        if self.breadcrumb_url == 'basic':
-            return 'envconnect/detail_%s.html' % self.breadcrumb_url
+        if active_category(self.breadcrumbs, 'basic'):
+            return 'envconnect/detail_basic.html'
         return super(DetailView, self).get_template_names()
 
     def get_context_data(self, *args, **kwargs):

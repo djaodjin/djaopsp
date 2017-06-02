@@ -21,9 +21,8 @@ class IndexView(PermissionMixin, TemplateView):
         pre_industries = []
         metal_industries = []
         post_industries = []
-        for element in PageElement.objects.filter(
-                tag__contains='industry').exclude(
-                slug__startswith='basic-').order_by('title'):
+        for element in PageElement.objects.get_roots().filter(
+                tag__contains='industry').order_by('title'):
             tags = element.tag.split(',')
             if 'enabled' in tags:
                 setattr(element, 'enabled', True)

@@ -1,7 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import json, markdown
+import json, markdown, re
 
 from django.conf import settings
 from django import template
@@ -50,13 +50,30 @@ def get_industry_charts(organization=None):
 
 
 @register.filter
-def no_anchor(path, category=None):
-    parts = path.split('/')[1:]
-    if category is not None:
-        path = ('/%s/' % category) + '/'.join(parts[1:])
-    last = path.find('#')
-    if last >= 0:
-        return path[:last]
+def active_category(breadcrumbs, category):
+    for breadcrumb in breadcrumbs:
+        try:
+            if category in breadcrumb[0].tag:
+                return True
+        except TypeError:
+            # tag might be `None`.
+            pass
+    return False
+
+
+@register.filter
+def category_entry(breadcrumbs, category=None):
+    path = ""
+    for breadcrumb in breadcrumbs:
+        for tag in ['basic', 'sustainability']:
+            if tag in breadcrumb[0].tag:
+                if category:
+                    look = re.match(r'^[^-]+(-\S+)', breadcrumb[0].slug)
+                    path += "/" + category + look.group(1)
+                else:
+                    path += "/" + breadcrumb[0].slug
+                return path
+        path += "/" + breadcrumb[0].slug
     return path
 
 

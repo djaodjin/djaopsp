@@ -99,7 +99,7 @@
                         </button>
                             Implemented by you?
                     </th>
-                    {% if '/sustainability/' in request.path %}
+                    {% if breadcrumbs|active_category:'sustainability' %}
                     <th class="text-center custom_header cell-fix-width" data-toggle="tooltip" data-placement="top" title="Higher numbers equate to higher priority opportunities based on the following calculation: Practice green level * (1 + implementation rate / 100). Practice green levels: Dark green = 3; medium green = 2, light green = 1">
                         <button class="btn-link btn-sort" ng-click="sortBy('opportunity')">
                             <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
@@ -111,7 +111,7 @@
                 <tbody>
                     <tr ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
                         ng-show="getEntries('{{prefix}}').length > 0">
-                        <td colspan="{% if '/sustainability/' in request.path %}4{% else %}3{% endif %}" ng-if="practice[0].consumption === null">
+                        <td colspan="{% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}" ng-if="practice[0].consumption === null">
                             <h4 class="text-blue" ng-if="containsTag(practice[0], TAG_SYSTEM)"><a id="[[practice[0].slug]]" href="{% if organization %}{% url 'benchmark_organization' organization path %}{% else %}{% url 'benchmark' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a></h4>
                             <h4 class="text-blue" ng-if="!containsTag(practice[0], TAG_SYSTEM)">[[practice[0].title]]</h4>
                         </td>
@@ -127,7 +127,7 @@
                             ng-if="practice[0].consumption !== null">
                             [[practice[0].consumption.nb_respondents]] respondents
                             <div class="progress" style="margin:0">
-                                <div class="progress-bar progress-bar-success green-level-{% if '/sustainability/' in request.path %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" style="width: [[practice[0].consumption.rate]]%;">
+                                <div class="progress-bar progress-bar-success green-level-{% if breadcrumbs|active_category:'sustainability' %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" style="width: [[practice[0].consumption.rate]]%;">
                                     [[practice[0].consumption.rate]]%
                                 </div>
                             </div>
@@ -137,7 +137,7 @@
                             <i class="fa fa-check fa-lg text-success" ng-if="isImplemented(practice[0].consumption)"></i>
                             <i class="fa fa-times fa-lg text-danger"  ng-if="!isImplemented(practice[0].consumption)"></i>
                         </td>
-                        {% if '/sustainability/' in request.path %}
+                        {% if breadcrumbs|active_category:'sustainability' %}
                         <td class="text-center cell-fix-width"
                             ng-if="practice[0].consumption !== null">
                             [[practice[0].consumption.opportunity|number:2]]
@@ -145,7 +145,7 @@
                         {% endif %}
                    </tr>
                     <tr ng-show="getEntries('{{prefix}}').length === 0">
-                        <td colspan="{% if '/sustainability/' in request.path %}4{% else %}3{% endif %}"><em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em></td>
+                        <td colspan="{% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}"><em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em></td>
                     </tr>
                 </tbody>
             </table>

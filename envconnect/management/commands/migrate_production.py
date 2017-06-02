@@ -3,7 +3,7 @@
 
 """Command to migrate the envconnect production database"""
 
-import sys
+import re, sys
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -12,13 +12,74 @@ from answers.models import Question as AnswersQuestion
 from survey.models import Answer, Question, Response, SurveyModel
 
 from ...mixins import BreadcrumbMixin
-from ...models import Improvement, Consumption
+from ...models import Improvement, Consumption, ScoreWeight, ColumnHeader
 
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        aggregate_surveys()
+        with transaction.atomic():
+            self.rename_consumption()
+
+    def rename_consumption(self):
+        for element in PageElement.objects.filter(
+                tag__contains='industry').exclude(
+                slug__startswith='basic-'):
+            self.stdout.write("Add root for '%s'\n" % element.slug)
+            try:
+                basic_element = PageElement.objects.get(
+                    slug='basic-%s' % element.slug)
+                basic_element.tag = 'basic'
+                basic_element.save()
+            except PageElement.DoesNotExist:
+                basic_element = None
+            root = PageElement(
+                slug=element.slug,
+                title=element.title,
+                text=element.text,
+                account=element.account,
+                tag=element.tag)
+            element.slug = "sustainability-%s" % element.slug
+            element.tag = 'sustainability'
+            element.save()
+            root.save()
+            if basic_element:
+                RelationShip.objects.create(
+                    orig_element=root,
+                    dest_element=basic_element,
+                    rank=0)
+            RelationShip.objects.create(
+                orig_element=root,
+                dest_element=element,
+                rank=1)
+
+        for consumption in Consumption.objects.all():
+            self.rename_path(consumption)
+
+        for colheader in ColumnHeader.objects.all():
+            self.rename_path(colheader)
+
+        for weight in ScoreWeight.objects.all():
+            self.rename_path(weight)
+
+    def rename_path(self, obj):
+        parts = []
+        path = obj.path
+        if path.startswith('/'):
+            parts = path[1:].split('/')
+        else:
+            parts = path.split('/')
+        look = re.match('^basic-(.*)', parts[0])
+        if look:
+            obj.path = '/'.join(
+                ['', look.group(1), parts[0]] + parts[1:])
+        else:
+            obj.path = '/'.join(
+                ['', parts[0], "sustainability-%s" % parts[0]] + parts[1:])
+        self.stdout.write(
+            "Rename '%s' to '%s'\n" % (path, obj.path))
+        obj.save()
+
 
 
 def aggregate_surveys():
@@ -66,40 +127,6 @@ def aggregate_surveys():
             title=report_title).exclude(pk=survey.pk)
         Question.objects.filter(survey__in=deprecated_surveys).delete()
         deprecated_surveys.delete()
-
-
-def rename_consumption():
-    for consumption in Consumption.objects.all():
-        parts = []
-        path = consumption.path
-        if path:
-            for part in path.split('/'):
-                if (part.startswith('management-basics')
-                    or not ('life-cycle' in part
-                            or part == 'industry-management'
-                            or part.startswith('industry-management-52')
-                            or part.startswith('industry-management-702')
-                            or part.startswith('industry-management-516')
-                            or part.startswith('management-')
-                            or part.startswith('energy-management-')
-                            or part.startswith('base-load'))):
-                    parts += [part]
-            queryset = PageElement.objects.filter(slug__startswith=parts[-1])
-            if (parts[-1].startswith('distribution')
-                or parts[-1].startswith('end-of-life')
-                or parts[-1].startswith('obtain-applicable-permits')):
-                path = '/'.join(parts)
-                path = path[:255]
-                sys.stdout.write("UPDATE envconnect_consumption"\
-                    " SET path='%s' WHERE id=%d;\n" % (path, consumption.id))
-            elif queryset.count() == 1:
-                page = queryset.get()
-                path = '/'.join(parts[:-1] + [page.slug])
-                path = path[:255]
-                sys.stdout.write("UPDATE envconnect_consumption"\
-                    " SET path='%s' WHERE id=%d;\n" % (path, consumption.id))
-            elif queryset.count() > 1:
-                raise ValueError("%d for '%s'" % (queryset.count(), parts[-1]))
 
 
 def update_capital_cost():

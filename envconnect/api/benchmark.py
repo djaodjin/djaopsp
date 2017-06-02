@@ -72,12 +72,12 @@ class BenchmarkMixin(ReportMixin):
              "title": "Boxes & enclosures",
              "slug": "boxes-and-enclosures"
            }, {
-             "/boxes-and-enclosures/management-basics": [{
+             "/boxes-and-enclosures/management": [{
                "score_weight": 1.0,
-               "text": "/media/envconnect/management-basics.png",
+               "text": "/media/envconnect/management.png",
                "title": "Management"
                "tag": "management",
-               "slug": "management-basics",
+               "slug": "management",
              }, {}],
              "/boxes-and-enclosures/production": [{
                "score_weight": 1.0
@@ -307,14 +307,16 @@ class BenchmarkMixin(ReportMixin):
         """
         Flatten the tree into a list of charts.
         """
-        if prefix and not prefix.startswith('/'):
-            prefix = '/' + prefix
+        if prefix is None:
+            prefix = "/"
+        if not prefix.startswith('/'):
+            prefix = "/" + prefix
         if not distribution_tree[1]:
             return [], True
         charts = []
         complete = True
         for key, chart in distribution_tree[1].iteritems():
-            if prefix and key.startswith(prefix):
+            if key.startswith(prefix) or prefix.startswith(key):
                 leaf_charts, leaf_complete = self.flatten_distributions(
                     chart, prefix=prefix)
                 charts += leaf_charts
@@ -375,7 +377,7 @@ class BenchmarkMixin(ReportMixin):
             nb_questions = 0
             nb_answers = 0
             rate = 0
-            implemented = False
+            implemented = None
             consumption = root[0].consumption
             if consumption:
                 nb_questions = 1
@@ -473,7 +475,8 @@ class BenchmarkMixin(ReportMixin):
         """
         Returns a list of question and opportunity associated to each question.
         """
-        if True:
+        if True: #pylint:disable=using-constant-test
+                 # XXX not sure what we tried to achieve here.
             opportunities = Consumption.objects.with_opportunity()
         else:
             opportunities = []
@@ -731,7 +734,15 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         # of the actual from_path.
         # XXX It could be better to achieve the same result by changing
         # the API path in the template.
-        root = self._build_tree(trail[0][0], nocuts=True)
+        prefix = ""
+        found_root = None
+        for root in PageElement.objects.get_roots():
+            candidates = self._scan_candidates(root, trail[0][0].slug)
+            if candidates:
+                prefix = "/%s/%s" % (root.slug, '/'.join([
+                    candidate.slug for candidate in candidates]))
+                found_root = root
+                break
         try:
             view_response = self.sample
         except Http404:
@@ -741,13 +752,10 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         rollup_tree = self.rollup_scores()
         distributions_tree = self.create_distributions(
             rollup_tree, view_account=view_response.account.pk)
-        prefix = str(root[0])
-        if not prefix.startswith('/'):
-            prefix = '/' + prefix
         charts, complete = self.flatten_distributions(
             distributions_tree, prefix=prefix)
         if complete:
-            root_leaf = distributions_tree[1][prefix][0]
+            root_leaf = distributions_tree[1]["/" + found_root.slug][0]
             total_score.update({
                 "nb_respondents": root_leaf.get('nb_respondents'),
                 "scores": {

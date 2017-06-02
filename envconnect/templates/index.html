@@ -54,10 +54,10 @@ header {
 {% if request|is_broker_manager %}
 <input type="checkbox" name="industry" value="{{industry}}"
 {% if industry.enabled %}checked{% endif %} />
-<a id="{{industry}}" href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
+<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
 {% else %}
 {% if industry.enabled %}
-<a id="{{industry}}" href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
+<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
 {% else %}
 <span id="{{industry}}" class="disabled" role="menuitem" tabindex="-1">{{industry.title}} <i class="fa fa-wrench"></i></span>
 {% endif %}
@@ -75,10 +75,10 @@ header {
 {% if request|is_broker_manager %}
 <input type="checkbox" name="industry" value="{{industry}}"
 {% if industry.enabled %}checked{% endif %} />
-<a id="{{industry}}" href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
+<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
 {% else %}
 {% if industry.enabled %}
-<a id="{{industry}}" href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
+<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
 {% else %}
 <span id="{{industry}}" class="disabled" role="menuitem" tabindex="-1">{{industry.title}} <i class="fa fa-wrench"></i></span>
 {% endif %}
@@ -94,10 +94,10 @@ header {
 {% if request|is_broker_manager %}
 <input type="checkbox" name="industry" value="{{industry}}"
 {% if industry.enabled %}checked{% endif %} />
-<a id="{{industry}}" href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
+<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
 {% else %}
 {% if industry.enabled %}
-<a id="{{industry}}" href="{{'app/info/sustainability/'|site_prefixed}}{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
+<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
 {% else %}
 <span id="{{industry}}" class="disabled" role="menuitem" tabindex="-1">{{industry.title}} <i class="fa fa-wrench"></i></span>
 {% endif %}

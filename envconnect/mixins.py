@@ -34,13 +34,10 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 
 class BreadcrumbMixin(PermissionMixin):
 
-    breadcrumb_url = 'sustainability'
+    breadcrumb_url = 'summary'
 
-    def get_prefix(self):
-        if (not self.get_breadcrumb_url()
-            in ['sustainability',
-                'report', 'benchmark', 'scorecard', 'improve']):
-            return '%s-' % self.get_breadcrumb_url()
+    @staticmethod
+    def get_prefix():
         return None
 
     def get_breadcrumb_url(self):
@@ -100,22 +97,25 @@ class BreadcrumbMixin(PermissionMixin):
         parts = path.split('/')[1:]
         if len(parts) < 1:
             return path, results
-        # We rely on the fact that ``slug`` for roots are uniques here.
-        if parts[0] in ['sustainability', 'basic']:
-            self.breadcrumb_url = parts.pop(0)
         lookup = parts[0]
-        lookup_prefix = self.get_prefix()
+        lookup_prefix = self.get_prefix() #pylint:disable=assignment-from-none
         if lookup_prefix:
-            # This is where we choose between *general*
-            # and *sustainability* practices.
+            # Adds an optional lookup prefix to find the root ``PageElement``
+            # used to generate the HTML page.
             if not parts[0].startswith(lookup_prefix):
                 lookup = lookup_prefix + parts[0]
-        try:
-            root = PageElement.objects.get(slug=lookup)
-        except PageElement.DoesNotExist:
-            return path, results
-        from_root = '/' + root.slug
-        results += [[root, ('/%s/' % self.get_breadcrumb_url()) + parts[0]]]
+        root = get_object_or_404(PageElement, slug=lookup)
+        from_root = None
+        for root_node in PageElement.objects.get_roots():
+            if root_node.slug == root.slug:
+                from_root = "/%s" % root.slug
+                break
+            candidates = self._scan_candidates(root_node, root.slug)
+            if candidates:
+                from_root = "/%s/%s" % (root_node.slug, '/'.join([
+                    candidate.slug for candidate in candidates]))
+                break
+        results += [[root, '/' + parts[0]]]
         self.icon = None
         for idx, part in enumerate(parts[1:]):
             suffix = self._scan_candidates(root, part)
@@ -131,8 +131,7 @@ class BreadcrumbMixin(PermissionMixin):
                     prefix += [full_part]
             if prefix:
                 results[-1][1] += "#%s" % prefix[0]
-            results += [[root, ('/%s/' % self.get_breadcrumb_url())
-                + '/'.join(parts[:idx + 2])]]
+            results += [[root, '/'.join([''] + parts[:idx + 2])]]
         for crumb in results:
             anchor_start = crumb[1].find('#')
             if anchor_start > 0:
@@ -141,8 +140,10 @@ class BreadcrumbMixin(PermissionMixin):
             else:
                 path = crumb[1]
                 anchor = ""
-            crumb.append(
-                reverse('summary', args=(path,)) + ("?active=%s" % anchor))
+            base_url = reverse('summary', args=(path,))
+            if anchor:
+                base_url += ("?active=%s" % anchor)
+            crumb.append(base_url)
                 # XXX Do we add the Organization in the path
                 # for self-assessment to summary and back?
         return from_root, results
@@ -155,7 +156,6 @@ class BreadcrumbMixin(PermissionMixin):
             'page_prefix': page_prefix,
             'from_root': from_root,
             'breadcrumbs': trail,
-            'category': self.get_breadcrumb_url(),
             'active': self.request.GET.get('active', "")})
         urls = {
             'api_best_practices': reverse('api_detail_base'),
@@ -195,7 +195,7 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
             for question in questions:
                 try:
                     answer = Answer.objects.get(question_id=question.pk)
-                    if not int(question.text) in answers:
+                    if int(question.text) not in answers:
                         answers[int(question.text)] = answer.text
                 except Answer.DoesNotExist:
                     pass

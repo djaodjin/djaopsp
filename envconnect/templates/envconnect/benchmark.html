@@ -26,7 +26,7 @@ indicator for a best practice.
       <i class="fa fa-check-square-o fa-2x"></i>
   </div>
   <div{% if '/share/' in request.path %} class="active"{% endif %} style="margin-top:20px;">
-      <a id="submenu-share" href="{{''|site_prefixed}}/profile/{{organization}}/roles/contributors/"><i class="fa fa-wrench"></i> Share scorecard<br /></a>
+      <a id="submenu-share" href="{{''|site_prefixed}}/profile/{{organization}}/roles/viewer/"><i class="fa fa-wrench"></i> Share scorecard<br /></a>
   </div>
 </div>
 {% endblock %}
@@ -35,7 +35,7 @@ indicator for a best practice.
 <div id="{{icon.slug}}-score" class="icon-score" data-toggle="tooltip" data-placement="top" title="An icon sore is the sum of all (3 * opportunity where answered 'yes', 2 * opportunity where answered 'needs little improvement', opportunity  where answered 'needs lot of improvement') * 100 / sum of all (opportunity where not answered 'Not applicable')">
     <h3 class="rollup-score"><i class="fa fa-spinner fa-spin"></i></h3>
     <div>
-        (<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{prefix}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)
+        (<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{from_root|add:"/"|add:icon.slug}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)
     </div>
 </div>
 {% endblock %}
@@ -52,7 +52,7 @@ indicator for a best practice.
     <div class="rollup-score">
         <i class="fa fa-spinner fa-spin"></i>
     </div>
-    <div>(<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{prefix|add:'/'|add:system.slug}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)</div>
+    <div>(<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{from_root|add:"/"|add:icon.slug|add:'/'|add:system.slug}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)</div>
   </div>
   {% endwith %}
 {% endfor %}

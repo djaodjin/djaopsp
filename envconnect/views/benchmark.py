@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
+from pages.models import PageElement
 from survey.models import Matrix, Response
 from survey.views.matrix import MatrixDetailView
 
@@ -69,9 +70,17 @@ class BenchmarkView(BenchmarkBaseView):
                     answer__response=response).order_by('-path')
                 candidate = queryset.first()
                 if candidate and candidate.path:
+                    benchmark_path = candidate.path.split('/')[1]
+                    try:
+                        default_element = PageElement.objects.get(
+                            slug="sustainability-%s" % benchmark_path)
+                        benchmark_path = default_element.slug
+                    except PageElement.DoesNotExist:
+                        # It is OK. We don't do any redirect magic then.
+                        pass
                     return HttpResponseRedirect(
                         reverse('%s_organization' % self.breadcrumb_url,
-                          args=(org_slug, '/' + candidate.path.split('/')[1])))
+                          args=(org_slug, '/' + benchmark_path)))
             return HttpResponseRedirect(reverse('homepage'))
         try:
             self.sample

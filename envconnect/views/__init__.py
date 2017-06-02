@@ -34,8 +34,7 @@ class AccountRedirectView(ReportMixin, AccountRedirectBaseView):
                 answer__response=response).order_by('-path')
             candidate = queryset.first()
             if candidate and candidate.path:
-                kwargs.update({'path': '/%s/%s' % (
-                    'sustainability', candidate.path.split('/')[1])})
+                kwargs.update({'path': '/%s' % candidate.path.split('/')[1]})
             else:
                 kwargs.update({'path': ''})
         return super(AccountRedirectView, self).get(request, *args, **kwargs)
