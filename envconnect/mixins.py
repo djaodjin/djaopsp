@@ -50,8 +50,8 @@ class BreadcrumbMixin(PermissionMixin):
         results = []
         consumption = Consumption.objects.filter(path=path).first()
         setattr(root, 'consumption', consumption)
-        if nocuts or not (
-                consumption or (root.tag and self.TAG_SYSTEM in root.tag)):
+        if nocuts or not (consumption or (
+                depth > 1 and root.tag and self.TAG_SYSTEM in root.tag)):
             for edge in RelationShip.objects.filter(
                     orig_element=root).select_related('dest_element').order_by(
                     'rank', 'pk'):
@@ -62,7 +62,7 @@ class BreadcrumbMixin(PermissionMixin):
                 setattr(node, 'rank', edge.rank)
                 results += [self._build_tree(
                     node, path='%s/%s' % (path, node.slug),
-                    depth=depth, nocuts=nocuts)]
+                    depth=depth + 1, nocuts=nocuts)]
         return (root, results)
 
     def _cut_tree(self, root, path='', depth=5):
