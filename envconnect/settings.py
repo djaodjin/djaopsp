@@ -203,6 +203,10 @@ LOGGING = {
             'handlers': [],
             'level': 'INFO',
         },
+        'envconnect': {
+            'handlers': [],
+            'level': 'INFO',
+        },
 #        'django.db.backends': {
 #           'handlers': ['db_logfile'],
 #           'level': 'DEBUG',

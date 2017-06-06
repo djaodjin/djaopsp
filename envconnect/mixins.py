@@ -35,6 +35,7 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 class BreadcrumbMixin(PermissionMixin):
 
     breadcrumb_url = 'summary'
+    TAG_SYSTEM = 'system'
 
     @staticmethod
     def get_prefix():
@@ -47,7 +48,10 @@ class BreadcrumbMixin(PermissionMixin):
         if path is None:
             path = '/' + root.slug
         results = []
-        if nocuts or depth < 4:
+        consumption = Consumption.objects.filter(path=path).first()
+        setattr(root, 'consumption', consumption)
+        if nocuts or not (
+                consumption or (root.tag and self.TAG_SYSTEM in root.tag)):
             for edge in RelationShip.objects.filter(
                     orig_element=root).select_related('dest_element').order_by(
                     'rank', 'pk'):
@@ -59,8 +63,6 @@ class BreadcrumbMixin(PermissionMixin):
                 results += [self._build_tree(
                     node, path='%s/%s' % (path, node.slug),
                     depth=depth, nocuts=nocuts)]
-        consumption = Consumption.objects.filter(path=path).first()
-        setattr(root, 'consumption', consumption)
         return (root, results)
 
     def _cut_tree(self, root, path='', depth=5):
@@ -159,6 +161,7 @@ class BreadcrumbMixin(PermissionMixin):
             'active': self.request.GET.get('active', "")})
         urls = {
             'api_best_practices': reverse('api_detail_base'),
+            'api_move_node': reverse('api_move_detail_base'),
             'api_columns': reverse('api_column_base'),
             'api_consumptions': reverse('api_consumption_base'),
             'api_weights': reverse('api_score_base'),

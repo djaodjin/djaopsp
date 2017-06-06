@@ -14,7 +14,8 @@ from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
 from ..views import AccountRedirectView
 from ..views.best_practices import (BestPracticeDetailView,
     FollowBestPracticeView, UnfollowBestPracticeView, BestPracticeVoteView)
-from ..views.benchmark import BenchmarkView, PortfoliosDetailView, ScoreCardView
+from ..views.benchmark import (BenchmarkView, PortfoliosDetailView,
+    ScoreCardView, ScoreCardDownloadView)
 from ..views.compare import ReportingEntitiesView
 from ..views.index import IndexView
 from ..views.improvements import ReportPDFView
@@ -142,6 +143,9 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/benchmark(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), BenchmarkView.as_view(),
         name='benchmark_organization'),
+    url_direct(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/download/' % (
+        SLUG_RE, settings.PATH_RE), ScoreCardDownloadView.as_view(),
+        name='scorecard_download_organization'),
     url_direct(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), ScoreCardView.as_view(),
         name='scorecard_organization'),

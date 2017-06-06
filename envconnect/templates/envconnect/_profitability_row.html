@@ -1,6 +1,4 @@
-{% extends "envconnect/_detail_row_basic.html" %}
-{% block detail_row %}
-{{block.super}}
+{% include "envconnect/_detail_row_basic.html" with colspan=icon.profitability_headers_len %}
 {% for col_header in icon.profitability_headers %}
 <td class="text-center cell-fix-width editable-consumption"
     data-key="{{col_header.slug}}"
@@ -10,4 +8,3 @@
     [[practice[0].consumption.{{col_header.slug}}]]
 </td>
 {% endfor %}
-{% endblock %}

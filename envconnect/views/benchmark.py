@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
+from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
 from survey.models import Matrix, Response
 from survey.views.matrix import MatrixDetailView
@@ -103,6 +104,16 @@ class ScoreCardView(BenchmarkView):
     breadcrumb_url = 'scorecard'
 
 
+class ScoreCardDownloadView(ScoreCardView):
+    """
+    Shows the scorecard of an organization, accessible through
+    the "My TSP" menu.
+    """
+
+    def get(self, request, *args, **kwargs):
+        return PdfTemplateResponse(request, self.template_name,
+            self.get_context_data(*args, **kwargs))
+
 
 class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
 
@@ -137,3 +148,4 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                 chart.update({'urls': api_urls})
             context.update({'charts': charts})
         return context
+

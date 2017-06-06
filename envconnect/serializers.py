@@ -93,7 +93,7 @@ class MoveRankSerializer(serializers.Serializer):
     """
     Move a best practice into the tree of best practices.
     """
-    attach_below = serializers.CharField(write_only=True)
+    source = serializers.CharField(write_only=True)
 
     def create(self, validated_data):
         raise NotImplementedError('This serializer is read-only')

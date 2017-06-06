@@ -1,7 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import os
+import logging, os
 
 from django.db import transaction
 from django.http import Http404
@@ -9,10 +9,32 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from pages.models import RelationShip
+from pages.api.relationship import PageElementMoveAPIView
 
 from ..mixins import BestPracticeMixin
 from ..models import Consumption
 from ..serializers import MoveRankSerializer
+
+LOGGER = logging.getLogger(__name__)
+
+
+class BestPracticeMoveAPIView(PageElementMoveAPIView):
+
+    def perform_change(self, sources, targets):
+        moved = '/' + '/'.join([source.slug for source in sources])
+        new_root = "/%s/%s" % ('/'.join([target.slug for target in targets]),
+            sources[-1].slug)
+        with transaction.atomic():
+            super(BestPracticeMoveAPIView, self).perform_change(
+                sources, targets)
+            for consumption in Consumption.objects.filter(
+                    path__startswith=moved):
+                new_path = new_root + consumption.path[len(moved):]
+                LOGGER.debug("renames Consumption '%s' to '%s'",
+                    consumption.path, new_path)
+                consumption.path = new_path
+                consumption.save()
+
 
 
 class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
@@ -31,10 +53,11 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
         raise Http404
 
     def perform_update(self, serializer): #pylint:disable=too-many-locals
-        moved = self.kwargs.get('path')
-        attach = serializer.validated_data['attach_below']
+        attach = self.kwargs.get('path')
+        moved = serializer.validated_data['source']
         _, moved_path_elements = self.get_breadcrumbs(moved)
         _, attach_path_elements = self.get_breadcrumbs(attach)
+        LOGGER.debug("move '%s' after '%s'", moved, attach)
 
         if len(moved_path_elements) == len(attach_path_elements):
             attach_root = attach_path_elements[-2][0]

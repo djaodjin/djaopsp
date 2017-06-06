@@ -1,14 +1,4 @@
-<td colspan="6" ng-if="practice[0].consumption === null">
-    <h4 class="text-blue" ng-if="!constainsTag(practice[0], TAG_SYSTEM)">[[practice[0].title]]</h4>
-</td>
-<td class="td-fix-width"
-    ng-if="practice[0].consumption !== null">
-    <a id="best-[[practice[0].slug]]"
-       class="text-muted" style="margin-left: 20px;"
-       href="{% if organization %}{% url 'best_practice_detail_organization' organization path %}{% else %}{% url 'best_practice_detail' path %}{% endif %}[[practice[0].slug]]/">
-       [[practice[0].title]]
-    </a>
-</td>
+{% include "envconnect/_detail_row_basic.html" with colspan=icon.value_headers_len %}
 {% for col_header in icon.value_headers %}
 {% if col_header.slug == 'avg_value' %}
 <!-- XXX yes: col_header.slug == 'avg_value' -->

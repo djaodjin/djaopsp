@@ -169,11 +169,16 @@ content development.
                         </div>
                         <form class="form-inline" ng-submit="addElement($event)">
                             <div class="modal-body">
-                                <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title">
+                                <input ng-model="newElement.title"
+                                       class="form-control search-page-element"
+                                       style="width:100%;"
+                                       type="text" name="title"
+                                       placeholder="Title">
                                 <div style="margin-top:5px;">
                                     <div class="text-center">
                                     <label>Optional tag</label>
-                                    <select class="form-control" name="tag">
+                                    <select ng-model="newElement.tag"
+                                           class="form-control" name="tag">
                                         <option value="">None</option>
                                         <option value="management">Management</option>
                                     </select>
@@ -237,6 +242,7 @@ app.constant('settings', {
 {% else %}
     urls: {
         api_best_practices: "{% url 'api_detail_base' %}",
+        api_move_node: "{% url 'api_move_detail_base' %}",
         api_columns: "{% url 'api_column_base' %}",
         api_consumptions: "{% url 'api_consumption_base' %}",
 {% if organization %}

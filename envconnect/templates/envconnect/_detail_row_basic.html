@@ -1,43 +1,37 @@
 {% block detail_row %}
-<td id="[[practice[0].slug]]" colspan="4" ng-if="practice[0].consumption === null">
-{% if request|is_broker_manager and not organization %}
-    <div class="btn btn-primary btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;">
-        <i class="fa fa-bars"></i>
+<td id="[[practice[0].slug]]"
+    {% if colspan %} colspan="[[practice[0].consumption !== null ? 1 : {{colspan}}]]"{% endif %}
+    class="[[practice[0].consumption !== null ? 'td-fix-width' : '']]">
+    <div style="display:flex;flex-wrap:nowrap;">
+      {% if request|is_broker_manager and not organization %}
+      <div role="toolbar" style="display:flex;align-items:center;margin-right:2px;">
+        <div class="btn btn-default btn-sm" style="background-color:#aaa;border-color:#aaa;">
+            <i class="fa fa-bars"></i>
+        </div>
+      </div>
+      {% endif %}
+      <div ng-if="!containsTag(practice[0], TAG_SYSTEM)" ng-class="indentHeader(practice, '{{abs_prefix}}')">
+        <a class="title" href="[[practice[0].consumption !== null ? '{% if organization %}{% url 'best_practice_detail_organization' organization path %}{% else %}{% url 'best_practice_detail' path %}{% endif %}' + practice[0].slug + '/' : '']]">[[practice[0].title]]</a>
+        {% if request|is_broker_manager and not organization %}
+        <a class="incl" href=""
+           ng-click="editElementTags(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
+        <a class="edit" href=""
+           data-toggle="modal" data-target="#edit-element-modal"
+           ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>
+        <a class="text-danger delete" href=""
+           data-toggle="modal" data-target="#confirm-delete"
+           ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'))"><i class="fa fa-trash-o"></i></a>
+        <div role="toolbar" style="display:inline-block;align-items:center;margin-right:2px;" ng-if="practice[0].consumption === null">
+            <button class="btn btn-default btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;" ng-click="toUpperLevel($event, '{{prefix}}', '{{page_prefix}}')">
+                <i class="fa fa-angle-left"></i>
+            </button>
+            <button class="btn btn-default btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;" ng-click="toLowerLevel($event, '{{prefix}}', '{{page_prefix}}')">
+                <i class="fa fa-angle-right"></i>
+            </button>
+        </div>
+        <button id="header-[[practice[0].slug]]" class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}/' + practice[0].slug, 'best-practice')"><i class="fa fa-plus"></i> Add</button>
+        {% endif %}
     </div>
-{% endif %}
-<h4 ng-if="!containsTag(practice[0], TAG_SYSTEM)" class="text-blue" style="display:inline-block;">
-[[practice[0].title]]
-{% if request|is_broker_manager and not organization %}
-<a class="incl" href=""
-   ng-click="editElementTags(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
-<a class="edit"
-   href="" data-toggle="modal" data-target="#edit-element-modal"
-   ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>
-<a class="text-danger delete"
-   href="" data-toggle="modal" data-target="#confirm-delete"
-   ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'))"><i class="fa fa-trash-o"></i></a>
-{% endif %}
-{% if request|is_broker_manager and not organization %}
-<button id="header-[[practice[0].slug]]" class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}/' + practice[0].slug, 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
-{% endif %}
-</h4>
-</td>
-<td ng-if="practice[0].consumption !== null" class="td-fix-width">
-{% if request|is_broker_manager and not organization %}
-    <div class="btn btn-primary btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;">
-        <i class="fa fa-bars"></i>
-    </div>
-{% endif %}
-    <a id="best-[[practice[0].slug]]"
-       class="text-muted" style="margin-left: 20px;"
-       href="{% if organization %}{% url 'best_practice_detail_organization' organization path %}{% else %}{% url 'best_practice_detail' path %}{% endif %}[[practice[0].slug]]/">
-       [[practice[0].title]]
-    </a>
-    {% if request|is_broker_manager and not organization %}
-    <a id="link_delete_best_practice_[[practice[0].slug]]"
-       class="text-danger" href=""
-       data-toggle="modal" data-target="#confirm-delete"
-       ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'))"><i class="fa fa-trash-o"></i></a>
-    {% endif %}
+  </div>
 </td>
 {% endblock %}

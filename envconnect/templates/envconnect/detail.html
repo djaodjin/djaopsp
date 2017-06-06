@@ -24,8 +24,8 @@
                 </div>
             </div>
             <!-- cost, payback, etc. -->
-            <table class="table table-striped table-bordered" ng-show="!valueSummaryToggle">
-                <thead>
+            <table class="table table-striped table-bordered">
+                <thead ng-show="!valueSummaryToggle">
                     <th style="vertical-align: middle;">Practices</th>
                     {% for col_header in icon.profitability_headers %}
                     <th class="text-center custom_header cell-fix-width {{col_header.slug}}">
@@ -43,41 +43,7 @@
                     </th>
                     {% endfor %}
                 </thead>
-                <tbody dnd-list="getEntries('{{prefix}}')">
-                    {% if request|is_broker_manager %}
-                    <tr data-id="{{abs_prefix}}">
-                        <td colspan="{{icon.profitability_headers_len}}">
-                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
-                        </td>
-                    </tr>
-                    {% endif %}
-                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
-                        ng-repeat="practice in getEntries('{{prefix}}')"
-                        ng-if="sortedOnKeys === 0">
-                        {% include "envconnect/_profitability_row.html" %}
-                    </tr>
-                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
-                        ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
-                        ng-if="sortedOnKeys > 0">
-                        {% include "envconnect/_profitability_row.html" %}
-                    </tr>
-                    {% if request|is_broker_manager %}
-                    <tr>
-                        <td colspan="{{icon.profitability_headers_len}}">
-                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', TAG_HEADING)"><i class="fa fa-plus"></i> Add practices header ...</button>
-                        </td>
-                    </tr>
-                    {% endif %}
-                    <tr ng-show="getEntries('{{prefix}}').length === 0">
-                        <td colspan="{{icon.profitability_headers_len}}">
-<em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <!-- value summary -->
-            <table id="table-value-summary-{{icon.slug}}" class="table table-striped table-bordered" ng-show="valueSummaryToggle">
-                <thead>
+                <thead ng-show="valueSummaryToggle">
                     <th style="vertical-align: middle;">Practices</th>
                     {% for col_header in icon.value_headers %}
                     <th class="text-center custom_header cell-fix-width {{col_header.slug}} {% if col_header.slug == 'avg_value' %}total-sep{% endif %}">
@@ -93,19 +59,64 @@
                     </th>
                     {% endfor %}
                 </thead>
-                <tbody>
+                <tbody dnd-list="getEntries('{{prefix}}')">
                     <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
                         ng-repeat="practice in getEntries('{{prefix}}')"
-                        ng-if="sortedOnKeys === 0">
+                        ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle">
+                        {% include "envconnect/_profitability_row.html" %}
+                    </tr>
+                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
+                        ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
+                        ng-if="sortedOnKeys > 0" ng-show="!valueSummaryToggle">
+                        {% include "envconnect/_profitability_row.html" %}
+                    </tr>
+                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
+                        ng-repeat="practice in getEntries('{{prefix}}')"
+                        ng-if="sortedOnKeys === 0"  ng-show="valueSummaryToggle">
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
                     <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
                         ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
-                        ng-if="sortedOnKeys > 0">
+                        ng-if="sortedOnKeys > 0"  ng-show="valueSummaryToggle">
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
+                    {% if request|is_broker_manager %}
+                    <tr data-id="{{abs_prefix}}">
+                        <td colspan="[[!valueSummaryToggle ? {{icon.profitability_headers_len}} : {{icon.value_headers_len}}]]">
+<!-- add a node -->
+<div style="width:100%;">
+<form class="form-inline" style="display:inline-block;width:90%;" ng-submit="addElement($event, '{{prefix}}')">
+  <div class="input-group" style="width:90%;">
+    <select ng-model="newElement.tag"
+            class="form-control input-sm" style="width:20%;"
+            name="tag">
+            <option value="heading">Heading</option>
+            <option value="best-practice">Best practice</option>
+    </select>
+    <input name="title" type="text" placeholder="[[newElement.tag]] title"
+           autocomplete="off"
+           ng-model="newElement.title"
+           uib-typeahead="candidate as candidate.printable_name for candidate in getCandidates($viewValue)"
+           uib-typeahead-loading="loadingPageElements"
+           uib-typeahead-template-url="customTemplate.html"
+           class="form-control input-sm" style="width:80%;">
+    <div class="input-group-btn">
+      <button class="btn btn-primary btn-sm" type="submit">Add</button>
+    </div>
+  </div>
+  <div style="height:14px" ng-cloak>
+          <i ng-show="loadingPageElements" class="fa fa-spinner fa-spin"></i>
+  </div>
+</form>
+</div>
+                          </td>
+                        </div>
+                    </tr>
+                    {% endif %}
                     <tr ng-show="getEntries('{{prefix}}').length === 0">
-                        <td colspan="{{icon.value_headers_len}}"><em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em></td>
+                        <td colspan="{{icon.profitability_headers_len}}">
+<em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em>
+                        </td>
                     </tr>
                 </tbody>
             </table>

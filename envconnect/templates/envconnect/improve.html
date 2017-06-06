@@ -37,18 +37,11 @@
                 <tbody>
                     <tr id="[[practice[0].slug]]" ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
                         ng-show="getEntries('{{prefix}}').length > 0">
-                        <td colspan="{% if breadcrumbs|active_category:'sustainability' %}5{% else %}4{% endif %}" ng-if="practice[0].consumption === null">
-                            <h4 class="text-blue" ng-if="containsTag(practice[0], TAG_SYSTEM)"><a id="[[practice[0].slug]]" href="{% if organization %}{% url 'benchmark_organization' organization path %}{% else %}{% url 'benchmark' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a></h4>
-                            <h4 class="text-blue" ng-if="containsTag(practice[0], TAG_SYSTEM)">[[practice[0].title]]</h4>
-                        </td>
-                        <td class="td-fix-width"
-                            ng-if="practice[0].consumption !== null">
-                            <a id="best-[[practice[0].slug]]"
-                               class="text-muted"  style="margin-left: 20px;"
-                               href="{% if organization %}{% url 'best_practice_detail_organization' organization path %}{% else %}{% url 'best_practice_detail' path %}{% endif %}[[practice[0].slug]]/">
-                                [[practice[0].title]]
-                            </a>
-                        </td>
+                        {% if breadcrumbs|active_category:'sustainability' %}
+                        {% include "envconnect/_detail_row_basic.html" with colspan=5 %}
+                        {% else %}
+                        {% include "envconnect/_detail_row_basic.html" with colspan=4 %}
+                        {% endif %}
                         <td class="text-center cell-fix-width"
                             ng-if="practice[0].consumption !== null">
                             [[practice[0].consumption.nb_respondents]] respondents

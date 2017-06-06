@@ -16,7 +16,8 @@ class DetailView(BreadcrumbMixin, TemplateView):
     breadcrumb_url = 'summary'
 
     def get_template_names(self):
-        if active_category(self.breadcrumbs, 'basic'):
+        _, trail = self.breadcrumbs
+        if active_category(trail, 'basic'):
             return 'envconnect/detail_basic.html'
         return super(DetailView, self).get_template_names()
 
