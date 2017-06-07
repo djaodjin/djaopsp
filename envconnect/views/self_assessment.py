@@ -41,6 +41,9 @@ class SelfAssessmentView(BenchmarkBaseView):
             'response': self.sample,
             'role': "tab",
             'score_toggle': self.request.GET.get('toggle', False)})
+        urls = {'api_self_assessment_response': reverse(
+            'survey_api_response', args=(context['organization'], self.sample))}
+        self.update_context_urls(context, urls)
         return context
 
     def get(self, request, *args, **kwargs):

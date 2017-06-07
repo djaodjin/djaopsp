@@ -34,7 +34,10 @@
                     </tr>
                     <tr>
                       {% for choice in choices %}
-                      <th class="text-center cell-fix-width">{{choice}}</th>
+                      <th class="text-center cell-fix-width">
+{{choice}}<br />
+<button class="btn btn-default" href="" style="width:100%;" ng-click="selectAll($event, '{{choice}}')">Select all</button>
+</th>
                       {% endfor %}
                     </tr>
                 </thead>
@@ -61,7 +64,7 @@
                     </th>
                     {% endif %}
                 </thead>
-                <tbody>
+                <tbody data-prefix="{{prefix}}">
                     <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
                         class="best-practice-row"
                         ng-repeat="practice in getEntries('{{prefix}}')"

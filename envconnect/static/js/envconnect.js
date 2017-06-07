@@ -587,9 +587,11 @@ envconnectControllers.controller("EnvconnectCtrl",
         angular.element('[data-key="text"]').trigger('blur');
     };
 
-    $scope.moveBestPractice = function(path, attachBelow) {
-//        $http.patch(settings.urls.api_best_practices + attachBelow + '/',
-        $http.post(settings.urls.api_move_node + attachBelow + '/',
+    $scope.moveBestPractice = function(path, attachBelow, postUrl) {
+        if( typeof postUrl === "undefined" ) {
+            postUrl = settings.urls.api_best_practices;
+        }
+        $http.post(postUrl + attachBelow + '/',
             {source: path}).then(
             function success(resp) {
                 $http.get(
@@ -636,7 +638,7 @@ envconnectControllers.controller("EnvconnectCtrl",
             }
         }
         if( attachBelow ) {
-            $scope.moveBestPractice(startPath, attachBelow);
+            $scope.moveBestPractice(startPath, attachBelow, settings.urls.api_move_node);
         } else {
             showErrorMessages("Cannot find a heading above " + startPath);
         }
@@ -648,6 +650,27 @@ envconnectControllers.controller("EnvconnectCtrl",
         var row = angular.element($event.target).parents("tr");
         console.log("XXX move", row, "to a upper level");
     };
+
+
+    // Select all answers
+    $scope.selectAll = function ($event, answer) {
+        $event.preventDefault();
+        var element = angular.element($event.target);
+        var prefix = element.parents('table').find('tbody').data('prefix');
+        var practices = $scope.getEntries(prefix);
+        for( var idx = 0; idx < practices.length; ++idx ) {
+            if( practices[idx][0].consumption ) {
+                practices[idx][0].consumption.implemented = answer;
+                $http.put(settings.urls.api_self_assessment_response + "/" + practices[idx][0].consumption.rank + "/",
+                    {text: answer}).then(
+                    function success() {
+                    },
+                    function error(resp) {
+                        showErrorMessages(resp);
+                    });
+            }
+        }
+    }
 
     $scope.score = function(node) {
         if( node.nb_answers == node.nb_questions ) {
@@ -957,6 +980,7 @@ envconnectControllers.controller("relationListCtrl",
                 showErrorMessages(resp);
             });
     };
+
 }]);
 
 // XXX end of copy/paste

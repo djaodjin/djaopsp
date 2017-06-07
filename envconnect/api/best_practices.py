@@ -52,6 +52,9 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
             return Response(self.to_representation(root))
         raise Http404
 
+    def post(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
     def perform_update(self, serializer): #pylint:disable=too-many-locals
         attach = self.kwargs.get('path')
         moved = serializer.validated_data['source']
