@@ -1,6 +1,6 @@
 {% include "envconnect/_detail_row_basic.html" with colspan=icon.profitability_headers_len %}
 {% for col_header in icon.profitability_headers %}
-<td class="text-center cell-fix-width editable-consumption"
+<td class="text-center cell-fix-width-3 editable-consumption"
     data-key="{{col_header.slug}}"
     ng-click="editConsumption($event, practice[0])"
     ng-keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice[0])"

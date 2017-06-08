@@ -1453,9 +1453,6 @@ thead{
   padding-bottom:20px;
   border-bottom:1px solid #616363;
 }
-.table thead > tr > th.custom_header{
-  border-right: 1px dotted #616363;
-}
 
 .table thead > tr > th.total-sep{
    border-left: 2px solid #cccdcd;
@@ -1591,8 +1588,33 @@ thead{
   fill:red !important;
 }
 
-.cell-fix-width{
-  width:14%;
+.cell-fix-width-3{
+  width:15%;
+  vertical-align: middle;
+}
+
+.cell-fix-width-5{
+  width:9%;
+  vertical-align: middle;
+}
+
+.table thead>tr>th.cell-fix-width-3{
+  width:15%;
+  border-right: 1px dotted #616363;
+  vertical-align: top;
+}
+
+.table thead>tr>th.cell-fix-width-5{
+  width:9%;
+  border-right: 1px dotted #616363;
+  vertical-align: top;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.table thead>tr>th.cell-fix-width-5>div{
+  display:inline-block;
+  font-size:10px;
 }
 
 .chart-container {

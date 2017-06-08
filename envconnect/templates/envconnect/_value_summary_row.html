@@ -2,7 +2,7 @@
 {% for col_header in icon.value_headers %}
 {% if col_header.slug == 'avg_value' %}
 <!-- XXX yes: col_header.slug == 'avg_value' -->
-<td ng-class="'green-level-' + practice[0].consumption.avg_value + ' cell-fix-width total-sep'" ng-if="practice[0].consumption !== null">
+<td ng-class="'green-level-' + practice[0].consumption.avg_value + ' cell-fix-width-5 total-sep'" ng-if="practice[0].consumption !== null">
 </td>
 {% else %}
 <td class="green-level-[[practice[0].consumption.{{col_header.slug}}]] editable-consumption edit-range cell-fix-width"
