@@ -8,7 +8,7 @@
         {% with icon_tuple.0 as icon %}
         {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
-            <div ng-if="getEntriesByTag('{{prefix}}', TAG_SYSTEM).length === 0">
+            <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length === 0">
             <table class="table table-striped table-bordered">
                 <thead>
                     <th>Practices</th>
@@ -35,8 +35,8 @@
                     <th class="text-center">Select for Improvement Plan</th>
                 </thead>
                 <tbody>
-                    <tr id="[[practice[0].slug]]" ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
-                        ng-show="getEntries('{{prefix}}').length > 0">
+                    <tr id="[[practice[0].slug]]" ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
+                        ng-show="getEntries('{{abs_prefix}}').length > 0">
                         {% if breadcrumbs|active_category:'sustainability' %}
                         {% include "envconnect/_detail_row_basic.html" with colspan=5 %}
                         {% else %}
@@ -72,7 +72,7 @@
                                    ng-model="practice[0].consumption.planned" />
                     </td>
                    </tr>
-                    <tr ng-show="getEntries('{{prefix}}').length === 0">
+                    <tr ng-show="getEntries('{{abs_prefix}}').length === 0">
                         <td colspan="{% if breadcrumbs|active_category:'sustainability' %}5{% else %}4{% endif %}"><em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em></td>
                     </tr>
                 </tbody>

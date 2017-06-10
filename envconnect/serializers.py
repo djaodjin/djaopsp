@@ -110,7 +110,8 @@ class PageElementSerializer(BasePageElementSerializer):
 
     class Meta:
         model = PageElement
-        fields = ('slug', 'title', 'tag', 'rank', 'is_empty', 'consumption')
+        fields = ('slug', 'path', 'title', 'tag',
+            'rank', 'is_empty', 'consumption')
 
     @staticmethod
     def get_rank(obj):

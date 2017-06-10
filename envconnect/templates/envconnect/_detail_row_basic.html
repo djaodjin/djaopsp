@@ -1,7 +1,6 @@
 {% block detail_row %}
 <td id="[[practice[0].slug]]"
-    {% if colspan %} colspan="[[practice[0].consumption !== null ? 1 : {{colspan}}]]"{% endif %}
-    class="[[practice[0].consumption !== null ? 'td-fix-width' : '']]">
+    {% if colspan %} colspan="[[practice[0].consumption !== null ? 1 : {{colspan}}]]"{% endif %}>
     <div style="display:flex;flex-wrap:nowrap;">
       {% if request|is_broker_manager and not organization %}
       <div role="toolbar" style="display:flex;align-items:center;margin-right:2px;">
@@ -14,22 +13,22 @@
         <a class="title" href="[[practice[0].consumption !== null ? '{% if organization %}{% url 'best_practice_detail_organization' organization path %}{% else %}{% url 'best_practice_detail' path %}{% endif %}' + practice[0].slug + '/' : '']]">[[practice[0].title]]</a>
         {% if request|is_broker_manager and not organization %}
         <a class="incl" href=""
-           ng-click="editElementTags(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
+           ng-click="editElementTags(getPath(practice), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
         <a class="edit" href=""
            data-toggle="modal" data-target="#edit-element-modal"
-           ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>
+           ng-click="setBestPractice(getPath(practice), false, practice[0])"><i class="fa fa-edit"></i></a>
         <a class="text-danger delete" href=""
            data-toggle="modal" data-target="#confirm-delete"
-           ng-click="setBestPractice(getPath(practice, '{{abs_prefix}}'))"><i class="fa fa-trash-o"></i></a>
+           ng-click="setBestPractice(getPath(practice))"><i class="fa fa-trash-o"></i></a>
         <div role="toolbar" style="display:inline-block;align-items:center;margin-right:2px;" ng-if="practice[0].consumption === null">
-            <button class="btn btn-default btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;" ng-click="toUpperLevel($event, '{{prefix}}', '{{page_prefix}}')">
+            <button class="btn btn-default btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;" ng-click="toUpperLevel($event, '{{abs_prefix}}')">
                 <i class="fa fa-angle-left"></i>
             </button>
-            <button class="btn btn-default btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;" ng-click="toLowerLevel($event, '{{prefix}}', '{{page_prefix}}')">
+            <button class="btn btn-default btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;" ng-click="toLowerLevel($event, '{{abs_prefix}}')">
                 <i class="fa fa-angle-right"></i>
             </button>
+            <button id="header-[[practice[0].slug]]" class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix(getHeadingPath(practice), 'best-practice')"><i class="fa fa-plus"></i> Add</button>
         </div>
-        <button id="header-[[practice[0].slug]]" class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}/' + practice[0].slug, 'best-practice')"><i class="fa fa-plus"></i> Add</button>
         {% endif %}
     </div>
   </div>

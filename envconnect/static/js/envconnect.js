@@ -80,13 +80,59 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
             },
             stop: function (event, ui) {
                 // on stop we determine the new index of the
-                // item and store it there (-1 because index zero
-                // is "Add best practice").
-                var startPath = $(ui.item).data("id");
+                // item and store it there.
+                // XXX startIndex and newIndex will look bigger than expected
+                // because of the way the Value/Profitability table is built.
+                // (i.e. twice the number of rows).
+                var movedPath = $(ui.item).data("id");
                 var newIndex = ($(ui.item).index());
-                var attachBelow = $(ui.item).parent().find(
+                var attachPath = $(ui.item).parent().find(
                     "tr:nth-child("+newIndex+")").data("id");
-                scope.moveBestPractice(startPath, attachBelow);
+
+                var rank = null;
+                var movedNode = scope.getEntriesRecursive(
+                    scope.entries, movedPath);
+                var attachNode = scope.getEntriesRecursive(
+                    scope.entries, attachPath);
+                if( movedNode[0].consumption ) {
+                    if( attachNode[0].consumption ) {
+                        // Case 1
+                        // move best-practice A below best-practice B
+                        // => A and B share same heading. A.rank > B.rank
+                        var pos = $("[data-id=\"" + attachPath + "\"]").index();
+                        var parts = attachPath.split('/');
+                        parts.pop();
+                        attachPath = parts.join('/');
+                        rank = pos - $("[data-id=\"" + attachPath + "\"]").index();
+                    } else {
+                        // Case 2
+                        // move best-practice A below heading H
+                        // => A shows under heading H. A.rank == 0
+                        rank = 0;
+                    }
+                } else {
+                    // Case 3 and 4 have only slight differences
+                    // Case 3
+                    //   move heading H below best-practice A
+                    // Case 4
+                    //   move heading H below heading K
+                    // => H and K share same heading. H.rank > K.rank
+                    var movedParts = movedPath.split('/');
+                    var attachParts = attachPath.split('/');
+                    if( attachNode[0].consumption ) {
+                        attachParts.pop(); // specific to case 3
+                    }
+                    while( attachParts.length > movedParts.length ) {
+                        attachParts.pop();
+                    }
+                    var pos = $("[data-id=\"" + attachParts.join('/') + "\"]").index();
+                    if( attachParts.length === movedParts.length ) {
+                        attachParts.pop();
+                    }
+                    attachPath = attachParts.join('/');
+                    rank = pos - $("[data-id=\"" + attachParts.join('/') + "\"]").index();
+                }
+                scope.moveBestPractice(movedPath, attachPath, rank);
             },
             axis: "y"
         });
@@ -123,9 +169,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         captured if a user was to add all best practices not yet implemented
         to the improvement plan.
      */
-    $scope.calcSavingsAndCost = function(root, prefix) {
+    $scope.calcSavingsAndCost = function(root) {
         if( typeof root[0] === 'undefined' ) return;
-        root[0].path = prefix + "/" + root[0].slug;
         if( root[0].hasOwnProperty('consumption') && root[0].consumption ) {
             var avg_energy_saving = parseInt(
                 root[0].consumption.avg_energy_saving);
@@ -189,8 +234,7 @@ envconnectControllers.controller("EnvconnectCtrl",
             var capturable = {avg_energy_saving: 1.0, capital_cost: 1.0};
             var captured = {avg_energy_saving: 1.0, capital_cost: 1.0};
             for( var i = 0; i < root[1].length; ++i ) {
-                var newPrefix = prefix + "/" + root[0].slug;
-                $scope.calcSavingsAndCost(root[1][i], newPrefix);
+                $scope.calcSavingsAndCost(root[1][i]);
                 // available for capture
                 capturable.avg_energy_saving
                     *= (1.0 - root[1][i][0].capturable.avg_energy_saving);
@@ -212,21 +256,14 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     $scope.getEntriesRecursive = function(root, prefix) {
-        if( root[0].slug === prefix.substring(1) ) {
+        if( root[0].path === prefix ) {
             return root;
         }
-        if( prefix.lastIndexOf(root[0].slug, 1) === 1 ) {
-            var newPrefix = prefix.substring(prefix.indexOf("/", 1));
+        if( prefix.lastIndexOf(root[0].path, 0) === 0 ) {
+            // startsWith - the prefix is deeper into the tree.
             for( var i = 0; i < root[1].length; ++i ) {
-                var found = $scope.getEntriesRecursive(root[1][i], newPrefix);
+                var found = $scope.getEntriesRecursive(root[1][i], prefix);
                 if( found ) { return found; }
-            }
-        } else if( prefix.length > 1 ) {
-            // Skip unknown prefixes
-            var found = prefix.indexOf('/', 1);
-            if( found >= 0 ) {
-                var newPrefix = prefix.substring(found);
-                return $scope.getEntriesRecursive(root, newPrefix);
             }
         }
         return null;
@@ -286,11 +323,17 @@ envconnectControllers.controller("EnvconnectCtrl",
         return [];
     };
 
-    $scope.getPath = function(practice, prefix) {
-        if( practice[0].consumption ) {
-            return practice[0].consumption.path;
+    $scope.getPath = function(node) {
+        return node[0].path;
+    };
+
+    $scope.getHeadingPath = function(node) {
+        if( node[0].consumption ) {
+            var parts = node[0].path.split('/');
+            parts.pop();
+            return parts.join('/');
         }
-        return prefix + '/' + practice[0].slug;
+        return node[0].path;
     };
 
     /* show and hide columns */
@@ -372,29 +415,35 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     // editor functionality
     $scope.prefix = null;
-    $scope.tag = null;
     $scope.reload = false;
     $scope.activeElement = null;
 
     $scope.setPrefix = function(prefix, tag) {
         $scope.prefix = prefix;
         if( typeof tag === 'undefined' ) {
-            $scope.tag = null;
+            $scope.newElement.tag = null;
         } else {
-            $scope.tag = tag;
+            $scope.newElement.tag = tag;
         }
     };
 
-    $scope.newElement = {title: "", tag: $scope.TAG_HEADING};
+    $scope.newElement = {
+        tag: $scope.TAG_HEADING,
+        value: {title: "", tag: ""}
+    };
 
     $scope.addElement = function(event, prefix) {
+        if( typeof $scope.newElement.value === "string" ) {
+             $scope.newElement.value = {
+                 title: $scope.newElement.value, tag: $scope.newElement.tag};
+        }
         if( typeof prefix === "undefined" ) {
             prefix = $scope.prefix;
         }
         var form = angular.element(event.target);
         var modalDialog = form.parents('.modal');
-        var title = $scope.newElement.title;
-        var tag = $scope.newElement.tag || $scope.tag;
+        var title = $scope.newElement.value.title;
+        var tag = $scope.newElement.tag;
         var parent = prefix.substring(prefix.lastIndexOf('/') + 1);
         var data = {title: title, orig_elements: [parent]};
         if( tag ===  'management' || tag === $scope.TAG_SYSTEM ) {
@@ -405,10 +454,10 @@ envconnectControllers.controller("EnvconnectCtrl",
                 if( tag === $scope.TAG_HEADING || tag === $scope.TAG_SYSTEM ) {
                     var node = $scope.getEntriesRecursive(
                         $scope.entries, prefix);
-                    resp.data.path = prefix + "/" + resp.data.slug;
+                    resp.data.path = prefix + resp.data.path;
                     resp.data.consumption = null;
                     node[1].push([resp.data, []]);
-                    $scope.newElement.title = "";
+                    $scope.newElement.value.title = "";
                     modalDialog.modal('hide');
                 } else if( tag === 'best-practice' ) {
                     var path = prefix + '/' + resp.data.slug;
@@ -417,14 +466,14 @@ envconnectControllers.controller("EnvconnectCtrl",
                         function success(resp_consumption) {
                             var node = $scope.getEntriesRecursive(
                                 $scope.entries, prefix);
-                            resp.data.path = prefix + "/" + resp.data.slug;
+                            resp.data.path = path;
                             resp.data.consumption = resp_consumption.data;
                             node[1].push([resp.data, []]);
-                            $scope.newElement.title = "";
+                            $scope.newElement.value.title = "";
                             modalDialog.modal('hide');
                         },
                         function error() {
-                            $scope.newElement.title = "";
+                            $scope.newElement.value.title = "";
                             modalDialog.modal('hide');
                             showErrorMessages(resp);
                         });
@@ -435,7 +484,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 }
             },
             function error(resp) {
-                $scope.newElement.title = "";
+                $scope.newElement.value.title = "";
                 modalDialog.modal('hide');
                 showErrorMessages(resp);
             });
@@ -543,7 +592,7 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.deleteBestPractice = function() {
         var prefix = $scope.prefix;
-        var slug = $scope.tag;
+        var slug = $scope.newElement.tag;
         $http.delete(
             settings.urls.api_best_practices + prefix + '/' + slug + '/').then(
             function success(resp) {
@@ -587,17 +636,18 @@ envconnectControllers.controller("EnvconnectCtrl",
         angular.element('[data-key="text"]').trigger('blur');
     };
 
-    $scope.moveBestPractice = function(path, attachBelow, postUrl) {
-        if( typeof postUrl === "undefined" ) {
-            postUrl = settings.urls.api_best_practices;
+    $scope.moveBestPractice = function(movedPath, attachPath, rank) {
+        var postUrl = settings.urls.api_move_node;
+        var data = {source: movedPath};
+        if( typeof rank !== 'undefined' && rank !== null ) {
+            data['rank'] = rank;
         }
-        $http.post(postUrl + attachBelow + '/',
-            {source: path}).then(
+        $http.post(postUrl + attachPath + '/', data).then(
             function success(resp) {
-                $http.get(
-                    settings.urls.api_best_practices + settings.root_prefix + '/').then(
+                $http.get(settings.urls.api_best_practices
+                    + $scope.entries[0].path + '/').then(
                         function success(resp) {
-                            $scope.calcSavingsAndCost(resp.data, "");
+                            $scope.calcSavingsAndCost(resp.data);
                             $scope.entries = resp.data;
 
                         }, function(resp) { // error
@@ -609,10 +659,10 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     $scope.indentHeader = function(practice, prefix) {
-        var parts = practice[0].path.split("/");
+        var parts = practice[0].path.replace(prefix, '').split("/");
         var indentSpace = 0
-        if( parts.length > 4 ) {
-            indentSpace = parts.length - 4;
+        if( parts.length > 2 ) {
+            indentSpace = parts.length - 2;
         }
         if( practice[0].consumption ) {
             return "bestpractice indent-header-" + indentSpace;
@@ -620,35 +670,51 @@ envconnectControllers.controller("EnvconnectCtrl",
         return "heading indent-header-" + indentSpace;
     }
 
-    $scope.toLowerLevel = function($event, prefix, page_prefix) {
+    $scope.toLowerLevel = function($event, prefix) {
         $event.preventDefault();
         var row = angular.element($event.target).parents("tr");
         var startPath = row.data('id');
         var movedDepth = startPath.split("/").length;
         var entries = $scope.getEntries(prefix);
-        var attachBelow = null;
+        var attachPath = null;
         for( var idx = 0; idx < entries.length; ++idx ) {
-            var candidatePath = (page_prefix + entries[idx][0].path);
+            var candidatePath = entries[idx][0].path;
             var candidateDepth = candidatePath.split("/").length;
             if( startPath === candidatePath ) {
                 break;
             }
             if( candidateDepth == movedDepth ) {
-                attachBelow = candidatePath;
+                attachPath = candidatePath;
             }
         }
-        if( attachBelow ) {
-            $scope.moveBestPractice(startPath, attachBelow, settings.urls.api_move_node);
+        if( attachPath ) {
+            $scope.moveBestPractice(startPath, attachPath);
         } else {
             showErrorMessages("Cannot find a heading above " + startPath);
         }
     };
 
-    $scope.toUpperLevel = function($event) {
-        console.log("XXX to upper level...");
+    $scope.toUpperLevel = function($event, prefix) {
         $event.preventDefault();
         var row = angular.element($event.target).parents("tr");
-        console.log("XXX move", row, "to a upper level");
+        var startPath = row.data('id');
+        var movedDepth = startPath.split("/").length - 2; // -1 is same anchor
+        var entries = $scope.getEntries(prefix);
+        var attachPath = null;
+        for( var idx = 0; idx < entries.length; ++idx ) {
+            var candidatePath = entries[idx][0].path;
+            var candidateDepth = candidatePath.split("/").length;
+            if( startPath === candidatePath ) {
+                break;
+            }
+            if( candidateDepth == movedDepth ) {
+                attachPath = candidatePath;
+            }
+        }
+        if( !attachPath ) {
+            attachPath = prefix;
+        }
+        $scope.moveBestPractice(startPath, attachPath);
     };
 
 
@@ -712,7 +778,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 });
             }
         }
-        $scope.calcSavingsAndCost($scope.entries, "");
+        $scope.calcSavingsAndCost($scope.entries);
         if( $scope.savingsChart ) {
             $scope.savingsChart.update(
                 $scope.entries[0].captured.avg_energy_saving * 100,

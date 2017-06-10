@@ -7,9 +7,9 @@
     {% for icon_tuple in root.1 %}
         {% with icon_tuple.0 as icon %}
         {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
-        {% with page_prefix|add:prefix as abs_prefix %}
+        {% with root_prefix|add:prefix as abs_prefix %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}" ng-cloak>
-          <div ng-if="getEntriesByTag('{{prefix}}', TAG_SYSTEM).length === 0">
+          <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length === 0">
             <div class="row">
                 <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
                     <!-- WORKAROUND: we set data-width and data-height
@@ -64,67 +64,76 @@
                     {% endfor %}
                         </tr>
                 </thead>
-                <tbody dnd-list="getEntries('{{prefix}}')">
-                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
-                        ng-repeat="practice in getEntries('{{prefix}}')"
+                <tbody dnd-list="getEntries('{{abs_prefix}}')">
+                    <tr data-id="[[getPath(practice)]]"
+                        ng-repeat="practice in getEntries('{{abs_prefix}}')"
                         ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle">
                         {% include "envconnect/_profitability_row.html" %}
                     </tr>
-                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
-                        ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
+                    <tr data-id="[[getPath(practice)]]"
+                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
                         ng-if="sortedOnKeys > 0" ng-show="!valueSummaryToggle">
                         {% include "envconnect/_profitability_row.html" %}
                     </tr>
-                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
-                        ng-repeat="practice in getEntries('{{prefix}}')"
+                    <tr data-id="[[getPath(practice)]]"
+                        ng-repeat="practice in getEntries('{{abs_prefix}}')"
                         ng-if="sortedOnKeys === 0"  ng-show="valueSummaryToggle">
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
-                    <tr data-id="[[getPath(practice, '{{abs_prefix}}')]]"
-                        ng-repeat="practice in getEntries('{{prefix}}') | orderBy:sortedOn:reverse"
+                    <tr data-id="[[getPath(practice)]]"
+                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
                         ng-if="sortedOnKeys > 0"  ng-show="valueSummaryToggle">
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
-                    {% if request|is_broker_manager %}
-                    <tr data-id="{{abs_prefix}}">
-                        <td colspan="[[!valueSummaryToggle ? {{icon.profitability_headers_len}} : {{icon.value_headers_len}}]]">
-<!-- add a node -->
-<div style="width:100%;">
-<form class="form-inline" style="display:inline-block;width:90%;" ng-submit="addElement($event, '{{prefix}}')">
-  <div class="input-group" style="width:90%;">
-    <select ng-model="newElement.tag"
-            class="form-control input-sm" style="width:20%;"
-            name="tag">
-            <option value="heading">Heading</option>
-            <option value="best-practice">Best practice</option>
-    </select>
-    <input name="title" type="text" placeholder="[[newElement.tag]] title"
-           autocomplete="off"
-           ng-model="newElement.title"
-           uib-typeahead="candidate as candidate.printable_name for candidate in getCandidates($viewValue)"
-           uib-typeahead-loading="loadingPageElements"
-           uib-typeahead-template-url="customTemplate.html"
-           class="form-control input-sm" style="width:80%;">
-    <div class="input-group-btn">
-      <button class="btn btn-primary btn-sm" type="submit">Add</button>
-    </div>
-  </div>
-  <div style="height:14px" ng-cloak>
-          <i ng-show="loadingPageElements" class="fa fa-spinner fa-spin"></i>
-  </div>
-</form>
-</div>
-                          </td>
-                        </div>
-                    </tr>
-                    {% endif %}
-                    <tr ng-show="getEntries('{{prefix}}').length === 0">
+                    <tr ng-show="getEntries('{{abs_prefix}}').length === 0">
                         <td colspan="{{icon.profitability_headers_len}}">
 <em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em>
                         </td>
                     </tr>
                 </tbody>
+                {% if request|is_broker_manager %}
+                <tbody>
+                    <tr data-id="{{abs_prefix}}">
+                        <td colspan="[[!valueSummaryToggle ? {{icon.profitability_headers_len}} : {{icon.value_headers_len}}]]">
+<!-- add a node -->
+<div style="width:100%;">
+    <form class="form-inline" style="display:inline-block;width:90%;" ng-submit="addElement($event, '{{abs_prefix}}')">
+        <div class="input-group" style="width:90%;">
+            <select ng-model="newElement.tag"
+                    class="form-control input-sm" style="width:20%;"
+                    name="tag">
+                <option value="heading">Heading</option>
+                <option value="best-practice">Best practice</option>
+            </select>
+            <script type="text/ng-template" id="customTemplate.html">
+                <a>
+                    <span ng-bind-html="match.title | uibTypeaheadHighlight:query"></span>
+                </a>
+            </script>
+            <input name="title" type="text" placeholder="[[newElementTag.tag]] title"
+                   autocomplete="off"
+                   ng-model="newElement.value"
+                   uib-typeahead="candidate as candidate.title for candidate in getBestPracticeCandidates($viewValue)"
+                   uib-typeahead-loading="loadingBestpractices"
+                   uib-typeahead-template-url="customTemplate.html"
+                   class="form-control input-sm" style="width:80%;">
+            <div class="input-group-btn">
+                <button class="btn btn-primary btn-sm" type="submit" value="submit">Add</button>
+            </div>
+        </div>
+        <div style="height:14px" ng-cloak>
+            <i ng-show="loadingBestpractices" class="fa fa-spinner fa-spin"></i>
+        </div>
+    </form>
+</div>
+<!-- -->
+                          </td>
+                        </div>
+                    </tr>
+                </tbody>
+                {% endif %}
             </table>
+
             <div class="row" style="margin-top:-15px;">
                 <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom: 10px;">
                     <div ng-show="valueSummaryToggle">
@@ -145,6 +154,8 @@
         {% endwith %}
         {% endwith %}
     {% endfor %}
+
+
 </div>
 <!-- modal dialogs -->
 <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog"

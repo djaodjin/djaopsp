@@ -10,6 +10,7 @@ from survey.models import Response
 
 from ..mixins import ReportMixin
 from ..models import Consumption
+from ..templatetags.navactive import category_entry
 
 
 LOGGER = logging.getLogger(__name__)
@@ -34,7 +35,8 @@ class AccountRedirectView(ReportMixin, AccountRedirectBaseView):
                 answer__response=response).order_by('-path')
             candidate = queryset.first()
             if candidate and candidate.path:
-                kwargs.update({'path': '/%s' % candidate.path.split('/')[1]})
+                kwargs.update({'path': category_entry(self.get_breadcrumbs(
+                    candidate.path)[1], 'sustainability')})
             else:
                 kwargs.update({'path': ''})
         return super(AccountRedirectView, self).get(request, *args, **kwargs)

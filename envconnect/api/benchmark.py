@@ -105,16 +105,6 @@ class BenchmarkMixin(ReportMixin):
         for root in roots:
             base = path + '/' + root.slug
             levels = root.relationships.all()
-            if root.tag and ('industry' in root.tag
-                    or settings.TAG_SCORECARD in root.tag):
-                transparent_to_rollover = False
-            else:
-                transparent_to_rollover = True
-                for level in levels:
-#                    transparent_to_rollover &= (level.tag is None
-#                        or level.tag == '' or level.tag == 'heading')
-                    transparent_to_rollover &= (level.tag is None
-                        or settings.TAG_SCORECARD not in level.tag)
             metrics = {
                 'slug': root.slug,
                 'title': root.title,
@@ -124,6 +114,11 @@ class BenchmarkMixin(ReportMixin):
                 metrics.update({'text': root.text})
             if root.tag:
                 metrics.update({'tag': root.tag})
+            # `transparent_to_rollover` is meant to speed up computations
+            # when the resulting calculations won't matter to the display.
+            # See commit c421ca5 for implementation (though bogus
+            # after basic/sustainability under a single root).
+            transparent_to_rollover = False
             if transparent_to_rollover:
                 details.update({base: (metrics, {})})
             else:

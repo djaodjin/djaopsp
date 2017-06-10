@@ -20,13 +20,13 @@ LOGGER = logging.getLogger(__name__)
 
 class BestPracticeMoveAPIView(PageElementMoveAPIView):
 
-    def perform_change(self, sources, targets):
+    def perform_change(self, sources, targets, rank=None):
         moved = '/' + '/'.join([source.slug for source in sources])
         new_root = "/%s/%s" % ('/'.join([target.slug for target in targets]),
             sources[-1].slug)
         with transaction.atomic():
             super(BestPracticeMoveAPIView, self).perform_change(
-                sources, targets)
+                sources, targets, rank=rank)
             for consumption in Consumption.objects.filter(
                     path__startswith=moved):
                 new_path = new_root + consumption.path[len(moved):]
@@ -56,11 +56,12 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
         return self.update(request, *args, **kwargs)
 
     def perform_update(self, serializer): #pylint:disable=too-many-locals
+        # XXX This code has been deprecated. Left until tests are stable.
         attach = self.kwargs.get('path')
         moved = serializer.validated_data['source']
+        LOGGER.debug("move '%s' after '%s'", moved, attach)
         _, moved_path_elements = self.get_breadcrumbs(moved)
         _, attach_path_elements = self.get_breadcrumbs(attach)
-        LOGGER.debug("move '%s' after '%s'", moved, attach)
 
         if len(moved_path_elements) == len(attach_path_elements):
             attach_root = attach_path_elements[-2][0]

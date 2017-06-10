@@ -16,6 +16,8 @@ from survey.views.matrix import MatrixDetailView
 
 from ..api.benchmark import BenchmarkMixin
 from ..models import Consumption
+from ..templatetags.navactive import category_entry
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -71,7 +73,8 @@ class BenchmarkView(BenchmarkBaseView):
                     answer__response=response).order_by('-path')
                 candidate = queryset.first()
                 if candidate and candidate.path:
-                    benchmark_path = candidate.path.split('/')[1]
+                    benchmark_path = category_entry(self.get_breadcrumbs(
+                    candidate.path)[1], 'sustainability')
                     try:
                         default_element = PageElement.objects.get(
                             slug="sustainability-%s" % benchmark_path)

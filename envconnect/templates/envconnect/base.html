@@ -56,10 +56,11 @@
                                         {% block icon_row_title %}
                                         {% endblock %}
                                         <div class="header-tuple">
+                                            {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
                                             <ul class="nav nav-tabs squared-tabs">
                                             {% for icon_tuple in root.1  %}
                                             {% with icon_tuple.0 as icon %}
-                                                {% with "/"|add:root.0.slug|add:"/"|add:icon.slug as prefix %}
+                                                {% with icon_prefix|add:"/"|add:icon.slug as abs_prefix %}
                                                 {% with forloop.first as draw_border %}
                                                 <li class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% if root.0.tag == 'industry' and icon|containsTag:'management' %} arrow-right{% endif %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
                                                     <div class="icon-container">
@@ -67,14 +68,14 @@
 <div style="position:relative; vertical-align:top;">
 <a id="delete-{{icon.slug}}" href=""
    class="text-danger" data-toggle="modal" data-target="#confirm-delete"
-   ng-click="setBestPractice('{{page_prefix|add:prefix}}', true)"
+   ng-click="setBestPractice('{{abs_prefix}}', true)"
    style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i></a>
 <a id="incl-{{icon.slug}}" href=""
-   ng-click="editElementTags('{{page_prefix|add:prefix}}', true, {slug: '{{icon.slug}}', tag: '{{icon.tag}}'})"
+   ng-click="editElementTags('{{abs_prefix}}', true, {slug: '{{icon.slug}}', tag: '{{icon.tag}}'})"
    style="position:absolute;top:20px;left:0px;"><i class="fa [[containsTag({tag: '{{icon.tag}}'}, TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
 <a id="edit-{{icon.slug}}" href=""
    data-toggle="modal" data-target="#edit-element-modal"
-   ng-click="setBestPractice('{{page_prefix|add:prefix}}', true, {slug: '{{icon.slug}}', title: '{{icon.title}}' })"
+   ng-click="setBestPractice('{{abs_prefix}}', true, {slug: '{{icon.slug}}', title: '{{icon.title}}' })"
    style="position:absolute;top:40px;left:0px;"><i class="fa fa-edit"></i></a>
 </div>
 {% endif %}
@@ -83,8 +84,8 @@
                                                         {% endblock %}
                                                     </div>
                                                     {% block systems_block %}
-                                                    <div class="system-menus" ng-if="getEntriesByTag('{{prefix}}', TAG_SYSTEM).length > 0">
-                                                        <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{prefix}}', TAG_SYSTEM)" ng-cloak>
+                                                    <div class="system-menus" ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length > 0">
+                                                        <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM)" ng-cloak>
                                                             {% if '/report/' in request.path %}
                                                             <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'report_organization' organization path %}{% else %}{% url 'report' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                             {% elif '/improve/' in request.path %}
@@ -97,13 +98,13 @@
 
                                                             {% if request|is_broker_manager and not organization %}
 <a id="incl-[[practice[0].slug]]" href=""
-   ng-click="editElementTags(getPath(practice, '{{prefix}}'), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
+   ng-click="editElementTags(getPath(practice), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
 <a id="edit-[[practice[0].slug]]" href=""
    data-toggle="modal" data-target="#edit-element-modal"
-   ng-click="setBestPractice(getPath(practice, '{{prefix}}'), false, practice[0])"><i class="fa fa-edit"></i></a>
+   ng-click="setBestPractice(getPath(practice), false, practice[0])"><i class="fa fa-edit"></i></a>
 <a id="delete-[[practice[0].slug]]" href=""
    class="text-danger" data-toggle="modal" data-target="#confirm-delete"
-   ng-click="setBestPractice(getPath(practice, '{{prefix}}'))"><i class="fa fa-trash-o"></i></a>
+   ng-click="setBestPractice(getPath(practice))"><i class="fa fa-trash-o"></i></a>
 {% endif %}
                                                         </div>
                                                     </div>
@@ -112,14 +113,14 @@
                                                         <button
                                                             aria-controls="home"
                                                             data-toggle="modal"
-                                                            data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:prefix}}', TAG_SYSTEM)">
+                                                            data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', TAG_SYSTEM)">
                                                             <i class="fa fa-plus"></i>
                                                     </div>
                                                     {% endif %}
                                                     {% endblock %}
-                                                    {% endwith %}
-                                                    {% endwith %}
                                                 </li>
+                                                {% endwith %}
+                                                {% endwith %}
                                             {% endwith %}
                                             {% endfor %}
                                             {% if request|is_broker_manager %}
@@ -128,13 +129,14 @@
                                                     <button class="icon-inner fixed-width orange"
                                                             aria-controls="home"
                                                             data-toggle="modal"
-                                                            data-target="#add-pagelement-modal" ng-click="setPrefix('{{page_prefix|add:"/"|add:root.0.slug}}')">
+                                                            data-target="#add-pagelement-modal" ng-click="setPrefix('{{icon_prefix}}')">
                                                         <i class="fa fa-plus fa-5x" style="color:white;"></i>
                                                     </button>
                                                   </div>
                                                 </li>
                                             {% endif %}
                                             </ul>
+                                            {% endwith %}
                                         </div>
                                     </div>
                                     {% block additional_icon %}
@@ -169,7 +171,7 @@ content development.
                         </div>
                         <form class="form-inline" ng-submit="addElement($event)">
                             <div class="modal-body">
-                                <input ng-model="newElement.title"
+                                <input ng-model="newElement.value.title"
                                        class="form-control search-page-element"
                                        style="width:100%;"
                                        type="text" name="title"
@@ -177,7 +179,7 @@ content development.
                                 <div style="margin-top:5px;">
                                     <div class="text-center">
                                     <label>Optional tag</label>
-                                    <select ng-model="newElement.tag"
+                                    <select ng-model="newElement.value.tag"
                                            class="form-control" name="tag">
                                         <option value="">None</option>
                                         <option value="management">Management</option>
@@ -255,7 +257,6 @@ app.constant('settings', {
         api_page_elements: "{% url 'page_elements' %}",
     },
 {% endif %}
-    root_prefix: {% if page_prefix and root %}"{{page_prefix|add:'/'|add:root.0.slug}}"{% elif root %}"{{'/'|add:root.0.slug}}"{% else %}""{% endif %},
     entries: {% if entries %}{{entries|safe}}{% else %}{}{% endif %},
     hidden: {% if hidden %}{{hidden|safe}}{% else %}{}{% endif %},
     valueSummaryToggle: true,

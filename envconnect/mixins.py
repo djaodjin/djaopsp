@@ -153,9 +153,9 @@ class BreadcrumbMixin(PermissionMixin):
     def get_context_data(self, *args, **kwargs):
         context = super(BreadcrumbMixin, self).get_context_data(*args, **kwargs)
         from_root, trail = self.breadcrumbs
-        page_prefix = '/'.join(from_root.split('/')[:-1])
+        root_prefix = '/'.join(from_root.split('/')[:-1])
         context.update({
-            'page_prefix': page_prefix,
+            'root_prefix': root_prefix,
             'from_root': from_root,
             'breadcrumbs': trail,
             'active': self.request.GET.get('active', "")})
@@ -172,11 +172,16 @@ class BreadcrumbMixin(PermissionMixin):
         self.update_context_urls(context, urls)
         return context
 
-    def to_representation(self, root):
+    def to_representation(self, root, prefix=None):
+        if prefix is None:
+            prefix, _ = self.breadcrumbs
+            prefix = '/'.join(prefix.split('/')[:-1])
         results = []
-        root_repr = PageElementSerializer().to_representation(root[0])
+        root_repr = PageElementSerializer(
+            context={'prefix': prefix}).to_representation(root[0])
         for node in root[1]:
-            results += [self.to_representation(node)]
+            results += [self.to_representation(
+                node, prefix=prefix + '/' + root[0].slug)]
         return [root_repr, results]
 
 
