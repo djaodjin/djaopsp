@@ -66,7 +66,7 @@ def category_entry(breadcrumbs, category=None):
     path = ""
     for breadcrumb in breadcrumbs:
         for tag in ['basic', 'sustainability']:
-            if tag in breadcrumb[0].tag:
+            if breadcrumb[0].tag and tag in breadcrumb[0].tag:
                 if category:
                     look = re.match(r'^[^-]+(-\S+)', breadcrumb[0].slug)
                     path += "/" + category + look.group(1)

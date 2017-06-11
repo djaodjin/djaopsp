@@ -273,15 +273,16 @@ envconnectControllers.controller("EnvconnectCtrl",
     /** Linearize the tree into a list of rows.
      */
     $scope.getEntriesAsRows = function(node, results) {
+        var header_num = results.length;
+        node[0].header_num = header_num;
         for( var i = 0; i < node[1].length; ++i ) {
-            var header_num = $scope.reverse ? (node[1].length + 1 - i) : i + 1;
             if( node[1][i][0].consumption !== null ) {
-                node[1][i][0].header_num = $scope.reverse ? node[1].length : 0;
-            } else {
                 node[1][i][0].header_num = header_num;
+                results.push(node[1][i]);
+            } else {
+                results.push(node[1][i]);
+                $scope.getEntriesAsRows(node[1][i], results);
             }
-            results.push(node[1][i]);
-            $scope.getEntriesAsRows(node[1][i], results);
         }
     };
 
@@ -383,17 +384,26 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.sortedOn = function(obj) {
         var key = "" + obj[0].header_num;
+        if( $scope.reverse ) {
+            key = "" + (999 - obj[0].header_num);
+        }
         if( typeof obj[0].consumption !== 'undefined'
             && obj[0].consumption !== null ) {
             for( var fieldName in $scope.dir ) {
                 if ($scope.dir.hasOwnProperty(fieldName)) {
-                    key = key + "-" + obj[0].consumption[fieldName];
+                    // XXX This only works if the consumption we sort by
+                    //     is an integer less than 100.
+                    key = key + "-" + ('000000000' +  obj[0].consumption[fieldName]).substr(-3);
                 }
             }
             // We always tail the `rank` such that we get a consistent ordering
             // We also "reverse" (in a way) the rank such that descending order
             // looks good.
-            key = key + "-" +  (1000000 - obj[0].rank);
+            key = key + "-" + (1000000 - obj[0].rank - 1);
+        } else {
+            if( $scope.reverse ) {
+                key = key + "-" + 999;
+            }
         }
         return key;
     };
@@ -1119,7 +1129,7 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                 }
                 $.ajax({
                     url: self.options.api_improvement_base + consumption + "/",
-                    type: elem.is(":checked") ? "PUT" : "DELETE",
+                    type: elem.is(":checked") ? "POST" : "DELETE",
                     contentType: "application/json; charset=utf-8",
                     success: function(data) { return true; },
                     error: function(resp) {  showErrorMessages(resp); }

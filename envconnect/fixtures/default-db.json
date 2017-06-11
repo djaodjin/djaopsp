@@ -10,7 +10,7 @@
 },
 {
     "fields": {
-        "path": "/boxes-and-enclosures/management-basics",
+        "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
         "slug": "avg_energy_saving",
         "hidden": true
     },
@@ -18,7 +18,7 @@
 },
 {
     "fields": {
-        "path": "/boxes-and-enclosures/management-basics",
+        "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
         "slug": "capital_cost",
         "hidden": true
     },
@@ -26,7 +26,7 @@
 },
 {
     "fields": {
-        "path": "/boxes-and-enclosures/management-basics",
+        "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
         "slug": "payback_period",
         "hidden": true
     },
@@ -34,7 +34,7 @@
 },
 {
     "fields": {
-        "path": "/boxes-and-enclosures/management-basics",
+        "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
         "slug": "environmental_value",
         "hidden": true
     },
@@ -42,7 +42,7 @@
 },
 {
     "fields": {
-        "path": "/boxes-and-enclosures/management-basics",
+        "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
         "slug": "business_value",
         "hidden": true
     },
@@ -50,7 +50,7 @@
 },
 {
     "fields": {
-        "path": "/boxes-and-enclosures/management-basics",
+        "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
         "slug": "profitability",
         "hidden": true
     },
@@ -58,7 +58,7 @@
 },
 {
     "fields": {
-        "path": "/boxes-and-enclosures/management-basics",
+        "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
         "slug": "implementation_ease",
         "hidden": true
     },
@@ -75,6 +75,22 @@
 },
 {
   "fields": {
+    "title": "Boxes & enclosures",
+    "slug": "sustainability-boxes-and-enclosures",
+    "tag": "sustainability",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 2
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 2
+  },
+  "model": "pages.Relationship", "pk": 2
+},
+{
+  "fields": {
     "title": "Management",
     "slug": "management-basics",
     "text": "/media/envconnect/management-basics.png",
@@ -85,7 +101,7 @@
 },
 {
   "fields": {
-    "orig_element": 1,
+    "orig_element": 2,
     "dest_element": 4
   },
   "model": "pages.relationship", "pk": 3
@@ -102,7 +118,7 @@
 },
 {
   "fields": {
-    "orig_element": 1,
+    "orig_element": 2,
     "dest_element": 5
   },
   "model": "pages.relationship", "pk": 4
@@ -119,7 +135,7 @@
 },
 {
   "fields": {
-    "orig_element": 1,
+    "orig_element": 2,
     "dest_element": 6
   },
   "model": "pages.relationship", "pk": 5
@@ -136,7 +152,7 @@
 },
 {
   "fields": {
-    "orig_element": 1,
+    "orig_element": 2,
     "dest_element": 7
   },
   "model": "pages.relationship", "pk": 6
@@ -153,7 +169,7 @@
 },
 {
   "fields": {
-    "orig_element": 1,
+    "orig_element": 2,
     "dest_element": 8
   },
   "model": "pages.relationship", "pk": 7
@@ -170,7 +186,7 @@
 },
 {
   "fields": {
-    "orig_element": 1,
+    "orig_element": 2,
     "dest_element": 9
   },
   "model": "pages.relationship", "pk": 8
@@ -210,7 +226,7 @@
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/design/product-design",
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/product-design",
     "question": 1,
     "implementation_ease": 1,
     "avg_energy_saving": "* * *",
@@ -250,7 +266,7 @@
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/design/packaging-design",
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/packaging-design",
     "question": 2,
     "implementation_ease": 2,
     "avg_energy_saving": "* * * *",
@@ -489,7 +505,7 @@
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
     "question": 3,
     "implementation_ease": 1,
     "avg_energy_saving": "* * * *",
@@ -536,7 +552,7 @@
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
     "question": 4,
     "implementation_ease": 2,
     "avg_energy_saving": "* * *",
@@ -561,10 +577,17 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "basic-boxes-and-enclosures",
-    "tag": "industry",
+    "tag": "basic",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 31
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 31
+  },
+  "model": "pages.Relationship", "pk": 31
 },
 {
   "fields": {
@@ -757,7 +780,7 @@
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
     "question": 6,
     "implementation_ease": 1,
     "avg_fuel_saving": "-",
@@ -805,7 +828,7 @@
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
     "question": 7,
     "implementation_ease": 1,
     "avg_fuel_saving": "-",
@@ -1168,7 +1191,7 @@
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
     "question": 8,
     "implementation_ease": 1,
     "avg_fuel_saving": "*",
@@ -1208,7 +1231,7 @@
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/management-basics/general/a-policy-is-in-place-appropriate-to-the-nature-and-scale",
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/general/a-policy-is-in-place-appropriate-to-the-nature-and-scale",
     "question": 9,
     "implementation_ease": 1,
     "avg_fuel_saving": "*",
@@ -1422,7 +1445,7 @@
     "rank": 0,
     "editable_filter": 4,
     "operator": "startsWith",
-    "operand": "/boxes-and-enclosures/management-basics/",
+    "operand": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -1445,7 +1468,7 @@
     "rank": 0,
     "editable_filter": 5,
     "operator": "startsWith",
-    "operand": "/boxes-and-enclosures/design/",
+    "operand": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -1468,7 +1491,7 @@
     "rank": 0,
     "editable_filter": 6,
     "operator": "startsWith",
-    "operand": "/boxes-and-enclosures/production/energy-efficiency/",
+    "operand": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -1491,7 +1514,7 @@
     "rank": 0,
     "editable_filter": 7,
     "operator": "startsWith",
-    "operand": "/boxes-and-enclosures/production/waste-management/",
+    "operand": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/waste-management/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -1514,7 +1537,7 @@
     "rank": 0,
     "editable_filter": 8,
     "operator": "startsWith",
-    "operand": "/boxes-and-enclosures/production/green-chemistry/",
+    "operand": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/green-chemistry/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -1537,7 +1560,7 @@
     "rank": 0,
     "editable_filter": 9,
     "operator": "startsWith",
-    "operand": "/boxes-and-enclosures/boxes-distribution/packaging/",
+    "operand": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/packaging/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -1560,7 +1583,7 @@
     "rank": 0,
     "editable_filter": 10,
     "operator": "startsWith",
-    "operand": "/boxes-and-enclosures/boxes-distribution/fleet/",
+    "operand": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/fleet/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -1583,7 +1606,7 @@
     "rank": 0,
     "editable_filter": 11,
     "operator": "startsWith",
-    "operand": "/boxes-and-enclosures/boxes-distribution/take-back-program/",
+    "operand": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/take-back-program/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -1606,7 +1629,7 @@
     "rank": 0,
     "editable_filter": 12,
     "operator": "startsWith",
-    "operand": "/boxes-and-enclosures/boxes-distribution/recycling/",
+    "operand": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/recycling/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -1721,7 +1744,7 @@
     "rank": 0,
     "editable_filter": 15,
     "operator": "startsWith",
-    "operand": "/boxes-and-enclosures/",
+    "operand": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/",
     "field": "path",
     "selector": "keepmatching"
   },

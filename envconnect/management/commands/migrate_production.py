@@ -9,7 +9,8 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from pages.models import PageElement, RelationShip
 from answers.models import Question as AnswersQuestion
-from survey.models import Answer, Question, Response, SurveyModel
+from survey.models import (Answer, Question, Response, SurveyModel,
+    EditablePredicate)
 
 from ...mixins import BreadcrumbMixin
 from ...models import Improvement, Consumption, ScoreWeight, ColumnHeader
@@ -62,6 +63,9 @@ class Command(BaseCommand):
         for weight in ScoreWeight.objects.all():
             self.rename_path(weight)
 
+        for predicate in EditablePredicate.objects.all():
+            self.rename_operand(predicate)
+
     def rename_path(self, obj):
         parts = []
         path = obj.path
@@ -78,6 +82,24 @@ class Command(BaseCommand):
                 ['', parts[0], "sustainability-%s" % parts[0]] + parts[1:])
         self.stdout.write(
             "Rename '%s' to '%s'\n" % (path, obj.path))
+        obj.save()
+
+    def rename_operand(self, obj):
+        parts = []
+        path = obj.operand
+        if path.startswith('/'):
+            parts = path[1:].split('/')
+        else:
+            parts = path.split('/')
+        look = re.match('^basic-(.*)', parts[0])
+        if look:
+            obj.operand = '/'.join(
+                ['', look.group(1), parts[0]] + parts[1:])
+        else:
+            obj.operand = '/'.join(
+                ['', parts[0], "sustainability-%s" % parts[0]] + parts[1:])
+        self.stdout.write(
+            "Rename '%s' to '%s'\n" % (path, obj.operand))
         obj.save()
 
 
