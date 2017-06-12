@@ -15,7 +15,7 @@ from ..views import AccountRedirectView
 from ..views.best_practices import (BestPracticeDetailView,
     FollowBestPracticeView, UnfollowBestPracticeView, BestPracticeVoteView)
 from ..views.benchmark import (BenchmarkView, PortfoliosDetailView,
-    ScoreCardView, ScoreCardDownloadView)
+    ScoreCardView, ScoreCardDownloadView, ScoreCardRedirectView)
 from ..views.compare import ReportingEntitiesView
 from ..views.index import IndexView
 from ..views.improvements import ReportPDFView
@@ -140,12 +140,19 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), ImproveView.as_view(),
         name='improve_organization'),
+    url_direct(r'app/(?P<organization>%s)/benchmark/$' % (
+        SLUG_RE), ScoreCardRedirectView.as_view(),
+        name='benchmark_organization_redirect'),
     url_direct(r'app/(?P<organization>%s)/benchmark(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), BenchmarkView.as_view(),
         name='benchmark_organization'),
     url_direct(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/download/' % (
         SLUG_RE, settings.PATH_RE), ScoreCardDownloadView.as_view(),
         name='scorecard_download_organization'),
+    url_direct(r'app/(?P<organization>%s)/scorecard/?$' % (
+        SLUG_RE), ScoreCardRedirectView.as_view(
+            pattern_name='scorecard_organization'),
+        name='scorecard_organization_redirect'),
     url_direct(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), ScoreCardView.as_view(),
         name='scorecard_organization'),
@@ -158,7 +165,7 @@ urlpatterns += [
 
     url_authenticated(r'app/',
         AccountRedirectView.as_view(
-            pattern_name='benchmark_organization',
+            pattern_name='benchmark_organization_redirect',
             new_account_url='/%sapp/new/' % APP_PREFIX)),
 
     # no authentication required

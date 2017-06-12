@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from deployutils import mixins as deployutils_mixins
 from answers.models import Question as AnswersQuestion
 from pages.models import PageElement, RelationShip
-from survey.models import SurveyModel, Question, Answer
+from survey.models import Answer, Question, Response, SurveyModel
 from survey.utils import get_account_model
 
 from .models import Consumption, Improvement
@@ -96,6 +96,8 @@ class BreadcrumbMixin(PermissionMixin):
     def get_breadcrumbs(self, path):
         #pylint:disable=too-many-locals
         results = []
+        if not path:
+            return "", results
         parts = path.split('/')[1:]
         if len(parts) < 1:
             return path, results
@@ -153,10 +155,11 @@ class BreadcrumbMixin(PermissionMixin):
     def get_context_data(self, *args, **kwargs):
         context = super(BreadcrumbMixin, self).get_context_data(*args, **kwargs)
         from_root, trail = self.breadcrumbs
-        root_prefix = '/'.join(from_root.split('/')[:-1])
+        parts = from_root.split('/')
+        root_prefix = '/'.join(parts[:-1]) if len(parts) > 1 else ""
         context.update({
+            'path': kwargs.get('path', ""),
             'root_prefix': root_prefix,
-            'from_root': from_root,
             'breadcrumbs': trail,
             'active': self.request.GET.get('active', "")})
         urls = {
@@ -188,6 +191,16 @@ class BreadcrumbMixin(PermissionMixin):
 class ReportMixin(BreadcrumbMixin, AccountMixin):
 
     report_title = 'Best Practices Report'
+
+    @property
+    def sample(self):
+        if not hasattr(self, '_sample'):
+            try:
+                self._sample = Response.objects.get(
+                    account__slug=self.account, survey__title=self.report_title)
+            except Response.DoesNotExist:
+                self._sample = None
+        return self._sample
 
     def get_survey(self):
         return get_object_or_404(SurveyModel,

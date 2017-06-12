@@ -4,7 +4,8 @@
 import csv, datetime, json, logging, StringIO
 
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
+from survey.models import Response, SurveyModel
 
 from .benchmark import BenchmarkBaseView
 from ..models import Consumption
@@ -13,20 +14,24 @@ from ..models import Consumption
 LOGGER = logging.getLogger(__name__)
 
 
-class SelfAssessmentView(BenchmarkBaseView):
+class SelfAssessmentBaseView(BenchmarkBaseView):
+
+    def attach_benchmarks(self, root, view_response=None):
+        if not view_response:
+            self._sample = Response.objects.create(account=self.account,
+                survey=SurveyModel.objects.get(title=self.report_title))
+        super(SelfAssessmentBaseView, self).attach_benchmarks(
+            root, view_response=self._sample)
+
+
+class SelfAssessmentView(SelfAssessmentBaseView):
 
     template_name = 'envconnect/self_assessment.html'
     breadcrumb_url = 'report'
 
     def get_context_data(self, **kwargs):
         context = super(SelfAssessmentView, self).get_context_data(**kwargs)
-
-        # XXX Hack to show answers, i.e. decorate consumption.implemented
-        try:
-            view_response = self.sample
-        except Http404:
-            view_response = None
-        self.attach_benchmarks(self.root, view_response=view_response)
+        self.attach_benchmarks(self.root, view_response=self.sample)
         context.update({
             'entries': json.dumps(self.to_representation(self.root))
         })
@@ -37,8 +42,8 @@ class SelfAssessmentView(BenchmarkBaseView):
             icon = self.breadcrumbs[-1][0][0]
         context.update({
             'page_icon': icon,
-            'survey': self.survey,
             'response': self.sample,
+            'survey': self.sample.survey,
             'role': "tab",
             'score_toggle': self.request.GET.get('toggle', False)})
         urls = {'api_self_assessment_response': reverse(
@@ -53,7 +58,7 @@ class SelfAssessmentView(BenchmarkBaseView):
         return super(SelfAssessmentView, self).get(request, *args, **kwargs)
 
 
-class SelfAssessmentCSVView(BenchmarkBaseView):
+class SelfAssessmentCSVView(SelfAssessmentBaseView):
 
     basename = 'self-assessment'
 
@@ -90,11 +95,7 @@ class SelfAssessmentCSVView(BenchmarkBaseView):
         # of the actual from_path.
         _, trail = self.breadcrumbs
         self.root = self._build_tree(trail[0][0], nocuts=True)
-        try:
-            view_response = self.sample
-        except Http404:
-            view_response = None
-        self.attach_benchmarks(self.root, view_response=view_response)
+        self.attach_benchmarks(self.root, view_response=self.sample)
 
         content = StringIO.StringIO()
         csv_writer = csv.writer(content)

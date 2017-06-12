@@ -5,11 +5,10 @@ import logging
 
 from django.conf import settings
 from django.db import connection
-from django.http import Http404
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as RestResponse
-from survey.models import Answer, Response, SurveyModel
+from survey.models import Answer
 
 from ..mixins import ReportMixin
 from ..models import Consumption, Improvement, ScoreWeight
@@ -30,20 +29,6 @@ class BenchmarkMixin(ReportMixin):
     QUESTION_PATH = 6
     ANSWER_TEXT = 7
     ANSWER_CREATED_AT = 8
-
-    @property
-    def sample(self):
-        if not hasattr(self, '_sample'):
-            try:
-                # If we call ``get_or_create`` to do the same thing, it will
-                # not call ``ResponseManager.create`` but ``QuerySet.create``
-                # instead.
-                self._sample = Response.objects.get(
-                    account=self.account, survey__title=self.report_title)
-            except Response.DoesNotExist:
-                self._sample = Response.objects.create(account=self.account,
-                    survey=SurveyModel.objects.get(title=self.report_title))
-        return self._sample
 
     @staticmethod
     def _show_query_and_result(raw_query, show=False):
@@ -738,15 +723,10 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
                     candidate.slug for candidate in candidates]))
                 found_root = root
                 break
-        try:
-            view_response = self.sample
-        except Http404:
-            view_response = None
         total_score = {"slug": "total-score", "title": "Total Score"}
-
         rollup_tree = self.rollup_scores()
         distributions_tree = self.create_distributions(
-            rollup_tree, view_account=view_response.account.pk)
+            rollup_tree, view_account=self.sample.account.pk)
         charts, complete = self.flatten_distributions(
             distributions_tree, prefix=prefix)
         if complete:

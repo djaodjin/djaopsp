@@ -24,20 +24,19 @@ class DetailView(BreadcrumbMixin, TemplateView):
     def get_context_data(self, *args, **kwargs):
         #pylint:disable=too-many-locals
         context = super(DetailView, self).get_context_data(*args, **kwargs)
-        if len(context['breadcrumbs']) > 0:
-            root, _, _ = context['breadcrumbs'][-1]
-            root = self._build_tree(root, context['from_root'])
-            # attach visible column headers
-            hidden_columns = {}
-            is_envconnect_manager = self.manages(settings.APP_NAME)
-            for icon_tuple in root[1]:
-                path = '/'.join([context['from_root'], icon_tuple[0].slug])
-                hidden_columns[path] = {}
-                hidden = set([row['slug']
-                    for row in ColumnHeader.objects.filter(
-                    hidden=True, path=path).values('slug')])
-                profitability_headers = []
-                for col_header in [
+        from_root, trail = self.breadcrumbs
+        root = self._build_tree(trail[-1][0], from_root)
+        # attach visible column headers
+        hidden_columns = {}
+        is_envconnect_manager = self.manages(settings.APP_NAME)
+        for icon_tuple in root[1]:
+            path = '/'.join([from_root, icon_tuple[0].slug])
+            hidden_columns[path] = {}
+            hidden = set([row['slug']
+                for row in ColumnHeader.objects.filter(
+                hidden=True, path=path).values('slug')])
+            profitability_headers = []
+            for col_header in [
                         {"slug": "avg_energy_saving",
                          "title": "Savings",
                          "tooltip": "The average estimated percentage saved"\
@@ -62,44 +61,44 @@ class DetailView(BreadcrumbMixin, TemplateView):
 " average of the totals represented by the range.\n\nClick individual best"\
 " practice headings and navigate to the \"References\" section for more"\
 " detail on data provenance."}]:
-                    if is_envconnect_manager:
-                        profitability_headers += [col_header]
-                        hidden_columns[path][col_header['slug']] = (
-                            col_header['slug'] in hidden)
-                    elif not col_header['slug'] in hidden:
-                        profitability_headers += [col_header]
-                setattr(icon_tuple[0], 'profitability_headers',
-                    profitability_headers)
-                setattr(icon_tuple[0], 'profitability_headers_len',
-                    len(profitability_headers) + 1)
-                value_headers = []
-                for col_header in [
-                        {"slug": "environmental_value",
-                         "title": "Environmental value"},
-                        {"slug": "business_value",
-                         "title": "Ops/Maintenance value"},
-                        {"slug": "profitability",
-                         "title": "Financial value"},
-                        {"slug": "implementation_ease",
-                         "title": "Implementation ease"},
-                        {"slug": "avg_value",
-                         "title": "Average Value"}]:
-                    if is_envconnect_manager:
-                        value_headers += [col_header]
-                        hidden_columns[path][col_header['slug']] = (
-                            col_header['slug'] in hidden)
-                    elif not col_header['slug'] in hidden:
-                        value_headers += [col_header]
-                setattr(icon_tuple[0], 'value_headers',
-                    value_headers)
-                setattr(icon_tuple[0], 'value_headers_len',
-                    len(value_headers) + 2)
-            if not is_envconnect_manager:
-                context.update({'sort_by': "{'agv_value': 'desc'}"})
-            context.update({
-                'role': "tab",
-                'root': root,
-                'entries': json.dumps(self.to_representation(root)),
-                'hidden': json.dumps(hidden_columns)
-            })
+                if is_envconnect_manager:
+                    profitability_headers += [col_header]
+                    hidden_columns[path][col_header['slug']] = (
+                        col_header['slug'] in hidden)
+                elif not col_header['slug'] in hidden:
+                    profitability_headers += [col_header]
+            setattr(icon_tuple[0], 'profitability_headers',
+                profitability_headers)
+            setattr(icon_tuple[0], 'profitability_headers_len',
+                len(profitability_headers) + 1)
+            value_headers = []
+            for col_header in [
+                    {"slug": "environmental_value",
+                     "title": "Environmental value"},
+                    {"slug": "business_value",
+                     "title": "Ops/Maintenance value"},
+                    {"slug": "profitability",
+                     "title": "Financial value"},
+                    {"slug": "implementation_ease",
+                     "title": "Implementation ease"},
+                    {"slug": "avg_value",
+                     "title": "Average Value"}]:
+                if is_envconnect_manager:
+                    value_headers += [col_header]
+                    hidden_columns[path][col_header['slug']] = (
+                        col_header['slug'] in hidden)
+                elif not col_header['slug'] in hidden:
+                    value_headers += [col_header]
+            setattr(icon_tuple[0], 'value_headers',
+                value_headers)
+            setattr(icon_tuple[0], 'value_headers_len',
+                len(value_headers) + 2)
+        if not is_envconnect_manager:
+            context.update({'sort_by': "{'agv_value': 'desc'}"})
+        context.update({
+            'role': "tab",
+            'root': root,
+            'entries': json.dumps(self.to_representation(root)),
+            'hidden': json.dumps(hidden_columns)
+        })
         return context

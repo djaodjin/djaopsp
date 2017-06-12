@@ -1,0 +1,17 @@
+{% extends "envconnect/base.html" %}
+
+{% block consumption_content %}
+<div class="container">
+    <div class="container-form" >
+        <h1 class="text-center"><i class="fa fa-chart fa-lg"></i> Please choose {{organization.printable_name}} scorecard for ...</h1>
+        <div id="select-redirects" class="col-md-offset-4 col-md-4">
+                {% for redirect in redirects %}
+                <div class="center" style="padding-top: 20px;">
+                  <a class="btn btn-default" id="{{redirect.1|slugify}}" style="width: 100%;" href="{{redirect.0}}">{{redirect.1}}</a>
+
+                </div>
+                {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

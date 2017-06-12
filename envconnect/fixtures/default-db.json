@@ -568,10 +568,40 @@
   "fields": {
     "title": "Construction",
     "slug": "construction",
-    "tag": "industry",
+    "tag": "industry,enabled",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 28
+},
+{
+  "fields": {
+    "title": "Construction",
+    "slug": "sustainability-construction",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 29
+},
+{
+  "fields": {
+    "orig_element": 28,
+    "dest_element": 29
+  },
+  "model": "pages.Relationship", "pk": 27
+},
+{
+  "fields": {
+    "title": "Management",
+    "slug": "management-construction",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 30
+},
+{
+  "fields": {
+    "orig_element": 29,
+    "dest_element": 30
+  },
+  "model": "pages.Relationship", "pk": 28
 },
 {
   "fields": {
@@ -584,10 +614,25 @@
 },
 {
   "fields": {
+    "title": "A process is in place",
+    "slug": "process-in-place",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 32
+},
+{
+  "fields": {
+    "orig_element": 30,
+    "dest_element": 32
+  },
+  "model": "pages.Relationship", "pk": 29
+},
+{
+  "fields": {
     "orig_element": 1,
     "dest_element": 31
   },
-  "model": "pages.Relationship", "pk": 31
+  "model": "pages.Relationship", "pk": 30
 },
 {
   "fields": {
@@ -1243,6 +1288,30 @@
     "environmental_value": 1
   },
   "model": "envconnect.Consumption", "pk": 9
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "A Process is in place",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 10
+  },
+  "model": "survey.Question", "pk": 10
+},
+{
+  "fields": {
+    "path": "/construction/sustainability-construction/management-construction/process-in-place",
+    "question": 10,
+    "implementation_ease": 1,
+    "avg_energy_saving": "* * *",
+    "profitability": 1,
+    "capital_cost": "$$$",
+    "business_value": 1,
+    "payback_period": "3-12",
+    "environmental_value": 1
+  },
+  "model": "envconnect.Consumption", "pk": 10
 },
 {
   "fields": {

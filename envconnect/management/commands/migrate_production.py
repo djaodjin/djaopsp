@@ -20,7 +20,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.rename_consumption()
+            self.relabel_to_fix_error()
+
+    def relabel_to_fix_error(self):
+        old_prefix = '/'
+        new_prefix = '/'
+        for consumption in Consumption.objects.filter(
+            path__startswith=old_prefix):
+            self.stdout.write("replace %s by %s" % (old_prefix, new_prefix))
+            consumption.path = consumption.path.replace(old_prefix, new_prefix)
+            consumption.save()
 
     def rename_consumption(self):
         for element in PageElement.objects.filter(

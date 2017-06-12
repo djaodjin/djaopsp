@@ -47,8 +47,7 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
     def get(self, request, *args, **kwargs):
         from_root, trail = self.breadcrumbs
         if len(trail) > 0:
-            root, _, _ = trail[-1]
-            root = self._build_tree(root, from_root)
+            root = self._build_tree(trail[-1][0], from_root)
             return Response(self.to_representation(root))
         raise Http404
 
