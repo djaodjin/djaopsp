@@ -63,7 +63,7 @@ class ScoreCardRedirectView(ReportMixin, SelfAssessmentRedirectMixin,
 
         redirects = []
         for element in candidates:
-            root_prefix = '/sustainability-%s' % candidates[0].slug
+            root_prefix = '/sustainability-%s' % element.slug
             kwargs.update({'path': root_prefix})
             url = super(ScoreCardRedirectView, self).get_redirect_url(
                 *args, **kwargs)
