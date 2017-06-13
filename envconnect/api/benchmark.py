@@ -1,10 +1,13 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
+from __future__ import absolute_import
+
 import logging
+from datetime import datetime, timedelta
 
 from django.conf import settings
-from django.db import connection
+from django.db import connection, connections
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as RestResponse
@@ -29,6 +32,24 @@ class BenchmarkMixin(ReportMixin):
     QUESTION_PATH = 6
     ANSWER_TEXT = 7
     ANSWER_CREATED_AT = 8
+
+    enable_report_queries = False
+
+    def _report_queries(self, descr=None):
+        if not self.enable_report_queries:
+            return
+        if descr is None:
+            descr = ""
+        nb_queries = 0
+        duration = timedelta()
+        for conn in connections.all():
+            nb_queries += len(conn.queries)
+            for query in conn.queries:
+                convert = datetime.strptime(query['time'], "%S.%f")
+                duration += timedelta(
+                    0, convert.second, convert.microsecond)
+                    # days, seconds, microseconds
+        LOGGER.debug("%s: %s for %d SQL queries", descr, duration, nb_queries)
 
     @staticmethod
     def _show_query_and_result(raw_query, show=False):
@@ -80,13 +101,13 @@ class BenchmarkMixin(ReportMixin):
            }],
          }]
         """
-        details = {}
-        if roots is None:
-            roots = PageElement.objects.get_roots()
         if path is None:
             path = ''
         elif not path.startswith('/'):
             path = '/' + path
+        if roots is None:
+            roots = PageElement.objects.get_roots()
+        details = {}
         for root in roots:
             base = path + '/' + root.slug
             levels = root.relationships.all()
@@ -101,25 +122,30 @@ class BenchmarkMixin(ReportMixin):
                 metrics.update({'tag': root.tag})
             # `transparent_to_rollover` is meant to speed up computations
             # when the resulting calculations won't matter to the display.
-            # See commit c421ca5 for implementation (though bogus
-            # after basic/sustainability under a single root).
-            transparent_to_rollover = False
+            # We used to compute decide `transparent_to_rollover` before
+            # the recursive call (see commit c421ca5) but it would not
+            # catch the elements tagged deep in the tree with no chained
+            # presentation.
+            level_details = self.build_aggregate_tree(roots=levels, path=base)
+            # Compute `transparent_to_rollover` before we add "tag"
+            # into the dictionary.
+            transparent_to_rollover = (
+                not settings.TAG_SCORECARD in level_details[0].get('tag', ''))
+            level_details[0].update(metrics)
+            for level_detail in level_details[1].itervalues():
+                if settings.TAG_SCORECARD in level_detail[0].get('tag', ''):
+                    transparent_to_rollover = False
+                    level_detail[0].update({
+                        'subtitle': level_detail[0].get('title', ''),
+                        'title': root.title,
+                        'text': root.text})
             if transparent_to_rollover:
                 details.update({base: (metrics, {})})
             else:
-                level_details = self.build_aggregate_tree(
-                    roots=levels, path=base)
-                level_details[0].update(metrics)
-                for level_detail in level_details[1].values():
-                    if settings.TAG_SCORECARD in level_detail[0].get('tag', ''):
-                        level_detail[0].update({
-                            'subtitle': level_detail[0].get('title', ''),
-                            'title': root.title,
-                            'text': root.text})
+                level_details[0].update({'tag': "%s,%s" % (
+                    level_details[0].get('tag'), settings.TAG_SCORECARD)})
                 details.update({base: level_details})
-        return ({
-            'score_weight': ScoreWeight.objects.from_path(path)
-        }, details)
+        return ({'score_weight': ScoreWeight.objects.from_path(path)}, details)
 
     def get_drilldown(self, rollup_tree, prefix):
         accounts = None
@@ -692,16 +718,21 @@ class BenchmarkMixin(ReportMixin):
         """
         Returns a tree populated with scores per accounts.
         """
+        self._report_queries("at rollup_scores entry point")
         rollup_tree = self.build_aggregate_tree()
+        self._report_queries("rollup_tree generated")
         if 'title' not in rollup_tree[0]:
             rollup_tree[0].update({
                 "slug": "total-score", "title": "Total Score"})
         leafs = self.get_leafs(rollup_tree=rollup_tree)
+        self._report_queries("leafs loaded")
         self.populate_leafs(leafs, self.get_scored_answers())
         self.populate_leafs(leafs, self.get_scored_improvements(),
             count_answers=False, numerator_key='improvement_numerator',
             denominator_key='improvement_denominator')
+        self._report_queries("leafs populated")
         self.populate_rollup(rollup_tree)
+        self._report_queries("rollup_tree populated")
         return rollup_tree
 
 
