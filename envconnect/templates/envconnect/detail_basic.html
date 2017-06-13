@@ -43,25 +43,4 @@
         {% endwith %}
     {% endfor %}
 </div>
-<!-- modal dialogs -->
-<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog"
-     aria-labelledby="ConfirmDelete" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                Delete best practice ...
-            </div>
-            <div class="modal-body">
-                Please confirm you want to delete <strong>[[tag]]</strong>.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary"
-                        data-dismiss="modal">Cancel</button>
-                <a id="delete-action-btn"
-                   class="btn btn-danger btn-ok delete" data-dismiss="modal"
-                   ng-click="deleteBestPractice()">Delete</a>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}

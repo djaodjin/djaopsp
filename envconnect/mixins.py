@@ -1,6 +1,8 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
+import logging
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
@@ -13,6 +15,8 @@ from survey.utils import get_account_model
 
 from .models import Consumption, Improvement
 from .serializers import PageElementSerializer
+
+LOGGER = logging.getLogger(__name__)
 
 
 class AccountMixin(deployutils_mixins.AccountMixin):
@@ -251,9 +255,10 @@ class BestPracticeMixin(BreadcrumbMixin):
 
     def get_breadcrumbs(self, path):
         full, results = super(BestPracticeMixin, self).get_breadcrumbs(path)
-        results[-1][2] = reverse(
-            'best_practice_detail', kwargs={
-                'path': results[-1][1]})
+        if not results:
+            raise Http404("Cannot find best practice for '%s'" % path)
+        results[-1][2] = reverse('best_practice_detail', kwargs={
+            'path': results[-1][1]})
         return full, results
 
     def get_best_practice_url(self):

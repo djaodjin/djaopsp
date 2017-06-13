@@ -20,6 +20,11 @@ LOGGER = logging.getLogger(__name__)
 
 class BestPracticeMoveAPIView(PageElementMoveAPIView):
 
+    def post(self, request, *args, **kwargs):#pylint: disable=unused-argument
+        LOGGER.debug("move %s under %s", request.data, kwargs.get('path'))
+        return super(BestPracticeMoveAPIView, self).post(
+            request, *args, **kwargs)
+
     def perform_change(self, sources, targets, rank=None):
         moved = '/' + '/'.join([source.slug for source in sources])
         new_root = "/%s/%s" % ('/'.join([target.slug for target in targets]),
@@ -36,7 +41,7 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
                 consumption.save()
 
 
-
+# XXX should not derive from BestPracticeMixin but PageElement instead?
 class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
     serializer_class = MoveRankSerializer
@@ -53,6 +58,11 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
     def post(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        LOGGER.debug("XXX perform_destroy(%s)", instance)
+        # XXX delete attached consumption
+        return super(BestPracticeAPIView, self).perform_destroy(instance)
 
     def perform_update(self, serializer): #pylint:disable=too-many-locals
         # XXX This code has been deprecated. Left until tests are stable.
