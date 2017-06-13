@@ -48,7 +48,7 @@ class BreadcrumbMixin(PermissionMixin):
     def get_breadcrumb_url(self):
         return self.breadcrumb_url
 
-    def _build_tree(self, root, path=None, depth=1, nocuts=False):
+    def _build_tree(self, root, path, depth=1, nocuts=False):
         if path is None:
             path = '/' + root.slug
         results = []
@@ -64,8 +64,7 @@ class BreadcrumbMixin(PermissionMixin):
                 # in a consistent order.
                 node = edge.dest_element
                 setattr(node, 'rank', edge.rank)
-                results += [self._build_tree(
-                    node, path='%s/%s' % (path, node.slug),
+                results += [self._build_tree(node, '%s/%s' % (path, node.slug),
                     depth=depth + 1, nocuts=nocuts)]
         return (root, results)
 

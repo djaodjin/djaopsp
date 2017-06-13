@@ -714,12 +714,13 @@ class BenchmarkMixin(ReportMixin):
                 agg_metrics.pop(numerator_key, None)
                 agg_metrics.pop(denominator_key, None)
 
-    def rollup_scores(self):
+    def rollup_scores(self, root=None, root_prefix=None):
         """
         Returns a tree populated with scores per accounts.
         """
         self._report_queries("at rollup_scores entry point")
-        rollup_tree = self.build_aggregate_tree()
+        roots = root.relationships.all() if root is not None else None
+        rollup_tree = self.build_aggregate_tree(roots=roots, path=root_prefix)
         self._report_queries("rollup_tree generated")
         if 'title' not in rollup_tree[0]:
             rollup_tree[0].update({
@@ -740,44 +741,18 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
 
     def get_queryset(self):
         #pylint:disable=too-many-locals
-        _, trail = self.breadcrumbs
-        # Returns the total score and industry level charts, regardless
-        # of the actual from_path.
-        # XXX It could be better to achieve the same result by changing
-        # the API path in the template.
-        prefix = ""
-        found_root = None
-        for root in PageElement.objects.get_roots():
-            candidates = self._scan_candidates(root, trail[0][0].slug)
-            if candidates:
-                prefix = "/%s/%s" % (root.slug, '/'.join([
-                    candidate.slug for candidate in candidates]))
-                found_root = root
-                break
-        total_score = {"slug": "total-score", "title": "Total Score"}
-        rollup_tree = self.rollup_scores()
+        from_root, trail = self.breadcrumbs
+        parts = from_root.split('/')
+        root_prefix = '/'.join(parts[:-1]) if len(parts) > 1 else ""
+        root = trail[-1][0] if len(trail) > 1 else None
+        rollup_tree = self.rollup_scores(root=root, root_prefix=from_root)
         distributions_tree = self.create_distributions(
             rollup_tree, view_account=self.sample.account.pk)
         charts, complete = self.flatten_distributions(
-            distributions_tree, prefix=prefix)
+            distributions_tree, prefix=root_prefix)
+        total_score = {"slug": "total-score", "title": "Total Score"}
         if complete:
-            root_leaf = distributions_tree[1]["/" + found_root.slug][0]
-            total_score.update({
-                "nb_respondents": root_leaf.get('nb_respondents'),
-                "scores": {
-                  "normalized_score": root_leaf.get(
-                      'normalized_score', 0),
-                  "highest_normalized_score": root_leaf.get(
-                      'highest_normalized_score', 0),
-                  "avg_normalized_score": root_leaf.get(
-                      'avg_normalized_score', 0)
-                }})
-            denominator = root_leaf.get('denominator', 0)
-            if denominator:
-                total_score.update({
-                  "improvement_score": "(+%.1f)" % (root_leaf.get(
-                      'improvement_numerator', 0) / denominator)})
-
+            total_score = distributions_tree[0]
         charts += [total_score]
         return charts
 

@@ -1181,11 +1181,13 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                 if( data[idx].slug === "total-score" ) {
                     var totalScoreElement = self.element.find(
                         "#" + data[idx].slug);
-                    if( data[idx].scores ) {
+                    if( typeof data[idx].normalized_score !== 'undefined'
+                        && typeof data[idx].avg_normalized_score !== 'undefined'
+                        && typeof data[idx].highest_normalized_score !== 'undefined') {
                         radialProgress(totalScoreElement[0])
-                            .value1(data[idx].scores.highest_normalized_score)
-                            .value2(data[idx].scores.avg_normalized_score)
-                            .value3(data[idx].scores.normalized_score)
+                            .value1(data[idx].highest_normalized_score)
+                            .value2(data[idx].avg_normalized_score)
+                            .value3(data[idx].normalized_score)
                             .render();
                     } else {
                         totalScoreElement.append("<div class=\"total-score-chart\"><div>N/A - Self assessment questions incomplete</div></div>");

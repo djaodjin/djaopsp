@@ -77,14 +77,14 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
         if not root[1]:
             # We reached a leaf
             consumption = getattr(root[0], 'consumption', None)
+            row = [indent + root[0].title]
             if consumption:
-                row = [indent + root[0].title]
                 for heading in self.get_headings(root[0].tag):
                     if consumption.implemented == heading:
                         row += ['X']
                     else:
                         row += ['']
-                csv_writer.writerow([rec.encode('utf-8') for rec in row])
+            csv_writer.writerow([rec.encode('utf-8') for rec in row])
         else:
             csv_writer.writerow([indent + root[0].title])
             for element in root[1]:
@@ -93,8 +93,9 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
     def get(self, *args, **kwargs): #pylint: disable=unused-argument
         # All self-assessment questions for an industry, regardless
         # of the actual from_path.
-        _, trail = self.breadcrumbs
-        self.root = self._build_tree(trail[0][0], nocuts=True)
+        # XXX if we do that, we shouldn't use from_root (i.e. system pages)
+        from_root, trail = self.breadcrumbs
+        self.root = self._build_tree(trail[0][0], from_root, nocuts=True)
         self.attach_benchmarks(self.root, view_response=self.sample)
 
         content = StringIO.StringIO()

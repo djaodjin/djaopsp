@@ -227,7 +227,7 @@ def update_industries():
     #pylint:disable=protected-access
     bcumb = BreadcrumbMixin()
     root = PageElement.objects.get(slug='boxes-and-enclosures')
-    tree = bcumb._build_tree(root, nocuts=True)
+    tree = bcumb._build_tree(root, path=None, nocuts=True)
     dump_tree(tree)
     for industry in ['distribution-transformers', 'fabricated-metals',
                      'wire-and-cable', 'office-space-only', 'construction']:
@@ -239,14 +239,14 @@ def update_industries():
             root.slug = industry
             root.save()
         root_check = PageElement.objects.get(slug=industry)
-        tree_check = bcumb._build_tree(root_check, nocuts=True)
+        tree_check = bcumb._build_tree(root_check, path=None, nocuts=True)
         dump_tree(tree_check)
     for industry in ['construction', 'boxes-and-enclosures',
                      'distribution-transformers', 'fabricated-metals',
                      'wire-and-cable', 'office-space-only']:
         bcumb = BreadcrumbMixin()
         root = PageElement.objects.get(slug=industry)
-        tree = bcumb._build_tree(root, nocuts=True)
+        tree = bcumb._build_tree(root, path=None, nocuts=True)
         dump_tree(tree)
 
 
