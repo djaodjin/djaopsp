@@ -54,7 +54,7 @@ class ScoreCardRedirectView(ReportMixin, SelfAssessmentRedirectMixin,
 
         candidates = []
         for element in PageElement.objects.get_roots().order_by('title'):
-            root_prefix = '/%s/' % element.slug
+            root_prefix = '/%s/sustainability-%s' % (element.slug, element.slug)
             if Consumption.objects.filter(answer__response=self.sample,
                 path__startswith=root_prefix).exists():
                 candidates += [element]
