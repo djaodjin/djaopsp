@@ -18,7 +18,6 @@ from survey.views.matrix import MatrixDetailView
 from ..api.benchmark import BenchmarkMixin
 from ..mixins import ReportMixin
 from ..models import Consumption
-from ..templatetags.navactive import category_entry
 
 
 LOGGER = logging.getLogger(__name__)
@@ -65,8 +64,7 @@ class ScoreCardRedirectView(ReportMixin, SelfAssessmentRedirectMixin,
         redirects = []
         for element in candidates:
             root_prefix = '/sustainability-%s' % candidates[0].slug
-            kwargs.update({'path': category_entry(self.get_breadcrumbs(
-                root_prefix)[1], 'sustainability')})
+            kwargs.update({'path': root_prefix})
             url = super(ScoreCardRedirectView, self).get_redirect_url(
                 *args, **kwargs)
             print_name = element.title
