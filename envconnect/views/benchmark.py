@@ -34,7 +34,8 @@ class SelfAssessmentRedirectMixin(object):
         messages.warning(self.request,
             "You need to complete a self-assessment before"\
             " moving on to benchmarks.")
-        return HttpResponseRedirect(reverse('report', kwargs={'path': path}))
+        return HttpResponseRedirect(reverse('report_organization',
+            kwargs={'organization': kwargs.get('organization'), 'path': path}))
 
     @staticmethod
     def get_context_data(**kwargs):
