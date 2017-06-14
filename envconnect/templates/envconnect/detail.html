@@ -110,7 +110,7 @@
                     <span ng-bind-html="match.title | uibTypeaheadHighlight:query"></span>
                 </a>
             </script>
-            <input name="title" type="text" placeholder="[[newElementTag.tag]] title"
+            <input name="title" type="text" placeholder="[[newElement.tag]] title"
                    autocomplete="off"
                    ng-model="newElement.value"
                    uib-typeahead="candidate as candidate.title for candidate in getBestPracticeCandidates($viewValue)"

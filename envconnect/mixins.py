@@ -126,6 +126,8 @@ class BreadcrumbMixin(PermissionMixin):
         self.icon = None
         for idx, part in enumerate(parts[1:]):
             suffix = self._scan_candidates(root, part)
+            if not suffix:
+                raise Http404("cannot find '%s'" % root.slug)
             root = suffix[-1]
             for sfx in reversed(suffix):
                 if sfx.text.endswith('.png'):

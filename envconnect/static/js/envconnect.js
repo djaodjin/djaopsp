@@ -426,20 +426,21 @@ envconnectControllers.controller("EnvconnectCtrl",
     // editor functionality
     $scope.prefix = null;
     $scope.reload = false;
-    $scope.activeElement = null;
+    $scope.activeElement = {
+        value: {title: "", tag: ""}
+    };
+    $scope.newElement = {
+        tag: $scope.TAG_HEADING,
+        value: {title: "", tag: ""}
+    };
 
     $scope.setPrefix = function(prefix, tag) {
         $scope.prefix = prefix;
         if( typeof tag === 'undefined' ) {
-            $scope.newElement.tag = null;
+            $scope.activeElement.tag = null;
         } else {
-            $scope.newElement.tag = tag;
+            $scope.activeElement.tag = tag;
         }
-    };
-
-    $scope.newElement = {
-        tag: $scope.TAG_HEADING,
-        value: {title: "", tag: ""}
     };
 
     $scope.addElement = function(event, prefix) {
@@ -503,18 +504,16 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.editElement = function(event) {
         var form = angular.element(event.target);
-        var title = form.find("[name='title']").val();
-        var data = {title: title};
+        var data = {title: $scope.activeElement.value.title};
         $http.put(settings.urls.api_page_elements
-                   + $scope.activeElement.slug + '/', data).then(
+                   + $scope.activeElement.value.slug + '/', data).then(
             function success(resp) {
                 form.parents('.modal').modal('hide');
                 if( $scope.reload ) {
                     var captionElement = angular.element(
-                        '[href="#tab-' + $scope.activeElement.slug + '"]').find(
+                        '[href="#tab-' + $scope.activeElement.value.slug + '"]').find(
                         '.icon-caption');
-                    captionElement.text(title);
-//                    window.location = "";
+                    captionElement.text($scope.activeElement.value.title);
                 }
             }, function error(resp) {
                 form.parents('.modal').modal('hide');
@@ -584,12 +583,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         });
     };
 
-    $scope.setBestPractice = function(path, reload, element) {
-        var bestPracticeId = path;
-        var splitIndex = bestPracticeId.lastIndexOf('/');
-        var prefix = bestPracticeId.substring(0, splitIndex);
-        var slug = bestPracticeId.substring(splitIndex + 1);
-        $scope.setPrefix(prefix, slug);
+    $scope.setBestPractice = function(element, reload) {
+        $scope.setPrefix(getHeadingPath(element));
         if ( typeof reload !== "undefined" ) {
             $scope.reload = reload;
         } else {
@@ -601,10 +596,11 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     $scope.deleteBestPractice = function() {
-        var prefix = $scope.prefix;
-        var slug = $scope.newElement.tag;
+        var path = $scope.getPath(element);
+        var splitIndex = path.lastIndexOf('/');
+        var prefix = path.substring(0, splitIndex);
         $http.delete(
-            settings.urls.api_best_practices + prefix + '/' + slug + '/').then(
+            settings.urls.api_best_practices + $scope.getPath($scope.activeElement) + '/').then(
             function success(resp) {
                 var node = $scope.getEntriesRecursive(
                     $scope.entries, prefix);

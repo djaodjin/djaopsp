@@ -66,16 +66,16 @@
                                                     <div class="icon-container">
 {% if request|is_broker_manager and not organization %}
 <div style="position:relative; vertical-align:top;">
-<a id="delete-{{icon.slug}}" href=""
-   class="text-danger" data-toggle="modal" data-target="#confirm-delete"
-   ng-click="setBestPractice('{{abs_prefix}}', true)"
+<a class="text-danger delete"
+   href="" data-toggle="modal" data-target="#confirm-delete"
+   ng-click="setBestPractice({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
    style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i></a>
 <a id="incl-{{icon.slug}}" href=""
    ng-click="editElementTags('{{abs_prefix}}', true, {slug: '{{icon.slug}}', tag: '{{icon.tag}}'})"
    style="position:absolute;top:20px;left:0px;"><i class="fa [[containsTag({tag: '{{icon.tag}}'}, TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
-<a id="edit-{{icon.slug}}" href=""
-   data-toggle="modal" data-target="#edit-element-modal"
-   ng-click="setBestPractice('{{abs_prefix}}', true, {slug: '{{icon.slug}}', title: '{{icon.title}}' })"
+<a class="edit"
+   href="" data-toggle="modal" data-target="#edit-element-modal"
+   ng-click="setBestPractice({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
    style="position:absolute;top:40px;left:0px;"><i class="fa fa-edit"></i></a>
 </div>
 {% endif %}
@@ -99,12 +99,12 @@
                                                             {% if request|is_broker_manager and not organization %}
 <a id="incl-[[practice[0].slug]]" href=""
    ng-click="editElementTags(getPath(practice), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
-<a id="edit-[[practice[0].slug]]" href=""
-   data-toggle="modal" data-target="#edit-element-modal"
-   ng-click="setBestPractice(getPath(practice), false, practice[0])"><i class="fa fa-edit"></i></a>
-<a id="delete-[[practice[0].slug]]" href=""
-   class="text-danger" data-toggle="modal" data-target="#confirm-delete"
-   ng-click="setBestPractice(getPath(practice))"><i class="fa fa-trash-o"></i></a>
+<a class="edit"
+   href="" data-toggle="modal" data-target="#edit-element-modal"
+   ng-click="setBestPractice(practice[0], false)"><i class="fa fa-edit"></i></a>
+<a class="text-danger delete" href=""
+   data-toggle="modal" data-target="#confirm-delete"
+   ng-click="setBestPractice(practice[0], false)"><i class="fa fa-trash-o"></i></a>
 {% endif %}
                                                         </div>
                                                     </div>
@@ -171,11 +171,17 @@ content development.
                         </div>
                         <form class="form-inline" ng-submit="addElement($event)">
                             <div class="modal-body">
-                                <input ng-model="newElement.value.title"
-                                       class="form-control search-page-element"
-                                       style="width:100%;"
-                                       type="text" name="title"
-                                       placeholder="Title">
+                                <script type="text/ng-template" id="customTemplate.html">
+                                    <a>
+                                        <span ng-bind-html="match.title | uibTypeaheadHighlight:query"></span>
+                                    </a>
+                                </script>
+                                <input class="form-control search-page-element" style="width:100%;" name="title" type="text" placeholder="[[newElement.tag]] title"
+                                       autocomplete="off"
+                                       ng-model="newElement.value"
+                                       uib-typeahead="candidate as candidate.title for candidate in getBestPracticeCandidates($viewValue)"
+                                       uib-typeahead-loading="loadingBestpractices"
+                                       uib-typeahead-template-url="customTemplate.html">
                                 <div style="margin-top:5px;">
                                     <div class="text-center">
                                     <label>Optional tag</label>
@@ -203,7 +209,7 @@ content development.
                         </div>
                         <form class="form-inline" ng-submit="editElement($event)">
                             <div class="modal-body">
-                                <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title" ng-model="activeElement.title">
+                                <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title" ng-model="activeElement.value.title">
                             </div>
                             <div class="modal-footer">
                                 <button class="btn btn-warning" type="submit">Save</button>
@@ -223,7 +229,7 @@ content development.
                             <h4 class="modal-title">Delete ...</h4>
                         </div>
                         <div class="modal-body">
-Please confirm you want to delete '[[activeElement.title]]'.
+Please confirm you want to delete '[[activeElement.value.title]]'.
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary"

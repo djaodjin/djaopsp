@@ -16,10 +16,10 @@
            ng-click="editElementTags(getPath(practice), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
         <a class="edit" href=""
            data-toggle="modal" data-target="#edit-element-modal"
-           ng-click="setBestPractice(getPath(practice), false, practice[0])"><i class="fa fa-edit"></i></a>
+           ng-click="setBestPractice(practice[0], false)"><i class="fa fa-edit"></i></a>
         <a class="text-danger delete" href=""
            data-toggle="modal" data-target="#confirm-delete"
-           ng-click="setBestPractice(getPath(practice), false, practice[0])"><i class="fa fa-trash-o"></i></a>
+           ng-click="setBestPractice(practice[0], false)"><i class="fa fa-trash-o"></i></a>
         <div role="toolbar" style="display:inline-block;align-items:center;margin-right:2px;" ng-if="practice[0].consumption === null">
             <button class="btn btn-default btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;" ng-click="toUpperLevel($event, '{{abs_prefix}}')">
                 <i class="fa fa-angle-left"></i>
