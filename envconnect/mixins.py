@@ -86,6 +86,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     def get_breadcrumbs(self, path):
         #pylint:disable=too-many-locals
         trail = self.get_full_element_path(path)
+        if not trail:
+            return "", []
+
         from_root = "/" + "/".join([element.slug for element in trail])
 
         self.icon = None
