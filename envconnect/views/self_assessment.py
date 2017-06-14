@@ -31,10 +31,11 @@ class SelfAssessmentView(SelfAssessmentBaseView):
 
     def get_context_data(self, **kwargs):
         context = super(SelfAssessmentView, self).get_context_data(**kwargs)
-        self.attach_benchmarks(self.root, view_response=self.sample)
-        context.update({
-            'entries': json.dumps(self.to_representation(self.root))
-        })
+        if self.root:
+            self.attach_benchmarks(self.root, view_response=self.sample)
+            context.update({
+                'entries': json.dumps(self.to_representation(self.root))
+            })
 
         if hasattr(self, 'icon') and self.icon is not None:
             icon = self.icon
