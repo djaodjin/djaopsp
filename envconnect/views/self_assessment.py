@@ -50,7 +50,7 @@ class SelfAssessmentView(SelfAssessmentBaseView):
 
     def get(self, request, *args, **kwargs):
         from_root, _ = self.breadcrumbs
-        if not from_root:
+        if not from_root or from_root == "/":
             return HttpResponseRedirect(reverse('homepage'))
         return super(SelfAssessmentView, self).get(request, *args, **kwargs)
 
