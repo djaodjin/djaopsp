@@ -324,17 +324,17 @@ envconnectControllers.controller("EnvconnectCtrl",
         return [];
     };
 
-    $scope.getPath = function(node) {
-        return node[0].path;
+    $scope.getPath = function(element) {
+        return element.path;
     };
 
-    $scope.getHeadingPath = function(node) {
-        if( node[0].consumption ) {
-            var parts = node[0].path.split('/');
+    $scope.getHeadingPath = function(element) {
+        if( element.consumption ) {
+            var parts = element.path.split('/');
             parts.pop();
             return parts.join('/');
         }
-        return node[0].path;
+        return element.path;
     };
 
     /* show and hide columns */
@@ -584,7 +584,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     $scope.setBestPractice = function(element, reload) {
-        $scope.setPrefix(getHeadingPath(element));
+        $scope.setPrefix($scope.getHeadingPath(element));
         if ( typeof reload !== "undefined" ) {
             $scope.reload = reload;
         } else {
@@ -596,17 +596,17 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     $scope.deleteBestPractice = function() {
-        var path = $scope.getPath(element);
+        var path = $scope.getPath($scope.activeElement.value);
         var splitIndex = path.lastIndexOf('/');
         var prefix = path.substring(0, splitIndex);
-        $http.delete(
-            settings.urls.api_best_practices + $scope.getPath($scope.activeElement.value) + '/').then(
+        $http.delete(settings.urls.api_best_practices
+                + $scope.getPath($scope.activeElement.value) + '/').then(
             function success(resp) {
                 var node = $scope.getEntriesRecursive(
                     $scope.entries, prefix);
                 var found = -1;
                 for( var i = 0; i <  node[1].length; ++i ) {
-                    if( node[1][i][0].slug == slug ) {
+                    if( node[1][i][0].path === path ) {
                         found = i;
                         break;
                     }

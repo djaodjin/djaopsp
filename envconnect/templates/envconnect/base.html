@@ -98,7 +98,7 @@
 
                                                             {% if request|is_broker_manager and not organization %}
 <a id="incl-[[practice[0].slug]]" href=""
-   ng-click="editElementTags(getPath(practice), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
+   ng-click="editElementTags(getPath(practice[0]), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
 <a class="edit"
    href="" data-toggle="modal" data-target="#edit-element-modal"
    ng-click="setBestPractice(practice[0], false)"><i class="fa fa-edit"></i></a>
