@@ -437,9 +437,9 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.setPrefix = function(prefix, tag) {
         $scope.prefix = prefix;
         if( typeof tag === 'undefined' ) {
-            $scope.activeElement.tag = null;
+            $scope.newElement.tag = null;
         } else {
-            $scope.activeElement.tag = tag;
+            $scope.newElement.tag = tag;
         }
     };
 
@@ -591,7 +591,7 @@ envconnectControllers.controller("EnvconnectCtrl",
             $scope.reload = false;
         }
         if( typeof element !== "undefined" ) {
-            $scope.activeElement = element;
+            $scope.activeElement.value = element;
         }
     };
 
@@ -600,7 +600,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         var splitIndex = path.lastIndexOf('/');
         var prefix = path.substring(0, splitIndex);
         $http.delete(
-            settings.urls.api_best_practices + $scope.getPath($scope.activeElement) + '/').then(
+            settings.urls.api_best_practices + $scope.getPath($scope.activeElement.value) + '/').then(
             function success(resp) {
                 var node = $scope.getEntriesRecursive(
                     $scope.entries, prefix);
