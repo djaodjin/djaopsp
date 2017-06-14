@@ -89,21 +89,22 @@ class BenchmarkBaseView(BenchmarkMixin, SelfAssessmentRedirectMixin,
         context = super(BenchmarkBaseView, self).get_context_data(
             *args, **kwargs)
         from_root, trail = self.breadcrumbs
-        root = self._build_tree(trail[-1][0], from_root, nocuts=True)
-        # Flatten icons and practices (i.e. Energy Efficiency) to produce
-        # the list of charts.
-        charts, complete = self.get_charts(root[1])
-        context.update({
-            'self_assessment_complete': complete,
-            'charts': charts,
-            'root': self._cut_tree(root),
-            'entries': json.dumps(self.to_representation(root)),
-            # XXX move to urls when we are sure how it interacts
-            # with envconnect/base.html
-            'api_account_benchmark': reverse(
-                'api_benchmark', args=(context['organization'], from_root))
-        })
-        self.root = root # XXX Hack for self-assessment to present results
+        if trail:
+            root = self._build_tree(trail[-1][0], from_root, nocuts=True)
+            # Flatten icons and practices (i.e. Energy Efficiency) to produce
+            # the list of charts.
+            charts, complete = self.get_charts(root[1])
+            context.update({
+                'self_assessment_complete': complete,
+                'charts': charts,
+                'root': self._cut_tree(root),
+                'entries': json.dumps(self.to_representation(root)),
+                # XXX move to urls when we are sure how it interacts
+                # with envconnect/base.html
+                'api_account_benchmark': reverse(
+                    'api_benchmark', args=(context['organization'], from_root))
+            })
+            self.root = root # XXX Hack for self-assessment to present results
         return context
 
 
