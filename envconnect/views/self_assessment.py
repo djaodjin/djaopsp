@@ -94,8 +94,10 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
         # All self-assessment questions for an industry, regardless
         # of the actual from_path.
         # XXX if we do that, we shouldn't use from_root (i.e. system pages)
-        from_root, trail = self.breadcrumbs
-        self.root = self._build_tree(trail[0][0], from_root, nocuts=True)
+        _, trail = self.breadcrumbs
+        from_trail_head = "/" + "/".join([element.slug
+            for element in self.get_full_element_path("/" + trail[0][0].slug)])
+        self.root = self._build_tree(trail[0][0], from_trail_head, nocuts=True)
         self.attach_benchmarks(self.root, view_response=self.sample)
 
         content = StringIO.StringIO()

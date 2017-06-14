@@ -11,7 +11,7 @@
             <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length === 0">
             <div class="row">
                 <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
-                    <a class="btn btn-primary" href="{% url 'report_organization_download' organization "/"|add:root.0.slug %}" target="_blank"><i class="fa fa-wrench"></i> Download Self-assessment</a>
+                    <a class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank"><i class="fa fa-wrench"></i> Download Self-assessment</a>
                     <!-- WORKAROUND: we set data-width and data-height
                          otherwise bootstrap-toggle will crop the size
                          inside a class="tab-content collapse". -->

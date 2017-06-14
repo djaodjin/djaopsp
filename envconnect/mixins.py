@@ -9,7 +9,8 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from deployutils import mixins as deployutils_mixins
 from answers.models import Question as AnswersQuestion
-from pages.models import PageElement, RelationShip
+from pages.models import RelationShip
+from pages.mixins import TrailMixin
 from survey.models import Answer, Question, Response, SurveyModel
 from survey.utils import get_account_model
 
@@ -36,7 +37,7 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
         return context
 
 
-class BreadcrumbMixin(PermissionMixin):
+class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     breadcrumb_url = 'summary'
     TAG_SYSTEM = 'system'
@@ -76,20 +77,6 @@ class BreadcrumbMixin(PermissionMixin):
                     node, path='%s/%s' % (path, node[0].slug))]
         return (root[0], results)
 
-    def _scan_candidates(self, root, slug):
-        # hardcoded icon tags
-        candidates = root.relationships.all()
-        try:
-            candidate = candidates.get(slug=slug)
-            return [candidate]
-        except PageElement.DoesNotExist:
-            pass
-        for candidate in candidates:
-            suffix = self._scan_candidates(candidate, slug)
-            if len(suffix) > 0:
-                return [candidate] + suffix
-        return []
-
     @property
     def breadcrumbs(self):
         if not hasattr(self, '_breadcrumbs'):
@@ -98,49 +85,35 @@ class BreadcrumbMixin(PermissionMixin):
 
     def get_breadcrumbs(self, path):
         #pylint:disable=too-many-locals
-        results = []
-        if not path:
-            return "", results
-        parts = path.split('/')[1:]
-        if len(parts) < 1:
-            return path, results
-        lookup = parts[0]
-        lookup_prefix = self.get_prefix() #pylint:disable=assignment-from-none
-        if lookup_prefix:
-            # Adds an optional lookup prefix to find the root ``PageElement``
-            # used to generate the HTML page.
-            if not parts[0].startswith(lookup_prefix):
-                lookup = lookup_prefix + parts[0]
-        root = get_object_or_404(PageElement, slug=lookup)
-        from_root = None
-        for root_node in PageElement.objects.get_roots():
-            if root_node.slug == root.slug:
-                from_root = "/%s" % root.slug
-                break
-            candidates = self._scan_candidates(root_node, root.slug)
-            if candidates:
-                from_root = "/%s/%s" % (root_node.slug, '/'.join([
-                    candidate.slug for candidate in candidates]))
-                break
-        results += [[root, '/' + parts[0]]]
+        trail = self.get_full_element_path(path)
+        from_root = "/" + "/".join([element.slug for element in trail])
+
         self.icon = None
-        for idx, part in enumerate(parts[1:]):
-            suffix = self._scan_candidates(root, part)
-            if not suffix:
-                raise Http404("cannot find '%s'" % root.slug)
-            root = suffix[-1]
-            for sfx in reversed(suffix):
-                if sfx.text.endswith('.png'):
-                    self.icon = sfx
-            suffix = '/'.join([sfx.slug for sfx in suffix])
-            from_root = "%s/%s" % (from_root, suffix)
-            prefix = []
-            for full_part in suffix.split('/'):
-                if full_part != part:
-                    prefix += [full_part]
-            if prefix:
-                results[-1][1] += "#%s" % prefix[0]
-            results += [[root, '/'.join([''] + parts[:idx + 2])]]
+        for element in trail:
+            if element.text.endswith('.png'):
+                self.icon = element
+
+        trail_idx = 0
+        results = []
+        parts = path.split('/')
+        if not parts[0]:
+            parts.pop(0)
+        for idx, part in enumerate(parts):
+            node = None
+            missing = []
+            while trail_idx < len(trail) and trail[trail_idx].slug != part:
+                missing += [trail[trail_idx]]
+                trail_idx += 1
+            if trail_idx >= len(trail):
+                raise Http404("Cannot find '%s' in trail '%s'",
+                    part, " > ".join([elm.title for elm in trail]))
+            node = trail[trail_idx]
+            trail_idx += 1
+            url = "/" + "/".join(parts[:idx + 1])
+            if missing and results:
+                results[-1][1] += "#%s" % missing[0]
+            results += [[node, url]]
+
         for crumb in results:
             anchor_start = crumb[1].find('#')
             if anchor_start > 0:
