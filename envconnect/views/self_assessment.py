@@ -37,12 +37,8 @@ class SelfAssessmentView(SelfAssessmentBaseView):
                 'entries': json.dumps(self.to_representation(self.root))
             })
 
-        if hasattr(self, 'icon') and self.icon is not None:
-            icon = self.icon
-        else:
-            icon = self.breadcrumbs[-1][0][0]
         context.update({
-            'page_icon': icon,
+            'page_icon': self.icon,
             'response': self.sample,
             'survey': self.sample.survey,
             'role': "tab",
