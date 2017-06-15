@@ -152,7 +152,9 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.valueSummaryToggle = settings.valueSummaryToggle;
     $scope.scoreToggle = settings.scoreToggle;
 
-    $scope.TAG_HEADING = 'heading';
+    $scope.BEST_PRACTICE_ELEMENT = 'best-practice';
+    $scope.HEADING_ELEMENT = 'heading';
+
     $scope.TAG_SCORECARD = 'scorecard';
     $scope.TAG_SYSTEM = 'system';
 
@@ -424,53 +426,64 @@ envconnectControllers.controller("EnvconnectCtrl",
     }
 
     // editor functionality
-    $scope.prefix = null;
-    $scope.reload = false;
-    $scope.activeElement = {
-        value: {title: "", tag: ""}
-    };
+
     $scope.newElement = {
-        tag: $scope.TAG_HEADING,
+        reload: false,
+        prefix: null,
+        elementType: $scope.HEADING_ELEMENT,
+        elementTypeModal: $scope.HEADING_ELEMENT,
+        tag: "",
         value: {title: "", tag: ""}
     };
 
-    $scope.setPrefix = function(prefix, tag) {
-        $scope.prefix = prefix;
-        if( typeof tag === 'undefined' ) {
-            $scope.newElement.tag = null;
+    // Prepares to add a specific type of element
+    $scope.setNewElement = function(prefix, elementType, tag, reload) {
+        $scope.newElement.prefix = prefix;
+        if( typeof elementType === 'undefined' ) {
+            $scope.newElement.elementTypeModal = $scope.HEADING_ELEMENT;
         } else {
+            $scope.newElement.elementTypeModal = elementType;
+        }
+        if ( typeof tag !== "undefined" ) {
             $scope.newElement.tag = tag;
+        } else {
+            $scope.newElement.tag = false;
+        }
+        if ( typeof reload !== "undefined" ) {
+            $scope.newElement.reload = reload;
+        } else {
+            $scope.newElement.reload = false;
         }
     };
 
     $scope.addElement = function(event, prefix) {
         if( typeof $scope.newElement.value === "string" ) {
              $scope.newElement.value = {
-                 title: $scope.newElement.value, tag: $scope.newElement.tag};
+                 title: $scope.newElement.value, tag: ""};
         }
+        var elementType = $scope.newElement.elementType;
         if( typeof prefix === "undefined" ) {
-            prefix = $scope.prefix;
+            // XXX Only the table inline form to add an element
+            //     calls addElement(prefix).
+            //     We use elementTypeModal in order to avoid unnatural
+            //     UI updates when clicking on "+ Add..."
+            prefix = $scope.newElement.prefix;
+            elementType = $scope.newElement.elementTypeModal;
+        } else {
+            $scope.newElement.tag = null;
         }
         var form = angular.element(event.target);
         var modalDialog = form.parents('.modal');
         var title = $scope.newElement.value.title;
-        var tag = $scope.newElement.tag;
+        var tag = $scope.newElement.value.tag || $scope.newElement.tag;
         var parent = prefix.substring(prefix.lastIndexOf('/') + 1);
         var data = {title: title, orig_elements: [parent]};
-        if( tag ===  'management' || tag === $scope.TAG_SYSTEM ) {
+        if( tag ) {
             data.tag = tag;
         }
         $http.post(settings.urls.api_page_elements, data).then(
             function success(resp) {
-                if( tag === $scope.TAG_HEADING || tag === $scope.TAG_SYSTEM ) {
-                    var node = $scope.getEntriesRecursive(
-                        $scope.entries, prefix);
-                    resp.data.path = prefix + resp.data.path;
-                    resp.data.consumption = null;
-                    node[1].push([resp.data, []]);
-                    $scope.newElement.value.title = "";
-                    modalDialog.modal('hide');
-                } else if( tag === 'best-practice' ) {
+                if( elementType === $scope.BEST_PRACTICE_ELEMENT ) {
                     var path = prefix + '/' + resp.data.slug;
                     $http.post(settings.urls.api_consumptions,
                                {path: path, text: title}).then(
@@ -480,26 +493,50 @@ envconnectControllers.controller("EnvconnectCtrl",
                             resp.data.path = path;
                             resp.data.consumption = resp_consumption.data;
                             node[1].push([resp.data, []]);
-                            $scope.newElement.value.title = "";
+                            $scope.newElement.value = "";
                             modalDialog.modal('hide');
                         },
                         function error() {
-                            $scope.newElement.value.title = "";
+                            $scope.newElement.value = "";
                             modalDialog.modal('hide');
                             showErrorMessages(resp);
                         });
                 } else {
-                    // icon-level are rendered by the template engine
-                    // server-side.
-                    window.location = window.location;
+                    var node = $scope.getEntriesRecursive(
+                        $scope.entries, prefix);
+                    resp.data.path = prefix + resp.data.path;
+                    resp.data.consumption = null;
+                    node[1].push([resp.data, []]);
+                    $scope.newElement.value = "";
+                    modalDialog.modal('hide');
+                    if( $scope.newElement.reload ) {
+                        // icon-level are rendered by the template engine
+                        // server-side.
+                        window.location = window.location;
+                    }
                 }
             },
             function error(resp) {
-                $scope.newElement.value.title = "";
+                $scope.newElement.value = "";
                 modalDialog.modal('hide');
                 showErrorMessages(resp);
             });
         return false;
+    };
+
+    $scope.activeElement = {
+        reload: false,
+        value: {title: "", tag: ""}
+    };
+
+    // Prepares to edit or delete an element.
+    $scope.setActiveElement = function(element, reload) {
+        $scope.activeElement.value = element;
+        if ( typeof reload !== "undefined" ) {
+            $scope.activeElement.reload = reload;
+        } else {
+            $scope.activeElement.reload = false;
+        }
     };
 
     $scope.editElement = function(event) {
@@ -509,7 +546,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                    + $scope.activeElement.value.slug + '/', data).then(
             function success(resp) {
                 form.parents('.modal').modal('hide');
-                if( $scope.reload ) {
+                if( $scope.activeElement.reload ) {
                     var captionElement = angular.element(
                         '[href="#tab-' + $scope.activeElement.value.slug + '"]').find(
                         '.icon-caption');
@@ -583,18 +620,6 @@ envconnectControllers.controller("EnvconnectCtrl",
         });
     };
 
-    $scope.setBestPractice = function(element, reload) {
-        $scope.setPrefix($scope.getHeadingPath(element));
-        if ( typeof reload !== "undefined" ) {
-            $scope.reload = reload;
-        } else {
-            $scope.reload = false;
-        }
-        if( typeof element !== "undefined" ) {
-            $scope.activeElement.value = element;
-        }
-    };
-
     $scope.deleteBestPractice = function() {
         var path = $scope.getPath($scope.activeElement.value);
         var splitIndex = path.lastIndexOf('/');
@@ -614,7 +639,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 if( found >= 0 ) {
                     node[1].splice(found, 1);
                 }
-                if( $scope.reload ) {
+                if( $scope.activeElement.reload ) {
                     window.location = "";
                 }
             },

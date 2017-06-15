@@ -61,7 +61,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     orig_element=root).select_related('dest_element').order_by(
                     'rank', 'pk'):
                 # XXX We use the fact that node ids are naturally in increasing
-                # order. Without order postgres will not return the life-cycle
+                # order. Without order postgres will not return the icons
                 # in a consistent order.
                 node = edge.dest_element
                 setattr(node, 'rank', edge.rank)

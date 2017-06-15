@@ -99,7 +99,7 @@
 <div style="width:100%;">
     <form class="form-inline" style="display:inline-block;width:90%;" ng-submit="addElement($event, '{{abs_prefix}}')">
         <div class="input-group" style="width:90%;">
-            <select ng-model="newElement.tag"
+            <select ng-model="newElement.elementType"
                     class="form-control input-sm" style="width:20%;"
                     name="tag">
                 <option value="heading">Heading</option>
@@ -110,7 +110,7 @@
                     <span ng-bind-html="match.title | uibTypeaheadHighlight:query"></span>
                 </a>
             </script>
-            <input name="title" type="text" placeholder="[[newElement.tag]] title"
+            <input name="title" type="text" placeholder="[[newElement.elementType]] title"
                    autocomplete="off"
                    ng-model="newElement.value"
                    uib-typeahead="candidate as candidate.title for candidate in getBestPracticeCandidates($viewValue)"

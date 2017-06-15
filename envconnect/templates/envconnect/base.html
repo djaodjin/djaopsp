@@ -68,14 +68,14 @@
 <div style="position:relative; vertical-align:top;">
 <a class="text-danger delete"
    href="" data-toggle="modal" data-target="#confirm-delete"
-   ng-click="setBestPractice({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
+   ng-click="setActiveElement({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
    style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i></a>
 <a id="incl-{{icon.slug}}" href=""
    ng-click="editElementTags('{{abs_prefix}}', true, {slug: '{{icon.slug}}', tag: '{{icon.tag}}'})"
    style="position:absolute;top:20px;left:0px;"><i class="fa [[containsTag({tag: '{{icon.tag}}'}, TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
 <a class="edit"
    href="" data-toggle="modal" data-target="#edit-element-modal"
-   ng-click="setBestPractice({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
+   ng-click="setActiveElement({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
    style="position:absolute;top:40px;left:0px;"><i class="fa fa-edit"></i></a>
 </div>
 {% endif %}
@@ -101,10 +101,10 @@
    ng-click="editElementTags(getPath(practice[0]), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
 <a class="edit"
    href="" data-toggle="modal" data-target="#edit-element-modal"
-   ng-click="setBestPractice(practice[0], false)"><i class="fa fa-edit"></i></a>
+   ng-click="setActiveElement(practice[0])"><i class="fa fa-edit"></i></a>
 <a class="text-danger delete" href=""
    data-toggle="modal" data-target="#confirm-delete"
-   ng-click="setBestPractice(practice[0], false)"><i class="fa fa-trash-o"></i></a>
+   ng-click="setActiveElement(practice[0])"><i class="fa fa-trash-o"></i></a>
 {% endif %}
                                                         </div>
                                                     </div>
@@ -113,7 +113,7 @@
                                                         <button
                                                             aria-controls="home"
                                                             data-toggle="modal"
-                                                            data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', TAG_SYSTEM)">
+                                                            data-target="#add-element-modal" ng-click="setNewElement('{{abs_prefix}}', HEADING_ELEMENT, TAG_SYSTEM)">
                                                             <i class="fa fa-plus"></i>
                                                     </div>
                                                     {% endif %}
@@ -129,7 +129,7 @@
                                                     <button class="icon-inner fixed-width orange"
                                                             aria-controls="home"
                                                             data-toggle="modal"
-                                                            data-target="#add-pagelement-modal" ng-click="setPrefix('{{icon_prefix}}')">
+                                                            data-target="#add-element-modal" ng-click="setNewElement('{{icon_prefix}}', HEADING_ELEMENT, TAG_SCORECARD, true)">
                                                         <i class="fa fa-plus fa-5x" style="color:white;"></i>
                                                     </button>
                                                   </div>
@@ -162,7 +162,7 @@ content development.
                 </div>
             </div>
             <!-- modals -->
-            <div id="add-pagelement-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addElement" style="color: #000;">
+            <div id="add-element-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addElement" style="color: #000;">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -296,6 +296,13 @@ app.constant('settings', {
 });
 
 jQuery(document).ready(function($) {
+    $("#add-element-modal").on('shown.bs.modal', function () {
+      $("#add-element-modal [name=\"title\"]").focus();
+    });
+    $("#edit-element-modal [name=\"title\"]").on('shown.bs.modal', function () {
+      $("#edit-element-modal").focus();
+    });
+
     if ($('[data-trip]').length > 0){
         $("#help-request").parent().show();
         $("#help-request").click(function(){

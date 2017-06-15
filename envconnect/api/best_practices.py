@@ -27,8 +27,11 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
 
     def perform_change(self, sources, targets, rank=None):
         moved = '/' + '/'.join([source.slug for source in sources])
-        new_root = "/%s/%s" % ('/'.join([target.slug for target in targets]),
-            sources[-1].slug)
+        attach = "/" + '/'.join([target.slug for target in targets])
+        if Consumption.objects.filter(path=attach).exists():
+            raise ValidationError({'detail': "Cannot move '%s' under '%s'"
+            % (sources[-1].title, targets[-1].title)})
+        new_root = "%s/%s" % (attach, sources[-1].slug)
         with transaction.atomic():
             super(BestPracticeMoveAPIView, self).perform_change(
                 sources, targets, rank=rank)

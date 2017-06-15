@@ -17,7 +17,7 @@
                     {% if request|is_broker_manager %}
                     <tr>
                         <td colspan="4">
-                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', 'best-practice')"><i class="fa fa-plus"></i> Add best practice ...</button>
+                            <button class="btn btn-link" data-toggle="modal" data-target="#add-element-modal" ng-click="setNewElement('{{abs_prefix}}', BEST_PRACTICE_ELEMENT)"><i class="fa fa-plus"></i> Add best practice ...</button>
                         </td>
                     </tr>
                     {% endif %}
@@ -30,7 +30,7 @@
                     {% if request|is_broker_manager %}
                     <tr>
                         <td colspan="4">
-                            <button class="btn btn-link" data-toggle="modal" data-target="#add-pagelement-modal" ng-click="setPrefix('{{abs_prefix}}', TAG_HEADING)"><i class="fa fa-plus"></i> Add practices header ...</button>
+                            <button class="btn btn-link" data-toggle="modal" data-target="#add-element-modal" ng-click="setNewElement('{{abs_prefix}}')"><i class="fa fa-plus"></i> Add practices header ...</button>
                         </td>
                     </tr>
                     {% endif %}

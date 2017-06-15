@@ -111,7 +111,7 @@
     "title": "Design",
     "slug": "design",
     "text": "/media/envconnect/design.png",
-    "tag": "life-cycle,scorecard",
+    "tag": "scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 5
@@ -128,7 +128,7 @@
     "title": "Sourcing",
     "slug": "sourcing",
     "text": "/media/envconnect/sourcing.png",
-    "tag": "life-cycle,scorecard",
+    "tag": "scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 6
@@ -145,7 +145,7 @@
     "title": "Production",
     "slug": "production",
     "text": "/media/envconnect/production.png",
-    "tag": "life-cycle",
+    "tag": "scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 7
@@ -162,7 +162,7 @@
     "title": "Distribution",
     "slug": "boxes-distribution",
     "text": "/media/envconnect/distribution.png",
-    "tag": "life-cycle",
+    "tag": "scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 8
@@ -179,7 +179,7 @@
     "title": "End of Life",
     "slug": "end-of-life",
     "text": "/media/envconnect/end-of-life.png",
-    "tag": "life-cycle",
+    "tag": "scorecard",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 9
@@ -323,7 +323,7 @@
     "title": "Lighting",
     "slug": "energy-efficiency-lighting",
     "text": "/media/envconnect/lighting.png",
-    "tag": "load",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 17
@@ -340,7 +340,7 @@
     "title": "HVAC",
     "slug": "hvac",
     "text": "/media/envconnect/hvac.png",
-    "tag": "load",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 18
@@ -357,7 +357,7 @@
     "title": "Compressed air",
     "slug": "energy-efficiency-compressed-air",
     "text": "/media/envconnect/compressed-air.png",
-    "tag": "load",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 19
@@ -374,7 +374,7 @@
     "title": "Process equipment",
     "slug": "energy-efficiency-process-equipment",
     "text": "/media/envconnect/process-equipment.png",
-    "tag": "load",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 20
@@ -391,7 +391,7 @@
     "title": "Mechanical drives",
     "slug": "energy-efficiency-mechanical-drives",
     "text": "/media/envconnect/mechanical-drives.png",
-    "tag": "load",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 21
@@ -408,7 +408,7 @@
     "title": "Process heating",
     "slug": "process-heating",
     "text": "/media/envconnect/process-heating.png",
-    "tag": "load",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 22
@@ -425,7 +425,7 @@
     "title": "Process cooling",
     "slug": "energy-efficiency-process-cooling",
     "text": "/media/envconnect/process-cooling.png",
-    "tag": "load",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 23
@@ -442,7 +442,7 @@
     "title": "Other",
     "slug": "energy-efficiency-other",
     "text": "/media/envconnect/other.png",
-    "tag": "load",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 24
@@ -1188,7 +1188,7 @@
   "fields": {
     "title": "Assessment",
     "slug": "assessment",
-    "tag": "heading",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 65
@@ -1204,7 +1204,7 @@
   "fields": {
     "title": "General",
     "slug": "general",
-    "tag": "heading",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 66
