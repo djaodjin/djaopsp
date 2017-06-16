@@ -106,35 +106,30 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
                             // move best-practice A below best-practice B
                             // => A and B share same heading. A.rank > B.rank
                             var posPath = attachPath;
-                            var pos = -1;
-                            for( var idx = 0; idx < entries.length; ++idx ) {
-                                if( entries[idx][0].path === attachPath ) {
-                                    pos = idx;
-                                    break;
-                                }
-                            }
-                            if( pos < 0 ) {
-                                showErrorMessages("Cannot find '"
-                                    + attachPath + "' in the table.");
-                            }
+                            var rank = -1;
                             var parts = attachPath.split('/');
                             parts.pop();
                             attachPath = parts.join('/');
-                            // headPos starts at zero because if we don't find
-                            // assume abs_prefix.
-                            var headPos = 0;
-                            for( var idx = 0; idx < entries.length; ++idx ) {
-                                if( entries[idx][0].path === attachPath ) {
-                                    headPos = idx;
+                            var headingNode = scope.getEntriesRecursive(
+                                scope.entries, attachPath);
+                            for( var idx = 0;
+                                 idx < headingNode[1].length; ++idx ) {
+                                if( headingNode[1][idx][0].path === posPath ) {
+                                    if( movedPath.lastIndexOf(attachPath, 0) === 0 && startIndex < newIndex ) {
+                                        // Moving under the same root.
+                                        // Furthermore we are going down.
+                                        rank = idx;
+                                    } else {
+                                        rank = idx + 1;
+                                    }
                                     break;
                                 }
                             }
-                            if( pos < headPos ) {
-                                showErrorMessages(
-                                    "Logic error heading '" + attachPath
-                                  + "' is found below '" + posPath + "'.");
+                            if( rank < 0 ) {
+                                showErrorMessages("Cannot find '"
+                                    + posPath + "'  under '"
+                                    + attachPath + "' in the table.");
                             }
-                            rank = pos - headPos;
                         } else {
                             // Case 2
                             // move best-practice A below heading H
@@ -150,41 +145,41 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
                         // => H and K share same heading. H.rank > K.rank
                         var movedParts = movedPath.split('/');
                         var attachParts = attachPath.split('/');
+                        var posPath = attachPath;
                         if( attachNode[0].consumption ) {
+                            posPath = attachParts.join('/');
                             attachParts.pop(); // specific to case 3
                         }
                         while( attachParts.length > movedParts.length ) {
+                            posPath = attachParts.join('/');
                             attachParts.pop();
                         }
-                        var posPath = attachPath;
-                        var pos = -1;
-                        for( var idx = 0; idx < entries.length; ++idx ) {
-                            if( entries[idx][0].path === attachPath ) {
-                                pos = idx;
-                                break;
-                            }
-                        }
-                        if( pos < 0 ) {
-                            showErrorMessages(
-                                "Cannot find '" + attachPath + "' in the table.");
-                        }
                         if( attachParts.length === movedParts.length ) {
+                            posPath = attachParts.join('/');
                             attachParts.pop();
                         }
                         attachPath = attachParts.join('/');
-                        var headPos = 0;
-                        for( var idx = 0; idx < entries.length; ++idx ) {
-                            if( entries[idx][0].path === attachPath ) {
-                                headPos = idx;
+                        var rank = -1;
+                        var headingNode = scope.getEntriesRecursive(
+                            scope.entries, attachPath);
+                        for( var idx = 0;
+                             idx < headingNode[1].length; ++idx ) {
+                            if( headingNode[1][idx][0].path === posPath ) {
+                                if( movedPath.lastIndexOf(attachPath, 0) === 0 && startIndex < newIndex ) {
+                                    // Moving under the same root.
+                                    // Furthermore we are going down.
+                                    rank = idx;
+                                } else {
+                                    rank = idx + 1;
+                                }
                                 break;
                             }
                         }
-                        if( pos < headPos ) {
-                            showErrorMessages(
-                                "Logic error heading '" + attachPath
-                                    + "' is found below '" + posPath + "'.");
+                        if( rank < 0 ) {
+                            showErrorMessages("Cannot find '"
+                                + posPath + "'  under '"
+                                + attachPath + "' in the table.");
                         }
-                        rank = pos - headPos;
                     }
                 }
                 scope.moveBestPractice(movedPath, attachPath, rank);
@@ -538,8 +533,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
         $http.post(settings.urls.api_page_elements, data).then(
             function success(resp) {
+                var path = prefix + '/' + resp.data.slug;
                 if( elementType === $scope.BEST_PRACTICE_ELEMENT ) {
-                    var path = prefix + '/' + resp.data.slug;
                     $http.post(settings.urls.api_consumptions,
                                {path: path, text: title}).then(
                         function success(resp_consumption) {
@@ -559,7 +554,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 } else {
                     var node = $scope.getEntriesRecursive(
                         $scope.entries, prefix);
-                    resp.data.path = prefix + resp.data.path;
+                    resp.data.path = path;
                     resp.data.consumption = null;
                     node[1].push([resp.data, []]);
                     $scope.newElement.value = "";
