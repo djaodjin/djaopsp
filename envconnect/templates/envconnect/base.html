@@ -176,7 +176,7 @@ content development.
                                         <span ng-bind-html="match.title | uibTypeaheadHighlight:query"></span>
                                     </a>
                                 </script>
-                                <input class="form-control search-page-element" style="width:100%;" name="title" type="text" placeholder="[[newElement.tag]] title"
+                                <input class="form-control search-page-element" style="width:100%;" name="title" type="text" placeholder="[[newElement.elementType]] title"
                                        autocomplete="off"
                                        ng-model="newElement.value"
                                        uib-typeahead="candidate as candidate.title for candidate in getBestPracticeCandidates($viewValue)"

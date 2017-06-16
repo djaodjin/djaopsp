@@ -84,53 +84,108 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
                 // XXX startIndex and newIndex will look bigger than expected
                 // because of the way the Value/Profitability table is built.
                 // (i.e. twice the number of rows).
+                var rank = 0;
                 var movedPath = $(ui.item).data("id");
-                var newIndex = ($(ui.item).index());
-                var attachPath = $(ui.item).parent().find(
-                    "tr:nth-child("+newIndex+")").data("id");
-
-                var rank = null;
                 var movedNode = scope.getEntriesRecursive(
                     scope.entries, movedPath);
-                var attachNode = scope.getEntriesRecursive(
-                    scope.entries, attachPath);
-                if( movedNode[0].consumption ) {
-                    if( attachNode[0].consumption ) {
-                        // Case 1
-                        // move best-practice A below best-practice B
-                        // => A and B share same heading. A.rank > B.rank
-                        var pos = $("[data-id=\"" + attachPath + "\"]").index();
-                        var parts = attachPath.split('/');
-                        parts.pop();
-                        attachPath = parts.join('/');
-                        rank = pos - $("[data-id=\"" + attachPath + "\"]").index();
+
+                var newIndex = ($(ui.item).index());
+                // We use `nth-child` here because `children().eq(newIndex)`
+                // will return our dropped element. We need to add +1 because
+                // `nth-child` starts counting at one, not zero. Even then
+                // still picks up the dropped element.
+                // We thus use the data itself.
+                var attachPath = $(ui.item).parents("table").data("prefix");
+                if( newIndex > 0 ) {
+                    var entries = scope.getEntries(attachPath);
+                    var attachNode = entries[newIndex - ((newIndex < startIndex) ? 1 : 0)];
+                    attachPath = attachNode[0].path;
+                    if( movedNode[0].consumption ) {
+                        if( attachNode[0].consumption ) {
+                            // Case 1
+                            // move best-practice A below best-practice B
+                            // => A and B share same heading. A.rank > B.rank
+                            var posPath = attachPath;
+                            var pos = -1;
+                            for( var idx = 0; idx < entries.length; ++idx ) {
+                                if( entries[idx][0].path === attachPath ) {
+                                    pos = idx;
+                                    break;
+                                }
+                            }
+                            if( pos < 0 ) {
+                                showErrorMessages("Cannot find '"
+                                    + attachPath + "' in the table.");
+                            }
+                            var parts = attachPath.split('/');
+                            parts.pop();
+                            attachPath = parts.join('/');
+                            // headPos starts at zero because if we don't find
+                            // assume abs_prefix.
+                            var headPos = 0;
+                            for( var idx = 0; idx < entries.length; ++idx ) {
+                                if( entries[idx][0].path === attachPath ) {
+                                    headPos = idx;
+                                    break;
+                                }
+                            }
+                            if( pos < headPos ) {
+                                showErrorMessages(
+                                    "Logic error heading '" + attachPath
+                                  + "' is found below '" + posPath + "'.");
+                            }
+                            rank = pos - headPos;
+                        } else {
+                            // Case 2
+                            // move best-practice A below heading H
+                            // => A shows under heading H. A.rank == 0
+                            rank = 0;
+                        }
                     } else {
-                        // Case 2
-                        // move best-practice A below heading H
-                        // => A shows under heading H. A.rank == 0
-                        rank = 0;
+                        // Case 3 and 4 have only slight differences
+                        // Case 3
+                        //   move heading H below best-practice A
+                        // Case 4
+                        //   move heading H below heading K
+                        // => H and K share same heading. H.rank > K.rank
+                        var movedParts = movedPath.split('/');
+                        var attachParts = attachPath.split('/');
+                        if( attachNode[0].consumption ) {
+                            attachParts.pop(); // specific to case 3
+                        }
+                        while( attachParts.length > movedParts.length ) {
+                            attachParts.pop();
+                        }
+                        var posPath = attachPath;
+                        var pos = -1;
+                        for( var idx = 0; idx < entries.length; ++idx ) {
+                            if( entries[idx][0].path === attachPath ) {
+                                pos = idx;
+                                break;
+                            }
+                        }
+                        if( pos < 0 ) {
+                            showErrorMessages(
+                                "Cannot find '" + attachPath + "' in the table.");
+                        }
+                        if( attachParts.length === movedParts.length ) {
+                            attachParts.pop();
+                        }
+                        attachPath = attachParts.join('/');
+                        var headPos = 0;
+                        for( var idx = 0; idx < entries.length; ++idx ) {
+                            if( entries[idx][0].path === attachPath ) {
+                                headPos = idx;
+                                break;
+                            }
+                        }
+                        if( pos < headPos ) {
+                            showErrorMessages(
+                                "Logic error heading '" + attachPath
+                                    + "' is found below '" + posPath + "'.");
+                        }
+                        rank = pos - headPos;
                     }
-                } else {
-                    // Case 3 and 4 have only slight differences
-                    // Case 3
-                    //   move heading H below best-practice A
-                    // Case 4
-                    //   move heading H below heading K
-                    // => H and K share same heading. H.rank > K.rank
-                    var movedParts = movedPath.split('/');
-                    var attachParts = attachPath.split('/');
-                    if( attachNode[0].consumption ) {
-                        attachParts.pop(); // specific to case 3
-                    }
-                    while( attachParts.length > movedParts.length ) {
-                        attachParts.pop();
-                    }
-                    var pos = $("[data-id=\"" + attachParts.join('/') + "\"]").index();
-                    if( attachParts.length === movedParts.length ) {
-                        attachParts.pop();
-                    }
-                    attachPath = attachParts.join('/');
-                    rank = pos - $("[data-id=\"" + attachParts.join('/') + "\"]").index();
                 }
                 scope.moveBestPractice(movedPath, attachPath, rank);
             },
@@ -447,7 +502,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         if ( typeof tag !== "undefined" ) {
             $scope.newElement.tag = tag;
         } else {
-            $scope.newElement.tag = false;
+            $scope.newElement.tag = null;
         }
         if ( typeof reload !== "undefined" ) {
             $scope.newElement.reload = reload;
@@ -459,7 +514,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.addElement = function(event, prefix) {
         if( typeof $scope.newElement.value === "string" ) {
              $scope.newElement.value = {
-                 title: $scope.newElement.value, tag: ""};
+                 title: $scope.newElement.value, tag: null};
         }
         var elementType = $scope.newElement.elementType;
         if( typeof prefix === "undefined" ) {

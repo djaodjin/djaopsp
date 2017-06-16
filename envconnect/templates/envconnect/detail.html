@@ -24,7 +24,8 @@
                 </div>
             </div>
             <!-- cost, payback, etc. -->
-            <table class="table table-striped table-bordered">
+            <table class="table table-striped table-bordered"
+                    data-prefix="{{abs_prefix}}">
                 <thead ng-show="!valueSummaryToggle">
                     <th style="vertical-align:middle;border-top:0;">Practices</th>
                     {% for col_header in icon.profitability_headers %}
@@ -64,28 +65,37 @@
                     {% endfor %}
                         </tr>
                 </thead>
-                <tbody dnd-list="getEntries('{{abs_prefix}}')">
+                <tbody dnd-list="getEntries('{{abs_prefix}}')"
+                       ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}')"
-                        ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle">
+                        ng-repeat="practice in getEntries('{{abs_prefix}}')">
                         {% include "envconnect/_profitability_row.html" %}
                     </tr>
+                </tbody>
+                <tbody dnd-list="getEntries('{{abs_prefix}}')"
+                       ng-if="sortedOnKeys > 0" ng-show="!valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
-                        ng-if="sortedOnKeys > 0" ng-show="!valueSummaryToggle">
+                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse">
                         {% include "envconnect/_profitability_row.html" %}
                     </tr>
+                </tbody>
+                <tbody dnd-list="getEntries('{{abs_prefix}}')"
+                       ng-if="sortedOnKeys === 0"  ng-show="valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}')"
-                        ng-if="sortedOnKeys === 0"  ng-show="valueSummaryToggle">
+                        ng-repeat="practice in getEntries('{{abs_prefix}}')">
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
+                </tbody>
+                <tbody dnd-list="getEntries('{{abs_prefix}}')"
+                       ng-if="sortedOnKeys > 0"  ng-show="valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
-                        ng-if="sortedOnKeys > 0"  ng-show="valueSummaryToggle">
+                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse">
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
-                    <tr ng-show="getEntries('{{abs_prefix}}').length === 0">
+                </tbody>
+                <tbody dnd-list="getEntries('{{abs_prefix}}')"
+                       ng-if="getEntries('{{abs_prefix}}').length === 0">
+                    <tr>
                         <td colspan="{{icon.profitability_headers_len}}">
 <em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em>
                         </td>
