@@ -153,6 +153,8 @@ def previous_to_last(breadcrumbs):
 
 @register.filter
 def containsTag(node, tag):#pylint:disable=invalid-name
+    if not node:
+        return False
     try:
         return node.tag and tag in node.tag
     except AttributeError:
