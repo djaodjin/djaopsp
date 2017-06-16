@@ -744,7 +744,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         from_root, trail = self.breadcrumbs
         parts = from_root.split('/')
         root_prefix = '/'.join(parts[:-1]) if len(parts) > 1 else ""
-        root = trail[-1][0] if len(trail) > 1 else None
+        root = trail[-1][0] if len(trail) > 0 else None
         rollup_tree = self.rollup_scores(root=root, root_prefix=from_root)
         distributions_tree = self.create_distributions(
             rollup_tree, view_account=self.sample.account.pk)
