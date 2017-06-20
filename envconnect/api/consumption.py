@@ -44,3 +44,10 @@ class ConsumptionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Consumption.objects.all()
     serializer_class = ConsumptionSerializer
     lookup_field = 'path'
+
+    def perform_update(self, serializer):
+        # Force "Gold" value to be outside the linear scale.
+        if ('environmental_value' in serializer.validated_data
+            and serializer.validated_data['environmental_value'] == 4):
+            serializer.validated_data['environmental_value'] = 6
+        return super(ConsumptionDetailAPIView, self).perform_update(serializer)
