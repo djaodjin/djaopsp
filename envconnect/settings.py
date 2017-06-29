@@ -7,7 +7,7 @@ from django.contrib.messages import constants as messages
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
-from deployutils import load_config, update_settings
+from deployutils.configs import load_config, update_settings
 
 SLUG_RE = r'[a-zA-Z0-9-]+'
 PATH_RE = r'(/[a-zA-Z0-9\-]+)*'
@@ -19,7 +19,7 @@ APP_NAME = os.path.basename(BASE_DIR)
 
 update_settings(sys.modules[__name__],
     load_config(APP_NAME, 'credentials', 'site.conf', verbose=True,
-        s3_bucket=os.getenv("SETTINGS_BUCKET", None),
+        location=os.getenv("SETTINGS_BUCKET", None),
         passphrase=os.getenv("SETTINGS_CRYPT_KEY", None)))
 
 if os.getenv('DEBUG'):
@@ -52,7 +52,7 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'deployutils',
+    'deployutils.apps.django',
     'django_requestlogging',
     'crispy_forms',
     'django_assets',
@@ -91,8 +91,8 @@ else:
 
 MIDDLEWARE_CLASSES += (
     'django.middleware.common.CommonMiddleware',
-    'deployutils.middleware.RequestLoggingMiddleware',
-    'deployutils.middleware.SessionMiddleware',
+    'deployutils.apps.django.middleware.RequestLoggingMiddleware',
+    'deployutils.apps.django.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -134,7 +134,7 @@ LOGGING = {
         # Add an unbound RequestFilter.
         'request': {
             '()': 'django_requestlogging.logging_filters.RequestFilter',
-#            '()': 'deployutils.logging.RequestFilter',
+#            '()': 'deployutils.apps.django.logging.RequestFilter',
         },
     },
     'formatters': {
@@ -143,7 +143,7 @@ LOGGING = {
             'datefmt': '%d/%b/%Y:%H:%M:%S %z'
         },
         'json': {
-            '()': 'deployutils.logging.JSONFormatter',
+            '()': 'deployutils.apps.django.logging.JSONFormatter',
             'replace': False,
             'whitelists': {
                 'record': [
@@ -383,8 +383,8 @@ TEMPLATES = [
             'builtins': [
                 'envconnect.templatetags.navactive',
                 'django_assets.templatetags.assets',
-                'deployutils.templatetags.deployutils_prefixtags',
-                'deployutils.templatetags.deployutils_extratags']
+                'deployutils.apps.django.templatetags.deployutils_prefixtags',
+                'deployutils.apps.django.templatetags.deployutils_extratags']
         }
     }]
 
@@ -411,7 +411,7 @@ ACCOUNT_ACTIVATION_DAYS = 2
 # The Django Middleware expects to find the authentication backend
 # before returning an authenticated user model.
 AUTHENTICATION_BACKENDS = (
-    'deployutils.backends.auth.ProxyUserBackend',
+    'deployutils.apps.django.backends.auth.ProxyUserBackend',
     # XXX We cannot remove dependency on a db `User` until django_comments
     # is made to use the deployutils version.
     'django.contrib.auth.backends.ModelBackend'
@@ -420,7 +420,7 @@ AUTHENTICATION_BACKENDS = (
 # Session settings
 # ----------------
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
-SESSION_ENGINE = 'deployutils.backends.encrypted_cookies'
+SESSION_ENGINE = 'deployutils.apps.django.backends.encrypted_cookies'
 
 DEPLOYUTILS = {
     # Hardcoded mockups here.

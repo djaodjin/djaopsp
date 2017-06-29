@@ -5,8 +5,9 @@ import logging
 
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
-from deployutils.mixins import AccessiblesMixin
-from deployutils.templatetags.deployutils_prefixtags import site_prefixed
+from deployutils.apps.django.mixins import AccessiblesMixin
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_prefixed)
 
 
 LOGGER = logging.getLogger(__name__)

@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from deployutils import mixins as deployutils_mixins
+from deployutils.apps.django import mixins as deployutils_mixins
 from answers.models import Question as AnswersQuestion
 from pages.models import RelationShip
 from pages.mixins import TrailMixin

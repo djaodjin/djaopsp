@@ -124,6 +124,8 @@ install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \
                 $(DESTDIR)$(CONFIG_DIR)/site.conf \
                 $(DESTDIR)$(CONFIG_DIR)/gunicorn.conf \
                 $(DESTDIR)$(SYSCONFDIR)/sysconfig/$(APP_NAME) \
+                $(DESTDIR)$(SYSCONFDIR)/logrotate.d/$(APP_NAME) \
+                $(DESTDIR)$(SYSCONFDIR)/monit.d/$(APP_NAME) \
                 $(DESTDIR)$(SYSCONFDIR)/systemd/system/$(APP_NAME).service
 	install -d $(DESTDIR)$(LOCALSTATEDIR)/db
 	install -d $(DESTDIR)$(LOCALSTATEDIR)/run
@@ -161,6 +163,18 @@ $(DESTDIR)$(SYSCONFDIR)/systemd/system/%.service: \
 		-e 's,%(binDir)s,$(binDir),' \
 		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' \
 		-e 's,%(SYSCONFDIR)s,$(SYSCONFDIR),' $< > $@
+
+$(DESTDIR)$(SYSCONFDIR)/logrotate.d/%: $(srcDir)/etc/logrotate.conf
+	install -d $(dir $@)
+	[ -f $@ ] || sed \
+		-e 's,%(APP_NAME)s,$(APP_NAME),' \
+		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' $< > $@
+
+$(DESTDIR)$(SYSCONFDIR)/monit.d/%: $(srcDir)/etc/monit.conf
+	install -d $(dir $@)
+	[ -f $@ ] || sed \
+		-e 's,%(APP_NAME)s,$(APP_NAME),g' \
+		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' $< > $@
 
 $(DESTDIR)$(SYSCONFDIR)/sysconfig/%: $(srcDir)/etc/sysconfig.conf
 	install -d $(dir $@)

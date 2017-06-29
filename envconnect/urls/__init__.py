@@ -5,7 +5,8 @@ from django.conf import settings
 from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as static_serve
 from urldecorators import include, url
-from deployutils.redirects import AccountRedirectView as AccountRedirectBaseView
+from deployutils.apps.django.redirects import (
+    AccountRedirectView as AccountRedirectBaseView)
 
 from ..api.dashboards import TotalScoreBySubsectorAPIView
 from ..api.suppliers import SupplierListAPIView
@@ -172,7 +173,7 @@ urlpatterns += [
 
     # These URLs will be served by the djaodjin webapp.
     # XXX fix: remove envconnect prefix when themes are ready.
-    url_prefixed(r'', include('deployutils.mockup.urls')),
+    url_prefixed(r'', include('deployutils.apps.django.mockup.urls')),
     # XXX The following URL should be envconnect/app/contact/ but for some
     # reasons it would appear there is some javascript code on the
     # IndustryListView that prevents it.
