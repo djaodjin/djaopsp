@@ -179,7 +179,7 @@ from BitBucket with actual uploads to PyPi
     </maintainer>
     <repository>
       <shell>
-cd $srcTop/contrib/django-django-storages
+cd $srcTop/contrib/django-storages
 $binDir/python setup.py install
       </shell>
       <dep name="drop">
