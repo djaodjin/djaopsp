@@ -19,7 +19,7 @@ APP_NAME = os.path.basename(BASE_DIR)
 
 update_settings(sys.modules[__name__],
     load_config(APP_NAME, 'credentials', 'site.conf', verbose=True,
-        location=os.getenv("SETTINGS_BUCKET", None),
+        location=os.getenv("SETTINGS_LOCATION", None),
         passphrase=os.getenv("SETTINGS_CRYPT_KEY", None)))
 
 if os.getenv('DEBUG'):
