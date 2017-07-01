@@ -1,7 +1,8 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
+from __future__ import unicode_literals
 
-import csv, datetime, json, logging, StringIO
+import csv, datetime, json, logging, io
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -97,7 +98,7 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
         self.root = self._build_tree(trail[0][0], from_trail_head, nocuts=True)
         self.attach_benchmarks(self.root, view_response=self.sample)
 
-        content = StringIO.StringIO()
+        content = io.StringIO()
         csv_writer = csv.writer(content)
         csv_writer.writerow(["The Sustainability Project - Self-assessment"])
         csv_writer.writerow([self.root[0].title])

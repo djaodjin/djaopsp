@@ -10,14 +10,12 @@ bleach==1.4.2
 boto==2.47.0
 boto3==1.4.4
 botocore==1.5.52
-cffi==1.7.0
 configparser==3.5.0
 coverage==4.2
 cryptography==1.5.3
 cssmin==0.2.0
 cssselect==1.0.1
 cssutils==1.0.2
-Django==1.9.9
 django-analytical==2.2.2
 django-assets==0.12
 django-contrib-comments==1.8.0
@@ -32,8 +30,6 @@ django-localflavor==1.5.1
 django-requestlogging==1.0.1
 django-storages-redux==1.2.3
 django-urldecorators==0.6
-django-voting==0.2
-djangorestframework==3.3.1
 docutils==0.13.1
 drop==0.0.0
 enum34==1.1.6
@@ -57,7 +53,6 @@ packaging==16.8
 paramiko==2.1.2
 ply==3.8
 premailer==3.0.1
-psutil==4.3.0
 pyasn1==0.2.3
 pycparser==2.17
 Pygments==2.2.0
@@ -90,6 +85,10 @@ xhtml2pdf==0.0.6
 yuicompressor==2.4.8
 
 # With C/C++ native code
+# dnf install pango python3-cairo python3-cffi python3-crypto python3-psycopg2
+cffi==1.7.0
 lxml==3.7.2
 Pillow==3.4.2
+psutil==4.3.0
+psycopg2==2.7.1
 pycrypto==2.6.1

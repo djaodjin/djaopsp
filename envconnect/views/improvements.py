@@ -1,7 +1,8 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
+from __future__ import unicode_literals
 
-import csv, datetime, logging, StringIO
+import csv, datetime, logging, io
 
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -60,7 +61,7 @@ class ImprovementCSVView(ImprovementQuerySetMixin,
         return self.insert_path(tree[parts[0]], parts[1:])
 
     def write_tree(self, root, csv_writer, indent=''):
-        for element in sorted(root.keys(), cmp=lambda left, right:
+        for element in sorted(list(root.keys()), cmp=lambda left, right:
                 (left.tag < right.tag)
                 or (left.tag == right.tag and left.pk < right.pk)):
             # XXX sort won't exactly match the web presentation
@@ -100,7 +101,7 @@ class ImprovementCSVView(ImprovementQuerySetMixin,
                 'opportunity': details.opportunity
             })
 
-        content = StringIO.StringIO()
+        content = io.StringIO()
         csv_writer = csv.writer(content)
         csv_writer.writerow(["The Sustainability Project"\
             " - Practices selected for improvement"])

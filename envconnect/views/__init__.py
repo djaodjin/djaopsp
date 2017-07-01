@@ -6,7 +6,8 @@ import logging
 from django import http
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from deployutils.redirects import AccountRedirectView as AccountRedirectBaseView
+from deployutils.apps.django.redirects import (
+    AccountRedirectView as AccountRedirectBaseView)
 from survey.models import Response
 
 from ..mixins import ReportMixin

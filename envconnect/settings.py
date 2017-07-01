@@ -53,7 +53,6 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'deployutils.apps.django',
-    'django_requestlogging',
     'crispy_forms',
     'django_assets',
     'rest_framework',
@@ -99,7 +98,6 @@ MIDDLEWARE_CLASSES += (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_requestlogging.middleware.LogSetupMiddleware',
 )
 
 ROOT_URLCONF = 'envconnect.urls'
@@ -133,8 +131,7 @@ LOGGING = {
         },
         # Add an unbound RequestFilter.
         'request': {
-            '()': 'django_requestlogging.logging_filters.RequestFilter',
-#            '()': 'deployutils.apps.django.logging.RequestFilter',
+            '()': 'deployutils.apps.django.logging.RequestFilter',
         },
     },
     'formatters': {

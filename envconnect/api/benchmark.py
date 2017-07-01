@@ -2,12 +2,14 @@
 # see LICENSE.
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import logging
 from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db import connection, connections
+from django.utils import six
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as RestResponse
@@ -132,7 +134,7 @@ class BenchmarkMixin(ReportMixin):
             transparent_to_rollover = (
                 not settings.TAG_SCORECARD in level_details[0].get('tag', ''))
             level_details[0].update(metrics)
-            for level_detail in level_details[1].itervalues():
+            for level_detail in six.itervalues(level_details[1]):
                 if settings.TAG_SCORECARD in level_detail[0].get('tag', ''):
                     transparent_to_rollover = False
                     level_detail[0].update({
@@ -155,7 +157,7 @@ class BenchmarkMixin(ReportMixin):
         elif prefix == 'totals' or rollup_tree[0].get('slug', '') == prefix:
             accounts = rollup_tree[0].get('accounts', {})
         else:
-            for node in rollup_tree[1].itervalues():
+            for node in six.itervalues(rollup_tree[1]):
                 accounts = self.get_drilldown(node, prefix)
                 if accounts is not None:
                     break
@@ -163,7 +165,7 @@ class BenchmarkMixin(ReportMixin):
         if accounts is not None:
             all_accounts = accounts
             accounts = {}
-            for account_id, account_metrics in all_accounts.iteritems():
+            for account_id, account_metrics in six.iteritems(all_accounts):
                 normalized_score = account_metrics.get('normalized_score', None)
                 if normalized_score is not None:
                     accounts[account_id] = account_metrics
@@ -189,7 +191,7 @@ class BenchmarkMixin(ReportMixin):
         if len(rollup_tree[1].keys()) == 0:
             return {path: rollup_tree}
         leafs = {}
-        for key, level_detail in rollup_tree[1].iteritems():
+        for key, level_detail in six.iteritems(rollup_tree[1]):
             leafs.update(self.get_leafs(level_detail, path=key))
         return leafs
 
@@ -250,8 +252,8 @@ class BenchmarkMixin(ReportMixin):
         sum_normalized_scores = 0
         nb_respondents = 0
         distribution = None
-        for account_id_str, account_metrics in rollup_tree[0].get(
-                'accounts', {}).iteritems():
+        for account_id_str, account_metrics in six.iteritems(rollup_tree[0].get(
+                'accounts', {})):
             if account_id_str is None: # XXX why is that?
                 continue
             account_id = int(account_id_str)
@@ -291,7 +293,7 @@ class BenchmarkMixin(ReportMixin):
                     distribution['organization_rate'] = distribution['x'][3]
 
         details = {}
-        for node_path, node_metrics in rollup_tree[1].iteritems():
+        for node_path, node_metrics in six.iteritems(rollup_tree[1]):
             details.update({node_path: self.create_distributions(
                 node_metrics, view_account=view_account)})
 
@@ -321,7 +323,7 @@ class BenchmarkMixin(ReportMixin):
             return [], True
         charts = []
         complete = True
-        for key, chart in distribution_tree[1].iteritems():
+        for key, chart in six.iteritems(distribution_tree[1]):
             if key.startswith(prefix) or prefix.startswith(key):
                 leaf_charts, leaf_complete = self.flatten_distributions(
                     chart, prefix=prefix)
@@ -341,7 +343,7 @@ class BenchmarkMixin(ReportMixin):
             'normalized_score': 0,  # instead of 'ukn.' to avoid js error.
             'organization_rate': ""
         }
-        for response, numerator in numerators.iteritems():
+        for response, numerator in six.iteritems(numerators):
             denominator = denominators.get(response, 0)
             if denominator != 0:
                 normalized_score = int(numerator * 100 / denominator)
@@ -438,7 +440,7 @@ class BenchmarkMixin(ReportMixin):
                     view_response=view_response)
                 nb_questions += node[0].nb_questions
                 nb_answers += node[0].nb_answers
-                for response, numerator in node[0].numerators.iteritems():
+                for response, numerator in six.iteritems(node[0].numerators):
                     if not response in numerators:
                         numerators[response] = 0
                         denominators[response] = 0
@@ -459,7 +461,7 @@ class BenchmarkMixin(ReportMixin):
         self.attach_benchmarks_recursive(root, view_response=view_response)
         highest_normalized_score = 0
         sum_normalized_scores = 0
-        for response, numerator in root[0].numerators.iteritems():
+        for response, numerator in six.iteritems(root[0].numerators):
             denominator = root[0].denominators.get(response, 0)
             if denominator != 0:
                 normalized_score = int(numerator * 100 / denominator)
@@ -566,7 +568,7 @@ class BenchmarkMixin(ReportMixin):
           "      WHEN text = '%(significant_improvement)s' THEN opportunity "\
           "      ELSE 0.0 END AS numerator,"\
           " CASE WHEN text IN"\
-            " %(yes_no)s THEN (opportunity * 3) ELSE 0.0 END AS denominator,"\
+            " (%(yes_no)s) THEN (opportunity * 3) ELSE 0.0 END AS denominator,"\
             " expected_opportunities.path AS path,"\
             " survey_answer.text, survey_answer.created_at"\
             " FROM (%(expected_opportunities)s) AS expected_opportunities"\
@@ -578,7 +580,8 @@ class BenchmarkMixin(ReportMixin):
                 'moderate_improvement': Consumption.NEEDS_MODERATE_IMPROVEMENT,
                 'significant_improvement':
                     Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
-                'yes_no': tuple(Consumption.PRESENT + Consumption.ABSENT),
+                'yes_no': ','.join(["'%s'" % val
+                    for val in Consumption.PRESENT + Consumption.ABSENT]),
                 'expected_opportunities': self.get_expected_opportunities()}
         self._show_query_and_result(scored_answers)
 
@@ -598,7 +601,7 @@ class BenchmarkMixin(ReportMixin):
         Populate all leafs with aggregated scores.
         """
         #pylint:disable=too-many-locals
-        for prefix, values_tuple in leafs.iteritems():
+        for prefix, values_tuple in six.iteritems(leafs):
             values = values_tuple[0]
             accounts = {}
             if not 'accounts' in values:
@@ -639,7 +642,7 @@ class BenchmarkMixin(ReportMixin):
                                 created_at, metrics['created_at'])
                         else:
                             metrics['created_at'] = created_at
-            for account_id, account_metrics in accounts.iteritems():
+            for account_id, account_metrics in six.iteritems(accounts):
                 if (count_answers and account_metrics['nb_answers']
                     != account_metrics['nb_questions']):
                     # If we don't have the same number of questions
@@ -653,8 +656,8 @@ class BenchmarkMixin(ReportMixin):
         Populate aggregated scores up the tree.
         """
         if len(rollup_tree[1].keys()) == 0:
-            for account_id, metrics in rollup_tree[0].get(
-                    'accounts', {}).iteritems():
+            for account_id, metrics in six.iteritems(rollup_tree[0].get(
+                    'accounts', {})):
                 nb_answers = metrics.get('nb_answers', 0)
                 nb_questions = metrics.get('nb_questions', 0)
                 if nb_answers == nb_questions:
@@ -670,9 +673,10 @@ class BenchmarkMixin(ReportMixin):
             values['accounts'] = {}
         accounts = values['accounts']
         slug = rollup_tree[0].get('slug', None)
-        for node in rollup_tree[1].itervalues():
+        for node in six.itervalues(rollup_tree[1]):
             self.populate_rollup(node)
-            for account_id, metrics in node[0].get('accounts', {}).iteritems():
+            for account_id, metrics in six.iteritems(
+                    node[0].get('accounts', {})):
                 if not account_id in accounts:
                     accounts[account_id] = {}
                 agg_metrics = accounts[account_id]
@@ -700,7 +704,7 @@ class BenchmarkMixin(ReportMixin):
                         agg_metrics[key] = agg_metrics.get(key, 0) + (
                             metrics.get(key, 0)
                             * node[0].get('score_weight', 1.0))
-        for account_id, agg_metrics in accounts.iteritems():
+        for account_id, agg_metrics in six.iteritems(accounts):
             nb_answers = agg_metrics.get('nb_answers', 0)
             nb_questions = agg_metrics.get('nb_questions', 0)
             if nb_answers == nb_questions:

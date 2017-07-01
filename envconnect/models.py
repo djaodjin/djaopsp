@@ -4,20 +4,24 @@
 """
 Models for envconnect.
 """
+from __future__ import unicode_literals
+
 import logging
 
 from django.conf import settings
 from django.db import models, connection
+from django.utils.encoding import python_2_unicode_compatible
 from survey.models import Answer, Question as SurveyQuestion
 
 # We cannot import signals into __init__.py otherwise it creates an import
 # loop error "make initdb".
-import envconnect.signals #pylint: disable=unused-import
+from . import signals #pylint: disable=unused-import
 
 
 LOGGER = logging.getLogger(__name__)
 
 
+@python_2_unicode_compatible
 class ColumnHeader(models.Model):
     """
     Title of columns for fields defined in the ``Consumption`` table
@@ -28,8 +32,8 @@ class ColumnHeader(models.Model):
     slug = models.SlugField()
     hidden = models.BooleanField()
 
-    def __unicode__(self):
-        return unicode(self.slug)
+    def __str__(self):
+        return str(self.slug)
 
 
 class ScoreWeightManager(models.Manager):
@@ -43,6 +47,7 @@ class ScoreWeightManager(models.Manager):
         return score_weight
 
 
+@python_2_unicode_compatible
 class ScoreWeight(models.Model):
     """
     We aggregate weighted scores when walking up the tree.
@@ -52,8 +57,8 @@ class ScoreWeight(models.Model):
     path = models.CharField(max_length=255)
     weight = models.DecimalField(decimal_places=2, max_digits=3, default=1)
 
-    def __unicode__(self):
-        return unicode(self.path)
+    def __str__(self):
+        return str(self.path)
 
 
 class ConsumptionQuerySet(models.QuerySet):
@@ -85,8 +90,9 @@ class ConsumptionQuerySet(models.QuerySet):
         # but values in ``PRESENT`` and ``ABSENT``
         # do not get quoted.
         yes_view = "SELECT question_id AS question_id, COUNT(survey_answer.id)"\
-            " AS nb_yes FROM survey_answer WHERE survey_answer.text IN %s "\
-            "GROUP BY question_id" % str(tuple(Consumption.PRESENT))
+            " AS nb_yes FROM survey_answer WHERE survey_answer.text IN"\
+            " (%(present)s) GROUP BY question_id" % {'present':
+                ','.join(["'%s'" % val for val in Consumption.PRESENT])}
         self._show_query_and_result(yes_view)
 
         yes_no_view = "SELECT envconnect_consumption.question_id"\
@@ -100,9 +106,10 @@ class ConsumptionQuerySet(models.QuerySet):
             " ON (envconnect_consumption.question_id = survey_question.id)"\
             " INNER JOIN survey_answer"\
             " ON (survey_question.id = survey_answer.question_id)"\
-            " WHERE survey_answer.text IN %s"\
-            "GROUP BY envconnect_consumption.question_id" % str(tuple(
-                Consumption.PRESENT + Consumption.ABSENT))
+            " WHERE survey_answer.text IN (%(yes_no)s)"\
+            "GROUP BY envconnect_consumption.question_id" % {
+                'yes_no': ','.join(["'%s'" % val
+                    for val in Consumption.PRESENT + Consumption.ABSENT])}
         self._show_query_and_result(yes_no_view)
 
         # The opportunity for all questions with a "Yes" answer.
@@ -142,6 +149,7 @@ class ConsumptionQuerySet(models.QuerySet):
         return self.raw(self.get_opportunities_sql())
 
 
+@python_2_unicode_compatible
 class Consumption(SurveyQuestion):
     """Consumption of externalities in the manufactoring process."""
 
@@ -188,8 +196,8 @@ class Consumption(SurveyQuestion):
     # computed fields
     opportunity = models.IntegerField(default=0)
 
-    def __unicode__(self):
-        return unicode(self.pk)
+    def __str__(self):
+        return str(self.pk)
 
     @property
     def avg_value(self):
@@ -223,11 +231,12 @@ class ImprovementManager(models.Manager):
         return self.filter(account=account)
 
 
+@python_2_unicode_compatible
 class Improvement(models.Model):
 
     objects = ImprovementManager()
     account = models.ForeignKey(settings.ACCOUNT_MODEL)
     consumption = models.ForeignKey(Consumption)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s/%s" % (self.account, self.consumption)
