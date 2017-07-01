@@ -197,18 +197,19 @@ LOGGING = {
     },
     'loggers': {
         'deployutils': {
-            'handlers': [],
+            'handlers': ['db_logfile'],
             'level': 'INFO',
-        },
-        'envconnect': {
-            'handlers': [],
-            'level': 'DEBUG',
+            'propagate': False
         },
 #        'django.db.backends': {
 #           'handlers': ['db_logfile'],
 #           'level': 'DEBUG',
 #           'propagate': False
 #        },
+        'envconnect': {
+            'handlers': [],
+            'level': 'DEBUG',
+        },
         'django.request': {
             'handlers': [],
             'level': 'ERROR',
