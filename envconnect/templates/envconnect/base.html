@@ -14,18 +14,15 @@
                 </li>
                 {% endfor %}
             </ol>
-            <ol class="col-md-3 breadcrumb env-breadcrumb">
-                <li style="float:right;display:none;cursor:pointer;"><a id="help-request"><i class="fa fa-question-circle"></i> take a tour of the page &raquo;</a></li>
-            </ol>
             <div class="container-fluid">
                 {% block supplier_menus %}
                 <div class="row">
                     <div id="learn-action-header" data-trip data-trip-index="1" data-trip-content="Select a heading, then click on the icons below to browse content." data-trip-position="n">
-                        <div class="col-md-offset-2 col-md-3" data-trip data-trip-index="2" data-trip-content="<div style='text-align:left;'><strong>Basic practices</strong>: Basic compliance or risk –related management practices.<br /><strong>Sustainability practices</strong>: Practices beyond compliance and risk.</div>" data-trip-position="s">
+                        <div class="col-md-offset-2 col-md-3" data-trip data-trip-index="2" data-trip-content="<div style='text-align:left;'><strong>Sustainability practices</strong>: Practices beyond compliance and risk.</div>" data-trip-position="s">
                             <h2>Learn <i class="fa fa-angle-right"></i></h2>
                             <ul class="nav">
-                                <li{% if breadcrumbs|active_category:'basic' %} class="active"{% endif %}><a id="submenu-basic" href="{% url 'summary' breadcrumbs|category_entry:'basic' %}"><i class="fa-li fa{% if breadcrumbs|active_category:'basic' %} fa-hand-o-right{% endif %}"></i> Basic practices</a></li>
-                                <li{% if breadcrumbs|active_category:'sustainability' %} class="active"{% endif %}><a id="submenu-sustainability" href="{% url 'summary' breadcrumbs|category_entry:'sustainability' %}"><i class="fa-li fa{% if breadcrumbs|active_category:'sustainability' %} fa-hand-o-right{% endif %}"></i> Sustainability practices</a></li>
+                                <li><a id="help-request" style="cursor:pointer;">Getting started</a></li>
+                                <li{% if breadcrumbs|active_category:'sustainability' %} class="active"{% endif %}><a id="submenu-sustainability" href="{% url 'summary' breadcrumbs|category_entry:'sustainability' %}"><i class="fa-li fa{% if breadcrumbs|active_category:'sustainability' %} fa-hand-o-right{% endif %}"></i> Environmental practices</a></li>
                             </ul>
                         </div>
                         <div class="col-md-3" data-trip data-trip-index="3" data-trip-content="<div style='text-align:left;'><strong>Self-assessment</strong>: Assess performance against best practices, and identify opportunities<br />ranked by business value and peer implementation rate.<br /><strong>Score & Benchmark</strong>: Compare performance with peers through confidential,<br />anonymous, aggregated reports. THE SELF-ASSESSMENT MUST BE COMPLETED FIRST.</div>" data-trip-position="s">

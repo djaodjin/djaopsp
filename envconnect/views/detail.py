@@ -15,12 +15,6 @@ class DetailView(BreadcrumbMixin, TemplateView):
     template_name = 'envconnect/detail.html'
     breadcrumb_url = 'summary'
 
-    def get_template_names(self):
-        _, trail = self.breadcrumbs
-        if active_category(trail, 'basic'):
-            return 'envconnect/detail_basic.html'
-        return super(DetailView, self).get_template_names()
-
     def get_context_data(self, *args, **kwargs):
         #pylint:disable=too-many-locals
         context = super(DetailView, self).get_context_data(*args, **kwargs)
