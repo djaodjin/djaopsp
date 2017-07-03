@@ -804,6 +804,10 @@ envconnectControllers.controller("EnvconnectCtrl",
         $event.preventDefault();
         var element = angular.element($event.target);
         var prefix = element.parents('table').find('tbody').data('prefix');
+        var prefixElements = element.parents("tr[data-id]");
+        if( prefixElements ) {
+            prefix = prefixElements.data('id');
+        }
         var practices = $scope.getEntries(prefix);
         for( var idx = 0; idx < practices.length; ++idx ) {
             if( practices[idx][0].consumption ) {

@@ -28,20 +28,20 @@
                 {% with icon.tag|assessment_choices as choices %}
                 <thead ng-show="!scoreToggle">
                     <tr>
-                      <th rowspan="2">Practices</th>
+                      <th rowspan="2" style="vertical-bottom:middle;border-top:0;">Practices</th>
                       <th class="text-center" colspan="{{choices|length}}">Implemented as standard practice for applicable activities/projects?</th>
                     </tr>
                     <tr>
                       {% for choice in choices %}
                       <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
                           <div>{{choice}}</div>
-<button class="btn btn-default" href="" style="width:100%;" ng-click="selectAll($event, '{{choice}}')">Select all</button>
+<button class="btn btn-select-all" href="" ng-click="selectAll($event, '{{choice}}')"><i class="fa fa-circle-thin fa-2x"></i></button>
 </th>
                       {% endfor %}
                     </tr>
                 </thead>
                 <thead ng-show="scoreToggle">
-                    <th>Practices</th>
+                    <th style="vertical-align:middle;border-top:0;">Practices</th>
                     <th class="text-center cell-fix-width-3" data-toggle="tooltip" data-placement="top" title="Percentage of respondents that have implemented a best practice.">
                         <button class="btn-link btn-sort" ng-click="sortBy('rate')">
                             <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
@@ -69,11 +69,15 @@
                         ng-repeat="practice in getEntries('{{abs_prefix}}')"
                         ng-if="getEntries('{{abs_prefix}}').length > 0"
                         ng-show="!scoreToggle">
-                        {% include "envconnect/_detail_row_basic.html" with colspan=choices|length|add:1 %}
+                        {% include "envconnect/_detail_row_basic.html" %}
                         {% for choice in choices %}
-                        <td class="text-center cell-fix-width-5"
-                            ng-if="practice[0].consumption !== null">
-                            <label for="{{choice|slugify}}-[[$index]]" style="margin-bottom:0">
+                        <td class="text-center cell-fix-width-5">
+                            <button ng-if="practice[0].consumption === null"
+                              class="btn btn-select-all" href=""
+                              ng-click="selectAll($event, '{{choice}}')"><i class="fa fa-circle-thin fa-2x"></i></button>
+                            <label ng-if="practice[0].consumption !== null"
+                              for="{{choice|slugify}}-[[$index]]"
+                              style="margin-bottom:0">
                                 <input id="{{choice|slugify}}-[[$index]]" type="radio"
                                        value="{{choice}}"
                                        name="implemented-[[practice[0].consumption.rank]]"
