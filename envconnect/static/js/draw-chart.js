@@ -211,42 +211,42 @@ function radialProgress(parent) {
             var path1 = arcs.selectAll("#arc1").data(data);
             path1.enter().append("path")
                 .attr("id","arc1")
-                .attr("class", fillClass(_value1))
+                .attr("class", fillClass("#arc1", _value1))
                 .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
                 .attr("d", _arc1);
 
             arcs.append("text")
                 .attr("x", 6)
                 .attr("dy", 15).append("textPath")
-                .attr("class", textClass(_value1))
+                .attr("class", textClass("#arc1", _value1))
                 .attr("xlink:href","#arc1")
                 .text("top score (" + _value1 + "%)");
 
             var path2 = arcs.selectAll("#arc2").data(data);
             path2.enter().append("path")
                 .attr("id","arc2")
-                .attr("class", fillClass(_value2))
+                .attr("class", fillClass("#arc2", _value2))
                 .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
                 .attr("d", _arc2);
 
             arcs.append("text")
                 .attr("x", 6)
                 .attr("dy", 15).append("textPath")
-                .attr("class", textClass(_value2))
+                .attr("class", textClass("#arc2", _value2))
                 .attr("xlink:href","#arc2")
                 .text("average (" + _value2 + "%)");
 
             var path3 = arcs.selectAll("#arc3").data(data);
             path3.enter().append("path")
                 .attr("id","arc3")
-                .attr("class", fillClass(_value3))
+                .attr("class", fillClass("#arc3", _value3))
                 .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
                 .attr("d", _arc3);
 
             arcs.append("text")
                 .attr("x", 6)
                 .attr("dy", 15).append("textPath")
-                .attr("class", textClass(_value3))
+                .attr("class", textClass("#arc3", _value3))
                 .attr("xlink:href","#arc3")
                 .text("you (" + _value3 + "%)");
 
@@ -294,22 +294,17 @@ function radialProgress(parent) {
         });
     }
 
-    function textClass(value) {
-        if( value < 25 ) {
-            return "label0";
-        }
+    function textClass(id, value) {
         return "label";
     }
 
-    function fillClass(value) {
-        if( value < 25 ) {
-            return "arc0"; // green-level-0
-        } else if( value < 50 ) {
-            return "arc1"; // green-level-1
-        } else if( value < 75 ) {
+    function fillClass(id, value) {
+        if( id === "#arc1" ) {
+            return "arc3"; // green-level-3
+        } if( id === "#arc2" ) {
             return "arc2"; // green-level-2
         }
-        return "arc3"; // green-level-3
+        return "arc1"; // green-level-1
     }
 
     function labelTween(a) {
