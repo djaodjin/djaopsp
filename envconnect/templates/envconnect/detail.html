@@ -59,7 +59,13 @@
                         </button>
                         {% endif %}
                         <div class="text-center">
-                        {{col_header.title}}
+                            {% if col_header.title|is_icon %}
+                            <img src="{{col_header.title|asset}}" width="32" hegiht="32" data-toggle="tooltip" title="{{col_header.tooltip}}" />
+                            {% else %}
+                            <span data-toggle="tooltip" title="{{col_header.tooltip}}" style="cursor: default;">
+                                    {{col_header.title}}
+                            </span>
+                            {% endif %}
                         </div>
                     </th>
                     {% endfor %}

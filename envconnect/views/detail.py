@@ -74,13 +74,17 @@ class DetailView(BreadcrumbMixin, TemplateView):
             value_headers = []
             for col_header in [
                     {"slug": "environmental_value",
-                     "title": "Environmental value"},
+                     "title": "/static/img/green-leaf.png",
+                     "tooltip": "Environmental value"},
                     {"slug": "business_value",
-                     "title": "Ops/Maintenance value"},
+                     "title": "/static/img/cogs.png",
+                     "tooltip": "Ops/Maintenance value"},
                     {"slug": "profitability",
-                     "title": "Financial value"},
+                     "title": "/static/img/dollar-sign.png",
+                     "tooltip": "Financial value"},
                     {"slug": "implementation_ease",
-                     "title": "Implementation ease"},
+                     "title": "/static/img/shovel.png",
+                     "tooltip": "Implementation ease"},
                     {"slug": "avg_value",
                      "title": "Average Value"}]:
                 if is_envconnect_manager:

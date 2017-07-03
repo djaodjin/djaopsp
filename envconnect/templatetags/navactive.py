@@ -28,6 +28,14 @@ def assessment_choices(tag):
     return Consumption.ASSESSMENT_CHOICES.get(tag,
         Consumption.ASSESSMENT_CHOICES.get('default'))
 
+@register.filter
+def is_icon(title):
+    """
+    Returns True if the title passed as an argument can be interpreted
+    as a path to an image asset.
+    """
+    return title.endswith('.png')
+
 
 @register.filter
 def as_icon(breadcrumbs):
