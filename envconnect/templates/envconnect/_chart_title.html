@@ -1,0 +1,18 @@
+<div class="chart-title">
+    <div class="icon-benchmark {% if practice|containsTag:'management' %} grey{% else %} orange{% endif %}">
+        {% if practice.text %}
+        <img class="icon-equipment" src="{{practice.text}}">
+        {% else %}
+        <div class="icon-equipment">{{practice.title}}</div>
+        {% endif %}
+    </div>
+    <div class="title">
+        <h3>{{practice.breadcrumbs.0}}</h3>
+        {% if practice.breadcrumbs|length > 1 %}
+        <h4>{{practice.breadcrumbs.1}}</h4>
+        {% endif %}
+        {% if practice.breadcrumbs|length > 2 %}
+        <h5>{{practice.breadcrumbs|last}}</h5>
+        {% endif %}
+    </div>
+</div>

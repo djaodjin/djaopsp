@@ -96,7 +96,6 @@ class BenchmarkMixin(ReportMixin):
                   "score_weight": 1.0,
                   "text": "/media/envconnect/production.png",
                   "title": "Production",
-                  "subtitle": "Energy Efficiency",
                   "tag": "system",
                   "slug": "energy-efficiency"
              },{}],
@@ -138,7 +137,6 @@ class BenchmarkMixin(ReportMixin):
                 if settings.TAG_SCORECARD in level_detail[0].get('tag', ''):
                     transparent_to_rollover = False
                     level_detail[0].update({
-                        'subtitle': level_detail[0].get('title', ''),
                         'title': root.title,
                         'text': root.text})
             if transparent_to_rollover:
@@ -195,36 +193,34 @@ class BenchmarkMixin(ReportMixin):
             leafs.update(self.get_leafs(level_detail, path=key))
         return leafs
 
-    def get_charts(self, groups, path=None, title=None, text=None, tag=None):
+    def get_charts(self, groups, path=None, text=None, tag=None):
         #pylint:disable=too-many-arguments
         charts = []
         complete = True
         if path is None:
-            path = '/'
+            path = ""
         for icon_tuple in groups:
             icon_path = path + '/' + icon_tuple[0].slug
             nb_answers = getattr(icon_tuple[0], 'nb_answers', 0)
             nb_questions = getattr(icon_tuple[0], 'nb_questions', 1)
             complete &= (nb_answers == nb_questions)
-            icon = {
-                'slug': icon_tuple[0].slug,
-                'title': icon_tuple[0].title if title is None else title,
-                'text': icon_tuple[0].text if text is None else text,
-                'tag': icon_tuple[0].tag if tag is None else tag,
-                'subtitle': icon_tuple[0].title if title is not None else None,
-                'score_weight': ScoreWeight.objects.from_path(icon_path),
-                'nb_answers': nb_answers,
-                'nb_questions': getattr(icon_tuple[0], 'nb_questions', 0),
-                'distribution': getattr(icon_tuple[0], 'distribution', {})
-            }
             if (icon_tuple[0].tag
                 and settings.TAG_SCORECARD in icon_tuple[0].tag):
+                _, trail = self.get_breadcrumbs(icon_path)
+                breadcrumbs = [tup[0].title for tup in trail]
+                icon = {
+                    'slug': icon_tuple[0].slug,
+                    'breadcrumbs': breadcrumbs,
+                    'text': icon_tuple[0].text if text is None else text,
+                    'tag': icon_tuple[0].tag if tag is None else tag,
+                    'score_weight': ScoreWeight.objects.from_path(icon_path),
+                    'nb_answers': nb_answers,
+                    'nb_questions': getattr(icon_tuple[0], 'nb_questions', 0),
+                    'distribution': getattr(icon_tuple[0], 'distribution', {})
+                }
                 charts += [icon]
             sub_charts, _ = self.get_charts(
                 icon_tuple[1], path=icon_path,
-                title=icon_tuple[0].title
-                    if icon_tuple[0].text
-                        and icon_tuple[0].text.endswith('.png') else None,
                 text=icon_tuple[0].text
                     if icon_tuple[0].text
                         and icon_tuple[0].text.endswith('.png') else None,
@@ -242,7 +238,6 @@ class BenchmarkMixin(ReportMixin):
         #pylint:disable=too-many-locals
         result_metrics = {
             'tag': rollup_tree[0].get('tag', ""),
-            'subtitle': rollup_tree[0].get('subtitle', ""),
             'title': rollup_tree[0].get('title', ""),
             'text': rollup_tree[0].get('text', ""),
             'score_weight': rollup_tree[0].get('score_weight', ""),

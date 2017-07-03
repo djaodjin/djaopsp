@@ -197,21 +197,7 @@
       {% with practice=chart %}
       <div class="col-md-4">
           <div id="{{practice.slug}}" class="chart-container">
-              <div class="chart-title">
-                  <div class="icon-benchmark {% if practice|containsTag:'management' %} grey{% else %} orange{% endif %}">
-                      {% if practice.text %}
-                      <img class="icon-equipment" src="{{practice.text}}">
-                      {% else %}
-                      <div id="{{practice.slug}}" class="icon-equipment">{{practice.title}}</div>
-                      {% endif %}
-                  </div>
-                  <div class="title">
-                      <h3>{{practice.title}}</h3>
-                      {% if practice.subtitle %}
-                      <h4>{{practice.subtitle}}</h4>
-                      {% endif %}
-                  </div>
-              </div>
+              {% include "envconnect/_chart_title.html" with practice=practice %}
               <div>
                   <div class="chart-content c3" id="chart_{{practice.slug}}" style="width:250px;height:120px;">
                     <div id="chart-{{practice.slug}}" class="distribution-chart c3">
