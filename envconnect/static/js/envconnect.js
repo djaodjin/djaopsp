@@ -748,7 +748,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( practice[0].consumption ) {
             return "bestpractice indent-header-" + indentSpace;
         }
-        return "heading indent-header-" + indentSpace;
+        return "heading-" + indentSpace + " indent-header-" + indentSpace;
     }
 
     $scope.toLowerLevel = function($event, prefix) {
