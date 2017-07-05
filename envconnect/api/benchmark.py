@@ -194,7 +194,7 @@ class BenchmarkMixin(ReportMixin):
         return leafs
 
     def get_charts(self, groups, path=None, text=None, tag=None):
-        #pylint:disable=too-many-arguments
+        #pylint:disable=too-many-arguments,too-many-locals
         charts = []
         complete = True
         if path is None:

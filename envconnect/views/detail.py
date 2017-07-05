@@ -8,7 +8,7 @@ from django.views.generic import TemplateView
 
 from ..mixins import BreadcrumbMixin
 from ..models import ColumnHeader
-from ..templatetags.navactive import active_category
+
 
 class DetailView(BreadcrumbMixin, TemplateView):
 
