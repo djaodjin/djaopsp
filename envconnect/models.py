@@ -221,7 +221,7 @@ class Consumption(SurveyQuestion):
             if nb_yes_no:
                 rate = (answers.filter(
                     text__in=Consumption.PRESENT).count() * 100
-                ) / nb_yes_no
+                ) // nb_yes_no
         return rate
 
 

@@ -216,6 +216,10 @@ envconnectControllers.controller("EnvconnectCtrl",
         return (consumption.implemented === 'Yes' || consumption.implemented === 'Work in progress');
     }
 
+    $scope.implementationRateWidth = function(practice) {
+        return {width: "" + practice[0].consumption.rate  + "%"};
+    }
+
     /** Decorates the tree with two sets, ``capturable`` and ``captured``.
         ``capturable`` aggregates the total savings and cost that can be
         captured if a user was to add all best practices not yet implemented

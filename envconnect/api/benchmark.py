@@ -386,14 +386,7 @@ class BenchmarkMixin(ReportMixin):
                 nb_questions = 1
                 answers = Answer.objects.filter(question=consumption)
                 nb_respondents = answers.count()
-                if nb_respondents:
-                    nb_yes_no = answers.filter(
-                        text__in=(Consumption.PRESENT + Consumption.ABSENT)
-                    ).count()
-                    if nb_yes_no:
-                        rate = (answers.filter(
-                            text__in=Consumption.PRESENT).count() * 100
-                        ) / nb_yes_no
+                rate = consumption.get_rate()
                 opportunity = consumption.avg_value * ((100 + rate) / 100.0)
                 implemented = ''
                 for answer in answers:
