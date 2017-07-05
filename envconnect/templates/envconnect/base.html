@@ -293,6 +293,9 @@ app.constant('settings', {
 });
 
 jQuery(document).ready(function($) {
+    var doc = document.documentElement;
+    doc.setAttribute('data-useragent', navigator.userAgent);
+
     $("#add-element-modal").on('shown.bs.modal', function () {
       $("#add-element-modal [name=\"title\"]").focus();
     });

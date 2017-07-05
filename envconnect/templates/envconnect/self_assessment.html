@@ -17,8 +17,9 @@
                          inside a class="tab-content collapse". -->
                     <input id="toggle-results-{{icon.slug}}"
                            type="checkbox" toggle-checkbox data-toggle="toggle"
-                           data-on="Self-assessment"
-                           data-off="Results" data-offstyle="green-level-2"
+                           data-on="<span>Self-assessment</span>"
+                           data-off="<span>Results</span>"
+                           data-offstyle="green-level-2"
                            data-width="125px" data-height="34px"
                            ng-model="scoreToggle"
                            ng-disabled="allAnswered('tab-{{icon.slug}}')">
