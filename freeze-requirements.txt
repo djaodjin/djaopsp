@@ -1,7 +1,8 @@
 # transitive dependencies from production and dev-
 alabaster==0.7.10
 appdirs==1.4.3
-astroid==1.5.2
+# astroid==1.5.2 is thrown into an infinite loop
+astroid==1.5.3
 Babel==2.4.0
 backports.functools-lru-cache==1.4
 beautifulsoup4==4.6.0
