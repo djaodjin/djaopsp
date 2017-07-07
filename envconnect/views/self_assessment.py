@@ -101,9 +101,9 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
         # XXX if we do that, we shouldn't use from_root (i.e. system pages)
         _, trail = self.breadcrumbs
         trail_head = ("/"
-            + trail[0][0].slug.encode('utf-8') if six.PY2 else trail[0][0].slug)
+            + trail[0][0].slug.decode('utf-8') if six.PY2 else trail[0][0].slug)
         from_trail_head = "/" + "/".join([
-            element.slug.encode('utf-8') if six.PY2 else element.slug
+            element.slug.decode('utf-8') if six.PY2 else element.slug
             for element in self.get_full_element_path(trail_head)])
         self.root = self._build_tree(trail[0][0], from_trail_head, nocuts=True)
         self.attach_benchmarks(self.root, view_response=self.sample)

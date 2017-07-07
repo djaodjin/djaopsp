@@ -26,8 +26,8 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
             request, *args, **kwargs)
 
     def perform_change(self, sources, targets, rank=None):
-        moved = '/' + '/'.join([source.slug for source in sources])
-        attach = "/" + '/'.join([target.slug for target in targets])
+        moved = "/" + "/".join([source.slug for source in sources])
+        attach = "/" + "/".join([target.slug for target in targets])
         if Consumption.objects.filter(path=attach).exists():
             raise ValidationError({'detail': "Cannot move '%s' under '%s'"
             % (sources[-1].title, targets[-1].title)})
@@ -102,10 +102,10 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
                     break
         with transaction.atomic():
             moved_node = moved_path_elements[-1][0]
-            new_path = "/%s/%s" % ('/'.join([
+            new_path = "/%s/%s" % ("/".join([
                 part[0].slug for part in prefix_elements]), moved_node.slug)
             common_prefix = os.path.commonprefix([moved, new_path])
-            if len(common_prefix) == 0 or common_prefix == '/':
+            if len(common_prefix) == 0 or common_prefix == "/":
                 raise ValidationError(
                     {'detail': "'%s' and '%s' do not share a root prefix." % (
                     moved, attach)})

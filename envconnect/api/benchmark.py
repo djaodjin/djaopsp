@@ -104,13 +104,13 @@ class BenchmarkMixin(ReportMixin):
         """
         if path is None:
             path = ''
-        elif not path.startswith('/'):
-            path = '/' + path
+        elif not path.startswith("/"):
+            path = "/" + path
         if roots is None:
             roots = PageElement.objects.get_roots()
         details = {}
         for root in roots:
-            base = path + '/' + root.slug
+            base = path + "/" + root.slug
             levels = root.relationships.all()
             metrics = {
                 'slug': root.slug,
@@ -183,8 +183,8 @@ class BenchmarkMixin(ReportMixin):
             rollup_tree = self.build_aggregate_tree()
         if path is None:
             path = ''
-        elif not path.startswith('/'):
-            path = '/' + path
+        elif not path.startswith("/"):
+            path = "/" + path
 
         if len(rollup_tree[1].keys()) == 0:
             return {path: rollup_tree}
@@ -200,7 +200,7 @@ class BenchmarkMixin(ReportMixin):
         if path is None:
             path = ""
         for icon_tuple in groups:
-            icon_path = path + '/' + icon_tuple[0].slug
+            icon_path = path + "/" + icon_tuple[0].slug
             nb_answers = getattr(icon_tuple[0], 'nb_answers', 0)
             nb_questions = getattr(icon_tuple[0], 'nb_questions', 1)
             complete &= (nb_answers == nb_questions)
@@ -312,7 +312,7 @@ class BenchmarkMixin(ReportMixin):
         """
         if prefix is None:
             prefix = "/"
-        if not prefix.startswith('/'):
+        if not prefix.startswith("/"):
             prefix = "/" + prefix
         if not distribution_tree[1]:
             return [], True
@@ -369,7 +369,7 @@ class BenchmarkMixin(ReportMixin):
     def attach_benchmarks_recursive(self, root, path=None, view_response=None):
         #pylint:disable=too-many-locals,too-many-statements
         if path is None:
-            path = '/' + root[0].slug
+            path = "/" + root[0].slug
         score_weight = ScoreWeight.objects.from_path(path)
         setattr(root[0], 'score_weight', score_weight)
         numerators = {}
@@ -734,8 +734,8 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
     def get_queryset(self):
         #pylint:disable=too-many-locals
         from_root, trail = self.breadcrumbs
-        parts = from_root.split('/')
-        root_prefix = '/'.join(parts[:-1]) if len(parts) > 1 else ""
+        parts = from_root.split("/")
+        root_prefix = "/".join(parts[:-1]) if len(parts) > 1 else ""
         root = trail[-1][0] if len(trail) > 0 else None
         rollup_tree = self.rollup_scores(root=root, root_prefix=from_root)
         distributions_tree = self.create_distributions(
