@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import csv, datetime, json, logging, io
 
+from django.utils import six
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from survey.models import Response, SurveyModel
@@ -67,6 +68,12 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
             tree[parts[0]] = {}
         return self.insert_path(tree[parts[0]], parts[1:])
 
+    @staticmethod
+    def writerow(csv_writer, row):
+        csv_writer.writerow([
+            rec.encode('utf-8') if six.PY2 else rec
+            for rec in row])
+
     def write_tree(self, root, csv_writer, indent=''):
         """
         The *root* parameter looks like:
@@ -82,9 +89,9 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
                         row += ['X']
                     else:
                         row += ['']
-            csv_writer.writerow([rec.encode('utf-8') for rec in row])
+            self.writerow(csv_writer, row)
         else:
-            csv_writer.writerow([indent + root[0].title])
+            self.writerow(csv_writer, [indent + root[0].title])
             for element in root[1]:
                 self.write_tree(element, csv_writer, indent=indent + '  ')
 
@@ -98,13 +105,17 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
         self.root = self._build_tree(trail[0][0], from_trail_head, nocuts=True)
         self.attach_benchmarks(self.root, view_response=self.sample)
 
-        content = io.StringIO()
+        if six.PY2:
+            content = io.BytesIO()
+        else:
+            content = io.StringIO()
         csv_writer = csv.writer(content)
-        csv_writer.writerow(["The Sustainability Project - Self-assessment"])
-        csv_writer.writerow([self.root[0].title])
+        self.writerow(
+            csv_writer, ["The Sustainability Project - Self-assessment"])
+        self.writerow(csv_writer, [self.root[0].title])
         indent = ' '
         for nodes in self.root[1]:
-            csv_writer.writerow([indent + nodes[0].title]
+            self.writerow(csv_writer, [indent + nodes[0].title]
                 + self.get_headings(nodes[0].tag))
             for elements in nodes[1]:
                 self.write_tree(elements, csv_writer, indent=indent + ' ')

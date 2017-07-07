@@ -12,7 +12,6 @@ from survey.models import Response
 
 from ..mixins import ReportMixin
 from ..models import Consumption
-from ..templatetags.navactive import category_entry
 
 
 LOGGER = logging.getLogger(__name__)
