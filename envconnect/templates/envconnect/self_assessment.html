@@ -36,8 +36,7 @@
                       {% for choice in choices %}
                       <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
                           <div>{{choice}}</div>
-<button class="btn btn-select-all" href="" ng-click="selectAll($event, '{{choice}}')"><i class="fa fa-circle-thin fa-2x"></i></button>
-</th>
+                      </th>
                       {% endfor %}
                     </tr>
                 </thead>
@@ -75,7 +74,7 @@
                         <td class="text-center cell-fix-width-5">
                             <button ng-if="practice[0].consumption === null"
                               class="btn btn-select-all" href=""
-                              ng-click="selectAll($event, '{{choice}}')"><i class="fa fa-circle-thin fa-2x"></i></button>
+                              ng-click="selectAll($event, '{{choice}}')"><i class="fa fa-circle-thin"></i></button>
                             <label ng-if="practice[0].consumption !== null"
                               for="{{choice|slugify}}-[[$index]]"
                               style="margin-bottom:0">
