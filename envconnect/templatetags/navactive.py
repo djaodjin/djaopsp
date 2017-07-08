@@ -52,6 +52,7 @@ def get_industry_charts(organization=None):
     charts = PageElement.objects.filter(
         tag__contains='industry').filter(tag__contains='enabled')
     for chart in charts:
+        chart.breadcrumbs = [chart.title]
         chart.urls = {'matrix_api': reverse(
             'matrix_api', args=(organization, chart.slug,))}
     return charts

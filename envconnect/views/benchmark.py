@@ -1,7 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import logging, json
+import logging, json, re
 
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -156,19 +156,55 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         return get_object_or_404(queryset, slug=candidate)
 
     def get_context_data(self, *args, **kwargs):
+        #pylint:disable=too-many-locals
+        candidate = self.kwargs.get(self.matrix_url_kwarg)
+        if candidate.startswith("/"):
+            candidate = candidate[1:]
+        parts = candidate.split("/")
+        if len(parts) > 1:
+            candidate = parts[0]
+        try:
+            PageElement.objects.get(slug=candidate)
+        except PageElement.DoesNotExist:
+            # It is not a breadcrumb path (ex: totals).
+            #pylint:disable=unsubscriptable-object
+            del self.kwargs[self.matrix_url_kwarg]
+
         context = super(PortfoliosDetailView, self).get_context_data(
             *args, **kwargs)
         context.update({'available_matrices': self.get_available_matrices()})
+
         from_root, trail = self.breadcrumbs
-        root = self._build_tree(trail[-1][0], from_root)
-        charts, _ = self.get_charts(root[1])
+        parts = from_root.split("/")
+        if len(parts) > 1:
+            root = self._build_tree(trail[-1][0], from_root)
+            charts, _ = self.get_charts(root[1])
+        else:
+            # totals
+            charts = []
+            for cohort in self.object.cohorts.all():
+                candidate = cohort.slug
+                look = re.match(r"(\S+)(-\d+)", candidate)
+                if look:
+                    candidate = look.group(1)
+                element = PageElement.objects.filter(slug=candidate).first()
+                charts += [{
+                    'slug': cohort.slug,
+                    'breadcrumbs': [cohort.title],
+                    'text': element.text if element is not None else "",
+                    'tag': element.tag if element is not None else ""
+                }]
         url_kwargs = self.get_url_kwargs()
         url_kwargs.update({'matrix': self.object})
         for chart in charts:
-            matrix_slug = '/'.join([str(self.object), chart['slug']])
+            candidate = chart['slug']
+            look = re.match(r"(\S+)(-\d+)", candidate)
+            if look:
+                matrix_slug = '/'.join([look.group(1)])
+            else:
+                matrix_slug = '/'.join([str(self.object), candidate])
             url_kwargs.update({'matrix': matrix_slug})
-            api_urls = {'matrix_api': reverse(
-                'matrix_api', kwargs=url_kwargs)}
+            api_urls = {'matrix_api': reverse('matrix_api', kwargs=url_kwargs)}
             chart.update({'urls': api_urls})
         context.update({'charts': charts})
         return context

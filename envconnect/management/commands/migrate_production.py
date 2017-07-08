@@ -30,6 +30,13 @@ class Command(BaseCommand):
             self.stdout.write("replace %s by %s" % (old_prefix, new_prefix))
             consumption.path = consumption.path.replace(old_prefix, new_prefix)
             consumption.save()
+        for predicate in EditablePredicate.objects.filter(
+            operand__startswith=old_prefix):
+            self.stdout.write("(predicate) replace %s by %s" % (
+                old_prefix, new_prefix))
+            predicate.operand = predicate.operand.replace(
+                old_prefix, new_prefix)
+            predicate.save()
 
     def rename_consumption(self):
         for element in PageElement.objects.filter(

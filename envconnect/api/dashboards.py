@@ -1,7 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import re
+import logging, re
 
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -10,6 +10,8 @@ from survey.models import EditableFilter
 from survey.utils import get_account_model
 
 from .benchmark import BenchmarkMixin
+
+LOGGER = logging.getLogger(__name__)
 
 
 class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
@@ -39,17 +41,24 @@ class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
         ...
         ]
     """
+    @staticmethod
+    def as_metric_candidate(cohort_slug):
+        look = re.match(r"(\S+)(-\d+)", cohort_slug)
+        if look:
+            return look.group(1)
+        return cohort_slug
 
     def get_accounts(self):
-        queryset = super(TotalScoreBySubsectorAPIView, self).get_accounts()
+        queryset = super(
+            TotalScoreBySubsectorAPIView, self).get_accounts().filter(
         # WHERE user = request.user
         #     AND (request_key IS NULL
         #          OR (request_key IS NOT NULL AND grant_key IS NOT NULL))
-        return queryset.filter(
             Q(role__request_key__isnull=True)
             | (Q(role__request_key__isnull=False)
                & Q(role__grant_key__isnull=False)),
             role__user=self.request.user)
+        return queryset
 
     def aggregate_scores(self, metric, cohorts, cut=None, accounts=None):
         #pylint:disable=unused-argument
@@ -61,10 +70,14 @@ class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
         for cohort in cohorts:
             score = 0
             if isinstance(cohort, EditableFilter):
+                if metric.slug == 'totals':
+                    # Hard-coded: on the totals matrix we want to use
+                    # a different metric for each cohort/column shown.
+                    rollup_scores = self.get_drilldown(
+                        rollup_tree, self.as_metric_candidate(cohort.slug))
                 includes, excludes = cohort.as_kwargs()
                 nb_accounts = 0
-                for account in accounts.filter(
-                        **includes).exclude(**excludes):
+                for account in accounts.filter(**includes).exclude(**excludes):
                     account_score = rollup_scores.get(account.pk, None)
                     if account_score is not None:
                         score += account_score.get('normalized_score', 0)
@@ -90,7 +103,7 @@ class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
                 pass
         if likely_metric is None and self.matrix is not None:
             likely_metric = reverse('scorecard_organization',
-                args=(cohort_slug, "/%s" % self.matrix.slug))
+                args=(cohort_slug, "/sustainability-%s" % self.matrix.slug))
         if likely_metric:
             likely_metric = self.request.build_absolute_uri(likely_metric)
         return likely_metric

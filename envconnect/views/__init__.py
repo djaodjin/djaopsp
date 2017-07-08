@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from deployutils.apps.django.redirects import (
     AccountRedirectView as AccountRedirectBaseView)
-from survey.models import Response
+from survey.models import Matrix
 
 from ..mixins import ReportMixin
 from ..models import Consumption
@@ -27,3 +27,18 @@ class AccountRedirectView(ReportMixin, AccountRedirectBaseView):
             return http.HttpResponseRedirect(
                 self.get_redirect_url(*args, **kwargs))
         return super(AccountRedirectView, self).get(request, *args, **kwargs)
+
+
+class MyTSPRedirectView(AccountRedirectView):
+
+    def get(self, request, *args, **kwargs):
+        candidates = Matrix.objects.filter(
+            account__slug__in=self.accessibles(roles=self.redirect_roles))
+        if not candidates:
+            return self.response_class(
+                request=self.request,
+                template='envconnect/share/requests_locked.html',
+                context={'request': self.request},
+                using=self.template_engine,
+                content_type=self.content_type)
+        return super(MyTSPRedirectView, self).get(request, *args, **kwargs)

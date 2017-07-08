@@ -842,10 +842,10 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
         if( !$scope.scoreToggle ) {
             urlParts.push('portfolios', 'totals');
+            window.location = urlParts.join('/') + '/';
         } else {
-            urlParts.push('reporting');
+            window.location = defaultUrl;
         }
-        window.location = urlParts.join('/') + '/';
     };
 
     /** Called when a user clicks on the "Improvement Planning" checkbox.
@@ -1043,8 +1043,14 @@ envconnectControllers.controller("itemsListCtrl",
                             }
                             $scope.items.results[idx].$resolved = true;
                             if( found !== null ) {
-                                $scope.items.results[idx].last_activity_at = found.last_activity_at;
-                                $scope.items.results[idx].normalized_score = found.normalized_score;
+                                $scope.items.results[idx].last_activity_at
+                                    = found.last_activity_at;
+                                $scope.items.results[idx].normalized_score
+                                    = found.normalized_score;
+                                $scope.items.results[idx].nb_answers
+                                    = found.nb_answers;
+                                $scope.items.results[idx].nb_questions
+                                    = found.nb_questions;
                             }
                         }
                    }, function(resp) { // error

@@ -1,12 +1,16 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
+import logging
+
 from rest_framework import generics
 from survey.utils import get_account_model
 
 from ..mixins import PermissionMixin
 from ..serializers import AccountSerializer
 from .benchmark import BenchmarkMixin
+
+LOGGER = logging.getLogger(__name__)
 
 
 class SupplierListAPIView(BenchmarkMixin, PermissionMixin,
@@ -52,6 +56,8 @@ class SupplierListAPIView(BenchmarkMixin, PermissionMixin,
                         dct.update({'last_activity_at': created_at})
                     nb_answers = score.get('nb_answers', 0)
                     nb_questions = score.get('nb_questions', 0)
+                    dct.update({
+                        'nb_answers': nb_answers, 'nb_questions': nb_questions})
                     if nb_answers == nb_questions:
                         normalized_score = score.get('normalized_score', None)
                     else:

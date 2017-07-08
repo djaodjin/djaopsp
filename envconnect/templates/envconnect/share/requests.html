@@ -94,11 +94,11 @@
           <span ng-if="entry.$resolved && entry.request_key">Requested</span>
           <span ng-if="entry.$resolved && !entry.request_key">[[entry.last_activity_at ? (entry.last_activity_at|date: shortDate) : 'No activity']]</span>
         </td>
-        <td>
+        <td style="line-height:1em;">
           <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>
           <span ng-if="entry.$resolved && entry.request_key">Requested</span>
-          <span ng-if="entry.$resolved && !entry.request_key && isComplete(entry)">Complete</span>
-          <span ng-if="entry.$resolved && !entry.request_key && !isComplete(entry)">Incomplete</span>
+          <div ng-if="entry.$resolved && !entry.request_key && isComplete(entry)">Complete<!--<br /><span style="font-size:0.7em;">([[entry.nb_answers]] answers)</span>--></div>
+          <div ng-if="entry.$resolved && !entry.request_key && !isComplete(entry)">Incomplete<!--<br /><span style="font-size:0.7em;">([[entry.nb_answers]] of [[entry.nb_questions]])</span>--></div>
         </td>
         <td>
           <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>

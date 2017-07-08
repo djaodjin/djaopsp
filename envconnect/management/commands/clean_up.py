@@ -43,8 +43,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         #pylint:disable=too-many-locals
         do_delete = options['do_delete']
-        entry_points = INDUSTRIES \
-            + ['basic-%s' % ind for ind in INDUSTRIES]
+        entry_points = INDUSTRIES
         roots = PageElement.objects.filter(slug__in=entry_points)
         elements = []
         for node in roots:

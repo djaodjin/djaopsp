@@ -5,14 +5,12 @@ from django.conf import settings
 from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as static_serve
 from urldecorators import include, url
-from deployutils.apps.django.redirects import (
-    AccountRedirectView as AccountRedirectBaseView)
 
 from ..api.dashboards import TotalScoreBySubsectorAPIView
 from ..api.suppliers import SupplierListAPIView
 from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
     url_direct)
-from ..views import AccountRedirectView
+from ..views import AccountRedirectView, MyTSPRedirectView
 from ..views.best_practices import (BestPracticeDetailView,
     FollowBestPracticeView, UnfollowBestPracticeView, BestPracticeVoteView)
 from ..views.benchmark import (BenchmarkView, PortfoliosDetailView,
@@ -80,12 +78,12 @@ urlpatterns += [
 
     # authenticated user
     url_authenticated(r'app/info/portfolios(?P<path>%s)/' % settings.PATH_RE,
-        AccountRedirectBaseView.as_view(
+        MyTSPRedirectView.as_view(
             pattern_name='matrix_chart',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='envconnect_portfolio'),
     url_authenticated(r'app/info/requests/',
-        AccountRedirectBaseView.as_view(
+        MyTSPRedirectView.as_view(
             pattern_name='organization_reporting_entities',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='envconnect_share_requests'),

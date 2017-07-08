@@ -294,7 +294,8 @@ class BenchmarkMixin(ReportMixin):
 
         if distribution is not None:
             if nb_respondents > 0:
-                avg_normalized_score = sum_normalized_scores / nb_respondents
+                avg_normalized_score = int(
+                    sum_normalized_scores / nb_respondents)
             else:
                 avg_normalized_score = 0
             result_metrics.update({
@@ -461,7 +462,7 @@ class BenchmarkMixin(ReportMixin):
         root[0].nb_respondents = len(root[0].numerators)
         root[0].highest_normalized_score = highest_normalized_score
         if root[0].nb_respondents > 0:
-            root[0].avg_normalized_score = (
+            root[0].avg_normalized_score = int(
                 sum_normalized_scores / root[0].nb_respondents)
         else:
             root[0].avg_normalized_score = 0

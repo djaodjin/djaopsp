@@ -6,7 +6,6 @@ import logging
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from deployutils.apps.django import mixins as deployutils_mixins
 from answers.models import Question as AnswersQuestion
 from pages.models import RelationShip
@@ -184,8 +183,12 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
         return self._sample
 
     def get_survey(self):
-        return get_object_or_404(SurveyModel,
-            account=self.account, title=self.report_title)
+        try:
+            return SurveyModel.objects.get(
+                account=self.account, title=self.report_title)
+        except SurveyModel.DoesNotExist:
+            raise Http404("Cannot find SurveyModel(account=%s, title=%s)",
+                self.account, self.report_title)
 
     def consumptions_to_answers(self, consumptions):
         answers = {}
@@ -259,7 +262,11 @@ class BestPracticeMixin(BreadcrumbMixin):
     def question(self):
         if not hasattr(self, '_question'):
             if not self.best_practice:
-                raise Http404()
-            self._question = get_object_or_404(AnswersQuestion,
-                slug=self.best_practice.slug)
+                raise Http404("(BestPracticeMixin) Cannot find best practice.")
+            try:
+                self._question = AnswersQuestion.objects.get(
+                    slug=self.best_practice.slug)
+            except AnswersQuestion.DoesNotExist:
+                raise Http404("Cannot find AnswersQuestion(slug=%s)",
+                    self.best_practice.slug)
         return self._question
