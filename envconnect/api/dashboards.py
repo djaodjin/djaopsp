@@ -43,7 +43,7 @@ class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
     """
     @staticmethod
     def as_metric_candidate(cohort_slug):
-        look = re.match(r"(\S+)(-\d+)", cohort_slug)
+        look = re.match(r"(\S+)(-\d+)$", cohort_slug)
         if look:
             return look.group(1)
         return cohort_slug
@@ -94,7 +94,7 @@ class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
 
     def get_likely_metric(self, cohort_slug):
         likely_metric = None
-        look = re.match(r"(\S+)(-\d+)", cohort_slug)
+        look = re.match(r"(\S+)(-\d+)$", cohort_slug)
         if look:
             try:
                 likely_metric = reverse('matrix_chart', args=(self.account,

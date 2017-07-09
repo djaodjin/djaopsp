@@ -184,7 +184,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
             charts = []
             for cohort in self.object.cohorts.all():
                 candidate = cohort.slug
-                look = re.match(r"(\S+)(-\d+)", candidate)
+                look = re.match(r"(\S+)(-\d+)$", candidate)
                 if look:
                     candidate = look.group(1)
                 element = PageElement.objects.filter(slug=candidate).first()
@@ -198,7 +198,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         url_kwargs.update({'matrix': self.object})
         for chart in charts:
             candidate = chart['slug']
-            look = re.match(r"(\S+)(-\d+)", candidate)
+            look = re.match(r"(\S+)(-\d+)$", candidate)
             if look:
                 matrix_slug = '/'.join([look.group(1)])
             else:
