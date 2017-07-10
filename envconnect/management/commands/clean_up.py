@@ -13,7 +13,7 @@ from ...models import Consumption
 INDUSTRIES = [
     'boxes-and-enclosures',
     'construction',
-    'distribution',
+    'epc',
     'distribution-industry',
     'distribution-transformers',
     'energy-efficiency-contracting',
