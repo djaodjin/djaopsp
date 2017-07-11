@@ -661,7 +661,6 @@ class BenchmarkMixin(ReportMixin):
         if not 'accounts' in values:
             values['accounts'] = {}
         accounts = values['accounts']
-        slug = rollup_tree[0].get('slug', None)
         for node in six.itervalues(rollup_tree[1]):
             self.populate_rollup(node)
             for account_id, metrics in six.iteritems(
@@ -673,6 +672,11 @@ class BenchmarkMixin(ReportMixin):
                     agg_metrics['nb_answers'] = 0
                 if not 'nb_questions' in agg_metrics:
                     agg_metrics['nb_questions'] = 0
+                # With the following statement and
+                # `if nb_answers == nb_questions` later on, the total
+                # number of respondents will be incorrect only when
+                # nb_answers == nb_questions == 0
+                agg_metrics['nb_questions'] += metrics['nb_questions']
 
                 if 'created_at' in metrics:
                     if not 'created_at' in agg_metrics:
@@ -680,14 +684,10 @@ class BenchmarkMixin(ReportMixin):
                     else:
                         agg_metrics['created_at'] = max(
                             agg_metrics['created_at'], metrics['created_at'])
+
                 nb_answers = metrics['nb_answers']
-                nb_questions = metrics['nb_questions']
-                if slug != 'total-score' or nb_answers > 0:
-                    # Aggregation of total scores is different. We only want to
-                    # count scores for self-assessment that matter
-                    # for an organization's industry.
+                if nb_answers > 0:
                     agg_metrics['nb_answers'] += nb_answers
-                    agg_metrics['nb_questions'] += nb_questions
                     for key in [numerator_key, denominator_key,
                                 'improvement_numerator']:
                         agg_metrics[key] = agg_metrics.get(key, 0) + (
