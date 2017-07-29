@@ -48,6 +48,19 @@ the <a href="{{'about/'|site_prefixed}}">about page &raquo;</a>.
 										</div>
 {% if request|is_broker_manager %}
 <div class="text-center">
+{% if aliases %}
+<div style="margin-top: 15px;">
+<h4>This content is aliased through:</h4>
+{% for alias in aliases %}
+<ol class="breadcrumb env-breadcrumb">
+        <li>...</li>
+        {% for alias_breadcrumb in alias %}
+          <li>{{alias_breadcrumb.title}}</li>
+        {% endfor %}
+</ol>
+{% endfor %}
+</div>
+{% endif %}
 </div>
 {% endif %}
 									</div>

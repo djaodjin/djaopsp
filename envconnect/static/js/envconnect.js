@@ -578,6 +578,26 @@ envconnectControllers.controller("EnvconnectCtrl",
         return false;
     };
 
+    $scope.aliasElement = function(event, prefix) {
+        var form = angular.element(event.target);
+        var modalDialog = form.parents('.modal');
+        var data = {source: $scope.newElement.value.path};
+        var postUrl = settings.urls.api_alias_node.replace(/\/+$/, "")
+            + prefix + '/';
+        $http.post(postUrl, data).then(
+        function success(resp) {
+            var node = $scope.getEntriesRecursive($scope.entries, prefix);
+            node[1].push([resp.data, []]);
+            $scope.newElement.value = "";
+            modalDialog.modal('hide');
+
+        }, function(resp) { // error
+            $scope.newElement.value = "";
+            modalDialog.modal('hide');
+            showErrorMessages(resp);
+        });
+    };
+
     $scope.activeElement = {
         reload: false,
         value: {title: "", tag: ""}

@@ -1,21 +1,83 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import logging, os
+import logging
 
 from django.db import transaction
+from django.db.models import Max
 from django.http import Http404
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (get_object_or_404,
+    RetrieveUpdateDestroyAPIView)
 from rest_framework.response import Response
-from pages.models import RelationShip
-from pages.api.relationship import PageElementMoveAPIView
+from pages.models import PageElement, RelationShip
+from pages.api.relationship import (PageElementAliasAPIView,
+    PageElementMoveAPIView)
+from survey.models import SurveyModel
 
 from ..mixins import BestPracticeMixin
 from ..models import Consumption
-from ..serializers import MoveRankSerializer
+from ..serializers import PageElementSerializer
 
 LOGGER = logging.getLogger(__name__)
+
+
+class BestPracticeAliasAPIView(PageElementAliasAPIView):
+
+    report_title = 'Best Practices Report'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        sources = self.get_full_element_path(serializer.validated_data.get(
+            'source'))
+        node = sources[-1]
+        prefix = self.kwargs.get('path', None)
+        try:
+            node.consumption = Consumption.objects.get(
+                path=prefix + '/' + node.slug)
+        except Consumption.DoesNotExist:
+            pass
+        data = PageElementSerializer(
+            context={'prefix': prefix}).to_representation(node)
+        headers = self.get_success_headers(data)
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_change(self, sources, targets, rank=None):
+        alias = "/" + "/".join(
+            [target.slug for target in targets + [sources[-1]]])
+        aliased = "/" + "/".join([source.slug for source in sources])
+        with transaction.atomic():
+            super(BestPracticeAliasAPIView, self).perform_change(
+                sources, targets, rank=rank)
+            try:
+                consumption = Consumption.objects.get(path=aliased)
+                survey = get_object_or_404(
+                    SurveyModel.objects.all(), title=self.report_title)
+                if rank is None:
+                    last_rank = survey.questions.aggregate(Max('rank')).get(
+                        'rank__max', 0)
+                    rank = 0 if last_rank is None else last_rank + 1
+                Consumption.objects.get_or_create(path=alias,
+                    defaults={
+                        'environmental_value': consumption.environmental_value,
+                        'business_value': consumption.business_value,
+                        'implementation_ease': consumption.implementation_ease,
+                        'profitability': consumption.profitability,
+                        'avg_energy_saving': consumption.avg_energy_saving,
+                        'avg_fuel_saving': consumption.avg_fuel_saving,
+                        'capital_cost_low': consumption.capital_cost_low,
+                        'capital_cost_high': consumption.capital_cost_high,
+                        'capital_cost': consumption.capital_cost,
+                        'payback_period': consumption.payback_period,
+                        'survey': survey,
+                        'rank': rank
+                    })
+            except Consumption.DoesNotExist:
+                pass
+
 
 
 class BestPracticeMoveAPIView(PageElementMoveAPIView):
@@ -46,8 +108,119 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
 
 # XXX should not derive from BestPracticeMixin but PageElement instead?
 class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
+    """
+    This API end-point manages a content element referenced by a *path*
+    from the root of the content hierarchy.
 
-    serializer_class = MoveRankSerializer
+    ``GET`` returns the content tree rooted at the content element referenced
+    by *path*. It includes the title, text and, if applicable, the metrics
+    associated to the content elements in the tree.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/content/detail/boxes-enclosures/energy-efficiency/
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        [
+          {
+            "slug": "energy-efficiency",
+            "path": "/boxes-enclosures/energy-efficiency",
+            "title": "Energy Efficiency",
+            "tag": "system",
+            "rank": null,
+            "is_empty": true,
+            "consumption": null
+          },
+          [
+            [
+              {
+                "slug": "air-flow",
+                "path": "/boxes-enclosures/energy-efficiency/air-flow",
+                "title": "Adjust air/fuel ratio",
+                "tag": "",
+                "rank": 0,
+                "is_empty": false,
+                "consumption": {
+                   "path": "/boxes-enclosures/energy-efficiency/air-flow",
+                   "text": "Adjust air/fuel ratio",
+                   "avg_energy_saving": "* * * *",
+                   "avg_fuel_saving": "-",
+                   "capital_cost": "$$",
+                   "payback_period": "0-1.8 (0.3)",
+                   "environmental_value": 1,
+                   "business_value": 1,
+                   "profitability": 3,
+                   "implementation_ease": 1,
+                   "avg_value": 2,
+                   "rank": 3,
+                   "nb_respondents": 0,
+                   "rate": 0,
+                   "opportunity": 0,
+                   "implemented": "",
+                   "planned": false
+                 }
+              },
+              []
+            ]
+          ]
+        ]
+
+    ``PUT`` updates the title, text and, if applicable, the metrics associated
+    associated to the content element referenced by *path*.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        PUT /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/
+
+        {
+          "title": "Adjust air/fuel ratio",
+          "tag": "",
+          "consumption": {
+            "path": "/boxes-enclosures/energy-efficiency/air-flow",
+            "text": "Adjust air/fuel ratio",
+            "avg_energy_saving": "* * * *",
+            "avg_fuel_saving": "-",
+            "capital_cost": "$$",
+            "payback_period": "0-1.8 (0.3)",
+            "environmental_value": 1,
+            "business_value": 1,
+            "profitability": 3,
+            "implementation_ease": 1,
+            "avg_value": 2,
+            "rank": 3,
+            "nb_respondents": 0,
+            "rate": 0,
+            "opportunity": 0,
+            "implemented": "",
+            "planned": false
+           }
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+    XXX
+
+   ``DELETE`` removes content element referenced by path from the content
+    hierarchy.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        DELETE /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/
+
+    """
+    queryset = PageElement.objects.all()
+    serializer_class = PageElementSerializer
 
     def get_object(self):
         return self.best_practice
@@ -62,61 +235,43 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
     def post(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
-    def perform_destroy(self, instance):
-        LOGGER.debug("XXX perform_destroy(%s)", instance)
-        # XXX delete attached consumption
-        return super(BestPracticeAPIView, self).perform_destroy(instance)
+    def _destroy_trees(self, roots):
+        if not roots:
+            return
+        edges = RelationShip.objects.filter(orig_element__in=roots)
+        nodes = PageElement.objects.filter(
+            pk__in=[edge.dest_element_id for edge in edges])
+        edges.delete()
+        aliases = RelationShip.objects.filter(dest_element__in=nodes)
+        self._destroy_trees(
+            nodes.exclude(pk__in=[edge.dest_element_id for edge in aliases]))
+        if hasattr(roots, 'delete'):
+            roots.delete()
+        else:
+            PageElement.objects.filter(
+                pk__in=[root.pk for root in roots]).delete()
+
+    def perform_destroy(self, instance): #pylint:disable=unused-argument
+        trail = self.get_full_element_path(self.kwargs.get('path'))
+        from_root = "/" + "/".join([element.slug for element in trail])
+        if len(trail) > 1:
+            with transaction.atomic():
+                subtree_root = trail[-1]
+                edge = RelationShip.objects.get(
+                    orig_element=trail[-2], dest_element=subtree_root)
+                edge.delete()
+                aliases = RelationShip.objects.filter(dest_element=subtree_root)
+                if not aliases.exists():
+                    self._destroy_trees([subtree_root])
+                Consumption.objects.filter(path__startswith=from_root).delete()
 
     def perform_update(self, serializer): #pylint:disable=too-many-locals
-        # XXX This code has been deprecated. Left until tests are stable.
-        attach = self.kwargs.get('path')
-        moved = serializer.validated_data['source']
-        LOGGER.debug("move '%s' after '%s'", moved, attach)
-        _, moved_path_elements = self.get_breadcrumbs(moved)
-        _, attach_path_elements = self.get_breadcrumbs(attach)
-
-        if len(moved_path_elements) == len(attach_path_elements):
-            attach_root = attach_path_elements[-2][0]
-            attach_below = attach_path_elements[-1][0]
-            prefix_elements = attach_path_elements[:-1]
-            # Implementation Note:
-            # Edges are ordered loosily, that is until an edge is moved
-            # to a specific position, ranks will all be zero.
-            for index, edge in enumerate(RelationShip.objects.filter(
-                    orig_element=attach_root).order_by('rank', 'pk')):
-                if edge.dest_element.pk == attach_below.pk:
-                    pos = index + 1
-                    break
-        elif len(moved_path_elements) > len(attach_path_elements):
-            attach_root = attach_path_elements[-1][0]
-            prefix_elements = attach_path_elements
-            pos = 0
-        else:
-            attach_root = attach_path_elements[-3][0]
-            attach_below = attach_path_elements[-2][0]
-            prefix_elements = attach_path_elements[:-2]
-            for index, edge in enumerate(RelationShip.objects.filter(
-                    orig_element=attach_root).order_by('rank', 'pk')):
-                if edge.dest_element.pk == attach_below.pk:
-                    pos = index + 1
-                    break
         with transaction.atomic():
-            moved_node = moved_path_elements[-1][0]
-            new_path = "/%s/%s" % ("/".join([
-                part[0].slug for part in prefix_elements]), moved_node.slug)
-            common_prefix = os.path.commonprefix([moved, new_path])
-            if len(common_prefix) == 0 or common_prefix == "/":
-                raise ValidationError(
-                    {'detail': "'%s' and '%s' do not share a root prefix." % (
-                    moved, attach)})
-            RelationShip.objects.filter(
-                orig_element=moved_path_elements[-2][0],
-                dest_element=moved_node).delete()
-            RelationShip.objects.insert_node(
-                attach_root, moved_node, pos=pos)
-            try:
-                consumption = Consumption.objects.get(path=moved)
-                consumption.path = new_path
-                consumption.save()
-            except Consumption.DoesNotExist:
-                pass
+            super(BestPracticeAPIView, self).perform_update(serializer)
+            cmpt_serializer = serializer.get('consumption', None)
+            if cmpt_serializer:
+                # Force "Gold" value to be outside the linear scale.
+                if ('environmental_value' in cmpt_serializer.validated_data and
+                    cmpt_serializer.validated_data['environmental_value'] == 4):
+                    cmpt_serializer.validated_data['environmental_value'] = 6
+                cmpt_serializer.save()

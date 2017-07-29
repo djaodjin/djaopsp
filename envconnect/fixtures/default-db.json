@@ -1886,8 +1886,93 @@
   "fields": {
     "title": "Wire & cable",
     "slug": "wire-and-cable",
-    "tag": "industry,metal",
+    "tag": "industry,metal,enabled",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 76
+},
+{
+  "fields": {
+    "title": "Wire & cable",
+    "slug": "sustainability-wire-and-cable",
+    "tag": "industry,metal,enabled",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 77
+},
+{
+  "fields": {
+    "orig_element": 76,
+    "dest_element": 77
+  },
+  "model": "pages.Relationship", "pk": 65
+},
+{
+  "fields": {
+    "title": "Design",
+    "slug": "wc-design",
+    "text": "/media/envconnect/design.png",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 78
+},
+{
+  "fields": {
+    "orig_element": 77,
+    "dest_element": 78
+  },
+  "model": "pages.Relationship", "pk": 66
+},
+{
+  "fields": {
+    "orig_element": 77,
+    "dest_element": 7
+  },
+  "model": "pages.Relationship", "pk": 67
+},
+{
+  "fields": {
+    "title": "Design categories",
+    "slug": "design-categories",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 79
+},
+{
+  "fields": {
+    "orig_element": 78,
+    "dest_element": 79
+  },
+  "model": "pages.relationship", "pk": 68
+},
+{
+  "fields": {
+    "orig_element": 79,
+    "dest_element": 10
+  },
+  "model": "pages.Relationship", "pk": 69
+},
+{
+  "fields": {
+    "survey": 1,
+    "text": "Product Design",
+    "question_type": "radio",
+    "correct_answer": "Yes",
+    "rank": 11
+  },
+  "model": "survey.Question", "pk": 11
+},
+{
+  "fields": {
+    "path": "/wire-and-cable/sustainability-wire-and-cable/wc-design/design-categories/product-design",
+    "question": 11,
+    "implementation_ease": 1,
+    "avg_energy_saving": "* * *",
+    "profitability": 1,
+    "capital_cost": "$$$",
+    "business_value": 1,
+    "payback_period": "3-12",
+    "environmental_value": 1
+  },
+  "model": "envconnect.Consumption", "pk": 11
 }]

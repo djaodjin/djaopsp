@@ -114,7 +114,7 @@
                         <td colspan="[[!valueSummaryToggle ? {{icon.profitability_headers_len}} : {{icon.value_headers_len}}]]">
 <!-- add a node -->
 <div style="width:100%;">
-    <form class="form-inline" style="display:inline-block;width:90%;" ng-submit="addElement($event, '{{abs_prefix}}')">
+    <form class="form-inline" style="display:inline-block;width:90%;">
         <div class="input-group" style="width:90%;">
             <select ng-model="newElement.elementType"
                     class="form-control input-sm" style="width:20%;"
@@ -135,7 +135,8 @@
                    uib-typeahead-template-url="customTemplate.html"
                    class="form-control input-sm" style="width:80%;">
             <div class="input-group-btn">
-                <button class="btn btn-primary btn-sm" type="submit" value="submit">Add</button>
+                <button class="btn btn-primary btn-sm" type="submit" value="submit" ng-click="addElement($event, '{{abs_prefix}}')"><i class="fa fa-plus"></i> Add</button>
+                <button class="btn btn-primary btn-sm" type="submit" value="alias" ng-click="aliasElement($event, '{{abs_prefix}}')"><i class="fa fa-arrow-right"></i> Alias</button>
             </div>
         </div>
         <div style="height:14px" ng-cloak>

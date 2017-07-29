@@ -29,6 +29,9 @@ class BestPracticeDetailView(BestPracticeMixin, PageElementDetailView):
             'icon': self.icon,
             'path': self.kwargs.get('path'),
             'question': self.question})
+        aliases = self.best_practice.get_parents(depth=2)
+        if len(aliases) > 1:
+            context.update({'aliases': aliases})
         organization = self.kwargs.get('organization', None)
         if organization:
             context.update({'organization': organization})
