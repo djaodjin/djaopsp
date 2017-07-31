@@ -94,7 +94,7 @@ class BenchmarkBaseView(BenchmarkMixin, SelfAssessmentRedirectMixin,
             root = self._build_tree(trail[-1][0], from_root, nocuts=True)
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
-            charts, complete = self.get_charts(root[1])
+            charts, complete = self.get_charts(root[1], path=from_root)
             context.update({
                 'self_assessment_complete': complete,
                 'charts': charts,
@@ -178,7 +178,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         parts = from_root.split("/")
         if len(parts) > 1:
             root = self._build_tree(trail[-1][0], from_root)
-            charts, _ = self.get_charts(root[1])
+            charts, _ = self.get_charts(root[1], path=from_root)
         else:
             # totals
             charts = []
