@@ -164,34 +164,38 @@ content development.
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="addElement">Add...</h4>
+                            <h4 class="modal-title" id="addElement">Add Content ...</h4>
                         </div>
-                        <form class="form-inline" ng-submit="addElement($event)">
+                        <form>
                             <div class="modal-body">
                                 <script type="text/ng-template" id="customTemplate.html">
                                     <a>
                                         <span ng-bind-html="match.title | uibTypeaheadHighlight:query"></span>
                                     </a>
                                 </script>
-                                <input class="form-control search-page-element" style="width:100%;" name="title" type="text" placeholder="[[newElement.elementTypeModal]] title"
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input class="form-control search-page-element" style="width:100%;" name="title" type="text" placeholder="[[newElement.elementTypeModal]] title"
                                        autocomplete="off"
                                        ng-model="newElement.value"
                                        uib-typeahead="candidate as candidate.title for candidate in getBestPracticeCandidates($viewValue)"
                                        uib-typeahead-loading="loadingBestpractices"
-                                       uib-typeahead-template-url="customTemplate.html">
-                                <div style="margin-top:5px;">
-                                    <div class="text-center">
+                                       uib-typeahead-template-url="customTemplate.html" />
+                                </div>
+                                <div class="form-group" ng-if="newElement.elementTypeModal != BEST_PRACTICE_ELEMENT">
                                     <label>Optional tag</label>
                                     <select ng-model="newElement.value.tag"
-                                           class="form-control" name="tag">
+                                            class="form-control" name="tag">
                                         <option value="">None</option>
                                         <option value="management">Management</option>
                                     </select>
-                                    </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-warning add-element" type="submit">Add</button>
+                                <div class="input-group-btn">
+<button class="btn btn-primary add-element" type="submit" value="submit" ng-click="addElement($event)"><i class="fa fa-plus"></i> Add</button>
+<button class="btn btn-primary" type="submit" value="alias" ng-click="aliasElement($event)"><i class="fa fa-arrow-right"></i> Alias</button>
+                                </div>
                             </div>
                         </form>
                     </div>

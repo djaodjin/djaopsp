@@ -517,11 +517,12 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
         var elementType = $scope.newElement.elementType;
         if( typeof prefix === "undefined" ) {
-            // XXX Only the table inline form to add an element
-            //     calls addElement(prefix).
-            //     We use elementTypeModal in order to avoid unnatural
-            //     UI updates when clicking on "+ Add..."
+            // Only the table inline form calls addElement($event, prefix).
+            // The popup dialog calls addElement($event) and relies on
+            // the *prefix* to be previously set.
             prefix = $scope.newElement.prefix;
+            // XXX We use elementTypeModal in order to avoid unnatural
+            //     UI updates when clicking on "+ Add..."
             elementType = $scope.newElement.elementTypeModal;
         } else {
             $scope.newElement.tag = null;
@@ -579,6 +580,12 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     $scope.aliasElement = function(event, prefix) {
+        if( typeof prefix === "undefined" ) {
+            // Only the table inline form calls aliasElement($event, prefix).
+            // The popup dialog calls aliasElement($event) and relies on
+            // the *prefix* to be previously set.
+            prefix = $scope.newElement.prefix;
+        }
         var form = angular.element(event.target);
         var modalDialog = form.parents('.modal');
         var data = {source: $scope.newElement.value.path};
