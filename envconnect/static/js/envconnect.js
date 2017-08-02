@@ -1304,8 +1304,9 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                     }
                     var improvementScore = self.element.find(
                         "#improvement-score");
-                    if( improvementScore ) {
-                        improvementScore.text(data[idx].improvement_score);
+                    if( improvementScore && data[idx].improvement_score ) {
+                        improvementScore.text(
+                         "(+" + data[idx].improvement_score.toFixed(0) + "%)");
                     }
                 } else {
                     // distribution chart

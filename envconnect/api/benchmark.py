@@ -658,6 +658,10 @@ class BenchmarkMixin(ReportMixin):
                     if denominator > 0:
                         metrics['normalized_score'] = int(
                             metrics[numerator_key] * 100.0 / denominator)
+                        if 'improvement_numerator' in metrics:
+                            metrics['improvement_score'] = int(
+                                metrics['improvement_numerator'] * 100.0
+                                / denominator)
                     else:
                         metrics['normalized_score'] = 0
             return
@@ -707,6 +711,11 @@ class BenchmarkMixin(ReportMixin):
                 agg_metrics.update({
                     'normalized_score': int(agg_metrics[numerator_key] * 100.0
                         / denominator) if denominator > 0 else 0})
+                if 'improvement_numerator' in agg_metrics:
+                    agg_metrics.update({
+                        'improvement_score': int(
+                            agg_metrics['improvement_numerator'] * 100.0
+                            / denominator) if denominator > 0 else 0})
             else:
                 agg_metrics.pop(numerator_key, None)
                 agg_metrics.pop(denominator_key, None)
@@ -735,6 +744,77 @@ class BenchmarkMixin(ReportMixin):
 
 
 class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
+    """
+    .. sourcecode:: http
+
+        GET /api/*organization*/benchmark*path*
+
+    Returns list of *organization*'s scores for all relevant section
+    of the best practices based on *path*.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/steve-shop/benchmark/boxes-and-enclosures/energy-efficiency/
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        [{
+            "slug":"total-score",
+            "title":"Total Score",
+            "nb_answers": 4,
+            "nb_questions": 4,
+            "nb_respondents": 2,
+            "numerator": 12.0,
+            "improvement_numerator": 8.0,
+            "denominator": 26.0,
+            "normalized_score": 46,
+            "improvement_score": 30,
+            "score_weight": 1.0,
+            "highest_normalized_score": 88,
+            "avg_normalized_score": 67,
+            "created_at":"2017-08-02T20:18:19.089",
+            "distribution": {
+                "y": [0, 1, 0, 1],
+                "x": ["0-25%", "25-50%", "50-75%", "75-100%"],
+                "organization_rate":"25-50%"
+            }
+         },
+         {
+            "slug":"energy-efficiency-management-basics",
+            "title":"Management",
+            "text":"/media/envconnect/management-basics.png",
+            "tag":"management",
+            "score_weight":1.0
+         },
+         {
+            "slug":"process-heating",
+            "title":"Process heating",
+            "text":"/media/envconnect/process-heating.png",
+            "nb_questions": 4,
+            "nb_answers": 4,
+            "nb_respondents": 2,
+            "numerator": 12.0,
+            "improvement_numerator": 8.0,
+            "denominator": 26.0,
+            "normalized_score": 46,
+            "improvement_score": 12,
+            "highest_normalized_score": 88,
+            "avg_normalized_score": 67,
+            "created_at": "2017-08-02T20:18:19.089",
+            "distribution": {
+                "y": [0, 1, 0, 1],
+                "x": [ "0-25%", "25-50%", "50-75%", "75-100%"],
+                "organization_rate": "25-50%"
+            },
+            "score_weight": 1.0
+         }]
+    """
+
+    http_method_names = ['get']
 
     def get_queryset(self):
         #pylint:disable=too-many-locals
@@ -742,11 +822,11 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         parts = from_root.split("/")
         root_prefix = "/".join(parts[:-1]) if len(parts) > 1 else ""
         root = trail[-1][0] if len(trail) > 0 else None
-        rollup_tree = self.rollup_scores(root=root, root_prefix=from_root)
+        rollup_tree = self.rollup_scores()
         distributions_tree = self.create_distributions(
             rollup_tree, view_account=self.sample.account.pk)
         charts, complete = self.flatten_distributions(
-            distributions_tree, prefix=root_prefix)
+            distributions_tree, prefix=from_root)
         total_score = {"slug": "total-score", "title": "Total Score"}
         if complete:
             total_score = distributions_tree[0]
