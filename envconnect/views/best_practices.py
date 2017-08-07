@@ -29,9 +29,18 @@ class BestPracticeDetailView(BestPracticeMixin, PageElementDetailView):
             'icon': self.icon,
             'path': self.kwargs.get('path'),
             'question': self.question})
-        aliases = self.best_practice.get_parents(depth=2)
+        aliases = self.best_practice.get_parent_paths()
         if len(aliases) > 1:
-            context.update({'aliases': aliases})
+            alias_breadcrumbs = []
+            for alias in aliases:
+                if alias and len(alias) > 4:
+                    alias_breadcrumbs += [[alias[0], "..."] + alias[-3:-1]]
+                elif alias and len(alias) > 1:
+                    alias_breadcrumbs += [alias[:-1]]
+                else:
+                    # XXX This is probably an error in `get_parent_paths`
+                    alias_breadcrumbs += [[alias]]
+            context.update({'aliases': alias_breadcrumbs})
         organization = self.kwargs.get('organization', None)
         if organization:
             context.update({'organization': organization})
