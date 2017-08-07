@@ -10,6 +10,7 @@ import logging
 
 from django.conf import settings
 from django.db import models, connection
+from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from survey.models import Answer, Question as SurveyQuestion
 
@@ -20,6 +21,22 @@ from . import signals #pylint: disable=unused-import
 
 LOGGER = logging.getLogger(__name__)
 
+class ColumnHeaderQuerySet(models.QuerySet):
+
+    def leading_prefix(self, path):
+        candidates = []
+        parts = path.split('/')
+        if parts:
+            if not parts[0]:
+                parts = parts[1:]
+            #pylint:disable=redefined-variable-type
+            candidates = Q(path__startswith="/%s/" % '/'.join(parts[:1]))
+            for idx in range(2, len(parts)):
+                candidates |= Q(path__startswith="/%s/" % '/'.join(parts[:idx]))
+            return self.filter(candidates).values('slug').annotate(
+                models.Max('path'))
+        return self.none()
+
 
 @python_2_unicode_compatible
 class ColumnHeader(models.Model):
@@ -27,10 +44,14 @@ class ColumnHeader(models.Model):
     Title of columns for fields defined in the ``Consumption`` table
     as well as meta attributes such as hidden, etc.
     """
+    objects = ColumnHeaderQuerySet.as_manager()
 
     path = models.CharField(max_length=255)
     slug = models.SlugField()
     hidden = models.BooleanField()
+
+    class Meta:
+        unique_together = ('path', 'slug')
 
     def __str__(self):
         return str(self.slug)
@@ -82,10 +103,7 @@ class ConsumptionQuerySet(models.QuerySet):
         #    answer__text__in=Consumption.PRESENT
         #    + Consumption.ABSENT).values('id').annotate(
         #    nb_yes_or_no=Count('answer'),
-        #    avg_value=Avg((F('environmental_value')
-        #                  + F('business_value')
-        #                  + F('profitability')
-        #                  + F('implementation_ease')) / 4.0)).query)
+        #    avg_value=Avg(F('avg_value')).query)
         #
         # but values in ``PRESENT`` and ``ABSENT``
         # do not get quoted.
@@ -97,11 +115,7 @@ class ConsumptionQuerySet(models.QuerySet):
 
         yes_no_view = "SELECT envconnect_consumption.question_id"\
             " AS question_id, COUNT(survey_answer.id) AS nb_yes_no,"\
-            " AVG(ROUND((envconnect_consumption.environmental_value"\
-            " + envconnect_consumption.business_value"\
-            " + envconnect_consumption.profitability"\
-            " + envconnect_consumption.implementation_ease) / 4.0, 0))"\
-            " AS avg_value"\
+            " AVG(envconnect_consumption.avg_value) AS avg_value"\
             " FROM envconnect_consumption INNER JOIN survey_question"\
             " ON (envconnect_consumption.question_id = survey_question.id)"\
             " INNER JOIN survey_answer"\
@@ -130,10 +144,7 @@ class ConsumptionQuerySet(models.QuerySet):
             " envconnect_consumption.question_id AS question_id,"\
             " survey_question.survey_id AS survey_id, COALESCE("\
             " opportunity_view.opportunity,"\
-            " ROUND((envconnect_consumption.environmental_value"\
-            " + envconnect_consumption.business_value"\
-            " + envconnect_consumption.profitability"\
-            " + envconnect_consumption.implementation_ease) / 4.0), 0)"\
+            " envconnect_consumption.avg_value, 0)"\
             " AS opportunity, envconnect_consumption.path AS path"\
             " FROM envconnect_consumption INNER JOIN survey_question"\
             " ON envconnect_consumption.question_id = survey_question.id"\
@@ -172,6 +183,12 @@ class Consumption(SurveyQuestion):
             NEEDS_SIGNIFICANT_IMPROVEMENT, NO,
             NOT_APPLICABLE)}
 
+    # ColumnHeader objects are inserted lazily at the time a column
+    # is hidden so we need a default set of columns to compute visible ones
+    # in all cases.
+    VALUE_SUMMARY_FIELDS = set(['environmental_value', 'business_value',
+        'implementation_ease', 'profitability'])
+
     objects = ConsumptionQuerySet.as_manager()
 
     path = models.CharField(max_length=255)
@@ -196,17 +213,35 @@ class Consumption(SurveyQuestion):
     # computed fields
     opportunity = models.IntegerField(default=0)
 
+    #   avg_value = (environmental_value + business_value
+    #       + profitability + implementation_ease) / nb_visible_columns
+    #
+    # As a result it needs to be updated every time:
+    #   - a column visibility is toggled between visible / hidden.
+    #   - a value summary is updated
+    #   - a Consumption is initially created
+    avg_value = models.IntegerField(default=0)
+
     def __str__(self):
         return str(self.pk)
 
-    @property
-    def avg_value(self):
-        """
-        Returns the average value (as shown in 'Value summary') for a practice.
-        """
-        return int(round(float(
-            self.environmental_value + self.business_value
-            + self.profitability + self.implementation_ease)/4))
+    def save(self, force_insert=False, force_update=False,
+             using=None, update_fields=None):
+        visible_cols = self.VALUE_SUMMARY_FIELDS - set([
+            col['slug'] for col in ColumnHeader.objects.leading_prefix(
+                self.path).filter(hidden=True)])
+        nb_visible_cols = len(visible_cols)
+        if nb_visible_cols > 0:
+            col_sum = 0
+            for col in visible_cols:
+                col_sum += getattr(self, col)
+            self.avg_value = col_sum // nb_visible_cols
+        LOGGER.debug("Save Consumption(path=%s), %d visible columns %s,"\
+            " with avg_value of %d", self.path, nb_visible_cols,
+            visible_cols, self.avg_value)
+        return super(Consumption, self).save(
+            force_insert=force_insert, force_update=force_update,
+            using=using, update_fields=update_fields)
 
     def get_rate(self):
         """

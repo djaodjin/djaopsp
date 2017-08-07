@@ -20,7 +20,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.relabel_to_fix_error()
+#            self.relabel_to_fix_error()
+            self.recompute_avg_value()
+
+    @staticmethod
+    def recompute_avg_value():
+        # Force save to trigger recomputing of `avg_value`
+        for consumption in Consumption.objects.all():
+            consumption.avg_value = 0
+            consumption.save()
 
     def relabel_to_fix_error(self):
         old_prefix = '/'

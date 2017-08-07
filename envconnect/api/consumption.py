@@ -40,6 +40,22 @@ class ConsumptionListAPIView(ReportMixin, generics.ListCreateAPIView):
 
 
 class ConsumptionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update and delete a `Consumption`.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        PUT /api/consumption/boxes-enclosures/energy-efficiency/air-flow/
+        {
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+    """
 
     queryset = Consumption.objects.all()
     serializer_class = ConsumptionSerializer
@@ -47,7 +63,8 @@ class ConsumptionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         # Force "Gold" value to be outside the linear scale.
-        if ('environmental_value' in serializer.validated_data
-            and serializer.validated_data['environmental_value'] == 4):
-            serializer.validated_data['environmental_value'] = 6
+        for field_name in Consumption.VALUE_SUMMARY_FIELDS:
+            if (field_name in serializer.validated_data and
+                serializer.validated_data[field_name] == 4):
+                serializer.validated_data[field_name] = 6
         return super(ConsumptionDetailAPIView, self).perform_update(serializer)

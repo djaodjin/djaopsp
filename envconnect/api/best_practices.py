@@ -271,7 +271,8 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
             cmpt_serializer = serializer.get('consumption', None)
             if cmpt_serializer:
                 # Force "Gold" value to be outside the linear scale.
-                if ('environmental_value' in cmpt_serializer.validated_data and
-                    cmpt_serializer.validated_data['environmental_value'] == 4):
-                    cmpt_serializer.validated_data['environmental_value'] = 6
+                for field_name in Consumption.VALUE_SUMMARY_FIELDS:
+                    if (field_name in cmpt_serializer.validated_data and
+                        cmpt_serializer.validated_data[field_name] == 4):
+                        cmpt_serializer.validated_data[field_name] = 6
                 cmpt_serializer.save()

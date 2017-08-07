@@ -404,8 +404,22 @@ envconnectControllers.controller("EnvconnectCtrl",
                 $scope.hidden[prefix][fieldName] = true;
             }
         }
-        $http.put(settings.urls.api_columns + prefix,
-            {'slug': fieldName, 'hidden': $scope.hidden[prefix][fieldName]});
+        $http.put(settings.urls.api_columns + prefix, {'slug': fieldName,
+            'hidden': $scope.hidden[prefix][fieldName]}).then(
+            function(resp) { // success
+                // The columns API returns the updated portion of the content
+                // tree used on the page.
+                var node = $scope.getEntriesRecursive($scope.entries, prefix);
+                node[0] = resp.data[0];
+                node[1] = resp.data[1];
+                // XXX unsure we can use `node`. Do we need to update
+                // from the root?
+                $scope.calcSavingsAndCost($scope.entries);
+            },
+            function(resp) {   // error
+                showErrorMessages(resp);
+            }
+        );
     };
 
     $scope.sortBy = function(fieldName, dir) {
@@ -462,13 +476,6 @@ envconnectControllers.controller("EnvconnectCtrl",
             }
         }
         return key;
-    };
-
-    $scope.summaryAvgValue = function(consumption) {
-        return Math.round(
-            (consumption.environmental_value + consumption.business_value
-             + consumption.profitability + consumption.implementation_ease)
-                / 4.0);
     };
 
     $scope.allAnswered = function(tab) {
@@ -668,12 +675,13 @@ envconnectControllers.controller("EnvconnectCtrl",
         angular.element(event.target).editor({
             uniqueIdentifier: "data-id",
             baseUrl : settings.urls.api_consumptions,
+            onSuccess: function(element, data) {
+                $scope.$apply(function() {
+                    practice.consumption = data;
+                });
+            },
             rangeUpdate: function(editable, newVal) {
                 editable.attr("class", "green-level-" + newVal);
-                practice.consumption[editable.data("key")] = parseInt(newVal);
-                $scope.$apply(function() {
-                    practice.consumption['avg_value'] = $scope.summaryAvgValue(practice.consumption);
-                });
             },
             focus: true
         });
