@@ -18,7 +18,7 @@ You were added as a {{role}} to {{organization.printable_name|safe}}
 <p>
 You are receiving this email, because you have been added
 {% if request_user %}by {{request_user.printable_name}}{% endif %}
-as a {{role}} on {{broker.printable_name}} website for your
+as a {{role}} on {{broker.printable_name}} website for
 <a href="{{back_url}}">{{organization.printable_name}}'s organization profile</a>.
 You can access the account for your organization by clicking on the previous
 link, or by cutting and pasting the following link into your browser:
