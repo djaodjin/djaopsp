@@ -1,7 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import logging
+import logging, re
 
 from django.db import transaction
 from django.db.models import Max
@@ -16,14 +16,21 @@ from pages.api.relationship import (PageElementAliasAPIView,
     PageElementMoveAPIView)
 from survey.models import SurveyModel
 
-from ..mixins import BestPracticeMixin
+from ..mixins import BestPracticeMixin, BreadcrumbMixin
 from ..models import Consumption
 from ..serializers import PageElementSerializer
 
 LOGGER = logging.getLogger(__name__)
 
 
-class BestPracticeAliasAPIView(PageElementAliasAPIView):
+class BestPracticeAliasAPIView(BreadcrumbMixin, PageElementAliasAPIView):
+    """
+    This API end-point aliases content element under another node.
+
+    A a result, we return the content tree that was updated
+    instead of the `Column` instance because the user interface will
+    want a chance to refresh the display accordingly.
+    """
 
     report_title = 'Best Practices Report'
 
@@ -31,17 +38,12 @@ class BestPracticeAliasAPIView(PageElementAliasAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        sources = self.get_full_element_path(serializer.validated_data.get(
-            'source'))
+        sources = self.get_full_element_path(
+            serializer.validated_data.get('source'))
         node = sources[-1]
         prefix = self.kwargs.get('path', None)
-        try:
-            node.consumption = Consumption.objects.get(
-                path=prefix + '/' + node.slug)
-        except Consumption.DoesNotExist:
-            pass
-        data = PageElementSerializer(
-            context={'prefix': prefix}).to_representation(node)
+        root = self._build_tree(node, prefix + '/' + node.slug)
+        data = self.to_representation(root, prefix=prefix)
         headers = self.get_success_headers(data)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -52,15 +54,16 @@ class BestPracticeAliasAPIView(PageElementAliasAPIView):
         with transaction.atomic():
             super(BestPracticeAliasAPIView, self).perform_change(
                 sources, targets, rank=rank)
-            try:
-                consumption = Consumption.objects.get(path=aliased)
-                survey = get_object_or_404(
-                    SurveyModel.objects.all(), title=self.report_title)
-                if rank is None:
-                    last_rank = survey.questions.aggregate(Max('rank')).get(
-                        'rank__max', 0)
-                    rank = 0 if last_rank is None else last_rank + 1
-                Consumption.objects.get_or_create(path=alias,
+            survey = get_object_or_404(
+                SurveyModel.objects.all(), title=self.report_title)
+            if rank is None:
+                last_rank = survey.questions.aggregate(Max('rank')).get(
+                    'rank__max', 0)
+                rank = 0 if last_rank is None else last_rank + 1
+            for consumption in Consumption.objects.filter(
+                    path__startswith=aliased):
+                look = re.match(r"^%s(.*)$" % aliased, consumption.path)
+                Consumption.objects.get_or_create(path=alias + look.group(1),
                     defaults={
                         'environmental_value': consumption.environmental_value,
                         'business_value': consumption.business_value,
@@ -75,8 +78,7 @@ class BestPracticeAliasAPIView(PageElementAliasAPIView):
                         'survey': survey,
                         'rank': rank
                     })
-            except Consumption.DoesNotExist:
-                pass
+                rank = rank + 1
 
 
 

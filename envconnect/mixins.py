@@ -145,7 +145,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         urls = {
             'api_best_practices': reverse('api_detail', args=("",)),
             'api_alias_node': reverse('api_alias_detail', args=("",)),
-            'api_move_node': reverse('api_move_detail_base'),
+            'api_move_node': reverse('api_move_detail', args=("",)),
             'api_columns': reverse('api_column_base'),
             'api_consumptions': reverse('api_consumption_base'),
             'api_weights': reverse('api_score_base'),

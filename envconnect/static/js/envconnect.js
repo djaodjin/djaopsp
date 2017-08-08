@@ -182,7 +182,7 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
                         }
                     }
                 }
-                scope.moveBestPractice(movedPath, attachPath, rank);
+                scope.moveBestPractice(movedPath, attachPath, rank, "drag-n-drop");
             },
             axis: "y"
         });
@@ -601,7 +601,11 @@ envconnectControllers.controller("EnvconnectCtrl",
         $http.post(postUrl, data).then(
         function success(resp) {
             var node = $scope.getEntriesRecursive($scope.entries, prefix);
-            node[1].push([resp.data, []]);
+            console.log("XXX alias returns", resp.data);
+            node[1].push(resp.data);
+            // XXX unsure we can use `node`. Do we need to update
+            // from the root?
+            $scope.calcSavingsAndCost($scope.entries);
             $scope.newElement.value = "";
             modalDialog.modal('hide');
 
@@ -756,11 +760,14 @@ envconnectControllers.controller("EnvconnectCtrl",
         angular.element('[data-key="text"]').trigger('blur');
     };
 
-    $scope.moveBestPractice = function(movedPath, attachPath, rank) {
+    $scope.moveBestPractice = function(movedPath, attachPath, rank, externalKey) {
         var postUrl = settings.urls.api_move_node;
         var data = {source: movedPath};
         if( typeof rank !== 'undefined' && rank !== null ) {
             data['rank'] = rank;
+        }
+        if( typeof externalKey !== 'undefined' && externalKey !== null ) {
+            data['external_key'] = externalKey;
         }
         $http.post(postUrl + attachPath + '/', data).then(
             function success(resp) {
@@ -808,7 +815,7 @@ envconnectControllers.controller("EnvconnectCtrl",
             }
         }
         if( attachPath ) {
-            $scope.moveBestPractice(startPath, attachPath);
+            $scope.moveBestPractice(startPath, attachPath, null, "toLowerLevel");
         } else {
             showErrorMessages("Cannot find a heading above " + startPath);
         }
@@ -834,7 +841,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( !attachPath ) {
             attachPath = prefix;
         }
-        $scope.moveBestPractice(startPath, attachPath);
+        $scope.moveBestPractice(startPath, attachPath, null, "toUpperLevel");
     };
 
 

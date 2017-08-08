@@ -236,7 +236,7 @@ class Consumption(SurveyQuestion):
             for col in visible_cols:
                 col_sum += getattr(self, col)
             self.avg_value = col_sum // nb_visible_cols
-        LOGGER.debug("Save Consumption(path=%s), %d visible columns %s,"\
+        LOGGER.debug("Save Consumption(path='%s'), %d visible columns %s,"\
             " with avg_value of %d", self.path, nb_visible_cols,
             visible_cols, self.avg_value)
         return super(Consumption, self).save(
