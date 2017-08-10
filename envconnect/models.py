@@ -236,9 +236,12 @@ class Consumption(SurveyQuestion):
             for col in visible_cols:
                 col_sum += getattr(self, col)
             self.avg_value = col_sum // nb_visible_cols
+            if self.avg_value >= 4:
+                # We bump average to "Gold".
+                self.avg_value = 6
         LOGGER.debug("Save Consumption(path='%s'), %d visible columns %s,"\
             " with avg_value of %d", self.path, nb_visible_cols,
-            visible_cols, self.avg_value)
+            [(col, getattr(self, col)) for col in visible_cols], self.avg_value)
         return super(Consumption, self).save(
             force_insert=force_insert, force_update=force_update,
             using=using, update_fields=update_fields)

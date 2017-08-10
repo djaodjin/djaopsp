@@ -5,7 +5,7 @@
 <td ng-class="'green-level-' + practice[0].consumption.avg_value + ' cell-fix-width-5 total-sep'" ng-if="practice[0].consumption !== null">
 </td>
 {% else %}
-<td class="green-level-[[practice[0].consumption.{{col_header.slug}}]] editable-consumption edit-range cell-fix-width"
+<td ng-class="'green-level-' + practice[0].consumption.{{col_header.slug}} + ' editable-consumption edit-range cell-fix-width'"
     {% if request|is_broker_manager and not organization %}
     data-key="{{col_header.slug}}"
     data-range-step="1" data-range-min="0" data-range-max="4"

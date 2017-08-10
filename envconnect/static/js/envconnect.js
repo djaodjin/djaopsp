@@ -601,7 +601,6 @@ envconnectControllers.controller("EnvconnectCtrl",
         $http.post(postUrl, data).then(
         function success(resp) {
             var node = $scope.getEntriesRecursive($scope.entries, prefix);
-            console.log("XXX alias returns", resp.data);
             node[1].push(resp.data);
             // XXX unsure we can use `node`. Do we need to update
             // from the root?
@@ -685,7 +684,11 @@ envconnectControllers.controller("EnvconnectCtrl",
                 });
             },
             rangeUpdate: function(editable, newVal) {
-                editable.attr("class", "green-level-" + newVal);
+                editable.removeClass(function (index, className) {
+                    var removedClasses = (className.match(/(^|\s)green-level-\S+/g) || []).join(' ');
+                    return removedClasses
+                });
+                editable.addClass("green-level-" + newVal);
             },
             focus: true
         });
