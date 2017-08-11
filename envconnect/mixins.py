@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from deployutils.apps.django import mixins as deployutils_mixins
-from answers.models import Question as AnswersQuestion
+from answers.models import Follow, Question as AnswersQuestion
 from pages.models import RelationShip
 from pages.mixins import TrailMixin
 from survey.models import Answer, Question, Response, SurveyModel
@@ -45,8 +45,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     def get_prefix():
         return None
 
-    def get_breadcrumb_url(self):
-        return self.breadcrumb_url
+    def get_breadcrumb_url(self, path):
+        return reverse(self.breadcrumb_url, args=(path,))
 
     def _build_tree(self, root, path, depth=1, nocuts=False):
         if path is None:
@@ -124,7 +124,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             else:
                 path = crumb[1]
                 anchor = ""
-            base_url = reverse('summary', args=(path,))
+            base_url = self.get_breadcrumb_url(path)
             if anchor:
                 base_url += ("?active=%s" % anchor)
             crumb.append(base_url)
@@ -149,7 +149,10 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'api_columns': reverse('api_column_base'),
             'api_consumptions': reverse('api_consumption_base'),
             'api_weights': reverse('api_score_base'),
-            'api_page_elements': reverse('page_elements')}
+            'api_page_elements': reverse('page_elements'),
+            'best_practice_base': self.get_breadcrumb_url(
+                self.kwargs.get('path'))
+        }
         if 'organization' in context:
             urls.update({'api_improvements': reverse(
                 'api_improvement_base', args=(context['organization'],))})
@@ -233,30 +236,56 @@ class ImprovementQuerySetMixin(ReportMixin):
 
 
 class BestPracticeMixin(BreadcrumbMixin):
+    """
+    Mixin that will return the super.template or the `best practice details`
+    template if a matching `Consumption` exists.
+    """
 
-    def get_breadcrumbs(self, path):
-        full, results = super(BestPracticeMixin, self).get_breadcrumbs(path)
-        if not results:
-            raise Http404("Cannot find best practice for '%s'" % path)
-        results[-1][2] = reverse('best_practice_detail', kwargs={
-            'path': results[-1][1]})
-        return full, results
-
-    def get_best_practice_url(self):
-        return reverse('best_practice_detail', kwargs={
-            'path': self.kwargs.get('path')})
+    def get_template_names(self):
+        if not self.best_practice:
+            return super(BestPracticeMixin, self).get_template_names()
+        return ['envconnect/best_practice.html']
 
     def get_context_data(self, *args, **kwargs):
         context = super(
             BestPracticeMixin, self).get_context_data(*args, **kwargs)
-        context.update({'best_practice': self.best_practice})
+        if not self.best_practice:
+            return context
+        context.update({
+            'icon': self.icon,
+            'path': self.kwargs.get('path'),
+            'question': self.question,
+            'best_practice': self.best_practice})
+        aliases = self.best_practice.get_parent_paths()
+        if len(aliases) > 1:
+            alias_breadcrumbs = []
+            for alias in aliases:
+                if alias and len(alias) > 4:
+                    alias_breadcrumbs += [[alias[0], "..."] + alias[-3:-1]]
+                elif alias and len(alias) > 1:
+                    alias_breadcrumbs += [alias[:-1]]
+                else:
+                    # XXX This is probably an error in `get_parent_paths`
+                    alias_breadcrumbs += [[alias]]
+            context.update({'aliases': alias_breadcrumbs})
+        organization = self.kwargs.get('organization', None)
+        if organization:
+            context.update({'organization': organization})
+        if self.request.user.is_authenticated:
+            context.update({'is_following': Follow.objects.get_followers(
+                self.question).filter(pk=self.request.user.id).exists()})
         return context
 
     @property
     def best_practice(self):
         if not hasattr(self, '_best_practice'):
-            _, trail = self.breadcrumbs
-            self._best_practice = trail[-1][0]
+            try:
+                trail = self.get_full_element_path(self.kwargs.get('path'))
+                Consumption.objects.get(path="/" + "/".join(
+                    [elm.slug for elm in trail]))
+                self._best_practice = trail[-1]
+            except Consumption.DoesNotExist:
+                self._best_practice = None
         return self._best_practice
 
     @property
@@ -268,6 +297,6 @@ class BestPracticeMixin(BreadcrumbMixin):
                 self._question = AnswersQuestion.objects.get(
                     slug=self.best_practice.slug)
             except AnswersQuestion.DoesNotExist:
-                raise Http404("Cannot find AnswersQuestion(slug=%s)",
+                raise Http404("Cannot find AnswersQuestion(slug=%s)" %
                     self.best_practice.slug)
         return self._question

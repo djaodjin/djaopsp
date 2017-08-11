@@ -22,7 +22,7 @@
                             <h2>Learn <i class="fa fa-angle-right"></i></h2>
                             <ul class="nav">
                                 <li><a id="help-request" style="cursor:pointer;">Getting started</a></li>
-                                <li{% if breadcrumbs|active_category:'sustainability' %} class="active"{% endif %}><a id="submenu-sustainability" href="{% url 'summary' breadcrumbs|category_entry:'sustainability' %}"><i class="fa-li fa{% if breadcrumbs|active_category:'sustainability' %} fa-hand-o-right{% endif %}"></i> Environmental practices</a></li>
+                                <li{% if '/info/' in request.path %} class="active"{% endif %}><a id="submenu-sustainability" href="{% url 'summary' breadcrumbs|category_entry:'sustainability' %}"><i class="fa-li fa{% if '/summary/' in request.path %} fa-hand-o-right{% endif %}"></i> Environmental practices</a></li>
                             </ul>
                         </div>
                         <div class="col-md-3" data-trip data-trip-index="3" data-trip-content="<div style='text-align:left;'><strong>Self-assessment</strong>: Assess performance against best practices, and identify opportunities<br />ranked by business value and peer implementation rate.<br /><strong>Score & Benchmark</strong>: Compare performance with peers through confidential,<br />anonymous, aggregated reports. THE SELF-ASSESSMENT MUST BE COMPLETED FIRST.</div>" data-trip-position="s">
@@ -86,7 +86,7 @@
                                                             {% if '/report/' in request.path %}
                                                             <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'report_organization' organization path %}{% else %}{% url 'report' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                             {% elif '/improve/' in request.path %}
-                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'improve_organization' organization path %}{% else %}{% url 'envconnect_improve' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_improve_organization' organization path %}{% else %}{% url 'envconnect_improve' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                             {% elif '/info/' in request.path %}
                                                             <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'summary_organization' organization path %}{% else %}{% url 'summary' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                             {% else %}

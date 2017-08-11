@@ -24,7 +24,14 @@ LOGGER = logging.getLogger(__name__)
 class ImproveView(SelfAssessmentView):
 
     template_name = 'envconnect/improve.html'
-    breadcrumb_url = 'improve'
+    breadcrumb_url = 'envconnect_improve'
+
+    def get_breadcrumb_url(self, path):
+        organization = self.kwargs.get('organization', None)
+        if organization:
+            return reverse(
+                'envconnect_improve_organization', args=(organization, path))
+        return super(ImproveView, self).get_breadcrumb_url(path)
 
 
 class ResponseUpdateView(ImprovementQuerySetMixin, BaseResponseUpdateView):

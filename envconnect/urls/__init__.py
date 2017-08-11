@@ -11,8 +11,8 @@ from ..api.suppliers import SupplierListAPIView
 from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
     url_direct)
 from ..views import AccountRedirectView, MyTSPRedirectView
-from ..views.best_practices import (BestPracticeDetailView,
-    FollowBestPracticeView, UnfollowBestPracticeView, BestPracticeVoteView)
+from ..views.best_practices import (FollowBestPracticeView,
+    UnfollowBestPracticeView, BestPracticeVoteView)
 from ..views.benchmark import (BenchmarkView, PortfoliosDetailView,
     ScoreCardView, ScoreCardDownloadView, ScoreCardRedirectView)
 from ..views.compare import ReportingEntitiesView
@@ -91,7 +91,8 @@ urlpatterns += [
         AccountRedirectView.as_view(pattern_name='report_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX), name='report'),
     url_authenticated(r'app/info/improve(?P<path>%s)/' % settings.PATH_RE,
-        AccountRedirectView.as_view(pattern_name='improve_organization',
+        AccountRedirectView.as_view(
+            pattern_name='envconnect_improve_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='envconnect_improve'),
     url_authenticated(r'app/info/benchmark(?P<path>%s)/'
@@ -100,8 +101,6 @@ urlpatterns += [
             pattern_name='benchmark_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='benchmark'),
-    url_authenticated(r'app/info/detail(?P<path>%s)/' % settings.PATH_RE,
-        BestPracticeDetailView.as_view(), name='best_practice_detail'),
     url_authenticated(r'app/info(?P<path>%s)/' % settings.PATH_RE,
       DetailView.as_view(), name='summary'),
 
@@ -135,10 +134,10 @@ urlpatterns += [
         name='report_organization'),
     url_direct(r'app/(?P<organization>%s)/improve/download/' % (
         SLUG_RE), ImprovementCSVView.as_view(),
-        name='improve_organization_download'),
+        name='envconnect_improve_organization_download'),
     url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), ImproveView.as_view(),
-        name='improve_organization'),
+        name='envconnect_improve_organization'),
     url_direct(r'app/(?P<organization>%s)/benchmark/$' % (
         SLUG_RE), ScoreCardRedirectView.as_view(),
         name='benchmark_organization_redirect'),
@@ -155,9 +154,6 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), ScoreCardView.as_view(),
         name='scorecard_organization'),
-    url_direct(r'app/(?P<organization>%s)/detail(?P<path>%s)/'
-        % (SLUG_RE, settings.PATH_RE), BestPracticeDetailView.as_view(),
-        name='best_practice_detail_organization'),
     url_direct(r'app/(?P<organization>%s)/summary(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE),
         DetailView.as_view(), name='summary_organization'),

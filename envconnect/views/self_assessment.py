@@ -10,6 +10,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from survey.models import Response, SurveyModel
 
 from .benchmark import BenchmarkBaseView
+from ..mixins import BestPracticeMixin
 from ..models import Consumption
 
 
@@ -26,10 +27,16 @@ class SelfAssessmentBaseView(BenchmarkBaseView):
             root, view_response=self._sample)
 
 
-class SelfAssessmentView(SelfAssessmentBaseView):
+class SelfAssessmentView(BestPracticeMixin, SelfAssessmentBaseView):
 
     template_name = 'envconnect/self_assessment.html'
     breadcrumb_url = 'report'
+
+    def get_breadcrumb_url(self, path):
+        organization = self.kwargs.get('organization', None)
+        if organization:
+            return reverse('report_organization', args=(organization, path))
+        return super(SelfAssessmentView, self).get_breadcrumb_url(path)
 
     def get_context_data(self, **kwargs):
         context = super(SelfAssessmentView, self).get_context_data(**kwargs)
@@ -38,16 +45,17 @@ class SelfAssessmentView(SelfAssessmentBaseView):
             context.update({
                 'entries': json.dumps(self.to_representation(self.root))
             })
-
+        organization = context['organization']
         context.update({
             'page_icon': self.icon,
             'response': self.sample,
             'survey': self.sample.survey,
             'role': "tab",
             'score_toggle': self.request.GET.get('toggle', False)})
-        urls = {'api_self_assessment_response': reverse(
-            'survey_api_response', args=(context['organization'], self.sample))}
-        self.update_context_urls(context, urls)
+        self.update_context_urls(context, {
+            'api_self_assessment_response': reverse(
+                'survey_api_response', args=(organization, self.sample)),
+        })
         return context
 
     def get(self, request, *args, **kwargs):

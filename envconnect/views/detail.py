@@ -4,16 +4,23 @@
 import json
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
 
-from ..mixins import BreadcrumbMixin
+from ..mixins import BestPracticeMixin
 from ..models import ColumnHeader
 
 
-class DetailView(BreadcrumbMixin, TemplateView):
+class DetailView(BestPracticeMixin, TemplateView):
 
     template_name = 'envconnect/detail.html'
     breadcrumb_url = 'summary'
+
+    def get_breadcrumb_url(self, path):
+        organization = self.kwargs.get('organization', None)
+        if organization:
+            return reverse('summary_organization', args=(organization, path))
+        return super(DetailView, self).get_breadcrumb_url(path)
 
     def get_context_data(self, *args, **kwargs):
         #pylint:disable=too-many-locals
