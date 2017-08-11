@@ -151,18 +151,10 @@
                 </tbody>
                 {% endif %}
             </table>
-
             <div class="row" style="margin-top:-15px;">
                 <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom: 10px;">
                     <div ng-show="valueSummaryToggle">
-                        Legend
-                        <div class="btn-group" role="group" aria-label="...">
-                                <button type="button" class="btn btn-sm green-level-0">Neutral</button>
-                            <button type="button" class="btn btn-sm green-level-1">Low</button>
-                            <button type="button" class="btn btn-sm green-level-2">Medium</button>
-                            <button type="button" class="btn btn-sm green-level-3">High</button>
-                            <button type="button" class="btn btn-sm green-level-4">Gold</button>
-                        </div>
+                        {% include "envconnect/_value_summary_legend.html" %}
                     </div>
                 </div>
             </div>
