@@ -29,7 +29,7 @@
                 {% with icon.tag|assessment_choices as choices %}
                 <thead ng-show="!scoreToggle">
                     <tr>
-                      <th rowspan="2" style="vertical-bottom:middle;border-top:0;">Practices</th>
+                      <th rowspan="2" style="vertical-align:bottom;">Practices</th>
                       <th class="text-center" colspan="{{choices|length}}">Implemented as standard practice for applicable activities/projects?</th>
                     </tr>
                     <tr>
@@ -42,20 +42,20 @@
                 </thead>
                 <thead ng-show="scoreToggle">
                     <th style="vertical-align:middle;border-top:0;">Practices</th>
-                    <th class="text-center cell-fix-width-3" data-toggle="tooltip" data-placement="top" title="Percentage of respondents that have implemented a best practice.">
+                    <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Percentage of respondents that have implemented a best practice.">
                         <button class="btn-link btn-sort" ng-click="sortBy('rate')">
                             <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
                         </button>
                             Implementation rate
                     </th>
-                    <th class="text-center cell-fix-width-3">
+                    <th class="text-center cell-fix-width-3" style="border-top:0;">
                         <button class="btn-link btn-sort" ng-click="sortBy('implemented')">
                             <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
                         </button>
                             Implemented by you?
                     </th>
                     {% if breadcrumbs|active_category:'sustainability' %}
-                    <th class="text-center cell-fix-width-3" data-toggle="tooltip" data-placement="top" title="Higher numbers equate to higher priority opportunities based on the following calculation: Practice green level * (1 + implementation rate / 100). Practice green levels: Dark green = 3; medium green = 2, light green = 1">
+                    <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Higher numbers equate to higher priority opportunities based on the following calculation: Practice green level * (1 + implementation rate / 100). Practice green levels: Dark green = 3; medium green = 2, light green = 1">
                         <button class="btn-link btn-sort" ng-click="sortBy('opportunity')">
                             <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
                         </button>
