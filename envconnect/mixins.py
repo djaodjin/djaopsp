@@ -151,7 +151,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'api_weights': reverse('api_score_base'),
             'api_page_elements': reverse('page_elements'),
             'best_practice_base': self.get_breadcrumb_url(
-                self.kwargs.get('path'))
+                self.kwargs.get('path', ""))
         }
         if 'organization' in context:
             urls.update({'api_improvements': reverse(

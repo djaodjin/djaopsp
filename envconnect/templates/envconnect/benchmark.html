@@ -72,17 +72,15 @@ indicator for a best practice.
         </div>
         <div class="row row-flex">
       {% endif %}
-      {% with practice=chart %}
       <div class="col-md-4">
-          <div id="{{practice.slug}}" class="chart-container">
-              {% include "envconnect/_chart_title.html" with practice=practice %}
+          <div id="{{chart.slug}}-chart" class="chart-container">
+              {% include "envconnect/_chart_title.html" with practice=chart %}
               <div>
-                  <div class="chart-content c3" id="chart_{{practice.slug}}" style="width:250px;height:120px;">
+                  <div class="chart-content c3" style="width:250px;height:120px;">
                   </div>
               </div>
           </div>
       </div>
-      {% endwith %}
       {% endfor %}
     </div>
   </div>

@@ -1336,7 +1336,7 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                 } else {
                     // distribution chart
                     var benchmarkElement = self.element.find(
-                        "#" + data[idx].slug);
+                        "#" + data[idx].slug + "-chart");
                     if( benchmarkElement ) {
                         benchmarkElement.find(
                             ".chart-content").benchmarkChart({

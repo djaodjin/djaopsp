@@ -23,24 +23,8 @@
             <div id="total-score" class="distribution-chart chart-content">
             </div>
           </div>
-          <div id="{{page_icon.slug}}" class="benchmark distribution-chart bordered-left" ng-show="activeIcon === null">
-            <div class="chart-title">
-              <div class="icon-benchmark {% if page_icon|containsTag:'management' %} grey{% else %} orange{% endif %}">
-                {% if page_icon.text %}
-                <img class="icon-equipment" src="{{page_icon.text}}">
-                {% else %}
-                <div class="icon-equipment">{{page_icon.title}}</div>
-                {% endif %}
-              </div>
-              <div class="title">
-                <h3>{{page_icon.title}}</h3>
-                {% with breadcrumbs|as_icon as icon %}
-                {% if icon.subtitle %}
-                <h4>{{icon.subtitle}}</h4>
-                {% endif %}
-                {% endwith %}
-              </div>
-            </div>
+          <div id="{{root.0.slug}}-chart" class="chart-container bordered-left" ng-show="activeIcon === null">
+            {% include "envconnect/_chart_title.html" with practice=root.0 %}
             <div>
               <div class="chart-content c3" style="width:250px;height:120px;">
               </div>
@@ -48,19 +32,8 @@
           </div>
           {% for icon_tuple in root.1  %}
           {% with icon_tuple.0 as icon %}
-          <div id="{{icon.slug}}" class="benchmark distribution-chart bordered-left" ng-show="activeIcon === '{{icon}}'">
-            <div class="chart-title">
-              <div class="icon-benchmark {% if icon|containsTag:'management' %} grey{% else %} orange{% endif %}">
-                {% if icon.text %}
-                <img class="icon-equipment" src="{{icon.text}}">
-                {% else %}
-                <div class="icon-equipment">{{icon.title}}</div>
-                {% endif %}
-              </div>
-              <div class="title">
-                <h3>{{icon.title}}</h3>
-              </div>
-            </div>
+          <div id="{{icon.slug}}-chart" class="chart-container bordered-left" ng-show="activeIcon === '{{icon}}'">
+            {% include "envconnect/_chart_title.html" with practice=icon %}
             <div>
               <div class="chart-content c3" style="width:250px;height:120px;">
               </div>

@@ -33,6 +33,19 @@ class ImproveView(SelfAssessmentView):
                 'envconnect_improve_organization', args=(organization, path))
         return super(ImproveView, self).get_breadcrumb_url(path)
 
+    def get_context_data(self, **kwargs):
+        context = super(ImproveView, self).get_context_data(**kwargs)
+        if self.root:
+            _, trail = self.get_breadcrumbs("/" + self.root[0].slug)
+            setattr(self.root[0], 'breadcrumbs',
+                [tup[0].title for tup in trail])
+            for node in self.root[1]:
+                element = node[0]
+                _, trail = self.get_breadcrumbs(
+                    "/" + "/".join([self.root[0].slug, element.slug]))
+                setattr(element, 'breadcrumbs', [tup[0].title for tup in trail])
+        return context
+
 
 class ResponseUpdateView(ImprovementQuerySetMixin, BaseResponseUpdateView):
     """
