@@ -1,7 +1,6 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-from answers.models import Question
 from django.db import transaction
 from django.db.models import Max
 from rest_framework import generics
@@ -34,9 +33,6 @@ class ConsumptionListAPIView(ReportMixin, generics.ListCreateAPIView):
                 'rank__max', 0)
             serializer.save(
                 survey=survey, rank=0 if last_rank is None else last_rank + 1)
-            last = serializer.validated_data['path'].split("/")[-1]
-            Question.objects.get_or_create(slug=last,
-                defaults={'user': self.request.user})
 
 
 class ConsumptionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):

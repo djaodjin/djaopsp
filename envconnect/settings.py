@@ -59,7 +59,6 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'saas',
     'django_comments',
     'answers',
-    'voting',
     'survey',
     'pages',
     'envconnect',  # project should be the last entry.
@@ -476,7 +475,9 @@ SURVEY = {
 
 # Awnsers app
 # -----------
-ANSWERS_OBJECT_TITLE = 'best practice'
+ANSWERS = {
+    'QUESTION_MODEL': 'pages.PageElement'
+}
 
 HAYSTACK_CONNECTIONS = {
     'default': {

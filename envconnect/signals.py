@@ -1,7 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-from answers.models import Follow, Question
+from answers.models import Follow, get_question_model
 from answers.signals import question_new
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
@@ -31,16 +31,19 @@ def on_question_new(sender, question, request, *args, **kwargs):
 
 @receiver(comment_was_posted, dispatch_uid="comment_was_posted_notice")
 def on_answer_posted(sender, comment, request, *args, **kwargs):
-    question_ctype = ContentType.objects.get_for_model(Question)
+    question_ctype = ContentType.objects.get_for_model(get_question_model())
     if comment.content_type == question_ctype:
         question = comment.content_object
-        best_practice_url = request.POST.get('next', "")
+        back_url = request.build_absolute_uri(request.POST.get('next', ""))
+#        back_url = request.build_absolute_uri(
+#            reverse('summary', args=("/%s" % question,)))
         get_email_backend().send(
             recipients=[notified.email
-                        for notified in Follow.objects.get_followers(question)],
+                for notified in Follow.objects.get_followers(question)],
             template='notification/question_updated.eml',
-            context={'question': question,
-                     'best_practice_url': best_practice_url,
+            context={'request': request,
+                     'question': question,
+                     'back_url': back_url,
                      'site': get_site(request)})
         # Subscribe the commenting user to this question
-        Follow.objects.subscribe(request.user, question)
+        Follow.objects.subscribe(question, user=request.user)

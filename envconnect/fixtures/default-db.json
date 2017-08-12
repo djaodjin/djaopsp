@@ -208,14 +208,6 @@
 },
 {
   "fields": {
-    "title": "Product Design",
-    "slug": "product-design",
-    "submit_date": "2016-01-01T00:00:00-09:00"
-  },
-  "model": "answers.Question", "pk": 1
-},
-{
-  "fields": {
     "survey": 1,
     "text": "Product Design",
     "question_type": "radio",
@@ -245,14 +237,6 @@
     "account": 6
   },
   "model": "pages.PageElement", "pk": 11
-},
-{
-  "fields": {
-    "title": "Packaging Design",
-    "slug": "packaging-design",
-    "submit_date": "2016-01-01T00:00:00-09:00"
-  },
-  "model": "answers.Question", "pk": 2
 },
 {
   "fields": {
@@ -487,14 +471,6 @@
 },
 {
   "fields": {
-    "title": "Adjust air/fuel ratio",
-    "slug": "adjust-air-fuel-ratio",
-    "submit_date": "2016-01-01T00:00:00-09:00"
-  },
-  "model": "answers.Question", "pk": 3
-},
-{
-  "fields": {
     "survey": 1,
     "text": "Adjust air/fuel ratio",
     "question_type": "radio",
@@ -531,14 +507,6 @@
     "dest_element": 27
   },
   "model": "pages.relationship", "pk": 26
-},
-{
-  "fields": {
-    "title": "Reduce combustion air flow to optimum",
-    "slug": "reduce-combustion-air-flow-to-optimum",
-    "submit_date": "2016-01-01T00:00:00-09:00"
-  },
-  "model": "answers.Question", "pk": 4
 },
 {
   "fields": {
@@ -737,14 +705,6 @@
 },
 {
   "fields": {
-    "title": "Production BP",
-    "slug": "basic-production-bp",
-    "submit_date": "2016-01-01T00:00:00-09:00"
-  },
-  "model": "answers.Question", "pk": 5
-},
-{
-  "fields": {
     "survey": 1,
     "text": "Production BP",
     "question_type": "radio",
@@ -807,14 +767,6 @@
 },
 {
   "fields": {
-    "title": "Recover heat from hot waste water",
-    "slug": "recover-heat-from-hot-waste-water",
-    "submit_date": "2016-01-01T00:00:00-09:00"
-  },
-  "model": "answers.Question", "pk": 6
-},
-{
-  "fields": {
     "survey": 1,
     "text": "Recover heat from hot waste water",
     "question_type": "radio",
@@ -852,14 +804,6 @@
     "dest_element": 43
   },
   "model": "pages.relationship", "pk": 40
-},
-{
-  "fields": {
-    "title": "Reduce hot water temperature to minimum required",
-    "slug": "reduce-hot-water-temperature-to-minimum-required",
-    "submit_date": "2016-01-01T00:00:00-09:00"
-  },
-  "model": "answers.Question", "pk": 7
 },
 {
   "fields": {

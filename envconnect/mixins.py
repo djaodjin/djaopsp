@@ -6,11 +6,11 @@ import logging
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
+from django.db.models import Sum
 from deployutils.apps.django import mixins as deployutils_mixins
-from answers.models import Follow, Question as AnswersQuestion
 from pages.models import RelationShip
 from pages.mixins import TrailMixin
-from survey.models import Answer, Question, Response, SurveyModel
+from survey.models import Response, SurveyModel
 from survey.utils import get_account_model
 
 from .models import Consumption, Improvement
@@ -194,29 +194,6 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
             raise Http404("Cannot find SurveyModel(account=%s, title=%s)",
                 self.account, self.report_title)
 
-    def consumptions_to_answers(self, consumptions):
-        answers = {}
-        consumptions = [x.id for x in consumptions]
-        questions = Question.objects.filter(
-            survey=self.get_survey(),
-            text__in=consumptions)
-        if questions.count() > 0:
-            for question in questions:
-                try:
-                    answer = Answer.objects.get(question_id=question.pk)
-                    if int(question.text) not in answers:
-                        answers[int(question.text)] = answer.text
-                except Answer.DoesNotExist:
-                    pass
-        return answers
-
-    def system_to_answers(self, system):
-        answers = {}
-        for equipment in system:
-            answers.update(
-                self.consumptions_to_answers(equipment['consumptions']))
-        return answers
-
 
 class ImprovementQuerySetMixin(ReportMixin):
     """
@@ -254,7 +231,6 @@ class BestPracticeMixin(BreadcrumbMixin):
         context.update({
             'icon': self.icon,
             'path': self.kwargs.get('path'),
-            'question': self.question,
             'best_practice': self.best_practice})
         aliases = self.best_practice.get_parent_paths()
         if len(aliases) > 1:
@@ -271,9 +247,21 @@ class BestPracticeMixin(BreadcrumbMixin):
         organization = self.kwargs.get('organization', None)
         if organization:
             context.update({'organization': organization})
+        votes_score = self.best_practice.votes.all().aggregate(
+            sum_votes=Sum('vote')).get('sum_votes', 0)
+        if votes_score is None:
+            votes_score = 0
+        context.update({
+            'nb_followers': self.best_practice.followers.all().count(),
+            'votes_score': votes_score
+        })
         if self.request.user.is_authenticated:
-            context.update({'is_following': Follow.objects.get_followers(
-                self.question).filter(pk=self.request.user.id).exists()})
+            context.update({
+                'is_following': self.best_practice.followers.filter(
+                    user=self.request.user).exists(),
+                'is_voted': self.best_practice.votes.filter(
+                    user=self.request.user).exists()
+            })
         return context
 
     @property
@@ -287,16 +275,3 @@ class BestPracticeMixin(BreadcrumbMixin):
             except Consumption.DoesNotExist:
                 self._best_practice = None
         return self._best_practice
-
-    @property
-    def question(self):
-        if not hasattr(self, '_question'):
-            if not self.best_practice:
-                raise Http404("(BestPracticeMixin) Cannot find best practice.")
-            try:
-                self._question = AnswersQuestion.objects.get(
-                    slug=self.best_practice.slug)
-            except AnswersQuestion.DoesNotExist:
-                raise Http404("Cannot find AnswersQuestion(slug=%s)" %
-                    self.best_practice.slug)
-        return self._question

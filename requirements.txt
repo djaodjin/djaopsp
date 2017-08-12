@@ -4,7 +4,6 @@ django-assets==0.12
 django-contrib-comments==1.8.0
 django-crispy-forms==1.6.1
 django-urldecorators==0.6
-django-voting==0.2
 djangorestframework==3.3.3
 #djaodjin-answers==0.1
 djaodjin-deployutils==0.4.0

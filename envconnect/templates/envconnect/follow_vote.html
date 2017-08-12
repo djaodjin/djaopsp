@@ -1,36 +1,16 @@
 {% load i18n %}
 {% load comments %}
-{% load voting_tags %}
 {% load staticfiles %}
 
 {% block follow_vote %}
-<div>
-	{% vote_by_user user on question as user_vote %}
-			{% if not is_following %}
-			<form class="form-btn" method="post" action="{% url 'follow_best_practice' path %}">
-				<button type="submit" class="btn btn-primary btn-sm">{% trans 'Follow' %}</button>
-				{% csrf_token %}
-			</form>
-			{% else %}
-			<form class="form-btn " method="post" action="{% url 'unfollow_best_practice' path %}">
-				<button type="submit" class="btn btn-danger btn-sm">{% trans 'Unfollow' %}</button>
-				{% csrf_token %}
-			</form>
-			{% endif %}
-			{% if user_vote %}
-			<a class="btn btn-primary btn-sm disabled form-btn " id="rate_bp">My vote: <i class="fa fa-thumbs-o-up "></i></a>
-			{% else %}
-			<form class="form-btn " method="post" action="{% url 'vote_best_practice' path 'up' %}">
-				<button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-thumbs-o-up"></i></button>
-				{% csrf_token %}
-			</form>
-			{% endif %}
-
-		{% score_for_object question as score %}
-		<div class="info_follow_vote">
-		<a class="btn btn-primary btn-sm disabled">{{question.followers.all|length}} <i class="fa fa-users fa-lg"></i></a>
-		<a class="btn btn-primary btn-sm disabled">{{score.num_votes}} <i class="fa fa-thumbs-o-up fa-lg"></i></a>
+<div class="dj-answers-actions" style="display: inline-block;">
+	<button type="submit" class="btn btn-danger btn-sm dj-answers-unfollow{% if is_following %} dj-on{% else %} dj-off{% endif %}">{% trans 'Unfollow' %}</button>
+	<button type="submit" class="btn btn-primary btn-sm dj-answers-follow{% if not is_following %} dj-on{% else %} dj-off{% endif %}">{% trans 'Follow' %}</button>
+	<a class="btn btn-primary btn-sm disabled form-btn dj-answers-uservote{% if is_voted %} dj-on{% else %} dj-off{% endif %}" id="rate_bp">My vote: <i class="fa fa-thumbs-o-up "></i></a>
+	<button type="submit" class="btn btn-primary btn-sm dj-answers-upvote{% if not is_voted %} dj-on{% else %} dj-off{% endif %}"><i class="fa fa-thumbs-o-up"></i></button>
+	<div class="info_follow_vote" style="display: inline-block;">
+		<a class="btn btn-primary btn-sm disabled">{{nb_followers}} <i class="fa fa-users fa-lg"></i></a>
+		<a class="btn btn-primary btn-sm disabled">{{votes_score}} <i class="fa fa-thumbs-o-up fa-lg"></i></a>
 	</div>
 </div>
 {% endblock %}
-

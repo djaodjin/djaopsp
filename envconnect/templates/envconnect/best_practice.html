@@ -115,10 +115,19 @@ the <a href="{{'about/'|site_prefixed}}">about page &raquo;</a>.
 
 {% block bodyscripts %}
 {{block.super}}
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){
+	$(".dj-answers-actions").djForumQuestion({
+		api_follow: "{% url 'answers_api_follow' best_practice %}",
+		api_unfollow: "{% url 'answers_api_unfollow' best_practice %}",
+		api_upvote: "{% url 'answers_api_upvote' best_practice %}",
+		api_downvote: "{% url 'answers_api_downvote' best_practice %}"
+	});
+});
+</script>
 {% if request|is_broker_manager %}
 <script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
-
 	$(".editable").editor({
 		baseUrl: "{% url 'page_elements' %}",
 		preventBlurOnClick: "#toggle-gallery, .dj-gallery-item"

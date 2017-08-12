@@ -11,8 +11,6 @@ from ..api.suppliers import SupplierListAPIView
 from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
     url_direct)
 from ..views import AccountRedirectView, MyTSPRedirectView
-from ..views.best_practices import (FollowBestPracticeView,
-    UnfollowBestPracticeView, BestPracticeVoteView)
 from ..views.benchmark import (BenchmarkView, PortfoliosDetailView,
     ScoreCardView, ScoreCardDownloadView, ScoreCardRedirectView)
 from ..views.compare import ReportingEntitiesView
@@ -61,6 +59,7 @@ urlpatterns += [
     # User authenticated
     url_authenticated(r'api/suppliers/?',
       SupplierListAPIView.as_view(), name="api_suppliers"),
+    url_authenticated(r'api/', include('answers.urls.api')),
 
     # envconnect manager
     url_direct(r'api/content/', include('envconnect.urls.api.content')),
@@ -104,13 +103,6 @@ urlpatterns += [
     url_authenticated(r'app/info(?P<path>%s)/' % settings.PATH_RE,
       DetailView.as_view(), name='summary'),
 
-    url_authenticated('app/comments/unfollow(?P<path>%s)/' % settings.PATH_RE,
-        UnfollowBestPracticeView.as_view(), name='unfollow_best_practice'),
-    url_authenticated('app/comments/follow(?P<path>%s)/' % settings.PATH_RE,
-        FollowBestPracticeView.as_view(), name='follow_best_practice'),
-    url_authenticated('app/comments/vote(?P<path>%s)/(?P<direction>up)/'
-        % settings.PATH_RE,
-        BestPracticeVoteView.as_view(), name='vote_best_practice'),
     url_authenticated(r'app/comments/', include('django_comments.urls')),
 
     # direct manager of :organization

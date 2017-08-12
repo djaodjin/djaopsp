@@ -70,6 +70,7 @@ js_envconnect = Bundle(
     'vendor/c3.js',
     'vendor/bootstrap-toggle.js',
     'js/djaodjin-resources.js',
+    'js/djaodjin-answers.js',
     'js/djaodjin-survey.js',
     'js/djaodjin-set.js',
     'js/djaodjin-categorize.js',

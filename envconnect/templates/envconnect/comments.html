@@ -3,9 +3,9 @@
 
 {% block comment %}
 	<div>
-		{% get_comment_count for question as answers_count %}
+		{% get_comment_count for best_practice as answers_count %}
 		<h4>{{answers_count}} Comments</h4>
-		{% get_comment_list for question as answer_list %}
+		{% get_comment_list for best_practice as answer_list %}
 		<table class="table table-striped">
 		{% for comment in answer_list %}
 			<tr id="comment_from_{{comment.user}}">
@@ -18,7 +18,7 @@
 		{% endfor %}
 		</table>
 		{% if user.is_authenticated %}
-		{% get_comment_form for question as form %}
+		{% get_comment_form for best_practice as form %}
 
 		<form action="{% comment_form_target %}" method="POST" id="form_comment">
 			<fieldset>
