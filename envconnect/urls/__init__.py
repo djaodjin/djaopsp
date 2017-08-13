@@ -57,9 +57,9 @@ urlpatterns += [
     #   LockToggleAPIView.as_view(), name='best_practice_lock_toggle'),
 
     # User authenticated
+    url_authenticated(r'api/suppliers/', include('answers.urls.api')),
     url_authenticated(r'api/suppliers/?',
       SupplierListAPIView.as_view(), name="api_suppliers"),
-    url_authenticated(r'api/', include('answers.urls.api')),
 
     # envconnect manager
     url_direct(r'api/content/', include('envconnect.urls.api.content')),
@@ -100,6 +100,12 @@ urlpatterns += [
             pattern_name='benchmark_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='benchmark'),
+    url_authenticated(r'app/info/scorecard(?P<path>%s)/'
+        % settings.PATH_RE,
+        AccountRedirectView.as_view(
+            pattern_name='scorecard_organization',
+            new_account_url='/%sapp/new/' % APP_PREFIX),
+        name='scorecard'),
     url_authenticated(r'app/info(?P<path>%s)/' % settings.PATH_RE,
       DetailView.as_view(), name='summary'),
 
@@ -131,7 +137,8 @@ urlpatterns += [
         SLUG_RE, settings.PATH_RE), ImproveView.as_view(),
         name='envconnect_improve_organization'),
     url_direct(r'app/(?P<organization>%s)/benchmark/$' % (
-        SLUG_RE), ScoreCardRedirectView.as_view(),
+        SLUG_RE), ScoreCardRedirectView.as_view(
+            pattern_name='benchmark_organization'),
         name='benchmark_organization_redirect'),
     url_direct(r'app/(?P<organization>%s)/benchmark(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), BenchmarkView.as_view(),
@@ -146,13 +153,13 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), ScoreCardView.as_view(),
         name='scorecard_organization'),
-    url_direct(r'app/(?P<organization>%s)/summary(?P<path>%s)/' % (
+    url_direct(r'app/(?P<organization>%s)/info(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE),
         DetailView.as_view(), name='summary_organization'),
 
     url_authenticated(r'app/',
         AccountRedirectView.as_view(
-            pattern_name='benchmark_organization_redirect',
+            pattern_name='scorecard_organization_redirect',
             new_account_url='/%sapp/new/' % APP_PREFIX)),
 
     # no authentication required

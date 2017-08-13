@@ -441,12 +441,12 @@ DEPLOYUTILS = {
                 'manager': [{'slug': 'andy-shop',
                     'printable_name': 'Andy Shop'}]},
             'site': {'email': 'donny+andy@djaodjin.com'}},
-        'erinallard': {
-            'username': 'erinallard',
+        'erin': {
+            'username': 'erin',
             'roles': {
-                'manager': [{'slug': 'erinallard',
-                    'printable_name': 'Erin Allard'}]},
-            'site': {'email': 'donny+erinallardy@djaodjin.com'}},
+                'viewer': [{'slug': 'steve-shop',
+                    'printable_name': 'Steve Shop'}]},
+            'site': {'email': 'donny+erin@djaodjin.com'}},
     },
     'ALLOWED_NO_SESSION': [
         STATIC_URL,

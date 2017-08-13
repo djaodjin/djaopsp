@@ -21,6 +21,11 @@ class AccountRedirectView(ReportMixin, AccountRedirectBaseView):
 
     redirect_roles = ['manager', 'contributor']
 
+    def get_redirect_roles(self, request):
+        if self.pattern_name in ['scorecard_organization_redirect']:
+            return self.redirect_roles + ['viewer']
+        return super(AccountRedirectView, self).get_redirect_roles(request)
+
     def get(self, request, *args, **kwargs):
         if self.manages(settings.APP_NAME):
             kwargs.update({self.slug_url_kwarg: settings.APP_NAME})

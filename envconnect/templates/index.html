@@ -2,13 +2,15 @@
 
 {% block localheader %}
 <style>
-header {
+#load {
+  color: white;
+  background: #3ca65b;
   background: -webkit-linear-gradient(#3ca65b, white);
   background: -o-linear-gradient(#3ca65b, white);
   background: -moz-linear-gradient(#3ca65b, white);
   background: linear-gradient(#3ca65b, white);
-  min-height: 100vh;
-  height: 100vh;
+  min-height: calc(100vh - 53px);
+  height: calc(100vh - 53px);
 }
 
 .dashboard-container {
@@ -25,7 +27,7 @@ header {
 </style>
 {% endblock %}
 
-{% block fullviewport %}
+{% block content %}
 <section id="load" data-trip data-trip-index="1" data-trip-content="<div class='text-left'><h2 class='text-center'>Welcome to The Sustainability Project!</h2><p>In addition to the <b>LEARN</b> tools, as a registered user you now have access to:</p><h3>Measurement tools</h3><ul><li><b>Self assessment</b>: Assess performance against best practices, and identify opportunities ranked by business value and peer implementation rate.</li> <li><b>Score &amp; benchmarking</b>: Compare performance in sustainability with peers through confidential, anonymous, aggregated reports.</li></ul><h3>Improvement planning tools</h3><ul><li><b>Plan improvements</b>: Select improvement actions on a value-prioritized basis and see their impact on cost, savings and overall performance scores. <i class='fa fa-wrench'></i> <li><b>Find suppliers</b>: Find technologies, products and services linked to best practices. <i class='fa fa-wrench'></i></ul></div>" data-trip-position="screen-center">
 	<div class="jumbotron">
 		<div class="container">
@@ -121,9 +123,6 @@ header {
 		</div>
 	</div>
 </section>
-{% endblock %}
-
-{% block content %}
 <div id="scroll-page" class="hidden-xs hidden-sm"
      data-top-center="opacity: 0;" data-center-center="opacity: 1">
 	<div class="inner">

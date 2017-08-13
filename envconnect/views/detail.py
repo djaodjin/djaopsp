@@ -5,6 +5,7 @@ import json
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
 
 from ..mixins import BestPracticeMixin
@@ -16,6 +17,12 @@ class DetailView(BestPracticeMixin, TemplateView):
     template_name = 'envconnect/detail.html'
     breadcrumb_url = 'summary'
 
+    def get(self, request, *args, **kwargs):
+        _, trail = self.breadcrumbs
+        if not trail:
+            return HttpResponseRedirect(reverse('homepage'))
+        return super(DetailView, self).get(request, *args, **kwargs)
+
     def get_breadcrumb_url(self, path):
         organization = self.kwargs.get('organization', None)
         if organization:
@@ -26,7 +33,10 @@ class DetailView(BestPracticeMixin, TemplateView):
         #pylint:disable=too-many-locals
         context = super(DetailView, self).get_context_data(*args, **kwargs)
         from_root, trail = self.breadcrumbs
+        # It is OK here to index by -1 since we would have generated a redirect
+        # in the `get` method when the path is "/".
         root = self._build_tree(trail[-1][0], from_root)
+
         # attach visible column headers
         hidden_columns = {}
         is_envconnect_manager = self.manages(settings.APP_NAME)

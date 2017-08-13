@@ -117,4 +117,15 @@
     "processor": 1
   },
   "model": "saas.organization", "pk": 9
+},
+{ "fields": {
+    "date_joined": "2017-01-01T00:00:00-09:00",
+    "email": "support+erin@djaodjin.com",
+    "first_name": "Erin",
+    "is_active": true,
+    "last_login": "2014-01-01T00:00:00-09:00",
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "erin"
+  },
+  "model": "auth.User", "pk": 9
 }]

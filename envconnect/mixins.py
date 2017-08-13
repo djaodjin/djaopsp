@@ -46,6 +46,10 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         return None
 
     def get_breadcrumb_url(self, path):
+        organization = self.kwargs.get('organization')
+        if organization:
+            return reverse("%s_organization" % self.breadcrumb_url,
+                args=(organization, path,))
         return reverse(self.breadcrumb_url, args=(path,))
 
     def _build_tree(self, root, path, depth=1, nocuts=False):

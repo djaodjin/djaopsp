@@ -3,7 +3,7 @@
 
 import logging, json, re
 
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -28,13 +28,21 @@ class SelfAssessmentRedirectMixin(object):
     def get_assessment_redirect_url(self, *args, **kwargs):
         #pylint:disable=unused-argument
         path = kwargs.get('path')
+        organization = kwargs.get('organization')
         if not isinstance(path, six.string_types):
             path = ""
+        if self.get_accessibles(self.request, roles=['manager', 'contributor']):
+            messages.warning(self.request,
+                "You need to complete a self-assessment before"\
+                " moving on to benchmarks.")
+            return HttpResponseRedirect(reverse('report_organization',
+                kwargs={'organization': organization, 'path': path}))
         messages.warning(self.request,
-            "You need to complete a self-assessment before"\
-            " moving on to benchmarks.")
-        return HttpResponseRedirect(reverse('report_organization',
-            kwargs={'organization': kwargs.get('organization'), 'path': path}))
+            "%(organization)s has not yet started to complete"\
+            " their self-assessment. You will be able able to see"\
+            " %(organization)s as soon as they do." % {
+                'organization': organization})
+        return HttpResponseRedirect(reverse('summary', kwargs={'path': path}))
 
     @staticmethod
     def get_context_data(**kwargs):
@@ -45,8 +53,21 @@ class SelfAssessmentRedirectMixin(object):
 class ScoreCardRedirectView(ReportMixin, SelfAssessmentRedirectMixin,
                             TemplateResponseMixin, RedirectView):
 
-    pattern_name = 'benchmark_organization'
     template_name = 'envconnect/scorecard/index.html'
+
+    def get_redirect_url(self, *args, **kwargs):
+        if self.kwargs.get('organization') in self.accessibles(
+                ['manager', 'contributor']):
+            # If the user has a more than a `viewer` role on the organization,
+            # we force the redirect to the benchmark page such that
+            # the contextual menu with self-assessment, etc. appears.
+            try:
+                return reverse('benchmark_organization',
+                    args=args, kwargs=kwargs)
+            except NoReverseMatch:
+                return None
+        return super(ScoreCardRedirectView, self).get_redirect_url(
+            *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         if not self.sample:
@@ -65,14 +86,12 @@ class ScoreCardRedirectView(ReportMixin, SelfAssessmentRedirectMixin,
         for element in candidates:
             root_prefix = '/sustainability-%s' % element.slug
             kwargs.update({'path': root_prefix})
-            url = super(ScoreCardRedirectView, self).get_redirect_url(
-                *args, **kwargs)
+            url = self.get_redirect_url(*args, **kwargs)
             print_name = element.title
             redirects += [(url, print_name)]
 
         if len(redirects) > 1:
-            context = super(ScoreCardRedirectView, self).get_context_data(
-                *args, **kwargs)
+            context = self.get_context_data(*args, **kwargs)
             context.update({'redirects': redirects})
             return self.render_to_response(context)
         return super(ScoreCardRedirectView, self).get(request, *args, **kwargs)
@@ -80,9 +99,9 @@ class ScoreCardRedirectView(ReportMixin, SelfAssessmentRedirectMixin,
 
 class BenchmarkBaseView(BenchmarkMixin, SelfAssessmentRedirectMixin,
                         TemplateView):
-
-    template_name = 'envconnect/benchmark.html'
-    breadcrumb_url = 'benchmark'
+    """
+    Subclasses are meant to define `template_name` and `breadcrumb_url`.
+    """
 
     def get_context_data(self, *args, **kwargs):
         #pylint:disable=too-many-locals

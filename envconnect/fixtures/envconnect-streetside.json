@@ -108,6 +108,32 @@
     },
     "model": "saas.Role", "pk": 4
 },
+{
+    "fields": {
+      "created_at": "2017-01-01T00:00:00-09:00",
+      "role_description": 2,
+      "organization": 7,
+      "user": 8
+    },
+    "model": "saas.Role", "pk": 5
+},
+{
+    "fields": {
+      "last_signed": "2017-01-01T00:00:00-00:00",
+      "agreement": 1,
+      "user": 9
+    },
+    "model": "saas.signature", "pk": 9
+},
+{
+    "fields": {
+      "created_at": "2017-01-01T14:16:55-09:00",
+      "role_description": 3,
+      "organization": 7,
+      "user": 9
+    },
+    "model": "saas.Role", "pk": 6
+},
 { "fields": {
     "slug": "envconnect",
     "account": 6,
@@ -153,7 +179,7 @@
     "app": 6,
     "rank": 4,
     "path": "/api/:organization/",
-    "rule_op": 3,
+    "rule_op": 4,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
   },
   "model": "rules.Rule", "pk": 4
@@ -165,14 +191,6 @@
     "rule_op": 1
   },
   "model": "rules.Rule", "pk": 5
-},
-{ "fields": {
-    "app": 6,
-    "rank": 6,
-    "path": "/app/content/",
-    "rule_op": 3
-  },
-  "model": "rules.Rule", "pk": 6
 },
 { "fields": {
     "app": 6,
@@ -195,7 +213,7 @@
     "rank": 9,
     "path": "/app/:organization/scorecard/",
     "rule_op": 3,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": \"viewer\"}",
+    "kwargs": "{\"organization\": \"\", \"roledescription\": [\"viewer\", \"contributor\"]}",
     "engaged": "app"
   },
   "model": "rules.Rule", "pk": 9
