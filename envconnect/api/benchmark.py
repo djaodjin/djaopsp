@@ -824,9 +824,21 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
             rollup_tree, view_account=self.sample.account.pk)
         charts, complete = self.flatten_distributions(
             distributions_tree, prefix=from_root)
-        total_score = {"slug": "total-score", "title": "Total Score"}
-        if complete:
+        total_score = None
+        parts = from_root.split('/')
+        if parts:
+            slug = parts[-1]
+            for chart in charts:
+                if chart['slug'] == slug:
+                    total_score = chart.copy()
+                    break
+        if not total_score:
             total_score = distributions_tree[0]
+        if not total_score:
+            total_score = {"nb_respondents": "-"}
+        total_score.update({"slug": "total-score", "title": "Total Score"})
+        if not complete and 'normalized_score' in total_score:
+            del total_score['normalized_score']
         charts += [total_score]
         return charts
 

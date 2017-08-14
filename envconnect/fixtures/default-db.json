@@ -220,13 +220,14 @@
   "fields": {
     "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/product-design",
     "question": 1,
-    "implementation_ease": 1,
     "avg_energy_saving": "* * *",
-    "profitability": 1,
     "capital_cost": "$$$",
-    "business_value": 1,
     "payback_period": "3-12",
-    "environmental_value": 1
+    "business_value": 1,
+    "environmental_value": 1,
+    "implementation_ease": 1,
+    "profitability": 1,
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 1
 },
@@ -252,13 +253,14 @@
   "fields": {
     "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/packaging-design",
     "question": 2,
-    "implementation_ease": 2,
     "avg_energy_saving": "* * * *",
-    "profitability": 2,
     "capital_cost": "$$$",
-    "business_value": 2,
     "payback_period": "0-1.8 (0.3)",
-    "environmental_value": 2
+    "business_value": 2,
+    "environmental_value": 2,
+    "implementation_ease": 2,
+    "profitability": 2,
+    "avg_value": 2
   },
   "model": "envconnect.Consumption", "pk": 2
 },
@@ -483,13 +485,14 @@
   "fields": {
     "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
     "question": 3,
-    "implementation_ease": 1,
     "avg_energy_saving": "* * * *",
-    "profitability": 3,
     "capital_cost": "$$",
-    "business_value": 1,
     "payback_period": "0-1.8 (0.3)",
-    "environmental_value": 1
+    "business_value": 1,
+    "environmental_value": 1,
+    "implementation_ease": 1,
+    "profitability": 3,
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 3
 },
@@ -522,13 +525,14 @@
   "fields": {
     "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
     "question": 4,
-    "implementation_ease": 2,
     "avg_energy_saving": "* * *",
-    "profitability": 1,
     "capital_cost": "$$",
-    "business_value": 1,
     "payback_period": "0-1.8 (0.3)",
-    "environmental_value": 1
+    "business_value": 1,
+    "environmental_value": 1,
+    "implementation_ease": 2,
+    "profitability": 1,
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 4
 },
@@ -717,14 +721,15 @@
   "fields": {
     "path": "/basic-boxes-and-enclosures/basic-production/basic-production-bp",
     "question": 5,
-    "implementation_ease": 1,
     "avg_fuel_saving": "*",
     "avg_energy_saving": "* * *",
-    "profitability": 1,
     "capital_cost": "$$$",
-    "business_value": 1,
     "payback_period": "3-12",
-    "environmental_value": 1
+    "business_value": 1,
+    "environmental_value": 1,
+    "implementation_ease": 1,
+    "profitability": 1,
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 5
 },
@@ -779,14 +784,15 @@
   "fields": {
     "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
     "question": 6,
-    "implementation_ease": 1,
     "avg_fuel_saving": "-",
     "avg_energy_saving": "* * * *",
-    "profitability": 1,
     "capital_cost": "$$",
-    "business_value": 2,
     "payback_period": "0-1.8 (0.3)",
-    "environmental_value": 1
+    "business_value": 2,
+    "environmental_value": 1,
+    "implementation_ease": 1,
+    "profitability": 1,
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 6
 },
@@ -819,14 +825,15 @@
   "fields": {
     "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
     "question": 7,
-    "implementation_ease": 1,
     "avg_fuel_saving": "-",
     "avg_energy_saving": "* * * *",
-    "profitability": 1,
     "capital_cost": "$$",
-    "business_value": 1,
     "payback_period": "0-1.8 (0.3)",
-    "environmental_value": 2
+    "business_value": 1,
+    "environmental_value": 2,
+    "implementation_ease": 1,
+    "profitability": 1,
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 7
 },
@@ -1182,14 +1189,15 @@
   "fields": {
     "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
     "question": 8,
-    "implementation_ease": 1,
     "avg_fuel_saving": "*",
     "avg_energy_saving": "* * *",
-    "profitability": 1,
     "capital_cost": "$$$",
-    "business_value": 1,
     "payback_period": "3-12",
-    "environmental_value": 1
+    "business_value": 1,
+    "environmental_value": 1,
+    "implementation_ease": 1,
+    "profitability": 1,
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 8
 },
@@ -1222,14 +1230,15 @@
   "fields": {
     "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/general/a-policy-is-in-place-appropriate-to-the-nature-and-scale",
     "question": 9,
-    "implementation_ease": 1,
     "avg_fuel_saving": "*",
     "avg_energy_saving": "* * *",
-    "profitability": 1,
     "capital_cost": "$$$",
-    "business_value": 1,
     "payback_period": "3-12",
-    "environmental_value": 1
+    "business_value": 1,
+    "environmental_value": 1,
+    "implementation_ease": 1,
+    "profitability": 1,
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 9
 },
@@ -1247,13 +1256,14 @@
   "fields": {
     "path": "/construction/sustainability-construction/management-construction/process-in-place",
     "question": 10,
-    "implementation_ease": 1,
     "avg_energy_saving": "* * *",
-    "profitability": 1,
     "capital_cost": "$$$",
-    "business_value": 1,
     "payback_period": "3-12",
-    "environmental_value": 1
+    "business_value": 1,
+    "environmental_value": 1,
+    "implementation_ease": 1,
+    "profitability": 1,
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 10
 },
@@ -1910,13 +1920,14 @@
   "fields": {
     "path": "/wire-and-cable/sustainability-wire-and-cable/wc-design/design-categories/product-design",
     "question": 11,
-    "implementation_ease": 1,
     "avg_energy_saving": "* * *",
-    "profitability": 1,
     "capital_cost": "$$$",
-    "business_value": 1,
     "payback_period": "3-12",
-    "environmental_value": 1
+    "business_value": 1,
+    "environmental_value": 1,
+    "implementation_ease": 1,
+    "profitability": 1,
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 11
 }]
