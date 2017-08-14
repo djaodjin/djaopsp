@@ -1,7 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.generics import (get_object_or_404, ListAPIView,
      GenericAPIView)
 from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
@@ -48,11 +48,19 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
     def create(self, request, *args, **kwargs):
         consumption = get_object_or_404(Consumption.objects.all(),
             path=self.kwargs.get('path'))
-        instance = self.get_queryset().filter(consumption=consumption).first()
-        if instance is None:
-            self.model.objects.create(
-                account=self.account, consumption=consumption)
-        return Response({})
+        improve, created = self.model.objects.get_or_create(
+            account=self.account, consumption=consumption)
+        return Response(self.serializer_class().to_representation(improve),
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        # get_queryset() will filter by `account`. We filter by `path`
+        # as in `get_object`. It should return a single result but
+        # in case the db was corrupted, let's just fix it on the fly here.
+        # XXX In the future the improvements must relate to a specific year.
+        self.get_queryset().filter(
+            consumption__path=self.kwargs.get('path')).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
