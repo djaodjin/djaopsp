@@ -11,24 +11,27 @@ from survey.models import Question
 from ...models import Consumption
 
 INDUSTRIES = [
+    'architecture-design',
     'boxes-and-enclosures',
     'construction',
-    'epc',
+    'consulting',
     'distribution-industry',
     'distribution-transformers',
     'energy-efficiency-contracting',
     'energy-utility',
+    'epc',
     'fabricated-metals',
     'facilities-management-industry',
     'freight-and-shipping',
     'fuel-supply',
     'general-contractors',
     'general-manufacturing',
+    'interior-design',
     'marketing-and-communications',
-    'office-space-only',
     'print-services',
-    'shipping-and-logistics',
+    'office-space-only',
     'vehicle-equipment-and-parts',
+    'shipping-and-logistics',
     'wire-and-cable',
 ]
 
