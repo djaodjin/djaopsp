@@ -120,22 +120,12 @@
                     <tr ng-if="getEntries('{{abs_prefix}}').length === 0">
                         <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]"><em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em></td>
                     </tr>
-                    {% if icon_tuple.1|nb_self_assessment_questions > 0 %}
-                    <tr>
-                        <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]" class="text-right">
-                            <a id="assess-button"
-                               class="btn btn-warning btn-lg btn-assess"
-                               href="{% url 'report_organization' organization path %}?active={{icon.slug}}&toggle=1"
-                               ng-disabled="allAnswered('tab-{{icon.slug}}')">Assess</a>
-                        </td>
-                    </tr>
-                    {% endif %}
                 </tbody>
                 {% endwith %}
             </table>
             <div class="row" style="margin-top:-15px;">
                 <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom: 10px;">
-                    <div ng-show="scoreToggle">
+                    <div>
                         {% include "envconnect/_value_summary_legend.html" %}
                     </div>
                 </div>
