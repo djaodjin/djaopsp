@@ -141,8 +141,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         from_root, trail = self.breadcrumbs
         parts = from_root.split('/')
         root_prefix = '/'.join(parts[:-1]) if len(parts) > 1 else ""
+        path = kwargs.get('path', "")
         context.update({
-            'path': kwargs.get('path', ""),
+            'path': path,
             'root_prefix': root_prefix,
             'breadcrumbs': trail,
             'active': self.request.GET.get('active', "")})
@@ -155,11 +156,28 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'api_weights': reverse('api_score_base'),
             'api_page_elements': reverse('page_elements'),
             'best_practice_base': self.get_breadcrumb_url(
-                self.kwargs.get('path', ""))
+                path)
         }
         if 'organization' in context:
-            urls.update({'api_improvements': reverse(
-                'api_improvement_base', args=(context['organization'],))})
+            urls.update({
+                'api_improvements': reverse('api_improvement_base',
+                    args=(context['organization'],)),
+                'summary': reverse('summary_organization',
+                    args=(context['organization'], path)),
+                'report': reverse('report_organization',
+                    args=(context['organization'], path)),
+                'benchmark': reverse('benchmark_organization',
+                    args=(context['organization'], path)),
+                'improve': reverse('envconnect_improve_organization',
+                    args=(context['organization'], path))
+            })
+        else:
+            urls.update({
+                'summary': reverse('summary', args=(path,)),
+                'report': reverse('report', args=(path,)),
+                'benchmark': reverse('benchmark', args=(path,)),
+                'improve': reverse('envconnect_improve', args=(path,))
+            })
         self.update_context_urls(context, urls)
         return context
 
