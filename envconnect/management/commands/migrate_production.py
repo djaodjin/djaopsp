@@ -7,6 +7,7 @@ import re
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip
 from answers.models import Question as AnswersQuestion
 from survey.models import (Answer, Question, Response, SurveyModel,
@@ -18,10 +19,103 @@ from ...models import Improvement, Consumption, ScoreWeight, ColumnHeader
 
 class Command(BaseCommand):
 
+    def add_arguments(self, parser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument('paths', metavar='command', nargs='*',
+            help="url.path: /sustainability-epc/energy-70a7c33")
+
     def handle(self, *args, **options):
         with transaction.atomic():
+            self.dump_sql_statements(options.get('paths'))
 #            self.relabel_to_fix_error()
-            self.recompute_avg_value()
+#            self.recompute_avg_value()
+
+    def dump_sql_statements_recursive(self, root):
+        self.stdout.write("INSERT INTO pages_pageelement (id, slug, text,"\
+            " account_id, title, tag) VALUES (%(id)s, '%(slug)s', '%(text)s',"\
+            " %(account_id)s, '%(title)s', %(tag)s);" % {
+                'id': root.id,
+                'slug': root.slug,
+                'text': root.text.replace("'", "''"),
+                'account_id': root.account_id,
+                'title': root.title,
+                'tag': "'%s'" % root.tag if root.tag is not None else "null"})
+        for edge in RelationShip.objects.filter(orig_element=root):
+            self.dump_sql_statements_recursive(edge.dest_element)
+            self.stdout.write("INSERT INTO pages_relationship (id,"\
+                " orig_element_id, dest_element_id, tag, rank) VALUES"\
+                " (%(id)s, %(orig_element_id)s, %(dest_element_id)s,"\
+                " %(tag)s, %(rank)s);" % {
+                    'id': edge.id,
+                    'orig_element_id': edge.orig_element_id,
+                    'dest_element_id': edge.dest_element_id,
+                'tag': "'%s'" % edge.tag if edge.tag is not None else "null",
+                    'rank': edge.rank
+            })
+
+    def dump_sql_statements(self, paths):
+        self.stdout.write("BEGIN;")
+        for path in paths:
+            trail = TrailMixin.get_full_element_path(path)
+            self.dump_sql_statements_recursive(trail[-1])
+            for consumption in Consumption.objects.filter(
+                    path__startswith="/" + "/".join([
+                    elem.slug for elem in trail])):
+                question = consumption.question
+                self.stdout.write("INSERT INTO survey_question (id, text,"\
+                    " survey_id, question_type, has_other, choices, rank,"\
+                    " correct_answer, required) VALUES (%(id)s, %(text)s,"\
+                    " %(survey_id)s, %(question_type)s, %(has_other)s,"\
+                    " %(choices)s, %(rank)s, %(correct_answer)s,"\
+                    " %(required)s);" % {
+                        'id': question.id,
+                        'text': ("'%s'" % question.text
+                            if question.text is not None else "null"),
+                        'survey_id': question.survey_id,
+                        'question_type':  "'%s'" % (question.question_type
+                            if question.question_type is not None else "null"),
+                        'has_other': "'t'" if question.has_other else "'f'",
+                        'choices': "'%s'" % (question.choices
+                            if question.choices is not None else "null"),
+                        'rank': question.rank,
+                        'correct_answer': "'%s'" % (question.correct_answer
+                            if question.correct_answer is not None else "null"),
+                        'required': "'t'" if question.required else "'f'",
+                    })
+                self.stdout.write("INSERT INTO envconnect_consumption (id,"\
+                    " avg_energy_saving, capital_cost_low, capital_cost_high,"\
+                    " payback_period, reported_by, avg_fuel_saving,"\
+                    " environmental_value, business_value,"\
+                    " implementation_ease, profitability, path,"\
+                    " capital_cost,  question_id,  opportunity,"\
+                    "  avg_value) VALUES (%(id)s, '%(avg_energy_saving)s',"\
+                    " %(capital_cost_low)s, %(capital_cost_high)s,"\
+                    " '%(payback_period)s', %(reported_by)s,"\
+                    " '%(avg_fuel_saving)s', %(environmental_value)s,"\
+                    " %(business_value)s, %(implementation_ease)s,"\
+                    " %(profitability)s, '%(path)s', '%(capital_cost)s',"\
+                    " %(question_id)s, %(opportunity)s, %(avg_value)s);" % {
+                        'id': consumption.id,
+                        'avg_energy_saving': consumption.avg_energy_saving,
+            'capital_cost_low': "'%s'" % (consumption.capital_cost_low
+                if consumption.capital_cost_low is not None else "null"),
+            'capital_cost_high':  "'%s'" % (consumption.capital_cost_high
+                if consumption.capital_cost_high is not None else "null"),
+            'payback_period': consumption.payback_period,
+            'reported_by': "'%s'" % (consumption.reported_by
+                if consumption.reported_by is not None else "null"),
+            'avg_fuel_saving': consumption.avg_fuel_saving,
+            'environmental_value': consumption.environmental_value,
+            'business_value': consumption.business_value,
+            'implementation_ease': consumption.implementation_ease,
+            'profitability': consumption.profitability,
+            'path': consumption.path,
+            'capital_cost': consumption.capital_cost,
+            'question_id': consumption.question_id,
+            'opportunity': consumption.opportunity,
+            'avg_value': consumption.avg_value
+                })
+        self.stdout.write("COMMIT;")
 
     @staticmethod
     def recompute_avg_value():
