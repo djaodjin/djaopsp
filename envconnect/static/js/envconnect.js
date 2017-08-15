@@ -1320,7 +1320,15 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                             .value3(data[idx].normalized_score)
                             .render();
                     } else {
-                        totalScoreElement.append("<div class=\"total-score-chart\"><div>N/A - Self assessment questions incomplete</div></div>");
+                        if( totalScoreElement.find(".total-score-chart").length === 0 ) {
+                            // N/A Could already been added. We will call
+                            // the benchmark API multiple times
+                            // on the improvement dashboard.
+                            totalScoreElement.append(
+                    "<div class=\"total-score-chart\">" +
+                      "<div>N/A - Self assessment questions incomplete</div>" +
+                    "</div>");
+                        }
                     }
                     var nbRespondentsElem = self.element.find(
                         "#nb-respondents");
