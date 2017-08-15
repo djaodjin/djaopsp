@@ -17,22 +17,22 @@
             <div class="container-fluid">
                 {% block supplier_menus %}
                 <div class="row">
-                    <div id="learn-action-header" data-trip data-trip-index="1" data-trip-content="Select a heading, then click on the icons below to browse content." data-trip-position="n">
-                        <div class="col-md-offset-2 col-md-3" data-trip data-trip-index="2" data-trip-content="<div style='text-align:left;'><strong>Sustainability practices</strong>: Practices beyond compliance and risk.</div>" data-trip-position="s">
+                    <div id="learn-action-header">
+                        <div class="col-md-offset-2 col-md-3">
                             <h2>Learn <i class="fa fa-angle-right"></i></h2>
                             <ul class="nav">
-                                <li><a id="help-request" style="cursor:pointer;">Getting started</a></li>
+                                <li><a id="help-request" style="cursor:pointer;" data-trip data-trip-delay="-1" data-trip-index="1" data-trip-position="screen-center" data-trip-content="<div class='text-left'>What each function lets you do:<ul><li><strong>Environmental practices</strong>. Browse best practices relevant to your industry segment prioritized by<br /> environmental and business value. Click on a practice title to see if there is guidance on the practice. [See note<br /> below]</li><li><strong>Assessment</strong>. Assess your performance in best practices, get detailed peer benchmarking for each practice,<br /> identify improvement opportunities ranked by business value and peer implementation rate.</li><li><strong>Scorecard</strong>. Get an overall performance score and aggregated benchmarking with peers. THE SELF-<br />ASSESSMENT MUST BE COMPLETED TO GET A COMPLETE SCORECARD.</li><li><strong>Planning</strong>. Select improvement actions on a value-prioritized basis and see their impact on scores.</li><li><strong>Find suppliers</strong>. Under construction - Find best practice-linked technologies, products and services.</li></ul></div>">Start here</a></li>
                                 <li{% if '/info/' in request.path %} class="active"{% endif %}><a id="submenu-sustainability" href="{{urls.summary}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><i class="fa-li fa{% if '/summary/' in request.path %} fa-hand-o-right{% endif %}"></i> Environmental practices</a></li>
                             </ul>
                         </div>
-                        <div class="col-md-3" data-trip data-trip-index="3" data-trip-content="<div style='text-align:left;'><strong>Self-assessment</strong>: Assess performance against best practices, and identify opportunities<br />ranked by business value and peer implementation rate.<br /><strong>Score & Benchmark</strong>: Compare performance with peers through confidential,<br />anonymous, aggregated reports. THE SELF-ASSESSMENT MUST BE COMPLETED FIRST.</div>" data-trip-position="s">
+                        <div class="col-md-3">
                             <h2>Measure <i class="fa fa-angle-right"></i></h2>
                             <ul class="nav">
-                                <li{% if '/report/' in request.path %} class="active"{% endif %}><a id="submenu-self-assessment" href="{% if request|is_broker_manager %}{% url 'report_organization_download' 'envconnect' breadcrumbs|category_entry %}{% else %}{{urls.report}}[[activeIcon !== null ? '?active=' + activeIcon : '']]{% endif %}"><i class="fa-li fa{% if '/report/' in request.path %} fa-hand-o-right{% endif %}"></i> Self-assessment</a></li>
-                                <li{% if '/benchmark/' in request.path %} class="active"{% endif %}><a id="submenu-benchmark"{% if request|is_broker_manager %} disabled{% endif %} href="{% url 'benchmark' breadcrumbs|category_entry %}"><i class="fa-li fa{% if '/benchmark/' in request.path %} fa-hand-o-right{% endif %}"></i> Score &amp; benchmark</a></li>
+                                <li{% if '/report/' in request.path %} class="active"{% endif %}><a id="submenu-self-assessment" href="{% if request|is_broker_manager %}{% url 'report_organization_download' 'envconnect' breadcrumbs|category_entry %}{% else %}{{urls.report}}[[activeIcon !== null ? '?active=' + activeIcon : '']]{% endif %}"><i class="fa-li fa{% if '/report/' in request.path %} fa-hand-o-right{% endif %}"></i> Assessment</a></li>
+                                <li{% if '/benchmark/' in request.path %} class="active"{% endif %}><a id="submenu-benchmark"{% if request|is_broker_manager %} disabled{% endif %} href="{% url 'benchmark' breadcrumbs|category_entry %}"><i class="fa-li fa{% if '/benchmark/' in request.path %} fa-hand-o-right{% endif %}"></i> Scorecard</a></li>
                             </ul>
                         </div>
-                        <div class="col-md-3" data-trip data-trip-index="4" data-trip-content="<div style='text-align:left;'><strong>Plan improvements</strong>: Select improvement actions on a value-prioritized basis<br />and see their impact on cost, savings and overall performance scores.<br /><strong>Find suppliers</strong>: Under construction - Ability to find best practice-linked<br />technologies, products and services.</div>" data-trip-position="s">
+                        <div class="col-md-3">
                             <h2>Improve <i class="fa fa-angle-right"></i></h2>
                             <ul class="nav">
                                 <li{% if '/improve/' in request.path %} class="active"{% endif %}><a id="submenu-improve"{% if request|is_broker_manager %} class="disabled"{% else %} href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"{% endif %}><i class="fa-li fa{% if '/improve/' in request.path %} fa-hand-o-right{% endif %}"></i> Plan improvements</a></li>
@@ -151,9 +151,8 @@
                         <h3>Content sponsors</h3>
                         <p>
 Please <a href="{{'sponsors/'|site_prefixed}}">click here</a> to see a list of
-content sponsors responsible for funding the development of content for this
-section of the website, and for the subject matter experts responsible for
-content development.
+contributors responsible for providing information, time and/or funding
+to develop content on this website.
                         </p>
                     </div>
                 </div>

@@ -11,7 +11,6 @@
             <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length === 0">
             <div class="row">
                 <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
-                    <a class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank"><i class="fa fa-wrench"></i> Download Self-assessment</a>
                     <!-- WORKAROUND: we set data-width and data-height
                          otherwise bootstrap-toggle will crop the size
                          inside a class="tab-content collapse". -->
@@ -30,7 +29,7 @@
                 <thead ng-show="!scoreToggle">
                     <tr>
                       <th rowspan="2" style="vertical-align:bottom;">Practices</th>
-                      <th class="text-center" colspan="{{choices|length}}">Implemented as standard practice for applicable activities/projects?</th>
+                      <th class="text-center" colspan="{{choices|length}}">Implemented as standard practice <a id="help-request" style="cursor:pointer;" data-trip data-trip-delay="-1" data-trip-index="1" data-trip-position="screen-center" data-trip-content="Read this question to mean, Has the practice been implemented as standard or routine for all activities, projects or services to which the practice could apply, and over which the reporting entity has operational influence or control? If the reporting entity has no influence or control over a practice, then the response to the question should be <em>'Not applicable'</em>."><i class="fa fa-question-circle"></i></a></th>
                     </tr>
                     <tr>
                       {% for choice in choices %}
@@ -118,7 +117,20 @@
                         {% endif %}
                    </tr>
                     <tr ng-if="getEntries('{{abs_prefix}}').length === 0">
-                        <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]"><em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em></td>
+                        <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]">
+<em>Guidance has not yet been developed for this section. If you would like to
+see guidance, or are interested in authoring content for this section, please
+<a href="{{'contact/'|site_prefixed}}">contact us &raquo;</a>.
+See the following for examples of content developed for best practices:
+<a href="{% url 'summary' '/sustainability-boxes-and-enclosures/energy/reduce-the-pressure-of-compressed-air-to-the-minim/' %}">Example 1</a>,
+<a href="{% url 'summary' '/sustainability-office-space-only/computing-and-telecom-hardware-and-service-fc47207/' %}">Example 2</a>,
+<a href="{% url 'summary' '/sustainability-office-space-only/driver-behavior-that-could-influence-fuel-efficien/' %}">Example 3</a>.</em>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]" class="text-right">
+                                <a class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank"><i class="fa fa-wrench"></i> Download Self-assessment</a>
+                        </td>
                     </tr>
                 </tbody>
                 {% endwith %}

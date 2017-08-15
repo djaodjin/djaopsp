@@ -178,8 +178,6 @@ urlpatterns += [
         name='contact'),
     # XXX These URLs are temporarly here until we are able to serve them
     # from the djaodjin webapp.
-    url_prefixed(r'about/$',
-        TemplateView.as_view(template_name='about.html'), name='about'),
     url_prefixed(r'$', IndexView.as_view(), name='homepage'),
     url(r'^$',
         RedirectView.as_view(pattern_name='homepage'),

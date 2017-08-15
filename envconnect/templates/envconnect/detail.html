@@ -104,7 +104,13 @@
                        ng-if="getEntries('{{abs_prefix}}').length === 0">
                     <tr>
                         <td colspan="{{icon.profitability_headers_len}}">
-<em>Content development in progress... Please, consider to <a href="{% url 'about' %}">contribute or become a sponsor &raquo;</a></em>
+<em>Guidance has not yet been developed for this section. If you would like to
+see guidance, or are interested in authoring content for this section, please
+<a href="{{'contact/'|site_prefixed}}">contact us &raquo;</a>.
+See the following for examples of content developed for best practices:
+<a href="{% url 'summary' '/sustainability-boxes-and-enclosures/energy/reduce-the-pressure-of-compressed-air-to-the-minim/' %}">Example 1</a>,
+<a href="{% url 'summary' '/sustainability-office-space-only/computing-and-telecom-hardware-and-service-fc47207/' %}">Example 2</a>,
+<a href="{% url 'summary' '/sustainability-office-space-only/driver-behavior-that-could-influence-fuel-efficien/' %}">Example 3</a>.</em>
                         </td>
                     </tr>
                 </tbody>

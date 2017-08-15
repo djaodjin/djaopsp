@@ -16,7 +16,7 @@
         <legend>Organization</legend>
         <div class="form-group{% if form.organization_name.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
-            <label class="col-sm-5 control-label requiredField">Organization name<span class="asteriskField"><a id="organization-tooltip" style="color:inherit;" href="" data-toggle="tooltip" data-placement="right" title="&quot;Organization&quot; refers to the name of the entity that will be creating a profile on this website. Examples include, but aren’t limited to a corporation, business unit, facility, office, department, etc."><i class="fa fa-question"></i></a></span></label>
+            <label class="col-sm-5 control-label requiredField">Organization name<span class="asteriskField"><a id="organization-tooltip" style="color:inherit;" href="" data-toggle="tooltip" data-placement="right" title="The &quot;Organization&quot; or reporting entity should align with the ability to influence and/or control policies and practices related to environmental impacts and improvement opportunities."><i class="fa fa-question-circle" style="color: #e11"></i></a></span></label>
             {% endif %}
             <div class="col-sm-7 controls">
                 <input class="form-control" type="text" name="organization_name"{% if form.organization_name.value() %} value="{{form.organization_name.value()}}"{% endif %} style="float:right;">
