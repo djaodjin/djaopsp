@@ -207,6 +207,10 @@ class BenchmarkMixin(ReportMixin):
             if (icon_tuple[0].tag
                 and settings.TAG_SCORECARD in icon_tuple[0].tag):
                 _, trail = self.get_breadcrumbs(icon_path)
+                if trail:
+                    root_elem = trail.pop(0)
+                    while trail and trail[0][0].title == root_elem[0].title:
+                        trail.pop(0)
                 breadcrumbs = [tup[0].title for tup in trail]
                 icon = {
                     'slug': icon_tuple[0].slug,
@@ -239,6 +243,7 @@ class BenchmarkMixin(ReportMixin):
         result_metrics = {
             'tag': rollup_tree[0].get('tag', ""),
             'title': rollup_tree[0].get('title', ""),
+            'breadcrumbs': rollup_tree[0].get('breadcrumbs', []),
             'text': rollup_tree[0].get('text', ""),
             'score_weight': rollup_tree[0].get('score_weight', ""),
             'slug': rollup_tree[0].get('slug', ""),
@@ -329,6 +334,15 @@ class BenchmarkMixin(ReportMixin):
                     chart, prefix=prefix)
                 charts += leaf_charts
                 complete &= leaf_complete
+                # XXX duplicate from `get_charts`
+                _, trail = self.get_breadcrumbs(key)
+                if trail:
+                    root_elem = trail.pop(0)
+                    while trail and trail[0][0].title == root_elem[0].title:
+                        trail.pop(0)
+                breadcrumbs = [tup[0].title for tup in trail]
+                chart[0].update({'breadcrumbs': breadcrumbs})
+                # XXX end duplicate
                 charts += [chart[0]]
                 if 'distribution' in chart[0]:
                     complete &= (chart[0].get(

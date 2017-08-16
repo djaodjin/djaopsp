@@ -16,14 +16,14 @@
       <a class="btn btn-primary" href="{% url 'envconnect_improve_organization_download' organization %}" target="_blank"><i class="fa fa-wrench"></i> Download improvements list</a>
       </div>
       <div class="row">
-        <div class="col-sm-6">
+        <div class="col-sm-7">
           <div class="score-card"
                style="flex:auto;">
             <h4>Total Score <span id="improvement-score"></span></h4>
-            <div id="total-score" class="distribution-chart chart-content">
+            <div id="total-score" class="chart-content">
             </div>
           </div>
-          <div id="{{root.0.slug}}-chart" class="chart-container bordered-left" ng-show="activeIcon === null">
+          <div id="{{root.0.slug}}-chart" class="chart-container chart-container-default bordered-left" ng-show="activeIcon === null">
             {% include "envconnect/_chart_title.html" with practice=root.0 %}
             <div>
               <div class="chart-content c3" style="width:250px;height:120px;">
@@ -42,9 +42,9 @@
           {% endwith %}
           {% endfor %}
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-5">
           <div class="row">
-            <div class="distribution-chart bordered-left">
+            <div class="bordered-left" style="display: inline-block;">
               <h4>Cost</h4>
               <p>as % of overhead</p>
               <div class="cost"></div>
@@ -56,14 +56,14 @@
               </div>
               </div>
             </div>
-            <div class="distribution-chart">
+            <div style="display: inline-block;">
               <h4>Savings</h4>
               <p>as % of overhead</p>
               <div class="savings"></div>
             </div>
           </div>
           <div class="row">
-            <p style="display:inline-block;width:500px;">
+            <p style="display:inline-block;">
 Note: Where practices are associated with costs or savings,<br />
 averages will be registered by these value gauges.
             </p>

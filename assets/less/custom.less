@@ -64,12 +64,6 @@ h2.icon-row-title {
     border-right:1px dashed grey;
 }
 
-.total-score-chart {
-  width:300px;
-  height:200px;
-  margin:auto;
-}
-
 .benchmark-chart {
   max-height:120px;
   display:table-cell;
@@ -637,6 +631,12 @@ li.active .system-menus {
   margin: 20px 0 0 0;
 }
 
+.total-score-chart {
+  width: @score-card-width;
+  height:200px;
+  margin-left: 10px;
+}
+
 .score-card-background {
   border-left:1px dashed grey;
   background-color: #e5e9dd;
@@ -645,7 +645,7 @@ li.active .system-menus {
 .score-card {
   display:inline-block;
   float:left;
-  width: 300px;
+  width: @score-card-width;
   padding-top: 5px;
 }
 

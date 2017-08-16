@@ -8,11 +8,7 @@
     </div>
     <div class="title">
         <h3>{{practice.breadcrumbs.0}}</h3>
-        {% if practice.breadcrumbs|length > 1 and practice.breadcrumbs.1 != practice.breadcrumbs.0 %}
-        <h4>{{practice.breadcrumbs.1}}</h4>
-        {% endif %}
-        {% if practice.breadcrumbs|length > 2 %}
-        <h5>{{practice.breadcrumbs|last}}</h5>
-        {% endif %}
+        <h4>{% if practice.breadcrumbs|length > 1 %}{{practice.breadcrumbs.1}}{% endif %}</h4>
+        <h5>{% if practice.breadcrumbs|length > 2 %}{{practice.breadcrumbs|last}}{% endif %}</h5>
     </div>
 </div>

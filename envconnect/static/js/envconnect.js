@@ -1311,6 +1311,51 @@ envconnectControllers.controller("envconnectRequestListCtrl",
 
         populate: function (data) {
             var self = this;
+            // Distribution charts
+            var elems = self.element.find(".chart-container");
+            var defaultElem = self.element.find(
+                ".chart-container.chart-container-default");
+            var defaultChartId = defaultElem.attr("id");
+            var defaultChart = null;
+            for( var chartIdx = 0; chartIdx < data.length; ++chartIdx ) {
+                if( (data[chartIdx].slug + '-chart') === defaultChartId ) {
+                    defaultChart = data[chartIdx];
+                    break;
+                }
+            }
+            for( var idx = 0; idx < elems.length; ++idx ) {
+                var chartId = $(elems[idx]).attr('id');
+                var found = defaultChart;
+                for( var chartIdx = 0; chartIdx < data.length; ++chartIdx ) {
+                    if( (data[chartIdx].slug + '-chart') === chartId ) {
+                        found = data[chartIdx];
+                        break;
+                    }
+                }
+                if( found ) {
+                    var title0 = "";
+                    var title1 = "";
+                    var title2 = "";
+                    if( found.breadcrumbs && found.breadcrumbs.length > 0 ) {
+                        title0 = found.breadcrumbs[0];
+                    }
+                    if( found.breadcrumbs && found.breadcrumbs.length > 1 ) {
+                        title1 = found.breadcrumbs[1];
+                    }
+                    if( found.breadcrumbs && found.breadcrumbs.length > 2 ) {
+                        title2 = found.breadcrumbs[found.breadcrumbs.length - 1];
+                    }
+                    $(elems[idx]).find(".title h3").text(title0);
+                    $(elems[idx]).find(".title h4").text(title1);
+                    $(elems[idx]).find(".title h5").text(title2);
+                    $(elems[idx]).find(".chart-content").benchmarkChart({
+                        title: found.title,
+                        scores: found.distribution,
+                        nb_answers: found.nb_answers,
+                        nb_questions: found.nb_questions});
+                }
+            }
+            // Scores
             for( var idx = 0; idx < data.length; ++idx ) {
                 if( data[idx].slug === "total-score" ) {
                     var totalScoreElement = self.element.find(
@@ -1346,20 +1391,9 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                          "(+" + data[idx].improvement_score.toFixed(0) + "%)");
                     }
                 } else {
-                    // distribution chart
-                    var benchmarkElement = self.element.find(
-                        "#" + data[idx].slug + "-chart");
-                    if( benchmarkElement ) {
-                        benchmarkElement.find(
-                            ".chart-content").benchmarkChart({
-                                title: data[idx].title,
-                                scores: data[idx].distribution,
-                                nb_answers: data[idx].nb_answers,
-                                nb_questions: data[idx].nb_questions});
-                    }
                     // score
                     var elemPath = "#" + data[idx].slug + "-score .rollup-score";
-                    benchmarkElement = self.element.find(elemPath);
+                    var benchmarkElement = self.element.find(elemPath);
                     if( benchmarkElement ) {
                         if( data[idx].nb_questions > 0
                             && data[idx].nb_answers >= data[idx].nb_questions ) {
