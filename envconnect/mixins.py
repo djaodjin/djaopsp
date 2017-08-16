@@ -158,25 +158,30 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'best_practice_base': self.get_breadcrumb_url(
                 path)
         }
+        active_section = ""
+        if self.request.GET.get('active', ""):
+            active_section += "?active=%s" % self.request.GET.get('active')
         if 'organization' in context:
             urls.update({
                 'api_improvements': reverse('api_improvement_base',
                     args=(context['organization'],)),
                 'summary': reverse('summary_organization',
-                    args=(context['organization'], path)),
-                'report': reverse('report_organization',
-                    args=(context['organization'], path)),
+                    args=(context['organization'], path)) + active_section,
                 'benchmark': reverse('benchmark_organization',
-                    args=(context['organization'], path)),
+                    args=(context['organization'], path)) + active_section,
+                'report': reverse('report_organization',
+                    args=(context['organization'], path)) + active_section,
                 'improve': reverse('envconnect_improve_organization',
-                    args=(context['organization'], path))
+                    args=(context['organization'], path)) + active_section
             })
         else:
             urls.update({
-                'summary': reverse('summary', args=(path,)),
-                'report': reverse('report', args=(path,)),
-                'benchmark': reverse('benchmark', args=(path,)),
-                'improve': reverse('envconnect_improve', args=(path,))
+                'summary': reverse('summary', args=(path,)) + active_section,
+                'benchmark':
+                  reverse('benchmark', args=(path,)) + active_section,
+                'report': reverse('report', args=(path,)) + active_section,
+                'improve':
+                  reverse('envconnect_improve', args=(path,))  + active_section
             })
         self.update_context_urls(context, urls)
         return context
@@ -284,6 +289,31 @@ class BestPracticeMixin(BreadcrumbMixin):
                 'is_voted': self.best_practice.votes.filter(
                     user=self.request.user).exists()
             })
+        # Change defaults contextual URL to move back up one level.
+        _, trail = self.breadcrumbs
+        contextual_path = trail[-2][1] if len(trail) > 1 else path
+        parts = contextual_path.split('#')
+        contextual_path = parts[0]
+        if len(parts) > 1:
+            active_section = "?active=%s" % parts[1]
+        else:
+            active_section = ""
+        if organization:
+            urls = {
+                'report': reverse('report_organization',
+                    args=(organization, contextual_path)) + active_section,
+                'improve': reverse('envconnect_improve_organization',
+                    args=(organization, contextual_path)) + active_section
+            }
+        else:
+            urls = {
+                'report':
+                  reverse('report', args=(contextual_path,)) + active_section,
+                'improve': (
+                    reverse('envconnect_improve', args=(contextual_path,))
+                    + active_section)
+            }
+        self.update_context_urls(context, urls)
         return context
 
     @property
