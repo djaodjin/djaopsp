@@ -35,7 +35,7 @@
                         <div class="col-md-3">
                             <h2>Improve <i class="fa fa-angle-right"></i></h2>
                             <ul class="nav">
-                                <li{% if '/improve/' in request.path %} class="active"{% endif %}><a id="submenu-improve"{% if request|is_broker_manager %} class="disabled"{% else %} href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"{% endif %}><i class="fa-li fa{% if '/improve/' in request.path %} fa-hand-o-right{% endif %}"></i> Plan improvements</a></li>
+                                <li{% if '/improve/' in request.path %} class="active"{% endif %}><a id="submenu-improve"{% if request|is_broker_manager %} class="disabled"{% else %} href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"{% endif %}><i class="fa-li fa{% if '/improve/' in request.path %} fa-hand-o-right{% endif %}"></i> Planning</a></li>
                                 <li{% if '/suppliers/' in request.path %} class="active"{% endif %}><button id="submenu-suppliers" disabled style="font-style:italic;">Find suppliers <i class="fa fa-wrench"></i></button></li>
                             </ul>
                         </div>
