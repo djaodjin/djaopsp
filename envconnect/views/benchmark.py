@@ -22,6 +22,11 @@ from ..models import Consumption
 
 LOGGER = logging.getLogger(__name__)
 
+VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED = \
+    "%(organization)s has not yet started to complete"\
+    " their self-assessment. You will be able able to see"\
+    " %(organization)s as soon as they do."
+
 
 class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin, RedirectView):
     """
@@ -58,8 +63,14 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin, RedirectView):
                     path__startswith=root_prefix).exists():
                     candidates += [element]
         if not candidates:
-            return HttpResponseRedirect(reverse(
-                'homepage_organization', args=(self.account,)))
+            # On user login, registration and activation,
+            # we will end-up here.
+            if not self.get_accessibles(
+                    self.request, roles=['manager', 'contributor']):
+                messages.warning(self.request,
+                    VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED % {
+                        'organization': kwargs.get('organization')})
+            return HttpResponseRedirect(reverse('homepage'))
 
         redirects = []
         for element in candidates:
@@ -127,7 +138,8 @@ class BenchmarkView(BenchmarkBaseView):
                 " moving on to the scorecard.")
             return HttpResponseRedirect(reverse('report_organization',
                 kwargs={'organization': organization, 'path': path}))
-        return HttpResponseRedirect(reverse('summary', kwargs={'path': path}))
+        return HttpResponseRedirect(reverse('summary_organization',
+            kwargs={'organization': organization, 'path': path}))
 
     def get(self, request, *args, **kwargs):
         if not self.sample:
@@ -154,9 +166,7 @@ class ScoreCardView(BenchmarkView):
                 # for the organization, calling `get_assessment_redirect_url`
                 # will prompt the message to complete the self-assessment.
                 messages.warning(self.request,
-                    "%(organization)s has not yet started to complete"\
-                    " their self-assessment. You will be able able to see"\
-                    " %(organization)s as soon as they do." % {
+                    VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED % {
                         'organization': kwargs.get('organization')})
             return self.get_assessment_redirect_url(*args, **kwargs)
         return super(ScoreCardView, self).get(request, *args, **kwargs)
