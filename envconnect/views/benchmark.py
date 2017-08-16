@@ -55,6 +55,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin, RedirectView):
 
     def get(self, request, *args, **kwargs):
         candidates = []
+        organization = kwargs.get('organization')
         if self.sample:
             for element in PageElement.objects.get_roots().order_by('title'):
                 root_prefix = '/%s/sustainability-%s' % (
@@ -65,11 +66,11 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin, RedirectView):
         if not candidates:
             # On user login, registration and activation,
             # we will end-up here.
-            if not self.get_accessibles(
-                    self.request, roles=['manager', 'contributor']):
+            if not organization in self.accessibles(
+                    roles=['manager', 'contributor']):
                 messages.warning(self.request,
                     VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED % {
-                        'organization': kwargs.get('organization')})
+                        'organization': organization})
             return HttpResponseRedirect(reverse('homepage'))
 
         redirects = []
@@ -128,7 +129,8 @@ class BenchmarkView(BenchmarkBaseView):
         organization = kwargs.get('organization')
         if not isinstance(path, six.string_types):
             path = ""
-        if self.get_accessibles(self.request, roles=['manager', 'contributor']):
+        if organization in self.accessibles(
+                roles=['manager', 'contributor']):
             # /app/:organization/scorecard/:path
             # Only when accessing an actual scorecard and if the request user
             # is a manager/contributor for the organization will we prompt
@@ -156,9 +158,10 @@ class ScoreCardView(BenchmarkView):
     breadcrumb_url = 'scorecard'
 
     def get(self, request, *args, **kwargs):
+        organization = kwargs.get('organization')
         if not self.sample:
-            if not self.get_accessibles(
-                    self.request, roles=['manager', 'contributor']):
+            if not organization in self.accessibles(
+                    roles=['manager', 'contributor']):
                 # /app/:organization/scorecard/:path
                 # Only when accessing an actual scorecard and if the request
                 # user is a viewer will we explain why the scorecard is not
@@ -167,7 +170,7 @@ class ScoreCardView(BenchmarkView):
                 # will prompt the message to complete the self-assessment.
                 messages.warning(self.request,
                     VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED % {
-                        'organization': kwargs.get('organization')})
+                        'organization': organization})
             return self.get_assessment_redirect_url(*args, **kwargs)
         return super(ScoreCardView, self).get(request, *args, **kwargs)
 
