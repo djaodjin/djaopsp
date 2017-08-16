@@ -23,35 +23,14 @@ from ..models import Consumption
 LOGGER = logging.getLogger(__name__)
 
 
-class SelfAssessmentRedirectMixin(object):
+class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin, RedirectView):
+    """
+    On login, by default the user will be redirected to `/app/` which in turn
+    will redirect to `/app/:organization/scorecard/$`.
 
-    def get_assessment_redirect_url(self, *args, **kwargs):
-        #pylint:disable=unused-argument
-        path = kwargs.get('path')
-        organization = kwargs.get('organization')
-        if not isinstance(path, six.string_types):
-            path = ""
-        if self.get_accessibles(self.request, roles=['manager', 'contributor']):
-            messages.warning(self.request,
-                "You need to complete a self-assessment before"\
-                " moving on to benchmarks.")
-            return HttpResponseRedirect(reverse('report_organization',
-                kwargs={'organization': organization, 'path': path}))
-        messages.warning(self.request,
-            "%(organization)s has not yet started to complete"\
-            " their self-assessment. You will be able able to see"\
-            " %(organization)s as soon as they do." % {
-                'organization': organization})
-        return HttpResponseRedirect(reverse('summary', kwargs={'path': path}))
-
-    @staticmethod
-    def get_context_data(**kwargs):
-        #pylint:disable=unused-argument
-        return {}
-
-
-class ScoreCardRedirectView(ReportMixin, SelfAssessmentRedirectMixin,
-                            TemplateResponseMixin, RedirectView):
+    If *organization* has started a self-assessment then we have candidates
+    to redirect to (i.e. /app/:organization/scorecard/:path).
+    """
 
     template_name = 'envconnect/scorecard/index.html'
 
@@ -70,17 +49,17 @@ class ScoreCardRedirectView(ReportMixin, SelfAssessmentRedirectMixin,
             *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        if not self.sample:
-            return self.get_assessment_redirect_url(*args, **kwargs)
-
         candidates = []
-        for element in PageElement.objects.get_roots().order_by('title'):
-            root_prefix = '/%s/sustainability-%s' % (element.slug, element.slug)
-            if Consumption.objects.filter(answer__response=self.sample,
-                path__startswith=root_prefix).exists():
-                candidates += [element]
+        if self.sample:
+            for element in PageElement.objects.get_roots().order_by('title'):
+                root_prefix = '/%s/sustainability-%s' % (
+                    element.slug, element.slug)
+                if Consumption.objects.filter(answer__response=self.sample,
+                    path__startswith=root_prefix).exists():
+                    candidates += [element]
         if not candidates:
-            return self.get_assessment_redirect_url(*args, **kwargs)
+            return HttpResponseRedirect(reverse(
+                'homepage_organization', args=(self.account,)))
 
         redirects = []
         for element in candidates:
@@ -97,8 +76,7 @@ class ScoreCardRedirectView(ReportMixin, SelfAssessmentRedirectMixin,
         return super(ScoreCardRedirectView, self).get(request, *args, **kwargs)
 
 
-class BenchmarkBaseView(BenchmarkMixin, SelfAssessmentRedirectMixin,
-                        TemplateView):
+class BenchmarkBaseView(BenchmarkMixin, TemplateView):
     """
     Subclasses are meant to define `template_name` and `breadcrumb_url`.
     """
@@ -133,6 +111,24 @@ class BenchmarkView(BenchmarkBaseView):
     template_name = 'envconnect/benchmark.html'
     breadcrumb_url = 'benchmark'
 
+    def get_assessment_redirect_url(self, *args, **kwargs):
+        #pylint:disable=unused-argument
+        path = kwargs.get('path')
+        organization = kwargs.get('organization')
+        if not isinstance(path, six.string_types):
+            path = ""
+        if self.get_accessibles(self.request, roles=['manager', 'contributor']):
+            # /app/:organization/scorecard/:path
+            # Only when accessing an actual scorecard and if the request user
+            # is a manager/contributor for the organization will we prompt
+            # to start the self-assessment.
+            messages.warning(self.request,
+                "You need to complete a self-assessment before"\
+                " moving on to the scorecard.")
+            return HttpResponseRedirect(reverse('report_organization',
+                kwargs={'organization': organization, 'path': path}))
+        return HttpResponseRedirect(reverse('summary', kwargs={'path': path}))
+
     def get(self, request, *args, **kwargs):
         if not self.sample:
             return self.get_assessment_redirect_url(*args, **kwargs)
@@ -146,6 +142,24 @@ class ScoreCardView(BenchmarkView):
     """
     template_name = 'envconnect/scorecard.html'
     breadcrumb_url = 'scorecard'
+
+    def get(self, request, *args, **kwargs):
+        if not self.sample:
+            if not self.get_accessibles(
+                    self.request, roles=['manager', 'contributor']):
+                # /app/:organization/scorecard/:path
+                # Only when accessing an actual scorecard and if the request
+                # user is a viewer will we explain why the scorecard is not
+                # visible. If the request user is manager/contributor
+                # for the organization, calling `get_assessment_redirect_url`
+                # will prompt the message to complete the self-assessment.
+                messages.warning(self.request,
+                    "%(organization)s has not yet started to complete"\
+                    " their self-assessment. You will be able able to see"\
+                    " %(organization)s as soon as they do." % {
+                        'organization': kwargs.get('organization')})
+            return self.get_assessment_redirect_url(*args, **kwargs)
+        return super(ScoreCardView, self).get(request, *args, **kwargs)
 
 
 class ScoreCardDownloadView(ScoreCardView):

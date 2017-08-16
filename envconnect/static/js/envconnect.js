@@ -478,13 +478,17 @@ envconnectControllers.controller("EnvconnectCtrl",
         return key;
     };
 
-    $scope.allAnswered = function(tab) {
+    $scope.allAnswered = function(prefix) {
+        var entries = $scope.getEntries(prefix);
         var allChecked = true;
-        $.each(angular.element(tab).find(".answer"), function(index, element) {
-            allChecked &= angular.element(element).find("input[type='radio']").is(":checked");
-        });
-        return !allChecked;
-    }
+        for( var idx = 0; idx < entries.length; ++idx ) {
+            if( entries[idx][0].consumption ) {
+                allChecked &= (entries[idx][0].consumption.implemented
+                               && entries[idx][0].consumption.implemented.length > 0);
+            }
+        }
+        return allChecked;
+    };
 
     // editor functionality
 

@@ -157,6 +157,8 @@ urlpatterns += [
         SLUG_RE, settings.PATH_RE),
         DetailView.as_view(), name='summary_organization'),
 
+    url_direct(r'app/(?P<organization>%s)/$' % SLUG_RE,
+        IndexView.as_view(), name='homepage_organization'),
     url_authenticated(r'app/',
         AccountRedirectView.as_view(
             pattern_name='scorecard_organization_redirect',
