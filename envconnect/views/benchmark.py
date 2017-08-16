@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import (RedirectView, TemplateView,
-    TemplateResponseMixin)
+    ContextMixin, TemplateResponseMixin)
 from django.utils import six
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
@@ -28,7 +28,8 @@ VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED = \
     " %(organization)s as soon as they do."
 
 
-class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin, RedirectView):
+class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
+                            ContextMixin, RedirectView):
     """
     On login, by default the user will be redirected to `/app/` which in turn
     will redirect to `/app/:organization/scorecard/$`.
