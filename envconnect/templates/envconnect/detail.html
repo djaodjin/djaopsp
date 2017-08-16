@@ -25,6 +25,13 @@
                 </div>
             </div>
             <!-- cost, payback, etc. -->
+            <div style="position:absolute;left:40%;background-color:rgba(200,200,200,0.5);width:300px;height:200px;text-align:center;z-index:10;" ng-show="!valueSummaryToggle" ng-cloak>
+              <div style="position:relative;">
+                <div style="position:absolute;top:50%;left:50%;transform: translate(-50%, -50%);margin-top:75px;">
+                  <span style="font-size:1.5em;"><i class="fa fa-wrench"></i> Feature intended for future version of TSP.</span>
+                </div>
+              </div>
+            </div>
             <table class="table table-striped table-bordered"
                     data-prefix="{{abs_prefix}}">
                 <thead ng-show="!valueSummaryToggle">

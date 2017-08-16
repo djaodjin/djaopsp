@@ -1,6 +1,12 @@
 {% extends "_form.html" %}
 
 {% block form_block %}
+<style>
+.tooltip-inner {
+  width: 350px !important;
+  max-width: 350px;
+}
+</style>
 <form{% if form.form_id %} id="{{form.form_id}}"{% endif %} class="form-horizontal"
     method="post" action=".{% if next %}/?next={{next}}{% endif %}">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
@@ -16,7 +22,7 @@
         <legend>Organization</legend>
         <div class="form-group{% if form.organization_name.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
-            <label class="col-sm-5 control-label requiredField">Organization name<span class="asteriskField"><a id="organization-tooltip" style="color:inherit;" href="" data-toggle="tooltip" data-placement="right" title="The &quot;Organization&quot; or reporting entity should align with the ability to influence and/or control policies and practices related to environmental impacts and improvement opportunities."><i class="fa fa-question-circle" style="color: #e11"></i></a></span></label>
+            <label class="col-sm-5 control-label requiredField">Organization name<span class="asteriskField"><a id="organization-tooltip" style="color:inherit;" href="" rel="tooltip" data-toggle="tooltip" data-placement="bottom" title="The &quot;Organization&quot; or reporting entity should align with the ability to influence and/or control policies and practices related to environmental impacts and improvement opportunities."> <i class="fa fa-question-circle" style="color: #e11"></i></a></span></label>
             {% endif %}
             <div class="col-sm-7 controls">
                 <input class="form-control" type="text" name="organization_name"{% if form.organization_name.value() %} value="{{form.organization_name.value()}}"{% endif %} style="float:right;">
