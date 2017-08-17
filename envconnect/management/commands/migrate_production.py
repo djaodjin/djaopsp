@@ -7,6 +7,7 @@ import re
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.db.models import Max
 from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip
 from answers.models import Question as AnswersQuestion
@@ -19,6 +20,16 @@ from ...models import Improvement, Consumption, ScoreWeight, ColumnHeader
 
 class Command(BaseCommand):
 
+#    prefix = "ad-"
+#    segment = 'architecture-design'
+#    prefix = 'co-'
+#    segment = 'consulting'
+#    prefix = 'id-'
+#    segment = 'interior-design'
+    prefix = 'mc-'
+    segment = 'marketing-and-communications'
+
+
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)
         parser.add_argument('paths', metavar='command', nargs='*',
@@ -30,25 +41,47 @@ class Command(BaseCommand):
 #            self.relabel_to_fix_error()
 #            self.recompute_avg_value()
 
+    def _slugify(self, slug):
+        if slug == 'sustainability-office-space-only':
+            return 'sustainability-%s' % self.segment
+        look = re.match(r'^oso-(.*)', slug)
+        if look:
+            result = self.prefix + look.group(1)
+        else:
+            result = self.prefix + slug
+        if len(result) > 50:
+            result = result[:50]
+        return result
+
     def dump_sql_statements_recursive(self, root):
-        self.stdout.write("INSERT INTO pages_pageelement (id, slug, text,"\
-            " account_id, title, tag) VALUES (%(id)s, '%(slug)s', '%(text)s',"\
+        slug = self._slugify(root.slug)
+        self.stdout.write("INSERT INTO pages_pageelement (slug, text,"\
+            " account_id, title, tag) VALUES ('%(slug)s', '%(text)s',"\
             " %(account_id)s, '%(title)s', %(tag)s);" % {
-                'id': root.id,
-                'slug': root.slug,
+                'slug': slug,
                 'text': root.text.replace("'", "''"),
                 'account_id': root.account_id,
                 'title': root.title,
                 'tag': "'%s'" % root.tag if root.tag is not None else "null"})
+        orig_element_id = (
+            "(SELECT id FROM pages_pageelement WHERE slug='%(slug)s')"
+            % {'slug': slug})
         for edge in RelationShip.objects.filter(orig_element=root):
-            self.dump_sql_statements_recursive(edge.dest_element)
-            self.stdout.write("INSERT INTO pages_relationship (id,"\
+            if RelationShip.objects.filter(
+                    orig_element=edge.dest_element).exists():
+                self.dump_sql_statements_recursive(edge.dest_element)
+                dest_element_slug = self._slugify(edge.dest_element.slug)
+                dest_element_id = (
+                    "(SELECT id FROM pages_pageelement WHERE slug='%(slug)s')"
+                    % {'slug': dest_element_slug})
+            else:
+                dest_element_id = edge.dest_element_id
+            self.stdout.write("INSERT INTO pages_relationship ("\
                 " orig_element_id, dest_element_id, tag, rank) VALUES"\
-                " (%(id)s, %(orig_element_id)s, %(dest_element_id)s,"\
+                " (%(orig_element_id)s, %(dest_element_id)s,"\
                 " %(tag)s, %(rank)s);" % {
-                    'id': edge.id,
-                    'orig_element_id': edge.orig_element_id,
-                    'dest_element_id': edge.dest_element_id,
+                    'orig_element_id': orig_element_id,
+                    'dest_element_id': dest_element_id,
                 'tag': "'%s'" % edge.tag if edge.tag is not None else "null",
                     'rank': edge.rank
             })
@@ -58,18 +91,21 @@ class Command(BaseCommand):
         for path in paths:
             trail = TrailMixin.get_full_element_path(path)
             self.dump_sql_statements_recursive(trail[-1])
+            self.stdout.write("/* Consumptions */")
+            last_rank = Question.objects.aggregate(Max('rank')).get(
+                'rank__max', 0)
             for consumption in Consumption.objects.filter(
                     path__startswith="/" + "/".join([
                     elem.slug for elem in trail])):
                 question = consumption.question
-                self.stdout.write("INSERT INTO survey_question (id, text,"\
+                last_rank = last_rank + 1
+                self.stdout.write("INSERT INTO survey_question (text,"\
                     " survey_id, question_type, has_other, choices, rank,"\
-                    " correct_answer, required) VALUES (%(id)s, %(text)s,"\
+                    " correct_answer, required) VALUES (%(text)s,"\
                     " %(survey_id)s, %(question_type)s, %(has_other)s,"\
                     " %(choices)s, %(rank)s, %(correct_answer)s,"\
                     " %(required)s);" % {
-                        'id': question.id,
-                        'text': ("'%s'" % question.text
+                        'text': (("'%s'" % question.text.replace("'", "''"))
                             if question.text is not None else "null"),
                         'survey_id': question.survey_id,
                         'question_type':  "'%s'" % (question.question_type
@@ -77,41 +113,51 @@ class Command(BaseCommand):
                         'has_other': "'t'" if question.has_other else "'f'",
                         'choices': "'%s'" % (question.choices
                             if question.choices is not None else "null"),
-                        'rank': question.rank,
+                        'rank': last_rank,
                         'correct_answer': "'%s'" % (question.correct_answer
                             if question.correct_answer is not None else "null"),
                         'required': "'t'" if question.required else "'f'",
                     })
-                self.stdout.write("INSERT INTO envconnect_consumption (id,"\
+                question_id = (
+                    "(SELECT id FROM survey_question WHERE rank=%(rank)s)"
+                    % {'rank': last_rank})
+                parts = consumption.path.split('/')
+                prefixed_parts = [""]
+                prefixed_parts += [self.segment]
+                prefixed_parts += ['sustainability-%s' % self.segment]
+                for part in parts[3:-1]:
+                    prefixed_parts += [self._slugify(part)]
+                prefixed_parts += [parts[-1]]
+                path = '/'.join(prefixed_parts)
+                self.stdout.write("INSERT INTO envconnect_consumption ("\
                     " avg_energy_saving, capital_cost_low, capital_cost_high,"\
                     " payback_period, reported_by, avg_fuel_saving,"\
                     " environmental_value, business_value,"\
                     " implementation_ease, profitability, path,"\
                     " capital_cost,  question_id,  opportunity,"\
-                    "  avg_value) VALUES (%(id)s, '%(avg_energy_saving)s',"\
+                    "  avg_value) VALUES ('%(avg_energy_saving)s',"\
                     " %(capital_cost_low)s, %(capital_cost_high)s,"\
                     " '%(payback_period)s', %(reported_by)s,"\
                     " '%(avg_fuel_saving)s', %(environmental_value)s,"\
                     " %(business_value)s, %(implementation_ease)s,"\
                     " %(profitability)s, '%(path)s', '%(capital_cost)s',"\
                     " %(question_id)s, %(opportunity)s, %(avg_value)s);" % {
-                        'id': consumption.id,
                         'avg_energy_saving': consumption.avg_energy_saving,
-            'capital_cost_low': "'%s'" % (consumption.capital_cost_low
+            'capital_cost_low': (("'%s'" % consumption.capital_cost_low)
                 if consumption.capital_cost_low is not None else "null"),
-            'capital_cost_high':  "'%s'" % (consumption.capital_cost_high
+            'capital_cost_high': (("'%s'" % consumption.capital_cost_high)
                 if consumption.capital_cost_high is not None else "null"),
             'payback_period': consumption.payback_period,
-            'reported_by': "'%s'" % (consumption.reported_by
+            'reported_by': (("'%s'" % consumption.reported_by)
                 if consumption.reported_by is not None else "null"),
             'avg_fuel_saving': consumption.avg_fuel_saving,
             'environmental_value': consumption.environmental_value,
             'business_value': consumption.business_value,
             'implementation_ease': consumption.implementation_ease,
             'profitability': consumption.profitability,
-            'path': consumption.path,
+            'path': path,
             'capital_cost': consumption.capital_cost,
-            'question_id': consumption.question_id,
+            'question_id': question_id,
             'opportunity': consumption.opportunity,
             'avg_value': consumption.avg_value
                 })
