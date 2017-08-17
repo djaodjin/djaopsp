@@ -17,30 +17,34 @@
       </div>
       <div class="row">
         <div class="col-sm-7">
-          <div class="score-card"
-               style="flex:auto;">
-            <h4>Total Score <span id="improvement-score"></span></h4>
-            <div id="total-score" class="chart-content">
-            </div>
-          </div>
-          <div id="{{root.0.slug}}-chart" class="chart-container chart-container-default bordered-left" ng-show="activeIcon === null">
-            {% include "envconnect/_chart_title.html" with practice=root.0 %}
-            <div>
-              <div class="chart-content c3" style="width:250px;height:120px;">
+          <div class="col-sm-6">
+            <div class="score-card"
+                 style="flex:auto;">
+              <h4>Total Score <span id="improvement-score"></span></h4>
+              <div id="total-score" class="chart-content">
               </div>
             </div>
           </div>
-          {% for icon_tuple in root.1  %}
-          {% with icon_tuple.0 as icon %}
-          <div id="{{icon.slug}}-chart" class="chart-container bordered-left" ng-show="activeIcon === '{{icon}}'">
-            {% include "envconnect/_chart_title.html" with practice=icon %}
-            <div>
-              <div class="chart-content c3" style="width:250px;height:120px;">
+          <div class="col-sm-6">
+            <div id="{{root.0.slug}}-chart" class="chart-container chart-container-default bordered-left" ng-show="activeIcon === null">
+              {% include "envconnect/_chart_title.html" with practice=root.0 %}
+              <div>
+                <div class="chart-content c3" style="width:250px;height:120px;">
+                </div>
               </div>
             </div>
+            {% for icon_tuple in root.1  %}
+            {% with icon_tuple.0 as icon %}
+            <div id="{{icon.slug}}-chart" class="chart-container bordered-left" ng-show="activeIcon === '{{icon}}'">
+              {% include "envconnect/_chart_title.html" with practice=icon %}
+              <div>
+                <div class="chart-content c3" style="width:250px;height:120px;">
+                </div>
+              </div>
+            </div>
+            {% endwith %}
+            {% endfor %}
           </div>
-          {% endwith %}
-          {% endfor %}
         </div>
         <div class="col-sm-5">
           <div class="row">
