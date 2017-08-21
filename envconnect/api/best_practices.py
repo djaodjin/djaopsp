@@ -44,10 +44,12 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        sources = self.get_full_element_path(
-            serializer.validated_data.get('source'))
-        node = sources[-1]
+        targets = self.get_full_element_path(self.kwargs.get('path', None))
+        sources = self.get_full_element_path(serializer.validated_data.get(
+            'source'))
+        self.valid_against_loop(sources, targets)
+        node = self.perform_change(sources, targets,
+            rank=serializer.validated_data.get('rank', None))
         prefix = self.kwargs.get('path', None)
         root = self._build_tree(node, prefix + '/' + node.slug)
         data = self.to_representation(root, prefix=prefix)
