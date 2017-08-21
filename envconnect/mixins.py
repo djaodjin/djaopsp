@@ -149,7 +149,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'active': self.request.GET.get('active', "")})
         urls = {
             'api_best_practices': reverse('api_detail', args=("",)),
-            'api_alias_node': reverse('api_alias_detail', args=("",)),
+            'api_mirror_node': reverse('api_mirror_detail', args=("",)),
             'api_move_node': reverse('api_move_detail', args=("",)),
             'api_columns': reverse('api_column_base'),
             'api_consumptions': reverse('api_consumption_base'),

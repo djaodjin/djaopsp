@@ -193,7 +193,7 @@ to develop content on this website.
                             <div class="modal-footer">
                                 <div class="input-group-btn">
 <button class="btn btn-primary add-element" type="submit" value="submit" ng-click="addElement($event)"><i class="fa fa-plus"></i> Add</button>
-<button class="btn btn-primary" type="submit" value="alias" ng-click="aliasElement($event)"><i class="fa fa-arrow-right"></i> Mirror</button>
+<button class="btn btn-primary" type="submit" value="mirror" ng-click="mirrorElement($event)"><i class="fa fa-arrow-right"></i> Mirror</button>
                                 </div>
                             </div>
                         </form>
@@ -273,7 +273,7 @@ app.constant('settings', {
 {% else %}
     urls: {
         api_best_practices: "{% url 'api_detail' '' %}",
-        api_alias_node: "{% url 'api_alias_detail' '' %}",
+        api_mirror_node: "{% url 'api_mirror_detail' '' %}",
         api_move_node: "{% url 'api_move_detail' '' %}",
         api_columns: "{% url 'api_column_base' %}",
         api_consumptions: "{% url 'api_consumption_base' %}",

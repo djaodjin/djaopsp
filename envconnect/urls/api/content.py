@@ -6,7 +6,7 @@ from django.conf.urls import url
 
 from ...api.benchmark import ScoreWeightAPIView
 from ...api.best_practices import (BestPracticeAPIView,
-    BestPracticeAliasAPIView, BestPracticeMoveAPIView)
+    BestPracticeMirrorAPIView, BestPracticeMoveAPIView)
 from ...api.columns import ColumnAPIView
 from ...api.consumption import ConsumptionListAPIView, ConsumptionDetailAPIView
 
@@ -20,8 +20,8 @@ urlpatterns = [
       ConsumptionDetailAPIView.as_view(), name="api_consumption"),
     url(r'consumption/?',
       ConsumptionListAPIView.as_view(), name="api_consumption_base"),
-    url(r'^alias(?P<path>%s)/$' % settings.PATH_RE,
-      BestPracticeAliasAPIView.as_view(), name='api_alias_detail'),
+    url(r'^mirror(?P<path>%s)/$' % settings.PATH_RE,
+      BestPracticeMirrorAPIView.as_view(), name='api_mirror_detail'),
     url(r'^attach(?P<path>%s)' % settings.PATH_RE,
       BestPracticeMoveAPIView.as_view(), name='api_move_detail'),
     url(r'detail(?P<path>%s)' % settings.PATH_RE,

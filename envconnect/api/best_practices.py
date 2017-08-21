@@ -12,7 +12,7 @@ from rest_framework.generics import (get_object_or_404,
     RetrieveUpdateDestroyAPIView)
 from rest_framework.response import Response
 from pages.models import PageElement, RelationShip
-from pages.api.relationship import (PageElementAliasAPIView,
+from pages.api.relationship import (PageElementMirrorAPIView,
     PageElementMoveAPIView)
 from survey.models import SurveyModel
 
@@ -23,9 +23,9 @@ from ..serializers import PageElementSerializer
 LOGGER = logging.getLogger(__name__)
 
 
-class BestPracticeAliasAPIView(BreadcrumbMixin, PageElementAliasAPIView):
+class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
     """
-    This API end-point aliases content element under another node.
+    This API end-point mirrors content element under another node.
 
     A a result, we return the content tree that was updated
     instead of the `Column` instance because the user interface will
@@ -33,6 +33,13 @@ class BestPracticeAliasAPIView(BreadcrumbMixin, PageElementAliasAPIView):
     """
 
     report_title = 'Best Practices Report'
+
+    @property
+    def survey(self):
+        if not hasattr(self, '_survey'):
+            self._survey = get_object_or_404(
+                SurveyModel.objects.all(), title=self.report_title)
+        return self._survey
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -47,23 +54,20 @@ class BestPracticeAliasAPIView(BreadcrumbMixin, PageElementAliasAPIView):
         headers = self.get_success_headers(data)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def perform_change(self, sources, targets, rank=None):
-        alias = "/" + "/".join(
-            [target.slug for target in targets + [sources[-1]]])
-        aliased = "/" + "/".join([source.slug for source in sources])
-        with transaction.atomic():
-            super(BestPracticeAliasAPIView, self).perform_change(
-                sources, targets, rank=rank)
-            survey = get_object_or_404(
-                SurveyModel.objects.all(), title=self.report_title)
-            if rank is None:
-                last_rank = survey.questions.aggregate(Max('rank')).get(
-                    'rank__max', 0)
-                rank = 0 if last_rank is None else last_rank + 1
-            for consumption in Consumption.objects.filter(
-                    path__startswith=aliased):
-                look = re.match(r"^%s(.*)$" % aliased, consumption.path)
-                Consumption.objects.get_or_create(path=alias + look.group(1),
+    def mirror_leaf(self, leaf, prefix="", new_prefix=""):
+        last_rank = self.survey.questions.aggregate(
+            Max('rank')).get('rank__max', 0)
+        rank = 0 if last_rank is None else last_rank + 1
+        for consumption in Consumption.objects.filter(
+                path__startswith=prefix):
+            new_path = None
+            look = re.match(r"^%s/(.*)$" % prefix, consumption.path)
+            if look:
+                new_path = new_prefix + "/" + look.group(1)
+            elif consumption.path == prefix:
+                new_path = new_prefix
+            if new_path:
+                Consumption.objects.get_or_create(path=new_path,
                     defaults={
                         'environmental_value': consumption.environmental_value,
                         'business_value': consumption.business_value,
@@ -75,11 +79,11 @@ class BestPracticeAliasAPIView(BreadcrumbMixin, PageElementAliasAPIView):
                         'capital_cost_high': consumption.capital_cost_high,
                         'capital_cost': consumption.capital_cost,
                         'payback_period': consumption.payback_period,
-                        'survey': survey,
+                        'survey': self.survey,
                         'rank': rank
                     })
-                rank = rank + 1
-
+            rank = rank + 1
+        return leaf
 
 
 class BestPracticeMoveAPIView(PageElementMoveAPIView):

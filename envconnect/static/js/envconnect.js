@@ -590,17 +590,17 @@ envconnectControllers.controller("EnvconnectCtrl",
         return false;
     };
 
-    $scope.aliasElement = function(event, prefix) {
+    $scope.mirrorElement = function(event, prefix) {
         if( typeof prefix === "undefined" ) {
-            // Only the table inline form calls aliasElement($event, prefix).
-            // The popup dialog calls aliasElement($event) and relies on
+            // Only the table inline form calls mirrorElement($event, prefix).
+            // The popup dialog calls mirrorElement($event) and relies on
             // the *prefix* to be previously set.
             prefix = $scope.newElement.prefix;
         }
         var form = angular.element(event.target);
         var modalDialog = form.parents('.modal');
         var data = {source: $scope.newElement.value.path};
-        var postUrl = settings.urls.api_alias_node.replace(/\/+$/, "")
+        var postUrl = settings.urls.api_mirror_node.replace(/\/+$/, "")
             + prefix + '/';
         $http.post(postUrl, data).then(
         function success(resp) {

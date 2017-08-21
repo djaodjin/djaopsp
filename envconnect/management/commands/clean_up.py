@@ -3,9 +3,12 @@
 
 """Command to remove unused questions in the envconnect database"""
 
+import re, sys
+
 from django.core.management.base import BaseCommand
-from django.db import transaction
-from pages.models import PageElement
+from django.db import transaction, connection
+from pages.models import PageElement, RelationShip
+from pages.api.relationship import PageElementMirrorAPIView
 from survey.models import Question
 
 from ...models import Consumption
@@ -35,6 +38,26 @@ INDUSTRIES = [
     'wire-and-cable',
 ]
 
+
+class BestPracticeUnalias(PageElementMirrorAPIView):
+
+    @staticmethod
+    def mirror_leaf(leaf, prefix="", new_prefix=""):
+        for consumption in Consumption.objects.filter(path__startswith=prefix):
+            new_path = None
+            look = re.match(r"^%s/(.*)$" % prefix, consumption.path)
+            if look:
+                new_path = new_prefix + "/" + look.group(1)
+            elif consumption.path == prefix:
+                new_path = new_prefix
+            if new_path:
+                sys.stderr.write("consumption: from %s to %s\n" % (
+                    consumption.path, new_path))
+                consumption.path = new_path
+                consumption.save()
+        return leaf
+
+
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
@@ -47,6 +70,10 @@ class Command(BaseCommand):
         #pylint:disable=too-many-locals
         do_delete = options['do_delete']
         entry_points = INDUSTRIES
+
+        with transaction.atomic():
+            self.unalias_headings()
+
         roots = PageElement.objects.filter(slug__in=entry_points)
         elements = []
         for node in roots:
@@ -99,3 +126,52 @@ class Command(BaseCommand):
             elements += self.build_tree(
                 node, prefix=node_path, indent=indent + '  ')
         return elements
+
+    def unalias_headings(self):
+        """
+        Replace aliased headings by copies.
+        """
+        unaliases = []
+        with connection.cursor() as cursor:
+            cursor.execute("""select dest_element_id from (
+    select dest_element_id, count(orig_element_id) as cnt from (
+        select * from pages_relationship where dest_element_id not in (
+            select A.dest_element_id from pages_relationship A
+                          left outer join pages_relationship B
+                       on A.dest_element_id = B.orig_element_id
+        where B.orig_element_id IS NULL)) as headings
+        group by dest_element_id)
+    as counted where cnt > 1;""")
+            for row in cursor.fetchall():
+                edges = list(RelationShip.objects.filter(
+                    dest_element_id=row[0]))[0:-1]
+                self.stdout.write("edges for %d: %s" % (row[0], edges))
+                for edge in edges:
+                    candidates = edge.dest_element.get_parent_paths(
+                        hints=[edge.orig_element.slug])
+                    if len(candidates) > 1:
+                        prefixes = []
+                        for candidate in candidates:
+                            prefixes += ["/" + "/".join([
+                                node.slug for node in candidate[:-1]])]
+                        self.stderr.write("warning: %d candidates for %s (%s)"
+                            % (len(prefixes), edge, prefixes))
+                        for prefix in prefixes:
+                            parts = prefix.split('/')
+                            edge = RelationShip.objects.get(
+                                orig_element__slug=parts[-2],
+                                dest_element__slug=parts[-1])
+                            unaliases += [(prefix, edge)]
+                    else:
+                        prefix = "/" + "/".join([
+                            node.slug for node in candidates[0][:-1]])
+                        unaliases += [(prefix, edge)]
+        for unalias in unaliases:
+            edge = unalias[1]
+            prefix = unalias[0]
+            if not prefix.endswith(edge.dest_element.slug):
+                self.stdout.write(
+                    "unalias %s/%s" % (prefix, edge.dest_element.slug))
+                edge.dest_element = BestPracticeUnalias().mirror_recursive(
+                    edge.dest_element, prefix=prefix, new_prefix=prefix)
+                edge.save()
