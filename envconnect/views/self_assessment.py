@@ -7,6 +7,7 @@ import csv, datetime, json, logging, io
 from django.utils import six
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
+from openpyxl import Workbook
 from survey.models import Response, SurveyModel
 
 from .benchmark import BenchmarkBaseView
@@ -65,7 +66,7 @@ class SelfAssessmentView(BestPracticeMixin, SelfAssessmentBaseView):
         return super(SelfAssessmentView, self).get(request, *args, **kwargs)
 
 
-class SelfAssessmentCSVView(SelfAssessmentBaseView):
+class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
 
     basename = 'self-assessment'
 
@@ -76,13 +77,12 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
             tree[parts[0]] = {}
         return self.insert_path(tree[parts[0]], parts[1:])
 
-    @staticmethod
-    def writerow(csv_writer, row):
-        csv_writer.writerow([
+    def writerow(self, row):
+        self.csv_writer.writerow([
             rec.encode('utf-8') if six.PY2 else rec
             for rec in row])
 
-    def write_tree(self, root, csv_writer, indent=''):
+    def write_tree(self, root, indent=''):
         """
         The *root* parameter looks like:
         (PageElement, [(PageElement, [...]), (PageElement, [...]), ...])
@@ -97,11 +97,11 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
                         row += ['X']
                     else:
                         row += ['']
-            self.writerow(csv_writer, row)
+            self.writerow(row)
         else:
-            self.writerow(csv_writer, [indent + root[0].title])
+            self.writerow([indent + root[0].title])
             for element in root[1]:
-                self.write_tree(element, csv_writer, indent=indent + '  ')
+                self.write_tree(element, indent=indent + '  ')
 
     def get(self, *args, **kwargs): #pylint: disable=unused-argument
         # All self-assessment questions for an industry, regardless
@@ -116,22 +116,16 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
         self.root = self._build_tree(trail[0][0], from_trail_head, nocuts=True)
         self.attach_benchmarks(self.root, view_response=self.sample)
 
-        if six.PY2:
-            content = io.BytesIO()
-        else:
-            content = io.StringIO()
-        csv_writer = csv.writer(content)
-        self.writerow(
-            csv_writer, ["The Sustainability Project - Self-assessment"])
-        self.writerow(csv_writer, [self.root[0].title])
+        self.create_writer()
+        self.writerow(["The Sustainability Project - Self-assessment"])
+        self.writerow([self.root[0].title])
         indent = ' '
         for nodes in self.root[1]:
-            self.writerow(csv_writer, [indent + nodes[0].title]
+            self.writerow([indent + nodes[0].title]
                 + self.get_headings(nodes[0].tag))
             for elements in nodes[1]:
-                self.write_tree(elements, csv_writer, indent=indent + ' ')
-        content.seek(0)
-        resp = HttpResponse(content, content_type='text/csv')
+                self.write_tree(elements, indent=indent + ' ')
+        resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
             self.get_filename())
         return resp
@@ -141,6 +135,46 @@ class SelfAssessmentCSVView(SelfAssessmentBaseView):
         return list(Consumption.ASSESSMENT_CHOICES.get(tag,
             Consumption.ASSESSMENT_CHOICES.get('default')))
 
+
+class SelfAssessmentCSVView(SelfAssessmentSpreadsheetView):
+
+    content_type = 'text/csv'
+
+    def writerow(self, row):
+        self.csv_writer.writerow(row)
+
+    def create_writer(self):
+        if six.PY2:
+            self.content = io.BytesIO()
+        else:
+            self.content = io.StringIO()
+        self.csv_writer = csv.writer(self.content)
+
+    def flush_writer(self):
+        self.content.seek(0)
+        return self.content
+
     def get_filename(self):
         return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.csv')
 
+
+class SelfAssessmentXLSXView(SelfAssessmentSpreadsheetView):
+
+    content_type = \
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    def writerow(self, row):
+        self.wsheet.append(row)
+
+    def create_writer(self):
+        self.wbook = Workbook()
+        self.wsheet = self.wbook.active
+
+    def flush_writer(self):
+        content = io.BytesIO()
+        self.wbook.save(content)
+        content.seek(0)
+        return content
+
+    def get_filename(self):
+        return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.xlsx')

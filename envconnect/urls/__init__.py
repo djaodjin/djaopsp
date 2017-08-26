@@ -16,9 +16,9 @@ from ..views.benchmark import (BenchmarkView, PortfoliosDetailView,
 from ..views.compare import ReportingEntitiesView
 from ..views.index import IndexView
 from ..views.improvements import ReportPDFView
-from ..views.self_assessment import SelfAssessmentView, SelfAssessmentCSVView
+from ..views.self_assessment import SelfAssessmentView, SelfAssessmentXLSXView
 from ..views.detail import DetailView
-from ..views.improvements import ImproveView, ImprovementCSVView
+from ..views.improvements import ImproveView, ImprovementXLSXView
 
 if settings.DEBUG: #pylint: disable=no-member
     from django.contrib import admin
@@ -125,13 +125,13 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/portfolios/' % SLUG_RE,
         include('survey.urls.matrix')),
     url_direct(r'app/(?P<organization>%s)/report(?P<path>%s)/download/' % (
-        SLUG_RE, settings.PATH_RE), SelfAssessmentCSVView.as_view(),
+        SLUG_RE, settings.PATH_RE), SelfAssessmentXLSXView.as_view(),
         name='report_organization_download'),
     url_direct(r'app/(?P<organization>%s)/report(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), SelfAssessmentView.as_view(),
         name='report_organization'),
     url_direct(r'app/(?P<organization>%s)/improve/download/' % (
-        SLUG_RE), ImprovementCSVView.as_view(),
+        SLUG_RE), ImprovementXLSXView.as_view(),
         name='envconnect_improve_organization_download'),
     url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), ImproveView.as_view(),

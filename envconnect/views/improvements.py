@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponse
 from django.views.generic.list import ListView
+from openpyxl import Workbook
 from pages.models import PageElement
 from survey.models import Answer, Question
 from survey.views.response import (
@@ -64,8 +65,7 @@ class ResponseUpdateView(ImprovementQuerySetMixin, BaseResponseUpdateView):
             self.request, 'Your answers have been recorded. Thank you.')
         return reverse(self.next_step_url, kwargs=self.get_url_context())
 
-
-class ImprovementCSVView(ImprovementQuerySetMixin,
+class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
                          BestPracticeMixin, # for get_breadcrumbs
                          ListView):
 
@@ -80,7 +80,7 @@ class ImprovementCSVView(ImprovementQuerySetMixin,
             tree[parts[0]] = {}
         return self.insert_path(tree[parts[0]], parts[1:])
 
-    def write_tree(self, root, csv_writer, indent=''):
+    def write_tree(self, root, indent=''):
         for element in sorted(list(root.keys()), cmp=lambda left, right:
                 (left.tag < right.tag)
                 or (left.tag == right.tag and left.pk < right.pk)):
@@ -90,7 +90,7 @@ class ImprovementCSVView(ImprovementQuerySetMixin,
             nodes = root[element]
             if 'opportunity' in nodes:
                 # We reached a leaf
-                csv_writer.writerow([
+                self.writerow([
                     indent + element.title,
                     nodes['avg_energy_saving'],
                     nodes['capital_cost'],
@@ -99,8 +99,8 @@ class ImprovementCSVView(ImprovementQuerySetMixin,
                     nodes['opportunity']
                 ])
             else:
-                csv_writer.writerow([indent + element.title])
-                self.write_tree(nodes, csv_writer, indent=indent + '  ')
+                self.writerow([indent + element.title])
+                self.write_tree(nodes, indent=indent + '  ')
 
     def get(self, *args, **kwargs): #pylint: disable=unused-argument
         opportunities = {}
@@ -121,17 +121,14 @@ class ImprovementCSVView(ImprovementQuerySetMixin,
                 'opportunity': details.opportunity
             })
 
-        content = io.StringIO()
-        csv_writer = csv.writer(content)
-        csv_writer.writerow(["The Sustainability Project"\
+        self.create_writer()
+        self.writerow(["The Sustainability Project"\
             " - Practices selected for improvement"])
-        csv_writer.writerow(self.get_headings())
-        self.write_tree(tree, csv_writer)
-        content.seek(0)
-        resp = HttpResponse(content, content_type='text/csv')
+        self.writerow(self.get_headings())
+        self.write_tree(tree)
+        resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \
-            'attachment; filename="{}"'.format(
-                self.get_filename())
+            'attachment; filename="{}"'.format(self.get_filename())
         return resp
 
     def get_headings(self):
@@ -139,6 +136,47 @@ class ImprovementCSVView(ImprovementQuerySetMixin,
 
     def get_filename(self):
         return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.csv')
+
+
+class ImprovementCSVView(ImprovementSpreadsheetView):
+
+    content_type = 'text/csv'
+
+    def writerow(self, row):
+        self.csv_writer.writerow(row)
+
+    def create_writer(self):
+        self.content = io.StringIO()
+        self.csv_writer = csv.writer(self.content)
+
+    def flush_writer(self):
+        self.content.seek(0)
+        return self.content
+
+    def get_filename(self):
+        return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.csv')
+
+
+class ImprovementXLSXView(ImprovementSpreadsheetView):
+
+    content_type = \
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    def writerow(self, row):
+        self.wsheet.append(row)
+
+    def create_writer(self):
+        self.wbook = Workbook()
+        self.wsheet = self.wbook.active
+
+    def flush_writer(self):
+        content = io.BytesIO()
+        self.wbook.save(content)
+        content.seek(0)
+        return content
+
+    def get_filename(self):
+        return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.xlsx')
 
 
 class ReportPDFView(ImprovementQuerySetMixin, ListView):
