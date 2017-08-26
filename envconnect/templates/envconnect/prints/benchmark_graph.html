@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <link rel="stylesheet" media="all" href="file://{{base_dir}}/htdocs/static/cache/envconnect.css" />
+  <script type="text/javascript" src="file://{{base_dir}}/htdocs/static/vendor/jquery.js"></script>
+</head>
+<body>
+  <div id="benchmark-graph" class="chart-container">
+      <div class="chart-title">
+        <div class="icon-benchmark {% if chart|containsTag:'management' %} grey{% else %} orange{% endif %}">
+            {% if chart.text %}
+            <img class="icon-equipment" src="file://{{base_dir}}/htdocs{{chart.text}}">
+            {% else %}
+            <div class="icon-equipment">{{chart.title}}</div>
+            {% endif %}
+        </div>
+        <div class="title">
+            <h3>{{chart.breadcrumbs.0}}</h3>
+            <h4>{% if chart.breadcrumbs|length > 1 %}{{chart.breadcrumbs.1}}{% endif %}</h4>
+            <h5>{% if chart.breadcrumbs|length > 2 %}{{chart.breadcrumbs|last}}{% endif %}</h5>
+        </div>
+      </div>
+    <div>
+      <div class="chart-content c3" style="width:210px;height:120px;">
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" charset="utf-8" src="file://{{base_dir}}/htdocs/static/vendor/d3.js"></script>
+  <script type="text/javascript" src="file://{{base_dir}}/htdocs/static/vendor/nv.d3.js"></script>
+  <script type="text/javascript" src="file://{{base_dir}}/htdocs/static/vendor/c3.js"></script>
+  <script type="text/javascript" src="file://{{base_dir}}/envconnect/static/js/draw-chart.js"></script>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+  $("#benchmark-graph").find(".chart-content").benchmarkChart({
+    title: "{{chart.title}}",
+    scores: {{chart.distribution|safe}},
+    nb_answers: {{chart.nb_answers}},
+    nb_questions: {{chart.nb_questions}}
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <link rel="stylesheet" media="all" href="file://{{base_dir}}/htdocs/static/cache/envconnect.css" />
+</head>
+<body>
+  <h1>Scorecard - {{organization.printable_name}}</h1>
+  <div id="total-score" class="benchmarks-box" style="margin-top:25px;">
+    <h2 style="margin-left: 5px;">Total score</h2>
+    <div>
+      <div class="score-card-background" style="display:inline-block;width:50%;margin-left:5px;">
+        <div id="total-score">
+          <img src="file://{{base_dir}}/htdocs/media/envconnect/prints/total-score.png" />
+        </div>
+      </div>
+      <div class="bordered-left" style="display:inline-block;width:45%;vertical-align:middle;padding-left:5px;">
+Benchmarking is based on responses from {{nb_respondents}}
+companies in the &quot;{{breadcrumbs.0.0.title}}&quot; industry segment.
+Note: Your score will rise if the implementation rate for the best practices
+you have implemented rises, because implementation rate is used as value
+indicator for a best practice.
+      </div>
+    </div>
+  </div>
+  <div id="subtotals" class="benchmarks-box" style="margin-top: 25px;">
+    <h2 style="margin-left: 5px;">Subtotals</h2>
+    {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
+    <ul class="nav nav-tabs squared-tabs">
+      {% for icon_tuple in root.1  %}
+      {% with icon_tuple.0 as icon %}
+      {% with icon_prefix|add:"/"|add:icon.slug as abs_prefix %}
+      {% with forloop.first as draw_border %}
+      <li class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}">
+        <div class="icon-container">
+          <a class="icon-inner{% if icon|containsTag:'management' %} grey{% else %} orange{% endif %}">
+            {% if icon.text %}
+            <img class="icon-equipment" src="file://{{base_dir}}/htdocs{{icon.text}}">
+            {% endif %}
+            <div class="icon-caption" style="color:#fff;">{{icon.title}}</div>
+          </a>
+          <div class="icon-score">
+            <h3 class="rollup-score">{{icon.normalized_score}}</h3>
+            <div>
+              (<span class="rollup-weight">{{icon.score_weight}}</span>)
+            </div>
+          </div>
+        </div>
+      </li>
+      {% endwith %}
+      {% endwith %}
+      {% endwith %}
+      {% endfor %}
+    </ul>
+    {% endwith %}
+  </div>
+  <div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
+    <h2 style="margin-left: 5px;">Benchmark graphs</h2>
+    <div>
+      <div>
+        {% for chart in charts %}
+        {% if forloop.counter0|divisibleby:3 %}
+      </div>
+      <div>
+        {% endif %}
+        <img src="file://{{base_dir}}/htdocs/media/envconnect/prints/{{chart.slug}}.png" style="display:inline-block;" />
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

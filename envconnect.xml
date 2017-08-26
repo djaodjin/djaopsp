@@ -73,6 +73,9 @@
       <dep name="djaodjin-extended-templates" target="python">
         <lib>.*/(extended_templates)/__init__.py</lib>
       </dep>
+      <dep name="phantomjs-prebuilt" target="nodejs">
+        <bin>phantomjs</bin>
+      </dep>
       <!-- for development -->
       <dep name="django-extensions" target="python">
         <lib>.*/(django_extensions)/__init__.py</lib>

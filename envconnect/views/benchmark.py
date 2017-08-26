@@ -1,12 +1,17 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import logging, json, re
+import io, logging, json, os, re, subprocess
 
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.template import Template
+from django.template.loader import get_template
+from django.utils.six.moves.urllib.parse import urljoin
 from django.views.generic.base import (RedirectView, TemplateView,
     ContextMixin, TemplateResponseMixin)
 from django.utils import six
@@ -15,7 +20,7 @@ from pages.models import PageElement
 from survey.models import Matrix
 from survey.views.matrix import MatrixDetailView
 
-from ..api.benchmark import BenchmarkMixin
+from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
 from ..mixins import ReportMixin
 from ..models import Consumption
 
@@ -176,13 +181,130 @@ class ScoreCardView(BenchmarkView):
         return super(ScoreCardView, self).get(request, *args, **kwargs)
 
 
-class ScoreCardDownloadView(ScoreCardView):
+class ScoreCardDownloadView(BenchmarkAPIView):
     """
     Shows the scorecard of an organization, accessible through
     the "My TSP" menu.
     """
+    template_name = 'envconnect/prints/scorecard.html'
+
+    def get_printable_charts(self):
+        if not hasattr(self, '_printable_charts'):
+            self._printable_charts = self.get_queryset()
+        return self._printable_charts
+
+    def get_context_data(self, *args, **kwargs):
+        context = {'base_dir': settings.BASE_DIR}
+        organization = self.kwargs.get('organization', None)
+        if organization:
+            for accessible in self.get_accessibles(self.request):
+                if accessible['slug'] == organization:
+                    context.update({'organization': accessible})
+                    break
+        from_root, trail = self.breadcrumbs
+        root = None
+        if trail:
+            root = self._build_tree(trail[-1][0], from_root, nocuts=True)
+            # Flatten icons and practices (i.e. Energy Efficiency) to produce
+            # the list of charts.
+            charts = self.get_printable_charts()
+            for element in root[1]:
+                for chart in charts:
+                    if element[0].slug == chart['slug']:
+                        if 'normalized_score' in chart:
+                            element[0].normalized_score = "%s%%" % chart.get(
+                                'normalized_score')
+                        else:
+                            element[0].normalized_score = "N/A"
+                        element[0].score_weight = chart.get(
+                            'score_weight', "N/A")
+                        break
+            for chart in charts:
+                if chart['slug'] == 'total-score':
+                    context.update({
+                        'nb_respondents': chart.get('nb_respondents', "N/A")})
+                    break
+            context.update({
+                'charts': [chart
+                    for chart in charts if chart['slug'] != 'total-score'],
+                'breadcrumbs': trail,
+                'root': self._cut_tree(root),
+            })
+        return context
+
+    def generate_chart_image(self, slug, template_name, context,
+                             cache_storage, width=250, height=120):
+        context.update({'base_dir': settings.BASE_DIR})
+        template = get_template(template_name)
+        content = template.render(context, self.request)
+        html_hash = slug
+        try:
+            cache_storage.save('%s.html' % html_hash, io.StringIO(content))
+            phantomjs_url = 'file://%s/%s.html' % (location, html_hash)
+            img_path = cache_storage.path('%s.png' % html_hash)
+            html_path = cache_storage.path('img-%s.html' % html_hash)
+            cache_storage.save('%s.js' % html_hash,
+    io.StringIO("""
+    var page = require('webpage').create();
+    var fs = require('fs');
+
+    page.viewportSize = {
+      width: %(width)s,
+      height: %(height)s
+    };
+
+    page.onConsoleMessage = function(msg, lineNum, sourceId) {
+      console.log('CONSOLE: ' + msg + ' (from line #' + lineNum + ' in "' + sourceId + '")');
+    };
+
+    page.onLoadFinished = function() {
+      setTimeout(function() {
+        page.render('%(img_path)s');
+        fs.write('%(html_path)s', page.content, 'w');
+        phantom.exit();
+      }, 2000);
+    };
+
+    page.open('%(url)s', function () {
+      page.evaluate(function() {
+      });
+    });
+    """ % {'width': width, 'height': height,
+           'url': phantomjs_url, 'img_path': img_path, 'html_path': html_path}))
+            phantomjs_script_path = cache_storage.path('%s.js' % html_hash)
+            cmd = [settings.PHANTOMJS_BIN, phantomjs_script_path]
+            LOGGER.info("RUN: %s", ' '.join(cmd))
+            subprocess.check_call(cmd)
+            LOGGER.info("phantomjs screenshot saved in %s", img_path)
+        finally:
+            cache_storage.delete('%s.html' % html_hash)
+            cache_storage.delete('%s.js' % html_hash)
+
+    def generate_printable_html(self):
+        total_score = None
+        charts = self.get_printable_charts()
+        with tempfile.mkdtemp(
+                prefix=settings.APP_NAME, dir=settings.MEDIA_ROOT) as location:
+            base_url = settings.MEDIA_URL
+            cache_storage = FileSystemStorage(
+                location=location, base_url=base_url)
+            for chart in charts:
+                if chart['slug'] == 'total-score':
+                    self.generate_chart_image(chart['slug'],
+                        'envconnect/prints/total_score.html',
+                        context={'total_score': chart},
+                        cache_storage=cache_storage)
+                else:
+                    chart['distribution'] = json.dumps(
+                        chart.get('distribution', {}))
+                    self.generate_chart_image(chart['slug'],
+                        'envconnect/prints/benchmark_graph.html',
+                        context={'chart': chart},
+                        cache_storage=cache_storage,
+                        width=210, height=120)
 
     def get(self, request, *args, **kwargs):
+        self.generate_printable_html()
         return PdfTemplateResponse(request, self.template_name,
             self.get_context_data(*args, **kwargs))
 
