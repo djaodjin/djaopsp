@@ -3,6 +3,7 @@ coverage==3.7.1
 django-debug-panel==0.8.0
 django-debug-toolbar==1.4
 django-extensions==1.6.1
+Faker==0.7.17
 pip-tools==0.3.5
 pylint==1.4.3
 pylint-django==0.6

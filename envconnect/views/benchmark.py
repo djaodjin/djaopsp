@@ -1,7 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import io, logging, json, os, re, subprocess
+import io, logging, json, re, subprocess, tempfile
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -9,9 +9,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.template import Template
 from django.template.loader import get_template
-from django.utils.six.moves.urllib.parse import urljoin
 from django.views.generic.base import (RedirectView, TemplateView,
     ContextMixin, TemplateResponseMixin)
 from django.utils import six
@@ -234,13 +232,15 @@ class ScoreCardDownloadView(BenchmarkAPIView):
 
     def generate_chart_image(self, slug, template_name, context,
                              cache_storage, width=250, height=120):
+        #pylint:disable=too-many-arguments
         context.update({'base_dir': settings.BASE_DIR})
         template = get_template(template_name)
         content = template.render(context, self.request)
         html_hash = slug
         try:
             cache_storage.save('%s.html' % html_hash, io.StringIO(content))
-            phantomjs_url = 'file://%s/%s.html' % (location, html_hash)
+            phantomjs_url = 'file://%s/%s.html' % (
+                cache_storage.location, html_hash)
             img_path = cache_storage.path('%s.png' % html_hash)
             html_path = cache_storage.path('img-%s.html' % html_hash)
             cache_storage.save('%s.js' % html_hash,
@@ -281,7 +281,6 @@ class ScoreCardDownloadView(BenchmarkAPIView):
             cache_storage.delete('%s.js' % html_hash)
 
     def generate_printable_html(self):
-        total_score = None
         charts = self.get_printable_charts()
         with tempfile.mkdtemp(
                 prefix=settings.APP_NAME, dir=settings.MEDIA_ROOT) as location:
