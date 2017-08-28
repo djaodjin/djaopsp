@@ -7,116 +7,28 @@
     <meta name="author" content="DjaoDjin inc.">
     <meta name="copyright" content="Copyright (c) 2017 DjaoDjin inc.">
     <title>Server error | DjaoDjin</title>
-    <style>
-html, body {
-    height: 100%;
-}
-body {
-    min-width: 100%;
-    background: #FFF;
-    font-family: 'Open Sans',sans-serif;
-    font-size: 14px;
-    line-height: 1.42857143;
-    color: #333;
-    background-color: #fff;
-    margin: 0;
-}
-a {
-    color: #337ab7;
-    text-decoration: none;
-    background-color: transparent;
-}
-#wrap {
-  width: 100%;
-  min-height: 100%;
-}
-#main {
-    min-height: 100%;
-    overflow: auto;
-    padding-bottom: 22px;
-}
-.footer {
-    position: relative;
-    height: 22px;
-    margin: 0;
-    margin-top: -22px;
-    clear: both;
-    bottom: 0;
-    text-align: center;
-    font-size: 11px;
-    width: 100%;
-}
-.navbar {
-    border-radius: 2px;
-    position: relative;
-    min-height: 50px;
-    margin-bottom: 0;
-    border: 1px solid transparent;
-}
-.navbar-default {
-    background-color: rgba(255,255,255,0.8);
-    border-color: transparent;
-    border: none;
-    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    padding: 0;
-    -webkit-transition: all .25s ease-in-out;
-    -moz-transition: all .25s ease-in-out;
-    -ms-transition: all .25s ease-in-out;
-    -o-transition: all .25s ease-in-out;
-    transition: all .25s ease-in-out;
-}
-.navbar-header {
-    float: left;
-}
-.navbar-default .navbar-brand {
-    height: auto;
-    padding: 0;
-    color: #428bca;
-}
-.navbar-brand {
-    float: left;
-    padding: 15px 15px;
-    font-size: 18px;
-    line-height: 20px;
-    height: 50px;
-}
-.navbar-default .navbar-brand.navbar-name {
-    padding-top: 13px;
-    padding-left: 25px;
-}
-.navbar-default .navbar-brand>img {
-    width: auto;
-    max-height: 50px;
-    display: block;
-    vertical-align: middle;
-    border: 0;
-}
-.container {
-    margin-right: auto;
-    margin-left: auto;
-    padding-left: 15px;
-    padding-right: 15px;
-    text-align: center;
-}
-    </style>
+    <link rel="stylesheet" media="screen" href="/envconnect/static/cache/envconnect.css" />
 </head>
 <body>
   <div id="wrap">
-   <div id="main">
-    <header>
-     <nav class="navbar navbar-default">
-      <div class="navbar-header">
-       <a class="navbar-brand" href="/">
-        <img src="/static/img/logo-djaodjin-128.png">
-       </a>
-       <a class="navbar-brand navbar-name" href="/">
-        <span>DjaoDjin</span>
-       </a>
-      </div>
-     </nav>
-    </header>
+    <div id="main">
+       <header>
+           <nav class="navbar navbar-default navbar-top">
+               <div class="navbar-border">
+                   <div class="navbar-header">
+                       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                           <span class="sr-only">Toggle navigation</span>
+                           <i class="fa fa-plus"></i>
+                       </button>
+                       <a class="navbar-brand navbar-name" href="/"><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;margin-bottom:4px;" /> The Sustainability Project</a>
+                   </div>
+                   <div class="navbar-collapse collapse">
+                       <ul class="nav navbar-nav navbar-right">
+                       </ul>
+                   </div>
+               </div>
+           </nav>
+       </header>
     <div class="container">
         <div style="display:inline-block;text-align:left;margin:auto;">
         <h1>500 - Internal Server Error</h1>
