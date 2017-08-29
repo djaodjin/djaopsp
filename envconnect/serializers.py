@@ -42,7 +42,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
             "implementation_ease", "avg_value",
             # benchmarks
             "rank", "nb_respondents", "rate", "opportunity",
-            "implemented", "planned")
+            "implemented", "planned", "requires_measurements")
 
     @staticmethod
     def get_nb_respondents(obj):

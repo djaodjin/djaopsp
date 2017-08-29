@@ -210,7 +210,7 @@
   "fields": {
     "survey": 1,
     "text": "Product Design",
-    "question_type": "radio",
+    "question_type": "integer",
     "correct_answer": "Yes",
     "rank": 1
   },

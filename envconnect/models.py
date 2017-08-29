@@ -246,6 +246,9 @@ class Consumption(SurveyQuestion):
             force_insert=force_insert, force_update=force_update,
             using=using, update_fields=update_fields)
 
+    def requires_measurements(self):
+        return self.question_type == self.INTEGER
+
     def get_rate(self):
         """
         Computes the implementation rate of this best practice.

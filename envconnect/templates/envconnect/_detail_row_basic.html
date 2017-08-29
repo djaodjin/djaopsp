@@ -1,15 +1,12 @@
-{% block detail_row %}
-<td id="[[practice[0].slug]]"
-    {% if colspan %} colspan="[[practice[0].consumption !== null ? 1 : {{colspan}}]]"{% endif %}>
-    <div style="display:flex;flex-wrap:nowrap;">
-      {% if request|is_broker_manager and not organization %}
-      <div role="toolbar" style="display:flex;align-items:center;margin-right:2px;">
+<div style="display:inline-block;">
+    {% if request|is_broker_manager and not organization %}
+    <div role="toolbar" style="display:inline-block;align-items:center;margin-right:2px;">
         <div class="btn btn-default btn-sm" style="background-color:#aaa;border-color:#aaa;">
             <i class="fa fa-bars move-rank"></i>
         </div>
-      </div>
-      {% endif %}
-      <div ng-if="!containsTag(practice[0], TAG_SYSTEM)" ng-class="indentHeader(practice, '{{abs_prefix}}')">
+    </div>
+    {% endif %}
+    <div ng-if="!containsTag(practice[0], TAG_SYSTEM)" ng-class="indentHeader(practice, '{{abs_prefix}}')" style="display:inline-block;">
         <a class="title" href="[[practice[0].consumption !== null ? '{{urls.best_practice_base}}' + practice[0].slug + '/' : '']]">[[practice[0].title]]</a>
         {% if request|is_broker_manager and not organization %}
         <a class="incl" href=""
@@ -31,6 +28,4 @@
         </div>
         {% endif %}
     </div>
-  </div>
-</td>
-{% endblock %}
+</div>

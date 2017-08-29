@@ -67,7 +67,10 @@
                         ng-repeat="practice in getEntries('{{abs_prefix}}')"
                         ng-if="getEntries('{{abs_prefix}}').length > 0"
                         ng-show="!scoreToggle">
-                        {% include "envconnect/_detail_row_basic.html" %}
+                        <td id="[[practice[0].slug]]">
+                            {% include "envconnect/_detail_row_basic.html" %}
+                            <a ng-if="practice[0].consumption !== null && practice[0].consumption.requires_measurements" href="" data-toggle="modal" data-target="#report-measurements" title="Got data to report? Click here." style="float:right;"><i class="fa fa-line-chart" style="color: #C5C5C5"></i></a>
+                        </td>
                         {% for choice in choices %}
                         <td class="text-center cell-fix-width-5">
                             <button ng-if="practice[0].consumption === null"
@@ -89,11 +92,10 @@
                     <tr ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
                         ng-if="getEntries('{{abs_prefix}}').length > 0"
                         ng-show="scoreToggle">
-                        {% if breadcrumbs|active_category:'sustainability' %}
-                        {% include "envconnect/_detail_row_basic.html" with colspan=4 %}
-                        {% else %}
-                        {% include "envconnect/_detail_row_basic.html" with colspan=3 %}
-                        {% endif %}
+                        <td id="[[practice[0].slug]]"
+                          colspan="[[practice[0].consumption !== null ? 1 : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]">
+                            {% include "envconnect/_detail_row_basic.html" %}
+                        </td>
                         <td class="text-center cell-fix-width-3"
                             ng-if="practice[0].consumption !== null">
                             [[practice[0].consumption.nb_respondents]] respondents
@@ -146,6 +148,29 @@ See the following for examples of content developed for best practices:
         {% endwith %}
         {% endwith %}
     {% endfor %}
+</div>
+<!-- modals -->
+<div id="report-measurements" class="modal fade"
+     tabindex="-1" role="dialog"
+     aria-labelledby="Report measurements" aria-hidden="true"
+     style="color: #000;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><i class="fa fa-wrench"></i> Report data ...</h4>
+            </div>
+            <div class="modal-body">
+In future versions of TSP you will be able to report various data measurements.
+If it is something you would like to see sooner rather than later,
+please <a href="{{'/contact/'|site_prefixed}}" target="_blank">let us know &raquo;</a>.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary"
+                    data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
