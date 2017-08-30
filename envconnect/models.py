@@ -235,7 +235,8 @@ class Consumption(SurveyQuestion):
             col_sum = 0
             for col in visible_cols:
                 col_sum += getattr(self, col)
-            self.avg_value = col_sum // nb_visible_cols
+            # Round to nearst:
+            self.avg_value = (col_sum + nb_visible_cols // 2) // nb_visible_cols
             if self.avg_value >= 4:
                 # We bump average to "Gold".
                 self.avg_value = 6

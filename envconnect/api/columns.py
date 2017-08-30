@@ -50,7 +50,9 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
                         query_params = F(col)
                     else:
                         query_params += F(col)
-                query_params = query_params / nb_visible_cols
+                # Round to nearst:
+                query_params = (
+                    query_params + nb_visible_cols // 2) / nb_visible_cols
                 Consumption.objects.filter(
                     path__startswith=path).update(avg_value=query_params)
 
