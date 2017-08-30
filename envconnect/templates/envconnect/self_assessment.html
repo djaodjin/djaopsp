@@ -89,7 +89,7 @@
                         </td>
                         {% endfor %}
                     </tr>
-                    <tr ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
+                    <tr ng-repeat="practice in getEntries('{{abs_prefix}}')"
                         ng-if="getEntries('{{abs_prefix}}').length > 0"
                         ng-show="scoreToggle">
                         <td id="[[practice[0].slug]]"
@@ -116,7 +116,7 @@
                             [[practice[0].consumption.opportunity|number:2]]
                         </td>
                         {% endif %}
-                   </tr>
+                    </tr>
                     <tr ng-if="getEntries('{{abs_prefix}}').length === 0">
                         <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]">
 <em>Guidance has not yet been developed for this section. If you would like to
