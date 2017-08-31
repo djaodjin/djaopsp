@@ -6,7 +6,7 @@ Models for envconnect.
 """
 from __future__ import unicode_literals
 
-import logging
+import json, logging
 
 from django.conf import settings
 from django.db import models, connection
@@ -282,3 +282,19 @@ class Improvement(models.Model):
 
     def __str__(self):
         return "%s/%s" % (self.account, self.consumption)
+
+
+def get_score_weight(element):
+    """
+    We aggregate weighted scores when walking up the tree.
+
+    Storing the weight in the `PageElement.tag` field works when we assume
+    only best practices (leafs) are aliased and best practices do not have
+    weight themselves.
+    """
+    try:
+        extra = json.loads(element.tag)
+        return extra.get('weight', 1.0)
+    except (TypeError, ValueError):
+        pass
+    return 1.0

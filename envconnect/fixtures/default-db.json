@@ -68,7 +68,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "tag": "industry,metal,enabled",
+    "tag": "{\"tags\":[\"industry\",\"metal\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 1
@@ -77,7 +77,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "sustainability-boxes-and-enclosures",
-    "tag": "sustainability",
+    "tag": "{\"tags\":[\"sustainability\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 2
@@ -94,7 +94,7 @@
     "title": "Management",
     "slug": "management-basics",
     "text": "/media/envconnect/management-basics.png",
-    "tag": "management,scorecard",
+    "tag": "{\"tags\":[\"management\",\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 4
@@ -111,7 +111,7 @@
     "title": "Design",
     "slug": "design",
     "text": "/media/envconnect/design.png",
-    "tag": "scorecard",
+    "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 5
@@ -128,7 +128,7 @@
     "title": "Sourcing",
     "slug": "sourcing",
     "text": "/media/envconnect/sourcing.png",
-    "tag": "scorecard",
+    "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 6
@@ -145,7 +145,7 @@
     "title": "Production",
     "slug": "production",
     "text": "/media/envconnect/production.png",
-    "tag": "scorecard",
+    "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 7
@@ -162,7 +162,7 @@
     "title": "Distribution",
     "slug": "boxes-distribution",
     "text": "/media/envconnect/distribution.png",
-    "tag": "scorecard",
+    "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 8
@@ -179,7 +179,7 @@
     "title": "End of Life",
     "slug": "end-of-life",
     "text": "/media/envconnect/end-of-life.png",
-    "tag": "scorecard",
+    "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 9
@@ -275,7 +275,7 @@
   "fields": {
     "title": "Energy Efficiency",
     "slug": "energy-efficiency",
-    "tag": "system,scorecard",
+    "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 12
@@ -292,7 +292,7 @@
     "title": "Management",
     "slug": "energy-efficiency-management-basics",
     "text": "/media/envconnect/management-basics.png",
-    "tag": "management",
+    "tag": "{\"tags\":[\"management\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 16
@@ -540,7 +540,7 @@
   "fields": {
     "title": "Construction",
     "slug": "construction",
-    "tag": "industry,enabled",
+    "tag": "{\"tags\":[\"industry\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 28
@@ -579,7 +579,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "basic-boxes-and-enclosures",
-    "tag": "basic",
+    "tag": "{\"tags\":[\"basic\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 31
@@ -610,7 +610,7 @@
   "fields": {
     "title": "Management basics",
     "slug": "boxes-and-enclosures-basic-manage",
-    "tag": "management",
+    "tag": "{\"tags\":[\"management\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 34
@@ -671,7 +671,7 @@
   "fields": {
     "title": "Waste Management",
     "slug": "waste-management",
-    "tag": "system,scorecard",
+    "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 38
@@ -687,7 +687,7 @@
   "fields": {
     "title": "Green Chemistry",
     "slug": "green-chemistry",
-    "tag": "system,scorecard",
+    "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 39
@@ -969,7 +969,7 @@
   "fields": {
     "title": "Professional services",
     "slug": "office-space-only",
-    "tag": "industry",
+    "tag": "{\"tags\":[\"industry\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 52
@@ -1074,7 +1074,7 @@
   "fields": {
     "title": "Packaging",
     "slug": "packaging",
-    "tag": "system,scorecard",
+    "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 61
@@ -1090,7 +1090,7 @@
   "fields": {
     "title": "Fleet",
     "slug": "fleet",
-    "tag": "system,scorecard",
+    "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 62
@@ -1106,7 +1106,7 @@
   "fields": {
     "title": "Take-back program",
     "slug": "take-back-program",
-    "tag": "system,scorecard",
+    "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 63
@@ -1122,7 +1122,7 @@
   "fields": {
     "title": "Recycling",
     "slug": "recycling",
-    "tag": "system,scorecard",
+    "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 64
@@ -1777,7 +1777,7 @@
   "fields": {
     "title": "Distribution",
     "slug": "distribution",
-    "tag": "industry",
+    "tag": "{\"tags\":[\"industry\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 69
@@ -1786,7 +1786,7 @@
   "fields": {
     "title": "Diversified, corporate level",
     "slug": "diversified-corporate-level",
-    "tag": "industry",
+    "tag": "{\"tags\":[\"industry\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 70
@@ -1795,7 +1795,7 @@
   "fields": {
     "title": "Fuel supply",
     "slug": "fuel-supply",
-    "tag": "industry",
+    "tag": "{\"tags\":[\"industry\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 71
@@ -1804,7 +1804,7 @@
   "fields": {
     "title": "Shipping & logistics",
     "slug": "shipping-and-logistics",
-    "tag": "industry",
+    "tag": "{\"tags\":[\"industry\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 72
@@ -1813,7 +1813,7 @@
   "fields": {
     "title": "Vehicle equipment & parts",
     "slug": "vehicle-equipment-and-parts",
-    "tag": "industry",
+    "tag": "{\"tags\":[\"industry\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 73
@@ -1822,7 +1822,7 @@
   "fields": {
     "title": "Distribution transformers",
     "slug": "distribution-transformers",
-    "tag": "industry,metal",
+    "tag": "{\"tags\":[\"industry\",\"metal\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 74
@@ -1831,7 +1831,7 @@
   "fields": {
     "title": "Fabricated metals",
     "slug": "fabricated-metals",
-    "tag": "industry,metal",
+    "tag": "{\"tags\":[\"industry\",\"metal\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 75
@@ -1840,7 +1840,7 @@
   "fields": {
     "title": "Wire & cable",
     "slug": "wire-and-cable",
-    "tag": "industry,metal,enabled",
+    "tag": "{\"tags\":[\"industry\",\"metal\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 76
@@ -1849,7 +1849,7 @@
   "fields": {
     "title": "Wire & cable",
     "slug": "sustainability-wire-and-cable",
-    "tag": "industry,metal,enabled",
+    "tag": "{\"tags\":[\"industry\",\"metal\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 77

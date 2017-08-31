@@ -545,7 +545,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         var parent = prefix.substring(prefix.lastIndexOf('/') + 1);
         var data = {title: title, orig_elements: [parent]};
         if( tag ) {
-            data.tag = tag;
+            data.tag = {"tags": [tag]};
         }
         $http.post(settings.urls.api_page_elements, data).then(
             function success(resp) {
@@ -653,24 +653,22 @@ envconnectControllers.controller("EnvconnectCtrl",
             });
     };
 
-    $scope.editElementTags = function(path, reload, element) {
+    $scope.toggleScorecard = function(path, reload, element) {
         event.preventDefault();
         if( $scope.containsTag(element, $scope.TAG_SCORECARD) ) {
             $http.put(
-                settings.urls.api_page_elements + element.slug + '/remove-tags',
-                {"tag": $scope.TAG_SCORECARD}).then(
+                settings.urls.api_scorecard_disable + element.slug).then(
                 function success(resp) {
-                    element.tag = resp.data.tag;
+                    element.tag = resp.data;
                     if( reload ) { window.location = ""; }
                 }, function error(resp) {
                     showErrorMessage(resp);
                 });
         } else {
             $http.put(
-                settings.urls.api_page_elements + element.slug + '/add-tags',
-                {"tag": $scope.TAG_SCORECARD}).then(
+                settings.urls.api_scorecard_enable + element.slug).then(
                 function success(resp) {
-                    element.tag = resp.data.tag;
+                    element.tag = resp.data;
                     if( reload ) { window.location = ""; }
                 }, function error(resp) {
                     showErrorMessage(resp);

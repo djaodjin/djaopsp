@@ -148,6 +148,10 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'breadcrumbs': trail,
             'active': self.request.GET.get('active', "")})
         urls = {
+            'api_scorecard_disable': reverse(
+                'api_scorecard_disable', args=("/",)),
+            'api_scorecard_enable': reverse(
+                'api_scorecard_enable', args=("/",)),
             'api_best_practices': reverse('api_detail', args=("",)),
             'api_mirror_node': reverse('api_mirror_detail', args=("",)),
             'api_move_node': reverse('api_move_detail', args=("",)),

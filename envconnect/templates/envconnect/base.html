@@ -68,7 +68,7 @@
    ng-click="setActiveElement({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
    style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i></a>
 <a id="incl-{{icon.slug}}" href=""
-   ng-click="editElementTags('{{abs_prefix}}', true, {slug: '{{icon.slug}}', tag: '{{icon.tag}}'})"
+   ng-click="toggleScorecard('{{abs_prefix}}', true, {slug: '{{icon.slug}}', tag: '{{icon.tag}}'})"
    style="position:absolute;top:20px;left:0px;"><i class="fa [[containsTag({tag: '{{icon.tag}}'}, TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
 <a class="edit"
    href="" data-toggle="modal" data-target="#edit-element-modal"
@@ -78,6 +78,11 @@
 {% endif %}
 {% include "envconnect/_icon.html" with icon=icon %}
                                                         {% block score %}
+<div id="{{icon.slug}}-score" class="icon-score">
+    <div>
+        (<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{abs_prefix}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}>{{icon.score_weight}}</span>)
+    </div>
+</div>
                                                         {% endblock %}
                                                     </div>
                                                     {% block systems_block %}
@@ -95,7 +100,7 @@
 
                                                             {% if request|is_broker_manager and not organization %}
 <a id="incl-[[practice[0].slug]]" href=""
-   ng-click="editElementTags(getPath(practice[0]), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
+   ng-click="toggleScorecard(getPath(practice[0]), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
 <a class="edit"
    href="" data-toggle="modal" data-target="#edit-element-modal"
    ng-click="setActiveElement(practice[0])"><i class="fa fa-edit"></i></a>
@@ -272,6 +277,8 @@ app.constant('settings', {
     urls: {{urls|to_json}},
 {% else %}
     urls: {
+        api_scorecard_disable: "{% url 'api_scorecard_disable' '' %}",
+        api_scorecard_enable: "{% url 'api_scorecard_enable' '' %}",
         api_best_practices: "{% url 'api_detail' '' %}",
         api_mirror_node: "{% url 'api_mirror_detail' '' %}",
         api_move_node: "{% url 'api_move_detail' '' %}",

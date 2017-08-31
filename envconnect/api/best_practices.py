@@ -1,7 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import logging, re
+import decimal, json, logging, re
 
 from django.db import transaction
 from django.db.models import Max
@@ -9,8 +9,9 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (get_object_or_404,
-    RetrieveUpdateDestroyAPIView)
+    RetrieveUpdateDestroyAPIView, UpdateAPIView)
 from rest_framework.response import Response
+from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip
 from pages.api.relationship import (PageElementMirrorAPIView,
     PageElementMoveAPIView)
@@ -21,6 +22,56 @@ from ..models import Consumption
 from ..serializers import PageElementSerializer
 
 LOGGER = logging.getLogger(__name__)
+
+
+class DecimalEncoder(json.JSONEncoder):
+
+    def default(self, obj): #pylint: disable=method-hidden
+        if isinstance(obj, decimal.Decimal):
+            return float(obj)
+        return super(DecimalEncoder, self).default(obj)
+
+
+class ToggleTagContentAPIView(TrailMixin, UpdateAPIView):
+
+    added_tag = None
+    removed_tag = None
+
+    def update(self, request, *args, **kwargs):
+        trail = self.get_full_element_path(self.kwargs.get('path'))
+        element = trail[-1]
+        extra = {}
+        try:
+            extra = json.loads(element.tag)
+        except (TypeError, ValueError):
+            pass
+        if 'tags' not in extra:
+            if self.added_tag:
+                extra.update({'tags': self.added_tag})
+        else:
+            if self.removed_tag and self.removed_tag in extra['tags']:
+                extra['tags'].remove(self.removed_tag)
+            if self.added_tag and not self.added_tag in extra['tags']:
+                extra['tags'].append(self.added_tag)
+        element.tag = json.dumps(extra, cls=DecimalEncoder)
+        element.save()
+        return Response(element.tag)
+
+
+class EnableContentAPIView(ToggleTagContentAPIView):
+    """
+    Enable a top level segment.
+    """
+    added_tag = "enabled"
+    removed_tag = "disabled"
+
+
+class DisableContentAPIView(ToggleTagContentAPIView):
+    """
+    Disable a top level segment.
+    """
+    added_tag = "disabled"
+    removed_tag = "enabled"
 
 
 class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):

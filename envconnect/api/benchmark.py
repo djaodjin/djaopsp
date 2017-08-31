@@ -4,19 +4,21 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import logging
+import json, logging, time
 from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db import connection, connections
 from django.utils import six
+from pages.mixins import TrailMixin
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as RestResponse
 from survey.models import Answer
 
+from .best_practices import DecimalEncoder, ToggleTagContentAPIView
 from ..mixins import ReportMixin
-from ..models import Consumption, Improvement, ScoreWeight
+from ..models import Consumption, Improvement, get_score_weight
 from ..serializers import ScoreWeightSerializer
 
 
@@ -35,7 +37,7 @@ class BenchmarkMixin(ReportMixin):
     ANSWER_TEXT = 7
     ANSWER_CREATED_AT = 8
 
-    enable_report_queries = False
+    enable_report_queries = True
 
     def _report_queries(self, descr=None):
         if not self.enable_report_queries:
@@ -115,7 +117,7 @@ class BenchmarkMixin(ReportMixin):
             metrics = {
                 'slug': root.slug,
                 'title': root.title,
-                'score_weight': ScoreWeight.objects.from_path(base)
+                'score_weight': get_score_weight(root)
             }
             if root.text:
                 metrics.update({'text': root.text})
@@ -145,7 +147,8 @@ class BenchmarkMixin(ReportMixin):
                 level_details[0].update({'tag': "%s,%s" % (
                     level_details[0].get('tag'), settings.TAG_SCORECARD)})
                 details.update({base: level_details})
-        return ({'score_weight': ScoreWeight.objects.from_path(path)}, details)
+        return ({}, details)
+#XXX    return ({'score_weight': ScoreWeight.objects.from_path(path)}, details)
 
     def get_drilldown(self, rollup_tree, prefix):
         accounts = None
@@ -217,7 +220,7 @@ class BenchmarkMixin(ReportMixin):
                     'breadcrumbs': breadcrumbs,
                     'text': icon_tuple[0].text if text is None else text,
                     'tag': icon_tuple[0].tag if tag is None else tag,
-                    'score_weight': ScoreWeight.objects.from_path(icon_path),
+                    'score_weight': get_score_weight(icon_tuple[0]),
                     'nb_answers': nb_answers,
                     'nb_questions': getattr(icon_tuple[0], 'nb_questions', 0),
                     'distribution': getattr(icon_tuple[0], 'distribution', {})
@@ -389,7 +392,7 @@ class BenchmarkMixin(ReportMixin):
         #pylint:disable=too-many-locals,too-many-statements
         if path is None:
             path = "/" + root[0].slug
-        score_weight = ScoreWeight.objects.from_path(path)
+        score_weight = get_score_weight(root[0])
         setattr(root[0], 'score_weight', score_weight)
         numerators = {}
         denominators = {}
@@ -739,21 +742,26 @@ class BenchmarkMixin(ReportMixin):
         Returns a tree populated with scores per accounts.
         """
         self._report_queries("at rollup_scores entry point")
+        start_time = time.monotonic()
         roots = root.relationships.all() if root is not None else None
         rollup_tree = self.build_aggregate_tree(roots=roots, path=root_prefix)
-        self._report_queries("rollup_tree generated")
+        self._report_queries("(elapsed: %.2fs) rollup_tree generated"
+            % (time.monotonic() - start_time))
         if 'title' not in rollup_tree[0]:
             rollup_tree[0].update({
                 "slug": "total-score", "title": "Total Score"})
         leafs = self.get_leafs(rollup_tree=rollup_tree)
-        self._report_queries("leafs loaded")
+        self._report_queries("(elapsed: %.2fs) leafs loaded"
+            % (time.monotonic() - start_time))
         self.populate_leafs(leafs, self.get_scored_answers())
         self.populate_leafs(leafs, self.get_scored_improvements(),
             count_answers=False, numerator_key='improvement_numerator',
             denominator_key='improvement_denominator')
-        self._report_queries("leafs populated")
+        self._report_queries("(elapsed: %.2fs) leafs populated"
+            % (time.monotonic() - start_time))
         self.populate_rollup(rollup_tree)
-        self._report_queries("rollup_tree populated")
+        self._report_queries("(elapsed: %.2fs) rollup_tree populated"
+            % (time.monotonic() - start_time))
         return rollup_tree
 
 
@@ -860,16 +868,41 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         return RestResponse(self.get_queryset())
 
 
-class ScoreWeightAPIView(generics.RetrieveUpdateAPIView):
+class EnableScorecardAPIView(ToggleTagContentAPIView):
+
+    added_tag = 'scorecard'
+
+
+class DisableScorecardAPIView(ToggleTagContentAPIView):
+
+    removed_tag = 'scorecard'
+
+
+class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
 
     lookup_field = 'path'
-    queryset = ScoreWeight.objects.all()
     serializer_class = ScoreWeightSerializer
 
-    def get_object(self):
-        path = self.kwargs.get('path')
+    def retrieve(self, request, *args, **kwargs):
+        trail = self.get_full_element_path(self.kwargs.get('path'))
+        return RestResponse(self.serializer_class().to_representation({
+            'weight': get_score_weight(trail[-1])}))
+
+    def update(self, request, *args, **kwargs):#pylint:disable=unused-argument
+        partial = kwargs.pop('partial', False)
+        serializer = self.serializer_class(data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return RestResponse(serializer.data)
+
+    def perform_update(self, serializer):
+        trail = self.get_full_element_path(self.kwargs.get('path'))
+        element = trail[-1]
+        extra = {}
         try:
-            obj = self.get_queryset().get(path=path)
-        except ScoreWeight.DoesNotExist:
-            obj = ScoreWeight(path=path)
-        return obj
+            extra = json.loads(element.tag)
+        except (TypeError, ValueError):
+            pass
+        extra.update(serializer.validated_data)
+        element.tag = json.dumps(extra, cls=DecimalEncoder)
+        element.save()

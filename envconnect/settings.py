@@ -165,7 +165,9 @@ LOGGING = {
             'level': 'DEBUG',
             'formatter': 'simple',
             'filters': ['require_debug_true'],
-            'class':'logging.StreamHandler',
+            'class':'logging.handlers.WatchedFileHandler',
+            'filename': '-'.join(os.path.splitext(LOG_FILE)[0].split(
+                '-')[:-1] + ['db']) + os.path.splitext(LOG_FILE)[1],
         },
         'json_logfile': {
             'level': 'DEBUG',
@@ -200,13 +202,13 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
-#        'django.db.backends': {
-#           'handlers': ['db_logfile'],
-#           'level': 'DEBUG',
-#           'propagate': False
-#        },
+        'django.db.backends': {
+           'handlers': ['db_logfile'],
+           'level': 'DEBUG',
+           'propagate': False
+        },
         'envconnect': {
-            'handlers': [],
+            'handlers': ['db_logfile'],
             'level': 'DEBUG',
         },
         'django.request': {

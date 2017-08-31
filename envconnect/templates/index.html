@@ -481,14 +481,17 @@ jQuery(document).ready(function($) {
 {% if request|is_broker_manager %}
   $("[name='industry']").change(function() {
       var element = $(this);
-      element.baseEditor({
-        baseUrl: "{{'/api/editables/'|site_prefixed}}",
-        uniqueIdentifier: "value"});
-      if( element.is(':checked') ) {
-        element.data('editor').addTags("enabled");
-      } else {
-        element.data('editor').removeTags("enabled");
-      }
+      // change() is called after is(':checked') is updated.
+      $.ajax({
+          method: "PUT",
+          url: (element.is(':checked') ? "{{urls.api_enable}}/" : "{{urls.api_disable}}/") + element.attr("value"),
+          contentType: "application/json; charset=utf-8",
+          success: function(resp) {
+          },
+          error: function error(resp) {
+              showErrorMessage(resp);
+          }
+      });
   });
 
   $(".add-element").click(function(event) {

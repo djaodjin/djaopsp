@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
 
 from ..mixins import BestPracticeMixin
-from ..models import ColumnHeader
+from ..models import ColumnHeader, get_score_weight
 
 
 class DetailView(BestPracticeMixin, TemplateView):
@@ -41,6 +41,9 @@ class DetailView(BestPracticeMixin, TemplateView):
         hidden_columns = {}
         is_envconnect_manager = self.manages(settings.APP_NAME)
         for icon_tuple in root[1]:
+            setattr(icon_tuple[0], 'score_weight',
+                get_score_weight(icon_tuple[0]))
+
             path = '/'.join([from_root, icon_tuple[0].slug])
             hidden_columns[path] = {}
             hidden = set([row['slug']

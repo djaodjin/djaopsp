@@ -8,7 +8,7 @@ from rest_framework import serializers
 from pages.models import PageElement
 from pages.serializers import PageElementSerializer as BasePageElementSerializer
 
-from envconnect.models import ColumnHeader, Consumption, ScoreWeight
+from envconnect.models import ColumnHeader, Consumption
 
 
 class ColumnHeaderSerializer(serializers.ModelSerializer):
@@ -124,11 +124,16 @@ class PageElementSerializer(BasePageElementSerializer):
         return not obj.text
 
 
-class ScoreWeightSerializer(serializers.ModelSerializer):
+class ScoreWeightSerializer(serializers.Serializer):
 
     weight = serializers.DecimalField(decimal_places=2, max_digits=3,
         required=True)
 
     class Meta:
-        model = ScoreWeight
         fields = ('weight',)
+
+    def create(self, validated_data):
+        raise NotImplementedError('done is APIView')
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError('done is APIView')

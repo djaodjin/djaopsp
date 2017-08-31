@@ -3,7 +3,7 @@
 
 """Command to migrate the envconnect production database"""
 
-import re
+import json, re
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -15,7 +15,8 @@ from survey.models import (Answer, Question, Response, SurveyModel,
     EditablePredicate)
 
 from ...mixins import BreadcrumbMixin
-from ...models import Improvement, Consumption, ScoreWeight, ColumnHeader
+from ...models import Improvement, Consumption, ColumnHeader, ScoreWeight
+from ...api.best_practices import DecimalEncoder
 
 
 class Command(BaseCommand):
@@ -37,9 +38,33 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.dump_sql_statements(options.get('paths'))
+            self.tag_as_json()
+#            self.dump_sql_statements(options.get('paths'))
 #            self.relabel_to_fix_error()
 #            self.recompute_avg_value()
+
+    def tag_as_json(self):
+        for element in PageElement.objects.all():
+            if element.tag:
+                element.tag = json.dumps({'tags': element.tag.split(',')})
+                element.save()
+        for score_weight in ScoreWeight.objects.all():
+            if score_weight.weight != 1.0:
+                last_path_element = score_weight.path.split('/')[-1]
+                try:
+                    element = PageElement.objects.get(slug=last_path_element)
+                    extra = {}
+                    try:
+                        extra = json.loads(element.tag)
+                    except (TypeError, ValueError):
+                        pass
+                    extra.update({'weight': score_weight.weight})
+                    element.tag = json.dumps(extra, cls=DecimalEncoder)
+                    element.save()
+                except PageElement.DoesNotExist:
+                    self.stderr.write("warning: cannot find '%s' while trying"\
+                        " to set score weight to %s" % (last_path_element,
+                        score_weight.weight))
 
     def _slugify(self, slug):
         if slug == 'sustainability-office-space-only':
