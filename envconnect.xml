@@ -53,6 +53,10 @@
       <dep name="openpyxl" target="python">
         <lib>.*/(openpyxl)/__init__.py</lib>
       </dep>
+      <dep name="monotonic" target="python">
+        <!-- performance logging -->
+        <lib>.*/(monotonic)/__init__.py</lib>
+      </dep>
       <!-- XXX weird semantics when we use target="python".
            It will try to create a python/dws.mk, which is
            correct behavior but unexpected and troublesome
