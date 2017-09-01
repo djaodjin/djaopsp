@@ -4,9 +4,10 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import json, logging, time
+import json, logging
 from datetime import datetime, timedelta
 
+import monotonic
 from django.conf import settings
 from django.db import connection, connections
 from django.utils import six
@@ -742,26 +743,26 @@ class BenchmarkMixin(ReportMixin):
         Returns a tree populated with scores per accounts.
         """
         self._report_queries("at rollup_scores entry point")
-        start_time = time.monotonic()
+        start_time = monotonic.monotonic()
         roots = root.relationships.all() if root is not None else None
         rollup_tree = self.build_aggregate_tree(roots=roots, path=root_prefix)
         self._report_queries("(elapsed: %.2fs) rollup_tree generated"
-            % (time.monotonic() - start_time))
+            % (monotonic.monotonic() - start_time))
         if 'title' not in rollup_tree[0]:
             rollup_tree[0].update({
                 "slug": "total-score", "title": "Total Score"})
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("(elapsed: %.2fs) leafs loaded"
-            % (time.monotonic() - start_time))
+            % (monotonic.monotonic() - start_time))
         self.populate_leafs(leafs, self.get_scored_answers())
         self.populate_leafs(leafs, self.get_scored_improvements(),
             count_answers=False, numerator_key='improvement_numerator',
             denominator_key='improvement_denominator')
         self._report_queries("(elapsed: %.2fs) leafs populated"
-            % (time.monotonic() - start_time))
+            % (monotonic.monotonic() - start_time))
         self.populate_rollup(rollup_tree)
         self._report_queries("(elapsed: %.2fs) rollup_tree populated"
-            % (time.monotonic() - start_time))
+            % (monotonic.monotonic() - start_time))
         return rollup_tree
 
 

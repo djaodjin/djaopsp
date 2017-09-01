@@ -191,7 +191,7 @@ class Consumption(SurveyQuestion):
 
     objects = ConsumptionQuerySet.as_manager()
 
-    path = models.CharField(max_length=512)
+    path = models.CharField(max_length=1024)
     question = models.OneToOneField(SurveyQuestion, parent_link=True)
 
     # Value summary fields

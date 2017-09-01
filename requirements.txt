@@ -13,5 +13,6 @@ djaodjin-deployutils==0.4.3
 #djaodjin-survey==0.1.6
 gunicorn==19.7.1
 jsmin==2.2.2
+monotonic==1.1
 openpyxl==2.4.8
 yuicompressor==2.4.8
