@@ -55,7 +55,7 @@
       </dep>
       <dep name="monotonic" target="python">
         <!-- performance logging -->
-        <lib>.*/(monotonic)/__init__.py</lib>
+        <lib>.*/monotonic.py</lib>
       </dep>
       <!-- XXX weird semantics when we use target="python".
            It will try to create a python/dws.mk, which is
