@@ -282,25 +282,25 @@ class ScoreCardDownloadView(BenchmarkAPIView):
 
     def generate_printable_html(self):
         charts = self.get_printable_charts()
-        with tempfile.mkdtemp(
-                prefix=settings.APP_NAME, dir=settings.MEDIA_ROOT) as location:
-            base_url = settings.MEDIA_URL
-            cache_storage = FileSystemStorage(
-                location=location, base_url=base_url)
-            for chart in charts:
-                if chart['slug'] == 'total-score':
-                    self.generate_chart_image(chart['slug'],
-                        'envconnect/prints/total_score.html',
-                        context={'total_score': chart},
-                        cache_storage=cache_storage)
-                else:
-                    chart['distribution'] = json.dumps(
-                        chart.get('distribution', {}))
-                    self.generate_chart_image(chart['slug'],
-                        'envconnect/prints/benchmark_graph.html',
-                        context={'chart': chart},
-                        cache_storage=cache_storage,
-                        width=210, height=120)
+        location = tempfile.mkdtemp(
+            prefix=settings.APP_NAME + "-", dir=settings.MEDIA_ROOT)
+        base_url = settings.MEDIA_URL
+        cache_storage = FileSystemStorage(
+            location=location, base_url=base_url)
+        for chart in charts:
+            if chart['slug'] == 'total-score':
+                self.generate_chart_image(chart['slug'],
+                    'envconnect/prints/total_score.html',
+                    context={'total_score': chart},
+                    cache_storage=cache_storage)
+            else:
+                chart['distribution'] = json.dumps(
+                    chart.get('distribution', {}))
+                self.generate_chart_image(chart['slug'],
+                    'envconnect/prints/benchmark_graph.html',
+                    context={'chart': chart},
+                    cache_storage=cache_storage,
+                    width=210, height=120)
 
     def get(self, request, *args, **kwargs):
         self.generate_printable_html()
