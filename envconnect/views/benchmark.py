@@ -1,6 +1,8 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
+from __future__ import unicode_literals
+
 import io, logging, json, re, subprocess, tempfile
 
 from django.conf import settings
@@ -13,6 +15,7 @@ from django.template.loader import get_template
 from django.views.generic.base import (RedirectView, TemplateView,
     ContextMixin, TemplateResponseMixin)
 from django.utils import six
+from deployutils.helpers import datetime_or_now
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
 from survey.models import Matrix
@@ -228,58 +231,34 @@ class ScoreCardDownloadView(BenchmarkAPIView):
                     for chart in charts if chart['slug'] != 'total-score'],
                 'breadcrumbs': trail,
                 'root': self._cut_tree(root),
+                'at_time': datetime_or_now()
             })
         return context
 
     def generate_chart_image(self, slug, template_name, context,
-                             cache_storage, width=250, height=120, delay=0):
+                             js_content, cache_storage, on_start=True,
+                             width=400, height=300, delay=1):
         #pylint:disable=too-many-arguments
         context.update({'base_dir': settings.BASE_DIR})
         template = get_template(template_name)
         content = template.render(context, self.request)
-        html_hash = slug
-        try:
-            cache_storage.save('%s.html' % html_hash, io.StringIO(content))
-            phantomjs_url = 'file://%s/%s.html' % (
-                cache_storage.location, html_hash)
-            img_path = cache_storage.path('%s.png' % html_hash)
-            html_path = cache_storage.path('img-%s.html' % html_hash)
-            cache_storage.save('%s.js' % html_hash,
-    io.StringIO("""
-    var page = require('webpage').create();
-    var fs = require('fs');
-
-    page.viewportSize = {
-      width: %(width)s,
-      height: %(height)s
-    };
-
-    page.onConsoleMessage = function(msg, lineNum, sourceId) {
-      console.log('CONSOLE: ' + msg + ' (from line #' + lineNum + ' in "' + sourceId + '")');
-    };
-
-    page.onLoadFinished = function() {
-      setTimeout(function() {
-        page.render('%(img_path)s');
-        fs.write('%(html_path)s', page.content, 'w');
-        phantom.exit();
-      }, %(delay)d);
-    };
-
-    page.open('%(url)s', function () {
-      page.evaluate(function() {
-      });
+        cache_storage.save('%s.html' % slug, io.StringIO(content))
+        phantomjs_url = 'file://%s/%s.html' % (
+            cache_storage.location, slug)
+        img_path = cache_storage.path('%s.png' % slug)
+        if on_start:
+            js_content.write("""casper.start('%(url)s', function() {
+    this.echo("starting...");
+});
+""" % {'url': phantomjs_url})
+        js_content.write("""
+casper.viewport(%(width)s, %(height)s).thenOpen('%(url)s', function() {
+    this.wait(%(delay)d, function() {
+        this.capture('%(img_path)s', {top: 0, left: 0, width: %(width)s, height: %(height)s});
     });
-    """ % {'width': width, 'height': height, 'delay': delay,
-           'url': phantomjs_url, 'img_path': img_path, 'html_path': html_path}))
-            phantomjs_script_path = cache_storage.path('%s.js' % html_hash)
-            cmd = [settings.PHANTOMJS_BIN, phantomjs_script_path]
-            LOGGER.info("RUN: %s", ' '.join(cmd))
-            subprocess.check_call(cmd)
-            LOGGER.info("phantomjs screenshot saved in %s", img_path)
-        finally:
-            cache_storage.delete('%s.html' % html_hash)
-            cache_storage.delete('%s.js' % html_hash)
+});
+""" % {'width': width, 'height': height, 'delay': delay,
+       'url': phantomjs_url, 'img_path': img_path})
         return "file://" + img_path
 
     def generate_printable_html(self):
@@ -289,21 +268,42 @@ class ScoreCardDownloadView(BenchmarkAPIView):
         base_url = settings.MEDIA_URL
         cache_storage = FileSystemStorage(
             location=location, base_url=base_url)
+        js_content = io.StringIO()
+        js_content.write("""var casper = require('casper').create();
+
+""")
+        on_start = True
         for chart in charts:
             if chart['slug'] == 'total-score':
                 chart['image'] = self.generate_chart_image(chart['slug'],
                     'envconnect/prints/total_score.html',
                     context={'total_score': chart},
+                    js_content=js_content,
                     cache_storage=cache_storage,
-                    delay=1000)
+                    on_start=on_start,
+                    width=300, height=200, delay=1000)
             else:
                 chart['distribution'] = json.dumps(
                     chart.get('distribution', {}))
                 chart['image'] = self.generate_chart_image(chart['slug'],
                     'envconnect/prints/benchmark_graph.html',
                     context={'chart': chart},
+                    js_content=js_content,
                     cache_storage=cache_storage,
-                    width=210, height=120)
+                    on_start=on_start,
+                    width=210, height=204)
+            on_start = False
+        js_content.write("""
+casper.run();
+""")
+        js_content.seek(0)
+        js_generate_images = 'generate-images.js'
+        cache_storage.save(js_generate_images, js_content)
+        phantomjs_script_path = cache_storage.path(js_generate_images)
+        cmd = [settings.PHANTOMJS_BIN.replace('bin/phantomjs', 'bin/casperjs'),
+            phantomjs_script_path]
+        LOGGER.info("RUN: %s", ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def get(self, request, *args, **kwargs):
         self.generate_printable_html()

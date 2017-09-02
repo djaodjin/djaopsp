@@ -21,15 +21,15 @@ Note: Your score will rise if the implementation rate for the best practices
 you have implemented rises, because implementation rate is used as value
 indicator for a best practice.
   </p>
-  <div>
-      <a href="{% url 'scorecard_download_organization' organization path %}" target="_blank"><i class="fa fa-wrench"></i> Printable</a>
+  <div style="margin-top:25px;">
+      <a href="{% url 'scorecard_download_organization' organization path %}" target="_blank">Printable</a>
+  </div>
+  <div{% if '/share/' in request.path %} class="active"{% endif %}>
+      <a id="submenu-share" href="{{''|site_prefixed}}/profile/{{organization}}/roles/viewer/">Share scorecard<br /></a>
   </div>
   <div style="font-weight:900;margin-top:45px;">
       <i class="fa fa-wrench"></i> Get this scorecard verified?<br />
       <i class="fa fa-check-square-o fa-2x"></i>
-  </div>
-  <div{% if '/share/' in request.path %} class="active"{% endif %} style="margin-top:20px;">
-      <a id="submenu-share" href="{{''|site_prefixed}}/profile/{{organization}}/roles/viewer/">Share scorecard<br /></a>
   </div>
 </div>
 {% endblock %}
