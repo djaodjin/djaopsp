@@ -113,7 +113,7 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
         from_trail_head = "/" + "/".join([
             element.slug.decode('utf-8') if six.PY2 else element.slug
             for element in self.get_full_element_path(trail_head)])
-        self.root = self._build_tree(trail[0][0], from_trail_head, nocuts=True)
+        self.root = self._build_tree(trail[0][0], from_trail_head, cut=None)
         self.attach_benchmarks(self.root, view_response=self.sample)
 
         self.create_writer()

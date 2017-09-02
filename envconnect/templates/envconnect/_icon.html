@@ -1,6 +1,6 @@
 <a href="#tab-{{icon.slug}}"
    class="icon-inner{% if icon|containsTag:'management' %} grey{% else %} orange{% endif %}"
-   {% if role %}role="{{role}}" data-toggle="{{role}}" ng-click="toggleIcons($event, '{{icon}}')"{% endif %}>
+   {% if role %}role="{{role}}" data-toggle="{{role}}" ng-click="toggleIcons($event, '{{icon.slug}}')"{% endif %}>
     {% if icon.text %}
     <img class="icon-equipment" src="{{icon.text}}">
     {% endif %}

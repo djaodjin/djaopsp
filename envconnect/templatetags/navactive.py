@@ -173,11 +173,14 @@ def containsTag(node, tag):#pylint:disable=invalid-name
                 pass
     return result
 
+@register.filter
+def iteritems(dic):
+    return six.iteritems(dic)
 
 @register.filter
 def systems(nodes):
-    return [node for node in nodes
-        if node[0].tag and settings.TAG_SCORECARD in node[0].tag]
+    return [node for node in six.itervalues(nodes) if node[0].get('tag', "")
+        and settings.TAG_SCORECARD in node[0].get('tag', "")]
 
 @register.filter
 def to_json(value):

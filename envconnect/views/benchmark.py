@@ -107,15 +107,16 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
-            root = self._build_tree(trail[-1][0], from_root, nocuts=True)
+            root = self._build_tree(trail[-1][0], from_root, cut=None)
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             charts, complete = self.get_charts(root[1], path=from_root)
+            cut_tree = self._cut_tree(root)
             context.update({
                 'self_assessment_complete': complete,
                 'charts': charts,
                 'root': self._cut_tree(root),
-                'entries': json.dumps(self.to_representation(root)),
+                'entries': json.dumps(root),
                 # XXX move to urls when we are sure how it interacts
                 # with envconnect/base.html
                 'api_account_benchmark': reverse(
@@ -210,7 +211,7 @@ class ScoreCardDownloadView(BenchmarkAPIView):
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
-            root = self._build_tree(trail[-1][0], from_root, nocuts=True)
+            root = self._build_tree(trail[-1][0], from_root, cut=None)
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             charts = self.get_printable_charts()

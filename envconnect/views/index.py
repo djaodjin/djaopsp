@@ -22,8 +22,7 @@ class IndexView(PermissionMixin, TemplateView):
         pre_industries = []
         metal_industries = []
         post_industries = []
-        for element in PageElement.objects.get_roots().filter(
-                tag__contains='industry').order_by('title'):
+        for element in self.get_roots().order_by('title'):
             tags = element.tag
             if 'enabled' in tags:
                 setattr(element, 'enabled', True)

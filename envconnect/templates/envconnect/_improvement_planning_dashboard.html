@@ -35,7 +35,7 @@
             </div>
             {% for icon_tuple in root.1  %}
             {% with icon_tuple.0 as icon %}
-            <div id="{{icon.slug}}-chart" class="chart-container bordered-left" ng-show="activeIcon === '{{icon}}'">
+            <div id="{{icon.slug}}-chart" class="chart-container bordered-left" ng-show="activeIcon === '{{icon.slug}}'">
               {% include "envconnect/_chart_title.html" with practice=icon %}
               <div>
                 <div class="chart-content c3" style="width:250px;height:120px;">

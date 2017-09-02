@@ -289,18 +289,21 @@ envconnectControllers.controller("EnvconnectCtrl",
         } else {
             var capturable = {avg_energy_saving: 1.0, capital_cost: 1.0};
             var captured = {avg_energy_saving: 1.0, capital_cost: 1.0};
-            for( var i = 0; i < root[1].length; ++i ) {
-                $scope.calcSavingsAndCost(root[1][i]);
-                // available for capture
-                capturable.avg_energy_saving
-                    *= (1.0 - root[1][i][0].capturable.avg_energy_saving);
-                capturable.capital_cost
-                    *= (1.0 - root[1][i][0].capturable.capital_cost);
-                // captured
-                captured.avg_energy_saving
-                    *= (1.0 - root[1][i][0].captured.avg_energy_saving);
-                captured.capital_cost
-                    *= (1.0 - root[1][i][0].captured.capital_cost);
+            for( var key in root[1] ) {
+                if( root[1].hasOwnProperty(key) ) {
+                    var node = root[1][key];
+                    $scope.calcSavingsAndCost(node);
+                    // available for capture
+                    capturable.avg_energy_saving
+                        *= (1.0 - node[0].capturable.avg_energy_saving);
+                    capturable.capital_cost
+                        *= (1.0 - node[0].capturable.capital_cost);
+                    // captured
+                    captured.avg_energy_saving
+                        *= (1.0 - node[0].captured.avg_energy_saving);
+                    captured.capital_cost
+                        *= (1.0 - node[0].captured.capital_cost);
+                }
             }
             root[0].capturable = {
                 avg_energy_saving: 1.0 - capturable.avg_energy_saving,
@@ -317,9 +320,12 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
         if( prefix.lastIndexOf(root[0].path, 0) === 0 ) {
             // startsWith - the prefix is deeper into the tree.
-            for( var i = 0; i < root[1].length; ++i ) {
-                var found = $scope.getEntriesRecursive(root[1][i], prefix);
-                if( found ) { return found; }
+            for( var key in root[1] ) {
+                if( root[1].hasOwnProperty(key) ) {
+                    var node = root[1][key];
+                    var found = $scope.getEntriesRecursive(node, prefix);
+                    if( found ) { return found; }
+                }
             }
         }
         return null;
@@ -328,16 +334,19 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     /** Linearize the tree into a list of rows.
      */
-    $scope.getEntriesAsRows = function(node, results) {
+    $scope.getEntriesAsRows = function(root, results) {
         var header_num = results.length;
-        node[0].header_num = header_num;
-        for( var i = 0; i < node[1].length; ++i ) {
-            if( node[1][i][0].consumption !== null ) {
-                node[1][i][0].header_num = header_num;
-                results.push(node[1][i]);
-            } else {
-                results.push(node[1][i]);
-                $scope.getEntriesAsRows(node[1][i], results);
+        root[0].header_num = header_num;
+        for( var key in root[1] ) {
+            if( root[1].hasOwnProperty(key) ) {
+                var node = root[1][key];
+                if( node[0].consumption ) {
+                    node[0].header_num = header_num;
+                    results.push(node);
+                } else {
+                    results.push(node);
+                    $scope.getEntriesAsRows(node, results);
+                }
             }
         }
     };
@@ -356,22 +365,28 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     $scope.getEntriesByTag = function(prefix, tag) {
-        var node = $scope.getEntriesRecursive($scope.entries, prefix);
-        if( node ) {
+        var root = $scope.getEntriesRecursive($scope.entries, prefix);
+        if( root ) {
             var results = [];
-            for( var i = 0; i < node[1].length; ++i ) {
-                if( node[1][i][1].length > 0 ) {
-                    if( $scope.containsTag(node[1][i][0], tag) ) {
-                        results.push(node[1][i]);
-                    }
-                    for( var j = 0; j < node[1][i][1].length; ++j ) {
-                        if( $scope.containsTag(node[1][i][1][j][0], tag) ) {
-                            results.push(node[1][i][1][j]);
+            for( var key in root[1] ) {
+                if( root[1].hasOwnProperty(key) ) {
+                    var node = root[1][key];
+                    if( node[1].length > 0 ) { // XXX will work?
+                        if( $scope.containsTag(node[0], tag) ) {
+                            results.push(node);
                         }
-                    }
-                } else {
-                    if( $scope.containsTag(node[1][i][0], tag) ) {
-                        results.push(node[1][i]);
+                        for( var key2 in node[1] ) {
+                            if( node[1].hasOwnProperty(key2) ) {
+                                var node2 = node[1][key2];
+                                if( $scope.containsTag(node2[0], tag) ) {
+                                    results.push(node2);
+                                }
+                            }
+                        }
+                    } else {
+                        if( $scope.containsTag(node[0], tag) ) {
+                            results.push(node);
+                        }
                     }
                 }
             }
@@ -725,18 +740,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         $http.delete(settings.urls.api_best_practices
                 + $scope.getPath($scope.activeElement.value) + '/').then(
             function success(resp) {
-                var node = $scope.getEntriesRecursive(
-                    $scope.entries, prefix);
-                var found = -1;
-                for( var i = 0; i <  node[1].length; ++i ) {
-                    if( node[1][i][0].path === path ) {
-                        found = i;
-                        break;
-                    }
-                }
-                if( found >= 0 ) {
-                    node[1].splice(found, 1);
-                }
+                var root = $scope.getEntriesRecursive($scope.entries, prefix);
+                delete root[1][path];
                 if( $scope.activeElement.reload ) {
                     window.location = "";
                 }

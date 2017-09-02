@@ -409,7 +409,7 @@ class Command(BaseCommand):
         #pylint:disable=protected-access
         bcumb = BreadcrumbMixin()
         root = PageElement.objects.get(slug='boxes-and-enclosures')
-        tree = bcumb._build_tree(root, path=None, nocuts=True)
+        tree = bcumb._build_tree(root, path=None, cut=None)
         self.dump_tree(tree)
         for industry in ['distribution-transformers', 'fabricated-metals',
                          'wire-and-cable', 'office-space-only', 'construction']:
@@ -421,14 +421,14 @@ class Command(BaseCommand):
                 root.slug = industry
                 root.save()
             root_check = PageElement.objects.get(slug=industry)
-            tree_check = bcumb._build_tree(root_check, path=None, nocuts=True)
+            tree_check = bcumb._build_tree(root_check, path=None, cut=None)
             self.dump_tree(tree_check)
         for industry in ['construction', 'boxes-and-enclosures',
                          'distribution-transformers', 'fabricated-metals',
                          'wire-and-cable', 'office-space-only']:
             bcumb = BreadcrumbMixin()
             root = PageElement.objects.get(slug=industry)
-            tree = bcumb._build_tree(root, path=None, nocuts=True)
+            tree = bcumb._build_tree(root, path=None, cut=None)
             self.dump_tree(tree)
 
     def update_questions_slug(self):

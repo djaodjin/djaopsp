@@ -26,6 +26,38 @@ from ..serializers import ScoreWeightSerializer
 LOGGER = logging.getLogger(__name__)
 
 
+class TransparentCut(object):
+
+    def __init__(self, depth=1):
+        self.depth = depth
+
+    def enter(self, root):
+        depth = self.depth
+        self.depth = self.depth + 1
+        return True
+
+    def leave(self, attrs, subtrees):
+        self.depth = self.depth - 1
+        # `transparent_to_rollover` is meant to speed up computations
+        # when the resulting calculations won't matter to the display.
+        # We used to compute decide `transparent_to_rollover` before
+        # the recursive call (see commit c421ca5) but it would not
+        # catch the elements tagged deep in the tree with no chained
+        # presentation.
+        tag = attrs.get('tag', "")
+        attrs['transparent_to_rollover'] = not (
+            tag and settings.TAG_SCORECARD in tag)
+        for subtree in six.itervalues(subtrees):
+            tag = subtree[0].get('tag', "")
+            if tag and settings.TAG_SCORECARD in tag:
+                attrs['transparent_to_rollover'] = False
+                break
+            if not subtree[0].get('transparent_to_rollover', True):
+                attrs['transparent_to_rollover'] = False
+                break
+        return not attrs['transparent_to_rollover']
+
+
 class BenchmarkMixin(ReportMixin):
 
     ACCOUNT_ID = 0
@@ -68,89 +100,6 @@ class BenchmarkMixin(ReportMixin):
                     count += 1
                 LOGGER.debug("%d row(s)", count)
 
-
-    def build_aggregate_tree(self, roots=None, path=None):
-        """
-        Returns top level industries and flatten sub-systems as a tree
-        that can be used to present benchmark charts.
-
-        Example::
-        [{
-           "score_weight": 1.0
-         }, {
-           "/boxes-and-enclosures": [{
-             "score_weight": 1.0,
-             "title": "Boxes & enclosures",
-             "slug": "boxes-and-enclosures"
-           }, {
-             "/boxes-and-enclosures/management": [{
-               "score_weight": 1.0,
-               "text": "/media/envconnect/management.png",
-               "title": "Management"
-               "tag": "management",
-               "slug": "management",
-             }, {}],
-             "/boxes-and-enclosures/production": [{
-               "score_weight": 1.0
-               "title": "Production",
-               "slug": "production"
-             },{
-               "/boxes-and-enclosures/production/energy-efficiency": [{
-                  "score_weight": 1.0,
-                  "text": "/media/envconnect/production.png",
-                  "title": "Production",
-                  "tag": "system",
-                  "slug": "energy-efficiency"
-             },{}],
-           }],
-         }]
-        """
-        if path is None:
-            path = ''
-        elif not path.startswith("/"):
-            path = "/" + path
-        if roots is None:
-            roots = PageElement.objects.get_roots()
-        details = {}
-        for root in roots:
-            base = path + "/" + root.slug
-            levels = root.relationships.all()
-            metrics = {
-                'slug': root.slug,
-                'title': root.title,
-                'score_weight': get_score_weight(root)
-            }
-            if root.text:
-                metrics.update({'text': root.text})
-            if root.tag:
-                metrics.update({'tag': root.tag})
-            # `transparent_to_rollover` is meant to speed up computations
-            # when the resulting calculations won't matter to the display.
-            # We used to compute decide `transparent_to_rollover` before
-            # the recursive call (see commit c421ca5) but it would not
-            # catch the elements tagged deep in the tree with no chained
-            # presentation.
-            level_details = self.build_aggregate_tree(roots=levels, path=base)
-            # Compute `transparent_to_rollover` before we add "tag"
-            # into the dictionary.
-            transparent_to_rollover = (
-                not settings.TAG_SCORECARD in level_details[0].get('tag', ''))
-            level_details[0].update(metrics)
-            for level_detail in six.itervalues(level_details[1]):
-                if settings.TAG_SCORECARD in level_detail[0].get('tag', ''):
-                    transparent_to_rollover = False
-                    level_detail[0].update({
-                        'title': root.title,
-                        'text': root.text})
-            if transparent_to_rollover:
-                details.update({base: (metrics, {})})
-            else:
-                level_details[0].update({'tag': "%s,%s" % (
-                    level_details[0].get('tag'), settings.TAG_SCORECARD)})
-                details.update({base: level_details})
-        return ({}, details)
-#XXX    return ({'score_weight': ScoreWeight.objects.from_path(path)}, details)
-
     def get_drilldown(self, rollup_tree, prefix):
         accounts = None
         node = rollup_tree[1].get(prefix, None)
@@ -174,42 +123,20 @@ class BenchmarkMixin(ReportMixin):
 
         return accounts
 
-    def get_leafs(self, rollup_tree=None, path=None):
-        """
-        Returns all leafs from a rollup tree.
-
-        The dictionnary indexed by paths is carefully constructed such
-        that values are aliases into the rollup tree (not copies). It is
-        thus possible to update leafs in the roll up tree by updating values
-        in the dictionnary returned by this function.
-        """
-        if rollup_tree is None:
-            rollup_tree = self.build_aggregate_tree()
-        if path is None:
-            path = ''
-        elif not path.startswith("/"):
-            path = "/" + path
-
-        if len(rollup_tree[1].keys()) == 0:
-            return {path: rollup_tree}
-        leafs = {}
-        for key, level_detail in six.iteritems(rollup_tree[1]):
-            leafs.update(self.get_leafs(level_detail, path=key))
-        return leafs
-
     def get_charts(self, groups, path=None, text=None, tag=None):
         #pylint:disable=too-many-arguments,too-many-locals
         charts = []
         complete = True
         if path is None:
             path = ""
-        for icon_tuple in groups:
-            icon_path = path + "/" + icon_tuple[0].slug
+        for icon_path, icon_tuple in six.iteritems(groups):
             nb_answers = getattr(icon_tuple[0], 'nb_answers', 0)
             nb_questions = getattr(icon_tuple[0], 'nb_questions', 1)
             complete &= (nb_answers == nb_questions)
-            if (icon_tuple[0].tag
-                and settings.TAG_SCORECARD in icon_tuple[0].tag):
+            icon_tag = icon_tuple[0].get('tag', "")
+            icon_text = icon_tuple[0].get('text', "")
+            if (icon_tag
+                and settings.TAG_SCORECARD in icon_tag):
                 _, trail = self.get_breadcrumbs(icon_path)
                 if trail:
                     root_elem = trail.pop(0)
@@ -217,11 +144,11 @@ class BenchmarkMixin(ReportMixin):
                         trail.pop(0)
                 breadcrumbs = [tup[0].title for tup in trail]
                 icon = {
-                    'slug': icon_tuple[0].slug,
+                    'slug': icon_tuple[0]['slug'],
                     'breadcrumbs': breadcrumbs,
-                    'text': icon_tuple[0].text if text is None else text,
-                    'tag': icon_tuple[0].tag if tag is None else tag,
-                    'score_weight': get_score_weight(icon_tuple[0]),
+                    'text': icon_text if text is None else text,
+                    'tag': icon_tag if tag is None else tag,
+                    'score_weight': icon_tuple[0].get('weight', 1.0),
                     'nb_answers': nb_answers,
                     'nb_questions': getattr(icon_tuple[0], 'nb_questions', 0),
                     'distribution': getattr(icon_tuple[0], 'distribution', {})
@@ -229,12 +156,10 @@ class BenchmarkMixin(ReportMixin):
                 charts += [icon]
             sub_charts, _ = self.get_charts(
                 icon_tuple[1], path=icon_path,
-                text=icon_tuple[0].text
-                    if icon_tuple[0].text
-                        and icon_tuple[0].text.endswith('.png') else None,
-                tag=icon_tuple[0].tag
-                    if icon_tuple[0].text
-                        and icon_tuple[0].text.endswith('.png') else None)
+                text=icon_text
+                    if icon_text and icon_text.endswith('.png') else None,
+                tag=icon_tag
+                    if icon_text and icon_text.endswith('.png') else None)
             charts += sub_charts
         return charts, complete
 
@@ -744,8 +669,16 @@ class BenchmarkMixin(ReportMixin):
         """
         self._report_queries("at rollup_scores entry point")
         start_time = monotonic.monotonic()
-        roots = root.relationships.all() if root is not None else None
-        rollup_tree = self.build_aggregate_tree(roots=roots, path=root_prefix)
+        rollup_tree = None
+        roots = [root] if root is not None else None
+        rollups = self.build_content_tree(roots, prefix=root_prefix,
+            cut=TransparentCut())
+        if len(rollups) <= 1:
+            rollup_tree = ({}, rollups)
+        else:
+            for rup in six.itervalues(rollups):
+                rollup_tree = rup
+                break
         self._report_queries("(elapsed: %.2fs) rollup_tree generated"
             % (monotonic.monotonic() - start_time))
         if 'title' not in rollup_tree[0]:
@@ -841,8 +774,9 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
 
     def get_queryset(self):
         #pylint:disable=too-many-locals
-        from_root, _ = self.breadcrumbs
-        rollup_tree = self.rollup_scores()
+        from_root, trail = self.breadcrumbs
+        root = trail[-1][0] if len(trail) > 0 else None
+        rollup_tree = self.rollup_scores(root, from_root)
         distributions_tree = self.create_distributions(
             rollup_tree, view_account=self.sample.account.pk)
         charts, complete = self.flatten_distributions(

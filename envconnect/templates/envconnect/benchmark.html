@@ -47,11 +47,11 @@ indicator for a best practice.
 <div class="system-menus">
 {% for system_tuple in icon_tuple.1|systems %}
   {% with system_tuple.0 as system %}
-  <div id="{{system}}-score" class="system-menu {% if forloop.first %}system-menu-bordered{% endif %}">
+  <div id="{{system.slug}}-score" class="system-menu {% if forloop.first %}system-menu-bordered{% endif %}">
     {% if not forloop.first %}
     <i class="fa fa-plus"></i>
     {% endif %}
-    <p id="tab-{{system}}">{{system.title}}</p>
+    <p id="tab-{{system.slug}}">{{system.title}}</p>
     <div class="rollup-score">
         <i class="fa fa-spinner fa-spin"></i>
     </div>

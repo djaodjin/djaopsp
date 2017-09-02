@@ -7,9 +7,10 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
+from django.utils import six
 
 from ..mixins import BestPracticeMixin
-from ..models import ColumnHeader, get_score_weight
+from ..models import ColumnHeader
 
 
 class DetailView(BestPracticeMixin, TemplateView):
@@ -40,15 +41,11 @@ class DetailView(BestPracticeMixin, TemplateView):
         # attach visible column headers
         hidden_columns = {}
         is_envconnect_manager = self.manages(settings.APP_NAME)
-        for icon_tuple in root[1]:
-            setattr(icon_tuple[0], 'score_weight',
-                get_score_weight(icon_tuple[0]))
-
-            path = '/'.join([from_root, icon_tuple[0].slug])
-            hidden_columns[path] = {}
+        for icon_path, icon_tuple in six.iteritems(root[1]):
+            hidden_columns[icon_path] = {}
             hidden = set([row['slug']
                 for row in ColumnHeader.objects.filter(
-                hidden=True, path=path).values('slug')])
+                hidden=True, path=icon_path).values('slug')])
             profitability_headers = []
             for col_header in [
                         {"slug": "avg_energy_saving",
@@ -77,14 +74,13 @@ class DetailView(BestPracticeMixin, TemplateView):
 " detail on data provenance."}]:
                 if is_envconnect_manager:
                     profitability_headers += [col_header]
-                    hidden_columns[path][col_header['slug']] = (
+                    hidden_columns[icon_path][col_header['slug']] = (
                         col_header['slug'] in hidden)
                 elif not col_header['slug'] in hidden:
                     profitability_headers += [col_header]
-            setattr(icon_tuple[0], 'profitability_headers',
-                profitability_headers)
-            setattr(icon_tuple[0], 'profitability_headers_len',
-                len(profitability_headers) + 1)
+            icon_tuple[0]['profitability_headers'] = profitability_headers
+            icon_tuple[0]['profitability_headers_len'] = len(
+                profitability_headers) + 1
             value_headers = []
             for col_header in [
                     {"slug": "environmental_value",
@@ -103,20 +99,22 @@ class DetailView(BestPracticeMixin, TemplateView):
                      "title": "Average Value"}]:
                 if is_envconnect_manager:
                     value_headers += [col_header]
-                    hidden_columns[path][col_header['slug']] = (
+                    hidden_columns[icon_path][col_header['slug']] = (
                         col_header['slug'] in hidden)
                 elif not col_header['slug'] in hidden:
                     value_headers += [col_header]
-            setattr(icon_tuple[0], 'value_headers',
-                value_headers)
-            setattr(icon_tuple[0], 'value_headers_len',
-                len(value_headers) + 2)
+            icon_tuple[0]['value_headers'] = value_headers
+            icon_tuple[0]['value_headers_len'] = len(value_headers) + 2
+            icon_tuple[0]['colspan'] = max(
+                icon_tuple[0]['profitability_headers_len'],
+                icon_tuple[0]['value_headers_len'])
+
         if not is_envconnect_manager:
             context.update({'sort_by': "{'agv_value': 'desc'}"})
         context.update({
             'role': "tab",
             'root': root,
-            'entries': json.dumps(self.to_representation(root)),
+            'entries': json.dumps(root),
             'hidden': json.dumps(hidden_columns)
         })
         return context

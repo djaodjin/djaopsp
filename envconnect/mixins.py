@@ -1,20 +1,22 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import logging
+import json, logging
+from collections import OrderedDict
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.db.models import Sum
+from django.utils import six
 from deployutils.apps.django import mixins as deployutils_mixins
-from pages.models import RelationShip
+from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
 from survey.models import Response, SurveyModel
 from survey.utils import get_account_model
 
-from .models import Consumption, Improvement
-from .serializers import PageElementSerializer
+from .models import Consumption, Improvement, get_score_weight
+from .serializers import PageElementSerializer, ConsumptionSerializer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,12 +30,36 @@ class AccountMixin(deployutils_mixins.AccountMixin):
 
 class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 
+    def get_roots(self):
+        return PageElement.objects.get_roots().filter(tag__contains='industry')
+
     def get_context_data(self, *args, **kwargs):
         context = super(
             PermissionMixin, self).get_context_data(*args, **kwargs)
         context.update({
             'is_envconnect_manager': self.manages(settings.APP_NAME)})
         return context
+
+
+class ContentCut(object):
+    """
+    Visitor used to cut down a tree whenever BreadcrumbMixin.TAG_SYSTEM
+    is encountered.
+    """
+
+    def __init__(self, depth=1):
+        self.depth = depth
+
+    def enter(self, root):
+        depth = self.depth
+        self.depth = self.depth + 1
+        return not (depth > 1 and
+            root.tag and BreadcrumbMixin.TAG_SYSTEM in root.tag)
+
+    def leave(self, root, subtrees):
+        #pylint:disable=unused-argument
+        self.depth = self.depth - 1
+        return True
 
 
 class BreadcrumbMixin(PermissionMixin, TrailMixin):
@@ -52,32 +78,119 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 args=(organization, path,))
         return reverse(self.breadcrumb_url, args=(path,))
 
-    def _build_tree(self, root, path, depth=1, nocuts=False):
+    def build_content_tree(self, roots=None, prefix=None, cut=ContentCut()):
+        """
+        Returns a list of trees from a list of roots, each tree rooted at one
+        of those roots.
+
+        code::
+
+            build_content_tree(PageElement<boxes-and-enclosures>)
+            {
+              "/boxes-and-enclosures": [
+                { ... data for node ... },
+                {
+                  "boxes-and-enclosures/management": [
+                  { ... data for node ... },
+                  {}],
+                  "boxes-and-enclosures/design": [
+                  { ... data for node ... },
+                  {}],
+                }]
+            }
+        """
+        if prefix is None:
+            prefix = ''
+        elif not prefix.startswith("/"):
+            prefix = "/" + prefix
+        if roots is None:
+            roots = self.get_roots()
+        results = OrderedDict()
+        for root in roots:
+            if prefix.endswith("/" + root.slug):
+                # Workaround because we sometimes pass a prefix and sometimes
+                # a path `from_root`.
+                base = prefix
+            else:
+                base = prefix + "/" + root.slug
+            subtrees = OrderedDict()
+            if cut is None or cut.enter(root):
+                for edge in RelationShip.objects.filter(
+                        orig_element=root).select_related(
+                            'dest_element').order_by('rank', 'pk'):
+                    # XXX We use the fact that node ids are naturally
+                    # in increasing order. Without order postgres will not
+                    # return the icons in a consistent order.
+                    subtree = self.build_content_tree(
+                        [edge.dest_element], base, cut=cut)
+                    for sub in six.itervalues(subtree):
+                        sub[0].update({'rank': edge.rank})
+                    subtrees.update(subtree)
+            result_node = {
+                'path': base,
+                'slug': root.slug,
+                'title': root.title,
+                'score_weight': get_score_weight(root),
+                'text': root.text,
+                'tag': root.tag,
+            }
+            results.update({base: (
+                result_node,
+                subtrees if cut is None or cut.leave(
+                    result_node, subtrees) else {})})
+        return results
+
+    def get_leafs(self, rollup_tree=None, path=None):
+        """
+        Returns all leafs from a rollup tree.
+
+        The dictionnary indexed by paths is carefully constructed such
+        that values are aliases into the rollup tree (not copies). It is
+        thus possible to update leafs in the roll up tree by updating values
+        in the dictionnary returned by this function.
+        """
+        if rollup_tree is None:
+            rollup_tree = self.build_aggregate_tree()
         if path is None:
-            path = '/' + root.slug
-        results = []
-        consumption = Consumption.objects.filter(path=path).first()
-        setattr(root, 'consumption', consumption)
-        if nocuts or not (consumption or (
-                depth > 1 and root.tag and self.TAG_SYSTEM in root.tag)):
-            for edge in RelationShip.objects.filter(
-                    orig_element=root).select_related('dest_element').order_by(
-                    'rank', 'pk'):
-                # XXX We use the fact that node ids are naturally in increasing
-                # order. Without order postgres will not return the icons
-                # in a consistent order.
-                node = edge.dest_element
-                setattr(node, 'rank', edge.rank)
-                results += [self._build_tree(node, '%s/%s' % (path, node.slug),
-                    depth=depth + 1, nocuts=nocuts)]
-        return (root, results)
+            path = ''
+        elif not path.startswith("/"):
+            path = "/" + path
+
+        if len(rollup_tree[1].keys()) == 0:
+            return {path: rollup_tree}
+        leafs = {}
+        for key, level_detail in six.iteritems(rollup_tree[1]):
+            leafs.update(self.get_leafs(level_detail, path=key))
+        return leafs
+
+    @staticmethod
+    def decorate_with_consumptions(leafs):
+        for path, vals in six.iteritems(leafs):
+            consumption = Consumption.objects.filter(path=path).first()
+            if consumption:
+                vals[0]['consumption'] \
+                    = ConsumptionSerializer().to_representation(consumption)
+            else:
+                vals[0]['consumption'] = None
+
+    def _build_tree(self, root, path, cut=ContentCut()):
+        prefix = '/'.join(path.split('/')[:-1])
+        # hack to remove slug that will be added.
+        rollup_trees = self.build_content_tree([root], prefix=prefix, cut=cut)
+        for rollup_tree in six.itervalues(rollup_trees):
+            leafs = self.get_leafs(rollup_tree)
+            self.decorate_with_consumptions(leafs)
+            return rollup_tree
 
     def _cut_tree(self, root, path='', depth=5):
-        results = []
+        """
+        *root* has a format [{... node attribte ...}, {.., subtrees ...}]
+        """
+        results = OrderedDict()
         if len(path.split('/')) < depth:
-            for node in root[1]:
-                results += [self._cut_tree(
-                    node, path='%s/%s' % (path, node[0].slug))]
+            for node_path, node in six.iteritems(root[1]):
+                results.update({
+                    node_path: self._cut_tree(node, path=node_path)})
         return (root[0], results)
 
     @property

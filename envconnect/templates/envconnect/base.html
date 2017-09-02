@@ -55,11 +55,10 @@
                                         <div class="header-tuple">
                                             {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
                                             <ul class="nav nav-tabs squared-tabs">
-                                            {% for icon_tuple in root.1  %}
+                                            {% for abs_prefix, icon_tuple in root.1|iteritems %}
                                             {% with icon_tuple.0 as icon %}
-                                                {% with icon_prefix|add:"/"|add:icon.slug as abs_prefix %}
                                                 {% with forloop.first as draw_border %}
-                                                <li id="{{icon}}" class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
+                                                <li id="{{icon.slug}}" class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
                                                     <div class="icon-container">
 {% if request|is_broker_manager and not organization %}
 <div style="position:relative; vertical-align:top;">
@@ -121,7 +120,6 @@
                                                     {% endif %}
                                                     {% endblock %}
                                                 </li>
-                                                {% endwith %}
                                                 {% endwith %}
                                             {% endwith %}
                                             {% endfor %}
