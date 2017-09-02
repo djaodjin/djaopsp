@@ -2,6 +2,13 @@
 <html class="no-js" lang="en">
 <head>
   <link rel="stylesheet" media="all" href="file://{{base_dir}}/htdocs/static/cache/envconnect.css" />
+<style>
+    @media print{
+      .icon-caption {
+        color: #fff !important;
+      }
+    }
+  </style>
 </head>
 <body>
   <h1>Scorecard - {{organization.printable_name}}</h1>
@@ -10,7 +17,7 @@
     <div>
       <div class="score-card-background" style="display:inline-block;width:50%;margin-left:5px;">
         <div id="total-score">
-          <img src="file://{{base_dir}}/htdocs/media/envconnect/prints/total-score.png" />
+          <img src="{{total_chart.image}}" />
         </div>
       </div>
       <div class="bordered-left" style="display:inline-block;width:45%;vertical-align:middle;padding-left:5px;">
@@ -34,9 +41,9 @@ indicator for a best practice.
         <div class="icon-container">
           <a class="icon-inner{% if icon|containsTag:'management' %} grey{% else %} orange{% endif %}">
             {% if icon.text %}
-            <img class="icon-equipment" src="file://{{base_dir}}/htdocs{{icon.text}}">
+            <img class="icon-equipment" src="{{icon.text}}">
             {% endif %}
-            <div class="icon-caption" style="color:#fff;">{{icon.title}}</div>
+            <div class="icon-caption">{{icon.title}}</div>
           </a>
           <div class="icon-score">
             <h3 class="rollup-score">{{icon.normalized_score}}</h3>
@@ -62,7 +69,7 @@ indicator for a best practice.
       </div>
       <div>
         {% endif %}
-        <img src="file://{{base_dir}}/htdocs/media/envconnect/prints/{{chart.slug}}.png" style="display:inline-block;" />
+        <img src="{{chart.image}}" style="display:inline-block;" />
         {% endfor %}
       </div>
     </div>

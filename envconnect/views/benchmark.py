@@ -220,6 +220,7 @@ class ScoreCardDownloadView(BenchmarkAPIView):
             for chart in charts:
                 if chart['slug'] == 'total-score':
                     context.update({
+                        'total_chart': chart,
                         'nb_respondents': chart.get('nb_respondents', "N/A")})
                     break
             context.update({
@@ -231,7 +232,7 @@ class ScoreCardDownloadView(BenchmarkAPIView):
         return context
 
     def generate_chart_image(self, slug, template_name, context,
-                             cache_storage, width=250, height=120):
+                             cache_storage, width=250, height=120, delay=0):
         #pylint:disable=too-many-arguments
         context.update({'base_dir': settings.BASE_DIR})
         template = get_template(template_name)
@@ -262,14 +263,14 @@ class ScoreCardDownloadView(BenchmarkAPIView):
         page.render('%(img_path)s');
         fs.write('%(html_path)s', page.content, 'w');
         phantom.exit();
-      }, 2000);
+      }, %(delay)d);
     };
 
     page.open('%(url)s', function () {
       page.evaluate(function() {
       });
     });
-    """ % {'width': width, 'height': height,
+    """ % {'width': width, 'height': height, 'delay': delay,
            'url': phantomjs_url, 'img_path': img_path, 'html_path': html_path}))
             phantomjs_script_path = cache_storage.path('%s.js' % html_hash)
             cmd = [settings.PHANTOMJS_BIN, phantomjs_script_path]
@@ -279,6 +280,7 @@ class ScoreCardDownloadView(BenchmarkAPIView):
         finally:
             cache_storage.delete('%s.html' % html_hash)
             cache_storage.delete('%s.js' % html_hash)
+        return "file://" + img_path
 
     def generate_printable_html(self):
         charts = self.get_printable_charts()
@@ -289,14 +291,15 @@ class ScoreCardDownloadView(BenchmarkAPIView):
             location=location, base_url=base_url)
         for chart in charts:
             if chart['slug'] == 'total-score':
-                self.generate_chart_image(chart['slug'],
+                chart['image'] = self.generate_chart_image(chart['slug'],
                     'envconnect/prints/total_score.html',
                     context={'total_score': chart},
-                    cache_storage=cache_storage)
+                    cache_storage=cache_storage,
+                    delay=1000)
             else:
                 chart['distribution'] = json.dumps(
                     chart.get('distribution', {}))
-                self.generate_chart_image(chart['slug'],
+                chart['image'] = self.generate_chart_image(chart['slug'],
                     'envconnect/prints/benchmark_graph.html',
                     context={'chart': chart},
                     cache_storage=cache_storage,
