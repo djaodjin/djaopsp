@@ -28,27 +28,39 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         nb_organizations = int(options['nb_organizations'])
         fake = Faker()
-        survey = SurveyModel.objects.get(title=ReportMixin.report_title)
+        self.survey = SurveyModel.objects.get(title=ReportMixin.report_title)
+        organization_class = django_apps.get_model(settings.ACCOUNT_MODEL)
         industries = list(PageElement.objects.get_roots().filter(
             tag__contains='industry'))
-        industries = [PageElement(slug='boxes-and-enclosures')]
-        organization_class = django_apps.get_model(settings.ACCOUNT_MODEL)
+        # industries = [PageElement(slug='boxes-and-enclosures')]
+
         with transaction.atomic():
+            # Populate all scorecards for organization 'steve-shop'
+            # We will use this organization to measure performance of loading
+            # scorecards.
+            organization = organization_class.objects.get(slug='steve-shop')
+            for industry in industries:
+                self.populate_answers(organization, industry)
+
+            # Create random organizations and their scorecard
             for idx in range(1, nb_organizations + 1):
                 if idx % 100 == 0:
                     self.stderr.write("generated %d organizations ..." % idx)
                 industry = random.choice(industries)
                 organization = self.create_unique_organization(
                     organization_class, fake, industries)
-                sample = Response.objects.create(
-                    account=organization, survey=survey)
-                for consumption in Consumption.objects.filter(
-                        path__startswith="/%s/" % industry.slug):
-                    Answer.objects.create(
-                        response=sample, question=consumption.question,
-                        rank=consumption.question.rank)
+                self.populate_answers(organization, industry)
             self.stderr.write(
                 "generated %d organizations ..." % nb_organizations)
+
+    def populate_answers(self, organization, industry):
+        sample, _ = Response.objects.get_or_create(
+            account=organization, survey=self.survey)
+        for consumption in Consumption.objects.filter(
+                path__startswith="/%s/" % industry.slug):
+            Answer.objects.create(
+                response=sample, question=consumption.question,
+                rank=consumption.question.rank)
 
     @staticmethod
     def create_unique_organization(organization_class, fake, industries):
