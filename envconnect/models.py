@@ -278,7 +278,7 @@ class Improvement(models.Model):
 
     objects = ImprovementManager()
     account = models.ForeignKey(settings.ACCOUNT_MODEL)
-    consumption = models.ForeignKey(Consumption)
+    consumption = models.ForeignKey(Consumption, on_delete=models.CASCADE)
 
     def __str__(self):
         return "%s/%s" % (self.account, self.consumption)
