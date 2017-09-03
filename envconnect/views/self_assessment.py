@@ -7,6 +7,8 @@ import csv, datetime, json, logging, io
 from django.utils import six
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
+import monotonic
+from deployutils.crypt import JSONEncoder
 from openpyxl import Workbook
 from survey.models import Response, SurveyModel
 
@@ -20,12 +22,22 @@ LOGGER = logging.getLogger(__name__)
 
 class SelfAssessmentBaseView(BenchmarkBaseView):
 
-    def attach_benchmarks(self, root, view_response=None):
-        if not view_response:
-            self._sample = Response.objects.create(account=self.account,
-                survey=SurveyModel.objects.get(title=self.report_title))
-        super(SelfAssessmentBaseView, self).attach_benchmarks(
-            root, view_response=self._sample)
+    def attach_benchmarks(self, rollup_tree):
+        start_time = monotonic.monotonic()
+        leafs = self.get_leafs(rollup_tree)
+        self.populate_leafs(leafs, self.get_scored_answers(),
+            view_account=self.sample.account.pk)
+        self.populate_leafs(leafs, self.get_scored_improvements(),
+            view_account=self.sample.account.pk, count_answers=False,
+            numerator_key='improvement_numerator',
+            denominator_key='improvement_denominator')
+        self._report_queries("(elapsed: %.2fs) leafs populated"
+            % (monotonic.monotonic() - start_time))
+        self.populate_rollup(rollup_tree)
+        self._report_queries("(elapsed: %.2fs) rollup_tree populated"
+            % (monotonic.monotonic() - start_time))
+        self.create_distributions(rollup_tree,
+            view_account=self.sample.account.pk)
 
 
 class SelfAssessmentView(BestPracticeMixin, SelfAssessmentBaseView):
@@ -42,9 +54,9 @@ class SelfAssessmentView(BestPracticeMixin, SelfAssessmentBaseView):
     def get_context_data(self, **kwargs):
         context = super(SelfAssessmentView, self).get_context_data(**kwargs)
         if self.root:
-            self.attach_benchmarks(self.root, view_response=self.sample)
+            self.attach_benchmarks(self.root)
             context.update({
-                'entries': json.dumps(self.to_representation(self.root))
+                'entries': json.dumps(self.root, cls=JSONEncoder)
             })
         organization = context['organization']
         context.update({
@@ -107,14 +119,14 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
         # All self-assessment questions for an industry, regardless
         # of the actual from_path.
         # XXX if we do that, we shouldn't use from_root (i.e. system pages)
-        _, trail = self.breadcrumbs
+        from_root, trail = self.breadcrumbs
         trail_head = ("/"
             + trail[0][0].slug.decode('utf-8') if six.PY2 else trail[0][0].slug)
         from_trail_head = "/" + "/".join([
             element.slug.decode('utf-8') if six.PY2 else element.slug
             for element in self.get_full_element_path(trail_head)])
         self.root = self._build_tree(trail[0][0], from_trail_head, cut=None)
-        self.attach_benchmarks(self.root, view_response=self.sample)
+        self.attach_benchmarks(self.root)
 
         self.create_writer()
         self.writerow(["The Sustainability Project - Self-assessment"])

@@ -4,9 +4,8 @@
 
 {% block app_content %}
 <div class="tab-content collapse{% if active %} in{% endif %}">
-    {% for icon_tuple in root.1 %}
+    {% for abs_prefix, icon_tuple in root.1|iteritems %}
         {% with icon_tuple.0 as icon %}
-        {% with root_prefix|add:"/"|add:root.0.slug|add:"/"|add:icon.slug as abs_prefix %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
             <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length === 0">
             <div class="row">
@@ -69,14 +68,14 @@
                         ng-show="!scoreToggle">
                         <td id="[[practice[0].slug]]">
                             {% include "envconnect/_detail_row_basic.html" %}
-                            <a ng-if="practice[0].consumption !== null && practice[0].consumption.requires_measurements" href="" data-toggle="modal" data-target="#report-measurements" title="Got data to report? Click here." style="float:right;"><i class="fa fa-line-chart" style="color: #C5C5C5"></i></a>
+                            <a ng-if="practice[0].consumption && practice[0].consumption.requires_measurements" href="" data-toggle="modal" data-target="#report-measurements" title="Got data to report? Click here." style="float:right;"><i class="fa fa-line-chart" style="color: #C5C5C5"></i></a>
                         </td>
                         {% for choice in choices %}
                         <td class="text-center cell-fix-width-5">
-                            <button ng-if="practice[0].consumption === null"
+                            <button ng-if="!(practice[0].consumption)"
                               class="btn btn-select-all" href=""
                               ng-click="selectAll($event, '{{choice}}')"><i class="fa fa-circle"></i></button>
-                            <label ng-if="practice[0].consumption !== null"
+                            <label ng-if="practice[0].consumption"
                               for="{{choice|slugify}}-[[$index]]"
                               style="margin-bottom:0">
                                 <input id="{{choice|slugify}}-[[$index]]" type="radio"
@@ -93,27 +92,27 @@
                         ng-if="getEntries('{{abs_prefix}}').length > 0"
                         ng-show="scoreToggle">
                         <td id="[[practice[0].slug]]"
-                          colspan="[[practice[0].consumption !== null ? 1 : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]">
+                          colspan="[[practice[0].consumption ? 1 : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]">
                             {% include "envconnect/_detail_row_basic.html" %}
                         </td>
                         <td class="text-center cell-fix-width-3"
-                            ng-if="practice[0].consumption !== null">
-                            [[practice[0].consumption.nb_respondents]] respondents
+                            ng-if="practice[0].consumption">
+                            [[practice[0].nb_respondents]] respondents
                             <div class="progress" style="margin:0">
-                                <div class="progress-bar progress-bar-success green-level-{% if breadcrumbs|active_category:'sustainability' %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
-                                    [[practice[0].consumption.rate]]%
+                                <div class="progress-bar progress-bar-success green-level-{% if breadcrumbs|active_category:'sustainability' %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
+                                    [[practice[0].rate]]%
                                 </div>
                             </div>
                         </td>
                         <td class="text-center cell-fix-width-3"
-                            ng-if="practice[0].consumption !== null">
+                            ng-if="practice[0].consumption">
                             <i class="fa fa-check fa-lg text-success" ng-if="isImplemented(practice[0].consumption)"></i>
                             <i class="fa fa-times fa-lg text-danger"  ng-if="!isImplemented(practice[0].consumption)"></i>
                         </td>
                         {% if breadcrumbs|active_category:'sustainability' %}
                         <td class="text-center cell-fix-width-3"
-                            ng-if="practice[0].consumption !== null">
-                            [[practice[0].consumption.opportunity|number:2]]
+                            ng-if="practice[0].consumption">
+                            [[practice[0].opportunity|number:2]]
                         </td>
                         {% endif %}
                     </tr>
@@ -145,7 +144,6 @@ See the following for examples of content developed for best practices:
             </div>
             </div>
         </div>
-        {% endwith %}
         {% endwith %}
     {% endfor %}
 </div>

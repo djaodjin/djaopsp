@@ -7,7 +7,7 @@
     </div>
     {% endif %}
     <div ng-if="!containsTag(practice[0], TAG_SYSTEM)" ng-class="indentHeader(practice, '{{abs_prefix}}')" style="display:inline-block;">
-        <a class="title" href="[[practice[0].consumption !== null ? '{{urls.best_practice_base}}' + practice[0].slug + '/' : '']]">[[practice[0].title]]</a>
+        <a class="title" href="[[practice[0].consumption ? '{{urls.best_practice_base}}' + practice[0].slug + '/' : '']]">[[practice[0].title]]</a>
         {% if request|is_broker_manager and not organization %}
         <a class="incl" href=""
            ng-click="toggleScorecard(getPath(practice[0]), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
@@ -17,7 +17,7 @@
         <a class="text-danger delete" href=""
            data-toggle="modal" data-target="#confirm-delete"
            ng-click="setActiveElement(practice[0])"><i class="fa fa-trash-o"></i></a>
-        <div role="toolbar" style="display:inline-block;align-items:center;margin-right:2px;" ng-if="practice[0].consumption === null">
+        <div role="toolbar" style="display:inline-block;align-items:center;margin-right:2px;" ng-if="!(practice[0].consumption)">
             <button class="btn btn-default btn-sm" style="display:inline-block;background-color:#aaa;border-color:#aaa;" ng-click="toUpperLevel($event, '{{abs_prefix}}')">
                 <i class="fa fa-angle-left"></i>
             </button>

@@ -1,11 +1,11 @@
 <td id="[[practice[0].slug]]"
-    colspan="[[practice[0].consumption !== null ? 1 : {{icon.value_headers_len}}]]">
+    colspan="[[practice[0].consumption ? 1 : {{icon.value_headers_len}}]]">
   {% include "envconnect/_detail_row_basic.html" %}
 </td>
 {% for col_header in icon.value_headers %}
 {% if col_header.slug == 'avg_value' %}
 <!-- XXX yes: col_header.slug == 'avg_value' -->
-<td ng-class="'green-level-' + practice[0].consumption.avg_value + ' cell-fix-width-5 total-sep'" ng-if="practice[0].consumption !== null">
+<td ng-class="'green-level-' + practice[0].consumption.avg_value + ' cell-fix-width-5 total-sep'" ng-if="practice[0].consumption">
 </td>
 {% else %}
 <td ng-class="'green-level-' + practice[0].consumption.{{col_header.slug}} + ' editable-consumption edit-range cell-fix-width'"
@@ -16,7 +16,7 @@
     ng-click="editConsumption($event, practice[0])"
     ng-keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice[0])"
     {% endif %}
-    ng-if="practice[0].consumption !== null">
+    ng-if="practice[0].consumption">
 </td>
 {% endif %}
 {% endfor %}

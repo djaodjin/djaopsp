@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponse
 from django.views.generic.list import ListView
+from django.utils import six
 from openpyxl import Workbook
 from pages.models import PageElement
 from survey.models import Answer, Question
@@ -37,14 +38,13 @@ class ImproveView(SelfAssessmentView):
     def get_context_data(self, **kwargs):
         context = super(ImproveView, self).get_context_data(**kwargs)
         if self.root:
-            _, trail = self.get_breadcrumbs("/" + self.root[0].slug)
-            setattr(self.root[0], 'breadcrumbs',
-                [tup[0].title for tup in trail])
-            for node in self.root[1]:
+            _, trail = self.get_breadcrumbs("/" + self.root[0]['slug'])
+            self.root[0]['breadcrumbs'] = [tup[0].title for tup in trail]
+            for node in six.itervalues(self.root[1]):
                 element = node[0]
                 _, trail = self.get_breadcrumbs(
-                    "/" + "/".join([self.root[0].slug, element.slug]))
-                setattr(element, 'breadcrumbs', [tup[0].title for tup in trail])
+                    "/" + "/".join([self.root[0]['slug'], element['slug']]))
+                element['breadcrumbs'] = [tup[0].title for tup in trail]
         return context
 
 

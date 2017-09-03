@@ -4,9 +4,8 @@
 
 {% block app_content %}
 <div class="tab-content collapse{% if active %} in{% endif %}">
-    {% for icon_tuple in root.1 %}
+    {% for abs_prefix, icon_tuple in root.1|iteritems %}
         {% with icon_tuple.0 as icon %}
-        {% with root_prefix|add:"/"|add:root.0.slug|add:"/"|add:icon.slug as abs_prefix %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
             <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length === 0">
             <table class="table table-striped table-bordered">
@@ -40,36 +39,36 @@
                         ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
                         ng-if="getEntries('{{abs_prefix}}').length > 0">
                         <td id="[[practice[0].slug]]"
-                            colspan="[[practice[0].consumption !== null ? 1 : {% if breadcrumbs|active_category:'sustainability' %}5{% else %}4{% endif %}]]">
+                            colspan="[[practice[0].consumption ? 1 : {% if breadcrumbs|active_category:'sustainability' %}5{% else %}4{% endif %}]]">
                             {% include "envconnect/_detail_row_basic.html" %}
                         </td>
                         <td class="text-center cell-fix-width-3"
-                            ng-if="practice[0].consumption !== null">
-                            [[practice[0].consumption.nb_respondents]] respondents
+                            ng-if="practice[0].consumption">
+                            [[practice[0].nb_respondents]] respondents
                             <div class="progress" style="margin:0">
-                                <div class="progress-bar progress-bar-success green-level-{% if breadcrumbs|active_category:'sustainability' %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
-                                    [[practice[0].consumption.rate]]%
+                                <div class="progress-bar progress-bar-success green-level-{% if breadcrumbs|active_category:'sustainability' %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
+                                    [[practice[0].rate]]%
                                 </div>
                             </div>
                         </td>
                         <td class="text-center cell-fix-width-3"
-                            ng-if="practice[0].consumption !== null">
+                            ng-if="practice[0].consumption">
                             <i class="fa fa-check fa-lg text-success" ng-if="isImplemented(practice[0].consumption)"></i>
                             <i class="fa fa-times fa-lg text-danger"  ng-if="!isImplemented(practice[0].consumption)"></i>
                         </td>
                         {% if breadcrumbs|active_category:'sustainability' %}
                         <td class="text-center cell-fix-width-3"
-                            ng-if="practice[0].consumption !== null">
-                            [[practice[0].consumption.opportunity|number:2]]
+                            ng-if="practice[0].consumption">
+                            [[practice[0].opportunity|number:2]]
                         </td>
                         {% endif %}
                     <td class="text-center cell-fix-width-3"
-                        ng-if="practice[0].consumption !== null">
+                        ng-if="practice[0].consumption">
                             <input class="improvement-checkbox"
                                    type="checkbox"
                                    class="improvement-checkbox"
                                    ng-checked="practice[0].consumption.planned"
-                                   ng-change="updateImprovement(practice[0].consumption)"
+                                   ng-change="updateImprovement(practice)"
                                    ng-model="practice[0].consumption.planned" />
                     </td>
                    </tr>
@@ -88,7 +87,6 @@ See the following for examples of content developed for best practices:
             </table>
             </div>
         </div>
-        {% endwith %}
         {% endwith %}
     {% endfor %}
 </div>

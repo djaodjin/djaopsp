@@ -217,7 +217,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     }
 
     $scope.implementationRateWidth = function(practice) {
-        return {width: "" + practice[0].consumption.rate  + "%"};
+        return {width: "" + practice[0].rate  + "%"};
     }
 
     /** Decorates the tree with two sets, ``capturable`` and ``captured``.
@@ -270,8 +270,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                     root[0].consumption.avg_energy_saving,
                     "=>", avg_energy_saving,
                     "capital_cost", root[0].consumption.capital_cost,
-                    "=>", capital_cost,
-                    root[0].consumption.path);
+                    "=>", capital_cost, root[0].path);
             }
             var isAvailable = !$scope.isImplemented(root[0].consumption);
             root[0].capturable = {
@@ -902,17 +901,17 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     /** Called when a user clicks on the "Improvement Planning" checkbox.
      */
-    $scope.updateImprovement = function(consumption) {
-        if( consumption ) {
-            if( consumption.planned ) {
-                $http.post(settings.urls.api_improvements + consumption.path
+    $scope.updateImprovement = function(practice) {
+        if( practice && practice[0].consumption ) {
+            if( practice[0].consumption.planned ) {
+                $http.post(settings.urls.api_improvements + practice[0].path
                 ).then(function success(resp) {
                     $("#improvement-dashboard").data('improvementDashboard').load();
                 }, function(resp) { // error
                     showErrorMessages(resp);
                 });
             } else {
-                $http.delete(settings.urls.api_improvements + consumption.path).then(function success(resp) {
+                $http.delete(settings.urls.api_improvements + practice[0].path).then(function success(resp) {
                     $("#improvement-dashboard").data('improvementDashboard').load();
                 }, function(resp) { // error
                     showErrorMessages(resp);

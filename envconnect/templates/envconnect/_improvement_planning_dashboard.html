@@ -33,7 +33,7 @@
                 </div>
               </div>
             </div>
-            {% for icon_tuple in root.1  %}
+            {% for abs_prefix, icon_tuple in root.1|iteritems  %}
             {% with icon_tuple.0 as icon %}
             <div id="{{icon.slug}}-chart" class="chart-container bordered-left" ng-show="activeIcon === '{{icon.slug}}'">
               {% include "envconnect/_chart_title.html" with practice=icon %}

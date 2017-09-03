@@ -53,10 +53,13 @@ class ContentCut(object):
     def enter(self, root):
         depth = self.depth
         self.depth = self.depth + 1
-        return not (depth > 1 and
-            root.tag and BreadcrumbMixin.TAG_SYSTEM in root.tag)
+        if isinstance(root, PageElement):
+            tag = root.tag
+        else:
+            tag = root.get('tag', root.get('dest_element__tag'))
+        return not (depth > 1 and tag and BreadcrumbMixin.TAG_SYSTEM in tag)
 
-    def leave(self, root, subtrees):
+    def leave(self, attrs, subtrees):
         #pylint:disable=unused-argument
         self.depth = self.depth - 1
         return True
@@ -107,32 +110,42 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             roots = self.get_roots()
         results = OrderedDict()
         for root in roots:
-            if prefix.endswith("/" + root.slug):
+            if isinstance(root, PageElement):
+                slug = root.slug
+                orig_element_id = root.pk
+                title = root.title
+                tag = root.tag
+            else:
+                slug = root.get('slug', root.get('dest_element__slug'))
+                orig_element_id = root.get('dest_element__pk')
+                title = root.get('dest_element__title')
+                tag = root.get('dest_element__tag')
+            if prefix.endswith("/" + slug):
                 # Workaround because we sometimes pass a prefix and sometimes
                 # a path `from_root`.
                 base = prefix
             else:
-                base = prefix + "/" + root.slug
+                base = prefix + "/" + slug
             subtrees = OrderedDict()
             if cut is None or cut.enter(root):
                 for edge in RelationShip.objects.filter(
-                        orig_element=root).select_related(
-                            'dest_element').order_by('rank', 'pk'):
+                        orig_element_id=orig_element_id).values(
+                            'dest_element__pk', 'rank',
+                            'dest_element__slug', 'dest_element__title',
+                            'dest_element__tag').order_by('rank', 'pk'):
                     # XXX We use the fact that node ids are naturally
                     # in increasing order. Without order postgres will not
                     # return the icons in a consistent order.
-                    subtree = self.build_content_tree(
-                        [edge.dest_element], base, cut=cut)
+                    subtree = self.build_content_tree([edge], base, cut=cut)
                     for sub in six.itervalues(subtree):
-                        sub[0].update({'rank': edge.rank})
+                        sub[0].update({'rank': edge['rank']})
                     subtrees.update(subtree)
             result_node = {
                 'path': base,
-                'slug': root.slug,
-                'title': root.title,
-                'score_weight': get_score_weight(root),
-                'text': root.text,
-                'tag': root.tag,
+                'slug': slug,
+                'title': title,
+                'tag': tag,
+                'score_weight': get_score_weight(tag),
             }
             results.update({base: (
                 result_node,
@@ -158,6 +171,11 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
         if len(rollup_tree[1].keys()) == 0:
             return {path: rollup_tree}
+        else:
+            text = PageElement.objects.filter(
+                slug=rollup_tree[0]['slug']).values('text').first()
+            if text and text['text']:
+                rollup_tree[0].update(text)
         leafs = {}
         for key, level_detail in six.iteritems(rollup_tree[1]):
             leafs.update(self.get_leafs(level_detail, path=key))
@@ -172,6 +190,10 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     = ConsumptionSerializer().to_representation(consumption)
             else:
                 vals[0]['consumption'] = None
+                text = PageElement.objects.filter(
+                    slug=vals[0]['slug']).values('text').first()
+                if text and text['text']:
+                    vals[0].update(text)
 
     def _build_tree(self, root, path, cut=ContentCut()):
         prefix = '/'.join(path.split('/')[:-1])

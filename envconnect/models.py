@@ -284,7 +284,7 @@ class Improvement(models.Model):
         return "%s/%s" % (self.account, self.consumption)
 
 
-def get_score_weight(element):
+def get_score_weight(tag):
     """
     We aggregate weighted scores when walking up the tree.
 
@@ -293,7 +293,7 @@ def get_score_weight(element):
     weight themselves.
     """
     try:
-        extra = json.loads(element.tag)
+        extra = json.loads(tag)
         return extra.get('weight', 1.0)
     except (TypeError, ValueError):
         pass

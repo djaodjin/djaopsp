@@ -169,17 +169,11 @@ class BenchmarkMixin(ReportMixin):
         Create a tree with distributions of scores from a rollup tree.
         """
         #pylint:disable=too-many-locals
-        result_metrics = {
-            'tag': rollup_tree[0].get('tag', ""),
-            'title': rollup_tree[0].get('title', ""),
-            'breadcrumbs': rollup_tree[0].get('breadcrumbs', []),
-            'text': rollup_tree[0].get('text', ""),
-            'score_weight': rollup_tree[0].get('score_weight', ""),
-            'slug': rollup_tree[0].get('slug', ""),
-        }
+        denominator = None
         highest_normalized_score = 0
         sum_normalized_scores = 0
         nb_respondents = 0
+        nb_implemeted_respondents = 0
         distribution = None
         for account_id_str, account_metrics in six.iteritems(rollup_tree[0].get(
                 'accounts', {})):
@@ -188,7 +182,7 @@ class BenchmarkMixin(ReportMixin):
             account_id = int(account_id_str)
 
             if account_id == view_account:
-                result_metrics.update(account_metrics)
+                rollup_tree[0].update(account_metrics)
             normalized_score = account_metrics.get('normalized_score', None)
             if (normalized_score is None
                 or account_metrics.get('nb_questions', 0) == 0):
@@ -198,6 +192,10 @@ class BenchmarkMixin(ReportMixin):
                 continue
 
             nb_respondents += 1
+            numerator = account_metrics.get('numerator')
+            denominator = account_metrics.get('denominator')
+            if numerator == denominator:
+                nb_implemeted_respondents += 1
             if normalized_score > highest_normalized_score:
                 highest_normalized_score = normalized_score
             sum_normalized_scores += normalized_score
@@ -225,25 +223,29 @@ class BenchmarkMixin(ReportMixin):
                 if account_id == view_account:
                     distribution['organization_rate'] = distribution['x'][3]
 
-        details = {}
         for node_path, node_metrics in six.iteritems(rollup_tree[1]):
-            details.update({node_path: self.create_distributions(
-                node_metrics, view_account=view_account)})
+            self.create_distributions(node_metrics, view_account=view_account)
 
         if distribution is not None:
+            opportunity = denominator
+
             if nb_respondents > 0:
                 avg_normalized_score = int(
                     sum_normalized_scores / nb_respondents)
+                rate = int( 100.0 * nb_implemeted_respondents / nb_respondents)
             else:
                 avg_normalized_score = 0
-            result_metrics.update({
+                rate = 0
+            rollup_tree[0].update({
                 'nb_respondents': nb_respondents,
+                'rate': rate,
+                'opportunity': denominator,
                 'highest_normalized_score': highest_normalized_score,
                 'avg_normalized_score': avg_normalized_score,
                 'distribution': distribution
             })
-        return (result_metrics, details)
-
+        if 'accounts' in rollup_tree[0]:
+            del rollup_tree[0]['accounts']
 
     def flatten_distributions(self, distribution_tree, prefix=None):
         """
@@ -312,108 +314,6 @@ class BenchmarkMixin(ReportMixin):
                 if response == view_response:
                     distribution['organization_rate'] = distribution['x'][3]
         return distribution
-
-
-    def attach_benchmarks_recursive(self, root, path=None, view_response=None):
-        #pylint:disable=too-many-locals,too-many-statements
-        if path is None:
-            path = "/" + root[0].slug
-        score_weight = get_score_weight(root[0])
-        setattr(root[0], 'score_weight', score_weight)
-        numerators = {}
-        denominators = {}
-        if len(root[1]) == 0:
-            # Look for answers
-            nb_respondents = 0
-            nb_questions = 0
-            nb_answers = 0
-            rate = 0
-            implemented = None
-            consumption = root[0].consumption
-            if consumption:
-                nb_questions = 1
-                answers = Answer.objects.filter(question=consumption)
-                nb_respondents = answers.count()
-                rate = consumption.get_rate()
-                opportunity = consumption.avg_value * ((100 + rate) / 100.0)
-                implemented = ''
-                for answer in answers:
-                    if answer.response == view_response:
-                        implemented = answer.text
-                    if answer.text in Consumption.PRESENT:
-                        numerators[answer.response] = opportunity
-                        denominators[answer.response] = opportunity
-                    else:
-                        numerators[answer.response] = 0
-                        if answer.text in Consumption.ABSENT:
-                            denominators[answer.response] = opportunity
-                        else:
-                            denominators[answer.response] = 0
-                # Is this consumption part of the improvement planning.
-                planned = False
-                if root[0].consumption:
-                    planned = Improvement.objects.filter(account=self.account,
-                        consumption=root[0].consumption).exists()
-                if view_response in numerators:
-                    nb_answers = 1
-                setattr(consumption, 'nb_respondents', nb_respondents)
-                setattr(consumption, 'implemented', implemented)
-                setattr(consumption, 'planned', planned)
-                setattr(consumption, 'opportunity', opportunity)
-                setattr(consumption, 'rate', rate)
-            setattr(root[0], 'nb_answers', nb_answers)
-            setattr(root[0], 'nb_questions', nb_questions)
-            setattr(root[0], 'denominators', denominators)
-            setattr(root[0], 'numerators', numerators)
-            setattr(root[0], 'nb_respondents', nb_respondents)
-            setattr(root[0], 'rate', rate)
-        else:
-            nb_answers = 0
-            nb_questions = 0
-            for node in root[1]:
-                self.attach_benchmarks_recursive(node,
-                    path='%s/%s' % (path, node[0].slug),
-                    view_response=view_response)
-                nb_questions += node[0].nb_questions
-                nb_answers += node[0].nb_answers
-                for response, numerator in six.iteritems(node[0].numerators):
-                    if not response in numerators:
-                        numerators[response] = 0
-                        denominators[response] = 0
-                    numerators[response] += numerator * node[0].score_weight
-                    denominators[response] += (
-                        node[0].denominators[response] * node[0].score_weight)
-
-            # Create distribution from numerators
-            distribution = self.get_distributions(numerators, denominators,
-                view_response=view_response)
-            setattr(root[0], 'nb_answers', nb_answers)
-            setattr(root[0], 'nb_questions', nb_questions)
-            setattr(root[0], 'denominators', denominators)
-            setattr(root[0], 'numerators', numerators)
-            setattr(root[0], 'distribution', distribution)
-
-    def attach_benchmarks(self, root, view_response=None):
-        self.attach_benchmarks_recursive(root, view_response=view_response)
-        highest_normalized_score = 0
-        sum_normalized_scores = 0
-        for response, numerator in six.iteritems(root[0].numerators):
-            denominator = root[0].denominators.get(response, 0)
-            if denominator != 0:
-                normalized_score = int(numerator * 100 / denominator)
-            else:
-                normalized_score = 0
-            if normalized_score > highest_normalized_score:
-                highest_normalized_score = normalized_score
-            sum_normalized_scores += normalized_score
-        root[0].nb_respondents = len(root[0].numerators)
-        root[0].highest_normalized_score = highest_normalized_score
-        if root[0].nb_respondents > 0:
-            root[0].avg_normalized_score = int(
-                sum_normalized_scores / root[0].nb_respondents)
-        else:
-            root[0].avg_normalized_score = 0
-
 
     def get_opportunities(self):
         """
@@ -531,7 +431,8 @@ class BenchmarkMixin(ReportMixin):
     def populate_leafs(self, leafs, answers,
                        numerator_key='numerator',
                        denominator_key='denominator',
-                       count_answers=True):
+                       count_answers=True,
+                       view_account=None):
         #pylint:disable=too-many-arguments
         """
         Populate all leafs with aggregated scores.
@@ -556,6 +457,12 @@ class BenchmarkMixin(ReportMixin):
                 else:
                     created_at = None
                 if path.startswith(prefix):
+                    if account_id == view_account and 'consumption' in values:
+                        if count_answers:
+                            values['consumption']['implemented'] = \
+                                row[self.ANSWER_TEXT]
+                        else:
+                            values['consumption']['planned'] = True
                     if not account_id in accounts:
                         accounts[account_id] = {}
                     metrics = accounts[account_id]
@@ -777,10 +684,10 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         from_root, trail = self.breadcrumbs
         root = trail[-1][0] if len(trail) > 0 else None
         rollup_tree = self.rollup_scores(root, from_root)
-        distributions_tree = self.create_distributions(
-            rollup_tree, view_account=self.sample.account.pk)
-        charts, complete = self.flatten_distributions(
-            distributions_tree, prefix=from_root)
+        self.create_distributions(rollup_tree,
+            view_account=self.sample.account.pk)
+        charts, complete = self.flatten_distributions(rollup_tree,
+            prefix=from_root)
         total_score = None
         parts = from_root.split('/')
         if parts:
@@ -790,7 +697,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
                     total_score = chart.copy()
                     break
         if not total_score:
-            total_score = distributions_tree[0]
+            total_score = rollup_tree[0]
         if not total_score:
             total_score = {"nb_respondents": "-"}
         total_score.update({"slug": "total-score", "title": "Total Score"})
@@ -821,7 +728,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
     def retrieve(self, request, *args, **kwargs):
         trail = self.get_full_element_path(self.kwargs.get('path'))
         return RestResponse(self.serializer_class().to_representation({
-            'weight': get_score_weight(trail[-1])}))
+            'weight': get_score_weight(trail[-1].tag)}))
 
     def update(self, request, *args, **kwargs):#pylint:disable=unused-argument
         partial = kwargs.pop('partial', False)
