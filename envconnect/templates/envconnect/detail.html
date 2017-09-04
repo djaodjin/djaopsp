@@ -34,6 +34,29 @@
             </div>
             <table class="table table-striped table-bordered"
                     data-prefix="{{abs_prefix}}">
+                <thead class="thead-value-summary" ng-show="valueSummaryToggle">
+                        <tr>
+                    <th style="vertical-align:middle;border-top:0;">Practices</th>
+                    {% for col_header in icon.value_headers %}
+                    <th class="text-center cell-fix-width-5 {{col_header.slug}} {% if col_header.slug == 'avg_value' %}total-sep{% endif %}" style="border-top:0;">
+                        <div class="btn-link btn-sort text-center" ng-click="sortBy('{{col_header.slug}}')">
+                            {% if col_header.title|is_icon %}
+                            <img src="{{col_header.title|asset}}" width="32" hegiht="32" data-toggle="tooltip" title="{{col_header.tooltip}}" />
+                            {% else %}
+                            <span data-toggle="tooltip" title="{{col_header.tooltip}}" style="cursor: default;">
+                                    {{col_header.title}}
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% if request|is_broker_manager %}
+                        <button class="btn-link btn-hide" ng-click="showHide('{{col_header.slug}}', '{{abs_prefix}}')">
+                            <i class="fa fa-eye[[hidden['{{abs_prefix}}'].{{col_header.slug}} ? '-slash' : '']]"></i>
+                        </button>
+                        {% endif %}
+                    </th>
+                    {% endfor %}
+                        </tr>
+                </thead>
                 <thead ng-show="!valueSummaryToggle">
                     <th style="vertical-align:middle;border-top:0;">Practices</th>
                     {% for col_header in icon.profitability_headers %}
@@ -53,46 +76,6 @@
                     {% endfor %}
                         </tr>
                 </thead>
-                <thead class="thead-value-summary" ng-show="valueSummaryToggle">
-                        <tr>
-                    <th style="vertical-align:middle;border-top:0;">Practices</th>
-                    {% for col_header in icon.value_headers %}
-                    <th class="text-center cell-fix-width-5 {{col_header.slug}} {% if col_header.slug == 'avg_value' %}total-sep{% endif %}" style="border-top:0;">
-                        <button class="btn-link btn-sort" ng-click="sortBy('{{col_header.slug}}')">
-                            <i class="fa fa-sort[[dir.{{col_header.slug}} ? ('-' + dir.{{col_header.slug}}) : '']]"></i>
-                        </button>
-                        {% if request|is_broker_manager %}
-                        <button class="btn-link btn-hide" ng-click="showHide('{{col_header.slug}}', '{{abs_prefix}}')">
-                            <i class="fa fa-eye[[hidden['{{abs_prefix}}'].{{col_header.slug}} ? '-slash' : '']]"></i>
-                        </button>
-                        {% endif %}
-                        <div class="text-center">
-                            {% if col_header.title|is_icon %}
-                            <img src="{{col_header.title|asset}}" width="32" hegiht="32" data-toggle="tooltip" title="{{col_header.tooltip}}" />
-                            {% else %}
-                            <span data-toggle="tooltip" title="{{col_header.tooltip}}" style="cursor: default;">
-                                    {{col_header.title}}
-                            </span>
-                            {% endif %}
-                        </div>
-                    </th>
-                    {% endfor %}
-                        </tr>
-                </thead>
-                <tbody dnd-list="getEntries('{{abs_prefix}}')"
-                       ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle">
-                    <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}')">
-                        {% include "envconnect/_profitability_row.html" %}
-                    </tr>
-                </tbody>
-                <tbody dnd-list="getEntries('{{abs_prefix}}')"
-                       ng-if="sortedOnKeys > 0" ng-show="!valueSummaryToggle">
-                    <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse">
-                        {% include "envconnect/_profitability_row.html" %}
-                    </tr>
-                </tbody>
                 <tbody dnd-list="getEntries('{{abs_prefix}}')"
                        ng-if="sortedOnKeys === 0"  ng-show="valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
@@ -105,6 +88,20 @@
                     <tr data-id="[[getPath(practice[0])]]"
                         ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse">
                         {% include "envconnect/_value_summary_row.html" %}
+                    </tr>
+                </tbody>
+                <tbody dnd-list="getEntries('{{abs_prefix}}')"
+                       ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle">
+                    <tr data-id="[[getPath(practice[0])]]"
+                        ng-repeat="practice in getEntries('{{abs_prefix}}')">
+                        {% include "envconnect/_profitability_row.html" %}
+                    </tr>
+                </tbody>
+                <tbody dnd-list="getEntries('{{abs_prefix}}')"
+                       ng-if="sortedOnKeys > 0" ng-show="!valueSummaryToggle">
+                    <tr data-id="[[getPath(practice[0])]]"
+                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse">
+                        {% include "envconnect/_profitability_row.html" %}
                     </tr>
                 </tbody>
                 <tbody dnd-list="getEntries('{{abs_prefix}}')"
