@@ -130,7 +130,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 }]
             }
         """
-        if prefix is None:
+        if not prefix:
             prefix = ''
         elif not prefix.startswith("/"):
             prefix = "/" + prefix
