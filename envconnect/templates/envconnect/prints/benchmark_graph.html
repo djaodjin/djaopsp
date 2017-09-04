@@ -9,7 +9,7 @@
       <div class="chart-title">
         <div class="icon-benchmark {% if chart|containsTag:'management' %} grey{% else %} orange{% endif %}">
             {% if chart.text %}
-            <img class="icon-equipment" src="file://{{base_dir}}/htdocs{{chart.text}}">
+            <img class="icon-equipment" src="{{chart.text}}">
             {% else %}
             <div class="icon-equipment">{{chart.title}}</div>
             {% endif %}

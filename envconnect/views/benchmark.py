@@ -192,6 +192,11 @@ class ScoreCardDownloadView(BenchmarkAPIView):
     def get_printable_charts(self):
         if not hasattr(self, '_printable_charts'):
             self._printable_charts = self.get_queryset()
+            for chart in self._printable_charts:
+                if ('text' in chart
+                    and chart['text'].startswith('/')):
+                    chart['text'] = \
+                        "file://{{base_dir}}/htdocs" + chart['text']
         return self._printable_charts
 
     def get_context_data(self, *args, **kwargs):
