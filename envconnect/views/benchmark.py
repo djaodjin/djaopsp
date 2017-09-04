@@ -215,15 +215,15 @@ class ScoreCardDownloadView(BenchmarkAPIView):
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             charts = self.get_printable_charts()
-            for element in root[1]:
+            for element in six.itervalues(root[1]):
                 for chart in charts:
-                    if element[0].slug == chart['slug']:
+                    if element[0]['slug'] == chart['slug']:
                         if 'normalized_score' in chart:
-                            element[0].normalized_score = "%s%%" % chart.get(
+                            element[0]['normalized_score'] = "%s%%" % chart.get(
                                 'normalized_score')
                         else:
-                            element[0].normalized_score = "N/A"
-                        element[0].score_weight = chart.get(
+                            element[0]['normalized_score'] = "N/A"
+                        element[0]['score_weight'] = chart.get(
                             'score_weight', "N/A")
                         break
             for chart in charts:
