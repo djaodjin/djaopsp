@@ -69,5 +69,5 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
         from_root, trail = self.breadcrumbs
         if len(trail) > 0:
             root = self._build_tree(trail[-1][0], from_root)
-            return Response(self.to_representation(root))
+            return Response(root)
         return Response(serializer.data)

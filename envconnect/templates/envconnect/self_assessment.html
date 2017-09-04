@@ -97,10 +97,10 @@
                         </td>
                         <td class="text-center cell-fix-width-3"
                             ng-if="practice[0].consumption">
-                            [[practice[0].nb_respondents]] respondents
+                            [[practice[0].consumption.nb_respondents]] respondents
                             <div class="progress" style="margin:0">
-                                <div class="progress-bar progress-bar-success green-level-{% if breadcrumbs|active_category:'sustainability' %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
-                                    [[practice[0].rate]]%
+                                <div class="progress-bar progress-bar-success green-level-{% if breadcrumbs|active_category:'sustainability' %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
+                                    [[practice[0].consumption.rate]]%
                                 </div>
                             </div>
                         </td>
@@ -112,7 +112,7 @@
                         {% if breadcrumbs|active_category:'sustainability' %}
                         <td class="text-center cell-fix-width-3"
                             ng-if="practice[0].consumption">
-                            [[practice[0].opportunity|number:2]]
+                            [[practice[0].consumption.opportunity|number:2]]
                         </td>
                         {% endif %}
                     </tr>

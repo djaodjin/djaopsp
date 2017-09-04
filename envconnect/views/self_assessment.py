@@ -7,14 +7,13 @@ import csv, datetime, json, logging, io
 from django.utils import six
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-import monotonic
 from deployutils.crypt import JSONEncoder
 from openpyxl import Workbook
-from survey.models import Response, SurveyModel
+from survey.models import Answer, Response, SurveyModel
 
 from .benchmark import BenchmarkBaseView
-from ..mixins import BestPracticeMixin
-from ..models import Consumption
+from ..mixins import BestPracticeMixin, ConsumptionSerializer
+from ..models import Consumption, Improvement
 
 
 LOGGER = logging.getLogger(__name__)
@@ -22,22 +21,53 @@ LOGGER = logging.getLogger(__name__)
 
 class SelfAssessmentBaseView(BenchmarkBaseView):
 
+    @staticmethod
+    def decorate_with_opportunities(leafs):
+        for consumption in Consumption.objects.with_opportunity():
+            leaf = leafs.get(consumption.path, None)
+            if leaf:
+                # If the consumption is not in leafs,
+                # we have cut out the tree at an icon or heading level.
+                leaf[0]['consumption'] = \
+                    ConsumptionSerializer().to_representation(consumption)
+
+    def decorate_with_answers(self, leafs):
+        for path, values in six.iteritems(leafs):
+            try:
+                consumption = Consumption.objects.get(path=path)
+                answer = Answer.objects.filter(
+                    question=consumption, response=self.sample).first()
+                if answer:
+                    values[0]['implemented'] = answer.text
+                else:
+                    values[0]['implemented'] = False
+            except Consumption.DoesNotExist:
+                # We have cut out the tree at an icon or heading level.
+                pass
+
+    def decorate_with_improvements(self, leafs):
+        for path, values in six.iteritems(leafs):
+            try:
+                consumption = Consumption.objects.get(path=path)
+                values[0]['planned'] = Improvement.objects.filter(
+                    consumption=consumption, account=self.account).exists()
+            except Consumption.DoesNotExist:
+                # We have cut out the tree at an icon or heading level.
+                pass
+
     def attach_benchmarks(self, rollup_tree):
-        start_time = monotonic.monotonic()
+        self._start_time()
+        # We create the response if it does not exists.
+        survey = SurveyModel.objects.get(title=self.report_title)
+        self._sample, _ = Response.objects.get_or_create(
+            account=self.account,
+            survey=survey)
         leafs = self.get_leafs(rollup_tree)
-        self.populate_leafs(leafs, self.get_scored_answers(),
-            view_account=self.sample.account.pk)
-        self.populate_leafs(leafs, self.get_scored_improvements(),
-            view_account=self.sample.account.pk, count_answers=False,
-            numerator_key='improvement_numerator',
-            denominator_key='improvement_denominator')
-        self._report_queries("(elapsed: %.2fs) leafs populated"
-            % (monotonic.monotonic() - start_time))
-        self.populate_rollup(rollup_tree)
-        self._report_queries("(elapsed: %.2fs) rollup_tree populated"
-            % (monotonic.monotonic() - start_time))
-        self.create_distributions(rollup_tree,
-            view_account=self.sample.account.pk)
+        self._report_queries("leafs loaded")
+        self.decorate_with_opportunities(leafs)
+        self.decorate_with_answers(leafs)
+        self.decorate_with_improvements(leafs)
+        self._report_queries("leafs populated")
 
 
 class SelfAssessmentView(BestPracticeMixin, SelfAssessmentBaseView):

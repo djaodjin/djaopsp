@@ -127,11 +127,13 @@ class ConsumptionQuerySet(models.QuerySet):
         self._show_query_and_result(yes_no_view)
 
         # The opportunity for all questions with a "Yes" answer.
-        yes_opportunity_view = "SELECT yes_view.question_id AS question_id,"\
-            " (yes_no_view.avg_value * (1.0 + CAST(yes_view.nb_yes AS FLOAT)"\
-            " / yes_no_view.nb_yes_no)) as opportunity FROM (%(yes_view)s)"\
-            " as yes_view INNER JOIN (%(yes_no_view)s) as yes_no_view"\
-            " ON yes_view.question_id = yes_no_view.question_id" % {
+        yes_opportunity_view = """SELECT yes_view.question_id AS question_id,
+  (yes_no_view.avg_value * (1.0 +
+      CAST(yes_view.nb_yes AS FLOAT) / yes_no_view.nb_yes_no)) as opportunity,
+  (CAST(yes_view.nb_yes AS FLOAT) / yes_no_view.nb_yes_no) as rate,
+  yes_no_view.nb_yes_no as nb_respondents
+FROM (%(yes_view)s) as yes_view INNER JOIN (%(yes_no_view)s) as yes_no_view
+ON yes_view.question_id = yes_no_view.question_id""" % {
                 'yes_view': yes_view, 'yes_no_view': yes_no_view}
         self._show_query_and_result(yes_opportunity_view)
 
@@ -140,17 +142,18 @@ class ConsumptionQuerySet(models.QuerySet):
         # This set of opportunities only has to be computed once.
         # It is shared across all responses.
         # COALESCE now supported on sqlite3.
-        questions_with_opportunity = "SELECT"\
-            " envconnect_consumption.question_id AS question_id,"\
-            " survey_question.survey_id AS survey_id, COALESCE("\
-            " opportunity_view.opportunity,"\
-            " envconnect_consumption.avg_value, 0)"\
-            " AS opportunity, envconnect_consumption.path AS path"\
-            " FROM envconnect_consumption INNER JOIN survey_question"\
-            " ON envconnect_consumption.question_id = survey_question.id"\
-            " LEFT OUTER JOIN (%(yes_opportunity_view)s) AS opportunity_view"\
-            " ON envconnect_consumption.question_id"\
-            " = opportunity_view.question_id" % {
+        questions_with_opportunity = """SELECT
+  envconnect_consumption.question_id AS question_id,
+  survey_question.survey_id AS survey_id,
+  COALESCE(opportunity_view.opportunity, envconnect_consumption.avg_value, 0)
+    AS opportunity,
+  COALESCE(opportunity_view.rate, 0) AS rate,
+  COALESCE(opportunity_view.nb_respondents, 0) AS nb_respondents,
+  envconnect_consumption.path AS path
+FROM envconnect_consumption INNER JOIN survey_question
+ON envconnect_consumption.question_id = survey_question.id
+LEFT OUTER JOIN (%(yes_opportunity_view)s) AS opportunity_view
+ON envconnect_consumption.question_id = opportunity_view.question_id""" % {
                 'yes_opportunity_view': yes_opportunity_view,
             }
         self._show_query_and_result(questions_with_opportunity)
@@ -211,7 +214,9 @@ class Consumption(SurveyQuestion):
         db_column='reported_by', null=True)
 
     # computed fields
+    nb_respondents = models.IntegerField(default=0)
     opportunity = models.IntegerField(default=0)
+    rate = models.IntegerField(default=0)
 
     #   avg_value = (environmental_value + business_value
     #       + profitability + implementation_ease) / nb_visible_columns
@@ -249,22 +254,6 @@ class Consumption(SurveyQuestion):
 
     def requires_measurements(self):
         return self.question_type == self.INTEGER
-
-    def get_rate(self):
-        """
-        Computes the implementation rate of this best practice.
-        """
-        rate = 0
-        answers = Answer.objects.filter(question=self)
-        nb_respondents = answers.count()
-        if nb_respondents:
-            nb_yes_no = answers.filter(
-                text__in=(Consumption.PRESENT + Consumption.ABSENT)).count()
-            if nb_yes_no:
-                rate = (answers.filter(
-                    text__in=Consumption.PRESENT).count() * 100
-                ) // nb_yes_no
-        return rate
 
 
 class ImprovementManager(models.Manager):

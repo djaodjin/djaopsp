@@ -217,7 +217,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     }
 
     $scope.implementationRateWidth = function(practice) {
-        return {width: "" + practice[0].rate  + "%"};
+        return {width: "" + practice[0].consumption.rate  + "%"};
     }
 
     /** Decorates the tree with two sets, ``capturable`` and ``captured``.
@@ -572,7 +572,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                                 $scope.entries, prefix);
                             resp.data.path = path;
                             resp.data.consumption = resp_consumption.data;
-                            node[1].push([resp.data, []]);
+                            node[1][resp.data.path] = [resp.data, {}];
                             $scope.newElement.value = "";
                             modalDialog.modal('hide');
                         },

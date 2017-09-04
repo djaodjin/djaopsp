@@ -3,11 +3,14 @@
 
 import json, logging
 from collections import OrderedDict
+from datetime import datetime, timedelta
 
+import monotonic
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import Http404
+from django.db import connection, connections
 from django.db.models import Sum
+from django.http import Http404
 from django.utils import six
 from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
@@ -69,6 +72,31 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     breadcrumb_url = 'summary'
     TAG_SYSTEM = 'system'
+
+    enable_report_queries = True
+
+    def _start_time(self):
+        if not self.enable_report_queries:
+            return
+        self.start_time = monotonic.monotonic()
+
+    def _report_queries(self, descr=None):
+        if not self.enable_report_queries:
+            return
+        end_time = monotonic.monotonic()
+        if descr is None:
+            descr = ""
+        nb_queries = 0
+        duration = timedelta()
+        for conn in connections.all():
+            nb_queries += len(conn.queries)
+            for query in conn.queries:
+                convert = datetime.strptime(query['time'], "%S.%f")
+                duration += timedelta(
+                    0, convert.second, convert.microsecond)
+                    # days, seconds, microseconds
+        LOGGER.debug("(elapsed: %.2fs) %s: %s for %d SQL queries",
+            (end_time - self.start_time), descr, duration, nb_queries)
 
     @staticmethod
     def get_prefix():
@@ -325,18 +353,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         self.update_context_urls(context, urls)
         return context
 
-    def to_representation(self, root, prefix=None):
-        if prefix is None:
-            prefix, _ = self.breadcrumbs
-            prefix = '/'.join(prefix.split('/')[:-1])
-        results = []
-        root_repr = PageElementSerializer(
-            context={'prefix': prefix}).to_representation(root[0])
-        for node in root[1]:
-            results += [self.to_representation(
-                node, prefix=prefix + '/' + root[0].slug)]
-        return [root_repr, results]
-
 
 class ReportMixin(BreadcrumbMixin, AccountMixin):
 
@@ -347,18 +363,12 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
         if not hasattr(self, '_sample'):
             try:
                 self._sample = Response.objects.get(
-                    account__slug=self.account, survey__title=self.report_title)
+                    account=self.account, survey__title=self.report_title)
             except Response.DoesNotExist:
                 self._sample = None
+#               raise Http404("Cannot find SurveyModel(account=%s, title=%s)",
+#                   self.account, self.report_title)
         return self._sample
-
-    def get_survey(self):
-        try:
-            return SurveyModel.objects.get(
-                account=self.account, title=self.report_title)
-        except SurveyModel.DoesNotExist:
-            raise Http404("Cannot find SurveyModel(account=%s, title=%s)",
-                self.account, self.report_title)
 
 
 class ImprovementQuerySetMixin(ReportMixin):

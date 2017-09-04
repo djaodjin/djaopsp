@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 import json, logging
 from datetime import datetime, timedelta
 
-import monotonic
+from deployutils.crypt import JSONEncoder
 from django.conf import settings
 from django.db import connection, connections
 from django.utils import six
@@ -69,24 +69,6 @@ class BenchmarkMixin(ReportMixin):
     QUESTION_PATH = 6
     ANSWER_TEXT = 7
     ANSWER_CREATED_AT = 8
-
-    enable_report_queries = True
-
-    def _report_queries(self, descr=None):
-        if not self.enable_report_queries:
-            return
-        if descr is None:
-            descr = ""
-        nb_queries = 0
-        duration = timedelta()
-        for conn in connections.all():
-            nb_queries += len(conn.queries)
-            for query in conn.queries:
-                convert = datetime.strptime(query['time'], "%S.%f")
-                duration += timedelta(
-                    0, convert.second, convert.microsecond)
-                    # days, seconds, microseconds
-        LOGGER.debug("%s: %s for %d SQL queries", descr, duration, nb_queries)
 
     @staticmethod
     def _show_query_and_result(raw_query, show=False):
@@ -574,8 +556,8 @@ class BenchmarkMixin(ReportMixin):
         """
         Returns a tree populated with scores per accounts.
         """
+        self._start_time()
         self._report_queries("at rollup_scores entry point")
-        start_time = monotonic.monotonic()
         rollup_tree = None
         roots = [root] if root is not None else None
         rollups = self.build_content_tree(roots, prefix=root_prefix,
@@ -586,23 +568,19 @@ class BenchmarkMixin(ReportMixin):
             for rup in six.itervalues(rollups):
                 rollup_tree = rup
                 break
-        self._report_queries("(elapsed: %.2fs) rollup_tree generated"
-            % (monotonic.monotonic() - start_time))
+        self._report_queries("rollup_tree generated")
         if 'title' not in rollup_tree[0]:
             rollup_tree[0].update({
                 "slug": "total-score", "title": "Total Score"})
         leafs = self.get_leafs(rollup_tree=rollup_tree)
-        self._report_queries("(elapsed: %.2fs) leafs loaded"
-            % (monotonic.monotonic() - start_time))
+        self._report_queries("leafs loaded")
         self.populate_leafs(leafs, self.get_scored_answers())
         self.populate_leafs(leafs, self.get_scored_improvements(),
             count_answers=False, numerator_key='improvement_numerator',
             denominator_key='improvement_denominator')
-        self._report_queries("(elapsed: %.2fs) leafs populated"
-            % (monotonic.monotonic() - start_time))
+        self._report_queries("leafs populated")
         self.populate_rollup(rollup_tree)
-        self._report_queries("(elapsed: %.2fs) rollup_tree populated"
-            % (monotonic.monotonic() - start_time))
+        self._report_queries("rollup_tree populated")
         return rollup_tree
 
 

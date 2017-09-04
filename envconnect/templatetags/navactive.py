@@ -162,16 +162,16 @@ def previous_to_last(breadcrumbs):
 
 @register.filter
 def containsTag(node, tag):#pylint:disable=invalid-name
-    result = False
+    node_tag = None
     if node:
         try:
-            result = bool(node.tag) and tag in node.tag
+            node_tag = node.tag
         except AttributeError:
             try:
-                result = tag in node.get('tag', '')
+                node_tag = node.get('tag', '')
             except KeyError:
                 pass
-    return result
+    return bool(node_tag) and tag in node_tag
 
 @register.filter
 def iteritems(dic):

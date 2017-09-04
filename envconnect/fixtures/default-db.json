@@ -93,7 +93,7 @@
   "fields": {
     "title": "Management",
     "slug": "management-basics",
-    "text": "/media/envconnect/management-basics.png",
+    "text": "/envconnect/static/img/management-basics.png",
     "tag": "{\"tags\":[\"management\",\"scorecard\"]}",
     "account": 6
   },
@@ -110,7 +110,7 @@
   "fields": {
     "title": "Design",
     "slug": "design",
-    "text": "/media/envconnect/design.png",
+    "text": "/envconnect/static/img/design.png",
     "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
@@ -127,7 +127,7 @@
   "fields": {
     "title": "Sourcing",
     "slug": "sourcing",
-    "text": "/media/envconnect/sourcing.png",
+    "text": "/envconnect/static/img/sourcing.png",
     "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
@@ -144,7 +144,7 @@
   "fields": {
     "title": "Production",
     "slug": "production",
-    "text": "/media/envconnect/production.png",
+    "text": "/envconnect/static/img/production.png",
     "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
@@ -161,7 +161,7 @@
   "fields": {
     "title": "Distribution",
     "slug": "boxes-distribution",
-    "text": "/media/envconnect/distribution.png",
+    "text": "/envconnect/static/img/distribution.png",
     "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
@@ -178,7 +178,7 @@
   "fields": {
     "title": "End of Life",
     "slug": "end-of-life",
-    "text": "/media/envconnect/end-of-life.png",
+    "text": "/envconnect/static/img/end-of-life.png",
     "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
@@ -291,7 +291,7 @@
   "fields": {
     "title": "Management",
     "slug": "energy-efficiency-management-basics",
-    "text": "/media/envconnect/management-basics.png",
+    "text": "/envconnect/static/img/management-basics.png",
     "tag": "{\"tags\":[\"management\"]}",
     "account": 6
   },
@@ -308,7 +308,7 @@
   "fields": {
     "title": "Lighting",
     "slug": "energy-efficiency-lighting",
-    "text": "/media/envconnect/lighting.png",
+    "text": "/envconnect/static/img/lighting.png",
     "tag": "",
     "account": 6
   },
@@ -325,7 +325,7 @@
   "fields": {
     "title": "HVAC",
     "slug": "hvac",
-    "text": "/media/envconnect/hvac.png",
+    "text": "/envconnect/static/img/hvac.png",
     "tag": "",
     "account": 6
   },
@@ -342,7 +342,7 @@
   "fields": {
     "title": "Compressed air",
     "slug": "energy-efficiency-compressed-air",
-    "text": "/media/envconnect/compressed-air.png",
+    "text": "/envconnect/static/img/compressed-air.png",
     "tag": "",
     "account": 6
   },
@@ -359,7 +359,7 @@
   "fields": {
     "title": "Process equipment",
     "slug": "energy-efficiency-process-equipment",
-    "text": "/media/envconnect/process-equipment.png",
+    "text": "/envconnect/static/img/process-equipment.png",
     "tag": "",
     "account": 6
   },
@@ -376,7 +376,7 @@
   "fields": {
     "title": "Mechanical drives",
     "slug": "energy-efficiency-mechanical-drives",
-    "text": "/media/envconnect/mechanical-drives.png",
+    "text": "/envconnect/static/img/mechanical-drives.png",
     "tag": "",
     "account": 6
   },
@@ -393,7 +393,7 @@
   "fields": {
     "title": "Process heating",
     "slug": "process-heating",
-    "text": "/media/envconnect/process-heating.png",
+    "text": "/envconnect/static/img/process-heating.png",
     "tag": "",
     "account": 6
   },
@@ -410,7 +410,7 @@
   "fields": {
     "title": "Process cooling",
     "slug": "energy-efficiency-process-cooling",
-    "text": "/media/envconnect/process-cooling.png",
+    "text": "/envconnect/static/img/process-cooling.png",
     "tag": "",
     "account": 6
   },
@@ -427,7 +427,7 @@
   "fields": {
     "title": "Other",
     "slug": "energy-efficiency-other",
-    "text": "/media/envconnect/other.png",
+    "text": "/envconnect/static/img/other.png",
     "tag": "",
     "account": 6
   },
@@ -841,7 +841,7 @@
   "fields": {
     "title": "Energy",
     "slug": "construction-energy",
-    "text": "/media/envconnect/lightning.png",
+    "text": "/envconnect/static/img/lightning.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 44
@@ -857,7 +857,7 @@
   "fields": {
     "title": "Transport",
     "slug": "construction-transport",
-    "text": "/media/envconnect/distribution.png",
+    "text": "/envconnect/static/img/distribution.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 45
@@ -873,7 +873,7 @@
   "fields": {
     "title": "Purchasing",
     "slug": "construction-purchasing",
-    "text": "/media/envconnect/purchasing.png",
+    "text": "/envconnect/static/img/purchasing.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 46
@@ -889,7 +889,7 @@
   "fields": {
     "title": "Other",
     "slug": "construction-other",
-    "text": "/media/envconnect/etc.png",
+    "text": "/envconnect/static/img/etc.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 47
@@ -905,7 +905,7 @@
   "fields": {
     "title": "Waste",
     "slug": "construction-waste",
-    "text": "/media/envconnect/waste.png",
+    "text": "/envconnect/static/img/waste.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 48
@@ -921,7 +921,7 @@
   "fields": {
     "title": "Water",
     "slug": "construction-water",
-    "text": "/media/envconnect/water.png",
+    "text": "/envconnect/static/img/water.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 49
@@ -937,7 +937,7 @@
   "fields": {
     "title": "Chemicals",
     "slug": "construction-chemicals",
-    "text": "/media/envconnect/chemicals.png",
+    "text": "/envconnect/static/img/chemicals.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 50
@@ -953,7 +953,7 @@
   "fields": {
     "title": "Air Emissions",
     "slug": "construction-air-emissions",
-    "text": "/media/envconnect/air-emissions.png",
+    "text": "/envconnect/static/img/air-emissions.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 51
@@ -978,7 +978,7 @@
   "fields": {
     "title": "Waste",
     "slug": "office-waste",
-    "text": "/media/envconnect/waste.png",
+    "text": "/envconnect/static/img/waste.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 55
@@ -994,7 +994,7 @@
   "fields": {
     "title": "Water",
     "slug": "office-water",
-    "text": "/media/envconnect/water.png",
+    "text": "/envconnect/static/img/water.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 56
@@ -1010,7 +1010,7 @@
   "fields": {
     "title": "Electricity",
     "slug": "office-electricity",
-    "text": "/media/envconnect/energy.png",
+    "text": "/envconnect/static/img/lightning.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 57
@@ -1026,7 +1026,7 @@
   "fields": {
     "title": "Purchasing",
     "slug": "office-purchasing",
-    "text": "/media/envconnect/purchasing.png",
+    "text": "/envconnect/static/img/purchasing.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 58
@@ -1042,7 +1042,7 @@
   "fields": {
     "title": "Transport",
     "slug": "office-transport",
-    "text": "/media/envconnect/personal-car.png",
+    "text": "/envconnect/static/img/personal-car.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 59
@@ -1058,7 +1058,7 @@
   "fields": {
     "title": "Other",
     "slug": "office-other",
-    "text": "/media/envconnect/etc.png",
+    "text": "/envconnect/static/img/etc.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 60
@@ -1865,7 +1865,7 @@
   "fields": {
     "title": "Design",
     "slug": "wc-design",
-    "text": "/media/envconnect/design.png",
+    "text": "/envconnect/static/img/design.png",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 78

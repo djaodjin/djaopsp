@@ -24,6 +24,9 @@ class ConsumptionSerializer(serializers.ModelSerializer):
     path = serializers.CharField(required=False)
     text = serializers.CharField(required=False)
     rank = serializers.SerializerMethodField()
+    nb_respondents = serializers.SerializerMethodField()
+    rate = serializers.SerializerMethodField()
+    opportunity = serializers.SerializerMethodField()
     implemented = serializers.SerializerMethodField()
     planned = serializers.SerializerMethodField()
 
@@ -38,11 +41,20 @@ class ConsumptionSerializer(serializers.ModelSerializer):
             "environmental_value", "business_value", "profitability",
             "implementation_ease", "avg_value",
             # benchmarks
-            "rank", "implemented", "planned", "requires_measurements")
+            "rank", "nb_respondents", "rate", "opportunity",
+            "implemented", "planned", "requires_measurements")
+
+    @staticmethod
+    def get_nb_respondents(obj):
+        return obj.nb_respondents if hasattr(obj, 'nb_respondents') else 0
 
     @staticmethod
     def get_rank(obj):
         return obj.rank
+
+    @staticmethod
+    def get_rate(obj):
+        return obj.rate if hasattr(obj, 'rate') else 0
 
     @staticmethod
     def get_implemented(obj):

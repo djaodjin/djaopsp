@@ -20,10 +20,13 @@ class DetailView(BestPracticeMixin, TemplateView):
     breadcrumb_url = 'summary'
 
     def get(self, request, *args, **kwargs):
+        self._start_time()
         _, trail = self.breadcrumbs
         if not trail:
             return HttpResponseRedirect(reverse('homepage'))
-        return super(DetailView, self).get(request, *args, **kwargs)
+        result = super(DetailView, self).get(request, *args, **kwargs)
+        self._report_queries("request ready to send.")
+        return result
 
     def get_breadcrumb_url(self, path):
         organization = self.kwargs.get('organization', None)
@@ -38,6 +41,7 @@ class DetailView(BestPracticeMixin, TemplateView):
         # It is OK here to index by -1 since we would have generated a redirect
         # in the `get` method when the path is "/".
         root = self._build_tree(trail[-1][0], from_root)
+        self._report_queries("content tree built.")
 
         # attach visible column headers
         hidden_columns = {}
@@ -109,6 +113,7 @@ class DetailView(BestPracticeMixin, TemplateView):
             icon_tuple[0]['colspan'] = max(
                 icon_tuple[0]['profitability_headers_len'],
                 icon_tuple[0]['value_headers_len'])
+        self._report_queries("attached visiblity of columns.")
 
         if not is_envconnect_manager:
             context.update({'sort_by': "{'agv_value': 'desc'}"})

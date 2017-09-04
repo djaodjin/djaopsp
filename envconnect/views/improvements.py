@@ -117,7 +117,7 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
                 'avg_energy_saving': improvement.consumption.avg_energy_saving,
                 'capital_cost': improvement.consumption.capital_cost,
                 'payback_period': improvement.consumption.payback_period,
-                'rate': improvement.consumption.get_rate(),
+                'rate': improvement.consumption.rate,
                 'opportunity': details.opportunity
             })
 
@@ -186,9 +186,8 @@ class ReportPDFView(ImprovementQuerySetMixin, ListView):
     template_name = 'envconnect/best_practice_pdf.html'
 
     def get_queryset(self):
-        survey = self.get_survey()
-        return self.model.objects.filter(
-            survey=survey).exclude(answer__text=Consumption.NOT_APPLICABLE)
+        return self.model.objects.filter(survey=self.sample).exclude(
+            answer__text=Consumption.NOT_APPLICABLE)
 
     def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()

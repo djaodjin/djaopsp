@@ -103,9 +103,8 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
             rank=serializer.validated_data.get('rank', None))
         prefix = self.kwargs.get('path', None)
         root = self._build_tree(node, prefix + '/' + node.slug)
-        data = self.to_representation(root, prefix=prefix)
-        headers = self.get_success_headers(data)
-        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+        headers = self.get_success_headers(root)
+        return Response(root, status=status.HTTP_201_CREATED, headers=headers)
 
     def mirror_leaf(self, leaf, prefix="", new_prefix=""):
         last_rank = self.survey.questions.aggregate(
@@ -288,7 +287,7 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
         from_root, trail = self.breadcrumbs
         if len(trail) > 0:
             root = self._build_tree(trail[-1][0], from_root)
-            return Response(self.to_representation(root))
+            return Response(root)
         raise Http404
 
     def post(self, request, *args, **kwargs):
