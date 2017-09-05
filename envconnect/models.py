@@ -130,7 +130,7 @@ class ConsumptionQuerySet(models.QuerySet):
         yes_opportunity_view = """SELECT yes_view.question_id AS question_id,
   (yes_no_view.avg_value * (1.0 +
       CAST(yes_view.nb_yes AS FLOAT) / yes_no_view.nb_yes_no)) as opportunity,
-  (CAST(yes_view.nb_yes AS FLOAT) / yes_no_view.nb_yes_no) as rate,
+  (CAST(yes_view.nb_yes AS FLOAT) * 100 / yes_no_view.nb_yes_no) as rate,
   yes_no_view.nb_yes_no as nb_respondents
 FROM (%(yes_view)s) as yes_view INNER JOIN (%(yes_no_view)s) as yes_no_view
 ON yes_view.question_id = yes_no_view.question_id""" % {
