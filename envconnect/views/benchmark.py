@@ -111,7 +111,6 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             charts, complete = self.get_charts(root[1], path=from_root)
-            cut_tree = self._cut_tree(root)
             context.update({
                 'self_assessment_complete': complete,
                 'charts': charts,

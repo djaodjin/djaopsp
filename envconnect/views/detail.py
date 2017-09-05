@@ -8,7 +8,6 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
 from django.utils import six
-from deployutils.crypt import JSONEncoder
 
 from ..mixins import BestPracticeMixin
 from ..models import ColumnHeader

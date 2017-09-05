@@ -12,7 +12,7 @@ from django.conf import settings
 from django.db import models, connection
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
-from survey.models import Answer, Question as SurveyQuestion
+from survey.models import Question as SurveyQuestion
 
 # We cannot import signals into __init__.py otherwise it creates an import
 # loop error "make initdb".

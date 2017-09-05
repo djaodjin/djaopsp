@@ -5,21 +5,17 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import json, logging
-from datetime import datetime, timedelta
 
-from deployutils.crypt import JSONEncoder
 from django.conf import settings
-from django.db import connection, connections
+from django.db import connection
 from django.utils import six
 from pages.mixins import TrailMixin
-from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as RestResponse
-from survey.models import Answer
 
 from .best_practices import DecimalEncoder, ToggleTagContentAPIView
 from ..mixins import ReportMixin
-from ..models import Consumption, Improvement, get_score_weight
+from ..models import Consumption, get_score_weight
 from ..serializers import ScoreWeightSerializer
 
 
@@ -32,7 +28,7 @@ class TransparentCut(object):
         self.depth = depth
 
     def enter(self, root):
-        depth = self.depth
+        #pylint:disable=unused-argument
         self.depth = self.depth + 1
         return True
 
@@ -147,6 +143,7 @@ class BenchmarkMixin(ReportMixin):
 
 
     def create_distributions(self, rollup_tree, view_account=None):
+        #pylint:disable=too-many-statements
         """
         Create a tree with distributions of scores from a rollup tree.
         """
@@ -205,16 +202,14 @@ class BenchmarkMixin(ReportMixin):
                 if account_id == view_account:
                     distribution['organization_rate'] = distribution['x'][3]
 
-        for node_path, node_metrics in six.iteritems(rollup_tree[1]):
+        for node_metrics in six.itervalues(rollup_tree[1]):
             self.create_distributions(node_metrics, view_account=view_account)
 
         if distribution is not None:
-            opportunity = denominator
-
             if nb_respondents > 0:
                 avg_normalized_score = int(
                     sum_normalized_scores / nb_respondents)
-                rate = int( 100.0 * nb_implemeted_respondents / nb_respondents)
+                rate = int(100.0 * nb_implemeted_respondents / nb_respondents)
             else:
                 avg_normalized_score = 0
                 rate = 0

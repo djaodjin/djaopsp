@@ -1,25 +1,25 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
-import json, logging
+import logging
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
 import monotonic
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db import connection, connections
+from django.db import connections
 from django.db.models import Sum
 from django.http import Http404
 from django.utils import six
 from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
-from survey.models import Response, SurveyModel
+from survey.models import Response
 from survey.utils import get_account_model
 
 from .models import Consumption, Improvement, get_score_weight
-from .serializers import PageElementSerializer, ConsumptionSerializer
+from .serializers import ConsumptionSerializer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,7 +33,8 @@ class AccountMixin(deployutils_mixins.AccountMixin):
 
 class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 
-    def get_roots(self):
+    @staticmethod
+    def get_roots():
         return PageElement.objects.get_roots().filter(tag__contains='industry')
 
     def get_context_data(self, *args, **kwargs):
@@ -110,6 +111,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         return reverse(self.breadcrumb_url, args=(path,))
 
     def build_content_tree(self, roots=None, prefix=None, cut=ContentCut()):
+        #pylint:disable=too-many-locals
         """
         Returns a list of trees from a list of roots, each tree rooted at one
         of those roots.

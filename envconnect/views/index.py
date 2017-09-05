@@ -5,7 +5,6 @@ import logging
 
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
-from pages.models import PageElement
 
 from ..mixins import PermissionMixin
 

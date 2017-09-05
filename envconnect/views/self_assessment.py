@@ -161,7 +161,7 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
         # All self-assessment questions for an industry, regardless
         # of the actual from_path.
         # XXX if we do that, we shouldn't use from_root (i.e. system pages)
-        from_root, trail = self.breadcrumbs
+        _, trail = self.breadcrumbs
         trail_head = ("/"
             + trail[0][0].slug.decode('utf-8') if six.PY2 else trail[0][0].slug)
         from_trail_head = "/" + "/".join([
