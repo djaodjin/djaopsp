@@ -112,6 +112,18 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
 
     basename = 'self-assessment'
 
+    @staticmethod
+    def _get_consumption(element):
+        return element.get('consumption', None)
+
+    @staticmethod
+    def _get_tag(element):
+        return element.get('tag', "")
+
+    @staticmethod
+    def _get_title(element):
+        return element.get('title', "")
+
     def insert_path(self, tree, parts=None):
         if not parts:
             return tree
@@ -131,18 +143,18 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
         """
         if not root[1]:
             # We reached a leaf
-            consumption = getattr(root[0], 'consumption', None)
-            row = [indent + root[0].title]
+            consumption = self._get_consumption(root[0])
+            row = [indent + self._get_title(root[0])]
             if consumption:
-                for heading in self.get_headings(root[0].tag):
-                    if consumption.implemented == heading:
+                for heading in self.get_headings(self._get_tag(root[0])):
+                    if consumption.get('implemented', "") == heading:
                         row += ['X']
                     else:
                         row += ['']
             self.writerow(row)
         else:
-            self.writerow([indent + root[0].title])
-            for element in root[1]:
+            self.writerow([indent + self._get_title(root[0])])
+            for element in six.itervalues(root[1]):
                 self.write_tree(element, indent=indent + '  ')
 
     def get(self, *args, **kwargs): #pylint: disable=unused-argument
@@ -160,12 +172,12 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
 
         self.create_writer()
         self.writerow(["The Sustainability Project - Self-assessment"])
-        self.writerow([self.root[0].title])
+        self.writerow([self._get_title(self.root[0])])
         indent = ' '
-        for nodes in self.root[1]:
-            self.writerow([indent + nodes[0].title]
-                + self.get_headings(nodes[0].tag))
-            for elements in nodes[1]:
+        for nodes in six.itervalues(self.root[1]):
+            self.writerow([indent + self._get_title(nodes[0])]
+                + self.get_headings(self._get_tag(nodes[0])))
+            for elements in six.itervalues(nodes[1]):
                 self.write_tree(elements, indent=indent + ' ')
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = 'attachment; filename="{}"'.format(

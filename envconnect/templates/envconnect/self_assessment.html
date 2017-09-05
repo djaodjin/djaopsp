@@ -129,7 +129,7 @@ See the following for examples of content developed for best practices:
                     </tr>
                     <tr>
                         <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]" class="text-right">
-                                <a class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Self-assessment</a>
+                                <a id="download-assessment" class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Self-assessment</a>
                         </td>
                     </tr>
                 </tbody>
