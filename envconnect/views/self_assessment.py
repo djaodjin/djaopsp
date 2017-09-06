@@ -50,8 +50,9 @@ class SelfAssessmentBaseView(BenchmarkMixin, TemplateView):
         for path, values in six.iteritems(leafs):
             try:
                 consumption = Consumption.objects.get(path=path)
-                values[0]['planned'] = Improvement.objects.filter(
-                    consumption=consumption, account=self.account).exists()
+                values[0]['consumption']['planned'] \
+                    = Improvement.objects.filter(
+                        consumption=consumption, account=self.account).exists()
             except Consumption.DoesNotExist:
                 # We have cut out the tree at an icon or heading level.
                 pass

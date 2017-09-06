@@ -92,15 +92,3 @@ See the following for examples of content developed for best practices:
 </div>
 {% include "envconnect/_improvement_planning_dashboard.html" %}
 {% endblock %}
-
-{% block bodyscripts %}
-{{block.super}}
-<script type="text/javascript">
-jQuery(document).ready(function($) {
-    $(".best-practice-row").selfAssessment({
-        survey_api_response: "{% url 'survey_api_response' organization response %}",
-        api_improvement_base: "{% url 'api_improvement_base' organization %}"
-    });
-});
-</script>
-{% endblock %}

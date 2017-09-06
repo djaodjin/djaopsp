@@ -1227,7 +1227,6 @@ envconnectControllers.controller("envconnectRequestListCtrl",
           </td>
           <td><input type="radio" name="implemented-*?*" value="No">No
           </td>
-          <td><input type="checkbox"></td>
         </tr>
     */
     function SelfAssessment(el, options){
@@ -1254,23 +1253,6 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                     error: function(resp) { showErrorMessages(resp); }
                 });
             });
-
-            self.element.find("input[type=\"checkbox\"]").change(
-            function(event) {
-                var elem = $(this);
-                var consumption = elem.parents("tr").data("id");
-                if( !self.options.api_improvement_base ) {
-                    showErrorMessages({status: 404});
-                    return;
-                }
-                $.ajax({
-                    url: self.options.api_improvement_base + consumption + "/",
-                    type: elem.is(":checked") ? "POST" : "DELETE",
-                    contentType: "application/json; charset=utf-8",
-                    success: function(data) { return true; },
-                    error: function(resp) {  showErrorMessages(resp); }
-                });
-            });
         },
     };
 
@@ -1285,7 +1267,6 @@ envconnectControllers.controller("envconnectRequestListCtrl",
 
     $.fn.selfAssessment.defaults = {
         survey_api_response: null,
-        api_improvement_base: null
     };
 
     /** Plug-in to connect the self-assessment UI to the API.

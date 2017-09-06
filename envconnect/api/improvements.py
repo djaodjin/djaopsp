@@ -1,6 +1,7 @@
 # Copyright (c) 2017, DjaoDjin inc.
 # see LICENSE.
 
+from django.db import transaction
 from rest_framework import serializers, status
 from rest_framework.generics import (get_object_or_404, ListAPIView,
      GenericAPIView)
@@ -48,8 +49,9 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
     def create(self, request, *args, **kwargs):
         consumption = get_object_or_404(Consumption.objects.all(),
             path=self.kwargs.get('path'))
-        improve, created = self.model.objects.get_or_create(
-            account=self.account, consumption=consumption)
+        with transaction.atomic():
+            improve, created = self.model.objects.get_or_create(
+                account=self.account, consumption=consumption)
         return Response(self.serializer_class().to_representation(improve),
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
