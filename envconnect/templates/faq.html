@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="faq">
+        <h1>Frequently Asked Questions</h1>
+        <div>
+            <h2>General</h2>
+            <dl>
+                <dt>Don’t see what you’re looking for?</dt>
+                <dd><a href="{{'contact/'|site_prefixed}}">contact us</a> with your question.</dd>
+            </dl>
+            <dl>
+                <dt>Why was TSP developed?</dt>
+                <dd>
+                    TSP has three main objectives:
+                    <ul>
+                        <li><strong>Learning:</strong> To make identifying and prioritizing environmental best practices easier and industry specific.</li>
+                        <li><strong>Measuring:</strong> To provide benchmarking and meaningful measurement of an organization’s environmental performance.</li>
+                        <li><strong>Improving:</strong> To enable improvement planning based on environmental and business value.</li>
+                    </ul>
+                    The purpose of TSP is to help accelerate the adoption of sustainability best practices by two user groups: 
+                    <ol>
+                        <li><strong>Any organization.</strong> For organizations beginning the process of implementing environmental sustainability measures, the process of identifying and prioritizing environmental issues can be complex, expensive and time consuming. TSP aims to make that process easier by providing industry segment-specific best practices that are prioritized by environmental and business value. It also provides tools for self-assessment and benchmarking, and planning tools to help identify improvement opportunities based on environmental and business value.</li>
+                        <li><strong>Managers of multiple reporting entities</strong> (e.g. suppliers, owned facilities). The TSP capabilities described above can be used to accelerate the adoption of sustainability best practices by a target group. TSP also provides meaningful measures of quality and maturity of sustainability management for evaluation and reporting purposes (e.g. RFP, surveys, scorecards).</li>
+                    </ol>
+                </dd>
+            </dl>
+        </div>
+        <div>
+            <h2>Environmental best practices</h2>
+            <dl>
+                <dt>How were best practices for each industry segment identified or selected?</dt>
+                <dd>Best practices were selected on the basis of their being leading indicators of the quality and maturity of an organization’s environmental sustainability management.  Practices were compiled and peer-reviewed by cross-functional sustainability and industry subject matter experts, and by organizations in the field of environmental sustainability.</dd>
+            </dl>
+            <dl>
+                <dt>How are environmental and business values assigned to best practices?</dt>
+                <dd>A <a href="{{'/legend/'|site_prefixed}}">value ranking system</a> is used to assign environmental and business values to a best practice. Values are based on order-of-magnitude-level estimates of the potential value of implementing a best practice to its full extent and applicable scope. They are intended to provide high level ranking of best practices, rather than precise estimates. The actual value realized by an organization from implementing a best practice will vary widely due to a number of factors, including, but not limited to, size of the organization, number and scale of projects, nature of activities or operations, geographic region, and best practice implementation extent and scope. If you have experience that indicates any of the assigned values would benefit from recalibration, please <a href="{{'contact/'|site_prefixed}}">contact us</a> so that we may refine the value(s) in question.</dd>
+            </dl>
+            <dl>
+                <dt>Are best practices on TSP subject to change?</dt>
+                <dd>Best practices may be updated based on information brought to the attention of TSP by users and content contributors.  In addition, every two years, the best practices listed for an industry segment shall be reviewed and updated by subject matter experts with any omitted new best practices.</dd>
+            </dl>
+            <dl>
+                <dt>Who can add best practices and best practice guidance?</dt>
+                <dd>Anyone with subject matter expertise in environmental best practices related to an industry segment may contribute content to TSP. <a href="{{'contact/'|site_prefixed}}">Contact us</a> if you are interested doing so.</dd>
+            </dl>
+            <dl>
+                <dt>How will I know if new best practices relevant to me are added to TSP?</dt>
+                <dd>You will receive an email alert about any new best practices or best practice guidance added to TSP associated with your industry segment.</dd>
+            </dl>
+        </div>
+        <div>
+            <h2>Assessment</h2>
+            <dl>
+                <dt>How frequently does an Assessment need to be completed?</dt>
+                <dd>The full Assessment gets completed once. This creates a baseline record against which you may record any improvements you make over time.</dd>
+            </dl>
+            <dl>
+                <dt>If best practices are added to TSP, will that affect my Assessment results?</dt>
+                <dd>No. There will no change your baseline score, or any subsequent improved scores. New best practices and your score against same will only be factored in to the next Assessment update you choose to record in the system.</dd>
+            </dl>
+            <dl>
+                <dt>Explain the “Opportunity score” shown on the Assessment results page?</dt>
+                <dd>Higher scores equate to higher priority opportunities based on environmental and business value. Scores are calculated by multiplying the value assigned to a best practice (represented by a color*) by the implementation rate of the practice (percentage of peers who report having implemented the practice). 
+<span style="text-transform:italic;">*Gold=6, dark green=3, medium green=2, light green=1</span>.</dd>
+                <dd><span style="text-decoration:underline;">Note</span>: Using this methodology means that the opportunity score for any best practice will increase as the implementation rate for a practice increases (as new users complete the assessment and report implementing the practice). This results in a minor bias against early adoption of a practice; however, testing showed the bias to be negligible.</dd>
+            </dl>
+        </div>
+        <div>
+            <h2>Scorecard</h2>
+            <dl>
+                <dt>How does scoring work?</dt>
+                <dd>Scores are assigned on the following basis:
+                    <ul>
+                        <li><strong>Score for a single best practice:</strong> Your score for a best practice is calculated by multiplying the value assigned to the practice by the value assigned to your response to the question “Is this implemented as standard practice?” (See table below for values).</li>
+                        <li><strong>Score for a section of best practices:</strong> Best practices are grouped into sections (e.g. Electricity/gas, Fuel, Waste/pollution). The scores for each best practice are used to calculate your percentage score for that section. Each section is also assigned a weight to indicate its relative significance against other sections.</li>
+                        <li><strong>Total score:</strong> Sum of the totals for each section multiplied by their weight.</li>
+                        <li><span style="text-decoration:underline;">Note</span>: Your scores will change slightly as more respondents complete the Assessment for an industry segment.</li>
+                    </ul>
+                    <div>
+                    <table class="table table-bordered" style="width: 50%;margin: 0 auto;">
+                        <tr style="background-color:#eee;">
+                            <th colspan="2">Values assigned to a best practice to indicate relative value</th>
+                            <th colspan="2">Values assigned to responses to the question "Is this practice implemented?"</th>
+                        </tr>
+                        <tr>
+                            <td>Gold</td><td>6</td>
+                            <td>Yes</td><td>3</td>
+                        </tr>
+                        <tr>
+                            <td>Dark green</td><td>3</td>
+                            <td>Yes, but needs a little improvement</td><td>2</td>
+                        </tr>
+                        <tr>
+                            <td>Medium green</td><td>2</td>
+                            <td>Yes, but needs a lot of improvement</td><td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Light green</td><td>1</td>
+                            <td>No</td><td>0</td>
+                        </tr>
+                    </table>
+                    </div>
+                </dd>
+            </dl>
+            <dl>
+                <dt>How does benchmarking work?</dt>
+                <dd>Your relative position against peers in your industry segment is shown in the “Benchmark graph” section of your Scorecard. Benchmark positions may change over time as more respondents from your industry peer group respond to the Assessment, so it is important to check back into the system from time to time to monitor for updates in the benchmark outcome.</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}
