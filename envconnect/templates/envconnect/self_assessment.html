@@ -100,7 +100,7 @@
                             [[practice[0].consumption.nb_respondents]] respondents
                             <div class="progress" style="margin:0">
                                 <div class="progress-bar progress-bar-success green-level-{% if breadcrumbs|active_category:'sustainability' %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
-                                    [[practice[0].consumption.rate]]%
+                                    [[practice[0].consumption.rate|number:0]]%
                                 </div>
                             </div>
                         </td>

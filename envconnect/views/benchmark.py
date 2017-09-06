@@ -15,6 +15,7 @@ from django.template.loader import get_template
 from django.views.generic.base import (RedirectView, TemplateView,
     ContextMixin, TemplateResponseMixin)
 from django.utils import six
+from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
@@ -110,18 +111,18 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             root = self._build_tree(trail[-1][0], from_root, cut=None)
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
-            charts, complete = self.get_charts(root[1], path=from_root)
+            self.decorate_with_breadcrumbs(root)
+            charts, complete = self.get_charts(root, path=from_root)
             context.update({
                 'self_assessment_complete': complete,
                 'charts': charts,
                 'root': self._cut_tree(root),
-                'entries': json.dumps(root),
+                'entries': json.dumps(root, cls=JSONEncoder),
                 # XXX move to urls when we are sure how it interacts
                 # with envconnect/base.html
                 'api_account_benchmark': reverse(
                     'api_benchmark', args=(context['organization'], from_root))
             })
-        self.root = root # XXX Hack for self-assessment to present results
         return context
 
 
@@ -191,12 +192,14 @@ class ScoreCardDownloadView(BenchmarkAPIView):
 
     def get_printable_charts(self):
         if not hasattr(self, '_printable_charts'):
-            self._printable_charts = self.get_queryset()
-            for chart in self._printable_charts:
-                if ('text' in chart
-                    and chart['text'].startswith('/')):
-                    chart['text'] = \
-                        "file://{{base_dir}}/htdocs" + chart['text']
+            self._printable_charts = []
+            for chart in self.get_queryset():
+                tag = chart.get('tag', None)
+                if tag and settings.TAG_SCORECARD in tag:
+                    icon = chart.get('icon', None)
+                    if icon and icon.startswith('/'):
+                        chart['icon'] = "file://{{base_dir}}/htdocs" + icon
+                    self._printable_charts += [chart]
         return self._printable_charts
 
     def get_context_data(self, *args, **kwargs):
@@ -354,7 +357,8 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         parts = from_root.split("/")
         if len(parts) > 1:
             root = self._build_tree(trail[-1][0], from_root)
-            charts, _ = self.get_charts(root[1], path=from_root)
+            self.decorate_with_breadcrumbs(root)
+            charts, _ = self.get_charts(root, path=from_root)
         else:
             # totals
             charts = []

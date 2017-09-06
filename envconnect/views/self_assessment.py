@@ -7,11 +7,12 @@ import csv, datetime, json, logging, io
 from django.utils import six
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
+from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder
 from openpyxl import Workbook
 from survey.models import Answer, Response, SurveyModel
 
-from .benchmark import BenchmarkBaseView
+from ..api.benchmark import BenchmarkMixin
 from ..mixins import BestPracticeMixin, ConsumptionSerializer
 from ..models import Consumption, Improvement
 
@@ -19,7 +20,7 @@ from ..models import Consumption, Improvement
 LOGGER = logging.getLogger(__name__)
 
 
-class SelfAssessmentBaseView(BenchmarkBaseView):
+class SelfAssessmentBaseView(BenchmarkMixin, TemplateView):
 
     @staticmethod
     def decorate_with_opportunities(leafs):
@@ -70,7 +71,7 @@ class SelfAssessmentBaseView(BenchmarkBaseView):
         self._report_queries("leafs populated")
 
 
-class SelfAssessmentView(BestPracticeMixin, SelfAssessmentBaseView):
+class SelfAssessmentView(SelfAssessmentBaseView):
 
     template_name = 'envconnect/self_assessment.html'
     breadcrumb_url = 'report'
@@ -83,10 +84,15 @@ class SelfAssessmentView(BestPracticeMixin, SelfAssessmentBaseView):
 
     def get_context_data(self, **kwargs):
         context = super(SelfAssessmentView, self).get_context_data(**kwargs)
-        if self.root:
-            self.attach_benchmarks(self.root)
+        from_root, trail = self.breadcrumbs
+        root = None
+        if trail:
+            root = self._build_tree(trail[-1][0], from_root, cut=None)
+#XXX            root = self._cut_tree(root)
+            self.attach_benchmarks(root)
             context.update({
-                'entries': json.dumps(self.root, cls=JSONEncoder)
+                'root': root,
+                'entries': json.dumps(root, cls=JSONEncoder)
             })
         organization = context['organization']
         context.update({
@@ -167,14 +173,14 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
         from_trail_head = "/" + "/".join([
             element.slug.decode('utf-8') if six.PY2 else element.slug
             for element in self.get_full_element_path(trail_head)])
-        self.root = self._build_tree(trail[0][0], from_trail_head, cut=None)
-        self.attach_benchmarks(self.root)
+        root = self._build_tree(trail[0][0], from_trail_head, cut=None)
+        self.attach_benchmarks(root)
 
         self.create_writer()
         self.writerow(["The Sustainability Project - Self-assessment"])
-        self.writerow([self._get_title(self.root[0])])
+        self.writerow([self._get_title(root[0])])
         indent = ' '
-        for nodes in six.itervalues(self.root[1]):
+        for nodes in six.itervalues(root[1]):
             self.writerow([indent + self._get_title(nodes[0])]
                 + self.get_headings(self._get_tag(nodes[0])))
             for elements in six.itervalues(nodes[1]):

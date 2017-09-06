@@ -2,8 +2,9 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import csv, datetime, logging, io
+import csv, datetime, json, logging, io
 
+from deployutils.crypt import JSONEncoder
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponse
@@ -18,12 +19,12 @@ from extended_templates.backends.pdf import PdfTemplateResponse
 
 from ..mixins import BestPracticeMixin, ImprovementQuerySetMixin
 from ..models import Consumption
-from .self_assessment import SelfAssessmentView
+from .self_assessment import SelfAssessmentBaseView
 
 LOGGER = logging.getLogger(__name__)
 
 
-class ImproveView(SelfAssessmentView):
+class ImproveView(SelfAssessmentBaseView):
 
     template_name = 'envconnect/improve.html'
     breadcrumb_url = 'envconnect_improve'
@@ -37,14 +38,20 @@ class ImproveView(SelfAssessmentView):
 
     def get_context_data(self, **kwargs):
         context = super(ImproveView, self).get_context_data(**kwargs)
-        if self.root:
-            _, trail = self.get_breadcrumbs("/" + self.root[0]['slug'])
-            self.root[0]['breadcrumbs'] = [tup[0].title for tup in trail]
-            for node in six.itervalues(self.root[1]):
-                element = node[0]
-                _, trail = self.get_breadcrumbs(
-                    "/" + "/".join([self.root[0]['slug'], element['slug']]))
-                element['breadcrumbs'] = [tup[0].title for tup in trail]
+        from_root, trail = self.breadcrumbs
+        if trail:
+            root = self._build_tree(trail[-1][0], from_root, cut=None)
+#XXX            root = self._cut_tree(root)
+            self.attach_benchmarks(root)
+            self.decorate_with_breadcrumbs(root)
+            context.update({
+                'root': root,
+                'entries': json.dumps(root, cls=JSONEncoder)
+            })
+        context.update({
+            'role': "tab",
+            'response': self.sample
+        })
         return context
 
 

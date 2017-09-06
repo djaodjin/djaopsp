@@ -78,6 +78,37 @@ class BenchmarkMixin(ReportMixin):
                     count += 1
                 LOGGER.debug("%d row(s)", count)
 
+    def decorate_with_breadcrumbs(self, rollup_tree,
+                                  icon=None, tag=None, breadcrumbs=None):
+        """
+        When this method returns each node in the rollup_tree will have
+        and icon and breadcumbs attributes. If a node does not have or
+        has an empty tag attribute, it will be set to the value of the
+        first parent's tag which is meaningful.
+        """
+        title = rollup_tree[0].get('title', "")
+        if isinstance(breadcrumbs, list) and title:
+            breadcrumbs.append(title)
+        elif rollup_tree[0].get('slug', "").startswith('sustainability-'):
+            breadcrumbs = []
+        icon_candidate = rollup_tree[0].get('text', "")
+        if icon_candidate and icon_candidate.endswith('.png'):
+            icon = icon_candidate
+        tag_candidate = rollup_tree[0].get('tag', "")
+        if tag_candidate:
+            tag = tag_candidate
+        rollup_tree[0].update({
+            'breadcrumbs':
+                list(breadcrumbs) if breadcrumbs else [title],
+            'icon': icon,
+            'icon_css': 'grey' if (tag and 'management' in tag) else 'orange'
+        })
+        for key, node in six.iteritems(rollup_tree[1]):
+            self.decorate_with_breadcrumbs(node, icon=icon, tag=tag,
+                breadcrumbs=breadcrumbs)
+        if breadcrumbs:
+            breadcrumbs.pop()
+
     def get_drilldown(self, rollup_tree, prefix):
         accounts = None
         node = rollup_tree[1].get(prefix, None)
@@ -101,43 +132,21 @@ class BenchmarkMixin(ReportMixin):
 
         return accounts
 
-    def get_charts(self, groups, path=None, text=None, tag=None):
+    def get_charts(self, rollup_tree, path=None):
         #pylint:disable=too-many-arguments,too-many-locals
         charts = []
         complete = True
         if path is None:
             path = ""
-        for icon_path, icon_tuple in six.iteritems(groups):
-            nb_answers = getattr(icon_tuple[0], 'nb_answers', 0)
-            nb_questions = getattr(icon_tuple[0], 'nb_questions', 1)
+        for icon_path, icon_tuple in six.iteritems(rollup_tree[1]):
+            nb_answers = icon_tuple[0].get('nb_answers', 0)
+            nb_questions = icon_tuple[0].get('nb_questions', 1)
             complete &= (nb_answers == nb_questions)
             icon_tag = icon_tuple[0].get('tag', "")
             icon_text = icon_tuple[0].get('text', "")
-            if (icon_tag
-                and settings.TAG_SCORECARD in icon_tag):
-                _, trail = self.get_breadcrumbs(icon_path)
-                if trail:
-                    root_elem = trail.pop(0)
-                    while trail and trail[0][0].title == root_elem[0].title:
-                        trail.pop(0)
-                breadcrumbs = [tup[0].title for tup in trail]
-                icon = {
-                    'slug': icon_tuple[0]['slug'],
-                    'breadcrumbs': breadcrumbs,
-                    'text': icon_text if text is None else text,
-                    'tag': icon_tag if tag is None else tag,
-                    'score_weight': icon_tuple[0].get('weight', 1.0),
-                    'nb_answers': nb_answers,
-                    'nb_questions': getattr(icon_tuple[0], 'nb_questions', 0),
-                    'distribution': getattr(icon_tuple[0], 'distribution', {})
-                }
-                charts += [icon]
-            sub_charts, _ = self.get_charts(
-                icon_tuple[1], path=icon_path,
-                text=icon_text
-                    if icon_text and icon_text.endswith('.png') else None,
-                tag=icon_tag
-                    if icon_text and icon_text.endswith('.png') else None)
+            if (icon_tag and settings.TAG_SCORECARD in icon_tag):
+                charts += [icon_tuple[0]]
+            sub_charts, _ = self.get_charts(icon_tuple, path=icon_path)
             charts += sub_charts
         return charts, complete
 
@@ -228,12 +237,11 @@ class BenchmarkMixin(ReportMixin):
         """
         Flatten the tree into a list of charts.
         """
+        # XXX Almost identical to get_charts. Can we abstract differences?
         if prefix is None:
             prefix = "/"
         if not prefix.startswith("/"):
             prefix = "/" + prefix
-        if not distribution_tree[1]:
-            return [], True
         charts = []
         complete = True
         for key, chart in six.iteritems(distribution_tree[1]):
@@ -242,15 +250,6 @@ class BenchmarkMixin(ReportMixin):
                     chart, prefix=prefix)
                 charts += leaf_charts
                 complete &= leaf_complete
-                # XXX duplicate from `get_charts`
-                _, trail = self.get_breadcrumbs(key)
-                if trail:
-                    root_elem = trail.pop(0)
-                    while trail and trail[0][0].title == root_elem[0].title:
-                        trail.pop(0)
-                breadcrumbs = [tup[0].title for tup in trail]
-                chart[0].update({'breadcrumbs': breadcrumbs})
-                # XXX end duplicate
                 charts += [chart[0]]
                 if 'distribution' in chart[0]:
                     complete &= (chart[0].get(
@@ -659,6 +658,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         rollup_tree = self.rollup_scores(root, from_root)
         self.create_distributions(rollup_tree,
             view_account=self.sample.account.pk)
+        self.decorate_with_breadcrumbs(rollup_tree)
         charts, complete = self.flatten_distributions(rollup_tree,
             prefix=from_root)
         total_score = None

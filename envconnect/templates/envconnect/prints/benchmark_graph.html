@@ -1,25 +1,12 @@
 <!DOCTYPE html>
 <html class="no-js" lang="en">
 <head>
-  <link rel="stylesheet" media="all" href="file://{{base_dir}}/htdocs/static/cache/envconnect.css" />
+  <link rel="stylesheet" media="all" href="https://s3-us-west-2.amazonaws.com/envconnect/static/cache/envconnect.css" />
   <script type="text/javascript" src="file://{{base_dir}}/htdocs/static/vendor/jquery.js"></script>
 </head>
 <body>
   <div id="benchmark-graph" class="chart-container">
-      <div class="chart-title">
-        <div class="icon-benchmark {% if chart|containsTag:'management' %} grey{% else %} orange{% endif %}">
-            {% if chart.text %}
-            <img class="icon-equipment" src="{{chart.text}}">
-            {% else %}
-            <div class="icon-equipment">{{chart.title}}</div>
-            {% endif %}
-        </div>
-        <div class="title">
-            <h3>{{chart.breadcrumbs.0}}</h3>
-            <h4>{% if chart.breadcrumbs|length > 1 %}{{chart.breadcrumbs.1}}{% endif %}</h4>
-            <h5>{% if chart.breadcrumbs|length > 2 %}{{chart.breadcrumbs|last}}{% endif %}</h5>
-        </div>
-      </div>
+    {% include "envconnect/_chart_title.html" with practice=chart %}
     <div>
       <div class="chart-content c3" style="width:210px;height:120px;">
       </div>
