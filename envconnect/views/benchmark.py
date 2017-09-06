@@ -194,8 +194,10 @@ class ScoreCardDownloadView(BenchmarkAPIView):
         if not hasattr(self, '_printable_charts'):
             self._printable_charts = []
             for chart in self.get_queryset():
+                slug = chart.get('slug', "")
                 tag = chart.get('tag', None)
-                if tag and settings.TAG_SCORECARD in tag:
+                if (slug == 'total-score'
+                    or (tag and settings.TAG_SCORECARD in tag)):
                     icon = chart.get('icon', None)
                     if icon and icon.startswith('/'):
                         chart['icon'] = "file://{{base_dir}}/htdocs" + icon
