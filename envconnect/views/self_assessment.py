@@ -13,8 +13,8 @@ from openpyxl import Workbook
 from survey.models import Answer, Response, SurveyModel
 
 from ..api.benchmark import BenchmarkMixin
-from ..mixins import BestPracticeMixin, ConsumptionSerializer
 from ..models import Consumption, Improvement
+from ..serializers import ConsumptionSerializer
 
 
 LOGGER = logging.getLogger(__name__)

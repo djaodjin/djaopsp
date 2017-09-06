@@ -25,6 +25,12 @@
 <!--[if !IE]><!-->
  <li class="divider-vertical hidden-xs"><li>
 <!--<![endif]-->
+<li{% if "/faq/" in request.path %} class="active"{% endif %}>
+<a href="{{'/faq/'|site_prefixed}}">FAQ</a>
+</li>
+<!--[if !IE]><!-->
+ <li class="divider-vertical hidden-xs"><li>
+<!--<![endif]-->
 <li{% if "/logout/" in request.path %} class="active"{% endif %}>
 <a id="logout" href="{{'logout/'|site_prefixed}}?next={{''|site_prefixed}}">Sign out <i class="fa fa-sign-out fa-lg"></i></a>
 </li>

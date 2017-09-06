@@ -22,7 +22,7 @@ you have implemented rises, because implementation rate is used as value
 indicator for a best practice.
   </p>
   <div style="margin-top:25px;">
-      <a href="{% url 'scorecard_download_organization' organization path %}" target="_blank">Printable</a>
+      <a href="{% url 'scorecard_download_organization' organization path %}" target="_blank">Print scorecard</a>
   </div>
   <div{% if '/share/' in request.path %} class="active"{% endif %}>
       <a id="submenu-share" href="{{''|site_prefixed}}/profile/{{organization}}/roles/viewer/">Share scorecard<br /></a>

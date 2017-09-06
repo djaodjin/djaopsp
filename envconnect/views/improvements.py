@@ -9,7 +9,6 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponse
 from django.views.generic.list import ListView
-from django.utils import six
 from openpyxl import Workbook
 from pages.models import PageElement
 from survey.models import Answer, Question
@@ -41,7 +40,6 @@ class ImproveView(SelfAssessmentBaseView):
         from_root, trail = self.breadcrumbs
         if trail:
             root = self._build_tree(trail[-1][0], from_root, cut=None)
-#XXX            root = self._cut_tree(root)
             self.attach_benchmarks(root)
             self.decorate_with_breadcrumbs(root)
             context.update({
@@ -77,8 +75,7 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
                          ListView):
 
     basename = 'improvements'
-    headings = ['Practice', 'Savings', 'Cost', 'Payback',
-                'Implementation rate', 'Opportunity score']
+    headings = ['Practice', 'Implementation rate', 'Opportunity score']
 
     def insert_path(self, tree, parts=None):
         if not parts:
@@ -99,9 +96,6 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
                 # We reached a leaf
                 self.writerow([
                     indent + element.title,
-                    nodes['avg_energy_saving'],
-                    nodes['capital_cost'],
-                    nodes['payback_period'],
                     nodes['rate'],
                     nodes['opportunity']
                 ])

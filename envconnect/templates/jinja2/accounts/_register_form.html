@@ -45,6 +45,7 @@
                     <option {% if form.function.value() == "operations" %}selected="1"{% endif %} value="operations">Operations</option>
                     <option {% if form.function.value() == "corporate" %}selected="1"{% endif %} value="corporate">Corporate Responsability/Sustainability</option>
                     <option {% if form.function.value() == "marketing" %}selected="1"{% endif %} value="marketing">Marketing/Communications</option>
+                    <option {% if form.function.value() == "supply-chain" %}selected="1"{% endif %} value="supply-chain">Supply chain</option>
                     <option {% if form.function.value() == "other" %}selected="1"{% endif %} value="other">Other</option>
                 </select>
                 {% for error in form.function.errors %}
@@ -62,14 +63,15 @@
             <div class="col-sm-7 controls">
                 <select class="form-control" name="{{form.industry.name}}">
                     <option>Please select...</option>
-                    <option {% if form.industry.value() == "architectural-design" %}selected="1"{% endif %} value="architecture-design">Architectural Design</option>
+                    <option {% if form.industry.value() == "architecture-design" %}selected="1"{% endif %} value="architecture-design">Architectural Design</option>
                     <option {% if form.industry.value() == "boxes-and-enclosures" %}selected="1"{% endif %} value="boxes-and-enclosures">Boxes &amp; enclosures</option>
                     <option {% if form.industry.value() == "construction" %}selected="1"{% endif %} value="construction">Engineering, Procurement, Construction</option>
                     <option {% if form.industry.value() == "consulting" %}selected="1"{% endif %} value="consulting">Consulting (other than engineering)</option>
-                    <option {% if form.industry.value() == "distribution" %}selected="1"{% endif %} value="distribution">Distribution</option>
+                    <option {% if form.industry.value() == "distribution-industry" %}selected="1"{% endif %} value="distribution-industry">Distribution</option>
                     <option {% if form.industry.value() == "distribution-transformers" %}selected="1"{% endif %} value="distribution-transformers">Distribution transformers</option>
                     <option {% if form.industry.value() == "energy-efficiency-contracting" %}selected="1"{% endif %} value="energy-efficiency-contracting">Energy efficiency contracting</option>
                     <option {% if form.industry.value() == "energy-utility" %}selected="1"{% endif %} value="energy-utility">Energy utility (supply chain)</option>
+                    <option {% if form.industry.value() == "engineering" %}selected="1"{% endif %} value="engineering">Engineering</option>
                     <option {% if form.industry.value() == "epc" %}selected="1"{% endif %} value="epc">Engineering, Procurement, Construction</option>
                     <option {% if form.industry.value() == "fabricated-metals" %}selected="1"{% endif %} value="fabricated-metals">Fabricated metals</option>
                     <option {% if form.industry.value() == "facilities-management-industry" %}selected="1"{% endif %} value="facilities-management-industry">Facilities management</option>
@@ -78,10 +80,12 @@
                     <option {% if form.industry.value() == "general-contractors" %}selected="1"{% endif %} value="general-contractors">General contractors</option>
                     <option {% if form.industry.value() == "general-manufacturing" %}selected="1"{% endif %} value="general-manufacturing">General manufacturing</option>
                     <option {% if form.industry.value() == "interior-design" %}selected="1"{% endif %} value="interior-design">Interior Design</option>
+                    <option {% if form.industry.value() == "lab-services" %}selected="1"{% endif %} value="lab-services">Lab services</option>
                     <option {% if form.industry.value() == "marketing-and-communications" %}selected="1"{% endif %} value="marketing-and-communications">Marketing &amp; communications</option>
                     <option {% if form.industry.value() == "print-services" %}selected="1"{% endif %} value="print-services">Print services</option>
+                    <option {% if form.industry.value() == "vegetation-industry" %}selected="1"{% endif %} value="vegetation-industry">Vegetation management</option>
                     <option {% if form.industry.value() == "vehicle-equipment-and-parts" %}selected="1"{% endif %} value="vehicle-equipment-and-parts">Rental equipment & parts</option>
-                    <option {% if form.industry.value() == "shipping-and-logistics" %}selected="1"{% endif %} value="shipping-and-logistics">Shipping & logistics</option>
+                    <option {% if form.industry.value() == "shipping-and-logistics" %}selected="1"{% endif %} value="shipping-and-logistics">Value added reselling</option>
                     <option {% if form.industry.value() == "wire-and-cable" %}selected="1"{% endif %} value="wire-and-cable">Wire &amp; cable</option>
                     <option {% if form.industry.value() == "not-listed" %}selected="1"{% endif %} value="not-listed">My industry segment is not listed</option>
                 </select>

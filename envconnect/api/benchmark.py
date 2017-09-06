@@ -103,7 +103,7 @@ class BenchmarkMixin(ReportMixin):
             'icon': icon,
             'icon_css': 'grey' if (tag and 'management' in tag) else 'orange'
         })
-        for key, node in six.iteritems(rollup_tree[1]):
+        for node in six.itervalues(rollup_tree[1]):
             self.decorate_with_breadcrumbs(node, icon=icon, tag=tag,
                 breadcrumbs=breadcrumbs)
         if breadcrumbs:
@@ -143,8 +143,7 @@ class BenchmarkMixin(ReportMixin):
             nb_questions = icon_tuple[0].get('nb_questions', 1)
             complete &= (nb_answers == nb_questions)
             icon_tag = icon_tuple[0].get('tag', "")
-            icon_text = icon_tuple[0].get('text', "")
-            if (icon_tag and settings.TAG_SCORECARD in icon_tag):
+            if icon_tag and settings.TAG_SCORECARD in icon_tag:
                 charts += [icon_tuple[0]]
             sub_charts, _ = self.get_charts(icon_tuple, path=icon_path)
             charts += sub_charts

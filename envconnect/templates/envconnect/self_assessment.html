@@ -27,14 +27,24 @@
                 <thead ng-show="!scoreToggle">
                     <tr>
                       <th rowspan="2" style="vertical-align:bottom;">Practices</th>
-                      <th class="text-center" colspan="{{choices|length}}">Implemented as standard practice <a style="cursor:pointer;" href="" data-toggle="tooltip" data-placement="right" title="Read this question to mean, Has the practice been implemented as standard or routine for all activities, projects or services to which the practice could apply, and over which the reporting entity has operational influence or control? If the reporting entity has no influence or control over a practice, then the response to the question should be 'Not applicable'."><i class="fa fa-question-circle"></i></a></th>
+                      <th class="text-center" colspan="{{choices|length}}">Implemented as standard practice <a style="cursor:pointer;" href="" data-toggle="tooltip" data-placement="right" title="Read this question to mean, Has the practice been implemented as standard or routine for all activities, projects or services (including contractor and sub-supplier activities) to which the practice could apply, and over which the reporting entity has operational influence or control? If the reporting entity has no influence or control over a practice, then the response to the question should be 'Not applicable'."><i class="fa fa-question-circle"></i></a></th>
                     </tr>
                     <tr>
-                      {% for choice in choices %}
                       <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
-                          <div>{{choice}}</div>
+                          <div data-toggle="tooltip" data-placement="bottom" title="The practice is implemented across all activities/services/products/offices/ facilities to which it could apply.">Yes</div>
                       </th>
-                      {% endfor %}
+                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
+                          <div data-toggle="tooltip" data-placement="bottom" title="The practice is implemented across roughly half of the activities/services/products/offices/ facilities to which it could apply.">Yes, but needs a little improvement</div>
+                      </th>
+                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
+                          <div data-toggle="tooltip" data-placement="bottom" title="The practice is implemented across roughly less than half the activities/services/products/offices/ facilities to which it could apply.">Yes, but needs a lot of improvement</div>
+                      </th>
+                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
+                          <div data-toggle="tooltip" data-placement="bottom" title="The practice is implemented across negligible to no activities/services/products/offices/ facilities to which it could apply.">No</div>
+                      </th>
+                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
+                          <div data-toggle="tooltip" data-placement="bottom" title="The practice is not applicable to the organization, or the organization has no influence or control over its implementation.">Not applicable</div>
+                      </th>
                     </tr>
                 </thead>
                 <thead ng-show="scoreToggle">
@@ -159,9 +169,7 @@ See the following for examples of content developed for best practices:
                 <h4 class="modal-title"><i class="fa fa-wrench"></i> Report data ...</h4>
             </div>
             <div class="modal-body">
-In future versions of TSP you will be able to report various data measurements.
-If it is something you would like to see sooner rather than later,
-please <a href="{{'/contact/'|site_prefixed}}" target="_blank">let us know &raquo;</a>.
+Data entry, trending, reporting and dashboard creation is under construction.
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary"
