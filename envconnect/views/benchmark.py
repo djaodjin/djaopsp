@@ -370,11 +370,13 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                 if look:
                     candidate = look.group(1)
                 element = PageElement.objects.filter(slug=candidate).first()
+                tag = element.tag if element is not None else ""
                 charts += [{
                     'slug': cohort.slug,
                     'breadcrumbs': [cohort.title],
-                    'text': element.text if element is not None else "",
-                    'tag': element.tag if element is not None else ""
+                    'icon': element.text if element is not None else "",
+                    'icon_css':
+                        'grey' if (tag and 'management' in tag) else 'orange'
                 }]
         url_kwargs = self.get_url_kwargs()
         url_kwargs.update({'matrix': self.object})

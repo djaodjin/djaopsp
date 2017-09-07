@@ -545,22 +545,16 @@ class BenchmarkMixin(ReportMixin):
                 agg_metrics.pop(numerator_key, None)
                 agg_metrics.pop(denominator_key, None)
 
-    def rollup_scores(self, root=None, root_prefix=None):
+    def rollup_scores(self, roots=None, root_prefix=None):
         """
         Returns a tree populated with scores per accounts.
         """
         self._start_time()
         self._report_queries("at rollup_scores entry point")
         rollup_tree = None
-        roots = [root] if root is not None else None
         rollups = self.build_content_tree(roots, prefix=root_prefix,
             cut=TransparentCut())
-        if len(rollups) <= 1:
-            rollup_tree = ({}, rollups)
-        else:
-            for rup in six.itervalues(rollups):
-                rollup_tree = rup
-                break
+        rollup_tree = ({}, rollups)
         self._report_queries("rollup_tree generated")
         if 'title' not in rollup_tree[0]:
             rollup_tree[0].update({
@@ -654,7 +648,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         #pylint:disable=too-many-locals
         from_root, trail = self.breadcrumbs
         root = trail[-1][0] if len(trail) > 0 else None
-        rollup_tree = self.rollup_scores(root, from_root)
+        rollup_tree = self.rollup_scores([root], from_root)
         self.create_distributions(rollup_tree,
             view_account=self.sample.account.pk)
         self.decorate_with_breadcrumbs(rollup_tree)
