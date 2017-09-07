@@ -39,9 +39,9 @@ class SelfAssessmentBaseView(BenchmarkMixin, TemplateView):
                 answer = Answer.objects.filter(
                     question=consumption, response=self.sample).first()
                 if answer:
-                    values[0]['implemented'] = answer.text
+                    values[0]['consumption']['implemented'] = answer.text
                 else:
-                    values[0]['implemented'] = False
+                    values[0]['consumption']['implemented'] = False
             except Consumption.DoesNotExist:
                 # We have cut out the tree at an icon or heading level.
                 pass
