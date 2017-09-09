@@ -300,7 +300,7 @@ casper.viewport(%(width)s, %(height)s).thenOpen('%(url)s', function() {
                     js_content=js_content,
                     cache_storage=cache_storage,
                     on_start=on_start,
-                    width=210, height=204)
+                    width=250, height=204, delay=1000)
             on_start = False
         js_content.write("""
 casper.run();
