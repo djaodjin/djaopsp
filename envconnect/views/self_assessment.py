@@ -13,6 +13,7 @@ from openpyxl import Workbook
 from survey.models import Answer, Response, SurveyModel
 
 from ..api.benchmark import BenchmarkMixin
+from ..mixins import BestPracticeMixin
 from ..models import Consumption, Improvement
 from ..serializers import ConsumptionSerializer
 
@@ -20,7 +21,7 @@ from ..serializers import ConsumptionSerializer
 LOGGER = logging.getLogger(__name__)
 
 
-class SelfAssessmentBaseView(BenchmarkMixin, TemplateView):
+class SelfAssessmentBaseView(BenchmarkMixin, BestPracticeMixin, TemplateView):
 
     @staticmethod
     def decorate_with_opportunities(leafs):
