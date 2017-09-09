@@ -584,9 +584,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 } else {
                     var node = $scope.getEntriesRecursive(
                         $scope.entries, prefix);
-                    resp.data.path = path;
-                    resp.data.consumption = null;
-                    node[1].push([resp.data, []]);
+                    node[1][resp.data.path] = [resp.data, {}];
                     $scope.newElement.value = "";
                     modalDialog.modal('hide');
                     if( $scope.newElement.reload ) {
