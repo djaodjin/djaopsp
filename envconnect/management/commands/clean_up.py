@@ -71,13 +71,77 @@ class Command(BaseCommand):
             help='When set will also issue the delete query.')
 
     def handle(self, *args, **options):
-        #pylint:disable=too-many-locals
-        do_delete = options['do_delete']
-        entry_points = INDUSTRIES
-
+#        with transaction.atomic():
+#            self.copy_reference_values()
         with transaction.atomic():
             self.unalias_headings()
+        self.delete_ghosts(do_delete=options['do_delete'])
 
+    def build_tree(self, root, prefix=None, indent=''):
+        elements = []
+        if prefix is None:
+            prefix = "/%s" % root.slug
+        for node in root.relationships.all():
+            node_path = "%s/%s" % (prefix, node.slug)
+            self.stdout.write("%s%s\n" % (indent, node_path))
+            elements += [node_path]
+            elements += self.build_tree(
+                node, prefix=node_path, indent=indent + '  ')
+        return elements
+
+    def copy_reference_values(self):
+        for prefix, icon in [
+        # Architectural design > Electricity/gas
+            ('/architecture-design/sustainability-architecture-design/ad-electricity/', 'Electricity/gas'),
+        # Architectural design > Fuel
+            ('/architecture-design/sustainability-architecture-design/ad-transport/', 'Fuel'),
+        # Architectural design > Waste/pollution
+            ('/architecture-design/sustainability-architecture-design/ad-waste/', 'Waste/pollution'),
+        # Architectural design > Water
+            ('/architecture-design/sustainability-architecture-design/ad-water/', 'Water'),
+        # Construction > Procurement
+            ('/construction/sustainability-construction/procurement-5d484d5/', 'Procurement'),
+        # Construction > Construction
+            ('/construction/sustainability-construction/construction-bbec85a/', 'Construction'),
+        # Distribution > Warehouse facilities
+            ('/distribution-industry/sustainability-distribution-industry/warehouse-facilities', 'Warehouse facilities'),
+        # Distribution > Distribution & shipping
+        #       (to Distribution & shipping, Shipping)
+        ]:
+            for reference in Consumption.objects.filter(
+                    path__startswith=prefix):
+                parts = reference.path.split('/')
+                base_breadcrumbs = []
+                for part in parts[1:]:
+                    base_breadcrumbs += [
+                        PageElement.objects.get(slug=part).title]
+                base = PageElement.objects.get(slug=parts[-1])
+                for element in PageElement.objects.filter(title=base.title):
+                    for candidate in element.get_parent_paths():
+                        breadcrumbs = [item.title for item in candidate]
+                        if icon in breadcrumbs:
+                            path = '/' + '/'.join(
+                                [item.slug for item in candidate])
+                            if not path.startswith(prefix):
+                                self.stdout.write("From %s\n  To %s" % (
+                                    " > ".join(base_breadcrumbs),
+                                    " > ".join(
+                                        [item.title for item in candidate])))
+                                consumption = Consumption.objects.get(path=path)
+                                consumption.environmental_value = \
+                                    reference.environmental_value
+                                consumption.business_value = \
+                                    reference.business_value
+                                consumption.implementation_ease = \
+                                    reference.implementation_ease
+                                consumption.profitability = \
+                                    reference.profitability
+                                consumption.avg_value = reference.avg_value
+                                consumption.save()
+
+    def delete_ghosts(self, do_delete=False):
+        #pylint:disable=too-many-locals
+        entry_points = INDUSTRIES
         roots = PageElement.objects.filter(slug__in=entry_points)
         elements = []
         for node in roots:
@@ -117,19 +181,6 @@ class Command(BaseCommand):
             if do_delete:
                 PageElement.objects.filter(
                     pk__in=[page.pk for page in pages_not_linked]).delete()
-
-
-    def build_tree(self, root, prefix=None, indent=''):
-        elements = []
-        if prefix is None:
-            prefix = "/%s" % root.slug
-        for node in root.relationships.all():
-            node_path = "%s/%s" % (prefix, node.slug)
-            self.stdout.write("%s%s\n" % (indent, node_path))
-            elements += [node_path]
-            elements += self.build_tree(
-                node, prefix=node_path, indent=indent + '  ')
-        return elements
 
     def unalias_headings(self):
         """
