@@ -92,19 +92,27 @@ class Command(BaseCommand):
     def copy_reference_values(self):
         for prefix, icon in [
         # Architectural design > Electricity/gas
-            ('/architecture-design/sustainability-architecture-design/ad-electricity/', 'Electricity/gas'),
+    ('/architecture-design/sustainability-architecture-design/ad-electricity/',
+     'Electricity/gas'),
         # Architectural design > Fuel
-            ('/architecture-design/sustainability-architecture-design/ad-transport/', 'Fuel'),
+    ('/architecture-design/sustainability-architecture-design/ad-transport/',
+     'Fuel'),
         # Architectural design > Waste/pollution
-            ('/architecture-design/sustainability-architecture-design/ad-waste/', 'Waste/pollution'),
+    ('/architecture-design/sustainability-architecture-design/ad-waste/',
+     'Waste/pollution'),
         # Architectural design > Water
-            ('/architecture-design/sustainability-architecture-design/ad-water/', 'Water'),
+    ('/architecture-design/sustainability-architecture-design/ad-water/',
+     'Water'),
         # Construction > Procurement
-            ('/construction/sustainability-construction/procurement-5d484d5/', 'Procurement'),
+    ('/construction/sustainability-construction/procurement-5d484d5/',
+     'Procurement'),
         # Construction > Construction
-            ('/construction/sustainability-construction/construction-bbec85a/', 'Construction'),
+    ('/construction/sustainability-construction/construction-bbec85a/',
+     'Construction'),
         # Distribution > Warehouse facilities
-            ('/distribution-industry/sustainability-distribution-industry/warehouse-facilities', 'Warehouse facilities'),
+    ('/distribution-industry/sustainability-distribution-industry/'\
+    'warehouse-facilities',
+     'Warehouse facilities'),
         # Distribution > Distribution & shipping
         #       (to Distribution & shipping, Shipping)
         ]:
