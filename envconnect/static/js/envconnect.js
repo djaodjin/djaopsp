@@ -98,6 +98,7 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
                 var attachPath = $(ui.item).parents("table").data("prefix");
                 if( newIndex > 0 ) {
                     var entries = scope.getEntries(attachPath);
+                    console.log("entries(", entries, ")[",newIndex, " - (", newIndex, " < ", startIndex, " ? 1 : 0)]");
                     var attachNode = entries[newIndex - ((newIndex < startIndex) ? 1 : 0)];
                     attachPath = attachNode[0].path;
                     if( movedNode[0].consumption ) {
@@ -112,17 +113,21 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
                             attachPath = parts.join('/');
                             var headingNode = scope.getEntriesRecursive(
                                 scope.entries, attachPath);
-                            for( var idx = 0;
-                                 idx < headingNode[1].length; ++idx ) {
-                                if( headingNode[1][idx][0].path === posPath ) {
-                                    if( movedPath.lastIndexOf(attachPath, 0) === 0 && startIndex < newIndex ) {
-                                        // Moving under the same root.
-                                        // Furthermore we are going down.
-                                        rank = idx;
-                                    } else {
-                                        rank = idx + 1;
+                            console.log("XXX headingNode[1]=", headingNode[1]);
+                            var idx = 0;
+                            for( var path in headingNode[1] ) {
+                                if( headingNode[1].hasOwnProperty(path) ) {
+                                    if( path === posPath ) {
+                                        if( movedPath.lastIndexOf(attachPath, 0) === 0 && startIndex < newIndex ) {
+                                            // Moving under the same root.
+                                            // Furthermore we are going down.
+                                            rank = idx;
+                                        } else {
+                                            rank = idx + 1;
+                                        }
+                                        break;
                                     }
-                                    break;
+                                    ++idx;
                                 }
                             }
                             if( rank < 0 ) {
@@ -162,17 +167,20 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
                         var rank = -1;
                         var headingNode = scope.getEntriesRecursive(
                             scope.entries, attachPath);
-                        for( var idx = 0;
-                             idx < headingNode[1].length; ++idx ) {
-                            if( headingNode[1][idx][0].path === posPath ) {
-                                if( movedPath.lastIndexOf(attachPath, 0) === 0 && startIndex < newIndex ) {
-                                    // Moving under the same root.
-                                    // Furthermore we are going down.
-                                    rank = idx;
-                                } else {
-                                    rank = idx + 1;
+                        var idx = 0;
+                        for( var path in headingNode[1] ) {
+                            if( headingNode[1].hasOwnProperty(path) ) {
+                                if( path === posPath ) {
+                                    if( movedPath.lastIndexOf(attachPath, 0) === 0 && startIndex < newIndex ) {
+                                        // Moving under the same root.
+                                        // Furthermore we are going down.
+                                        rank = idx;
+                                    } else {
+                                        rank = idx + 1;
+                                    }
+                                    break;
                                 }
-                                break;
+                                ++idx;
                             }
                         }
                         if( rank < 0 ) {
