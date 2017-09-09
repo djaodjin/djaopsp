@@ -9,6 +9,7 @@ import json, logging
 from django.conf import settings
 from django.db import connection
 from django.utils import six
+from deployutils.helpers import datetime_or_now
 from pages.mixins import TrailMixin
 from rest_framework import generics
 from rest_framework.response import Response as RestResponse
@@ -71,7 +72,7 @@ class BenchmarkMixin(ReportMixin):
         if show:
             LOGGER.debug("%s\n", raw_query)
             with connection.cursor() as cursor:
-                cursor.execute(raw_query)
+                cursor.execute(raw_query, params=None)
                 count = 0
                 for row in cursor.fetchall():
                     LOGGER.debug(str(row))
@@ -132,22 +133,15 @@ class BenchmarkMixin(ReportMixin):
 
         return accounts
 
-    def get_charts(self, rollup_tree, path=None):
-        #pylint:disable=too-many-arguments,too-many-locals
+    def get_charts(self, rollup_tree):
         charts = []
-        complete = True
-        if path is None:
-            path = ""
-        for icon_path, icon_tuple in six.iteritems(rollup_tree[1]):
-            nb_answers = icon_tuple[0].get('nb_answers', 0)
-            nb_questions = icon_tuple[0].get('nb_questions', 1)
-            complete &= (nb_answers == nb_questions)
-            icon_tag = icon_tuple[0].get('tag', "")
-            if icon_tag and settings.TAG_SCORECARD in icon_tag:
-                charts += [icon_tuple[0]]
-            sub_charts, _ = self.get_charts(icon_tuple, path=icon_path)
+        icon_tag = rollup_tree[0].get('tag', "")
+        if icon_tag and settings.TAG_SCORECARD in icon_tag:
+            charts += [rollup_tree[0]]
+        for _, icon_tuple in six.iteritems(rollup_tree[1]):
+            sub_charts = self.get_charts(icon_tuple)
             charts += sub_charts
-        return charts, complete
+        return charts
 
 
     def create_distributions(self, rollup_tree, view_account=None):
@@ -174,7 +168,7 @@ class BenchmarkMixin(ReportMixin):
             if (normalized_score is None
                 or account_metrics.get('nb_questions', 0) == 0):
                 # `nb_questions == 0` to show correct number of respondents
-                # in relation with the `slug = 'total-score'` statement
+                # in relation with the `slug = 'totals'` statement
                 # in populate_rollup.
                 continue
 
@@ -300,7 +294,7 @@ class BenchmarkMixin(ReportMixin):
         else:
             opportunities = []
             with connection.cursor() as cursor:
-                cursor.execute(self._get_opportunities_sql())
+                cursor.execute(self._get_opportunities_sql(), params=None)
                 opportunities = cursor.fetchall()
         return opportunities
 
@@ -340,7 +334,8 @@ class BenchmarkMixin(ReportMixin):
         # QUESTION_PATH = 6
         # ANSWER_TEXT = 7
         scored_improvements = "SELECT expected_opportunities.account_id,"\
-            " envconnect_improvement.id, expected_opportunities.response_id,"\
+            " envconnect_improvement.id AS answer_id,"\
+            " expected_opportunities.response_id,"\
             " expected_opportunities.question_id,"\
             " (opportunity * 3) AS numerator,"\
             " (opportunity * 3) AS denominator,"\
@@ -353,12 +348,7 @@ class BenchmarkMixin(ReportMixin):
             "   = expected_opportunities.account_id" % {
                 'expected_opportunities': self.get_expected_opportunities()}
         self._show_query_and_result(scored_improvements)
-
-        scored_improvements_results = []
-        with connection.cursor() as cursor:
-            cursor.execute(scored_improvements)
-            scored_improvements_results = cursor.fetchall()
-        return scored_improvements_results
+        return scored_improvements
 
     def get_scored_answers(self):
         # All expected answers with their scores.
@@ -372,7 +362,8 @@ class BenchmarkMixin(ReportMixin):
         # ANSWER_TEXT = 7
         # ANSWER_CREATED_AT = 8
         scored_answers = "SELECT expected_opportunities.account_id,"\
-            " survey_answer.id, expected_opportunities.response_id,"\
+            " survey_answer.id AS answer_id,"\
+            " expected_opportunities.response_id,"\
             " expected_opportunities.question_id, "\
           " CASE WHEN text = '%(yes)s' THEN (opportunity * 3)"\
           "      WHEN text = '%(moderate_improvement)s' THEN (opportunity * 2)"\
@@ -395,78 +386,50 @@ class BenchmarkMixin(ReportMixin):
                     for val in Consumption.PRESENT + Consumption.ABSENT]),
                 'expected_opportunities': self.get_expected_opportunities()}
         self._show_query_and_result(scored_answers)
-
-        scored_answers_results = []
-        with connection.cursor() as cursor:
-            cursor.execute(scored_answers)
-            scored_answers_results = cursor.fetchall()
-        return scored_answers_results
-
+        return scored_answers
 
     def populate_leafs(self, leafs, answers,
                        numerator_key='numerator',
-                       denominator_key='denominator',
-                       count_answers=True,
-                       view_account=None):
-        #pylint:disable=too-many-arguments
+                       denominator_key='denominator'):
         """
         Populate all leafs with aggregated scores.
         """
         #pylint:disable=too-many-locals
         for prefix, values_tuple in six.iteritems(leafs):
             values = values_tuple[0]
-            accounts = {}
-            if not 'accounts' in values:
-                values['accounts'] = {}
-            accounts = values['accounts']
-            for row in answers:
-                answer_id = row[self.ANSWER_ID]
-                path = row[self.QUESTION_PATH]
-                account_id = row[self.ACCOUNT_ID]
-                numerator = row[self.NUMERATOR]
-                denominator = row[self.DENOMINATOR]
-                if len(row) > self.ANSWER_CREATED_AT:
-                    # ``populate_leafs`` is called for both answers
-                    # and improvements.
-                    created_at = row[self.ANSWER_CREATED_AT]
-                else:
-                    created_at = None
-                if path.startswith(prefix):
-                    if account_id == view_account and 'consumption' in values:
-                        if count_answers:
-                            values['consumption']['implemented'] = \
-                                row[self.ANSWER_TEXT]
-                        else:
-                            values['consumption']['planned'] = True
+            agg_scores = """SELECT account_id, response_id,
+    COUNT(answer_id) AS nb_answers,
+    COUNT(*) AS nb_questions,
+    SUM(numerator) AS numerator,
+    SUM(denominator) AS denominator
+FROM (%(answers)s) AS answers
+WHERE path LIKE '%(prefix)s%%'
+GROUP BY account_id, response_id;""" % {'answers': answers, 'prefix': prefix}
+            self._show_query_and_result(agg_scores)
+            with connection.cursor() as cursor:
+                cursor.execute(agg_scores, params=None)
+                for agg_score in cursor.fetchall():
+                    account_id = agg_score[0]
+                    #response_id = agg_score[1]
+                    nb_answers = agg_score[2]
+                    nb_questions = agg_score[3]
+                    numerator = agg_score[4]
+                    denominator = agg_score[5]
+                    created_at = datetime_or_now() # XXX agg_score[6]
+                    if not 'accounts' in values:
+                        values['accounts'] = {}
+                    accounts = values['accounts']
                     if not account_id in accounts:
                         accounts[account_id] = {}
-                    metrics = accounts[account_id]
-                    if count_answers:
-                        metrics.update({
-                            'nb_answers': metrics.get('nb_answers', 0)
-                                + (1 if answer_id is not None else 0),
-                            'nb_questions': metrics.get('nb_questions', 0) + 1})
-                    if not numerator_key in metrics:
-                        metrics[numerator_key] = numerator
-                    else:
-                        metrics[numerator_key] += numerator
-                    if not denominator_key in metrics:
-                        metrics[denominator_key] = denominator
-                    else:
-                        metrics[denominator_key] += denominator
-                    if created_at is not None:
-                        if 'created_at' in metrics:
-                            metrics['created_at'] = max(
-                                created_at, metrics['created_at'])
-                        else:
-                            metrics['created_at'] = created_at
-            for account_id, account_metrics in six.iteritems(accounts):
-                if (count_answers and account_metrics['nb_answers']
-                    != account_metrics['nb_questions']):
-                    # If we don't have the same number of questions
-                    # and answers, numerator and denominator are meaningless.
-                    accounts[account_id].pop(numerator_key, None)
-                    accounts[account_id].pop(denominator_key, None)
+                    accounts[account_id].update({
+                        'nb_answers': nb_answers,
+                        'nb_questions': nb_questions,
+                        'created_at': created_at
+                    })
+                    if nb_questions == nb_answers:
+                        accounts[account_id].update({
+                            numerator_key: numerator,
+                        denominator_key: denominator})
 
     def populate_rollup(self, rollup_tree,
                     numerator_key='numerator', denominator_key='denominator'):
@@ -474,21 +437,21 @@ class BenchmarkMixin(ReportMixin):
         Populate aggregated scores up the tree.
         """
         if len(rollup_tree[1].keys()) == 0:
-            for account_id, metrics in six.iteritems(rollup_tree[0].get(
+            for account_id, scores in six.iteritems(rollup_tree[0].get(
                     'accounts', {})):
-                nb_answers = metrics.get('nb_answers', 0)
-                nb_questions = metrics.get('nb_questions', 0)
+                nb_answers = scores.get('nb_answers', 0)
+                nb_questions = scores.get('nb_questions', 0)
                 if nb_answers == nb_questions:
-                    denominator = metrics.get(denominator_key, 0)
+                    denominator = scores.get(denominator_key, 0)
                     if denominator > 0:
-                        metrics['normalized_score'] = int(
-                            metrics[numerator_key] * 100.0 / denominator)
-                        if 'improvement_numerator' in metrics:
-                            metrics['improvement_score'] = int(
-                                metrics['improvement_numerator'] * 100.0
+                        scores['normalized_score'] = int(
+                            scores[numerator_key] * 100.0 / denominator)
+                        if 'improvement_numerator' in scores:
+                            scores['improvement_score'] = int(
+                                scores['improvement_numerator'] * 100.0
                                 / denominator)
                     else:
-                        metrics['normalized_score'] = 0
+                        scores['normalized_score'] = 0
             return
         values = rollup_tree[0]
         if not 'accounts' in values:
@@ -497,53 +460,53 @@ class BenchmarkMixin(ReportMixin):
         slug = rollup_tree[0].get('slug', None)
         for node in six.itervalues(rollup_tree[1]):
             self.populate_rollup(node)
-            for account_id, metrics in six.iteritems(
+            for account_id, scores in six.iteritems(
                     node[0].get('accounts', {})):
                 if not account_id in accounts:
                     accounts[account_id] = {}
-                agg_metrics = accounts[account_id]
-                if not 'nb_answers' in agg_metrics:
-                    agg_metrics['nb_answers'] = 0
-                if not 'nb_questions' in agg_metrics:
-                    agg_metrics['nb_questions'] = 0
+                agg_scores = accounts[account_id]
+                if not 'nb_answers' in agg_scores:
+                    agg_scores['nb_answers'] = 0
+                if not 'nb_questions' in agg_scores:
+                    agg_scores['nb_questions'] = 0
 
-                if 'created_at' in metrics:
-                    if not 'created_at' in agg_metrics:
-                        agg_metrics['created_at'] = metrics['created_at']
+                if 'created_at' in scores:
+                    if not 'created_at' in agg_scores:
+                        agg_scores['created_at'] = scores['created_at']
                     else:
-                        agg_metrics['created_at'] = max(
-                            agg_metrics['created_at'], metrics['created_at'])
-                nb_answers = metrics['nb_answers']
-                nb_questions = metrics['nb_questions']
-                if slug != 'total-score' or nb_answers > 0:
+                        agg_scores['created_at'] = max(
+                            agg_scores['created_at'], scores['created_at'])
+                nb_answers = scores['nb_answers']
+                nb_questions = scores['nb_questions']
+                if slug != 'totals' or nb_answers > 0:
                     # Aggregation of total scores is different. We only want to
                     # count scores for self-assessment that matter
                     # for an organization's industry.
-                    agg_metrics['nb_answers'] += nb_answers
-                    agg_metrics['nb_questions'] += nb_questions
+                    agg_scores['nb_answers'] += nb_answers
+                    agg_scores['nb_questions'] += nb_questions
                     for key in [numerator_key, denominator_key,
                                 'improvement_numerator']:
-                        agg_metrics[key] = agg_metrics.get(key, 0) + (
-                            metrics.get(key, 0)
+                        agg_scores[key] = agg_scores.get(key, 0) + (
+                            scores.get(key, 0)
                             * node[0].get('score_weight', 1.0))
-        for account_id, agg_metrics in six.iteritems(accounts):
-            nb_answers = agg_metrics.get('nb_answers', 0)
-            nb_questions = agg_metrics.get('nb_questions', 0)
+        for account_id, agg_scores in six.iteritems(accounts):
+            nb_answers = agg_scores.get('nb_answers', 0)
+            nb_questions = agg_scores.get('nb_questions', 0)
             if nb_answers == nb_questions:
                 # If we don't have the same number of questions
                 # and answers, numerator and denominator are meaningless.
-                denominator = agg_metrics.get(denominator_key, 0)
-                agg_metrics.update({
-                    'normalized_score': int(agg_metrics[numerator_key] * 100.0
+                denominator = agg_scores.get(denominator_key, 0)
+                agg_scores.update({
+                    'normalized_score': int(agg_scores[numerator_key] * 100.0
                         / denominator) if denominator > 0 else 0})
-                if 'improvement_numerator' in agg_metrics:
-                    agg_metrics.update({
+                if 'improvement_numerator' in agg_scores:
+                    agg_scores.update({
                         'improvement_score': int(
-                            agg_metrics['improvement_numerator'] * 100.0
+                            agg_scores['improvement_numerator'] * 100.0
                             / denominator) if denominator > 0 else 0})
             else:
-                agg_metrics.pop(numerator_key, None)
-                agg_metrics.pop(denominator_key, None)
+                agg_scores.pop(numerator_key, None)
+                agg_scores.pop(denominator_key, None)
 
     def rollup_scores(self, roots=None, root_prefix=None):
         """
@@ -558,13 +521,15 @@ class BenchmarkMixin(ReportMixin):
         self._report_queries("rollup_tree generated")
         if 'title' not in rollup_tree[0]:
             rollup_tree[0].update({
-                "slug": "total-score", "title": "Total Score"})
+                'slug': "totals",
+                'title': "Total Score",
+                'tag': [settings.TAG_SCORECARD]})
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
-        self.populate_leafs(leafs, self.get_scored_answers())
         self.populate_leafs(leafs, self.get_scored_improvements(),
-            count_answers=False, numerator_key='improvement_numerator',
+            numerator_key='improvement_numerator',
             denominator_key='improvement_denominator')
+        self.populate_leafs(leafs, self.get_scored_answers())
         self._report_queries("leafs populated")
         self.populate_rollup(rollup_tree)
         self._report_queries("rollup_tree populated")
@@ -591,7 +556,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
     .. sourcecode:: http
 
         [{
-            "slug":"total-score",
+            "slug":"totals",
             "title":"Total Score",
             "nb_answers": 4,
             "nb_questions": 4,
@@ -647,8 +612,8 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
     def get_queryset(self):
         #pylint:disable=too-many-locals
         from_root, trail = self.breadcrumbs
-        root = trail[-1][0] if len(trail) > 0 else None
-        rollup_tree = self.rollup_scores([root], from_root)
+        roots = [trail[-1][0]] if len(trail) > 0 else None
+        rollup_tree = self.rollup_scores(roots, from_root)
         self.create_distributions(rollup_tree,
             view_account=self.sample.account.pk)
         self.decorate_with_breadcrumbs(rollup_tree)
@@ -666,7 +631,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
             total_score = rollup_tree[0]
         if not total_score:
             total_score = {"nb_respondents": "-"}
-        total_score.update({"slug": "total-score", "title": "Total Score"})
+        total_score.update({"slug": "totals", "title": "Total Score"})
         if not complete and 'normalized_score' in total_score:
             del total_score['normalized_score']
         charts += [total_score]

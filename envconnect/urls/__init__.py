@@ -69,7 +69,7 @@ urlpatterns += [
     # direct manager of :organization
     url_direct(r'api/(?P<organization>%s)/' % SLUG_RE,
         include('envconnect.urls.api.suppliers')),
-    url_direct(r'api/(?P<organization>%s)/matrix/(?P<matrix>%s)/?$' % (
+    url_direct(r'api/(?P<organization>%s)/matrix/(?P<path>%s)/?$' % (
         SLUG_RE, SLUG_RE + settings.PATH_RE),
         TotalScoreBySubsectorAPIView.as_view()),
     url_direct(r'api/(?P<organization>%s)/' % SLUG_RE,

@@ -27,12 +27,12 @@
 <div id="planel-icons" class="panel-icons{% block extra_panel_icons_classes %} panel-icons-no-benchmark{% endblock %}">
   <div class="panel-body">
   <!-- global metric -->
-  <div id="matrixChart" class="row">
+  <div id="chart-{{object.slug}}" class="row">
     <div class="text-center" style="margin-left:auto;margin-right:auto;">
       <div class="col-md-8">
         <h2>{{object.title}}</h2>
-        <div class="chart text-center" style="display: inline-block;">
-          <svg><text x="50" y="100" font-family="Verdana">Loading ...</text></svg>
+        <div class="chart chart-totals text-center" style="display: inline-block;">
+          <i class="fa fa-spinner fa-spin fa-2x"></i>
         </div>
         <div id="edit-matrix" class="container text-left" style="display:none;">
           <form id="chart-title">
@@ -196,28 +196,15 @@
       <div class="row row-flex">
       {% endif %}
       <div class="col-md-4">
-          <div id="{{chart.slug}}-chart" class="chart-container">
+          <div id="chart-{{chart.slug}}" class="chart-container">
               {% include "envconnect/_chart_title.html" with practice=chart %}
               <div>
                   <div class="chart-content c3" style="width:250px;height:120px;">
-                    <div id="chart-{{chart.slug}}" class="distribution-chart c3">
+                    <div class="distribution-chart c3">
                       <div class="chart text-center">
-                        <svg>
-                          <text x="50" y="100" font-family="Verdana">Loading ...</text>
-                        </svg>
+                        <i class="fa fa-spinner fa-spin fa-2x"></i>
                       </div>
                     </div>
-                    <script type="text/javascript">
-jQuery(document).ready(function($) {
-  $("#matrixChart").on("matrix.loaded", function () {
-      $("#chart-{{chart.slug}}").djmatrixChart({
-          selection_element: "#chart-title",
-          editable_filter_api: "{{editable_filter_api_base}}",
-          matrix_api: "{{chart.urls.matrix_api}}"
-       });
-  });
-});
-                    </script>
                   </div>
               </div>
           </div>
@@ -288,9 +275,24 @@ jQuery(document).ready(function($) {
       });
       return false;
   });
-  $("#matrixChart").djmatrixChart({
-      editable_filter_api: "{{editable_filter_api_base}}",
-      matrix_api: "{{matrix_api}}",
+
+  $.ajax({
+      method: "GET",
+      url: "{{matrix_api}}",
+//      data: data,
+      contentType: "application/json; charset=utf-8",
+      success: function(data) {
+          for( var idx = 0; idx < data.length; ++idx ) {
+              $('[id^="chart-' + data[idx].slug + '"]').djmatrixChart({
+                  data: data[idx],
+                  editable_filter_api: "{{editable_filter_api_base}}",
+                  matrix_api: "{{matrix_api}}",
+              });
+          }
+      },
+      error: function(resp) {
+          showErrorMessages(resp);
+      }
   });
 });
 </script>

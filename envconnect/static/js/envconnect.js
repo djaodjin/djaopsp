@@ -1274,7 +1274,7 @@ envconnectControllers.controller("envconnectRequestListCtrl",
         HTML requirements:
 
         <div>
-          <div id="#total-score"></div>
+          <div id="#totals"></div>
           <div class="benchmark"></div>
           <div class="cost"></div>
           <div class="savings"></div>
@@ -1340,7 +1340,7 @@ envconnectControllers.controller("envconnectRequestListCtrl",
             }
             // Scores
             for( var idx = 0; idx < data.length; ++idx ) {
-                if( data[idx].slug === "total-score" ) {
+                if( data[idx].slug === "totals" ) {
                     var totalScoreElement = self.element.find(
                         "#" + data[idx].slug);
                     if( typeof data[idx].normalized_score !== 'undefined'
@@ -1352,12 +1352,12 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                             .value3(data[idx].normalized_score)
                             .render();
                     } else {
-                        if( totalScoreElement.find(".total-score-chart").length === 0 ) {
+                        if( totalScoreElement.find(".totals-chart").length === 0 ) {
                             // N/A Could already been added. We will call
                             // the benchmark API multiple times
                             // on the improvement dashboard.
                             totalScoreElement.append(
-                    "<div class=\"total-score-chart\">" +
+                    "<div class=\"totals-chart\">" +
                       "<div>N/A - Self assessment questions incomplete</div>" +
                     "</div>");
                         }

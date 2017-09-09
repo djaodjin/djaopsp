@@ -115,7 +115,7 @@ class ConsumptionQuerySet(models.QuerySet):
 
         yes_no_view = "SELECT envconnect_consumption.question_id"\
             " AS question_id, COUNT(survey_answer.id) AS nb_yes_no,"\
-            " AVG(envconnect_consumption.avg_value) AS avg_value"\
+            " envconnect_consumption.avg_value AS avg_value"\
             " FROM envconnect_consumption INNER JOIN survey_question"\
             " ON (envconnect_consumption.question_id = survey_question.id)"\
             " INNER JOIN survey_answer"\

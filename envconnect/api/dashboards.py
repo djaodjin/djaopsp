@@ -3,8 +3,12 @@
 
 import logging, re
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.http import Http404
+from django.utils import six
+from rest_framework.response import Response
 from survey.api.matrix import MatrixDetailAPIView
 from survey.models import EditableFilter
 from survey.utils import get_account_model
@@ -107,3 +111,77 @@ class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
         if likely_metric:
             likely_metric = self.request.build_absolute_uri(likely_metric)
         return likely_metric
+
+    def decorate_with_scores(self, rollup_tree, accounts=None):
+        if accounts is None:
+            accounts = dict([(account.pk, account)
+                for account in self.get_accounts()])
+        score = {}
+        cohorts = []
+        for _, values in six.iteritems(rollup_tree[1]):
+            self.decorate_with_scores(values, accounts=accounts)
+            for account_id, account_score in six.iteritems(
+                    values[0].get('accounts', {})):
+                if account_id in accounts:
+                    n_score = account_score.get('normalized_score', 0)
+                    if n_score > 0:
+                        account = accounts.get(account_id, None)
+                        score[account.slug] = n_score
+                        cohorts += [{
+                            'slug': account.slug,
+                            'title': account.full_name,
+                            'likely_metric': self.get_likely_metric(
+                                account.slug)}]
+        rollup_tree[0]['values'] = score
+        rollup_tree[0]['cohorts'] = cohorts
+
+    def decorate_with_cohorts(self, rollup_tree, accounts=None):
+        if accounts is None:
+            accounts = dict([(account.pk, account)
+                for account in self.get_accounts()])
+        score = {}
+        cohorts = []
+        for path, values in six.iteritems(rollup_tree[1]):
+            self.decorate_with_scores(values, accounts=accounts)
+            nb_accounts = 0
+            normalized_score = 0
+            for account_id, account_score in six.iteritems(
+                    values[0].get('accounts', {})):
+                if account_id in accounts:
+                    n_score = account_score.get('normalized_score', 0)
+                    if n_score > 0:
+                        nb_accounts += 1
+                        normalized_score += n_score
+            if normalized_score > 0 and nb_accounts > 0:
+                score[path] = normalized_score / nb_accounts
+                cohorts += [{
+                    'slug': path,
+                    'title': values[0]['title'],
+                    'likely_metric': self.get_likely_metric(
+                        values[0]['slug'] + '-1')}]
+            values[0]['tag'] = [settings.TAG_SCORECARD]
+        rollup_tree[0]['values'] = score
+        rollup_tree[0]['cohorts'] = cohorts
+
+    def get(self, request, *args, **kwargs):
+        #pylint:disable=unused-argument
+        try:
+            from_root, trail = self.breadcrumbs
+        except Http404:
+            from_root = ''
+            trail = []
+        roots = [trail[-1][0]] if len(trail) > 0 else None
+        rollup_tree = self.rollup_scores(roots, from_root)
+        if roots:
+            for node in six.itervalues(rollup_tree[1]):
+                rollup_tree = node
+                break
+            self.decorate_with_scores(rollup_tree)
+        else:
+            self.decorate_with_cohorts(rollup_tree)
+        charts = self.get_charts(rollup_tree)
+        charts += [rollup_tree[0]]
+        for chart in charts:
+            if 'accounts' in chart:
+                del chart['accounts']
+        return Response(charts)

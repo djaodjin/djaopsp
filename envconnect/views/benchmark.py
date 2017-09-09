@@ -112,9 +112,8 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             self.decorate_with_breadcrumbs(root)
-            charts, complete = self.get_charts(root, path=from_root)
+            charts = self.get_charts(root)
             context.update({
-                'self_assessment_complete': complete,
                 'charts': charts,
                 'root': self._cut_tree(root),
                 'entries': json.dumps(root, cls=JSONEncoder),
@@ -196,7 +195,7 @@ class ScoreCardDownloadView(BenchmarkAPIView):
             for chart in self.get_queryset():
                 slug = chart.get('slug', "")
                 tag = chart.get('tag', None)
-                if (slug == 'total-score'
+                if (slug == 'totals'
                     or (tag and settings.TAG_SCORECARD in tag)):
                     icon = chart.get('icon', None)
                     if icon and icon.startswith('/'):
@@ -231,14 +230,14 @@ class ScoreCardDownloadView(BenchmarkAPIView):
                             'score_weight', "N/A")
                         break
             for chart in charts:
-                if chart['slug'] == 'total-score':
+                if chart['slug'] == 'totals':
                     context.update({
                         'total_chart': chart,
                         'nb_respondents': chart.get('nb_respondents', "N/A")})
                     break
             context.update({
                 'charts': [chart
-                    for chart in charts if chart['slug'] != 'total-score'],
+                    for chart in charts if chart['slug'] != 'totals'],
                 'breadcrumbs': trail,
                 'root': self._cut_tree(root),
                 'at_time': datetime_or_now()
@@ -284,7 +283,7 @@ casper.viewport(%(width)s, %(height)s).thenOpen('%(url)s', function() {
 """)
         on_start = True
         for chart in charts:
-            if chart['slug'] == 'total-score':
+            if chart['slug'] == 'totals':
                 chart['image'] = self.generate_chart_image(chart['slug'],
                     'envconnect/prints/total_score.html',
                     context={'total_score': chart},
@@ -360,7 +359,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         if len(parts) > 1:
             root = self._build_tree(trail[-1][0], from_root)
             self.decorate_with_breadcrumbs(root)
-            charts, _ = self.get_charts(root, path=from_root)
+            charts = self.get_charts(root)
         else:
             # totals
             charts = []
@@ -379,7 +378,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                         'grey' if (tag and 'management' in tag) else 'orange'
                 }]
         url_kwargs = self.get_url_kwargs()
-        url_kwargs.update({'matrix': self.object})
+        url_kwargs.update({self.matrix_url_kwarg: self.object})
         for chart in charts:
             candidate = chart['slug']
             look = re.match(r"(\S+)(-\d+)$", candidate)
@@ -387,7 +386,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                 matrix_slug = '/'.join([look.group(1)])
             else:
                 matrix_slug = '/'.join([str(self.object), candidate])
-            url_kwargs.update({'matrix': matrix_slug})
+            url_kwargs.update({self.matrix_url_kwarg: matrix_slug})
             api_urls = {'matrix_api': reverse('matrix_api', kwargs=url_kwargs)}
             chart.update({'urls': api_urls})
         context.update({'charts': charts})
