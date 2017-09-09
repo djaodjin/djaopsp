@@ -73,8 +73,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 #        with transaction.atomic():
 #            self.copy_reference_values()
-        with transaction.atomic():
-            self.unalias_headings()
+#        with transaction.atomic():
+#            self.unalias_headings()
         self.delete_ghosts(do_delete=options['do_delete'])
 
     def build_tree(self, root, prefix=None, indent=''):
@@ -115,6 +115,12 @@ class Command(BaseCommand):
      'Warehouse facilities'),
         # Distribution > Distribution & shipping
         #       (to Distribution & shipping, Shipping)
+    ('/distribution-industry/sustainability-distribution-industry/'\
+    'fleet-distribution',
+     'Distribution & shipping'),
+    ('/distribution-industry/sustainability-distribution-industry/'\
+    'fleet-distribution',
+     'Shipping'),
         ]:
             for reference in Consumption.objects.filter(
                     path__startswith=prefix):
