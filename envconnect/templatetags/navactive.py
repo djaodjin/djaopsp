@@ -59,18 +59,6 @@ def get_industry_charts(organization=None):
 
 
 @register.filter
-def active_category(breadcrumbs, category):
-    for breadcrumb in breadcrumbs:
-        try:
-            if category in breadcrumb[0].tag:
-                return True
-        except TypeError:
-            # tag might be `None`.
-            pass
-    return False
-
-
-@register.filter
 def category_entry(breadcrumbs, category=None):
     path = ""
     for breadcrumb in breadcrumbs:

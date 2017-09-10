@@ -61,14 +61,12 @@
                         </button>
                             Implemented by you?
                     </th>
-                    {% if breadcrumbs|active_category:'sustainability' %}
                     <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Higher numbers equate to higher priority opportunities based on the following calculation: Practice green level * (1 + implementation rate / 100). Practice green levels: Dark green = 3; medium green = 2, light green = 1">
                         <button class="btn-link btn-sort" ng-click="sortBy('opportunity')">
                             <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
                         </button>
                             Opportunity score
                     </th>
-                    {% endif %}
                 </thead>
                 <tbody data-prefix="{{abs_prefix}}">
                     <tr data-id="[[getPath(practice[0])]]"
@@ -102,14 +100,14 @@
                         ng-if="getEntries('{{abs_prefix}}').length > 0"
                         ng-show="scoreToggle">
                         <td id="[[practice[0].slug]]"
-                          colspan="[[practice[0].consumption ? 1 : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]">
+                          colspan="[[practice[0].consumption ? 1 : 4]]">
                             {% include "envconnect/_detail_row_basic.html" %}
                         </td>
                         <td class="text-center cell-fix-width-3"
                             ng-if="practice[0].consumption">
                             [[practice[0].consumption.nb_respondents]] respondents
                             <div class="progress" style="margin:0">
-                                <div class="progress-bar progress-bar-success green-level-{% if breadcrumbs|active_category:'sustainability' %}[[practice[0].consumption.avg_value]]{% else %}0{% endif %}" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
+                                <div class="progress-bar progress-bar-success green-level-[[practice[0].consumption.avg_value]]" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
                                     [[practice[0].consumption.rate|number:0]]%
                                 </div>
                             </div>
@@ -119,15 +117,13 @@
                             <i class="fa fa-check fa-lg text-success" ng-if="isImplemented(practice[0].consumption)"></i>
                             <i class="fa fa-times fa-lg text-danger"  ng-if="!isImplemented(practice[0].consumption)"></i>
                         </td>
-                        {% if breadcrumbs|active_category:'sustainability' %}
                         <td class="text-center cell-fix-width-3"
                             ng-if="practice[0].consumption">
                             [[practice[0].consumption.opportunity|number:2]]
                         </td>
-                        {% endif %}
                     </tr>
                     <tr ng-if="getEntries('{{abs_prefix}}').length === 0">
-                        <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]">
+                        <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : 4]]">
 <em>Guidance has not yet been developed for this section. If you would like to
 see guidance, or are interested in authoring content for this section, please
 <a href="{{'contact/'|site_prefixed}}">contact us &raquo;</a>.
@@ -138,7 +134,7 @@ See the following for examples of content developed for best practices:
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : {% if breadcrumbs|active_category:'sustainability' %}4{% else %}3{% endif %}]]" class="text-right">
+                        <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : 4]]" class="text-right">
                                 <a id="download-assessment" class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Self-assessment</a>
                         </td>
                     </tr>
