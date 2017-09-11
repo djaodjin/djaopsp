@@ -66,6 +66,9 @@
             var xValues = self.options.scores.x;
             xValues.unshift("x");
             var chart = c3.generate({
+                transition: {
+                    duration: this.options.duration,
+                },
                 size: {
                     width: element.width(),
                     height: element.height() // 120
@@ -138,7 +141,8 @@
         title: null,
         nb_answers: 0,
         nb_questions: 0,
-        scores: null
+        scores: null,
+        duration: 350
     };
 
 })(jQuery);
@@ -146,7 +150,7 @@
 
 /** Chart for the total score.
  */
-function radialProgress(parent) {
+function radialProgress(parent, dur) {
     var element = $(parent);
     var _data=null,
         _duration= 1000,
@@ -156,6 +160,10 @@ function radialProgress(parent) {
         __height = element.height() || 200,
         _diameter = __width,
         _fontSize = 10;
+
+    if( typeof dur !== "undefined" ) {
+        _duration = dur;
+    }
 
     var _value1 = 0, _value2 = 0, _value3 = 0;
 
@@ -265,7 +273,7 @@ function radialProgress(parent) {
                         + "%"; })
                 .style("font-size",_fontSize+"px");
 
-            path1.exit().transition().duration(500).attr("x",1000).remove();
+            path1.exit().transition().duration(_duration / 2).attr("x", _duration).remove();
 
             layout(svg);
 

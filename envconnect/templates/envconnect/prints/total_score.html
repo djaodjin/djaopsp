@@ -15,7 +15,7 @@
   <script type="text/javascript" src="file://{{base_dir}}/envconnect/static/js/draw-chart.js"></script>
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-  radialProgress("#totals")
+  radialProgress("#totals", 1)
     .value1({{total_score.highest_normalized_score}})
     .value2({{total_score.avg_normalized_score}})
     .value3({{total_score.normalized_score}})
