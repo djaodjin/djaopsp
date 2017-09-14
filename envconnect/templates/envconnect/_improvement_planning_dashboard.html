@@ -17,16 +17,18 @@
       </div>
       <div class="row">
         <div class="col-sm-7">
-          <div class="col-sm-6">
+          <div class="col-md-6">
             <div class="score-card"
                  style="flex:auto;">
               <h4>Total Score <span id="improvement-score"></span></h4>
-              <div id="totals" class="chart-content">
+              <div>
+                <div id="totals" class="chart-content" style="margin:auto;">
+                </div>
               </div>
             </div>
           </div>
-          <div class="col-sm-6">
-            <div id="{{root.0.slug}}-chart" class="chart-container chart-container-default bordered-left" ng-show="activeIcon === null">
+          <div class="col-md-6 bordered-left">
+            <div id="{{root.0.slug}}-chart" class="chart-container chart-container-default" ng-show="activeIcon === null">
               {% include "envconnect/_chart_title.html" with practice=root.0 %}
               <div>
                 <div class="chart-content c3" style="width:250px;height:120px;">
