@@ -32,7 +32,8 @@ class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
         Provides a list of opportunities, one for each ``Question``.
         """
         context = super(ImprovementListAPIView, self).get_serializer_context()
-        context.update({'opportunities': self.get_opportunities()})
+        context.update({'opportunities': Consumption.objects.with_opportunity(
+            filter_out_testing=self._get_filter_out_testing())})
         return context
 
 

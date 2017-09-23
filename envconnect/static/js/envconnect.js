@@ -220,8 +220,29 @@ envconnectControllers.controller("EnvconnectCtrl",
         return bestpractise.tag && bestpractise.tag.indexOf(tag) >= 0;
     }
 
+    $scope.YES = 'Yes'
+    $scope.NEEDS_MODERATE_IMPROVEMENT = 'Yes, but needs a little improvement'
+    $scope.NEEDS_SIGNIFICANT_IMPROVEMENT = 'Yes, but needs a lot of improvement'
+    $scope.NO = 'No'
+    $scope.NOT_APPLICABLE = 'Not applicable'
+
+    $scope.isAtLeastYes = function (consumption) {
+      return (consumption.implemented === $scope.YES);
+    }
+
+    $scope.isAtLeastNeedsModerateImprovement = function (consumption) {
+      return (consumption.implemented === $scope.NEEDS_MODERATE_IMPROVEMENT)
+           | (consumption.implemented === $scope.YES);
+    }
+
+    $scope.isAtLeastNeedsSignificantImprovement = function (consumption) {
+      return (consumption.implemented === $scope.NEEDS_SIGNIFICANT_IMPROVEMENT)
+           | (consumption.implemented === $scope.NEEDS_MODERATE_IMPROVEMENT)
+           | (consumption.implemented === $scope.YES);
+    }
+
     $scope.isImplemented = function (consumption) {
-        return (consumption.implemented === 'Yes' || consumption.implemented === 'Work in progress');
+        return $scope.isAtLeastNeedsSignificantImprovement(consumption);
     }
 
     $scope.implementationRateWidth = function(practice) {

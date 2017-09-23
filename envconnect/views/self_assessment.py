@@ -23,9 +23,10 @@ LOGGER = logging.getLogger(__name__)
 
 class SelfAssessmentBaseView(BenchmarkMixin, BestPracticeMixin, TemplateView):
 
-    @staticmethod
-    def decorate_with_opportunities(leafs):
-        for consumption in Consumption.objects.with_opportunity():
+    def decorate_with_opportunities(self, leafs):
+        #pylint: disable=protected-access
+        for consumption in Consumption.objects.with_opportunity(
+                filter_out_testing=self._get_filter_out_testing()):
             leaf = leafs.get(consumption.path, None)
             if leaf:
                 # If the consumption is not in leafs,
@@ -41,6 +42,22 @@ class SelfAssessmentBaseView(BenchmarkMixin, BestPracticeMixin, TemplateView):
                     question=consumption, response=self.sample).first()
                 if answer:
                     values[0]['consumption']['implemented'] = answer.text
+                    # XXX This is not really the opportunity as defined
+                    # in `get_opportunities_sql` but rather the number of points
+                    # scored based on the yes/no answer as computed
+                    # in `get_scored_answers`.
+                    if answer.text == Consumption.YES:
+                        values[0]['consumption']['opportunity'] *= (3 - 3)
+                    elif answer.text == Consumption.NEEDS_MODERATE_IMPROVEMENT:
+                        values[0]['consumption']['opportunity'] *= (3 - 2)
+                    elif (answer.text
+                          == Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT):
+                        values[0]['consumption']['opportunity'] *= (3 - 1)
+                    elif answer.text == Consumption.NO:
+                        values[0]['consumption']['opportunity'] *= (3 - 0)
+                    else:
+                        # Not Applicable.
+                        values[0]['consumption']['opportunity'] = 0
                 else:
                     values[0]['consumption']['implemented'] = False
             except Consumption.DoesNotExist:
@@ -67,6 +84,11 @@ class SelfAssessmentBaseView(BenchmarkMixin, BestPracticeMixin, TemplateView):
             survey=survey)
         leafs = self.get_leafs(rollup_tree)
         self._report_queries("leafs loaded")
+        # Implementation Note:
+        # `decorate_with_answers` must be called after
+        # `decorate_with_opportunities` because it will compute the number
+        # of additional points available from the consumption opportunity
+        # and the answer.
         self.decorate_with_opportunities(leafs)
         self.decorate_with_answers(leafs)
         self.decorate_with_improvements(leafs)

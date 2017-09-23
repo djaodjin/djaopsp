@@ -67,6 +67,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
     def get_opportunity(self, obj):
         if hasattr(obj, 'opportunity'):
             return obj.opportunity
+        # XXX This is used in ``ImprovementListAPIView``.
         opportunities = self.context.get('opportunities', None)
         if opportunities is not None:
             return opportunities.get(obj.pk, 0) * 3

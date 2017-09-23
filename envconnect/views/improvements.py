@@ -105,7 +105,8 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
 
     def get(self, *args, **kwargs): #pylint: disable=unused-argument
         opportunities = {}
-        for consumption in Consumption.objects.with_opportunity():
+        for consumption in Consumption.objects.with_opportunity(
+                filter_out_testing=self._get_filter_out_testing()):
             opportunities[consumption.pk] = consumption
 
         tree = {}

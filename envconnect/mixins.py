@@ -360,6 +360,12 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
 
     report_title = 'Best Practices Report'
 
+    def _get_filter_out_testing(self):
+        # List of response ids that are only used for demo purposes.
+        if self.request.user.username in settings.TESTING_USERNAMES:
+            return []
+        return settings.TESTING_RESPONSE_IDS
+
     @property
     def sample(self):
         if not hasattr(self, '_sample'):
@@ -368,8 +374,6 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                     account=self.account, survey__title=self.report_title)
             except Response.DoesNotExist:
                 self._sample = None
-#               raise Http404("Cannot find SurveyModel(account=%s, title=%s)",
-#                   self.account, self.report_title)
         return self._sample
 
 

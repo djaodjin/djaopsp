@@ -96,7 +96,7 @@ class ConsumptionQuerySet(models.QuerySet):
                     count += 1
                 LOGGER.debug("%d row(s)", count)
 
-    def get_opportunities_sql(self):
+    def get_opportunities_sql(self, filter_out_testing=None):
         # Implementation Note:
         # tried:
         # yes_no_view = str(Consumption.objects.filter(
@@ -107,23 +107,35 @@ class ConsumptionQuerySet(models.QuerySet):
         #
         # but values in ``PRESENT`` and ``ABSENT``
         # do not get quoted.
-        yes_view = "SELECT question_id AS question_id, COUNT(survey_answer.id)"\
-            " AS nb_yes FROM survey_answer WHERE survey_answer.text IN"\
-            " (%(present)s) GROUP BY question_id" % {'present':
-                ','.join(["'%s'" % val for val in Consumption.PRESENT])}
+        if filter_out_testing:
+            filter_out_testing = "AND survey_answer.response_id NOT IN (%s)" % (
+                ', '.join(filter_out_testing))
+        else:
+            filter_out_testing = ""
+        yes_view = """SELECT
+  question_id AS question_id,
+  COUNT(survey_answer.id) AS nb_yes
+FROM survey_answer
+WHERE survey_answer.text IN (%(present)s) %(filter_out_testing)s
+GROUP BY question_id""" % {
+    'present': ','.join(["'%s'" % val for val in Consumption.PRESENT]),
+    'filter_out_testing': filter_out_testing}
         self._show_query_and_result(yes_view)
 
-        yes_no_view = "SELECT envconnect_consumption.question_id"\
-            " AS question_id, COUNT(survey_answer.id) AS nb_yes_no,"\
-            " envconnect_consumption.avg_value AS avg_value"\
-            " FROM envconnect_consumption INNER JOIN survey_question"\
-            " ON (envconnect_consumption.question_id = survey_question.id)"\
-            " INNER JOIN survey_answer"\
-            " ON (survey_question.id = survey_answer.question_id)"\
-            " WHERE survey_answer.text IN (%(yes_no)s)"\
-            "GROUP BY envconnect_consumption.question_id" % {
-                'yes_no': ','.join(["'%s'" % val
-                    for val in Consumption.PRESENT + Consumption.ABSENT])}
+        yes_no_view = """SELECT
+  envconnect_consumption.question_id AS question_id,
+  COUNT(survey_answer.id) AS nb_yes_no,
+  envconnect_consumption.avg_value AS avg_value
+FROM envconnect_consumption
+INNER JOIN survey_question
+  ON (envconnect_consumption.question_id = survey_question.id)
+INNER JOIN survey_answer
+  ON (survey_question.id = survey_answer.question_id)
+WHERE survey_answer.text IN (%(yes_no)s) %(filter_out_testing)s
+GROUP BY envconnect_consumption.question_id""" % {
+    'yes_no': ','.join(["'%s'" % val
+        for val in Consumption.PRESENT + Consumption.ABSENT]),
+    'filter_out_testing': filter_out_testing}
         self._show_query_and_result(yes_no_view)
 
         # The opportunity for all questions with a "Yes" answer.
@@ -159,8 +171,9 @@ ON envconnect_consumption.question_id = opportunity_view.question_id""" % {
         self._show_query_and_result(questions_with_opportunity)
         return questions_with_opportunity
 
-    def with_opportunity(self):
-        return self.raw(self.get_opportunities_sql())
+    def with_opportunity(self, filter_out_testing=None):
+        return self.raw(self.get_opportunities_sql(
+            filter_out_testing=filter_out_testing))
 
 
 @python_2_unicode_compatible
@@ -173,9 +186,8 @@ class Consumption(SurveyQuestion):
     NO = 'No' #pylint:disable=invalid-name
     NO_NEEDS_IMPROVEMENT = 'No/needs improvement'
     NOT_APPLICABLE = 'Not applicable'
-    WORK_IN_PROGRESS = 'Work in progress'
 
-    PRESENT = (YES, NEEDS_MODERATE_IMPROVEMENT, WORK_IN_PROGRESS)
+    PRESENT = (YES, NEEDS_MODERATE_IMPROVEMENT)
     ABSENT = (NO, NEEDS_SIGNIFICANT_IMPROVEMENT, NO_NEEDS_IMPROVEMENT)
 
     ASSESSMENT_CHOICES = {

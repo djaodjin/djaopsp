@@ -114,8 +114,10 @@
                         </td>
                         <td class="text-center cell-fix-width-3"
                             ng-if="practice[0].consumption">
-                            <i class="fa fa-check fa-lg text-success" ng-if="isImplemented(practice[0].consumption)"></i>
-                            <i class="fa fa-times fa-lg text-danger"  ng-if="!isImplemented(practice[0].consumption)"></i>
+                            <i class="fa fa-check fa-lg text-success" ng-if="isAtLeastNeedsSignificantImprovement(practice[0].consumption)"></i>
+                            <i class="fa fa-check fa-lg text-success" ng-if="isAtLeastNeedsModerateImprovement(practice[0].consumption)"></i>
+                            <i class="fa fa-check fa-lg text-success" ng-if="isAtLeastYes(practice[0].consumption)"></i>
+                            <i class="fa fa-times fa-lg text-danger"  ng-if="!isAtLeastNeedsSignificantImprovement(practice[0].consumption)"></i>
                         </td>
                         <td class="text-center cell-fix-width-3"
                             ng-if="practice[0].consumption">

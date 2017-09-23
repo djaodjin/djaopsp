@@ -284,22 +284,9 @@ class BenchmarkMixin(ReportMixin):
                     distribution['organization_rate'] = distribution['x'][3]
         return distribution
 
-    def get_opportunities(self):
-        """
-        Returns a list of question and opportunity associated to each question.
-        """
-        if True: #pylint:disable=using-constant-test
-                 # XXX not sure what we tried to achieve here.
-            opportunities = Consumption.objects.with_opportunity()
-        else:
-            opportunities = []
-            with connection.cursor() as cursor:
-                cursor.execute(self._get_opportunities_sql(), params=None)
-                opportunities = cursor.fetchall()
-        return opportunities
-
     def get_expected_opportunities(self):
-        questions_with_opportunity = Consumption.objects.get_opportunities_sql()
+        questions_with_opportunity = Consumption.objects.get_opportunities_sql(
+            filter_out_testing=self._get_filter_out_testing())
 
         # All expected questions for each response
         # decorated with ``opportunity``.
@@ -307,16 +294,23 @@ class BenchmarkMixin(ReportMixin):
         # If we are only looking for all expected questions for each response,
         # then the query can be simplified by using the survey_question table
         # directly.
-        expected_opportunities = \
-            "SELECT questions_with_opportunity.question_id"\
-            " AS question_id, survey_response.id AS response_id,"\
-            " survey_response.account_id AS account_id, opportunity,"\
-            " questions_with_opportunity.path AS path"\
-            " FROM (%(questions_with_opportunity)s)"\
-            " AS questions_with_opportunity INNER JOIN survey_response"\
-            " ON questions_with_opportunity.survey_id ="\
-            " survey_response.survey_id" % {
-                'questions_with_opportunity': questions_with_opportunity}
+        if self._get_filter_out_testing():
+            filter_out_testing = "WHERE survey_response.id NOT IN (%s)" % (
+                ', '.join(self._get_filter_out_testing()))
+        else:
+            filter_out_testing = ""
+        expected_opportunities = """SELECT
+  questions_with_opportunity.question_id AS question_id,
+  survey_response.id AS response_id,
+  survey_response.account_id AS account_id,
+  opportunity,
+  questions_with_opportunity.path AS path
+FROM (%(questions_with_opportunity)s) AS questions_with_opportunity
+INNER JOIN survey_response
+ON questions_with_opportunity.survey_id = survey_response.survey_id
+%(filter_out_testing)s
+""" % {'questions_with_opportunity': questions_with_opportunity,
+       'filter_out_testing': filter_out_testing}
         self._show_query_and_result(expected_opportunities)
         return expected_opportunities
 
