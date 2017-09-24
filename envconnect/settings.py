@@ -17,6 +17,9 @@ PATH_RE = r'(/[a-zA-Z0-9\-]+)*'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = os.path.basename(BASE_DIR)
 
+TESTING_USERNAMES = []
+TESTING_RESPONSE_IDS = []
+
 update_settings(sys.modules[__name__],
     load_config(APP_NAME, 'credentials', 'site.conf', verbose=True,
         location=os.getenv("SETTINGS_LOCATION", None),
