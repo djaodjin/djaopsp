@@ -1,6 +1,14 @@
 {% extends "envconnect/base.html" %}
 {% load static from staticfiles %}
 
+{% block localheader %}
+<style>
+.chart-content .nv-x .tick text {
+display: none;
+}
+</style>
+{% endblock %}
+
 {% block supplier_menus %}{% endblock %}
 
 {% block consumption_content %}
@@ -27,11 +35,11 @@
 <div id="planel-icons" class="panel-icons{% block extra_panel_icons_classes %} panel-icons-no-benchmark{% endblock %}">
   <div class="panel-body">
   <!-- global metric -->
-  <div id="chart-{{object.slug}}" class="row">
+  <div id="{{object.slug}}-chart" class="row">
     <div class="text-center" style="margin-left:auto;margin-right:auto;">
       <div class="col-md-8">
         <h2>{{object.title}}</h2>
-        <div class="chart chart-totals text-center" style="display: inline-block;">
+        <div class="chart totals-chart text-center" style="display: inline-block;">
           <i class="fa fa-spinner fa-spin fa-2x"></i>
         </div>
         <div id="edit-matrix" class="container text-left" style="display:none;">
@@ -287,6 +295,14 @@ jQuery(document).ready(function($) {
                   data: data[idx],
                   editable_filter_api: "{{editable_filter_api_base}}",
                   matrix_api: "{{matrix_api}}",
+                  showValues: false,
+                  color: "#3ca65b"
+              });
+              $('[id$="' + data[idx].slug + '-chart"]').djmatrixChart({
+                  data: data[idx],
+                  editable_filter_api: "{{editable_filter_api_base}}",
+                  matrix_api: "{{matrix_api}}",
+                  color: "#f89407"
               });
           }
       },
