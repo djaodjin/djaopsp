@@ -55,13 +55,13 @@
                         </button>
                             Implementation rate
                     </th>
-                    <th class="text-center cell-fix-width-3" style="border-top:0;">
+                    <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Extent to which you indicated the practice is implemented across activities/services/projects/facilities etc. to which it could apply: 3 ticks = All, 2 ticks = More than 60%, 1 tick = Less than 40%, x = Not implemented or not applicable">
                         <button class="btn-link btn-sort" ng-click="sortBy('implemented')">
                             <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
                         </button>
                             Implemented by you?
                     </th>
-                    <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Higher numbers equate to higher priority opportunities based on the following calculation: Practice green level * (1 + implementation rate / 100). Practice green levels: Dark green = 3; medium green = 2, light green = 1">
+                    <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Percentage points by which your total score could increase if this best practice is implemented. See FAQs for scoring methodology and calculations.">
                         <button class="btn-link btn-sort" ng-click="sortBy('opportunity')">
                             <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
                         </button>
