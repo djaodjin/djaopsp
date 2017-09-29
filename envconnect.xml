@@ -95,7 +95,7 @@
       <alternates>
         <alternate name="Darwin">
           <dep name="py36-coverage">
-            <bin>coverage</bin>
+            <bin>(coverage)(-3.*)?</bin>
           </dep>
           <dep name="setproctitle" target="python">
             <lib>.*/(setproctitle.so)</lib>
@@ -143,6 +143,9 @@
       <dep name="django-contrib-comments" target="python">
         <lib>.*/(django_comments)/__init__.py</lib>
       </dep>
+      <dep name="django-haystack" target="python">
+        <lib>.*/(haystack)/__init__.py</lib>
+      </dep>
       <dep name="drop">
         <bin>dws</bin>
         <share>(dws)/prefix.mk</share>
@@ -172,12 +175,17 @@
       <dep name="contrib/django-storages">
         <lib>.*/(storages)/__init__.py</lib>
       </dep>
-      <dep name="drop">
-        <bin>dws</bin>
-        <share>(dws)/prefix.mk</share>
+      <dep name="jinja2" target="python" includes="2.8.1">
+        <!-- Jinja2>=2.9 will serve the first index.html file it loaded
+             regardless of the multitier site. -->
+        <lib>.*/(jinja2)/__init__.py</lib>
       </dep>
       <dep name="Markdown" target="python">
         <lib>.*/(markdown)/__init__.py</lib>
+      </dep>
+      <dep name="drop">
+        <bin>dws</bin>
+        <share>(dws)/prefix.mk</share>
       </dep>
     </repository>
   </project>

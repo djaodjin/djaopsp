@@ -16,7 +16,7 @@ class ColumnHeaderSerializer(serializers.ModelSerializer):
     class Meta:
         model = ColumnHeader
         fields = ('slug', 'hidden',)
-        readonly_fields = ('slug',)
+        read_only_fields = ('slug',)
 
 
 class ConsumptionSerializer(serializers.ModelSerializer):
