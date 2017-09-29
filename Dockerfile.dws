@@ -1,0 +1,18 @@
+FROM fedora:25
+
+RUN %(native_prerequisites)s
+RUN dnf -y install python-virtualenv python-pip
+RUN /usr/bin/virtualenv --system-site-packages %(site_top)s
+RUN %(bin_dir)s/pip install pip setuptools --upgrade
+
+# Bundle app source
+ADD ./bin %(bin_dir)s
+ADD ./lib %(lib_dir)s
+ADD ./reps %(src_top)s
+ADD ./share %(share_dir)s
+ADD ./etc/%(app_name)s/gunicorn.conf %(etc_dir)s/%(app_name)s
+
+# Run
+Expose 8040
+WORKDIR %(src_top)s/%(app_name)s
+CMD ["%(bin_dir)s/gunicorn", "-c", "%(etc_dir)s/%(app_name)s/gunicorn.conf", "%(app_name)s.wsgi"]
