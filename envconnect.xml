@@ -35,15 +35,6 @@
       <dep name="django-urldecorators" target="python">
         <lib>.*/(urldecorators)/__init__.py</lib>
       </dep>
-      <dep name="django-analytical" target="python">
-        <lib>.*/(analytical)/__init__.py</lib>
-      </dep>
-      <dep name="Fabric" target="python">
-        <lib>.*/(fabric)/__init__.py</lib>
-      </dep>
-      <dep name="xhtml2pdf" target="python">
-        <lib>.*/(xhtml2pdf)/__init__.py</lib>
-      </dep>
       <dep name="Markdown" target="python">
         <lib>.*/(markdown)/__init__.py</lib>
       </dep>
@@ -64,21 +55,21 @@
       <dep name="djaodjin-deployutils" target="python">
         <lib>.*/(deployutils)/__init__.py</lib>
       </dep>
+      <dep name="djaodjin-answers">
+        <lib>.*/(answers)/__init__.py</lib>
+      </dep>
+      <dep name="djaodjin-extended-templates" target="python">
+        <lib>.*/(extended_templates)/__init__.py</lib>
+      </dep>
       <dep name="djaodjin-pages">
         <lib>.*/(pages)/__init__.py</lib>
       </dep>
-      <dep name="djaodjin-answers" target="python">
-        <lib>.*/(answers)/__init__.py</lib>
-      </dep>
-      <dep name="djaodjin-survey" target="python">
+      <dep name="djaodjin-survey">
         <lib>.*/(survey)/__init__.py</lib>
       </dep>
       <dep name="djaodjin-saas" target="python">
         <!-- XXX connected through settings.py -->
         <lib>.*/(saas)/__init__.py</lib>
-      </dep>
-      <dep name="djaodjin-extended-templates" target="python">
-        <lib>.*/(extended_templates)/__init__.py</lib>
       </dep>
       <dep name="contrib/casperjs">
         <bin>casperjs</bin>
@@ -103,40 +94,59 @@
       <!-- XXX impossible to find setproctitle in MacPorts -->
       <alternates>
         <alternate name="Darwin">
-          <dep name="py27-coverage">
+          <dep name="py36-coverage">
             <bin>coverage</bin>
           </dep>
           <dep name="setproctitle" target="python">
             <lib>.*/(setproctitle.so)</lib>
           </dep>
-          <dep name="py27-psycopg2">
+          <dep name="py36-psycopg2">
             <!-- because we connect to postgresql and it is not automatically
                  pulled from Django. Contains C code -->
             <lib>.*/(psycopg2)/__init__.py</lib>
           </dep>
         </alternate>
         <alternate name="Fedora">
-          <dep name="python2-coverage">
+          <dep name="python3-coverage">
             <bin>coverage</bin>
           </dep>
-          <dep name="python2-crypto">
+          <dep name="python3-crypto">
             <!-- XXX native code pulled from djaodjin-pages. -->
             <lib>.*/(Crypto)/__init__.py</lib>
           </dep>
-          <dep name="python2-cryptography">
+          <dep name="python3-cryptography">
             <!-- native code pulled from paramiko. -->
             <lib>.*/(cryptography)/__init__.py</lib>
           </dep>
-          <dep name="python-setproctitle">
+          <dep name="python3-setproctitle">
             <lib>.*/(setproctitle.so)</lib>
           </dep>
-          <dep name="python2-psycopg2">
+          <dep name="python3-psycopg2">
             <!-- because we connect to postgresql and it is not automatically
                  pulled from Django. Contains C code -->
             <lib>.*/(psycopg2)/__init__.py</lib>
           </dep>
         </alternate>
       </alternates>
+    </repository>
+  </project>
+  <project name="djaodjin-answers">
+    <title>Question and answers app</title>
+    <description>
+      Django app to manage online question and answers forums.
+    </description>
+    <maintainer>
+      <personname>The DjaoDjin Team</personname>
+      <email>support@djaodjin.com</email>
+    </maintainer>
+    <repository>
+      <dep name="django-contrib-comments" target="python">
+        <lib>.*/(django_comments)/__init__.py</lib>
+      </dep>
+      <dep name="drop">
+        <bin>dws</bin>
+        <share>(dws)/prefix.mk</share>
+      </dep>
     </repository>
   </project>
   <project name="djaodjin-pages">
@@ -168,6 +178,25 @@
       </dep>
       <dep name="Markdown" target="python">
         <lib>.*/(markdown)/__init__.py</lib>
+      </dep>
+    </repository>
+  </project>
+  <project name="djaodjin-survey">
+    <title>Survey app</title>
+    <description>
+      Django app to manage online quizz/survey.
+    </description>
+    <maintainer>
+      <personname>The DjaoDjin Team</personname>
+      <email>support@djaodjin.com</email>
+    </maintainer>
+    <repository>
+      <dep name="django-extra-views" target="python">
+        <lib>.*/(extra_views)/__init__.py</lib>
+      </dep>
+      <dep name="drop">
+        <bin>dws</bin>
+        <share>(dws)/prefix.mk</share>
       </dep>
     </repository>
   </project>
