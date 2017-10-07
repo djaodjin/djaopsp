@@ -155,58 +155,34 @@ LOGGING = {
                 ' %(message)s "%(http_user_agent)s"',
             'datefmt': '%d/%b/%Y:%H:%M:%S %z'
         },
-        'syslog_format': {
-            'format':
-            'gunicorn.' + APP_NAME + '.app: [%(process)d] '\
-                '%(remote_addr)s %(username)s %(levelname)s [%(asctime)s]'\
-                ' %(message)s "%(http_user_agent)s"',
-            'datefmt': '%d/%b/%Y:%H:%M:%S %z'
-        },
     },
     'handlers': {
-        'db_logfile': {
+        'db_log': {
             'level': 'DEBUG',
             'formatter': 'simple',
             'filters': ['require_debug_true'],
-            'class':'logging.handlers.WatchedFileHandler',
-            'filename': '-'.join(os.path.splitext(LOG_FILE)[0].split(
-                '-')[:-1] + ['db']) + os.path.splitext(LOG_FILE)[1],
+            'class':'logging.StreamHandler'
         },
-        'json_logfile': {
+        'log': {
             'level': 'DEBUG',
             'formatter': 'json',
             'filters': ['request'],
-            'class':'logging.handlers.WatchedFileHandler',
-            'filename': '-'.join(os.path.splitext(LOG_FILE)[0].split(
-                '-')[:-1] + ['events']) + os.path.splitext(LOG_FILE)[1],
+            'class': 'logging.StreamHandler'
         },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'logfile': {
-            'level': 'DEBUG',
-            'formatter': 'request_format',
-            'filters': ['request'],
-            'class':'logging.handlers.WatchedFileHandler',
-            'filename': LOG_FILE
-        },
-        'syslog': {
-            'level': 'DEBUG',
-            'formatter': 'syslog_format',
-            'filters': ['request'],
-            'class':'logging.handlers.SysLogHandler',
-        }
     },
     'loggers': {
         'deployutils': {
-            'handlers': ['db_logfile'],
+            'handlers': ['db_log'],
             'level': 'INFO',
             'propagate': False
         },
 #        'django.db.backends': {
-#           'handlers': ['db_logfile'],
+#           'handlers': ['db_log'],
 #           'level': 'DEBUG',
 #           'propagate': False
 #        },
@@ -218,26 +194,24 @@ LOGGING = {
             'handlers': [],
             'level': 'ERROR',
         },
+        # If we don't remove handlers on django here,
+        # we get duplicate messages in the log.
+        'django': {
+            'handlers': [],
+        },
         # This is the root logger.
         # The level will only be taken into account if the record is not
         # propagated from a child logger.
         #https://docs.python.org/2/library/logging.html#logging.Logger.propagate
         '': {
-            'handlers': ['logfile', 'json_logfile', 'mail_admins'],
+            'handlers': ['log', 'mail_admins'],
             'level': 'INFO'
         },
     },
 }
 
 if DEBUG:
-    LOGGING['handlers'].update({
-        'logfile':{
-            'level':'DEBUG',
-            'formatter': 'request_format',
-            'filters': ['request'],
-            'class':'logging.StreamHandler',
-        }
-    })
+    LOGGING['handlers']['log'].update({'formatter': 'request_format'})
 
 
 # Language settings

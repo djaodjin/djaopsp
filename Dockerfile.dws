@@ -4,6 +4,7 @@ RUN %(native_prerequisites)s
 RUN dnf -y install python-virtualenv python-pip
 RUN /usr/bin/virtualenv --system-site-packages %(site_top)s
 RUN %(bin_dir)s/pip install pip setuptools --upgrade
+RUN %(bin_dir)s/pip install boto python-dateutil pytz requests jinja2
 
 # Bundle app source
 ADD ./bin %(bin_dir)s
@@ -12,7 +13,14 @@ ADD ./reps %(src_top)s
 ADD ./share %(share_dir)s
 ADD ./etc/%(app_name)s/gunicorn.conf %(etc_dir)s/%(app_name)s
 
+# Create user with matching host IDs (useful when we mount host directories)
+RUN /usr/sbin/groupadd --gid 1001 djaoapp
+RUN /usr/sbin/useradd --no-create-home --uid 1001 --gid 1001 djaoapp
+RUN mkdir -p %(site_top)s/var/run
+RUN chown djaoapp:djaoapp %(site_top)s/var/run
+
 # Run
+USER djaoapp
 Expose 8040
 WORKDIR %(src_top)s/%(app_name)s
 CMD ["%(bin_dir)s/gunicorn", "-c", "%(etc_dir)s/%(app_name)s/gunicorn.conf", "%(app_name)s.wsgi"]
