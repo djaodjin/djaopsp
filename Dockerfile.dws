@@ -1,7 +1,7 @@
 FROM fedora:25
 
 RUN %(native_prerequisites)s
-RUN dnf -y install python-virtualenv python-pip
+RUN dnf -y install python-virtualenv python-pip sudo
 RUN /usr/bin/virtualenv --system-site-packages %(site_top)s
 RUN %(bin_dir)s/pip install pip setuptools --upgrade
 RUN %(bin_dir)s/pip install boto python-dateutil pytz requests jinja2
