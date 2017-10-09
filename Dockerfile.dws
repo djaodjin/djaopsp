@@ -4,11 +4,14 @@ FROM fedora:25
 RUN %(native_prerequisites)s
 RUN dnf -y install python3-virtualenv python3-pip
 RUN /usr/bin/virtualenv-3 -p python3 --system-site-packages %(site_top)s
-ADD ./bin %(bin_dir)s
+# Note: we cannnot add ./bin here because hardcoded reference to ``python``
+# in ``pip`` script.
 ADD ./lib %(lib_dir)s
 ADD ./share %(share_dir)s
 RUN %(bin_dir)s/pip install pip setuptools gunicorn --upgrade --force-reinstall
 RUN %(bin_dir)s/pip install boto python-dateutil pytz requests jinja2==2.8.1 --upgrade
+RUN ln -s %(lib_dir)s/node_modules/casperjs/bin/casperjs %(bin_dir)s/casperjs
+
 
 # Bundle app source
 ADD ./reps %(src_top)s
