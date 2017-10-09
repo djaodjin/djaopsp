@@ -10,8 +10,9 @@ ADD ./lib %(lib_dir)s
 ADD ./share %(share_dir)s
 RUN %(bin_dir)s/pip install pip setuptools gunicorn --upgrade --force-reinstall
 RUN %(bin_dir)s/pip install boto python-dateutil pytz requests jinja2==2.8.1 --upgrade
-RUN ln -s %(lib_dir)s/node_modules/casperjs/bin/casperjs %(bin_dir)s/casperjs
-RUN sed -i -e 's,#!/usr/bin/env ,%(bin_dir)s/,' %(bin_dir)s/casperjs
+ADD ./bin/phantomjs %(bin_dir)s/phantomjs
+ADD ./bin/casperjs %(bin_dir)s/casperjs
+RUN sed -i -e 's,#!/usr/bin/env ,#!%(bin_dir)s/,' -e "s,'default_exec' : 'phantomjs','default_exec' : '%(bin_dir)s/phantomjs'," %(bin_dir)s/casperjs
 
 # Bundle app source
 ADD ./reps %(src_top)s
