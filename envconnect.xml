@@ -303,7 +303,9 @@ change.
     <repository>
       <sync>https://github.com/n1k0/casperjs.git@1.1.1</sync>
       <shell>
-ln -sf ${srcTop}/contrib/casperjs/bin/casperjs ${binDir}/casperjs
+cd ${srcTop}/contrib/casperjs
+npm install --cache ${installTop}/.npm --tmp ${installTop}/tmp --prefix ${installTop}/lib .
+ln -sf ../lib/node_modules/casperjs/bin/casperjs ${binDir}/casperjs
       </shell>
       <dep name="npm">
         <!-- XXX (Fedora 20, npm 1.3.6) will not install phantomjs correctly

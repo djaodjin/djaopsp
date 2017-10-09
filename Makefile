@@ -51,10 +51,10 @@ clean:
 package-theme: build-django-assets
 	cd $(srcDir) && DEBUG=0 FEATURES_REVERT_TO_DJANGO=0 \
 		$(MANAGE) package_theme \
-		--build_dir=$(objDir) --install_dir=data/themes \
+		--build_dir=$(objDir) --install_dir=htdocs/themes \
 		--exclude='_form.html' --exclude='.*/' \
 		--include='accounts/' --include='saas/' --include='notification/'
-	zip -d $(srcDir)/data/themes/envconnect.zip "envconnect/templates/accounts/base.html"
+	zip -d $(srcDir)/htdocs/themes/envconnect.zip "envconnect/templates/accounts/base.html"
 
 
 build-django-assets: clean

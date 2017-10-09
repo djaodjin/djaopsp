@@ -164,7 +164,9 @@ urlpatterns += [
             pattern_name='scorecard_organization_redirect',
             new_account_url='/%sapp/new/' % APP_PREFIX)),
 
-    # no authentication required
+    # URL to download theme to install on proxy.
+    url(r'^(?P<path>themes/.*)$', static_serve,
+        {'document_root': settings.HTDOCS}),
 
     # These URLs will be served by the djaodjin webapp.
     # XXX fix: remove envconnect prefix when themes are ready.

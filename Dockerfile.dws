@@ -2,22 +2,24 @@ FROM fedora:25
 
 # Install prerequisites
 RUN %(native_prerequisites)s
-RUN dnf -y install python-virtualenv python-pip
-RUN /usr/bin/virtualenv --system-site-packages %(site_top)s
+RUN dnf -y install python3-virtualenv python3-pip
+RUN /usr/bin/virtualenv-3 -p python3 --system-site-packages %(site_top)s
+ADD ./bin %(bin_dir)s
 ADD ./lib %(lib_dir)s
-RUN %(bin_dir)s/pip install pip setuptools --upgrade
+ADD ./share %(share_dir)s
+RUN %(bin_dir)s/pip install pip setuptools gunicorn --upgrade --force-reinstall
 RUN %(bin_dir)s/pip install boto python-dateutil pytz requests jinja2==2.8.1 --upgrade
 
 # Bundle app source
 ADD ./reps %(src_top)s
-ADD ./share %(share_dir)s
-ADD ./etc/%(app_name)s/gunicorn.conf %(etc_dir)s/%(app_name)s/gunicorn.conf
+RUN cd %(src_top)s/%(app_name)s && make install-conf installTop=%(site_top)s
 
 # Create user with matching host IDs (useful when we mount host directories)
 RUN /usr/sbin/groupadd --gid 1001 djaoapp
 RUN /usr/sbin/useradd --no-create-home --uid 1001 --gid 1001 djaoapp
 RUN mkdir -p %(site_top)s/var/run
-RUN chown djaoapp:djaoapp %(site_top)s/var/run
+RUN mkdir -p %(src_top)s/envconnect/htdocs/media
+RUN chown djaoapp:djaoapp %(site_top)s/var/run %(src_top)s/envconnect/htdocs/media
 
 # Run
 USER djaoapp
