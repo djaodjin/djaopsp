@@ -20,9 +20,8 @@ RUN cd %(src_top)s/%(app_name)s && make install-conf installTop=%(site_top)s
 # Create user with matching host IDs (useful when we mount host directories)
 RUN /usr/sbin/groupadd --gid 1001 djaoapp
 RUN /usr/sbin/useradd --no-create-home --uid 1001 --gid 1001 djaoapp
-RUN mkdir -p %(site_top)s/var/run
-RUN mkdir -p %(src_top)s/envconnect/htdocs/media
-RUN chown djaoapp:djaoapp %(site_top)s/var/run %(src_top)s/envconnect/htdocs/media
+RUN mkdir -p %(site_top)s/var/run %(src_top)s/envconnect/htdocs/static/.webassets-cache %(src_top)s/envconnect/htdocs/media
+RUN chown djaoapp:djaoapp %(site_top)s/var/run %(src_top)s/envconnect/htdocs/static/.webassets-cache %(src_top)s/envconnect/htdocs/media
 
 # Run
 USER djaoapp
