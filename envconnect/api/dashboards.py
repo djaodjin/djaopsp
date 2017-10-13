@@ -8,17 +8,97 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import Http404
 from django.utils import six
+from rest_framework import generics
 from rest_framework.response import Response
 from survey.api.matrix import MatrixDetailAPIView
 from survey.models import EditableFilter
 from survey.utils import get_account_model
 
 from .benchmark import BenchmarkMixin
+from ..mixins import PermissionMixin
+from ..serializers import AccountSerializer
+
 
 LOGGER = logging.getLogger(__name__)
 
 
-class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
+class DashboardMixin(BenchmarkMixin):
+
+    account_model = get_account_model()
+
+    def get_requested_accounts(self):
+        results = self.account_model.objects.filter(
+            slug__in=self.accessibles())
+        return results
+
+    def get_accounts(self):
+        queryset = super(DashboardMixin, self).get_accounts().filter(
+        # WHERE user = request.user
+        #     AND (request_key IS NULL
+        #          OR (request_key IS NOT NULL AND grant_key IS NOT NULL))
+            Q(role__request_key__isnull=True)
+            | (Q(role__request_key__isnull=False)
+               & Q(role__grant_key__isnull=False)),
+            role__user=self.request.user)
+        return queryset
+
+
+
+class SupplierListAPIView(DashboardMixin, generics.ListAPIView):
+    """
+    List of suppliers accessible by the request user
+    with normalized (total) score when the supplier completed
+    a self-assessment.
+
+    GET /api/:organization/suppliers
+
+    Example Response:
+
+        {
+          "count":1,
+          "next":null
+          "previous":null,
+          "results":[{
+             "slug":"andy-shop",
+             "printable_name":"Andy's Shop",
+             "created_at": "2017-01-01",
+             "normalized_score":94
+          }]
+        }
+    """
+
+    serializer_class = AccountSerializer
+
+    def get_queryset(self):
+        results = []
+        rollup_tree = self.rollup_scores()
+        account_scores = rollup_tree[0]['accounts']
+        for account in self.get_requested_accounts():
+            try:
+                score = account_scores.get(account.pk, None)
+                dct = {'slug': account.slug,
+                    'printable_name': account.printable_name}
+                if score is not None:
+                    created_at = score.get('created_at', None)
+                    if created_at:
+                        dct.update({'last_activity_at': created_at})
+                    nb_answers = score.get('nb_answers', 0)
+                    nb_questions = score.get('nb_questions', 0)
+                    dct.update({
+                        'nb_answers': nb_answers, 'nb_questions': nb_questions})
+                    if nb_answers == nb_questions:
+                        normalized_score = score.get('normalized_score', None)
+                    else:
+                        normalized_score = None
+                    if normalized_score is not None:
+                        dct.update({'normalized_score': normalized_score})
+                results += [dct]
+            except self.account_model.DoesNotExist:
+                pass
+        return results
+
+
+class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
     """
     A table of scores for cohorts aganist a metric.
 
@@ -51,18 +131,6 @@ class TotalScoreBySubsectorAPIView(BenchmarkMixin, MatrixDetailAPIView):
         if look:
             return look.group(1)
         return cohort_slug
-
-    def get_accounts(self):
-        queryset = super(
-            TotalScoreBySubsectorAPIView, self).get_accounts().filter(
-        # WHERE user = request.user
-        #     AND (request_key IS NULL
-        #          OR (request_key IS NOT NULL AND grant_key IS NOT NULL))
-            Q(role__request_key__isnull=True)
-            | (Q(role__request_key__isnull=False)
-               & Q(role__grant_key__isnull=False)),
-            role__user=self.request.user)
-        return queryset
 
     def aggregate_scores(self, metric, cohorts, cut=None, accounts=None):
         #pylint:disable=unused-argument

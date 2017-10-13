@@ -1091,10 +1091,10 @@ envconnectControllers.controller("itemsListCtrl",
         return (typeof entry.normalized_score !== 'undefined');
     };
 
-    $scope.refresh = function() {
-        $http.get(settings.urls.api_items,
-            {params: $scope.params}).then(
-            function(resp) {
+    $scope.refreshSuppliers = function() {
+        $http.get(settings.urls.api_suppliers,
+            {params: $scope.params}).then(function(resp) { // success
+            if( !($scope.items && $scope.items.$resolved) ) {
                 // We cannot watch items.count otherwise things start
                 // to snowball. We must update totalItems only when it truly
                 // changed.
@@ -1108,39 +1108,61 @@ envconnectControllers.controller("itemsListCtrl",
                     }
                 }
                 $scope.items.$resolved = true;
-                $http.get(settings.urls.api_suppliers,
-                    {params: $scope.params}).then(
-                    function(resp) {
-                        for( var idx = 0; idx < $scope.items.results.length; ++idx ) {
-                            var found = null;
-                            for( var supIdx = 0; supIdx < resp.data.count; ++supIdx ) {
-                                if( $scope.items.results[idx].organization.slug
-                                    === resp.data.results[supIdx].slug ) {
-                                    found = resp.data.results[supIdx];
-                                }
-                            }
-                            $scope.items.results[idx].$resolved = true;
-                            if( found !== null ) {
-                                $scope.items.results[idx].last_activity_at
-                                    = found.last_activity_at;
-                                $scope.items.results[idx].normalized_score
-                                    = found.normalized_score;
-                                $scope.items.results[idx].nb_answers
-                                    = found.nb_answers;
-                                $scope.items.results[idx].nb_questions
-                                    = found.nb_questions;
-                            }
-                        }
-                   }, function(resp) { // error
-                        $scope.items = {};
-                        $scope.items.$resolved = false;
-                        showErrorMessages(resp);
-                    });
+            }
+            for( var idx = 0; idx < $scope.items.results.length; ++idx ) {
+                var found = null;
+                for( var supIdx = 0; supIdx < resp.data.count; ++supIdx ) {
+                    if( $scope.items.results[idx].slug
+                        === resp.data.results[supIdx].slug ) {
+                        found = resp.data.results[supIdx];
+                    }
+                }
+                $scope.items.results[idx].$resolved = true;
+                if( found !== null ) {
+                    $scope.items.results[idx].last_activity_at
+                        = found.last_activity_at;
+                    $scope.items.results[idx].normalized_score
+                        = found.normalized_score;
+                    $scope.items.results[idx].nb_answers
+                        = found.nb_answers;
+                    $scope.items.results[idx].nb_questions
+                        = found.nb_questions;
+                }
+            }
+        }, function(resp) { // error
+            $scope.items = {};
+            $scope.items.$resolved = false;
+            showErrorMessages(resp);
+        });
+    };
+
+    $scope.refresh = function() {
+        if( settings.urls.api_items ) {
+            $http.get(settings.urls.api_items,
+                      {params: $scope.params}).then(function(resp) {
+                // We cannot watch items.count otherwise things start
+                // to snowball. We must update totalItems only when it truly
+                // changed.
+                if( resp.data.count != $scope.totalItems ) {
+                    $scope.totalItems = resp.data.count;
+                }
+                $scope.items = resp.data;
+                for( var idx = 0; idx < $scope.items.results.length; ++idx ) {
+                    if( $scope.items.results[idx].request_key ) {
+                        $scope.items.results[idx].$resolved = true;
+                    }
+                }
+                $scope.items.$resolved = true;
+                $scope.refreshSuppliers();
+
             }, function(resp) { // error
                 $scope.items = {};
                 $scope.items.$resolved = false;
                 showErrorMessages(resp);
             });
+        } else {
+            $scope.refreshSuppliers();
+        }
     };
 
     if( settings.autoload ) {
@@ -1206,8 +1228,7 @@ envconnectControllers.controller("relationListCtrl",
 
     $scope.remove = function ($event, idx) {
         $event.preventDefault();
-        var removeUrl = settings.urls.api_items
-            + $scope.items.results[idx].organization.slug;
+        var removeUrl = settings.urls.api_items + $scope.items.results[idx].slug;
         if( $scope.items.results[idx].role_description ) {
             removeUrl += '/' + $scope.items.results[idx].role_description
         }

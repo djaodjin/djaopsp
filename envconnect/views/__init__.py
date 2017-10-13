@@ -42,7 +42,7 @@ class MyTSPRedirectView(AccountRedirectView):
         if not candidates:
             return self.response_class(
                 request=self.request,
-                template='envconnect/share/requests_locked.html',
+                template='envconnect/reporting/locked.html',
                 context={'request': self.request},
                 using=self.template_engine,
                 content_type=self.content_type)

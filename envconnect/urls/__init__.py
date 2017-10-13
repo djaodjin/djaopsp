@@ -6,8 +6,7 @@ from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as static_serve
 from urldecorators import include, url
 
-from ..api.dashboards import TotalScoreBySubsectorAPIView
-from ..api.suppliers import SupplierListAPIView
+from ..api.dashboards import SupplierListAPIView, TotalScoreBySubsectorAPIView
 from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
     url_direct)
 from ..views import AccountRedirectView, MyTSPRedirectView
@@ -58,8 +57,6 @@ urlpatterns += [
 
     # User authenticated
     url_authenticated(r'api/suppliers/', include('answers.urls.api')),
-    url_authenticated(r'api/suppliers/?',
-      SupplierListAPIView.as_view(), name="api_suppliers"),
 
     # envconnect manager
     url_direct(r'api/content/', include('envconnect.urls.api.content')),
@@ -67,6 +64,8 @@ urlpatterns += [
     url_direct(r'api/', include('pages.urls.api.elements')),
 
     # direct manager of :organization
+    url_direct(r'api/(?P<organization>%s)/suppliers/?' % SLUG_RE,
+      SupplierListAPIView.as_view(), name="api_suppliers"),
     url_direct(r'api/(?P<organization>%s)/' % SLUG_RE,
         include('envconnect.urls.api.suppliers')),
     url_direct(r'api/(?P<organization>%s)/matrix/(?P<path>%s)/?$' % (
