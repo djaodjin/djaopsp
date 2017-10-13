@@ -101,7 +101,6 @@ vendor-assets-prerequisites: $(srcDir)/package.json
 	$(installFiles) node_modules/bootbox/bootbox.js $(ASSETS_DIR)/vendor
 	$(installFiles) node_modules/bootstrap/dist/js/bootstrap.js $(ASSETS_DIR)/vendor
 	$(installFiles) node_modules/bootstrap-toggle/js/bootstrap-toggle.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/bootstrap-toggle/css/bootstrap-toggle.css $(ASSETS_DIR)/vendor
 	$(installFiles) node_modules/c3/c3.js $(ASSETS_DIR)/vendor
 	$(installFiles) node_modules/c3/c3.css $(ASSETS_DIR)/vendor
 	$(installFiles) node_modules/d3/d3.js $(ASSETS_DIR)/vendor

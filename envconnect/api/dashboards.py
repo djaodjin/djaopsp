@@ -27,21 +27,14 @@ class DashboardMixin(BenchmarkMixin):
     account_model = get_account_model()
 
     def get_requested_accounts(self):
-        results = self.account_model.objects.filter(
-            slug__in=self.accessibles())
-        return results
+
+        return (self.get_accounts() | self.account_model.objects.accessible_by(
+            self.request.user).filter(
+                role__request_key__isnull=False)).distinct()
 
     def get_accounts(self):
-        queryset = super(DashboardMixin, self).get_accounts().filter(
-        # WHERE user = request.user
-        #     AND (request_key IS NULL
-        #          OR (request_key IS NOT NULL AND grant_key IS NOT NULL))
-            Q(role__request_key__isnull=True)
-            | (Q(role__request_key__isnull=False)
-               & Q(role__grant_key__isnull=False)),
-            role__user=self.request.user)
-        return queryset
-
+        return self.account_model.objects.filter(
+            subscriptions__organization=self.account).distinct()
 
 
 class SupplierListAPIView(DashboardMixin, generics.ListAPIView):
