@@ -5,7 +5,6 @@ import logging, re
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.http import Http404
 from django.utils import six
 from rest_framework import generics
@@ -15,7 +14,6 @@ from survey.models import EditableFilter
 from survey.utils import get_account_model
 
 from .benchmark import BenchmarkMixin
-from ..mixins import PermissionMixin
 from ..serializers import AccountSerializer
 
 

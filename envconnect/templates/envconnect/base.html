@@ -297,8 +297,9 @@ app.constant('settings', {
     valueSummaryToggle: true,
     scoreToggle: {% if score_toggle %}true{% else %}false{% endif %},
 {% if sort_by %}
-    sortBy:{{sort_by|safe}}
+    sortBy:{{sort_by|safe}},
 {% endif %}
+    itemsPerPage: {% if items_per_page %}{{items_per_page}}{% else %}25{% endif %},
 });
 
 jQuery(document).ready(function($) {

@@ -4,10 +4,12 @@
 import logging
 
 from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from deployutils.apps.django.mixins import AccessiblesMixin
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
+from survey.models import Matrix
 
 from ..mixins import AccountMixin
 
@@ -22,8 +24,10 @@ class ReportingEntitiesView(AccountMixin, AccessiblesMixin, TemplateView):
         context = super(ReportingEntitiesView, self).get_context_data(**kwargs)
         accounts = self.managed_accounts
         if len(accounts) == 1:
+            totals = get_object_or_404(
+                Matrix, account__slug=accounts[0], metric__slug='totals')
             totals_chart_url = reverse('matrix_chart',
-                args=(accounts[0], '/totals'))
+                args=(accounts[0], '/%s' % totals.slug))
         else:
             totals_chart_url = reverse('envconnect_portfolio',
                 args=('/totals',))

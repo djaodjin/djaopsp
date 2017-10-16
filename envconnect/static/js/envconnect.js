@@ -980,8 +980,8 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.updateImprovement();
 }]);
 
-// XXX copy/pasted from djaodjin-saas-angular.js
-
+// XXX originally copy/pasted from djaodjin-saas-angular.js but there
+// has been significant changes now.
 envconnectControllers.controller("itemsListCtrl",
     ["$scope", "$http", "$timeout", "settings",
      function($scope, $http, $timeout, settings) {
@@ -1069,6 +1069,7 @@ envconnectControllers.controller("itemsListCtrl",
         } else {
             delete $scope.params.page;
         }
+        $scope.items.$resolved = false;
     };
 
     $scope.sortBy = function(fieldName) {
@@ -1111,7 +1112,7 @@ envconnectControllers.controller("itemsListCtrl",
             }
             for( var idx = 0; idx < $scope.items.results.length; ++idx ) {
                 var found = null;
-                for( var supIdx = 0; supIdx < resp.data.count; ++supIdx ) {
+                for( var supIdx = 0; supIdx < resp.data.length; ++supIdx ) {
                     if( $scope.items.results[idx].slug
                         === resp.data.results[supIdx].slug ) {
                         found = resp.data.results[supIdx];
