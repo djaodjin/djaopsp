@@ -278,6 +278,7 @@ class ImprovementManager(models.Manager):
 class Improvement(models.Model):
 
     objects = ImprovementManager()
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
     account = models.ForeignKey(settings.ACCOUNT_MODEL)
     consumption = models.ForeignKey(Consumption, on_delete=models.CASCADE)
 
