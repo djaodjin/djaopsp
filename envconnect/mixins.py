@@ -33,6 +33,8 @@ class AccountMixin(deployutils_mixins.AccountMixin):
 
 class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 
+    redirect_roles = ['manager', 'contributor']
+
     @staticmethod
     def get_roots():
         return PageElement.objects.get_roots().filter(tag__contains='industry')

@@ -77,7 +77,7 @@ class SupplierListAPIView(DashboardMixin, generics.ListAPIView):
                     nb_questions = score.get('nb_questions', 0)
                     dct.update({
                         'nb_answers': nb_answers, 'nb_questions': nb_questions})
-                    if nb_answers == nb_questions:
+                    if nb_answers == nb_questions and nb_questions != 0:
                         normalized_score = score.get('normalized_score', None)
                     else:
                         normalized_score = None
@@ -155,7 +155,10 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
             scores.update({str(cohort): score})
         return scores
 
-    def get_likely_metric(self, cohort_slug):
+    def get_likely_metric(self, cohort_slug, default=None):
+        #pylint:disable=arguments-differ
+        if not default and self.matrix is not None:
+            default = self.matrix.slug
         likely_metric = None
         look = re.match(r"(\S+)(-\d+)$", cohort_slug)
         if look:
@@ -164,9 +167,9 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
                     EditableFilter.objects.get(slug=look.group(1)).slug,))
             except EditableFilter.DoesNotExist:
                 pass
-        if likely_metric is None and self.matrix is not None:
+        if likely_metric is None:
             likely_metric = reverse('scorecard_organization',
-                args=(cohort_slug, "/sustainability-%s" % self.matrix.slug))
+                args=(cohort_slug, "/sustainability-%s" % default))
         if likely_metric:
             likely_metric = self.request.build_absolute_uri(likely_metric)
         return likely_metric
@@ -177,7 +180,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
                 for account in self.get_accounts()])
         score = {}
         cohorts = []
-        for _, values in six.iteritems(rollup_tree[1]):
+        for key, values in six.iteritems(rollup_tree[1]):
             self.decorate_with_scores(values, accounts=accounts)
             for account_id, account_score in six.iteritems(
                     values[0].get('accounts', {})):
@@ -186,11 +189,13 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
                     if n_score > 0:
                         account = accounts.get(account_id, None)
                         score[account.slug] = n_score
+                        parts = key.split('/')
+                        default = parts[1] if len(parts) > 1 else None
                         cohorts += [{
                             'slug': account.slug,
                             'title': account.full_name,
                             'likely_metric': self.get_likely_metric(
-                                account.slug)}]
+                                account.slug, default=default)}]
         rollup_tree[0]['values'] = score
         rollup_tree[0]['cohorts'] = cohorts
 

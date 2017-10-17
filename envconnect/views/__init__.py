@@ -6,6 +6,8 @@ import logging
 from django import http
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_prefixed)
 from deployutils.apps.django.redirects import (
     AccountRedirectView as AccountRedirectBaseView)
 from survey.models import Matrix
@@ -27,10 +29,10 @@ class AccountRedirectView(ReportMixin, AccountRedirectBaseView):
         return super(AccountRedirectView, self).get_redirect_roles(request)
 
     def get(self, request, *args, **kwargs):
-        if self.manages(settings.APP_NAME):
-            kwargs.update({self.slug_url_kwarg: settings.APP_NAME})
-            return http.HttpResponseRedirect(
-                self.get_redirect_url(*args, **kwargs))
+        if (request.path in [site_prefixed('/app'), site_prefixed('/app/')]
+            and self.manages(settings.APP_NAME)):
+            return http.HttpResponseRedirect(reverse(
+                'homepage_organization', args=(settings.APP_NAME,)))
         return super(AccountRedirectView, self).get(request, *args, **kwargs)
 
 

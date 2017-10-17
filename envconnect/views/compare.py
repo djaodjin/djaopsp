@@ -6,17 +6,16 @@ import logging
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
-from deployutils.apps.django.mixins import AccessiblesMixin
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 from survey.models import Matrix
 
-from ..mixins import AccountMixin
+from ..mixins import AccountMixin, PermissionMixin
 
 LOGGER = logging.getLogger(__name__)
 
 
-class ReportingEntitiesView(AccountMixin, AccessiblesMixin, TemplateView):
+class ReportingEntitiesView(AccountMixin, PermissionMixin, TemplateView):
 
     template_name = 'envconnect/reporting/index.html'
 

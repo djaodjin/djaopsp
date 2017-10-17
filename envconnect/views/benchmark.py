@@ -363,7 +363,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         else:
             # totals
             charts = []
-            for cohort in self.object.cohorts.all():
+            for cohort in self.object.cohorts.all().order_by('title'):
                 candidate = cohort.slug
                 look = re.match(r"(\S+)(-\d+)$", candidate)
                 if look:

@@ -4,12 +4,11 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import json, logging
+import datetime, json, logging
 
 from django.conf import settings
 from django.db import connection
 from django.utils import six
-from deployutils.helpers import datetime_or_now
 from pages.mixins import TrailMixin
 from rest_framework import generics
 from rest_framework.response import Response as RestResponse
@@ -64,8 +63,8 @@ class BenchmarkMixin(ReportMixin):
     NUMERATOR = 4
     DENOMINATOR = 5
     QUESTION_PATH = 6
-    ANSWER_TEXT = 7
-    ANSWER_CREATED_AT = 8
+    ANSWER_CREATED_AT = 7
+    ANSWER_TEXT = 8
 
     @staticmethod
     def _show_query_and_result(raw_query, show=False):
@@ -326,14 +325,15 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
         # NUMERATOR = 4
         # DENOMINATOR = 5
         # QUESTION_PATH = 6
-        # ANSWER_TEXT = 7
+        # ANSWER_CREATED_AT = 7
         scored_improvements = "SELECT expected_opportunities.account_id,"\
             " envconnect_improvement.id AS answer_id,"\
             " expected_opportunities.response_id,"\
             " expected_opportunities.question_id,"\
             " (opportunity * 3) AS numerator,"\
             " (opportunity * 3) AS denominator,"\
-            " expected_opportunities.path AS path"\
+            " expected_opportunities.path AS path,"\
+            " now() AS created_at"\
             " FROM (%(expected_opportunities)s) AS expected_opportunities"\
             " INNER JOIN envconnect_improvement "\
             " ON envconnect_improvement.consumption_id"\
@@ -353,8 +353,8 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
         # NUMERATOR = 4
         # DENOMINATOR = 5
         # QUESTION_PATH = 6
-        # ANSWER_TEXT = 7
-        # ANSWER_CREATED_AT = 8
+        # ANSWER_CREATED_AT = 7
+        # ANSWER_TEXT = 8
         scored_answers = "SELECT expected_opportunities.account_id,"\
             " survey_answer.id AS answer_id,"\
             " expected_opportunities.response_id,"\
@@ -366,7 +366,8 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
           " CASE WHEN text IN"\
             " (%(yes_no)s) THEN (opportunity * 3) ELSE 0.0 END AS denominator,"\
             " expected_opportunities.path AS path,"\
-            " survey_answer.text, survey_answer.created_at"\
+            " survey_answer.created_at,"\
+            " survey_answer.text"\
             " FROM (%(expected_opportunities)s) AS expected_opportunities"\
             " LEFT OUTER JOIN survey_answer ON survey_answer.question_id"\
             " = expected_opportunities.question_id"\
@@ -395,7 +396,8 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
     COUNT(answer_id) AS nb_answers,
     COUNT(*) AS nb_questions,
     SUM(numerator) AS numerator,
-    SUM(denominator) AS denominator
+    SUM(denominator) AS denominator,
+    MAX(created_at) AS last_activity_at
 FROM (%(answers)s) AS answers
 WHERE path LIKE '%(prefix)s%%'
 GROUP BY account_id, response_id;""" % {'answers': answers, 'prefix': prefix}
@@ -409,7 +411,7 @@ GROUP BY account_id, response_id;""" % {'answers': answers, 'prefix': prefix}
                     nb_questions = agg_score[3]
                     numerator = agg_score[4]
                     denominator = agg_score[5]
-                    created_at = datetime_or_now() # XXX agg_score[6]
+                    created_at = agg_score[6]
                     if not 'accounts' in values:
                         values['accounts'] = {}
                     accounts = values['accounts']
@@ -465,9 +467,12 @@ GROUP BY account_id, response_id;""" % {'answers': answers, 'prefix': prefix}
                     agg_scores['nb_questions'] = 0
 
                 if 'created_at' in scores:
-                    if not 'created_at' in agg_scores:
+                    if not ('created_at' in agg_scores and isinstance(
+                            agg_scores['created_at'], datetime.datetime)):
                         agg_scores['created_at'] = scores['created_at']
-                    else:
+                    elif (isinstance(
+                            agg_scores['created_at'], datetime.datetime) and
+                          isinstance(scores['created_at'], datetime.datetime)):
                         agg_scores['created_at'] = max(
                             agg_scores['created_at'], scores['created_at'])
                 nb_answers = scores['nb_answers']
