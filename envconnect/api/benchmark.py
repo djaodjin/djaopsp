@@ -333,7 +333,7 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
             " (opportunity * 3) AS numerator,"\
             " (opportunity * 3) AS denominator,"\
             " expected_opportunities.path AS path,"\
-            " now() AS created_at"\
+            " NULL AS created_at"\
             " FROM (%(expected_opportunities)s) AS expected_opportunities"\
             " INNER JOIN envconnect_improvement "\
             " ON envconnect_improvement.consumption_id"\
