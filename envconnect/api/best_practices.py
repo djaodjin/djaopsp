@@ -47,7 +47,7 @@ class ToggleTagContentAPIView(TrailMixin, UpdateAPIView):
             pass
         if 'tags' not in extra:
             if self.added_tag:
-                extra.update({'tags': self.added_tag})
+                extra.update({'tags': [self.added_tag]})
         else:
             if self.removed_tag and self.removed_tag in extra['tags']:
                 extra['tags'].remove(self.removed_tag)
