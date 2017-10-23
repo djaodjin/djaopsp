@@ -55,7 +55,7 @@ class Command(BaseCommand):
 
     def populate_answers(self, organization, industry):
         sample, _ = Response.objects.get_or_create(
-            account=organization, survey=self.survey)
+            survey=self.survey, account=organization)
         for consumption in Consumption.objects.filter(
                 path__startswith="/%s/" % industry.slug):
             Answer.objects.create(

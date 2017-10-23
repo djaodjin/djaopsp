@@ -1438,7 +1438,7 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                     elemPath = "#" + data[idx].slug + "-score .rollup-weight";
                     benchmarkElement = self.element.find(elemPath);
                     if( benchmarkElement ) {
-                        benchmarkElement.text(data[idx].score_weight.toFixed(1));
+                        benchmarkElement.text(data[idx].score_weight.toFixed(2));
                     }
                 }
             }

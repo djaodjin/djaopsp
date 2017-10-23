@@ -3,7 +3,7 @@
 
 """Command to migrate the envconnect production database"""
 
-import json, re
+import re
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -15,8 +15,7 @@ from survey.models import (Answer, Question, Response, SurveyModel,
     EditablePredicate)
 
 from ...mixins import BreadcrumbMixin
-from ...models import Improvement, Consumption, ColumnHeader, ScoreWeight
-from ...api.best_practices import DecimalEncoder
+from ...models import Improvement, Consumption, ColumnHeader
 
 
 class Command(BaseCommand):
@@ -38,33 +37,23 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.tag_as_json()
+            self.migrate_improvements()
+#            self.tag_as_json()
 #            self.dump_sql_statements(options.get('paths'))
 #            self.relabel_to_fix_error()
 #            self.recompute_avg_value()
 
-    def tag_as_json(self):
-        for element in PageElement.objects.all():
-            if element.tag:
-                element.tag = json.dumps({'tags': element.tag.split(',')})
-                element.save()
-        for score_weight in ScoreWeight.objects.all():
-            if score_weight.weight != 1.0:
-                last_path_element = score_weight.path.split('/')[-1]
-                try:
-                    element = PageElement.objects.get(slug=last_path_element)
-                    extra = {}
-                    try:
-                        extra = json.loads(element.tag)
-                    except (TypeError, ValueError):
-                        pass
-                    extra.update({'weight': score_weight.weight})
-                    element.tag = json.dumps(extra, cls=DecimalEncoder)
-                    element.save()
-                except PageElement.DoesNotExist:
-                    self.stderr.write("warning: cannot find '%s' while trying"\
-                        " to set score weight to %s" % (last_path_element,
-                        score_weight.weight))
+    @staticmethod
+    def migrate_improvements():
+        survey = SurveyModel.objects.get(title='Best Practices Report')
+        with transaction.atomic():
+            for improve in Improvement.objects.all():
+                improvement_sample, _ = Response.objects.get_or_create(
+                    extra='is_planned', survey=survey, account=improve.account)
+                Answer.objects.get_or_create(
+                    response=improvement_sample,
+                    rank=improve.consumption.question.rank,
+                    question=improve.consumption.question)
 
     def _slugify(self, slug):
         if slug == 'sustainability-office-space-only':
@@ -249,9 +238,6 @@ class Command(BaseCommand):
         for colheader in ColumnHeader.objects.all():
             self.rename_path(colheader)
 
-        for weight in ScoreWeight.objects.all():
-            self.rename_path(weight)
-
         for predicate in EditablePredicate.objects.all():
             self.rename_operand(predicate)
 
@@ -331,7 +317,8 @@ class Command(BaseCommand):
                         "Deleting answer.\n" % consumption_pk)
                     answer.delete()
 
-            for response in Response.objects.filter(survey__title=report_title):
+            for response in Response.objects.filter(
+                    extra__isnull=True, survey__title=report_title):
                 response.survey = survey
                 response.save()
             Improvement.objects.all().delete()

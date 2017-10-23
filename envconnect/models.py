@@ -57,31 +57,6 @@ class ColumnHeader(models.Model):
         return str(self.slug)
 
 
-class ScoreWeightManager(models.Manager):
-
-    def from_path(self, path):
-        score_weight_obj = self.filter(path=path).first()
-        if score_weight_obj is not None:
-            score_weight = float(score_weight_obj.weight)
-        else:
-            score_weight = 1.0
-        return score_weight
-
-
-@python_2_unicode_compatible
-class ScoreWeight(models.Model):
-    """
-    We aggregate weighted scores when walking up the tree.
-    """
-    objects = ScoreWeightManager()
-
-    path = models.CharField(max_length=255)
-    weight = models.DecimalField(decimal_places=2, max_digits=3, default=1)
-
-    def __str__(self):
-        return str(self.path)
-
-
 class ConsumptionQuerySet(models.QuerySet):
 
     @staticmethod
@@ -268,16 +243,9 @@ class Consumption(SurveyQuestion):
         return self.question_type == self.INTEGER
 
 
-class ImprovementManager(models.Manager):
-
-    def get_cart_item(self, account):
-        return self.filter(account=account)
-
-
 @python_2_unicode_compatible
 class Improvement(models.Model):
 
-    objects = ImprovementManager()
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     account = models.ForeignKey(settings.ACCOUNT_MODEL)
     consumption = models.ForeignKey(Consumption, on_delete=models.CASCADE)

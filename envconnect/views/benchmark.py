@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.contrib import messages
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
@@ -23,7 +24,7 @@ from survey.models import Matrix
 from survey.views.matrix import MatrixDetailView
 
 from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
-from ..mixins import ReportMixin
+from ..mixins import ReportMixin, TransparentCut
 from ..models import Consumption
 
 
@@ -108,14 +109,15 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
-            root = self._build_tree(trail[-1][0], from_root, cut=None)
+            root = self._build_tree(trail[-1][0], from_root,
+                cut=TransparentCut())
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             self.decorate_with_breadcrumbs(root)
             charts = self.get_charts(root)
             context.update({
                 'charts': charts,
-                'root': self._cut_tree(root),
+                'root': root,
                 'entries': json.dumps(root, cls=JSONEncoder),
                 # XXX move to urls when we are sure how it interacts
                 # with envconnect/base.html
@@ -214,7 +216,8 @@ class ScoreCardDownloadView(BenchmarkAPIView):
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
-            root = self._build_tree(trail[-1][0], from_root, cut=None)
+            root = self._build_tree(trail[-1][0], from_root,
+                    cut=TransparentCut())
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             charts = self.get_printable_charts()
@@ -239,7 +242,7 @@ class ScoreCardDownloadView(BenchmarkAPIView):
                 'charts': [chart
                     for chart in charts if chart['slug'] != 'totals'],
                 'breadcrumbs': trail,
-                'root': self._cut_tree(root),
+                'root': root,
                 'at_time': datetime_or_now()
             })
         return context
@@ -336,7 +339,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         return get_object_or_404(queryset, slug=candidate)
 
     def get_context_data(self, *args, **kwargs):
-        #pylint:disable=too-many-locals
+        #pylint:disable=too-many-locals,too-many-statements
         candidate = self.kwargs.get(self.matrix_url_kwarg)
         if candidate.startswith("/"):
             candidate = candidate[1:]
@@ -363,7 +366,29 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         else:
             # totals
             charts = []
-            for cohort in self.object.cohorts.all().order_by('title'):
+            industries = set([])
+            for extra in self.account_queryset.filter(
+                    subscription__plan__slug='%s-report' % self.account).values(
+                        'extra'):
+                try:
+                    extra = extra.get('extra')
+                    if extra:
+                        extra = json.loads(extra.replace("'", '"'))
+                        industries |= set([extra.get('industry')])
+                except (IndexError, TypeError, ValueError) as _:
+                    pass
+            flt = None
+            for industry in industries:
+                if flt is None:
+                    flt = Q(slug__startswith=industry)
+                else:
+                    flt |= Q(slug__startswith=industry)
+            if True: #pylint:disable=using-constant-test
+                # XXX `flt is None:` not matching the totals columns
+                queryset = self.object.cohorts.all()
+            else:
+                queryset = self.object.cohorts.filter(flt)
+            for cohort in queryset.order_by('title'):
                 candidate = cohort.slug
                 look = re.match(r"(\S+)(-\d+)$", candidate)
                 if look:

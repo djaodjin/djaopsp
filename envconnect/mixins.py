@@ -8,17 +8,17 @@ from datetime import datetime, timedelta
 import monotonic
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db import connections
+from django.db import connections, transaction
 from django.db.models import Sum
 from django.http import Http404
 from django.utils import six
 from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
-from survey.models import Response
+from survey.models import Answer, Response, SurveyModel
 from survey.utils import get_account_model
 
-from .models import Consumption, Improvement, get_score_weight
+from .models import Consumption, get_score_weight
 from .serializers import ConsumptionSerializer
 
 LOGGER = logging.getLogger(__name__)
@@ -56,19 +56,47 @@ class ContentCut(object):
     def __init__(self, depth=1):
         self.depth = depth
 
-    def enter(self, root):
+    def enter(self, tag):
         depth = self.depth
         self.depth = self.depth + 1
-        if isinstance(root, PageElement):
-            tag = root.tag
-        else:
-            tag = root.get('tag', root.get('dest_element__tag'))
         return not (depth > 1 and tag and BreadcrumbMixin.TAG_SYSTEM in tag)
 
     def leave(self, attrs, subtrees):
         #pylint:disable=unused-argument
         self.depth = self.depth - 1
         return True
+
+
+class TransparentCut(object):
+
+    def __init__(self, depth=1):
+        self.depth = depth
+
+    def enter(self, tag):
+        #pylint:disable=unused-argument
+        self.depth = self.depth + 1
+        return True
+
+    def leave(self, attrs, subtrees):
+        self.depth = self.depth - 1
+        # `transparent_to_rollover` is meant to speed up computations
+        # when the resulting calculations won't matter to the display.
+        # We used to compute decide `transparent_to_rollover` before
+        # the recursive call (see commit c421ca5) but it would not
+        # catch the elements tagged deep in the tree with no chained
+        # presentation.
+        tag = attrs.get('tag', "")
+        attrs['transparent_to_rollover'] = not (
+            tag and settings.TAG_SCORECARD in tag)
+        for subtree in six.itervalues(subtrees):
+            tag = subtree[0].get('tag', "")
+            if tag and settings.TAG_SCORECARD in tag:
+                attrs['transparent_to_rollover'] = False
+                break
+            if not subtree[0].get('transparent_to_rollover', True):
+                attrs['transparent_to_rollover'] = False
+                break
+        return not attrs['transparent_to_rollover']
 
 
 class BreadcrumbMixin(PermissionMixin, TrailMixin):
@@ -115,8 +143,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     def build_content_tree(self, roots=None, prefix=None, cut=ContentCut()):
         #pylint:disable=too-many-locals
         """
-        Returns a list of trees from a list of roots, each tree rooted at one
-        of those roots.
+        Returns a tree from a list of roots.
 
         code::
 
@@ -134,13 +161,19 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 }]
             }
         """
+        # Implementation Note: The structure of the content in the database
+        # is stored in terms of `PageElement` (node) and `Relationship` (edge).
+        # We use a breadth-first search algorithm here such as to minimize
+        # the number of queries to the database.
         if not prefix:
             prefix = ''
         elif not prefix.startswith("/"):
             prefix = "/" + prefix
         if roots is None:
             roots = self.get_roots()
+
         results = OrderedDict()
+        pks_to_leafs = {}
         for root in roots:
             if isinstance(root, PageElement):
                 slug = root.slug
@@ -158,20 +191,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 base = prefix
             else:
                 base = prefix + "/" + slug
-            subtrees = OrderedDict()
-            if cut is None or cut.enter(root):
-                for edge in RelationShip.objects.filter(
-                        orig_element_id=orig_element_id).values(
-                            'dest_element__pk', 'rank',
-                            'dest_element__slug', 'dest_element__title',
-                            'dest_element__tag').order_by('rank', 'pk'):
-                    # XXX We use the fact that node ids are naturally
-                    # in increasing order. Without order postgres will not
-                    # return the icons in a consistent order.
-                    subtree = self.build_content_tree([edge], base, cut=cut)
-                    for sub in six.itervalues(subtree):
-                        sub[0].update({'rank': edge['rank']})
-                    subtrees.update(subtree)
             result_node = {
                 'path': base,
                 'slug': slug,
@@ -179,10 +198,41 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 'tag': tag,
                 'score_weight': get_score_weight(tag),
             }
-            results.update({base: (
-                result_node,
-                subtrees if cut is None or cut.leave(
-                    result_node, subtrees) else {})})
+            pks_to_leafs[orig_element_id] = (result_node, OrderedDict())
+            results.update({base: pks_to_leafs[orig_element_id]})
+
+        edges = RelationShip.objects.filter(
+            orig_element__in=list(roots)).values(
+            'orig_element_id', 'dest_element_id', 'rank',
+            'dest_element__slug', 'dest_element__title',
+            'dest_element__tag').order_by('rank', 'pk')
+        while edges:
+            next_pks_to_leafs = {}
+            for edge in edges:
+                slug = edge.get('slug', edge.get('dest_element__slug'))
+                orig_element_id = edge.get('orig_element_id')
+                dest_element_id = edge.get('dest_element_id')
+                title = edge.get('dest_element__title')
+                tag = edge.get('dest_element__tag')
+                base = pks_to_leafs[orig_element_id][0]['path'] + "/" + slug
+                result_node = {
+                    'path': base,
+                    'slug': slug,
+                    'title': title,
+                    'tag': tag,
+                    'score_weight': get_score_weight(tag),
+                }
+                pivot = (result_node, OrderedDict())
+                pks_to_leafs[orig_element_id][1].update({base: pivot})
+                if cut is None or cut.enter(tag):
+                    next_pks_to_leafs[dest_element_id] = pivot
+            pks_to_leafs = next_pks_to_leafs
+            next_pks_to_leafs = {}
+            edges = RelationShip.objects.filter(
+                orig_element_id__in=pks_to_leafs.keys()).values(
+                'orig_element_id', 'dest_element_id', 'rank',
+                'dest_element__slug', 'dest_element__title',
+                'dest_element__tag').order_by('rank', 'pk')
         return results
 
     def get_leafs(self, rollup_tree=None, path=None):
@@ -201,7 +251,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         elif not path.startswith("/"):
             path = "/" + path
 
-        if len(rollup_tree[1].keys()) == 0:
+        if not rollup_tree[1].keys():
             return {path: rollup_tree}
         else:
             text = PageElement.objects.filter(
@@ -228,24 +278,43 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     vals[0].update(text)
 
     def _build_tree(self, root, path, cut=ContentCut()):
-        prefix = '/'.join(path.split('/')[:-1])
         # hack to remove slug that will be added.
-        rollup_trees = self.build_content_tree([root], prefix=prefix, cut=cut)
-        for rollup_tree in six.itervalues(rollup_trees):
-            leafs = self.get_leafs(rollup_tree)
-            self.decorate_with_consumptions(leafs)
-            return rollup_tree
+        prefix = '/'.join(path.split('/')[:-1])
 
-    def _cut_tree(self, root, path='', depth=5):
+        rollup_trees = self._cut_tree(
+            self.build_content_tree([root], prefix=prefix, cut=cut), cut=cut)
+
+        # We only have one root by definition of the function signature.
+        rollup_tree = next(six.itervalues(rollup_trees))
+        leafs = self.get_leafs(rollup_tree)
+        self.decorate_with_consumptions(leafs)
+        return rollup_tree
+
+    def _cut_tree(self, roots, cut=None):
         """
-        *root* has a format [{... node attribte ...}, {.., subtrees ...}]
+        Cuts subtrees out of *roots* when they match the *cut* parameter.
+        *roots* has a format compatible with the data structure returned
+        by `build_content_tree`.
+
+        code::
+            {
+              "/boxes-and-enclosures": [
+                { ... data for node ... },
+                {
+                  "boxes-and-enclosures/management": [
+                  { ... data for node ... },
+                  {}],
+                  "boxes-and-enclosures/design": [
+                  { ... data for node ... },
+                  {}],
+                }]
+            }
         """
-        results = OrderedDict()
-        if len(path.split('/')) < depth:
-            for node_path, node in six.iteritems(root[1]):
-                results.update({
-                    node_path: self._cut_tree(node, path=node_path)})
-        return (root[0], results)
+        for node_path, node in list(six.iteritems(roots)):
+            self._cut_tree(node[1], cut=cut)
+            if cut and not cut.leave(node[0], node[1]):
+                del roots[node_path]
+        return roots
 
     @property
     def breadcrumbs(self):
@@ -373,20 +442,51 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
         if not hasattr(self, '_sample'):
             try:
                 self._sample = Response.objects.get(
-                    account=self.account, survey__title=self.report_title)
+                    extra__isnull=True,
+                    survey__title=self.report_title,
+                    account=self.account)
             except Response.DoesNotExist:
                 self._sample = None
         return self._sample
+
+    def get_or_create_assessment_sample(self):
+        # We create the response if it does not exists.
+        survey = SurveyModel.objects.get(title=self.report_title)
+        with transaction.atomic():
+            if self.sample is None:
+                self._sample = Response.objects.create(
+                    survey=survey, account=self.account)
 
 
 class ImprovementQuerySetMixin(ReportMixin):
     """
     best practices which are part of an improvement plan for an ``Account``.
     """
-    model = Improvement
+    model = Answer
+
+    @property
+    def improvement_sample(self):
+        if not hasattr(self, '_improvement_sample'):
+            try:
+                self._improvement_sample = Response.objects.get(
+                    extra='is_planned',
+                    survey__title=self.report_title,
+                    account=self.account)
+            except Response.DoesNotExist:
+                self._improvement_sample = None
+        return self._improvement_sample
+
+    def get_or_create_improve_sample(self):
+        # We create the response if it does not exists.
+        survey = SurveyModel.objects.get(title=self.report_title)
+        self._sample, _ = Response.objects.get_or_create(
+            extra='is_planned', survey=survey, account=self.account)
 
     def get_queryset(self):
-        return self.model.objects.filter(account=self.account)
+        return self.model.objects.filter(
+            response__extra='is_planned',
+            response__survey__title=self.report_title,
+            response__account=self.account)
 
     def get_reverse_kwargs(self):
         """

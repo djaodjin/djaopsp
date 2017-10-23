@@ -2,11 +2,8 @@
 # see LICENSE.
 
 from django.contrib import admin
-from envconnect.models import (ColumnHeader, ScoreWeight, Consumption,
-    Improvement)
+from envconnect.models import ColumnHeader, Consumption
+
 
 admin.site.register(ColumnHeader)
-admin.site.register(ScoreWeight)
 admin.site.register(Consumption)
-admin.site.register(Improvement)
-

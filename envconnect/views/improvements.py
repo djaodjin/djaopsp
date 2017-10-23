@@ -39,7 +39,7 @@ class ImproveView(SelfAssessmentBaseView):
         context = super(ImproveView, self).get_context_data(**kwargs)
         from_root, trail = self.breadcrumbs
         if trail:
-            root = self._build_tree(trail[-1][0], from_root, cut=None)
+            root = self._build_tree(trail[-1][0], from_root)
             self.attach_benchmarks(root)
             self.decorate_with_breadcrumbs(root)
             context.update({
@@ -69,6 +69,7 @@ class ResponseUpdateView(ImprovementQuerySetMixin, BaseResponseUpdateView):
         messages.info(
             self.request, 'Your answers have been recorded. Thank you.')
         return reverse(self.next_step_url, kwargs=self.get_url_context())
+
 
 class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
                          BestPracticeMixin, # for get_breadcrumbs

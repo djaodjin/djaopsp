@@ -8,19 +8,23 @@ from rest_framework.generics import (get_object_or_404, ListAPIView,
 from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
     DestroyModelMixin)
 from rest_framework.response import Response
-from rest_framework.relations import PrimaryKeyRelatedField
+from survey.models import Answer, Question
 
 from ..mixins import ImprovementQuerySetMixin
-from ..models import Improvement, Consumption
+from ..models import Consumption
 
 
 class ImprovementSerializer(serializers.ModelSerializer):
 
-    consumption = PrimaryKeyRelatedField(queryset=Consumption.objects.all())
+    consumption = serializers.SerializerMethodField()
 
     class Meta(object):
-        model = Improvement
+        model = Answer
         fields = ('consumption',)
+
+    @staticmethod
+    def get_consumption(obj):
+        return obj.question.consumption.path
 
 
 class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
@@ -44,16 +48,20 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
     serializer_class = ImprovementSerializer
 
     def get_object(self):
-        return get_object_or_404(
-            self.get_queryset(), consumption__path=self.kwargs.get('path'))
+        return get_object_or_404(self.get_queryset(),
+            question__consumption__path=self.kwargs.get('path'))
 
     def create(self, request, *args, **kwargs):
-        consumption = get_object_or_404(Consumption.objects.all(),
-            path=self.kwargs.get('path'))
+        question = get_object_or_404(Question.objects.all(),
+            consumption__path=self.kwargs.get('path'))
         with transaction.atomic():
-            improve, created = self.model.objects.get_or_create(
-                account=self.account, consumption=consumption)
-        return Response(self.serializer_class().to_representation(improve),
+            self.get_or_create_improve_sample()
+            with transaction.atomic():
+                _, created = self.model.objects.get_or_create(
+                    response=self.improvement_sample,
+                    rank=question.rank,
+                    question=question)
+        return Response({},
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
@@ -62,7 +70,7 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
         # in case the db was corrupted, let's just fix it on the fly here.
         # XXX In the future the improvements must relate to a specific year.
         self.get_queryset().filter(
-            consumption__path=self.kwargs.get('path')).delete()
+            question__consumption__path=self.kwargs.get('path')).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, *args, **kwargs):

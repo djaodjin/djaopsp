@@ -10,11 +10,11 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder
 from openpyxl import Workbook
-from survey.models import Answer, Response, SurveyModel
+from survey.models import Answer
 
 from ..api.benchmark import BenchmarkMixin
 from ..mixins import BestPracticeMixin
-from ..models import Consumption, Improvement
+from ..models import Consumption
 from ..serializers import ConsumptionSerializer
 
 
@@ -35,12 +35,17 @@ class SelfAssessmentBaseView(BenchmarkMixin, BestPracticeMixin, TemplateView):
                     ConsumptionSerializer().to_representation(consumption)
 
     def decorate_with_answers(self, leafs):
+        # Implementation Note:
+        # `decorate_with_answers` must be called after
+        # `decorate_with_opportunities` because it will compute the number
+        # of additional points available from the consumption opportunity
+        # and the answer.
         for path, values in six.iteritems(leafs):
-            try:
-                consumption = Consumption.objects.get(path=path)
-                answer = Answer.objects.filter(
-                    question=consumption, response=self.sample).first()
-                if answer:
+            if values[0]['consumption']:
+                try:
+                    answer = Answer.objects.get(
+                        question__consumption__path=path,
+                        response=self.sample)
                     values[0]['consumption']['implemented'] = answer.text
                     # XXX This is not really the opportunity as defined
                     # in `get_opportunities_sql` but rather the number of points
@@ -58,41 +63,33 @@ class SelfAssessmentBaseView(BenchmarkMixin, BestPracticeMixin, TemplateView):
                     else:
                         # Not Applicable.
                         values[0]['consumption']['opportunity'] = 0
-                else:
+                except Answer.DoesNotExist:
+                    # We have cut out the tree at an icon or heading level.
                     values[0]['consumption']['implemented'] = False
-            except Consumption.DoesNotExist:
-                # We have cut out the tree at an icon or heading level.
-                pass
 
     def decorate_with_improvements(self, leafs):
+        # Implementation Note:
+        # `decorate_with_improvements` must be called after
+        # `decorate_with_opportunities` because it relies on
+        # values[0]['consumption'] to exist at the time of call.
         for path, values in six.iteritems(leafs):
-            try:
-                consumption = Consumption.objects.get(path=path)
+            if values[0]['consumption']:
                 values[0]['consumption']['planned'] \
-                    = Improvement.objects.filter(
-                        consumption=consumption, account=self.account).exists()
-            except Consumption.DoesNotExist:
-                # We have cut out the tree at an icon or heading level.
-                pass
+                    = Answer.objects.filter(
+                        question__consumption__path=path,
+                        response__extra='is_planned',
+                        response__survey__title=self.report_title,
+                        response__account=self.account).exists()
 
     def attach_benchmarks(self, rollup_tree):
         self._start_time()
-        # We create the response if it does not exists.
-        survey = SurveyModel.objects.get(title=self.report_title)
-        self._sample, _ = Response.objects.get_or_create(
-            account=self.account,
-            survey=survey)
+        self.get_or_create_assessment_sample()
         leafs = self.get_leafs(rollup_tree)
-        self._report_queries("leafs loaded")
-        # Implementation Note:
-        # `decorate_with_answers` must be called after
-        # `decorate_with_opportunities` because it will compute the number
-        # of additional points available from the consumption opportunity
-        # and the answer.
+        self._report_queries("[attach_benchmarks] leafs loaded")
         self.decorate_with_opportunities(leafs)
         self.decorate_with_answers(leafs)
         self.decorate_with_improvements(leafs)
-        self._report_queries("leafs populated")
+        self._report_queries("[attach_benchmarks] leafs populated")
 
 
 class SelfAssessmentView(SelfAssessmentBaseView):
@@ -111,8 +108,7 @@ class SelfAssessmentView(SelfAssessmentBaseView):
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
-            root = self._build_tree(trail[-1][0], from_root, cut=None)
-#XXX            root = self._cut_tree(root)
+            root = self._build_tree(trail[-1][0], from_root)
             self.attach_benchmarks(root)
             context.update({
                 'root': root,
@@ -197,6 +193,7 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
         from_trail_head = "/" + "/".join([
             element.slug.decode('utf-8') if six.PY2 else element.slug
             for element in self.get_full_element_path(trail_head)])
+        # We use cut=None here so we print out the full self-assessment
         root = self._build_tree(trail[0][0], from_trail_head, cut=None)
         self.attach_benchmarks(root)
 

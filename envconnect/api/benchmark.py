@@ -14,44 +14,12 @@ from rest_framework import generics
 from rest_framework.response import Response as RestResponse
 
 from .best_practices import DecimalEncoder, ToggleTagContentAPIView
-from ..mixins import ReportMixin
+from ..mixins import ReportMixin, TransparentCut
 from ..models import Consumption, get_score_weight
 from ..serializers import ScoreWeightSerializer
 
 
 LOGGER = logging.getLogger(__name__)
-
-
-class TransparentCut(object):
-
-    def __init__(self, depth=1):
-        self.depth = depth
-
-    def enter(self, root):
-        #pylint:disable=unused-argument
-        self.depth = self.depth + 1
-        return True
-
-    def leave(self, attrs, subtrees):
-        self.depth = self.depth - 1
-        # `transparent_to_rollover` is meant to speed up computations
-        # when the resulting calculations won't matter to the display.
-        # We used to compute decide `transparent_to_rollover` before
-        # the recursive call (see commit c421ca5) but it would not
-        # catch the elements tagged deep in the tree with no chained
-        # presentation.
-        tag = attrs.get('tag', "")
-        attrs['transparent_to_rollover'] = not (
-            tag and settings.TAG_SCORECARD in tag)
-        for subtree in six.itervalues(subtrees):
-            tag = subtree[0].get('tag', "")
-            if tag and settings.TAG_SCORECARD in tag:
-                attrs['transparent_to_rollover'] = False
-                break
-            if not subtree[0].get('transparent_to_rollover', True):
-                attrs['transparent_to_rollover'] = False
-                break
-        return not attrs['transparent_to_rollover']
 
 
 class BenchmarkMixin(ReportMixin):
@@ -283,7 +251,7 @@ class BenchmarkMixin(ReportMixin):
                     distribution['organization_rate'] = distribution['x'][3]
         return distribution
 
-    def get_expected_opportunities(self):
+    def get_expected_opportunities(self, is_planned=None):
         questions_with_opportunity = Consumption.objects.get_opportunities_sql(
             filter_out_testing=self._get_filter_out_testing())
 
@@ -293,58 +261,38 @@ class BenchmarkMixin(ReportMixin):
         # If we are only looking for all expected questions for each response,
         # then the query can be simplified by using the survey_question table
         # directly.
+        sep = ""
+        additional_filters = ""
+        if is_planned is not None:
+            additional_filters = "survey_response.extra = '%s'" % (
+                "is_planned" if is_planned else "")
+            sep = "AND "
         if self._get_filter_out_testing():
-            filter_out_testing = "WHERE survey_response.id NOT IN (%s)" % (
-                ', '.join(self._get_filter_out_testing()))
-        else:
-            filter_out_testing = ""
+            additional_filters += "%ssurvey_response.id NOT IN (%s)" % (
+                sep, ', '.join(self._get_filter_out_testing()))
+        if additional_filters:
+            additional_filters = "WHERE %s" % additional_filters
         expected_opportunities = """SELECT
   questions_with_opportunity.question_id AS question_id,
   survey_response.id AS response_id,
+  survey_response.extra AS is_planned,
   survey_response.account_id AS account_id,
   opportunity,
   questions_with_opportunity.path AS path
 FROM (%(questions_with_opportunity)s) AS questions_with_opportunity
 INNER JOIN survey_response
 ON questions_with_opportunity.survey_id = survey_response.survey_id
-%(filter_out_testing)s
+%(additional_filters)s
 """ % {'questions_with_opportunity': questions_with_opportunity,
-       'filter_out_testing': filter_out_testing}
+       'additional_filters': additional_filters}
         self._show_query_and_result(expected_opportunities)
         return expected_opportunities
 
-    def get_scored_improvements(self):
+    def get_scored_answers(self, is_planned=None):
         """
-        Compute scores specifically related to improvements.
+        Set is_planned to `True` for assessment results only or is_planned
+        to `False` for improvement results only. Otherwise both.
         """
-        # All expected answers with their scores.
-        # ACCOUNT_ID = 0
-        # ANSWER_ID = 1
-        # RESPONSE_ID = 2
-        # QUESTION_ID = 3
-        # NUMERATOR = 4
-        # DENOMINATOR = 5
-        # QUESTION_PATH = 6
-        # ANSWER_CREATED_AT = 7
-        scored_improvements = "SELECT expected_opportunities.account_id,"\
-            " envconnect_improvement.id AS answer_id,"\
-            " expected_opportunities.response_id,"\
-            " expected_opportunities.question_id,"\
-            " (opportunity * 3) AS numerator,"\
-            " (opportunity * 3) AS denominator,"\
-            " expected_opportunities.path AS path,"\
-            " envconnect_improvement.created_at AS created_at"\
-            " FROM (%(expected_opportunities)s) AS expected_opportunities"\
-            " INNER JOIN envconnect_improvement "\
-            " ON envconnect_improvement.consumption_id"\
-            "   = expected_opportunities.question_id"\
-            " AND envconnect_improvement.account_id"\
-            "   = expected_opportunities.account_id" % {
-                'expected_opportunities': self.get_expected_opportunities()}
-        self._show_query_and_result(scored_improvements)
-        return scored_improvements
-
-    def get_scored_answers(self):
         # All expected answers with their scores.
         # ACCOUNT_ID = 0
         # ANSWER_ID = 1
@@ -355,6 +303,7 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
         # QUESTION_PATH = 6
         # ANSWER_CREATED_AT = 7
         # ANSWER_TEXT = 8
+        # RESPONSE_IS_PLANNED = 9 (assessment or improvement)
         scored_answers = "SELECT expected_opportunities.account_id,"\
             " survey_answer.id AS answer_id,"\
             " expected_opportunities.response_id,"\
@@ -367,7 +316,8 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
             " (%(yes_no)s) THEN (opportunity * 3) ELSE 0.0 END AS denominator,"\
             " expected_opportunities.path AS path,"\
             " survey_answer.created_at,"\
-            " survey_answer.text"\
+            " survey_answer.text,"\
+            " expected_opportunities.is_planned"\
             " FROM (%(expected_opportunities)s) AS expected_opportunities"\
             " LEFT OUTER JOIN survey_answer ON survey_answer.question_id"\
             " = expected_opportunities.question_id"\
@@ -379,20 +329,37 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
                     Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
                 'yes_no': ','.join(["'%s'" % val
                     for val in Consumption.PRESENT + Consumption.ABSENT]),
-                'expected_opportunities': self.get_expected_opportunities()}
+                'expected_opportunities': self.get_expected_opportunities(
+                    is_planned=is_planned)}
         self._show_query_and_result(scored_answers)
         return scored_answers
 
-    def populate_leafs(self, leafs, answers,
-                       numerator_key='numerator',
-                       denominator_key='denominator'):
+    def get_scored_assessments(self):
+        """
+        Compute scores specifically related to assessments.
+        """
+        # All expected improvements with their scores.
+        scored_assessments = self.get_scored_answers(is_planned=False)
+        self._show_query_and_result(scored_assessments)
+        return scored_assessments
+
+    def get_scored_improvements(self):
+        """
+        Compute scores specifically related to improvements.
+        """
+        # All expected improvements with their scores.
+        scored_improvements = self.get_scored_answers(is_planned=True)
+        self._show_query_and_result(scored_improvements)
+        return scored_improvements
+
+    def populate_leafs(self, leafs, answers):
         """
         Populate all leafs with aggregated scores.
         """
         #pylint:disable=too-many-locals
         for prefix, values_tuple in six.iteritems(leafs):
             values = values_tuple[0]
-            agg_scores = """SELECT account_id, response_id,
+            agg_scores = """SELECT account_id, response_id, is_planned,
     COUNT(answer_id) AS nb_answers,
     COUNT(*) AS nb_questions,
     SUM(numerator) AS numerator,
@@ -400,32 +367,48 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
     MAX(created_at) AS last_activity_at
 FROM (%(answers)s) AS answers
 WHERE path LIKE '%(prefix)s%%'
-GROUP BY account_id, response_id;""" % {'answers': answers, 'prefix': prefix}
+GROUP BY account_id, response_id, is_planned;""" % {
+    'answers': answers, 'prefix': prefix}
             self._show_query_and_result(agg_scores)
             with connection.cursor() as cursor:
                 cursor.execute(agg_scores, params=None)
                 for agg_score in cursor.fetchall():
                     account_id = agg_score[0]
                     #response_id = agg_score[1]
-                    nb_answers = agg_score[2]
-                    nb_questions = agg_score[3]
-                    numerator = agg_score[4]
-                    denominator = agg_score[5]
-                    created_at = agg_score[6]
+                    is_planned = agg_score[2]
+                    nb_answers = agg_score[3]
+                    nb_questions = agg_score[4]
+                    numerator = agg_score[5]
+                    denominator = agg_score[6]
+                    created_at = agg_score[7]
                     if not 'accounts' in values:
                         values['accounts'] = {}
                     accounts = values['accounts']
                     if not account_id in accounts:
                         accounts[account_id] = {}
-                    accounts[account_id].update({
-                        'nb_answers': nb_answers,
-                        'nb_questions': nb_questions,
-                        'created_at': created_at
-                    })
-                    if nb_questions == nb_answers:
+                    if is_planned:
                         accounts[account_id].update({
-                            numerator_key: numerator,
-                        denominator_key: denominator})
+                            'improvement_numerator': numerator,
+                            'denominator_numerator': denominator})
+                        if not 'nb_answers' in accounts[account_id]:
+                            accounts[account_id].update({
+                                'nb_answers': nb_answers})
+                        if not 'nb_questions' in accounts[account_id]:
+                            accounts[account_id].update({
+                                'nb_questions': nb_questions})
+                        if not 'created_at' in accounts[account_id]:
+                            accounts[account_id].update({
+                                'created_at': created_at})
+                    else:
+                        accounts[account_id].update({
+                            'nb_answers': nb_answers,
+                            'nb_questions': nb_questions,
+                            'created_at': created_at
+                        })
+                        if nb_questions == nb_answers:
+                            accounts[account_id].update({
+                                'numerator': numerator,
+                                'denominator': denominator})
 
     def populate_rollup(self, rollup_tree,
                     numerator_key='numerator', denominator_key='denominator'):
@@ -514,7 +497,8 @@ GROUP BY account_id, response_id;""" % {'answers': answers, 'prefix': prefix}
         self._start_time()
         self._report_queries("at rollup_scores entry point")
         rollup_tree = None
-        rollups = self.build_content_tree(roots, prefix=root_prefix,
+        rollups = self._cut_tree(self.build_content_tree(
+            roots, prefix=root_prefix, cut=TransparentCut()),
             cut=TransparentCut())
         rollup_tree = ({}, rollups)
         self._report_queries("rollup_tree generated")
@@ -525,9 +509,6 @@ GROUP BY account_id, response_id;""" % {'answers': answers, 'prefix': prefix}
                 'tag': [settings.TAG_SCORECARD]})
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
-        self.populate_leafs(leafs, self.get_scored_improvements(),
-            numerator_key='improvement_numerator',
-            denominator_key='improvement_denominator')
         self.populate_leafs(leafs, self.get_scored_answers())
         self._report_queries("leafs populated")
         self.populate_rollup(rollup_tree)
