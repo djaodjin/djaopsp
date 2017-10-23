@@ -167,7 +167,10 @@ LOGGING = {
             'level': 'DEBUG',
             'formatter': 'json',
             'filters': ['request'],
-            'class': 'logging.StreamHandler'
+# XXX expected messages to show up in gunicorn error log but no...
+#            'class': 'logging.StreamHandler',
+            'class':'logging.handlers.WatchedFileHandler',
+            'filename': LOG_FILE
         },
         'mail_admins': {
             'level': 'ERROR',
