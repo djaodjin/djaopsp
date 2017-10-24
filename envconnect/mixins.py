@@ -280,12 +280,15 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     def _build_tree(self, root, path, cut=ContentCut()):
         # hack to remove slug that will be added.
         prefix = '/'.join(path.split('/')[:-1])
-
-        rollup_trees = self._cut_tree(
-            self.build_content_tree([root], prefix=prefix, cut=cut), cut=cut)
-
-        # We only have one root by definition of the function signature.
-        rollup_tree = next(six.itervalues(rollup_trees))
+        rollup_trees = self._cut_tree(self.build_content_tree(
+            [root], prefix=prefix, cut=cut), cut=cut)
+        try:
+            # We only have one root by definition of the function signature.
+            rollup_tree = next(six.itervalues(rollup_trees))
+        except StopIteration:
+            LOGGER.exception("build_tree([%s], path=%s, cut=%s)"\
+                " leaves an empty rollup tree", root, path, cut.__class__)
+            rollup_tree = ({'slug': ""}, {})
         leafs = self.get_leafs(rollup_tree)
         self.decorate_with_consumptions(leafs)
         return rollup_tree

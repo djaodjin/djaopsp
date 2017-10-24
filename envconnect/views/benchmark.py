@@ -126,6 +126,17 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             })
         return context
 
+    def get(self, request, *args, **kwargs):
+        path = kwargs.get('path')
+        parts = path.split('/')
+        for idx, part in enumerate(parts):
+            if part.startswith('sustainability-'):
+                prefix = '/'.join(parts[:idx + 1])
+        if prefix != path:
+            return HttpResponseRedirect(
+                reverse(self.breadcrumb_url, args=(prefix,)))
+        return super(BenchmarkBaseView, self).get(request, *args, **kwargs)
+
 
 class BenchmarkView(BenchmarkBaseView):
 

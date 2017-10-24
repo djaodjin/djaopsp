@@ -165,7 +165,7 @@ LOGGING = {
         },
         'log': {
             'level': 'DEBUG',
-            'formatter': 'json',
+            'formatter': 'request_format',
             'filters': ['request'],
 # XXX expected messages to show up in gunicorn error log but no...
 #            'class': 'logging.StreamHandler',
@@ -214,7 +214,11 @@ LOGGING = {
 }
 
 if DEBUG:
-    LOGGING['handlers']['log'].update({'formatter': 'request_format'})
+    LOGGING['handlers']['log'] = {
+        'level': 'DEBUG',
+        'formatter': 'request_format',
+        'filters': ['request'],
+        'class': 'logging.StreamHandler'}
 
 
 # Language settings
