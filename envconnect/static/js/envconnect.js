@@ -1087,9 +1087,15 @@ envconnectControllers.controller("itemsListCtrl",
         delete $scope.params.page;
     };
 
-    // True if the entry has completed a self-assessment.
+    // True if the organization has completed an assessment.
     $scope.isComplete = function(entry) {
         return (typeof entry.normalized_score !== 'undefined');
+    };
+
+    // True if the organization has started an improvement plan.
+    $scope.isImprovementPlan = function(entry) {
+        return (typeof entry.improvement_score !== 'undefined')
+            && entry.improvement_score > 0;
     };
 
     $scope.refreshSuppliers = function() {

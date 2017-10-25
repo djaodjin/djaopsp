@@ -75,8 +75,12 @@ class SupplierListAPIView(DashboardMixin, generics.ListAPIView):
                         dct.update({'last_activity_at': created_at})
                     nb_answers = score.get('nb_answers', 0)
                     nb_questions = score.get('nb_questions', 0)
+                    # XXX We should really compute a score here.
+                    improvement_score = score.get(
+                        'improvement_numerator', None)
                     dct.update({
-                        'nb_answers': nb_answers, 'nb_questions': nb_questions})
+                        'nb_answers': nb_answers, 'nb_questions': nb_questions,
+                        'improvement_score': improvement_score})
                     if nb_answers == nb_questions and nb_questions != 0:
                         normalized_score = score.get('normalized_score', None)
                     else:

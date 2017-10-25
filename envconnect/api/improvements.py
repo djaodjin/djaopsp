@@ -57,10 +57,15 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
         with transaction.atomic():
             self.get_or_create_improve_sample()
             with transaction.atomic():
+                # Implementation Note: We need to set the `text` field
+                # otherwise `get_scored_answers` will return a numerator
+                # of zero. We use `NEEDS_SIGNIFICANT_IMPROVEMENT` such
+                # as to be conservative in the calculation.
                 _, created = self.model.objects.get_or_create(
                     response=self.improvement_sample,
                     rank=question.rank,
-                    question=question)
+                    question=question,
+                    defaults={'text':Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT})
         return Response({},
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 

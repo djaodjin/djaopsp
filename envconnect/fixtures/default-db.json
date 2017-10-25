@@ -1716,29 +1716,6 @@
   "model": "survey.matrix", "pk": 1
 },
 {
-  "fields": {
-    "slug": "supplier-totals",
-    "account": 6,
-    "created_at": "2016-07-14T00:17:17.096Z",
-    "title": "Total scores by suppliers",
-    "metric": 1,
-    "cohorts": [2, 3]
-  },
-  "model": "survey.matrix", "pk": 2
-},
-{
-  "fields": {
-    "slug": "construction-supplier-totals",
-    "account": 6,
-    "created_at": "2016-07-14T00:17:17.096Z",
-    "title": "Total scores by suppliers in construction",
-    "metric": 1,
-    "cut": 14,
-    "cohorts": [2, 3]
-  },
-  "model": "survey.matrix", "pk": 3
-},
-{
    "fields": {
     "slug": "boxes-and-enclosures",
     "title": "Boxes and enclosures scores by suppliers",

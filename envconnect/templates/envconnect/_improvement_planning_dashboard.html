@@ -37,7 +37,7 @@
             </div>
             {% for abs_prefix, icon_tuple in root.1|iteritems  %}
             {% with icon_tuple.0 as icon %}
-            <div id="{{icon.slug}}-chart" class="chart-container bordered-left" ng-show="activeIcon === '{{icon.slug}}'">
+            <div id="{{icon.slug}}-chart" class="chart-container" ng-show="activeIcon === '{{icon.slug}}'">
               {% include "envconnect/_chart_title.html" with practice=icon %}
               <div>
                 <div class="chart-content c3" style="width:250px;height:120px;">
@@ -48,9 +48,9 @@
             {% endfor %}
           </div>
         </div>
-        <div class="col-sm-5">
+        <div class="col-sm-5 bordered-left">
           <div class="row">
-            <div class="bordered-left" style="display: inline-block;">
+            <div style="display: inline-block;">
               <h4>Cost</h4>
               <p>as % of overhead</p>
               <div class="cost"></div>
@@ -79,7 +79,7 @@ averages will be registered by these value gauges.
       <script type="text/javascript">
 jQuery(document).ready(function($) {
     $("#improvement-dashboard").improvementDashboard({
-        api_account_benchmark: "{% url 'api_benchmark' organization path %}",
+        api_account_benchmark: "{{urls.api_account_benchmark}}",
         benchmark: "{{root.0.slug}}"
     });
 });

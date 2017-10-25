@@ -43,8 +43,9 @@
         <th></th>
         <th>Supplier/facility<button class="btn-link btn-sort" ng-click="sortBy('slug')"><i class="fa fa-sort[[dir.slug ? ('-' + dir.slug) : '']]"></i></button></th>
         <th>Last activity<button class="btn-link btn-sort" ng-click="sortBy('updated_at')"><i class="fa fa-sort[[dir.updated_at ? ('-' + dir.updated_at) : '']]"></i></button></th>
-        <th>Self-assessment status<button class="btn-link btn-sort" ng-click="sortBy('role_name')"><i class="fa fa-sort[[dir.role_name ? ('-' + dir.role_name) : '']]"></i></button></th>
+        <th>Assessment status<button class="btn-link btn-sort" ng-click="sortBy('role_name')"><i class="fa fa-sort[[dir.role_name ? ('-' + dir.role_name) : '']]"></i></button></th>
         <th>Score<button class="btn-link btn-sort" ng-click="sortBy('score')"><i class="fa fa-sort[[dir.normalized_score ? ('-' + dir.normalized_score) : '']]"></i></button></th>
+        <th>Planning<button class="btn-link btn-sort" ng-click="sortBy('score')"><i class="fa fa-sort[[dir.improvement_score ? ('-' + dir.improvement_score) : '']]"></i></button></th>
         <th></th>
       </tr>
     </thead>
@@ -70,17 +71,17 @@
             </div>
           </form>
         </td>
-        <td colspan="4">
+        <td colspan="5">
 <em>Note: Enter the name of the supplier/facility organization or<br />contact e-mail associated with the organization profile (i.e. not a registered user).</em>
         </td>
       </tr>
       <tr ng-hide="items.$resolved">
-        <td colspan="6">
+        <td colspan="7">
             <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
         </td>
       </tr>
       <tr ng-show="items.$resolved && items.results.length == 0" ng-cloak>
-          <td colspan="6">No organization accessible for {{user}}</td>
+          <td colspan="7">No organization accessible for {{user}}</td>
       </tr>
       <tr id="[[entry.slug]]" ng-repeat="entry in items.results" ng-cloak ng-show="items.$resolved && items.results.length > 0">
         <td>[[$index+1]]</td>
@@ -105,6 +106,12 @@
           <span ng-if="entry.$resolved && entry.request_key">Requested</span>
           <span ng-if="entry.$resolved && !entry.request_key && !entry.normalized_score">not available</span>
           <span ng-if="entry.$resolved && !entry.request_key && entry.normalized_score">[[entry.normalized_score]]%</span>
+        </td>
+        <td style="line-height:1em;">
+          <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>
+          <span ng-if="entry.$resolved && entry.request_key">Requested</span>
+          <div ng-if="entry.$resolved && !entry.request_key && isImprovementPlan(entry)">Yes</div>
+          <div ng-if="entry.$resolved && !entry.request_key && !isImprovementPlan(entry)">No</div>
         </td>
         <td style="vertical-align:middle;text-align:right;"><button class="btn btn-danger btn-sm" ng-click="remove($event, $index)" data-trip data-trip-index="3" data-trip-content="<p>Click here to cancel access request.</p>" data-trip-position="s"><i class="fa fa-trash-o"></i></button></td>
       </tr>

@@ -28,6 +28,14 @@ class ImproveView(SelfAssessmentBaseView):
     template_name = 'envconnect/improve.html'
     breadcrumb_url = 'envconnect_improve'
 
+    @staticmethod
+    def get_scorecard_path(path):
+        parts = path.split('/')
+        for idx, part in enumerate(parts):
+            if part.startswith('sustainability-'):
+                return '/'.join(parts[:idx + 1])
+        return path
+
     def get_breadcrumb_url(self, path):
         organization = self.kwargs.get('organization', None)
         if organization:
@@ -50,6 +58,10 @@ class ImproveView(SelfAssessmentBaseView):
             'role': "tab",
             'response': self.sample
         })
+        urls = {'api_account_benchmark': reverse('api_benchmark',
+                args=(self.kwargs.get('organization'), self.get_scorecard_path(
+                    self.kwargs.get('path'))))}
+        self.update_context_urls(context, urls)
         return context
 
 
