@@ -413,6 +413,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                     'icon_css':
                         'grey' if (tag and 'management' in tag) else 'orange'
                 }]
+            charts = []
         url_kwargs = self.get_url_kwargs()
         url_kwargs.update({self.matrix_url_kwarg: self.object})
         for chart in charts:

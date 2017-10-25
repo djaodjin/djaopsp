@@ -2,11 +2,13 @@
 # see LICENSE.
 
 import logging, re
+from collections import OrderedDict
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils import six
+from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response
 from survey.api.matrix import MatrixDetailAPIView
@@ -68,7 +70,8 @@ class SupplierListAPIView(DashboardMixin, generics.ListAPIView):
             try:
                 score = account_scores.get(account.pk, None)
                 dct = {'slug': account.slug,
-                    'printable_name': account.printable_name}
+                    'printable_name': account.printable_name,
+                    'email': account.email}
                 if score is not None:
                     created_at = score.get('created_at', None)
                     if created_at:
@@ -178,39 +181,41 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
             likely_metric = self.request.build_absolute_uri(likely_metric)
         return likely_metric
 
-    def decorate_with_scores(self, rollup_tree, accounts=None):
+    def decorate_with_scores(self, rollup_tree, accounts=None, prefix=""):
         if accounts is None:
             accounts = dict([(account.pk, account)
                 for account in self.get_accounts()])
+
+        for key, values in six.iteritems(rollup_tree[1]):
+            self.decorate_with_scores(values, accounts=accounts, prefix=key)
+
         score = {}
         cohorts = []
-        for key, values in six.iteritems(rollup_tree[1]):
-            self.decorate_with_scores(values, accounts=accounts)
-            for account_id, account_score in six.iteritems(
-                    values[0].get('accounts', {})):
-                if account_id in accounts:
-                    n_score = account_score.get('normalized_score', 0)
-                    if n_score > 0:
-                        account = accounts.get(account_id, None)
-                        score[account.slug] = n_score
-                        parts = key.split('/')
-                        default = parts[1] if len(parts) > 1 else None
-                        cohorts += [{
-                            'slug': account.slug,
-                            'title': account.full_name,
-                            'likely_metric': self.get_likely_metric(
-                                account.slug, default=default)}]
+        for account_id, account_score in six.iteritems(rollup_tree[0].get(
+                'accounts', {})):
+            if account_id in accounts:
+                n_score = account_score.get('normalized_score', 0)
+                if n_score > 0:
+                    account = accounts.get(account_id, None)
+                    score[account.slug] = n_score
+                    parts = prefix.split('/')
+                    default = parts[1] if len(parts) > 1 else None
+                    cohorts += [{
+                        'slug': account.slug,
+                        'title': account.full_name,
+                        'likely_metric': self.get_likely_metric(
+                            account.slug, default=default)}]
         rollup_tree[0]['values'] = score
         rollup_tree[0]['cohorts'] = cohorts
 
-    def decorate_with_cohorts(self, rollup_tree, accounts=None):
+    def decorate_with_cohorts(self, rollup_tree, accounts=None, prefix=""):
         if accounts is None:
             accounts = dict([(account.pk, account)
                 for account in self.get_accounts()])
         score = {}
         cohorts = []
         for path, values in six.iteritems(rollup_tree[1]):
-            self.decorate_with_scores(values, accounts=accounts)
+            self.decorate_with_scores(values, accounts=accounts, prefix=prefix)
             nb_accounts = 0
             normalized_score = 0
             for account_id, account_score in six.iteritems(
@@ -232,7 +237,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
         rollup_tree[0]['cohorts'] = cohorts
 
     def get(self, request, *args, **kwargs):
-        #pylint:disable=unused-argument
+        #pylint:disable=unused-argument,too-many-locals
         try:
             from_root, trail = self.breadcrumbs
         except Http404:
@@ -244,11 +249,27 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
             for node in six.itervalues(rollup_tree[1]):
                 rollup_tree = node
                 break
-            self.decorate_with_scores(rollup_tree)
+            self.decorate_with_scores(rollup_tree, prefix=from_root)
+            charts = self.get_charts(rollup_tree)
+            charts += [rollup_tree[0]]
         else:
-            self.decorate_with_cohorts(rollup_tree)
-        charts = self.get_charts(rollup_tree)
-        charts += [rollup_tree[0]]
+            self.decorate_with_cohorts(rollup_tree, prefix=from_root)
+            natural_charts = OrderedDict()
+            for cohort in rollup_tree[0]['cohorts']:
+                natural_chart = (rollup_tree[1][cohort['slug']][0], {})
+                natural_charts.update({cohort['slug']: natural_chart})
+            rollup_tree = (rollup_tree[0], natural_charts)
+            charts = self.get_charts(rollup_tree)
+            for chart in charts:
+                element = PageElement.objects.filter(slug=chart['slug']).first()
+                tag = element.tag if element is not None else ""
+                chart.update({
+                    'breadcrumbs': [chart['title']],
+                    'icon': element.text if element is not None else "",
+                    'icon_css':
+                        'grey' if (tag and 'management' in tag) else 'orange'
+                })
+
         for chart in charts:
             if 'accounts' in chart:
                 del chart['accounts']

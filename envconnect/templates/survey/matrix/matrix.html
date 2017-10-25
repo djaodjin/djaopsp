@@ -193,7 +193,6 @@ display: none;
 
 <!-- sub-metrics -->
 {% block submetrics %}
-{% if charts %}
 <div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
   <h2 style="margin-left: 5px;">Portfolios: Topic drill-down</h2>
   <div>
@@ -221,7 +220,6 @@ display: none;
       </div>
   </div>
 </div>
-{% endif %}
 {% endblock %}
   </div>
 </div>
@@ -291,19 +289,31 @@ jQuery(document).ready(function($) {
       contentType: "application/json; charset=utf-8",
       success: function(data) {
           for( var idx = 0; idx < data.length; ++idx ) {
-              $('[id^="chart-' + data[idx].slug + '"]').djmatrixChart({
-                  data: data[idx],
-                  editable_filter_api: "{{editable_filter_api_base}}",
-                  matrix_api: "{{matrix_api}}",
-                  showValues: false,
-                  color: "#3ca65b"
-              });
-              $('[id$="' + data[idx].slug + '-chart"]').djmatrixChart({
-                  data: data[idx],
-                  editable_filter_api: "{{editable_filter_api_base}}",
-                  matrix_api: "{{matrix_api}}",
-                  color: "#f89407"
-              });
+              var chartElement = $('[id$="' + data[idx].slug + '-chart"]');
+              if( chartElement.length > 0 ) {
+                  chartElement.djmatrixChart({
+                      data: data[idx],
+                      editable_filter_api: "{{editable_filter_api_base}}",
+                      matrix_api: "{{matrix_api}}",
+                      color: "#f89407",
+                      margin: {top: 15, right: 10, bottom: 200, left: 75},
+                      rotateLabels: -45
+                  });
+              } else {
+                  chartElement = $('[id^="chart-' + data[idx].slug + '"]');
+                  if( chartElement.length === 0 ) {
+                      $("#benchmarks .row").last().append(
+      "<div class=\"col-md-4\"><div id=\"chart-" + data[idx].slug + "\" class=\"chart-container\"><div class=\"chart-title\"><div class=\"icon-benchmark " + data[idx].icon_css + "\"><img class=\"icon-equipment\" src=\"" + data[idx].icon + "\"></div><div class=\"title\"><h3>" + data[idx].breadcrumbs[0] + "</h3><h4>" + (data[idx].breadcrumbs > 1 ? data[idx].breadcrumbs[1] : "") + "</h4><h5>" + (data[idx].breadcrumbs > 2 ? data[idx].breadcrumbs[2] : "") + "</h5></div></div><div><div class=\"chart-content c3\" style=\"width:250px;height:120px;\"><div class=\"distribution-chart c3\"><div class=\"chart text-center\"><i class=\"fa fa-spinner fa-spin fa-2x\"></i></div></div></div></div></div></div>");
+                      chartElement = $('[id^="chart-' + data[idx].slug + '"]');
+                  }
+                  chartElement.djmatrixChart({
+                      data: data[idx],
+                      editable_filter_api: "{{editable_filter_api_base}}",
+                      matrix_api: "{{matrix_api}}",
+                      showValues: false,
+                      color: "#3ca65b"
+                  });
+              }
           }
       },
       error: function(resp) {

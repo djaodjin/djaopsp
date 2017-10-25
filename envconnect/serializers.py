@@ -80,6 +80,7 @@ class AccountSerializer(serializers.Serializer):
     """
     slug = serializers.CharField()
     printable_name = serializers.CharField()
+    email = serializers.EmailField()
     normalized_score = serializers.IntegerField(required=False)
     last_activity_at = serializers.DateTimeField(required=False)
     nb_questions = serializers.IntegerField(required=False)
