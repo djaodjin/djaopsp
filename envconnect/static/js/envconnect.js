@@ -1424,9 +1424,13 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                     }
                     var improvementScore = self.element.find(
                         "#improvement-score");
-                    if( improvementScore && data[idx].improvement_score ) {
-                        improvementScore.text(
+                    if( improvementScore.length > 0 ) {
+                        if( data[idx].improvement_score ) {
+                            improvementScore.text(
                          "(+" + data[idx].improvement_score.toFixed(2) + "%)");
+                        } else {
+                            improvementScore.text("");
+                        }
                     }
                 } else {
                     // score
