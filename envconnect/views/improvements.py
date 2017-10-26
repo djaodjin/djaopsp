@@ -98,9 +98,8 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
         return self.insert_path(tree[parts[0]], parts[1:])
 
     def write_tree(self, root, indent=''):
-        for element in sorted(list(root.keys()), cmp=lambda left, right:
-                (left.tag < right.tag)
-                or (left.tag == right.tag and left.pk < right.pk)):
+        for element in sorted(
+                list(root.keys()), key=lambda node: (node.tag, node.pk)):
             # XXX sort won't exactly match the web presentation
             # which uses RelationShip order
             # (see ``BreadcrumbMixin._build_tree``).
@@ -124,15 +123,16 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
 
         tree = {}
         for improvement in self.get_queryset():
-            _, parts = self.get_breadcrumbs(improvement.consumption.path)
+            consumption = improvement.question.consumption
+            _, parts = self.get_breadcrumbs(consumption.path)
             leaf = self.insert_path(tree, [part[0] for part in parts])
-            details = opportunities[improvement.consumption.pk]
+            details = opportunities[consumption.pk]
             leaf.update({
-                'path': improvement.consumption.path,
-                'avg_energy_saving': improvement.consumption.avg_energy_saving,
-                'capital_cost': improvement.consumption.capital_cost,
-                'payback_period': improvement.consumption.payback_period,
-                'rate': improvement.consumption.rate,
+                'path': consumption.path,
+                'avg_energy_saving': consumption.avg_energy_saving,
+                'capital_cost': consumption.capital_cost,
+                'payback_period': consumption.payback_period,
+                'rate': consumption.rate,
                 'opportunity': details.opportunity
             })
 

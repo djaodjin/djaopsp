@@ -90,8 +90,10 @@ class ConsumptionQuerySet(models.QuerySet):
         yes_view = """SELECT
   question_id AS question_id,
   COUNT(survey_answer.id) AS nb_yes
-FROM survey_answer
-WHERE survey_answer.text IN (%(present)s) %(filter_out_testing)s
+FROM survey_answer INNER JOIN survey_response
+  ON survey_answer.response_id = survey_response.id
+WHERE survey_response.extra IS NULL
+  AND survey_answer.text IN (%(present)s) %(filter_out_testing)s
 GROUP BY question_id""" % {
     'present': ','.join(["'%s'" % val for val in Consumption.PRESENT]),
     'filter_out_testing': filter_out_testing}
@@ -106,7 +108,10 @@ INNER JOIN survey_question
   ON (envconnect_consumption.question_id = survey_question.id)
 INNER JOIN survey_answer
   ON (survey_question.id = survey_answer.question_id)
-WHERE survey_answer.text IN (%(yes_no)s) %(filter_out_testing)s
+INNER JOIN survey_response
+  ON survey_answer.response_id = survey_response.id
+WHERE survey_response.extra IS NULL
+  AND survey_answer.text IN (%(yes_no)s) %(filter_out_testing)s
 GROUP BY envconnect_consumption.question_id""" % {
     'yes_no': ','.join(["'%s'" % val
         for val in Consumption.PRESENT + Consumption.ABSENT]),
@@ -114,12 +119,12 @@ GROUP BY envconnect_consumption.question_id""" % {
         self._show_query_and_result(yes_no_view)
 
         # The opportunity for all questions with a "Yes" answer.
-        yes_opportunity_view = """SELECT yes_view.question_id AS question_id,
+        yes_opportunity_view = """SELECT yes_no_view.question_id AS question_id,
   (yes_no_view.avg_value * (1.0 +
       CAST(yes_view.nb_yes AS FLOAT) / yes_no_view.nb_yes_no)) as opportunity,
   (CAST(yes_view.nb_yes AS FLOAT) * 100 / yes_no_view.nb_yes_no) as rate,
   yes_no_view.nb_yes_no as nb_respondents
-FROM (%(yes_view)s) as yes_view INNER JOIN (%(yes_no_view)s) as yes_no_view
+FROM (%(yes_no_view)s) as yes_no_view LEFT OUTER JOIN (%(yes_view)s) as yes_view
 ON yes_view.question_id = yes_no_view.question_id""" % {
                 'yes_view': yes_view, 'yes_no_view': yes_no_view}
         self._show_query_and_result(yes_opportunity_view)

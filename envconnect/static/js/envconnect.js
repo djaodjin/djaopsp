@@ -1426,7 +1426,7 @@ envconnectControllers.controller("envconnectRequestListCtrl",
                         "#improvement-score");
                     if( improvementScore && data[idx].improvement_score ) {
                         improvementScore.text(
-                         "(+" + data[idx].improvement_score.toFixed(0) + "%)");
+                         "(+" + data[idx].improvement_score.toFixed(2) + "%)");
                     }
                 } else {
                     // score

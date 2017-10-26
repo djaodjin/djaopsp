@@ -389,7 +389,7 @@ GROUP BY account_id, response_id, is_planned;""" % {
                     if is_planned:
                         accounts[account_id].update({
                             'improvement_numerator': numerator,
-                            'denominator_numerator': denominator})
+                            'improvement_denominator': denominator})
                         if not 'nb_answers' in accounts[account_id]:
                             accounts[account_id].update({
                                 'nb_answers': nb_answers})
@@ -426,7 +426,7 @@ GROUP BY account_id, response_id, is_planned;""" % {
                         scores['normalized_score'] = int(
                             scores[numerator_key] * 100.0 / denominator)
                         if 'improvement_numerator' in scores:
-                            scores['improvement_score'] = int(
+                            scores['improvement_score'] = (
                                 scores['improvement_numerator'] * 100.0
                                 / denominator)
                     else:
@@ -483,7 +483,7 @@ GROUP BY account_id, response_id, is_planned;""" % {
                         / denominator) if denominator > 0 else 0})
                 if 'improvement_numerator' in agg_scores:
                     agg_scores.update({
-                        'improvement_score': int(
+                        'improvement_score': (
                             agg_scores['improvement_numerator'] * 100.0
                             / denominator) if denominator > 0 else 0})
             else:
