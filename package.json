@@ -7,7 +7,7 @@
     "angular-animate": "1.4.10",
     "angular-route": "1.4.10",
     "angular-dragdrop": "1.0.13",
-    "angular-bootstrap-npm": "0.14.3",
+    "angular-ui-bootstrap": "2.5.6",
     "angular-sanitize": "1.4.10",
     "bootbox": "4.4.0",
     "bootstrap": "3.3.6",
