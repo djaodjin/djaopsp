@@ -1,7 +1,7 @@
 {{organization.printable_name}} Terms of Use
 =======================================
 
-By using {{site.domain}} web site (&quot;Service&quot;), you are
+By using {{site_url}} web site (&quot;Service&quot;), you are
 agreeing to be bound by the following terms and conditions
 (&quot;Terms of Use&quot;).
 

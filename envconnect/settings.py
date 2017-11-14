@@ -277,8 +277,9 @@ if not hasattr(sys.modules[__name__], 'MEDIA_ROOT'):
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
-# Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = '/media/%s/' % APP_NAME
+# We need to insure that HTDOCS + MEDIA_URL points to MEDIA_ROOT otherwise
+# the paths generated to print PDFs will be incorrect.
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files

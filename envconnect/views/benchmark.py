@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 
 import io, logging, json, re, subprocess, tempfile
 
+from django.template.response import TemplateResponse
+
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse, NoReverseMatch
@@ -202,22 +204,33 @@ class ScoreCardDownloadView(BenchmarkAPIView):
     """
     template_name = 'envconnect/prints/scorecard.html'
 
+    def get_base_url(self):
+        return "file://%s" % settings.HTDOCS
+
+    @property
+    def score_charts(self):
+        if not hasattr(self, '_score_charts'):
+            self._score_charts = self.get_queryset()
+        return self._score_charts
+
     def get_printable_charts(self):
         if not hasattr(self, '_printable_charts'):
             self._printable_charts = []
-            for chart in self.get_queryset():
+            for chart in self.score_charts:
                 slug = chart.get('slug', "")
                 tag = chart.get('tag', None)
                 if (slug == 'totals'
                     or (tag and settings.TAG_SCORECARD in tag)):
                     icon = chart.get('icon', None)
                     if icon and icon.startswith('/'):
-                        chart['icon'] = "file://{{base_dir}}/htdocs" + icon
+                        if icon.startswith('/%s/' % settings.APP_NAME):
+                            icon = icon[len(settings.APP_NAME) + 1:]
+                        chart['icon'] = self.get_base_url() + icon
                     self._printable_charts += [chart]
         return self._printable_charts
 
     def get_context_data(self, *args, **kwargs):
-        context = {'base_dir': settings.BASE_DIR}
+        context = {'base_url': self.get_base_url()}
         organization = self.kwargs.get('organization', None)
         if organization:
             for accessible in self.get_accessibles(self.request):
@@ -231,9 +244,11 @@ class ScoreCardDownloadView(BenchmarkAPIView):
                     cut=TransparentCut())
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
-            charts = self.get_printable_charts()
             for element in six.itervalues(root[1]):
-                for chart in charts:
+                for chart in self.score_charts:
+                    # We use `score_charts`, not `get_printable_charts` because
+                    # not all top level icons might show up in the benchmark
+                    # graphs, yet we need to display the scores under the icons.
                     if element[0]['slug'] == chart['slug']:
                         if 'normalized_score' in chart:
                             element[0]['normalized_score'] = "%s%%" % chart.get(
@@ -243,6 +258,7 @@ class ScoreCardDownloadView(BenchmarkAPIView):
                         element[0]['score_weight'] = chart.get(
                             'score_weight', "N/A")
                         break
+            charts = self.get_printable_charts()
             for chart in charts:
                 if chart['slug'] == 'totals':
                     context.update({
@@ -262,7 +278,7 @@ class ScoreCardDownloadView(BenchmarkAPIView):
                              js_content, cache_storage, on_start=True,
                              width=400, height=300, delay=1):
         #pylint:disable=too-many-arguments
-        context.update({'base_dir': settings.BASE_DIR})
+        context.update({'base_url': self.get_base_url()})
         template = get_template(template_name)
         content = template.render(context, self.request)
         cache_storage.save('%s.html' % slug, io.StringIO(content))
@@ -282,13 +298,14 @@ casper.viewport(%(width)s, %(height)s).thenOpen('%(url)s', function() {
 });
 """ % {'width': width, 'height': height, 'delay': delay,
        'url': phantomjs_url, 'img_path': img_path})
-        return "file://" + img_path
+        return self.get_base_url() + cache_storage.url('%s.png' % slug)
 
     def generate_printable_html(self):
         charts = self.get_printable_charts()
         location = tempfile.mkdtemp(
             prefix=settings.APP_NAME + "-", dir=settings.MEDIA_ROOT)
-        base_url = settings.MEDIA_URL
+        base_url = (
+            settings.MEDIA_URL + location.replace(settings.MEDIA_ROOT, ""))
         cache_storage = FileSystemStorage(
             location=location, base_url=base_url)
         js_content = io.StringIO()
@@ -329,6 +346,10 @@ casper.run();
         subprocess.check_call(cmd)
 
     def get(self, request, *args, **kwargs):
+        # Hacky way to insure `get_queryset` will use the same kwargs['path']
+        # than as the API.
+        from_root, _ = self.breadcrumbs
+        self._breadcrumbs = self.get_breadcrumbs(from_root)
         self.generate_printable_html()
         return PdfTemplateResponse(request, self.template_name,
             self.get_context_data(*args, **kwargs))

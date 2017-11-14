@@ -1,13 +1,191 @@
 <!DOCTYPE html>
 <html class="no-js" lang="en">
 <head>
-  <link rel="stylesheet" media="all" href="https://s3-us-west-2.amazonaws.com/envconnect/static/cache/envconnect.css" />
 <style>
-    @media print{
-      .icon-caption {
-        color: #fff !important;
-      }
-    }
+@font-face{
+  font-family:'myriad-light';
+  src: url('{{base_url}}/static/fonts/MyriadPro-Light.otf') format('opentype');
+  src: url('{{base_url}}/static/fonts/MyriadPro-Light.woff') format('woff');
+}
+@font-face{
+  font-family:'myriad-regular';
+  src: url('{{base_url}}/static/fonts/MyriadPro-Regular.otf') format('opentype');
+  src: url('{{base_url}}/static/fonts/MyriadPro-Regular.woff') format('woff');
+
+}
+@font-face{
+  font-family:'myriad-semibold';
+  src: url('{{base_url}}/static/fonts/MyriadPro-Semibold.otf') format('opentype');
+  src: url('{{base_url}}/static/fonts/MyriadPro-Semibold.woff') format('woff');
+}
+
+* {
+    box-sizing: border-box;
+}
+
+*:before, *:after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 10px;
+}
+
+html {
+    font-family: sans-serif;
+}
+
+body {
+    margin: 0;
+    font-family: "myriad-light",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: #fff;
+}
+
+h1 {
+    margin: .67em 0;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+}
+
+h1, .h1, h2, .h2, h3, .h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 37px;
+}
+
+h2 {
+    font-size: 29px;
+}
+
+img {
+    vertical-align: middle;
+}
+
+img {
+    border: 0;
+}
+
+.benchmarks-box {
+  border: 1px solid #ACAFAF;
+}
+
+.score-card-background {
+  background-color: #e5e9dd;
+}
+
+.bordered-left {
+    border-left:1px dashed grey;
+}
+
+.nav {
+    margin-bottom: 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.nav-squared-tabs {
+    display: block;
+    margin: 30px 0 30px 0;
+    border-bottom: 0;
+}
+
+.nav-tabs>li {
+    display: inline-block;
+    margin-bottom: -1px;
+}
+
+.nav-squared-tabs>li.squared-tabs-li {
+    position: relative;
+    bottom: 0;
+    padding: 0;
+    width: 120px;
+    text-align: center;
+}
+
+.icon-container {
+    position: relative;
+    bottom: 0;
+    display: inline-block;
+    padding: 0;
+    width: 120px;
+    text-align: center;
+}
+
+.nav-squared-tabs>li.squared-tabs-li .icon-inner {
+    display: inline-block;
+    position: relative;
+    bottom: 0;
+}
+
+.icon-container>.icon-inner {
+    display: inline-block;
+    position: relative;
+    bottom: 0;
+    background-color: transparent;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    height: 90px;
+    width: 90px;
+    padding: 5px 0;
+}
+
+.grey {
+    color: white;
+    background-color: #C5C5C5!important;
+}
+
+.orange {
+    color: white;
+    background-color: #F89407!important;
+}
+
+
+.icon-equipment {
+    width: 50px;
+    height: 50px;
+    max-width: 50px;
+    max-height: 50px;
+}
+
+.icon-caption {
+  height: 36px;
+  width: 90px;
+  display: table-cell;
+  vertical-align: middle;
+  font-size: 13px;
+  line-height: 12px;
+  text-align: center;
+  color: #fff !important;
+}
+
+.icon-score > h3 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0 0 0;
+}
+
+.score-card p {
+    border-top: 1px dashed grey;
+    padding-top: 5px;
+    margin: 0 10px 0 10px;
+}
+
+.benchmarks-align {
+/*  margin-left: 15px; // closest to matching alignment in #subtotals */
+    margin-left: 50px; // more like centered
+}
   </style>
 </head>
 <body>
@@ -35,7 +213,7 @@ indicator for a best practice.
   <div id="subtotals" class="benchmarks-box" style="margin-top: 25px;">
     <h2 style="margin-left: 5px;">Subtotals</h2>
     {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
-    <ul class="nav nav-tabs squared-tabs">
+    <ul class="nav nav-tabs nav-squared-tabs">
       {% for abs_prefix, icon_tuple in root.1|iteritems  %}
       {% with icon_tuple.0 as icon %}
       {% with forloop.first as draw_border %}
@@ -63,7 +241,7 @@ indicator for a best practice.
   </div>
   <div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
     <h2 style="margin-left: 5px;">Benchmark graphs</h2>
-    <div>
+    <div class="benchmarks-align">
       <div>
         {% for chart in charts %}
         {% if forloop.counter0|divisibleby:2 %}

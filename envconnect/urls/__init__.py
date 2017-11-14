@@ -29,7 +29,7 @@ if settings.DEBUG: #pylint: disable=no-member
     urlpatterns = staticfiles_urlpatterns()
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
-        url(r'^media/(?P<path>.*)$', static_serve, {
+        url(r'^envconnect%s(?P<path>.*)$' % settings.MEDIA_URL, static_serve, {
             'document_root': settings.MEDIA_ROOT}),
         url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
         url(r'^admin/', include(admin.site.urls)),
