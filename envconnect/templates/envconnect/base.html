@@ -300,6 +300,7 @@ app.constant('settings', {
     sortBy:{{sort_by|safe}},
 {% endif %}
     itemsPerPage: {% if items_per_page %}{{items_per_page}}{% else %}25{% endif %},
+    modalId: "#new-user-relation"
 });
 
 jQuery(document).ready(function($) {

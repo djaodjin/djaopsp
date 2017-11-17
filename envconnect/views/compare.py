@@ -32,7 +32,9 @@ class ReportingEntitiesView(AccountMixin, PermissionMixin, TemplateView):
                 args=('/totals',))
         urls = {
             'api_suppliers': reverse('api_suppliers', args=(self.account,)),
-            'api_accessibles': None,
+            'api_accessibles': site_prefixed(
+                "/api/profile/%(account)s/plans/%(account)s-reporting/"\
+                "subscriptions/" % {'account': self.account}),
             'api_organizations': site_prefixed("/api/profile/"),
             'totals_chart': totals_chart_url,
         }

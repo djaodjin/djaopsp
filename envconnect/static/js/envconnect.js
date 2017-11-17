@@ -980,21 +980,21 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.updateImprovement();
 }]);
 
-// XXX originally copy/pasted from djaodjin-saas-angular.js but there
-// has been significant changes now.
-envconnectControllers.controller("itemsListCtrl",
+// Originally itemsListCtrl copy/pasted from djaodjin-saas-angular.js
+// but there has been significant changes now to deal with the MyTSP-specific
+// behavior.
+envconnectControllers.controller("envconnectMyTSPReporting",
     ["$scope", "$http", "$timeout", "settings",
      function($scope, $http, $timeout, settings) {
     "use strict";
+
     $scope.dir = {};
     $scope.totalItems = 0;
     $scope.opened = { "start_at": false, "ends_at": false };
     $scope.params = {};
-    if( settings.sortByField ) {
-        $scope.params['o'] = settings.sortByField;
-        $scope.params['ot'] = settings.sortDirection || "desc";
-        $scope.dir[settings.sortByField] = $scope.params['ot'];
-    }
+    $scope.params['o'] = settings.sortByField || "full_name";
+    $scope.params['ot'] = settings.sortDirection || "desc";
+    $scope.dir[$scope.params['o']] = $scope.params['ot'];
     if( settings.date_range && settings.date_range.start_at ) {
         $scope.params['start_at'] = moment(settings.date_range.start_at).toDate();
     }
@@ -1009,6 +1009,10 @@ envconnectControllers.controller("itemsListCtrl",
     // currentPage will be saturated at maxSize when maxSize is defined.
     $scope.formats = ["dd-MMMM-yyyy", "yyyy/MM/dd", "dd.MM.yyyy", "shortDate"];
     $scope.format = $scope.formats[0];
+
+
+    $scope.item = null;
+
 
     // calendar for start_at and ends_at
     $scope.open = function($event, date_at) {
@@ -1098,7 +1102,9 @@ envconnectControllers.controller("itemsListCtrl",
             && entry.improvement_score > 0;
     };
 
-    $scope.refreshSuppliers = function() {
+    $scope.refresh = function() {
+        clearMessages();
+        if( $scope.items ) { $scope.items.$resolved = false; }
         $http.get(settings.urls.api_suppliers,
             {params: $scope.params}).then(function(resp) { // success
             if( !($scope.items && $scope.items.$resolved) ) {
@@ -1143,52 +1149,8 @@ envconnectControllers.controller("itemsListCtrl",
         });
     };
 
-    $scope.refresh = function() {
-        if( settings.urls.api_items ) {
-            $http.get(settings.urls.api_items,
-                      {params: $scope.params}).then(function(resp) {
-                // We cannot watch items.count otherwise things start
-                // to snowball. We must update totalItems only when it truly
-                // changed.
-                if( resp.data.count != $scope.totalItems ) {
-                    $scope.totalItems = resp.data.count;
-                }
-                $scope.items = resp.data;
-                for( var idx = 0; idx < $scope.items.results.length; ++idx ) {
-                    if( $scope.items.results[idx].request_key ) {
-                        $scope.items.results[idx].$resolved = true;
-                    }
-                }
-                $scope.items.$resolved = true;
-                $scope.refreshSuppliers();
-
-            }, function(resp) { // error
-                $scope.items = {};
-                $scope.items.$resolved = false;
-                showErrorMessages(resp);
-            });
-        } else {
-            $scope.refreshSuppliers();
-        }
-    };
-
-    if( settings.autoload ) {
-        $scope.refresh();
-    }
-}]);
-
-
-envconnectControllers.controller("relationListCtrl",
-    ["$scope", "$controller", "$http", "$timeout", "settings",
-    function($scope, $controller, $http, $timeout, settings) {
-    "use strict";
-    $controller("itemsListCtrl", {
-        $scope: $scope, $http: $http, $timeout:$timeout, settings: settings});
-
-    $scope.item = null;
-
     $scope.getCandidates = function(val) {
-        return $http.get(settings.urls.api_candidates, {
+        return $http.get(settings.urls.api_organizations, {
             params: {q: val}
         }).then(function(res){
             return res.data.results;
@@ -1198,7 +1160,8 @@ envconnectControllers.controller("relationListCtrl",
     $scope.create = function() {
         $scope.item.invite = angular.element(
             settings.modalId + " [name='message']").val();
-        $http.post(settings.urls.api_items + "?force=1", $scope.item).then(
+        $http.post(settings.urls.api_accessibles + "?force=1",
+                   {organization: $scope.item}).then(
             function success(resp) {
                 // XXX Couldn't figure out how to get the status code
                 //   here so we just reload the list.
@@ -1217,7 +1180,8 @@ envconnectControllers.controller("relationListCtrl",
             // we only get an e-mail string.
             $scope.item = {email: $scope.item, printable_name: $scope.item};
         }
-        $http.post(settings.urls.api_items, $scope.item).then(
+        $http.post(settings.urls.api_accessibles,
+                   {organization: $scope.item}).then(
             function(success) {
                 // XXX Couldn't figure out how to get the status code
                 // here so we just reload the list.
@@ -1235,10 +1199,7 @@ envconnectControllers.controller("relationListCtrl",
 
     $scope.remove = function ($event, idx) {
         $event.preventDefault();
-        var removeUrl = settings.urls.api_items + $scope.items.results[idx].slug;
-        if( $scope.items.results[idx].role_description ) {
-            removeUrl += '/' + $scope.items.results[idx].role_description
-        }
+        var removeUrl = settings.urls.api_accessibles + $scope.items.results[idx].slug + '/';
         $http.delete(removeUrl).then(
             function success(resp) {
                 $scope.items.results.splice(idx, 1);
@@ -1248,24 +1209,9 @@ envconnectControllers.controller("relationListCtrl",
             });
     };
 
-}]);
+    // autoload list of suppliers
+    $scope.refresh();
 
-// XXX end of copy/paste
-
-envconnectControllers.controller("envconnectRequestListCtrl",
-    ["$scope", "$controller", "$http", "$timeout", "settings",
-    function($scope, $controller, $http, $timeout, settings) {
-    "use strict";
-    var opts = angular.merge({
-        autoload: true,
-        sortByField: "full_name",
-        sortDirection: "desc",
-        modalId: "#new-user-relation",
-        urls: {api_items: settings.urls.api_accessibles,
-               api_candidates: settings.urls.api_organizations}}, settings);
-    $controller("relationListCtrl", {
-        $scope: $scope, $http: $http, $timeout:$timeout,
-        settings: opts});
 }]);
 
 

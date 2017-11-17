@@ -50,13 +50,14 @@
 },
 {
     "fields": {
-        "slug":"reporting",
+        "slug":"envconnect-reporting",
         "title":"Reporting",
         "created_at":"2017-10-01T00:00:00+00:00",
         "is_not_priced": 1,
         "interval": 4,
         "description": "Enable reporting suppliers to share scorecard through MyTSP",
         "organization": 6,
+        "optin_on_grant": 1,
         "is_active" : 1
     },
     "model" : "saas.Plan", "pk": 1
@@ -146,6 +147,15 @@
       "user": 9
     },
     "model": "saas.Role", "pk": 6
+},
+{
+    "fields": {
+      "created_at": "2017-01-01T14:16:55-09:00",
+      "role_description": 1,
+      "organization": 9,
+      "user": 9
+    },
+    "model": "saas.Role", "pk": 9
 },
 { "fields": {
     "slug": "envconnect",

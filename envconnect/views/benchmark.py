@@ -5,8 +5,6 @@ from __future__ import unicode_literals
 
 import io, logging, json, re, subprocess, tempfile
 
-from django.template.response import TemplateResponse
-
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse, NoReverseMatch
@@ -204,7 +202,8 @@ class ScoreCardDownloadView(BenchmarkAPIView):
     """
     template_name = 'envconnect/prints/scorecard.html'
 
-    def get_base_url(self):
+    @staticmethod
+    def get_base_url():
         return "file://%s" % settings.HTDOCS
 
     @property

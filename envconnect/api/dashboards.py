@@ -2,7 +2,7 @@
 # see LICENSE.
 
 import logging, re
-from collections import OrderedDict
+from collections import namedtuple, OrderedDict
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -11,6 +11,7 @@ from django.utils import six
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response
+from saas.models import Subscription
 from survey.api.matrix import MatrixDetailAPIView
 from survey.models import EditableFilter
 from survey.utils import get_account_model
@@ -21,20 +22,28 @@ from ..serializers import AccountSerializer
 
 LOGGER = logging.getLogger(__name__)
 
+AccountType = namedtuple('AccountType',
+    ['pk', 'slug', 'printable_name', 'email', 'request_key'])
+
 
 class DashboardMixin(BenchmarkMixin):
 
     account_model = get_account_model()
 
     def get_requested_accounts(self):
-
-        return (self.get_accounts() | self.account_model.objects.accessible_by(
-            self.request.user).filter(
-                role__request_key__isnull=False)).distinct()
+        return [AccountType._make(val) for val in Subscription.objects.filter(
+            plan__organization=self.account).select_related(
+            'organization').values_list('organization__pk',
+            'organization__slug', 'organization__full_name',
+            'organization__email', 'grant_key')]
 
     def get_accounts(self):
-        return self.account_model.objects.filter(
-            subscriptions__organization=self.account).distinct()
+        return [AccountType._make(val) for val in Subscription.objects.filter(
+            grant_key__isnull=True,
+            plan__organization=self.account).select_related(
+            'organization').values_list('organization__pk',
+            'organization__slug', 'organization__full_name',
+            'organization__email', 'grant_key')]
 
 
 class SupplierListAPIView(DashboardMixin, generics.ListAPIView):
@@ -71,7 +80,8 @@ class SupplierListAPIView(DashboardMixin, generics.ListAPIView):
                 score = account_scores.get(account.pk, None)
                 dct = {'slug': account.slug,
                     'printable_name': account.printable_name,
-                    'email': account.email}
+                    'email': account.email,
+                    'request_key': account.request_key}
                 if score is not None:
                     created_at = score.get('created_at', None)
                     if created_at:
