@@ -57,7 +57,7 @@
         "interval": 4,
         "description": "Enable reporting suppliers to share scorecard through MyTSP",
         "organization": 6,
-        "optin_on_grant": 1,
+        "skip_optin_on_grant": 1,
         "is_active" : 1
     },
     "model" : "saas.Plan", "pk": 1
