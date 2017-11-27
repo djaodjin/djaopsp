@@ -60,7 +60,7 @@ js_angular = Bundle(
     'vendor/angular-dragdrop.js',
     'vendor/angular-route.min.js',
     'vendor/angular-sanitize.js',
-    'vendor/angular-bootstrap-tpls.js',
+    'vendor/ui-bootstrap-tpls.js',
     filters='jsmin', output='cache/angular.js')
 register('js_angular', js_angular)
 
