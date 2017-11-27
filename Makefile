@@ -14,6 +14,7 @@ CONFIG_DIR    := $(SYSCONFDIR)/$(APP_NAME)
 
 ASSETS_DIR    := $(srcDir)/htdocs/static
 
+NPM           := $(binBuildDir)/npm
 PIP           := $(binDir)/pip
 PYTHON        := $(binDir)/python
 installFiles  := install -p -m 644
@@ -88,7 +89,7 @@ require-resources:
 # in the directory assets are served from.
 vendor-assets-prerequisites: $(srcDir)/package.json
 	$(installFiles) $^ .
-	$(binBuildDir)/npm install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp
+	$(NPM) install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp
 	install -d $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
 	$(installFiles) node_modules/angular/angular.min.js* $(ASSETS_DIR)/vendor
 	$(installFiles) node_modules/angular/angular.js $(ASSETS_DIR)/vendor
