@@ -18,8 +18,8 @@ Install
 Development setup: Step-by-step
 -------------------------------
 
-    $ virtualenv envcoonect
-    $ source envcoonect/bin/activate
+    $ virtualenv envconnect
+    $ source envconnect/bin/activate
     $ mkdir -p envconnect/reps
     $ cd envconnect/reps
     $ git clone https://github.com/djaodjin/envconnect.git
