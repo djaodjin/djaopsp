@@ -5,7 +5,7 @@ django-contrib-comments==1.8.0
 django-crispy-forms==1.6.1
 django-urldecorators==0.6
 djangorestframework==3.3.3
-djaodjin-answers==0.1.4
+djaodjin-answers==0.1.5
 djaodjin-deployutils==0.4.6
 djaodjin-extended-templates==0.1.9
 djaodjin-pages==0.1.2
@@ -17,3 +17,8 @@ jsmin==2.2.2
 monotonic==1.1
 openpyxl==2.4.8
 yuicompressor==2.4.8
+pytz
+
+# C/C++
+#cffi==1.11.2
+#port install py36-cairo pango npm5
