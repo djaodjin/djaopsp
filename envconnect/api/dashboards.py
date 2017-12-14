@@ -212,7 +212,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
                     default = parts[1] if len(parts) > 1 else None
                     cohorts += [{
                         'slug': account.slug,
-                        'title': account.full_name,
+                        'title': account.printable_name,
                         'likely_metric': self.get_likely_metric(
                             account.slug, default=default)}]
         rollup_tree[0]['values'] = score
