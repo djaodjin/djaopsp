@@ -413,8 +413,8 @@ DEPLOYUTILS = {
             'username': 'donny',
             'roles': {
                 'manager': [
-                    {'slug': 'envconnect', 'full_name': 'Enviro-Connect',
-                    'printable_name': 'Enviro-Connect'}]},
+                    {'slug': 'envconnect',
+                     'printable_name': 'Enviro-Connect'}]},
             'site': {'email': 'donny@djaodjin.com'}},
         'steve': {
             'username': 'steve',
