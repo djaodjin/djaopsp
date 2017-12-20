@@ -137,7 +137,9 @@ See the following for examples of content developed for best practices:
                     </tr>
                     <tr>
                         <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : 4]]" class="text-right">
-                                <a id="download-assessment" class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Self-assessment</a>
+                        	<a id="download-assessment" class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Self-assessment</a>
+							<button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
+							<button class="btn btn-primary" id="submit-button" ng-click="freezeSelfAssessment($event)">Submit</button>
                         </td>
                     </tr>
                 </tbody>
