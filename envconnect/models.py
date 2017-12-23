@@ -58,6 +58,30 @@ class ColumnHeader(models.Model):
 
 
 class ConsumptionQuerySet(models.QuerySet):
+    """
+    For a Consumption:
+       avg_value = (environmental_value + business_value
+           + profitability + implementation_ease) / nb_visible_columns
+       opportunity = avg_value * (1 + implementation rate)
+
+    In the context of an Organization:
+
+           CASE WHEN text = '%(yes)s' THEN (opportunity * 3)
+                WHEN text = '%(moderate_improvement)s' THEN (opportunity * 2)
+                WHEN text = '%(significant_improvement)s' THEN opportunity
+                ELSE 0.0 END AS numerator
+
+           CASE WHEN text IN
+             (%(yes_no)s) THEN (opportunity * 3) ELSE 0.0 END AS denominator
+
+        rollup
+          SUM(numerator) AS numerator
+          SUM(denominator) AS denominator
+
+          agg_scores[key] = agg_scores.get(key, 0) + (
+              scores.get(key, 0) * node[0].get('score_weight', 1.0))
+
+    """
 
     @staticmethod
     def _show_query_and_result(raw_query, show=False):

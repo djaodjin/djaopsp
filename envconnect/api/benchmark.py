@@ -410,35 +410,187 @@ GROUP BY account_id, response_id, is_planned;""" % {
                                 'numerator': numerator,
                                 'denominator': denominator})
 
-    def populate_rollup(self, rollup_tree,
-                    numerator_key='numerator', denominator_key='denominator'):
+    @staticmethod
+    def _normalize(scores, score_weight_from_root=1.0, normalize_to_one=False):
         """
-        Populate aggregated scores up the tree.
+        Adds keys ``normalized_score`` and ``improvement_score``
+        into the dictionnary *scores* when keys ``nb_answers``
+        and ``nb_questions`` are equal and (``numerator``, ``denominator``
+        ``improvement_numerator``) are present.
+
+        *score_weight_from_root* is the compound weight (through multiplication)
+        from the root to the node. That's the factor for how much a question
+        will actually contribute to the final score.
+
+        The ``score_weight`` on a node really represents a percentage the node
+        contributes to the parent score. This means we need to normalize the
+        node score before using it.
         """
-        if len(rollup_tree[1].keys()) == 0:
-            for account_id, scores in six.iteritems(rollup_tree[0].get(
-                    'accounts', {})):
-                nb_answers = scores.get('nb_answers', 0)
-                nb_questions = scores.get('nb_questions', 0)
-                if nb_answers == nb_questions:
-                    denominator = scores.get(denominator_key, 0)
-                    if denominator > 0:
-                        scores['normalized_score'] = int(
-                            scores[numerator_key] * 100.0 / denominator)
-                        if 'improvement_numerator' in scores:
-                            scores['improvement_score'] = (
-                                scores['improvement_numerator'] * 100.0
-                                / denominator)
-                    else:
-                        scores['normalized_score'] = 0
-            return
+        numerator_key = 'numerator'
+        denominator_key = 'denominator'
+        nb_answers = scores.get('nb_answers', 0)
+        nb_questions = scores.get('nb_questions', 0)
+        if nb_answers == nb_questions:
+            # If we don't have the same number of questions
+            # and answers, numerator and denominator are meaningless.
+            denominator = scores.get(denominator_key, 0)
+            if denominator > 0:
+                scores['normalized_score'] = int(
+                    scores[numerator_key] * 100.0 / denominator)
+                if 'improvement_numerator' in scores:
+                    scores['improvement_score'] = (
+                        scores['improvement_numerator'] * 100.0
+                        / denominator)
+                if normalize_to_one:
+                    scores[numerator_key] /= denominator
+                    scores['improvement_numerator'] /= denominator
+                    scores[denominator_key] = 1.0
+            else:
+                scores['normalized_score'] = 0
+        else:
+            scores.pop(numerator_key, None)
+            scores.pop(denominator_key, None)
+
+
+    def populate_rollup(self, rollup_tree, normalize_to_one,
+                        score_weight_from_root=1.0):
+        """
+        Recursively populate the tree *rollup_tree* with aggregated scores.
+
+        A rollup_tree is recursively defined as a tuple of two dictionnaries.
+        The first dictionnary stores the fields on the node while the second
+        dictionnary contains the leafs keyed by path.
+
+        Example:
+
+            [{
+                "slug": "totals",
+                "title": "Total Score",
+                "tag": ["scorecard"]
+             },
+             {
+                "/boxes-and-enclosures": [{
+                    "path": "/boxes-and-enclosures",
+                    "slug": "sustainability-boxes-and-enclosures",
+                    "title": "Boxes & enclosures",
+                    "tag": "{\"tags\":[\"sustainability\"]}",
+                    "score_weight": 1.0,
+                    "transparent_to_rollover": false
+                },
+                {
+                    "/boxes-and-enclosures/management-basics": [{
+                        "path": "/boxes-and-enclosures/management-basics",
+                        "slug": "management-basics",
+                        "title": "Management",
+                        "tag": "{\"tags\":[\"management\",\"scorecard\"]}",
+                        "score_weight": 1.0,
+                        "transparent_to_rollover": false,
+                        "accounts": {
+                            "6": {
+                                "nb_answers": 0,
+                                "nb_questions": 2,
+                                "created_at": null
+                            },
+                            "7": {
+                                "nb_answers": 2,
+                                "nb_questions": 2,
+                                "created_at": "2017-12-20 18:48:40.666239",
+                                "numerator": 4.0,
+                                "denominator": 10.5,
+                                "improvement_numerator": 1.5,
+                                "improvement_denominator": 4.5
+                            },
+                        }
+                    },
+                    {}
+                    ],
+                    "/boxes-and-enclosures/design": [{
+                        "path": "/boxes-and-enclosures/design",
+                        "slug": "design",
+                        "title": "Design",
+                        "tag": "{\"tags\":[\"scorecard\"]}",
+                        "score_weight": 1.0,
+                        "transparent_to_rollover": false,
+                        "accounts": {
+                            "6": {
+                                "nb_answers": 0,
+                                "nb_questions": 2,
+                                "created_at": null
+                            },
+                            "7": {
+                                "nb_answers": 0,
+                                "nb_questions": 2,
+                                "created_at": null,
+                                "improvement_numerator": 0.0,
+                                "improvement_denominator": 0.0
+                            },
+                        }
+                    },
+                    {}
+                    ],
+                    "/boxes-and-enclosures/production": [{
+                        "path": "/boxes-and-enclosures/production",
+                        "slug": "production",
+                        "title": "Production",
+                        "tag": "{\"tags\":[\"scorecard\"]}",
+                        "score_weight": 1.0,
+                        "transparent_to_rollover": false,
+                        "text": "/envconnect/static/img/production.png"
+                    },
+                    {
+                        "/boxes-and-enclosures/production/energy-efficiency": [{
+                            "path": "/boxes-and-enclosures/production/energy-efficiency",
+                            "slug": "energy-efficiency",
+                            "title": "Energy Efficiency",
+                            "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
+                            "score_weight": 1.0,
+                            "transparent_to_rollover": false,
+                            "accounts": {
+                                "6": {
+                                    "nb_answers": 1,
+                                    "nb_questions": 4,
+                                    "created_at": "2016-05-01 00:36:19.448000"
+                                },
+                                "7": {
+                                    "nb_answers": 0,
+                                    "nb_questions": 4,
+                                    "created_at": null,
+                                    "improvement_numerator": 0.0,
+                                    "improvement_denominator": 0.0
+                                },
+                            }
+                        },
+                        {}
+                        ]
+                    }
+                }]
+             }]
+        """
+        numerator_key = 'numerator'
+        denominator_key = 'denominator'
         values = rollup_tree[0]
+        slug = values.get('slug', None)
+        root_score_weight = values.get('score_weight', 1.0)
+
         if not 'accounts' in values:
             values['accounts'] = {}
         accounts = values['accounts']
-        slug = rollup_tree[0].get('slug', None)
+
+        # If the total of the children weights is 1.0, we are dealing
+        # with percentages so we need to normalize all children numerators
+        # and denominators to compute this node score.
+        total_score_weight = 0
         for node in six.itervalues(rollup_tree[1]):
-            self.populate_rollup(node)
+            score_weight = node[0].get('score_weight', 1.0)
+            total_score_weight += score_weight
+        normalize_children = ((1.0 - 0.01) <  total_score_weight
+            and total_score_weight < (1.0 + 0.01))
+
+        for node in six.itervalues(rollup_tree[1]):
+            self.populate_rollup(node, normalize_children, # recursive call
+                score_weight_from_root=(score_weight_from_root
+                    * root_score_weight))
+            score_weight = node[0].get('score_weight', 1.0)
             for account_id, scores in six.iteritems(
                     node[0].get('accounts', {})):
                 if not account_id in accounts:
@@ -469,26 +621,13 @@ GROUP BY account_id, response_id, is_planned;""" % {
                     for key in [numerator_key, denominator_key,
                                 'improvement_numerator']:
                         agg_scores[key] = agg_scores.get(key, 0) + (
-                            scores.get(key, 0)
-                            * node[0].get('score_weight', 1.0))
-        for account_id, agg_scores in six.iteritems(accounts):
-            nb_answers = agg_scores.get('nb_answers', 0)
-            nb_questions = agg_scores.get('nb_questions', 0)
-            if nb_answers == nb_questions:
-                # If we don't have the same number of questions
-                # and answers, numerator and denominator are meaningless.
-                denominator = agg_scores.get(denominator_key, 0)
-                agg_scores.update({
-                    'normalized_score': int(agg_scores[numerator_key] * 100.0
-                        / denominator) if denominator > 0 else 0})
-                if 'improvement_numerator' in agg_scores:
-                    agg_scores.update({
-                        'improvement_score': (
-                            agg_scores['improvement_numerator'] * 100.0
-                            / denominator) if denominator > 0 else 0})
-            else:
-                agg_scores.pop(numerator_key, None)
-                agg_scores.pop(denominator_key, None)
+                            scores.get(key, 0) * score_weight)
+
+        for account_id, scores in six.iteritems(accounts):
+            self._normalize(scores,
+                score_weight_from_root=score_weight_from_root,
+                normalize_to_one=normalize_to_one)
+
 
     def rollup_scores(self, roots=None, root_prefix=None):
         """
@@ -511,7 +650,7 @@ GROUP BY account_id, response_id, is_planned;""" % {
         self._report_queries("leafs loaded")
         self.populate_leafs(leafs, self.get_scored_answers())
         self._report_queries("leafs populated")
-        self.populate_rollup(rollup_tree)
+        self.populate_rollup(rollup_tree, True)
         self._report_queries("rollup_tree populated")
         return rollup_tree
 
