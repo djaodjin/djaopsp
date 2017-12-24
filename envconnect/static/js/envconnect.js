@@ -967,6 +967,23 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
     };
 
+	$scope.showSaveMessage = function ($event) {
+		clearMessages();
+		showMessages(['Your changes have been saved.'], 'info');
+	};
+
+	$scope.freezeSelfAssessment = function ($event) {
+		$event.preventDefault();
+
+		$http.put(settings.urls.api_self_assessment_response, {is_frozen: true}).then(
+            function success(resp) {
+                showMessages(["Success!"], "info");
+            },
+            function error(resp) {
+                showErrorMessages(resp);
+        });
+	};
+
     var savingsElements = angular.element("#improvement-dashboard").find(".savings");
     if( savingsElements.length > 0 ) {
         $scope.savingsChart = speedometer(savingsElements[0]);
