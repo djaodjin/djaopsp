@@ -1,101 +1,79 @@
 {% extends "envconnect/base.html" %}
 {% load static from staticfiles %}
 
-{% block extra_panel_icons_classes %}{% endblock %}
-{% block extra_icon_classes %} active no-color-chage{% endblock %}
-{% block row_icons_classes %} benchmarks-box{% endblock %}
-
-{% block icon_row_title %}
-<h2 class="icon-row-title">Scorecard</h2>
-{% endblock %}
-
-{% block additional_icon %}
-<div class="score-card score-card-background bordered-left" style="flex:auto;" data-toggle="tooltip" data-placement="top" title="The total score is the sum of all (icon score * icon weight).">
-  <h4>Total Score</h4>
-  <div id="totals" style="width:300px;margin:auto;">
-  </div>
-  <p>
-Benchmarking is based on responses from <span id="nb-respondents"><i class="fa fa-spinner fa-spin"></i></span>
-companies in the &quot;{{breadcrumbs.0.0.title}}&quot; industry segment.
-Note: Your score will rise if the implementation rate for the best practices
-you have implemented rises, because implementation rate is used as value
-indicator for a best practice.
-  </p>
-  <div style="margin-top:25px;">
-      <a href="{% url 'scorecard_download_organization' organization path %}" target="_blank">Print scorecard</a>
-  </div>
-  <div{% if '/share/' in request.path %} class="active"{% endif %}>
-      <a id="submenu-share" href="{{''|site_prefixed}}/profile/{{organization}}/roles/viewer/">Share scorecard<br /></a>
-  </div>
-  <div style="font-weight:900;margin-top:45px;">
-      <i class="fa fa-wrench"></i> Get this scorecard verified?<br />
-      <i class="fa fa-check-square-o fa-2x"></i>
-  </div>
-</div>
-{% endblock %}
-
-{% block score %}
-<div id="{{icon.slug}}-score" class="icon-score" data-toggle="tooltip" data-placement="top" title="An icon sore is the sum of all (3 * opportunity where answered 'yes', 2 * opportunity where answered 'needs little improvement', opportunity  where answered 'needs lot of improvement') * 100 / sum of all (opportunity where not answered 'Not applicable')">
-    <h3 class="rollup-score"><i class="fa fa-spinner fa-spin"></i></h3>
-    <div>
-        (<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{abs_prefix}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)
-    </div>
-</div>
-{% endblock %}
-
-{% block systems_block %}
-<div class="system-menus">
-{% for system_tuple in icon_tuple.1|systems %}
-  {% with system_tuple.0 as system %}
-  <div id="{{system.slug}}-score" class="system-menu {% if forloop.first %}system-menu-bordered{% endif %}">
-    {% if not forloop.first %}
-    <i class="fa fa-plus"></i>
-    {% endif %}
-    <p id="tab-{{system.slug}}">{{system.title}}</p>
-    <div class="rollup-score">
-        <i class="fa fa-spinner fa-spin"></i>
-    </div>
-    <div>(<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{abs_prefix|add:'/'|add:system.slug}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)</div>
-  </div>
-  {% endwith %}
-{% endfor %}
-</div>
-{% endblock %}
+{% block icons_menu %}
+    {% include "envconnect/_benchmark_menu.html" with icon_row_title="Scorecard" arc_title="Total Score" arc_chart_id="score-card" %}
+{% endblock icons_menu %}
 
 {% block app_content %}
-<div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
-  <h2 style="margin-left: 5px;">Benchmark graphs</h2>
-  <div>
-    <div class="row row-flex">
-      {% for chart in charts %}
-      {% if forloop.counter0|divisibleby:3 %}
+    <div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
+        <h2 style="margin-left: 5px;">Benchmark graphs</h2>
+        <div>
+            <div class="row row-flex">
+                {% for chart in charts %}
+                    {% if forloop.counter0|divisibleby:3 %}
+                        </div>
+                        <div class="row row-flex">
+                    {% endif %}
+                    <div class="col-md-4">
+                        <div id="{{chart.slug}}-chart" class="chart-container">
+                            {% include "envconnect/_chart_title.html" with practice=chart %}
+                        <div>
+                        <div class="chart-content c3" style="width:250px;height:120px;">
+                        </div>
+                        </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
-        <div class="row row-flex">
-      {% endif %}
-      <div class="col-md-4">
-          <div id="{{chart.slug}}-chart" class="chart-container">
-              {% include "envconnect/_chart_title.html" with practice=chart %}
-              <div>
-                  <div class="chart-content c3" style="width:250px;height:120px;">
-                  </div>
-              </div>
-          </div>
-      </div>
-      {% endfor %}
     </div>
-  </div>
-</div>
-{% endblock %}
+    <div id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
+        <h2 style="margin-left: 5px;">"Not Applicable" Responses</h2>
+        <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
+        <ol>
+            {% if not_applicable_answers %}
+                {% for answer in not_applicable_answers %}
+                    <li><a href="{% url 'summary_organization' organization answer|path_with_prefix:path %}">{{ answer.question.text }}</a></li>
+                {% endfor %}
+                {% else %}
+                    <li>All questions have been answered</li>
+            {% endif %}
+        </ol>
+    </div>
+
+    {% include "envconnect/_benchmark_menu.html" with icon_row_title="Improvement Plan" arc_title="Total Score After Improvements" arc_chart_id="improvement-plan" %}
+
+    <div id="improvement-suggestion-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
+        <h2 style="margin-left: 5px;">Selected for Improvement Plan</h2>
+        <ol>
+            {% if improvement_suggestions %}
+                {% for answer in improvement_suggestions %}
+                    <li><a href="{% url 'summary_organization' organization answer|path_with_prefix:path %}">{{ answer.question.text }}</a></li>
+                {% endfor %}
+                {% else %}
+                    <li>No suggested improvements</li>
+            {% endif %}
+        </ol>
+    </div>
+
+{% endblock app_content%}
 
 {% block bodyscripts %}
 {{block.super}}
 <script type="text/javascript">
-jQuery(document).ready(function($) {
-    $("#planel-icons").improvementDashboard({
-        api_account_benchmark: "{{api_account_benchmark}}",
-        benchmark: "{{root.0.slug}}"
+    jQuery(document).ready(function($) {
+        $("#score-card").improvementDashboard({
+            api_account_benchmark: "{{api_account_benchmark}}",
+            benchmark: "{{root.0.slug}}",
+    		scoreFunc: function (elem) { return elem.normalized_score }
+        });
+    	$("#improvement-plan").improvementDashboard({
+            api_account_benchmark: "{{api_account_benchmark}}",
+            benchmark: "{{root.0.slug}}",
+    		scoreFunc: function (elem) { return Math.floor(elem.normalized_score + elem.improvement_score) }
+        });
     });
-});
 </script>
 {% if request|is_broker_manager %}
 {% assets "css_editor" %}
