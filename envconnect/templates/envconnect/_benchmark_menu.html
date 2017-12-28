@@ -1,0 +1,87 @@
+<div class="row">
+    <div class="col-md-12 text-center" style="display:table-row;">
+        <div class="row-icons{% block row_icons_classes %} benchmarks-box{% endblock %}" id="{{ arc_chart_id }}">
+            <div style="display:inline-block;float:left;flex:auto;">
+                {% block icon_row_title %}
+                    <h2 class="icon-row-title">{{ icon_row_title }}</h2>
+                {% endblock %}
+                <div class="header-tuple">
+                    {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
+                        <ul class="nav nav-tabs squared-tabs">
+                            {% for abs_prefix, icon_tuple in root.1|iteritems %}
+                                {% with icon_tuple.0 as icon %}
+                                    {% with forloop.first as draw_border %}
+                                    <li id="{{icon.slug}}" class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% block extra_icon_classes %} active no-color-chage{% endblock %}{% if icon.slug == active %} active{% endif %}">
+                                        <div class="icon-container">
+                                            {% if request|is_broker_manager and not organization %}
+                                                <div style="position:relative; vertical-align:top;">
+                                                    <a class="text-danger delete"
+                                                       href="" data-toggle="modal" data-target="#confirm-delete"
+                                                       ng-click="setActiveElement({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
+                                                       style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i>
+                                                    </a>
+                                                    <a id="incl-{{icon.slug}}" href=""
+                                                       ng-click="toggleScorecard('{{abs_prefix}}', true, {slug: '{{icon.slug}}', tag: '{{icon.tag}}'})"
+                                                       style="position:absolute;top:20px;left:0px;"><i class="fa [[containsTag({tag: '{{icon.tag}}'}, TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i>
+                                                    </a>
+                                                    <a class="edit"
+                                                       href="" data-toggle="modal" data-target="#edit-element-modal"
+                                                       ng-click="setActiveElement({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
+                                                       style="position:absolute;top:40px;left:0px;"><i class="fa fa-edit"></i>
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                            {% include "envconnect/_icon.html" with icon=icon %}
+                                            {% block score %}
+                                                <div id="{{icon.slug}}-score" class="icon-score" data-toggle="tooltip" data-placement="top" title="An icon sore is the sum of all (3 * opportunity where answered 'yes', 2 * opportunity where answered 'needs little improvement', opportunity  where answered 'needs lot of improvement') * 100 / sum of all (opportunity where not answered 'Not applicable')">
+                                                    <h3 class="rollup-score"><i class="fa fa-spinner fa-spin"></i></h3>
+                                                    <div>
+                                                        (<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{abs_prefix}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)
+                                                    </div>
+                                                </div>
+                                            {% endblock score %}
+                                        </div>
+                                        {% block systems_block %}
+                                            <div class="system-menus">
+                                            {% for system_tuple in icon_tuple.1|systems %}
+                                              {% with system_tuple.0 as system %}
+                                              <div id="{{system.slug}}-score" class="system-menu {% if forloop.first %}system-menu-bordered{% endif %}">
+                                                {% if not forloop.first %}
+                                                <i class="fa fa-plus"></i>
+                                                {% endif %}
+                                                <p id="tab-{{system.slug}}">{{system.title}}</p>
+                                                <div class="rollup-score">
+                                                    <i class="fa fa-spinner fa-spin"></i>
+                                                </div>
+                                                <div>(<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{abs_prefix|add:'/'|add:system.slug}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)</div>
+                                              </div>
+                                              {% endwith %}
+                                            {% endfor %}
+                                            </div>
+                                        {% endblock systems_block %}
+                                    </li>
+                                    {% endwith %}
+                                {% endwith %}
+                            {% endfor %}
+                            {% if request|is_broker_manager %}
+                                <li class="squared-tabs-li" style="min-width:150px;">
+                                  <div class="icon-container">
+                                    <button class="icon-inner fixed-width orange"
+                                            aria-controls="home"
+                                            data-toggle="modal"
+                                            data-target="#add-element-modal" ng-click="setNewElement('{{icon_prefix}}', HEADING_ELEMENT, TAG_SCORECARD, true)">
+                                        <i class="fa fa-plus fa-5x" style="color:white;"></i>
+                                    </button>
+                                  </div>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endwith %}
+                </div>
+            </div>
+            {% block additional_icon %}
+                {% include "envconnect/_arc.html" %}
+            {% endblock %}
+        </div>
+    </div>
+</div>

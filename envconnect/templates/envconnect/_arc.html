@@ -1,0 +1,23 @@
+<div class="score-card score-card-background bordered-left" id="score-card-arc" style="flex:auto;" data-toggle="tooltip" data-placement="top" title="The total score is the sum of all (icon score * icon weight).">
+    <h4>{{ arc_title }}</h4>
+    <div id="totals" style="width:300px;margin:auto;"></div>
+    <p>
+        Benchmarking is based on responses from <span id="nb-respondents"><i class="fa fa-spinner fa-spin"></i></span>
+        companies in the <strong>&quot;{{ breadcrumbs.0.0.title }}&quot;</strong> industry segment.
+        Note: Your score will rise if the implementation rate for the best practices
+        you have implemented rises, because implementation rate is used as value
+        indicator for a best practice.
+    </p>
+    {% if arc_title == "Total Score" %}
+        <div style="margin-top:25px;">
+            <a href="{% url 'scorecard_download_organization' organization path %}" target="_blank">Print scorecard</a>
+        </div>
+        <div {% if '/share/' in request.path %} class="active"{% endif %}>
+            <a id="submenu-share" href="{{''|site_prefixed}}/profile/{{organization}}/roles/viewer/">Share scorecard<br /></a>
+        </div>
+        <div style="font-weight:900;margin-top:45px;">
+            <i class="fa fa-wrench"></i> Get this scorecard verified?<br />
+            <i class="fa fa-check-square-o fa-2x"></i>
+        </div>
+    {% endif %}
+</div>

@@ -21,6 +21,7 @@ from deployutils.helpers import datetime_or_now
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
 from survey.models import Matrix
+from survey.models import Answer
 from survey.views.matrix import MatrixDetailView
 
 from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
@@ -109,6 +110,12 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
+            not_applicable_answers = Answer.objects.filter(text='Not applicable')
+            improvement_suggestions = Answer.objects.filter(
+                response__extra='is_planned',
+                response__survey__title=self.report_title,
+                response__account=self.account)
+
             root = self._build_tree(trail[-1][0], from_root,
                 cut=TransparentCut())
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
@@ -118,6 +125,8 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             context.update({
                 'charts': charts,
                 'root': root,
+                'not_applicable_answers': not_applicable_answers,
+                'improvement_suggestions': improvement_suggestions,
                 'entries': json.dumps(root, cls=JSONEncoder),
                 # XXX move to urls when we are sure how it interacts
                 # with envconnect/base.html
@@ -448,4 +457,3 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
             chart.update({'urls': api_urls})
         context.update({'charts': charts})
         return context
-
