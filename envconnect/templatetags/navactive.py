@@ -175,3 +175,8 @@ def to_json(value):
     if isinstance(value, six.string_types):
         return value
     return mark_safe(json.dumps(value))
+
+@register.filter
+def path_with_prefix(answer, prefix):
+    question_path = answer.question.consumption.path.split('/')
+    return prefix + '/' + question_path[-1]
