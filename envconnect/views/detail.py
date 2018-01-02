@@ -33,9 +33,9 @@ class DetailView(BestPracticeMixin, TemplateView):
             return reverse('summary_organization', args=(organization, path))
         return super(DetailView, self).get_breadcrumb_url(path)
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         #pylint:disable=too-many-locals
-        context = super(DetailView, self).get_context_data(*args, **kwargs)
+        context = super(DetailView, self).get_context_data(**kwargs)
         from_root, trail = self.breadcrumbs
         # It is OK here to index by -1 since we would have generated a redirect
         # in the `get` method when the path is "/".

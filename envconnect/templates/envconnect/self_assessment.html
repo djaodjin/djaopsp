@@ -185,7 +185,7 @@ Data entry, trending, reporting and dashboard creation is under construction.
 <script type="text/javascript">
 jQuery(document).ready(function($) {
     $(".best-practice-row").selfAssessment({
-        survey_api_response: "{% url 'survey_api_response' organization response %}",
+        survey_api_sample: "{% url 'survey_api_sample' organization sample %}",
         api_improvement_base: "{% url 'api_improvement_base' organization %}"
     });
 });

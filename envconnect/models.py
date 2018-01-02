@@ -107,16 +107,16 @@ class ConsumptionQuerySet(models.QuerySet):
         # but values in ``PRESENT`` and ``ABSENT``
         # do not get quoted.
         if filter_out_testing:
-            filter_out_testing = "AND survey_answer.response_id NOT IN (%s)" % (
+            filter_out_testing = "AND survey_answer.sample_id NOT IN (%s)" % (
                 ', '.join(filter_out_testing))
         else:
             filter_out_testing = ""
         yes_view = """SELECT
   question_id AS question_id,
   COUNT(survey_answer.id) AS nb_yes
-FROM survey_answer INNER JOIN survey_response
-  ON survey_answer.response_id = survey_response.id
-WHERE survey_response.extra IS NULL
+FROM survey_answer INNER JOIN survey_sample
+  ON survey_answer.sample_id = survey_sample.id
+WHERE survey_sample.extra IS NULL
   AND survey_answer.text IN (%(present)s) %(filter_out_testing)s
 GROUP BY question_id""" % {
     'present': ','.join(["'%s'" % val for val in Consumption.PRESENT]),
@@ -132,9 +132,9 @@ INNER JOIN survey_question
   ON (envconnect_consumption.question_id = survey_question.id)
 INNER JOIN survey_answer
   ON (survey_question.id = survey_answer.question_id)
-INNER JOIN survey_response
-  ON survey_answer.response_id = survey_response.id
-WHERE survey_response.extra IS NULL
+INNER JOIN survey_sample
+  ON survey_answer.sample_id = survey_sample.id
+WHERE survey_sample.extra IS NULL
   AND survey_answer.text IN (%(yes_no)s) %(filter_out_testing)s
 GROUP BY envconnect_consumption.question_id""" % {
     'yes_no': ','.join(["'%s'" % val
@@ -153,19 +153,18 @@ ON yes_view.question_id = yes_no_view.question_id""" % {
                 'yes_view': yes_view, 'yes_no_view': yes_no_view}
         self._show_query_and_result(yes_opportunity_view)
 
-        # All expected questions for each response decorated with
+        # All expected questions for each sample decorated with
         # an ``opportunity``.
         # This set of opportunities only has to be computed once.
-        # It is shared across all responses.
+        # It is shared across all samples.
         # COALESCE now supported on sqlite3.
         questions_with_opportunity = """SELECT
   envconnect_consumption.question_id AS question_id,
-  survey_question.survey_id AS survey_id,
   COALESCE(opportunity_view.opportunity, envconnect_consumption.avg_value, 0)
     AS opportunity,
   COALESCE(opportunity_view.rate, 0) AS rate,
   COALESCE(opportunity_view.nb_respondents, 0) AS nb_respondents,
-  envconnect_consumption.path AS path
+  survey_question.path AS path
 FROM envconnect_consumption INNER JOIN survey_question
 ON envconnect_consumption.question_id = survey_question.id
 LEFT OUTER JOIN (%(yes_opportunity_view)s) AS opportunity_view
@@ -210,7 +209,6 @@ class Consumption(SurveyQuestion):
 
     objects = ConsumptionQuerySet.as_manager()
 
-    path = models.CharField(max_length=1024)
     question = models.OneToOneField(SurveyQuestion, parent_link=True)
 
     # Value summary fields
@@ -248,6 +246,8 @@ class Consumption(SurveyQuestion):
 
     def save(self, force_insert=False, force_update=False,
              using=None, update_fields=None):
+        if not self.unit_id:
+            self.unit_id = 1 # assessment unit
         visible_cols = self.VALUE_SUMMARY_FIELDS - set([
             col['slug'] for col in ColumnHeader.objects.leading_prefix(
                 self.path).filter(hidden=True)])

@@ -32,7 +32,8 @@ class SelfAssessmentBaseView(BenchmarkMixin, BestPracticeMixin, TemplateView):
                 # If the consumption is not in leafs,
                 # we have cut out the tree at an icon or heading level.
                 leaf[0]['consumption'] = \
-                    ConsumptionSerializer().to_representation(consumption)
+                    ConsumptionSerializer(context={'campaign': self.survey
+                    }).to_representation(consumption)
 
     def decorate_with_answers(self, leafs):
         # Implementation Note:
@@ -45,7 +46,7 @@ class SelfAssessmentBaseView(BenchmarkMixin, BestPracticeMixin, TemplateView):
                 try:
                     answer = Answer.objects.get(
                         question__consumption__path=path,
-                        response=self.sample)
+                        sample=self.sample)
                     values[0]['consumption']['implemented'] = answer.text
                     # XXX This is not really the opportunity as defined
                     # in `get_opportunities_sql` but rather the number of points
@@ -77,9 +78,9 @@ class SelfAssessmentBaseView(BenchmarkMixin, BestPracticeMixin, TemplateView):
                 values[0]['consumption']['planned'] \
                     = Answer.objects.filter(
                         question__consumption__path=path,
-                        response__extra='is_planned',
-                        response__survey__title=self.report_title,
-                        response__account=self.account).exists()
+                        sample__extra='is_planned',
+                        sample__survey__title=self.report_title,
+                        sample__account=self.account).exists()
 
     def attach_benchmarks(self, rollup_tree):
         self._start_time()
@@ -117,13 +118,13 @@ class SelfAssessmentView(SelfAssessmentBaseView):
         organization = context['organization']
         context.update({
             'page_icon': self.icon,
-            'response': self.sample,
+            'sample': self.sample,
             'survey': self.sample.survey,
             'role': "tab",
             'score_toggle': self.request.GET.get('toggle', False)})
         self.update_context_urls(context, {
-            'api_self_assessment_response': reverse(
-                'survey_api_response', args=(organization, self.sample)),
+            'api_self_assessment_sample': reverse(
+                'survey_api_sample', args=(organization, self.sample)),
         })
         return context
 

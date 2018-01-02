@@ -9,13 +9,14 @@ import monotonic
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import connections, transaction
-from django.db.models import Sum
+from django.db.models import Max, Sum
 from django.http import Http404
 from django.utils import six
 from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
-from survey.models import Answer, Response, SurveyModel
+from rest_framework.generics import get_object_or_404
+from survey.models import Answer, Sample, Campaign, EnumeratedQuestions
 from survey.utils import get_account_model
 
 from .models import Consumption, get_score_weight
@@ -39,9 +40,9 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
     def get_roots():
         return PageElement.objects.get_roots().filter(tag__contains='industry')
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super(
-            PermissionMixin, self).get_context_data(*args, **kwargs)
+            PermissionMixin, self).get_context_data(**kwargs)
         context.update({
             'is_envconnect_manager': self.manages(settings.APP_NAME)})
         return context
@@ -103,8 +104,22 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     breadcrumb_url = 'summary'
     TAG_SYSTEM = 'system'
+    report_title = 'Best Practices Report'
 
     enable_report_queries = True
+
+    @property
+    def survey(self):
+        if not hasattr(self, '_survey'):
+            self._survey = get_object_or_404(
+                Campaign.objects.all(), title=self.report_title)
+        return self._survey
+
+    @property
+    def breadcrumbs(self):
+        if not hasattr(self, '_breadcrumbs'):
+            self._breadcrumbs = self.get_breadcrumbs(self.kwargs.get('path'))
+        return self._breadcrumbs
 
     def _start_time(self):
         if not self.enable_report_queries:
@@ -263,13 +278,23 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             leafs.update(self.get_leafs(level_detail, path=key))
         return leafs
 
-    @staticmethod
-    def decorate_with_consumptions(leafs):
+    def get_next_rank(self):
+        last_rank = EnumeratedQuestions.objects.filter(
+            campaign=self.survey).aggregate(Max('rank')).get('rank__max', 0)
+        return 0 if last_rank is None else last_rank + 1
+
+    def get_serializer_context(self):
+        context = super(BreadcrumbMixin, self).get_serializer_context()
+        context.update({'campaign': self.survey})
+        return context
+
+    def decorate_with_consumptions(self, leafs):
         for path, vals in six.iteritems(leafs):
             consumption = Consumption.objects.filter(path=path).first()
             if consumption:
                 vals[0]['consumption'] \
-                    = ConsumptionSerializer().to_representation(consumption)
+                    = ConsumptionSerializer(context={'campaign': self.survey
+                    }).to_representation(consumption)
             else:
                 vals[0]['consumption'] = None
                 text = PageElement.objects.filter(
@@ -319,12 +344,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 del roots[node_path]
         return roots
 
-    @property
-    def breadcrumbs(self):
-        if not hasattr(self, '_breadcrumbs'):
-            self._breadcrumbs = self.get_breadcrumbs(self.kwargs.get('path'))
-        return self._breadcrumbs
-
     def get_breadcrumbs(self, path):
         #pylint:disable=too-many-locals
         trail = self.get_full_element_path(path)
@@ -350,8 +369,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 missing += [trail[trail_idx]]
                 trail_idx += 1
             if trail_idx >= len(trail):
-                raise Http404("Cannot find '%s' in trail '%s'",
-                    part, " > ".join([elm.title for elm in trail]))
+                raise Http404("Cannot find '%s' in trail '%s'" %
+                    (part, " > ".join([elm.title for elm in trail])))
             node = trail[trail_idx]
             trail_idx += 1
             url = "/" + "/".join(parts[:idx + 1])
@@ -375,8 +394,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 # for self-assessment to summary and back?
         return from_root, results
 
-    def get_context_data(self, *args, **kwargs):
-        context = super(BreadcrumbMixin, self).get_context_data(*args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super(BreadcrumbMixin, self).get_context_data(**kwargs)
         from_root, trail = self.breadcrumbs
         parts = from_root.split('/')
         root_prefix = '/'.join(parts[:-1]) if len(parts) > 1 else ""
@@ -432,8 +451,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
 class ReportMixin(BreadcrumbMixin, AccountMixin):
 
-    report_title = 'Best Practices Report'
-
     def _get_filter_out_testing(self):
         # List of response ids that are only used for demo purposes.
         if self.request.user.username in settings.TESTING_USERNAMES:
@@ -444,21 +461,20 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
     def sample(self):
         if not hasattr(self, '_sample'):
             try:
-                self._sample = Response.objects.get(
+                self._sample = Sample.objects.get(
                     extra__isnull=True,
                     survey__title=self.report_title,
                     account=self.account)
-            except Response.DoesNotExist:
+            except Sample.DoesNotExist:
                 self._sample = None
         return self._sample
 
     def get_or_create_assessment_sample(self):
-        # We create the response if it does not exists.
-        survey = SurveyModel.objects.get(title=self.report_title)
+        # We create the sample if it does not exists.
         with transaction.atomic():
             if self.sample is None:
-                self._sample = Response.objects.create(
-                    survey=survey, account=self.account)
+                self._sample = Sample.objects.create(
+                    survey=self.survey, account=self.account)
 
 
 class ImprovementQuerySetMixin(ReportMixin):
@@ -471,25 +487,24 @@ class ImprovementQuerySetMixin(ReportMixin):
     def improvement_sample(self):
         if not hasattr(self, '_improvement_sample'):
             try:
-                self._improvement_sample = Response.objects.get(
+                self._improvement_sample = Sample.objects.get(
                     extra='is_planned',
                     survey__title=self.report_title,
                     account=self.account)
-            except Response.DoesNotExist:
+            except Sample.DoesNotExist:
                 self._improvement_sample = None
         return self._improvement_sample
 
     def get_or_create_improve_sample(self):
-        # We create the response if it does not exists.
-        survey = SurveyModel.objects.get(title=self.report_title)
-        self._sample, _ = Response.objects.get_or_create(
-            extra='is_planned', survey=survey, account=self.account)
+        # We create the sample if it does not exists.
+        self._sample, _ = Sample.objects.get_or_create(
+            extra='is_planned', survey=self.survey, account=self.account)
 
     def get_queryset(self):
         return self.model.objects.filter(
-            response__extra='is_planned',
-            response__survey__title=self.report_title,
-            response__account=self.account)
+            sample__extra='is_planned',
+            sample__survey__title=self.report_title,
+            sample__account=self.account)
 
     def get_reverse_kwargs(self):
         """
@@ -510,9 +525,9 @@ class BestPracticeMixin(BreadcrumbMixin):
             return super(BestPracticeMixin, self).get_template_names()
         return ['envconnect/best_practice.html']
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super(
-            BestPracticeMixin, self).get_context_data(*args, **kwargs)
+            BestPracticeMixin, self).get_context_data(**kwargs)
         if not self.best_practice:
             return context
         context.update({

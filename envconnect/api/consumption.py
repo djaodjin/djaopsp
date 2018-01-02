@@ -2,17 +2,15 @@
 # see LICENSE.
 
 from django.db import transaction
-from django.db.models import Max
 from rest_framework import generics
-from survey.models import SurveyModel
+from survey.models import Campaign, EnumeratedQuestions
 
 from ..serializers import ConsumptionSerializer
-from ..mixins import ReportMixin
+from ..mixins import BreadcrumbMixin
 from ..models import Consumption
 
 
-class ConsumptionListAPIView(ReportMixin, generics.ListCreateAPIView):
-    # XXX ``ReportMixin`` because we want to access ``report_title``.
+class ConsumptionListAPIView(BreadcrumbMixin, generics.ListCreateAPIView):
 
     queryset = Consumption.objects.all()
     serializer_class = ConsumptionSerializer
@@ -27,15 +25,15 @@ class ConsumptionListAPIView(ReportMixin, generics.ListCreateAPIView):
         except Consumption.DoesNotExist:
             pass
         with transaction.atomic():
-            survey = generics.get_object_or_404(
-                SurveyModel.objects.all(), title=self.report_title)
-            last_rank = survey.questions.aggregate(Max('rank')).get(
-                'rank__max', 0)
-            serializer.save(
-                survey=survey, rank=0 if last_rank is None else last_rank + 1)
+            consumption = serializer.save()
+            EnumeratedQuestions.objects.get_or_create(
+                campaign=self.survey, question=consumption.question,
+                defaults={'rank': self.get_next_rank()})
 
 
-class ConsumptionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+# Derives from BreadcrumbMixin for ``get_serializer_context``.
+class ConsumptionDetailAPIView(BreadcrumbMixin,
+                               generics.RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update and delete a `Consumption`.
 

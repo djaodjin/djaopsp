@@ -11,8 +11,8 @@ from django.db.models import Max
 from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip
 from answers.models import Question as AnswersQuestion
-from survey.models import (Answer, Question, Response, SurveyModel,
-    EditablePredicate)
+from survey.models import (Answer, Campaign, EditablePredicate,
+    EnumeratedQuestions, Question, Sample)
 
 from ...mixins import BreadcrumbMixin
 from ...models import Improvement, Consumption, ColumnHeader
@@ -37,21 +37,30 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.migrate_improvements()
+            self.migrate_survey()
+#            self.migrate_improvements()
 #            self.tag_as_json()
 #            self.dump_sql_statements(options.get('paths'))
 #            self.relabel_to_fix_error()
 #            self.recompute_avg_value()
 
     @staticmethod
+    def migrate_survey():
+        for question in Question.objects.all():
+            EnumeratedQuestions.objects.get_or_create(
+                campaign=question.survey,
+                question=question,
+                defaults={'rank': question.rank, 'required': question.required})
+
+    @staticmethod
     def migrate_improvements():
-        survey = SurveyModel.objects.get(title='Best Practices Report')
+        survey = Campaign.objects.get(title=ReportMixin.report_title)
         with transaction.atomic():
             for improve in Improvement.objects.all():
-                improvement_sample, _ = Response.objects.get_or_create(
+                improvement_sample, _ = Sample.objects.get_or_create(
                     extra='is_planned', survey=survey, account=improve.account)
                 Answer.objects.get_or_create(
-                    response=improvement_sample,
+                    sample=improvement_sample,
                     rank=improve.consumption.question.rank,
                     question=improve.consumption.question)
 
@@ -279,7 +288,7 @@ class Command(BaseCommand):
 
     def aggregate_surveys(self):
         report_title = 'Best Practices Report'
-        survey = SurveyModel.objects.filter(
+        survey = Campaign.objects.filter(
             title=report_title).order_by('pk').first()
 
         with transaction.atomic():
@@ -302,7 +311,7 @@ class Command(BaseCommand):
                 consumption_pk = int(answer.question.text)
                 try:
                     consumption = Consumption.objects.get(pk=consumption_pk)
-                    if not Answer.objects.filter(response=answer.response,
+                    if not Answer.objects.filter(sample=answer.sample,
                         question=consumption.question).exists():
                         answer.question = consumption.question
                         answer.save()
@@ -317,12 +326,12 @@ class Command(BaseCommand):
                         "Deleting answer.\n" % consumption_pk)
                     answer.delete()
 
-            for response in Response.objects.filter(
+            for sample in Sample.objects.filter(
                     extra__isnull=True, survey__title=report_title):
-                response.survey = survey
-                response.save()
+                sample.survey = survey
+                sample.save()
             Improvement.objects.all().delete()
-            deprecated_surveys = SurveyModel.objects.filter(
+            deprecated_surveys = Campaign.objects.filter(
                 title=report_title).exclude(pk=survey.pk)
             Question.objects.filter(survey__in=deprecated_surveys).delete()
             deprecated_surveys.delete()

@@ -69,7 +69,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
             for element in PageElement.objects.get_roots().order_by('title'):
                 root_prefix = '/%s/sustainability-%s' % (
                     element.slug, element.slug)
-                if Consumption.objects.filter(answer__response=self.sample,
+                if Consumption.objects.filter(answer__sample=self.sample,
                     path__startswith=root_prefix).exists():
                     candidates += [element]
         if not candidates:
@@ -91,7 +91,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
             redirects += [(url, print_name)]
 
         if len(redirects) > 1:
-            context = self.get_context_data(*args, **kwargs)
+            context = self.get_context_data(**kwargs)
             context.update({'redirects': redirects})
             return self.render_to_response(context)
         return super(ScoreCardRedirectView, self).get(request, *args, **kwargs)
@@ -102,10 +102,9 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
     Subclasses are meant to define `template_name` and `breadcrumb_url`.
     """
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         #pylint:disable=too-many-locals
-        context = super(BenchmarkBaseView, self).get_context_data(
-            *args, **kwargs)
+        context = super(BenchmarkBaseView, self).get_context_data(**kwargs)
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
@@ -228,7 +227,7 @@ class ScoreCardDownloadView(BenchmarkAPIView):
                     self._printable_charts += [chart]
         return self._printable_charts
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         context = {'base_url': self.get_base_url()}
         organization = self.kwargs.get('organization', None)
         if organization:
@@ -351,7 +350,7 @@ casper.run();
         self._breadcrumbs = self.get_breadcrumbs(from_root)
         self.generate_printable_html()
         return PdfTemplateResponse(request, self.template_name,
-            self.get_context_data(*args, **kwargs))
+            self.get_context_data(**kwargs))
 
 
 class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
@@ -369,7 +368,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
             candidate = candidate[1:]
         return get_object_or_404(queryset, slug=candidate)
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         #pylint:disable=too-many-locals,too-many-statements
         candidate = self.kwargs.get(self.matrix_url_kwarg)
         if candidate.startswith("/"):
@@ -384,8 +383,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
             #pylint:disable=unsubscriptable-object
             del self.kwargs[self.matrix_url_kwarg]
 
-        context = super(PortfoliosDetailView, self).get_context_data(
-            *args, **kwargs)
+        context = super(PortfoliosDetailView, self).get_context_data(**kwargs)
         context.update({'available_matrices': self.get_available_matrices()})
 
         from_root, trail = self.breadcrumbs
@@ -448,4 +446,3 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
             chart.update({'urls': api_urls})
         context.update({'charts': charts})
         return context
-

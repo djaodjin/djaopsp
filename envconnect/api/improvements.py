@@ -62,7 +62,7 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
                 # of zero. We use `NEEDS_SIGNIFICANT_IMPROVEMENT` such
                 # as to be conservative in the calculation.
                 _, created = self.model.objects.get_or_create(
-                    response=self.improvement_sample,
+                    sample=self.improvement_sample,
                     rank=question.rank,
                     question=question,
                     defaults={'text':Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT})

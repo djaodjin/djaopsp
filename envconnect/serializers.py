@@ -7,8 +7,9 @@ from rest_framework import serializers
 
 from pages.models import PageElement
 from pages.serializers import PageElementSerializer as BasePageElementSerializer
+from survey.models import EnumeratedQuestions
 
-from envconnect.models import ColumnHeader, Consumption
+from .models import ColumnHeader, Consumption
 
 
 class ColumnHeaderSerializer(serializers.ModelSerializer):
@@ -48,9 +49,12 @@ class ConsumptionSerializer(serializers.ModelSerializer):
     def get_nb_respondents(obj):
         return obj.nb_respondents if hasattr(obj, 'nb_respondents') else 0
 
-    @staticmethod
-    def get_rank(obj):
-        return obj.rank
+    def get_rank(self, obj):
+        if hasattr(obj, 'rank'):
+            return obj.rank
+        return EnumeratedQuestions.objects.filter(
+            campaign=self.context['campaign'],
+            question=obj.question).first().rank
 
     @staticmethod
     def get_rate(obj):

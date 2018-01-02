@@ -11,7 +11,7 @@ from django.db import connection
 from django.utils import six
 from pages.mixins import TrailMixin
 from rest_framework import generics
-from rest_framework.response import Response as RestResponse
+from rest_framework.response import Response
 
 from .best_practices import DecimalEncoder, ToggleTagContentAPIView
 from ..mixins import ReportMixin, TransparentCut
@@ -26,7 +26,7 @@ class BenchmarkMixin(ReportMixin):
 
     ACCOUNT_ID = 0
     ANSWER_ID = 1
-    RESPONSE_ID = 2
+    SAMPLE_ID = 2
     QUESTION_ID = 3
     NUMERATOR = 4
     DENOMINATOR = 5
@@ -36,6 +36,7 @@ class BenchmarkMixin(ReportMixin):
 
     @staticmethod
     def _show_query_and_result(raw_query, show=False):
+        LOGGER.info("%s\n", raw_query)
         if show:
             LOGGER.debug("%s\n", raw_query)
             with connection.cursor() as cursor:
@@ -217,76 +218,107 @@ class BenchmarkMixin(ReportMixin):
         return charts, complete
 
     @staticmethod
-    def get_distributions(numerators, denominators, view_response=None):
+    def get_distributions(numerators, denominators, view_sample=None):
         distribution = {
             'x' : ["0-25%", "25-50%", "50-75%", "75-100%"],
             'y' : [0 for _ in range(4)],
             'normalized_score': 0,  # instead of 'ukn.' to avoid js error.
             'organization_rate': ""
         }
-        for response, numerator in six.iteritems(numerators):
-            denominator = denominators.get(response, 0)
+        for sample, numerator in six.iteritems(numerators):
+            denominator = denominators.get(sample, 0)
             if denominator != 0:
                 normalized_score = int(numerator * 100 / denominator)
             else:
                 normalized_score = 0
-            if response == view_response:
+            if sample == view_sample:
                 distribution['normalized_score'] = normalized_score
             if normalized_score < 25:
                 distribution['y'][0] += 1
-                if response == view_response:
+                if sample == view_sample:
                     distribution['organization_rate'] = distribution['x'][0]
             elif normalized_score < 50:
                 distribution['y'][1] += 1
-                if response == view_response:
+                if sample == view_sample:
                     distribution['organization_rate'] = distribution['x'][1]
             elif normalized_score < 75:
                 distribution['y'][2] += 1
-                if response == view_response:
+                if sample == view_sample:
                     distribution['organization_rate'] = distribution['x'][2]
             else:
                 assert normalized_score <= 100
                 distribution['y'][3] += 1
-                if response == view_response:
+                if sample == view_sample:
                     distribution['organization_rate'] = distribution['x'][3]
         return distribution
 
     def get_expected_opportunities(self, is_planned=None):
         questions_with_opportunity = Consumption.objects.get_opportunities_sql(
             filter_out_testing=self._get_filter_out_testing())
-
-        # All expected questions for each response
+        # All expected questions for each sample
         # decorated with ``opportunity``.
         #
-        # If we are only looking for all expected questions for each response,
+        # If we are only looking for all expected questions for each sample,
         # then the query can be simplified by using the survey_question table
         # directly.
         sep = ""
         additional_filters = ""
         if is_planned is not None:
-            additional_filters = "survey_response.extra = '%s'" % (
+            additional_filters = "survey_sample.extra = '%s'" % (
                 "is_planned" if is_planned else "")
             sep = "AND "
         if self._get_filter_out_testing():
-            additional_filters += "%ssurvey_response.id NOT IN (%s)" % (
+            additional_filters += "%ssurvey_sample.id NOT IN (%s)" % (
                 sep, ', '.join(self._get_filter_out_testing()))
         if additional_filters:
             additional_filters = "WHERE %s" % additional_filters
         expected_opportunities = """SELECT
   questions_with_opportunity.question_id AS question_id,
-  survey_response.id AS response_id,
-  survey_response.extra AS is_planned,
-  survey_response.account_id AS account_id,
-  opportunity,
+  samples.sample_id AS sample_id,
+  samples.is_planned AS is_planned,
+  samples.account_id AS account_id,
+  questions_with_opportunity.opportunity,
   questions_with_opportunity.path AS path
 FROM (%(questions_with_opportunity)s) AS questions_with_opportunity
-INNER JOIN survey_response
-ON questions_with_opportunity.survey_id = survey_response.survey_id
-%(additional_filters)s
+INNER JOIN (
+    SELECT survey_enumeratedquestions.question_id AS question_id,
+           survey_sample.account_id AS account_id,
+           survey_sample.id AS sample_id,
+           survey_sample.extra AS is_planned
+        FROM survey_sample INNER JOIN survey_enumeratedquestions
+        ON survey_sample.survey_id = survey_enumeratedquestions.campaign_id
+         %(additional_filters)s) AS samples
+ON questions_with_opportunity.question_id = samples.question_id
 """ % {'questions_with_opportunity': questions_with_opportunity,
        'additional_filters': additional_filters}
         self._show_query_and_result(expected_opportunities)
         return expected_opportunities
+
+    def get_answer_with_account(self, is_planned=None):
+        sep = ""
+        additional_filters = ""
+        if is_planned is not None:
+            additional_filters = "survey_sample.extra = '%s'" % (
+                "is_planned" if is_planned else "")
+            sep = "AND "
+        if self._get_filter_out_testing():
+            additional_filters += "%ssurvey_sample.id NOT IN (%s)" % (
+                sep, ', '.join(self._get_filter_out_testing()))
+        if additional_filters:
+            additional_filters = "WHERE %s" % additional_filters
+        query = """SELECT survey_answer.id AS id,
+    question_id,
+    sample_id,
+    account_id,
+    survey_answer.created_at AS created_at,
+    text,
+    survey_sample.extra AS is_planned
+FROM survey_answer INNER JOIN survey_sample
+ON survey_answer.sample_id = survey_sample.id
+%(additional_filters)s
+""" % {'additional_filters': additional_filters}
+        self._show_query_and_result(query)
+        return query
 
     def get_scored_answers(self, is_planned=None):
         """
@@ -296,17 +328,17 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
         # All expected answers with their scores.
         # ACCOUNT_ID = 0
         # ANSWER_ID = 1
-        # RESPONSE_ID = 2
+        # SAMPLE_ID = 2
         # QUESTION_ID = 3
         # NUMERATOR = 4
         # DENOMINATOR = 5
         # QUESTION_PATH = 6
         # ANSWER_CREATED_AT = 7
         # ANSWER_TEXT = 8
-        # RESPONSE_IS_PLANNED = 9 (assessment or improvement)
+        # SAMPLE_IS_PLANNED = 9 (assessment or improvement)
         scored_answers = "SELECT expected_opportunities.account_id,"\
-            " survey_answer.id AS answer_id,"\
-            " expected_opportunities.response_id,"\
+            " answers.id AS answer_id,"\
+            " expected_opportunities.sample_id,"\
             " expected_opportunities.question_id, "\
           " CASE WHEN text = '%(yes)s' THEN (opportunity * 3)"\
           "      WHEN text = '%(moderate_improvement)s' THEN (opportunity * 2)"\
@@ -315,22 +347,24 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
           " CASE WHEN text IN"\
             " (%(yes_no)s) THEN (opportunity * 3) ELSE 0.0 END AS denominator,"\
             " expected_opportunities.path AS path,"\
-            " survey_answer.created_at,"\
-            " survey_answer.text,"\
+            " answers.created_at,"\
+            " answers.text,"\
             " expected_opportunities.is_planned"\
             " FROM (%(expected_opportunities)s) AS expected_opportunities"\
-            " LEFT OUTER JOIN survey_answer ON survey_answer.question_id"\
+            " LEFT OUTER JOIN (%(answers)s) AS answers"\
+            " ON answers.question_id"\
             " = expected_opportunities.question_id"\
-            " AND survey_answer.response_id ="\
-            " expected_opportunities.response_id" % {
+            " AND answers.sample_id ="\
+            " expected_opportunities.sample_id" % {
                 'yes': Consumption.YES,
                 'moderate_improvement': Consumption.NEEDS_MODERATE_IMPROVEMENT,
                 'significant_improvement':
                     Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
                 'yes_no': ','.join(["'%s'" % val
                     for val in Consumption.PRESENT + Consumption.ABSENT]),
-                'expected_opportunities': self.get_expected_opportunities(
-                    is_planned=is_planned)}
+                'expected_opportunities':
+                    self.get_expected_opportunities(is_planned=is_planned),
+                'answers': self.get_answer_with_account(is_planned=is_planned)}
         self._show_query_and_result(scored_answers)
         return scored_answers
 
@@ -359,7 +393,7 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
         #pylint:disable=too-many-locals
         for prefix, values_tuple in six.iteritems(leafs):
             values = values_tuple[0]
-            agg_scores = """SELECT account_id, response_id, is_planned,
+            agg_scores = """SELECT account_id, sample_id, is_planned,
     COUNT(answer_id) AS nb_answers,
     COUNT(*) AS nb_questions,
     SUM(numerator) AS numerator,
@@ -367,14 +401,14 @@ ON questions_with_opportunity.survey_id = survey_response.survey_id
     MAX(created_at) AS last_activity_at
 FROM (%(answers)s) AS answers
 WHERE path LIKE '%(prefix)s%%'
-GROUP BY account_id, response_id, is_planned;""" % {
+GROUP BY account_id, sample_id, is_planned;""" % {
     'answers': answers, 'prefix': prefix}
             self._show_query_and_result(agg_scores)
             with connection.cursor() as cursor:
                 cursor.execute(agg_scores, params=None)
                 for agg_score in cursor.fetchall():
                     account_id = agg_score[0]
-                    #response_id = agg_score[1]
+                    #sample_id = agg_score[1]
                     is_planned = agg_score[2]
                     nb_answers = agg_score[3]
                     nb_questions = agg_score[4]
@@ -539,7 +573,7 @@ GROUP BY account_id, response_id, is_planned;""" % {
                     },
                     {
                         "/boxes-and-enclosures/production/energy-efficiency": [{
-                            "path": "/boxes-and-enclosures/production/energy-efficiency",
+                  "path": "/boxes-and-enclosures/production/energy-efficiency",
                             "slug": "energy-efficiency",
                             "title": "Energy Efficiency",
                             "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
@@ -583,7 +617,7 @@ GROUP BY account_id, response_id, is_planned;""" % {
         for node in six.itervalues(rollup_tree[1]):
             score_weight = node[0].get('score_weight', 1.0)
             total_score_weight += score_weight
-        normalize_children = ((1.0 - 0.01) <  total_score_weight
+        normalize_children = ((1.0 - 0.01) < total_score_weight
             and total_score_weight < (1.0 + 0.01))
 
         for node in six.itervalues(rollup_tree[1]):
@@ -731,7 +765,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
     def get_queryset(self):
         #pylint:disable=too-many-locals
         from_root, trail = self.breadcrumbs
-        roots = [trail[-1][0]] if len(trail) > 0 else None
+        roots = [trail[-1][0]] if trail else None
         rollup_tree = self.rollup_scores(roots, from_root)
         self.create_distributions(rollup_tree,
             view_account=self.sample.account.pk)
@@ -742,6 +776,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         parts = from_root.split('/')
         if parts:
             slug = parts[-1]
+        # When we remove the following 4 lines ...
             for chart in charts:
                 if chart['slug'] == slug:
                     total_score = chart.copy()
@@ -751,13 +786,14 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         if not total_score:
             total_score = {"nb_respondents": "-"}
         total_score.update({"slug": "totals", "title": "Total Score"})
+        # ... and the following 2 lines together, pylint does not blow up...
         if not complete and 'normalized_score' in total_score:
             del total_score['normalized_score']
         charts += [total_score]
         return charts
 
-    def get(self, request, *args, **kwargs):
-        return RestResponse(self.get_queryset())
+    def get(self, request, *args, **kwargs): #pylint:disable=unused-argument
+        return Response(self.get_queryset())
 
 
 class EnableScorecardAPIView(ToggleTagContentAPIView):
@@ -777,7 +813,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         trail = self.get_full_element_path(self.kwargs.get('path'))
-        return RestResponse(self.serializer_class().to_representation({
+        return Response(self.serializer_class().to_representation({
             'weight': get_score_weight(trail[-1].tag)}))
 
     def update(self, request, *args, **kwargs):#pylint:disable=unused-argument
@@ -785,7 +821,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
         serializer = self.serializer_class(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        return RestResponse(serializer.data)
+        return Response(serializer.data)
 
     def perform_update(self, serializer):
         trail = self.get_full_element_path(self.kwargs.get('path'))

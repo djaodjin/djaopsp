@@ -894,7 +894,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         for( var idx = 0; idx < practices.length; ++idx ) {
             if( practices[idx][0].consumption ) {
                 practices[idx][0].consumption.implemented = answer;
-                $http.put(settings.urls.api_self_assessment_response + "/" + practices[idx][0].consumption.rank + "/",
+                $http.put(settings.urls.api_self_assessment_sample + "/" + practices[idx][0].consumption.rank + "/",
                     {text: answer}).then(
                     function success() {
                     },
@@ -975,7 +975,7 @@ envconnectControllers.controller("EnvconnectCtrl",
 	$scope.freezeSelfAssessment = function ($event) {
 		$event.preventDefault();
 
-		$http.put(settings.urls.api_self_assessment_response, {is_frozen: true}).then(
+		$http.put(settings.urls.api_self_assessment_sample, {is_frozen: true}).then(
             function success(resp) {
                 showMessages(["Success!"], "info");
             },
@@ -1262,7 +1262,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                 var name = element.attr("name").replace("implemented-", "");
                 var answer = element.val();
                 $.ajax({
-                    url: self.options.survey_api_response + "/" + name + "/",
+                    url: self.options.survey_api_sample + "/" + name + "/",
                     method: "PUT",
                     data: JSON.stringify({text: answer}),
                     datatype: "json",
@@ -1284,7 +1284,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     };
 
     $.fn.selfAssessment.defaults = {
-        survey_api_response: null,
+        survey_api_sample: null,
     };
 
     /** Plug-in to connect the self-assessment UI to the API.

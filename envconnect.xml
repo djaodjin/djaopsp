@@ -38,9 +38,6 @@
       <dep name="Markdown" target="python">
         <lib>.*/(markdown)/__init__.py</lib>
       </dep>
-      <dep name="django-requestlogging" target="python">
-        <lib>.*/(django_requestlogging)/__init__.py</lib>
-      </dep>
       <dep name="openpyxl" target="python">
         <lib>.*/(openpyxl)/__init__.py</lib>
       </dep>
@@ -86,6 +83,9 @@
              of showing information pane. -->
         <lib>.*/(debug_toolbar)/__init__.py</lib>
       </dep>
+      <dep name="pytz" target="python">
+        <lib>.*/(pytz)/__init__.py</lib>
+      </dep>
       <dep name="sqlparse" target="python">
         <!-- required by django-debug-toolbar without being a prerequisite -->
         <lib>.*/(sqlparse)/__init__.py</lib>
@@ -127,7 +127,7 @@
         </alternate>
         <alternate name="Fedora">
           <dep name="python3-coverage">
-            <bin>coverage</bin>
+            <bin>(coverage).*</bin>
           </dep>
           <dep name="python3-crypto">
             <!-- XXX native code pulled from djaodjin-pages. -->
@@ -138,7 +138,7 @@
             <lib>.*/(cryptography)/__init__.py</lib>
           </dep>
           <dep name="python3-setproctitle">
-            <lib>.*/(setproctitle.so)</lib>
+            <lib>.*/setproctitle.*.so</lib>
           </dep>
           <dep name="python3-psycopg2">
             <!-- because we connect to postgresql and it is not automatically

@@ -16,8 +16,8 @@ class IndexView(PermissionMixin, TemplateView):
 
     template_name = 'index.html'
 
-    def get_context_data(self, *args, **kwargs):
-        context = super(IndexView, self).get_context_data(*args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
         pre_industries = []
         metal_industries = []
         post_industries = []

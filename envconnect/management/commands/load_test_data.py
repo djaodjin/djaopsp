@@ -12,7 +12,7 @@ from django.template.defaultfilters import slugify
 from faker import Faker
 from pages.models import PageElement
 from rest_framework.exceptions import ValidationError
-from survey.models import Answer, Response, SurveyModel
+from survey.models import Answer, Sample, Campaign
 
 from ...mixins import ReportMixin
 from ...models import Consumption
@@ -28,7 +28,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         nb_organizations = int(options['nb_organizations'])
         fake = Faker()
-        self.survey = SurveyModel.objects.get(title=ReportMixin.report_title)
+        self.survey = Campaign.objects.get(title=ReportMixin.report_title)
         organization_class = django_apps.get_model(settings.ACCOUNT_MODEL)
         industries = list(PageElement.objects.get_roots().filter(
             tag__contains='industry'))
@@ -54,12 +54,12 @@ class Command(BaseCommand):
                 "generated %d organizations ..." % nb_organizations)
 
     def populate_answers(self, organization, industry):
-        sample, _ = Response.objects.get_or_create(
+        sample, _ = Sample.objects.get_or_create(
             survey=self.survey, account=organization)
         for consumption in Consumption.objects.filter(
                 path__startswith="/%s/" % industry.slug):
             Answer.objects.create(
-                response=sample, question=consumption.question,
+                sample=sample, question=consumption.question,
                 rank=consumption.question.rank)
 
     @staticmethod

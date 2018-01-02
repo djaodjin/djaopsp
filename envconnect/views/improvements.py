@@ -12,8 +12,7 @@ from django.views.generic.list import ListView
 from openpyxl import Workbook
 from pages.models import PageElement
 from survey.models import Answer, Question
-from survey.views.response import (
-    ResponseUpdateView as BaseResponseUpdateView)
+from survey.views.sample import SampleUpdateView as BaseSampleUpdateView
 from extended_templates.backends.pdf import PdfTemplateResponse
 
 from ..mixins import BestPracticeMixin, ImprovementQuerySetMixin
@@ -56,7 +55,7 @@ class ImproveView(SelfAssessmentBaseView):
             })
         context.update({
             'role': "tab",
-            'response': self.sample
+            'sample': self.sample
         })
         urls = {'api_account_benchmark': reverse('api_benchmark',
                 args=(self.kwargs.get('organization'), self.get_scorecard_path(
@@ -65,7 +64,7 @@ class ImproveView(SelfAssessmentBaseView):
         return context
 
 
-class ResponseUpdateView(ImprovementQuerySetMixin, BaseResponseUpdateView):
+class ResponseUpdateView(ImprovementQuerySetMixin, BaseSampleUpdateView):
     """
     All ``BestPractice`` selected by a ``User`` on a single html page.
     """
@@ -115,7 +114,7 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
                 self.writerow([indent + element.title])
                 self.write_tree(nodes, indent=indent + '  ')
 
-    def get(self, *args, **kwargs): #pylint: disable=unused-argument
+    def get(self, request, *args, **kwargs): #pylint: disable=unused-argument
         opportunities = {}
         for consumption in Consumption.objects.with_opportunity(
                 filter_out_testing=self._get_filter_out_testing()):

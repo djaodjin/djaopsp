@@ -284,8 +284,8 @@ app.constant('settings', {
         api_consumptions: "{% url 'api_consumption_base' %}",
 {% if organization %}
         api_improvements: "{% url 'api_improvement_base' organization %}",
-        {% if response %}
-        api_self_assessment_response: "{% url 'survey_api_response' organization response %}",
+        {% if sample %}
+        api_self_assessment_sample: "{% url 'survey_api_sample' organization sample %}",
         {% endif %}
 {% endif %}
         api_weights: "{% url 'api_score_base' %}",
