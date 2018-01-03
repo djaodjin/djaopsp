@@ -476,8 +476,10 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                         scores['improvement_numerator'] * 100.0
                         / denominator)
                 if normalize_to_one:
-                    scores[numerator_key] /= denominator
-                    scores['improvement_numerator'] /= denominator
+                    if numerator_key in scores:
+                        scores[numerator_key] /= denominator
+                    if 'improvement_numerator' in scores:
+                        scores['improvement_numerator'] /= denominator
                     scores[denominator_key] = 1.0
             else:
                 scores['normalized_score'] = 0
