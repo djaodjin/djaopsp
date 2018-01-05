@@ -3,15 +3,56 @@
 {% block content %}
 <div class="container">
     <div class="faq">
-        <h1>Frequently Asked Questions</h1>
-        <div>
+        <div class="row">
+            <div class="col-md-12">
+                 <h1>Frequently Asked Questions</h1>
+                 <ul>
+                    <li>General
+                        <ul>
+                            <li><a href="#create-product">Don't see what you're looking for?</a></li>
+                            <li><a href="#stripe-connect">Why was TSP developed?</a></li>
+                        </ul>
+                    </li>
+                    <li>Enviromental Best Practices
+                        <ul>
+                            <li><a href="#lead-indicator">How were best practices for each industry segment identified or selected?</a></li>
+                            <li><a href="#assign-value">How are environmental and business values assigned to best practices?</a></li>
+                            <li><a href="#tsp-subject">Are best practices on TSP subject to change?</a></li>
+                            <li><a href="#guidance-practice">Who can add best practices and best practice guidance?</a></li>
+                            <li><a href="#email-alert">How will I know if new best practices relevant to me are added to TSP?</a></li>
+                        </ul>
+                    </li>
+                    <li>Assessment
+                    <ul>
+                        <li><a href="#baseline">How frequently does an Assessment need to be completed?</a></li>
+                        <li><a href="#assessment-update">If best practices are added to TSP, will that affect my Assessment results?</a></li>
+                        <li><a href="#score-opportunity">Explain the “Opportunity score” shown on the Assessment results page?</a></li>
+                    </ul>
+                    </li>
+                    <li>Scorecard
+                        <ul>
+                            <li><a href="#scoring">How does scoring work?</a></li>
+                            <li><a href="#becmarking-graph">How does benchmarking work?</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+        <div class="clearfix">
+            <section id="create-web-product">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="page-header">
+            <div class="row">
             <h2>General</h2>
             <dl>
-                <dt>Don’t see what you’re looking for?</dt>
+                <dt><a href="#create-product" name="create-product"><i class="fa fa-link"></i></a>Don’t see what you’re looking for?</dt>
                 <dd><a href="{{'contact/'|site_prefixed}}">Contact us</a> with your question.</dd>
             </dl>
             <dl>
-                <dt>Why was TSP developed?</dt>
+                <dt><a href="#stripe-connect" name="stripe-connect"><i class="fa fa-link"></i></a>Why was TSP developed?</dt>
                 <dd>
                     TSP has three main objectives:
                     <ul>
@@ -30,38 +71,38 @@
         <div>
             <h2>Environmental best practices</h2>
             <dl>
-                <dt>How were best practices for each industry segment identified or selected?</dt>
+                <dt><a href="#lead-indicator" name="lead-indicator"><i class="fa fa-link"></i></a>How were best practices for each industry segment identified or selected?</dt>
                 <dd>Best practices were selected on the basis of their being leading indicators of the quality and maturity of an organization’s environmental sustainability management.  Practices were compiled and peer-reviewed by cross-functional sustainability and industry subject matter experts, and by organizations in the field of environmental sustainability.</dd>
             </dl>
             <dl>
-                <dt>How are environmental and business values assigned to best practices?</dt>
+                <dt><a href="#assign-value" name="assign-value"><i class="fa fa-link"></i></a>How are environmental and business values assigned to best practices?</dt>
                 <dd>A <a href="{{'/docs/legend/'|site_prefixed}}">value ranking system</a> is used to assign environmental and business values to a best practice. Values are based on order-of-magnitude-level estimates of the potential value of implementing a best practice to its full extent and applicable scope. They are intended to provide high level ranking of best practices, rather than precise estimates. The actual value realized by an organization from implementing a best practice will vary widely due to a number of factors, including, but not limited to, size of the organization, number and scale of projects, nature of activities or operations, geographic region, and best practice implementation extent and scope. If you have experience that indicates any of the assigned values would benefit from recalibration, please <a href="{{'contact/'|site_prefixed}}">contact us</a> so that we may refine the value(s) in question.</dd>
             </dl>
             <dl>
-                <dt>Are best practices on TSP subject to change?</dt>
+                <dt><a href="#tsp-subject" name="tsp-subject"><i class="fa fa-link"></i></a>Are best practices on TSP subject to change?</dt>
                 <dd>Best practices may be updated based on information brought to the attention of TSP by users and content contributors.  In addition, every two years, the best practices listed for an industry segment shall be reviewed and updated by subject matter experts with any omitted new best practices.</dd>
             </dl>
             <dl>
-                <dt>Who can add best practices and best practice guidance?</dt>
+                <dt><a href="#guidance-practice" name="guidance-practice"><i class="fa fa-link"></i></a>Who can add best practices and best practice guidance?</dt>
                 <dd>Anyone with subject matter expertise in environmental best practices related to an industry segment may contribute content to TSP. <a href="{{'contact/'|site_prefixed}}">Contact us</a> if you are interested doing so.</dd>
             </dl>
             <dl>
-                <dt>How will I know if new best practices relevant to me are added to TSP?</dt>
+                <dt><a href="#email-alert" name="email-alert"><i class="fa fa-link"></i></a>How will I know if new best practices relevant to me are added to TSP?</dt>
                 <dd>You will receive an email alert about any new best practices or best practice guidance added to TSP associated with your industry segment.</dd>
             </dl>
         </div>
         <div>
             <h2>Assessment</h2>
             <dl>
-                <dt>How frequently does an Assessment need to be completed?</dt>
+                <dt><a href="#baseline" name="baseline"><i class="fa fa-link"></i></a>How frequently does an Assessment need to be completed?</dt>
                 <dd>The full Assessment gets completed once. This creates a baseline record against which you may record any improvements you make over time.</dd>
             </dl>
             <dl>
-                <dt>If best practices are added to TSP, will that affect my Assessment results?</dt>
+                <dt><a href="#assessment-update" name="assessment-update"><i class="fa fa-link"></i></a>If best practices are added to TSP, will that affect my Assessment results?</dt>
                 <dd>No. There will no change your baseline score, or any subsequent improved scores. New best practices and your score against same will only be factored in to the next Assessment update you choose to record in the system.</dd>
             </dl>
             <dl>
-                <dt>Explain the “Opportunity score” shown on the Assessment results page?</dt>
+                <dt><a href="#score-opportunity" name="score-opportunity"><i class="fa fa-link"></i></a>Explain the “Opportunity score” shown on the Assessment results page?</dt>
                 <dd>
 Opportunity scores for a best practice represent the number of points by which you could increase your total points by implementing the practice. The total score (presented in the Scorecard) is your total points divided by the total number of points available for capture. Calculation used to derive opportunity score:  Opportunity score = (value assigned to a best practice) x ( 1 + implementation rate ) x (3 – value assigned to your response to the question "Is this practice implemented?")
                 </dd>
@@ -71,7 +112,7 @@ Opportunity scores for a best practice represent the number of points by which y
         <div>
             <h2>Scorecard</h2>
             <dl>
-                <dt>How does scoring work?</dt>
+                <dt><a href="#scoring" name="scoring"><i class="fa fa-link"></i></a>How does scoring work?</dt>
                 <dd>Scores are assigned on the following basis:
                     <ul>
                         <li><strong>Score for a single best practice:</strong> Your score for a best practice is calculated by multiplying the value assigned to the practice by the value assigned to your response to the question “Is this implemented as standard practice?” (See table below for values).</li>
@@ -106,10 +147,15 @@ Opportunity scores for a best practice represent the number of points by which y
                 </dd>
             </dl>
             <dl>
-                <dt>How does benchmarking work?</dt>
+                <dt><a href="#becmarking-graph" name="becmarking-graph"><i class="fa fa-link"></i></a>How does benchmarking work?</dt>
                 <dd>Your relative position against peers in your industry segment is shown in the “Benchmark graph” section of your Scorecard. Benchmark positions may change over time as more respondents from your industry peer group respond to the Assessment, so it is important to check back into the system from time to time to monitor for updates in the benchmark outcome.</dd>
             </dl>
         </div>
     </div>
+    </div>
+    </div>
+    </section>
+    </div>
+
 </div>
 {% endblock %}
