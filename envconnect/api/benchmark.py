@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 from __future__ import absolute_import
@@ -32,11 +32,10 @@ class BenchmarkMixin(ReportMixin):
     DENOMINATOR = 5
     QUESTION_PATH = 6
     ANSWER_CREATED_AT = 7
-    ANSWER_TEXT = 8
+    ANSWER_MEASURED = 8
 
     @staticmethod
     def _show_query_and_result(raw_query, show=False):
-        LOGGER.info("%s\n", raw_query)
         if show:
             LOGGER.debug("%s\n", raw_query)
             with connection.cursor() as cursor:
@@ -311,7 +310,7 @@ ON questions_with_opportunity.question_id = samples.question_id
     sample_id,
     account_id,
     survey_answer.created_at AS created_at,
-    text,
+    measured,
     survey_sample.extra AS is_planned
 FROM survey_answer INNER JOIN survey_sample
 ON survey_answer.sample_id = survey_sample.id
@@ -334,21 +333,21 @@ ON survey_answer.sample_id = survey_sample.id
         # DENOMINATOR = 5
         # QUESTION_PATH = 6
         # ANSWER_CREATED_AT = 7
-        # ANSWER_TEXT = 8
+        # ANSWER_MEASURED = 8
         # SAMPLE_IS_PLANNED = 9 (assessment or improvement)
         scored_answers = "SELECT expected_opportunities.account_id,"\
             " answers.id AS answer_id,"\
             " expected_opportunities.sample_id,"\
             " expected_opportunities.question_id, "\
-          " CASE WHEN text = '%(yes)s' THEN (opportunity * 3)"\
-          "      WHEN text = '%(moderate_improvement)s' THEN (opportunity * 2)"\
-          "      WHEN text = '%(significant_improvement)s' THEN opportunity "\
+          " CASE WHEN measured = %(yes)s THEN (opportunity * 3)"\
+          "      WHEN measured = %(moderate_improvement)s THEN (opportunity * 2)"\
+          "      WHEN measured = %(significant_improvement)s THEN opportunity "\
           "      ELSE 0.0 END AS numerator,"\
-          " CASE WHEN text IN"\
+          " CASE WHEN measured IN"\
             " (%(yes_no)s) THEN (opportunity * 3) ELSE 0.0 END AS denominator,"\
             " expected_opportunities.path AS path,"\
             " answers.created_at,"\
-            " answers.text,"\
+            " answers.measured,"\
             " expected_opportunities.is_planned"\
             " FROM (%(expected_opportunities)s) AS expected_opportunities"\
             " LEFT OUTER JOIN (%(answers)s) AS answers"\
@@ -360,8 +359,7 @@ ON survey_answer.sample_id = survey_sample.id
                 'moderate_improvement': Consumption.NEEDS_MODERATE_IMPROVEMENT,
                 'significant_improvement':
                     Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
-                'yes_no': ','.join(["'%s'" % val
-                    for val in Consumption.PRESENT + Consumption.ABSENT]),
+                'yes_no': Consumption._relevent_as_sql(),
                 'expected_opportunities':
                     self.get_expected_opportunities(is_planned=is_planned),
                 'answers': self.get_answer_with_account(is_planned=is_planned)}

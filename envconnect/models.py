@@ -117,9 +117,9 @@ class ConsumptionQuerySet(models.QuerySet):
 FROM survey_answer INNER JOIN survey_sample
   ON survey_answer.sample_id = survey_sample.id
 WHERE survey_sample.extra IS NULL
-  AND survey_answer.text IN (%(present)s) %(filter_out_testing)s
+  AND survey_answer.measured IN (%(present)s) %(filter_out_testing)s
 GROUP BY question_id""" % {
-    'present': ','.join(["'%s'" % val for val in Consumption.PRESENT]),
+    'present': Consumption._present_as_sql(),
     'filter_out_testing': filter_out_testing}
         self._show_query_and_result(yes_view)
 
@@ -135,10 +135,9 @@ INNER JOIN survey_answer
 INNER JOIN survey_sample
   ON survey_answer.sample_id = survey_sample.id
 WHERE survey_sample.extra IS NULL
-  AND survey_answer.text IN (%(yes_no)s) %(filter_out_testing)s
+  AND survey_answer.measured IN (%(yes_no)s) %(filter_out_testing)s
 GROUP BY envconnect_consumption.question_id""" % {
-    'yes_no': ','.join(["'%s'" % val
-        for val in Consumption.PRESENT + Consumption.ABSENT]),
+    'yes_no': Consumption._relevent_as_sql(),
     'filter_out_testing': filter_out_testing}
         self._show_query_and_result(yes_no_view)
 
@@ -183,12 +182,12 @@ ON envconnect_consumption.question_id = opportunity_view.question_id""" % {
 class Consumption(SurveyQuestion):
     """Consumption of externalities in the manufactoring process."""
 
-    YES = 'Yes'
-    NEEDS_MODERATE_IMPROVEMENT = 'Yes, but needs a little improvement'
-    NEEDS_SIGNIFICANT_IMPROVEMENT = 'Yes, but needs a lot of improvement'
-    NO = 'No' #pylint:disable=invalid-name
-    NO_NEEDS_IMPROVEMENT = 'No/needs improvement'
-    NOT_APPLICABLE = 'Not applicable'
+    YES = 1                           # 'Yes'
+    NEEDS_MODERATE_IMPROVEMENT = 2    # 'Yes, but needs a little improvement'
+    NEEDS_SIGNIFICANT_IMPROVEMENT = 3 # 'Yes, but needs a lot of improvement'
+    NO = 4                            #pylint:disable=invalid-name
+    NO_NEEDS_IMPROVEMENT = 6          # 'No/needs improvement'
+    NOT_APPLICABLE = 5                # 'Not applicable'
 
     PRESENT = (YES, NEEDS_MODERATE_IMPROVEMENT)
     ABSENT = (NO, NEEDS_SIGNIFICANT_IMPROVEMENT, NO_NEEDS_IMPROVEMENT)
@@ -243,6 +242,15 @@ class Consumption(SurveyQuestion):
 
     def __str__(self):
         return str(self.pk)
+
+    @staticmethod
+    def _present_as_sql():
+        return ','.join(["%s" % val for val in Consumption.PRESENT])
+
+    @staticmethod
+    def _relevent_as_sql():
+        return ','.join(["%s" % val
+            for val in Consumption.PRESENT + Consumption.ABSENT])
 
     def save(self, force_insert=False, force_update=False,
              using=None, update_fields=None):

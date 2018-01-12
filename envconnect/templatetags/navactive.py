@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 import json, markdown, re
@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.utils import six
 from django.utils.safestring import mark_safe
 from pages.models import PageElement
+from survey.models import Choice
 
 from ..models import Consumption
 
@@ -25,8 +26,10 @@ def is_broker_manager(request):
 
 @register.filter
 def assessment_choices(tag):
-    return Consumption.ASSESSMENT_CHOICES.get(tag,
-        Consumption.ASSESSMENT_CHOICES.get('default'))
+    return [val['text'] for val in Choice.objects.filter(
+        pk__in=Consumption.ASSESSMENT_CHOICES.get(tag,
+        Consumption.ASSESSMENT_CHOICES.get('default'))).order_by('rank').values(
+        'text')]
 
 @register.filter
 def is_icon(title):

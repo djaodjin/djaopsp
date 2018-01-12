@@ -895,7 +895,7 @@ envconnectControllers.controller("EnvconnectCtrl",
             if( practices[idx][0].consumption ) {
                 practices[idx][0].consumption.implemented = answer;
                 $http.put(settings.urls.api_self_assessment_sample + "/" + practices[idx][0].consumption.rank + "/",
-                    {text: answer}).then(
+                    {measured: answer}).then(
                     function success() {
                     },
                     function error(resp) {
@@ -1264,7 +1264,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                 $.ajax({
                     url: self.options.survey_api_sample + "/" + name + "/",
                     method: "PUT",
-                    data: JSON.stringify({text: answer}),
+                    data: JSON.stringify({measured: answer}),
                     datatype: "json",
                     contentType: "application/json; charset=utf-8",
                     success: function() { return true; },

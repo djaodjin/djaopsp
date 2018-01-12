@@ -10,7 +10,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder
 from openpyxl import Workbook
-from survey.models import Answer
+from survey.models import Answer, Choice
 
 from ..api.benchmark import BenchmarkMixin
 from ..mixins import BestPracticeMixin
@@ -47,19 +47,20 @@ class SelfAssessmentBaseView(BenchmarkMixin, BestPracticeMixin, TemplateView):
                     answer = Answer.objects.get(
                         question__consumption__path=path,
                         sample=self.sample)
-                    values[0]['consumption']['implemented'] = answer.text
+                    values[0]['consumption']['implemented'] = \
+                        Choice.objects.get(pk=answer.measured).text
                     # XXX This is not really the opportunity as defined
                     # in `get_opportunities_sql` but rather the number of points
                     # scored based on the yes/no answer as computed
                     # in `get_scored_answers`.
-                    if answer.text == Consumption.YES:
+                    if answer.measured == Consumption.YES:
                         values[0]['consumption']['opportunity'] *= (3 - 3)
-                    elif answer.text == Consumption.NEEDS_MODERATE_IMPROVEMENT:
+                    elif answer.measured == Consumption.NEEDS_MODERATE_IMPROVEMENT:
                         values[0]['consumption']['opportunity'] *= (3 - 2)
-                    elif (answer.text
+                    elif (answer.measured
                           == Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT):
                         values[0]['consumption']['opportunity'] *= (3 - 1)
-                    elif answer.text == Consumption.NO:
+                    elif answer.measured == Consumption.NO:
                         values[0]['consumption']['opportunity'] *= (3 - 0)
                     else:
                         # Not Applicable.

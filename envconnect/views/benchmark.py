@@ -109,11 +109,12 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
-            not_applicable_answers = Answer.objects.filter(text='Not applicable')
+            not_applicable_answers = Answer.objects.filter(
+                measured=Consumption.NOT_APPLICABLE)
             improvement_suggestions = Answer.objects.filter(
-                response__extra='is_planned',
-                response__survey__title=self.report_title,
-                response__account=self.account)
+                sample__extra='is_planned',
+                sample__survey__title=self.report_title,
+                sample__account=self.account)
 
             root = self._build_tree(trail[-1][0], from_root,
                 cut=TransparentCut())
