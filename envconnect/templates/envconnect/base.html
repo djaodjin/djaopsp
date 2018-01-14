@@ -47,98 +47,132 @@
                 <div id="planel-icons" class="panel-icons{% block extra_panel_icons_classes %} panel-icons-no-benchmark{% endblock %}">
                     <div class="panel-body">
                         {% block icons_menu %}
-                            <div class="row">
-                                <div class="col-md-12 text-center" style="display:table-row;">
-                                    <div class="row-icons{% block row_icons_classes %}{% endblock %}">
-                                        <div style="display:inline-block;float:left;flex:auto;">
-                                            {% block icon_row_title %}
-                                            {% endblock %}
-                                            <div class="header-tuple">
-                                                {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
-                                                <ul class="nav nav-tabs squared-tabs">
-                                                {% for abs_prefix, icon_tuple in root.1|iteritems %}
-                                                {% with icon_tuple.0 as icon %}
-                                                    {% with forloop.first as draw_border %}
-                                                    <li id="{{icon.slug}}" class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
+                        <div class="row">
+                            <div class="col-md-12 text-center" style="display:table-row;">
+                                <div class="row-icons{% block row_icons_classes %}{% endblock %}">
+                                    <div style="display:inline-block;float:left;flex:auto;">
+                                        {% block icon_row_title %}
+                                        {% endblock %}
+                                        <div class="header-tuple">
+                                            {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
+                                            <ul class="nav nav-tabs squared-tabs">
+                                                {% if request|is_broker_manager and not organization %}
+                                                    <!-- start of Angular code for broker -->
+                                                    <li id="[[icon[0].slug]]" ng-repeat="icon in getEntries('{{ icon_prefix }}', 1)" class="squared-tabs-li [[ containsTag(icon[0], 'management') ? 'bordered-right' : '' ]]">
                                                         <div class="icon-container">
-    {% if request|is_broker_manager and not organization %}
-    <div style="position:relative; vertical-align:top;">
-    <a class="text-danger delete"
-       href="" data-toggle="modal" data-target="#confirm-delete"
-       ng-click="setActiveElement({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
-       style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i></a>
-    <a id="incl-{{icon.slug}}" href=""
-       ng-click="toggleScorecard('{{abs_prefix}}', true, {slug: '{{icon.slug}}', tag: '{{icon.tag}}'})"
-       style="position:absolute;top:20px;left:0px;"><i class="fa [[containsTag({tag: '{{icon.tag}}'}, TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
-    <a class="edit"
-       href="" data-toggle="modal" data-target="#edit-element-modal"
-       ng-click="setActiveElement({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
-       style="position:absolute;top:40px;left:0px;"><i class="fa fa-edit"></i></a>
-    </div>
-    {% endif %}
-    {% include "envconnect/_icon.html" with icon=icon %}
-                                                            {% block score %}
-    <div id="{{icon.slug}}-score" class="icon-score">
-        <div>
-            (<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{abs_prefix}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}>{{icon.score_weight}}</span>)
-        </div>
-    </div>
-                                                            {% endblock %}
-                                                        </div>
-                                                        {% block systems_block %}
-                                                        <div class="system-menus" ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length > 0">
-                                                            <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM)" ng-cloak>
-                                                                {% if '/report/' in request.path %}
-                                                                <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'report_organization' organization path %}{% else %}{% url 'report' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                {% elif '/improve/' in request.path %}
-                                                                <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_improve_organization' organization path %}{% else %}{% url 'envconnect_improve' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                {% elif '/info/' in request.path %}
-                                                                <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'summary_organization' organization path %}{% else %}{% url 'summary' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                {% else %}
-                                                                <p id="[[practice[0].slug]]">[[practice[0].title]]</p>
-                                                                {% endif %}
-
-                                                                {% if request|is_broker_manager and not organization %}
-    <a id="incl-[[practice[0].slug]]" href=""
-       ng-click="toggleScorecard(getPath(practice[0]), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
-    <a class="edit"
-       href="" data-toggle="modal" data-target="#edit-element-modal"
-       ng-click="setActiveElement(practice[0])"><i class="fa fa-edit"></i></a>
-    <a class="text-danger delete" href=""
-       data-toggle="modal" data-target="#confirm-delete"
-       ng-click="setActiveElement(practice[0])"><i class="fa fa-trash-o"></i></a>
-    {% endif %}
+                                                            <div style="position:relative; vertical-align:top;">
+                                                                <a class="text-danger delete"
+                                                                   href="" data-toggle="modal" data-target="#confirm-delete"
+                                                                   ng-click="setActiveElement({ slug: icon[0].slug, title: icon[0].title, tag: icon[0].tag, path: icon[0].path }, true)"
+                                                                   style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i>
+                                                                </a>
+                                                                <a id="incl-[[icon[0].slug]]" href=""
+                                                                   ng-click="toggleScorecard(icon[0].path, true, { slug: icon[0].slug, tag: icon[0].tag })"
+                                                                   style="position:absolute;top:20px;left:0px;"><i class="fa [[containsTag({ tag: icon[0].tag }, TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i>
+                                                                </a>
+                                                                <a class="edit"
+                                                                   href="" data-toggle="modal" data-target="#edit-element-modal"
+                                                                   ng-click="setActiveElement({ slug: icon[0].slug, title: icon[0].title, tag: icon[0].tag, path: icon[0].path }, true)"
+                                                                   style="position:absolute;top:40px;left:0px;"><i class="fa fa-edit"></i>
+                                                                </a>
+                                                            </div>
+                                                            {% include "envconnect/_icon.html" with icon=icon %}
+                                                            <div id="[[icon[0].slug]]-score" class="icon-score">
+                                                                <div>
+                                                                    (<span class="rollup-weight" data-id="[[icon[0].path]]" data-key="weight" ng-click="editScoreWeight($event)">[[icon[0].score_weight]]</span>)
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        {% if request|is_broker_manager and not organization %}
+                                                        <div class="system-menus" ng-if="getEntriesByTag(icon[0].path, TAG_SYSTEM).length > 0">
+                                                            <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag(icon[0].path, TAG_SYSTEM)" ng-cloak>
+                                                                {% if '/report/' in request.path %}
+                                                                    <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'report_organization' organization path %}{% else %}{% url 'report' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                                {% elif '/improve/' in request.path %}
+                                                                    <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_improve_organization' organization path %}{% else %}{% url 'envconnect_improve' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                                {% elif '/info/' in request.path %}
+                                                                    <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'summary_organization' organization path %}{% else %}{% url 'summary' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                                {% else %}
+                                                                    <p id="[[practice[0].slug]]">[[practice[0].title]]</p>
+                                                                {% endif %}
+
+                                                                <a id="incl-[[practice[0].slug]]" href=""
+                                                                   ng-click="toggleScorecard(getPath(practice[0]), false, practice[0])">
+                                                                   <i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i>
+                                                                </a>
+                                                                <a class="edit"
+                                                                   href="" data-toggle="modal" data-target="#edit-element-modal"
+                                                                   ng-click="setActiveElement(practice[0])">
+                                                                   <i class="fa fa-edit"></i>
+                                                                </a>
+                                                                <a class="text-danger delete" href=""
+                                                                   data-toggle="modal" data-target="#confirm-delete"
+                                                                   ng-click="setActiveElement(practice[0])">
+                                                                   <i class="fa fa-trash-o"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
                                                         <div class="system-add">
                                                             <button
                                                                 aria-controls="home"
                                                                 data-toggle="modal"
-                                                                data-target="#add-element-modal" ng-click="setNewElement('{{abs_prefix}}', HEADING_ELEMENT, TAG_SYSTEM)">
+
+                                                                data-target="#add-element-modal" ng-click="setNewElement(icon[0].path, HEADING_ELEMENT, TAG_SYSTEM)">
                                                                 <i class="fa fa-plus"></i>
+                                                            </button>
                                                         </div>
-                                                        {% endif %}
-                                                        {% endblock %}
                                                     </li>
-                                                    {% endwith %}
-                                                {% endwith %}
-                                                {% endfor %}
-                                                {% if request|is_broker_manager %}
+
                                                     <li class="squared-tabs-li" style="min-width:150px;">
                                                       <div class="icon-container">
                                                         <button class="icon-inner fixed-width orange"
                                                                 aria-controls="home"
                                                                 data-toggle="modal"
-                                                                data-target="#add-element-modal" ng-click="setNewElement('{{icon_prefix}}', HEADING_ELEMENT, TAG_SCORECARD, true)">
+
+                                                                data-target="#add-element-modal" ng-click="setNewElement(icon[0].path, HEADING_ELEMENT, TAG_SCORECARD, true)">
+
                                                             <i class="fa fa-plus fa-5x" style="color:white;"></i>
                                                         </button>
                                                       </div>
                                                     </li>
+
+                                                    <!-- end of Angular code for broker -->
+                                                {% else %}
+                                                    <!-- start of Django template code for non-broker -->
+                                                    {% for abs_prefix, icon_tuple in root.1|iteritems %}
+                                                        {% with icon_tuple.0 as icon %}
+                                                            {% with forloop.first as draw_border %}
+                                                            <li id="{{icon.slug}}" class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
+                                                                <div class="icon-container">
+                                                                    {% include "envconnect/_icon.html" with icon=icon %}
+                                                                    <div id="{{icon.slug}}-score" class="icon-score">
+                                                                        <div>
+                                                                            (<span class="rollup-weight">{{icon.score_weight}}</span>)
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="system-menus" ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length > 0">
+                                                                    <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM)" ng-cloak>
+                                                                        {% if '/report/' in request.path %}
+                                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'report_organization' organization path %}{% else %}{% url 'report' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                                        {% elif '/improve/' in request.path %}
+                                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_improve_organization' organization path %}{% else %}{% url 'envconnect_improve' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                                        {% elif '/info/' in request.path %}
+                                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'summary_organization' organization path %}{% else %}{% url 'summary' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                                        {% else %}
+                                                                            <p id="[[practice[0].slug]]">[[practice[0].title]]</p>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            {% endwith %}
+                                                        {% endwith %}
+                                                    {% endfor %}
+                                                    <!-- start of Django template code for non-broker -->
+                                                    <!-- toggles nav icons for broker -->
                                                 {% endif %}
-                                                </ul>
-                                                {% endwith %}
-                                            </div>
+                                            </ul>
+                                            {% endwith %}
+
                                         </div>
                                         {% block additional_icon %}
                                         {% endblock %}
