@@ -87,13 +87,13 @@
                     labels: true,
                     color: function (color, d) {
                         if( d.x == 0 ) {
-                            return "#aaa";    // green-level-0
+                            return "#9CD76B";    // green-level-0
                         } else if( d.x == 1 ) {
-                            return "#9CD76B"; // green-level-1
+                            return "#69B02B"; // green-level-1
                         }  else if( d.x == 2 ) {
-                            return "#69B02B"; // green-level-2
+                            return "#007C3F"; // green-level-2
                         }
-                        return "#007C3F"; // green-level-3
+                        return "#FFD700"; // green-level-3
                     }
                 },
                 grid: {
