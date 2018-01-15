@@ -1364,6 +1364,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                     if( typeof data[idx].normalized_score !== 'undefined'
                         && typeof data[idx].avg_normalized_score !== 'undefined'
                         && typeof data[idx].highest_normalized_score !== 'undefined') {
+                    totalScoreElement.empty();
                         radialProgress(totalScoreElement[0])
                             .value1(data[idx].highest_normalized_score)
                             .value2(data[idx].avg_normalized_score)
@@ -1374,6 +1375,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                             // N/A Could already been added. We will call
                             // the benchmark API multiple times
                             // on the improvement dashboard.
+                            totalScoreElement.empty();
                             totalScoreElement.append(
                     "<div class=\"totals-chart\">" +
                       "<div>N/A - Self assessment questions incomplete</div>" +
