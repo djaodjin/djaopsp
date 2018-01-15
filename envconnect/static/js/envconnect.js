@@ -1368,7 +1368,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                         radialProgress(totalScoreElement[0])
                             .value1(data[idx].highest_normalized_score)
                             .value2(data[idx].avg_normalized_score)
-                            .value3(data[idx].normalized_score)
+							.value3(self.options.scoreFunc(data[idx]))
                             .render();
                     } else {
                         if( totalScoreElement.find(".totals-chart").length === 0 ) {
@@ -1448,7 +1448,8 @@ envconnectControllers.controller("envconnectMyTSPReporting",
 
     $.fn.improvementDashboard.defaults = {
         api_account_benchmark: null,
-        benchmark: null
+        benchmark: null,
+		scoreFunc: function(elem) { return elem.normalized_score }
     };
 
 })(jQuery);
