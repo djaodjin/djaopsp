@@ -46,37 +46,6 @@ class BenchmarkMixin(ReportMixin):
                     count += 1
                 LOGGER.debug("%d row(s)", count)
 
-    def decorate_with_breadcrumbs(self, rollup_tree,
-                                  icon=None, tag=None, breadcrumbs=None):
-        """
-        When this method returns each node in the rollup_tree will have
-        and icon and breadcumbs attributes. If a node does not have or
-        has an empty tag attribute, it will be set to the value of the
-        first parent's tag which is meaningful.
-        """
-        title = rollup_tree[0].get('title', "")
-        if isinstance(breadcrumbs, list) and title:
-            breadcrumbs.append(title)
-        elif rollup_tree[0].get('slug', "").startswith('sustainability-'):
-            breadcrumbs = []
-        icon_candidate = rollup_tree[0].get('text', "")
-        if icon_candidate and icon_candidate.endswith('.png'):
-            icon = icon_candidate
-        tag_candidate = rollup_tree[0].get('tag', "")
-        if tag_candidate:
-            tag = tag_candidate
-        rollup_tree[0].update({
-            'breadcrumbs':
-                list(breadcrumbs) if breadcrumbs else [title],
-            'icon': icon,
-            'icon_css': 'grey' if (tag and 'management' in tag) else 'orange'
-        })
-        for node in six.itervalues(rollup_tree[1]):
-            self.decorate_with_breadcrumbs(node, icon=icon, tag=tag,
-                breadcrumbs=breadcrumbs)
-        if breadcrumbs:
-            breadcrumbs.pop()
-
     def get_drilldown(self, rollup_tree, prefix):
         accounts = None
         node = rollup_tree[1].get(prefix, None)
@@ -648,7 +617,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 nb_questions = scores['nb_questions']
                 if slug != 'totals' or nb_answers > 0:
                     # Aggregation of total scores is different. We only want to
-                    # count scores for self-assessment that matter
+                    # count scores for assessment that matter
                     # for an organization's industry.
                     agg_scores['nb_answers'] += nb_answers
                     agg_scores['nb_questions'] += nb_questions

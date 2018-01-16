@@ -44,6 +44,13 @@ class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
 class ImprovementToggleAPIView(ImprovementQuerySetMixin,
                                 CreateModelMixin, RetrieveModelMixin,
                                 DestroyModelMixin, GenericAPIView):
+    """
+    Assessment:
+    implementation rate, nb respondents
+    "implemented by you?"
+    opportunity score
+    selected from improvement
+    """
 
     serializer_class = ImprovementSerializer
 
@@ -90,4 +97,3 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
-

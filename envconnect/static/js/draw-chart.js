@@ -37,13 +37,13 @@
             var self = this;
             var element = $(self.element);
             if( self.options.nb_questions === 0 ) {
-                element.append("<div class=\"benchmark-chart\"><em>No self-assessment questions</em></div>");
+                element.append("<div class=\"benchmark-chart\"><em>No assessment questions</em></div>");
                 return false;
             }
             if( self.options.nb_answers !== self.options.nb_questions ) {
                 element.append("<div class=\"benchmark-chart\"><em>You answered "
                     + self.options.nb_answers + " out of "
-                    + self.options.nb_questions + " questions on the self-assessment.</em></div>");
+                    + self.options.nb_questions + " questions on the assessment.</em></div>");
                 return false;
             }
 

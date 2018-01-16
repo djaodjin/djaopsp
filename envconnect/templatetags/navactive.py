@@ -77,18 +77,6 @@ def category_entry(breadcrumbs, category=None):
     return path
 
 
-@register.filter
-def nb_self_assessment_questions(practices):
-    result = 0
-    for practice in practices:
-        if len(practice[1]) == 0:
-            result += 1
-        elif (len(practice[1]) > 0
-              and settings.TAG_SYSTEM not in practice[0].tag):
-            result += 1
-    return result
-
-
 @register.filter(is_safe=True)
 def markdown_filter(value):
     extensions = ("tables", "nl2br")

@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 from django.conf import settings
@@ -15,7 +15,7 @@ from ..views.benchmark import (BenchmarkView, PortfoliosDetailView,
 from ..views.compare import ReportingEntitiesView
 from ..views.index import IndexView
 from ..views.improvements import ReportPDFView
-from ..views.self_assessment import SelfAssessmentView, SelfAssessmentXLSXView
+from ..views.self_assessment import AssessmentView, AssessmentXLSXView
 from ..views.detail import DetailView
 from ..views.improvements import ImproveView, ImprovementXLSXView
 
@@ -124,10 +124,10 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/portfolios/' % SLUG_RE,
         include('survey.urls.matrix')),
     url_direct(r'app/(?P<organization>%s)/report(?P<path>%s)/download/' % (
-        SLUG_RE, settings.PATH_RE), SelfAssessmentXLSXView.as_view(),
+        SLUG_RE, settings.PATH_RE), AssessmentXLSXView.as_view(),
         name='report_organization_download'),
     url_direct(r'app/(?P<organization>%s)/report(?P<path>%s)/' % (
-        SLUG_RE, settings.PATH_RE), SelfAssessmentView.as_view(),
+        SLUG_RE, settings.PATH_RE), AssessmentView.as_view(),
         name='report_organization'),
     url_direct(r'app/(?P<organization>%s)/improve/download/' % (
         SLUG_RE), ImprovementXLSXView.as_view(),

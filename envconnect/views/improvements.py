@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -8,6 +8,7 @@ from deployutils.crypt import JSONEncoder
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponse
+from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from openpyxl import Workbook
 from pages.models import PageElement
@@ -15,14 +16,14 @@ from survey.models import Answer, Question
 from survey.views.sample import SampleUpdateView as BaseSampleUpdateView
 from extended_templates.backends.pdf import PdfTemplateResponse
 
-from ..mixins import BestPracticeMixin, ImprovementQuerySetMixin
+from ..mixins import ReportMixin, ImprovementQuerySetMixin
 from ..models import Consumption
-from .self_assessment import SelfAssessmentBaseView
+
 
 LOGGER = logging.getLogger(__name__)
 
 
-class ImproveView(SelfAssessmentBaseView):
+class ImproveView(ReportMixin, TemplateView):
 
     template_name = 'envconnect/improve.html'
     breadcrumb_url = 'envconnect_improve'
@@ -44,10 +45,8 @@ class ImproveView(SelfAssessmentBaseView):
 
     def get_context_data(self, **kwargs):
         context = super(ImproveView, self).get_context_data(**kwargs)
-        from_root, trail = self.breadcrumbs
-        if trail:
-            root = self._build_tree(trail[-1][0], from_root)
-            self.attach_benchmarks(root)
+        root = self.get_report_tree()
+        if root:
             self.decorate_with_breadcrumbs(root)
             context.update({
                 'root': root,
@@ -82,9 +81,7 @@ class ResponseUpdateView(ImprovementQuerySetMixin, BaseSampleUpdateView):
         return reverse(self.next_step_url, kwargs=self.get_url_context())
 
 
-class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
-                         BestPracticeMixin, # for get_breadcrumbs
-                         ListView):
+class ImprovementSpreadsheetView(ImprovementQuerySetMixin, ListView):
 
     basename = 'improvements'
     headings = ['Practice', 'Implementation rate', 'Opportunity score']

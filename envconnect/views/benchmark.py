@@ -33,7 +33,7 @@ LOGGER = logging.getLogger(__name__)
 
 VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED = \
     "%(organization)s has not yet started to complete"\
-    " their self-assessment. You will be able able to see"\
+    " their assessment. You will be able able to see"\
     " %(organization)s as soon as they do."
 
 
@@ -43,7 +43,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
     On login, by default the user will be redirected to `/app/` which in turn
     will redirect to `/app/:organization/scorecard/$`.
 
-    If *organization* has started a self-assessment then we have candidates
+    If *organization* has started an assessment then we have candidates
     to redirect to (i.e. /app/:organization/scorecard/:path).
     """
 
@@ -54,7 +54,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
                 ['manager', 'contributor']):
             # If the user has a more than a `viewer` role on the organization,
             # we force the redirect to the benchmark page such that
-            # the contextual menu with self-assessment, etc. appears.
+            # the contextual menu with assessment, etc. appears.
             try:
                 return reverse('benchmark_organization',
                     args=args, kwargs=kwargs)
@@ -163,9 +163,9 @@ class BenchmarkView(BenchmarkBaseView):
             # /app/:organization/scorecard/:path
             # Only when accessing an actual scorecard and if the request user
             # is a manager/contributor for the organization will we prompt
-            # to start the self-assessment.
+            # to start the assessment.
             messages.warning(self.request,
-                "You need to complete a self-assessment before"\
+                "You need to complete an assessment before"\
                 " moving on to the scorecard.")
             return HttpResponseRedirect(reverse('report_organization',
                 kwargs={'organization': organization, 'path': path}))
@@ -196,7 +196,7 @@ class ScoreCardView(BenchmarkView):
                 # user is a viewer will we explain why the scorecard is not
                 # visible. If the request user is manager/contributor
                 # for the organization, calling `get_assessment_redirect_url`
-                # will prompt the message to complete the self-assessment.
+                # will prompt the message to complete the assessment.
                 messages.warning(self.request,
                     VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED % {
                         'organization': organization})

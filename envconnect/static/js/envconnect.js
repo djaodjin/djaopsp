@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, DjaoDjin inc.
+/* Copyright (c) 2018, DjaoDjin inc.
    see LICENSE. */
 
 /* Functionality related to the envconnect API.
@@ -113,7 +113,6 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
                             attachPath = parts.join('/');
                             var headingNode = scope.getEntriesRecursive(
                                 scope.entries, attachPath);
-                            console.log("XXX headingNode[1]=", headingNode[1]);
                             var idx = 0;
                             for( var path in headingNode[1] ) {
                                 if( headingNode[1].hasOwnProperty(path) ) {
@@ -894,7 +893,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         for( var idx = 0; idx < practices.length; ++idx ) {
             if( practices[idx][0].consumption ) {
                 practices[idx][0].consumption.implemented = answer;
-                $http.put(settings.urls.api_self_assessment_sample + "/" + practices[idx][0].consumption.rank + "/",
+                $http.put(settings.urls.api_assessment_sample + "/" + practices[idx][0].consumption.rank + "/",
                     {measured: answer}).then(
                     function success() {
                     },
@@ -972,10 +971,10 @@ envconnectControllers.controller("EnvconnectCtrl",
 		showMessages(['Your changes have been saved.'], 'info');
 	};
 
-	$scope.freezeSelfAssessment = function ($event) {
+	$scope.freezeAssessment = function ($event) {
 		$event.preventDefault();
 
-		$http.put(settings.urls.api_self_assessment_sample, {is_frozen: true}).then(
+		$http.put(settings.urls.api_assessment_sample, {is_frozen: true}).then(
             function success(resp) {
                 showMessages(["Success!"], "info");
             },
@@ -1235,7 +1234,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
 (function ($) {
     "use strict";
 
-    /** Plug-in to connect the self-assessment UI to the API.
+    /** Plug-in to connect the assessment UI to the API.
 
         HTML requirements:
 
@@ -1247,13 +1246,13 @@ envconnectControllers.controller("envconnectMyTSPReporting",
           </td>
         </tr>
     */
-    function SelfAssessment(el, options){
+    function Assessment(el, options){
         this.element = $(el);
         this.options = options;
         this.init();
     }
 
-    SelfAssessment.prototype = {
+    Assessment.prototype = {
         init: function () {
             var self = this;
 
@@ -1274,20 +1273,20 @@ envconnectControllers.controller("envconnectMyTSPReporting",
         },
     };
 
-    $.fn.selfAssessment = function(options) {
-        var opts = $.extend( {}, $.fn.selfAssessment.defaults, options );
+    $.fn.assessment = function(options) {
+        var opts = $.extend( {}, $.fn.assessment.defaults, options );
         return this.each(function() {
-            if (!$.data(this, "selfAssessment")) {
-                $.data(this, "selfAssessment", new SelfAssessment(this, opts));
+            if (!$.data(this, "assessment")) {
+                $.data(this, "assessment", new Assessment(this, opts));
             }
         });
     };
 
-    $.fn.selfAssessment.defaults = {
+    $.fn.assessment.defaults = {
         survey_api_sample: null,
     };
 
-    /** Plug-in to connect the self-assessment UI to the API.
+    /** Plug-in to connect scorecard/improvement dashboard UI to the API.
 
         HTML requirements:
 
@@ -1368,7 +1367,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                         radialProgress(totalScoreElement[0])
                             .value1(data[idx].highest_normalized_score)
                             .value2(data[idx].avg_normalized_score)
-							.value3(self.options.scoreFunc(data[idx]))
+                            .value3(self.options.scoreFunc(data[idx]))
                             .render();
                     } else {
                         if( totalScoreElement.find(".totals-chart").length === 0 ) {

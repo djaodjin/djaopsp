@@ -1,9 +1,9 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 from django.db import transaction
 from rest_framework import generics
-from survey.models import Campaign, EnumeratedQuestions
+from survey.models import EnumeratedQuestions
 
 from ..serializers import ConsumptionSerializer
 from ..mixins import BreadcrumbMixin

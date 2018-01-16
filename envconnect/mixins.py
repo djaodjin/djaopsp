@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -16,7 +16,7 @@ from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
 from rest_framework.generics import get_object_or_404
-from survey.models import Answer, Sample, Campaign, EnumeratedQuestions
+from survey.models import Answer, Choice, Sample, Campaign, EnumeratedQuestions
 from survey.utils import get_account_model
 
 from .models import Consumption, get_score_weight
@@ -128,6 +128,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     def _report_queries(self, descr=None):
         if not self.enable_report_queries:
+            return
+        if not hasattr(self, 'start_time'):
             return
         end_time = monotonic.monotonic()
         if descr is None:
@@ -288,7 +290,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         context.update({'campaign': self.survey})
         return context
 
-    def decorate_with_consumptions(self, leafs):
+    def decorate_leafs(self, leafs):
         for path, vals in six.iteritems(leafs):
             consumption = Consumption.objects.filter(path=path).first()
             if consumption:
@@ -315,7 +317,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 " leaves an empty rollup tree", root, path, cut.__class__)
             rollup_tree = ({'slug': ""}, {})
         leafs = self.get_leafs(rollup_tree)
-        self.decorate_with_consumptions(leafs)
+        self._report_queries("[_build_tree] leafs loaded")
+        self.decorate_leafs(leafs)
+        self._report_queries("[_build_tree] leafs populated")
         return rollup_tree
 
     def _cut_tree(self, roots, cut=None):
@@ -343,6 +347,37 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             if cut and not cut.leave(node[0], node[1]):
                 del roots[node_path]
         return roots
+
+    def decorate_with_breadcrumbs(self, rollup_tree,
+                                  icon=None, tag=None, breadcrumbs=None):
+        """
+        When this method returns each node in the rollup_tree will have
+        and icon and breadcumbs attributes. If a node does not have or
+        has an empty tag attribute, it will be set to the value of the
+        first parent's tag which is meaningful.
+        """
+        title = rollup_tree[0].get('title', "")
+        if isinstance(breadcrumbs, list) and title:
+            breadcrumbs.append(title)
+        elif rollup_tree[0].get('slug', "").startswith('sustainability-'):
+            breadcrumbs = []
+        icon_candidate = rollup_tree[0].get('text', "")
+        if icon_candidate and icon_candidate.endswith('.png'):
+            icon = icon_candidate
+        tag_candidate = rollup_tree[0].get('tag', "")
+        if tag_candidate:
+            tag = tag_candidate
+        rollup_tree[0].update({
+            'breadcrumbs':
+                list(breadcrumbs) if breadcrumbs else [title],
+            'icon': icon,
+            'icon_css': 'grey' if (tag and 'management' in tag) else 'orange'
+        })
+        for node in six.itervalues(rollup_tree[1]):
+            self.decorate_with_breadcrumbs(node, icon=icon, tag=tag,
+                breadcrumbs=breadcrumbs)
+        if breadcrumbs:
+            breadcrumbs.pop()
 
     def get_breadcrumbs(self, path):
         #pylint:disable=too-many-locals
@@ -391,7 +426,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 base_url += ("?active=%s" % anchor)
             crumb.append(base_url)
                 # XXX Do we add the Organization in the path
-                # for self-assessment to summary and back?
+                # for assessment to summary and back?
         return from_root, results
 
     def get_context_data(self, **kwargs):
@@ -450,6 +485,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
 
 class ReportMixin(BreadcrumbMixin, AccountMixin):
+    """
+    Loads assessment and improvement for an organization.
+    """
 
     def _get_filter_out_testing(self):
         # List of response ids that are only used for demo purposes.
@@ -475,6 +513,81 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
             if self.sample is None:
                 self._sample = Sample.objects.create(
                     survey=self.survey, account=self.account)
+
+    def decorate_leafs(self, leafs):
+        """
+        Adds consumptions, implementation rate, number of respondents,
+        assessment and improvement answers and opportunity score.
+        """
+        # Loads Consumption with opportunity score as a dictionnary
+        # indexed by path.
+        consumptions = {}
+        for consumption in Consumption.objects.with_opportunity(
+                filter_out_testing=self._get_filter_out_testing()):
+            consumptions[consumption.path] = consumption
+
+        # Populate leafs and cut nodes with data.
+        for path, vals in six.iteritems(leafs):
+            consumption = consumptions.get(path, None)
+            if consumption:
+                vals[0]['consumption'] \
+                    = ConsumptionSerializer(context={'campaign': self.survey
+                    }).to_representation(consumption)
+                if self.sample:
+                    # Assessment
+                    try:
+                        answer = Answer.objects.get(
+                            question__consumption__path=path,
+                            sample=self.sample)
+                        vals[0]['consumption']['implemented'] = \
+                            Choice.objects.get(pk=answer.measured).text
+                        # XXX This is not really the opportunity as defined
+                        # in `get_opportunities_sql` but rather the number
+                        # of points scored based on the yes/no answer
+                        # as computed in `get_scored_answers`.
+                        if answer.measured == Consumption.YES:
+                            vals[0]['consumption']['opportunity'] *= (3 - 3)
+                        elif (answer.measured ==
+                              Consumption.NEEDS_MODERATE_IMPROVEMENT):
+                            vals[0]['consumption']['opportunity'] *= (3 - 2)
+                        elif (answer.measured
+                              == Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT):
+                            vals[0]['consumption']['opportunity'] *= (3 - 1)
+                        elif answer.measured == Consumption.NO:
+                            vals[0]['consumption']['opportunity'] *= (3 - 0)
+                        else:
+                            # Not Applicable.
+                            vals[0]['consumption']['opportunity'] = 0
+                    except Answer.DoesNotExist:
+                        # We have cut out the tree at an icon or heading level.
+                        vals[0]['consumption']['implemented'] = False
+                    # Improvement
+                    # XXX should use ``improve_sample`` defined in
+                    # `ImprovementQuerySetMixin`.
+                    vals[0]['consumption']['planned'] \
+                        = Answer.objects.filter(
+                            question__consumption__path=path,
+                            sample__extra='is_planned',
+                            sample__survey__title=self.report_title,
+                            sample__account=self.account).exists()
+            else:
+                # Cut node: loads icon url.
+                vals[0]['consumption'] = None
+                text = PageElement.objects.filter(
+                    slug=vals[0]['slug']).values('text').first()
+                if text and text['text']:
+                    vals[0].update(text)
+
+    def get_report_tree(self):
+        """
+        Returns the content tree decorated with assessment and improvement data.
+        """
+        self._start_time()
+        from_root, trail = self.breadcrumbs
+        root = None
+        if trail:
+            root = self._build_tree(trail[-1][0], from_root)
+        return root
 
 
 class ImprovementQuerySetMixin(ReportMixin):

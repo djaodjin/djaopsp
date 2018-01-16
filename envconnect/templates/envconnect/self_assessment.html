@@ -15,14 +15,14 @@
                          inside a class="tab-content collapse". -->
                     <input id="toggle-results-{{icon.slug}}"
                            type="checkbox" toggle-checkbox data-toggle="toggle"
-                           data-on="<span>Self-assessment</span>"
+                           data-on="<span>Assessment</span>"
                            data-off="<span>Results</span>"
                            data-offstyle="green-level-2"
                            data-width="125px" data-height="34px"
                            ng-model="scoreToggle">
                 </div>
             </div>
-            <table class="table table-striped table-bordered table-self-assessment">
+            <table class="table table-striped table-bordered table-assessment">
                 {% with icon.tag|assessment_choices as choices %}
                 <thead ng-show="!scoreToggle">
                     <tr>
@@ -137,9 +137,9 @@ See the following for examples of content developed for best practices:
                     </tr>
                     <tr>
                         <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : 4]]" class="text-right">
-                        	<a id="download-assessment" class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Self-assessment</a>
+                        	<a id="download-assessment" class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Assessment</a>
 							<button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
-							<button class="btn btn-primary" id="submit-button" ng-click="freezeSelfAssessment($event)">Submit</button>
+							<button class="btn btn-primary" id="submit-button" ng-click="freezeAssessment($event)">Submit</button>
                         </td>
                     </tr>
                 </tbody>
@@ -184,7 +184,7 @@ Data entry, trending, reporting and dashboard creation is under construction.
 {{block.super}}
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-    $(".best-practice-row").selfAssessment({
+    $(".best-practice-row").assessment({
         survey_api_sample: "{% url 'survey_api_sample' organization sample %}",
         api_improvement_base: "{% url 'api_improvement_base' organization %}"
     });

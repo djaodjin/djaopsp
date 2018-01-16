@@ -50,7 +50,7 @@ class SupplierListAPIView(DashboardMixin, generics.ListAPIView):
     """
     List of suppliers accessible by the request user
     with normalized (total) score when the supplier completed
-    a self-assessment.
+    an assessment.
 
     GET /api/:organization/suppliers
 
@@ -111,7 +111,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
     A table of scores for cohorts aganist a metric.
 
     Uses the total score for each organization as recorded
-    by the self-assessment surveys and present aggregates
+    by the assessment surveys and present aggregates
     by industry sub-sectors (Boxes & enclosures, etc.)
 
     **Examples**:
