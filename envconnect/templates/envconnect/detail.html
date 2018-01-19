@@ -8,20 +8,6 @@
         {% with icon_tuple.0 as icon %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}" ng-cloak>
           <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length === 0">
-            <div class="row">
-                <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
-                    <!-- WORKAROUND: we set data-width and data-height
-                         otherwise bootstrap-toggle will crop the size
-                         inside a class="tab-content collapse". -->
-                    <input id="toggle-value-summary-{{icon.slug}}"
-                           type="checkbox" toggle-checkbox data-toggle="toggle"
-                           data-on="<span>Profitability</span>"
-                           data-off="<span>Value summary</span>"
-                           data-offstyle="green-level-2"
-                           data-width="125px" data-height="34px"
-                           ng-model="valueSummaryToggle" />
-                </div>
-            </div>
             <!-- cost, payback, etc. -->
             <div style="position:absolute;left:40%;background-color:rgba(200,200,200,0.5);width:300px;height:200px;text-align:center;z-index:10;" ng-show="!valueSummaryToggle" ng-cloak>
               <div style="position:relative;">
