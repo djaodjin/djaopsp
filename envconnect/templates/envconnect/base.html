@@ -6,7 +6,7 @@
 <div class="backdrop">
     <div ng-app="envconnectApp">
         <div ng-controller="EnvconnectCtrl">
-            <div class="question-mark" style="float: right; padding-right: 25px;"><a id="question-text-box" style="cursor:pointer; color: #FFFFFF;" data-trip data-trip-delay="-1" data-trip-index="1" data-trip-position="screen-center" data-trip-content="
+            <div class="question-mark" style="float: right; padding-right: 25px;"><a id="help-request" style="cursor:pointer; color: #FFFFFF;" data-trip data-trip-delay="-1" data-trip-index="1" data-trip-position="screen-center" data-trip-content="
                 <div class='text-left start-here'>
                 <p>What each menu function lets you do:</p>
                 <ul>
@@ -335,8 +335,8 @@ jQuery(document).ready(function($) {
     });
 
     if ($('[data-trip]').length > 0){
-        $("#question-text-box").parent().show();
-        $("#question-text-box").click(function(){
+        $("#help-request").parent().show();
+        $("#help-request").click(function(){
             var trip = new Trip({
                 enableAnimation: false,
                 showCloseBox: true,
