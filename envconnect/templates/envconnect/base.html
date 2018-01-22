@@ -6,6 +6,23 @@
 <div class="backdrop">
     <div ng-app="envconnectApp">
         <div ng-controller="EnvconnectCtrl">
+            <div class="question-mark" style="float: right; padding-right: 25px;"><a id="question-text-box" style="cursor:pointer; color: #FFFFFF;" data-trip data-trip-delay="-1" data-trip-index="1" data-trip-position="screen-center" data-trip-content="
+                <div class='text-left start-here'>
+                <p>What each menu function lets you do:</p>
+                <ul>
+                    <li>
+                    <strong>Environmental practices</strong>. Browse best practices and their value. Click on a practice to see if there is guidance on the practice.
+                    </li>
+                    <li><strong>Assessment</strong>. Assess your maturity against best practices, and see how you benchmark with peers.<sup>(1)</sup>
+                    </li>
+                    <li><strong>Scorecard</strong>. Get an overall performance score and benchmark report.<sup>(2)</sup>
+                    </li>
+                    <li><strong>Planning</strong>. Select improvement actions on a value-prioritized basis and see their impact on scores.</li><p>
+                        <i><sup>(1)</sup> Benchmarking can change over time as more users complete Assessments on the system.</i>
+                        <br />
+                        <i><sup>(2)</sup> The Assessment must be complete to generate a complete scorecard.</i></p>
+                </div>">
+                <i class="fa fa-question-circle fa-3x" aria-hidden="true"></i></a></div>
             <ol class="col-md-9 breadcrumb env-breadcrumb">
                 <li><a href="{% url 'homepage' %}">Home</a></li>
                 {% for breadcrumb_tuple in breadcrumbs %}
@@ -21,8 +38,8 @@
                         <div class="col-md-offset-2 col-md-3">
                             <h2>Learn <i class="fa fa-angle-right"></i></h2>
                             <ul class="nav">
-                                <li><a id="help-request" style="cursor:pointer;" data-trip data-trip-delay="-1" data-trip-index="1" data-trip-position="screen-center" data-trip-content="<div class='text-left start-here'><p>What each menu function lets you do:</p><ul><li><strong>Environmental practices</strong>. Browse best practices and their value. Click on a practice to see if there is guidance on the practice.</li><li><strong>Assessment</strong>. Assess your maturity against best practices, and see how you benchmark with peers.<sup>(1)</sup></li><li><strong>Scorecard</strong>. Get an overall performance score and benchmark report.<sup>(2)</sup></li><li><strong>Planning</strong>. Select improvement actions on a value-prioritized basis and see their impact on scores.</li><p><i><sup>(1)</sup> Benchmarking can change over time as more users complete Assessments on the system.</i><br /><i><sup>(2)</sup> The Assessment must be complete to generate a complete scorecard.</i></p></div>">Start here</a></li>
                                 <li{% if '/info/' in request.path %} class="active"{% endif %}><a id="submenu-sustainability" href="{{urls.summary}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><i class="fa-li fa{% if '/info/' in request.path %} fa-hand-o-right{% endif %}"></i> Environmental practices</a></li>
+                                <li{% if '/#/' in request.path %} class="active"{% endif %}><button id="business-practices" disabled style="font-style:italic;"> Ethical business practices <i class="fa fa-wrench" aria-hidden="true"></i></button></li>
                             </ul>
                         </div>
                         <div class="col-md-3">
@@ -318,8 +335,8 @@ jQuery(document).ready(function($) {
     });
 
     if ($('[data-trip]').length > 0){
-        $("#help-request").parent().show();
-        $("#help-request").click(function(){
+        $("#question-text-box").parent().show();
+        $("#question-text-box").click(function(){
             var trip = new Trip({
                 enableAnimation: false,
                 showCloseBox: true,
