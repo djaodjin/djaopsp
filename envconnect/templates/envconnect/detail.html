@@ -76,30 +76,54 @@
                     </tr>
                 </thead>
                 <tbody dnd-list="getEntries('{{abs_prefix}}')"
-                       ng-if="sortedOnKeys === 0"  ng-show="valueSummaryToggle">
+                    ng-if="sortedOnKeys === 0" ng-show="valueSummaryToggle"
+                    data-drop="true"
+                    data-jqyoui-options
+                    jqyoui-droppable="{onDrop:'demoteBestPractice()'}">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}')">
+                        ng-repeat="practice in getEntries('{{abs_prefix}}')"
+                        data-drag="false"
+                        data-jqyoui-options
+                        jqyoui-draggable>
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
                 </tbody>
                 <tbody dnd-list="getEntries('{{abs_prefix}}')"
-                       ng-if="sortedOnKeys !== 0" ng-show="valueSummaryToggle">
+                       ng-if="sortedOnKeys !== 0" ng-show="valueSummaryToggle"
+                       data-drop="true"
+                       data-jqyoui-options
+                       jqyoui-droppable="{onDrop:'demoteBestPractice()'}">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse">
+                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
+                        data-drag="false"
+                        data-jqyoui-options
+                        jqyoui-draggable>
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
                 </tbody>
                 <tbody dnd-list="getEntries('{{abs_prefix}}')"
-                       ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle">
+                       ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle"
+                       data-drop="true"
+                       data-jqyoui-options
+                       jqyoui-droppable="{onDrop:'demoteBestPractice()'}">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}')">
+                        ng-repeat="practice in getEntries('{{abs_prefix}}')"
+                        data-drag="false"
+                        data-jqyoui-options
+                        jqyoui-draggable>
                         {% include "envconnect/_profitability_row.html" %}
                     </tr>
                 </tbody>
                 <tbody dnd-list="getEntries('{{abs_prefix}}')"
-                       ng-if="sortedOnKeys !== 0"  ng-show="!valueSummaryToggle">
+                       ng-if="sortedOnKeys !== 0"  ng-show="!valueSummaryToggle"
+                       data-drop="true"
+                       data-jqyoui-options
+                       jqyoui-droppable="{onDrop:'demoteBestPractice()'}">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse">
+                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
+                        data-drag="false"
+                        data-jqyoui-options
+                        jqyoui-draggable>
                         {% include "envconnect/_profitability_row.html" %}
                     </tr>
                 </tbody>

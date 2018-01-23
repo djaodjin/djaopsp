@@ -58,7 +58,12 @@
                                             <ul class="nav nav-tabs squared-tabs">
                                                 {% if request|is_broker_manager and not organization %}
                                                     <!-- start of Angular code for broker -->
-                                                    <li id="[[icon[0].slug]]" ng-repeat="icon in getEntries('{{ icon_prefix }}', 1)" class="squared-tabs-li [[ containsTag(icon[0], 'management') ? 'bordered-right' : '' ]]">
+                                                    <li data-id="[[icon[0].path]]"
+                                                        ng-repeat="icon in getEntries('{{ icon_prefix }}', 1)"
+                                                        data-drag="true"
+                                                        jqyoui-draggable="{animate:true}"
+                                                        data-jqyoui-options="{revert: 'invalid'}"
+                                                        class="squared-tabs-li [[ containsTag(icon[0], 'management') ? 'bordered-right' : '' ]]">
                                                         <div class="icon-container">
                                                             <div style="position:relative; vertical-align:top;">
                                                                 <a class="text-danger delete"

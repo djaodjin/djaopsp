@@ -826,6 +826,15 @@ envconnectControllers.controller("EnvconnectCtrl",
             });
     };
 
+    $scope.demoteBestPractice = function($event) {
+        var iconParent = angular.element($event.toElement).parents(".squared-tabs-li");
+        var startPath = iconParent.data('id');
+        var tableParent = angular.element($event.target).parents("table");
+        var attachPath = tableParent.data('prefix');
+
+        $scope.moveBestPractice(startPath, attachPath, null, "demote");
+    };
+
     $scope.indentHeader = function(practice, prefix) {
         var parts = practice[0].path.replace(prefix, '').split("/");
         var indentSpace = 0
@@ -879,8 +888,13 @@ envconnectControllers.controller("EnvconnectCtrl",
                 attachPath = candidatePath;
             }
         }
+
         if( !attachPath ) {
-            attachPath = prefix;
+            if (prefix.split("/").length > movedDepth) {
+                attachPath = prefix.split("/").slice(0, 3).join("/");
+            } else {
+                attachPath = prefix;
+            }
         }
         $scope.moveBestPractice(startPath, attachPath, null, "toUpperLevel");
     };
