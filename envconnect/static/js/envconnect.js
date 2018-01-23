@@ -1008,8 +1008,8 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     $scope.totalItems = 0;
     $scope.opened = { "start_at": false, "ends_at": false };
     $scope.params = {};
-    $scope.params['o'] = settings.sortByField || "full_name";
-    $scope.params['ot'] = settings.sortDirection || "desc";
+    $scope.params['o'] = settings.sortByField || "printable_name";
+    $scope.params['ot'] = settings.sortDirection || "asc";
     $scope.dir[$scope.params['o']] = $scope.params['ot'];
     if( settings.date_range && settings.date_range.start_at ) {
         $scope.params['start_at'] = moment(settings.date_range.start_at).toDate();
