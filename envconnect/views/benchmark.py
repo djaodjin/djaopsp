@@ -21,7 +21,6 @@ from deployutils.helpers import datetime_or_now
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
 from survey.models import Matrix
-from survey.models import Answer
 from survey.views.matrix import MatrixDetailView
 
 from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
