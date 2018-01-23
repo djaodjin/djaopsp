@@ -21,7 +21,6 @@ from deployutils.helpers import datetime_or_now
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
 from survey.models import Matrix
-from survey.models import Answer
 from survey.views.matrix import MatrixDetailView
 
 from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
@@ -110,23 +109,24 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
-            not_applicable_answers = Answer.objects.filter(text='Not applicable')
-            improvement_suggestions = Answer.objects.filter(
-                response__extra='is_planned',
-                response__survey__title=self.report_title,
-                response__account=self.account)
-
             root = self._build_tree(trail[-1][0], from_root,
                 cut=TransparentCut())
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             self.decorate_with_breadcrumbs(root)
             charts = self.get_charts(root)
+            not_applicable_answers = Consumption.objects.filter(
+                question__answer__response=self.sample,
+                question__answer__text=Consumption.NOT_APPLICABLE)
+            not_applicables = []
+            for not_applicable in not_applicable_answers:
+                element = PageElement.objects.get(
+                    slug=not_applicable.path.split('/')[-1])
+                not_applicables += [(from_root + '/' + element.slug, element)]
             context.update({
                 'charts': charts,
                 'root': root,
-                'not_applicable_answers': not_applicable_answers,
-                'improvement_suggestions': improvement_suggestions,
+                'not_applicables': not_applicables,
                 'entries': json.dumps(root, cls=JSONEncoder),
                 # XXX move to urls when we are sure how it interacts
                 # with envconnect/base.html

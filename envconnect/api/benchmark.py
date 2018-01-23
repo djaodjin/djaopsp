@@ -411,16 +411,12 @@ GROUP BY account_id, response_id, is_planned;""" % {
                                 'denominator': denominator})
 
     @staticmethod
-    def _normalize(scores, score_weight_from_root=1.0, normalize_to_one=False):
+    def _normalize(scores, normalize_to_one=False):
         """
         Adds keys ``normalized_score`` and ``improvement_score``
         into the dictionnary *scores* when keys ``nb_answers``
         and ``nb_questions`` are equal and (``numerator``, ``denominator``
         ``improvement_numerator``) are present.
-
-        *score_weight_from_root* is the compound weight (through multiplication)
-        from the root to the node. That's the factor for how much a question
-        will actually contribute to the final score.
 
         The ``score_weight`` on a node really represents a percentage the node
         contributes to the parent score. This means we need to normalize the
@@ -452,8 +448,7 @@ GROUP BY account_id, response_id, is_planned;""" % {
             scores.pop(denominator_key, None)
 
 
-    def populate_rollup(self, rollup_tree, normalize_to_one,
-                        score_weight_from_root=1.0):
+    def populate_rollup(self, rollup_tree, normalize_to_one):
         """
         Recursively populate the tree *rollup_tree* with aggregated scores.
 
@@ -539,7 +534,7 @@ GROUP BY account_id, response_id, is_planned;""" % {
                     },
                     {
                         "/boxes-and-enclosures/production/energy-efficiency": [{
-                            "path": "/boxes-and-enclosures/production/energy-efficiency",
+                   "path": "/boxes-and-enclosures/production/energy-efficiency",
                             "slug": "energy-efficiency",
                             "title": "Energy Efficiency",
                             "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
@@ -566,11 +561,11 @@ GROUP BY account_id, response_id, is_planned;""" % {
                 }]
              }]
         """
+        #pylint:disable=too-many-locals
         numerator_key = 'numerator'
         denominator_key = 'denominator'
         values = rollup_tree[0]
         slug = values.get('slug', None)
-        root_score_weight = values.get('score_weight', 1.0)
 
         if not 'accounts' in values:
             values['accounts'] = {}
@@ -579,17 +574,18 @@ GROUP BY account_id, response_id, is_planned;""" % {
         # If the total of the children weights is 1.0, we are dealing
         # with percentages so we need to normalize all children numerators
         # and denominators to compute this node score.
-        total_score_weight = 0
-        for node in six.itervalues(rollup_tree[1]):
-            score_weight = node[0].get('score_weight', 1.0)
-            total_score_weight += score_weight
-        normalize_children = ((1.0 - 0.01) <  total_score_weight
-            and total_score_weight < (1.0 + 0.01))
+        if len(rollup_tree[1]) > 1:
+            total_score_weight = 0
+            for node in six.itervalues(rollup_tree[1]):
+                score_weight = node[0].get('score_weight', 1.0)
+                total_score_weight += score_weight
+            normalize_children = ((1.0 - 0.01) < total_score_weight
+                and total_score_weight < (1.0 + 0.01))
+        else:
+            normalize_children = False
 
         for node in six.itervalues(rollup_tree[1]):
-            self.populate_rollup(node, normalize_children, # recursive call
-                score_weight_from_root=(score_weight_from_root
-                    * root_score_weight))
+            self.populate_rollup(node, normalize_children) # recursive call
             score_weight = node[0].get('score_weight', 1.0)
             for account_id, scores in six.iteritems(
                     node[0].get('accounts', {})):
@@ -624,9 +620,7 @@ GROUP BY account_id, response_id, is_planned;""" % {
                             scores.get(key, 0) * score_weight)
 
         for account_id, scores in six.iteritems(accounts):
-            self._normalize(scores,
-                score_weight_from_root=score_weight_from_root,
-                normalize_to_one=normalize_to_one)
+            self._normalize(scores, normalize_to_one=normalize_to_one)
 
 
     def rollup_scores(self, roots=None, root_prefix=None):

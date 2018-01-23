@@ -6,72 +6,51 @@
 {% endblock icons_menu %}
 
 {% block app_content %}
-    <div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
-        <h2 style="margin-left: 5px;">Benchmark graphs</h2>
-        <div>
-            <div class="row row-flex">
-                {% for chart in charts %}
-                    {% if forloop.counter0|divisibleby:3 %}
-                        </div>
-                        <div class="row row-flex">
-                    {% endif %}
-                    <div class="col-md-4">
-                        <div id="{{chart.slug}}-chart" class="chart-container">
-                            {% include "envconnect/_chart_title.html" with practice=chart %}
-                        <div>
+<div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
+    <h2 style="margin-left: 5px;">Benchmark graphs</h2>
+    <div>
+        <div class="row row-flex">
+            {% for chart in charts %}
+            {% if forloop.counter0|divisibleby:3 %}
+        </div>
+        <div class="row row-flex">
+            {% endif %}
+            <div class="col-md-4">
+                <div id="{{chart.slug}}-chart" class="chart-container">
+                    {% include "envconnect/_chart_title.html" with practice=chart %}
+                    <div>
                         <div class="chart-content c3" style="width:250px;height:120px;">
                         </div>
-                        </div>
-                        </div>
                     </div>
-                {% endfor %}
+                </div>
             </div>
+            {% endfor %}
         </div>
     </div>
-    <div id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
-        <h2 style="margin-left: 5px;">"Not Applicable" Responses</h2>
-        <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
-        <ol>
-            {% if not_applicable_answers %}
-                {% for answer in not_applicable_answers %}
-                    <li><a href="{% url 'summary_organization' organization answer|path_with_prefix:path %}">{{ answer.question.text }}</a></li>
-                {% endfor %}
-                {% else %}
-                    <li>All questions have been answered</li>
-            {% endif %}
-        </ol>
-    </div>
-
-    {% include "envconnect/_benchmark_menu.html" with icon_row_title="Improvement Plan" arc_title="Total Score After Improvements" arc_chart_id="improvement-plan" %}
-
-    <div id="improvement-suggestion-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
-        <h2 style="margin-left: 5px;">Selected for Improvement Plan</h2>
-        <ol>
-            {% if improvement_suggestions %}
-                {% for answer in improvement_suggestions %}
-                    <li><a href="{% url 'summary_organization' organization answer|path_with_prefix:path %}">{{ answer.question.text }}</a></li>
-                {% endfor %}
-                {% else %}
-                    <li>No suggested improvements</li>
-            {% endif %}
-        </ol>
-    </div>
-
+</div>
+<div id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
+    <h2 style="margin-left: 5px;">"Not Applicable" Responses</h2>
+    <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
+    <ol>
+        {% if not_applicables %}
+        {% for not_applicable in not_applicables %}
+        <li><a href="{% url 'summary_organization' organization not_applicable.0 %}">{{ not_applicable.1.title }}</a></li>
+        {% endfor %}
+        {% else %}
+        <li>All questions have been answered</li>
+        {% endif %}
+    </ol>
+</div>
 {% endblock app_content%}
 
 {% block bodyscripts %}
 {{block.super}}
 <script type="text/javascript">
     jQuery(document).ready(function($) {
-        $("#score-card").improvementDashboard({
+        $("#panel-icons").improvementDashboard({
             api_account_benchmark: "{{api_account_benchmark}}",
             benchmark: "{{root.0.slug}}",
-    		scoreFunc: function (elem) { return elem.normalized_score }
-        });
-    	$("#improvement-plan").improvementDashboard({
-            api_account_benchmark: "{{api_account_benchmark}}",
-            benchmark: "{{root.0.slug}}",
-    		scoreFunc: function (elem) { return Math.floor(elem.normalized_score + elem.improvement_score) }
+            scoreFunc: function (elem) { return elem.normalized_score; }
         });
     });
 </script>
