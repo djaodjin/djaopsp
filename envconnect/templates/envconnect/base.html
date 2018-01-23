@@ -39,7 +39,7 @@
                             <h2>Learn <i class="fa fa-angle-right"></i></h2>
                             <ul class="nav">
                                 <li{% if '/info/' in request.path %} class="active"{% endif %}><a id="submenu-sustainability" href="{{urls.summary}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><i class="fa-li fa{% if '/info/' in request.path %} fa-hand-o-right{% endif %}"></i> Environmental practices</a></li>
-                                <li{% if '/#/' in request.path %} class="active"{% endif %}><button id="business-practices" disabled style="font-style:italic;"> Ethical business practices <i class="fa fa-wrench" aria-hidden="true"></i></button></li>
+                                <li{% if '/#/' in request.path %} class="active"{% endif %}><button id="submenu-ethics" disabled style="font-style:italic;"> Ethical business practices <i class="fa fa-wrench" aria-hidden="true"></i></button></li>
                             </ul>
                         </div>
                         <div class="col-md-3">

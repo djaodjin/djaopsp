@@ -110,6 +110,12 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
+            not_applicable_answers = Answer.objects.filter(text='Not applicable')
+            improvement_suggestions = Answer.objects.filter(
+                response__extra='is_planned',
+                response__survey__title=self.report_title,
+                response__account=self.account)
+
             root = self._build_tree(trail[-1][0], from_root,
                 cut=TransparentCut())
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
