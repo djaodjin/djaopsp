@@ -1,13 +1,15 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
-import logging, re
+import datetime, logging, re
 from collections import namedtuple, OrderedDict
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import Http404
 from django.utils import six
+from extra_views.contrib.mixins import SearchableListMixin, SortableListMixin
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response
@@ -46,7 +48,75 @@ class DashboardMixin(BenchmarkMixin):
             'organization__email', 'grant_key')]
 
 
-class SupplierListAPIView(DashboardMixin, generics.ListAPIView):
+class SupplierQuerySet(object):
+    """
+    Proxy object that acts like a QuerySet on a list of *items*.
+
+    This was specially crafted for the `SupplierListAPIView`.
+    It is not suitable for other kinds of lists at this point.
+    """
+
+    def __init__(self, items):
+        self.items = items
+
+    def __getattr__(self, name):
+        return getattr(self.items, name)
+
+    def __getitem__(self, idx):
+        return self.items[idx]
+
+    def __len__(self):
+        return len(self.items)
+
+    def order_by(self, field):
+        """
+        returns the list ordered by *field*.
+        """
+        reverse = False
+        if field.startswith('-'):
+            reverse = True
+            field = field[1:]
+        val = None
+        for item in self.items:
+            val = item.get(field, None)
+            if val is not None:
+                break
+        if isinstance(val, (six.integer_types, float)):
+            default = 0
+        elif isinstance(val, datetime.datetime):
+            default = datetime.datetime()
+        else:
+            default = ""
+        return SupplierQuerySet(sorted(self.items,
+            key=lambda rec: rec.get(field, default),
+            reverse=reverse))
+
+    def filter(self, *args, **kwargs):
+        items = []
+        for arg in args:
+            if isinstance(arg, Q):
+                for child in arg.children:
+                    name, _ = child[0].split('__')
+                    pat = child[1].upper()
+                    items += list(filter(
+                        lambda item: pat in item[name].upper(), self.items))
+        return SupplierQuerySet(items)
+
+    def distinct(self):
+        pk_field = 'printable_name'
+        items = []
+        for new_item in self.items:
+            found = False
+            for item in items:
+                if new_item[pk_field] == item[pk_field]:
+                    found = True
+                    break
+            if not found:
+                items += [new_item]
+        return SupplierQuerySet(items)
+
+
+class SupplierListBaseAPIView(DashboardMixin, generics.ListAPIView):
     """
     List of suppliers accessible by the request user
     with normalized (total) score when the supplier completed
@@ -103,7 +173,44 @@ class SupplierListAPIView(DashboardMixin, generics.ListAPIView):
                 results += [dct]
             except self.account_model.DoesNotExist:
                 pass
-        return results
+        return SupplierQuerySet(results)
+
+
+class SupplierSmartListMixin(SortableListMixin, SearchableListMixin):
+    """
+    The queryset can be further filtered to a range of dates between
+    ``start_at`` and ``ends_at``.
+
+    The queryset can be further filtered by passing a ``q`` parameter.
+    The value in ``q`` will be matched against:
+
+      - user.username
+      - user.first_name
+      - user.last_name
+      - user.email
+
+    The result queryset can be ordered by passing an ``o`` (field name)
+    and ``ot`` (asc or desc) parameter.
+    The fields the queryset can be ordered by are:
+
+      - user.first_name
+      - user.last_name
+      - created_at
+    """
+    search_fields = ['printable_name',
+                     'email']
+
+    sort_fields_aliases = [('printable_name', 'printable_name'),
+                           ('last_activity_at', 'last_activity_at'),
+                           ('nb_answers', 'nb_answers'),
+                           ('normalized_score', 'normalized_score'),
+                           ('improvement_score', 'improvement_score')]
+
+
+class SupplierListAPIView(SupplierSmartListMixin, SupplierListBaseAPIView):
+
+    pass
+
 
 
 class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
