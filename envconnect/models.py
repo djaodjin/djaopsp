@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -62,7 +62,11 @@ class ConsumptionQuerySet(models.QuerySet):
     For a Consumption:
        avg_value = (environmental_value + business_value
            + profitability + implementation_ease) / nb_visible_columns
-       opportunity = avg_value * (1 + implementation rate)
+
+       implementation_rate = SUM(organization answered kind of yes)
+           / SUM(organization answered something else than "N/A")
+
+       opportunity = avg_value * (1 + implementation_rate)
 
     In the context of an Organization:
 
@@ -106,11 +110,12 @@ class ConsumptionQuerySet(models.QuerySet):
         #
         # but values in ``PRESENT`` and ``ABSENT``
         # do not get quoted.
+        filter_out_testing = ""
         if filter_out_testing:
             filter_out_testing = "AND survey_answer.sample_id NOT IN (%s)" % (
                 ', '.join(filter_out_testing))
-        else:
-            filter_out_testing = ""
+
+        # Number of `Yes` by question.
         yes_view = """SELECT
   question_id AS question_id,
   COUNT(survey_answer.id) AS nb_yes
@@ -123,6 +128,8 @@ GROUP BY question_id""" % {
     'filter_out_testing': filter_out_testing}
         self._show_query_and_result(yes_view)
 
+        # Total number of relevent (i.e. different from "N/A") answers
+        # by question.
         yes_no_view = """SELECT
   envconnect_consumption.question_id AS question_id,
   COUNT(survey_answer.id) AS nb_yes_no,
@@ -142,12 +149,14 @@ GROUP BY envconnect_consumption.question_id""" % {
         self._show_query_and_result(yes_no_view)
 
         # The opportunity for all questions with a "Yes" answer.
-        yes_opportunity_view = """SELECT yes_no_view.question_id AS question_id,
+        yes_opportunity_view = """SELECT
+  yes_no_view.question_id AS question_id,
   (yes_no_view.avg_value * (1.0 +
       CAST(yes_view.nb_yes AS FLOAT) / yes_no_view.nb_yes_no)) as opportunity,
   (CAST(yes_view.nb_yes AS FLOAT) * 100 / yes_no_view.nb_yes_no) as rate,
   yes_no_view.nb_yes_no as nb_respondents
-FROM (%(yes_no_view)s) as yes_no_view LEFT OUTER JOIN (%(yes_view)s) as yes_view
+FROM (%(yes_no_view)s) as yes_no_view
+LEFT OUTER JOIN (%(yes_view)s) as yes_view
 ON yes_view.question_id = yes_no_view.question_id""" % {
                 'yes_view': yes_view, 'yes_no_view': yes_no_view}
         self._show_query_and_result(yes_opportunity_view)
@@ -163,6 +172,11 @@ ON yes_view.question_id = yes_no_view.question_id""" % {
     AS opportunity,
   COALESCE(opportunity_view.rate, 0) AS rate,
   COALESCE(opportunity_view.nb_respondents, 0) AS nb_respondents,
+  envconnect_consumption.environmental_value AS environmental_value,
+  envconnect_consumption.business_value AS business_value,
+  envconnect_consumption.implementation_ease AS implementation_ease,
+  envconnect_consumption.profitability AS profitability,
+  envconnect_consumption.avg_value AS avg_value,
   survey_question.path AS path
 FROM envconnect_consumption INNER JOIN survey_question
 ON envconnect_consumption.question_id = survey_question.id
@@ -305,3 +319,194 @@ def get_score_weight(tag):
     except (TypeError, ValueError):
         pass
     return 1.0
+
+
+def _show_query_and_result(raw_query, show=False):
+    if show:
+        LOGGER.debug("%s\n", raw_query)
+        with connection.cursor() as cursor:
+            cursor.execute(raw_query, params=None)
+            count = 0
+            for row in cursor.fetchall():
+                LOGGER.debug(str(row))
+                count += 1
+            LOGGER.debug("%d row(s)", count)
+
+
+def _additional_filters(is_planned=None, includes=None, excludes=None):
+    sep = ""
+    additional_filters = ""
+    if is_planned is not None:
+        additional_filters = "survey_sample.extra = '%s'" % (
+            "is_planned" if is_planned else "")
+        sep = "AND "
+    if includes:
+        additional_filters += "%ssurvey_sample.id IN (%s)" % (
+            sep, ', '.join(includes))
+        sep = "AND "
+    if excludes:
+        additional_filters += "%ssurvey_sample.id NOT IN (%s)" % (
+            sep, ', '.join(excludes))
+    if additional_filters:
+        additional_filters = "WHERE %s" % additional_filters
+    return additional_filters
+
+
+def get_expected_opportunities(is_planned=None, includes=None, excludes=None):
+    """
+    Decorates with environmental_value, business_value, profitability,
+    implementation_ease, avg_value, nb_respondents, and rate such that
+    these can be used in assessment and improvement pages.
+    """
+    questions_with_opportunity = Consumption.objects.with_opportunity(
+        filter_out_testing=excludes).query
+
+    # All expected questions for each sample
+    # decorated with ``opportunity``.
+    #
+    # If we are only looking for all expected questions for each sample,
+    # then the query can be simplified by using the survey_question table
+    # directly.
+    # XXX missing rank, implemented, planned, requires_measurements?
+    expected_opportunities = """SELECT
+    questions_with_opportunity.question_id AS question_id,
+    samples.sample_id AS sample_id,
+    samples.is_planned AS is_planned,
+    samples.account_id AS account_id,
+    questions_with_opportunity.opportunity AS opportunity,
+    questions_with_opportunity.path AS path,
+    questions_with_opportunity.environmental_value AS environmental_value,
+    questions_with_opportunity.business_value AS business_value,
+    questions_with_opportunity.profitability AS profitability,
+    questions_with_opportunity.implementation_ease AS implementation_ease,
+    questions_with_opportunity.avg_value AS avg_value,
+    questions_with_opportunity.nb_respondents AS nb_respondents,
+    questions_with_opportunity.rate AS rate
+FROM (%(questions_with_opportunity)s) AS questions_with_opportunity
+INNER JOIN (
+    SELECT survey_enumeratedquestions.question_id AS question_id,
+           survey_sample.account_id AS account_id,
+           survey_sample.id AS sample_id,
+           survey_sample.extra AS is_planned
+    FROM survey_sample
+    INNER JOIN survey_enumeratedquestions
+    ON survey_sample.survey_id = survey_enumeratedquestions.campaign_id
+    %(additional_filters)s) AS samples
+ON questions_with_opportunity.question_id = samples.question_id
+""" % {'questions_with_opportunity': questions_with_opportunity,
+       'additional_filters': _additional_filters(
+           is_planned=is_planned, includes=includes, excludes=excludes)}
+    _show_query_and_result(expected_opportunities)
+    return expected_opportunities
+
+
+def get_answer_with_account(is_planned=None, includes=None, excludes=None):
+    """
+    Returns a list of tuples (answer_id, question_id, sample_id, account_id,
+    created_at, measured, is_planned) that corresponds to all answers
+    for all (or a subset when *includes* is not `None`) accounts
+    excluding accounts that were filtered out by *excludes*.
+    """
+    query = """SELECT
+    survey_answer.id AS id,
+    question_id,
+    sample_id,
+    account_id,
+    survey_answer.created_at AS created_at,
+    measured,
+    survey_sample.extra AS is_planned
+FROM survey_answer INNER JOIN survey_sample
+ON survey_answer.sample_id = survey_sample.id
+%(additional_filters)s""" % {
+    'additional_filters': _additional_filters(
+        is_planned=is_planned, includes=includes, excludes=excludes)}
+    _show_query_and_result(query)
+    return query
+
+
+def get_scored_answers(is_planned=None, includes=None, excludes=None):
+    """
+    Returns a list of tuples (account_id, answer_id, sample_id, question_id,
+    numerator, denominator, path, created_at, measured, is_planned)
+    that corresponds to all answers for all (or a subset when *includes*
+    is not `None`) accounts excluding accounts that were filtered out
+    by *excludes*, decorated with a numerator and denominator.
+
+    Set is_planned to `True` for assessment results only or is_planned
+    to `False` for improvement results only. Otherwise both.
+
+    If not `None`, *includes* and *excludes* are the set of organization
+    samples which are included and excluded respectively.
+    """
+    # All expected answers with their scores.
+    # ACCOUNT_ID = 0
+    # ANSWER_ID = 1
+    # SAMPLE_ID = 2
+    # QUESTION_ID = 3
+    # NUMERATOR = 4
+    # DENOMINATOR = 5
+    # QUESTION_PATH = 6
+    # ANSWER_CREATED_AT = 7
+    # ANSWER_MEASURED = 8
+    # SAMPLE_IS_PLANNED = 9 (assessment or improvement)
+    scored_answers = """SELECT
+    expected_choices.account_id,
+    expected_choices.sample_id,
+    expected_choices.is_planned,
+    expected_choices.numerator,
+    expected_choices.denominator,
+    expected_choices.last_activity_at,
+    expected_choices.answer_id,
+    expected_choices.question_id,
+    expected_choices.path,
+    survey_choice.text AS implemented,
+    expected_choices.environmental_value,
+    expected_choices.business_value,
+    expected_choices.profitability,
+    expected_choices.implementation_ease,
+    expected_choices.avg_value,
+    expected_choices.nb_respondents,
+    expected_choices.rate,
+    expected_choices.opportunity
+FROM (SELECT
+    expected_opportunities.account_id AS account_id,
+    expected_opportunities.sample_id AS sample_id,
+    expected_opportunities.is_planned AS is_planned,
+    CASE WHEN measured = %(yes)s THEN (opportunity * 3)
+         WHEN measured = %(moderate_improvement)s THEN (opportunity * 2)
+         WHEN measured = %(significant_improvement)s THEN opportunity
+         ELSE 0.0 END AS numerator,
+    CASE WHEN measured IN (%(yes_no)s) THEN (opportunity * 3)
+         ELSE 0.0 END AS denominator,
+    answers.created_at AS last_activity_at,
+    answers.id AS answer_id,
+    expected_opportunities.question_id AS question_id,
+    expected_opportunities.path AS path,
+    answers.measured AS measured,
+    expected_opportunities.environmental_value AS environmental_value,
+    expected_opportunities.business_value AS business_value,
+    expected_opportunities.profitability AS profitability,
+    expected_opportunities.implementation_ease AS implementation_ease,
+    expected_opportunities.avg_value AS avg_value,
+    expected_opportunities.nb_respondents AS nb_respondents,
+    expected_opportunities.rate AS rate,
+    expected_opportunities.opportunity AS opportunity
+FROM (%(expected_opportunities)s) AS expected_opportunities
+LEFT OUTER JOIN (%(answers)s) AS answers
+ON answers.question_id = expected_opportunities.question_id
+   AND answers.sample_id = expected_opportunities.sample_id) AS expected_choices
+LEFT OUTER JOIN survey_choice
+ON expected_choices.measured = survey_choice.id
+""" % {
+       'yes': Consumption.YES,
+       'moderate_improvement': Consumption.NEEDS_MODERATE_IMPROVEMENT,
+       'significant_improvement': Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
+       'yes_no': Consumption._relevent_as_sql(),
+       'expected_opportunities': get_expected_opportunities(
+           is_planned=is_planned,
+           includes=includes, excludes=excludes),
+       'answers': get_answer_with_account(
+           is_planned=is_planned,
+           includes=includes, excludes=excludes)}
+    _show_query_and_result(scored_answers)
+    return scored_answers

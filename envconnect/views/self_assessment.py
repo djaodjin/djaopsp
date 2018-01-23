@@ -37,13 +37,13 @@ class AssessmentView(AssessmentBaseView):
 
     def get_context_data(self, **kwargs):
         context = super(AssessmentView, self).get_context_data(**kwargs)
+        self.get_or_create_assessment_sample()
         root = self.get_report_tree()
         if root:
             context.update({
                 'root': root,
                 'entries': json.dumps(root, cls=JSONEncoder)
             })
-        self.get_or_create_assessment_sample()
         context.update({
             'page_icon': self.icon,
             'sample': self.sample,

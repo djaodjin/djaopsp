@@ -121,7 +121,7 @@
                         </td>
                         <td class="text-center cell-fix-width-3"
                             ng-if="practice[0].consumption">
-                            [[practice[0].consumption.opportunity|number:2]]
+                            [[practice[0].accounts["{{organization.pk}}"].improvement_percentage|number:2]]%
                         </td>
                     </tr>
                     <tr ng-if="getEntries('{{abs_prefix}}').length === 0">

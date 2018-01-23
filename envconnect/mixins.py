@@ -2,13 +2,13 @@
 # see LICENSE.
 
 import logging
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from datetime import datetime, timedelta
 
 import monotonic
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db import connections, transaction
+from django.db import connection, connections, transaction
 from django.db.models import Max, Sum
 from django.http import Http404
 from django.utils import six
@@ -19,8 +19,11 @@ from rest_framework.generics import get_object_or_404
 from survey.models import Answer, Choice, Sample, Campaign, EnumeratedQuestions
 from survey.utils import get_account_model
 
-from .models import Consumption, get_score_weight
+from .models import (Consumption, get_score_weight, _show_query_and_result,
+    get_scored_answers)
+from .scores import populate_rollup, push_improvement_factors
 from .serializers import ConsumptionSerializer
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -514,62 +517,144 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                 self._sample = Sample.objects.create(
                     survey=self.survey, account=self.account)
 
+    def populate_account(self, accounts, agg_score):
+        """
+        Populate the *accounts* dictionnary with scores in *agg_score*.
+
+        *agg_score* is a tuple (account_id, sample_id, is_planned, numerator,
+        denominator, last_activity_at, nb_answers, nb_questions)
+        """
+        account_id = agg_score.account_id
+        #sample_id = agg_score[1]
+        is_planned = agg_score.is_planned
+        numerator = agg_score.numerator
+        denominator = agg_score.denominator
+        created_at = agg_score.last_activity_at
+        nb_answers = getattr(agg_score, 'nb_answers', None)
+        if nb_answers is None:
+            # Putting the following statement in the default clause will lead
+            # to an exception since `getattr(agg_score, 'answer_id')` will be
+            # evaluated first.
+            nb_answers = 0 if getattr(agg_score, 'answer_id') is None else 1
+        nb_questions = getattr(agg_score, 'nb_questions', 1)
+        if not account_id in accounts:
+            accounts[account_id] = {}
+        if is_planned:
+            accounts[account_id].update({
+                'improvement_numerator': numerator,
+                'improvement_denominator': denominator})
+            if not 'nb_answers' in accounts[account_id]:
+                accounts[account_id].update({
+                    'nb_answers': nb_answers})
+            if not 'nb_questions' in accounts[account_id]:
+                accounts[account_id].update({
+                    'nb_questions': nb_questions})
+            if not 'created_at' in accounts[account_id]:
+                accounts[account_id].update({
+                    'created_at': created_at})
+        else:
+            accounts[account_id].update({
+                'nb_answers': nb_answers,
+                'nb_questions': nb_questions,
+                'created_at': created_at
+            })
+            if nb_questions == nb_answers:
+                accounts[account_id].update({
+                    'numerator': numerator,
+                    'denominator': denominator})
+
+    def populate_leafs(self, leafs, answers):
+        """
+        Populate all leafs with aggregated scores.
+        """
+        #pylint:disable=too-many-locals
+        for prefix, values_tuple in six.iteritems(leafs):
+            values = values_tuple[0]
+            agg_scores = """SELECT account_id, sample_id, is_planned,
+    SUM(numerator) AS numerator,
+    SUM(denominator) AS denominator,
+    MAX(last_activity_at) AS last_activity_at,
+    COUNT(answer_id) AS nb_answers,
+    COUNT(*) AS nb_questions
+FROM (%(answers)s) AS answers
+WHERE path LIKE '%(prefix)s%%'
+GROUP BY account_id, sample_id, is_planned;""" % {
+    'answers': answers, 'prefix': prefix}
+            _show_query_and_result(agg_scores)
+            with connection.cursor() as cursor:
+                cursor.execute(agg_scores, params=None)
+                col_headers = cursor.description
+                agg_score_tuple = namedtuple(
+                    'AggScoreTuple', [col[0] for col in col_headers])
+                for agg_score in cursor.fetchall():
+                    agg_score = agg_score_tuple(*agg_score)
+                    if not 'accounts' in values:
+                        values['accounts'] = {}
+                    self.populate_account(values['accounts'], agg_score)
+
     def decorate_leafs(self, leafs):
         """
         Adds consumptions, implementation rate, number of respondents,
         assessment and improvement answers and opportunity score.
+
+        For each answer the improvement opportunity in the total score is
+        case NO / NEEDS_SIGNIFICANT_IMPROVEMENT
+          numerator = (3-A) * opportunity + 3 * avg_value / nb_respondents
+          denominator = 3 * avg_value / nb_respondents
+        case YES / NEEDS_MODERATE_IMPROVEMENT
+          numerator = (3-A) * opportunity
+          denominator = 0
         """
-        # Loads Consumption with opportunity score as a dictionnary
-        # indexed by path.
         consumptions = {}
-        for consumption in Consumption.objects.with_opportunity(
-                filter_out_testing=self._get_filter_out_testing()):
-            consumptions[consumption.path] = consumption
+        scored_answers = get_scored_answers(
+            includes=[str(self.sample.pk)],
+            excludes=self._get_filter_out_testing())
+        self.populate_leafs(leafs, scored_answers)
+
+        with connection.cursor() as cursor:
+            cursor.execute(scored_answers, params=None)
+            col_headers = cursor.description
+            consumption_tuple = namedtuple(
+                'ConsumptionTuple', [col[0] for col in col_headers])
+            for consumption in cursor.fetchall():
+                consumption = consumption_tuple(*consumption)
+                consumptions[consumption.path] = consumption
 
         # Populate leafs and cut nodes with data.
         for path, vals in six.iteritems(leafs):
             consumption = consumptions.get(path, None)
             if consumption:
+                #vals[0]['accounts'] = {self.account.pk:{}}
+                #self.populate_account(vals[0]['accounts'], consumption)
+                avg_value = consumption.avg_value
+                opportunity = consumption.opportunity
+                nb_respondents = consumption.nb_respondents
+                added = 3 * avg_value / nb_respondents
+                if consumption.implemented == 'Yes':
+                    vals[0]['accounts'][self.account.pk].update({
+                        'opportunity_numerator': 0,
+                        'opportunity_denominator': 0
+                    })
+                elif (consumption.implemented ==
+                      'Yes, but needs a little improvement'):
+                    vals[0]['accounts'][self.account.pk].update({
+                        'opportunity_numerator': opportunity,
+                        'opportunity_denominator': 0
+                    })
+                elif (consumption.implemented ==
+                    'Yes, but needs a lot of improvement'):
+                    vals[0]['accounts'][self.account.pk].update({
+                        'opportunity_numerator': 2 * opportunity + added,
+                        'opportunity_denominator': added
+                    })
+                elif (consumption.implemented == 'No'):
+                    vals[0]['accounts'][self.account.pk].update({
+                        'opportunity_numerator': 3 * opportunity + added,
+                        'opportunity_denominator': added
+                    })
                 vals[0]['consumption'] \
                     = ConsumptionSerializer(context={'campaign': self.survey
                     }).to_representation(consumption)
-                if self.sample:
-                    # Assessment
-                    try:
-                        answer = Answer.objects.get(
-                            question__consumption__path=path,
-                            sample=self.sample)
-                        vals[0]['consumption']['implemented'] = \
-                            Choice.objects.get(pk=answer.measured).text
-                        # XXX This is not really the opportunity as defined
-                        # in `get_opportunities_sql` but rather the number
-                        # of points scored based on the yes/no answer
-                        # as computed in `get_scored_answers`.
-                        if answer.measured == Consumption.YES:
-                            vals[0]['consumption']['opportunity'] *= (3 - 3)
-                        elif (answer.measured ==
-                              Consumption.NEEDS_MODERATE_IMPROVEMENT):
-                            vals[0]['consumption']['opportunity'] *= (3 - 2)
-                        elif (answer.measured
-                              == Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT):
-                            vals[0]['consumption']['opportunity'] *= (3 - 1)
-                        elif answer.measured == Consumption.NO:
-                            vals[0]['consumption']['opportunity'] *= (3 - 0)
-                        else:
-                            # Not Applicable.
-                            vals[0]['consumption']['opportunity'] = 0
-                    except Answer.DoesNotExist:
-                        # We have cut out the tree at an icon or heading level.
-                        vals[0]['consumption']['implemented'] = False
-                    # Improvement
-                    # XXX should use ``improve_sample`` defined in
-                    # `ImprovementQuerySetMixin`.
-                    vals[0]['consumption']['planned'] \
-                        = Answer.objects.filter(
-                            question__consumption__path=path,
-                            sample__extra='is_planned',
-                            sample__survey__title=self.report_title,
-                            sample__account=self.account).exists()
             else:
                 # Cut node: loads icon url.
                 vals[0]['consumption'] = None
@@ -587,6 +672,12 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
         root = None
         if trail:
             root = self._build_tree(trail[-1][0], from_root)
+            populate_rollup(root, True)
+            total_numerator =  root[0]['accounts'][self.account.pk].get(
+                'numerator', 0)
+            total_denominator = root[0]['accounts'][self.account.pk].get(
+                'denominator', 0)
+            push_improvement_factors(root, total_numerator, total_denominator)
         return root
 
 

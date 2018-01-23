@@ -64,7 +64,7 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
         with transaction.atomic():
             self.get_or_create_improve_sample()
             with transaction.atomic():
-                # Implementation Note: We need to set the `text` field
+                # Implementation Note: We need to set the `measured` field
                 # otherwise `get_scored_answers` will return a numerator
                 # of zero. We use `NEEDS_SIGNIFICANT_IMPROVEMENT` such
                 # as to be conservative in the calculation.

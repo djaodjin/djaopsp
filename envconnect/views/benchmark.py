@@ -111,11 +111,6 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
         if trail:
             not_applicable_answers = Answer.objects.filter(
                 measured=Consumption.NOT_APPLICABLE)
-            improvement_suggestions = Answer.objects.filter(
-                sample__extra='is_planned',
-                sample__survey__title=self.report_title,
-                sample__account=self.account)
-
             root = self._build_tree(trail[-1][0], from_root,
                 cut=TransparentCut())
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
@@ -126,7 +121,6 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                 'charts': charts,
                 'root': root,
                 'not_applicable_answers': not_applicable_answers,
-                'improvement_suggestions': improvement_suggestions,
                 'entries': json.dumps(root, cls=JSONEncoder),
                 # XXX move to urls when we are sure how it interacts
                 # with envconnect/base.html
