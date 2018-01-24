@@ -996,6 +996,36 @@ envconnectControllers.controller("EnvconnectCtrl",
         });
     };
 
+    $scope._resetAssessmentRecursive = function(root) {
+        if( typeof root[0] === 'undefined' ) return;
+        if( root[0].hasOwnProperty('consumption')
+            && root[0].consumption
+            && root[0].consumption.hasOwnProperty('implemented') ) {
+            root[0].consumption.implemented = "";
+        } else {
+            for( var key in root[1] ) {
+                if( root[1].hasOwnProperty(key) ) {
+                    var node = root[1][key];
+                    $scope._resetAssessmentRecursive(node);
+                }
+            }
+        }
+    }
+
+    $scope.resetAssessment = function ($event) {
+        $event.preventDefault();
+        $http.post(settings.urls.api_assessment_sample + 'reset/').then(
+            function success(resp) {
+                $scope._resetAssessmentRecursive($scope.entries);
+                showMessages([
+                    "You have reset all answers in the current assessment."],
+                    "success");
+            },
+            function error(resp) {
+                showErrorMessages(resp);
+        });
+    };
+
     var savingsElements = angular.element("#improvement-dashboard").find(".savings");
     if( savingsElements.length > 0 ) {
         $scope.savingsChart = speedometer(savingsElements[0]);
@@ -1274,7 +1304,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                 var name = element.attr("name").replace("implemented-", "");
                 var answer = element.val();
                 $.ajax({
-                    url: self.options.survey_api_sample + "/" + name + "/",
+                    url: self.options.survey_api_sample + name + "/",
                     method: "PUT",
                     data: JSON.stringify({measured: answer}),
                     datatype: "json",
@@ -1461,7 +1491,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     $.fn.improvementDashboard.defaults = {
         api_account_benchmark: null,
         benchmark: null,
-		scoreFunc: function(elem) { return elem.normalized_score }
+        scoreFunc: function(elem) { return elem.normalized_score }
     };
 
 })(jQuery);
