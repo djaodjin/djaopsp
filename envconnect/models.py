@@ -100,65 +100,65 @@ class ConsumptionQuerySet(models.QuerySet):
                 LOGGER.debug("%d row(s)", count)
 
     def get_opportunities_sql(self, filter_out_testing=None):
-        # Implementation Note:
-        # tried:
-        # yes_no_view = str(Consumption.objects.filter(
-        #    answer__text__in=Consumption.PRESENT
-        #    + Consumption.ABSENT).values('id').annotate(
-        #    nb_yes_or_no=Count('answer'),
-        #    avg_value=Avg(F('avg_value')).query)
-        #
-        # but values in ``PRESENT`` and ``ABSENT``
-        # do not get quoted.
         filter_out_testing = ""
         if filter_out_testing:
             filter_out_testing = "AND survey_answer.sample_id NOT IN (%s)" % (
                 ', '.join(filter_out_testing))
 
-        # Number of `Yes` by question.
-        yes_view = """SELECT
-  question_id AS question_id,
-  COUNT(survey_answer.id) AS nb_yes
-FROM survey_answer INNER JOIN survey_sample
-  ON survey_answer.sample_id = survey_sample.id
-WHERE survey_sample.extra IS NULL
-  AND survey_answer.measured IN (%(present)s) %(filter_out_testing)s
-GROUP BY question_id""" % {
-    'present': Consumption._present_as_sql(),
-    'filter_out_testing': filter_out_testing}
-        self._show_query_and_result(yes_view)
+        # Taken the latest assessment for each account, the implementation rate
+        # is defined as the number of positive answers divided by the number of
+        # valid answers (i.e. different from "N/A").
+        implementation_rate_view = """WITH
+latest_assessment_by_accounts AS (
+  SELECT survey_sample.account_id, survey_sample.id, created_at
+  FROM survey_sample
+  INNER JOIN (SELECT account_id, MAX(created_at) AS last_updated_at
+              FROM survey_sample
+              WHERE survey_sample.extra IS NULL %(filter_out_testing)s
+              GROUP BY account_id) AS last_updates
+  ON survey_sample.account_id = last_updates.account_id AND
+     survey_sample.created_at = last_updates.last_updated_at),
 
-        # Total number of relevent (i.e. different from "N/A") answers
-        # by question.
-        yes_no_view = """SELECT
-  envconnect_consumption.question_id AS question_id,
-  COUNT(survey_answer.id) AS nb_yes_no,
-  envconnect_consumption.avg_value AS avg_value
-FROM envconnect_consumption
-INNER JOIN survey_question
-  ON (envconnect_consumption.question_id = survey_question.id)
-INNER JOIN survey_answer
-  ON (survey_question.id = survey_answer.question_id)
-INNER JOIN survey_sample
-  ON survey_answer.sample_id = survey_sample.id
-WHERE survey_sample.extra IS NULL
-  AND survey_answer.measured IN (%(yes_no)s) %(filter_out_testing)s
-GROUP BY envconnect_consumption.question_id""" % {
-    'yes_no': Consumption._relevent_as_sql(),
-    'filter_out_testing': filter_out_testing}
-        self._show_query_and_result(yes_no_view)
+nb_positive_by_questions AS (
+  SELECT
+    question_id AS question_id,
+    COUNT(survey_answer.id) AS nb_yes
+  FROM survey_answer INNER JOIN latest_assessment_by_accounts
+    ON survey_answer.sample_id = latest_assessment_by_accounts.id
+  WHERE survey_answer.measured IN (%(positive_answers)s)
+  GROUP BY question_id),
+
+nb_valid_by_questions AS (
+  SELECT
+    envconnect_consumption.question_id AS question_id,
+    COUNT(survey_answer.id) AS nb_yes_no,
+    envconnect_consumption.avg_value AS avg_value
+  FROM envconnect_consumption
+  INNER JOIN survey_question
+    ON envconnect_consumption.question_id = survey_question.id
+  INNER JOIN survey_answer
+    ON survey_question.id = survey_answer.question_id
+  INNER JOIN latest_assessment_by_accounts
+  ON survey_answer.sample_id = latest_assessment_by_accounts.id
+  WHERE survey_answer.measured IN (%(valid_answers)s)
+  GROUP BY envconnect_consumption.question_id)
+""" % {
+    'filter_out_testing': filter_out_testing,
+    'positive_answers': Consumption._present_as_sql(),
+    'valid_answers': Consumption._relevent_as_sql(),
+}
 
         # The opportunity for all questions with a "Yes" answer.
-        yes_opportunity_view = """SELECT
+        yes_opportunity_view = """%(implementation_rate)s SELECT
   yes_no_view.question_id AS question_id,
   (yes_no_view.avg_value * (1.0 +
       CAST(yes_view.nb_yes AS FLOAT) / yes_no_view.nb_yes_no)) as opportunity,
   (CAST(yes_view.nb_yes AS FLOAT) * 100 / yes_no_view.nb_yes_no) as rate,
   yes_no_view.nb_yes_no as nb_respondents
-FROM (%(yes_no_view)s) as yes_no_view
-LEFT OUTER JOIN (%(yes_view)s) as yes_view
+FROM nb_valid_by_questions as yes_no_view
+LEFT OUTER JOIN nb_positive_by_questions as yes_view
 ON yes_view.question_id = yes_no_view.question_id""" % {
-                'yes_view': yes_view, 'yes_no_view': yes_no_view}
+                'implementation_rate': implementation_rate_view}
         self._show_query_and_result(yes_opportunity_view)
 
         # All expected questions for each sample decorated with

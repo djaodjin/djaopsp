@@ -145,6 +145,146 @@
         duration: 350
     };
 
+
+    /**
+       Augment a user interface element with an historical scores chart
+
+       The element should look like:
+
+       <div style="width:300px;margin:auto;"></div>
+    */
+    function HistoricalScoreChart(el, options){
+        this.element = el;
+        this.options = options;
+        this.init();
+    }
+
+    HistoricalScoreChart.prototype = {
+        init: function () {
+            var self = this;
+            self.updateChart([
+                {
+                    "key": "May 2018",
+                    "values": [
+                        ["Governance & Management", 80],
+                        ["Engineering & Design", 78],
+                        ["Procurement", 72],
+                        ["Construction", 73],
+                        ["Office", 74],
+                    ],
+                },
+                {
+                    "key": "Dec 2017",
+                    "values": [
+                        ["Governance & Management", 60],
+                        ["Engineering & Design", 67],
+                        ["Procurement", 56],
+                        ["Construction", 52],
+                        ["Office", 59],
+                    ],
+                },
+                {
+                    "key": "Jan 2017",
+                    "values": [
+                        ["Governance & Management", 60],
+                        ["Engineering & Design", 67],
+                        ["Procurement", 16],
+                        ["Construction", 49],
+                        ["Office", 40],
+                    ],
+                },
+            ]);
+        },
+
+        updateChart: function(data) {
+            var self = this;
+            nv.addGraph(function() {
+                // clear any previous chart elements before adding new ones.
+                // remove svg and append it again to remove all previous
+                // attached events.
+                var container = d3.select(self.element);
+                container.select("svg").remove();
+                container.append("svg").attr("class", "chart-area");
+
+                // find bounds of the dataset.
+                var maxY = 0;
+                var values = data[0].values;
+                var j = 0;
+                var i = 0;
+                for( j = 0; j < data.length; ++j ) {
+                    values = data[j].values;
+                    for( i = 0; i < values.length; ++i ) {
+                        if( values[i][1] > maxY ) { maxY = values[i][1]; }
+                    }
+                }
+
+                var chart = nv.models.lineChart()
+                    .x(function(d) {
+                        if( d[0] === "Governance & Management" ) {
+                            return 1;
+                        } else if( d[0] === "Engineering & Design" ) {
+                            return 2;
+                        } else if( d[0] === "Procurement" ) {
+                            return 3;
+                        } else if( d[0] === "Construction" ) {
+                            return 4;
+                        } else if( d[0] === "Office" ) {
+                            return 5;
+                        }
+                        return 0;
+                    })
+                    .y(function(d) { return d[1]; })
+                    .margin({top: 50, right: 20, bottom: 60, left: 50})
+                    .useInteractiveGuideline(true);
+
+                chart.xAxis
+                    .rotateLabels(-90)
+                    .showMaxMin(false)  //remove max and min in x axe
+                    .tickFormat(function(d) {
+                        if( d < 6 ) {
+                            return [
+                                "Governance & Management",
+                                "Engineering & Design",
+                                "Procurement",
+                                "Construction",
+                                "Office"][d - 1];
+                        }
+                        return d;
+                    });
+//                chart.xScale(d3.scale.ordinal());
+
+                chart.yAxis
+                    .tickFormat(function(d) { return d3.format(".0f")(d) + "%";})
+                    .axisLabel("%%");
+                chart.forceY([0, 100]);
+
+                container.select("svg")
+                    .datum(data)
+                    .transition().duration(100)
+                    .call(chart);
+
+                nv.utils.windowResize(chart.update);
+
+                return chart;
+            });
+        },
+    };
+
+    $.fn.historicalScoreChart = function(options) {
+        var opts = $.extend( {}, $.fn.historicalScoreChart.defaults, options );
+        return this.each(function() {
+            if (!$.data(this, "historicalScoreChart")) {
+                $.data(this, "historicalScoreChart",
+                    new HistoricalScoreChart(this, opts));
+            }
+        });
+    };
+
+    $.fn.historicalScoreChart.defaults = {
+        scores: null,
+        duration: 350
+    };
+
 })(jQuery);
 
 

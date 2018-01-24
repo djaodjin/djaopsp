@@ -52,6 +52,15 @@
             benchmark: "{{root.0.slug}}",
             scoreFunc: function (elem) { return elem.normalized_score; }
         });
+        $("#history-chart").historicalScoreChart({});
+
+        // Copy/Paste from vendor/js/bootstrap.js and inserted
+        // a forced trigger of 'resize' for NVD3 to redraw the chart
+        // using correct dimensions.
+        $(document).on('shown.bs.tab',
+                   '[data-toggle="tab"], [data-toggle="pill"]', function () {
+            window.dispatchEvent(new Event('resize'));
+         });
     });
 </script>
 {% if request|is_broker_manager %}
