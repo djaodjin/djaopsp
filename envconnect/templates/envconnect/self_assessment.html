@@ -140,7 +140,7 @@ See the following for examples of content developed for best practices:
                             <a id="download-assessment" class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Assessment</a>
                             <button class="btn btn-primary" id="reset-assessment" ng-click="resetAssessment($event)">Reset</button>
                             <button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
-                            <button class="btn btn-primary" id="submit-button" ng-click="freezeAssessment($event)">Submit</button>
+                            <button class="btn btn-primary" id="submit-button" ng-click="freezeAssessment($event, 'assessment', 'Browse to the Scorecard to see how you compare with peers.')">Submit</button>
                         </td>
                     </tr>
                 </tbody>

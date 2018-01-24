@@ -983,13 +983,19 @@ envconnectControllers.controller("EnvconnectCtrl",
         return 0;
     }
 
-    $scope.freezeAssessment = function ($event) {
+    $scope.freezeAssessment = function ($event, $title, next) {
         $event.preventDefault();
+        var title = $title;
+        if( typeof title === 'undefined' ) {
+            title = "assessment";
+        }
         $http.put(settings.urls.api_assessment_sample, {is_frozen: true}).then(
             function success(resp) {
-                showMessages(["You have completed the assessment. Browse"
-                    + " to the Scorecard to see how you compare with peers."
-                    + " Thank you!"], "info");
+                var msgs = ["You have completed the " + title + ". Thank you!"];
+                if( typeof next !== 'undefined' ) {
+                    msgs.push(next);
+                }
+                showMessages(msgs, "info");
             },
             function error(resp) {
                 showErrorMessages(resp);

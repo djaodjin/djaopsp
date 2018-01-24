@@ -56,10 +56,16 @@ class ImproveView(ReportMixin, TemplateView):
             'role': "tab",
             'sample': self.sample
         })
-        urls = {'api_account_benchmark': reverse('api_benchmark',
-                args=(self.kwargs.get('organization'), self.get_scorecard_path(
-                    self.kwargs.get('path'))))}
-        self.update_context_urls(context, urls)
+        organization = context['organization']
+        self.update_context_urls(context, {
+            'api_account_benchmark': reverse('api_benchmark',
+                args=(organization, self.get_scorecard_path(
+                    self.kwargs.get('path')))),
+            'api_assessment_sample': reverse(
+                'survey_api_sample', args=(organization, self.sample)),
+            'api_assessment_sample_new': reverse(
+                'survey_api_sample_new', args=(organization,)),
+        })
         return context
 
 
