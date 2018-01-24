@@ -71,8 +71,12 @@ urlpatterns += [
     url_direct(r'api/(?P<organization>%s)/matrix/(?P<path>%s)/?$' % (
         SLUG_RE, SLUG_RE + settings.PATH_RE),
         TotalScoreBySubsectorAPIView.as_view()),
-    url_direct(r'api/(?P<organization>%s)/' % SLUG_RE,
-        include('survey.urls.api')),
+    url_direct(r'api/(?P<organization>%s)/campaign/' % SLUG_RE,
+        include('survey.urls.api.campaigns')),
+    url_direct(r'api/(?P<organization>%s)/matrix/' % SLUG_RE,
+        include('survey.urls.api.matrix')),
+    url_direct(r'api/(?P<interviewee>%s)/sample/' % SLUG_RE,
+        include('survey.urls.api.sample')),
 
     # authenticated user
     url_authenticated(r'app/info/portfolios(?P<path>%s)/' % settings.PATH_RE,

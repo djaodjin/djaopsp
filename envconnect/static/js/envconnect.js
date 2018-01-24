@@ -966,22 +966,35 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
     };
 
-	$scope.showSaveMessage = function ($event) {
-		clearMessages();
-		showMessages(['Your changes have been saved.'], 'info');
-	};
+    $scope.showSaveMessage = function ($event) {
+        clearMessages();
+        showMessages(['Your changes have been saved.'], 'info');
+    };
 
-	$scope.freezeAssessment = function ($event) {
-		$event.preventDefault();
-
-		$http.put(settings.urls.api_assessment_sample, {is_frozen: true}).then(
+    $scope.createAssessment = function() {
+        $http.post(settings.urls.api_assessment_sample_new, {
+            'campaign': 'best-practices-report'}).then(
             function success(resp) {
-                showMessages(["Success!"], "info");
+                window.location = ""; // reload.
             },
             function error(resp) {
                 showErrorMessages(resp);
         });
-	};
+        return 0;
+    }
+
+    $scope.freezeAssessment = function ($event) {
+        $event.preventDefault();
+        $http.put(settings.urls.api_assessment_sample, {is_frozen: true}).then(
+            function success(resp) {
+                showMessages(["You have completed the assessment. Browse"
+                    + " to the Scorecard to see how you compare with peers."
+                    + " Thank you!"], "info");
+            },
+            function error(resp) {
+                showErrorMessages(resp);
+        });
+    };
 
     var savingsElements = angular.element("#improvement-dashboard").find(".savings");
     if( savingsElements.length > 0 ) {

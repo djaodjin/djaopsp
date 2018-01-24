@@ -500,21 +500,22 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
 
     @property
     def sample(self):
-        if not hasattr(self, '_sample'):
-            try:
-                self._sample = Sample.objects.get(
-                    extra__isnull=True,
-                    survey__title=self.report_title,
-                    account=self.account)
-            except Sample.DoesNotExist:
-                self._sample = None
-        return self._sample
+        return self.assessment_sample
+
+    @property
+    def assessment_sample(self):
+        if not hasattr(self, '_assessment_sample'):
+            self._assessment_sample = Sample.objects.filter(
+                extra__isnull=True,
+                survey__title=self.report_title,
+                account=self.account).order_by('-created_at').first()
+        return self._assessment_sample
 
     def get_or_create_assessment_sample(self):
         # We create the sample if it does not exists.
         with transaction.atomic():
-            if self.sample is None:
-                self._sample = Sample.objects.create(
+            if self.assessment_sample is None:
+                self._assessment_sample = Sample.objects.create(
                     survey=self.survey, account=self.account)
 
     def populate_account(self, accounts, agg_score):
@@ -690,13 +691,10 @@ class ImprovementQuerySetMixin(ReportMixin):
     @property
     def improvement_sample(self):
         if not hasattr(self, '_improvement_sample'):
-            try:
-                self._improvement_sample = Sample.objects.get(
-                    extra='is_planned',
-                    survey__title=self.report_title,
-                    account=self.account)
-            except Sample.DoesNotExist:
-                self._improvement_sample = None
+            self._improvement_sample = Sample.objects.filter(
+                extra='is_planned',
+                survey__title=self.report_title,
+                account=self.account).order_by('-created_at').first()
         return self._improvement_sample
 
     def get_or_create_improve_sample(self):

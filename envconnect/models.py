@@ -493,8 +493,8 @@ FROM (SELECT
     expected_opportunities.opportunity AS opportunity
 FROM (%(expected_opportunities)s) AS expected_opportunities
 LEFT OUTER JOIN (%(answers)s) AS answers
-ON answers.question_id = expected_opportunities.question_id
-   AND answers.sample_id = expected_opportunities.sample_id) AS expected_choices
+ON expected_opportunities.question_id = answers.question_id
+   AND expected_opportunities.sample_id = answers.sample_id) AS expected_choices
 LEFT OUTER JOIN survey_choice
 ON expected_choices.measured = survey_choice.id
 """ % {

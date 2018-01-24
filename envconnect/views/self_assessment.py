@@ -54,6 +54,8 @@ class AssessmentView(AssessmentBaseView):
         self.update_context_urls(context, {
             'api_assessment_sample': reverse(
                 'survey_api_sample', args=(organization, self.sample)),
+            'api_assessment_sample_new': reverse(
+                'survey_api_sample_new', args=(organization,)),
         })
         return context
 
