@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -12,8 +12,7 @@ from deployutils.crypt import JSONEncoder
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
-from openpyxl.styles.fills import FILL_SOLID, FILL_NONE
-from openpyxl.worksheet.dimensions import ColumnDimension
+from openpyxl.styles.fills import FILL_SOLID
 from survey.models import Answer
 
 from ..api.benchmark import BenchmarkMixin
@@ -209,7 +208,7 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
             ["Practice", "Implemented as a standard practice?"], leaf=True)
         self.writerow(
             [""] + self.get_headings(self._get_tag(root[0])), leaf=True)
-        indent = ' '
+        indent = self.indent_step
         for nodes in six.itervalues(root[1]):
             self.writerow([indent + self._get_title(nodes[0])])
             for elements in six.itervalues(nodes[1]):
@@ -235,6 +234,7 @@ class SelfAssessmentCSVView(SelfAssessmentSpreadsheetView):
             for rec in row])
 
     def create_writer(self, headings, title=None):
+        #pylint:disable=unused-argument
         if six.PY2:
             self.content = io.BytesIO()
         else:
@@ -257,23 +257,24 @@ class SelfAssessmentXLSXView(SelfAssessmentSpreadsheetView):
     def writerow(self, row, leaf=False):
         self.wsheet.append(row)
         if not leaf:
+            #pylint:disable=protected-access
             for row_cells in self.wsheet.iter_rows(
                     min_row=self.wsheet._current_row,
                     max_row=self.wsheet._current_row):
-                row_cells[0].font = self.headingFont
+                row_cells[0].font = self.heading_font
 
     def create_writer(self, headings, title=None):
-        SCALE = 11.9742857142857
+        col_scale = 11.9742857142857
         self.wbook = Workbook()
         self.wsheet = self.wbook.active
         if title:
             self.wsheet.title = title
-        self.wsheet.row_dimensions[1].height = 0.36 * (6 * SCALE)
-        self.wsheet.column_dimensions['A'].width = 6.56 * SCALE
+        self.wsheet.row_dimensions[1].height = 0.36 * (6 * col_scale)
+        self.wsheet.column_dimensions['A'].width = 6.56 * col_scale
         for col_num in range(0, len(headings)):
             self.wsheet.column_dimensions[chr(ord('B') + col_num)].width \
-                = 0.99 * SCALE
-        self.headingFont = Font(
+                = 0.99 * col_scale
+        self.heading_font = Font(
             name='Calibri', size=12, bold=False, italic=False,
             vertAlign='baseline', underline='none', strike=False,
             color='FF0071BB')
@@ -288,14 +289,14 @@ class SelfAssessmentXLSXView(SelfAssessmentSpreadsheetView):
             horizontal='center', vertical='center',
             text_rotation=0, wrap_text=False,
             shrink_to_fit=False, indent=0)
-        titleFill = PatternFill(fill_type=FILL_SOLID, fgColor='FFDDD9C5')
-        subtitleFill = PatternFill(fill_type=FILL_SOLID, fgColor='FFEEECE2')
-        subtitleFont = Font(
+        title_fill = PatternFill(fill_type=FILL_SOLID, fgColor='FFDDD9C5')
+        subtitle_fill = PatternFill(fill_type=FILL_SOLID, fgColor='FFEEECE2')
+        subtitle_font = Font(
             name='Calibri', size=12, bold=False, italic=False,
             vertAlign='baseline', underline='none', strike=False,
             color='FF000000')
         row = self.wsheet.row_dimensions[1]
-        row.fill = titleFill
+        row.fill = title_fill
         row.font = Font(
             name='Calibri', size=20, bold=False, italic=False,
             vertAlign='baseline', underline='none', strike=False,
@@ -304,13 +305,13 @@ class SelfAssessmentXLSXView(SelfAssessmentSpreadsheetView):
         row.border = border
         self.wsheet.merge_cells('A1:F1')
         row = self.wsheet.row_dimensions[2]
-        row.fill = subtitleFill
-        row.font = subtitleFont
+        row.fill = subtitle_fill
+        row.font = subtitle_font
         row.alignment = alignment
         row.border = border
         row = self.wsheet.row_dimensions[3]
-        row.fill = subtitleFill
-        row.font = subtitleFont
+        row.fill = subtitle_fill
+        row.font = subtitle_font
         row.alignment = alignment
         row.border = border
         self.wsheet.merge_cells('B2:F2')
