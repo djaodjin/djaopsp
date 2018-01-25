@@ -10,6 +10,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder
 from openpyxl import Workbook
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.styles.borders import BORDER_THIN
+from openpyxl.styles.fills import FILL_SOLID, FILL_NONE
+from openpyxl.worksheet.dimensions import ColumnDimension
 from survey.models import Answer
 
 from ..api.benchmark import BenchmarkMixin
@@ -136,7 +140,8 @@ class SelfAssessmentView(SelfAssessmentBaseView):
 
 class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
 
-    basename = 'self-assessment'
+    basename = 'assessment'
+    indent_step = '    '
 
     @staticmethod
     def _get_consumption(element):
@@ -157,10 +162,8 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
             tree[parts[0]] = {}
         return self.insert_path(tree[parts[0]], parts[1:])
 
-    def writerow(self, row):
-        self.csv_writer.writerow([
-            rec.encode('utf-8') if six.PY2 else rec
-            for rec in row])
+    def writerow(self, row, leaf=False):
+        pass
 
     def write_tree(self, root, indent=''):
         """
@@ -177,11 +180,11 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
                         row += ['X']
                     else:
                         row += ['']
-            self.writerow(row)
+            self.writerow(row, leaf=True)
         else:
             self.writerow([indent + self._get_title(root[0])])
             for element in six.itervalues(root[1]):
-                self.write_tree(element, indent=indent + '  ')
+                self.write_tree(element, indent=indent + self.indent_step)
 
     def get(self, *args, **kwargs): #pylint: disable=unused-argument
         # All self-assessment questions for an industry, regardless
@@ -197,15 +200,20 @@ class SelfAssessmentSpreadsheetView(SelfAssessmentBaseView):
         root = self._build_tree(trail[0][0], from_trail_head, cut=None)
         self.attach_benchmarks(root)
 
-        self.create_writer()
-        self.writerow(["The Sustainability Project - Self-assessment"])
-        self.writerow([self._get_title(root[0])])
+        self.create_writer(
+            self.get_headings(self._get_tag(root[0])),
+            title=self._get_title(root[0]))
+        self.writerow(
+            ["Assessment - Environmental practices"], leaf=True)
+        self.writerow(
+            ["Practice", "Implemented as a standard practice?"], leaf=True)
+        self.writerow(
+            [""] + self.get_headings(self._get_tag(root[0])), leaf=True)
         indent = ' '
         for nodes in six.itervalues(root[1]):
-            self.writerow([indent + self._get_title(nodes[0])]
-                + self.get_headings(self._get_tag(nodes[0])))
+            self.writerow([indent + self._get_title(nodes[0])])
             for elements in six.itervalues(nodes[1]):
-                self.write_tree(elements, indent=indent + ' ')
+                self.write_tree(elements, indent=indent + self.indent_step)
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
             self.get_filename())
@@ -221,10 +229,12 @@ class SelfAssessmentCSVView(SelfAssessmentSpreadsheetView):
 
     content_type = 'text/csv'
 
-    def writerow(self, row):
-        self.csv_writer.writerow(row)
+    def writerow(self, row, leaf=False):
+        self.csv_writer.writerow([
+            rec.encode('utf-8') if six.PY2 else rec
+            for rec in row])
 
-    def create_writer(self):
+    def create_writer(self, headings, title=None):
         if six.PY2:
             self.content = io.BytesIO()
         else:
@@ -244,14 +254,67 @@ class SelfAssessmentXLSXView(SelfAssessmentSpreadsheetView):
     content_type = \
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
-    def writerow(self, row):
+    def writerow(self, row, leaf=False):
         self.wsheet.append(row)
+        if not leaf:
+            for row_cells in self.wsheet.iter_rows(
+                    min_row=self.wsheet._current_row,
+                    max_row=self.wsheet._current_row):
+                row_cells[0].font = self.headingFont
 
-    def create_writer(self):
+    def create_writer(self, headings, title=None):
+        SCALE = 11.9742857142857
         self.wbook = Workbook()
         self.wsheet = self.wbook.active
+        if title:
+            self.wsheet.title = title
+        self.wsheet.row_dimensions[1].height = 0.36 * (6 * SCALE)
+        self.wsheet.column_dimensions['A'].width = 6.56 * SCALE
+        for col_num in range(0, len(headings)):
+            self.wsheet.column_dimensions[chr(ord('B') + col_num)].width \
+                = 0.99 * SCALE
+        self.headingFont = Font(
+            name='Calibri', size=12, bold=False, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF0071BB')
 
     def flush_writer(self):
+        border = Border(
+            left=Side(border_style=BORDER_THIN, color='FF000000'),
+            right=Side(border_style=BORDER_THIN, color='FF000000'),
+            top=Side(border_style=BORDER_THIN, color='FF000000'),
+            bottom=Side(border_style=BORDER_THIN, color='FF000000'))
+        alignment = Alignment(
+            horizontal='center', vertical='center',
+            text_rotation=0, wrap_text=False,
+            shrink_to_fit=False, indent=0)
+        titleFill = PatternFill(fill_type=FILL_SOLID, fgColor='FFDDD9C5')
+        subtitleFill = PatternFill(fill_type=FILL_SOLID, fgColor='FFEEECE2')
+        subtitleFont = Font(
+            name='Calibri', size=12, bold=False, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF000000')
+        row = self.wsheet.row_dimensions[1]
+        row.fill = titleFill
+        row.font = Font(
+            name='Calibri', size=20, bold=False, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF000000')
+        row.alignment = alignment
+        row.border = border
+        self.wsheet.merge_cells('A1:F1')
+        row = self.wsheet.row_dimensions[2]
+        row.fill = subtitleFill
+        row.font = subtitleFont
+        row.alignment = alignment
+        row.border = border
+        row = self.wsheet.row_dimensions[3]
+        row.fill = subtitleFill
+        row.font = subtitleFont
+        row.alignment = alignment
+        row.border = border
+        self.wsheet.merge_cells('B2:F2')
+        self.wsheet.merge_cells('A2:A3')
         content = io.BytesIO()
         self.wbook.save(content)
         content.seek(0)
