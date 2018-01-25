@@ -32,9 +32,9 @@
     <h2 style="margin-left: 5px;">"Not Applicable" Responses</h2>
     <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
     <ol>
-        {% if not_applicable_answers %}
-        {% for answer in not_applicable_answers %}
-        <li><a href="{% url 'summary_organization' organization answer|path_with_prefix:path %}">{{ answer.question.text }}</a></li>
+        {% if not_applicables %}
+        {% for not_applicable in not_applicables %}
+        <li><a href="{% url 'summary_organization' organization not_applicable.0 %}">{{ not_applicable.1.title }}</a></li>
         {% endfor %}
         {% else %}
         <li>All questions have been answered</li>

@@ -198,7 +198,6 @@ class BenchmarkMixin(ReportMixin):
                     distribution['organization_rate'] = distribution['x'][3]
         return distribution
 
-
     def rollup_scores(self, roots=None, root_prefix=None):
         """
         Returns a tree populated with scores per accounts.

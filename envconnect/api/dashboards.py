@@ -72,9 +72,9 @@ class SupplierQuerySet(object):
         """
         returns the list ordered by *field*.
         """
-        reverse = False
+        reverse_order = False
         if field.startswith('-'):
-            reverse = True
+            reverse_order = True
             field = field[1:]
         val = None
         for item in self.items:
@@ -89,17 +89,17 @@ class SupplierQuerySet(object):
             default = ""
         return SupplierQuerySet(sorted(self.items,
             key=lambda rec: rec.get(field, default),
-            reverse=reverse))
+            reverse=reverse_order))
 
-    def filter(self, *args, **kwargs):
+    def filter(self, *args, **kwargs): #pylint:disable=unused-argument
         items = []
         for arg in args:
             if isinstance(arg, Q):
                 for child in arg.children:
                     name, _ = child[0].split('__')
                     pat = child[1].upper()
-                    items += list(filter(
-                        lambda item: pat in item[name].upper(), self.items))
+                    items += [item for item in self.items
+                        if pat in item[name].upper()]
         return SupplierQuerySet(items)
 
     def distinct(self):
