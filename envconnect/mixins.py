@@ -632,7 +632,10 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 avg_value = consumption.avg_value
                 opportunity = consumption.opportunity
                 nb_respondents = consumption.nb_respondents
-                added = 3 * avg_value / nb_respondents
+                if nb_respondents > 0:
+                    added = 3 * avg_value / nb_respondents
+                else:
+                    added = 0
                 if consumption.implemented == 'Yes':
                     vals[0]['accounts'][self.account.pk].update({
                         'opportunity_numerator': 0,
