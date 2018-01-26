@@ -115,8 +115,8 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             self.decorate_with_breadcrumbs(root)
             charts = self.get_charts(root)
             not_applicable_answers = Consumption.objects.filter(
-                question__answer__response=self.sample,
-                question__answer__text=Consumption.NOT_APPLICABLE)
+                question__answer__sample=self.sample,
+                question__answer__measured=Consumption.NOT_APPLICABLE)
             not_applicables = []
             for not_applicable in not_applicable_answers:
                 element = PageElement.objects.get(
