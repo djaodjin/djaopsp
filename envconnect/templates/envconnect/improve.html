@@ -45,7 +45,7 @@
                             [[practice[0].consumption.nb_respondents]] respondents
                             <div class="progress" style="margin:0">
                                 <div class="progress-bar progress-bar-success green-level-[[practice[0].consumption.avg_value]]" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
-                                    [[practice[0].consumption.rate|number:0]]%
+                                    <span ng-class="{'text-muted': practice[0].consumption.rate === 0}">[[practice[0].consumption.rate|number:0]]%</span>
                                 </div>
                             </div>
                         </td>
@@ -81,12 +81,12 @@ See the following for examples of content developed for best practices:
 <a href="{% url 'summary' '/sustainability-office-space-only/driver-behavior-that-could-influence-fuel-efficien/' %}">Example 3</a>.</em>
                         </td>
                     </tr>
-					<tr>
-						<td colspan="5" class="text-right">
-							<button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
-							<button class="btn btn-primary" id="submit-button" ng-click="freezeSelfAssessment($event)">Submit</button>
-						</td>
-					</tr>
+                    <tr>
+                        <td colspan="5" class="text-right">
+                            <button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
+                            <button class="btn btn-primary" id="submit-button" ng-click="freezeSelfAssessment($event)">Submit</button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             </div>
