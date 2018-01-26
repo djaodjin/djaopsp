@@ -79,8 +79,10 @@
 		$toggleOff.addClass('toggle-off')
 		this.$toggle.css({ width: width, height: height })
 		if (this.options.height) {
-			$toggleOn.css('line-height', $toggleOn.height() + 'px')
-			$toggleOff.css('line-height', $toggleOff.height() + 'px')
+			if( !(navigator.appVersion.indexOf("MSIE 10") !== -1) ) {
+				$toggleOn.css('line-height', $toggleOn.height() + 'px')
+				$toggleOff.css('line-height', $toggleOff.height() + 'px')
+			}
 		}
 		this.update(true)
 		this.trigger(true)
