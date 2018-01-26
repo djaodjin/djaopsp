@@ -108,7 +108,7 @@
                             [[practice[0].consumption.nb_respondents]] respondents
                             <div class="progress" style="margin:0">
                                 <div class="progress-bar progress-bar-success green-level-[[practice[0].consumption.avg_value]]" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
-                                    [[practice[0].consumption.rate|number:0]]%
+                                    <span ng-class="{'text-muted': practice[0].consumption.rate === 0}">[[practice[0].consumption.rate|number:0]]%</span>
                                 </div>
                             </div>
                         </td>
