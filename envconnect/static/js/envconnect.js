@@ -362,32 +362,37 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     /** Linearize the tree into a list of rows.
      */
-    $scope.getEntriesAsRows = function(root, results) {
-        var header_num = results.length;
-        root[0].header_num = header_num;
-        for( var key in root[1] ) {
-            if( root[1].hasOwnProperty(key) ) {
-                var node = root[1][key];
-                if( node[0].consumption ) {
-                    node[0].header_num = header_num;
-                    results.push(node);
-                } else {
-                    results.push(node);
-                    $scope.getEntriesAsRows(node, results);
+    $scope.getEntriesAsRowsRecursive = function(root, results, limit, depth) {
+        if (typeof limit === 'undefined' || depth < limit) {
+            var header_num = results.length;
+            root[0].header_num = header_num;
+            for( var key in root[1] ) {
+                if( root[1].hasOwnProperty(key) ) {
+                    var node = root[1][key];
+                    if( node[0].consumption ) {
+                        node[0].header_num = header_num;
+                        results.push(node);
+                    } else {
+                        results.push(node);
+                        $scope.getEntriesAsRowsRecursive(node, results, limit, depth+1);
+                    }
                 }
             }
         }
     };
 
+    $scope.getEntriesAsRows = function (root, results, limit) {
+        $scope.getEntriesAsRowsRecursive(root, results, limit, 0);
+    };
 
     /** Extract a subtree rooted at *prefix* and linearize it
         into a list of rows.
      */
-    $scope.getEntries = function(prefix) {
+    $scope.getEntries = function(prefix, limit) {
         var results = [];
         var node = $scope.getEntriesRecursive($scope.entries, prefix);
         if( node ) {
-            $scope.getEntriesAsRows(node, results);
+            $scope.getEntriesAsRows(node, results, limit);
         }
         return results;
     };
@@ -821,6 +826,15 @@ envconnectControllers.controller("EnvconnectCtrl",
             });
     };
 
+    $scope.demoteBestPractice = function($event) {
+        var iconParent = angular.element($event.toElement).parents(".squared-tabs-li");
+        var startPath = iconParent.data('id');
+        var tableParent = angular.element($event.target).parents("table");
+        var attachPath = tableParent.data('prefix');
+
+        $scope.moveBestPractice(startPath, attachPath, null, "demote");
+    };
+
     $scope.indentHeader = function(practice, prefix) {
         var parts = practice[0].path.replace(prefix, '').split("/");
         var indentSpace = 0
@@ -874,8 +888,13 @@ envconnectControllers.controller("EnvconnectCtrl",
                 attachPath = candidatePath;
             }
         }
+
         if( !attachPath ) {
-            attachPath = prefix;
+            if (prefix.split("/").length > movedDepth) {
+                attachPath = prefix.split("/").slice(0, movedDepth).join("/");
+            } else {
+                attachPath = prefix;
+            }
         }
         $scope.moveBestPractice(startPath, attachPath, null, "toUpperLevel");
     };
@@ -967,22 +986,22 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
     };
 
-	$scope.showSaveMessage = function ($event) {
-		clearMessages();
-		showMessages(['Your changes have been saved.'], 'info');
-	};
+    $scope.showSaveMessage = function ($event) {
+        clearMessages();
+        showMessages(['Your changes have been saved.'], 'info');
+    };
 
-	$scope.freezeSelfAssessment = function ($event) {
-		$event.preventDefault();
+    $scope.freezeSelfAssessment = function ($event) {
+        $event.preventDefault();
 
-		$http.put(settings.urls.api_self_assessment_response, {is_frozen: true}).then(
+        $http.put(settings.urls.api_self_assessment_response, {is_frozen: true}).then(
             function success(resp) {
                 showMessages(["Success!"], "info");
             },
             function error(resp) {
                 showErrorMessages(resp);
         });
-	};
+    };
 
     var savingsElements = angular.element("#improvement-dashboard").find(".savings");
     if( savingsElements.length > 0 ) {
@@ -1368,7 +1387,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                         radialProgress(totalScoreElement[0])
                             .value1(data[idx].highest_normalized_score)
                             .value2(data[idx].avg_normalized_score)
-							.value3(self.options.scoreFunc(data[idx]))
+                            .value3(self.options.scoreFunc(data[idx]))
                             .render();
                     } else {
                         if( totalScoreElement.find(".totals-chart").length === 0 ) {
@@ -1449,7 +1468,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     $.fn.improvementDashboard.defaults = {
         api_account_benchmark: null,
         benchmark: null,
-		scoreFunc: function(elem) { return elem.normalized_score }
+        scoreFunc: function(elem) { return elem.normalized_score }
     };
 
 })(jQuery);
