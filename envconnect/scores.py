@@ -33,7 +33,6 @@ def _normalize(scores, normalize_to_one=False):
         # If we don't have the same number of questions
         # and answers, numerator and denominator are meaningless.
         denominator = scores.get(denominator_key, 0)
-        numerator = scores.get(numerator_key, 0)
         if denominator > 0:
             scores['normalized_score'] = int(
                 scores[numerator_key] * 100.0 / denominator)
@@ -168,11 +167,11 @@ def populate_rollup(rollup_tree, normalize_to_one):
             }]
          }]
     """
+    #pylint:disable=too-many-locals
     numerator_key = 'numerator'
     denominator_key = 'denominator'
     values = rollup_tree[0]
     slug = values.get('slug', None)
-    root_score_weight = values.get('score_weight', 1.0)
     total_score_weight = 0
     if len(rollup_tree[1]) > 1:
         for node in six.itervalues(rollup_tree[1]):
@@ -243,7 +242,7 @@ def push_improvement_factors(rollup_tree, total_numerator, total_denominator,
     from the root to the node. That's the factor for how much a question
     will actually contribute to the final score.
     """
-
+    #pylint:disable=too-many-locals,unused-argument
     values = rollup_tree[0]
     # If the total of the children weights is 1.0, we are dealing
     # with percentages so we need to normalize all children numerators
@@ -266,10 +265,8 @@ def push_improvement_factors(rollup_tree, total_numerator, total_denominator,
             total_numerator, total_denominator,
             normalize_children, path_weight=(path_weight * root_score_weight))
 
-    numerator_key = 'numerator'
-    denominator_key = 'denominator'
     accounts = values['accounts']
-    for account_id, scores in six.iteritems(accounts):
+    for _, scores in six.iteritems(accounts):
         if 'opportunity_numerator' in scores:
             opportunity_denominator = scores.get('opportunity_denominator', 0)
             opportunity_numerator = scores.get('opportunity_numerator', 0)

@@ -4,10 +4,9 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import datetime, json, logging
+import json, logging
 
 from django.conf import settings
-from django.db import connection
 from django.utils import six
 from pages.mixins import TrailMixin
 from rest_framework import generics
@@ -15,7 +14,7 @@ from rest_framework.response import Response
 
 from .best_practices import DecimalEncoder, ToggleTagContentAPIView
 from ..mixins import ReportMixin, TransparentCut
-from ..models import Consumption, get_score_weight, get_scored_answers
+from ..models import get_score_weight, get_scored_answers
 from ..serializers import ScoreWeightSerializer
 from ..scores import populate_rollup
 

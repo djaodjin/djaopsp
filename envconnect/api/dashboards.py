@@ -81,6 +81,7 @@ class SupplierQuerySet(object):
             val = item.get(field, None)
             if val is not None:
                 break
+        #pylint:disable=redefined-variable-type
         if isinstance(val, (six.integer_types, float)):
             default = 0
         elif isinstance(val, datetime.datetime):

@@ -1,20 +1,20 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 import decimal, json, logging, re
 
 from django.db import transaction
-from django.db.models import Max
 from django.http import Http404
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import (get_object_or_404,
+from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView, UpdateAPIView)
 from rest_framework.response import Response
 from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip
 from pages.api.relationship import (PageElementMirrorAPIView,
     PageElementMoveAPIView)
+from survey.models import EnumeratedQuestions
 
 from ..mixins import BestPracticeMixin, BreadcrumbMixin
 from ..models import Consumption

@@ -13,11 +13,9 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
-from survey.models import Answer
 
 from ..mixins import ReportMixin
 from ..models import Consumption
-from ..serializers import ConsumptionSerializer
 
 
 LOGGER = logging.getLogger(__name__)

@@ -14,7 +14,7 @@ from answers.models import Question as AnswersQuestion
 from survey.models import (Answer, Campaign, EditablePredicate,
     EnumeratedQuestions, Question, Sample)
 
-from ...mixins import BreadcrumbMixin
+from ...mixins import BreadcrumbMixin, ReportMixin
 from ...models import Improvement, Consumption, ColumnHeader
 
 
