@@ -108,6 +108,7 @@ class ConsumptionQuerySet(models.QuerySet):
         # Taken the latest assessment for each account, the implementation rate
         # is defined as the number of positive answers divided by the number of
         # valid answers (i.e. different from "N/A").
+        #pylint:disable=protected-access
         implementation_rate_view = """WITH
 latest_assessment_by_accounts AS (
   SELECT survey_sample.account_id, survey_sample.id, created_at
@@ -268,8 +269,8 @@ class Consumption(SurveyQuestion):
 
     def save(self, force_insert=False, force_update=False,
              using=None, update_fields=None):
-        if not self.unit_id:
-            self.unit_id = 1 # assessment unit
+        if not self.question.unit_id:
+            self.question.unit_id = 1 # assessment unit
         visible_cols = self.VALUE_SUMMARY_FIELDS - set([
             col['slug'] for col in ColumnHeader.objects.leading_prefix(
                 self.path).filter(hidden=True)])
@@ -449,6 +450,7 @@ def get_scored_answers(is_planned=None, includes=None, excludes=None):
     # ANSWER_CREATED_AT = 7
     # ANSWER_MEASURED = 8
     # SAMPLE_IS_PLANNED = 9 (assessment or improvement)
+    #pylint:disable=protected-access
     scored_answers = """SELECT
     expected_choices.account_id,
     expected_choices.sample_id,

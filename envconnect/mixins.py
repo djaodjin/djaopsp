@@ -16,7 +16,7 @@ from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
 from rest_framework.generics import get_object_or_404
-from survey.models import Answer, Choice, Sample, Campaign, EnumeratedQuestions
+from survey.models import Answer, Sample, Campaign, EnumeratedQuestions
 from survey.utils import get_account_model
 
 from .models import (Consumption, get_score_weight, _show_query_and_result,
@@ -518,7 +518,8 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                 self._assessment_sample = Sample.objects.create(
                     survey=self.survey, account=self.account)
 
-    def populate_account(self, accounts, agg_score):
+    @staticmethod
+    def populate_account(accounts, agg_score):
         """
         Populate the *accounts* dictionnary with scores in *agg_score*.
 
@@ -606,6 +607,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
           numerator = (3-A) * opportunity
           denominator = 0
         """
+        #pylint:disable=too-many-locals
         consumptions = {}
         scored_answers = get_scored_answers(
             includes=[str(self.sample.pk)],
@@ -648,7 +650,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                         'opportunity_numerator': 2 * opportunity + added,
                         'opportunity_denominator': added
                     })
-                elif (consumption.implemented == 'No'):
+                elif consumption.implemented == 'No':
                     vals[0]['accounts'][self.account.pk].update({
                         'opportunity_numerator': 3 * opportunity + added,
                         'opportunity_denominator': added
@@ -674,7 +676,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         if trail:
             root = self._build_tree(trail[-1][0], from_root)
             populate_rollup(root, True)
-            total_numerator =  root[0]['accounts'][self.account.pk].get(
+            total_numerator = root[0]['accounts'][self.account.pk].get(
                 'numerator', 0)
             total_denominator = root[0]['accounts'][self.account.pk].get(
                 'denominator', 0)
