@@ -990,6 +990,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         showMessages(['Your changes have been saved.'], 'info');
     };
 
+    // Methods dealing with assessments
+    // --------------------------------
     $scope.createAssessment = function() {
         $http.post(settings.urls.api_assessment_sample_new, {
             'campaign': 'best-practices-report'}).then(
@@ -1049,6 +1051,21 @@ envconnectControllers.controller("EnvconnectCtrl",
             function error(resp) {
                 showErrorMessages(resp);
         });
+    };
+
+    // Call on the API to update an assessment answer
+    $scope.updateAssessmentAnswer = function(practice, newValue) {
+        var rank = "" + practice.consumption.rank;
+        $http.put(settings.urls.api_assessment_sample + rank + "/", {
+            measured: newValue
+        }).then(
+            function success(resp) {
+                practice.consumption = resp.data;
+            },
+            function error(resp) {
+                showErrorMessages(resp);
+            }
+        );
     };
 
     var savingsElements = angular.element("#improvement-dashboard").find(".savings");
@@ -1301,58 +1318,6 @@ envconnectControllers.controller("envconnectMyTSPReporting",
 
 (function ($) {
     "use strict";
-
-    /** Plug-in to connect the assessment UI to the API.
-
-        HTML requirements:
-
-        <tr data-id="*consumption.path*">
-          <td>
-              <input type="radio" name="implemented-*?*" value="Yes">Yes
-          </td>
-          <td><input type="radio" name="implemented-*?*" value="No">No
-          </td>
-        </tr>
-    */
-    function Assessment(el, options){
-        this.element = $(el);
-        this.options = options;
-        this.init();
-    }
-
-    Assessment.prototype = {
-        init: function () {
-            var self = this;
-
-            self.element.find("input[type=\"radio\"]").change(function(event) {
-                var element = $(this);
-                var name = element.attr("name").replace("implemented-", "");
-                var answer = element.val();
-                $.ajax({
-                    url: self.options.survey_api_sample + name + "/",
-                    method: "PUT",
-                    data: JSON.stringify({measured: answer}),
-                    datatype: "json",
-                    contentType: "application/json; charset=utf-8",
-                    success: function() { return true; },
-                    error: function(resp) { showErrorMessages(resp); }
-                });
-            });
-        },
-    };
-
-    $.fn.assessment = function(options) {
-        var opts = $.extend( {}, $.fn.assessment.defaults, options );
-        return this.each(function() {
-            if (!$.data(this, "assessment")) {
-                $.data(this, "assessment", new Assessment(this, opts));
-            }
-        });
-    };
-
-    $.fn.assessment.defaults = {
-        survey_api_sample: null,
-    };
 
     /** Plug-in to connect scorecard/improvement dashboard UI to the API.
 

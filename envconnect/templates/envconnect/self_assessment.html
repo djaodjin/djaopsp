@@ -90,7 +90,7 @@
                                        value="{{choice}}"
                                        name="implemented-[[practice[0].consumption.rank]]"
                                        ng-checked="practice[0].consumption.implemented === '{{choice}}'"
-                                       ng-change="updateImprovement()"
+                                       ng-change="updateAssessmentAnswer(practice[0], '{{choice}}')"
                                        ng-model="practice[0].consumption.implemented" />
                             </label>
                         </td>
@@ -121,7 +121,7 @@
                         </td>
                         <td class="text-center cell-fix-width-3"
                             ng-if="practice[0].consumption">
-                            [[practice[0].accounts["{{organization.pk}}"].improvement_percentage|number:2]]%
+                            [[practice[0].consumption.opportunity|number:2]]
                         </td>
                     </tr>
                     <tr ng-if="getEntries('{{abs_prefix}}').length === 0">
@@ -210,10 +210,6 @@ jQuery(document).ready(function($) {
     {% if sample.is_frozen %}
         $("#new-assessment").modal("show");
     {% endif %}
-    $(".best-practice-row").assessment({
-        survey_api_sample: "{% url 'survey_api_sample' organization sample %}",
-        api_improvement_base: "{% url 'api_improvement_base' organization %}"
-    });
 });
 </script>
 {% endblock %}

@@ -6,7 +6,6 @@ from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as static_serve
 from urldecorators import include, url
 
-from ..api.dashboards import SupplierListAPIView, TotalScoreBySubsectorAPIView
 from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
     url_direct)
 from ..views import AccountRedirectView, MyTSPRedirectView
@@ -51,10 +50,6 @@ IDENTIFIER_RE = r'[_a-zA-Z][_a-zA-Z0-9]*'
 NON_EMPTY_PATH_RE = r'(/[a-zA-Z0-9\-]+)+'
 
 urlpatterns += [
-    # Locking
-    #url_direct(r'api/best-practice/(?P<pk>[0-9]+)/lock/',
-    #   LockToggleAPIView.as_view(), name='best_practice_lock_toggle'),
-
     # User authenticated
     url_authenticated(r'api/suppliers/', include('answers.urls.api')),
 
@@ -63,20 +58,8 @@ urlpatterns += [
     # XXX only used in testing?
     url_direct(r'api/', include('pages.urls.api.elements')),
 
-    # direct manager of :organization
-    url_direct(r'api/(?P<organization>%s)/suppliers/?' % SLUG_RE,
-      SupplierListAPIView.as_view(), name="api_suppliers"),
-    url_direct(r'api/(?P<organization>%s)/' % SLUG_RE,
-        include('envconnect.urls.api.suppliers')),
-    url_direct(r'api/(?P<organization>%s)/matrix/(?P<path>%s)/?$' % (
-        SLUG_RE, SLUG_RE + settings.PATH_RE),
-        TotalScoreBySubsectorAPIView.as_view()),
-    url_direct(r'api/(?P<organization>%s)/campaign/' % SLUG_RE,
-        include('survey.urls.api.campaigns')),
-    url_direct(r'api/(?P<organization>%s)/matrix/' % SLUG_RE,
-        include('survey.urls.api.matrix')),
-    url_direct(r'api/(?P<interviewee>%s)/sample/' % SLUG_RE,
-        include('survey.urls.api.sample')),
+    # API to manage reporting, assessment and improvement planning.
+    url_direct(r'api/', include('envconnect.urls.api.suppliers')),
 
     # authenticated user
     url_authenticated(r'app/info/portfolios(?P<path>%s)/' % settings.PATH_RE,

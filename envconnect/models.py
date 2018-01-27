@@ -334,7 +334,8 @@ def _show_query_and_result(raw_query, show=False):
             LOGGER.debug("%d row(s)", count)
 
 
-def _additional_filters(is_planned=None, includes=None, excludes=None):
+def _additional_filters(is_planned=None, includes=None, excludes=None,
+                        questions=None):
     sep = ""
     additional_filters = ""
     if is_planned is not None:
@@ -345,6 +346,11 @@ def _additional_filters(is_planned=None, includes=None, excludes=None):
         additional_filters += "%ssurvey_sample.id IN (%s)" % (
             sep, ', '.join(includes))
         sep = "AND "
+    if questions:
+        additional_filters += \
+            "%ssurvey_enumeratedquestions.question_id IN (%s)" % (
+            sep, ', '.join([str(question) for question in questions]))
+        sep = "AND "
     if excludes:
         additional_filters += "%ssurvey_sample.id NOT IN (%s)" % (
             sep, ', '.join(excludes))
@@ -353,7 +359,8 @@ def _additional_filters(is_planned=None, includes=None, excludes=None):
     return additional_filters
 
 
-def get_expected_opportunities(is_planned=None, includes=None, excludes=None):
+def get_expected_opportunities(is_planned=None, includes=None, excludes=None,
+                               questions=None):
     """
     Decorates with environmental_value, business_value, profitability,
     implementation_ease, avg_value, nb_respondents, and rate such that
@@ -396,7 +403,8 @@ INNER JOIN (
 ON questions_with_opportunity.question_id = samples.question_id
 """ % {'questions_with_opportunity': questions_with_opportunity,
        'additional_filters': _additional_filters(
-           is_planned=is_planned, includes=includes, excludes=excludes)}
+           is_planned=is_planned, includes=includes, excludes=excludes,
+           questions=questions)}
     _show_query_and_result(expected_opportunities)
     return expected_opportunities
 
@@ -425,7 +433,8 @@ ON survey_answer.sample_id = survey_sample.id
     return query
 
 
-def get_scored_answers(is_planned=None, includes=None, excludes=None):
+def get_scored_answers(is_planned=None, includes=None, excludes=None,
+                       questions=None):
     """
     Returns a list of tuples (account_id, answer_id, sample_id, question_id,
     numerator, denominator, path, created_at, measured, is_planned)
@@ -505,8 +514,8 @@ ON expected_choices.measured = survey_choice.id
        'significant_improvement': Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
        'yes_no': Consumption._relevent_as_sql(),
        'expected_opportunities': get_expected_opportunities(
-           is_planned=is_planned,
-           includes=includes, excludes=excludes),
+           is_planned=is_planned, includes=includes, excludes=excludes,
+           questions=questions),
        'answers': get_answer_with_account(
            is_planned=is_planned,
            includes=includes, excludes=excludes)}
