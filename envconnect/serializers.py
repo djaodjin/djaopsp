@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 #pylint: disable=old-style-class,no-init
@@ -7,8 +7,9 @@ from rest_framework import serializers
 
 from pages.models import PageElement
 from pages.serializers import PageElementSerializer as BasePageElementSerializer
+from survey.models import EnumeratedQuestions
 
-from envconnect.models import ColumnHeader, Consumption
+from .models import ColumnHeader, Consumption
 
 
 class ColumnHeaderSerializer(serializers.ModelSerializer):
@@ -22,7 +23,6 @@ class ColumnHeaderSerializer(serializers.ModelSerializer):
 class ConsumptionSerializer(serializers.ModelSerializer):
 
     path = serializers.CharField(required=False)
-    text = serializers.CharField(required=False)
     rank = serializers.SerializerMethodField()
     nb_respondents = serializers.SerializerMethodField()
     rate = serializers.SerializerMethodField()
@@ -33,24 +33,28 @@ class ConsumptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consumption
         fields = (
-            "path", "text",
+            "path",
             # description
-            "avg_energy_saving", "avg_fuel_saving",
-            "capital_cost", "payback_period",
+            #XXX "text",
+            #XXX "avg_energy_saving", "avg_fuel_saving",
+            #XXX "capital_cost", "payback_period",
             # value summary
             "environmental_value", "business_value", "profitability",
             "implementation_ease", "avg_value",
             # benchmarks
-            "rank", "nb_respondents", "rate", "opportunity",
-            "implemented", "planned", "requires_measurements")
+            "nb_respondents", "rate", "opportunity",
+            "rank", "implemented", "planned", "requires_measurements")
 
     @staticmethod
     def get_nb_respondents(obj):
         return obj.nb_respondents if hasattr(obj, 'nb_respondents') else 0
 
-    @staticmethod
-    def get_rank(obj):
-        return obj.rank
+    def get_rank(self, obj):
+        if hasattr(obj, 'rank'):
+            return obj.rank
+        return EnumeratedQuestions.objects.filter(
+            campaign=self.context['campaign'],
+            question_id=obj.question_id).first().rank
 
     @staticmethod
     def get_rate(obj):
@@ -58,7 +62,8 @@ class ConsumptionSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_implemented(obj):
-        return obj.implemented if hasattr(obj, 'implemented') else ""
+        return obj.implemented if hasattr(obj, 'implemented') else (
+            obj.measured if hasattr(obj, 'measured') else "")
 
     @staticmethod
     def get_planned(obj):

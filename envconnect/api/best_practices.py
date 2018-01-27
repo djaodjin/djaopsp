@@ -1,21 +1,20 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 import decimal, json, logging, re
 
 from django.db import transaction
-from django.db.models import Max
 from django.http import Http404
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import (get_object_or_404,
+from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView, UpdateAPIView)
 from rest_framework.response import Response
 from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip
 from pages.api.relationship import (PageElementMirrorAPIView,
     PageElementMoveAPIView)
-from survey.models import SurveyModel
+from survey.models import EnumeratedQuestions
 
 from ..mixins import BestPracticeMixin, BreadcrumbMixin
 from ..models import Consumption
@@ -83,15 +82,6 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
     want a chance to refresh the display accordingly.
     """
 
-    report_title = 'Best Practices Report'
-
-    @property
-    def survey(self):
-        if not hasattr(self, '_survey'):
-            self._survey = get_object_or_404(
-                SurveyModel.objects.all(), title=self.report_title)
-        return self._survey
-
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -107,9 +97,7 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
         return Response(root, status=status.HTTP_201_CREATED, headers=headers)
 
     def mirror_leaf(self, leaf, prefix="", new_prefix=""):
-        last_rank = self.survey.questions.aggregate(
-            Max('rank')).get('rank__max', 0)
-        rank = 0 if last_rank is None else last_rank + 1
+        rank = self.get_next_rank()
         for consumption in Consumption.objects.filter(
                 path__startswith=prefix):
             new_path = None
@@ -119,7 +107,8 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
             elif consumption.path == prefix:
                 new_path = new_prefix
             if new_path:
-                Consumption.objects.get_or_create(path=new_path,
+                new_consumption, created = Consumption.objects.get_or_create(
+                    path=new_path,
                     defaults={
                         'environmental_value': consumption.environmental_value,
                         'business_value': consumption.business_value,
@@ -130,10 +119,12 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
                         'capital_cost_low': consumption.capital_cost_low,
                         'capital_cost_high': consumption.capital_cost_high,
                         'capital_cost': consumption.capital_cost,
-                        'payback_period': consumption.payback_period,
-                        'survey': self.survey,
-                        'rank': rank
+                        'payback_period': consumption.payback_period
                     })
+                if created:
+                    EnumeratedQuestions.objects.get_or_create(
+                        campaign=self.survey, question=new_consumption.question,
+                        rank=rank)
             rank = rank + 1
         return leaf
 

@@ -1,3 +1,16 @@
+<div>
+<!-- Tab menus -->
+    <ul class="nav nav-tabs">
+      <li class="active">
+        <a href="#scorecard-tab" data-toggle="tab">Current</a>
+      </li>
+      <li>
+        <a href="#history-tab" data-toggle="tab">History</a>
+      </li>
+    </ul>
+<!-- Tab panes -->
+<div class="tab-content">
+    <div id="scorecard-tab" class="tab-pane active">
 <div class="row">
     <div class="col-md-12 text-center" style="display:table-row;">
         <div class="row-icons{% block row_icons_classes %} benchmarks-box{% endblock %}" id="{{ arc_chart_id }}">
@@ -85,3 +98,8 @@
         </div>
     </div>
 </div>
+</div><!-- /#scorecard-tab -->
+    <div id="history-tab" class="tab-pane">
+        <div id="history-chart" style="height:500px;margin:auto;"></div>
+    </div><!-- /#history-tab -->
+</div><!-- /.tab-content -->

@@ -1,25 +1,29 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 import logging
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from datetime import datetime, timedelta
 
 import monotonic
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db import connections, transaction
-from django.db.models import Sum
+from django.db import connection, connections, transaction
+from django.db.models import Max, Sum
 from django.http import Http404
 from django.utils import six
 from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
-from survey.models import Answer, Response, SurveyModel
+from rest_framework.generics import get_object_or_404
+from survey.models import Answer, Sample, Campaign, EnumeratedQuestions
 from survey.utils import get_account_model
 
-from .models import Consumption, get_score_weight
+from .models import (Consumption, get_score_weight, _show_query_and_result,
+    get_scored_answers)
+from .scores import populate_rollup, push_improvement_factors
 from .serializers import ConsumptionSerializer
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -39,9 +43,9 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
     def get_roots():
         return PageElement.objects.get_roots().filter(tag__contains='industry')
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super(
-            PermissionMixin, self).get_context_data(*args, **kwargs)
+            PermissionMixin, self).get_context_data(**kwargs)
         context.update({
             'is_envconnect_manager': self.manages(settings.APP_NAME)})
         return context
@@ -103,8 +107,22 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     breadcrumb_url = 'summary'
     TAG_SYSTEM = 'system'
+    report_title = 'Best Practices Report'
 
     enable_report_queries = True
+
+    @property
+    def survey(self):
+        if not hasattr(self, '_survey'):
+            self._survey = get_object_or_404(
+                Campaign.objects.all(), title=self.report_title)
+        return self._survey
+
+    @property
+    def breadcrumbs(self):
+        if not hasattr(self, '_breadcrumbs'):
+            self._breadcrumbs = self.get_breadcrumbs(self.kwargs.get('path'))
+        return self._breadcrumbs
 
     def _start_time(self):
         if not self.enable_report_queries:
@@ -113,6 +131,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     def _report_queries(self, descr=None):
         if not self.enable_report_queries:
+            return
+        if not hasattr(self, 'start_time'):
             return
         end_time = monotonic.monotonic()
         if descr is None:
@@ -263,13 +283,23 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             leafs.update(self.get_leafs(level_detail, path=key))
         return leafs
 
-    @staticmethod
-    def decorate_with_consumptions(leafs):
+    def get_next_rank(self):
+        last_rank = EnumeratedQuestions.objects.filter(
+            campaign=self.survey).aggregate(Max('rank')).get('rank__max', 0)
+        return 0 if last_rank is None else last_rank + 1
+
+    def get_serializer_context(self):
+        context = super(BreadcrumbMixin, self).get_serializer_context()
+        context.update({'campaign': self.survey})
+        return context
+
+    def decorate_leafs(self, leafs):
         for path, vals in six.iteritems(leafs):
             consumption = Consumption.objects.filter(path=path).first()
             if consumption:
                 vals[0]['consumption'] \
-                    = ConsumptionSerializer().to_representation(consumption)
+                    = ConsumptionSerializer(context={'campaign': self.survey
+                    }).to_representation(consumption)
             else:
                 vals[0]['consumption'] = None
                 text = PageElement.objects.filter(
@@ -290,7 +320,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 " leaves an empty rollup tree", root, path, cut.__class__)
             rollup_tree = ({'slug': ""}, {})
         leafs = self.get_leafs(rollup_tree)
-        self.decorate_with_consumptions(leafs)
+        self._report_queries("[_build_tree] leafs loaded")
+        self.decorate_leafs(leafs)
+        self._report_queries("[_build_tree] leafs populated")
         return rollup_tree
 
     def _cut_tree(self, roots, cut=None):
@@ -319,11 +351,36 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 del roots[node_path]
         return roots
 
-    @property
-    def breadcrumbs(self):
-        if not hasattr(self, '_breadcrumbs'):
-            self._breadcrumbs = self.get_breadcrumbs(self.kwargs.get('path'))
-        return self._breadcrumbs
+    def decorate_with_breadcrumbs(self, rollup_tree,
+                                  icon=None, tag=None, breadcrumbs=None):
+        """
+        When this method returns each node in the rollup_tree will have
+        and icon and breadcumbs attributes. If a node does not have or
+        has an empty tag attribute, it will be set to the value of the
+        first parent's tag which is meaningful.
+        """
+        title = rollup_tree[0].get('title', "")
+        if isinstance(breadcrumbs, list) and title:
+            breadcrumbs.append(title)
+        elif rollup_tree[0].get('slug', "").startswith('sustainability-'):
+            breadcrumbs = []
+        icon_candidate = rollup_tree[0].get('text', "")
+        if icon_candidate and icon_candidate.endswith('.png'):
+            icon = icon_candidate
+        tag_candidate = rollup_tree[0].get('tag', "")
+        if tag_candidate:
+            tag = tag_candidate
+        rollup_tree[0].update({
+            'breadcrumbs':
+                list(breadcrumbs) if breadcrumbs else [title],
+            'icon': icon,
+            'icon_css': 'grey' if (tag and 'management' in tag) else 'orange'
+        })
+        for node in six.itervalues(rollup_tree[1]):
+            self.decorate_with_breadcrumbs(node, icon=icon, tag=tag,
+                breadcrumbs=breadcrumbs)
+        if breadcrumbs:
+            breadcrumbs.pop()
 
     def get_breadcrumbs(self, path):
         #pylint:disable=too-many-locals
@@ -350,8 +407,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 missing += [trail[trail_idx]]
                 trail_idx += 1
             if trail_idx >= len(trail):
-                raise Http404("Cannot find '%s' in trail '%s'",
-                    part, " > ".join([elm.title for elm in trail]))
+                raise Http404("Cannot find '%s' in trail '%s'" %
+                    (part, " > ".join([elm.title for elm in trail])))
             node = trail[trail_idx]
             trail_idx += 1
             url = "/" + "/".join(parts[:idx + 1])
@@ -372,11 +429,11 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 base_url += ("?active=%s" % anchor)
             crumb.append(base_url)
                 # XXX Do we add the Organization in the path
-                # for self-assessment to summary and back?
+                # for assessment to summary and back?
         return from_root, results
 
-    def get_context_data(self, *args, **kwargs):
-        context = super(BreadcrumbMixin, self).get_context_data(*args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super(BreadcrumbMixin, self).get_context_data(**kwargs)
         from_root, trail = self.breadcrumbs
         parts = from_root.split('/')
         root_prefix = '/'.join(parts[:-1]) if len(parts) > 1 else ""
@@ -431,8 +488,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
 
 class ReportMixin(BreadcrumbMixin, AccountMixin):
-
-    report_title = 'Best Practices Report'
+    """
+    Loads assessment and improvement for an organization.
+    """
 
     def _get_filter_out_testing(self):
         # List of response ids that are only used for demo purposes.
@@ -442,23 +500,191 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
 
     @property
     def sample(self):
-        if not hasattr(self, '_sample'):
-            try:
-                self._sample = Response.objects.get(
-                    extra__isnull=True,
-                    survey__title=self.report_title,
-                    account=self.account)
-            except Response.DoesNotExist:
-                self._sample = None
-        return self._sample
+        return self.assessment_sample
+
+    @property
+    def assessment_sample(self):
+        if not hasattr(self, '_assessment_sample'):
+            self._assessment_sample = Sample.objects.filter(
+                extra__isnull=True,
+                survey__title=self.report_title,
+                account=self.account).order_by('-created_at').first()
+        return self._assessment_sample
 
     def get_or_create_assessment_sample(self):
-        # We create the response if it does not exists.
-        survey = SurveyModel.objects.get(title=self.report_title)
+        # We create the sample if it does not exists.
         with transaction.atomic():
-            if self.sample is None:
-                self._sample = Response.objects.create(
-                    survey=survey, account=self.account)
+            if self.assessment_sample is None:
+                self._assessment_sample = Sample.objects.create(
+                    survey=self.survey, account=self.account)
+
+    @staticmethod
+    def populate_account(accounts, agg_score):
+        """
+        Populate the *accounts* dictionnary with scores in *agg_score*.
+
+        *agg_score* is a tuple (account_id, sample_id, is_planned, numerator,
+        denominator, last_activity_at, nb_answers, nb_questions)
+        """
+        account_id = agg_score.account_id
+        #sample_id = agg_score[1]
+        is_planned = agg_score.is_planned
+        numerator = agg_score.numerator
+        denominator = agg_score.denominator
+        created_at = agg_score.last_activity_at
+        nb_answers = getattr(agg_score, 'nb_answers', None)
+        if nb_answers is None:
+            # Putting the following statement in the default clause will lead
+            # to an exception since `getattr(agg_score, 'answer_id')` will be
+            # evaluated first.
+            nb_answers = 0 if getattr(agg_score, 'answer_id') is None else 1
+        nb_questions = getattr(agg_score, 'nb_questions', 1)
+        if not account_id in accounts:
+            accounts[account_id] = {}
+        if is_planned:
+            accounts[account_id].update({
+                'improvement_numerator': numerator,
+                'improvement_denominator': denominator})
+            if not 'nb_answers' in accounts[account_id]:
+                accounts[account_id].update({
+                    'nb_answers': nb_answers})
+            if not 'nb_questions' in accounts[account_id]:
+                accounts[account_id].update({
+                    'nb_questions': nb_questions})
+            if not 'created_at' in accounts[account_id]:
+                accounts[account_id].update({
+                    'created_at': created_at})
+        else:
+            accounts[account_id].update({
+                'nb_answers': nb_answers,
+                'nb_questions': nb_questions,
+                'created_at': created_at
+            })
+            if nb_questions == nb_answers:
+                accounts[account_id].update({
+                    'numerator': numerator,
+                    'denominator': denominator})
+
+    def populate_leafs(self, leafs, answers):
+        """
+        Populate all leafs with aggregated scores.
+        """
+        #pylint:disable=too-many-locals
+        for prefix, values_tuple in six.iteritems(leafs):
+            values = values_tuple[0]
+            agg_scores = """SELECT account_id, sample_id, is_planned,
+    SUM(numerator) AS numerator,
+    SUM(denominator) AS denominator,
+    MAX(last_activity_at) AS last_activity_at,
+    COUNT(answer_id) AS nb_answers,
+    COUNT(*) AS nb_questions
+FROM (%(answers)s) AS answers
+WHERE path LIKE '%(prefix)s%%'
+GROUP BY account_id, sample_id, is_planned;""" % {
+    'answers': answers, 'prefix': prefix}
+            _show_query_and_result(agg_scores)
+            with connection.cursor() as cursor:
+                cursor.execute(agg_scores, params=None)
+                col_headers = cursor.description
+                agg_score_tuple = namedtuple(
+                    'AggScoreTuple', [col[0] for col in col_headers])
+                for agg_score in cursor.fetchall():
+                    agg_score = agg_score_tuple(*agg_score)
+                    if not 'accounts' in values:
+                        values['accounts'] = {}
+                    self.populate_account(values['accounts'], agg_score)
+
+    def decorate_leafs(self, leafs):
+        """
+        Adds consumptions, implementation rate, number of respondents,
+        assessment and improvement answers and opportunity score.
+
+        For each answer the improvement opportunity in the total score is
+        case NO / NEEDS_SIGNIFICANT_IMPROVEMENT
+          numerator = (3-A) * opportunity + 3 * avg_value / nb_respondents
+          denominator = 3 * avg_value / nb_respondents
+        case YES / NEEDS_MODERATE_IMPROVEMENT
+          numerator = (3-A) * opportunity
+          denominator = 0
+        """
+        #pylint:disable=too-many-locals
+        consumptions = {}
+        scored_answers = get_scored_answers(
+            includes=[str(self.sample.pk)],
+            excludes=self._get_filter_out_testing())
+        self.populate_leafs(leafs, scored_answers)
+
+        with connection.cursor() as cursor:
+            cursor.execute(scored_answers, params=None)
+            col_headers = cursor.description
+            consumption_tuple = namedtuple(
+                'ConsumptionTuple', [col[0] for col in col_headers])
+            for consumption in cursor.fetchall():
+                consumption = consumption_tuple(*consumption)
+                consumptions[consumption.path] = consumption
+
+        # Populate leafs and cut nodes with data.
+        for path, vals in six.iteritems(leafs):
+            consumption = consumptions.get(path, None)
+            if consumption:
+                #vals[0]['accounts'] = {self.account.pk:{}}
+                #self.populate_account(vals[0]['accounts'], consumption)
+                avg_value = consumption.avg_value
+                opportunity = consumption.opportunity
+                nb_respondents = consumption.nb_respondents
+                if nb_respondents > 0:
+                    added = 3 * avg_value / nb_respondents
+                else:
+                    added = 0
+                if consumption.implemented == 'Yes':
+                    vals[0]['accounts'][self.account.pk].update({
+                        'opportunity_numerator': 0,
+                        'opportunity_denominator': 0
+                    })
+                elif (consumption.implemented ==
+                      'Yes, but needs a little improvement'):
+                    vals[0]['accounts'][self.account.pk].update({
+                        'opportunity_numerator': opportunity,
+                        'opportunity_denominator': 0
+                    })
+                elif (consumption.implemented ==
+                    'Yes, but needs a lot of improvement'):
+                    vals[0]['accounts'][self.account.pk].update({
+                        'opportunity_numerator': 2 * opportunity + added,
+                        'opportunity_denominator': added
+                    })
+                elif consumption.implemented == 'No':
+                    vals[0]['accounts'][self.account.pk].update({
+                        'opportunity_numerator': 3 * opportunity + added,
+                        'opportunity_denominator': added
+                    })
+                vals[0]['consumption'] \
+                    = ConsumptionSerializer(context={'campaign': self.survey
+                    }).to_representation(consumption)
+            else:
+                # Cut node: loads icon url.
+                vals[0]['consumption'] = None
+                text = PageElement.objects.filter(
+                    slug=vals[0]['slug']).values('text').first()
+                if text and text['text']:
+                    vals[0].update(text)
+
+    def get_report_tree(self):
+        """
+        Returns the content tree decorated with assessment and improvement data.
+        """
+        self._start_time()
+        from_root, trail = self.breadcrumbs
+        root = None
+        if trail:
+            root = self._build_tree(trail[-1][0], from_root)
+            populate_rollup(root, True)
+            total_numerator = root[0]['accounts'][self.account.pk].get(
+                'numerator', 0)
+            total_denominator = root[0]['accounts'][self.account.pk].get(
+                'denominator', 0)
+            push_improvement_factors(root, total_numerator, total_denominator)
+        return root
 
 
 class ImprovementQuerySetMixin(ReportMixin):
@@ -470,26 +696,22 @@ class ImprovementQuerySetMixin(ReportMixin):
     @property
     def improvement_sample(self):
         if not hasattr(self, '_improvement_sample'):
-            try:
-                self._improvement_sample = Response.objects.get(
-                    extra='is_planned',
-                    survey__title=self.report_title,
-                    account=self.account)
-            except Response.DoesNotExist:
-                self._improvement_sample = None
+            self._improvement_sample = Sample.objects.filter(
+                extra='is_planned',
+                survey__title=self.report_title,
+                account=self.account).order_by('-created_at').first()
         return self._improvement_sample
 
     def get_or_create_improve_sample(self):
-        # We create the response if it does not exists.
-        survey = SurveyModel.objects.get(title=self.report_title)
-        self._sample, _ = Response.objects.get_or_create(
-            extra='is_planned', survey=survey, account=self.account)
+        # We create the sample if it does not exists.
+        self._sample, _ = Sample.objects.get_or_create(
+            extra='is_planned', survey=self.survey, account=self.account)
 
     def get_queryset(self):
         return self.model.objects.filter(
-            response__extra='is_planned',
-            response__survey__title=self.report_title,
-            response__account=self.account)
+            sample__extra='is_planned',
+            sample__survey__title=self.report_title,
+            sample__account=self.account)
 
     def get_reverse_kwargs(self):
         """
@@ -510,9 +732,9 @@ class BestPracticeMixin(BreadcrumbMixin):
             return super(BestPracticeMixin, self).get_template_names()
         return ['envconnect/best_practice.html']
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super(
-            BestPracticeMixin, self).get_context_data(*args, **kwargs)
+            BestPracticeMixin, self).get_context_data(**kwargs)
         if not self.best_practice:
             return context
         context.update({

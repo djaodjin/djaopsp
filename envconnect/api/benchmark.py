@@ -1,81 +1,27 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import datetime, json, logging
+import json, logging
 
 from django.conf import settings
-from django.db import connection
 from django.utils import six
 from pages.mixins import TrailMixin
 from rest_framework import generics
-from rest_framework.response import Response as RestResponse
+from rest_framework.response import Response
 
 from .best_practices import DecimalEncoder, ToggleTagContentAPIView
 from ..mixins import ReportMixin, TransparentCut
-from ..models import Consumption, get_score_weight
+from ..models import get_score_weight, get_scored_answers
 from ..serializers import ScoreWeightSerializer
-
+from ..scores import populate_rollup
 
 LOGGER = logging.getLogger(__name__)
 
 
 class BenchmarkMixin(ReportMixin):
-
-    ACCOUNT_ID = 0
-    ANSWER_ID = 1
-    RESPONSE_ID = 2
-    QUESTION_ID = 3
-    NUMERATOR = 4
-    DENOMINATOR = 5
-    QUESTION_PATH = 6
-    ANSWER_CREATED_AT = 7
-    ANSWER_TEXT = 8
-
-    @staticmethod
-    def _show_query_and_result(raw_query, show=False):
-        if show:
-            LOGGER.debug("%s\n", raw_query)
-            with connection.cursor() as cursor:
-                cursor.execute(raw_query, params=None)
-                count = 0
-                for row in cursor.fetchall():
-                    LOGGER.debug(str(row))
-                    count += 1
-                LOGGER.debug("%d row(s)", count)
-
-    def decorate_with_breadcrumbs(self, rollup_tree,
-                                  icon=None, tag=None, breadcrumbs=None):
-        """
-        When this method returns each node in the rollup_tree will have
-        and icon and breadcumbs attributes. If a node does not have or
-        has an empty tag attribute, it will be set to the value of the
-        first parent's tag which is meaningful.
-        """
-        title = rollup_tree[0].get('title', "")
-        if isinstance(breadcrumbs, list) and title:
-            breadcrumbs.append(title)
-        elif rollup_tree[0].get('slug', "").startswith('sustainability-'):
-            breadcrumbs = []
-        icon_candidate = rollup_tree[0].get('text', "")
-        if icon_candidate and icon_candidate.endswith('.png'):
-            icon = icon_candidate
-        tag_candidate = rollup_tree[0].get('tag', "")
-        if tag_candidate:
-            tag = tag_candidate
-        rollup_tree[0].update({
-            'breadcrumbs':
-                list(breadcrumbs) if breadcrumbs else [title],
-            'icon': icon,
-            'icon_css': 'grey' if (tag and 'management' in tag) else 'orange'
-        })
-        for node in six.itervalues(rollup_tree[1]):
-            self.decorate_with_breadcrumbs(node, icon=icon, tag=tag,
-                breadcrumbs=breadcrumbs)
-        if breadcrumbs:
-            breadcrumbs.pop()
 
     def get_drilldown(self, rollup_tree, prefix):
         accounts = None
@@ -217,278 +163,39 @@ class BenchmarkMixin(ReportMixin):
         return charts, complete
 
     @staticmethod
-    def get_distributions(numerators, denominators, view_response=None):
+    def get_distributions(numerators, denominators, view_sample=None):
         distribution = {
             'x' : ["0-25%", "25-50%", "50-75%", "75-100%"],
             'y' : [0 for _ in range(4)],
             'normalized_score': 0,  # instead of 'ukn.' to avoid js error.
             'organization_rate': ""
         }
-        for response, numerator in six.iteritems(numerators):
-            denominator = denominators.get(response, 0)
+        for sample, numerator in six.iteritems(numerators):
+            denominator = denominators.get(sample, 0)
             if denominator != 0:
                 normalized_score = int(numerator * 100 / denominator)
             else:
                 normalized_score = 0
-            if response == view_response:
+            if sample == view_sample:
                 distribution['normalized_score'] = normalized_score
             if normalized_score < 25:
                 distribution['y'][0] += 1
-                if response == view_response:
+                if sample == view_sample:
                     distribution['organization_rate'] = distribution['x'][0]
             elif normalized_score < 50:
                 distribution['y'][1] += 1
-                if response == view_response:
+                if sample == view_sample:
                     distribution['organization_rate'] = distribution['x'][1]
             elif normalized_score < 75:
                 distribution['y'][2] += 1
-                if response == view_response:
+                if sample == view_sample:
                     distribution['organization_rate'] = distribution['x'][2]
             else:
                 assert normalized_score <= 100
                 distribution['y'][3] += 1
-                if response == view_response:
+                if sample == view_sample:
                     distribution['organization_rate'] = distribution['x'][3]
         return distribution
-
-    def get_expected_opportunities(self, is_planned=None):
-        questions_with_opportunity = Consumption.objects.get_opportunities_sql(
-            filter_out_testing=self._get_filter_out_testing())
-
-        # All expected questions for each response
-        # decorated with ``opportunity``.
-        #
-        # If we are only looking for all expected questions for each response,
-        # then the query can be simplified by using the survey_question table
-        # directly.
-        sep = ""
-        additional_filters = ""
-        if is_planned is not None:
-            additional_filters = "survey_response.extra = '%s'" % (
-                "is_planned" if is_planned else "")
-            sep = "AND "
-        if self._get_filter_out_testing():
-            additional_filters += "%ssurvey_response.id NOT IN (%s)" % (
-                sep, ', '.join(self._get_filter_out_testing()))
-        if additional_filters:
-            additional_filters = "WHERE %s" % additional_filters
-        expected_opportunities = """SELECT
-  questions_with_opportunity.question_id AS question_id,
-  survey_response.id AS response_id,
-  survey_response.extra AS is_planned,
-  survey_response.account_id AS account_id,
-  opportunity,
-  questions_with_opportunity.path AS path
-FROM (%(questions_with_opportunity)s) AS questions_with_opportunity
-INNER JOIN survey_response
-ON questions_with_opportunity.survey_id = survey_response.survey_id
-%(additional_filters)s
-""" % {'questions_with_opportunity': questions_with_opportunity,
-       'additional_filters': additional_filters}
-        self._show_query_and_result(expected_opportunities)
-        return expected_opportunities
-
-    def get_scored_answers(self, is_planned=None):
-        """
-        Set is_planned to `True` for assessment results only or is_planned
-        to `False` for improvement results only. Otherwise both.
-        """
-        # All expected answers with their scores.
-        # ACCOUNT_ID = 0
-        # ANSWER_ID = 1
-        # RESPONSE_ID = 2
-        # QUESTION_ID = 3
-        # NUMERATOR = 4
-        # DENOMINATOR = 5
-        # QUESTION_PATH = 6
-        # ANSWER_CREATED_AT = 7
-        # ANSWER_TEXT = 8
-        # RESPONSE_IS_PLANNED = 9 (assessment or improvement)
-        scored_answers = "SELECT expected_opportunities.account_id,"\
-            " survey_answer.id AS answer_id,"\
-            " expected_opportunities.response_id,"\
-            " expected_opportunities.question_id, "\
-          " CASE WHEN text = '%(yes)s' THEN (opportunity * 3)"\
-          "      WHEN text = '%(moderate_improvement)s' THEN (opportunity * 2)"\
-          "      WHEN text = '%(significant_improvement)s' THEN opportunity "\
-          "      ELSE 0.0 END AS numerator,"\
-          " CASE WHEN text IN"\
-            " (%(yes_no)s) THEN (opportunity * 3) ELSE 0.0 END AS denominator,"\
-            " expected_opportunities.path AS path,"\
-            " survey_answer.created_at,"\
-            " survey_answer.text,"\
-            " expected_opportunities.is_planned"\
-            " FROM (%(expected_opportunities)s) AS expected_opportunities"\
-            " LEFT OUTER JOIN survey_answer ON survey_answer.question_id"\
-            " = expected_opportunities.question_id"\
-            " AND survey_answer.response_id ="\
-            " expected_opportunities.response_id" % {
-                'yes': Consumption.YES,
-                'moderate_improvement': Consumption.NEEDS_MODERATE_IMPROVEMENT,
-                'significant_improvement':
-                    Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
-                'yes_no': ','.join(["'%s'" % val
-                    for val in Consumption.PRESENT + Consumption.ABSENT]),
-                'expected_opportunities': self.get_expected_opportunities(
-                    is_planned=is_planned)}
-        self._show_query_and_result(scored_answers)
-        return scored_answers
-
-    def get_scored_assessments(self):
-        """
-        Compute scores specifically related to assessments.
-        """
-        # All expected improvements with their scores.
-        scored_assessments = self.get_scored_answers(is_planned=False)
-        self._show_query_and_result(scored_assessments)
-        return scored_assessments
-
-    def get_scored_improvements(self):
-        """
-        Compute scores specifically related to improvements.
-        """
-        # All expected improvements with their scores.
-        scored_improvements = self.get_scored_answers(is_planned=True)
-        self._show_query_and_result(scored_improvements)
-        return scored_improvements
-
-    def populate_leafs(self, leafs, answers):
-        """
-        Populate all leafs with aggregated scores.
-        """
-        #pylint:disable=too-many-locals
-        for prefix, values_tuple in six.iteritems(leafs):
-            values = values_tuple[0]
-            agg_scores = """SELECT account_id, response_id, is_planned,
-    COUNT(answer_id) AS nb_answers,
-    COUNT(*) AS nb_questions,
-    SUM(numerator) AS numerator,
-    SUM(denominator) AS denominator,
-    MAX(created_at) AS last_activity_at
-FROM (%(answers)s) AS answers
-WHERE path LIKE '%(prefix)s%%'
-GROUP BY account_id, response_id, is_planned;""" % {
-    'answers': answers, 'prefix': prefix}
-            self._show_query_and_result(agg_scores)
-            with connection.cursor() as cursor:
-                cursor.execute(agg_scores, params=None)
-                for agg_score in cursor.fetchall():
-                    account_id = agg_score[0]
-                    #response_id = agg_score[1]
-                    is_planned = agg_score[2]
-                    nb_answers = agg_score[3]
-                    nb_questions = agg_score[4]
-                    numerator = agg_score[5]
-                    denominator = agg_score[6]
-                    created_at = agg_score[7]
-                    if not 'accounts' in values:
-                        values['accounts'] = {}
-                    accounts = values['accounts']
-                    if not account_id in accounts:
-                        accounts[account_id] = {}
-                    if is_planned:
-                        accounts[account_id].update({
-                            'improvement_numerator': numerator,
-                            'improvement_denominator': denominator})
-                        if not 'nb_answers' in accounts[account_id]:
-                            accounts[account_id].update({
-                                'nb_answers': nb_answers})
-                        if not 'nb_questions' in accounts[account_id]:
-                            accounts[account_id].update({
-                                'nb_questions': nb_questions})
-                        if not 'created_at' in accounts[account_id]:
-                            accounts[account_id].update({
-                                'created_at': created_at})
-                    else:
-                        accounts[account_id].update({
-                            'nb_answers': nb_answers,
-                            'nb_questions': nb_questions,
-                            'created_at': created_at
-                        })
-                        if nb_questions == nb_answers:
-                            accounts[account_id].update({
-                                'numerator': numerator,
-                                'denominator': denominator})
-
-    def populate_rollup(self, rollup_tree,
-                    numerator_key='numerator', denominator_key='denominator'):
-        """
-        Populate aggregated scores up the tree.
-        """
-        if len(rollup_tree[1].keys()) == 0:
-            for account_id, scores in six.iteritems(rollup_tree[0].get(
-                    'accounts', {})):
-                nb_answers = scores.get('nb_answers', 0)
-                nb_questions = scores.get('nb_questions', 0)
-                if nb_answers == nb_questions:
-                    denominator = scores.get(denominator_key, 0)
-                    if denominator > 0:
-                        scores['normalized_score'] = int(
-                            scores[numerator_key] * 100.0 / denominator)
-                        if 'improvement_numerator' in scores:
-                            scores['improvement_score'] = (
-                                scores['improvement_numerator'] * 100.0
-                                / denominator)
-                    else:
-                        scores['normalized_score'] = 0
-            return
-        values = rollup_tree[0]
-        if not 'accounts' in values:
-            values['accounts'] = {}
-        accounts = values['accounts']
-        slug = rollup_tree[0].get('slug', None)
-        for node in six.itervalues(rollup_tree[1]):
-            self.populate_rollup(node)
-            for account_id, scores in six.iteritems(
-                    node[0].get('accounts', {})):
-                if not account_id in accounts:
-                    accounts[account_id] = {}
-                agg_scores = accounts[account_id]
-                if not 'nb_answers' in agg_scores:
-                    agg_scores['nb_answers'] = 0
-                if not 'nb_questions' in agg_scores:
-                    agg_scores['nb_questions'] = 0
-
-                if 'created_at' in scores:
-                    if not ('created_at' in agg_scores and isinstance(
-                            agg_scores['created_at'], datetime.datetime)):
-                        agg_scores['created_at'] = scores['created_at']
-                    elif (isinstance(
-                            agg_scores['created_at'], datetime.datetime) and
-                          isinstance(scores['created_at'], datetime.datetime)):
-                        agg_scores['created_at'] = max(
-                            agg_scores['created_at'], scores['created_at'])
-                nb_answers = scores['nb_answers']
-                nb_questions = scores['nb_questions']
-                if slug != 'totals' or nb_answers > 0:
-                    # Aggregation of total scores is different. We only want to
-                    # count scores for self-assessment that matter
-                    # for an organization's industry.
-                    agg_scores['nb_answers'] += nb_answers
-                    agg_scores['nb_questions'] += nb_questions
-                    for key in [numerator_key, denominator_key,
-                                'improvement_numerator']:
-                        agg_scores[key] = agg_scores.get(key, 0) + (
-                            scores.get(key, 0)
-                            * node[0].get('score_weight', 1.0))
-        for account_id, agg_scores in six.iteritems(accounts):
-            nb_answers = agg_scores.get('nb_answers', 0)
-            nb_questions = agg_scores.get('nb_questions', 0)
-            if nb_answers == nb_questions:
-                # If we don't have the same number of questions
-                # and answers, numerator and denominator are meaningless.
-                denominator = agg_scores.get(denominator_key, 0)
-                agg_scores.update({
-                    'normalized_score': int(agg_scores[numerator_key] * 100.0
-                        / denominator) if denominator > 0 else 0})
-                if 'improvement_numerator' in agg_scores:
-                    agg_scores.update({
-                        'improvement_score': (
-                            agg_scores['improvement_numerator'] * 100.0
-                            / denominator) if denominator > 0 else 0})
-            else:
-                agg_scores.pop(numerator_key, None)
-                agg_scores.pop(denominator_key, None)
 
     def rollup_scores(self, roots=None, root_prefix=None):
         """
@@ -509,9 +216,10 @@ GROUP BY account_id, response_id, is_planned;""" % {
                 'tag': [settings.TAG_SCORECARD]})
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
-        self.populate_leafs(leafs, self.get_scored_answers())
+        self.populate_leafs(
+            leafs, get_scored_answers(excludes=self._get_filter_out_testing()))
         self._report_queries("leafs populated")
-        self.populate_rollup(rollup_tree)
+        populate_rollup(rollup_tree, True)
         self._report_queries("rollup_tree populated")
         return rollup_tree
 
@@ -592,7 +300,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
     def get_queryset(self):
         #pylint:disable=too-many-locals
         from_root, trail = self.breadcrumbs
-        roots = [trail[-1][0]] if len(trail) > 0 else None
+        roots = [trail[-1][0]] if trail else None
         rollup_tree = self.rollup_scores(roots, from_root)
         self.create_distributions(rollup_tree,
             view_account=self.sample.account.pk)
@@ -603,6 +311,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         parts = from_root.split('/')
         if parts:
             slug = parts[-1]
+        # When we remove the following 4 lines ...
             for chart in charts:
                 if chart['slug'] == slug:
                     total_score = chart.copy()
@@ -612,13 +321,14 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         if not total_score:
             total_score = {"nb_respondents": "-"}
         total_score.update({"slug": "totals", "title": "Total Score"})
+        # ... and the following 2 lines together, pylint does not blow up...
         if not complete and 'normalized_score' in total_score:
             del total_score['normalized_score']
         charts += [total_score]
         return charts
 
-    def get(self, request, *args, **kwargs):
-        return RestResponse(self.get_queryset())
+    def get(self, request, *args, **kwargs): #pylint:disable=unused-argument
+        return Response(self.get_queryset())
 
 
 class EnableScorecardAPIView(ToggleTagContentAPIView):
@@ -638,7 +348,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         trail = self.get_full_element_path(self.kwargs.get('path'))
-        return RestResponse(self.serializer_class().to_representation({
+        return Response(self.serializer_class().to_representation({
             'weight': get_score_weight(trail[-1].tag)}))
 
     def update(self, request, *args, **kwargs):#pylint:disable=unused-argument
@@ -646,7 +356,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
         serializer = self.serializer_class(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        return RestResponse(serializer.data)
+        return Response(serializer.data)
 
     def perform_update(self, serializer):
         trail = self.get_full_element_path(self.kwargs.get('path'))

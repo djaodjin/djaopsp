@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, DjaoDjin inc.
+/* Copyright (c) 2018, DjaoDjin inc.
    see LICENSE. */
 
 /* Functionality related to the envconnect API.
@@ -113,7 +113,6 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
                             attachPath = parts.join('/');
                             var headingNode = scope.getEntriesRecursive(
                                 scope.entries, attachPath);
-                            console.log("XXX headingNode[1]=", headingNode[1]);
                             var idx = 0;
                             for( var path in headingNode[1] ) {
                                 if( headingNode[1].hasOwnProperty(path) ) {
@@ -362,32 +361,37 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     /** Linearize the tree into a list of rows.
      */
-    $scope.getEntriesAsRows = function(root, results) {
-        var header_num = results.length;
-        root[0].header_num = header_num;
-        for( var key in root[1] ) {
-            if( root[1].hasOwnProperty(key) ) {
-                var node = root[1][key];
-                if( node[0].consumption ) {
-                    node[0].header_num = header_num;
-                    results.push(node);
-                } else {
-                    results.push(node);
-                    $scope.getEntriesAsRows(node, results);
+    $scope.getEntriesAsRowsRecursive = function(root, results, limit, depth) {
+        if (typeof limit === 'undefined' || depth < limit) {
+            var header_num = results.length;
+            root[0].header_num = header_num;
+            for( var key in root[1] ) {
+                if( root[1].hasOwnProperty(key) ) {
+                    var node = root[1][key];
+                    if( node[0].consumption ) {
+                        node[0].header_num = header_num;
+                        results.push(node);
+                    } else {
+                        results.push(node);
+                        $scope.getEntriesAsRowsRecursive(node, results, limit, depth+1);
+                    }
                 }
             }
         }
     };
 
+    $scope.getEntriesAsRows = function (root, results, limit) {
+        $scope.getEntriesAsRowsRecursive(root, results, limit, 0);
+    };
 
     /** Extract a subtree rooted at *prefix* and linearize it
         into a list of rows.
      */
-    $scope.getEntries = function(prefix) {
+    $scope.getEntries = function(prefix, limit) {
         var results = [];
         var node = $scope.getEntriesRecursive($scope.entries, prefix);
         if( node ) {
-            $scope.getEntriesAsRows(node, results);
+            $scope.getEntriesAsRows(node, results, limit);
         }
         return results;
     };
@@ -821,6 +825,15 @@ envconnectControllers.controller("EnvconnectCtrl",
             });
     };
 
+    $scope.demoteBestPractice = function($event) {
+        var iconParent = angular.element($event.toElement).parents(".squared-tabs-li");
+        var startPath = iconParent.data('id');
+        var tableParent = angular.element($event.target).parents("table");
+        var attachPath = tableParent.data('prefix');
+
+        $scope.moveBestPractice(startPath, attachPath, null, "demote");
+    };
+
     $scope.indentHeader = function(practice, prefix) {
         var parts = practice[0].path.replace(prefix, '').split("/");
         var indentSpace = 0
@@ -874,8 +887,13 @@ envconnectControllers.controller("EnvconnectCtrl",
                 attachPath = candidatePath;
             }
         }
+
         if( !attachPath ) {
-            attachPath = prefix;
+            if (prefix.split("/").length > movedDepth) {
+                attachPath = prefix.split("/").slice(0, movedDepth).join("/");
+            } else {
+                attachPath = prefix;
+            }
         }
         $scope.moveBestPractice(startPath, attachPath, null, "toUpperLevel");
     };
@@ -894,8 +912,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         for( var idx = 0; idx < practices.length; ++idx ) {
             if( practices[idx][0].consumption ) {
                 practices[idx][0].consumption.implemented = answer;
-                $http.put(settings.urls.api_self_assessment_response + "/" + practices[idx][0].consumption.rank + "/",
-                    {text: answer}).then(
+                $http.put(settings.urls.api_assessment_sample + "/" + practices[idx][0].consumption.rank + "/",
+                    {measured: answer}).then(
                     function success() {
                     },
                     function error(resp) {
@@ -967,22 +985,88 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
     };
 
-	$scope.showSaveMessage = function ($event) {
-		clearMessages();
-		showMessages(['Your changes have been saved.'], 'info');
-	};
+    $scope.showSaveMessage = function ($event) {
+        clearMessages();
+        showMessages(['Your changes have been saved.'], 'info');
+    };
 
-	$scope.freezeSelfAssessment = function ($event) {
-		$event.preventDefault();
-
-		$http.put(settings.urls.api_self_assessment_response, {is_frozen: true}).then(
+    // Methods dealing with assessments
+    // --------------------------------
+    $scope.createAssessment = function() {
+        $http.post(settings.urls.api_assessment_sample_new, {
+            'campaign': 'best-practices-report'}).then(
             function success(resp) {
-                showMessages(["Success!"], "info");
+                window.location = ""; // reload.
             },
             function error(resp) {
                 showErrorMessages(resp);
         });
-	};
+        return 0;
+    }
+
+    $scope.freezeAssessment = function ($event, $title, next) {
+        $event.preventDefault();
+        var title = $title;
+        if( typeof title === 'undefined' ) {
+            title = "assessment";
+        }
+        $http.put(settings.urls.api_assessment_sample, {is_frozen: true}).then(
+            function success(resp) {
+                var msgs = ["You have completed the " + title + ". Thank you!"];
+                if( typeof next !== 'undefined' ) {
+                    msgs.push(next);
+                }
+                showMessages(msgs, "info");
+            },
+            function error(resp) {
+                showErrorMessages(resp);
+        });
+    };
+
+    $scope._resetAssessmentRecursive = function(root) {
+        if( typeof root[0] === 'undefined' ) return;
+        if( root[0].hasOwnProperty('consumption')
+            && root[0].consumption
+            && root[0].consumption.hasOwnProperty('implemented') ) {
+            root[0].consumption.implemented = "";
+        } else {
+            for( var key in root[1] ) {
+                if( root[1].hasOwnProperty(key) ) {
+                    var node = root[1][key];
+                    $scope._resetAssessmentRecursive(node);
+                }
+            }
+        }
+    }
+
+    $scope.resetAssessment = function ($event) {
+        $event.preventDefault();
+        $http.post(settings.urls.api_assessment_sample + 'reset/').then(
+            function success(resp) {
+                $scope._resetAssessmentRecursive($scope.entries);
+                showMessages([
+                    "You have reset all answers in the current assessment."],
+                    "success");
+            },
+            function error(resp) {
+                showErrorMessages(resp);
+        });
+    };
+
+    // Call on the API to update an assessment answer
+    $scope.updateAssessmentAnswer = function(practice, newValue) {
+        var rank = "" + practice.consumption.rank;
+        $http.put(settings.urls.api_assessment_sample + rank + "/", {
+            measured: newValue
+        }).then(
+            function success(resp) {
+                practice.consumption = resp.data;
+            },
+            function error(resp) {
+                showErrorMessages(resp);
+            }
+        );
+    };
 
     var savingsElements = angular.element("#improvement-dashboard").find(".savings");
     if( savingsElements.length > 0 ) {
@@ -1009,8 +1093,8 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     $scope.totalItems = 0;
     $scope.opened = { "start_at": false, "ends_at": false };
     $scope.params = {};
-    $scope.params['o'] = settings.sortByField || "full_name";
-    $scope.params['ot'] = settings.sortDirection || "desc";
+    $scope.params['o'] = settings.sortByField || "printable_name";
+    $scope.params['ot'] = settings.sortDirection || "asc";
     $scope.dir[$scope.params['o']] = $scope.params['ot'];
     if( settings.date_range && settings.date_range.start_at ) {
         $scope.params['start_at'] = moment(settings.date_range.start_at).toDate();
@@ -1235,59 +1319,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
 (function ($) {
     "use strict";
 
-    /** Plug-in to connect the self-assessment UI to the API.
-
-        HTML requirements:
-
-        <tr data-id="*consumption.path*">
-          <td>
-              <input type="radio" name="implemented-*?*" value="Yes">Yes
-          </td>
-          <td><input type="radio" name="implemented-*?*" value="No">No
-          </td>
-        </tr>
-    */
-    function SelfAssessment(el, options){
-        this.element = $(el);
-        this.options = options;
-        this.init();
-    }
-
-    SelfAssessment.prototype = {
-        init: function () {
-            var self = this;
-
-            self.element.find("input[type=\"radio\"]").change(function(event) {
-                var element = $(this);
-                var name = element.attr("name").replace("implemented-", "");
-                var answer = element.val();
-                $.ajax({
-                    url: self.options.survey_api_response + "/" + name + "/",
-                    method: "PUT",
-                    data: JSON.stringify({text: answer}),
-                    datatype: "json",
-                    contentType: "application/json; charset=utf-8",
-                    success: function() { return true; },
-                    error: function(resp) { showErrorMessages(resp); }
-                });
-            });
-        },
-    };
-
-    $.fn.selfAssessment = function(options) {
-        var opts = $.extend( {}, $.fn.selfAssessment.defaults, options );
-        return this.each(function() {
-            if (!$.data(this, "selfAssessment")) {
-                $.data(this, "selfAssessment", new SelfAssessment(this, opts));
-            }
-        });
-    };
-
-    $.fn.selfAssessment.defaults = {
-        survey_api_response: null,
-    };
-
-    /** Plug-in to connect the self-assessment UI to the API.
+    /** Plug-in to connect scorecard/improvement dashboard UI to the API.
 
         HTML requirements:
 
@@ -1368,7 +1400,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                         radialProgress(totalScoreElement[0])
                             .value1(data[idx].highest_normalized_score)
                             .value2(data[idx].avg_normalized_score)
-							.value3(self.options.scoreFunc(data[idx]))
+                            .value3(self.options.scoreFunc(data[idx]))
                             .render();
                     } else {
                         if( totalScoreElement.find(".totals-chart").length === 0 ) {
@@ -1449,7 +1481,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     $.fn.improvementDashboard.defaults = {
         api_account_benchmark: null,
         benchmark: null,
-		scoreFunc: function(elem) { return elem.normalized_score }
+        scoreFunc: function(elem) { return elem.normalized_score }
     };
 
 })(jQuery);

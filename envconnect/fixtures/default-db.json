@@ -4,9 +4,58 @@
     "title" : "Best Practices Report",
     "description" : "Best Practices Report",
     "account" : 6,
-    "published": true
+    "active": true
   },
-  "model" : "survey.surveymodel", "pk" : 1
+  "model" : "survey.campaign", "pk" : 1
+},
+{ "fields": {
+    "slug": "assessment",
+    "title": "Assessment",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk" : 1
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 1,
+    "text": "Yes"
+  },
+  "model" : "survey.choice", "pk" : 1
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 2,
+    "text": "Yes, but needs a little improvement"
+  },
+  "model" : "survey.choice", "pk" : 2
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 3,
+    "text": "Yes, but needs a lot of improvement"
+  },
+  "model" : "survey.choice", "pk" : 3
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 4,
+    "text": "No"
+  },
+  "model" : "survey.choice", "pk" : 4
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 5,
+    "text": "Not applicable"
+  },
+  "model" : "survey.choice", "pk" : 5
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 6,
+    "text": "No/needs improvement"
+  },
+  "model" : "survey.choice", "pk" : 6
 },
 {
     "fields": {
@@ -208,17 +257,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/product-design",
     "text": "Product Design",
     "question_type": "integer",
-    "correct_answer": "Yes",
-    "rank": 1
+    "unit": 1
   },
   "model": "survey.Question", "pk": 1
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/product-design",
+    "campaign": 1,
+    "question": 1,
+    "rank": 1
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 1
+},
+{
+  "fields": {
     "question": 1,
     "avg_energy_saving": "* * *",
     "capital_cost": "$$$",
@@ -241,17 +296,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/packaging-design",
     "text": "Packaging Design",
     "question_type": "radio",
-    "correct_answer": "Yes",
-    "rank": 2
+    "unit": 1
   },
   "model": "survey.Question", "pk": 2
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/packaging-design",
+    "campaign": 1,
+    "question": 2,
+    "rank": 2
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 2
+},
+{
+  "fields": {
     "question": 2,
     "avg_energy_saving": "* * * *",
     "capital_cost": "$$$",
@@ -473,17 +534,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
     "text": "Adjust air/fuel ratio",
     "question_type": "radio",
-    "correct_answer": "Yes",
-    "rank": 3
+    "unit": 1
   },
   "model": "survey.Question", "pk": 3
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
+    "campaign": 1,
+    "question": 3,
+    "rank": 3
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 3
+},
+{
+  "fields": {
     "question": 3,
     "avg_energy_saving": "* * * *",
     "capital_cost": "$$",
@@ -513,17 +580,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
     "text": "Reduce combustion air flow to optimum",
     "question_type": "radio",
-    "correct_answer": "Yes",
-    "rank": 4
+    "unit": 1
   },
   "model": "survey.Question", "pk": 4
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
+    "campaign": 1,
+    "question": 4,
+    "rank": 4
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 4
+},
+{
+  "fields": {
     "question": 4,
     "avg_energy_saving": "* * *",
     "capital_cost": "$$",
@@ -709,17 +782,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/basic-boxes-and-enclosures/basic-production/basic-production-bp",
     "text": "Production BP",
     "question_type": "radio",
-    "correct_answer": "Yes",
-    "rank": 5
+    "unit": 1
   },
   "model": "survey.Question", "pk": 5
 },
 {
   "fields": {
-    "path": "/basic-boxes-and-enclosures/basic-production/basic-production-bp",
+    "campaign": 1,
+    "question": 5,
+    "rank": 5
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 5
+},
+{
+  "fields": {
     "question": 5,
     "avg_fuel_saving": "*",
     "avg_energy_saving": "* * *",
@@ -772,17 +851,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
     "text": "Recover heat from hot waste water",
     "question_type": "radio",
-    "correct_answer": "Yes",
-    "rank": 6
+    "unit": 1
   },
   "model": "survey.Question", "pk": 6
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
+    "campaign": 1,
+    "question": 6,
+    "rank": 6
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 6
+},
+{
+  "fields": {
     "question": 6,
     "avg_fuel_saving": "-",
     "avg_energy_saving": "* * * *",
@@ -813,17 +898,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
     "text": "Reduce hot water temperature to minimum required",
     "question_type": "radio",
-    "correct_answer": "Yes",
-    "rank": 7
+    "unit": 1
   },
   "model": "survey.Question", "pk": 7
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
+    "campaign": 1,
+    "question": 7,
+    "rank": 7
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 7
+},
+{
+  "fields": {
     "question": 7,
     "avg_fuel_saving": "-",
     "avg_energy_saving": "* * * *",
@@ -1177,17 +1268,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
     "text": "The assessment process is rigorous and thorough*",
     "question_type": "radio",
-    "correct_answer": "Yes",
-    "rank": 8
+    "unit": 1
   },
   "model": "survey.Question", "pk": 8
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
+    "campaign": 1,
+    "question": 8,
+    "rank": 8
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 8
+},
+{
+  "fields": {
     "question": 8,
     "avg_fuel_saving": "*",
     "avg_energy_saving": "* * *",
@@ -1218,17 +1315,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/general/a-policy-is-in-place-appropriate-to-the-nature-and-scale",
     "text": "The assessment process is rigorous and thorough*",
     "question_type": "radio",
-    "correct_answer": "Yes",
-    "rank": 9
+    "unit": 1
   },
   "model": "survey.Question", "pk": 9
 },
 {
   "fields": {
-    "path": "/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/general/a-policy-is-in-place-appropriate-to-the-nature-and-scale",
+    "campaign": 1,
+    "question": 9,
+    "rank": 9
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 9
+},
+{
+  "fields": {
     "question": 9,
     "avg_fuel_saving": "*",
     "avg_energy_saving": "* * *",
@@ -1244,17 +1347,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/construction/sustainability-construction/management-construction/process-in-place",
     "text": "A Process is in place",
     "question_type": "radio",
-    "correct_answer": "Yes",
-    "rank": 10
+    "unit": 1
   },
   "model": "survey.Question", "pk": 10
 },
 {
   "fields": {
-    "path": "/construction/sustainability-construction/management-construction/process-in-place",
+    "campaign": 1,
+    "question": 10,
+    "rank": 10
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 10
+},
+{
+  "fields": {
     "question": 10,
     "avg_energy_saving": "* * *",
     "capital_cost": "$$$",
@@ -1283,7 +1392,7 @@
     "time_spent": "0:00:00",
     "is_frozen": false
   },
-  "model": "survey.response", "pk": 1
+  "model": "survey.sample", "pk": 1
 },
 {
   "fields": {
@@ -1294,112 +1403,110 @@
     "time_spent": "0:00:00",
     "is_frozen": false
   },
-  "model": "survey.response", "pk": 2
+  "model": "survey.sample", "pk": 2
 },
 {
   "fields": {
     "created_at": "2016-07-15T00:35:38.945Z",
-    "updated_at": "2016-07-15T00:35:38.945Z",
     "question": 8,
-    "response": 1,
-    "rank": 8,
-    "text": "Yes"
+    "measured": 1,
+    "collected_by": 8,
+    "sample": 1,
+    "rank": 8
   },
   "model": "survey.answer", "pk": 1
 },
 {
   "fields": {
     "created_at": "2016-07-15T00:35:42.110Z",
-    "updated_at": "2016-07-15T00:35:42.110Z",
     "question": 9,
-    "response": 1,
-    "rank": 9,
-    "text": "Optimizing"
+    "measured": 2,
+    "collected_by": 8,
+    "sample": 1,
+    "rank": 9
   },
   "model": "survey.answer", "pk": 2
 },
 {
   "fields": {
     "created_at": "2016-07-15T00:35:55.915Z",
-    "updated_at": "2016-07-15T00:35:55.915Z",
     "question": 1,
-    "response": 1,
-    "rank": 1,
-    "text": "Yes"
+    "measured": 1,
+    "collected_by": 8,
+    "sample": 1,
+    "rank": 1
   },
   "model": "survey.answer", "pk": 3
 },
 {
   "fields": {
     "created_at": "2016-07-15T00:35:58.183Z",
-    "updated_at": "2016-07-15T00:35:58.183Z",
     "question": 2,
-    "response": 1,
-    "rank": 2,
-    "text": "Yes"
+    "measured": 1,
+    "collected_by": 8,
+    "sample": 1,
+    "rank": 2
   },
   "model": "survey.answer", "pk": 4
 },
 {
   "fields": {
     "created_at": "2016-07-15T00:36:16.558Z",
-    "updated_at": "2016-07-15T00:36:16.558Z",
     "question": 3,
-    "response": 1,
-    "rank": 3,
-    "text": "Yes"
+    "measured": 1,
+    "collected_by": 8,
+    "sample": 1,
+    "rank": 3
   },
   "model": "survey.answer", "pk": 5
 },
 {
   "fields": {
     "created_at": "2016-07-15T00:36:17.276Z",
-    "updated_at": "2016-07-15T00:36:17.276Z",
     "question": 4,
-    "response": 1,
-    "rank": 4,
-    "text": "Yes"
+    "measured": 1,
+    "collected_by": 8,
+    "sample": 1,
+    "rank": 4
   },
   "model": "survey.answer", "pk": 6
 },
 {
   "fields": {
     "created_at": "2016-07-15T00:36:18.464Z",
-    "updated_at": "2016-07-15T00:36:18.464Z",
     "question": 6,
-    "response": 1,
-    "rank": 6,
-    "text": "No/needs improvement"
+    "measured": 4,
+    "collected_by": 8,
+    "sample": 1,
+    "rank": 6
   },
   "model": "survey.answer", "pk": 7
 },
 {
   "fields": {
     "created_at": "2016-07-15T00:36:19.448Z",
-    "updated_at": "2016-07-15T00:36:19.448Z",
     "question": 7,
-    "response": 1,
-    "rank": 7,
-    "text": "Yes"
+    "measured": 1,
+    "collected_by": 8,
+    "sample": 1,
+    "rank": 7
   },
   "model": "survey.answer", "pk": 8
 },
 {
   "fields": {
     "created_at": "2016-05-01T00:36:19.448Z",
-    "updated_at": "2016-05-01T00:36:19.448Z",
     "question": 7,
-    "response": 2,
-    "rank": 7,
-    "text": "Yes"
+    "measured": 1,
+    "collected_by": 8,
+    "sample": 2,
+    "rank": 7
   },
   "model": "survey.answer", "pk": 9
 },
 {
   "fields": {
     "slug": "totals",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "Total score",
     "tags": "metric"
   },
@@ -1408,8 +1515,6 @@
 {
   "fields": {
     "slug": "pge-suppliers",
-    "created_at": "2016-07-14T00:17:43.890Z",
-    "updated_at": "2016-07-14T00:17:43.890Z",
     "title": "PG&E suppliers",
     "tags": "cohort, aggregate"
   },
@@ -1417,8 +1522,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-14T17:21:00.873Z",
-    "updated_at": "2016-07-14T17:21:00.873Z",
     "rank": 0,
     "editable_filter": 2,
     "operator": "contains",
@@ -1431,8 +1534,6 @@
 {
   "fields": {
     "slug": "us-suppliers",
-    "created_at": "2016-07-14T00:17:43.890Z",
-    "updated_at": "2016-07-14T00:17:43.890Z",
     "title": "US suppliers",
     "tags": "cohort, aggregate"
   },
@@ -1440,8 +1541,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-14T17:21:00.873Z",
-    "updated_at": "2016-07-14T17:21:00.873Z",
     "rank": 0,
     "editable_filter": 3,
     "operator": "equals",
@@ -1454,8 +1553,6 @@
 {
   "fields": {
     "slug": "management-basics",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "Management basics (Boxes and enclosures)",
     "tags": "metric"
   },
@@ -1463,8 +1560,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:25:50.719Z",
-    "updated_at": "2016-07-15T00:25:50.719Z",
     "rank": 0,
     "editable_filter": 4,
     "operator": "startsWith",
@@ -1477,8 +1572,6 @@
 {
   "fields": {
     "slug": "design",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "Design (Boxes and enclosures)",
     "tags": "metric"
   },
@@ -1486,8 +1579,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:25:50.719Z",
-    "updated_at": "2016-07-15T00:25:50.719Z",
     "rank": 0,
     "editable_filter": 5,
     "operator": "startsWith",
@@ -1500,8 +1591,6 @@
 {
   "fields": {
     "slug": "energy-efficiency",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "Production / Energy efficiency (Boxes and enclosures)",
     "tags": "metric"
   },
@@ -1509,8 +1598,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:25:50.719Z",
-    "updated_at": "2016-07-15T00:25:50.719Z",
     "rank": 0,
     "editable_filter": 6,
     "operator": "startsWith",
@@ -1523,8 +1610,6 @@
 {
   "fields": {
     "slug": "waste-management",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "Production / Waste management (Boxes and enclosures)",
     "tags": "metric"
   },
@@ -1532,8 +1617,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:25:50.719Z",
-    "updated_at": "2016-07-15T00:25:50.719Z",
     "rank": 0,
     "editable_filter": 7,
     "operator": "startsWith",
@@ -1546,8 +1629,6 @@
 {
   "fields": {
     "slug": "green-chemistry",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "Production / Green chemistry (Boxes and enclosures)",
     "tags": "metric"
   },
@@ -1555,8 +1636,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:25:50.719Z",
-    "updated_at": "2016-07-15T00:25:50.719Z",
     "rank": 0,
     "editable_filter": 8,
     "operator": "startsWith",
@@ -1569,8 +1648,6 @@
 {
   "fields": {
     "slug": "packaging",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "Distribution / Packaging (Boxes and enclosures)",
     "tags": "metric"
   },
@@ -1578,8 +1655,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:25:50.719Z",
-    "updated_at": "2016-07-15T00:25:50.719Z",
     "rank": 0,
     "editable_filter": 9,
     "operator": "startsWith",
@@ -1592,8 +1667,6 @@
 {
   "fields": {
     "slug": "fleet",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "Distribution / Fleet (Boxes and enclosures)",
     "tags": "metric"
   },
@@ -1601,8 +1674,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:25:50.719Z",
-    "updated_at": "2016-07-15T00:25:50.719Z",
     "rank": 0,
     "editable_filter": 10,
     "operator": "startsWith",
@@ -1615,8 +1686,6 @@
 {
   "fields": {
     "slug": "take-back-program",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "End of life / Take back program (Boxes and enclosures)",
     "tags": "metric"
   },
@@ -1624,8 +1693,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:25:50.719Z",
-    "updated_at": "2016-07-15T00:25:50.719Z",
     "rank": 0,
     "editable_filter": 11,
     "operator": "startsWith",
@@ -1638,8 +1705,6 @@
 {
   "fields": {
     "slug": "recycling",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "End of life / Take back program (Boxes and enclosures)",
     "tags": "metric"
   },
@@ -1647,8 +1712,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:25:50.719Z",
-    "updated_at": "2016-07-15T00:25:50.719Z",
     "rank": 0,
     "editable_filter": 12,
     "operator": "startsWith",
@@ -1661,8 +1724,6 @@
 {
   "fields": {
     "slug": "boxes-and-enclosures-1",
-    "created_at": "2016-07-14T00:17:43.890Z",
-    "updated_at": "2016-07-14T00:17:43.890Z",
     "title": "Boxes & enclosures",
     "tags": "cohort"
   },
@@ -1670,8 +1731,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-14T17:21:00.873Z",
-    "updated_at": "2016-07-14T17:21:00.873Z",
     "rank": 0,
     "editable_filter": 13,
     "operator": "contains",
@@ -1684,8 +1743,6 @@
 {
   "fields": {
     "slug": "construction",
-    "created_at": "2016-07-14T00:17:43.890Z",
-    "updated_at": "2016-07-14T00:17:43.890Z",
     "title": "Construction",
     "tags": "cohort"
   },
@@ -1693,8 +1750,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-14T17:21:00.873Z",
-    "updated_at": "2016-07-14T17:21:00.873Z",
     "rank": 0,
     "editable_filter": 14,
     "operator": "contains",
@@ -1708,7 +1763,6 @@
   "fields": {
     "slug": "totals",
     "account": 6,
-    "created_at": "2016-07-14T00:17:17.096Z",
     "title": "Total scores by supplier industry sub-sector",
     "metric": 1,
     "cohorts": [13, 14, 2, 3]
@@ -1720,7 +1774,6 @@
     "slug": "boxes-and-enclosures",
     "title": "Boxes and enclosures scores by suppliers",
     "account": 6,
-    "created_at": "2016-07-14T00:17:17.096Z",
     "metric": 15,
     "cut": 13,
     "cohorts": [2, 3]
@@ -1730,8 +1783,6 @@
 {
   "fields": {
     "slug": "boxes-and-enclosures",
-    "created_at": "2016-07-15T00:16:39.487Z",
-    "updated_at": "2016-07-15T00:25:50.716Z",
     "title": "Boxes and enclosures",
     "tags": "metric"
   },
@@ -1739,8 +1790,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:25:50.719Z",
-    "updated_at": "2016-07-15T00:25:50.719Z",
     "rank": 0,
     "editable_filter": 15,
     "operator": "startsWith",
@@ -1885,17 +1934,23 @@
 },
 {
   "fields": {
-    "survey": 1,
+    "path": "/wire-and-cable/sustainability-wire-and-cable/wc-design/design-categories/product-design",
     "text": "Product Design",
     "question_type": "radio",
-    "correct_answer": "Yes",
-    "rank": 11
+    "unit": 1
   },
   "model": "survey.Question", "pk": 11
 },
 {
   "fields": {
-    "path": "/wire-and-cable/sustainability-wire-and-cable/wc-design/design-categories/product-design",
+    "campaign": 1,
+    "question": 11,
+    "rank": 11
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 11
+},
+{
+  "fields": {
     "question": 11,
     "avg_energy_saving": "* * *",
     "capital_cost": "$$$",

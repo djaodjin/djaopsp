@@ -8,7 +8,7 @@ from rest_framework.generics import (get_object_or_404, ListAPIView,
 from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
     DestroyModelMixin)
 from rest_framework.response import Response
-from survey.models import Answer, Question
+from survey.models import Answer, Question, EnumeratedQuestions
 
 from ..mixins import ImprovementQuerySetMixin
 from ..models import Consumption
@@ -44,6 +44,13 @@ class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
 class ImprovementToggleAPIView(ImprovementQuerySetMixin,
                                 CreateModelMixin, RetrieveModelMixin,
                                 DestroyModelMixin, GenericAPIView):
+    """
+    Assessment:
+    implementation rate, nb respondents
+    "implemented by you?"
+    opportunity score
+    selected from improvement
+    """
 
     serializer_class = ImprovementSerializer
 
@@ -57,15 +64,19 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
         with transaction.atomic():
             self.get_or_create_improve_sample()
             with transaction.atomic():
-                # Implementation Note: We need to set the `text` field
+                # Implementation Note: We need to set the `measured` field
                 # otherwise `get_scored_answers` will return a numerator
                 # of zero. We use `NEEDS_SIGNIFICANT_IMPROVEMENT` such
                 # as to be conservative in the calculation.
+                rank = EnumeratedQuestions.objects.get(
+                    campaign=self.improvement_sample.survey,
+                    question=question).rank
                 _, created = self.model.objects.get_or_create(
-                    response=self.improvement_sample,
-                    rank=question.rank,
+                    sample=self.improvement_sample,
                     question=question,
-                    defaults={'text':Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT})
+                    defaults={
+                        'measured': Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
+                        'rank': rank})
         return Response({},
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
@@ -86,4 +97,3 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
-

@@ -289,7 +289,7 @@ APP_STATIC_ROOT = HTDOCS + '/static'
 if DEBUG:
     STATIC_ROOT = ''
     # Additional locations of static files
-    STATICFILES_DIRS = (APP_STATIC_ROOT,)
+    STATICFILES_DIRS = (APP_STATIC_ROOT, HTDOCS,)
     STATIC_URL = '/%s/static/' % APP_NAME
 else:
     STATIC_ROOT = APP_STATIC_ROOT
@@ -486,6 +486,7 @@ VERSION_REGISTERED_APP = (
 # ------------
 REST_FRAMEWORK = {
     'PAGE_SIZE': 25,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
 }
 
 # envconnect

@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 import json, markdown, re
@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.utils import six
 from django.utils.safestring import mark_safe
 from pages.models import PageElement
+from survey.models import Choice
 
 from ..models import Consumption
 
@@ -25,8 +26,10 @@ def is_broker_manager(request):
 
 @register.filter
 def assessment_choices(tag):
-    return Consumption.ASSESSMENT_CHOICES.get(tag,
-        Consumption.ASSESSMENT_CHOICES.get('default'))
+    return [val['text'] for val in Choice.objects.filter(
+        pk__in=Consumption.ASSESSMENT_CHOICES.get(tag,
+        Consumption.ASSESSMENT_CHOICES.get('default'))).order_by('rank').values(
+        'text')]
 
 @register.filter
 def is_icon(title):
@@ -72,18 +75,6 @@ def category_entry(breadcrumbs, category=None):
                 return path
         path += "/" + breadcrumb[0].slug
     return path
-
-
-@register.filter
-def nb_self_assessment_questions(practices):
-    result = 0
-    for practice in practices:
-        if len(practice[1]) == 0:
-            result += 1
-        elif (len(practice[1]) > 0
-              and settings.TAG_SYSTEM not in practice[0].tag):
-            result += 1
-    return result
 
 
 @register.filter(is_safe=True)

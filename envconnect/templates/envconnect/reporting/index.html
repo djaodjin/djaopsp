@@ -25,7 +25,7 @@
              ng-change="toggleMyTSP($event)">
     </div>
   </div>
-  <div id="planel-icons" class="panel-icons{% block extra_panel_icons_classes %} panel-icons-no-benchmark{% endblock %}">
+  <div id="panel-icons" class="panel-icons{% block extra_panel_icons_classes %} panel-icons-no-benchmark{% endblock %}">
     <div class="panel-body">
 
 <div ng-controller="envconnectMyTSPReporting">
@@ -41,11 +41,11 @@
     <thead>
       <tr>
         <th></th>
-        <th>Supplier/facility<button class="btn-link btn-sort" ng-click="sortBy('slug')"><i class="fa fa-sort[[dir.slug ? ('-' + dir.slug) : '']]"></i></button></th>
-        <th>Last activity<button class="btn-link btn-sort" ng-click="sortBy('updated_at')"><i class="fa fa-sort[[dir.updated_at ? ('-' + dir.updated_at) : '']]"></i></button></th>
-        <th>Assessment status<button class="btn-link btn-sort" ng-click="sortBy('role_name')"><i class="fa fa-sort[[dir.role_name ? ('-' + dir.role_name) : '']]"></i></button></th>
-        <th>Score<button class="btn-link btn-sort" ng-click="sortBy('score')"><i class="fa fa-sort[[dir.normalized_score ? ('-' + dir.normalized_score) : '']]"></i></button></th>
-        <th>Planning<button class="btn-link btn-sort" ng-click="sortBy('score')"><i class="fa fa-sort[[dir.improvement_score ? ('-' + dir.improvement_score) : '']]"></i></button></th>
+        <th>Supplier/facility<button class="btn-link btn-sort" ng-click="sortBy('printable_name')"><i class="fa fa-sort[[dir.printable_name ? ('-' + dir.printable_name) : '']]"></i></button></th>
+        <th>Last activity<button class="btn-link btn-sort" ng-click="sortBy('last_activity_at')"><i class="fa fa-sort[[dir.last_activity_at ? ('-' + dir.last_activity_at) : '']]"></i></button></th>
+        <th>Assessment status<button class="btn-link btn-sort" ng-click="sortBy('nb_answers')"><i class="fa fa-sort[[dir.nb_answers ? ('-' + dir.nb_answers) : '']]"></i></button></th>
+        <th>Score<button class="btn-link btn-sort" ng-click="sortBy('normalized_score')"><i class="fa fa-sort[[dir.normalized_score ? ('-' + dir.normalized_score) : '']]"></i></button></th>
+        <th>Planning<button class="btn-link btn-sort" ng-click="sortBy('improvement_score')"><i class="fa fa-sort[[dir.improvement_score ? ('-' + dir.improvement_score) : '']]"></i></button></th>
         <th></th>
       </tr>
     </thead>

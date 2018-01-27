@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -8,22 +8,26 @@ from deployutils.crypt import JSONEncoder
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponse
+from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
+from django.utils import six
 from openpyxl import Workbook
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.styles.borders import BORDER_THIN
+from openpyxl.styles.fills import FILL_SOLID
 from pages.models import PageElement
 from survey.models import Answer, Question
-from survey.views.response import (
-    ResponseUpdateView as BaseResponseUpdateView)
+from survey.views.sample import SampleUpdateView as BaseSampleUpdateView
 from extended_templates.backends.pdf import PdfTemplateResponse
 
-from ..mixins import BestPracticeMixin, ImprovementQuerySetMixin
+from ..mixins import ReportMixin, ImprovementQuerySetMixin
 from ..models import Consumption
-from .self_assessment import SelfAssessmentBaseView
+
 
 LOGGER = logging.getLogger(__name__)
 
 
-class ImproveView(SelfAssessmentBaseView):
+class ImproveView(ReportMixin, TemplateView):
 
     template_name = 'envconnect/improve.html'
     breadcrumb_url = 'envconnect_improve'
@@ -45,10 +49,8 @@ class ImproveView(SelfAssessmentBaseView):
 
     def get_context_data(self, **kwargs):
         context = super(ImproveView, self).get_context_data(**kwargs)
-        from_root, trail = self.breadcrumbs
-        if trail:
-            root = self._build_tree(trail[-1][0], from_root)
-            self.attach_benchmarks(root)
+        root = self.get_report_tree()
+        if root:
             self.decorate_with_breadcrumbs(root)
             context.update({
                 'root': root,
@@ -56,16 +58,22 @@ class ImproveView(SelfAssessmentBaseView):
             })
         context.update({
             'role': "tab",
-            'response': self.sample
+            'sample': self.sample
         })
-        urls = {'api_account_benchmark': reverse('api_benchmark',
-                args=(self.kwargs.get('organization'), self.get_scorecard_path(
-                    self.kwargs.get('path'))))}
-        self.update_context_urls(context, urls)
+        organization = context['organization']
+        self.update_context_urls(context, {
+            'api_account_benchmark': reverse('api_benchmark',
+                args=(organization, self.get_scorecard_path(
+                    self.kwargs.get('path')))),
+            'api_assessment_sample': reverse(
+                'survey_api_sample', args=(organization, self.sample)),
+            'api_assessment_sample_new': reverse(
+                'survey_api_sample_new', args=(organization,)),
+        })
         return context
 
 
-class ResponseUpdateView(ImprovementQuerySetMixin, BaseResponseUpdateView):
+class ResponseUpdateView(ImprovementQuerySetMixin, BaseSampleUpdateView):
     """
     All ``BestPractice`` selected by a ``User`` on a single html page.
     """
@@ -83,12 +91,15 @@ class ResponseUpdateView(ImprovementQuerySetMixin, BaseResponseUpdateView):
         return reverse(self.next_step_url, kwargs=self.get_url_context())
 
 
-class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
-                         BestPracticeMixin, # for get_breadcrumbs
-                         ListView):
+class ImprovementSpreadsheetView(ImprovementQuerySetMixin, ListView):
 
     basename = 'improvements'
-    headings = ['Practice', 'Implementation rate', 'Opportunity score']
+    headings = ['Practice', 'Implementation rate', 'Implemented by you?',
+        'Opportunity score', 'Value']
+    value_headings = ['', '', '', '',
+        'Environmental', 'Ops/maintenance', 'Financial',
+        'Implementation ease', 'AVERAGE VALUE']
+    indent_step = '    '
 
     def insert_path(self, tree, parts=None):
         if not parts:
@@ -109,38 +120,49 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin,
                 self.writerow([
                     indent + element.title,
                     nodes['rate'],
-                    nodes['opportunity']
-                ])
+                    'Yes',
+                    nodes['opportunity'],
+                    nodes['environmental_value'],
+                    nodes['business_value'],
+                    nodes['implementation_ease'],
+                    nodes['profitability'],
+                    nodes['avg_value']
+                ], leaf=True)
             else:
                 self.writerow([indent + element.title])
-                self.write_tree(nodes, indent=indent + '  ')
+                self.write_tree(nodes, indent=indent + self.indent_step)
 
-    def get(self, *args, **kwargs): #pylint: disable=unused-argument
+    def get(self, request, *args, **kwargs): #pylint: disable=unused-argument
         opportunities = {}
         for consumption in Consumption.objects.with_opportunity(
                 filter_out_testing=self._get_filter_out_testing()):
             opportunities[consumption.pk] = consumption
 
-        tree = {}
+        self.root = {}
         for improvement in self.get_queryset():
             consumption = improvement.question.consumption
             _, parts = self.get_breadcrumbs(consumption.path)
-            leaf = self.insert_path(tree, [part[0] for part in parts])
+            leaf = self.insert_path(self.root, [part[0] for part in parts])
             details = opportunities[consumption.pk]
+            page_element = parts[-1][0]
             leaf.update({
                 'path': consumption.path,
-                'avg_energy_saving': consumption.avg_energy_saving,
-                'capital_cost': consumption.capital_cost,
-                'payback_period': consumption.payback_period,
                 'rate': consumption.rate,
-                'opportunity': details.opportunity
+                'opportunity': details.opportunity,
+                'environmental_value': consumption.environmental_value,
+                'business_value': consumption.business_value,
+                'implementation_ease': consumption.implementation_ease,
+                'profitability': consumption.profitability,
+                'avg_value': consumption.avg_value,
+                'text': page_element.text
             })
 
-        self.create_writer()
-        self.writerow(["The Sustainability Project"\
-            " - Practices selected for improvement"])
-        self.writerow(self.get_headings())
-        self.write_tree(tree)
+        self.create_writer(self.get_headings(), title="Improvement Plan")
+        self.writerow(
+            ["Improvement Plan  -  Environmental practices"], leaf=True)
+        self.writerow(self.get_headings(), leaf=True)
+        self.writerow(self.value_headings, leaf=True)
+        self.write_tree(self.root)
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \
             'attachment; filename="{}"'.format(self.get_filename())
@@ -157,10 +179,14 @@ class ImprovementCSVView(ImprovementSpreadsheetView):
 
     content_type = 'text/csv'
 
-    def writerow(self, row):
-        self.csv_writer.writerow(row)
+    def writerow(self, row, leaf=False):
+        #pylint:disable=unused-argument
+        self.csv_writer.writerow([
+            rec.encode('utf-8') if six.PY2 else rec
+            for rec in row])
 
-    def create_writer(self):
+    def create_writer(self, headings, title=None):
+        #pylint:disable=unused-argument
         self.content = io.StringIO()
         self.csv_writer = csv.writer(self.content)
 
@@ -177,14 +203,90 @@ class ImprovementXLSXView(ImprovementSpreadsheetView):
     content_type = \
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
-    def writerow(self, row):
-        self.wsheet.append(row)
+    valueFills = [
+        PatternFill(fill_type=FILL_SOLID, fgColor='FF9CD76B'), # green-level-0
+        PatternFill(fill_type=FILL_SOLID, fgColor='FF69B02B'), # green-level-1
+        PatternFill(fill_type=FILL_SOLID, fgColor='FF007C3F'), # green-level-2
+        PatternFill(fill_type=FILL_SOLID, fgColor='FFFFD700'), # green-level-3
+    ]
 
-    def create_writer(self):
+    def create_writer(self, headings, title=None):
+        col_scale = 11.9742857142857
         self.wbook = Workbook()
         self.wsheet = self.wbook.active
+        if title:
+            self.wsheet.title = title
+        self.wsheet.row_dimensions[1].height = 0.36 * (6 * col_scale)
+        self.wsheet.column_dimensions['A'].width = 6.56 * col_scale
+        for col_num in range(0, len(headings)):
+            self.wsheet.column_dimensions[chr(ord('B') + col_num)].width \
+                = 0.99 * col_scale
+        self.heading_font = Font(
+            name='Calibri', size=12, bold=False, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF0071BB')
 
     def flush_writer(self):
+        self.wsheet.append(["Implementation rate. Percentage of peer"\
+            " respondents that have implemented a best practice."])
+        self.wsheet.append(["Implemented by you? Extent to which you"\
+            " indicated the practice is implemented across"\
+            " activities/services/products/offices/facilities to which"\
+            " it could apply. 3 ticks = All, 2 ticks = More than 50%,"\
+            " 1 tick = Less than 50%, X = Not implemented or Not applicable."])
+        self.wsheet.append(["Opportunity score. Percentage points by which"\
+            " your score could increase if this best practice is implemented"\
+            " to full extent. See FAQs for scoring methodology"\
+            " and calculations."])
+        border = Border(
+            left=Side(border_style=BORDER_THIN, color='FF000000'),
+            right=Side(border_style=BORDER_THIN, color='FF000000'),
+            top=Side(border_style=BORDER_THIN, color='FF000000'),
+            bottom=Side(border_style=BORDER_THIN, color='FF000000'))
+        alignment = Alignment(
+            horizontal='center', vertical='center',
+            text_rotation=0, wrap_text=False,
+            shrink_to_fit=False, indent=0)
+        title_fill = PatternFill(fill_type=FILL_SOLID, fgColor='FFDDD9C5')
+        subtitle_fill = PatternFill(fill_type=FILL_SOLID, fgColor='FFEEECE2')
+        subtitle_font = Font(
+            name='Calibri', size=12, bold=False, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF000000')
+        row = self.wsheet.row_dimensions[1]
+        row.fill = title_fill
+        row.font = Font(
+            name='Calibri', size=20, bold=False, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF000000')
+        row.alignment = alignment
+        row.border = border
+        self.wsheet.merge_cells('A1:I1')
+        row = self.wsheet.row_dimensions[2]
+        row.fill = subtitle_fill
+        row.font = subtitle_font
+        row.alignment = alignment
+        row.border = border
+        row = self.wsheet.row_dimensions[3]
+        row.fill = subtitle_fill
+        row.font = subtitle_font
+        row.alignment = alignment
+        row.border = border
+        self.wsheet.merge_cells('E2:I2')
+        self.wsheet.merge_cells('A2:A3')
+        self.wsheet.merge_cells('B2:B3')
+        self.wsheet.merge_cells('C2:C3')
+        self.wsheet.merge_cells('D2:D3')
+
+        # Create "Impact of Improvement Plan" worksheet.
+        _ = self.wbook.create_sheet(title="Impact of Improvement Plan")
+
+        # Create "Value Key" worksheet.
+        _ = self.wbook.create_sheet(title="Value Key")
+
+        # XXX Create best practices content pages.
+        self.write_best_practice_content(self.root)
+
         content = io.BytesIO()
         self.wbook.save(content)
         content.seek(0)
@@ -192,6 +294,53 @@ class ImprovementXLSXView(ImprovementSpreadsheetView):
 
     def get_filename(self):
         return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.xlsx')
+
+    def get_value_fill(self, val):
+        if val < len(self.valueFills):
+            return self.valueFills[val]
+        return self.valueFills[-1]
+
+    def write_best_practice_content(self, root, indent=''):
+        for element in sorted(
+                list(root.keys()), key=lambda node: (node.tag, node.pk)):
+            # XXX sort won't exactly match the web presentation
+            # which uses RelationShip order
+            # (see ``BreadcrumbMixin._build_tree``).
+            nodes = root[element]
+            if 'text' in nodes:
+                # We reached a leaf
+                title = element.title.replace('*', '').replace('/', '')
+                if len(title) > 31:
+                    title = title[0:28] + '...'
+                wsheet = self.wbook.create_sheet(title=title)
+                wsheet['A1'] = nodes['text']
+            else:
+                self.write_best_practice_content(
+                    nodes, indent=indent + self.indent_step)
+
+    def writerow(self, row, leaf=False):
+        #pylint:disable=protected-access
+        self.wsheet.append(row)
+        if leaf:
+            if len(row) > 8:
+                for row_cells in self.wsheet.iter_rows(
+                        min_row=self.wsheet._current_row,
+                        max_row=self.wsheet._current_row):
+                    for cell_idx in range(4, 9):
+                        # environmental_value, business_value,
+                        # implementation_ease, profitability,
+                        # avg_value
+                        try:
+                            row_cells[cell_idx].fill = self.get_value_fill(
+                                int(row_cells[cell_idx].value))
+                        except ValueError:
+                            # might be the header
+                            pass
+        else:
+            for row_cells in self.wsheet.iter_rows(
+                    min_row=self.wsheet._current_row,
+                    max_row=self.wsheet._current_row):
+                row_cells[0].font = self.heading_font
 
 
 class ReportPDFView(ImprovementQuerySetMixin, ListView):

@@ -21,7 +21,6 @@ from deployutils.helpers import datetime_or_now
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
 from survey.models import Matrix
-from survey.models import Answer
 from survey.views.matrix import MatrixDetailView
 
 from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
@@ -33,7 +32,7 @@ LOGGER = logging.getLogger(__name__)
 
 VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED = \
     "%(organization)s has not yet started to complete"\
-    " their self-assessment. You will be able able to see"\
+    " their assessment. You will be able able to see"\
     " %(organization)s as soon as they do."
 
 
@@ -43,7 +42,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
     On login, by default the user will be redirected to `/app/` which in turn
     will redirect to `/app/:organization/scorecard/$`.
 
-    If *organization* has started a self-assessment then we have candidates
+    If *organization* has started an assessment then we have candidates
     to redirect to (i.e. /app/:organization/scorecard/:path).
     """
 
@@ -54,7 +53,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
                 ['manager', 'contributor']):
             # If the user has a more than a `viewer` role on the organization,
             # we force the redirect to the benchmark page such that
-            # the contextual menu with self-assessment, etc. appears.
+            # the contextual menu with assessment, etc. appears.
             try:
                 return reverse('benchmark_organization',
                     args=args, kwargs=kwargs)
@@ -70,7 +69,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
             for element in PageElement.objects.get_roots().order_by('title'):
                 root_prefix = '/%s/sustainability-%s' % (
                     element.slug, element.slug)
-                if Consumption.objects.filter(answer__response=self.sample,
+                if Consumption.objects.filter(answer__sample=self.sample,
                     path__startswith=root_prefix).exists():
                     candidates += [element]
         if not candidates:
@@ -92,7 +91,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
             redirects += [(url, print_name)]
 
         if len(redirects) > 1:
-            context = self.get_context_data(*args, **kwargs)
+            context = self.get_context_data(**kwargs)
             context.update({'redirects': redirects})
             return self.render_to_response(context)
         return super(ScoreCardRedirectView, self).get(request, *args, **kwargs)
@@ -103,30 +102,30 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
     Subclasses are meant to define `template_name` and `breadcrumb_url`.
     """
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         #pylint:disable=too-many-locals
-        context = super(BenchmarkBaseView, self).get_context_data(
-            *args, **kwargs)
+        context = super(BenchmarkBaseView, self).get_context_data(**kwargs)
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
-            not_applicable_answers = Answer.objects.filter(text='Not applicable')
-            improvement_suggestions = Answer.objects.filter(
-                response__extra='is_planned',
-                response__survey__title=self.report_title,
-                response__account=self.account)
-
             root = self._build_tree(trail[-1][0], from_root,
                 cut=TransparentCut())
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             self.decorate_with_breadcrumbs(root)
             charts = self.get_charts(root)
+            not_applicable_answers = Consumption.objects.filter(
+                question__answer__sample=self.sample,
+                question__answer__measured=Consumption.NOT_APPLICABLE)
+            not_applicables = []
+            for not_applicable in not_applicable_answers:
+                element = PageElement.objects.get(
+                    slug=not_applicable.path.split('/')[-1])
+                not_applicables += [(from_root + '/' + element.slug, element)]
             context.update({
                 'charts': charts,
                 'root': root,
-                'not_applicable_answers': not_applicable_answers,
-                'improvement_suggestions': improvement_suggestions,
+                'not_applicables': not_applicables,
                 'entries': json.dumps(root, cls=JSONEncoder),
                 # XXX move to urls when we are sure how it interacts
                 # with envconnect/base.html
@@ -163,9 +162,9 @@ class BenchmarkView(BenchmarkBaseView):
             # /app/:organization/scorecard/:path
             # Only when accessing an actual scorecard and if the request user
             # is a manager/contributor for the organization will we prompt
-            # to start the self-assessment.
+            # to start the assessment.
             messages.warning(self.request,
-                "You need to complete a self-assessment before"\
+                "You need to complete an assessment before"\
                 " moving on to the scorecard.")
             return HttpResponseRedirect(reverse('report_organization',
                 kwargs={'organization': organization, 'path': path}))
@@ -196,7 +195,7 @@ class ScoreCardView(BenchmarkView):
                 # user is a viewer will we explain why the scorecard is not
                 # visible. If the request user is manager/contributor
                 # for the organization, calling `get_assessment_redirect_url`
-                # will prompt the message to complete the self-assessment.
+                # will prompt the message to complete the assessment.
                 messages.warning(self.request,
                     VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED % {
                         'organization': organization})
@@ -237,7 +236,7 @@ class ScoreCardDownloadView(BenchmarkAPIView):
                     self._printable_charts += [chart]
         return self._printable_charts
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         context = {'base_url': self.get_base_url()}
         organization = self.kwargs.get('organization', None)
         if organization:
@@ -360,7 +359,7 @@ casper.run();
         self._breadcrumbs = self.get_breadcrumbs(from_root)
         self.generate_printable_html()
         return PdfTemplateResponse(request, self.template_name,
-            self.get_context_data(*args, **kwargs))
+            self.get_context_data(**kwargs))
 
 
 class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
@@ -378,7 +377,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
             candidate = candidate[1:]
         return get_object_or_404(queryset, slug=candidate)
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         #pylint:disable=too-many-locals,too-many-statements
         candidate = self.kwargs.get(self.matrix_url_kwarg)
         if candidate.startswith("/"):
@@ -393,8 +392,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
             #pylint:disable=unsubscriptable-object
             del self.kwargs[self.matrix_url_kwarg]
 
-        context = super(PortfoliosDetailView, self).get_context_data(
-            *args, **kwargs)
+        context = super(PortfoliosDetailView, self).get_context_data(**kwargs)
         context.update({'available_matrices': self.get_available_matrices()})
 
         from_root, trail = self.breadcrumbs

@@ -56,48 +56,6 @@
                 {% endif %}
             </div>
         </div>
-        <div class="form-group{% if form.industry.errors %} has-error{% endif %}">
-            {% if not form.hide_labels %}
-            <label class="col-sm-5 control-label{% if form.industry.field.required %} requiredField{% endif %}">{{ form.industry.label|safe }}{% if form.industry.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
-            {% endif %}
-            <div class="col-sm-7 controls">
-                <select class="form-control" name="{{form.industry.name}}">
-                    <option>Please select...</option>
-                    <option {% if form.industry.value() == "architecture-design" %}selected="1"{% endif %} value="architecture-design">Architectural Design</option>
-                    <option {% if form.industry.value() == "boxes-and-enclosures" %}selected="1"{% endif %} value="boxes-and-enclosures">Boxes &amp; enclosures</option>
-                    <option {% if form.industry.value() == "construction" %}selected="1"{% endif %} value="construction">Engineering, Procurement, Construction</option>
-                    <option {% if form.industry.value() == "consulting" %}selected="1"{% endif %} value="consulting">Consulting (other than engineering)</option>
-                    <option {% if form.industry.value() == "distribution-industry" %}selected="1"{% endif %} value="distribution-industry">Distribution</option>
-                    <option {% if form.industry.value() == "distribution-transformers" %}selected="1"{% endif %} value="distribution-transformers">Distribution transformers</option>
-                    <option {% if form.industry.value() == "energy-efficiency-contracting" %}selected="1"{% endif %} value="energy-efficiency-contracting">Energy efficiency contracting</option>
-                    <option {% if form.industry.value() == "energy-utility" %}selected="1"{% endif %} value="energy-utility">Energy utility (supply chain)</option>
-                    <option {% if form.industry.value() == "engineering" %}selected="1"{% endif %} value="engineering">Engineering</option>
-                    <option {% if form.industry.value() == "epc" %}selected="1"{% endif %} value="epc">Engineering, Procurement, Construction</option>
-                    <option {% if form.industry.value() == "ecec" %}selected="1"{% endif %} value="ecec">Enviro. consulting, engineering, construction</option>
-                    <option {% if form.industry.value() == "fabricated-metals" %}selected="1"{% endif %} value="fabricated-metals">Fabricated metals</option>
-                    <option {% if form.industry.value() == "facilities-management-industry" %}selected="1"{% endif %} value="facilities-management-industry">Facilities management</option>
-                    <option {% if form.industry.value() == "freight-and-shipping" %}selected="1"{% endif %} value="facilities-management-industry">Freight & shipping</option>
-                    <option {% if form.industry.value() == "fuel-supply" %}selected="1"{% endif %} value="fuel-supply">Fuel supply</option>
-                    <option {% if form.industry.value() == "general-contractors" %}selected="1"{% endif %} value="general-contractors">General contractors</option>
-                    <option {% if form.industry.value() == "general-manufacturing" %}selected="1"{% endif %} value="general-manufacturing">General manufacturing</option>
-                    <option {% if form.industry.value() == "interior-design" %}selected="1"{% endif %} value="interior-design">Interior Design</option>
-                    <option {% if form.industry.value() == "lab-services" %}selected="1"{% endif %} value="lab-services">Lab services</option>
-                    <option {% if form.industry.value() == "marketing-and-communications" %}selected="1"{% endif %} value="marketing-and-communications">Marketing &amp; communications</option>
-                    <option {% if form.industry.value() == "print-services" %}selected="1"{% endif %} value="print-services">Print services</option>
-                    <option {% if form.industry.value() == "vegetation-industry" %}selected="1"{% endif %} value="vegetation-industry">Vegetation management</option>
-                    <option {% if form.industry.value() == "vehicle-equipment-and-parts" %}selected="1"{% endif %} value="vehicle-equipment-and-parts">Rental equipment & parts</option>
-                    <option {% if form.industry.value() == "shipping-and-logistics" %}selected="1"{% endif %} value="shipping-and-logistics">Value added reselling</option>
-                    <option {% if form.industry.value() == "wire-and-cable" %}selected="1"{% endif %} value="wire-and-cable">Wire &amp; cable</option>
-                    <option {% if form.industry.value() == "not-listed" %}selected="1"{% endif %} value="not-listed">My industry segment is not listed</option>
-                </select>
-                {% for error in form.industry.errors %}
-                <span class="help-block"><strong>{{error}}</strong></span>
-                {% endfor %}
-                {% if form.industry.help_text %}
-                <span class="help-block">{{form.industry.help_text}}</span>
-                {% endif %}
-            </div>
-        </div>
         {{input_field(form['parent_corporation'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['country'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['region'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}

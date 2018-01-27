@@ -15,14 +15,14 @@
                          inside a class="tab-content collapse". -->
                     <input id="toggle-results-{{icon.slug}}"
                            type="checkbox" toggle-checkbox data-toggle="toggle"
-                           data-on="<span>Self-assessment</span>"
+                           data-on="<span>Assessment</span>"
                            data-off="<span>Results</span>"
                            data-offstyle="green-level-2"
                            data-width="125px" data-height="34px"
                            ng-model="scoreToggle">
                 </div>
             </div>
-            <table class="table table-striped table-bordered table-self-assessment">
+            <table class="table table-striped table-bordered table-assessment">
                 {% with icon.tag|assessment_choices as choices %}
                 <thead ng-show="!scoreToggle">
                     <tr>
@@ -90,7 +90,7 @@
                                        value="{{choice}}"
                                        name="implemented-[[practice[0].consumption.rank]]"
                                        ng-checked="practice[0].consumption.implemented === '{{choice}}'"
-                                       ng-change="updateImprovement()"
+                                       ng-change="updateAssessmentAnswer(practice[0], '{{choice}}')"
                                        ng-model="practice[0].consumption.implemented" />
                             </label>
                         </td>
@@ -108,7 +108,7 @@
                             [[practice[0].consumption.nb_respondents]] respondents
                             <div class="progress" style="margin:0">
                                 <div class="progress-bar progress-bar-success green-level-[[practice[0].consumption.avg_value]]" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
-                                    [[practice[0].consumption.rate|number:0]]%
+                                    <span ng-class="{'text-muted': practice[0].consumption.rate === 0}">[[practice[0].consumption.rate|number:0]]%</span>
                                 </div>
                             </div>
                         </td>
@@ -137,9 +137,10 @@ See the following for examples of content developed for best practices:
                     </tr>
                     <tr>
                         <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : 4]]" class="text-right">
-                        	<a id="download-assessment" class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Self-assessment</a>
-							<button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
-							<button class="btn btn-primary" id="submit-button" ng-click="freezeSelfAssessment($event)">Submit</button>
+                            <a id="download-assessment" class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Assessment</a>
+                            <button class="btn btn-primary" id="reset-assessment" ng-click="resetAssessment($event)">Reset</button>
+                            <button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
+                            <button class="btn btn-primary" id="submit-button" ng-click="freezeAssessment($event, 'assessment', 'Browse to the Scorecard to see how you compare with peers.')">Submit</button>
                         </td>
                     </tr>
                 </tbody>
@@ -158,6 +159,28 @@ See the following for examples of content developed for best practices:
     {% endfor %}
 </div>
 <!-- modals -->
+<div id="new-assessment" class="modal fade"
+     tabindex="-1" role="dialog"
+     aria-labelledby="Review or create new assessment" aria-hidden="true"
+     style="color: #000;">
+    <div class="modal-dialog">
+        <form class="modal-content" ng-submit="createAssessment()">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Review or create new assessment ...</h4>
+            </div>
+            <div class="modal-body">
+You have already completed an assessment. Do you want to review the answers
+of the currently completed assessment or do you want to create a new assessment?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-defaut"
+                    data-dismiss="modal"><i class="fa fa-eye"></i> Review</button>
+                <button type="submit" class="btn btn-primary"><i class="fa fa-plus"></i> New</button>
+            </div>
+        </form>
+    </div>
+</div>
 <div id="report-measurements" class="modal fade"
      tabindex="-1" role="dialog"
      aria-labelledby="Report measurements" aria-hidden="true"
@@ -184,10 +207,9 @@ Data entry, trending, reporting and dashboard creation is under construction.
 {{block.super}}
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-    $(".best-practice-row").selfAssessment({
-        survey_api_response: "{% url 'survey_api_response' organization response %}",
-        api_improvement_base: "{% url 'api_improvement_base' organization %}"
-    });
+    {% if sample.is_frozen %}
+        $("#new-assessment").modal("show");
+    {% endif %}
 });
 </script>
 {% endblock %}
