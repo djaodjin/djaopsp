@@ -3,8 +3,8 @@
 
 from collections import namedtuple
 
-from django.db import connection, transaction
-from rest_framework import serializers, status
+from django.db import connection
+from rest_framework.status import HTTP_200_OK
 from rest_framework import response as http
 from survey.api.sample import AnswerAPIView
 
@@ -18,7 +18,7 @@ class AssessmentAPIView(AnswerAPIView):
     """
 
     def get_http_response(self, serializer,
-                     status=status.HTTP_200_OK, headers=None):
+                     status=HTTP_200_OK, headers=None):
         scored_answers = get_scored_answers(
             includes=(str(self.sample.pk),), questions=(self.question.pk,))
         with connection.cursor() as cursor:

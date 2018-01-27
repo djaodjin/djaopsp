@@ -269,8 +269,8 @@ class Consumption(SurveyQuestion):
 
     def save(self, force_insert=False, force_update=False,
              using=None, update_fields=None):
-        if not self.question.unit_id:
-            self.question.unit_id = 1 # assessment unit
+        if not self.unit_id: #pylint:disable=access-member-before-definition
+            self.unit_id = 1 # assessment unit
         visible_cols = self.VALUE_SUMMARY_FIELDS - set([
             col['slug'] for col in ColumnHeader.objects.leading_prefix(
                 self.path).filter(hidden=True)])

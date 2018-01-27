@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>{% block subject %}The Sustainability Project Notification{% endblock %}</title>
 {% assets "css_email" %}
-<link rel="stylesheet" media="screen" href=".{{ ASSET_URL|no_cache }}" />
+<link rel="stylesheet" media="screen" href="{{ ASSET_URL }}" />
 {% endassets %}
 </head>
 <body>
