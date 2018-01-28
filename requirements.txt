@@ -7,10 +7,10 @@ django-urldecorators==0.6
 djangorestframework==3.3.3
 djaodjin-answers==0.1.5
 djaodjin-deployutils==0.4.7
-djaodjin-extended-templates==0.1.9
+djaodjin-extended-templates==0.2.0
 djaodjin-pages==0.1.2
 djaodjin-saas==0.3.0
-djaodjin-survey==0.1.7
+djaodjin-survey==0.2.0
 gunicorn==19.7.1
 html5lib==1.0b10
 jsmin==2.2.2
