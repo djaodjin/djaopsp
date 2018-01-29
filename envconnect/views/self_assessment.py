@@ -13,6 +13,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
+from survey.models import Choice
 
 from ..mixins import ReportMixin
 from ..models import Consumption
@@ -150,8 +151,9 @@ class AssessmentSpreadsheetView(AssessmentBaseView):
 
     @staticmethod
     def get_headings(tag):
-        return list(Consumption.ASSESSMENT_CHOICES.get(tag,
-            Consumption.ASSESSMENT_CHOICES.get('default')))
+        return [str(choice) for choice in Choice.objects.filter(
+            pk__in=Consumption.ASSESSMENT_CHOICES.get(tag,
+                Consumption.ASSESSMENT_CHOICES.get('default'))).order_by('pk')]
 
 
 class AssessmentCSVView(AssessmentSpreadsheetView):

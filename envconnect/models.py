@@ -198,8 +198,8 @@ class Consumption(SurveyQuestion):
     """Consumption of externalities in the manufactoring process."""
 
     YES = 1                           # 'Yes'
-    NEEDS_MODERATE_IMPROVEMENT = 2    # 'Yes, but needs a little improvement'
-    NEEDS_SIGNIFICANT_IMPROVEMENT = 3 # 'Yes, but needs a lot of improvement'
+    NEEDS_MODERATE_IMPROVEMENT = 2    # 'Mostly yes'
+    NEEDS_SIGNIFICANT_IMPROVEMENT = 3 # 'Mostly no'
     NO = 4                            #pylint:disable=invalid-name
     NO_NEEDS_IMPROVEMENT = 6          # 'No/needs improvement'
     NOT_APPLICABLE = 5                # 'Not applicable'
@@ -214,6 +214,13 @@ class Consumption(SurveyQuestion):
         'default': (YES, NEEDS_MODERATE_IMPROVEMENT,
             NEEDS_SIGNIFICANT_IMPROVEMENT, NO,
             NOT_APPLICABLE)}
+
+    ASSESSMENT_ANSWERS = {
+        YES: 'Yes',
+        NEEDS_MODERATE_IMPROVEMENT: 'Mostly yes',
+        NEEDS_SIGNIFICANT_IMPROVEMENT: 'Mostly no',
+        NO: 'No',
+    }
 
     # ColumnHeader objects are inserted lazily at the time a column
     # is hidden so we need a default set of columns to compute visible ones

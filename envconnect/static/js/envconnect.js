@@ -220,8 +220,8 @@ envconnectControllers.controller("EnvconnectCtrl",
     }
 
     $scope.YES = 'Yes'
-    $scope.NEEDS_MODERATE_IMPROVEMENT = 'Yes, but needs a little improvement'
-    $scope.NEEDS_SIGNIFICANT_IMPROVEMENT = 'Yes, but needs a lot of improvement'
+    $scope.NEEDS_MODERATE_IMPROVEMENT = 'Mostly yes'
+    $scope.NEEDS_SIGNIFICANT_IMPROVEMENT = 'Mostly no'
     $scope.NO = 'No'
     $scope.NOT_APPLICABLE = 'Not applicable'
 

@@ -658,24 +658,28 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     added = 3 * avg_value / nb_respondents
                 else:
                     added = 0
-                if consumption.implemented == 'Yes':
+                if (consumption.implemented ==
+                    Consumption.ASSESSMENT_ANSWERS[Consumption.YES]):
                     vals[0]['accounts'][self.account.pk].update({
                         'opportunity_numerator': 0,
                         'opportunity_denominator': 0
                     })
                 elif (consumption.implemented ==
-                      'Yes, but needs a little improvement'):
+                      Consumption.ASSESSMENT_ANSWERS[
+                          Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT]):
                     vals[0]['accounts'][self.account.pk].update({
                         'opportunity_numerator': opportunity,
                         'opportunity_denominator': 0
                     })
                 elif (consumption.implemented ==
-                    'Yes, but needs a lot of improvement'):
+                      Consumption.ASSESSMENT_ANSWERS[
+                          Consumption.NEEDS_MODERATE_IMPROVEMENT]):
                     vals[0]['accounts'][self.account.pk].update({
                         'opportunity_numerator': 2 * opportunity + added,
                         'opportunity_denominator': added
                     })
-                elif consumption.implemented == 'No':
+                elif (consumption.implemented ==
+                      Consumption.ASSESSMENT_ANSWERS[Consumption.NO]):
                     vals[0]['accounts'][self.account.pk].update({
                         'opportunity_numerator': 3 * opportunity + added,
                         'opportunity_denominator': added

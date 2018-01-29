@@ -25,14 +25,14 @@
 { "fields": {
     "unit": 1,
     "rank": 2,
-    "text": "Yes, but needs a little improvement"
+    "text": "Mostly yes"
   },
   "model" : "survey.choice", "pk" : 2
 },
 { "fields": {
     "unit": 1,
     "rank": 3,
-    "text": "Yes, but needs a lot of improvement"
+    "text": "Mostly no"
   },
   "model" : "survey.choice", "pk" : 3
 },
