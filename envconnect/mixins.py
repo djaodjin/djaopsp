@@ -677,6 +677,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
+            self.get_or_create_assessment_sample()
             root = self._build_tree(trail[-1][0], from_root)
             populate_rollup(root, True)
             total_numerator = root[0]['accounts'][self.account.pk].get(
