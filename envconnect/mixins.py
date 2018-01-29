@@ -13,6 +13,7 @@ from django.db.models import Max, Sum
 from django.http import Http404
 from django.utils import six
 from django.utils.dateparse import parse_datetime
+from django.utils.timezone import utc
 from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
@@ -544,8 +545,11 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
         numerator = agg_score.numerator
         denominator = agg_score.denominator
         created_at = agg_score.last_activity_at
-        if created_at and isinstance(created_at, six.string_types):
-            created_at = parse_datetime(created_at)
+        if created_at:
+            if isinstance(created_at, six.string_types):
+                created_at = parse_datetime(created_at)
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=utc)
         nb_answers = getattr(agg_score, 'nb_answers', None)
         if nb_answers is None:
             # Putting the following statement in the default clause will lead

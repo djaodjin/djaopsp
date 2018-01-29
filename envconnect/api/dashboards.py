@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import Http404
 from django.utils import six
+from deployutils.helpers import datetime_or_now
 from extra_views.contrib.mixins import SearchableListMixin, SortableListMixin
 from pages.models import PageElement
 from rest_framework import generics
@@ -37,7 +38,7 @@ class CompletionSummaryPagination(PageNumberPagination):
     """
 
     def paginate_queryset(self, queryset, request, view=None):
-        expired_at = datetime.datetime.utcnow() - relativedelta(year=1)
+        expired_at = datetime_or_now() - relativedelta(year=1)
         self.no_assessment = 0
         self.abandoned = 0
         self.expired = 0
