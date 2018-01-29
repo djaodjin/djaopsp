@@ -4,6 +4,7 @@
 import datetime, logging, re
 from collections import namedtuple, OrderedDict
 
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -13,6 +14,7 @@ from extra_views.contrib.mixins import SearchableListMixin, SortableListMixin
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from saas.models import Subscription
 from survey.api.matrix import MatrixDetailAPIView
 from survey.models import EditableFilter
@@ -26,6 +28,60 @@ LOGGER = logging.getLogger(__name__)
 
 AccountType = namedtuple('AccountType',
     ['pk', 'slug', 'printable_name', 'email', 'request_key'])
+
+
+class CompletionSummaryPagination(PageNumberPagination):
+    """
+    Decorate the results of an API call with stats on completion of assessment
+    and improvement planning.
+    """
+
+    def paginate_queryset(self, queryset, request, view=None):
+        expired_at = datetime.datetime.utcnow() - relativedelta(year=1)
+        self.no_assessment = 0
+        self.abandoned = 0
+        self.expired = 0
+        self.assessment_phase = 0
+        self.improvement_phase = 0
+        self.completed = 0
+        for account in queryset:
+            last_activity_at = account.get('last_activity_at', None)
+            if last_activity_at:
+                if account.get('assessment_completed', False):
+                    if account.get('improvement_completed', False):
+                        if last_activity_at < expired_at:
+                            self.expired += 1
+                        else:
+                            self.completed += 1
+                    else:
+                        if last_activity_at < expired_at:
+                            self.abandoned += 1
+                        else:
+                            self.improvement_phase += 1
+                else:
+                    if last_activity_at < expired_at:
+                        self.abandoned += 1
+                    else:
+                        self.assessment_phase += 1
+            else:
+                self.no_assessment += 1
+        return super(CompletionSummaryPagination, self).paginate_queryset(
+            queryset, request, view=view)
+
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('summary', (
+                    ('No assessment', self.no_assessment),
+                    ('Abandoned', self.abandoned),
+                    ('Expired', self.expired),
+                    ('Assessment phase', self.assessment_phase),
+                    ('Planning phase', self.improvement_phase),
+                    ('Completed', self.completed),
+            )),
+            ('next', self.get_next_link()),
+            ('previous', self.get_previous_link()),
+            ('results', data)
+        ]))
 
 
 class DashboardMixin(BenchmarkMixin):
@@ -139,8 +195,8 @@ class SupplierListBaseAPIView(DashboardMixin, generics.ListAPIView):
           }]
         }
     """
-
     serializer_class = AccountSerializer
+    pagination_class = CompletionSummaryPagination
 
     def get_queryset(self):
         results = []
@@ -159,12 +215,20 @@ class SupplierListBaseAPIView(DashboardMixin, generics.ListAPIView):
                         dct.update({'last_activity_at': created_at})
                     nb_answers = score.get('nb_answers', 0)
                     nb_questions = score.get('nb_questions', 0)
+                    assessment_completed = score.get(
+                        'assessment_completed', False)
+                    improvement_completed = score.get(
+                        'improvement_completed', False)
                     # XXX We should really compute a score here.
                     improvement_score = score.get(
                         'improvement_numerator', None)
                     dct.update({
-                        'nb_answers': nb_answers, 'nb_questions': nb_questions,
-                        'improvement_score': improvement_score})
+                        'nb_answers': nb_answers,
+                        'nb_questions': nb_questions,
+                        'assessment_completed': assessment_completed,
+                        'improvement_completed': improvement_completed,
+                        'improvement_score': improvement_score
+                    })
                     if nb_answers == nb_questions and nb_questions != 0:
                         normalized_score = score.get('normalized_score', None)
                     else:

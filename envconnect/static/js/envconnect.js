@@ -1207,7 +1207,8 @@ envconnectControllers.controller("envconnectMyTSPReporting",
         clearMessages();
         if( $scope.items ) { $scope.items.$resolved = false; }
         $http.get(settings.urls.api_suppliers,
-            {params: $scope.params}).then(function(resp) { // success
+            {params: $scope.params}).then(
+        function(resp) { // success
             if( !($scope.items && $scope.items.$resolved) ) {
                 // We cannot watch items.count otherwise things start
                 // to snowball. We must update totalItems only when it truly
@@ -1243,6 +1244,10 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                         = found.nb_questions;
                 }
             }
+            // populate the completion summary chart
+            summaryChart("#completion-summary-chart .chart svg",
+                resp.data.summary);
+
         }, function(resp) { // error
             $scope.items = {};
             $scope.items.$resolved = false;

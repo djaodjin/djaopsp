@@ -12,6 +12,7 @@ from django.db import connection, connections, transaction
 from django.db.models import Max, Sum
 from django.http import Http404
 from django.utils import six
+from django.utils.dateparse import parse_datetime
 from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
@@ -528,10 +529,13 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
         """
         account_id = agg_score.account_id
         #sample_id = agg_score[1]
+        is_completed = agg_score.is_completed
         is_planned = agg_score.is_planned
         numerator = agg_score.numerator
         denominator = agg_score.denominator
         created_at = agg_score.last_activity_at
+        if created_at:
+            created_at = parse_datetime(created_at)
         nb_answers = getattr(agg_score, 'nb_answers', None)
         if nb_answers is None:
             # Putting the following statement in the default clause will lead
@@ -544,7 +548,9 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
         if is_planned:
             accounts[account_id].update({
                 'improvement_numerator': numerator,
-                'improvement_denominator': denominator})
+                'improvement_denominator': denominator,
+                'improvement_completed': is_completed,
+            })
             if not 'nb_answers' in accounts[account_id]:
                 accounts[account_id].update({
                     'nb_answers': nb_answers})
@@ -558,6 +564,7 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
             accounts[account_id].update({
                 'nb_answers': nb_answers,
                 'nb_questions': nb_questions,
+                'assessment_completed': is_completed,
                 'created_at': created_at
             })
             if nb_questions == nb_answers:
@@ -577,7 +584,8 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
     SUM(denominator) AS denominator,
     MAX(last_activity_at) AS last_activity_at,
     COUNT(answer_id) AS nb_answers,
-    COUNT(*) AS nb_questions
+    COUNT(*) AS nb_questions,
+    MAX(is_completed) AS is_completed
 FROM (%(answers)s) AS answers
 WHERE path LIKE '%(prefix)s%%'
 GROUP BY account_id, sample_id, is_planned;""" % {

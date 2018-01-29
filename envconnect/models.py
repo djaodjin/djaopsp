@@ -379,6 +379,7 @@ def get_expected_opportunities(is_planned=None, includes=None, excludes=None,
     expected_opportunities = """SELECT
     questions_with_opportunity.question_id AS question_id,
     samples.sample_id AS sample_id,
+    samples.is_planned AS is_completed,
     samples.is_planned AS is_planned,
     samples.account_id AS account_id,
     questions_with_opportunity.opportunity AS opportunity,
@@ -395,6 +396,7 @@ INNER JOIN (
     SELECT survey_enumeratedquestions.question_id AS question_id,
            survey_sample.account_id AS account_id,
            survey_sample.id AS sample_id,
+           survey_sample.is_frozen AS is_completed,
            survey_sample.extra AS is_planned
     FROM survey_sample
     INNER JOIN survey_enumeratedquestions
@@ -436,9 +438,29 @@ ON survey_answer.sample_id = survey_sample.id
 def get_scored_answers(is_planned=None, includes=None, excludes=None,
                        questions=None):
     """
-    Returns a list of tuples (account_id, answer_id, sample_id, question_id,
-    numerator, denominator, path, created_at, measured, is_planned)
-    that corresponds to all answers for all (or a subset when *includes*
+    Returns a list of tuples with the following fields:
+
+        - account_id
+        - sample_id
+        - is_completed
+        - is_planned
+        - numerator
+        - denominator
+        - last_activity_at
+        - answer_id
+        - question_id
+        - path
+        - implemented
+        - environmental_value
+        - business_value
+        - profitability
+        - implementation_ease
+        - avg_value
+        - nb_respondents
+        - rate
+        - opportunity
+
+    the list corresponds to all answers for all (or a subset when *includes*
     is not `None`) accounts excluding accounts that were filtered out
     by *excludes*, decorated with a numerator and denominator.
 
@@ -448,21 +470,11 @@ def get_scored_answers(is_planned=None, includes=None, excludes=None,
     If not `None`, *includes* and *excludes* are the set of organization
     samples which are included and excluded respectively.
     """
-    # All expected answers with their scores.
-    # ACCOUNT_ID = 0
-    # ANSWER_ID = 1
-    # SAMPLE_ID = 2
-    # QUESTION_ID = 3
-    # NUMERATOR = 4
-    # DENOMINATOR = 5
-    # QUESTION_PATH = 6
-    # ANSWER_CREATED_AT = 7
-    # ANSWER_MEASURED = 8
-    # SAMPLE_IS_PLANNED = 9 (assessment or improvement)
     #pylint:disable=protected-access
     scored_answers = """SELECT
     expected_choices.account_id AS account_id,
     expected_choices.sample_id AS sample_id,
+    expected_choices.is_planned AS is_completed,
     expected_choices.is_planned AS is_planned,
     expected_choices.numerator AS numerator,
     expected_choices.denominator AS denominator,
@@ -482,6 +494,7 @@ def get_scored_answers(is_planned=None, includes=None, excludes=None,
 FROM (SELECT
     expected_opportunities.account_id AS account_id,
     expected_opportunities.sample_id AS sample_id,
+    expected_opportunities.is_completed AS is_completed,
     expected_opportunities.is_planned AS is_planned,
     CASE WHEN measured = %(yes)s THEN (opportunity * 3)
          WHEN measured = %(moderate_improvement)s THEN (opportunity * 2)

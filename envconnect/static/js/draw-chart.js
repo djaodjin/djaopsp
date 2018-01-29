@@ -720,3 +720,28 @@ function speedometer(parent) {
 
     return component;
 }
+
+/** Displays a pie chart (completion summary)
+ */
+function summaryChart(container, data) {
+    nv.addGraph(function() {
+        var chart = nv.models.pieChart()
+            .x(function(d) { return d[0] + ' ('+ d[1] + ')' })
+            .y(function(d) { return d[1] })
+            .showLabels(true)
+            .labelThreshold(.05)
+            .labelType("percent")
+            .legendPosition("right")
+            .donut(true)
+            .donutRatio(0.35)
+            .color(d3.scale.category10().range());
+
+        d3.select(container)
+            .datum(data)
+            .transition().duration(1200)
+            .call(chart);
+
+        return chart;
+    });
+}
+
