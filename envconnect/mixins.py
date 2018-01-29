@@ -217,7 +217,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 'slug': slug,
                 'title': title,
                 'tag': tag,
-                'score_weight': get_score_weight(tag),
+                'score_weight': get_score_weight(tag), # XXX missing % calc?
             }
             pks_to_leafs[orig_element_id] = (result_node, OrderedDict())
             results.update({base: pks_to_leafs[orig_element_id]})
@@ -229,6 +229,12 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'dest_element__tag').order_by('rank', 'pk')
         while edges:
             next_pks_to_leafs = {}
+            total_score_weight = 0
+            for edge in edges:
+                tag = edge.get('dest_element__tag')
+                total_score_weight += get_score_weight(tag)
+            normalize_children = ((1.0 - 0.01) < total_score_weight
+                and total_score_weight < (1.0 + 0.01))
             for edge in edges:
                 slug = edge.get('slug', edge.get('dest_element__slug'))
                 orig_element_id = edge.get('orig_element_id')
@@ -236,13 +242,17 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 title = edge.get('dest_element__title')
                 tag = edge.get('dest_element__tag')
                 base = pks_to_leafs[orig_element_id][0]['path'] + "/" + slug
+                score_weight = get_score_weight(tag)
                 result_node = {
                     'path': base,
                     'slug': slug,
                     'title': title,
                     'tag': tag,
-                    'score_weight': get_score_weight(tag),
+                    'score_weight': score_weight,
                 }
+                if normalize_children:
+                    result_node.update({
+                        'score_percentage': int(score_weight * 100)})
                 pivot = (result_node, OrderedDict())
                 pks_to_leafs[orig_element_id][1].update({base: pivot})
                 if cut is None or cut.enter(tag):

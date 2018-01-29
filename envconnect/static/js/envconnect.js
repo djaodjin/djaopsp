@@ -1450,7 +1450,11 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                     elemPath = "#" + data[idx].slug + "-score .rollup-weight";
                     benchmarkElement = self.element.find(elemPath);
                     if( benchmarkElement ) {
-                        benchmarkElement.text(data[idx].score_weight.toFixed(2));
+                        var weight = data[idx].score_weight.toFixed(2);
+                        if( data[idx].score_percentage ) {
+                            weight = "" + data[idx].score_percentage + "%";
+                        }
+                        benchmarkElement.text(weight);
                     }
                 }
             }
