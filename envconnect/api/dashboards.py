@@ -85,7 +85,7 @@ class SupplierQuerySet(object):
         if isinstance(val, (six.integer_types, float)):
             default = 0
         elif isinstance(val, datetime.datetime):
-            default = datetime.datetime()
+            default = datetime.datetime.min
         else:
             default = ""
         return SupplierQuerySet(sorted(self.items,
