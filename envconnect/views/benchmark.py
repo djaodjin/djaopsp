@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 from __future__ import unicode_literals
@@ -114,18 +114,9 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             # the list of charts.
             self.decorate_with_breadcrumbs(root)
             charts = self.get_charts(root)
-            not_applicable_answers = Consumption.objects.filter(
-                question__answer__sample=self.sample,
-                question__answer__measured=Consumption.NOT_APPLICABLE)
-            not_applicables = []
-            for not_applicable in not_applicable_answers:
-                element = PageElement.objects.get(
-                    slug=not_applicable.path.split('/')[-1])
-                not_applicables += [(from_root + '/' + element.slug, element)]
             context.update({
                 'charts': charts,
                 'root': root,
-                'not_applicables': not_applicables,
                 'entries': json.dumps(root, cls=JSONEncoder),
                 # XXX move to urls when we are sure how it interacts
                 # with envconnect/base.html

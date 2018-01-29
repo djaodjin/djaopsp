@@ -793,7 +793,7 @@ class BestPracticeMixin(BreadcrumbMixin):
         # Change defaults contextual URL to move back up one level.
         _, trail = self.breadcrumbs
         contextual_path = (
-            trail[-2][1] if len(trail) > 1 else self.kwargs('path', ""))
+            trail[-2][1] if len(trail) > 1 else self.kwargs.get('path', ""))
         parts = contextual_path.split('#')
         contextual_path = parts[0]
         if len(parts) > 1:

@@ -9,12 +9,13 @@ import json, logging
 from django.conf import settings
 from django.utils import six
 from pages.mixins import TrailMixin
+from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response
 
 from .best_practices import DecimalEncoder, ToggleTagContentAPIView
 from ..mixins import ReportMixin, TransparentCut
-from ..models import get_score_weight, get_scored_answers
+from ..models import get_score_weight, get_scored_answers, Consumption
 from ..serializers import ScoreWeightSerializer
 from ..scores import populate_rollup
 
@@ -22,6 +23,20 @@ LOGGER = logging.getLogger(__name__)
 
 
 class BenchmarkMixin(ReportMixin):
+
+    def get_context_data(self, **kwargs):
+        context = super(BenchmarkMixin, self).get_context_data(**kwargs)
+        from_root, _ = self.breadcrumbs
+        not_applicable_answers = Consumption.objects.filter(
+            question__answer__sample=self.sample,
+            question__answer__measured=Consumption.NOT_APPLICABLE)
+        not_applicables = []
+        for not_applicable in not_applicable_answers:
+            element = PageElement.objects.get(
+                slug=not_applicable.path.split('/')[-1])
+            not_applicables += [(from_root + '/' + element.slug, element)]
+        context.update({'not_applicables': not_applicables})
+        return context
 
     def get_drilldown(self, rollup_tree, prefix):
         accounts = None
