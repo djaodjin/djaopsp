@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import Http404
 from django.utils import six
+from django.utils.timezone import utc
 from deployutils.helpers import datetime_or_now
 from extra_views.contrib.mixins import SearchableListMixin, SortableListMixin
 from pages.models import PageElement
@@ -143,6 +144,8 @@ class SupplierQuerySet(object):
             default = 0
         elif isinstance(val, datetime.datetime):
             default = datetime.datetime.min
+            if default.tzinfo is None:
+                default = default.replace(tzinfo=utc)
         else:
             default = ""
         return SupplierQuerySet(sorted(self.items,
