@@ -544,7 +544,7 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
         numerator = agg_score.numerator
         denominator = agg_score.denominator
         created_at = agg_score.last_activity_at
-        if created_at:
+        if created_at and isinstance(created_at, six.string_types):
             created_at = parse_datetime(created_at)
         nb_answers = getattr(agg_score, 'nb_answers', None)
         if nb_answers is None:
