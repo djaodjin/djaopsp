@@ -61,55 +61,75 @@
                     {% endfor %}
                     </tr>
                 </thead>
-                <tbody dnd-list="getEntries('{{abs_prefix}}')"
-                    ng-if="sortedOnKeys === 0" ng-show="valueSummaryToggle"
+                <tbody
+                    {% if request|is_broker_manager %}
+                    dnd-list="getEntries('{{abs_prefix}}')"
                     data-drop="true"
                     data-jqyoui-options
-                    jqyoui-droppable="{onDrop:'demoteBestPractice()'}">
+                    jqyoui-droppable="{onDrop:'demoteBestPractice()'}"
+                    {% endif %}
+                    ng-if="sortedOnKeys === 0" ng-show="valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}')"
+                        {% if request|is_broker_manager %}
                         data-drag="false"
                         data-jqyoui-options
-                        jqyoui-draggable>
+                        jqyoui-draggable
+                        {% endif %}
+                        ng-repeat="practice in getEntries('{{abs_prefix}}')">
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
                 </tbody>
-                <tbody dnd-list="getEntries('{{abs_prefix}}')"
-                       ng-if="sortedOnKeys !== 0" ng-show="valueSummaryToggle"
-                       data-drop="true"
-                       data-jqyoui-options
-                       jqyoui-droppable="{onDrop:'demoteBestPractice()'}">
+                <tbody
+                    {% if request|is_broker_manager %}
+                    dnd-list="getEntries('{{abs_prefix}}')"
+                    data-drop="true"
+                    data-jqyoui-options
+                    jqyoui-droppable="{onDrop:'demoteBestPractice()'}"
+                    {% endif %}
+                    ng-if="sortedOnKeys !== 0" ng-show="valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
+                        {% if request|is_broker_manager %}
                         data-drag="false"
                         data-jqyoui-options
-                        jqyoui-draggable>
+                        jqyoui-draggable
+                        {% endif %}
+                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse">
                         {% include "envconnect/_value_summary_row.html" %}
                     </tr>
                 </tbody>
-                <tbody dnd-list="getEntries('{{abs_prefix}}')"
-                       ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle"
-                       data-drop="true"
-                       data-jqyoui-options
-                       jqyoui-droppable="{onDrop:'demoteBestPractice()'}">
+                <tbody
+                    {% if request|is_broker_manager %}
+                    dnd-list="getEntries('{{abs_prefix}}')"
+                    data-drop="true"
+                    data-jqyoui-options
+                    jqyoui-droppable="{onDrop:'demoteBestPractice()'}"
+                    {% endif %}
+                    ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}')"
+                        {% if request|is_broker_manager %}
                         data-drag="false"
                         data-jqyoui-options
-                        jqyoui-draggable>
+                        jqyoui-draggable
+                        {% endif %}
+                        ng-repeat="practice in getEntries('{{abs_prefix}}')">
                         {% include "envconnect/_profitability_row.html" %}
                     </tr>
                 </tbody>
-                <tbody dnd-list="getEntries('{{abs_prefix}}')"
-                       ng-if="sortedOnKeys !== 0"  ng-show="!valueSummaryToggle"
-                       data-drop="true"
-                       data-jqyoui-options
-                       jqyoui-droppable="{onDrop:'demoteBestPractice()'}">
+                <tbody
+                    {% if request|is_broker_manager %}
+                    dnd-list="getEntries('{{abs_prefix}}')"
+                    data-drop="true"
+                    data-jqyoui-options
+                    jqyoui-droppable="{onDrop:'demoteBestPractice()'}"
+                    {% endif %}
+                    ng-if="sortedOnKeys !== 0"  ng-show="!valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
+                        {% if request|is_broker_manager %}
                         data-drag="false"
                         data-jqyoui-options
-                        jqyoui-draggable>
+                        jqyoui-draggable
+                        {% endif %}
+                        ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse">
                         {% include "envconnect/_profitability_row.html" %}
                     </tr>
                 </tbody>
