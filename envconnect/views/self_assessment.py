@@ -188,12 +188,20 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
 
     def writerow(self, row, leaf=False):
         self.wsheet.append(row)
-        if not leaf:
+        if leaf:
+            if len(row) >= 6:
+                for row_cells in self.wsheet.iter_rows(
+                        min_row=self.wsheet._current_row,
+                        max_row=self.wsheet._current_row):
+                    row_cells[0].alignment = self.heading_alignment
+                self.wsheet.row_dimensions[self.wsheet._current_row].height = 0
+        else:
             #pylint:disable=protected-access
             for row_cells in self.wsheet.iter_rows(
                     min_row=self.wsheet._current_row,
                     max_row=self.wsheet._current_row):
                 row_cells[0].font = self.heading_font
+                row_cells[0].alignment = self.heading_alignment
 
     def create_writer(self, headings, title=None):
         col_scale = 11.9742857142857
@@ -210,6 +218,7 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
             name='Calibri', size=12, bold=False, italic=False,
             vertAlign='baseline', underline='none', strike=False,
             color='FF0071BB')
+        self.heading_alignment = Alignment(wrap_text=True)
 
     def flush_writer(self):
         border = Border(
