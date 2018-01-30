@@ -187,6 +187,7 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
     def writerow(self, row, leaf=False):
+        #pylint:disable=protected-access
         self.wsheet.append(row)
         if leaf:
             if len(row) >= 6:
@@ -196,7 +197,6 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
                     row_cells[0].alignment = self.heading_alignment
                 self.wsheet.row_dimensions[self.wsheet._current_row].height = 0
         else:
-            #pylint:disable=protected-access
             for row_cells in self.wsheet.iter_rows(
                     min_row=self.wsheet._current_row,
                     max_row=self.wsheet._current_row):

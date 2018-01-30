@@ -236,6 +236,7 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         self.text_center = Alignment(horizontal='center')
 
     def flush_writer(self):
+        #pylint:disable=protected-access
         bold_font = Font(
             name='Calibri', size=11, bold=True, italic=False,
             vertAlign='baseline', underline='none', strike=False,
