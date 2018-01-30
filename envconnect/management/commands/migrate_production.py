@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 """Command to migrate the envconnect production database"""
@@ -6,16 +6,57 @@
 import re
 
 from django.core.management.base import BaseCommand
-from django.db import transaction
-from django.db.models import Max
+from django.db import models, transaction
+from django.utils.encoding import python_2_unicode_compatible
 from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip
 from answers.models import Question as AnswersQuestion
 from survey.models import (Answer, Campaign, EditablePredicate,
-    EnumeratedQuestions, Question, Sample)
+    EnumeratedQuestions, Sample)
 
 from ...mixins import BreadcrumbMixin, ReportMixin
 from ...models import Improvement, Consumption, ColumnHeader
+
+@python_2_unicode_compatible
+class Question(models.Model):
+
+    INTEGER = 'integer'
+    RADIO = 'radio'
+    DROPDOWN = 'select'
+    SELECT_MULTIPLE = 'checkbox'
+    TEXT = 'text'
+
+    QUESTION_TYPES = (
+            (TEXT, 'text'),
+            (RADIO, 'radio'),
+            (DROPDOWN, 'dropdown'),
+            (SELECT_MULTIPLE, 'Select Multiple'),
+            (INTEGER, 'integer'),
+    )
+
+    text = models.TextField(help_text="Enter your question here.")
+    survey = models.ForeignKey(Campaign, related_name='survey_questions')
+    question_type = models.CharField(
+        max_length=9, choices=QUESTION_TYPES, default=TEXT,
+        help_text="Choose the type of answser.")
+    has_other = models.BooleanField(default=False,
+        help_text="If checked, allow user to enter a personnal choice."\
+" (Don't forget to add an 'Other' choice at the end of your list of choices)")
+    choices = models.TextField(blank=True, null=True,
+        help_text="Enter choices here separated by a new line."\
+" (Only for radio and select multiple)")
+    rank = models.IntegerField()
+    correct_answer = models.TextField(blank=True, null=True,
+        help_text="Enter correct answser(s) here separated by a new line.")
+    required = models.BooleanField(default=True,
+        help_text="If checked, an answer is required")
+
+    class Meta:
+        unique_together = ('survey', 'rank')
+        db_table = 'survey_question'
+
+    def __str__(self):
+        return str(self.rank)
 
 
 class Command(BaseCommand):
@@ -46,11 +87,15 @@ class Command(BaseCommand):
 
     @staticmethod
     def migrate_survey():
-        for question in Question.objects.all():
-            EnumeratedQuestions.objects.get_or_create(
-                campaign=question.survey,
-                question=question,
-                defaults={'rank': question.rank, 'required': question.required})
+        with transaction.atomic():
+            for question in Question.objects.all():
+                EnumeratedQuestions.objects.get_or_create(
+                    campaign=question.survey,
+                    question_id=question.pk,
+                    defaults={
+                        'rank': question.rank,
+                        'required': question.required
+                    })
 
     @staticmethod
     def migrate_improvements():
@@ -115,7 +160,7 @@ class Command(BaseCommand):
             trail = TrailMixin.get_full_element_path(path)
             self.dump_sql_statements_recursive(trail[-1])
             self.stdout.write("/* Consumptions */")
-            last_rank = Question.objects.aggregate(Max('rank')).get(
+            last_rank = Question.objects.aggregate(models.Max('rank')).get(
                 'rank__max', 0)
             for consumption in Consumption.objects.filter(
                     path__startswith="/" + "/".join([
