@@ -10,54 +10,75 @@
                 <div class='text-left start-here'>
                 <p>What each menu function lets you do:</p>
                 <ul>
-                    <div class='bs-example'>
+                    <style type='text/css'>
+    .bs-example{
+        margin: 20px;
+    }
+    .panel-title .glyphicon{
+        font-size: 14px;
+    }
+</style>
+<script>
+    $(document).ready(function(){
+        $('.collapse.in').each(function(){
+            $(this).siblings('.pedit').find('.glyphicon').addClass('glyphicon-minus').removeClass('glyphicon-plus');
+        });
+        
+        $('.collapse').on('show.bs.collapse', function(){
+            $(this).parent().find('.glyphicon').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+        }).on('hide.bs.collapse', function(){
+            $(this).parent().find('.glyphicon').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+        });
+    });
+</script>
+<div class='bs-example'>
     <div class='panel-group' id='accordion'>
-        <div class='panel panel-default'>
-            <div class='panel-heading'>
+        <div class='panel'>
+            <div class='pedit'>
                 <h4 class='panel-title'>Learn. Best practice and its value.
-                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseOne'>+</a>
+                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseOne'><span style='color:#33B8FF' class='glyphicon glyphicon-plus'></span></a>
                 </h4>
             </div>
-            <div id='collapseOne' class='panel-collapse collapse in'>
+            <div id='collapseOne' class='panel-collapse collapse'>
                 <div class='panel-body'>
                     <ol>
-                                <li>Select <i>Environmental</i> or <i>Business ethic</i> <sup>(1).</sup></li>
+                                <li>Select <i>Environmental</i> or <i>Business ethic</i> <sup style='color:#FFF633'>(1).</sup></li>
                                 <li>Click a greyor orange box to display and browse its best practices.</li>
                                 <li>Click on a practice to see if there is guidance on it <sup>(2).</sup></li>
                                 <li>Use the columns on the right of the page for guidance on practice value.<br style=''>[Mouse over each column's heading graphic to see the title. Click on the Key at the bottom of the page for color key definitions.]</font></br></li>
                             </ol>
                             <br />
-                            <i><sup>(1)</sup> Skip this step and go to Assessment if you do not wish to browse best practice.</i>
+                            <i style='font-size:11px; color:#FFF633'><sup>(1)</sup> Skip this step and go to Assessment if you do not wish to browse best practice.</i>
                             <br />
-                            <i><sup>(2)</sup> If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</i></p>
+                            <i style='font-size:11px'><sup>(2)</sup> If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</i></p>
                 </div>
             </div>
         </div>
-        <div class='panel panel-default'>
-            <div class='panel-heading'>
+        <div class='panel'>
+            <div class='pedit'>
                 <h4 class='panel-title'>Measure. Assess maturity in best practices, benchmark with peers, get a scorecard and benchmark report.
-                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseTwo'>+</a>
+                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseTwo'><span style='color:#33B8FF' class='glyphicon glyphicon-plus'></span></a>
                 </h4>
             </div>
             <div id='collapseTwo' class='panel-collapse collapse'>
                 <div class='panel-body'>
-                    <li>Click each grey or orange box and complete a response for all best practices listed <sup>(1).</sup><ul> [Responses must be accurate and verifiable, so mouse over each column heading to clearly understand response choices. <br>Also click a best practice for guidance (2) on what should be in place to respond “Yes”].</br></ul></li>
+                    <li>Click each grey or orange box and complete a response for all best practices listed <sup>(1).</sup><ul style='font-size:11px'> [Responses must be accurate and verifiable, so mouse over each column heading to clearly understand response choices. <br>Also click a best practice for guidance (2) on what should be in place to respond “Yes”].</br></ul></li>
                             <li>Click the “Results” button (bottom of page) to display per-practice benchmarking<sup>(3)</sup> and opportunity assessment. </li>
                             <li>Select <i>Scorecard</i> for overall performance scores<sup>(1)</sup> and benchmark graphs<sup>(3)</sup>.</li>
                         </ol>
                         <br />
-                        <i><sup>(1)</sup>There must be a response for each best practice to generate a complete Scorecard.</i>
+                        <i style='font-size:11px'><sup>(1)</sup>There must be a response for each best practice to generate a complete Scorecard.</i>
                         <br />
-                        <i><sup>(2)</sup>If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</i>
+                        <i style='font-size:11px'><sup>(2)</sup>If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</i>
                         <br />
-                        <i><sup>(3)</sup>Benchmarking may change as more users complete Assessments on the system.</i>
+                        <i style='font-size:11px'><sup>(3)</sup>Benchmarking may change as more users complete Assessments on the system.</i>
                 </div>
             </div>
         </div>
-        <div class='panel panel-default'>
-            <div class='panel-heading'>
+        <div class='panel'>
+            <div class='pedit'>
                 <h4 class='panel-title'>Improve. Select highest value improvements, and see impact on scores.
-                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseThree'>+</a>
+                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseThree'><span style='color:#33B8FF' class='glyphicon glyphicon-plus'></span></a>
                 </h4>
             </div>
             <div id='collapseThree' class='panel-collapse collapse'>
@@ -440,20 +461,5 @@ jQuery(document).ready(function($) {
         });
     }
 });
-
-function toggle() {
-    var ele = document.getElementById("toggleText");
-    var text = document.getElementById("displayText");
-    if(ele.style.display == "block") {
-            ele.style.display = "none";
-        text.innerHTML = "+";
-    }
-    else {
-        ele.style.display = "block";
-        text.innerHTML = "-";
-    }
-} 
-
-
 </script>
 {% endblock %}
