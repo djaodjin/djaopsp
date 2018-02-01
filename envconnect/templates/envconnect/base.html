@@ -10,18 +10,71 @@
                 <div class='text-left start-here'>
                 <p>What each menu function lets you do:</p>
                 <ul>
-                    <li>
-                    <strong>Environmental practices</strong>. Browse best practices and their value. Click on a practice to see if there is guidance on the practice.
-                    </li>
-                    <li><strong>Assessment</strong>. Assess your maturity against best practices, and see how you benchmark with peers.<sup>(1)</sup>
-                    </li>
-                    <li><strong>Scorecard</strong>. Get an overall performance score and benchmark report.<sup>(2)</sup>
-                    </li>
-                    <li><strong>Planning</strong>. Select improvement actions on a value-prioritized basis and see their impact on scores.</li><p>
-                        <i><sup>(1)</sup> Benchmarking can change over time as more users complete Assessments on the system.</i>
+                    <div class='bs-example'>
+    <div class='panel-group' id='accordion'>
+        <div class='panel panel-default'>
+            <div class='panel-heading'>
+                <h4 class='panel-title'>Learn. Best practice and its value.
+                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseOne'>+</a>
+                </h4>
+            </div>
+            <div id='collapseOne' class='panel-collapse collapse in'>
+                <div class='panel-body'>
+                    <ol>
+                                <li>Select <i>Environmental</i> or <i>Business ethic</i> <sup>(1).</sup></li>
+                                <li>Click a greyor orange box to display and browse its best practices.</li>
+                                <li>Click on a practice to see if there is guidance on it <sup>(2).</sup></li>
+                                <li>Use the columns on the right of the page for guidance on practice value.<br style=''>[Mouse over each column's heading graphic to see the title. Click on the Key at the bottom of the page for color key definitions.]</font></br></li>
+                            </ol>
+                            <br />
+                            <i><sup>(1)</sup> Skip this step and go to Assessment if you do not wish to browse best practice.</i>
+                            <br />
+                            <i><sup>(2)</sup> If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</i></p>
+                </div>
+            </div>
+        </div>
+        <div class='panel panel-default'>
+            <div class='panel-heading'>
+                <h4 class='panel-title'>Measure. Assess maturity in best practices, benchmark with peers, get a scorecard and benchmark report.
+                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseTwo'>+</a>
+                </h4>
+            </div>
+            <div id='collapseTwo' class='panel-collapse collapse'>
+                <div class='panel-body'>
+                    <li>Click each grey or orange box and complete a response for all best practices listed <sup>(1).</sup><ul> [Responses must be accurate and verifiable, so mouse over each column heading to clearly understand response choices. <br>Also click a best practice for guidance (2) on what should be in place to respond “Yes”].</br></ul></li>
+                            <li>Click the “Results” button (bottom of page) to display per-practice benchmarking<sup>(3)</sup> and opportunity assessment. </li>
+                            <li>Select <i>Scorecard</i> for overall performance scores<sup>(1)</sup> and benchmark graphs<sup>(3)</sup>.</li>
+                        </ol>
                         <br />
-                        <i><sup>(2)</sup> The Assessment must be complete to generate a complete scorecard.</i></p>
-                </div>">
+                        <i><sup>(1)</sup>There must be a response for each best practice to generate a complete Scorecard.</i>
+                        <br />
+                        <i><sup>(2)</sup>If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</i>
+                        <br />
+                        <i><sup>(3)</sup>Benchmarking may change as more users complete Assessments on the system.</i>
+                </div>
+            </div>
+        </div>
+        <div class='panel panel-default'>
+            <div class='panel-heading'>
+                <h4 class='panel-title'>Improve. Select highest value improvements, and see impact on scores.
+                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseThree'>+</a>
+                </h4>
+            </div>
+            <div id='collapseThree' class='panel-collapse collapse'>
+                <div class='panel-body'>
+                    <ol>
+                            <li>Select <i>Planning</i>.</li>
+                            <li>Click the <i>Planning dashboard</i> (orange button at bottom of page).</li>
+                            <li>Click each grey and orange box to display the improvement opportunities.</li>
+                            <li>Select the best practices you plan address over the next year or so from the <br><i>Select for Improvement Plan column.</i></br></li>
+                            <li>Click <i>Complete</i> once you’ve selected all improvement items you plan to tackle.</li>
+                        </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                </div">
                 <i class="fa fa-question-circle fa-3x" aria-hidden="true"></i></a></div>
             <ol class="col-md-9 breadcrumb env-breadcrumb">
                 <li><a href="{% url 'homepage' %}">Home</a></li>
@@ -387,5 +440,20 @@ jQuery(document).ready(function($) {
         });
     }
 });
+
+function toggle() {
+    var ele = document.getElementById("toggleText");
+    var text = document.getElementById("displayText");
+    if(ele.style.display == "block") {
+            ele.style.display = "none";
+        text.innerHTML = "+";
+    }
+    else {
+        ele.style.display = "block";
+        text.innerHTML = "-";
+    }
+} 
+
+
 </script>
 {% endblock %}
