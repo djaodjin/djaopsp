@@ -1006,6 +1006,9 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.freezeAssessment = function ($event, $title, next) {
         $event.preventDefault();
+        var form = angular.element($event.target);
+        var modalDialog = form.parents('.modal');
+        modalDialog.modal('hide');
         var title = $title;
         if( typeof title === 'undefined' ) {
             title = "assessment";

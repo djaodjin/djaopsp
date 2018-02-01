@@ -8,20 +8,6 @@
         {% with icon_tuple.0 as icon %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
             <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length === 0">
-            <div class="row">
-                <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
-                    <!-- WORKAROUND: we set data-width and data-height
-                         otherwise bootstrap-toggle will crop the size
-                         inside a class="tab-content collapse". -->
-                    <input id="toggle-results-{{icon.slug}}"
-                           type="checkbox" toggle-checkbox data-toggle="toggle"
-                           data-on="<span>Assessment</span>"
-                           data-off="<span>Results</span>"
-                           data-offstyle="green-level-2"
-                           data-width="125px" data-height="34px"
-                           ng-model="scoreToggle">
-                </div>
-            </div>
             <table class="table table-striped table-bordered table-assessment">
                 {% with icon.tag|assessment_choices as choices %}
                 <thead ng-show="!scoreToggle">
@@ -49,7 +35,7 @@
                 </thead>
                 <thead ng-show="scoreToggle">
                     <th style="vertical-align:middle;border-top:0;">Practices</th>
-                    <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Percentage of respondents that have implemented a best practice.">
+                    <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Percentage of peer respondents that have implemented a best practice.">
                         <button class="btn-link btn-sort" ng-click="sortBy('rate')">
                             <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
                         </button>
@@ -136,29 +122,68 @@ See the following for examples of content developed for best practices:
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : 4]]" class="text-right">
-                            <a id="download-assessment" class="btn btn-primary" href="{% url 'report_organization_download' organization path %}" target="_blank">Download Assessment</a>
+                        <td class="text-left">
+                            <a id="download-assessment" class="btn btn-default" href="{% url 'report_organization_download' organization path %}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
+                        </td>
+                        <td colspan="[[!scoreToggle ? {{choices|length}} : 3]]" class="text-right">
                             <button class="btn btn-primary" id="reset-assessment" ng-click="resetAssessment($event)">Reset</button>
                             <button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
-                            <button class="btn btn-primary" id="submit-button" ng-click="freezeAssessment($event, 'assessment', 'Browse to the Scorecard to see how you compare with peers.')">Submit</button>
+                            <a id="submit-button" class="btn btn-primary" href="" data-toggle="modal" data-target="#submit-assessment">Complete</a>
+                            <div class="text-right" style="display:inline-block;">
+                            <!-- WORKAROUND: we set data-width and data-height
+                                 otherwise bootstrap-toggle will crop the size
+                                 inside a class="tab-content collapse". -->
+                                <input id="toggle-results-{{icon.slug}}"
+                                   type="checkbox" toggle-checkbox
+                                   data-toggle="toggle"
+                                   data-on="<span>Assessment</span>"
+                                   data-off="<span>Results</span>"
+                                   data-offstyle="green-level-2"
+                                   data-width="125px" data-height="34px"
+                                   ng-model="scoreToggle">
+                            </div>
                         </td>
                     </tr>
                 </tbody>
                 {% endwith %}
             </table>
-            <div class="row" style="margin-top:-15px;">
-                <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom: 10px;">
-                    <div>
-                        {% include "envconnect/_value_summary_legend.html" %}
-                    </div>
-                </div>
-            </div>
             </div>
         </div>
         {% endwith %}
     {% endfor %}
 </div>
 <!-- modals -->
+<div id="submit-assessment" class="modal fade"
+     tabindex="-1" role="dialog"
+     aria-labelledby="Complete assessment" aria-hidden="true"
+     style="color: #000;">
+    <div class="modal-dialog">
+        <form class="modal-content" ng-submit="freezeAssessment($event, 'assessment', 'Browse to the Scorecard to see how you compare with peers.')">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Mark your assessment as complete ...</h4>
+            </div>
+            <div class="modal-body">
+                    <p>
+You certify that the assessment responses are true and correct to the best
+of your knowledge. After clicking "Yes", you will no longer be able to change
+<strong>this assessment</strong> responses.
+                    </p>
+                    <p>
+(You always have the opportunity to start a new assessment.)
+                    </p>
+                    <p>
+Do you wish to continue?
+                    </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-defaut"
+                    data-dismiss="modal">No</button>
+                <button type="submit" class="btn btn-primary">Yes</button>
+            </div>
+        </form>
+    </div>
+</div>
 <div id="new-assessment" class="modal fade"
      tabindex="-1" role="dialog"
      aria-labelledby="Review or create new assessment" aria-hidden="true"
