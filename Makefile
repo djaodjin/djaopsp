@@ -21,6 +21,7 @@ installFiles  := install -p -m 644
 MANAGE        := ENVCONNECT_CONFIG_DIR=$(CONFIG_DIR) $(PYTHON) manage.py
 
 DB_FILENAME   := $(shell grep ^DB_NAME $(CONFIG_DIR)/site.conf | cut -f 2 -d '"')
+EMAIL_FIXTURE_OPT := $(if $(shell git config user.email),--email="$(shell git config user.email)",)
 
 # Django 1.7,1.8 sync tables without migrations by default while Django 1.9
 # requires a --run-syncdb argument.
@@ -69,7 +70,7 @@ require: require-pip require-resources initdb
 initdb: install-conf
 	-[ -f $(DB_FILENAME) ] && rm -f $(DB_FILENAME)
 	cd $(srcDir) && $(MANAGE) migrate $(RUNSYNCDB) --noinput
-	cd $(srcDir) && $(MANAGE) loaddata \
+	cd $(srcDir) && $(MANAGE) loadfixtures $(EMAIL_FIXTURE_OPT) \
 			envconnect/fixtures/streetsidelite.json \
 			envconnect/fixtures/default-db.json
 

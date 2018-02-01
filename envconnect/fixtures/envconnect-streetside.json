@@ -36,7 +36,7 @@
     "full_name": "The Sustainability Project",
     "country": "US",
     "created_at": "2014-01-01T00:00:00-09:00",
-    "email": "support@djaodjin.com",
+    "email": "fixtures@djaoapp.com",
     "is_active": 1,
     "is_provider": 1,
     "locality": "San Francisco",
@@ -47,20 +47,6 @@
     "processor": 1
   },
   "model": "saas.organization", "pk": 6
-},
-{
-    "fields": {
-        "slug":"envconnect-reporting",
-        "title":"Reporting",
-        "created_at":"2017-10-01T00:00:00+00:00",
-        "is_not_priced": 1,
-        "interval": 4,
-        "description": "Enable reporting suppliers to share scorecard through MyTSP",
-        "organization": 6,
-        "skip_optin_on_grant": 1,
-        "is_active" : 1
-    },
-    "model" : "saas.Plan", "pk": 1
 },
 {
     "fields": {
@@ -157,6 +143,23 @@
     },
     "model": "saas.Role", "pk": 9
 },
+{
+    "fields": {
+      "last_signed": "2017-01-01T00:00:00-00:00",
+      "agreement": 1,
+      "user": 10
+    },
+    "model": "saas.signature", "pk": 10
+},
+{
+    "fields": {
+      "created_at": "2012-09-14T14:16:55-09:00",
+      "role_description": 1,
+      "organization": 10,
+      "user": 10
+    },
+    "model": "saas.Role", "pk": 10
+},
 { "fields": {
     "slug": "envconnect",
     "account": 6,
@@ -192,28 +195,36 @@
 { "fields": {
     "app": 6,
     "rank": 3,
-    "path": "/api/:organization/benchmark/",
-    "rule_op": 6,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": \"viewer\"}"
+    "path": "/api/profile/",
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 3
 },
 { "fields": {
     "app": 6,
     "rank": 4,
-    "path": "/api/:organization/",
-    "rule_op": 4,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
+    "path": "/api/:organization/benchmark/",
+    "rule_op": 6,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"viewer\"}"
   },
   "model": "rules.Rule", "pk": 4
 },
 { "fields": {
     "app": 6,
     "rank": 5,
+    "path": "/api/:organization/",
+    "rule_op": 4,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
+  },
+  "model": "rules.Rule", "pk": 5
+},
+{ "fields": {
+    "app": 6,
+    "rank": 6,
     "path": "/api/",
     "rule_op": 1
   },
-  "model": "rules.Rule", "pk": 5
+  "model": "rules.Rule", "pk": 6
 },
 { "fields": {
     "app": 6,

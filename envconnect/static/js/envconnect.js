@@ -1284,7 +1284,8 @@ envconnectControllers.controller("envconnectMyTSPReporting",
         if( typeof $scope.item.email === "undefined" ) {
             // If we don't select from the drop-down list of candidates
             // we only get an e-mail string.
-            $scope.item = {email: $scope.item, printable_name: $scope.item};
+            $scope.item = {slug: $scope.item, email: $scope.item,
+                full_name: "", printable_name: ""};
         }
         $http.post(settings.urls.api_accessibles,
                    {organization: $scope.item}).then(

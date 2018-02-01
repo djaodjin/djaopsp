@@ -161,9 +161,9 @@
           <div class="modal-body">
             <p class="text-danger" ng-model="item">
 [[item.printable_name]] was not found. This is an opportunity to invite
-a manager for [[item.printable_name]] to join The Sustainability Project.
+a manager for the organization to join The Sustainability Project.
             </p>
-            <div class="form-group" style="margin-bottom: 15px;">
+            <div class="row form-group">
               <div class="col-sm-2">
                 <label>To</label>
               </div>
@@ -174,6 +174,15 @@ a manager for [[item.printable_name]] to join The Sustainability Project.
                        style="width:100%;" autofocus />
               </div>
             </div>
+            <div class="form-group">
+              <div class="controls">
+                <label>Organization name</label>
+                <input class="form-control" style="width:100%;"
+                       ng-model="item.full_name"
+                       name="full_name" type="text" max-length="150"
+                       autofocus />
+              </div>
+            </div>
             <div id="div_id_new_user_relation" class="form-group">
               <div class="controls">
                 <label>The following invite message will be sent:</label>
@@ -181,7 +190,8 @@ a manager for [[item.printable_name]] to join The Sustainability Project.
                           maxlength="255" type="text" rows="10">
 Hello,
 
-I would like to request access to [[item.printable_name]].
+I would like to invite to create a scorecard on The Sustainability Project
+and share it with us.
 
 Thank you,
 - {{request.user.first_name}}

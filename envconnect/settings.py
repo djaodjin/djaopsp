@@ -419,25 +419,32 @@ DEPLOYUTILS = {
                 'manager': [
                     {'slug': 'envconnect',
                      'printable_name': 'Enviro-Connect'}]},
-            'site': {'email': 'donny@djaodjin.com'}},
+            'site': {'email': 'fixtures@djaodjin.com'}},
+        'alice': {
+            'username': 'alice',
+            'roles': {
+                'manager': [
+                    {'slug': 'energy-utility',
+                     'printable_name': 'Energy utility'}]},
+            'site': {'email': 'fixtures@djaodjin.com'}},
         'steve': {
             'username': 'steve',
             'roles': {
                 'manager': [{'slug': 'steve-shop',
                     'printable_name': 'Steve Shop'}]},
-            'site': {'email': 'donny+steve@djaodjin.com'}},
+            'site': {'email': 'fixtures@djaodjin.com'}},
         'andy': {
             'username': 'andy',
             'roles': {
                 'manager': [{'slug': 'andy-shop',
                     'printable_name': 'Andy Shop'}]},
-            'site': {'email': 'donny+andy@djaodjin.com'}},
+            'site': {'email': 'fixtures@djaodjin.com'}},
         'erin': {
             'username': 'erin',
             'roles': {
                 'viewer': [{'slug': 'steve-shop',
                     'printable_name': 'Steve Shop'}]},
-            'site': {'email': 'donny+erin@djaodjin.com'}},
+            'site': {'email': 'fixtures@djaodjin.com'}},
     },
     'ALLOWED_NO_SESSION': [
         STATIC_URL,

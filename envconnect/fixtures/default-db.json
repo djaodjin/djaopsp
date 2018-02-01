@@ -1770,6 +1770,16 @@
   "model": "survey.matrix", "pk": 1
 },
 {
+  "fields": {
+    "slug": "energy-utility-totals",
+    "account": 10,
+    "title": "Total scores by supplier industry sub-sector",
+    "metric": 1,
+    "cohorts": [13, 14, 2, 3]
+  },
+  "model": "survey.matrix", "pk": 2
+},
+{
    "fields": {
     "slug": "boxes-and-enclosures",
     "title": "Boxes and enclosures scores by suppliers",
