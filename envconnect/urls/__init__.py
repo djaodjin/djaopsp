@@ -116,8 +116,8 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/report(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), AssessmentView.as_view(),
         name='report_organization'),
-    url_direct(r'app/(?P<organization>%s)/improve/download/' % (
-        SLUG_RE), ImprovementXLSXView.as_view(),
+    url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/download/' % (
+        SLUG_RE, settings.PATH_RE), ImprovementXLSXView.as_view(),
         name='envconnect_improve_organization_download'),
     url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), ImproveView.as_view(),

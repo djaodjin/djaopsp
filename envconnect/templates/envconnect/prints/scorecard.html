@@ -253,5 +253,18 @@ indicator for a best practice.
       </div>
     </div>
   </div>
+  <div id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
+      <h2 style="margin-left: 5px;">"Not Applicable" Answers</h2>
+      {% if not_applicables %}
+      <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
+      <ol>
+          {% for not_applicable in not_applicables %}
+          <li><a href="{% url 'summary_organization' organization not_applicable.0 %}">{{ not_applicable.1.title }}</a></li>
+          {% endfor %}
+      </ol>
+      {% else %}
+      <h5 style="margin-left: 5px;">No questions have been marked as "Not Applicable".</h5>
+      {% endif %}
+  </div>
 </body>
 </html>

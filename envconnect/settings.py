@@ -193,6 +193,10 @@ LOGGING = {
             'handlers': [],
             'level': 'INFO',
         },
+        'extended_templates': {
+            'handlers': [],
+            'level': 'INFO',
+        },
         'django.request': {
             'handlers': [],
             'level': 'ERROR',

@@ -12,6 +12,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.utils import six
 from openpyxl import Workbook
+from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
@@ -22,6 +23,7 @@ from extended_templates.backends.pdf import PdfTemplateResponse
 
 from ..mixins import ReportMixin, ImprovementQuerySetMixin
 from ..models import Consumption
+from .benchmark import PrintableChartsMixin
 
 
 LOGGER = logging.getLogger(__name__)
@@ -157,7 +159,7 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin, ListView):
                 'text': page_element.text
             })
 
-        self.create_writer(self.get_headings(), title="Improvement Plan")
+        self.create_writer(self.value_headings, title="Improvement Plan")
         self.writerow(
             ["Improvement Plan  -  Environmental practices"], leaf=True)
         self.writerow(self.get_headings(), leaf=True)
@@ -198,7 +200,7 @@ class ImprovementCSVView(ImprovementSpreadsheetView):
         return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.csv')
 
 
-class ImprovementXLSXView(ImprovementSpreadsheetView):
+class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
 
     content_type = \
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -219,30 +221,44 @@ class ImprovementXLSXView(ImprovementSpreadsheetView):
         self.wsheet.row_dimensions[1].height = 0.36 * (6 * col_scale)
         self.wsheet.column_dimensions['A'].width = 6.56 * col_scale
         for col_num in range(0, len(headings)):
-            self.wsheet.column_dimensions[chr(ord('B') + col_num)].width \
+            self.wsheet.column_dimensions[chr(ord('E') + col_num)].width \
                 = 0.99 * col_scale
         self.heading_font = Font(
             name='Calibri', size=12, bold=False, italic=False,
             vertAlign='baseline', underline='none', strike=False,
             color='FF0071BB')
-
-    def flush_writer(self):
-        self.wsheet.append(["Implementation rate. Percentage of peer"\
-            " respondents that have implemented a best practice."])
-        self.wsheet.append(["Implemented by you? Extent to which you"\
-            " indicated the practice is implemented across"\
-            " activities/services/products/offices/facilities to which"\
-            " it could apply. 3 ticks = All, 2 ticks = More than 50%,"\
-            " 1 tick = Less than 50%, X = Not implemented or Not applicable."])
-        self.wsheet.append(["Opportunity score. Percentage points by which"\
-            " your score could increase if this best practice is implemented"\
-            " to full extent. See FAQs for scoring methodology"\
-            " and calculations."])
-        border = Border(
+        self.heading_alignment = Alignment(wrap_text=True)
+        self.border = Border(
             left=Side(border_style=BORDER_THIN, color='FF000000'),
             right=Side(border_style=BORDER_THIN, color='FF000000'),
             top=Side(border_style=BORDER_THIN, color='FF000000'),
             bottom=Side(border_style=BORDER_THIN, color='FF000000'))
+        self.text_center = Alignment(horizontal='center')
+
+    def flush_writer(self):
+        #pylint:disable=protected-access
+        bold_font = Font(
+            name='Calibri', size=11, bold=True, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF000000')
+        self.wsheet.append([])
+        self.wsheet.append(["Implementation rate"])
+        self.wsheet.row_dimensions[self.wsheet._current_row].font = bold_font
+        self.wsheet.append(["    Percentage of peer"\
+            " respondents that have implemented a best practice."])
+        self.wsheet.append(["Implemented by you?"])
+        self.wsheet.row_dimensions[self.wsheet._current_row].font = bold_font
+        self.wsheet.append(["    Extent to which you"\
+            " indicated the practice is implemented across"\
+            " activities/services/products/offices/facilities to which"\
+            " it could apply. 3 ticks = All, 2 ticks = More than 50%,"\
+            " 1 tick = Less than 50%, X = Not implemented or Not applicable."])
+        self.wsheet.append(["Opportunity score"])
+        self.wsheet.row_dimensions[self.wsheet._current_row].font = bold_font
+        self.wsheet.append(["    Percentage points by which"\
+            " your score could increase if this best practice is implemented"\
+            " to full extent. See FAQs for scoring methodology"\
+            " and calculations."])
         alignment = Alignment(
             horizontal='center', vertical='center',
             text_rotation=0, wrap_text=False,
@@ -250,9 +266,13 @@ class ImprovementXLSXView(ImprovementSpreadsheetView):
         title_fill = PatternFill(fill_type=FILL_SOLID, fgColor='FFDDD9C5')
         subtitle_fill = PatternFill(fill_type=FILL_SOLID, fgColor='FFEEECE2')
         subtitle_font = Font(
-            name='Calibri', size=12, bold=False, italic=False,
+            name='Calibri', size=10, bold=False, italic=False,
             vertAlign='baseline', underline='none', strike=False,
             color='FF000000')
+        subtitle_alignment = Alignment(
+            horizontal='center', vertical='center',
+            text_rotation=0, wrap_text=True,
+            shrink_to_fit=True, indent=0)
         row = self.wsheet.row_dimensions[1]
         row.fill = title_fill
         row.font = Font(
@@ -260,18 +280,18 @@ class ImprovementXLSXView(ImprovementSpreadsheetView):
             vertAlign='baseline', underline='none', strike=False,
             color='FF000000')
         row.alignment = alignment
-        row.border = border
+        row.border = self.border
         self.wsheet.merge_cells('A1:I1')
         row = self.wsheet.row_dimensions[2]
         row.fill = subtitle_fill
         row.font = subtitle_font
-        row.alignment = alignment
-        row.border = border
+        row.alignment = subtitle_alignment
+        row.border = self.border
         row = self.wsheet.row_dimensions[3]
         row.fill = subtitle_fill
         row.font = subtitle_font
-        row.alignment = alignment
-        row.border = border
+        row.alignment = subtitle_alignment
+        row.border = self.border
         self.wsheet.merge_cells('E2:I2')
         self.wsheet.merge_cells('A2:A3')
         self.wsheet.merge_cells('B2:B3')
@@ -279,14 +299,23 @@ class ImprovementXLSXView(ImprovementSpreadsheetView):
         self.wsheet.merge_cells('D2:D3')
 
         # Create "Impact of Improvement Plan" worksheet.
-        _ = self.wbook.create_sheet(title="Impact of Improvement Plan")
+        wsheet = self.wbook.create_sheet(title="Impact of Improvement Plan")
+        # XXX get data from actual score.
+        chart = {
+            'slug': 'totals',
+            'highest_normalized_score': 100,
+            'avg_normalized_score': 50,
+            'normalized_score': 64,
+        }
+        self.generate_printable_html([chart])
+        image_path = chart['image']
+        if image_path.startswith('file://'):
+            image_path = image_path[7:]
+        img = Image(image_path)
+        img.anchor(wsheet.cell('A1'))
+        wsheet.add_image(img)
 
-        # Create "Value Key" worksheet.
-        _ = self.wbook.create_sheet(title="Value Key")
-
-        # XXX Create best practices content pages.
-        self.write_best_practice_content(self.root)
-
+        # Write out the Excel file.
         content = io.BytesIO()
         self.wbook.save(content)
         content.seek(0)
@@ -331,16 +360,22 @@ class ImprovementXLSXView(ImprovementSpreadsheetView):
                         # implementation_ease, profitability,
                         # avg_value
                         try:
+                            row_cells[cell_idx].border = self.border
                             row_cells[cell_idx].fill = self.get_value_fill(
                                 int(row_cells[cell_idx].value))
+                            row_cells[cell_idx].value = None
                         except ValueError:
                             # might be the header
                             pass
+                    row_cells[0].alignment = self.heading_alignment
+                    row_cells[1].style = 'Percent'         # Implementation rate
+                    row_cells[2].alignment = self.text_center # Imp. by you?
         else:
             for row_cells in self.wsheet.iter_rows(
                     min_row=self.wsheet._current_row,
                     max_row=self.wsheet._current_row):
                 row_cells[0].font = self.heading_font
+                row_cells[0].alignment = self.heading_alignment
 
 
 class ReportPDFView(ImprovementQuerySetMixin, ListView):

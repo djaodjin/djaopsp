@@ -9,6 +9,17 @@
 <div>
   <h1 class="text-center">Reporting entities</h1>
 </div>
+<section id="completion-summary-chart">
+  <div class="row">
+    <div>
+      <div class="col-md-offset-2 col-md-8">
+        <div class="chart text-center" style="display: inline-block;width:400px;height:200px;">
+          <svg></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <section id="managed">
   <div class="row">
     <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
@@ -35,7 +46,10 @@
     </a>
   </script>
   <div class="text-right">
-    <span>Search</span> <input type="text" ng-model="filterExpr" ng-change="filterList(filterExpr)" />
+    <span>Search</span> <input type="text"
+                               ng-model="filterExpr"
+                               ng-model-options="{ debounce: 1000 }"
+                               ng-change="filterList(filterExpr)" />
   </div>
   <table class="table table-striped">
     <thead>
@@ -58,6 +72,7 @@
               <input name="organization" type="text" placeholder="Name or email"
                      autocomplete="off"
                      ng-model="item"
+                     ng-model-options="{ debounce: 1000 }"
                      uib-typeahead="candidate as candidate.printable_name for candidate in getCandidates($viewValue)"
                      uib-typeahead-loading="loadingOrganizations"
                      uib-typeahead-template-url="customTemplate.html"

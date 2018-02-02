@@ -12,6 +12,8 @@ from django.db import connection, connections, transaction
 from django.db.models import Max, Sum
 from django.http import Http404
 from django.utils import six
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import utc
 from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
@@ -216,7 +218,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 'slug': slug,
                 'title': title,
                 'tag': tag,
-                'score_weight': get_score_weight(tag),
+                'score_weight': get_score_weight(tag), # XXX missing % calc?
             }
             pks_to_leafs[orig_element_id] = (result_node, OrderedDict())
             results.update({base: pks_to_leafs[orig_element_id]})
@@ -228,6 +230,12 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'dest_element__tag').order_by('rank', 'pk')
         while edges:
             next_pks_to_leafs = {}
+            total_score_weight = 0
+            for edge in edges:
+                tag = edge.get('dest_element__tag')
+                total_score_weight += get_score_weight(tag)
+            normalize_children = ((1.0 - 0.01) < total_score_weight
+                and total_score_weight < (1.0 + 0.01))
             for edge in edges:
                 slug = edge.get('slug', edge.get('dest_element__slug'))
                 orig_element_id = edge.get('orig_element_id')
@@ -235,13 +243,17 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 title = edge.get('dest_element__title')
                 tag = edge.get('dest_element__tag')
                 base = pks_to_leafs[orig_element_id][0]['path'] + "/" + slug
+                score_weight = get_score_weight(tag)
                 result_node = {
                     'path': base,
                     'slug': slug,
                     'title': title,
                     'tag': tag,
-                    'score_weight': get_score_weight(tag),
+                    'score_weight': score_weight,
                 }
+                if normalize_children:
+                    result_node.update({
+                        'score_percentage': int(score_weight * 100)})
                 pivot = (result_node, OrderedDict())
                 pks_to_leafs[orig_element_id][1].update({base: pivot})
                 if cut is None or cut.enter(tag):
@@ -528,10 +540,16 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
         """
         account_id = agg_score.account_id
         #sample_id = agg_score[1]
+        is_completed = agg_score.is_completed
         is_planned = agg_score.is_planned
         numerator = agg_score.numerator
         denominator = agg_score.denominator
         created_at = agg_score.last_activity_at
+        if created_at:
+            if isinstance(created_at, six.string_types):
+                created_at = parse_datetime(created_at)
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=utc)
         nb_answers = getattr(agg_score, 'nb_answers', None)
         if nb_answers is None:
             # Putting the following statement in the default clause will lead
@@ -544,7 +562,9 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
         if is_planned:
             accounts[account_id].update({
                 'improvement_numerator': numerator,
-                'improvement_denominator': denominator})
+                'improvement_denominator': denominator,
+                'improvement_completed': is_completed,
+            })
             if not 'nb_answers' in accounts[account_id]:
                 accounts[account_id].update({
                     'nb_answers': nb_answers})
@@ -558,6 +578,7 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
             accounts[account_id].update({
                 'nb_answers': nb_answers,
                 'nb_questions': nb_questions,
+                'assessment_completed': is_completed,
                 'created_at': created_at
             })
             if nb_questions == nb_answers:
@@ -577,7 +598,8 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
     SUM(denominator) AS denominator,
     MAX(last_activity_at) AS last_activity_at,
     COUNT(answer_id) AS nb_answers,
-    COUNT(*) AS nb_questions
+    COUNT(*) AS nb_questions,
+    MAX(is_completed) AS is_completed
 FROM (%(answers)s) AS answers
 WHERE path LIKE '%(prefix)s%%'
 GROUP BY account_id, sample_id, is_planned;""" % {
@@ -636,24 +658,28 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     added = 3 * avg_value / nb_respondents
                 else:
                     added = 0
-                if consumption.implemented == 'Yes':
+                if (consumption.implemented ==
+                    Consumption.ASSESSMENT_ANSWERS[Consumption.YES]):
                     vals[0]['accounts'][self.account.pk].update({
                         'opportunity_numerator': 0,
                         'opportunity_denominator': 0
                     })
                 elif (consumption.implemented ==
-                      'Yes, but needs a little improvement'):
+                      Consumption.ASSESSMENT_ANSWERS[
+                          Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT]):
                     vals[0]['accounts'][self.account.pk].update({
                         'opportunity_numerator': opportunity,
                         'opportunity_denominator': 0
                     })
                 elif (consumption.implemented ==
-                    'Yes, but needs a lot of improvement'):
+                      Consumption.ASSESSMENT_ANSWERS[
+                          Consumption.NEEDS_MODERATE_IMPROVEMENT]):
                     vals[0]['accounts'][self.account.pk].update({
                         'opportunity_numerator': 2 * opportunity + added,
                         'opportunity_denominator': added
                     })
-                elif consumption.implemented == 'No':
+                elif (consumption.implemented ==
+                      Consumption.ASSESSMENT_ANSWERS[Consumption.NO]):
                     vals[0]['accounts'][self.account.pk].update({
                         'opportunity_numerator': 3 * opportunity + added,
                         'opportunity_denominator': added
@@ -677,6 +703,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
+            self.get_or_create_assessment_sample()
             root = self._build_tree(trail[-1][0], from_root)
             populate_rollup(root, True)
             total_numerator = root[0]['accounts'][self.account.pk].get(
@@ -774,7 +801,7 @@ class BestPracticeMixin(BreadcrumbMixin):
         # Change defaults contextual URL to move back up one level.
         _, trail = self.breadcrumbs
         contextual_path = (
-            trail[-2][1] if len(trail) > 1 else self.kwargs('path', ""))
+            trail[-2][1] if len(trail) > 1 else self.kwargs.get('path', ""))
         parts = contextual_path.split('#')
         contextual_path = parts[0]
         if len(parts) > 1:

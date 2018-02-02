@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 """Command to remove unused questions in the envconnect database"""
@@ -7,9 +7,10 @@ import re, sys
 
 from django.core.management.base import BaseCommand
 from django.db import transaction, connection
+from django.utils import six
 from pages.models import PageElement, RelationShip
 from pages.api.relationship import PageElementMirrorAPIView
-from survey.models import Question
+from survey.models import Matrix, Question
 
 from ...models import Consumption
 
@@ -76,6 +77,7 @@ class Command(BaseCommand):
 #        with transaction.atomic():
 #            self.unalias_headings()
         self.delete_ghosts(do_delete=options['do_delete'])
+        self.create_missing_graphs()
 
     def build_tree(self, root, prefix=None, indent=''):
         elements = []
@@ -152,6 +154,42 @@ class Command(BaseCommand):
                                     reference.profitability
                                 consumption.avg_value = reference.avg_value
                                 consumption.save()
+
+    def create_missing_graphs(self):
+        matrices = dict([(matrix.slug, matrix)
+            for matrix in Matrix.objects.all()])
+        for element in PageElement.objects.filter(
+                tag__contains='industry'):
+            candidates = element.get_parent_paths()
+            if not candidates:
+                raise RuntimeError(
+                    "could not find path to '%s'." % element.slug)
+            for candidate in candidates:
+                key = element.slug
+                if key.startswith('sustainability-'):
+                    key = key[len('sustainability-'):]
+                if key in matrices:
+                    del matrices[key]
+                else:
+                    self.stderr.write("error: cannot find matrix for /%s in:"
+                        % '/'.join([elem.slug for elem in candidate]))
+                    for matrix_key in six.iterkeys(matrices):
+                        self.stderr.write("        - %s" % matrix_key)
+                    self.stdout.write(
+"""
+INSERT INTO survey_editablefilter (slug, title, tags) VALUES
+    ('%(slug)s', '%(title)s', 'metric');
+INSERT INTO survey_editablepredicate (rank, editable_filter_id, operator,
+    field, selector, operand) VALUES
+    (1, (select id from survey_editablefilter where slug='%(slug)s'),
+    'startsWith', 'path', 'keepmatching', '/%(slug)s/sustainability-%(slug)s');
+INSERT INTO survey_matrix (slug, title, metric_id, account_id) VALUES
+    ('%(slug)s', '%(title)s',
+    (SELECT id FROM survey_editablefilter WHERE slug='%(slug)s'),
+    (SELECT id FROM saas_organization WHERE slug='envconnect'));
+""" % {'slug': element.slug, 'title': element.title})
+        for matrix_key in six.iterkeys(matrices):
+            self.stderr.write("warning: extra matrix '%s'" % matrix_key)
 
     def delete_ghosts(self, do_delete=False):
         #pylint:disable=too-many-locals

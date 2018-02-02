@@ -25,14 +25,14 @@
 { "fields": {
     "unit": 1,
     "rank": 2,
-    "text": "Yes, but needs a little improvement"
+    "text": "Mostly yes"
   },
   "model" : "survey.choice", "pk" : 2
 },
 { "fields": {
     "unit": 1,
     "rank": 3,
-    "text": "Yes, but needs a lot of improvement"
+    "text": "Mostly no"
   },
   "model" : "survey.choice", "pk" : 3
 },
@@ -126,7 +126,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "sustainability-boxes-and-enclosures",
-    "tag": "{\"tags\":[\"sustainability\"]}",
+    "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 2
@@ -1385,8 +1385,8 @@
 },
 {
   "fields": {
-    "slug": "0e4586c916eb494b90f9ff0a3698234f",
-    "created_at": "2016-07-15T00:35:26.565Z",
+    "slug": "0e4586c916eb494b90f9ff0a3698234e",
+    "created_at":  "2016-05-01T00:36:19.448Z",
     "survey": 1,
     "account": 8,
     "time_spent": "0:00:00",
@@ -1399,7 +1399,7 @@
     "slug": "0e4586c916eb494b90f9ff0a3698234f",
     "created_at": "2016-07-15T00:35:26.565Z",
     "survey": 1,
-    "account": 6,
+    "account": 8,
     "time_spent": "0:00:00",
     "is_frozen": false
   },
@@ -1411,10 +1411,10 @@
     "question": 8,
     "measured": 1,
     "collected_by": 8,
-    "sample": 1,
+    "sample": 2,
     "rank": 8
   },
-  "model": "survey.answer", "pk": 1
+  "model": "survey.answer", "pk": 2
 },
 {
   "fields": {
@@ -1422,10 +1422,10 @@
     "question": 9,
     "measured": 2,
     "collected_by": 8,
-    "sample": 1,
+    "sample": 2,
     "rank": 9
   },
-  "model": "survey.answer", "pk": 2
+  "model": "survey.answer", "pk": 3
 },
 {
   "fields": {
@@ -1433,10 +1433,10 @@
     "question": 1,
     "measured": 1,
     "collected_by": 8,
-    "sample": 1,
+    "sample": 2,
     "rank": 1
   },
-  "model": "survey.answer", "pk": 3
+  "model": "survey.answer", "pk": 4
 },
 {
   "fields": {
@@ -1444,10 +1444,10 @@
     "question": 2,
     "measured": 1,
     "collected_by": 8,
-    "sample": 1,
+    "sample": 2,
     "rank": 2
   },
-  "model": "survey.answer", "pk": 4
+  "model": "survey.answer", "pk": 5
 },
 {
   "fields": {
@@ -1455,10 +1455,10 @@
     "question": 3,
     "measured": 1,
     "collected_by": 8,
-    "sample": 1,
+    "sample": 2,
     "rank": 3
   },
-  "model": "survey.answer", "pk": 5
+  "model": "survey.answer", "pk": 6
 },
 {
   "fields": {
@@ -1466,10 +1466,10 @@
     "question": 4,
     "measured": 1,
     "collected_by": 8,
-    "sample": 1,
+    "sample": 2,
     "rank": 4
   },
-  "model": "survey.answer", "pk": 6
+  "model": "survey.answer", "pk": 7
 },
 {
   "fields": {
@@ -1477,10 +1477,10 @@
     "question": 6,
     "measured": 4,
     "collected_by": 8,
-    "sample": 1,
+    "sample": 2,
     "rank": 6
   },
-  "model": "survey.answer", "pk": 7
+  "model": "survey.answer", "pk": 8
 },
 {
   "fields": {
@@ -1488,21 +1488,21 @@
     "question": 7,
     "measured": 1,
     "collected_by": 8,
-    "sample": 1,
+    "sample": 2,
     "rank": 7
   },
-  "model": "survey.answer", "pk": 8
+  "model": "survey.answer", "pk": 9
 },
 {
   "fields": {
     "created_at": "2016-05-01T00:36:19.448Z",
     "question": 7,
-    "measured": 1,
+    "measured": 2,
     "collected_by": 8,
-    "sample": 2,
+    "sample": 1,
     "rank": 7
   },
-  "model": "survey.answer", "pk": 9
+  "model": "survey.answer", "pk": 1
 },
 {
   "fields": {

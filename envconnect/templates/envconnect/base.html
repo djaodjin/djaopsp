@@ -175,7 +175,7 @@
                                                             {% include "envconnect/_icon.html" with icon=icon %}
                                                             <div id="[[icon[0].slug]]-score" class="icon-score">
                                                                 <div>
-                                                                    (<span class="rollup-weight" data-id="[[icon[0].path]]" data-key="weight" ng-click="editScoreWeight($event)">[[icon[0].score_weight]]</span>)
+                                                                    (<span class="rollup-weight" data-id="[[icon[0].path]]" data-key="weight" ng-click="editScoreWeight($event)">[[icon[0].score_percentage ? ("" + icon[0].score_percentage + "%") : icon[0].score_weight]]</span>)
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -242,7 +242,7 @@
                                                                     {% include "envconnect/_icon.html" with icon=icon %}
                                                                     <div id="{{icon.slug}}-score" class="icon-score">
                                                                         <div>
-                                                                            (<span class="rollup-weight">{{icon.score_weight}}</span>)
+                                                                            (<span class="rollup-weight">{% if icon.score_percentage %}{{icon.score_percentage}}%{% else %}{{icon.score_weight}}{% endif %}</span>)
                                                                         </div>
                                                                     </div>
                                                                 </div>

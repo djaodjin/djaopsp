@@ -13,6 +13,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
+from survey.models import Choice
 
 from ..mixins import ReportMixin
 from ..models import Consumption
@@ -150,8 +151,9 @@ class AssessmentSpreadsheetView(AssessmentBaseView):
 
     @staticmethod
     def get_headings(tag):
-        return list(Consumption.ASSESSMENT_CHOICES.get(tag,
-            Consumption.ASSESSMENT_CHOICES.get('default')))
+        return [str(choice) for choice in Choice.objects.filter(
+            pk__in=Consumption.ASSESSMENT_CHOICES.get(tag,
+                Consumption.ASSESSMENT_CHOICES.get('default'))).order_by('pk')]
 
 
 class AssessmentCSVView(AssessmentSpreadsheetView):
@@ -185,13 +187,21 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
     def writerow(self, row, leaf=False):
+        #pylint:disable=protected-access
         self.wsheet.append(row)
-        if not leaf:
-            #pylint:disable=protected-access
+        if leaf:
+            if len(row) >= 6:
+                for row_cells in self.wsheet.iter_rows(
+                        min_row=self.wsheet._current_row,
+                        max_row=self.wsheet._current_row):
+                    row_cells[0].alignment = self.heading_alignment
+                self.wsheet.row_dimensions[self.wsheet._current_row].height = 0
+        else:
             for row_cells in self.wsheet.iter_rows(
                     min_row=self.wsheet._current_row,
                     max_row=self.wsheet._current_row):
                 row_cells[0].font = self.heading_font
+                row_cells[0].alignment = self.heading_alignment
 
     def create_writer(self, headings, title=None):
         col_scale = 11.9742857142857
@@ -208,6 +218,7 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
             name='Calibri', size=12, bold=False, italic=False,
             vertAlign='baseline', underline='none', strike=False,
             color='FF0071BB')
+        self.heading_alignment = Alignment(wrap_text=True)
 
     def flush_writer(self):
         border = Border(
