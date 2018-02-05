@@ -7,13 +7,13 @@
             aria-expanded="false" aria-controls="improvement-dashboard">
         Click for planning dashboard
     </button>
-    <div id="improvement-dashboard" class="text-center inner collapse">
+    <div id="improvement-dashboard" class="text-center inner collapse" style="">
       <div style="display: inline-block;margin-left:auto;">
         <h3>Planning Dashboard</h3>
         <p>Estimated impacts of your improvement plan selections</p>
       </div>
       <div class="row">
-        <div class="col-sm-7">
+        <div class="col-sm-12">
           <div class="col-md-6">
             <div class="score-card"
                  style="flex:auto;">
@@ -48,13 +48,17 @@
             {% endfor %}
           </div>
         </div>
+=======
         <div class="col-sm-5 bordered-left">
           <div style="height:200px;width:200px;margin-left:auto;margin-right:auto;">
           <a id="download-improvements" class="btn btn-primary btn-block" href="{% url 'envconnect_improve_organization_download' organization path %}" target="_blank">Download improvements list</a>
           <a id="Find-Suppliers" class="btn btn-primary btn-block" href="#" target="_blank">Find Suppliers</a>
           <!-- XXX Update link when code is written -->
+>>>>>>> a743d9f012ce24004d8166db3e5597dfa26372e2
         </div>
         </div>
+      </div>
+          <!-- XXX Update link when code is written -->
       </div>
       <script type="text/javascript">
 jQuery(document).ready(function($) {
