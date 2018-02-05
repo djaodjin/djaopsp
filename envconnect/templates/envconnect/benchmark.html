@@ -1,58 +1,151 @@
 {% extends "envconnect/base.html" %}
 {% load static from staticfiles %}
 
-{% block icons_menu %}
-    {% include "envconnect/_benchmark_menu.html" with icon_row_title="Scorecard" arc_title="Total Score" arc_chart_id="score-card" %}
-{% endblock icons_menu %}
-
-{% block app_content %}
-<div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
-    <h2 style="margin-left: 5px;">Benchmark graphs</h2>
-    <div>
-        <div class="row row-flex">
-            {% for chart in charts %}
-            {% if forloop.counter0|divisibleby:3 %}
+{% block consumption_content %}
+<div>
+  <!-- Tab menus -->
+  <ul class="nav nav-tabs">
+    <li class="active">
+      <a href="#scorecard-tab" data-toggle="tab">{{last_updated_at}}</a>
+    </li>
+    <li>
+      <a href="#history-tab" data-toggle="tab">History</a>
+    </li>
+  </ul>
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div id="scorecard-tab" class="panel-icons tab-pane active">
+      <div class="row">
+        <div class="col-md-12 text-center" style="display:table-row;">
+          <div class="row-icons benchmarks-box" id="score-card">
+            <div style="display:inline-block;float:left;flex:auto;">
+              <h2 class="icon-row-title">Scorecard</h2>
+              <div class="header-tuple">
+                {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
+                <ul class="nav nav-tabs squared-tabs">
+                  {% for abs_prefix, icon_tuple in root.1|iteritems %}
+                    {% with icon_tuple.0 as icon %}
+                    {% with forloop.first as draw_border %}
+                    <li id="{{icon.slug}}" class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% block extra_icon_classes %} active no-color-chage{% endblock %}{% if icon.slug == active %} active{% endif %}">
+                      <div class="icon-container">
+                      {% if request|is_broker_manager and not organization %}
+                        <div style="position:relative; vertical-align:top;">
+                          <a class="text-danger delete"
+                             href="" data-toggle="modal"
+                             data-target="#confirm-delete"
+                             ng-click="setActiveElement({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
+                             style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i>
+                          </a>
+                          <a id="incl-{{icon.slug}}" href=""
+                             ng-click="toggleScorecard('{{abs_prefix}}', true, {slug: '{{icon.slug}}', tag: '{{icon.tag}}'})"
+                             style="position:absolute;top:20px;left:0px;"><i class="fa [[containsTag({tag: '{{icon.tag}}'}, TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i>
+                          </a>
+                          <a class="edit"
+                             href="" data-toggle="modal" data-target="#edit-element-modal"
+                             ng-click="setActiveElement({slug: '{{icon.slug}}', title: '{{icon.title}}', tag: '{{icon.tag}}', path: '{{abs_prefix}}'}, true)"
+                             style="position:absolute;top:40px;left:0px;"><i class="fa fa-edit"></i>
+                          </a>
+                        </div>
+                        {% endif %}
+                        {% include "envconnect/_icon.html" with icon=icon %}
+                        {% block score %}
+                        <div id="{{icon.slug}}-score" class="icon-score" data-toggle="tooltip" data-placement="top" title="An icon sore is the sum of all (3 * opportunity where answered 'yes', 2 * opportunity where answered 'needs little improvement', opportunity  where answered 'needs lot of improvement') * 100 / sum of all (opportunity where not answered 'Not applicable')">
+                          <h3 class="rollup-score"><i class="fa fa-spinner fa-spin"></i></h3>
+                            <div>
+                                (<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{abs_prefix}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)
+                            </div>
+                        </div>
+                        {% endblock score %}
+                      </div>
+                      {% block systems_block %}
+                      <div class="system-menus">
+                          {% for system_tuple in icon_tuple.1|systems %}
+                            {% with system_tuple.0 as system %}
+                            <div id="{{system.slug}}-score" class="system-menu {% if forloop.first %}system-menu-bordered{% endif %}">
+                            {% if not forloop.first %}
+                              <i class="fa fa-plus"></i>
+                            {% endif %}
+                              <p id="tab-{{system.slug}}">{{system.title}}</p>
+                              <div class="rollup-score">
+                                <i class="fa fa-spinner fa-spin"></i>
+                              </div>
+                              <div>
+(<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{abs_prefix|add:'/'|add:system.slug}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)
+                              </div>
+                            </div>
+                            {% endwith %}
+                          {% endfor %}
+                      </div>
+                      {% endblock systems_block %}
+                    </li>
+                    {% endwith %}
+                    {% endwith %}
+                    {% endfor %}
+                </ul>
+                {% endwith %}
+              </div>
+            </div>
+            {% include "envconnect/_arc.html" %}
+          </div>
         </div>
-        <div class="row row-flex">
+      </div> <!-- .row -->
+      <div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
+        <h2 style="margin-left: 5px;">Benchmark graphs</h2>
+        <div>
+          <div class="row row-flex">
+          {% for chart in charts %}
+            {% if forloop.counter0|divisibleby:3 %}
+              </div>
+              <div class="row row-flex">
             {% endif %}
             <div class="col-md-4">
-                <div id="{{chart.slug}}-chart" class="chart-container">
-                    {% include "envconnect/_chart_title.html" with practice=chart %}
-                    <div>
-                        <div class="chart-content c3" style="width:250px;height:120px;">
-                        </div>
-                    </div>
+              <div id="{{chart.slug}}-chart" class="chart-container">
+                {% include "envconnect/_chart_title.html" with practice=chart %}
+                <div>
+                  <div class="chart-content c3" style="width:250px;height:120px;">
+                  </div>
                 </div>
+              </div>
             </div>
-            {% endfor %}
+          {% endfor %}
+          </div>
         </div>
-    </div>
+      </div> <!-- #benchmarks -->
+      <div id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
+        <h2 style="margin-left: 5px;">"Not Applicable" Answers</h2>
+        {% if not_applicables %}
+          <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
+          <ol>
+          {% for not_applicable in not_applicables %}
+            <li><a href="{% url 'summary_organization' organization not_applicable.0 %}">{{ not_applicable.1.title }}</a></li>
+          {% endfor %}
+          </ol>
+        {% else %}
+          <h5 style="margin-left: 5px;">No questions have been marked as "Not Applicable".</h5>
+        {% endif %}
+      </div>
+    </div><!-- /#scorecard-tab -->
+    <div id="history-tab" class="panel-icons tab-pane">
+        <div class="panel-body">
+            <div id="history-chart" style="height:500px;margin:auto;"></div>
+        </div>
+    </div><!-- /#history-tab -->
+  </div><!-- /.tab-content -->
 </div>
-<div id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
-    <h2 style="margin-left: 5px;">"Not Applicable" Answers</h2>
-    {% if not_applicables %}
-    <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
-    <ol>
-        {% for not_applicable in not_applicables %}
-        <li><a href="{% url 'summary_organization' organization not_applicable.0 %}">{{ not_applicable.1.title }}</a></li>
-        {% endfor %}
-    </ol>
-    {% else %}
-    <h5 style="margin-left: 5px;">No questions have been marked as "Not Applicable".</h5>
-    {% endif %}
-</div>
-{% endblock app_content%}
+{% endblock %}
 
 {% block bodyscripts %}
 {{block.super}}
 <script type="text/javascript">
     jQuery(document).ready(function($) {
-        $("#panel-icons").improvementDashboard({
-            api_account_benchmark: "{{api_account_benchmark}}",
+        $("#scorecard-tab").improvementDashboard({
+            api_account_benchmark: "{{urls.api_account_benchmark}}",
             benchmark: "{{root.0.slug}}",
             scoreFunc: function (elem) { return elem.normalized_score; }
         });
-        $("#history-chart").historicalScoreChart({});
+        $("#history-chart").historicalScoreChart({
+            scores: "{{urls.api_historical_scores}}"
+        });
 
         // Copy/Paste from vendor/js/bootstrap.js and inserted
         // a forced trigger of 'resize' for NVD3 to redraw the chart

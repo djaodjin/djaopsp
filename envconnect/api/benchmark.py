@@ -11,7 +11,7 @@ from django.utils import six
 from pages.mixins import TrailMixin
 from pages.models import PageElement
 from rest_framework import generics
-from rest_framework.response import Response
+from rest_framework.response import Response as HttpResponse
 
 from .best_practices import DecimalEncoder, ToggleTagContentAPIView
 from ..mixins import ReportMixin, TransparentCut
@@ -343,7 +343,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         return charts
 
     def get(self, request, *args, **kwargs): #pylint:disable=unused-argument
-        return Response(self.get_queryset())
+        return HttpResponse(self.get_queryset())
 
 
 class EnableScorecardAPIView(ToggleTagContentAPIView):
@@ -363,7 +363,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         trail = self.get_full_element_path(self.kwargs.get('path'))
-        return Response(self.serializer_class().to_representation({
+        return HttpResponse(self.serializer_class().to_representation({
             'weight': get_score_weight(trail[-1].tag)}))
 
     def update(self, request, *args, **kwargs):#pylint:disable=unused-argument
@@ -371,7 +371,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
         serializer = self.serializer_class(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        return Response(serializer.data)
+        return HttpResponse(serializer.data)
 
     def perform_update(self, serializer):
         trail = self.get_full_element_path(self.kwargs.get('path'))
@@ -384,3 +384,92 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
         extra.update(serializer.validated_data)
         element.tag = json.dumps(extra, cls=DecimalEncoder)
         element.save()
+
+
+class HistoricalScoreAPIView(TrailMixin, generics.RetrieveAPIView):
+    """
+    .. sourcecode:: http
+
+        GET /api/*organization*/historical*path*
+
+    Returns list of historical *organization*'s scores for all top level
+    icons based on *path*. The output format is compatible
+    with `HistoricalScoreChart` (see draw-chart.js).
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/steve-shop/benchmark/boxes-and-enclosures/energy-efficiency/
+
+    **Example response**:
+
+    .. sourcecode:: http
+        [
+            {
+                "key": "May 2018",
+                "values": [
+                    ["Governance & Management", 80],
+                    ["Engineering & Design", 78],
+                    ["Procurement", 72],
+                    ["Construction", 73],
+                    ["Office", 74],
+                ],
+            },
+            {
+                "key": "Dec 2017",
+                "values": [
+                    ["Governance & Management", 60],
+                    ["Engineering & Design", 67],
+                    ["Procurement", 56],
+                    ["Construction", 52],
+                    ["Office", 59],
+                ],
+            },
+            {
+                "key": "Jan 2017",
+                "values": [
+                    ["Governance & Management", 60],
+                    ["Engineering & Design", 67],
+                    ["Procurement", 16],
+                    ["Construction", 49],
+                    ["Office", 40],
+                ],
+            },
+        ]
+    """
+
+    def get(self, request, *args, **kwargs):#pylint:disable=unused-argument
+        return HttpResponse(
+            [
+                {
+                    "key": "May 2018",
+                    "values": [
+                        ["Governance & Management", 80],
+                        ["Engineering & Design", 78],
+                        ["Procurement", 72],
+                        ["Construction", 73],
+                        ["Office", 74],
+                    ],
+                },
+                {
+                    "key": "Dec 2017",
+                    "values": [
+                        ["Governance & Management", 60],
+                        ["Engineering & Design", 67],
+                        ["Procurement", 56],
+                        ["Construction", 52],
+                        ["Office", 59],
+                    ],
+                },
+                {
+                    "key": "Jan 2017",
+                    "values": [
+                        ["Governance & Management", 60],
+                        ["Engineering & Design", 67],
+                        ["Procurement", 16],
+                        ["Construction", 49],
+                        ["Office", 40],
+                    ],
+                },
+            ])

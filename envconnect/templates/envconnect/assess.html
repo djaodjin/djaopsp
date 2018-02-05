@@ -2,7 +2,7 @@
 {% load pages_tags %}
 {% load static from staticfiles %}
 
-{% block app_content %}
+{% block icons_content %}
 <div class="tab-content collapse{% if active %} in{% endif %}">
     {% for abs_prefix, icon_tuple in root.1|iteritems %}
         {% with icon_tuple.0 as icon %}
@@ -123,7 +123,7 @@ See the following for examples of content developed for best practices:
                     </tr>
                     <tr>
                         <td class="text-left">
-                            <a id="download-assessment" class="btn btn-default" href="{% url 'report_organization_download' organization path %}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
+                            <a id="download-assessment" class="btn btn-default" href="{% url 'assess_organization_download' organization path %}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
                         </td>
                         <td colspan="[[!scoreToggle ? {{choices|length}} : 3]]" class="text-right">
                             <button class="btn btn-primary" id="reset-assessment" ng-click="resetAssessment($event)">Reset</button>

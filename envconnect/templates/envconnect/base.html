@@ -88,7 +88,8 @@
     </div>
 </div>
                 </div">
-                <i class="fa fa-question-circle fa-3x" aria-hidden="true"></i></a></div>
+                <i class="fa fa-question-circle fa-3x" aria-hidden="true"></i></a>
+            </div> <!-- .question-mark -->
             <ol class="col-md-9 breadcrumb env-breadcrumb">
                 <li><a href="{% url 'homepage' %}">Home</a></li>
                 {% for breadcrumb_tuple in breadcrumbs %}
@@ -125,14 +126,13 @@
                     </div>
                 </div>
                 <div class="clearfix"></div>
-                {% endblock %}
+                {% endblock supplier_menus %}
                 {% block consumption_content %}
-                <div id="panel-icons" class="panel-icons{% block extra_panel_icons_classes %} panel-icons-no-benchmark{% endblock %}">
+                <div id="panel-icons" class="panel-icons panel-icons-no-benchmark">
                     <div class="panel-body">
-                        {% block icons_menu %}
                         <div class="row">
                             <div class="col-md-12 text-center" style="display:table-row;">
-                                <div class="row-icons{% block row_icons_classes %}{% endblock %}">
+                                <div class="row-icons">
                                     <div style="display:inline-block;float:left;flex:auto;">
                                         {% block icon_row_title %}
                                         {% endblock %}
@@ -260,18 +260,15 @@
                                                 {% endif %}
                                             </ul>
                                             {% endwith %}
-
-                                        </div>
-                                        {% block additional_icon %}
-                                        {% endblock %}
+                                        </div> <!-- .header-tuple -->
                                     </div>
-                                </div>
-                            </div>
-                        {% endblock icons_menu %}
-                        {% block app_content %}
-                        {% endblock app_content %}
-                    </div>
-                </div>
+                                </div> <!-- .row-icons -->
+                            </div> <!-- .col-md-12 -->
+                        </div> <!-- .row -->
+                        {% block icons_content %}
+                        {% endblock %}
+                    </div> <!-- .panel-body -->
+                </div> <!-- .panel-icons -->
                 {% endblock consumption_content %}
                 <div class="row">
                     <div class="col-md-offset-3 col-md-6 content-sponsors">

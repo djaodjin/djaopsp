@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls import url, include
 
 from ...api.assessments import AssessmentAPIView
-from ...api.benchmark import BenchmarkAPIView
+from ...api.benchmark import BenchmarkAPIView, HistoricalScoreAPIView
 from ...api.improvements import (ImprovementListAPIView,
     ImprovementToggleAPIView)
 from ...api.dashboards import SupplierListAPIView, TotalScoreBySubsectorAPIView
@@ -25,6 +25,10 @@ urlpatterns = [
         settings.SLUG_RE, settings.PATH_RE),
         BenchmarkAPIView.as_view(),
         name="api_benchmark"),
+    url(r'(?P<organization>%s)/historical(?P<path>%s)/?' % (
+        settings.SLUG_RE, settings.PATH_RE),
+        HistoricalScoreAPIView.as_view(),
+        name="api_historical_scores"),
     url(r'(?P<organization>%s)/improvement(?P<path>%s)/?' % (
         settings.SLUG_RE, settings.PATH_RE),
         ImprovementToggleAPIView.as_view(),

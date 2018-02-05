@@ -114,14 +114,21 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             # the list of charts.
             self.decorate_with_breadcrumbs(root)
             charts = self.get_charts(root)
+            if self.sample:
+                last_updated_at = self.sample.created_at.strftime("%b %Y")
+            else:
+                last_updated_at = "Current"
             context.update({
                 'charts': charts,
                 'root': root,
                 'entries': json.dumps(root, cls=JSONEncoder),
-                # XXX move to urls when we are sure how it interacts
-                # with envconnect/base.html
-                'api_account_benchmark': reverse(
-                    'api_benchmark', args=(context['organization'], from_root))
+                'last_updated_at': last_updated_at,
+            })
+            self.update_context_urls(context, {
+                'api_account_benchmark': reverse('api_benchmark',
+                    args=(context['organization'], from_root)),
+                'api_historical_scores': reverse('api_historical_scores',
+                    args=(context['organization'], from_root)),
             })
         return context
 

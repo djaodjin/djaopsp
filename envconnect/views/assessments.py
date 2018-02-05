@@ -29,7 +29,7 @@ class AssessmentBaseView(ReportMixin, TemplateView):
 
 class AssessmentView(AssessmentBaseView):
 
-    template_name = 'envconnect/self_assessment.html'
+    template_name = 'envconnect/assess.html'
     breadcrumb_url = 'assess'
 
     def get_breadcrumb_url(self, path):

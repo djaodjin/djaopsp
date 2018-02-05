@@ -2,7 +2,7 @@
 {% load pages_tags %}
 {% load static from staticfiles %}
 
-{% block app_content %}
+{% block icons_content %}
 <div class="tab-content collapse{% if active %} in{% endif %}">
     {% for abs_prefix, icon_tuple in root.1|iteritems %}
         {% with icon_tuple.0 as icon %}
