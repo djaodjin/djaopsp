@@ -157,8 +157,9 @@ class BenchmarkView(BenchmarkBaseView):
             messages.warning(self.request,
                 "You need to complete an assessment before"\
                 " moving on to the scorecard.")
-            return HttpResponseRedirect(reverse('report_organization',
-                kwargs={'organization': organization, 'path': path}))
+            return HttpResponseRedirect(
+                reverse('envconnect_assess_organization',
+                    kwargs={'organization': organization, 'path': path}))
         return HttpResponseRedirect(reverse('summary_organization',
             kwargs={'organization': organization, 'path': path}))
 

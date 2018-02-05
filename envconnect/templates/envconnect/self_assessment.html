@@ -232,9 +232,35 @@ Data entry, trending, reporting and dashboard creation is under construction.
 {{block.super}}
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-    {% if sample.is_frozen %}
-        $("#new-assessment").modal("show");
-    {% endif %}
+{% if request|is_authenticated and not request.session.last_visited %}
+    var assessmentTrip = new Trip([{
+        delay: -1,
+        position: "screen-center",
+        content: "<ol class='text-left'>" +
+"<li>Click each grey or orange box and complete a response for all best practices<br />" +
+"listed<sup>(1)</sup>. [<strong>Responses must be accurate and verifiable</strong>, so mouse over each column heading to clearly<br />" +
+"understand response choices. Also click a best practice for guidance<sup>(2)</sup> on what should be in place to<br />" +
+"respond <em>Yes</em>.</li>" +
+"<li>Click the <em>Results</em> button (bottom of page) to display per-practice<br />" +
+"benchmarking<sup>(3)</sup> and opportunity assessment.</li>" +
+"<li>Select <em>Scorecard</em> for overall performance scores<sup>(1)</sup> and benchmark graphs<sup>(3)</sup>." +
+"</ol>" +
+"<ul class='text-left list-unstyled' style='font-size:10px;'>" +
+"<li>(1) There must be a response for each best practice to generate a complete Scorecard.</li>" +
+"<li>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</li>" +
+"<li>(3) Benchmarking may change as more users complete assessments on the system.</li>"
+}], {
+        enableAnimation: false,
+        showCloseBox: true,
+        showNavigation: true,
+        delay:-1,
+        tripTheme:'black',
+    });
+    assessmentTrip.start();
+{% endif %}
+{% if sample.is_frozen %}
+    $("#new-assessment").modal("show");
+{% endif %}
 });
 </script>
 {% endblock %}

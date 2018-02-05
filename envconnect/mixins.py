@@ -481,7 +481,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     args=(context['organization'], path)) + active_section,
                 'benchmark': reverse('benchmark_organization',
                     args=(context['organization'], path)) + active_section,
-                'report': reverse('report_organization',
+                'assess': reverse('envconnect_assess_organization',
                     args=(context['organization'], path)) + active_section,
                 'improve': reverse('envconnect_improve_organization',
                     args=(context['organization'], path)) + active_section
@@ -489,11 +489,12 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         else:
             urls.update({
                 'summary': reverse('summary', args=(path,)) + active_section,
-                'benchmark':
-                  reverse('benchmark', args=(path,)) + active_section,
-                'report': reverse('report', args=(path,)) + active_section,
-                'improve':
-                  reverse('envconnect_improve', args=(path,))  + active_section
+                'benchmark': reverse('benchmark',
+                    args=(path,)) + active_section,
+                'assess': reverse('envconnect_assess',
+                    args=(path,)) + active_section,
+                'improve': reverse('envconnect_improve',
+                    args=(path,))  + active_section
             })
         self.update_context_urls(context, urls)
         return context
@@ -810,18 +811,17 @@ class BestPracticeMixin(BreadcrumbMixin):
             active_section = ""
         if organization:
             urls = {
-                'report': reverse('report_organization',
+                'assess': reverse('envconnect_assess_organization',
                     args=(organization, contextual_path)) + active_section,
                 'improve': reverse('envconnect_improve_organization',
                     args=(organization, contextual_path)) + active_section
             }
         else:
             urls = {
-                'report':
-                  reverse('report', args=(contextual_path,)) + active_section,
-                'improve': (
-                    reverse('envconnect_improve', args=(contextual_path,))
-                    + active_section)
+                'assess': reverse('envconnect_assess',
+                    args=(contextual_path,)) + active_section,
+                'improve': reverse('envconnect_improve',
+                    args=(contextual_path,)) + active_section
             }
         self.update_context_urls(context, urls)
         return context

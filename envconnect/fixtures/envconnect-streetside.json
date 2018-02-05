@@ -255,36 +255,46 @@
 { "fields": {
     "app": 6,
     "rank": 10,
-    "path": "/app/:organization/",
+    "path": "/app/:organization/assess/",
     "rule_op": 3,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
-    "engaged": "app"
+    "engaged": "assessment"
   },
   "model": "rules.Rule", "pk": 10
 },
 { "fields": {
     "app": 6,
     "rank": 11,
-    "path": "/app/",
-    "rule_op": 1
+    "path": "/app/:organization/",
+    "rule_op": 3,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
+    "engaged": "app"
   },
   "model": "rules.Rule", "pk": 11
 },
 { "fields": {
     "app": 6,
     "rank": 12,
-    "path": "/docs/",
-    "rule_op": 0,
-    "is_forward": false
+    "path": "/app/",
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 12
 },
 { "fields": {
     "app": 6,
     "rank": 13,
+    "path": "/docs/",
+    "rule_op": 0,
+    "is_forward": false
+  },
+  "model": "rules.Rule", "pk": 13
+},
+{ "fields": {
+    "app": 6,
+    "rank": 14,
     "path": "/",
     "rule_op": 0,
     "engaged": "app"
   },
-  "model": "rules.Rule", "pk": 13
+  "model": "rules.Rule", "pk": 14
 }]
