@@ -114,12 +114,12 @@
       <div id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
         <h2 style="margin-left: 5px;">"Not Applicable" Answers</h2>
         {% if not_applicables %}
-          <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
-          <ol>
+          <h5 style="margin-left: 5px;">The scorecarded organization responded that the following practices are not applicable to them:</h5>
+          <ul>
           {% for not_applicable in not_applicables %}
-            <li><a href="{% url 'summary_organization' organization not_applicable.0 %}">{{ not_applicable.1.title }}</a></li>
+            <li class="bestpractice"><a class="title" href="{% url 'summary_organization' organization not_applicable.0 %}">{{ not_applicable.1.title }}</a></li>
           {% endfor %}
-          </ol>
+          </ul>
         {% else %}
           <h5 style="margin-left: 5px;">No questions have been marked as "Not Applicable".</h5>
         {% endif %}
