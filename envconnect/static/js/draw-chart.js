@@ -238,7 +238,7 @@
                     .rotateLabels(-90)
                     .showMaxMin(false)  //remove max and min in x axe
                     .tickFormat(function(d) {
-                        if( d < enumTicks.length ) {
+                        if( d <= enumTicks.length ) {
                             return enumTicks[d - 1];
                         }
                         return d;

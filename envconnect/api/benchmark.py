@@ -12,10 +12,13 @@ from pages.mixins import TrailMixin
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as HttpResponse
+from survey.models import Sample
+from deployutils.crypt import JSONEncoder
 
 from .best_practices import DecimalEncoder, ToggleTagContentAPIView
-from ..mixins import ReportMixin, TransparentCut
-from ..models import get_score_weight, get_scored_answers, Consumption
+from ..mixins import BreadcrumbMixin, ReportMixin, TransparentCut
+from ..models import (get_score_weight, get_scored_answers,
+    get_historical_scores, Consumption)
 from ..serializers import ScoreWeightSerializer
 from ..scores import populate_rollup
 
@@ -386,7 +389,8 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
         element.save()
 
 
-class HistoricalScoreAPIView(TrailMixin, generics.RetrieveAPIView):
+# XXX ReportMixin because we use populate_leafs
+class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
     """
     .. sourcecode:: http
 
@@ -439,37 +443,59 @@ class HistoricalScoreAPIView(TrailMixin, generics.RetrieveAPIView):
         ]
     """
 
+    def flatten_distributions(self, rollup_tree, accounts, prefix=None):
+        """
+        A rollup_tree is keyed best practices and we need a structure
+        keyed on historical samples here.
+        """
+        if prefix is None:
+            prefix = "/"
+        if not prefix.startswith("/"):
+            prefix = "/" + prefix
+
+        for node_path, node in six.iteritems(rollup_tree[1]):
+            node_key = node[0].get('title', node_path)
+            for account_key, account in six.iteritems(node[0].get(
+                    'accounts', {})):
+                if account_key not in accounts:
+                    accounts[account_key] = {}
+                accounts[account_key].update({
+                    node_key: account.get('numerator', 0)})
+
     def get(self, request, *args, **kwargs):#pylint:disable=unused-argument
-        return HttpResponse(
-            [
-                {
-                    "key": "May 2018",
-                    "values": [
-                        ["Governance & Management", 80],
-                        ["Engineering & Design", 78],
-                        ["Procurement", 72],
-                        ["Construction", 73],
-                        ["Office", 74],
-                    ],
-                },
-                {
-                    "key": "Dec 2017",
-                    "values": [
-                        ["Governance & Management", 60],
-                        ["Engineering & Design", 67],
-                        ["Procurement", 56],
-                        ["Construction", 52],
-                        ["Office", 59],
-                    ],
-                },
-                {
-                    "key": "Jan 2017",
-                    "values": [
-                        ["Governance & Management", 60],
-                        ["Engineering & Design", 67],
-                        ["Procurement", 16],
-                        ["Construction", 49],
-                        ["Office", 40],
-                    ],
-                },
-            ])
+        self._start_time()
+        from_root, trail = self.breadcrumbs
+        roots = [trail[-1][0]] if trail else None
+        self._report_queries("at rollup_scores entry point")
+        rollup_tree = None
+        rollups = self._cut_tree(self.build_content_tree(
+            roots, prefix=from_root, cut=TransparentCut()),
+            cut=TransparentCut())
+        for rollup_path, rollup in six.iteritems(rollups):
+            rollup_tree = rollup
+            break
+        self._report_queries("rollup_tree generated")
+        leafs = self.get_leafs(rollup_tree=rollup_tree)
+        self._report_queries("leafs loaded")
+        self.populate_leafs(
+            leafs, get_historical_scores(
+                includes=["%d" % rec['pk'] for rec
+                  in Sample.objects.filter(account=self.account).values('pk')],
+                excludes=self._get_filter_out_testing()),
+            agg_key='last_activity_at') # Relies on `get_historical_scores()`
+                                        # to use `Sample.created_at`
+        self._report_queries("leafs populated")
+        populate_rollup(rollup_tree, True)
+        self._report_queries("rollup_tree populated")
+        # We populated the historical scores per section.
+        # Now we need to transpose them by sample_id.
+        accounts = {}
+        self.flatten_distributions(
+            rollup_tree, accounts, prefix=from_root)
+        result = []
+        for account_key, account in six.iteritems(accounts):
+            result += [{
+                "key": account_key.strftime("%b %Y"),
+                "values": list(six.iteritems(account))
+            }]
+        return HttpResponse(result)

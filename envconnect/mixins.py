@@ -532,15 +532,13 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                     survey=self.survey, account=self.account)
 
     @staticmethod
-    def populate_account(accounts, agg_score):
+    def populate_account(accounts, agg_score, agg_key='account_id'):
         """
         Populate the *accounts* dictionnary with scores in *agg_score*.
 
         *agg_score* is a tuple (account_id, sample_id, is_planned, numerator,
         denominator, last_activity_at, nb_answers, nb_questions)
         """
-        account_id = agg_score.account_id
-        #sample_id = agg_score[1]
         is_completed = agg_score.is_completed
         is_planned = agg_score.is_planned
         numerator = agg_score.numerator
@@ -551,6 +549,10 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                 created_at = parse_datetime(created_at)
             if created_at.tzinfo is None:
                 created_at = created_at.replace(tzinfo=utc)
+        if agg_key == 'last_activity_at':
+            account_id = created_at
+        else:
+            account_id = getattr(agg_score, agg_key)
         nb_answers = getattr(agg_score, 'nb_answers', None)
         if nb_answers is None:
             # Putting the following statement in the default clause will lead
@@ -587,7 +589,7 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                     'numerator': numerator,
                     'denominator': denominator})
 
-    def populate_leafs(self, leafs, answers):
+    def populate_leafs(self, leafs, answers, agg_key='account_id'):
         """
         Populate all leafs with aggregated scores.
         """
@@ -615,7 +617,8 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     agg_score = agg_score_tuple(*agg_score)
                     if not 'accounts' in values:
                         values['accounts'] = {}
-                    self.populate_account(values['accounts'], agg_score)
+                    self.populate_account(
+                        values['accounts'], agg_score, agg_key=agg_key)
 
     def decorate_leafs(self, leafs):
         """

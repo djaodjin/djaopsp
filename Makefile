@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 -include $(buildTop)/share/dws/prefix.mk
@@ -55,7 +55,8 @@ package-theme: build-django-assets
 		$(MANAGE) package_theme \
 		--build_dir=$(objDir) --install_dir=htdocs/themes \
 		--exclude='_form.html' --exclude='.*/' \
-		--include='accounts/' --include='saas/' --include='notification/'
+		--include='accounts/' --include='docs/' \
+		--include='saas/' --include='notification/'
 	zip -d $(srcDir)/htdocs/themes/envconnect.zip "envconnect/templates/accounts/base.html"
 
 

@@ -126,7 +126,8 @@ nb_positive_by_questions AS (
     COUNT(survey_answer.id) AS nb_yes
   FROM survey_answer INNER JOIN latest_assessment_by_accounts
     ON survey_answer.sample_id = latest_assessment_by_accounts.id
-  WHERE survey_answer.measured IN (%(positive_answers)s)
+  WHERE survey_answer.metric_id = 1
+    AND survey_answer.measured IN (%(positive_answers)s)
   GROUP BY question_id),
 
 nb_valid_by_questions AS (
@@ -141,7 +142,8 @@ nb_valid_by_questions AS (
     ON survey_question.id = survey_answer.question_id
   INNER JOIN latest_assessment_by_accounts
   ON survey_answer.sample_id = latest_assessment_by_accounts.id
-  WHERE survey_answer.measured IN (%(valid_answers)s)
+  WHERE survey_answer.metric_id = 1
+    AND survey_answer.measured IN (%(valid_answers)s)
   GROUP BY envconnect_consumption.question_id)
 """ % {
     'filter_out_testing': filter_out_testing,
@@ -220,6 +222,7 @@ class Consumption(SurveyQuestion):
         NEEDS_MODERATE_IMPROVEMENT: 'Mostly yes',
         NEEDS_SIGNIFICANT_IMPROVEMENT: 'Mostly no',
         NO: 'No',
+        NOT_APPLICABLE: 'Not applicable'
     }
 
     # ColumnHeader objects are inserted lazily at the time a column
@@ -362,7 +365,7 @@ def _additional_filters(is_planned=None, includes=None, excludes=None,
         additional_filters += "%ssurvey_sample.id NOT IN (%s)" % (
             sep, ', '.join(excludes))
     if additional_filters:
-        additional_filters = "WHERE %s" % additional_filters
+        additional_filters = "AND %s" % additional_filters
     return additional_filters
 
 
@@ -435,11 +438,52 @@ def get_answer_with_account(is_planned=None, includes=None, excludes=None):
     survey_sample.extra AS is_planned
 FROM survey_answer INNER JOIN survey_sample
 ON survey_answer.sample_id = survey_sample.id
+WHERE survey_answer.metric_id = 1
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
         is_planned=is_planned, includes=includes, excludes=excludes)}
     _show_query_and_result(query)
     return query
+
+
+def get_historical_scores(is_planned=None, includes=None, excludes=None,
+                          questions=None):
+    """
+    Returns a list of tuples with the following fields:
+
+        - account_id
+        - sample_id
+        - is_completed
+        - is_planned
+        - numerator
+        - denominator
+        - last_activity_at
+        - answer_id
+        - question_id
+        - path
+    """
+    scored_answers = """SELECT
+survey_sample.account_id AS account_id,
+survey_answer.sample_id AS sample_id,
+survey_sample.is_frozen AS is_completed,
+survey_sample.extra AS is_planned,
+survey_answer.measured AS numerator,
+1 AS denominator,
+survey_sample.created_at AS last_activity_at,
+survey_answer.id AS answer_id,
+survey_answer.question_id AS question_id,
+survey_question.path AS path
+FROM survey_answer
+INNER JOIN survey_sample
+  ON survey_answer.sample_id = survey_sample.id
+INNER JOIN survey_question
+  ON survey_answer.question_id = survey_question.id
+WHERE survey_answer.metric_id = 2
+%(additional_filters)s""" % {
+    'additional_filters': _additional_filters(
+        is_planned=is_planned, includes=includes, excludes=excludes)}
+    _show_query_and_result(scored_answers)
+    return scored_answers
 
 
 def get_scored_answers(is_planned=None, includes=None, excludes=None,
