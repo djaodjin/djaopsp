@@ -1,0 +1,28 @@
+{% extends "notification/base.eml" %}
+
+{% block subject %}
+{# We are putting |safe here because an e-mail's subject line shouldn't be
+HTML encoded. #}
+{{plan.organization.printable_name|safe}} requested your scorecard on TSP
+{% endblock %}
+
+{% block html_content %}
+{% if reason %}
+<p>
+{{reason|md}}
+</p>
+{%endif %}
+<p>
+{{user.printable_name}} is requesting access to your scorecard and
+planning status on https://tspproject.org/ on behalf
+of {{plan.organization.printable_name}}.
+</p>
+<p>
+Please click or copy/paste the link below to grant managers of
+{{plan.organization.printable_name}} the ability to see your scorecard
+and your planning status:
+</p>
+<p>
+<a href="{{back_url}}">{{back_url}}</a>
+</p>
+{% endblock %}
