@@ -396,6 +396,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
         rollup_tree[0]['cohorts'] = cohorts
 
     def decorate_with_cohorts(self, rollup_tree, accounts=None, prefix=""):
+        #pylint:disable=unused-argument
         if accounts is None:
             accounts = dict([(account.pk, account)
                 for account in self.get_accounts()])

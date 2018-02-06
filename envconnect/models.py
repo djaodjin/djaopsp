@@ -481,7 +481,8 @@ INNER JOIN survey_question
 WHERE survey_answer.metric_id = 2
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
-        is_planned=is_planned, includes=includes, excludes=excludes)}
+        is_planned=is_planned, includes=includes, excludes=excludes,
+        questions=questions)}
     _show_query_and_result(scored_answers)
     return scored_answers
 

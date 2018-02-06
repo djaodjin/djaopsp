@@ -13,10 +13,9 @@ from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as HttpResponse
 from survey.models import Sample
-from deployutils.crypt import JSONEncoder
 
 from .best_practices import DecimalEncoder, ToggleTagContentAPIView
-from ..mixins import BreadcrumbMixin, ReportMixin, TransparentCut
+from ..mixins import ReportMixin, TransparentCut
 from ..models import (get_score_weight, get_scored_answers,
     get_historical_scores, Consumption)
 from ..serializers import ScoreWeightSerializer
@@ -444,7 +443,8 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
         ]
     """
 
-    def flatten_distributions(self, rollup_tree, accounts, prefix=None):
+    @staticmethod
+    def flatten_distributions(rollup_tree, accounts, prefix=None):
         """
         A rollup_tree is keyed best practices and we need a structure
         keyed on historical samples here.
@@ -463,7 +463,8 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                 accounts[account_key].update({
                     node_key: account.get('numerator', 0)})
 
-    def get(self, request, *args, **kwargs):#pylint:disable=unused-argument
+    def get(self, request, *args, **kwargs):
+        #pylint:disable=unused-argument,too-many-locals
         self._start_time()
         from_root, trail = self.breadcrumbs
         roots = [trail[-1][0]] if trail else None
@@ -472,7 +473,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
         rollups = self._cut_tree(self.build_content_tree(
             roots, prefix=from_root, cut=TransparentCut()),
             cut=TransparentCut())
-        for rollup_path, rollup in six.iteritems(rollups):
+        for _, rollup in six.iteritems(rollups):
             rollup_tree = rollup
             break
         self._report_queries("rollup_tree generated")
