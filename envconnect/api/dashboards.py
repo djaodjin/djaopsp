@@ -80,6 +80,7 @@ class CompletionSummaryPagination(PageNumberPagination):
                     ('Planning phase', self.improvement_phase),
                     ('Completed', self.completed),
             )),
+            ('count', self.page.paginator.count),
             ('next', self.get_next_link()),
             ('previous', self.get_previous_link()),
             ('results', data)
@@ -223,15 +224,11 @@ class SupplierListBaseAPIView(DashboardMixin, generics.ListAPIView):
                         'assessment_completed', False)
                     improvement_completed = score.get(
                         'improvement_completed', False)
-                    # XXX We should really compute a score here.
-                    improvement_score = score.get(
-                        'improvement_numerator', None)
                     dct.update({
                         'nb_answers': nb_answers,
                         'nb_questions': nb_questions,
                         'assessment_completed': assessment_completed,
                         'improvement_completed': improvement_completed,
-                        'improvement_score': improvement_score
                     })
                     if nb_answers == nb_questions and nb_questions != 0:
                         normalized_score = score.get('normalized_score', None)
@@ -239,6 +236,10 @@ class SupplierListBaseAPIView(DashboardMixin, generics.ListAPIView):
                         normalized_score = None
                     if normalized_score is not None:
                         dct.update({'normalized_score': normalized_score})
+                    # XXX We should really compute a score here.
+                    improvement_score = score.get('improvement_numerator', None)
+                    if improvement_score is not None:
+                        dct.update({'improvement_score': improvement_score})
                 results += [dct]
             except self.account_model.DoesNotExist:
                 pass
@@ -284,7 +285,7 @@ class SupplierListAPIView(SupplierSmartListMixin, SupplierListBaseAPIView):
 
 class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
     """
-    A table of scores for cohorts aganist a metric.
+    A table of scores for cohorts against a metric.
 
     Uses the total score for each organization as recorded
     by the assessment surveys and present aggregates
@@ -401,7 +402,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
         score = {}
         cohorts = []
         for path, values in six.iteritems(rollup_tree[1]):
-            self.decorate_with_scores(values, accounts=accounts, prefix=prefix)
+            self.decorate_with_scores(values, accounts=accounts, prefix=path)
             nb_accounts = 0
             normalized_score = 0
             for account_id, account_score in six.iteritems(
@@ -436,7 +437,14 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
                 rollup_tree = node
                 break
             self.decorate_with_scores(rollup_tree, prefix=from_root)
-            charts = self.get_charts(rollup_tree)
+            excludes = None
+            parts = from_root.split("/")
+            if len(parts) > 1:
+                if not parts[1].startswith('sustainability-'):
+                    excludes = ['sustainability-%s' % parts[1]]
+                else:
+                    excludes = [parts[1]]
+            charts = self.get_charts(rollup_tree, excludes=excludes)
             charts += [rollup_tree[0]]
         else:
             self.decorate_with_cohorts(rollup_tree, prefix=from_root)

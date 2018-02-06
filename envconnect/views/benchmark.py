@@ -3,15 +3,13 @@
 
 from __future__ import unicode_literals
 
-import io, logging, json, re, subprocess, tempfile
+import io, logging, json, subprocess, tempfile
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.contrib import messages
-from django.db.models import Q
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.views.generic.base import (RedirectView, TemplateView,
     ContextMixin, TemplateResponseMixin)
@@ -20,8 +18,6 @@ from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
-from survey.models import Matrix
-from survey.views.matrix import MatrixDetailView
 
 from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
 from ..mixins import ReportMixin, TransparentCut
@@ -364,98 +360,3 @@ class ScoreCardDownloadView(PrintableChartsMixin, BenchmarkAPIView):
         self.generate_printable_html(self.get_printable_charts())
         return PdfTemplateResponse(request, self.template_name,
             self.get_context_data(**kwargs))
-
-
-class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
-
-    matrix_url_kwarg = 'path'
-
-    def get_available_matrices(self):
-        return Matrix.objects.filter(account=self.account)
-
-    def get_object(self, queryset=None):
-        if queryset is None:
-            queryset = self.get_queryset()
-        candidate = self.kwargs.get(self.matrix_url_kwarg)
-        if candidate.startswith('/'):
-            candidate = candidate[1:]
-        return get_object_or_404(queryset, slug=candidate)
-
-    def get_context_data(self, **kwargs):
-        #pylint:disable=too-many-locals,too-many-statements
-        candidate = self.kwargs.get(self.matrix_url_kwarg)
-        if candidate.startswith("/"):
-            candidate = candidate[1:]
-        parts = candidate.split("/")
-        if len(parts) > 1:
-            candidate = parts[0]
-        try:
-            PageElement.objects.get(slug=candidate)
-        except PageElement.DoesNotExist:
-            # It is not a breadcrumb path (ex: totals).
-            #pylint:disable=unsubscriptable-object
-            del self.kwargs[self.matrix_url_kwarg]
-
-        context = super(PortfoliosDetailView, self).get_context_data(**kwargs)
-        context.update({'available_matrices': self.get_available_matrices()})
-
-        from_root, trail = self.breadcrumbs
-        parts = from_root.split("/")
-        if len(parts) > 1:
-            root = self._build_tree(trail[-1][0], from_root)
-            self.decorate_with_breadcrumbs(root)
-            charts = self.get_charts(root)
-        else:
-            # totals
-            charts = []
-            industries = set([])
-            for extra in self.account_queryset.filter(
-                    subscription__plan__slug='%s-report' % self.account).values(
-                        'extra'):
-                try:
-                    extra = extra.get('extra')
-                    if extra:
-                        extra = json.loads(extra.replace("'", '"'))
-                        industries |= set([extra.get('industry')])
-                except (IndexError, TypeError, ValueError) as _:
-                    pass
-            flt = None
-            for industry in industries:
-                if flt is None:
-                    flt = Q(slug__startswith=industry)
-                else:
-                    flt |= Q(slug__startswith=industry)
-            if True: #pylint:disable=using-constant-test
-                # XXX `flt is None:` not matching the totals columns
-                queryset = self.object.cohorts.all()
-            else:
-                queryset = self.object.cohorts.filter(flt)
-            for cohort in queryset.order_by('title'):
-                candidate = cohort.slug
-                look = re.match(r"(\S+)(-\d+)$", candidate)
-                if look:
-                    candidate = look.group(1)
-                element = PageElement.objects.filter(slug=candidate).first()
-                tag = element.tag if element is not None else ""
-                charts += [{
-                    'slug': cohort.slug,
-                    'breadcrumbs': [cohort.title],
-                    'icon': element.text if element is not None else "",
-                    'icon_css':
-                        'grey' if (tag and 'management' in tag) else 'orange'
-                }]
-            charts = []
-        url_kwargs = self.get_url_kwargs()
-        url_kwargs.update({self.matrix_url_kwarg: self.object})
-        for chart in charts:
-            candidate = chart['slug']
-            look = re.match(r"(\S+)(-\d+)$", candidate)
-            if look:
-                matrix_slug = '/'.join([look.group(1)])
-            else:
-                matrix_slug = '/'.join([str(self.object), candidate])
-            url_kwargs.update({self.matrix_url_kwarg: matrix_slug})
-            api_urls = {'matrix_api': reverse('matrix_api', kwargs=url_kwargs)}
-            chart.update({'urls': api_urls})
-        context.update({'charts': charts})
-        return context

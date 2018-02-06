@@ -64,13 +64,14 @@ class BenchmarkMixin(ReportMixin):
 
         return accounts
 
-    def get_charts(self, rollup_tree):
+    def get_charts(self, rollup_tree, excludes=None):
         charts = []
         icon_tag = rollup_tree[0].get('tag', "")
         if icon_tag and settings.TAG_SCORECARD in icon_tag:
-            charts += [rollup_tree[0]]
+            if not (excludes and rollup_tree[0].get('slug', "") in excludes):
+                charts += [rollup_tree[0]]
         for _, icon_tuple in six.iteritems(rollup_tree[1]):
-            sub_charts = self.get_charts(icon_tuple)
+            sub_charts = self.get_charts(icon_tuple, excludes=excludes)
             charts += sub_charts
         return charts
 

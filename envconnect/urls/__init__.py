@@ -10,9 +10,9 @@ from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
     url_direct)
 from ..views import AccountRedirectView, MyTSPRedirectView
 from ..views.assessments import AssessmentView, AssessmentXLSXView
-from ..views.benchmark import (BenchmarkView, PortfoliosDetailView,
+from ..views.benchmark import (BenchmarkView,
     ScoreCardView, ScoreCardDownloadView, ScoreCardRedirectView)
-from ..views.compare import ReportingEntitiesView
+from ..views.compare import ReportingEntitiesView, PortfoliosDetailView
 from ..views.detail import DetailView
 from ..views.index import IndexView
 from ..views.improvements import ReportPDFView
