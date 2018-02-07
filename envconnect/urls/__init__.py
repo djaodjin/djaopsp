@@ -176,7 +176,7 @@ urlpatterns += [
         name='legend-2'),
     url_prefixed(r'docs/legend-3/',
         TemplateView.as_view(template_name='docs/legend-3.html'),
-        name='legend-3'),             
+        name='legend-3'),
     url_prefixed(r'contact/',
         TemplateView.as_view(template_name='contact.html'),
         name='contact'),
