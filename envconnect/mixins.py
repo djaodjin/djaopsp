@@ -672,7 +672,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 opportunity = consumption.opportunity
                 nb_respondents = consumption.nb_respondents
                 if nb_respondents > 0:
-                    added = 3 * avg_value / nb_respondents
+                    added = 3 * avg_value / float(nb_respondents)
                 else:
                     added = 0
                 scores = vals[0]['accounts'].get(self.account.pk, None)
