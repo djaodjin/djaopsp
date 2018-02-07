@@ -140,7 +140,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "sustainability-boxes-and-enclosures",
-    "tag": "{\"tags\":[\"scorecard\"]}",
+    "tag": "{\"tags\":[\"scorecard\",\"legend-2\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 2

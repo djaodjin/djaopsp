@@ -10,6 +10,8 @@ from django.utils import six
 from django.utils.safestring import mark_safe
 from pages.models import PageElement
 from survey.models import Choice
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_prefixed)
 
 from ..models import Consumption
 
@@ -171,3 +173,10 @@ def to_json(value):
 def path_with_prefix(answer, prefix):
     question_path = answer.question.consumption.path.split('/')
     return prefix + '/' + question_path[-1]
+
+@register.filter
+def path_to_legend(root):
+    tags = json.loads(root[0]['tag'])['tags']
+    for tag in tags:
+        if tag.startswith('legend'):
+            return site_prefixed("/docs/" + tag + "/")
