@@ -65,9 +65,9 @@ class ConsumptionSerializer(serializers.ModelSerializer):
         return obj.implemented if hasattr(obj, 'implemented') else (
             obj.measured if hasattr(obj, 'measured') else "")
 
-    @staticmethod
-    def get_planned(obj):
-        return obj.planned if hasattr(obj, 'planned') else False
+    def get_planned(self, obj):
+        return (hasattr(obj, 'is_planned') and bool(obj.is_planned)
+            or self.context.get('is_planned', False))
 
     def get_opportunity(self, obj):
         if hasattr(obj, 'opportunity'):

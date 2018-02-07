@@ -74,6 +74,7 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
                 _, created = self.model.objects.get_or_create(
                     sample=self.improvement_sample,
                     question=question,
+                    metric=question.default_metric,
                     defaults={
                         'measured': Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
                         'rank': rank})

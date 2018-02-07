@@ -17,16 +17,21 @@ class AssessmentAPIView(AnswerAPIView):
     Answers about the implementation of a best practice.
     """
 
+    def get_queryset(self):
+        return super(AssessmentAPIView, self).get_queryset().filter(
+            metric=self.question.default_metric)
+
     def get_http_response(self, serializer,
                      status=HTTP_200_OK, headers=None):
         scored_answers = get_scored_answers(
-            includes=(str(self.sample.pk),), questions=(self.question.pk,))
+            includes=(self.sample.pk,), questions=(self.question.pk,))
         with connection.cursor() as cursor:
             cursor.execute(scored_answers, params=None)
             col_headers = cursor.description
-            decorated_answer_tuple = namedtuple(
-                'DecoratedAnswerTuple', [col[0] for col in col_headers])
-            decorated_answer = decorated_answer_tuple(*cursor.fetchone())
+            decorated_answer_tuple = namedtuple('DecoratedAnswerTuple',
+                ['rank'] + [col[0] for col in col_headers])
+            decorated_answer = decorated_answer_tuple(
+                self.rank, *cursor.fetchone())
         data = ConsumptionSerializer(context={
             'campaign': self.sample.survey
         }).to_representation(decorated_answer)

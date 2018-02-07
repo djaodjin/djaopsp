@@ -2,13 +2,10 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import csv, datetime, json, logging, io
+import csv, datetime, logging, io
 
-from deployutils.crypt import JSONEncoder
 from django.core.urlresolvers import reverse
-from django.contrib import messages
 from django.http import HttpResponse
-from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.utils import six
 from openpyxl import Workbook
@@ -18,21 +15,21 @@ from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from pages.models import PageElement
 from survey.models import Answer, Question
-from survey.views.sample import SampleUpdateView as BaseSampleUpdateView
 from extended_templates.backends.pdf import PdfTemplateResponse
 
-from ..mixins import ReportMixin, ImprovementQuerySetMixin
+from ..mixins import ImprovementQuerySetMixin
 from ..models import Consumption
 from .benchmark import PrintableChartsMixin
+from .assessments import AssessmentView
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-class ImproveView(ReportMixin, TemplateView):
+class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
 
     template_name = 'envconnect/improve.html'
-    breadcrumb_url = 'envconnect_improve'
+    breadcrumb_url = 'improve'
 
     @staticmethod
     def get_scorecard_path(path):
@@ -47,50 +44,23 @@ class ImproveView(ReportMixin, TemplateView):
         if organization:
             return reverse(
                 'envconnect_improve_organization', args=(organization, path))
-        return super(ImproveView, self).get_breadcrumb_url(path)
+        return super(ImprovementView, self).get_breadcrumb_url(path)
 
-    def get_context_data(self, **kwargs):
-        context = super(ImproveView, self).get_context_data(**kwargs)
-        root = self.get_report_tree()
+    def get_report_tree(self):
+        self.get_or_create_improve_sample()
+        root = super(ImprovementView, self).get_report_tree()
         if root:
             self.decorate_with_breadcrumbs(root)
-            context.update({
-                'root': root,
-                'entries': json.dumps(root, cls=JSONEncoder)
-            })
-        context.update({
-            'role': "tab",
-            'sample': self.sample
-        })
+        return root
+
+    def get_context_data(self, **kwargs):
+        context = super(ImprovementView, self).get_context_data(**kwargs)
         organization = context['organization']
         self.update_context_urls(context, {
             'api_account_benchmark': reverse('api_benchmark',
                 args=(organization, self.get_scorecard_path(
-                    self.kwargs.get('path')))),
-            'api_assessment_sample': reverse(
-                'survey_api_sample', args=(organization, self.sample)),
-            'api_assessment_sample_new': reverse(
-                'survey_api_sample_new', args=(organization,)),
-        })
+                    self.kwargs.get('path'))))})
         return context
-
-
-class ResponseUpdateView(ImprovementQuerySetMixin, BaseSampleUpdateView):
-    """
-    All ``BestPractice`` selected by a ``User`` on a single html page.
-    """
-    template_name = 'envconnect/response_update.html'
-    next_step_url = 'envconnect_report'
-
-    def get_context_data(self, **kwargs):
-        context = super(ResponseUpdateView, self).get_context_data(**kwargs)
-        context.update({'answers': self.object.answers.all()})
-        return context
-
-    def get_success_url(self):
-        messages.info(
-            self.request, 'Your answers have been recorded. Thank you.')
-        return reverse(self.next_step_url, kwargs=self.get_url_context())
 
 
 class ImprovementSpreadsheetView(ImprovementQuerySetMixin, ListView):

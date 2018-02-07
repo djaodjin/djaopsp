@@ -726,7 +726,8 @@ function summaryChart(container, data) {
             .legendPosition("right")
             .donut(true)
             .donutRatio(0.35)
-            .color(d3.scale.category10().range());
+            .color(['red', '#ff5555', '#9CD76B', '#69B02B', '#007C3F', '#FFD700']);
+//            .color(d3.scale.category10().range());
 
         d3.select(container)
             .datum(data)

@@ -73,7 +73,7 @@ class CompletionSummaryPagination(PageNumberPagination):
     def get_paginated_response(self, data):
         return Response(OrderedDict([
             ('summary', (
-                    ('No assessment', self.no_assessment),
+                    ('Not started', self.no_assessment),
                     ('Abandoned', self.abandoned),
                     ('Expired', self.expired),
                     ('Assessment phase', self.assessment_phase),

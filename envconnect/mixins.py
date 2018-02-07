@@ -531,6 +531,12 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                 self._assessment_sample = Sample.objects.create(
                     survey=self.survey, account=self.account)
 
+    def get_included_samples(self):
+        results = []
+        if self.assessment_sample:
+            results += [self.assessment_sample.pk]
+        return results
+
     @staticmethod
     def populate_account(accounts, agg_score, agg_key='account_id'):
         """
@@ -635,11 +641,14 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         """
         #pylint:disable=too-many-locals
         consumptions = {}
-        includes = [str(self.sample.pk)] if self.sample else None
+        consumptions_planned = set([])
         scored_answers = get_scored_answers(
-            includes=includes, excludes=self._get_filter_out_testing())
+            includes=self.get_included_samples(),
+            excludes=self._get_filter_out_testing())
         self.populate_leafs(leafs, scored_answers)
 
+        # We are running the query a second time because we did not populate
+        # all Consumption fields through the aggregate.
         with connection.cursor() as cursor:
             cursor.execute(scored_answers, params=None)
             col_headers = cursor.description
@@ -647,14 +656,18 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 'ConsumptionTuple', [col[0] for col in col_headers])
             for consumption in cursor.fetchall():
                 consumption = consumption_tuple(*consumption)
-                consumptions[consumption.path] = consumption
+                if consumption.is_planned:
+                    if consumption.answer_id:
+                        # This is part of the plan, we mark it for the planning
+                        # page but otherwise don't use values stored here.
+                        consumptions_planned |= set([consumption.path])
+                else:
+                    consumptions[consumption.path] = consumption
 
         # Populate leafs and cut nodes with data.
         for path, vals in six.iteritems(leafs):
             consumption = consumptions.get(path, None)
             if consumption:
-                #vals[0]['accounts'] = {self.account.pk:{}}
-                #self.populate_account(vals[0]['accounts'], consumption)
                 avg_value = consumption.avg_value
                 opportunity = consumption.opportunity
                 nb_respondents = consumption.nb_respondents
@@ -693,7 +706,9 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                             'opportunity_denominator': added
                         })
                 vals[0]['consumption'] \
-                    = ConsumptionSerializer(context={'campaign': self.survey
+                    = ConsumptionSerializer(context={
+                        'campaign': self.survey,
+                        'is_planned': (path in consumptions_planned)
                     }).to_representation(consumption)
             else:
                 # Cut node: loads icon url.
@@ -741,6 +756,12 @@ class ImprovementQuerySetMixin(ReportMixin):
         # We create the sample if it does not exists.
         self._sample, _ = Sample.objects.get_or_create(
             extra='is_planned', survey=self.survey, account=self.account)
+
+    def get_included_samples(self):
+        results = super(ImprovementQuerySetMixin, self).get_included_samples()
+        if self.improvement_sample:
+            results += [self.improvement_sample.pk]
+        return results
 
     def get_queryset(self):
         return self.model.objects.filter(

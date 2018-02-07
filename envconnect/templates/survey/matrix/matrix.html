@@ -291,7 +291,6 @@ jQuery(document).ready(function($) {
           for( var idx = 0; idx < data.length; ++idx ) {
               var chartElement = $('[id$="' + data[idx].slug + '-chart"]');
               if( chartElement.length > 0 ) {
-                  console.log("XXX found '"+data[idx].slug+"-chart'");
                   chartElement.djmatrixChart({
                       data: data[idx],
                       editable_filter_api: "{{editable_filter_api_base}}",

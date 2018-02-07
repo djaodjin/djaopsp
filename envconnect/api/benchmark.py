@@ -30,7 +30,7 @@ class BenchmarkMixin(ReportMixin):
         context = super(BenchmarkMixin, self).get_context_data(**kwargs)
         from_root, _ = self.breadcrumbs
         not_applicable_answers = Consumption.objects.filter(
-            question__answer__sample=self.sample,
+            question__answer__sample=self.assessment_sample,
             question__answer__measured=Consumption.NOT_APPLICABLE)
         not_applicables = []
         for not_applicable in not_applicable_answers:
@@ -92,8 +92,9 @@ class BenchmarkMixin(ReportMixin):
             if account_id_str is None: # XXX why is that?
                 continue
             account_id = int(account_id_str)
+            is_view_account = (view_account and account_id == view_account)
 
-            if account_id == view_account:
+            if is_view_account:
                 rollup_tree[0].update(account_metrics)
             normalized_score = account_metrics.get('normalized_score', None)
             if (normalized_score is None
@@ -119,20 +120,20 @@ class BenchmarkMixin(ReportMixin):
                 }
             if normalized_score < 25:
                 distribution['y'][0] += 1
-                if account_id == view_account:
+                if is_view_account:
                     distribution['organization_rate'] = distribution['x'][0]
             elif normalized_score < 50:
                 distribution['y'][1] += 1
-                if account_id == view_account:
+                if is_view_account:
                     distribution['organization_rate'] = distribution['x'][1]
             elif normalized_score < 75:
                 distribution['y'][2] += 1
-                if account_id == view_account:
+                if is_view_account:
                     distribution['organization_rate'] = distribution['x'][2]
             else:
                 assert normalized_score <= 100
                 distribution['y'][3] += 1
-                if account_id == view_account:
+                if is_view_account:
                     distribution['organization_rate'] = distribution['x'][3]
 
         for node_metrics in six.itervalues(rollup_tree[1]):
@@ -321,7 +322,8 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         roots = [trail[-1][0]] if trail else None
         rollup_tree = self.rollup_scores(roots, from_root)
         self.create_distributions(rollup_tree,
-            view_account=self.sample.account.pk)
+            view_account=(self.assessment_sample.account.pk
+                if self.assessment_sample else None))
         self.decorate_with_breadcrumbs(rollup_tree)
         charts, complete = self.flatten_distributions(rollup_tree,
             prefix=from_root)

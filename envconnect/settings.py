@@ -429,6 +429,7 @@ DEPLOYUTILS = {
             'site': {'email': 'fixtures@djaodjin.com'}},
         'steve': {
             'username': 'steve',
+            'last_visited': '2017-01-01T00:00:00.000Z',
             'roles': {
                 'manager': [{'slug': 'steve-shop',
                     'printable_name': 'Steve Shop'}]},

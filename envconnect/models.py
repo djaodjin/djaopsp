@@ -279,8 +279,9 @@ class Consumption(SurveyQuestion):
 
     def save(self, force_insert=False, force_update=False,
              using=None, update_fields=None):
-        if not self.unit_id: #pylint:disable=access-member-before-definition
-            self.unit_id = 1 # assessment unit
+        #pylint:disable=access-member-before-definition
+        if not self.default_metric_id:
+            self.default_metric_id = 1 # assessment Yes/etc.
         visible_cols = self.VALUE_SUMMARY_FIELDS - set([
             col['slug'] for col in ColumnHeader.objects.leading_prefix(
                 self.path).filter(hidden=True)])
@@ -354,7 +355,7 @@ def _additional_filters(is_planned=None, includes=None, excludes=None,
         sep = "AND "
     if includes:
         additional_filters += "%ssurvey_sample.id IN (%s)" % (
-            sep, ', '.join(includes))
+            sep, ', '.join([str(sample_pk) for sample_pk in includes]))
         sep = "AND "
     if questions:
         additional_filters += \
@@ -363,7 +364,7 @@ def _additional_filters(is_planned=None, includes=None, excludes=None,
         sep = "AND "
     if excludes:
         additional_filters += "%ssurvey_sample.id NOT IN (%s)" % (
-            sep, ', '.join(excludes))
+            sep, ', '.join([str(sample_pk) for sample_pk in excludes]))
     if additional_filters:
         additional_filters = "AND %s" % additional_filters
     return additional_filters
@@ -389,7 +390,7 @@ def get_expected_opportunities(is_planned=None, includes=None, excludes=None,
     expected_opportunities = """SELECT
     questions_with_opportunity.question_id AS question_id,
     samples.sample_id AS sample_id,
-    samples.is_planned AS is_completed,
+    samples.is_completed AS is_completed,
     samples.is_planned AS is_planned,
     samples.account_id AS account_id,
     questions_with_opportunity.opportunity AS opportunity,
@@ -435,6 +436,7 @@ def get_answer_with_account(is_planned=None, includes=None, excludes=None):
     account_id,
     survey_answer.created_at AS created_at,
     measured,
+    survey_sample.is_frozen AS is_completed,
     survey_sample.extra AS is_planned
 FROM survey_answer INNER JOIN survey_sample
 ON survey_answer.sample_id = survey_sample.id
@@ -526,7 +528,7 @@ def get_scored_answers(is_planned=None, includes=None, excludes=None,
     scored_answers = """SELECT
     expected_choices.account_id AS account_id,
     expected_choices.sample_id AS sample_id,
-    expected_choices.is_planned AS is_completed,
+    expected_choices.is_completed AS is_completed,
     expected_choices.is_planned AS is_planned,
     expected_choices.numerator AS numerator,
     expected_choices.denominator AS denominator,

@@ -125,7 +125,7 @@ See the following for examples of content developed for best practices:
                     </tr>
                     <tr>
                         <td class="text-left">
-                            <a id="download-assessment" class="btn btn-default" href="{% url 'assess_organization_download' organization path %}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
+                            <a id="download-assessment" class="btn btn-default" href="{% url 'envconnect_assess_organization_download' organization path %}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
                         </td>
                         <td colspan="[[!scoreToggle ? {{choices|length}} : 3]]" class="text-right" style="padding-right: 25px;">
                             <button class="btn btn-primary" id="reset-assessment" ng-click="resetAssessment($event)">Reset</button>

@@ -257,13 +257,13 @@ envconnectControllers.controller("EnvconnectCtrl",
             | $scope.isNo(practice) | $scope.isNotApplicable(practice));
     }
 
-    $scope.getOpportunity = function (practice) {
+    $scope._getValForActiveAccount = function(practice, fieldName) {
         if( typeof practice.accounts !== 'undefined' ) {
             for( var key in practice.accounts ) {
                 if( practice.accounts.hasOwnProperty(key) ) {
-                    if( typeof practice.accounts[key].opportunity_numerator
+                    if( typeof practice.accounts[key][fieldName]
                         !== 'undefined' ) {
-                        return practice.accounts[key].opportunity_numerator;
+                        return practice.accounts[key][fieldName];
                     } else {
                         return 0;
                     }
@@ -271,6 +271,14 @@ envconnectControllers.controller("EnvconnectCtrl",
             }
         }
         return 0;
+    }
+
+    $scope.getOpportunity = function (practice) {
+        return $scope._getValForActiveAccount(practice, 'opportunity_numerator');
+    }
+
+    $scope.getPlanned = function (practice) {
+        return practice.consumption.planned;
     }
 
     $scope.implementationRateWidth = function(practice) {
@@ -336,10 +344,10 @@ envconnectControllers.controller("EnvconnectCtrl",
             };
             root[0].captured = {
                 avg_energy_saving:
-                    (isAvailable && root[0].consumption.planned) ?
+                    (isAvailable && $scope.getPlanned(root[0])) ?
                         avg_energy_saving : 0,
                 capital_cost:
-                    (isAvailable && root[0].consumption.planned) ?
+                    (isAvailable && $scope.getPlanned(root[0])) ?
                         capital_cost : 0
             }
         } else {
@@ -977,7 +985,7 @@ envconnectControllers.controller("EnvconnectCtrl",
      */
     $scope.updateImprovement = function(practice) {
         if( practice && practice[0].consumption ) {
-            if( practice[0].consumption.planned ) {
+            if( $scope.getPlanned(practice[0]) ) {
                 $http.post(settings.urls.api_improvements + practice[0].path
                 ).then(function success(resp) {
                     $("#improvement-dashboard").data('improvementDashboard').load();
