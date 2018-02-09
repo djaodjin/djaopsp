@@ -17,6 +17,9 @@
     .panel-title .glyphicon{
         font-size: 14px;
     }
+    .panel {
+  background:none;
+    }
 </style>
 <script>
     $(document).ready(function(){
@@ -32,41 +35,42 @@
     });
 </script>
 <div class='bs-example'>
-    <div class='panel-group' id='accordion'>
+    <div class='panel-group' id='accordion' style='color: #FFFFFF'>
         <div class='panel'>
             <div class='pedit'>
-                <h4 class='panel-title'>Learn. Best practice and its value.
+                <h4 class='panel-title'><strong>Learn.</strong> Best practice and its value.
                     <a data-toggle='collapse' data-parent='#accordion' href='#collapseOne'><span style='color:#33B8FF' class='glyphicon glyphicon-plus'></span></a>
                 </h4>
             </div>
             <div id='collapseOne' class='panel-collapse collapse'>
-                <div class='panel-body'>
-                    <ol>
+                <div class='panel-body' style='margin-left: 20px'>
+                            <ol>
                                 <li>Select <i>Environmental</i> or <i>Business ethic</i> <sup style='color:#FFF633'>(1).</sup></li>
                                 <li>Click a greyor orange box to display and browse its best practices.</li>
                                 <li>Click on a practice to see if there is guidance on it <sup>(2).</sup></li>
-                                <li>Use the columns on the right of the page for guidance on practice value.<br style=''>[Mouse over each column's heading graphic to see the title. Click on the Key at the bottom of the page for color key definitions.]</font></br></li>
+                                <li>Use the columns on the right of the page for guidance on practice value.<br><p style='font-size:12px'>[Mouse over each column's heading graphic to see the title. Click on the Key at the bottom of the page<br>for color key definitions.]</p></li>
                             </ol>
+                            <sub style='font-size:12px; color:#FFF633'>(1)Skip this step and go to <i>Assessment</i> if you do not wish to browse best practice.</sub><br>
+                            <sub style='font-size:12px'>(2)If guidance has not yet been developed for a practice, you may request it from the best practice detail<br>page.</sub>
                             <br />
-                            <i style='font-size:11px; color:#FFF633'><sup>(1)</sup> Skip this step and go to Assessment if you do not wish to browse best practice.</i>
-                            <br />
-                            <i style='font-size:11px'><sup>(2)</sup> If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</i></p>
                 </div>
             </div>
         </div>
         <div class='panel'>
             <div class='pedit'>
-                <h4 class='panel-title'>Measure. Assess maturity in best practices, benchmark with peers, get a scorecard and benchmark report.
+                <h4 class='panel-title'><strong>Measure.</strong> Assess maturity in best practices, benchmark with peers, <br> get a scorecard and benchmark report.
                     <a data-toggle='collapse' data-parent='#accordion' href='#collapseTwo'><span style='color:#33B8FF' class='glyphicon glyphicon-plus'></span></a>
                 </h4>
             </div>
             <div id='collapseTwo' class='panel-collapse collapse'>
-                <div class='panel-body'>
-                    <li>Click each grey or orange box and complete a response for all best practices listed <sup>(1).</sup><ul style='font-size:11px'> [
-                        Responses must be accurate and verifiable, so mouse over each column heading to clearly understand response choices. <br>Also click a best practice for guidance (2) on what should be in place to respond “Yes”].</br></ul></li>
-                            <li>Click the “Results” button (bottom of page) to display per-practice benchmarking<sup>(3)</sup> and opportunity assessment. </li>
-                            <li>Select <i>Scorecard</i> for overall performance scores<sup>(1)</sup> and benchmark graphs<sup>(3)</sup>.</li>
-                        </ol>
+                <div class='panel-body' style='margin-left: 35px'>
+                    <ol>
+                        <li>Click each grey or orange box and complete a response for all best practices <br> listed <sup>(1).</sup></li><p style='font-size:11px'>[Responses must be accurate and verifiable, so mouse over each column heading to clearly<br>understand response choices. <br>Also click a best practice for guidance <sup>(2)</sup> on what should be in place to respond “Yes”].</br></p>
+                        <li>Click the “Results” button (bottom of page) to display per-practice<br>benchmarking<sup>(3)</sup> and opportunity assessment.
+                        </li>
+                        <li>Select <i>Scorecard</i> for overall performance scores<sup>(1)</sup> and benchmark graphs<sup>(3)</sup>.
+                        </li>
+                    </ol>
                         <br />
                         <i style='font-size:11px'><sup>(1)</sup>There must be a response for each best practice to generate a complete Scorecard.</i>
                         <br />
@@ -78,12 +82,12 @@
         </div>
         <div class='panel'>
             <div class='pedit'>
-                <h4 class='panel-title'>Improve. Select highest value improvements, and see impact on scores.
+                <h4 class='panel-title'><strong>Improve.</strong> Select highest value improvements, and see impact on scores.
                     <a data-toggle='collapse' data-parent='#accordion' href='#collapseThree'><span style='color:#33B8FF' class='glyphicon glyphicon-plus'></span></a>
                 </h4>
             </div>
             <div id='collapseThree' class='panel-collapse collapse'>
-                <div class='panel-body'>
+                <div class='panel-body' style='margin-left: 35px'>
                     <ol>
                             <li>Select <i>Planning</i>.</li>
                             <li>Click the <i>Planning dashboard</i> (orange button at bottom of page).</li>
