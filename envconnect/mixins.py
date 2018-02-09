@@ -481,7 +481,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     args=(context['organization'], path)) + active_section,
                 'benchmark': reverse('benchmark_organization',
                     args=(context['organization'], path)) + active_section,
-                'report': reverse('report_organization',
+                'assess': reverse('envconnect_assess_organization',
                     args=(context['organization'], path)) + active_section,
                 'improve': reverse('envconnect_improve_organization',
                     args=(context['organization'], path)) + active_section
@@ -489,11 +489,12 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         else:
             urls.update({
                 'summary': reverse('summary', args=(path,)) + active_section,
-                'benchmark':
-                  reverse('benchmark', args=(path,)) + active_section,
-                'report': reverse('report', args=(path,)) + active_section,
-                'improve':
-                  reverse('envconnect_improve', args=(path,))  + active_section
+                'benchmark': reverse('benchmark',
+                    args=(path,)) + active_section,
+                'assess': reverse('envconnect_assess',
+                    args=(path,)) + active_section,
+                'improve': reverse('envconnect_improve',
+                    args=(path,))  + active_section
             })
         self.update_context_urls(context, urls)
         return context
@@ -531,15 +532,13 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                     survey=self.survey, account=self.account)
 
     @staticmethod
-    def populate_account(accounts, agg_score):
+    def populate_account(accounts, agg_score, agg_key='account_id'):
         """
         Populate the *accounts* dictionnary with scores in *agg_score*.
 
         *agg_score* is a tuple (account_id, sample_id, is_planned, numerator,
         denominator, last_activity_at, nb_answers, nb_questions)
         """
-        account_id = agg_score.account_id
-        #sample_id = agg_score[1]
         is_completed = agg_score.is_completed
         is_planned = agg_score.is_planned
         numerator = agg_score.numerator
@@ -550,6 +549,10 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                 created_at = parse_datetime(created_at)
             if created_at.tzinfo is None:
                 created_at = created_at.replace(tzinfo=utc)
+        if agg_key == 'last_activity_at':
+            account_id = created_at
+        else:
+            account_id = getattr(agg_score, agg_key)
         nb_answers = getattr(agg_score, 'nb_answers', None)
         if nb_answers is None:
             # Putting the following statement in the default clause will lead
@@ -586,7 +589,7 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                     'numerator': numerator,
                     'denominator': denominator})
 
-    def populate_leafs(self, leafs, answers):
+    def populate_leafs(self, leafs, answers, agg_key='account_id'):
         """
         Populate all leafs with aggregated scores.
         """
@@ -614,7 +617,8 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     agg_score = agg_score_tuple(*agg_score)
                     if not 'accounts' in values:
                         values['accounts'] = {}
-                    self.populate_account(values['accounts'], agg_score)
+                    self.populate_account(
+                        values['accounts'], agg_score, agg_key=agg_key)
 
     def decorate_leafs(self, leafs):
         """
@@ -631,9 +635,9 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         """
         #pylint:disable=too-many-locals
         consumptions = {}
+        includes = [str(self.sample.pk)] if self.sample else None
         scored_answers = get_scored_answers(
-            includes=[str(self.sample.pk)],
-            excludes=self._get_filter_out_testing())
+            includes=includes, excludes=self._get_filter_out_testing())
         self.populate_leafs(leafs, scored_answers)
 
         with connection.cursor() as cursor:
@@ -658,32 +662,36 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     added = 3 * avg_value / nb_respondents
                 else:
                     added = 0
-                if (consumption.implemented ==
-                    Consumption.ASSESSMENT_ANSWERS[Consumption.YES]):
-                    vals[0]['accounts'][self.account.pk].update({
-                        'opportunity_numerator': 0,
-                        'opportunity_denominator': 0
-                    })
-                elif (consumption.implemented ==
-                      Consumption.ASSESSMENT_ANSWERS[
-                          Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT]):
-                    vals[0]['accounts'][self.account.pk].update({
-                        'opportunity_numerator': opportunity,
-                        'opportunity_denominator': 0
-                    })
-                elif (consumption.implemented ==
-                      Consumption.ASSESSMENT_ANSWERS[
-                          Consumption.NEEDS_MODERATE_IMPROVEMENT]):
-                    vals[0]['accounts'][self.account.pk].update({
-                        'opportunity_numerator': 2 * opportunity + added,
-                        'opportunity_denominator': added
-                    })
-                elif (consumption.implemented ==
-                      Consumption.ASSESSMENT_ANSWERS[Consumption.NO]):
-                    vals[0]['accounts'][self.account.pk].update({
-                        'opportunity_numerator': 3 * opportunity + added,
-                        'opportunity_denominator': added
-                    })
+                scores = vals[0]['accounts'].get(self.account.pk, None)
+                if scores:
+                    if (consumption.implemented ==
+                        Consumption.ASSESSMENT_ANSWERS[Consumption.YES]) or (
+                        consumption.implemented ==
+                    Consumption.ASSESSMENT_ANSWERS[Consumption.NOT_APPLICABLE]):
+                        scores.update({
+                            'opportunity_numerator': 0,
+                            'opportunity_denominator': 0
+                        })
+                    elif (consumption.implemented ==
+                          Consumption.ASSESSMENT_ANSWERS[
+                              Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT]):
+                        scores.update({
+                            'opportunity_numerator': opportunity,
+                            'opportunity_denominator': 0
+                        })
+                    elif (consumption.implemented ==
+                          Consumption.ASSESSMENT_ANSWERS[
+                              Consumption.NEEDS_MODERATE_IMPROVEMENT]):
+                        scores.update({
+                            'opportunity_numerator': 2 * opportunity + added,
+                            'opportunity_denominator': added
+                        })
+                    else:
+                        # No and not yet answered.
+                        scores.update({
+                            'opportunity_numerator': 3 * opportunity + added,
+                            'opportunity_denominator': added
+                        })
                 vals[0]['consumption'] \
                     = ConsumptionSerializer(context={'campaign': self.survey
                     }).to_representation(consumption)
@@ -810,18 +818,17 @@ class BestPracticeMixin(BreadcrumbMixin):
             active_section = ""
         if organization:
             urls = {
-                'report': reverse('report_organization',
+                'assess': reverse('envconnect_assess_organization',
                     args=(organization, contextual_path)) + active_section,
                 'improve': reverse('envconnect_improve_organization',
                     args=(organization, contextual_path)) + active_section
             }
         else:
             urls = {
-                'report':
-                  reverse('report', args=(contextual_path,)) + active_section,
-                'improve': (
-                    reverse('envconnect_improve', args=(contextual_path,))
-                    + active_section)
+                'assess': reverse('envconnect_assess',
+                    args=(contextual_path,)) + active_section,
+                'improve': reverse('envconnect_improve',
+                    args=(contextual_path,)) + active_section
             }
         self.update_context_urls(context, urls)
         return context

@@ -29,13 +29,14 @@ class AssessmentBaseView(ReportMixin, TemplateView):
 
 class AssessmentView(AssessmentBaseView):
 
-    template_name = 'envconnect/self_assessment.html'
-    breadcrumb_url = 'report'
+    template_name = 'envconnect/assess.html'
+    breadcrumb_url = 'assess'
 
     def get_breadcrumb_url(self, path):
         organization = self.kwargs.get('organization', None)
         if organization:
-            return reverse('report_organization', args=(organization, path))
+            return reverse('envconnect_assess_organization',
+                args=(organization, path))
         return super(AssessmentView, self).get_breadcrumb_url(path)
 
     def get_context_data(self, **kwargs):

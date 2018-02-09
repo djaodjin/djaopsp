@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, DjaoDjin inc.
+/* Copyright (c) 2018, DjaoDjin inc.
    see LICENSE. */
 
 /* global $ c3: true */
@@ -162,43 +162,46 @@
     HistoricalScoreChart.prototype = {
         init: function () {
             var self = this;
-            self.updateChart([
-                {
-                    "key": "May 2018",
-                    "values": [
-                        ["Governance & Management", 80],
-                        ["Engineering & Design", 78],
-                        ["Procurement", 72],
-                        ["Construction", 73],
-                        ["Office", 74],
-                    ],
+            if( Array.isArray(self.options.scores) ) {
+                self.updateChart(self.options.scores);
+            } else {
+                self._load();
+            }
+        },
+
+        _load: function() {
+            var self = this;
+            $.ajax({
+                method: "GET",
+                url: self.options.scores, // interpreted as API endpoint
+                contentType: "application/json; charset=utf-8",
+                success: function(data) {
+                    self.updateChart(data);
+                    $(self.element).trigger("chart.loaded");
                 },
-                {
-                    "key": "Dec 2017",
-                    "values": [
-                        ["Governance & Management", 60],
-                        ["Engineering & Design", 67],
-                        ["Procurement", 56],
-                        ["Construction", 52],
-                        ["Office", 59],
-                    ],
-                },
-                {
-                    "key": "Jan 2017",
-                    "values": [
-                        ["Governance & Management", 60],
-                        ["Engineering & Design", 67],
-                        ["Procurement", 16],
-                        ["Construction", 49],
-                        ["Office", 40],
-                    ],
-                },
-            ]);
+                error: function(resp) {
+                    if( resp.status === 404 ) {
+                        var svgContainer = self.$element.find(".chart")[0];
+                        $(svgContainer).empty();
+                        $(svgContainer).append('<div>Not found</div>');
+                    } else {
+                        showErrorMessages(resp);
+                    }
+                }
+            });
         },
 
         updateChart: function(data) {
             var self = this;
             nv.addGraph(function() {
+                // Read the enumeration of ticks to use on the x-axis.
+                var enumTicks = [];
+                if( data.length > 0 ) {
+                    for( var idx = 0; idx < data[0].values.length; ++idx ) {
+                        enumTicks.push(data[0].values[idx][0]);
+                    }
+                }
+
                 // clear any previous chart elements before adding new ones.
                 // remove svg and append it again to remove all previous
                 // attached events.
@@ -220,16 +223,10 @@
 
                 var chart = nv.models.lineChart()
                     .x(function(d) {
-                        if( d[0] === "Governance & Management" ) {
-                            return 1;
-                        } else if( d[0] === "Engineering & Design" ) {
-                            return 2;
-                        } else if( d[0] === "Procurement" ) {
-                            return 3;
-                        } else if( d[0] === "Construction" ) {
-                            return 4;
-                        } else if( d[0] === "Office" ) {
-                            return 5;
+                        for( var idx = 0; idx < enumTicks.length; ++idx ) {
+                            if( d[0] === enumTicks[idx] ) {
+                                return idx + 1;
+                            }
                         }
                         return 0;
                     })
@@ -241,13 +238,8 @@
                     .rotateLabels(-90)
                     .showMaxMin(false)  //remove max and min in x axe
                     .tickFormat(function(d) {
-                        if( d < 6 ) {
-                            return [
-                                "Governance & Management",
-                                "Engineering & Design",
-                                "Procurement",
-                                "Construction",
-                                "Office"][d - 1];
+                        if( d <= enumTicks.length ) {
+                            return enumTicks[d - 1];
                         }
                         return d;
                     });

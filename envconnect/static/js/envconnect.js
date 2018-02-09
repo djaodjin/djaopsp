@@ -225,23 +225,52 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.NO = 'No'
     $scope.NOT_APPLICABLE = 'Not applicable'
 
-    $scope.isAtLeastYes = function (consumption) {
-      return (consumption.implemented === $scope.YES);
+    $scope.isAtLeastYes = function (practice) {
+      return (practice.consumption.implemented === $scope.YES);
     }
 
-    $scope.isAtLeastNeedsModerateImprovement = function (consumption) {
-      return (consumption.implemented === $scope.NEEDS_MODERATE_IMPROVEMENT)
-           | (consumption.implemented === $scope.YES);
+    $scope.isAtLeastNeedsModerateImprovement = function (practice) {
+      return (practice.consumption.implemented === $scope.NEEDS_MODERATE_IMPROVEMENT)
+           | (practice.consumption.implemented === $scope.YES);
     }
 
-    $scope.isAtLeastNeedsSignificantImprovement = function (consumption) {
-      return (consumption.implemented === $scope.NEEDS_SIGNIFICANT_IMPROVEMENT)
-           | (consumption.implemented === $scope.NEEDS_MODERATE_IMPROVEMENT)
-           | (consumption.implemented === $scope.YES);
+    $scope.isAtLeastNeedsSignificantImprovement = function (practice) {
+      return (practice.consumption.implemented === $scope.NEEDS_SIGNIFICANT_IMPROVEMENT)
+           | (practice.consumption.implemented === $scope.NEEDS_MODERATE_IMPROVEMENT)
+           | (practice.consumption.implemented === $scope.YES);
     }
 
-    $scope.isImplemented = function (consumption) {
-        return $scope.isAtLeastNeedsSignificantImprovement(consumption);
+    $scope.isImplemented = function (practice) {
+        return $scope.isAtLeastNeedsSignificantImprovement(practice);
+    }
+
+    $scope.isNo = function (practice) {
+        return practice.consumption.implemented === $scope.NO;
+    }
+
+    $scope.isNotApplicable = function (practice) {
+        return practice.consumption.implemented === $scope.NOT_APPLICABLE;
+    }
+
+    $scope.isNotAnswered = function (practice) {
+        return !($scope.isAtLeastNeedsSignificantImprovement(practice)
+            | $scope.isNo(practice) | $scope.isNotApplicable(practice));
+    }
+
+    $scope.getOpportunity = function (practice) {
+        if( typeof practice.accounts !== 'undefined' ) {
+            for( var key in practice.accounts ) {
+                if( practice.accounts.hasOwnProperty(key) ) {
+                    if( typeof practice.accounts[key].opportunity_numerator
+                        !== 'undefined' ) {
+                        return practice.accounts[key].opportunity_numerator;
+                    } else {
+                        return 0;
+                    }
+                }
+            }
+        }
+        return 0;
     }
 
     $scope.implementationRateWidth = function(practice) {
@@ -300,7 +329,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                     "capital_cost", root[0].consumption.capital_cost,
                     "=>", capital_cost, root[0].path);
             }
-            var isAvailable = !$scope.isImplemented(root[0].consumption);
+            var isAvailable = !$scope.isImplemented(root[0]);
             root[0].capturable = {
                 avg_energy_saving: isAvailable ? avg_energy_saving : 0,
                 capital_cost: isAvailable ? capital_cost : 0
@@ -912,7 +941,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         for( var idx = 0; idx < practices.length; ++idx ) {
             if( practices[idx][0].consumption ) {
                 practices[idx][0].consumption.implemented = answer;
-                $http.put(settings.urls.api_assessment_sample + "/" + practices[idx][0].consumption.rank + "/",
+                $http.put(settings.urls.api_assessment_sample + practices[idx][0].consumption.rank + "/",
                     {measured: answer}).then(
                     function success() {
                     },
@@ -1006,6 +1035,9 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.freezeAssessment = function ($event, $title, next) {
         $event.preventDefault();
+        var form = angular.element($event.target);
+        var modalDialog = form.parents('.modal');
+        modalDialog.modal('hide');
         var title = $title;
         if( typeof title === 'undefined' ) {
             title = "assessment";
@@ -1284,7 +1316,8 @@ envconnectControllers.controller("envconnectMyTSPReporting",
         if( typeof $scope.item.email === "undefined" ) {
             // If we don't select from the drop-down list of candidates
             // we only get an e-mail string.
-            $scope.item = {email: $scope.item, printable_name: $scope.item};
+            $scope.item = {slug: $scope.item, email: $scope.item,
+                full_name: "", printable_name: ""};
         }
         $http.post(settings.urls.api_accessibles,
                    {organization: $scope.item}).then(

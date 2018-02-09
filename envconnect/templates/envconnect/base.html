@@ -10,6 +10,7 @@
                 <div class='text-left start-here'>
                 <p>What each menu function lets you do:</p>
                 <ul>
+<<<<<<< HEAD
                     <style type='text/css'>
     .bs-example{
         margin: 20px;
@@ -21,12 +22,13 @@
   background:none;
     }
 </style>
+=======
+>>>>>>> 15a076325daa1a040b1fe7b99336ed81e5940f09
 <script>
     $(document).ready(function(){
         $('.collapse.in').each(function(){
             $(this).siblings('.pedit').find('.glyphicon').addClass('glyphicon-minus').removeClass('glyphicon-plus');
         });
-        
         $('.collapse').on('show.bs.collapse', function(){
             $(this).parent().find('.glyphicon').removeClass('glyphicon-plus').addClass('glyphicon-minus');
         }).on('hide.bs.collapse', function(){
@@ -34,8 +36,13 @@
         });
     });
 </script>
+<<<<<<< HEAD
 <div class='bs-example'>
     <div class='panel-group' id='accordion' style='color: #FFFFFF'>
+=======
+<div>
+    <div class='panel-group' id='accordion'>
+>>>>>>> 15a076325daa1a040b1fe7b99336ed81e5940f09
         <div class='panel'>
             <div class='pedit'>
                 <h4 class='panel-title'><strong>Learn.</strong> Best practice and its value.
@@ -101,7 +108,8 @@
     </div>
 </div>
                 </div">
-                <i class="fa fa-question-circle fa-3x" aria-hidden="true"></i></a></div>
+                <i class="fa fa-question-circle fa-3x" aria-hidden="true"></i></a>
+            </div> <!-- .question-mark -->
             <ol class="col-md-9 breadcrumb env-breadcrumb">
                 <li><a href="{% url 'homepage' %}">Home</a></li>
                 {% for breadcrumb_tuple in breadcrumbs %}
@@ -124,7 +132,7 @@
                         <div class="col-md-3">
                             <h2>Measure <i class="fa fa-angle-right"></i></h2>
                             <ul class="nav">
-                                <li{% if '/report/' in request.path %} class="active"{% endif %}><a id="submenu-self-assessment" href="{% if request|is_broker_manager %}{% url 'report_organization_download' 'envconnect' breadcrumbs|category_entry %}{% else %}{{urls.report}}[[activeIcon !== null ? '?active=' + activeIcon : '']]{% endif %}"><i class="fa-li fa{% if '/report/' in request.path %} fa-hand-o-right{% endif %}"></i> Assessment</a></li>
+                                <li{% if '/assess/' in request.path %} class="active"{% endif %}><a id="submenu-self-assessment" href="{% if request|is_broker_manager %}{% url 'envconnect_assess_organization_download' 'envconnect' breadcrumbs|category_entry %}{% else %}{{urls.assess}}[[activeIcon !== null ? '?active=' + activeIcon : '']]{% endif %}"><i class="fa-li fa{% if '/assess/' in request.path %} fa-hand-o-right{% endif %}"></i> Assessment</a></li>
                                 <li{% if '/benchmark/' in request.path %} class="active"{% endif %}><a id="submenu-benchmark"{% if request|is_broker_manager %} disabled{% endif %} href="{% url 'benchmark' breadcrumbs|category_entry %}"><i class="fa-li fa{% if '/benchmark/' in request.path %} fa-hand-o-right{% endif %}"></i> Scorecard</a></li>
                             </ul>
                         </div>
@@ -138,14 +146,13 @@
                     </div>
                 </div>
                 <div class="clearfix"></div>
-                {% endblock %}
+                {% endblock supplier_menus %}
                 {% block consumption_content %}
-                <div id="panel-icons" class="panel-icons{% block extra_panel_icons_classes %} panel-icons-no-benchmark{% endblock %}">
+                <div id="panel-icons" class="panel-icons panel-icons-no-benchmark">
                     <div class="panel-body">
-                        {% block icons_menu %}
                         <div class="row">
                             <div class="col-md-12 text-center" style="display:table-row;">
-                                <div class="row-icons{% block row_icons_classes %}{% endblock %}">
+                                <div class="row-icons">
                                     <div style="display:inline-block;float:left;flex:auto;">
                                         {% block icon_row_title %}
                                         {% endblock %}
@@ -186,8 +193,8 @@
                                                         </div>
                                                         <div class="system-menus" ng-if="getEntriesByTag(icon[0].path, TAG_SYSTEM).length > 0">
                                                             <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag(icon[0].path, TAG_SYSTEM)" ng-cloak>
-                                                                {% if '/report/' in request.path %}
-                                                                    <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'report_organization' organization path %}{% else %}{% url 'report' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                                {% if '/assess/' in request.path %}
+                                                                    <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_assess_organization' organization path %}{% else %}{% url 'envconnect_assess' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                                 {% elif '/improve/' in request.path %}
                                                                     <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_improve_organization' organization path %}{% else %}{% url 'envconnect_improve' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                                 {% elif '/info/' in request.path %}
@@ -253,8 +260,8 @@
                                                                 </div>
                                                                 <div class="system-menus" ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length > 0">
                                                                     <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM)" ng-cloak>
-                                                                        {% if '/report/' in request.path %}
-                                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'report_organization' organization path %}{% else %}{% url 'report' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
+                                                                        {% if '/assess/' in request.path %}
+                                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_assess_organization' organization path %}{% else %}{% url 'envconnect_assess' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                                         {% elif '/improve/' in request.path %}
                                                                             <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_improve_organization' organization path %}{% else %}{% url 'envconnect_improve' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                                         {% elif '/info/' in request.path %}
@@ -273,18 +280,15 @@
                                                 {% endif %}
                                             </ul>
                                             {% endwith %}
-
-                                        </div>
-                                        {% block additional_icon %}
-                                        {% endblock %}
+                                        </div> <!-- .header-tuple -->
                                     </div>
-                                </div>
-                            </div>
-                        {% endblock icons_menu %}
-                        {% block app_content %}
-                        {% endblock app_content %}
-                    </div>
-                </div>
+                                </div> <!-- .row-icons -->
+                            </div> <!-- .col-md-12 -->
+                        </div> <!-- .row -->
+                        {% block icons_content %}
+                        {% endblock %}
+                    </div> <!-- .panel-body -->
+                </div> <!-- .panel-icons -->
                 {% endblock consumption_content %}
                 <div class="row">
                     <div class="col-md-offset-3 col-md-6 content-sponsors">
@@ -465,6 +469,30 @@ jQuery(document).ready(function($) {
             trip.start();
         });
     }
+{% if request|is_authenticated and not request.session.last_visited %}
+    var sustainabilityTrip = new Trip([{
+        sel: $("#submenu-sustainability"),
+        position: "screen-center",
+        content: "<ol class='text-left'>" +
+"<li>Click each grey or orange box to display and browse its best practices<sup>(1)</sup>.</li>" +
+"<li>Click on a practice to see if there is more detailed guidance on it<sup>(2)</sup>.</li>" +
+"<li>Use the columns on the right of the page for guidance on practice value. [Mouse<br /> over each column's heading graphic to see the title. Click on the key at the bottom of the page for color key definitions.]</li>" +
+"</ol>" +
+"<ul class='text-left list-unstyled' style='font-size:10px;'>" +
+"<li>(1) You can skip this step and go straight to <em>Assessment</em> if you do not wish to browse practices.</li>" +
+"<li>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</li>"
+        },
+        ], {
+            enableAnimation: false,
+            showCloseBox: true,
+            showNavigation: true,
+            delay:-1,
+            tripTheme:'black',
+    });
+    $("#submenu-sustainability").click(function() {
+        sustainabilityTrip.start();
+    });
+{% endif %}
 });
 </script>
 {% endblock %}

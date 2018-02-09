@@ -9,13 +9,13 @@ from urldecorators import include, url
 from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
     url_direct)
 from ..views import AccountRedirectView, MyTSPRedirectView
-from ..views.benchmark import (BenchmarkView, PortfoliosDetailView,
+from ..views.assessments import AssessmentView, AssessmentXLSXView
+from ..views.benchmark import (BenchmarkView,
     ScoreCardView, ScoreCardDownloadView, ScoreCardRedirectView)
-from ..views.compare import ReportingEntitiesView
+from ..views.compare import ReportingEntitiesView, PortfoliosDetailView
+from ..views.detail import DetailView
 from ..views.index import IndexView
 from ..views.improvements import ReportPDFView
-from ..views.self_assessment import AssessmentView, AssessmentXLSXView
-from ..views.detail import DetailView
 from ..views.improvements import ImproveView, ImprovementXLSXView
 
 if settings.DEBUG: #pylint: disable=no-member
@@ -72,9 +72,11 @@ urlpatterns += [
             pattern_name='organization_reporting_entities',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='envconnect_share_requests'),
-    url_authenticated(r'app/info/report(?P<path>%s)/' % settings.PATH_RE,
-        AccountRedirectView.as_view(pattern_name='report_organization',
-            new_account_url='/%sapp/new/' % APP_PREFIX), name='report'),
+    url_authenticated(r'app/info/assess(?P<path>%s)/' % settings.PATH_RE,
+        AccountRedirectView.as_view(
+            pattern_name='envconnect_assess_organization',
+            new_account_url='/%sapp/new/' % APP_PREFIX),
+                name='envconnect_assess'),
     url_authenticated(r'app/info/improve(?P<path>%s)/' % settings.PATH_RE,
         AccountRedirectView.as_view(
             pattern_name='envconnect_improve_organization',
@@ -98,9 +100,9 @@ urlpatterns += [
     url_authenticated(r'app/comments/', include('django_comments.urls')),
 
     # direct manager of :organization
-    url_direct(r'app/(?P<organization>%s)/report/print/'\
+    url_direct(r'app/(?P<organization>%s)/assess/print/'\
 '(?P<industry>%s)/' % (SLUG_RE, SLUG_RE),
-        ReportPDFView.as_view(), name='envconnect_report_print'),
+        ReportPDFView.as_view(), name='envconnect_assess_print'),
     url_direct(r'app/(?P<organization>%s)/reporting/' % SLUG_RE,
         ReportingEntitiesView.as_view(),
         name='organization_reporting_entities'),
@@ -110,12 +112,12 @@ urlpatterns += [
 
     url_direct(r'app/(?P<organization>%s)/portfolios/' % SLUG_RE,
         include('survey.urls.matrix')),
-    url_direct(r'app/(?P<organization>%s)/report(?P<path>%s)/download/' % (
+    url_direct(r'app/(?P<organization>%s)/assess(?P<path>%s)/download/' % (
         SLUG_RE, settings.PATH_RE), AssessmentXLSXView.as_view(),
-        name='report_organization_download'),
-    url_direct(r'app/(?P<organization>%s)/report(?P<path>%s)/' % (
+        name='assess_organization_download'),
+    url_direct(r'app/(?P<organization>%s)/assess(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), AssessmentView.as_view(),
-        name='report_organization'),
+        name='envconnect_assess_organization'),
     url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/download/' % (
         SLUG_RE, settings.PATH_RE), ImprovementXLSXView.as_view(),
         name='envconnect_improve_organization_download'),
@@ -166,6 +168,15 @@ urlpatterns += [
     url_prefixed(r'docs/faq/',
         TemplateView.as_view(template_name='docs/faq.html'),
         name='faq'),
+    url_prefixed(r'docs/legend-1/',
+        TemplateView.as_view(template_name='docs/legend-1.html'),
+        name='legend-1'),
+    url_prefixed(r'docs/legend-2/',
+        TemplateView.as_view(template_name='docs/legend-2.html'),
+        name='legend-2'),
+    url_prefixed(r'docs/legend-3/',
+        TemplateView.as_view(template_name='docs/legend-3.html'),
+        name='legend-3'),             
     url_prefixed(r'contact/',
         TemplateView.as_view(template_name='contact.html'),
         name='contact'),
