@@ -274,7 +274,12 @@ envconnectControllers.controller("EnvconnectCtrl",
     }
 
     $scope.getOpportunity = function (practice) {
-        return $scope._getValForActiveAccount(practice, 'opportunity_numerator');
+        if( $scope.isNotApplicable(practice) ) {
+            return "N/A";
+        }
+        var opportunityNumerator = $scope._getValForActiveAccount(
+            practice, 'opportunity_numerator');
+        return opportunityNumerator.toFixed(2);
     }
 
     $scope.getPlanned = function (practice) {

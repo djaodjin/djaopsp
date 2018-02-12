@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import connection, connections, transaction
 from django.db.models import Max, Sum
+from django.db.utils import DEFAULT_DB_ALIAS
 from django.http import Http404
 from django.utils import six
 from django.utils.dateparse import parse_datetime
@@ -595,6 +596,7 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                     'numerator': numerator,
                     'denominator': denominator})
 
+    @staticmethod
     def _is_sqlite3(db_key=None):
         if db_key is None:
             db_key = DEFAULT_DB_ALIAS
