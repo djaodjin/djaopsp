@@ -102,7 +102,7 @@
                      uib-typeahead-template-url="customTemplate.html"
                      class="form-control input-sm" style="width: 100%;">
               <div class="input-group-btn">
-                <button class="btn btn-primary btn-sm" type="submit" ng-click="save($event)">Request access</button>
+                <button class="btn btn-primary btn-sm" type="submit" ng-click="save($event)">Add reporting entity</button>
               </div>
             </div>
             <div style="height:14px" ng-cloak>
@@ -179,13 +179,14 @@
         <div class="modal-header">
           <button type="button" class="close"
                   data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Request access ...</h4>
+          <h4 class="modal-title">Add a reporting entity ...</h4>
         </div>
         <form>
           <div class="modal-body">
             <p class="text-danger" ng-model="item">
-[[item.printable_name]] was not found. This is an opportunity to invite
-a manager for the organization to join The Sustainability Project.
+There are no records of the domain name associated with the email address you
+just entered in the system. This is an opportunity to invite a manager
+for that organization to join The Sustainability Project.
             </p>
             <div class="row form-group">
               <div class="col-sm-2">
@@ -200,7 +201,7 @@ a manager for the organization to join The Sustainability Project.
             </div>
             <div class="form-group">
               <div class="controls">
-                <label>Organization name</label>
+                <label>Organization name<span class="asteriskField"><a id="organization-tooltip" style="color:inherit;" href="" rel="tooltip" data-toggle="tooltip" data-placement="bottom" title="The &quot;Organization&quot; or reporting entity should align with the ability to influence and/or control policies and practices related to environmental impacts and improvement opportunities."> <i class="fa fa-question-circle" style="color: #e11"></i></a></span></label>
                 <input class="form-control" style="width:100%;"
                        ng-model="item.full_name"
                        name="full_name" type="text" max-length="150"
@@ -209,15 +210,20 @@ a manager for the organization to join The Sustainability Project.
             </div>
             <div id="div_id_new_user_relation" class="form-group">
               <div class="controls">
-                <label>The following invite message will be sent:</label>
+                <label>The following invite message will be sent (or modify the message by typing in the box below).</label>
                 <textarea class="form-control" name="message"
                           maxlength="255" type="text" rows="10">
 Hello,
+I would like to invite you to create a scorecard for your organization on The Sustainability Project and share it with us. Follow the steps below to provide the requested information: 
 
-I would like to invite to create a scorecard on The Sustainability Project
-and share it with us.
+- Click on www.tspproject.org
+- Create a profile for your organization using the Sign in button.
+- Select your industry from the drop down menu.
+- Click Assessment at the top of the next screen.
+- After completing the assessment, click on Scorecard then on Share scorecard.
+- Finally, click on Planning and follow instructions to complete improvement plan.
 
-Thank you,
+Thank you.
 - {{request.user.first_name}}
                 </textarea>
               </div>
