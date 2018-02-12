@@ -595,6 +595,11 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
                     'numerator': numerator,
                     'denominator': denominator})
 
+    def _is_sqlite3(db_key=None):
+        if db_key is None:
+            db_key = DEFAULT_DB_ALIAS
+        return connections.databases[db_key]['ENGINE'].endswith('sqlite3')
+
     def populate_leafs(self, leafs, answers, agg_key='account_id'):
         """
         Populate all leafs with aggregated scores.
@@ -608,11 +613,13 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
     MAX(last_activity_at) AS last_activity_at,
     COUNT(answer_id) AS nb_answers,
     COUNT(*) AS nb_questions,
-    MAX(is_completed) AS is_completed
+    %(bool_agg)s(is_completed) AS is_completed
 FROM (%(answers)s) AS answers
 WHERE path LIKE '%(prefix)s%%'
 GROUP BY account_id, sample_id, is_planned;""" % {
-    'answers': answers, 'prefix': prefix}
+    'answers': answers, 'prefix': prefix,
+    'bool_agg': 'MAX' if self._is_sqlite3() else 'bool_or',
+}
             _show_query_and_result(agg_scores)
             with connection.cursor() as cursor:
                 cursor.execute(agg_scores, params=None)
@@ -646,77 +653,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
             includes=self.get_included_samples(),
             excludes=self._get_filter_out_testing())
         self.populate_leafs(leafs, scored_answers)
-
-        # We are running the query a second time because we did not populate
-        # all Consumption fields through the aggregate.
-        with connection.cursor() as cursor:
-            cursor.execute(scored_answers, params=None)
-            col_headers = cursor.description
-            consumption_tuple = namedtuple(
-                'ConsumptionTuple', [col[0] for col in col_headers])
-            for consumption in cursor.fetchall():
-                consumption = consumption_tuple(*consumption)
-                if consumption.is_planned:
-                    if consumption.answer_id:
-                        # This is part of the plan, we mark it for the planning
-                        # page but otherwise don't use values stored here.
-                        consumptions_planned |= set([consumption.path])
-                else:
-                    consumptions[consumption.path] = consumption
-
-        # Populate leafs and cut nodes with data.
-        for path, vals in six.iteritems(leafs):
-            consumption = consumptions.get(path, None)
-            if consumption:
-                avg_value = consumption.avg_value
-                opportunity = consumption.opportunity
-                nb_respondents = consumption.nb_respondents
-                if nb_respondents > 0:
-                    added = 3 * avg_value / float(nb_respondents)
-                else:
-                    added = 0
-                scores = vals[0]['accounts'].get(self.account.pk, None)
-                if scores:
-                    if (consumption.implemented ==
-                        Consumption.ASSESSMENT_ANSWERS[Consumption.YES]) or (
-                        consumption.implemented ==
-                    Consumption.ASSESSMENT_ANSWERS[Consumption.NOT_APPLICABLE]):
-                        scores.update({
-                            'opportunity_numerator': 0,
-                            'opportunity_denominator': 0
-                        })
-                    elif (consumption.implemented ==
-                          Consumption.ASSESSMENT_ANSWERS[
-                              Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT]):
-                        scores.update({
-                            'opportunity_numerator': opportunity,
-                            'opportunity_denominator': 0
-                        })
-                    elif (consumption.implemented ==
-                          Consumption.ASSESSMENT_ANSWERS[
-                              Consumption.NEEDS_MODERATE_IMPROVEMENT]):
-                        scores.update({
-                            'opportunity_numerator': 2 * opportunity + added,
-                            'opportunity_denominator': added
-                        })
-                    else:
-                        # No and not yet answered.
-                        scores.update({
-                            'opportunity_numerator': 3 * opportunity + added,
-                            'opportunity_denominator': added
-                        })
-                vals[0]['consumption'] \
-                    = ConsumptionSerializer(context={
-                        'campaign': self.survey,
-                        'is_planned': (path in consumptions_planned)
-                    }).to_representation(consumption)
-            else:
-                # Cut node: loads icon url.
-                vals[0]['consumption'] = None
-                text = PageElement.objects.filter(
-                    slug=vals[0]['slug']).values('text').first()
-                if text and text['text']:
-                    vals[0].update(text)
+        super(ReportMixin, self).decorate_leafs(leafs)
 
     def get_report_tree(self):
         """

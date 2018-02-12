@@ -203,11 +203,10 @@ class Consumption(SurveyQuestion):
     NEEDS_MODERATE_IMPROVEMENT = 2    # 'Mostly yes'
     NEEDS_SIGNIFICANT_IMPROVEMENT = 3 # 'Mostly no'
     NO = 4                            #pylint:disable=invalid-name
-    NO_NEEDS_IMPROVEMENT = 6          # 'No/needs improvement'
     NOT_APPLICABLE = 5                # 'Not applicable'
 
     PRESENT = (YES, NEEDS_MODERATE_IMPROVEMENT)
-    ABSENT = (NO, NEEDS_SIGNIFICANT_IMPROVEMENT, NO_NEEDS_IMPROVEMENT)
+    ABSENT = (NO, NEEDS_SIGNIFICANT_IMPROVEMENT)
 
     ASSESSMENT_CHOICES = {
         'management': (YES, NEEDS_MODERATE_IMPROVEMENT,

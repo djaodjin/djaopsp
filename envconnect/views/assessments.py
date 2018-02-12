@@ -3,9 +3,11 @@
 from __future__ import unicode_literals
 
 import csv, datetime, json, logging, io
+from collections import OrderedDict, namedtuple
 
 from django.utils import six
 from django.core.urlresolvers import reverse
+from django.db import connection, connections, transaction
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder
@@ -13,10 +15,12 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
+from pages.models import PageElement
 from survey.models import Choice
 
 from ..mixins import ReportMixin
-from ..models import Consumption
+from ..models import Consumption, get_scored_answers
+from ..serializers import ConsumptionSerializer
 
 
 LOGGER = logging.getLogger(__name__)
@@ -24,7 +28,100 @@ LOGGER = logging.getLogger(__name__)
 
 class AssessmentBaseView(ReportMixin, TemplateView):
 
-    pass
+    def decorate_leafs(self, leafs):
+        """
+        Adds consumptions, implementation rate, number of respondents,
+        assessment and improvement answers and opportunity score.
+
+        For each answer the improvement opportunity in the total score is
+        case NO / NEEDS_SIGNIFICANT_IMPROVEMENT
+          numerator = (3-A) * opportunity + 3 * avg_value / nb_respondents
+          denominator = 3 * avg_value / nb_respondents
+        case YES / NEEDS_MODERATE_IMPROVEMENT
+          numerator = (3-A) * opportunity
+          denominator = 0
+        """
+        #pylint:disable=too-many-locals
+        consumptions = {}
+        consumptions_planned = set([])
+        scored_answers = get_scored_answers(
+            includes=self.get_included_samples(),
+            excludes=self._get_filter_out_testing())
+
+        # We are running the query a second time because we did not populate
+        # all Consumption fields through the aggregate.
+        with connection.cursor() as cursor:
+            cursor.execute(scored_answers, params=None)
+            col_headers = cursor.description
+            consumption_tuple = namedtuple(
+                'ConsumptionTuple', [col[0] for col in col_headers])
+            for consumption in cursor.fetchall():
+                consumption = consumption_tuple(*consumption)
+                if consumption.is_planned:
+                    if consumption.answer_id:
+                        # This is part of the plan, we mark it for the planning
+                        # page but otherwise don't use values stored here.
+                        consumptions_planned |= set([consumption.path])
+                else:
+                    consumptions[consumption.path] = consumption
+
+        # Populate leafs and cut nodes with data.
+        for path, vals in six.iteritems(leafs):
+            consumption = consumptions.get(path, None)
+            if consumption:
+                avg_value = consumption.avg_value
+                opportunity = consumption.opportunity
+                nb_respondents = consumption.nb_respondents
+                if nb_respondents > 0:
+                    added = 3 * avg_value / float(nb_respondents)
+                else:
+                    added = 0
+                if 'accounts' not in vals[0]:
+                    vals[0]['accounts'] = {}
+                if self.account.pk not in vals[0]['accounts']:
+                    vals[0]['accounts'][self.account.pk] = {}
+                self.populate_account(vals[0]['accounts'], consumption)
+                scores = vals[0]['accounts'][self.account.pk]
+                if (consumption.implemented ==
+                    Consumption.ASSESSMENT_ANSWERS[Consumption.YES]) or (
+                    consumption.implemented ==
+                Consumption.ASSESSMENT_ANSWERS[Consumption.NOT_APPLICABLE]):
+                    scores.update({
+                        'opportunity_numerator': 0,
+                        'opportunity_denominator': 0
+                    })
+                elif (consumption.implemented ==
+                      Consumption.ASSESSMENT_ANSWERS[
+                          Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT]):
+                    scores.update({
+                        'opportunity_numerator': opportunity,
+                        'opportunity_denominator': 0
+                    })
+                elif (consumption.implemented ==
+                      Consumption.ASSESSMENT_ANSWERS[
+                          Consumption.NEEDS_MODERATE_IMPROVEMENT]):
+                    scores.update({
+                        'opportunity_numerator': 2 * opportunity + added,
+                        'opportunity_denominator': added
+                    })
+                else:
+                    # No and not yet answered.
+                    scores.update({
+                        'opportunity_numerator': 3 * opportunity + added,
+                        'opportunity_denominator': added
+                    })
+                vals[0]['consumption'] \
+                    = ConsumptionSerializer(context={
+                        'campaign': self.survey,
+                        'is_planned': (path in consumptions_planned)
+                    }).to_representation(consumption)
+            else:
+                # Cut node: loads icon url.
+                vals[0]['consumption'] = None
+                text = PageElement.objects.filter(
+                    slug=vals[0]['slug']).values('text').first()
+                if text and text['text']:
+                    vals[0].update(text)
 
 
 class AssessmentView(AssessmentBaseView):
