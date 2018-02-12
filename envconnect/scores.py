@@ -24,7 +24,6 @@ def _normalize(scores, normalize_to_one=False):
     """
     # XXX while we figure out how to compute `normalize_to_one` correctly
     # in the context of the assessment (Python) vs. scorecard (SQL).
-    normalize_to_one = False
     numerator_key = 'numerator'
     denominator_key = 'denominator'
     nb_answers = scores.get('nb_answers', 0)
