@@ -110,7 +110,14 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             self.decorate_with_breadcrumbs(root)
-            charts = self.get_charts(root)
+            excludes = []
+            parts = from_root.split("/")
+            if parts:
+                if not parts[1].startswith('sustainability-'):
+                    excludes = ['sustainability-%s' % parts[1]]
+                else:
+                    excludes = [parts[1]]
+            charts = self.get_charts(root, excludes=excludes)
             if self.assessment_sample:
                 last_updated_at = self.assessment_sample.created_at.strftime(
                     "%b %Y")
