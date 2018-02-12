@@ -81,9 +81,9 @@
         <th></th>
         <th>Supplier/facility<button class="btn-link btn-sort" ng-click="sortBy('printable_name')"><i class="fa fa-sort[[dir.printable_name ? ('-' + dir.printable_name) : '']]"></i></button></th>
         <th>Last activity<button class="btn-link btn-sort" ng-click="sortBy('last_activity_at')"><i class="fa fa-sort[[dir.last_activity_at ? ('-' + dir.last_activity_at) : '']]"></i></button></th>
-        <th>Assessment status<button class="btn-link btn-sort" ng-click="sortBy('nb_answers')"><i class="fa fa-sort[[dir.nb_answers ? ('-' + dir.nb_answers) : '']]"></i></button></th>
+        <th>Assessment status<button class="btn-link btn-sort" ng-click="sortBy('assessment_completed')"><i class="fa fa-sort[[dir.assessment_completed ? ('-' + dir.assessment_completed) : '']]"></i></button></th>
         <th>Score<button class="btn-link btn-sort" ng-click="sortBy('normalized_score')"><i class="fa fa-sort[[dir.normalized_score ? ('-' + dir.normalized_score) : '']]"></i></button></th>
-        <th>Planning<button class="btn-link btn-sort" ng-click="sortBy('improvement_score')"><i class="fa fa-sort[[dir.improvement_score ? ('-' + dir.improvement_score) : '']]"></i></button></th>
+        <th>Planning<button class="btn-link btn-sort" ng-click="sortBy('improvement_completed')"><i class="fa fa-sort[[dir.improvement_completed ? ('-' + dir.improvement_completed) : '']]"></i></button></th>
         <th></th>
       </tr>
     </thead>
@@ -137,8 +137,8 @@
         <td style="line-height:1em;">
           <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>
           <span ng-if="entry.$resolved && entry.request_key">Requested</span>
-          <div ng-if="entry.$resolved && !entry.request_key && isComplete(entry)">Complete<!--<br /><span style="font-size:0.7em;">([[entry.nb_answers]] answers)</span>--></div>
-          <div ng-if="entry.$resolved && !entry.request_key && !isComplete(entry)">Incomplete<!--<br /><span style="font-size:0.7em;">([[entry.nb_answers]] of [[entry.nb_questions]])</span>--></div>
+          <div ng-if="entry.$resolved && !entry.request_key && isAssessmentCompleted(entry)">Complete<!--<br /><span style="font-size:0.7em;">([[entry.nb_answers]] answers)</span>--></div>
+          <div ng-if="entry.$resolved && !entry.request_key && !isAssessmentCompleted(entry)">Incomplete<!--<br /><span style="font-size:0.7em;">([[entry.nb_answers]] of [[entry.nb_questions]])</span>--></div>
         </td>
         <td>
           <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>

@@ -5,17 +5,22 @@
 
 import re
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import models, transaction
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils import six
 from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip
 from answers.models import Question as AnswersQuestion
 from survey.models import (Answer, Campaign, EditablePredicate,
     EnumeratedQuestions, Sample)
+from survey.utils import get_account_model
 
 from ...mixins import BreadcrumbMixin, ReportMixin
 from ...models import Improvement, Consumption, ColumnHeader
+from ...api.dashboards import SupplierListBaseAPIView
+
 
 @python_2_unicode_compatible
 class Question(models.Model):
@@ -59,6 +64,12 @@ class Question(models.Model):
         return str(self.rank)
 
 
+class SuppliersAPIView(SupplierListBaseAPIView):
+
+    def _get_filter_out_testing(self):
+        return settings.TESTING_RESPONSE_IDS
+
+
 class Command(BaseCommand):
 
 #    prefix = "ad-"
@@ -79,11 +90,51 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         with transaction.atomic():
             self.migrate_survey()
+            self.migrate_completion_status()
+#            self.print_updated_scores()
 #            self.migrate_improvements()
 #            self.tag_as_json()
 #            self.dump_sql_statements(options.get('paths'))
 #            self.relabel_to_fix_error()
 #            self.recompute_avg_value()
+
+    @staticmethod
+    def migrate_completion_status():
+        with transaction.atomic():
+            api = SuppliersAPIView()
+            rollup_tree = api.rollup_scores()
+            for account in get_account_model().objects.all():
+                accounts = root[0].get('accounts', {})
+                if account.pk in accounts:
+                    scores = accounts.get(account.pk, None)
+                    if scores:
+                        normalized_score = scores.get('normalized_score', None)
+                        if normalized_score is not None:
+                            for sample in Sample.objects.filter(
+                                    extra__isnull=True,
+                                    survey__title=ReportMixin.report_title,
+                                    account=account):
+                                sample.is_frozen = True
+                                sample.save()
+                        improvement_score = scores.get(
+                            'improvement_score', None)
+                        if improvement_score is not None:
+                            for sample in Sample.objects.filter(
+                                    extra='is_planned',
+                                    survey__title=ReportMixin.report_title,
+                                    account=account):
+                                sample.is_frozen = True
+                                sample.save()
+
+    survey = models.ForeignKey(Campaign, null=True)
+    account = models.ForeignKey(settings.ACCOUNT_MODEL, null=True)
+    time_spent = models.DurationField(default=datetime.timedelta,
+        help_text="Total recorded time to complete the survey")
+    is_frozen = models.BooleanField(default=False,
+        help_text="When True, answers to that sample cannot be updated.")
+    extra = settings.get_extra_field_class()(null=True)
+
+
 
     @staticmethod
     def migrate_survey():
@@ -96,6 +147,36 @@ class Command(BaseCommand):
                         'rank': question.rank,
                         'required': question.required
                     })
+
+    def print_account_updated_scores(self, account, key, root):
+        accounts = root[0].get('accounts', {})
+        if account.pk in accounts:
+            scores = accounts.get(account.pk, None)
+            if scores:
+                normalized_score = scores.get('normalized_score', None)
+                numerator = scores.get('numerator', None)
+                if numerator is not None:
+                    numerator = "%.2f" % numerator
+                denominator = scores.get('denominator', None)
+                if denominator is not None:
+                    denominator = "%.2f" % denominator
+                weight = root[0].get('score_weight', 1.0)
+                if normalized_score is not None:
+                    self.stdout.write('%.2f %s %s %.2f "%s" %s' % (
+                        normalized_score, numerator, denominator, weight,
+                        account.printable_name, key))
+        for key, node in six.iteritems(root[1]):
+            self.print_account_updated_scores(account, key, node)
+
+    def print_updated_scores(self):
+        """
+        Displays the scores for each account/scorecard as a text list.
+        """
+        api = SuppliersAPIView()
+        rollup_tree = api.rollup_scores()
+        for account in get_account_model().objects.all():
+            self.stdout.write('"%s"' % account.printable_name)
+            self.print_account_updated_scores(account, "/", rollup_tree)
 
     @staticmethod
     def migrate_improvements():

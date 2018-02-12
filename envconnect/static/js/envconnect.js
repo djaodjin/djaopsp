@@ -1233,14 +1233,15 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     };
 
     // True if the organization has completed an assessment.
-    $scope.isComplete = function(entry) {
-        return (typeof entry.normalized_score !== 'undefined');
+    $scope.isAssessmentCompleted = function(entry) {
+        return (typeof entry.assessment_completed !== 'undefined')
+            && entry.assessment_completed;
     };
 
-    // True if the organization has started an improvement plan.
+    // True if the organization has completed an improvement plan.
     $scope.isImprovementPlan = function(entry) {
-        return (typeof entry.improvement_score !== 'undefined')
-            && entry.improvement_score > 0;
+        return (typeof entry.improvement_completed !== 'undefined')
+            && entry.improvement_completed;
     };
 
     $scope.refresh = function() {

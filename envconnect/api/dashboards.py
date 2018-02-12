@@ -272,9 +272,9 @@ class SupplierSmartListMixin(SortableListMixin, SearchableListMixin):
 
     sort_fields_aliases = [('printable_name', 'printable_name'),
                            ('last_activity_at', 'last_activity_at'),
-                           ('nb_answers', 'nb_answers'),
+                           ('assessment_completed', 'assessment_completed'),
                            ('normalized_score', 'normalized_score'),
-                           ('improvement_score', 'improvement_score')]
+                           ('improvement_completed', 'improvement_completed')]
 
 
 class SupplierListAPIView(SupplierSmartListMixin, SupplierListBaseAPIView):
