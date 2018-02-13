@@ -111,7 +111,12 @@ class ConsumptionQuerySet(models.QuerySet):
         #pylint:disable=protected-access
         implementation_rate_view = """WITH
 latest_assessment_by_accounts AS (
-  SELECT survey_sample.account_id, survey_sample.id, created_at
+  SELECT
+      survey_sample.account_id AS account_id,
+      survey_sample.id AS id,
+      survey_sample.created_at AS created_at,
+      survey_sample.is_frozen AS is_frozen,
+      survey_sample.extra AS is_planned
   FROM survey_sample
   INNER JOIN (SELECT account_id, MAX(created_at) AS last_updated_at
               FROM survey_sample
@@ -152,15 +157,17 @@ nb_valid_by_questions AS (
 }
 
         # The opportunity for all questions with a "Yes" answer.
-        yes_opportunity_view = """%(implementation_rate)s SELECT
-  yes_no_view.question_id AS question_id,
-  (yes_no_view.avg_value * (1.0 +
+        yes_opportunity_view = """%(implementation_rate)s,
+opportunity_view AS (
+  SELECT
+    yes_no_view.question_id AS question_id,
+    (yes_no_view.avg_value * (1.0 +
       CAST(yes_view.nb_yes AS FLOAT) / yes_no_view.nb_yes_no)) as opportunity,
-  (CAST(yes_view.nb_yes AS FLOAT) * 100 / yes_no_view.nb_yes_no) as rate,
-  yes_no_view.nb_yes_no as nb_respondents
-FROM nb_valid_by_questions as yes_no_view
-LEFT OUTER JOIN nb_positive_by_questions as yes_view
-ON yes_view.question_id = yes_no_view.question_id""" % {
+    (CAST(yes_view.nb_yes AS FLOAT) * 100 / yes_no_view.nb_yes_no) as rate,
+    yes_no_view.nb_yes_no as nb_respondents
+  FROM nb_valid_by_questions as yes_no_view
+  LEFT OUTER JOIN nb_positive_by_questions as yes_view
+  ON yes_view.question_id = yes_no_view.question_id)""" % {
                 'implementation_rate': implementation_rate_view}
         self._show_query_and_result(yes_opportunity_view)
 
@@ -169,7 +176,8 @@ ON yes_view.question_id = yes_no_view.question_id""" % {
         # This set of opportunities only has to be computed once.
         # It is shared across all samples.
         # COALESCE now supported on sqlite3.
-        questions_with_opportunity = """SELECT
+        questions_with_opportunity = """%(yes_opportunity_view)s
+SELECT
   envconnect_consumption.question_id AS question_id,
   COALESCE(opportunity_view.opportunity, envconnect_consumption.avg_value, 0)
     AS opportunity,
@@ -181,10 +189,11 @@ ON yes_view.question_id = yes_no_view.question_id""" % {
   envconnect_consumption.profitability AS profitability,
   envconnect_consumption.avg_value AS avg_value,
   survey_question.path AS path
-FROM envconnect_consumption INNER JOIN survey_question
-ON envconnect_consumption.question_id = survey_question.id
-LEFT OUTER JOIN (%(yes_opportunity_view)s) AS opportunity_view
-ON envconnect_consumption.question_id = opportunity_view.question_id""" % {
+FROM envconnect_consumption
+INNER JOIN survey_question
+  ON envconnect_consumption.question_id = survey_question.id
+LEFT OUTER JOIN opportunity_view
+  ON envconnect_consumption.question_id = opportunity_view.question_id""" % {
                 'yes_opportunity_view': yes_opportunity_view,
             }
         self._show_query_and_result(questions_with_opportunity)
@@ -403,15 +412,33 @@ def get_expected_opportunities(is_planned=None, includes=None, excludes=None,
     questions_with_opportunity.rate AS rate
 FROM (%(questions_with_opportunity)s) AS questions_with_opportunity
 INNER JOIN (
+  WITH
+    latest_assessment_by_accounts AS (
+      SELECT
+        survey_sample.account_id AS account_id,
+        survey_sample.id AS id,
+        survey_sample.created_at AS created_at,
+        survey_sample.survey_id AS survey_id,
+        survey_sample.is_frozen AS is_frozen,
+        survey_sample.extra AS is_planned
+      FROM survey_sample
+      INNER JOIN (SELECT account_id, MAX(created_at) AS last_updated_at
+              FROM survey_sample
+              WHERE survey_sample.extra IS NULL
+              GROUP BY account_id) AS last_updates
+      ON survey_sample.account_id = last_updates.account_id AND
+         survey_sample.created_at = last_updates.last_updated_at
+         %(additional_filters)s)
     SELECT survey_enumeratedquestions.question_id AS question_id,
-           survey_sample.account_id AS account_id,
-           survey_sample.id AS sample_id,
-           survey_sample.is_frozen AS is_completed,
-           survey_sample.extra AS is_planned
-    FROM survey_sample
+           latest_assessment_by_accounts.account_id AS account_id,
+           latest_assessment_by_accounts.id AS sample_id,
+           latest_assessment_by_accounts.is_frozen AS is_completed,
+           latest_assessment_by_accounts.is_planned AS is_planned
+    FROM latest_assessment_by_accounts
     INNER JOIN survey_enumeratedquestions
-    ON survey_sample.survey_id = survey_enumeratedquestions.campaign_id
-    %(additional_filters)s) AS samples
+    ON latest_assessment_by_accounts.survey_id
+         = survey_enumeratedquestions.campaign_id
+    ) AS samples
 ON questions_with_opportunity.question_id = samples.question_id
 """ % {'questions_with_opportunity': questions_with_opportunity,
        'additional_filters': _additional_filters(
@@ -436,7 +463,8 @@ def get_answer_with_account(is_planned=None, includes=None, excludes=None):
     survey_answer.created_at AS created_at,
     measured,
     survey_sample.is_frozen AS is_completed,
-    survey_sample.extra AS is_planned
+    survey_sample.extra AS is_planned,
+    survey_answer.rank AS rank
 FROM survey_answer INNER JOIN survey_sample
 ON survey_answer.sample_id = survey_sample.id
 WHERE survey_answer.metric_id = 1
@@ -462,6 +490,9 @@ def get_historical_scores(is_planned=None, includes=None, excludes=None,
         - answer_id
         - question_id
         - path
+
+    XXX This query will only work if we have denominator for all questions,
+    even the unanswered ones?
     """
     scored_answers = """SELECT
 survey_sample.account_id AS account_id,
@@ -469,7 +500,7 @@ survey_answer.sample_id AS sample_id,
 survey_sample.is_frozen AS is_completed,
 survey_sample.extra AS is_planned,
 survey_answer.measured AS numerator,
-1 AS denominator,
+survey_answer.denominator AS denominator,
 survey_sample.created_at AS last_activity_at,
 survey_answer.id AS answer_id,
 survey_answer.question_id AS question_id,
@@ -533,6 +564,7 @@ def get_scored_answers(is_planned=None, includes=None, excludes=None,
     expected_choices.denominator AS denominator,
     expected_choices.last_activity_at AS last_activity_at,
     expected_choices.answer_id AS answer_id,
+    expected_choices.rank AS rank,
     expected_choices.question_id AS question_id,
     expected_choices.path AS path,
     survey_choice.text AS implemented,
@@ -557,6 +589,7 @@ FROM (SELECT
          ELSE 0.0 END AS denominator,
     answers.created_at AS last_activity_at,
     answers.id AS answer_id,
+    answers.rank as rank,
     expected_opportunities.question_id AS question_id,
     expected_opportunities.path AS path,
     answers.measured AS measured,

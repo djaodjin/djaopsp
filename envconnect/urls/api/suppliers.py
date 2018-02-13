@@ -4,7 +4,7 @@
 from django.conf import settings
 from django.conf.urls import url, include
 
-from ...api.assessments import AssessmentAPIView
+from ...api.assessments import AssessmentAPIView, AssessmentAnswerAPIView
 from ...api.benchmark import BenchmarkAPIView, HistoricalScoreAPIView
 from ...api.improvements import (ImprovementListAPIView,
     ImprovementToggleAPIView)
@@ -38,7 +38,10 @@ urlpatterns = [
         name='api_improvement_base'),
     url(r'^(?P<interviewee>%s)/sample/(?P<sample>%s)/(?P<rank>\d+)/' % (
         settings.SLUG_RE, settings.SLUG_RE),
-        AssessmentAPIView.as_view(), name='survey_api_answer'),
+        AssessmentAnswerAPIView.as_view(), name='survey_api_answer'),
+    url(r'(?P<interviewee>%s)/sample/(?P<sample>%s)/$' % (
+        settings.SLUG_RE, settings.SLUG_RE),
+        AssessmentAPIView.as_view(), name='survey_api_sample'),
     url(r'(?P<interviewee>%s)/sample/' % (settings.SLUG_RE,),
         include('survey.urls.api.sample')),
 ]

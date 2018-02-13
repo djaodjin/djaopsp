@@ -50,7 +50,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
         return obj.nb_respondents if hasattr(obj, 'nb_respondents') else 0
 
     def get_rank(self, obj):
-        if hasattr(obj, 'rank'):
+        if hasattr(obj, 'rank') and obj.rank:
             return obj.rank
         return EnumeratedQuestions.objects.filter(
             campaign=self.context['campaign'],

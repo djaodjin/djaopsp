@@ -1,24 +1,31 @@
 # Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
+import logging
 from collections import namedtuple
 
-from django.db import connection
+from deployutils.helpers import datetime_or_now
+from django.db import connection, transaction
 from rest_framework.status import HTTP_200_OK
 from rest_framework import response as http
-from survey.api.sample import AnswerAPIView
+from survey.api.sample import AnswerAPIView, SampleAPIView
+from survey.models import Answer, Sample
 
+from ..mixins import ReportMixin
 from ..models import get_scored_answers
 from ..serializers import ConsumptionSerializer
 
 
-class AssessmentAPIView(AnswerAPIView):
+LOGGER = logging.getLogger(__name__)
+
+
+class AssessmentAnswerAPIView(AnswerAPIView):
     """
     Answers about the implementation of a best practice.
     """
 
     def get_queryset(self):
-        return super(AssessmentAPIView, self).get_queryset().filter(
+        return super(AssessmentAnswerAPIView, self).get_queryset().filter(
             metric=self.question.default_metric)
 
     def get_http_response(self, serializer,
@@ -29,10 +36,54 @@ class AssessmentAPIView(AnswerAPIView):
             cursor.execute(scored_answers, params=None)
             col_headers = cursor.description
             decorated_answer_tuple = namedtuple('DecoratedAnswerTuple',
-                ['rank'] + [col[0] for col in col_headers])
-            decorated_answer = decorated_answer_tuple(
-                self.rank, *cursor.fetchone())
+                [col[0] for col in col_headers])
+            decorated_answer = decorated_answer_tuple(*cursor.fetchone())
         data = ConsumptionSerializer(context={
             'campaign': self.sample.survey
         }).to_representation(decorated_answer)
         return http.Response(data, status=status, headers=headers)
+
+
+class AssessmentAPIView(ReportMixin, SampleAPIView):
+
+    account_url_kwarg = 'interviewee'
+
+    def update(self, request, *args, **kwargs):
+        with transaction.atomic():
+            result = super(AssessmentAPIView, self).update(
+                request, *args, **kwargs)
+            if self.sample.is_frozen:
+                LOGGER.info("freeze scores for %s" % str(self.sample.account))
+                created_at = datetime_or_now()
+                scored_answers = get_scored_answers(
+                    includes=self.get_included_samples(),
+                    excludes=self._get_filter_out_testing())
+                score_sample = Sample.objects.create(
+                    created_at=created_at,
+                    survey=self.sample.survey,
+                    account=self.sample.account,
+                    extra='completed',
+                    is_frozen=True)
+                with connection.cursor() as cursor:
+                    cursor.execute(scored_answers, params=None)
+                    col_headers = cursor.description
+                    decorated_answer_tuple = namedtuple(
+                        'DecoratedAnswerTuple', [col[0] for col in col_headers])
+                    for decorated_answer in cursor.fetchall():
+                        decorated_answer = decorated_answer_tuple(
+                            *decorated_answer)
+                        if decorated_answer.answer_id:
+                            numerator = decorated_answer.numerator
+                            denominator = decorated_answer.denominator
+                            score_answer = Answer.objects.create(
+                                created_at=created_at,
+                                question_id=decorated_answer.question_id,
+                                metric_id=2,
+                                measured=numerator,
+                                denominator=denominator,
+                                collected_by=self.request.user,
+                                sample=score_sample,
+                                rank=decorated_answer.rank)
+                self.sample.created_at = datetime_or_now()
+                self.sample.save()
+        return result

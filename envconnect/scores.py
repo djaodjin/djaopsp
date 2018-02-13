@@ -41,9 +41,11 @@ def _normalize(scores, normalize_to_one=False):
                     / denominator)
             if normalize_to_one:
                 if numerator_key in scores:
-                    scores[numerator_key] /= denominator
+                    scores[numerator_key] = (
+                        float(scores[numerator_key]) / denominator)
                 if 'improvement_numerator' in scores:
-                    scores['improvement_numerator'] /= denominator
+                    scores['improvement_numerator'] = (
+                        float(scores['improvement_numerator']) / denominator)
                 scores[denominator_key] = 1.0
         else:
             scores['normalized_score'] = 0

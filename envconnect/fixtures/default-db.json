@@ -1544,6 +1544,7 @@
     "question": 7,
     "metric": 2,
     "measured": 2,
+    "denominator": 4,
     "collected_by": 7,
     "sample": 3,
     "rank": 7
@@ -1556,6 +1557,7 @@
     "question": 8,
     "metric": 2,
     "measured": 1,
+    "denominator": 2,
     "collected_by": 7,
     "sample": 3,
     "rank": 8
@@ -1568,6 +1570,7 @@
     "question": 9,
     "metric": 2,
     "measured": 2,
+    "denominator": 2,
     "collected_by": 7,
     "sample": 3,
     "rank": 9
@@ -1580,6 +1583,7 @@
     "question": 1,
     "metric": 2,
     "measured": 1,
+    "denominator": 3,
     "collected_by": 7,
     "sample": 3,
     "rank": 1
@@ -1592,6 +1596,7 @@
     "question": 2,
     "metric": 2,
     "measured": 1,
+    "denominator": 2,
     "collected_by": 7,
     "sample": 3,
     "rank": 2
@@ -1604,6 +1609,7 @@
     "question": 3,
     "metric": 2,
     "measured": 1,
+    "denominator": 4,
     "collected_by": 7,
     "sample": 3,
     "rank": 3
@@ -1616,6 +1622,7 @@
     "question": 4,
     "metric": 2,
     "measured": 1,
+    "denominator": 3,
     "collected_by": 7,
     "sample": 3,
     "rank": 4
@@ -1628,6 +1635,7 @@
     "question": 6,
     "metric": 2,
     "measured": 4,
+    "denominator": 4,
     "collected_by": 7,
     "sample": 3,
     "rank": 6
@@ -1652,6 +1660,7 @@
     "question": 7,
     "metric": 2,
     "measured": 5,
+    "denominator": 6,
     "collected_by": 7,
     "sample": 4,
     "rank": 7
@@ -1664,6 +1673,7 @@
     "question": 8,
     "metric": 2,
     "measured": 4,
+    "denominator": 4,
     "collected_by": 7,
     "sample": 4,
     "rank": 8
@@ -1676,6 +1686,7 @@
     "question": 9,
     "metric": 2,
     "measured": 3,
+    "denominator": 4,
     "collected_by": 7,
     "sample": 4,
     "rank": 9
@@ -1688,6 +1699,7 @@
     "question": 1,
     "metric": 2,
     "measured": 4,
+    "denominator": 4,
     "collected_by": 7,
     "sample": 4,
     "rank": 1
@@ -1700,6 +1712,7 @@
     "question": 2,
     "metric": 2,
     "measured": 2,
+    "denominator": 4,
     "collected_by": 7,
     "sample": 4,
     "rank": 2
@@ -1712,6 +1725,7 @@
     "question": 3,
     "metric": 2,
     "measured": 3,
+    "denominator": 4,
     "collected_by": 7,
     "sample": 4,
     "rank": 3
@@ -1724,6 +1738,7 @@
     "question": 4,
     "metric": 2,
     "measured": 3,
+    "denominator": 4,
     "collected_by": 7,
     "sample": 4,
     "rank": 4
@@ -1736,6 +1751,7 @@
     "question": 6,
     "metric": 2,
     "measured": 4,
+    "denominator": 4,
     "collected_by": 7,
     "sample": 4,
     "rank": 6

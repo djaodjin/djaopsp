@@ -463,7 +463,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                 if account_key not in accounts:
                     accounts[account_key] = {}
                 accounts[account_key].update({
-                    node_key: account.get('numerator', 0)})
+                    node_key: account.get('normalized_score', 0)})
 
     def get(self, request, *args, **kwargs):
         #pylint:disable=unused-argument,too-many-locals
