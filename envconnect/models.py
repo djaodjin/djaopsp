@@ -454,7 +454,7 @@ ON questions_with_opportunity.question_id = samples.question_id
     return expected_opportunities
 
 
-def get_answer_with_account(is_planned=None, includes=None, excludes=None):
+def get_answer_with_account(is_planned=None, includes=None):
     """
     Returns a list of tuples (answer_id, question_id, sample_id, account_id,
     created_at, measured, is_planned) that corresponds to all answers
@@ -476,7 +476,7 @@ ON survey_answer.sample_id = survey_sample.id
 WHERE survey_answer.metric_id = 1
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
-        is_planned=is_planned, includes=includes, excludes=excludes)}
+        is_planned=is_planned, includes=includes)}
     _show_query_and_result(query)
     return query
 
@@ -504,7 +504,7 @@ def get_historical_scores(is_planned=None, includes=None, excludes=None,
 survey_sample.account_id AS account_id,
 survey_answer.sample_id AS sample_id,
 survey_sample.is_frozen AS is_completed,
-survey_sample.extra AS is_planned,
+survey_sample.extra = 'is_planned' AS is_planned,
 survey_answer.measured AS numerator,
 survey_answer.denominator AS denominator,
 survey_sample.created_at AS last_activity_at,
@@ -622,7 +622,6 @@ ON expected_choices.measured = survey_choice.id
            is_planned=is_planned, includes=includes, excludes=excludes,
            questions=questions),
        'answers': get_answer_with_account(
-           is_planned=is_planned,
-           includes=includes, excludes=excludes)}
+           is_planned=is_planned, includes=includes)}
     _show_query_and_result(scored_answers)
     return scored_answers

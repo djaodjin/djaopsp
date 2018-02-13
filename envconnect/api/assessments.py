@@ -48,43 +48,50 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 
     account_url_kwarg = 'interviewee'
 
+    @staticmethod
+    def freeze_scores(sample, includes=None, excludes=None,
+                      collected_by=None, created_at=None):
+        LOGGER.info("freeze scores for %s", sample.account)
+        created_at = datetime_or_now(created_at)
+        scored_answers = get_scored_answers(
+            includes=includes, excludes=excludes)
+        score_sample = Sample.objects.create(
+            created_at=created_at,
+            survey=sample.survey,
+            account=sample.account,
+            extra='completed',
+            is_frozen=True)
+        with connection.cursor() as cursor:
+            cursor.execute(scored_answers, params=None)
+            col_headers = cursor.description
+            decorated_answer_tuple = namedtuple(
+                'DecoratedAnswerTuple', [col[0] for col in col_headers])
+            for decorated_answer in cursor.fetchall():
+                decorated_answer = decorated_answer_tuple(
+                    *decorated_answer)
+                if decorated_answer.answer_id:
+                    numerator = decorated_answer.numerator
+                    denominator = decorated_answer.denominator
+                    _ = Answer.objects.create(
+                        created_at=created_at,
+                        question_id=decorated_answer.question_id,
+                        metric_id=2,
+                        measured=numerator,
+                        denominator=denominator,
+                        collected_by=collected_by,
+                        sample=score_sample,
+                        rank=decorated_answer.rank)
+        sample.created_at = datetime_or_now()
+        sample.save()
+        return score_sample
+
     def update(self, request, *args, **kwargs):
-        #pylint:disable=too-many-locals
         with transaction.atomic():
             result = super(AssessmentAPIView, self).update(
                 request, *args, **kwargs)
-            if self.sample.is_frozen:
-                LOGGER.info("freeze scores for %s", self.sample.account)
-                created_at = datetime_or_now()
-                scored_answers = get_scored_answers(
+            if self.sample.extra is None and self.sample.is_frozen:
+                self.freeze_scores(self.sample,
                     includes=self.get_included_samples(),
-                    excludes=self._get_filter_out_testing())
-                score_sample = Sample.objects.create(
-                    created_at=created_at,
-                    survey=self.sample.survey,
-                    account=self.sample.account,
-                    extra='completed',
-                    is_frozen=True)
-                with connection.cursor() as cursor:
-                    cursor.execute(scored_answers, params=None)
-                    col_headers = cursor.description
-                    decorated_answer_tuple = namedtuple(
-                        'DecoratedAnswerTuple', [col[0] for col in col_headers])
-                    for decorated_answer in cursor.fetchall():
-                        decorated_answer = decorated_answer_tuple(
-                            *decorated_answer)
-                        if decorated_answer.answer_id:
-                            numerator = decorated_answer.numerator
-                            denominator = decorated_answer.denominator
-                            _ = Answer.objects.create(
-                                created_at=created_at,
-                                question_id=decorated_answer.question_id,
-                                metric_id=2,
-                                measured=numerator,
-                                denominator=denominator,
-                                collected_by=self.request.user,
-                                sample=score_sample,
-                                rank=decorated_answer.rank)
-                self.sample.created_at = datetime_or_now()
-                self.sample.save()
+                    excludes=self._get_filter_out_testing(),
+                    collected_by=self.request.user)
         return result

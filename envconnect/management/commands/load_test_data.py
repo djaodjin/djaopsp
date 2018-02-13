@@ -4,6 +4,8 @@
 """Command to populate database with test data"""
 import random
 
+from dateutil.relativedelta import relativedelta
+from deployutils.helpers import datetime_or_now
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -12,23 +14,33 @@ from django.template.defaultfilters import slugify
 from faker import Faker
 from pages.models import PageElement
 from rest_framework.exceptions import ValidationError
+from saas.models import Organization
 from survey.models import Answer, Sample, Campaign
 
+from ...api.assessments import AssessmentAPIView
 from ...mixins import ReportMixin
 from ...models import Consumption
-
 
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)
+        parser.add_argument('--account', action='store',
+            dest='account', default=None,
+            help="Run `populate_historical_scores` on a specific account")
         parser.add_argument('nb_organizations', metavar='nb_organizations',
             default=1000, help="Number of organizations to create.")
 
     def handle(self, *args, **options):
-        nb_organizations = int(options['nb_organizations'])
-        fake = Faker()
         self.survey = Campaign.objects.get(title=ReportMixin.report_title)
+#        self.create_organizations(
+#            nb_organizations=int(options['nb_organizations']))
+        account = options['account']
+        if account:
+            self.populate_historical_scores(organization=options['account'])
+
+    def create_organizations(self, nb_organizations):
+        fake = Faker()
         organization_class = django_apps.get_model(settings.ACCOUNT_MODEL)
         industries = list(PageElement.objects.get_roots().filter(
             tag__contains='industry'))
@@ -61,6 +73,42 @@ class Command(BaseCommand):
             Answer.objects.create(
                 sample=sample, question=consumption.question,
                 rank=consumption.question.rank)
+
+    def populate_historical_scores(self, organization):
+        if not isinstance(organization, Organization):
+            organization = Organization.objects.get(slug=organization)
+        assessment_sample = Sample.objects.filter(
+            extra__isnull=True, survey=self.survey,
+            account=organization).order_by('-created_at').first()
+
+        # Backup current answers
+        backups = {}
+        for answer in Answer.objects.filter(
+                sample=assessment_sample, metric_id=1):
+            backups[answer.pk] = answer.measured
+
+        today = datetime_or_now()
+        for months in [6, 12, 24]:
+            for answer in Answer.objects.filter(
+                    sample=assessment_sample, metric_id=1):
+                choices = [1, 2, 3, 4]
+                answer.measured = random.choice(choices[(answer.measured - 1):])
+                answer.measured = 1
+                answer.save()
+            created_at = today - relativedelta(months=months)
+            score_sample = AssessmentAPIView().freeze_scores(assessment_sample,
+                includes=[assessment_sample.pk],
+                excludes=settings.TESTING_RESPONSE_IDS,
+                created_at=created_at)
+            # XXX Sample.created_at is using `auto_now_add`
+            score_sample.created_at = created_at
+            score_sample.save()
+
+        # Restore backup
+        for answer in Answer.objects.filter(
+                sample=assessment_sample, metric_id=1):
+            answer.measured = backups[answer.pk]
+            answer.save()
 
     @staticmethod
     def create_unique_organization(organization_class, fake, industries):
