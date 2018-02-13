@@ -414,7 +414,7 @@ def get_expected_opportunities(is_planned=None, includes=None, excludes=None,
 FROM (%(questions_with_opportunity)s) AS questions_with_opportunity
 INNER JOIN (
   WITH
-    latest_assessment_by_accounts AS (
+    latest_assess_or_improve_by_accounts AS (
       SELECT
         survey_sample.account_id AS account_id,
         survey_sample.id AS id,
@@ -423,15 +423,23 @@ INNER JOIN (
         survey_sample.is_frozen AS is_frozen,
         survey_sample.extra AS is_planned
       FROM survey_sample
+      INNER JOIN(
+        SELECT account_id, extra, MAX(created_at) AS last_updated_at
+        FROM survey_sample
+        WHERE survey_sample.extra IS NULL
+          OR survey_sample.extra = 'is_planned'
+        GROUP BY account_id, extra) AS latests
+      ON survey_sample.account_id = latests.account_id
+        AND survey_sample.created_at = latests.last_updated_at
       %(samples_filters)s)
     SELECT survey_enumeratedquestions.question_id AS question_id,
-           latest_assessment_by_accounts.account_id AS account_id,
-           latest_assessment_by_accounts.id AS sample_id,
-           latest_assessment_by_accounts.is_frozen AS is_completed,
-           latest_assessment_by_accounts.is_planned AS is_planned
-    FROM latest_assessment_by_accounts
+           latest_assess_or_improve_by_accounts.account_id AS account_id,
+           latest_assess_or_improve_by_accounts.id AS sample_id,
+           latest_assess_or_improve_by_accounts.is_frozen AS is_completed,
+           latest_assess_or_improve_by_accounts.is_planned AS is_planned
+    FROM latest_assess_or_improve_by_accounts
     INNER JOIN survey_enumeratedquestions
-    ON latest_assessment_by_accounts.survey_id
+    ON latest_assess_or_improve_by_accounts.survey_id
          = survey_enumeratedquestions.campaign_id
     %(questions_filters)s
     ) AS samples
