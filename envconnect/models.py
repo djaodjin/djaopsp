@@ -114,9 +114,7 @@ latest_assessment_by_accounts AS (
   SELECT
       survey_sample.account_id AS account_id,
       survey_sample.id AS id,
-      survey_sample.created_at AS created_at,
-      survey_sample.is_frozen AS is_frozen,
-      survey_sample.extra AS is_planned
+      survey_sample.created_at AS created_at
   FROM survey_sample
   INNER JOIN (SELECT account_id, MAX(created_at) AS last_updated_at
               FROM survey_sample
@@ -354,7 +352,7 @@ def _show_query_and_result(raw_query, show=False):
 
 
 def _additional_filters(is_planned=None, includes=None, excludes=None,
-                        questions=None):
+                        questions=None, first=False):
     sep = ""
     additional_filters = ""
     if is_planned is not None:
@@ -374,7 +372,10 @@ def _additional_filters(is_planned=None, includes=None, excludes=None,
         additional_filters += "%ssurvey_sample.id NOT IN (%s)" % (
             sep, ', '.join([str(sample_pk) for sample_pk in excludes]))
     if additional_filters:
-        additional_filters = "AND %s" % additional_filters
+        if first:
+            additional_filters = "WHERE %s" % additional_filters
+        else:
+            additional_filters = "AND %s" % additional_filters
     return additional_filters
 
 
@@ -422,13 +423,7 @@ INNER JOIN (
         survey_sample.is_frozen AS is_frozen,
         survey_sample.extra AS is_planned
       FROM survey_sample
-      INNER JOIN (SELECT account_id, MAX(created_at) AS last_updated_at
-              FROM survey_sample
-              WHERE survey_sample.extra IS NULL
-              GROUP BY account_id) AS last_updates
-      ON survey_sample.account_id = last_updates.account_id AND
-         survey_sample.created_at = last_updates.last_updated_at
-         %(additional_filters)s)
+      %(samples_filters)s)
     SELECT survey_enumeratedquestions.question_id AS question_id,
            latest_assessment_by_accounts.account_id AS account_id,
            latest_assessment_by_accounts.id AS sample_id,
@@ -438,12 +433,15 @@ INNER JOIN (
     INNER JOIN survey_enumeratedquestions
     ON latest_assessment_by_accounts.survey_id
          = survey_enumeratedquestions.campaign_id
+    %(questions_filters)s
     ) AS samples
 ON questions_with_opportunity.question_id = samples.question_id
 """ % {'questions_with_opportunity': questions_with_opportunity,
-       'additional_filters': _additional_filters(
+       'samples_filters': _additional_filters(
            is_planned=is_planned, includes=includes, excludes=excludes,
-           questions=questions)}
+           first=True),
+       'questions_filters': _additional_filters(
+           questions=questions, first=True)}
     _show_query_and_result(expected_opportunities)
     return expected_opportunities
 
