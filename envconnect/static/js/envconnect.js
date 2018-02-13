@@ -1034,11 +1034,13 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     // Methods dealing with assessments
     // --------------------------------
-    $scope.createAssessment = function() {
-        $http.post(settings.urls.api_assessment_sample_new, {
-            'campaign': 'best-practices-report'}).then(
+    $scope.createAssessment = function($event) {
+        $event.preventDefault();
+        var form = angular.element($event.target);
+        var modalDialog = form.parents('.modal');
+        modalDialog.modal('hide');
+        $http.put(settings.urls.api_assessment_sample, {is_frozen: false}).then(
             function success(resp) {
-                window.location = ""; // reload.
             },
             function error(resp) {
                 showErrorMessages(resp);
@@ -1086,6 +1088,9 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.resetAssessment = function ($event) {
         $event.preventDefault();
+        var form = angular.element($event.target);
+        var modalDialog = form.parents('.modal');
+        modalDialog.modal('hide');
         $http.post(settings.urls.api_assessment_sample + 'reset/').then(
             function success(resp) {
                 $scope._resetAssessmentRecursive($scope.entries);
