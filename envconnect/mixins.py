@@ -649,8 +649,6 @@ GROUP BY account_id, sample_id, is_planned;""" % {
           denominator = 0
         """
         #pylint:disable=too-many-locals
-        consumptions = {}
-        consumptions_planned = set([])
         scored_answers = get_scored_answers(
             includes=self.get_included_samples(),
             excludes=self._get_filter_out_testing())

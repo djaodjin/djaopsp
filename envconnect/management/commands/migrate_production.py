@@ -104,7 +104,7 @@ class Command(BaseCommand):
             api = SuppliersAPIView()
             rollup_tree = api.rollup_scores()
             for account in get_account_model().objects.all():
-                accounts = root[0].get('accounts', {})
+                accounts = rollup_tree[0].get('accounts', {})
                 if account.pk in accounts:
                     scores = accounts.get(account.pk, None)
                     if scores:
@@ -125,16 +125,6 @@ class Command(BaseCommand):
                                     account=account):
                                 sample.is_frozen = True
                                 sample.save()
-
-    survey = models.ForeignKey(Campaign, null=True)
-    account = models.ForeignKey(settings.ACCOUNT_MODEL, null=True)
-    time_spent = models.DurationField(default=datetime.timedelta,
-        help_text="Total recorded time to complete the survey")
-    is_frozen = models.BooleanField(default=False,
-        help_text="When True, answers to that sample cannot be updated.")
-    extra = settings.get_extra_field_class()(null=True)
-
-
 
     @staticmethod
     def migrate_survey():

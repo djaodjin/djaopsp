@@ -3,11 +3,11 @@
 from __future__ import unicode_literals
 
 import csv, datetime, json, logging, io
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 
 from django.utils import six
 from django.core.urlresolvers import reverse
-from django.db import connection, connections, transaction
+from django.db import connection
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder

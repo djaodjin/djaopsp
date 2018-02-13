@@ -49,11 +49,12 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
     account_url_kwarg = 'interviewee'
 
     def update(self, request, *args, **kwargs):
+        #pylint:disable=too-many-locals
         with transaction.atomic():
             result = super(AssessmentAPIView, self).update(
                 request, *args, **kwargs)
             if self.sample.is_frozen:
-                LOGGER.info("freeze scores for %s" % str(self.sample.account))
+                LOGGER.info("freeze scores for %s", self.sample.account)
                 created_at = datetime_or_now()
                 scored_answers = get_scored_answers(
                     includes=self.get_included_samples(),
@@ -75,7 +76,7 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
                         if decorated_answer.answer_id:
                             numerator = decorated_answer.numerator
                             denominator = decorated_answer.denominator
-                            score_answer = Answer.objects.create(
+                            _ = Answer.objects.create(
                                 created_at=created_at,
                                 question_id=decorated_answer.question_id,
                                 metric_id=2,
