@@ -446,8 +446,7 @@ INNER JOIN (
 ON questions_with_opportunity.question_id = samples.question_id
 """ % {'questions_with_opportunity': questions_with_opportunity,
        'samples_filters': _additional_filters(
-           is_planned=is_planned, includes=includes, excludes=excludes,
-           first=True),
+           is_planned=is_planned, includes=includes, first=True),
        'questions_filters': _additional_filters(
            questions=questions, first=True)}
     _show_query_and_result(expected_opportunities)
@@ -458,8 +457,7 @@ def get_answer_with_account(is_planned=None, includes=None):
     """
     Returns a list of tuples (answer_id, question_id, sample_id, account_id,
     created_at, measured, is_planned) that corresponds to all answers
-    for all (or a subset when *includes* is not `None`) accounts
-    excluding accounts that were filtered out by *excludes*.
+    for all (or a subset when *includes* is not `None`) accounts.
     """
     query = """SELECT
     survey_answer.id AS id,
@@ -481,8 +479,7 @@ WHERE survey_answer.metric_id = 1
     return query
 
 
-def get_historical_scores(is_planned=None, includes=None, excludes=None,
-                          questions=None):
+def get_historical_scores(is_planned=None, includes=None, questions=None):
     """
     Returns a list of tuples with the following fields:
 
@@ -519,8 +516,7 @@ INNER JOIN survey_question
 WHERE survey_answer.metric_id = 2
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
-        is_planned=is_planned, includes=includes, excludes=excludes,
-        questions=questions)}
+        is_planned=is_planned, includes=includes, questions=questions)}
     _show_query_and_result(scored_answers)
     return scored_answers
 

@@ -93,7 +93,6 @@ class Command(BaseCommand):
                     sample=assessment_sample, metric_id=1):
                 choices = [1, 2, 3, 4]
                 answer.measured = random.choice(choices[(answer.measured - 1):])
-                answer.measured = 1
                 answer.save()
             created_at = today - relativedelta(months=months)
             score_sample = AssessmentAPIView().freeze_scores(assessment_sample,

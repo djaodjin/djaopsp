@@ -483,9 +483,8 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
         self._report_queries("leafs loaded")
         self.populate_leafs(
             leafs, get_historical_scores(
-                includes=["%d" % rec['pk'] for rec
-                  in Sample.objects.filter(account=self.account).values('pk')],
-                excludes=self._get_filter_out_testing()),
+                includes=[rec['pk'] for rec
+                  in Sample.objects.filter(account=self.account).values('pk')]),
             agg_key='last_activity_at') # Relies on `get_historical_scores()`
                                         # to use `Sample.created_at`
         self._report_queries("leafs populated")
