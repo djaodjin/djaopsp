@@ -231,11 +231,11 @@
                         return 0;
                     })
                     .y(function(d) { return d[1]; })
-                    .margin({top: 50, right: 20, bottom: 60, left: 50})
+                    .margin({top: 50, right: 20, bottom: 80, left: 70})
                     .useInteractiveGuideline(true);
 
                 chart.xAxis
-                    .rotateLabels(-90)
+                    .rotateLabels(-45)
                     .showMaxMin(false)  //remove max and min in x axe
                     .tickFormat(function(d) {
                         if( d <= enumTicks.length ) {
@@ -247,7 +247,7 @@
 
                 chart.yAxis
                     .tickFormat(function(d) { return d3.format(".0f")(d) + "%";})
-                    .axisLabel("%%");
+                    .axisLabel("Scores");
                 chart.forceY([0, 100]);
 
                 container.select("svg")
