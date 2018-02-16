@@ -231,7 +231,7 @@
                         return 0;
                     })
                     .y(function(d) { return d[1]; })
-                    .margin({top: 50, right: 20, bottom: 120, left: 70})
+                    .margin({top: 50, right: 20, bottom: 140, left: 70})
                     .useInteractiveGuideline(true);
 
                 chart.xAxis
