@@ -240,6 +240,7 @@ class Consumption(SurveyQuestion):
     objects = ConsumptionQuerySet.as_manager()
 
     question = models.OneToOneField(SurveyQuestion, parent_link=True)
+    requires_measurements = models.BooleanField(default=False)
 
     # Value summary fields
     environmental_value = models.IntegerField(default=1)
@@ -307,9 +308,6 @@ class Consumption(SurveyQuestion):
         return super(Consumption, self).save(
             force_insert=force_insert, force_update=force_update,
             using=using, update_fields=update_fields)
-
-    def requires_measurements(self):
-        return self.question_type == self.INTEGER
 
 
 @python_2_unicode_compatible

@@ -130,6 +130,10 @@ class Command(BaseCommand):
     def migrate_survey():
         with transaction.atomic():
             for question in Question.objects.all():
+                consumption = Consumption.objects.get(question__pk=question.pk)
+                consumption.requires_measurements = (
+                    question.question_type == question.INTEGER)
+                consumption.save()
                 EnumeratedQuestions.objects.get_or_create(
                     campaign=question.survey,
                     question_id=question.pk,
