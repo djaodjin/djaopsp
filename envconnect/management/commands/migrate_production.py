@@ -56,6 +56,23 @@ class Question(models.Model):
     required = models.BooleanField(default=True,
         help_text="If checked, an answer is required")
 
+    # Fields to merge from Consumption
+    requires_measurements = models.BooleanField(default=False)
+    environmental_value = models.IntegerField(default=1)
+    business_value = models.IntegerField(default=1)
+    implementation_ease = models.IntegerField(default=1)
+    profitability = models.IntegerField(default=1)
+    avg_energy_saving = models.CharField(max_length=50, default="-")
+    avg_fuel_saving = models.CharField(max_length=50, default="-")
+    capital_cost_low = models.IntegerField(null=True)
+    capital_cost_high = models.IntegerField(null=True)
+    capital_cost = models.CharField(max_length=50, default="-")
+    payback_period = models.CharField(max_length=50, default="-")
+    nb_respondents = models.IntegerField(default=0)
+    opportunity = models.IntegerField(default=0)
+    rate = models.IntegerField(default=0)
+    avg_value = models.IntegerField(default=0)
+
     class Meta:
         unique_together = ('survey', 'rank')
         db_table = 'survey_question'
@@ -130,10 +147,25 @@ class Command(BaseCommand):
     def migrate_survey():
         with transaction.atomic():
             for question in Question.objects.all():
-                consumption = Consumption.objects.get(question__pk=question.pk)
-                consumption.requires_measurements = (
+                # XXX need `question_id` in Consumption
+                consumption = Consumption.objects.get(question_id=question.pk)
+                question.requires_measurements = (
                     question.question_type == question.INTEGER)
-                consumption.save()
+                question.environmental_value = consumption.environmental_value
+                question.business_value = consumption.business_value
+                question.implementation_ease = consumption.implementation_ease
+                question.profitability = consumption.profitability
+                question.avg_energy_saving = consumption.avg_energy_saving
+                question.avg_fuel_saving = consumption.avg_fuel_saving
+                question.capital_cost_low = consumption.capital_cost_low
+                question.capital_cost_high = consumption.capital_cost_high
+                question.capital_cost = consumption.capital_cost
+                question.payback_period = consumption.payback_period
+                question.nb_respondents = consumption.nb_respondents
+                question.opportunity = consumption.opportunity
+                question.rate = consumption.rate
+                question.avg_value = consumption.avg_value
+                question.save()
                 EnumeratedQuestions.objects.get_or_create(
                     campaign=question.survey,
                     question_id=question.pk,

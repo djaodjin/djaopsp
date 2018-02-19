@@ -21,11 +21,11 @@ urlpatterns = [
     url(r'(?P<organization>%s)/matrix/' % settings.SLUG_RE,
         include('survey.urls.api.matrix')),
 
-    url(r'(?P<organization>%s)/benchmark(?P<path>%s)/?' % (
+    url(r'(?P<organization>%s)/benchmark/current(?P<path>%s)/?' % (
         settings.SLUG_RE, settings.PATH_RE),
         BenchmarkAPIView.as_view(),
         name="api_benchmark"),
-    url(r'(?P<organization>%s)/historical(?P<path>%s)/?' % (
+    url(r'(?P<organization>%s)/benchmark/historical(?P<path>%s)/?' % (
         settings.SLUG_RE, settings.PATH_RE),
         HistoricalScoreAPIView.as_view(),
         name="api_historical_scores"),

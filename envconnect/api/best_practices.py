@@ -123,7 +123,7 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
                     })
                 if created:
                     EnumeratedQuestions.objects.get_or_create(
-                        campaign=self.survey, question=new_consumption.question,
+                        campaign=self.survey, question=new_consumption,
                         rank=rank)
             rank = rank + 1
         return leaf

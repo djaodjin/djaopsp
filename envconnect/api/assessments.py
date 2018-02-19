@@ -12,7 +12,7 @@ from survey.api.sample import AnswerAPIView, SampleAPIView
 from survey.models import Answer, Sample
 
 from ..mixins import ReportMixin
-from ..models import get_scored_answers
+from ..models import Consumption, get_scored_answers
 from ..serializers import ConsumptionSerializer
 
 
@@ -30,8 +30,12 @@ class AssessmentAnswerAPIView(AnswerAPIView):
 
     def get_http_response(self, serializer,
                      status=HTTP_200_OK, headers=None):
+        #pylint:disable=protected-access
         scored_answers = get_scored_answers(
-            includes=(self.sample.pk,), questions=(self.question.pk,))
+            population=Consumption.objects.get_active_by_accounts(
+                excludes=self._get_filter_out_testing()),
+            includes=(self.sample,),
+            questions=(self.question.pk,))
         with connection.cursor() as cursor:
             cursor.execute(scored_answers, params=None)
             col_headers = cursor.description
@@ -54,7 +58,9 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
         LOGGER.info("freeze scores for %s", sample.account)
         created_at = datetime_or_now(created_at)
         scored_answers = get_scored_answers(
-            includes=includes, excludes=excludes)
+            population=Consumption.objects.get_active_by_accounts(
+                excludes=excludes),
+            includes=includes)
         score_sample = Sample.objects.create(
             created_at=created_at,
             survey=sample.survey,

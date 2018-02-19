@@ -45,8 +45,9 @@ class AssessmentBaseView(ReportMixin, TemplateView):
         consumptions = {}
         consumptions_planned = set([])
         scored_answers = get_scored_answers(
-            includes=self.get_included_samples(),
-            excludes=self._get_filter_out_testing())
+            population=Consumption.objects.get_active_by_accounts(
+                excludes=self._get_filter_out_testing()),
+            includes=self.get_included_samples())
 
         # We are running the query a second time because we did not populate
         # all Consumption fields through the aggregate.

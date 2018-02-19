@@ -465,10 +465,13 @@ ACCOUNT_MODEL = 'saas.Organization'
 
 # Survey settings
 # ---------------
+QUESTION_MODEL = 'envconnect.Consumption'
+
 SURVEY = {
     'ACCOUNT_MODEL': 'saas.Organization',
     'ACCOUNT_LOOKUP_FIELD': 'slug',
     'ACCOUNT_SERIALIZER': 'saas.api.serializers.OrganizationSerializer',
+    'QUESTION_MODEL': 'envconnect.Consumption',
     'QUESTION_SERIALIZER': 'envconnect.serializers.ConsumptionSerializer'
 }
 

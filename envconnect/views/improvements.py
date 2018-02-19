@@ -112,7 +112,7 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin, ListView):
 
         self.root = {}
         for improvement in self.get_queryset():
-            consumption = improvement.question.consumption
+            consumption = improvement.question
             _, parts = self.get_breadcrumbs(consumption.path)
             leaf = self.insert_path(self.root, [part[0] for part in parts])
             details = opportunities[consumption.pk]

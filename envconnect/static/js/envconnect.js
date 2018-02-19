@@ -1296,6 +1296,9 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                 }
             }
             // populate the completion summary chart
+            var summary = $("#completion-summary-chart .chart");
+            summary.empty();
+            summary.append("<svg></svg>");
             summaryChart("#completion-summary-chart .chart svg",
                 resp.data.summary);
 

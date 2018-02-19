@@ -30,8 +30,8 @@ class BenchmarkMixin(ReportMixin):
         context = super(BenchmarkMixin, self).get_context_data(**kwargs)
         from_root, _ = self.breadcrumbs
         not_applicable_answers = Consumption.objects.filter(
-            question__answer__sample=self.assessment_sample,
-            question__answer__measured=Consumption.NOT_APPLICABLE)
+            answer__sample=self.assessment_sample,
+            answer__measured=Consumption.NOT_APPLICABLE)
         not_applicables = []
         for not_applicable in not_applicable_answers:
             element = PageElement.objects.get(
@@ -235,8 +235,13 @@ class BenchmarkMixin(ReportMixin):
                 'tag': [settings.TAG_SCORECARD]})
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
-        self.populate_leafs(
-            leafs, get_scored_answers(excludes=self._get_filter_out_testing()))
+        population = list(Consumption.objects.get_active_by_accounts(
+            excludes=self._get_filter_out_testing()))
+        includes = list(Consumption.objects.get_latest_samples_by_accounts())
+        for prefix, values_tuple in six.iteritems(leafs):
+            self.populate_leaf(prefix, values_tuple[0],
+                get_scored_answers(population=population, includes=includes,
+                    prefix=prefix))
         self._report_queries("leafs populated")
         populate_rollup(rollup_tree, True)
         self._report_queries("rollup_tree populated")
@@ -481,12 +486,14 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
         self._report_queries("rollup_tree generated")
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
-        self.populate_leafs(
-            leafs, get_historical_scores(
-                includes=[rec['pk'] for rec
-                  in Sample.objects.filter(account=self.account).values('pk')]),
-            agg_key='last_activity_at') # Relies on `get_historical_scores()`
-                                        # to use `Sample.created_at`
+        for prefix, values_tuple in six.iteritems(leafs):
+            self.populate_leaf(prefix, values_tuple[0],
+                get_historical_scores(
+                    includes=Sample.objects.filter(account=self.account),
+                    prefix=prefix),
+                agg_key='last_activity_at') # Relies on
+                                            # `get_historical_scores()`
+                                            # to use `Sample.created_at`
         self._report_queries("leafs populated")
         populate_rollup(rollup_tree, True)
         self._report_queries("rollup_tree populated")

@@ -171,7 +171,7 @@ def to_json(value):
 
 @register.filter
 def path_with_prefix(answer, prefix):
-    question_path = answer.question.consumption.path.split('/')
+    question_path = answer.question.path.split('/')
     return prefix + '/' + question_path[-1]
 
 @register.filter

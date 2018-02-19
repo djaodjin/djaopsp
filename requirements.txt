@@ -4,7 +4,7 @@ django-assets==0.12
 django-contrib-comments==1.8.0
 django-crispy-forms==1.6.1
 django-urldecorators==0.6
-djangorestframework==3.3.3
+djangorestframework==3.7.0
 djaodjin-answers==0.1.5
 djaodjin-deployutils==0.4.7
 djaodjin-extended-templates==0.2.1

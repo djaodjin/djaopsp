@@ -68,11 +68,11 @@ class Command(BaseCommand):
     def populate_answers(self, organization, industry):
         sample, _ = Sample.objects.get_or_create(
             survey=self.survey, account=organization)
-        for consumption in Consumption.objects.filter(
+        for question in Consumption.objects.filter(
                 path__startswith="/%s/" % industry.slug):
             Answer.objects.create(
-                sample=sample, question=consumption.question,
-                rank=consumption.question.rank)
+                sample=sample, question=question,
+                rank=question.rank)
 
     def populate_historical_scores(self, organization):
         if not isinstance(organization, Organization):
