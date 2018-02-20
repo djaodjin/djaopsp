@@ -290,6 +290,12 @@ envconnectControllers.controller("EnvconnectCtrl",
         return {width: "" + practice[0].consumption.rate  + "%"};
     }
 
+    $scope.onToggleScore = function() {
+        $scope.$evalAsync(function() {
+            $timeout(function() {window.dispatchEvent(new Event('resize'));});
+        });
+    }
+
     /** Decorates the tree with two sets, ``capturable`` and ``captured``.
         ``capturable`` aggregates the total savings and cost that can be
         captured if a user was to add all best practices not yet implemented
