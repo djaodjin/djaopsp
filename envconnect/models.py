@@ -462,7 +462,7 @@ INNER JOIN (
       ON survey_sample.survey_id = survey_enumeratedquestions.campaign_id
     %(additional_filters)s
     ) AS samples
-ON questions_with_opportunity.question_id = samples.question_id
+ON questions_with_opportunity.id = samples.question_id
 """ % {'questions_with_opportunity': questions_with_opportunity,
        'additional_filters': _additional_filters(
            includes=includes, questions=questions)}
