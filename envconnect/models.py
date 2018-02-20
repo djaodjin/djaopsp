@@ -216,7 +216,7 @@ opportunity_view AS (
         # COALESCE now supported on sqlite3.
         questions_with_opportunity = """%(yes_opportunity_view)s
 SELECT
-  survey_question.id AS question_id,
+  survey_question.id AS id,
   COALESCE(opportunity_view.opportunity, survey_question.avg_value, 0)
     AS opportunity,
   COALESCE(opportunity_view.rate, 0) AS rate,
@@ -436,7 +436,7 @@ def get_expected_opportunities(population, includes=None,
     # directly.
     # XXX missing rank, implemented, planned, requires_measurements?
     expected_opportunities = """SELECT
-    questions_with_opportunity.question_id AS question_id,
+    questions_with_opportunity.id AS question_id,
     samples.sample_id AS sample_id,
     samples.is_completed AS is_completed,
     samples.is_planned AS is_planned,
