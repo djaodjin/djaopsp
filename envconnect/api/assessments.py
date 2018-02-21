@@ -11,7 +11,7 @@ from rest_framework import response as http
 from survey.api.sample import AnswerAPIView, SampleAPIView
 from survey.models import Answer, Sample
 
-from ..mixins import ReportMixin
+from ..mixins import ExcludeDemoSample, ReportMixin
 from ..models import Consumption, get_scored_answers
 from ..serializers import ConsumptionSerializer
 
@@ -19,7 +19,7 @@ from ..serializers import ConsumptionSerializer
 LOGGER = logging.getLogger(__name__)
 
 
-class AssessmentAnswerAPIView(AnswerAPIView):
+class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
     """
     Answers about the implementation of a best practice.
     """

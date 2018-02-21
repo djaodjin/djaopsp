@@ -501,16 +501,19 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         return context
 
 
-class ReportMixin(BreadcrumbMixin, AccountMixin):
-    """
-    Loads assessment and improvement for an organization.
-    """
+class ExcludeDemoSample(object):
 
     def _get_filter_out_testing(self):
         # List of response ids that are only used for demo purposes.
         if self.request.user.username in settings.TESTING_USERNAMES:
             return []
         return settings.TESTING_RESPONSE_IDS
+
+
+class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
+    """
+    Loads assessment and improvement for an organization.
+    """
 
     @property
     def sample(self):

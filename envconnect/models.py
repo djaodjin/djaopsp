@@ -436,7 +436,7 @@ def get_expected_opportunities(population, includes=None,
     # directly.
     # XXX missing rank, implemented, planned, requires_measurements?
     expected_opportunities = """SELECT
-    questions_with_opportunity.id AS question_id,
+    questions_with_opportunity.id AS id,
     samples.sample_id AS sample_id,
     samples.is_completed AS is_completed,
     samples.is_planned AS is_planned,
@@ -573,6 +573,7 @@ def get_scored_answers(population, includes=None, questions=None, prefix=None):
     """
     #pylint:disable=protected-access
     scored_answers = """SELECT
+    expected_choices.id AS id,
     expected_choices.account_id AS account_id,
     expected_choices.sample_id AS sample_id,
     expected_choices.is_completed AS is_completed,
@@ -582,7 +583,6 @@ def get_scored_answers(population, includes=None, questions=None, prefix=None):
     expected_choices.last_activity_at AS last_activity_at,
     expected_choices.answer_id AS answer_id,
     expected_choices.rank AS rank,
-    expected_choices.question_id AS question_id,
     expected_choices.path AS path,
     survey_choice.text AS implemented,
     expected_choices.environmental_value AS environmental_value,
@@ -607,7 +607,7 @@ FROM (SELECT
     answers.created_at AS last_activity_at,
     answers.id AS answer_id,
     answers.rank as rank,
-    expected_opportunities.question_id AS question_id,
+    expected_opportunities.id AS id,
     expected_opportunities.path AS path,
     answers.measured AS measured,
     expected_opportunities.environmental_value AS environmental_value,
@@ -620,7 +620,7 @@ FROM (SELECT
     expected_opportunities.opportunity AS opportunity
 FROM (%(expected_opportunities)s) AS expected_opportunities
 LEFT OUTER JOIN (%(answers)s) AS answers
-ON expected_opportunities.question_id = answers.question_id
+ON expected_opportunities.id = answers.question_id
    AND expected_opportunities.sample_id = answers.sample_id) AS expected_choices
 LEFT OUTER JOIN survey_choice
 ON expected_choices.measured = survey_choice.id
