@@ -99,8 +99,8 @@ class ConsumptionQuerySet(models.QuerySet):
                     count += 1
                 LOGGER.debug("%d row(s)", count)
 
-    @staticmethod
-    def get_active_by_accounts(excludes=None):
+    def get_active_by_accounts(self, excludes=None):
+        #pylint:disable=no-self-use
         if excludes:
             filter_out_testing = "AND survey_sample.id NOT IN (%s)" % (
                 ', '.join([str(sample_id) for sample_id in excludes]))
@@ -120,11 +120,11 @@ class ConsumptionQuerySet(models.QuerySet):
 """ % {'filter_out_testing': filter_out_testing}
         return Sample.objects.raw(sql_query)
 
-    @staticmethod
-    def get_latest_samples_by_accounts(includes=None):
+    def get_latest_samples_by_accounts(self, includes=None):
         """
         assessment and planning
         """
+        #pylint:disable=no-self-use
         if includes:
             samples_filter = "WHERE survey_sample.id IN (%s)" % (
                 ', '.join([str(sample_pk) for sample_pk in includes]))
