@@ -882,6 +882,16 @@ envconnectControllers.controller("EnvconnectCtrl",
         $scope.moveBestPractice(startPath, attachPath, null, "demote");
     };
 
+    $scope.sortIcons = function($event) {
+        var iconParent = angular.element($event.toElement).parents(".squared-tabs-li");
+        var startPath = iconParent.data('id');
+        var targetPosition = angular.element($event.target);
+        var attachPath = targetPosition.data('id').split("/").slice(0, -1).join("/");
+        var rank = $(targetPosition).index();
+
+        $scope.moveBestPractice(startPath, attachPath, rank, "drag-n-drop");
+    };
+
     $scope.indentHeader = function(practice, prefix) {
         var parts = practice[0].path.replace(prefix, '').split("/");
         var indentSpace = 0

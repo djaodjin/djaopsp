@@ -151,7 +151,8 @@
                                         {% endblock %}
                                         <div class="header-tuple">
                                             {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
-                                            <ul class="nav nav-tabs squared-tabs">
+                                            <ul class="nav nav-tabs squared-tabs"
+                                                >
                                                 {% if request|is_broker_manager and not organization %}
                                                     <!-- start of Angular code for broker -->
                                                     <li data-id="[[icon[0].path]]"
@@ -159,6 +160,8 @@
                                                         data-drag="true"
                                                         jqyoui-draggable="{animate:true}"
                                                         data-jqyoui-options="{revert: 'invalid'}"
+                                                        data-drop="true"
+                                                        jqyoui-droppable="{onDrop: 'sortIcons()'}"
                                                         class="squared-tabs-li [[ containsTag(icon[0], 'management') ? 'bordered-right' : '' ]]">
                                                         <div class="icon-container">
                                                             <div style="position:relative; vertical-align:top;">
