@@ -226,6 +226,7 @@ SELECT
   survey_question.implementation_ease AS implementation_ease,
   survey_question.profitability AS profitability,
   survey_question.avg_value AS avg_value,
+  survey_question.requires_measurements AS requires_measurements,
   survey_question.path AS path
 FROM survey_question
 LEFT OUTER JOIN opportunity_view
@@ -434,7 +435,7 @@ def get_expected_opportunities(population, includes=None,
     # If we are only looking for all expected questions for each sample,
     # then the query can be simplified by using the Question table
     # directly.
-    # XXX missing rank, implemented, planned, requires_measurements?
+    # XXX missing rank, implemented, planned?
     expected_opportunities = """SELECT
     questions_with_opportunity.id AS id,
     samples.sample_id AS sample_id,
@@ -449,7 +450,8 @@ def get_expected_opportunities(population, includes=None,
     questions_with_opportunity.implementation_ease AS implementation_ease,
     questions_with_opportunity.avg_value AS avg_value,
     questions_with_opportunity.nb_respondents AS nb_respondents,
-    questions_with_opportunity.rate AS rate
+    questions_with_opportunity.rate AS rate,
+    questions_with_opportunity.requires_measurements AS requires_measurements
 FROM (%(questions_with_opportunity)s) AS questions_with_opportunity
 INNER JOIN (
     SELECT survey_enumeratedquestions.question_id AS question_id,
@@ -592,6 +594,7 @@ def get_scored_answers(population, includes=None, questions=None, prefix=None):
     expected_choices.avg_value AS avg_value,
     expected_choices.nb_respondents AS nb_respondents,
     expected_choices.rate AS rate,
+    expected_choices.requires_measurements AS requires_measurements,
     expected_choices.opportunity AS opportunity
 FROM (SELECT
     expected_opportunities.account_id AS account_id,
@@ -617,6 +620,7 @@ FROM (SELECT
     expected_opportunities.avg_value AS avg_value,
     expected_opportunities.nb_respondents AS nb_respondents,
     expected_opportunities.rate AS rate,
+    expected_opportunities.requires_measurements AS requires_measurements,
     expected_opportunities.opportunity AS opportunity
 FROM (%(expected_opportunities)s) AS expected_opportunities
 LEFT OUTER JOIN (%(answers)s) AS answers
