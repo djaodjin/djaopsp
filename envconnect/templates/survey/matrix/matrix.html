@@ -204,37 +204,6 @@ jQuery(document).ready(function($) {
       return false;
   });
 
-  $("#new-cohort").submit(function() {
-      var self = $(this);
-      var title = self.find("[name=\"cohort-title\"]").val();
-      $.ajax({
-          method: "POST",
-          url: "{{editable_filter_api_base}}",
-          data: JSON.stringify({title: title, tags: "cohort", predicates: []}),
-          datatype: "json",
-          contentType: "application/json; charset=utf-8",
-          success: function(data){
-              window.location = "{% url 'accounts_base' account %}" + data.slug;
-          }
-      });
-      return false;
-  });
-  $("#new-metric").submit(function() {
-      var self = $(this);
-      var title = self.find("[name=\"metric-title\"]").val();
-      $.ajax({
-          method: "POST",
-          url: "{{editable_filter_api_base}}",
-          data: JSON.stringify({title: title, tags: "metric", predicates: []}),
-          datatype: "json",
-          contentType: "application/json; charset=utf-8",
-          success: function(data){
-              window.location = "{% url 'questions_base' account %}" + data.slug;
-          }
-      });
-      return false;
-  });
-
   $.ajax({
       method: "GET",
       url: "{{matrix_api}}",
