@@ -92,6 +92,8 @@ class AccountSerializer(serializers.Serializer):
     nb_answers = serializers.IntegerField(required=False)
     improvement_score = serializers.IntegerField(required=False)
     request_key = serializers.CharField(required=False)
+    assessment_completed = serializers.BooleanField(required=False)
+    improvement_completed = serializers.BooleanField(required=False)
 
     def create(self, validated_data):
         raise NotImplementedError('This serializer is read-only')

@@ -7,7 +7,7 @@ from collections import namedtuple, OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.http import Http404
 from django.utils import six
 from django.utils.timezone import utc
@@ -19,7 +19,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from saas.models import Subscription
 from survey.api.matrix import MatrixDetailAPIView
-from survey.models import EditableFilter
+from survey.models import EditableFilter, Sample
 from survey.utils import get_account_model
 
 from .benchmark import BenchmarkMixin
@@ -207,6 +207,21 @@ class SupplierListBaseAPIView(DashboardMixin, generics.ListAPIView):
         results = []
         rollup_tree = self.rollup_scores()
         account_scores = rollup_tree[0]['accounts']
+        # We have to get those separately as the sample is always not frozen
+        # by definition.
+        complete_assessments = set([])
+        for rec in Sample.objects.filter(
+                extra__isnull=True, is_frozen=True,
+                account__in=self.get_requested_accounts()).values(
+                    'account').annotate(Max('created_at')):
+            complete_assessments |= set([rec['account']])
+
+        complete_improvements = set([])
+        for rec in Sample.objects.filter(
+                extra='is_planned', is_frozen=True,
+                account__in=self.get_requested_accounts()).values(
+                'account').annotate(Max('created_at')):
+            complete_improvements |= set([rec['account']])
         for account in self.get_requested_accounts():
             try:
                 score = account_scores.get(account.pk, None)
@@ -220,15 +235,13 @@ class SupplierListBaseAPIView(DashboardMixin, generics.ListAPIView):
                         dct.update({'last_activity_at': created_at})
                     nb_answers = score.get('nb_answers', 0)
                     nb_questions = score.get('nb_questions', 0)
-                    assessment_completed = score.get(
-                        'assessment_completed', False)
-                    improvement_completed = score.get(
-                        'improvement_completed', False)
                     dct.update({
                         'nb_answers': nb_answers,
                         'nb_questions': nb_questions,
-                        'assessment_completed': assessment_completed,
-                        'improvement_completed': improvement_completed,
+                        'assessment_completed': (
+                            account.pk in complete_assessments),
+                        'improvement_completed': (
+                            account.pk in complete_improvements),
                     })
                     if nb_answers == nb_questions and nb_questions != 0:
                         normalized_score = score.get('normalized_score', None)
