@@ -80,7 +80,7 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
                     denominator = decorated_answer.denominator
                     _ = Answer.objects.create(
                         created_at=created_at,
-                        question_id=decorated_answer.question_id,
+                        question_id=decorated_answer.id,
                         metric_id=2,
                         measured=numerator,
                         denominator=denominator,

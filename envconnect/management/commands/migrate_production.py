@@ -5,6 +5,7 @@
 
 import re
 
+from deployutils.helpers import datetime_or_now
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import models, transaction
@@ -19,6 +20,7 @@ from survey.utils import get_account_model
 
 from ...mixins import BreadcrumbMixin, ReportMixin
 from ...models import Improvement, Consumption, ColumnHeader
+from ...api.assessments import AssessmentAPIView
 from ...api.dashboards import SupplierListBaseAPIView
 
 
@@ -117,9 +119,10 @@ class Command(BaseCommand):
 
     @staticmethod
     def migrate_completion_status():
+        created_at = datetime_or_now()
         with transaction.atomic():
-            api = SuppliersAPIView()
-            rollup_tree = api.rollup_scores()
+            scores_api = SuppliersAPIView()
+            rollup_tree = scores_api.rollup_scores()
             for account in get_account_model().objects.all():
                 accounts = rollup_tree[0].get('accounts', {})
                 if account.pk in accounts:
@@ -127,12 +130,15 @@ class Command(BaseCommand):
                     if scores:
                         normalized_score = scores.get('normalized_score', None)
                         if normalized_score is not None:
-                            for sample in Sample.objects.filter(
-                                    extra__isnull=True,
-                                    survey__title=ReportMixin.report_title,
-                                    account=account):
-                                sample.is_frozen = True
-                                sample.save()
+                            assess_api = AssessmentAPIView()
+                            sample = Sample.objects.filter(
+                                extra__isnull=True,
+                                survey__title=ReportMixin.report_title,
+                                account=account).order_by('-created_at').first()
+                            assess_api.freeze_scores(sample,
+                                includes=[sample],
+                                excludes=settings.TESTING_RESPONSE_IDS,
+                                created_at=created_at)
                         improvement_score = scores.get(
                             'improvement_score', None)
                         if improvement_score is not None:
