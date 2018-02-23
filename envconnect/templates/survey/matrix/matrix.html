@@ -53,7 +53,7 @@ display: none;
                     <input id="cohort-{{forloop.counter}}" type="checkbox" name="cohorts" value="{{entry.slug}}" {% if entry.is_selected %}checked{% endif %}>
               {{entry.title}}
                   </label>
-                  <a href="{% url 'accounts_list' account entry %}"><i class="fa fa-edit"></i></a>
+                  <a href="{% url 'accounts_list' entry %}"><i class="fa fa-edit"></i></a>
                 </div>
                 {% endfor %}
                 <div>
@@ -71,7 +71,7 @@ display: none;
                     <input id="metric-{{forloop.counter}}" type="radio" name="metric" value="{{entry.slug}}" {% if entry.is_selected %}checked{% endif %}>
                     {{ entry.title }}
                   </label>
-                  <a href="{% url 'questions_list' account entry %}"><i class="fa fa-edit"></i></a>
+                  <a href="{% url 'questions_list' entry %}"><i class="fa fa-edit"></i></a>
                 </div>
                 {% endfor %}
                 <div>
