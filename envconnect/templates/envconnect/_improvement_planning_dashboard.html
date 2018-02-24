@@ -8,64 +8,74 @@
         Click for planning dashboard
     </button>
     <div id="improvement-dashboard" class="text-center inner collapse" style="">
-      <div style="display: inline-block;margin-left:auto;">
-        <h3>Planning Dashboard</h3>
-        <p>Estimated impacts of your improvement plan selections</p>
+      <div class="row">
+        <h3 style="margin-bottom:0;">Planning Dashboard</h3>
+        <div>Estimated impacts of your improvement plan selections</div>
       </div>
       <div class="row">
-        <div class="col-sm-7">
-          <div class="col-md-6">
-            <div class="score-card"
-                 style="flex:auto;">
-              <h4>Total Score <span id="improvement-score"></span></h4>
+        <div class="col-md-6">
+          <div class="score-card" style="flex:auto;">
+            <h4>Total Score <span id="improvement-score"></span></h4>
+            <div>
               <div>
-                <div>
-                  <div id="totals" class="chart-content" style="margin:auto;">
-                      <div id='hideMe' class="fa fa-spinner fa-spin fa-2x"></div>
-                  </div>
+                <div id="totals" class="chart-content" style="margin:auto;">
+                  <div id='hideMe' class="fa fa-spinner fa-spin fa-2x"></div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="col-md-6 bordered-left">
-            <div id="{{root.0.slug}}-chart" class="chart-container chart-container-default" ng-show="activeIcon === null">
-              {% include "envconnect/_chart_title.html" with practice=root.0 %}
-              <div>
-                <div class="chart-content c3" style="width:250px;height:120px;">
-                </div>
+        </div>
+        <div class="col-md-6 bordered-left">
+          <div id="{{root.0.slug}}-chart" class="chart-container chart-container-default" ng-show="activeIcon === null">
+            {% include "envconnect/_chart_title.html" with practice=root.0 %}
+            <div>
+              <div class="chart-content c3" style="width:250px;height:120px;">
               </div>
             </div>
-            {% for abs_prefix, icon_tuple in root.1|iteritems  %}
-            {% with icon_tuple.0 as icon %}
-            <div id="{{icon.slug}}-chart" class="chart-container" ng-show="activeIcon === '{{icon.slug}}'">
-              {% include "envconnect/_chart_title.html" with practice=icon %}
-              <div>
-                <div class="chart-content c3" style="width:250px;height:120px;">
-                </div>
-              </div>
-            </div>
-            {% endwith %}
-            {% endfor %}
           </div>
-        </div>
-        <div class="col-sm-5 bordered-left">
-          <div style="height:200px;width:200px;margin-left:auto;margin-right:auto;">
-          <a id="download-improvements" class="btn btn-primary btn-block" href="{% url 'envconnect_improve_organization_download' organization path %}" target="_blank">Download improvements list</a>
-          <a id="Find-Suppliers" class="btn btn-primary btn-block" href="#" target="_blank">Find Suppliers</a>
-          <!-- XXX Update link when code is written -->
-        </div>
+          {% for abs_prefix, icon_tuple in root.1|iteritems  %}
+          {% with icon_tuple.0 as icon %}
+          <div id="{{icon.slug}}-chart" class="chart-container" ng-show="activeIcon === '{{icon.slug}}'">
+            {% include "envconnect/_chart_title.html" with practice=icon %}
+            <div>
+              <div class="chart-content c3" style="width:250px;height:120px;">
+              </div>
+            </div>
+          </div>
+          {% endwith %}
+          {% endfor %}
         </div>
       </div>
-          <!-- XXX Update link when code is written -->
+      <div class="row" style="margin-bottom:15px;">
+        <div class="col-sm-4">
+          <a id="download-improvements"
+             class="btn btn-primary"
+             style="margin-left:15px;"
+             href="{% url 'envconnect_improve_organization_print' organization path %}"
+             target="_blank">Improvement practices</a>
+        </div>
+        <div class="col-sm-4">
+          <a id="download-improvements"
+               class="btn btn-primary"
+               href="{% url 'envconnect_improve_organization_download' organization path %}"
+               target="_blank">Improvement plan</a>
+        </div>
+        <div class="col-sm-4">
+          <a id="find-suppliers"
+             class="btn btn-primary"
+             style="margin-right:15px;"
+             href="#"
+             target="_blank">Find Suppliers <i class="fa fa-wrench"></i></a>
+        </div>
       </div>
-      <script type="text/javascript">
+    </div>
+  </div>
+  <script type="text/javascript">
 jQuery(document).ready(function($) {
     $("#improvement-dashboard").improvementDashboard({
         api_account_benchmark: "{{urls.api_account_benchmark}}",
         benchmark: "{{root.0.slug}}"
     });
 });
-      </script>
-    </div>
-  </div>
+  </script>
 </div>

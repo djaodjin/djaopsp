@@ -15,8 +15,8 @@ from ..views.benchmark import (BenchmarkView,
 from ..views.compare import ReportingEntitiesView, PortfoliosDetailView
 from ..views.detail import DetailView
 from ..views.index import IndexView
-from ..views.improvements import ReportPDFView
-from ..views.improvements import ImprovementView, ImprovementXLSXView
+from ..views.improvements import (ImprovementView, ImprovementPDFView,
+    ImprovementXLSXView)
 
 if settings.DEBUG: #pylint: disable=no-member
     from django.contrib import admin
@@ -100,9 +100,6 @@ urlpatterns += [
     url_authenticated(r'app/comments/', include('django_comments.urls')),
 
     # direct manager of :organization
-    url_direct(r'app/(?P<organization>%s)/assess/print/'\
-'(?P<industry>%s)/' % (SLUG_RE, SLUG_RE),
-        ReportPDFView.as_view(), name='envconnect_assess_print'),
     url_direct(r'app/(?P<organization>%s)/reporting/' % SLUG_RE,
         ReportingEntitiesView.as_view(),
         name='organization_reporting_entities'),
@@ -118,6 +115,9 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/assess(?P<path>%s)/' % (
         SLUG_RE, settings.PATH_RE), AssessmentView.as_view(),
         name='envconnect_assess_organization'),
+    url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/print/' % (
+        SLUG_RE, settings.PATH_RE), ImprovementPDFView.as_view(),
+        name='envconnect_improve_organization_print'),
     url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/download/' % (
         SLUG_RE, settings.PATH_RE), ImprovementXLSXView.as_view(),
         name='envconnect_improve_organization_download'),

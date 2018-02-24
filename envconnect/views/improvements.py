@@ -13,14 +13,12 @@ from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
-from pages.models import PageElement
-from survey.models import Answer, Question
 from extended_templates.backends.pdf import PdfTemplateResponse
 
+from .assessments import AssessmentView
+from .benchmark import PrintableChartsMixin
 from ..mixins import ImprovementQuerySetMixin
 from ..models import Consumption
-from .benchmark import PrintableChartsMixin
-from .assessments import AssessmentView
 
 
 LOGGER = logging.getLogger(__name__)
@@ -349,29 +347,65 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
                 row_cells[0].alignment = self.heading_alignment
 
 
-class ReportPDFView(ImprovementQuerySetMixin, ListView):
+class ImprovementPDFView(ImprovementQuerySetMixin, ListView):
 
-    model = Question
     http_method_names = ['get']
     template_name = 'envconnect/best_practice_pdf.html'
+    indent_step = '    '
 
-    def get_queryset(self):
-        return self.model.objects.filter(survey=self.sample).exclude(
-            answer__text=Consumption.NOT_APPLICABLE)
+    def __init__(self, **kwargs):
+        super(ImprovementPDFView, self).__init__(**kwargs)
+        self.report_items = []
+        self.root = {}
+
+    def insert_path(self, tree, parts=None):
+        if not parts:
+            return tree
+        if not parts[0] in tree:
+            tree[parts[0]] = {}
+        return self.insert_path(tree[parts[0]], parts[1:])
+
+    def write_tree(self, root, indent=''):
+        for element in sorted(
+                list(root.keys()), key=lambda node: (node.tag, node.pk)):
+            # XXX sort won't exactly match the web presentation
+            # which uses RelationShip order
+            # (see ``BreadcrumbMixin._build_tree``).
+            nodes = root[element]
+            if 'opportunity' in nodes:
+                # We reached a leaf
+                self.report_items += [nodes]
+            else:
+                self.write_tree(nodes, indent=indent + self.indent_step)
 
     def get(self, request, *args, **kwargs):
-        self.object_list = self.get_queryset()
-        report_items = []
+        opportunities = {}
+        for consumption in Consumption.objects.with_opportunity(
+                population=Consumption.objects.get_active_by_accounts(
+                    excludes=self._get_filter_out_testing())):
+            opportunities[consumption.pk] = consumption
 
-        for question in self.object_list:
-            report_items += [
-                {
-                    'answer': Answer.objects.get(question_id=question.id),
-                    'consumption': Consumption.objects.get(id=question.text)
-                }
-            ]
+        self.report_items = []
+        self.root = {}
+        for improvement in self.get_queryset():
+            consumption = improvement.question
+            _, parts = self.get_breadcrumbs(consumption.path)
+            leaf = self.insert_path(self.root, [part[0] for part in parts])
+            details = opportunities[consumption.pk]
+            page_element = parts[-1][0]
+            leaf.update({
+                'path': consumption.path,
+                'rate': consumption.rate,
+                'opportunity': details.opportunity,
+                'environmental_value': consumption.environmental_value,
+                'business_value': consumption.business_value,
+                'implementation_ease': consumption.implementation_ease,
+                'profitability': consumption.profitability,
+                'avg_value': consumption.avg_value,
+                'title': page_element.title,
+                'text': page_element.text
+            })
+        self.write_tree(self.root)
+        self.object_list = self.report_items
         context = self.get_context_data(**kwargs)
-        industry = PageElement.objects.get(slug=self.kwargs.get('industry'))
-        context.update({'industry':industry})
-        context.update({'report_items':report_items})
         return PdfTemplateResponse(request, self.template_name, context)
