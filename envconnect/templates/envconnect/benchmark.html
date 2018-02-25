@@ -4,17 +4,24 @@
 {% block consumption_content %}
 <div>
   <!-- Tab menus -->
-  <ul class="nav nav-tabs">
-    <li class="active">
-      <a href="#scorecard-tab" data-toggle="tab">{{last_updated_at}}</a>
-    </li>
-    <li>
-      <a href="#history-tab" data-toggle="tab">History</a>
-    </li>
-  </ul>
+  <div class="text-right">
+    <!-- WORKAROUND: we set data-width and data-height
+         otherwise bootstrap-toggle will crop the size
+         inside a class="tab-content collapse". -->
+    <input id="toggle-historical"
+           type="checkbox" toggle-checkbox
+           data-toggle="toggle"
+           data-on="<span>{{last_updated_at}}</span>"
+           data-onstyle="green-level-2"
+           data-off="<span>Historical</span>"
+           data-offstyle="green-level-2"
+           data-width="125px" data-height="34px"
+           ng-model="scoreToggle"
+           ng-change="onToggleScore()">
+  </div>
   <!-- Tab panes -->
   <div class="tab-content">
-    <div id="scorecard-tab" class="panel-icons tab-pane active">
+    <div id="scorecard-tab" class="panel-icons" ng-show="!scoreToggle">
       <div class="row">
         <div class="col-md-12 text-center" style="display:table-row;">
           <div class="row-icons benchmarks-box" id="score-card">
@@ -125,13 +132,9 @@
         {% endif %}
       </div>
     </div><!-- /#scorecard-tab -->
-    <div id="history-tab" class="panel-icons tab-pane">
+    <div id="history-tab" class="panel-icons" ng-show="scoreToggle">
         <div class="panel-body">
-          <div class="row">
-            <div class="col-sm-offset-2 col-sm-8">
-              <div id="history-chart" style="height:600px;margin:auto;"></div>
-            </div>
-        </div>
+              <div id="history-chart" style="width:400px;height:400px;margin:auto;"></div>
     </div><!-- /#history-tab -->
   </div><!-- /.tab-content -->
 </div>

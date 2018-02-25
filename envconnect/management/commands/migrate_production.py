@@ -5,6 +5,7 @@
 
 import re
 
+from deployutils.helpers import datetime_or_now
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import models, transaction
@@ -19,6 +20,7 @@ from survey.utils import get_account_model
 
 from ...mixins import BreadcrumbMixin, ReportMixin
 from ...models import Improvement, Consumption, ColumnHeader
+from ...api.assessments import AssessmentAPIView
 from ...api.dashboards import SupplierListBaseAPIView
 
 
@@ -55,6 +57,23 @@ class Question(models.Model):
         help_text="Enter correct answser(s) here separated by a new line.")
     required = models.BooleanField(default=True,
         help_text="If checked, an answer is required")
+
+    # Fields to merge from Consumption
+    requires_measurements = models.BooleanField(default=False)
+    environmental_value = models.IntegerField(default=1)
+    business_value = models.IntegerField(default=1)
+    implementation_ease = models.IntegerField(default=1)
+    profitability = models.IntegerField(default=1)
+    avg_energy_saving = models.CharField(max_length=50, default="-")
+    avg_fuel_saving = models.CharField(max_length=50, default="-")
+    capital_cost_low = models.IntegerField(null=True)
+    capital_cost_high = models.IntegerField(null=True)
+    capital_cost = models.CharField(max_length=50, default="-")
+    payback_period = models.CharField(max_length=50, default="-")
+    nb_respondents = models.IntegerField(default=0)
+    opportunity = models.IntegerField(default=0)
+    rate = models.IntegerField(default=0)
+    avg_value = models.IntegerField(default=0)
 
     class Meta:
         unique_together = ('survey', 'rank')
@@ -100,9 +119,10 @@ class Command(BaseCommand):
 
     @staticmethod
     def migrate_completion_status():
+        created_at = datetime_or_now()
         with transaction.atomic():
-            api = SuppliersAPIView()
-            rollup_tree = api.rollup_scores()
+            scores_api = SuppliersAPIView()
+            rollup_tree = scores_api.rollup_scores()
             for account in get_account_model().objects.all():
                 accounts = rollup_tree[0].get('accounts', {})
                 if account.pk in accounts:
@@ -110,12 +130,15 @@ class Command(BaseCommand):
                     if scores:
                         normalized_score = scores.get('normalized_score', None)
                         if normalized_score is not None:
-                            for sample in Sample.objects.filter(
-                                    extra__isnull=True,
-                                    survey__title=ReportMixin.report_title,
-                                    account=account):
-                                sample.is_frozen = True
-                                sample.save()
+                            assess_api = AssessmentAPIView()
+                            sample = Sample.objects.filter(
+                                extra__isnull=True,
+                                survey__title=ReportMixin.report_title,
+                                account=account).order_by('-created_at').first()
+                            assess_api.freeze_scores(sample,
+                                includes=[sample],
+                                excludes=settings.TESTING_RESPONSE_IDS,
+                                created_at=created_at)
                         improvement_score = scores.get(
                             'improvement_score', None)
                         if improvement_score is not None:
@@ -130,6 +153,25 @@ class Command(BaseCommand):
     def migrate_survey():
         with transaction.atomic():
             for question in Question.objects.all():
+                # XXX need `question_id` in Consumption
+                consumption = Consumption.objects.get(question_id=question.pk)
+                question.requires_measurements = (
+                    question.question_type == question.INTEGER)
+                question.environmental_value = consumption.environmental_value
+                question.business_value = consumption.business_value
+                question.implementation_ease = consumption.implementation_ease
+                question.profitability = consumption.profitability
+                question.avg_energy_saving = consumption.avg_energy_saving
+                question.avg_fuel_saving = consumption.avg_fuel_saving
+                question.capital_cost_low = consumption.capital_cost_low
+                question.capital_cost_high = consumption.capital_cost_high
+                question.capital_cost = consumption.capital_cost
+                question.payback_period = consumption.payback_period
+                question.nb_respondents = consumption.nb_respondents
+                question.opportunity = consumption.opportunity
+                question.rate = consumption.rate
+                question.avg_value = consumption.avg_value
+                question.save()
                 EnumeratedQuestions.objects.get_or_create(
                     campaign=question.survey,
                     question_id=question.pk,

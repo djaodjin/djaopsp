@@ -54,7 +54,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
             return obj.rank
         return EnumeratedQuestions.objects.filter(
             campaign=self.context['campaign'],
-            question_id=obj.question_id).first().rank
+            question_id=obj.id).first().rank
 
     @staticmethod
     def get_rate(obj):

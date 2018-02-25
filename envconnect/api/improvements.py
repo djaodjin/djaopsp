@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 from django.db import transaction
@@ -8,7 +8,7 @@ from rest_framework.generics import (get_object_or_404, ListAPIView,
 from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
     DestroyModelMixin)
 from rest_framework.response import Response
-from survey.models import Answer, Question, EnumeratedQuestions
+from survey.models import Answer, EnumeratedQuestions, get_question_model
 
 from ..mixins import ImprovementQuerySetMixin
 from ..models import Consumption
@@ -24,7 +24,7 @@ class ImprovementSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_consumption(obj):
-        return obj.question.consumption.path
+        return obj.question.path
 
 
 class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
@@ -56,11 +56,11 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
 
     def get_object(self):
         return get_object_or_404(self.get_queryset(),
-            question__consumption__path=self.kwargs.get('path'))
+            question__path=self.kwargs.get('path'))
 
     def create(self, request, *args, **kwargs):
-        question = get_object_or_404(Question.objects.all(),
-            consumption__path=self.kwargs.get('path'))
+        question = get_object_or_404(get_question_model().objects.all(),
+            path=self.kwargs.get('path'))
         with transaction.atomic():
             self.get_or_create_improve_sample()
             with transaction.atomic():
@@ -87,7 +87,7 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
         # in case the db was corrupted, let's just fix it on the fly here.
         # XXX In the future the improvements must relate to a specific year.
         self.get_queryset().filter(
-            question__consumption__path=self.kwargs.get('path')).delete()
+            question__path=self.kwargs.get('path')).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, *args, **kwargs):

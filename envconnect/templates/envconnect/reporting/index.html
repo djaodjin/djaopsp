@@ -5,42 +5,33 @@
 {% block supplier_menus %}{% endblock %}
 
 {% block consumption_content %}
+<style>
+.tooltip-inner {
+    white-space: pre-wrap;
+}
+</style>
 <div class="clearfix"></div>
 <div>
   <h1 class="text-center">Reporting entities</h1>
 </div>
 <section id="completion-summary-chart">
   <div class="row">
-    <div class="col-md-6">
-      <div class="chart text-center" style="display: inline-block;width:400px;height:200px;">
-        <svg></svg>
+    <div class="col-md-offset-3 col-md-6">
+      <div class="chart text-center" style="display: inline-block;width:400px;height:200px;" data-toggle="tooltip" title="Not started
+    Registered but has not started Assessment
+Abandoned
+    Started, but no activity for &gt; 12 months
+Expired
+    Assessment &amp; planning completed,
+    but no activity for &gt; 12 months
+Assessment phase
+    Assessment is in process
+Planning phase
+    Planning is in process
+Completed
+    Assessment and Planning are complete">
+        <i class="fa fa-spinner fa-spin fa-2x"></i>
       </div>
-    </div>
-    <div class="col-md-6">
-      <dl>
-        <dt>Not started</dt>
-        <dd>Registered but has not started Assessment</dd>
-      </dl>
-      <dl>
-        <dt>Abandoned</dt>
-        <dd>Started, but no activity for &gt; 12 months</dd>
-      </dl>
-      <dl>
-        <dt>Expired</dt>
-        <dd>Assessment &amp; planning completed, but no activity for > 12 months</dd>
-      </dl>
-      <dl>
-        <dt>Assessment phase</dt>
-        <dd>Assessment is in process</dd>
-      </dl>
-      <dl>
-        <dt>Planning phase</dt>
-        <dd>Planning is in process</dd>
-      </dl>
-      <dl>
-        <dt>Completed</dt>
-        <dd>Assessment and Planning are complete</dd>
-      </dl>
     </div>
   </div>
 </section>

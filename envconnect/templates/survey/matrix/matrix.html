@@ -42,53 +42,6 @@ display: none;
         <div class="chart totals-preview text-center" style="display: inline-block;">
           <i class="fa fa-spinner fa-spin fa-2x"></i>
         </div>
-        <div id="edit-matrix" class="container text-left" style="display:none;">
-          <form id="chart-title">
-            <div id="axis" class="row">
-              <div class="col-sm-6">
-                <h3>Cohorts</h3>
-                {% for entry in cohorts %}
-                <div>
-                  <label for="{{forloop.counter}}">
-                    <input id="cohort-{{forloop.counter}}" type="checkbox" name="cohorts" value="{{entry.slug}}" {% if entry.is_selected %}checked{% endif %}>
-              {{entry.title}}
-                  </label>
-                  <a href="{% url 'accounts_list' account entry %}"><i class="fa fa-edit"></i></a>
-                </div>
-                {% endfor %}
-                <div>
-                <button id="new-cohort-start"
-                        class="btn btn-primary"
-                        data-toggle="modal"
-                        data-target="#new-cohort-modal">New portfolio ...</button>
-                </div>
-              </div>
-              <div class="col-sm-6">
-                <h3>Metrics</h3>
-                {% for entry in metrics %}
-                <div>
-                  <label for="{{forloop.counter}}">
-                    <input id="metric-{{forloop.counter}}" type="radio" name="metric" value="{{entry.slug}}" {% if entry.is_selected %}checked{% endif %}>
-                    {{ entry.title }}
-                  </label>
-                  <a href="{% url 'questions_list' account entry %}"><i class="fa fa-edit"></i></a>
-                </div>
-                {% endfor %}
-                <div>
-                  <button id="new-metric-start"
-                          class="btn btn-primary"
-                          data-toggle="modal"
-                          data-target="#new-metric-modal">New metric ...</button>
-                </div>
-              </div>
-            </div>
-            <div class="form-group" style="margin-top: 25px;">
-              <label class="form-control-label">Title</label>
-              <input class="form-control" type="text" name="title" value="{{object.title}}">
-            </div>
-            <!--      <button class="btn btn-primary save">Update</button> -->
-          </form>
-        </div>
       </div>
       <div class="col-md-4 text-left">
         <!-- dialog to create new portfolio analysis -->
@@ -251,37 +204,6 @@ jQuery(document).ready(function($) {
       return false;
   });
 
-  $("#new-cohort").submit(function() {
-      var self = $(this);
-      var title = self.find("[name=\"cohort-title\"]").val();
-      $.ajax({
-          method: "POST",
-          url: "{{editable_filter_api_base}}",
-          data: JSON.stringify({title: title, tags: "cohort", predicates: []}),
-          datatype: "json",
-          contentType: "application/json; charset=utf-8",
-          success: function(data){
-              window.location = "{% url 'accounts_base' account %}" + data.slug;
-          }
-      });
-      return false;
-  });
-  $("#new-metric").submit(function() {
-      var self = $(this);
-      var title = self.find("[name=\"metric-title\"]").val();
-      $.ajax({
-          method: "POST",
-          url: "{{editable_filter_api_base}}",
-          data: JSON.stringify({title: title, tags: "metric", predicates: []}),
-          datatype: "json",
-          contentType: "application/json; charset=utf-8",
-          success: function(data){
-              window.location = "{% url 'questions_base' account %}" + data.slug;
-          }
-      });
-      return false;
-  });
-
   $.ajax({
       method: "GET",
       url: "{{matrix_api}}",
@@ -296,7 +218,7 @@ jQuery(document).ready(function($) {
                       editable_filter_api: "{{editable_filter_api_base}}",
                       matrix_api: "{{matrix_api}}",
                       color: "#f89407",
-                      margin: {top: 15, right: 10, bottom: 200, left: 75},
+                      margin: {top: 15, right: 75, bottom: 200, left: 75},
                       rotateLabels: -45
                   });
               } else {

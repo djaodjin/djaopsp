@@ -501,16 +501,19 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         return context
 
 
-class ReportMixin(BreadcrumbMixin, AccountMixin):
-    """
-    Loads assessment and improvement for an organization.
-    """
+class ExcludeDemoSample(object):
 
     def _get_filter_out_testing(self):
         # List of response ids that are only used for demo purposes.
         if self.request.user.username in settings.TESTING_USERNAMES:
             return []
         return settings.TESTING_RESPONSE_IDS
+
+
+class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
+    """
+    Loads assessment and improvement for an organization.
+    """
 
     @property
     def sample(self):
@@ -535,7 +538,7 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
     def get_included_samples(self):
         results = []
         if self.assessment_sample:
-            results += [self.assessment_sample.pk]
+            results += [self.assessment_sample]
         return results
 
     @staticmethod
@@ -602,14 +605,12 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
             db_key = DEFAULT_DB_ALIAS
         return connections.databases[db_key]['ENGINE'].endswith('sqlite3')
 
-    def populate_leafs(self, leafs, answers, agg_key='account_id'):
+    def populate_leaf(self, prefix, attrs, answers, agg_key='account_id'):
         """
         Populate all leafs with aggregated scores.
         """
-        #pylint:disable=too-many-locals
-        for prefix, values_tuple in six.iteritems(leafs):
-            values = values_tuple[0]
-            agg_scores = """SELECT account_id, sample_id, is_planned,
+        #pylint:disable=too-many-locals,unused-argument
+        agg_scores = """SELECT account_id, sample_id, is_planned,
     SUM(numerator) AS numerator,
     SUM(denominator) AS denominator,
     MAX(last_activity_at) AS last_activity_at,
@@ -617,23 +618,22 @@ class ReportMixin(BreadcrumbMixin, AccountMixin):
     COUNT(*) AS nb_questions,
     %(bool_agg)s(is_completed) AS is_completed
 FROM (%(answers)s) AS answers
-WHERE path LIKE '%(prefix)s%%'
 GROUP BY account_id, sample_id, is_planned;""" % {
-    'answers': answers, 'prefix': prefix,
+    'answers': answers,
     'bool_agg': 'MAX' if self._is_sqlite3() else 'bool_or',
 }
-            _show_query_and_result(agg_scores)
-            with connection.cursor() as cursor:
-                cursor.execute(agg_scores, params=None)
-                col_headers = cursor.description
-                agg_score_tuple = namedtuple(
-                    'AggScoreTuple', [col[0] for col in col_headers])
-                for agg_score in cursor.fetchall():
-                    agg_score = agg_score_tuple(*agg_score)
-                    if not 'accounts' in values:
-                        values['accounts'] = {}
-                    self.populate_account(
-                        values['accounts'], agg_score, agg_key=agg_key)
+        _show_query_and_result(agg_scores)
+        with connection.cursor() as cursor:
+            cursor.execute(agg_scores, params=None)
+            col_headers = cursor.description
+            agg_score_tuple = namedtuple(
+                'AggScoreTuple', [col[0] for col in col_headers])
+            for agg_score in cursor.fetchall():
+                agg_score = agg_score_tuple(*agg_score)
+                if not 'accounts' in attrs:
+                    attrs['accounts'] = {}
+                self.populate_account(
+                    attrs['accounts'], agg_score, agg_key=agg_key)
 
     def decorate_leafs(self, leafs):
         """
@@ -649,10 +649,14 @@ GROUP BY account_id, sample_id, is_planned;""" % {
           denominator = 0
         """
         #pylint:disable=too-many-locals
-        scored_answers = get_scored_answers(
-            includes=self.get_included_samples(),
+        population = Consumption.objects.get_active_by_accounts(
             excludes=self._get_filter_out_testing())
-        self.populate_leafs(leafs, scored_answers)
+        for prefix, values_tuple in six.iteritems(leafs):
+            self.populate_leaf(prefix, values_tuple[0],
+                get_scored_answers(
+                    population,
+                    includes=self.get_included_samples(),
+                    prefix=prefix))
         super(ReportMixin, self).decorate_leafs(leafs)
 
     def get_report_tree(self):
@@ -697,7 +701,7 @@ class ImprovementQuerySetMixin(ReportMixin):
     def get_included_samples(self):
         results = super(ImprovementQuerySetMixin, self).get_included_samples()
         if self.improvement_sample:
-            results += [self.improvement_sample.pk]
+            results += [self.improvement_sample]
         return results
 
     def get_queryset(self):

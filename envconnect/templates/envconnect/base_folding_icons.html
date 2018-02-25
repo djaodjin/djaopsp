@@ -35,20 +35,22 @@ jQuery(document).ready(function($) {
     $(".icon-equipment").droppable({
         drop: function( event, ui ) {
             var $droppable = $(this);
-            var source = ui.draggable.attr("src").toLowerCase();
-            $droppable.attr("src", ui.draggable.attr("src"));
-            $(ui.helper).remove();
-            var idElement = $droppable.attr("id");
-            var data = {slug: idElement, text: $droppable.attr("src")};
-            $.ajax({
-                method: "PUT",
-                async: false,
-                url: "{% url 'page_elements' %}" + idElement + "/",
-                data: data,
-                success: function(response){
-                    // XXX console.log("saved")
-                }
-            });
+            if (ui.draggable.attr("src")) {
+                var source = ui.draggable.attr("src").toLowerCase();
+                $droppable.attr("src", ui.draggable.attr("src"));
+                $(ui.helper).remove();
+                var idElement = $droppable.attr("id");
+                var data = {slug: idElement, text: $droppable.attr("src")};
+                $.ajax({
+                    method: "PUT",
+                    async: false,
+                    url: "{% url 'page_elements' %}" + idElement + "/",
+                    data: data,
+                    success: function(response){
+                        // XXX console.log("saved")
+                    }
+                });
+            }
         }
     });
 });

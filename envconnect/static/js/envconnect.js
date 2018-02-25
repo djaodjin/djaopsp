@@ -290,6 +290,12 @@ envconnectControllers.controller("EnvconnectCtrl",
         return {width: "" + practice[0].consumption.rate  + "%"};
     }
 
+    $scope.onToggleScore = function() {
+        $scope.$evalAsync(function() {
+            $timeout(function() {window.dispatchEvent(new Event('resize'));});
+        });
+    }
+
     /** Decorates the tree with two sets, ``capturable`` and ``captured``.
         ``capturable`` aggregates the total savings and cost that can be
         captured if a user was to add all best practices not yet implemented
@@ -876,6 +882,16 @@ envconnectControllers.controller("EnvconnectCtrl",
         $scope.moveBestPractice(startPath, attachPath, null, "demote");
     };
 
+    $scope.sortIcons = function($event) {
+        var iconParent = angular.element($event.toElement).parents(".squared-tabs-li");
+        var startPath = iconParent.data('id');
+        var targetPosition = angular.element($event.target);
+        var attachPath = targetPosition.data('id').split("/").slice(0, -1).join("/");
+        var rank = $(targetPosition).index();
+
+        $scope.moveBestPractice(startPath, attachPath, rank, "drag-n-drop");
+    };
+
     $scope.indentHeader = function(practice, prefix) {
         var parts = practice[0].path.replace(prefix, '').split("/");
         var indentSpace = 0
@@ -1296,6 +1312,9 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                 }
             }
             // populate the completion summary chart
+            var summary = $("#completion-summary-chart .chart");
+            summary.empty();
+            summary.append("<svg></svg>");
             summaryChart("#completion-summary-chart .chart svg",
                 resp.data.summary);
 

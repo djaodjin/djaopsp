@@ -12,7 +12,7 @@ from django.conf import settings
 from django.db import models, connection
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
-from survey.models import Question as SurveyQuestion
+from survey.models import Sample, AbstractQuestion as SurveyQuestion
 
 # We cannot import signals into __init__.py otherwise it creates an import
 # loop error "make initdb".
@@ -99,19 +99,14 @@ class ConsumptionQuerySet(models.QuerySet):
                     count += 1
                 LOGGER.debug("%d row(s)", count)
 
-    def get_opportunities_sql(self, filter_out_testing=None):
-        filter_out_testing = ""
-        if filter_out_testing:
-            filter_out_testing = "AND survey_answer.sample_id NOT IN (%s)" % (
-                ', '.join(filter_out_testing))
-
-        # Taken the latest assessment for each account, the implementation rate
-        # is defined as the number of positive answers divided by the number of
-        # valid answers (i.e. different from "N/A").
-        #pylint:disable=protected-access
-        implementation_rate_view = """WITH
-latest_assessment_by_accounts AS (
-  SELECT
+    def get_active_by_accounts(self, excludes=None):
+        #pylint:disable=no-self-use
+        if excludes:
+            filter_out_testing = "AND survey_sample.id NOT IN (%s)" % (
+                ', '.join([str(sample_id) for sample_id in excludes]))
+        else:
+            filter_out_testing = ""
+        sql_query = """SELECT
       survey_sample.account_id AS account_id,
       survey_sample.id AS id,
       survey_sample.created_at AS created_at
@@ -121,35 +116,78 @@ latest_assessment_by_accounts AS (
               WHERE survey_sample.extra IS NULL %(filter_out_testing)s
               GROUP BY account_id) AS last_updates
   ON survey_sample.account_id = last_updates.account_id AND
-     survey_sample.created_at = last_updates.last_updated_at),
+     survey_sample.created_at = last_updates.last_updated_at
+""" % {'filter_out_testing': filter_out_testing}
+        return Sample.objects.raw(sql_query)
 
+    def get_latest_samples_by_accounts(self, includes=None):
+        """
+        assessment and planning
+        """
+        #pylint:disable=no-self-use
+        if includes:
+            samples_filter = "WHERE survey_sample.id IN (%s)" % (
+                ', '.join([str(sample_pk) for sample_pk in includes]))
+        else:
+            samples_filter = ""
+        sql_query = """SELECT
+        survey_sample.account_id AS account_id,
+        survey_sample.id AS id,
+        survey_sample.created_at AS created_at,
+        survey_sample.survey_id AS survey_id,
+        survey_sample.is_frozen AS is_frozen,
+        survey_sample.extra AS extra
+      FROM survey_sample
+      INNER JOIN (
+        SELECT account_id, extra, MAX(created_at) AS last_updated_at
+        FROM survey_sample
+        WHERE survey_sample.extra IS NULL
+          OR survey_sample.extra = 'is_planned'
+        GROUP BY account_id, extra) AS latests
+      ON survey_sample.account_id = latests.account_id
+        AND survey_sample.created_at = latests.last_updated_at
+      %(samples_filter)s""" % {'samples_filter': samples_filter}
+        return Sample.objects.raw(sql_query)
+
+    def get_opportunities_sql(self, population, prefix=None):
+        sample_population = ', '.join(
+            [str(sample.pk) for sample in population])
+        if prefix:
+            filter_questions = "survey_question.path LIKE '%s%%'" % prefix
+        else:
+            filter_questions = None
+
+        # Taken the latest assessment for each account, the implementation rate
+        # is defined as the number of positive answers divided by the number of
+        # valid answers (i.e. different from "N/A").
+        #pylint:disable=protected-access
+        implementation_rate_view = """WITH
 nb_positive_by_questions AS (
   SELECT
     question_id AS question_id,
     COUNT(survey_answer.id) AS nb_yes
-  FROM survey_answer INNER JOIN latest_assessment_by_accounts
-    ON survey_answer.sample_id = latest_assessment_by_accounts.id
+  FROM survey_answer
   WHERE survey_answer.metric_id = 1
     AND survey_answer.measured IN (%(positive_answers)s)
+    AND survey_answer.sample_id IN (%(sample_population)s)
   GROUP BY question_id),
 
 nb_valid_by_questions AS (
   SELECT
-    envconnect_consumption.question_id AS question_id,
+    survey_question.id AS question_id,
     COUNT(survey_answer.id) AS nb_yes_no,
-    envconnect_consumption.avg_value AS avg_value
-  FROM envconnect_consumption
-  INNER JOIN survey_question
-    ON envconnect_consumption.question_id = survey_question.id
+    survey_question.avg_value AS avg_value
+  FROM survey_question
   INNER JOIN survey_answer
     ON survey_question.id = survey_answer.question_id
-  INNER JOIN latest_assessment_by_accounts
-  ON survey_answer.sample_id = latest_assessment_by_accounts.id
   WHERE survey_answer.metric_id = 1
     AND survey_answer.measured IN (%(valid_answers)s)
-  GROUP BY envconnect_consumption.question_id)
+    AND survey_answer.sample_id IN (%(sample_population)s)
+    %(filter_questions)s
+  GROUP BY survey_question.id)
 """ % {
-    'filter_out_testing': filter_out_testing,
+    'sample_population': sample_population,
+    'filter_questions': "AND %s" % filter_questions if prefix else "",
     'positive_answers': Consumption._present_as_sql(),
     'valid_answers': Consumption._relevent_as_sql(),
 }
@@ -158,15 +196,17 @@ nb_valid_by_questions AS (
         yes_opportunity_view = """%(implementation_rate)s,
 opportunity_view AS (
   SELECT
-    yes_no_view.question_id AS question_id,
-    (yes_no_view.avg_value * (1.0 +
-      CAST(yes_view.nb_yes AS FLOAT) / yes_no_view.nb_yes_no)) as opportunity,
-    (CAST(yes_view.nb_yes AS FLOAT) * 100 / yes_no_view.nb_yes_no) as rate,
-    yes_no_view.nb_yes_no as nb_respondents
-  FROM nb_valid_by_questions as yes_no_view
-  LEFT OUTER JOIN nb_positive_by_questions as yes_view
-  ON yes_view.question_id = yes_no_view.question_id)""" % {
-                'implementation_rate': implementation_rate_view}
+    nb_valid_by_questions.question_id AS question_id,
+    (nb_valid_by_questions.avg_value * (1.0 +
+      CAST(nb_positive_by_questions.nb_yes AS FLOAT)
+        / nb_valid_by_questions.nb_yes_no)) as opportunity,
+    (CAST(nb_positive_by_questions.nb_yes AS FLOAT) * 100
+        / nb_valid_by_questions.nb_yes_no) as rate,
+    nb_valid_by_questions.nb_yes_no as nb_respondents
+  FROM nb_valid_by_questions
+  LEFT OUTER JOIN nb_positive_by_questions
+  ON nb_positive_by_questions.question_id = nb_valid_by_questions.question_id)
+""" % {'implementation_rate': implementation_rate_view}
         self._show_query_and_result(yes_opportunity_view)
 
         # All expected questions for each sample decorated with
@@ -176,33 +216,36 @@ opportunity_view AS (
         # COALESCE now supported on sqlite3.
         questions_with_opportunity = """%(yes_opportunity_view)s
 SELECT
-  envconnect_consumption.question_id AS question_id,
-  COALESCE(opportunity_view.opportunity, envconnect_consumption.avg_value, 0)
+  survey_question.id AS id,
+  COALESCE(opportunity_view.opportunity, survey_question.avg_value, 0)
     AS opportunity,
   COALESCE(opportunity_view.rate, 0) AS rate,
   COALESCE(opportunity_view.nb_respondents, 0) AS nb_respondents,
-  envconnect_consumption.environmental_value AS environmental_value,
-  envconnect_consumption.business_value AS business_value,
-  envconnect_consumption.implementation_ease AS implementation_ease,
-  envconnect_consumption.profitability AS profitability,
-  envconnect_consumption.avg_value AS avg_value,
+  survey_question.environmental_value AS environmental_value,
+  survey_question.business_value AS business_value,
+  survey_question.implementation_ease AS implementation_ease,
+  survey_question.profitability AS profitability,
+  survey_question.avg_value AS avg_value,
+  survey_question.requires_measurements AS requires_measurements,
   survey_question.path AS path
-FROM envconnect_consumption
-INNER JOIN survey_question
-  ON envconnect_consumption.question_id = survey_question.id
+FROM survey_question
 LEFT OUTER JOIN opportunity_view
-  ON envconnect_consumption.question_id = opportunity_view.question_id""" % {
-                'yes_opportunity_view': yes_opportunity_view,
-            }
+  ON survey_question.id = opportunity_view.question_id
+%(filter_questions)s
+""" % {
+    'yes_opportunity_view': yes_opportunity_view,
+    'filter_questions': "WHERE %s" % filter_questions if prefix else ""}
         self._show_query_and_result(questions_with_opportunity)
         return questions_with_opportunity
 
-    def with_opportunity(self, filter_out_testing=None):
-        return self.raw(self.get_opportunities_sql(
-            filter_out_testing=filter_out_testing))
+    def with_opportunity(self, population):
+        return self.raw(self.get_opportunities_sql(population))
 
 
 @python_2_unicode_compatible
+# XXX Before migration:
+#class Consumption(models.Model):
+# XXX After migration:
 class Consumption(SurveyQuestion):
     """Consumption of externalities in the manufactoring process."""
 
@@ -239,8 +282,6 @@ class Consumption(SurveyQuestion):
 
     objects = ConsumptionQuerySet.as_manager()
 
-    question = models.OneToOneField(SurveyQuestion, parent_link=True)
-
     # Value summary fields
     environmental_value = models.IntegerField(default=1)
     business_value = models.IntegerField(default=1)
@@ -254,8 +295,6 @@ class Consumption(SurveyQuestion):
     capital_cost_high = models.IntegerField(null=True)
     capital_cost = models.CharField(max_length=50, default="-")
     payback_period = models.CharField(max_length=50, default="-")
-    reported_by = models.ForeignKey(settings.AUTH_USER_MODEL,
-        db_column='reported_by', null=True)
 
     # computed fields
     nb_respondents = models.IntegerField(default=0)
@@ -270,6 +309,14 @@ class Consumption(SurveyQuestion):
     #   - a value summary is updated
     #   - a Consumption is initially created
     avg_value = models.IntegerField(default=0)
+
+# XXX Before migration:
+#    question = models.OneToOneField('survey.Question', parent_link=True)
+# XXX After migration:
+    # Additional metric on the Question.
+    requires_measurements = models.BooleanField(default=False)
+    class Meta:
+        db_table = 'survey_question'
 
     def __str__(self):
         return str(self.pk)
@@ -307,9 +354,6 @@ class Consumption(SurveyQuestion):
         return super(Consumption, self).save(
             force_insert=force_insert, force_update=force_update,
             using=using, update_fields=update_fields)
-
-    def requires_measurements(self):
-        return self.question_type == self.INTEGER
 
 
 @python_2_unicode_compatible
@@ -351,53 +395,49 @@ def _show_query_and_result(raw_query, show=False):
             LOGGER.debug("%d row(s)", count)
 
 
-def _additional_filters(is_planned=None, includes=None, excludes=None,
-                        questions=None, first=False):
+def _additional_filters(includes=None, questions=None, prefix=None, extra=None):
     sep = ""
     additional_filters = ""
-    if is_planned is not None:
-        additional_filters = "survey_sample.extra = '%s'" % (
-            "is_planned" if is_planned else "")
-        sep = "AND "
     if includes:
         additional_filters += "%ssurvey_sample.id IN (%s)" % (
-            sep, ', '.join([str(sample_pk) for sample_pk in includes]))
+            sep, ', '.join([str(sample.pk) for sample in includes]))
         sep = "AND "
     if questions:
         additional_filters += \
             "%ssurvey_enumeratedquestions.question_id IN (%s)" % (
             sep, ', '.join([str(question) for question in questions]))
         sep = "AND "
-    if excludes:
-        additional_filters += "%ssurvey_sample.id NOT IN (%s)" % (
-            sep, ', '.join([str(sample_pk) for sample_pk in excludes]))
+    if prefix:
+        additional_filters += "%ssurvey_question.path LIKE '%s%%'" % (
+            sep, prefix)
+        sep = "AND "
+    if extra:
+        additional_filters += "%s%s" % (sep, extra)
+        sep = "AND "
     if additional_filters:
-        if first:
-            additional_filters = "WHERE %s" % additional_filters
-        else:
-            additional_filters = "AND %s" % additional_filters
+        additional_filters = "WHERE %s" % additional_filters
     return additional_filters
 
 
-def get_expected_opportunities(is_planned=None, includes=None, excludes=None,
-                               questions=None):
+def get_expected_opportunities(population, includes=None,
+                               questions=None, prefix=None):
     """
     Decorates with environmental_value, business_value, profitability,
     implementation_ease, avg_value, nb_respondents, and rate such that
     these can be used in assessment and improvement pages.
     """
-    questions_with_opportunity = Consumption.objects.with_opportunity(
-        filter_out_testing=excludes).query
+    questions_with_opportunity = Consumption.objects.get_opportunities_sql(
+        population, prefix=prefix)
 
     # All expected questions for each sample
     # decorated with ``opportunity``.
     #
     # If we are only looking for all expected questions for each sample,
-    # then the query can be simplified by using the survey_question table
+    # then the query can be simplified by using the Question table
     # directly.
-    # XXX missing rank, implemented, planned, requires_measurements?
+    # XXX missing rank, implemented, planned?
     expected_opportunities = """SELECT
-    questions_with_opportunity.question_id AS question_id,
+    questions_with_opportunity.id AS id,
     samples.sample_id AS sample_id,
     samples.is_completed AS is_completed,
     samples.is_planned AS is_planned,
@@ -410,50 +450,29 @@ def get_expected_opportunities(is_planned=None, includes=None, excludes=None,
     questions_with_opportunity.implementation_ease AS implementation_ease,
     questions_with_opportunity.avg_value AS avg_value,
     questions_with_opportunity.nb_respondents AS nb_respondents,
-    questions_with_opportunity.rate AS rate
+    questions_with_opportunity.rate AS rate,
+    questions_with_opportunity.requires_measurements AS requires_measurements
 FROM (%(questions_with_opportunity)s) AS questions_with_opportunity
 INNER JOIN (
-  WITH
-    latest_assess_or_improve_by_accounts AS (
-      SELECT
-        survey_sample.account_id AS account_id,
-        survey_sample.id AS id,
-        survey_sample.created_at AS created_at,
-        survey_sample.survey_id AS survey_id,
-        survey_sample.is_frozen AS is_frozen,
-        survey_sample.extra AS is_planned
-      FROM survey_sample
-      INNER JOIN(
-        SELECT account_id, extra, MAX(created_at) AS last_updated_at
-        FROM survey_sample
-        WHERE survey_sample.extra IS NULL
-          OR survey_sample.extra = 'is_planned'
-        GROUP BY account_id, extra) AS latests
-      ON survey_sample.account_id = latests.account_id
-        AND survey_sample.created_at = latests.last_updated_at
-      %(samples_filters)s)
     SELECT survey_enumeratedquestions.question_id AS question_id,
-           latest_assess_or_improve_by_accounts.account_id AS account_id,
-           latest_assess_or_improve_by_accounts.id AS sample_id,
-           latest_assess_or_improve_by_accounts.is_frozen AS is_completed,
-           latest_assess_or_improve_by_accounts.is_planned AS is_planned
-    FROM latest_assess_or_improve_by_accounts
+           survey_sample.account_id AS account_id,
+           survey_sample.id AS sample_id,
+           survey_sample.is_frozen AS is_completed,
+           survey_sample.extra AS is_planned
+    FROM survey_sample
     INNER JOIN survey_enumeratedquestions
-    ON latest_assess_or_improve_by_accounts.survey_id
-         = survey_enumeratedquestions.campaign_id
-    %(questions_filters)s
+      ON survey_sample.survey_id = survey_enumeratedquestions.campaign_id
+    %(additional_filters)s
     ) AS samples
-ON questions_with_opportunity.question_id = samples.question_id
+ON questions_with_opportunity.id = samples.question_id
 """ % {'questions_with_opportunity': questions_with_opportunity,
-       'samples_filters': _additional_filters(
-           is_planned=is_planned, includes=includes, first=True),
-       'questions_filters': _additional_filters(
-           questions=questions, first=True)}
+       'additional_filters': _additional_filters(
+           includes=includes, questions=questions)}
     _show_query_and_result(expected_opportunities)
     return expected_opportunities
 
 
-def get_answer_with_account(is_planned=None, includes=None):
+def get_answer_with_account(includes=None):
     """
     Returns a list of tuples (answer_id, question_id, sample_id, account_id,
     created_at, measured, is_planned) that corresponds to all answers
@@ -469,17 +488,17 @@ def get_answer_with_account(is_planned=None, includes=None):
     survey_sample.is_frozen AS is_completed,
     survey_sample.extra AS is_planned,
     survey_answer.rank AS rank
-FROM survey_answer INNER JOIN survey_sample
-ON survey_answer.sample_id = survey_sample.id
-WHERE survey_answer.metric_id = 1
+FROM survey_answer
+INNER JOIN survey_sample
+  ON survey_answer.sample_id = survey_sample.id
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
-        is_planned=is_planned, includes=includes)}
+        includes=includes, extra="survey_answer.metric_id = 1")}
     _show_query_and_result(query)
     return query
 
 
-def get_historical_scores(is_planned=None, includes=None, questions=None):
+def get_historical_scores(includes=None, prefix=None):
     """
     Returns a list of tuples with the following fields:
 
@@ -513,16 +532,14 @@ INNER JOIN survey_sample
   ON survey_answer.sample_id = survey_sample.id
 INNER JOIN survey_question
   ON survey_answer.question_id = survey_question.id
-WHERE survey_answer.metric_id = 2
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
-        is_planned=is_planned, includes=includes, questions=questions)}
+        includes=includes, prefix=prefix, extra="survey_answer.metric_id = 2")}
     _show_query_and_result(scored_answers)
     return scored_answers
 
 
-def get_scored_answers(is_planned=None, includes=None, excludes=None,
-                       questions=None):
+def get_scored_answers(population, includes=None, questions=None, prefix=None):
     """
     Returns a list of tuples with the following fields:
 
@@ -558,6 +575,7 @@ def get_scored_answers(is_planned=None, includes=None, excludes=None,
     """
     #pylint:disable=protected-access
     scored_answers = """SELECT
+    expected_choices.id AS id,
     expected_choices.account_id AS account_id,
     expected_choices.sample_id AS sample_id,
     expected_choices.is_completed AS is_completed,
@@ -567,7 +585,6 @@ def get_scored_answers(is_planned=None, includes=None, excludes=None,
     expected_choices.last_activity_at AS last_activity_at,
     expected_choices.answer_id AS answer_id,
     expected_choices.rank AS rank,
-    expected_choices.question_id AS question_id,
     expected_choices.path AS path,
     survey_choice.text AS implemented,
     expected_choices.environmental_value AS environmental_value,
@@ -577,6 +594,7 @@ def get_scored_answers(is_planned=None, includes=None, excludes=None,
     expected_choices.avg_value AS avg_value,
     expected_choices.nb_respondents AS nb_respondents,
     expected_choices.rate AS rate,
+    expected_choices.requires_measurements AS requires_measurements,
     expected_choices.opportunity AS opportunity
 FROM (SELECT
     expected_opportunities.account_id AS account_id,
@@ -592,7 +610,7 @@ FROM (SELECT
     answers.created_at AS last_activity_at,
     answers.id AS answer_id,
     answers.rank as rank,
-    expected_opportunities.question_id AS question_id,
+    expected_opportunities.id AS id,
     expected_opportunities.path AS path,
     answers.measured AS measured,
     expected_opportunities.environmental_value AS environmental_value,
@@ -602,10 +620,11 @@ FROM (SELECT
     expected_opportunities.avg_value AS avg_value,
     expected_opportunities.nb_respondents AS nb_respondents,
     expected_opportunities.rate AS rate,
+    expected_opportunities.requires_measurements AS requires_measurements,
     expected_opportunities.opportunity AS opportunity
 FROM (%(expected_opportunities)s) AS expected_opportunities
 LEFT OUTER JOIN (%(answers)s) AS answers
-ON expected_opportunities.question_id = answers.question_id
+ON expected_opportunities.id = answers.question_id
    AND expected_opportunities.sample_id = answers.sample_id) AS expected_choices
 LEFT OUTER JOIN survey_choice
 ON expected_choices.measured = survey_choice.id
@@ -615,9 +634,8 @@ ON expected_choices.measured = survey_choice.id
        'significant_improvement': Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
        'yes_no': Consumption._relevent_as_sql(),
        'expected_opportunities': get_expected_opportunities(
-           is_planned=is_planned, includes=includes, excludes=excludes,
-           questions=questions),
-       'answers': get_answer_with_account(
-           is_planned=is_planned, includes=includes)}
+           population,
+           includes=includes, questions=questions, prefix=prefix),
+       'answers': get_answer_with_account(includes=includes)}
     _show_query_and_result(scored_answers)
     return scored_answers

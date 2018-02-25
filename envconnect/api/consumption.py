@@ -27,7 +27,7 @@ class ConsumptionListAPIView(BreadcrumbMixin, generics.ListCreateAPIView):
         with transaction.atomic():
             consumption = serializer.save()
             EnumeratedQuestions.objects.get_or_create(
-                campaign=self.survey, question=consumption.question,
+                campaign=self.survey, question=consumption,
                 defaults={'rank': self.get_next_rank()})
 
 
