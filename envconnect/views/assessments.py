@@ -26,7 +26,7 @@ from ..serializers import ConsumptionSerializer
 LOGGER = logging.getLogger(__name__)
 
 
-class AssessmentBaseView(ReportMixin, TemplateView):
+class AssessmentBaseMixin(ReportMixin):
 
     def decorate_leafs(self, leafs):
         """
@@ -125,7 +125,7 @@ class AssessmentBaseView(ReportMixin, TemplateView):
                     vals[0].update(text)
 
 
-class AssessmentView(AssessmentBaseView):
+class AssessmentView(AssessmentBaseMixin, TemplateView):
 
     template_name = 'envconnect/assess.html'
     breadcrumb_url = 'assess'
@@ -168,7 +168,7 @@ class AssessmentView(AssessmentBaseView):
         return super(AssessmentView, self).get(request, *args, **kwargs)
 
 
-class AssessmentSpreadsheetView(AssessmentBaseView):
+class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
 
     basename = 'assessment'
     indent_step = '    '

@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import csv, datetime, logging, io
+from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -14,11 +15,11 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from extended_templates.backends.pdf import PdfTemplateResponse
+from pages.models import PageElement
 
-from .assessments import AssessmentView
+from .assessments import AssessmentBaseMixin, AssessmentView
 from .benchmark import PrintableChartsMixin
 from ..mixins import ImprovementQuerySetMixin
-from ..models import Consumption
 
 
 LOGGER = logging.getLogger(__name__)
@@ -61,7 +62,44 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
         return context
 
 
-class ImprovementSpreadsheetView(ImprovementQuerySetMixin, ListView):
+class ImprovementOnlyMixin(ImprovementQuerySetMixin, AssessmentBaseMixin):
+
+    def _improvements_only(self, root=None):
+        """
+        returns a tree where only nodes leading to leafs which are in queryset.
+        """
+        if not root:
+            # All assessment questions for an industry, regardless
+            # of the actual from_path.
+            # XXX if we do that, we shouldn't use from_root (i.e. system pages)
+            _, trail = self.breadcrumbs
+            trail_head = ("/" + trail[0][0].slug.decode('utf-8')
+                if six.PY2 else trail[0][0].slug)
+            from_trail_head = "/" + "/".join([
+                element.slug.decode('utf-8') if six.PY2 else element.slug
+                for element in self.get_full_element_path(trail_head)])
+            # We use cut=None here so we print out the full assessment
+            root = self._build_tree(trail[0][0], from_trail_head, cut=None)
+
+        filtered = OrderedDict()
+        planned = root[0].get('consumption', {}).get('planned', False)
+        if planned:
+            page_element = PageElement.objects.get(slug=root[0].get('slug'))
+            root[0]['consumption'].update({
+                'title': page_element.title,
+                'text': page_element.text
+            })
+            return (root[0], filtered)
+        for path, nodes in six.iteritems(root[1]):
+            filtered_nodes = self._improvements_only(nodes)
+            if filtered_nodes:
+                filtered.update({path: filtered_nodes})
+        if filtered:
+            return (root[0], filtered)
+        return None
+
+
+class ImprovementSpreadsheetView(ImprovementOnlyMixin, ListView):
 
     basename = 'improvements'
     headings = ['Practice', 'Implementation rate', 'Implemented by you?',
@@ -71,69 +109,37 @@ class ImprovementSpreadsheetView(ImprovementQuerySetMixin, ListView):
         'Implementation ease', 'AVERAGE VALUE']
     indent_step = '    '
 
-    def insert_path(self, tree, parts=None):
-        if not parts:
-            return tree
-        if not parts[0] in tree:
-            tree[parts[0]] = {}
-        return self.insert_path(tree[parts[0]], parts[1:])
-
     def write_tree(self, root, indent=''):
-        for element in sorted(
-                list(root.keys()), key=lambda node: (node.tag, node.pk)):
-            # XXX sort won't exactly match the web presentation
-            # which uses RelationShip order
-            # (see ``BreadcrumbMixin._build_tree``).
-            nodes = root[element]
-            if 'opportunity' in nodes:
-                # We reached a leaf
-                self.writerow([
-                    indent + element.title,
-                    nodes['rate'],
-                    'Yes',
-                    nodes['opportunity'],
-                    nodes['environmental_value'],
-                    nodes['business_value'],
-                    nodes['implementation_ease'],
-                    nodes['profitability'],
-                    nodes['avg_value']
-                ], leaf=True)
-            else:
-                self.writerow([indent + element.title])
+        if not root:
+            return
+        element = root[0].get('consumption', None)
+        if element:
+            # We reached a leaf
+            self.writerow([
+                indent + element['title'],
+                element['rate'] / 100.0,
+                element['implemented'],
+                element['opportunity'],
+                element['environmental_value'],
+                element['business_value'],
+                element['implementation_ease'],
+                element['profitability'],
+                element['avg_value']
+            ], leaf=True)
+        else:
+            element = root[0]
+            self.writerow([indent + element['title']])
+            for _, nodes in six.iteritems(root[1]):
                 self.write_tree(nodes, indent=indent + self.indent_step)
 
     def get(self, request, *args, **kwargs): #pylint: disable=unused-argument
-        opportunities = {}
-        for consumption in Consumption.objects.with_opportunity(
-                population=Consumption.objects.get_active_by_accounts(
-                    excludes=self._get_filter_out_testing())):
-            opportunities[consumption.pk] = consumption
-
-        self.root = {}
-        for improvement in self.get_queryset():
-            consumption = improvement.question
-            _, parts = self.get_breadcrumbs(consumption.path)
-            leaf = self.insert_path(self.root, [part[0] for part in parts])
-            details = opportunities[consumption.pk]
-            page_element = parts[-1][0]
-            leaf.update({
-                'path': consumption.path,
-                'rate': consumption.rate,
-                'opportunity': details.opportunity,
-                'environmental_value': consumption.environmental_value,
-                'business_value': consumption.business_value,
-                'implementation_ease': consumption.implementation_ease,
-                'profitability': consumption.profitability,
-                'avg_value': consumption.avg_value,
-                'text': page_element.text
-            })
-
+        root = self._improvements_only()
         self.create_writer(self.value_headings, title="Improvement Plan")
         self.writerow(
             ["Improvement Plan  -  Environmental practices"], leaf=True)
         self.writerow(self.get_headings(), leaf=True)
         self.writerow(self.value_headings, leaf=True)
-        self.write_tree(self.root)
+        self.write_tree(root)
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \
             'attachment; filename="{}"'.format(self.get_filename())
@@ -347,7 +353,7 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
                 row_cells[0].alignment = self.heading_alignment
 
 
-class ImprovementPDFView(ImprovementQuerySetMixin, ListView):
+class ImprovementPDFView(ImprovementOnlyMixin, ListView):
 
     http_method_names = ['get']
     template_name = 'envconnect/best_practice_pdf.html'
@@ -356,56 +362,22 @@ class ImprovementPDFView(ImprovementQuerySetMixin, ListView):
     def __init__(self, **kwargs):
         super(ImprovementPDFView, self).__init__(**kwargs)
         self.report_items = []
-        self.root = {}
-
-    def insert_path(self, tree, parts=None):
-        if not parts:
-            return tree
-        if not parts[0] in tree:
-            tree[parts[0]] = {}
-        return self.insert_path(tree[parts[0]], parts[1:])
 
     def write_tree(self, root, indent=''):
-        for element in sorted(
-                list(root.keys()), key=lambda node: (node.tag, node.pk)):
-            # XXX sort won't exactly match the web presentation
-            # which uses RelationShip order
-            # (see ``BreadcrumbMixin._build_tree``).
-            nodes = root[element]
-            if 'opportunity' in nodes:
-                # We reached a leaf
-                self.report_items += [nodes]
-            else:
+        if not root:
+            return
+        consumption = root[0].get('consumption', None)
+        if consumption:
+            self.report_items += [consumption]
+        else:
+            for _, nodes in six.iteritems(root[1]):
                 self.write_tree(nodes, indent=indent + self.indent_step)
 
     def get(self, request, *args, **kwargs):
-        opportunities = {}
-        for consumption in Consumption.objects.with_opportunity(
-                population=Consumption.objects.get_active_by_accounts(
-                    excludes=self._get_filter_out_testing())):
-            opportunities[consumption.pk] = consumption
+        root = self._improvements_only()
 
         self.report_items = []
-        self.root = {}
-        for improvement in self.get_queryset():
-            consumption = improvement.question
-            _, parts = self.get_breadcrumbs(consumption.path)
-            leaf = self.insert_path(self.root, [part[0] for part in parts])
-            details = opportunities[consumption.pk]
-            page_element = parts[-1][0]
-            leaf.update({
-                'path': consumption.path,
-                'rate': consumption.rate,
-                'opportunity': details.opportunity,
-                'environmental_value': consumption.environmental_value,
-                'business_value': consumption.business_value,
-                'implementation_ease': consumption.implementation_ease,
-                'profitability': consumption.profitability,
-                'avg_value': consumption.avg_value,
-                'title': page_element.title,
-                'text': page_element.text
-            })
-        self.write_tree(self.root)
+        self.write_tree(root)
         self.object_list = self.report_items
         context = self.get_context_data(**kwargs)
         return PdfTemplateResponse(request, self.template_name, context)
