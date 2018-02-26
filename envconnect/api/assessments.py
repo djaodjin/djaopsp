@@ -65,7 +65,6 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
             created_at=created_at,
             survey=sample.survey,
             account=sample.account,
-            extra='completed',
             is_frozen=True)
         with connection.cursor() as cursor:
             cursor.execute(scored_answers, params=None)
