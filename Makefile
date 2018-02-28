@@ -57,7 +57,7 @@ package-theme: build-django-assets
 		--exclude='_form.html' --exclude='.*/' \
 		--include='accounts/' --include='docs/' \
 		--include='saas/' --include='notification/'
-	zip -d $(srcDir)/htdocs/themes/envconnect.zip "envconnect/templates/accounts/base.html"
+	zip -d $(srcDir)/htdocs/themes/envconnect.zip "envconnect/public/static/cache/angular.js" "envconnect/templates/accounts/base.html"
 
 
 build-django-assets: clean

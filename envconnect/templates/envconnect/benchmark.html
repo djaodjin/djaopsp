@@ -4,7 +4,7 @@
 {% block consumption_content %}
 <div>
   <!-- Tab menus -->
-  <div class="text-right">
+  <div class="text-right" style="margin-bottom:15px;">
     <!-- WORKAROUND: we set data-width and data-height
          otherwise bootstrap-toggle will crop the size
          inside a class="tab-content collapse". -->
@@ -122,19 +122,22 @@
         <h2 style="margin-left: 5px;">"Not Applicable" Answers</h2>
         {% if not_applicables %}
           <h5 style="margin-left: 5px;">The scorecarded organization responded that the following practices are not applicable to them:</h5>
-          <ul>
+          <div style="margin-left: 5px; margin-bottom: 15px;">
           {% for not_applicable in not_applicables %}
-            <li class="bestpractice"><a class="title" href="{% url 'summary_organization' organization not_applicable.0 %}">{{ not_applicable.1.title }}</a></li>
+          <div class="{{not_applicable.0}}" style="display:block;">
+            <a class="title" href="{% if not_applicable.1 %}{% url 'summary_organization' organization not_applicable.1 %}{% endif %}">{{ not_applicable.2.title }}</a>
+          </div>
           {% endfor %}
-          </ul>
+          </div>
         {% else %}
           <h5 style="margin-left: 5px;">No questions have been marked as "Not Applicable".</h5>
         {% endif %}
       </div>
     </div><!-- /#scorecard-tab -->
     <div id="history-tab" class="panel-icons" ng-show="scoreToggle">
-        <div class="panel-body">
-              <div id="history-chart" style="width:400px;height:400px;margin:auto;"></div>
+        <div class="panel-body benchmarks-box">
+          <h2 class="icon-row-title">History</h2>
+          <div id="history-chart" style="width:400px;height:400px;margin:auto;"></div>
     </div><!-- /#history-tab -->
   </div><!-- /.tab-content -->
 </div>

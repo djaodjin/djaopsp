@@ -26,17 +26,43 @@ LOGGER = logging.getLogger(__name__)
 
 class BenchmarkMixin(ReportMixin):
 
+    def _insert_path(self, root, path, depth=1):
+        parts = path.split('/')
+        if len(parts) >= depth:
+            prefix = '/'.join(parts[:depth])
+            if not prefix in root[1]:
+                root[1].update({prefix: ({},{})})
+            self._insert_path(root[1][prefix], path, depth=depth + 1)
+
+    def flatten_not_applicables(self, root, url_prefix, depth=0):
+        """
+        returns a list from the tree passed as an argument.
+        """
+        results = []
+        for prefix, nodes in six.iteritems(root[1]):
+            element = PageElement.objects.get(slug=prefix.split('/')[-1])
+            if nodes[1]:
+                results += [("heading-%d indent-header-%d" % (depth, depth),
+                    "", element)]
+                results += self.flatten_not_applicables(
+                    nodes, url_prefix, depth=depth + 1)
+            else:
+                results += [("bestpractice-%d indent-header-%d" % (
+                    depth, depth), url_prefix + '/' + element.slug, element)]
+        return results
+
     def get_context_data(self, **kwargs):
         context = super(BenchmarkMixin, self).get_context_data(**kwargs)
-        from_root, _ = self.breadcrumbs
+        from_root, trail = self.breadcrumbs
+        url_prefix = trail[-1][1] if trail else None
         not_applicable_answers = Consumption.objects.filter(
             answer__sample=self.assessment_sample,
             answer__measured=Consumption.NOT_APPLICABLE)
-        not_applicables = []
+        root = ({},{})
+        depth = len(from_root.split('/')) + 1
         for not_applicable in not_applicable_answers:
-            element = PageElement.objects.get(
-                slug=not_applicable.path.split('/')[-1])
-            not_applicables += [(from_root + '/' + element.slug, element)]
+            self._insert_path(root, not_applicable.path, depth=depth)
+        not_applicables = self.flatten_not_applicables(root, url_prefix)
         context.update({'not_applicables': not_applicables})
         return context
 
