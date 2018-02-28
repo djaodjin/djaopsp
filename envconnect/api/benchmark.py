@@ -51,8 +51,7 @@ class BenchmarkMixin(ReportMixin):
                     depth, depth), url_prefix + '/' + element.slug, element)]
         return results
 
-    def get_context_data(self, **kwargs):
-        context = super(BenchmarkMixin, self).get_context_data(**kwargs)
+    def get_not_applicables_context(self):
         from_root, trail = self.breadcrumbs
         url_prefix = trail[-1][1] if trail else None
         not_applicable_answers = Consumption.objects.filter(
@@ -62,8 +61,11 @@ class BenchmarkMixin(ReportMixin):
         depth = len(from_root.split('/')) + 1
         for not_applicable in not_applicable_answers:
             self._insert_path(root, not_applicable.path, depth=depth)
-        not_applicables = self.flatten_not_applicables(root, url_prefix)
-        context.update({'not_applicables': not_applicables})
+        return self.flatten_not_applicables(root, url_prefix)
+
+    def get_context_data(self, **kwargs):
+        context = super(BenchmarkMixin, self).get_context_data(**kwargs)
+        context.update({'not_applicables': self.get_not_applicables_context()})
         return context
 
     def get_drilldown(self, rollup_tree, prefix):

@@ -373,6 +373,9 @@ class ScoreCardDownloadView(PrintableChartsMixin, BenchmarkAPIView):
                 'root': root,
                 'at_time': datetime_or_now()
             })
+            context.update({
+                'not_applicables': self.get_not_applicables_context()
+            })
         return context
 
     def get(self, request, *args, **kwargs):

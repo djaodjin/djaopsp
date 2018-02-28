@@ -186,6 +186,60 @@ img {
 /*  margin-left: 15px; // closest to matching alignment in #subtotals */
     margin-left: 50px; // more like centered
 }
+
+.indent-header-0 {
+   display:inline-block;
+   margin:0;
+}
+
+.indent-header-1 {
+  display:inline-block;
+  margin-left: 20px;
+}
+
+.indent-header-2 {
+  display:inline-block;
+  margin-left: 40px;
+}
+
+.indent-header-3 {
+  display:inline-block;
+  margin-left: 60px;
+}
+
+.indent-header-4 {
+  display:inline-block;
+  margin-left: 80px;
+}
+
+.indent-header-5 {
+  display:inline-block;
+  margin-left: 100px;
+}
+
+.heading-0 {
+   font-size: 18px;
+   font-family: inherit;
+   font-weight: 500;
+   line-height: 1.1;
+}
+
+.heading-1 {
+   font-size: 16px;
+   font-family: inherit;
+   font-weight: 500;
+   line-height: 1.1;
+}
+
+.heading-2 {
+   font-size: 14px;
+   font-family: inherit;
+}
+
+.heading-3 {
+   font-size: 14px;
+   font-family: inherit;
+}
   </style>
 </head>
 <body>
@@ -257,11 +311,13 @@ indicator for a best practice.
       <h2 style="margin-left: 5px;">"Not Applicable" Answers</h2>
       {% if not_applicables %}
       <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
-      <ol>
+      <div style="margin-left: 5px; margin-bottom: 15px;">
           {% for not_applicable in not_applicables %}
-          <li><a href="{% url 'summary_organization' organization not_applicable.0 %}">{{ not_applicable.1.title }}</a></li>
+          <div class="{{not_applicable.0}}" style="display:block;">
+            <span class="title" href="">{{ not_applicable.2.title }}</span>
+          </div>
           {% endfor %}
-      </ol>
+      </div>
       {% else %}
       <h5 style="margin-left: 5px;">No questions have been marked as "Not Applicable".</h5>
       {% endif %}
