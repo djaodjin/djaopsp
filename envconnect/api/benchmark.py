@@ -31,7 +31,7 @@ class BenchmarkMixin(ReportMixin):
         if len(parts) >= depth:
             prefix = '/'.join(parts[:depth])
             if not prefix in root[1]:
-                root[1].update({prefix: ({},{})})
+                root[1].update({prefix: ({}, {})})
             self._insert_path(root[1][prefix], path, depth=depth + 1)
 
     def flatten_not_applicables(self, root, url_prefix, depth=0):
@@ -57,7 +57,7 @@ class BenchmarkMixin(ReportMixin):
         not_applicable_answers = Consumption.objects.filter(
             answer__sample=self.assessment_sample,
             answer__measured=Consumption.NOT_APPLICABLE)
-        root = ({},{})
+        root = ({}, {})
         depth = len(from_root.split('/')) + 1
         for not_applicable in not_applicable_answers:
             self._insert_path(root, not_applicable.path, depth=depth)
