@@ -82,14 +82,16 @@ class ImprovementOnlyMixin(ImprovementQuerySetMixin, AssessmentBaseMixin):
             root = self._build_tree(trail[0][0], from_trail_head, cut=None)
 
         filtered = OrderedDict()
-        planned = root[0].get('consumption', {}).get('planned', False)
-        if planned:
-            page_element = PageElement.objects.get(slug=root[0].get('slug'))
-            root[0]['consumption'].update({
-                'title': page_element.title,
-                'text': page_element.text
-            })
-            return (root[0], filtered)
+        consumption = root[0].get('consumption', {})
+        if consumption:
+            planned = consumption.get('planned', False)
+            if planned:
+                page_element = PageElement.objects.get(slug=root[0].get('slug'))
+                root[0]['consumption'].update({
+                    'title': page_element.title,
+                    'text': page_element.text
+                })
+                return (root[0], filtered)
         for path, nodes in six.iteritems(root[1]):
             filtered_nodes = self._improvements_only(nodes)
             if filtered_nodes:

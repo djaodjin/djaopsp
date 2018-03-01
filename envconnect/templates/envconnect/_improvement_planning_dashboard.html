@@ -46,19 +46,20 @@
           {% endfor %}
         </div>
       </div>
-      <div class="row" style="margin-bottom:15px;">
+        <div class="benchmarks-top-border">
+      <div class="row" style="margin-top: 25px;margin-bottom:15px;">
         <div class="col-sm-4">
           <a id="download-improvements"
-             class="btn btn-primary"
+             class="btn btn-default"
              style="margin-left:15px;"
              href="{% url 'envconnect_improve_organization_print' organization path %}"
-             target="_blank">Improvement practices</a>
+             target="_blank">Improvement list</a>
         </div>
         <div class="col-sm-4">
           <a id="download-improvements"
-               class="btn btn-primary"
+               class="btn btn-default"
                href="{% url 'envconnect_improve_organization_download' organization path %}"
-               target="_blank">Improvement plan</a>
+               target="_blank">Improvement details</a>
         </div>
         <div class="col-sm-4">
           <a id="find-suppliers"
@@ -66,6 +67,7 @@
              style="margin-right:15px;"
              href="#"
              target="_blank">Find Suppliers <i class="fa fa-wrench"></i></a>
+        </div>
         </div>
       </div>
     </div>

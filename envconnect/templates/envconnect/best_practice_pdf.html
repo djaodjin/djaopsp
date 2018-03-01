@@ -10,9 +10,17 @@
     <h2 style="font-size:30px;font-family:'Helvetica Neue';font-weight:200;margin-bottom:0px;margin-top:0px;text-align:center">Practices</h2>
     <hr>
     {% for item in object_list %}
-    <h1 style="font-size:20px;font-family:'Helvetica Neue';margin-bottom:0px;margin-top:10px;text-decoration:underline">{{item.title}}</h1>
+    <h1 style="font-size:37px;font-family:'Helvetica Neue';margin-bottom:0px;margin-top:10px;text-decoration:underline">{{item.title}}</h1>
     <div>
+      {% if item.text %}
       {{item.text|safe}}
+      {% else %}
+      <p>
+Guidance has not yet been developed for this practice. If you would like us to
+develop guidance, or are interested in authoring content for this practice,
+please contact us (https://tspproject.org/contact/).
+      </p>
+      {% endif %}
     </div>
   {% endfor %}
   </body>
