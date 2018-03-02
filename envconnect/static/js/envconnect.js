@@ -1334,10 +1334,9 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     };
 
     $scope.create = function() {
-        $scope.item.invite = angular.element(
-            settings.modalId + " [name='message']").val();
         $http.post(settings.urls.api_accessibles + "?force=1",
-                   {organization: $scope.item}).then(
+                   {organization: $scope.item, message: angular.element(
+            settings.modalId + " [name='message']").val()}).then(
             function success(resp) {
                 // XXX Couldn't figure out how to get the status code
                 //   here so we just reload the list.

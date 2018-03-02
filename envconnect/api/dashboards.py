@@ -92,14 +92,18 @@ class DashboardMixin(BenchmarkMixin):
     account_model = get_account_model()
 
     def get_requested_accounts(self):
+        ends_at = datetime_or_now()
         return [AccountType._make(val) for val in Subscription.objects.filter(
+            ends_at__gt=ends_at, # from `SubscriptionMixin.get_queryset`
             plan__organization=self.account).select_related(
             'organization').values_list('organization__pk',
             'organization__slug', 'organization__full_name',
             'organization__email', 'grant_key')]
 
     def get_accounts(self):
+        ends_at = datetime_or_now()
         return [AccountType._make(val) for val in Subscription.objects.filter(
+            ends_at__gt=ends_at, # from `SubscriptionMixin.get_queryset`
             grant_key__isnull=True,
             plan__organization=self.account).select_related(
             'organization').values_list('organization__pk',

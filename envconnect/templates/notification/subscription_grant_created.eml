@@ -17,6 +17,19 @@ HTML encoded. #}
 planning status on https://tspproject.org/ on behalf
 of {{plan.organization.printable_name}}.
 </p>
+{% if invite %}
+<p>
+Follow the steps below to provide the requested information:
+</p>
+<ul>
+<li>Click on <a href="{{back_url}}">{{back_url}}</a>.</li>
+<li>Update the profile information for your organization (if necessary).</li>
+<li>Select your industry from the drop down menu.</li>
+<li>Click Assessment at the top of the next screen.</li>
+<li>After completing the assessment, click on Planning and follow instructions
+  to complete improvement plan.</li>
+</ul>
+{% else %}
 <p>
 Please click or copy/paste the link below to grant managers of
 {{plan.organization.printable_name}} the ability to see your scorecard
@@ -25,4 +38,5 @@ and your planning status:
 <p>
 <a href="{{back_url}}">{{back_url}}</a>
 </p>
+{% endif %}
 {% endblock %}

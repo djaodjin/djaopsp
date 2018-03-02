@@ -18,8 +18,8 @@ HTML encoded. #}
 on https://tspproject.org/
 </p>
 <p>
-Login to your reporting entities dashboard to see
-{{organization.printable_name}} knowledge and implementation
+Login to your "Reporting entities" dashboard to see
+{{organization.printable_name}}'s scores for the implementation
 of sustainability best practices.
 </p>
 {% endblock %}
