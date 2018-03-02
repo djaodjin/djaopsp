@@ -50,16 +50,16 @@
       <div class="row" style="margin-top: 25px;margin-bottom:15px;">
         <div class="col-sm-4">
           <a id="download-improvements"
+               class="btn btn-default"
+               href="{% url 'envconnect_improve_organization_download' organization path %}"
+               target="_blank">Improvement list</a>
+        </div>
+        <div class="col-sm-4">
+          <a id="print-improvements"
              class="btn btn-default"
              style="margin-left:15px;"
              href="{% url 'envconnect_improve_organization_print' organization path %}"
-             target="_blank">Improvement list</a>
-        </div>
-        <div class="col-sm-4">
-          <a id="download-improvements"
-               class="btn btn-default"
-               href="{% url 'envconnect_improve_organization_download' organization path %}"
-               target="_blank">Improvement details</a>
+             target="_blank">Improvement guidance</a>
         </div>
         <div class="col-sm-4">
           <a id="find-suppliers"
