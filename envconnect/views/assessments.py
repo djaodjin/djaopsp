@@ -18,7 +18,7 @@ from openpyxl.styles.fills import FILL_SOLID
 from pages.models import PageElement
 from survey.models import Choice
 
-from ..mixins import ReportMixin
+from ..mixins import ReportMixin, BestPracticeMixin
 from ..models import Consumption, get_scored_answers
 from ..serializers import ConsumptionSerializer
 
@@ -26,7 +26,9 @@ from ..serializers import ConsumptionSerializer
 LOGGER = logging.getLogger(__name__)
 
 
-class AssessmentBaseMixin(ReportMixin):
+class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
+    # Implementation Note: uses BestPracticeMixin in order to display
+    # bestpractice info through links in assess and improve pages.
 
     def decorate_leafs(self, leafs):
         """

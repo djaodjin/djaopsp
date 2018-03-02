@@ -670,10 +670,10 @@ GROUP BY account_id, sample_id, is_planned;""" % {
             self.get_or_create_assessment_sample()
             root = self._build_tree(trail[-1][0], from_root)
             populate_rollup(root, True)
-            total_numerator = root[0]['accounts'][self.account.pk].get(
-                'numerator', 0)
-            total_denominator = root[0]['accounts'][self.account.pk].get(
-                'denominator', 0)
+            total_numerator = root[0]['accounts'].get(
+                self.account.pk, {}).get('numerator', 0)
+            total_denominator = root[0]['accounts'].get(
+                self.account.pk, {}).get('denominator', 0)
             push_improvement_factors(root, total_numerator, total_denominator)
         return root
 
