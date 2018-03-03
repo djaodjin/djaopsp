@@ -4606,7 +4606,7 @@
         if ($$.config.axis_rotated) {
             return position.isInner ? "-1.5em" : "3em";
         } else {
-            return position.isInner ? "1.2em" : -10 - ($$.config.axis_y_inner ? 0 : (this.getMaxTickWidth('y') - 20));
+            return position.isInner ? "1.2em" : -10 - ($$.config.axis_y_inner ? 0 : (this.getMaxTickWidth('y') - 10));
         }
     };
     Axis.prototype.dyForY2AxisLabel = function dyForY2AxisLabel() {
@@ -4668,7 +4668,6 @@
         var axisXLabel = $$.main.select('.' + CLASS.axisX + ' .' + CLASS.axisXLabel),
             axisYLabel = $$.main.select('.' + CLASS.axisY + ' .' + CLASS.axisYLabel),
             axisY2Label = $$.main.select('.' + CLASS.axisY2 + ' .' + CLASS.axisY2Label);
-            console.log("updated");
         (withTransition ? axisXLabel.transition() : axisXLabel)
             .attr("x", this.xForXAxisLabel.bind(this))
             .attr("dx", this.dxForXAxisLabel.bind(this))

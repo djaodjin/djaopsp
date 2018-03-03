@@ -29,7 +29,7 @@
           <div id="{{root.0.slug}}-chart" class="chart-container chart-container-default" ng-show="activeIcon === null">
             {% include "envconnect/_chart_title.html" with practice=root.0 %}
             <div>
-              <div class="chart-content c3" style="width:250px;height:120px;">
+              <div class="chart-content c3 benchmark-chart-small">
               </div>
             </div>
           </div>
@@ -38,7 +38,7 @@
           <div id="{{icon.slug}}-chart" class="chart-container" ng-show="activeIcon === '{{icon.slug}}'">
             {% include "envconnect/_chart_title.html" with practice=icon %}
             <div>
-              <div class="chart-content c3" style="width:250px;height:120px;">
+              <div class="chart-content c3 benchmark-chart-small">
               </div>
             </div>
           </div>

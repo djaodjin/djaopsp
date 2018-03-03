@@ -154,7 +154,7 @@
 },
 {
   "fields": {
-    "title": "Management",
+    "title": "Governance & management",
     "slug": "management-basics",
     "text": "/envconnect/static/img/management-basics.png",
     "tag": "{\"tags\":[\"management\",\"scorecard\"]}",
@@ -1709,8 +1709,8 @@
 },
 {
   "fields": {
-    "slug": "pge-suppliers",
-    "title": "PG&E suppliers",
+    "slug": "energy-utility-suppliers",
+    "title": "Energy Utility suppliers",
     "tags": "cohort, aggregate"
   },
   "model": "survey.editablefilter", "pk": 2
@@ -1720,7 +1720,7 @@
     "rank": 0,
     "editable_filter": 2,
     "operator": "contains",
-    "operand": "PGE",
+    "operand": "Energy Utility",
     "field": "extra",
     "selector": "keepmatching"
   },
@@ -1970,6 +1970,7 @@
     "account": 10,
     "title": "Total scores by supplier industry sub-sector",
     "metric": 1,
+    "cut": 3,
     "cohorts": [13, 14, 2, 3]
   },
   "model": "survey.matrix", "pk": 2

@@ -232,7 +232,7 @@ class PrintableChartsMixin(object):
 
     def generate_chart_image(self, slug, template_name, context,
                              js_content, cache_storage, on_start=True,
-                             width=400, height=300, delay=1):
+                             width=410, height=300, delay=1):
         #pylint:disable=too-many-arguments
         context.update({'base_url': self.get_base_url()})
         template = get_template(template_name)
@@ -286,7 +286,7 @@ casper.viewport(%(width)s, %(height)s).thenOpen('%(url)s', function() {
                     js_content=js_content,
                     cache_storage=cache_storage,
                     on_start=on_start,
-                    width=250, height=204)
+                    width=270, height=204)
             on_start = False
         js_content.write("""
 casper.run();
@@ -312,6 +312,21 @@ class ScoreCardDownloadView(PrintableChartsMixin, BenchmarkAPIView):
     def score_charts(self):
         if not hasattr(self, '_score_charts'):
             self._score_charts = self.get_queryset()
+            excludes = []
+            from_root, trail = self.breadcrumbs
+            parts = from_root.split("/")
+            if parts:
+                if not parts[1].startswith('sustainability-'):
+                    excludes = ['sustainability-%s' % parts[1]]
+                else:
+                    excludes = [parts[1]]
+            found = -1
+            for idx, chart in enumerate(self._score_charts):
+                if chart.get('slug', None) in excludes:
+                    found = idx
+                    break
+            if found >= 0:
+                del self._score_charts[found]
         return self._score_charts
 
     def get_printable_charts(self):
