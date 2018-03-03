@@ -250,7 +250,6 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
             horizontal='center', vertical='center',
             text_rotation=0, wrap_text=True,
             shrink_to_fit=True, indent=0)
-        self.wsheet.merge_cells('A1:I1')
         row = self.wsheet.row_dimensions[1]
         row.fill = title_fill
         row.font = Font(
@@ -259,11 +258,6 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
             color='FF000000')
         row.alignment = alignment
         row.border = self.border
-        self.wsheet.merge_cells('E2:I2')
-        self.wsheet.merge_cells('A2:A3')
-        self.wsheet.merge_cells('B2:B3')
-        self.wsheet.merge_cells('C2:C3')
-        self.wsheet.merge_cells('D2:D3')
         row = self.wsheet.row_dimensions[2]
         row.fill = subtitle_fill
         row.font = subtitle_font
@@ -274,6 +268,12 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         row.font = subtitle_font
         row.alignment = subtitle_alignment
         row.border = self.border
+#        self.wsheet.merge_cells('A1:I1')
+#        self.wsheet.merge_cells('E2:I2')
+#        self.wsheet.merge_cells('A2:A3')
+#        self.wsheet.merge_cells('B2:B3')
+#        self.wsheet.merge_cells('C2:C3')
+#        self.wsheet.merge_cells('D2:D3')
 
         # Create "Impact of Improvement Plan" worksheet.
         wsheet = self.wbook.create_sheet(title="Impact of Improvement Plan")

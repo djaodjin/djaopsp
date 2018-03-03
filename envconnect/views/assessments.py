@@ -337,7 +337,6 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
             name='Calibri', size=12, bold=False, italic=False,
             vertAlign='baseline', underline='none', strike=False,
             color='FF000000')
-        self.wsheet.merge_cells('A1:F1')
         row = self.wsheet.row_dimensions[1]
         row.fill = title_fill
         row.font = Font(
@@ -346,8 +345,6 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
             color='FF000000')
         row.alignment = alignment
         row.border = border
-        self.wsheet.merge_cells('B2:F2')
-        self.wsheet.merge_cells('A2:A3')
         row = self.wsheet.row_dimensions[2]
         row.fill = subtitle_fill
         row.font = subtitle_font
@@ -358,6 +355,9 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
         row.font = subtitle_font
         row.alignment = alignment
         row.border = border
+#        self.wsheet.merge_cells('A1:F1')
+#        self.wsheet.merge_cells('B2:F2')
+#        self.wsheet.merge_cells('A2:A3')
         content = io.BytesIO()
         self.wbook.save(content)
         content.seek(0)
