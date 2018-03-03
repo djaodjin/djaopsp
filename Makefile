@@ -118,6 +118,8 @@ vendor-assets-prerequisites: $(srcDir)/package.json
 	$(installFiles) node_modules/nvd3/build/nv.d3.js $(ASSETS_DIR)/vendor
 	$(installFiles) node_modules/rangy/lib/rangy-core.js $(ASSETS_DIR)/vendor
 	$(installFiles) node_modules/respond.js/src/respond.js $(ASSETS_DIR)/vendor
+	$(installFiles) node_modules/trip.js/dist/trip.css $(ASSETS_DIR)/vendor
+	$(installFiles) node_modules/trip.js/dist/trip.js $(ASSETS_DIR)/vendor
 	$(installFiles) node_modules/typeahead.js/dist/typeahead.bundle.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/envconnect/static/vendor/PIE.htc $(ASSETS_DIR)/vendor
 
