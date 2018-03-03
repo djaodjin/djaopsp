@@ -291,7 +291,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 slug=rollup_tree[0]['slug']).values('text').first()
             if text and text['text']:
                 rollup_tree[0].update(text)
-        leafs = {}
+        leafs = OrderedDict({})
         for key, level_detail in six.iteritems(rollup_tree[1]):
             leafs.update(self.get_leafs(level_detail, path=key))
         return leafs

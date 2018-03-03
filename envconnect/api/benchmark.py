@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import json, logging
+from collections import OrderedDict
 
 from django.conf import settings
 from django.utils import six
@@ -31,7 +32,7 @@ class BenchmarkMixin(ReportMixin):
         if len(parts) >= depth:
             prefix = '/'.join(parts[:depth])
             if not prefix in root[1]:
-                root[1].update({prefix: ({}, {})})
+                root[1].update({prefix: (OrderedDict({}), OrderedDict({}))})
             self._insert_path(root[1][prefix], path, depth=depth + 1)
 
     def flatten_not_applicables(self, root, url_prefix, depth=0):
@@ -57,7 +58,7 @@ class BenchmarkMixin(ReportMixin):
         not_applicable_answers = Consumption.objects.filter(
             answer__sample=self.assessment_sample,
             answer__measured=Consumption.NOT_APPLICABLE)
-        root = ({}, {})
+        root = (OrderedDict({}), OrderedDict({}))
         depth = len(from_root.split('/')) + 1
         for not_applicable in not_applicable_answers:
             self._insert_path(root, not_applicable.path, depth=depth)
@@ -72,9 +73,9 @@ class BenchmarkMixin(ReportMixin):
         accounts = None
         node = rollup_tree[1].get(prefix, None)
         if node:
-            accounts = rollup_tree[0].get('accounts', {})
+            accounts = rollup_tree[0].get('accounts', OrderedDict({}))
         elif prefix == 'totals' or rollup_tree[0].get('slug', '') == prefix:
-            accounts = rollup_tree[0].get('accounts', {})
+            accounts = rollup_tree[0].get('accounts', OrderedDict({}))
         else:
             for node in six.itervalues(rollup_tree[1]):
                 accounts = self.get_drilldown(node, prefix)
@@ -83,7 +84,7 @@ class BenchmarkMixin(ReportMixin):
         # Filter out accounts whose score cannot be computed.
         if accounts is not None:
             all_accounts = accounts
-            accounts = {}
+            accounts = OrderedDict({})
             for account_id, account_metrics in six.iteritems(all_accounts):
                 normalized_score = account_metrics.get('normalized_score', None)
                 if normalized_score is not None:
@@ -116,7 +117,7 @@ class BenchmarkMixin(ReportMixin):
         nb_implemeted_respondents = 0
         distribution = None
         for account_id_str, account_metrics in six.iteritems(rollup_tree[0].get(
-                'accounts', {})):
+                'accounts', OrderedDict({}))):
             if account_id_str is None: # XXX why is that?
                 continue
             account_id = int(account_id_str)
@@ -254,7 +255,7 @@ class BenchmarkMixin(ReportMixin):
         rollups = self._cut_tree(self.build_content_tree(
             roots, prefix=root_prefix, cut=TransparentCut()),
             cut=TransparentCut())
-        rollup_tree = ({}, rollups)
+        rollup_tree = (OrderedDict({}), rollups)
         self._report_queries("rollup_tree generated")
         if 'title' not in rollup_tree[0]:
             rollup_tree[0].update({
@@ -492,9 +493,9 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
         for node_path, node in six.iteritems(rollup_tree[1]):
             node_key = node[0].get('title', node_path)
             for account_key, account in six.iteritems(node[0].get(
-                    'accounts', {})):
+                    'accounts', OrderedDict({}))):
                 if account_key not in accounts:
-                    accounts[account_key] = {}
+                    accounts[account_key] = OrderedDict({})
                 accounts[account_key].update({
                     node_key: account.get('normalized_score', 0)})
 
@@ -527,7 +528,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
         self._report_queries("rollup_tree populated")
         # We populated the historical scores per section.
         # Now we need to transpose them by sample_id.
-        accounts = {}
+        accounts = OrderedDict({})
         self.flatten_distributions(
             rollup_tree, accounts, prefix=from_root)
         result = []

@@ -196,9 +196,11 @@
             nv.addGraph(function() {
                 // Read the enumeration of ticks to use on the x-axis.
                 var enumTicks = [];
+                var enumIndexes = [];
                 if( data.length > 0 ) {
                     for( var idx = 0; idx < data[0].values.length; ++idx ) {
                         enumTicks.push(data[0].values[idx][0]);
+                        enumIndexes.push(idx + 1);
                     }
                 }
 
@@ -231,22 +233,23 @@
                         return 0;
                     })
                     .y(function(d) { return d[1]; })
-                    .margin({top: 50, right: 20, bottom: 140, left: 70})
+                    .margin({top: 50, right: 20, bottom: 140, left: 150})
                     .useInteractiveGuideline(true);
 
                 chart.xAxis
                     .rotateLabels(-45)
                     .showMaxMin(false)  //remove max and min in x axe
+                    .tickValues(enumIndexes)
                     .tickFormat(function(d) {
                         if( d <= enumTicks.length ) {
                             return enumTicks[d - 1];
                         }
                         return d;
                     });
-//                chart.xScale(d3.scale.ordinal());
 
                 chart.yAxis
-                    .tickFormat(function(d) { return d3.format(".0f")(d) + "%";})
+                    .tickFormat(function(d) {
+                        return d3.format(".0f")(d) + "%";})
                     .axisLabel("Scores");
                 chart.forceY([0, 100]);
 
