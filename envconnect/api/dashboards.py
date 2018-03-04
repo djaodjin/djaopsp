@@ -485,4 +485,20 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
         for chart in charts:
             if 'accounts' in chart:
                 del chart['accounts']
+
+        # XXX
+        if False and charts[0].get('slug') == 'totals':
+            us_suppliers = charts[0].copy()
+            us_suppliers['slug'] = "aggregates-%s" % us_suppliers['slug']
+            us_suppliers['title'] = "US suppliers"
+            us_suppliers['cohorts'] = [{
+                'slug': "us-suppliers", 'title': "US suppliers"}]
+            us_suppliers['values'] = OrderedDict({})
+            sum_scores = 0
+            for _, val in six.iteritems(charts[0]['values']):
+                sum_scores += val
+            us_suppliers['values'] = OrderedDict({
+                'us-suppliers': sum_scores / len(charts[0]['values'])})
+            charts += [us_suppliers]
+
         return Response(charts)

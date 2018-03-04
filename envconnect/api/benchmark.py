@@ -54,7 +54,7 @@ class BenchmarkMixin(ReportMixin):
 
     def get_not_applicables_context(self):
         from_root, trail = self.breadcrumbs
-        url_prefix = trail[-1][1] if trail else None
+        url_prefix = trail[-1][1] if trail else ""
         not_applicable_answers = Consumption.objects.filter(
             answer__sample=self.assessment_sample,
             answer__measured=Consumption.NOT_APPLICABLE)
@@ -373,7 +373,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         if not total_score:
             total_score = rollup_tree[0]
         if not total_score:
-            total_score = {"nb_respondents": "-"}
+            total_score = OrderedDict({"nb_respondents": "-"})
         total_score.update({"slug": "totals", "title": "Total Score"})
         # ... and the following 2 lines together, pylint does not blow up...
         if not complete and 'normalized_score' in total_score:

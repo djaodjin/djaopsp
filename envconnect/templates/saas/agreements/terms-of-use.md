@@ -22,7 +22,7 @@ your Account.
 1.2 You are responsible for maintaining the security of your username
     and password. {{organization.printable_name}} will not be liable
     for any loss of or changes to information recorded by you or other parties
-    in relationship to the profile you create on tspproject.org, or damages
+    in relationship to the profile you create on {{site_url}}, or damages
     that result from your failure to comply with this security obligation.
 
 1.3 You must not use the Service to carry on any illegal or unauthorized
@@ -32,7 +32,7 @@ your Account.
 2. Payment and Refunds
 ----------------------
 
-2.1 There is no fee to use the core functions on tspproject.org. If you request
+2.1 There is no fee to use the core functions on {{site_url}}. If you request
     The Sustainability Project to set up and customize the MyTSP function,
     there may be a fee charged for initial set up and a monthly or an annual
     fee charged for ongoing use of the function. In this event, you would be
@@ -44,7 +44,7 @@ your Account.
 -------------------------------
 
 3.1 You are solely responsible for canceling and deleting Profiles registered
-    under your name on tspproject.org. You can do so by navigating to the
+    under your name on {{site_url}}. You can do so by navigating to the
     Profile you wish to delete and clicking on the associated “Delete” button.
     It is a simple no questions asked cancellation procedure
     An email or phone request to cancel an account is not considered

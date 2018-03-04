@@ -210,11 +210,21 @@ jQuery(document).ready(function($) {
 //      data: data,
       contentType: "application/json; charset=utf-8",
       success: function(data) {
+          var aggregates = {};
+          for( var idx = 0; idx < data.length; ++idx ) {
+              if( data[idx].slug.substr(0, 11) === 'aggregates-' ) {
+                  aggregates[data[idx].slug.replace(/^aggregates-/, '')] = data[idx];
+              }
+          }
           for( var idx = 0; idx < data.length; ++idx ) {
               var chartElement = $('[id$="' + data[idx].slug + '-chart"]');
               if( chartElement.length > 0 ) {
+                  var chartData = [data[idx]];
+                  if( aggregates.hasOwnProperty(data[idx].slug) ) {
+                      chartData.push(aggregates[data[idx].slug]);
+                  }
                   chartElement.djmatrixChart({
-                      data: data[idx],
+                      data: chartData,
                       editable_filter_api: "{{editable_filter_api_base}}",
                       matrix_api: "{{matrix_api}}",
                       color: "#f89407",
@@ -232,7 +242,7 @@ jQuery(document).ready(function($) {
                       chartElement = $('[id^="chart-' + data[idx].slug + '"]');
                   }
                   chartElement.djmatrixChart({
-                      data: data[idx],
+                      data: [data[idx]],
                       editable_filter_api: "{{editable_filter_api_base}}",
                       matrix_api: "{{matrix_api}}",
                       showValues: false,

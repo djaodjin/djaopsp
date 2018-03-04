@@ -313,7 +313,7 @@ class ScoreCardDownloadView(PrintableChartsMixin, BenchmarkAPIView):
         if not hasattr(self, '_score_charts'):
             self._score_charts = self.get_queryset()
             excludes = []
-            from_root, trail = self.breadcrumbs
+            from_root, _ = self.breadcrumbs
             parts = from_root.split("/")
             if parts:
                 if not parts[1].startswith('sustainability-'):
