@@ -356,17 +356,6 @@ class Consumption(SurveyQuestion):
             using=using, update_fields=update_fields)
 
 
-@python_2_unicode_compatible
-class Improvement(models.Model):
-
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
-    account = models.ForeignKey(settings.ACCOUNT_MODEL)
-    consumption = models.ForeignKey(Consumption, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return "%s/%s" % (self.account, self.consumption)
-
-
 def get_score_weight(tag):
     """
     We aggregate weighted scores when walking up the tree.

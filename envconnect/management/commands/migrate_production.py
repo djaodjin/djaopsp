@@ -19,7 +19,7 @@ from survey.models import (Answer, Campaign, EditablePredicate,
 from survey.utils import get_account_model
 
 from ...mixins import BreadcrumbMixin, ReportMixin
-from ...models import Improvement, Consumption, ColumnHeader
+from ...models import Consumption, ColumnHeader
 from ...api.assessments import AssessmentAPIView
 from ...api.dashboards import SupplierListBaseAPIView
 
@@ -111,7 +111,6 @@ class Command(BaseCommand):
             self.migrate_survey()
             self.migrate_completion_status()
 #            self.print_updated_scores()
-#            self.migrate_improvements()
 #            self.tag_as_json()
 #            self.dump_sql_statements(options.get('paths'))
 #            self.relabel_to_fix_error()
@@ -209,18 +208,6 @@ class Command(BaseCommand):
         for account in get_account_model().objects.all():
             self.stdout.write('"%s"' % account.printable_name)
             self.print_account_updated_scores(account, "/", rollup_tree)
-
-    @staticmethod
-    def migrate_improvements():
-        survey = Campaign.objects.get(title=ReportMixin.report_title)
-        with transaction.atomic():
-            for improve in Improvement.objects.all():
-                improvement_sample, _ = Sample.objects.get_or_create(
-                    extra='is_planned', survey=survey, account=improve.account)
-                Answer.objects.get_or_create(
-                    sample=improvement_sample,
-                    rank=improve.consumption.question.rank,
-                    question=improve.consumption.question)
 
     def _slugify(self, slug):
         if slug == 'sustainability-office-space-only':
