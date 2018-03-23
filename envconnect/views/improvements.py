@@ -19,7 +19,7 @@ from pages.models import PageElement
 
 from .assessments import AssessmentBaseMixin, AssessmentView
 from .benchmark import PrintableChartsMixin
-from ..mixins import ImprovementQuerySetMixin
+from ..mixins import ContentCut, ImprovementQuerySetMixin
 
 
 LOGGER = logging.getLogger(__name__)
@@ -45,9 +45,10 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
                 'envconnect_improve_organization', args=(organization, path))
         return super(ImprovementView, self).get_breadcrumb_url(path)
 
-    def get_report_tree(self):
+    def get_report_tree(self, node=None, from_root=None, cut=ContentCut()):
         self.get_or_create_improve_sample()
-        root = super(ImprovementView, self).get_report_tree()
+        root = super(ImprovementView, self).get_report_tree(
+            node=node, from_root=from_root, cut=cut)
         if root:
             self.decorate_with_breadcrumbs(root)
         return root
@@ -214,7 +215,7 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         self.text_center = Alignment(horizontal='center')
 
     def flush_writer(self):
-        #pylint:disable=protected-access
+        #pylint:disable=protected-access,too-many-statements
         bold_font = Font(
             name='Calibri', size=11, bold=True, italic=False,
             vertAlign='baseline', underline='none', strike=False,

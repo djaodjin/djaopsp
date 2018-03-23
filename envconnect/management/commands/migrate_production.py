@@ -475,7 +475,6 @@ class Command(BaseCommand):
                     extra__isnull=True, survey__title=report_title):
                 sample.survey = survey
                 sample.save()
-            Improvement.objects.all().delete()
             deprecated_surveys = Campaign.objects.filter(
                 title=report_title).exclude(pk=survey.pk)
             Question.objects.filter(survey__in=deprecated_surveys).delete()
