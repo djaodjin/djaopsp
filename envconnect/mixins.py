@@ -659,16 +659,19 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     prefix=prefix))
         super(ReportMixin, self).decorate_leafs(leafs)
 
-    def get_report_tree(self):
+    def get_report_tree(self, node=None, from_root=None, cut=ContentCut()):
         """
         Returns the content tree decorated with assessment and improvement data.
         """
-        self._start_time()
-        from_root, trail = self.breadcrumbs
         root = None
-        if trail:
+        self._start_time()
+        if node is None or from_root is None:
+            from_root, trail = self.breadcrumbs
+            if trail:
+                node = trail[-1][0]
+        if node:
             self.get_or_create_assessment_sample()
-            root = self._build_tree(trail[-1][0], from_root)
+            root = self._build_tree(node, from_root, cut=cut)
             populate_rollup(root, True)
             total_numerator = root[0]['accounts'].get(
                 self.account.pk, {}).get('numerator', 0)
