@@ -242,6 +242,10 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
             text_rotation=0, wrap_text=False,
             shrink_to_fit=False, indent=0)
         title_fill = PatternFill(fill_type=FILL_SOLID, fgColor='FFDDD9C5')
+        title_font = Font(
+            name='Calibri', size=20, bold=False, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF000000')
         subtitle_fill = PatternFill(fill_type=FILL_SOLID, fgColor='FFEEECE2')
         subtitle_font = Font(
             name='Calibri', size=10, bold=False, italic=False,
@@ -251,30 +255,32 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
             horizontal='center', vertical='center',
             text_rotation=0, wrap_text=True,
             shrink_to_fit=True, indent=0)
-        row = self.wsheet.row_dimensions[1]
-        row.fill = title_fill
-        row.font = Font(
-            name='Calibri', size=20, bold=False, italic=False,
-            vertAlign='baseline', underline='none', strike=False,
-            color='FF000000')
-        row.alignment = alignment
-        row.border = self.border
-        row = self.wsheet.row_dimensions[2]
-        row.fill = subtitle_fill
-        row.font = subtitle_font
-        row.alignment = subtitle_alignment
-        row.border = self.border
-        row = self.wsheet.row_dimensions[3]
-        row.fill = subtitle_fill
-        row.font = subtitle_font
-        row.alignment = subtitle_alignment
-        row.border = self.border
-#        self.wsheet.merge_cells('A1:I1')
-#        self.wsheet.merge_cells('E2:I2')
-#        self.wsheet.merge_cells('A2:A3')
-#        self.wsheet.merge_cells('B2:B3')
-#        self.wsheet.merge_cells('C2:C3')
-#        self.wsheet.merge_cells('D2:D3')
+        # Implementation Note: We style the cells here instead of the rows
+        # otherwise opening the file on Excel leads to weird background coloring
+        # (LibreOffice looks fine).
+        cell = self.wsheet.cell('A1')
+        cell.fill = title_fill
+        cell.font = title_font
+        cell.border = self.border
+        cell.alignment = alignment
+        for col in ['A', 'B', 'C', 'D', 'E']:
+            cell = self.wsheet.cell('%s2' % col)
+            cell.fill = subtitle_fill
+            cell.font = subtitle_font
+            cell.border = self.border
+            cell.alignment = subtitle_alignment
+        for col in ['E', 'F', 'G', 'H', 'I']:
+            cell = self.wsheet.cell('%s3' % col)
+            cell.fill = subtitle_fill
+            cell.font = subtitle_font
+            cell.border = self.border
+            cell.alignment = subtitle_alignment
+        self.wsheet.merge_cells('A1:I1')
+        self.wsheet.merge_cells('E2:I2')
+        self.wsheet.merge_cells('A2:A3')
+        self.wsheet.merge_cells('B2:B3')
+        self.wsheet.merge_cells('C2:C3')
+        self.wsheet.merge_cells('D2:D3')
 
         # Create "Impact of Improvement Plan" worksheet.
         wsheet = self.wbook.create_sheet(title="Impact of Improvement Plan")
