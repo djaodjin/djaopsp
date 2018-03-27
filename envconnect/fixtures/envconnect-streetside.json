@@ -230,7 +230,8 @@
     "app": 6,
     "rank": 7,
     "path": "/app/info/",
-    "rule_op": 1
+    "rule_op": 1,
+    "engaged": "app"
   },
   "model": "rules.Rule", "pk": 7
 },
@@ -267,8 +268,7 @@
     "rank": 11,
     "path": "/app/:organization/",
     "rule_op": 3,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
-    "engaged": "app"
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
   },
   "model": "rules.Rule", "pk": 11
 },
@@ -293,8 +293,7 @@
     "app": 6,
     "rank": 14,
     "path": "/",
-    "rule_op": 0,
-    "engaged": "app"
+    "rule_op": 0
   },
   "model": "rules.Rule", "pk": 14
 }]

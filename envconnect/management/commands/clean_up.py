@@ -19,8 +19,11 @@ INDUSTRIES = [
     'boxes-and-enclosures',
     'construction',
     'consulting',
+    'corporate-shared-services',
     'distribution-industry',
     'distribution-transformers',
+    'ecec',
+    'electric-procurement',
     'energy-efficiency-contracting',
     'energy-utility',
     'engineering',
@@ -29,11 +32,13 @@ INDUSTRIES = [
     'facilities-management-industry',
     'freight-and-shipping',
     'fuel-supply',
+    'gas-procurement',
     'general-contractors',
     'general-manufacturing',
     'interior-design',
     'lab-services',
     'marketing-and-communications',
+    'materials-planning-inventory',
     'office-space-only',
     'print-services',
     'shipping-and-logistics',
@@ -208,19 +213,11 @@ INSERT INTO survey_matrix (slug, title, metric_id, account_id) VALUES
             self.stderr.write("BEGIN;\n")
             self.stderr.write("-- %d consumptions are not linked\n"
                 % len(consumptions_not_linked))
-            self.stdout.write("DELETE FROM envconnect_consumption"\
-                " WHERE question_id in %s;\n" % str(tuple([consumption.pk
+            self.stdout.write("DELETE FROM survey_question"\
+                " WHERE id in %s;\n" % str(tuple([consumption.pk
                 for consumption in consumptions_not_linked])))
             if do_delete:
                 consumptions_not_linked.delete()
-            questions_not_linked = Question.objects.filter(
-                pk__in=[question.pk for question in consumptions_not_linked])
-            self.stdout.write("-- %d questions are not linked\n"
-                % len(questions_not_linked))
-            self.stdout.write("DELETE FROM survey_question WHERE id in %s;\n" %
-                str(tuple([question.pk for question in questions_not_linked])))
-            if do_delete:
-                questions_not_linked.delete()
 
             # Remove PageElements which are not in entry_points
             pages_not_linked = [page for page in PageElement.objects.get_roots()

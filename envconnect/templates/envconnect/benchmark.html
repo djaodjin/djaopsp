@@ -146,7 +146,23 @@
 {% block bodyscripts %}
 {{block.super}}
 <script type="text/javascript">
-    jQuery(document).ready(function($) {
+jQuery(document).ready(function($) {
+
+{% if request|is_authenticated and no_assessment_warning %}
+    var scorecardTrip = new Trip([{
+        delay: -1,
+        position: "screen-center",
+        content: "{{no_assessment_warning|safe}}"
+    }], {
+        enableAnimation: false,
+        showCloseBox: true,
+        showNavigation: false,
+        delay:-1,
+        tripTheme:'black',
+    });
+    scorecardTrip.start();
+{% endif %}
+
         $("#scorecard-tab").improvementDashboard({
             api_account_benchmark: "{{urls.api_account_benchmark}}",
             benchmark: "{{root.0.slug}}",
@@ -163,7 +179,7 @@
                    '[data-toggle="tab"], [data-toggle="pill"]', function () {
             window.dispatchEvent(new Event('resize'));
          });
-    });
+});
 </script>
 {% if request|is_broker_manager %}
 {% assets "css_editor" %}

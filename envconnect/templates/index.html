@@ -28,7 +28,7 @@
 {% endblock %}
 
 {% block content %}
-<section id="load" data-trip data-trip-index="1" data-trip-content="<div class='text-left'><h2 class='text-center'>Welcome to The Sustainability Project!</h2><p>In addition to the <b>LEARN</b> tools, as a registered user you now have access to:</p><h3>Measurement tools</h3><ul><li><b>Self assessment</b>: Assess performance against best practices, and identify opportunities ranked by business value and peer implementation rate.</li> <li><b>Score &amp; benchmarking</b>: Compare performance in sustainability with peers through confidential, anonymous, aggregated reports.</li></ul><h3>Planning tools</h3><ul><li><b>Plan improvements</b>: Select improvement actions on a value-prioritized basis and see their impact on cost, savings and overall performance scores. <i class='fa fa-wrench'></i> <li><b>Find suppliers</b>: Find technologies, products and services linked to best practices. <i class='fa fa-wrench'></i></ul></div>" data-trip-position="screen-center">
+<section id="load">
 	<div class="jumbotron">
 		<div class="container">
 			<div class="row">
@@ -487,19 +487,6 @@ jQuery(document).ready(function($) {
     $("html, body").animate({ scrollTop: $("#text-section").offset().top }, 500);
     return false;
   });
-
-{% if request|is_authenticated and not request.session.last_visited %}
-    if ($("[data-trip]").length > 0){
-        var trip = new Trip({
-            enableAnimation: false,
-            showCloseBox: true,
-            showNavigation: true,
-            delay:-1,
-            tripTheme:'black',
-        });
-        trip.start();
-    }
-{% endif %}
 
 {% if not request|is_authenticated %}
   $(".dropdown-menu li a[role='menuitem']").bind("click touchstart",

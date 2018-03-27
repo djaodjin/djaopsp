@@ -194,8 +194,11 @@ Do you wish to continue?
             </div>
             <div class="modal-body">
                     <p>
-You certify that the assessment responses are true and correct to the best
-of your knowledge. After clicking "Yes", you will no longer be able to change
+You certify that the assessment responses provided for your organization
+are true and correct to the best of your knowledge. Additionally, you
+acknowledge that the responses form a statement of record which current
+or future clients may request to verify.</p>
+<p>After clicking "Yes", you will no longer be able to change
 responses in <strong>this assessment</strong>. Start a new assessment when
 you have improvements to report.
                     </p>
@@ -265,21 +268,22 @@ jQuery(document).ready(function($) {
         position: "screen-center",
         content: "<ol class='text-left'>" +
 "<li>Click each grey or orange box and complete a response for all best practices<br />" +
-"listed<sup>(1)</sup>. [<strong>Responses must be accurate and verifiable</strong>, so mouse over each column heading to clearly<br />" +
+"listed<sup>(1)</sup>. [<strong style='color:#FFF633'>Responses must be accurate and verifiable</strong>, so mouse over each column heading to clearly<br />" +
 "understand response choices. Also click a best practice for guidance<sup>(2)</sup> on what should be in place to<br />" +
-"respond <em>Yes</em>.</li>" +
+"respond <em>&quot;Yes&quot;</em>.</li>" +
 "<li>Click the <em>Results</em> button (bottom of page) to display per-practice<br />" +
 "benchmarking<sup>(3)</sup> and opportunity assessment.</li>" +
 "<li>Select <em>Scorecard</em> for overall performance scores<sup>(1)</sup> and benchmark graphs<sup>(3)</sup>." +
 "</ol>" +
-"<ul class='text-left list-unstyled' style='font-size:10px;'>" +
-"<li>(1) There must be a response for each best practice to generate a complete Scorecard.</li>" +
-"<li>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</li>" +
-"<li>(3) Benchmarking may change as more users complete assessments on the system.</li>"
+"<ol class='text-left list-unstyled' style='margin-left:27px;'>" +
+"<li><sub style='font-size:12px'>(1) There must be a response for each best practice to generate a complete Scorecard.</sub></li>" +
+"<li><sub style='font-size:12px'>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</sub></li>" +
+"<li><sub style='font-size:12px'>(3) Benchmarking may change as more users complete assessments on the system.</sub></li>" +
+"</ol>"
 }], {
         enableAnimation: false,
         showCloseBox: true,
-        showNavigation: true,
+        showNavigation: false,
         delay:-1,
         tripTheme:'black',
     });

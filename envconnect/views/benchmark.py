@@ -122,7 +122,24 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                 last_updated_at = self.assessment_sample.created_at.strftime(
                     "%b %Y")
             else:
+                # There are no assessment yet.
                 last_updated_at = "Current"
+                organization = kwargs.get('organization')
+                if organization in self.accessibles(roles=[
+                        'manager', 'contributor']):
+                    if organization != settings.APP_NAME:
+                        # /app/:organization/scorecard/:path
+                        # Only when accessing an actual scorecard and
+                        # if the request user is a manager/contributor
+                        # for the organization will we prompt to start
+                        # the assessment.
+                        context.update({'no_assessment_warning':
+                          "You need to complete an <em>Assessment</em> before"\
+                          " moving on to the <em>Scorecard</em>."})
+                else:
+                    context.update({'no_assessment_warning':
+                        "This organization has not yet started"\
+                        " their <em>Assessment</em>."})
             context.update({
                 'charts': charts,
                 'root': root,
@@ -174,25 +191,6 @@ class BenchmarkView(BenchmarkBaseView):
                     kwargs={'organization': organization, 'path': path}))
         return HttpResponseRedirect(reverse('summary_organization',
             kwargs={'organization': organization, 'path': path}))
-
-    def get(self, request, *args, **kwargs):
-        if not self.assessment_sample:
-            organization = kwargs.get('organization')
-            if organization in self.accessibles(roles=[
-                    'manager', 'contributor']):
-                if organization != settings.APP_NAME:
-                    # /app/:organization/scorecard/:path
-                    # Only when accessing an actual scorecard and
-                    # if the request user is a manager/contributor
-                    # for the organization will we prompt to start
-                    # the assessment.
-                    messages.warning(self.request,
-                        "You need to complete an assessment before"\
-                        " moving on to the scorecard.")
-            else:
-                messages.info(self.request,
-                    "This organization has not yet started their assessment.")
-        return super(BenchmarkView, self).get(request, *args, **kwargs)
 
 
 class ScoreCardView(BenchmarkView):

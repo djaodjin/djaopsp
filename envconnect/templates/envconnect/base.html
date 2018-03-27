@@ -49,17 +49,18 @@
                 </h4>
             </div>
             <div id='collapseOne' class='panel-collapse collapse'>
-                <div class='panel-body' style='margin-left: 20px'>
-                            <ol>
-                                <li>Select <i>Environmental</i> or <i>Business ethics</i> <sup style='color:#FFF633'>(1).</sup></li>
-                                <li>Click a grey or orange box to display and browse its best practices.</li>
-                                <li>Click on a practice to see if there is guidance on it <sup>(2).</sup></li>
-                                <li>Use the columns on the right of the page for guidance on practice value.<br><p style='font-size:12px'>[Mouse over each column's heading graphic to see the title. Click on the Key at the bottom of the page<br>for color key definitions.]</p></li>
-                            </ol>
-                            <sub style='font-size:12px; color:#FFF633'>(1) Skip this step and go to <i>Assessment</i> if you do not wish to browse best practice.</sub><br>
-                            <sub style='font-size:12px'>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail<br>page.</sub>
-                            <br />
-                </div>
+              <div class='panel-body' style='margin-left: 20px'>
+                <ol>
+                  <li>Select <i>Environmental</i> or <i>Business ethics</i> <sup style='color:#FFF633'>(1).</sup></li>
+                  <li>Click a grey or orange box to display and browse its best practices.</li>
+                  <li>Click on a practice to see if there is guidance on it <sup>(2).</sup></li>
+                  <li>Use the columns on the right of the page for guidance on practice value.<br />[Mouse over each column's heading graphic to see the title. Click on the Key at the bottom of the page<br>for color key definitions.]</li>
+                </ol>
+                <ol class='list-unstyled' style='margin-left:27px;'>
+                  <li><sub style='font-size:12px; color:#FFF633'>(1) Skip this step and go to <i>Assessment</i> if you do not wish to browse best practice.</sub></li>
+                  <li><sub style='font-size:12px'>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail<br />page.</sub></li>
+                </ol>
+              </div>
             </div>
         </div>
         <div class='panel'>
@@ -77,12 +78,11 @@
                         <li>Select <i>Scorecard</i> for overall performance scores<sup>(1)</sup> and benchmark graphs<sup>(3)</sup>.
                         </li>
                     </ol>
-                    <br />
-                    <span style='font-size:11px'><sup>(1)</sup> There must be a response for each best practice to generate a complete Scorecard.</span>
-                    <br />
-                    <span style='font-size:11px'><sup>(2)</sup> If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</span>
-                    <br />
-                    <span style='font-size:11px'><sup>(3)</sup> Benchmarking may change as more users complete Assessments on the system.</span>
+                    <ol class='list-unstyled' style='margin-left:27px;'>
+                        <li><sub style='font-size:12px;'>(1) There must be a response for each best practice to generate a complete Scorecard.</sub></li>
+                        <li><sub style='font-size:12px;'>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</sub></li>
+                        <li><sub style='font-size:12px;'>(3) Benchmarking may change as more users complete Assessments on the system.</sub></li>
+                    </ol>
                 </div>
             </div>
         </div>
@@ -471,6 +471,16 @@ jQuery(document).ready(function($) {
         });
     }
 {% if request|is_authenticated and not request.session.last_visited %}
+    if( $("#help-request").length > 0 ){
+        var trip = new Trip({
+            sel: $("#help-request"),
+            enableAnimation: false,
+            showCloseBox: true,
+            delay:-1,
+            tripTheme:'black',
+        });
+        trip.start();
+    }
     var sustainabilityTrip = new Trip([{
         sel: $("#submenu-sustainability"),
         position: "screen-center",
@@ -489,7 +499,10 @@ jQuery(document).ready(function($) {
             delay:-1,
             tripTheme:'black',
     });
-    $("#submenu-sustainability").click(function() {
+    $("#submenu-sustainability").click(function(event) {
+        var self = this;
+        event.preventDefault();
+        $(self).off("click");
         sustainabilityTrip.start();
     });
 {% endif %}
