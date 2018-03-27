@@ -47,16 +47,23 @@ Completed: Assessment and Planning are complete">
     <div class="panel-body">
 
 <div ng-controller="envconnectMyTSPReporting">
-  <script type="text/ng-template" id="customTemplate.html">
-    <a>
-      <span ng-bind-html="match.label | uibTypeaheadHighlight:query"></span>
-    </a>
-  </script>
-  <div class="text-right">
-    <span>Search</span> <input type="text"
+  <div class="row">
+    <div class="col-xs-6">
+      <div style="margin-top:3px;">
+      <span ng-show="items.$resolved" ng-cloak>[[items.count]] Reporting organizations</span>
+      </div>
+    </div>
+    <div class="col-xs-6 text-right">
+      <script type="text/ng-template" id="customTemplate.html">
+        <a>
+          <span ng-bind-html="match.label | uibTypeaheadHighlight:query"></span>
+        </a>
+      </script>
+      <span>Search</span> <input type="text"
                                ng-model="filterExpr"
                                ng-model-options="{ debounce: 1000 }"
                                ng-change="filterList(filterExpr)" />
+    </div>
   </div>
   <table class="table table-striped">
     <thead>

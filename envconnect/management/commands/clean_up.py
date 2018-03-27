@@ -10,7 +10,7 @@ from django.db import transaction, connection
 from django.utils import six
 from pages.models import PageElement, RelationShip
 from pages.api.relationship import PageElementMirrorAPIView
-from survey.models import Matrix, Question
+from survey.models import Matrix
 
 from ...models import Consumption
 
