@@ -471,6 +471,7 @@ jQuery(document).ready(function($) {
         });
     }
 {% if request|is_authenticated and not request.session.last_visited %}
+/* XXX temporarly disabled.
     if( $("#help-request").length > 0 ){
         var trip = new Trip({
             sel: $("#help-request"),
@@ -481,6 +482,7 @@ jQuery(document).ready(function($) {
         });
         trip.start();
     }
+*/
     var sustainabilityTrip = new Trip([{
         sel: $("#submenu-sustainability"),
         position: "screen-center",
