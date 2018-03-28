@@ -149,6 +149,7 @@
 jQuery(document).ready(function($) {
 
 {% if request|is_authenticated and no_assessment_warning %}
+/* XXX temporarly disabled
     var scorecardTrip = new Trip([{
         delay: -1,
         position: "screen-center",
@@ -161,6 +162,7 @@ jQuery(document).ready(function($) {
         tripTheme:'black',
     });
     scorecardTrip.start();
+*/
 {% endif %}
 
         $("#scorecard-tab").improvementDashboard({
