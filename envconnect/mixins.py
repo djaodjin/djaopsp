@@ -56,17 +56,18 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 
 class ContentCut(object):
     """
-    Visitor used to cut down a tree whenever BreadcrumbMixin.TAG_SYSTEM
-    is encountered.
+    Visitor used to cut down a content tree whenever TAG_SYSTEM is encountered.
     """
+    TAG_SYSTEM = 'system'
 
-    def __init__(self, depth=1):
+    def __init__(self, tag=TAG_SYSTEM, depth=1):
         self.depth = depth
+        self.match = tag
 
     def enter(self, tag):
         depth = self.depth
         self.depth = self.depth + 1
-        return not (depth > 1 and tag and BreadcrumbMixin.TAG_SYSTEM in tag)
+        return not (depth > 1 and tag and self.match in tag)
 
     def leave(self, attrs, subtrees):
         #pylint:disable=unused-argument
@@ -109,7 +110,6 @@ class TransparentCut(object):
 class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     breadcrumb_url = 'summary'
-    TAG_SYSTEM = 'system'
     report_title = 'Best Practices Report'
 
     enable_report_queries = True
@@ -323,8 +323,14 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     def _build_tree(self, root, path, cut=ContentCut()):
         # hack to remove slug that will be added.
         prefix = '/'.join(path.split('/')[:-1])
+        try:
+            # Convoluted way to pass a Node or a list of Node as arguments.
+            roots = root
+            _ = iter(roots)
+        except TypeError:
+            roots = [root]
         rollup_trees = self._cut_tree(self.build_content_tree(
-            [root], prefix=prefix, cut=cut), cut=cut)
+            roots, prefix=prefix, cut=cut), cut=cut)
         try:
             # We only have one root by definition of the function signature.
             rollup_tree = next(six.itervalues(rollup_trees))
@@ -478,25 +484,28 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             urls.update({
                 'api_improvements': reverse('api_improvement_base',
                     args=(context['organization'],)),
-                'summary': reverse('summary_organization',
-                    args=(context['organization'], path)) + active_section,
-                'benchmark': reverse('benchmark_organization',
-                    args=(context['organization'], path)) + active_section,
                 'assess': reverse('envconnect_assess_organization',
-                    args=(context['organization'], path)) + active_section,
+                    args=(context['organization'], path)),
+                'benchmark': reverse('benchmark_organization',
+                    args=(context['organization'], path)),
                 'improve': reverse('envconnect_improve_organization',
-                    args=(context['organization'], path)) + active_section
+                    args=(context['organization'], path)),
+                'summary': reverse('summary_organization',
+                    args=(context['organization'], path)),
             })
         else:
             urls.update({
-                'summary': reverse('summary', args=(path,)) + active_section,
-                'benchmark': reverse('benchmark',
-                    args=(path,)) + active_section,
-                'assess': reverse('envconnect_assess',
-                    args=(path,)) + active_section,
-                'improve': reverse('envconnect_improve',
-                    args=(path,))  + active_section
+                'assess': reverse('envconnect_assess', args=(path,)),
+                'benchmark': reverse('benchmark', args=(path,)),
+                'improve': reverse('envconnect_improve', args=(path,)),
+                'summary': reverse('summary', args=(path,)),
             })
+        if self.__class__.__name__ == 'DetailView':
+            urls.update({'context_base': urls['summary']})
+        elif self.__class__.__name__ == 'AssessmentView':
+            urls.update({'context_base': urls['assess']})
+        elif self.__class__.__name__ == 'ImprovementView':
+            urls.update({'context_base': urls['improve']})
         self.update_context_urls(context, urls)
         return context
 
@@ -739,7 +748,6 @@ class BestPracticeMixin(BreadcrumbMixin):
             return context
         context.update({
             'icon': self.icon,
-            'path': self.kwargs.get('path'),
             'best_practice': self.best_practice})
         aliases = self.best_practice.get_parent_paths()
         if len(aliases) > 1:

@@ -1,14 +1,25 @@
 {% if request|is_broker_manager and not organization %}
-    <a href="#tab-[[icon[0].slug]]"
-       class="icon-inner [[ containsTag(icon[0], 'management') ? 'grey' : 'orange' ]]"
-       {% if role %}role="{{role}}" data-toggle="{{role}}" ng-click="toggleIcons($event, '[[icon[0].slug]]')"{% endif %}>
+    <a class="icon-inner [[ containsTag(icon[0], 'management') ? 'grey' : 'orange' ]]"
+       href="[[ '{{urls.context_base}}' + icon[0].slug + '/' ]]"
+       ng-if="containsTag(icon[0], TAG_SYSTEM)">
+        <img class="icon-equipment" ng-if="icon[0].text !== ''" src="[[icon[0].text]]">
+        <div class="icon-caption">[[icon[0].title]]</div>
+    </a>
+    <a class="icon-inner [[ containsTag(icon[0], 'management') ? 'grey' : 'orange' ]]"
+       href="[['#tab-' + icon[0].slug ]]"
+       {% if role %}role="{{role}}" data-toggle="{{role}}" ng-click="toggleIcons($event, '[[icon[0].slug]]')"{% endif %}
+       ng-if="!containsTag(icon[0], TAG_SYSTEM)">
         <img class="icon-equipment" ng-if="icon[0].text !== ''" src="[[icon[0].text]]">
         <div class="icon-caption">[[icon[0].title]]</div>
     </a>
 {% else %}
-    <a href="#tab-{{icon.slug}}"
-        class="icon-inner{% if icon|containsTag:'management' %} grey{% else %} orange{% endif %}"
-        {% if role %}role="{{role}}" data-toggle="{{role}}" ng-click="toggleIcons($event, '{{icon.slug}}')"{% endif %}>
+    <a class="icon-inner{% if icon|containsTag:'management' %} grey{% else %} orange{% endif %}"
+       {% if icon|containsTag:'system' %}
+         href="{{urls.context_base}}{{icon.slug}}/"
+       {% else %}
+         href="#tab-{{icon.slug}}"
+         {% if role %}role="{{role}}" data-toggle="{{role}}" ng-click="toggleIcons($event, '{{icon.slug}}')"{% endif %}
+       {% endif %}>
         {% if icon.text %}
             <img class="icon-equipment" src="{{icon.text}}">
         {% endif %}

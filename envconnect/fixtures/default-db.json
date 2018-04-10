@@ -131,7 +131,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "tag": "{\"tags\":[\"industry\",\"metal\",\"enabled\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 1
@@ -151,6 +151,15 @@
     "dest_element": 2
   },
   "model": "pages.Relationship", "pk": 2
+},
+{
+  "fields": {
+    "title": "Metal structures & equipment",
+    "slug": "metal",
+    "tag": "{\"tags\":[\"industry\",\"enabled\",\"heading\"]}",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 3
 },
 {
   "fields": {
@@ -604,7 +613,7 @@
   "fields": {
     "title": "Construction",
     "slug": "construction",
-    "tag": "{\"tags\":[\"industry\",\"enabled\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 28
@@ -1033,7 +1042,7 @@
   "fields": {
     "title": "Professional services",
     "slug": "office-space-only",
-    "tag": "{\"tags\":[\"industry\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 52
@@ -2009,7 +2018,7 @@
   "fields": {
     "title": "Distribution",
     "slug": "distribution",
-    "tag": "{\"tags\":[\"industry\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 69
@@ -2018,7 +2027,7 @@
   "fields": {
     "title": "Diversified, corporate level",
     "slug": "diversified-corporate-level",
-    "tag": "{\"tags\":[\"industry\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 70
@@ -2027,7 +2036,7 @@
   "fields": {
     "title": "Fuel supply",
     "slug": "fuel-supply",
-    "tag": "{\"tags\":[\"industry\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 71
@@ -2036,7 +2045,7 @@
   "fields": {
     "title": "Shipping & logistics",
     "slug": "shipping-and-logistics",
-    "tag": "{\"tags\":[\"industry\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 72
@@ -2045,7 +2054,7 @@
   "fields": {
     "title": "Vehicle equipment & parts",
     "slug": "vehicle-equipment-and-parts",
-    "tag": "{\"tags\":[\"industry\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 73
@@ -2054,7 +2063,7 @@
   "fields": {
     "title": "Distribution transformers",
     "slug": "distribution-transformers",
-    "tag": "{\"tags\":[\"industry\",\"metal\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 74
@@ -2063,7 +2072,7 @@
   "fields": {
     "title": "Fabricated metals",
     "slug": "fabricated-metals",
-    "tag": "{\"tags\":[\"industry\",\"metal\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 75
@@ -2072,7 +2081,7 @@
   "fields": {
     "title": "Wire & cable",
     "slug": "wire-and-cable",
-    "tag": "{\"tags\":[\"industry\",\"metal\",\"enabled\"]}",
+    "tag": "{\"tags\":[\"industry\",\"system\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 76
@@ -2081,7 +2090,6 @@
   "fields": {
     "title": "Wire & cable",
     "slug": "sustainability-wire-and-cable",
-    "tag": "{\"tags\":[\"industry\",\"metal\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 77
@@ -2137,6 +2145,34 @@
     "dest_element": 10
   },
   "model": "pages.Relationship", "pk": 69
+},
+{
+  "fields": {
+    "orig_element": 3,
+    "dest_element": 1
+  },
+  "model": "pages.Relationship", "pk": 70
+},
+{
+  "fields": {
+    "orig_element": 3,
+    "dest_element": 74
+  },
+  "model": "pages.Relationship", "pk": 71
+},
+{
+  "fields": {
+    "orig_element": 3,
+    "dest_element": 75
+  },
+  "model": "pages.Relationship", "pk": 72
+},
+{
+  "fields": {
+    "orig_element": 3,
+    "dest_element": 76
+  },
+  "model": "pages.Relationship", "pk": 73
 },
 {
   "fields": {

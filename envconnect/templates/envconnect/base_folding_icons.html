@@ -5,23 +5,6 @@
 {{block.super}}
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-    $('a[data-toggle="tab"]').click(function (e) {
-        e.preventDefault();
-        var self = $(this);
-        $("input[type=\"range\"]").trigger("mouseup");
-        if (!$(".tab-content").hasClass("in")){
-            $(".tab-content").addClass("in");
-        }
-        if ($(self.attr("href")).hasClass("active")){
-            $(self.attr("href")).removeClass("active");
-            $(".tab-content").removeClass("in");
-            self.parents("li").removeClass("active");
-            e.stopPropagation();
-            $($(this).data("parent-li")).removeClass("active");
-        } else {
-            $($(this).data("parent-li")).addClass("active");
-        }
-    });
     if( window.location.hash !== "" ) {
         $(window.location.hash).click();
     }

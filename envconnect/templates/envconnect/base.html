@@ -157,8 +157,7 @@
                                         {% endblock %}
                                         <div class="header-tuple">
                                             {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
-                                            <ul class="nav nav-tabs squared-tabs"
-                                                >
+                                            <ul class="nav nav-tabs squared-tabs">
                                                 {% if request|is_broker_manager and not organization %}
                                                     <!-- start of Angular code for broker -->
                                                     <li data-id="[[icon[0].path]]"
@@ -195,16 +194,7 @@
                                                         </div>
                                                         <div class="system-menus" ng-if="getEntriesByTag(icon[0].path, TAG_SYSTEM).length > 0">
                                                             <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag(icon[0].path, TAG_SYSTEM)" ng-cloak>
-                                                                {% if '/assess/' in request.path %}
-                                                                    <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_assess_organization' organization path %}{% else %}{% url 'envconnect_assess' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                {% elif '/improve/' in request.path %}
-                                                                    <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_improve_organization' organization path %}{% else %}{% url 'envconnect_improve' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                {% elif '/info/' in request.path %}
-                                                                    <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'summary_organization' organization path %}{% else %}{% url 'summary' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                {% else %}
-                                                                    <p id="[[practice[0].slug]]">[[practice[0].title]]</p>
-                                                                {% endif %}
-
+                                                                <a id="[[practice[0].slug]]" href="{{urls.context_base}}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                                 <a id="incl-[[practice[0].slug]]" href=""
                                                                    ng-click="toggleScorecard(getPath(practice[0]), false, practice[0])">
                                                                    <i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i>
@@ -262,15 +252,7 @@
                                                                 </div>
                                                                 <div class="system-menus" ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length > 0">
                                                                     <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM)" ng-cloak>
-                                                                        {% if '/assess/' in request.path %}
-                                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_assess_organization' organization path %}{% else %}{% url 'envconnect_assess' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                        {% elif '/improve/' in request.path %}
-                                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'envconnect_improve_organization' organization path %}{% else %}{% url 'envconnect_improve' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                        {% elif '/info/' in request.path %}
-                                                                            <a id="[[practice[0].slug]]" href="{% if organization %}{% url 'summary_organization' organization path %}{% else %}{% url 'summary' path %}{% endif %}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                        {% else %}
-                                                                            <p id="[[practice[0].slug]]">[[practice[0].title]]</p>
-                                                                        {% endif %}
+                                                                        <a id="[[practice[0].slug]]" href="{{urls.context_base}}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                                                     </div>
                                                                 </div>
                                                             </li>
@@ -436,6 +418,7 @@ app.constant('settings', {
         api_page_elements: "{% url 'page_elements' %}",
     },
 {% endif %}
+    activeIcon: {% if active %}"{{active}}"{% else %}null{% endif %},
     entries: {% if entries %}{{entries|safe}}{% else %}{}{% endif %},
     hidden: {% if hidden %}{{hidden|safe}}{% else %}{}{% endif %},
     valueSummaryToggle: true,

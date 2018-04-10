@@ -505,5 +505,4 @@ REST_FRAMEWORK = {
 }
 
 # envconnect
-TAG_SYSTEM = 'system'
 TAG_SCORECARD = 'scorecard'

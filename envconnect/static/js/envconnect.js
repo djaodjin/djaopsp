@@ -1034,8 +1034,26 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
     };
 
-    $scope.activeIcon = null;
-    $scope.toggleIcons = function(event, iconSlug) {
+    $scope.activeIcon = settings.activeIcon;
+    $scope.toggleIcons = function($event, iconSlug) {
+        var self = angular.element($event.currentTarget);
+        angular.element("input[type=\"range\"]").trigger("mouseup");
+        var contentTabs = angular.element(".tab-content");
+        if (!contentTabs.hasClass("in")){
+            contentTabs.addClass("in");
+        }
+        var targetTab = angular.element(self.attr("href"));
+        var parentTab = angular.element(self.data("parent-li"));
+        if (targetTab.hasClass("active")){
+            targetTab.removeClass("active");
+            contentTabs.removeClass("in");
+            self.parents("li").removeClass("active");
+            $event.stopPropagation();
+            parentTab.removeClass("active");
+        } else {
+            parentTab.addClass("active");
+        }
+        // Change active tab
         if( $scope.activeIcon === iconSlug ) {
             $scope.activeIcon = null;
         } else {

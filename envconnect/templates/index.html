@@ -50,94 +50,22 @@
 						<span class="caret-icon"><i class="fa fa-caret-down"></i></span>
 					</button>
 					<ul class="dropdown-menu" role="menu" aria-labelledby="industry_selector">
-{% for industry in pre_industries %}
-						<li>
+{% for industry in industries %}
+						<li class="dropdown-menu-indent-{{industry.0}}">
 							<div>
 {% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="{{industry}}"
-{% if industry.enabled %}checked{% endif %} />
-<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
+<input type="checkbox" name="industry" value="{{industry.1.slug}}"
+{% if industry.1|containsTag:'enabled' %}checked{% endif %} />
+<a id="{{industry.1.slug}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
 {% else %}
-{% if industry.enabled %}
-<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
+{% if industry.1|containsTag:'enabled' %}
+{% if industry.1|containsTag:'heading' %}
+<button id="{{industry.1.slug}}" disabled>{{industry.1.title}}</button>
 {% else %}
-<span id="{{industry}}" class="disabled" role="menuitem" tabindex="-1">{{industry.title}} <i class="fa fa-wrench"></i></span>
+<a id="{{industry.1.slug}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
 {% endif %}
-{% endif %}
-							</div>
-						</li>
-{% endfor %}
-						<li><button disabled>Energy utility (procurement)</button>
-						<ul class="submenu">
-{% for industry in energy_industries %}
-							<li>
-								<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="{{industry}}"
-{% if industry.enabled %}checked{% endif %} />
-<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
 {% else %}
-{% if industry.enabled %}
-<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
-{% else %}
-<span id="{{industry}}" class="disabled" role="menuitem" tabindex="-1">{{industry.title}} <i class="fa fa-wrench"></i></span>
-{% endif %}
-{% endif %}
-								</div>
-							</li>
-{% endfor %}
-						</ul>
-						</li>
-{% for industry in btw_industries %}
-						<li>
-							<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="{{industry}}"
-{% if industry.enabled %}checked{% endif %} />
-<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
-{% else %}
-{% if industry.enabled %}
-<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
-{% else %}
-<span id="{{industry}}" class="disabled" role="menuitem" tabindex="-1">{{industry.title}} <i class="fa fa-wrench"></i></span>
-{% endif %}
-{% endif %}
-							</div>
-						</li>
-{% endfor %}
-						<li><button disabled>Metal structures &amp; equipment</button>
-						<ul class="submenu">
-{% for industry in metal_industries %}
-							<li>
-								<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="{{industry}}"
-{% if industry.enabled %}checked{% endif %} />
-<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
-{% else %}
-{% if industry.enabled %}
-<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
-{% else %}
-<span id="{{industry}}" class="disabled" role="menuitem" tabindex="-1">{{industry.title}} <i class="fa fa-wrench"></i></span>
-{% endif %}
-{% endif %}
-								</div>
-							</li>
-{% endfor %}
-						</ul>
-						</li>
-{% for industry in post_industries %}
-						<li>
-							<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="{{industry}}"
-{% if industry.enabled %}checked{% endif %} />
-<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
-{% else %}
-{% if industry.enabled %}
-<a id="{{industry}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry}}/" role="menuitem" tabindex="-1">{{industry.title}}</a>
-{% else %}
-<span id="{{industry}}" class="disabled" role="menuitem" tabindex="-1">{{industry.title}} <i class="fa fa-wrench"></i></span>
+<span id="{{industry.1.slug}}" class="disabled" role="menuitem" tabindex="-1">{{industry.1.title}} <i class="fa fa-wrench"></i></span>
 {% endif %}
 {% endif %}
 							</div>
