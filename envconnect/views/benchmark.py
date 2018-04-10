@@ -67,7 +67,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
                     element.slug, element.slug)
                 if Consumption.objects.filter(
                         answer__sample=self.assessment_sample,
-                        path__startswith=root_prefix).exists():
+                        path__contains=root_prefix).exists():
                     candidates += [element]
         if not candidates:
             # On user login, registration and activation,
