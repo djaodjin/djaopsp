@@ -62,7 +62,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
         candidates = []
         organization = kwargs.get('organization')
         if self.assessment_sample:
-            for element in PageElement.objects.get_roots().order_by('title'):
+            for element in PageElement.objects.filter(tag__contains='industry'):
                 root_prefix = '/%s/sustainability-%s' % (
                     element.slug, element.slug)
                 if Consumption.objects.filter(
