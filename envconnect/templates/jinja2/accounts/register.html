@@ -44,7 +44,7 @@ and anonymous</span> and displayed only in aggregated format.
 			<div class="modal-body">
 <h2>Welcome to The Sustainability Project!</h2>
 <p>
-It seems your organization, {{form.organization_name.value()}}, already has
+It seems your organization, {{form.full_name.value()}}, already has
 a profile on The Sustainability Project website. You could request access
 to the organization’s profile from one of the managers.
 </p>
@@ -61,10 +61,10 @@ to the organization’s profile from one of the managers.
                 maxlength="255" type="text" rows="10">
 Hello,
 
-I would like access to {{form.organization_name.value()}}.
+I would like access to {{form.full_name.value()}}.
 
 Thank you,
-- {{form.full_name.value()}}
+- {{form.user_full_name.value()}}
  {{form.email.value()}}
       </textarea>
     </div>

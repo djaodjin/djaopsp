@@ -12,7 +12,7 @@
     <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
     <fieldset style="margin: 0 15px;">
         <legend>Login Credentials</legend>
-        {{input_field(form['full_name'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['user_full_name'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['username'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['email'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['new_password1'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
@@ -20,23 +20,23 @@
     </fieldset>
     <fieldset style="margin: 0 15px;">
         <legend>Organization</legend>
-        <div class="form-group{% if form.organization_name.errors %} has-error{% endif %}">
+        <div class="form-group{% if form.full_name.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
             <label class="col-sm-5 control-label requiredField">Organization name<span class="asteriskField"><a id="organization-tooltip" style="color:inherit;" href="" rel="tooltip" data-toggle="tooltip" data-placement="bottom" title="The &quot;Organization&quot; or reporting entity should align with the ability to influence and/or control policies and practices related to environmental impacts and improvement opportunities."> <i class="fa fa-question-circle" style="color: #e11"></i></a></span></label>
             {% endif %}
             <div class="col-sm-7 controls">
-                <input class="form-control" type="text" name="organization_name"{% if form.organization_name.value() %} value="{{form.organization_name.value()}}"{% endif %} style="float:right;">
-                {% for error in form.organization_name.errors %}
+                <input class="form-control" type="text" name="full_name"{% if form.full_name.value() %} value="{{form.full_name.value()}}"{% endif %} style="float:right;">
+                {% for error in form.full_name.errors %}
                 <span class="help-block"><strong>{{error}}</strong></span>
                 {% endfor %}
-                {% if form.organization_name.help_text %}
-                <span class="help-block">{{form.organization_name.help_text}}</span>
+                {% if form.full_name.help_text %}
+                <span class="help-block">{{form.full_name.help_text}}</span>
                 {% endif %}
             </div>
         </div>
         <div class="form-group{% if form.function.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
-            <label class="col-sm-5 control-label{% if form.function.field.required %} requiredField{% endif %}">{{ form.function.label|safe }}{% if form.function.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
+            <label class="col-sm-5 control-label{% if form.function.field.required %} requiredField{% endif %}">{{form.function.label|safe}}{% if form.function.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
             {% endif %}
             <div class="col-sm-7 controls">
                 <select class="form-control" name="{{form.function.name}}">

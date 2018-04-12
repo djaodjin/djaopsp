@@ -163,7 +163,7 @@
 { "fields": {
     "slug": "envconnect",
     "account": 6,
-    "forward_session": 1,
+    "session_backend": 1,
     "registration": 2,
     "entry_point": "http://localhost:8040"
   },
