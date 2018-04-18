@@ -378,6 +378,10 @@ class ImprovementPDFView(ImprovementOnlyMixin, ListView):
             return
         consumption = root[0].get('consumption', None)
         if consumption:
+            breadcrumbs = root[0].get('breadcrumbs', None)
+            if breadcrumbs:
+                breadcrumbs.pop()
+                consumption.update({'breadcrumbs': breadcrumbs})
             self.report_items += [consumption]
         else:
             for _, nodes in six.iteritems(root[1]):
@@ -385,7 +389,7 @@ class ImprovementPDFView(ImprovementOnlyMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         root = self._improvements_only()
-
+        self.decorate_with_breadcrumbs(root)
         self.report_items = []
         self.write_tree(root)
         self.object_list = self.report_items
