@@ -1,0 +1,21 @@
+<td id="[[practice[0].slug]]">
+    {% include "envconnect/_detail_row_basic.html" %}
+    <a ng-if="practice[0].consumption && practice[0].consumption.requires_measurements" href="" data-toggle="modal" data-target="#report-measurements" title="Got data to report? Click here." style="float:right;"><i class="fa fa-line-chart" style="color: #C5C5C5"></i></a>
+</td>
+{% for choice in choices %}
+<td class="text-center cell-fix-width-5">
+    <button ng-if="!(practice[0].consumption)"
+            class="btn btn-select-all" href=""
+            ng-click="selectAll($event, '{{choice}}')"><i class="fa fa-circle"></i></button>
+    <label ng-if="practice[0].consumption"
+           for="{{choice|slugify}}-[[$index]]"
+           style="margin-bottom:0">
+    <input id="{{choice|slugify}}-[[$index]]" type="radio"
+           value="{{choice}}"
+           name="implemented-[[practice[0].consumption.rank]]"
+           ng-checked="practice[0].consumption.implemented === '{{choice}}'"
+           ng-change="updateAssessmentAnswer(practice[0], '{{choice}}')"
+           ng-model="practice[0].consumption.implemented" />
+    </label>
+</td>
+{% endfor %}
