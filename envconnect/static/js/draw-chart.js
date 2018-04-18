@@ -59,12 +59,11 @@
                 return false;
             }
 
-            var dist = self.options.scores.y;
-            dist.unshift(self.options.title);
-            var yourRateClass = (parseInt(self.options.scores.organization_rate) < 50) ?
+            var dist = [self.options.title].concat(self.options.scores.y);
+            var yourRateClass = (parseInt(
+                self.options.scores.organization_rate) < 50) ?
                 "below-average" : "above-average";
-            var xValues = self.options.scores.x;
-            xValues.unshift("x");
+            var xValues = ["x"].concat(self.options.scores.x);
             var chart = c3.generate({
                 transition: {
                     duration: this.options.duration,
