@@ -29,7 +29,8 @@ class IndexView(BreadcrumbMixin, TemplateView):
         context = super(IndexView, self).get_context_data(**kwargs)
         cut = ContentCut(depth=2)
         menus = []
-        for root in self.get_roots().order_by('title'):
+        for root in self.get_roots().exclude(
+                tag__contains='energy').order_by('title'):
             if not cut.enter(root.tag):
                 menus += [(0, root)]
             else:
