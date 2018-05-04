@@ -117,12 +117,16 @@ class ImprovementSpreadsheetView(ImprovementOnlyMixin, ListView):
             return
         element = root[0].get('consumption', None)
         if element:
+            # Use account contextual opportunity instead of base opportunity
+            # in `element['opportunity']`
+            opportunity = root[0].get('accounts', {}).get(
+                self.account.pk, {}).get('opportunity_numerator')
             # We reached a leaf
             self.writerow([
                 indent + element['title'],
                 element['rate'] / 100.0,
                 element['implemented'],
-                element['opportunity'],
+                "%.2f" % opportunity,
                 element['environmental_value'],
                 element['business_value'],
                 element['implementation_ease'],
