@@ -202,3 +202,55 @@ See the following for examples of content developed for best practices:
     {% endfor %}
 </div>
 {% endblock %}
+
+{% block supplier_menus_scripts %}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    var tripElements = [
+{% if request|is_authenticated and not request.session.last_visited %}
+        {
+            sel: $("#help-request"),
+            content: $("#help-request").data("trip-content"),
+            position: "screen-center",
+            enableAnimation: false,
+            delay:-1,
+            tripTheme: "black",
+            showNavigation: true,
+            canGoPrev: false,
+            prevLabel: " ",
+            nextLabel: "OK",
+            skipLabel: " ",
+            finishLabel: "OK",
+        },
+{% endif %}
+{% if request|is_authenticated and not request.session.last_visited or request.session.last_visited == 'app' %}
+        {
+            sel: $("#submenu-sustainability"),
+            content: "<ol class='text-left'>" +
+"<li>Click each grey or orange box to display and browse its best practices<sup>(1)</sup>.</li>" +
+"<li>Click on a practice to see if there is more detailed guidance on it<sup>(2)</sup>.</li>" +
+"<li>Use the columns on the right of the page for guidance on practice value. [Mouse<br /> over each column's heading graphic to see the title. Click on the key at the bottom of the page for color key definitions.]</li>" +
+"</ol>" +
+"<ul class='text-left list-unstyled' style='font-size:10px;'>" +
+"<li>(1) You can skip this step and go straight to <em>Assessment</em> if you do not wish to browse practices.</li>" +
+"<li>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</li>",
+            position: "screen-center",
+            enableAnimation: false,
+            delay:-1,
+            tripTheme: "black",
+            showNavigation: true,
+            canGoPrev: false,
+            prevLabel: " ",
+            nextLabel: "OK",
+            skipLabel: " ",
+            finishLabel: "OK",
+        }
+{% endif %}
+    ];
+    if( tripElements.length > 0  ) {
+        var trip = new Trip(tripElements);
+        trip.start();
+    }
+});
+</script>
+{% endblock %}

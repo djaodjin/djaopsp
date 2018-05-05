@@ -229,9 +229,9 @@
 { "fields": {
     "app": 6,
     "rank": 7,
-    "path": "/app/info/",
+    "path": "/app/info/:industry/",
     "rule_op": 1,
-    "engaged": "app"
+    "engaged": "app,info"
   },
   "model": "rules.Rule", "pk": 7
 },
@@ -248,52 +248,81 @@
     "rank": 9,
     "path": "/app/:organization/scorecard/",
     "rule_op": 6,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": [\"viewer\", \"contributor\"]}",
-    "engaged": "app"
+    "kwargs": "{\"organization\": \"\", \"roledescription\": [\"viewer\", \"contributor\"]}"
   },
   "model": "rules.Rule", "pk": 9
 },
 { "fields": {
     "app": 6,
     "rank": 10,
-    "path": "/app/:organization/assess/",
+    "path": "/app/:organization/info/:industry/",
     "rule_op": 3,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
-    "engaged": "assessment"
+    "engaged": "app,info"
   },
   "model": "rules.Rule", "pk": 10
 },
 { "fields": {
     "app": 6,
     "rank": 11,
-    "path": "/app/:organization/",
+    "path": "/app/:organization/improve/:industry/",
     "rule_op": 3,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
+    "engaged": "app"
   },
   "model": "rules.Rule", "pk": 11
 },
 { "fields": {
     "app": 6,
     "rank": 12,
-    "path": "/app/",
-    "rule_op": 1
+    "path": "/app/:organization/benchmark/:industry/",
+    "rule_op": 3,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
+    "engaged": "app"
   },
   "model": "rules.Rule", "pk": 12
 },
 { "fields": {
     "app": 6,
     "rank": 13,
-    "path": "/docs/",
-    "rule_op": 0,
-    "is_forward": false
+    "path": "/app/:organization/assess/:industry/",
+    "rule_op": 3,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
+    "engaged": "app,assess"
   },
   "model": "rules.Rule", "pk": 13
 },
 { "fields": {
     "app": 6,
     "rank": 14,
+    "path": "/app/:organization/",
+    "rule_op": 3,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
+  },
+  "model": "rules.Rule", "pk": 14
+},
+{ "fields": {
+    "app": 6,
+    "rank": 15,
+    "path": "/app/",
+    "rule_op": 1
+  },
+  "model": "rules.Rule", "pk": 15
+},
+{ "fields": {
+    "app": 6,
+    "rank": 16,
+    "path": "/docs/",
+    "rule_op": 0,
+    "is_forward": false
+  },
+  "model": "rules.Rule", "pk": 16
+},
+{ "fields": {
+    "app": 6,
+    "rank": 17,
     "path": "/",
     "rule_op": 0
   },
-  "model": "rules.Rule", "pk": 14
+  "model": "rules.Rule", "pk": 17
 }]

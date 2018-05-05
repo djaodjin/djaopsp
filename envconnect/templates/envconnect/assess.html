@@ -225,16 +225,30 @@ Data entry, trending, reporting and dashboard creation is under construction.
 </div>
 {% endblock %}
 
-{% block bodyscripts %}
-{{block.super}}
+{% block supplier_menus_scripts %}
 <script type="text/javascript">
 jQuery(document).ready(function($) {
+    var tripElements = [
 {% if request|is_authenticated and not request.session.last_visited %}
-/* XXX temporarly disabled
-    var assessmentTrip = new Trip([{
-        delay: -1,
-        position: "screen-center",
-        content: "<ol class='text-left'>" +
+        {
+            sel: $("#help-request"),
+            content: $("#help-request").data("trip-content"),
+            position: "screen-center",
+            enableAnimation: false,
+            delay:-1,
+            tripTheme: "black",
+            showNavigation: true,
+            canGoPrev: false,
+            prevLabel: " ",
+            nextLabel: "OK",
+            skipLabel: " ",
+            finishLabel: "OK",
+        },
+{% endif %}
+{% if request|is_authenticated and not request.session.last_visited or request.session.last_visited == 'app' %}
+        {
+            sel: $("#submenu-self-assessment"),
+            content: "<ol class='text-left'>" +
 "<li>Click each grey or orange box and complete a response for all best practices<br />" +
 "listed<sup>(1)</sup>. [<strong style='color:#FFF633'>Responses must be accurate and verifiable</strong>, so mouse over each column heading to clearly<br />" +
 "understand response choices. Also click a best practice for guidance<sup>(2)</sup> on what should be in place to<br />" +
@@ -247,17 +261,25 @@ jQuery(document).ready(function($) {
 "<li><sub style='font-size:12px'>(1) There must be a response for each best practice to generate a complete Scorecard.</sub></li>" +
 "<li><sub style='font-size:12px'>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</sub></li>" +
 "<li><sub style='font-size:12px'>(3) Benchmarking may change as more users complete assessments on the system.</sub></li>" +
-"</ol>"
-}], {
-        enableAnimation: false,
-        showCloseBox: true,
-        showNavigation: false,
-        delay:-1,
-        tripTheme:'black',
-    });
-    assessmentTrip.start();
-*/
+"</ol>",
+            position: "screen-center",
+            enableAnimation: false,
+            delay:-1,
+            tripTheme: "black",
+            showNavigation: true,
+            canGoPrev: false,
+            prevLabel: " ",
+            nextLabel: "OK",
+            skipLabel: " ",
+            finishLabel: "OK",
+        }
 {% endif %}
+    ];
+    if( tripElements.length > 0  ) {
+        var trip = new Trip(tripElements);
+        trip.start();
+    }
+
 {% if sample.is_frozen %}
     $("#new-assessment").modal("show");
 {% endif %}

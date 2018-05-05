@@ -358,9 +358,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        break;
 
 	      case TripConstant.SPACE:
+	      case TripConstant.ENTER:
 	        // space will make the page jump
 	        e.preventDefault();
-	        this.pause();
+	        this.next();
 	        break;
 
 	      case TripConstant.LEFT_ARROW:
@@ -1258,7 +1259,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          that.stop();
 	        });
 	      }
-
+//XXX tripskip
 	      var $skipButton = $tripBlock.find('.trip-skip');
 	      if ($skipButton) {
 	        $skipButton.off('click.Trip');
@@ -1705,8 +1706,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    '<div class="trip-progress-steps"></div>',
 	    '<div class="trip-navigation">',
 	      '<a href="#" class="trip-prev"></a>',
-	      '<a href="#" class="trip-skip"></a>',
 	      '<a href="#" class="trip-next"></a>',
+	      '<a href="#" class="trip-skip"></a>',
 	    '</div>',
 	    '<div class="trip-progress-bar"></div>',
 	  '</div>'
@@ -1744,6 +1745,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  DOWN_ARROW: 40,
 	  ESC: 27,
 	  SPACE: 32,
+	  ENTER: 13,
 	  TRIP_BLOCK_OFFSET_VERTICAL: 10,
 	  TRIP_BLOCK_OFFSET_HORIZONTAL: 10,
 	  RESIZE_TIMEOUT: 200

@@ -2090,6 +2090,7 @@
   "fields": {
     "title": "Wire & cable",
     "slug": "sustainability-wire-and-cable",
+    "tag": "{\"tags\":[\"scorecard\",\"legend-2\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 77

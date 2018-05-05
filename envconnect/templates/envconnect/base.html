@@ -8,106 +8,8 @@
         <div ng-controller="EnvconnectCtrl">
             <div class="question-mark"
                  style="float: right; padding-right: 25px;">
-                <a id="help-request" style="cursor:pointer; color: #FFFFFF;"
-                   data-trip data-trip-delay="-1"
-                   data-trip-index="1"
-                   data-trip-navigation="0"
-                   data-trip-position="screen-center" data-trip-content="
-                <div class='text-left start-here'>
-                <p>What each menu function lets you do:</p>
-                <ul>
-                    <style type='text/css'>
-    .bs-example{
-        margin: 20px;
-    }
-    .panel-title .glyphicon{
-        font-size: 14px;
-    }
-    .panel {
-  background:none;
-    }
-</style>
-<script>
-    $(document).ready(function(){
-        $('.collapse.in').each(function(){
-            $(this).siblings('.pedit').find('.glyphicon').addClass('glyphicon-minus').removeClass('glyphicon-plus');
-        });
-        $('.collapse').on('show.bs.collapse', function(){
-            $(this).parent().find('.glyphicon').removeClass('glyphicon-plus').addClass('glyphicon-minus');
-        }).on('hide.bs.collapse', function(){
-            $(this).parent().find('.glyphicon').removeClass('glyphicon-minus').addClass('glyphicon-plus');
-        });
-    });
-</script>
-<div>
-    <div class='bs-expand'>
-    <div class='panel-group' id='accordion' style='color: #FFFFFF'>
-        <div class='panel'>
-            <div class='pedit'>
-                <h4 class='panel-title'><strong>Learn.</strong> Best practices and their value.
-                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseOne'><span style='color:#33B8FF' class='glyphicon glyphicon-plus'></span></a>
-                </h4>
-            </div>
-            <div id='collapseOne' class='panel-collapse collapse'>
-              <div class='panel-body' style='margin-left: 20px'>
-                <ol>
-                  <li>Select <i>Environmental</i> or <i>Business ethics</i> <sup style='color:#FFF633'>(1).</sup></li>
-                  <li>Click a grey or orange box to display and browse its best practices.</li>
-                  <li>Click on a practice to see if there is guidance on it <sup>(2).</sup></li>
-                  <li>Use the columns on the right of the page for guidance on practice value.<br />[Mouse over each column's heading graphic to see the title. Click on the Key at the bottom of the page<br>for color key definitions.]</li>
-                </ol>
-                <ol class='list-unstyled' style='margin-left:27px;'>
-                  <li><sub style='font-size:12px; color:#FFF633'>(1) Skip this step and go to <i>Assessment</i> if you do not wish to browse best practice.</sub></li>
-                  <li><sub style='font-size:12px'>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail<br />page.</sub></li>
-                </ol>
-              </div>
-            </div>
-        </div>
-        <div class='panel'>
-            <div class='pedit'>
-                <h4 class='panel-title'><strong>Measure.</strong> Assess maturity in best practices, benchmark with peers, <br> get a scorecard and benchmark report.
-                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseTwo'><span style='color:#33B8FF' class='glyphicon glyphicon-plus'></span></a>
-                </h4>
-            </div>
-            <div id='collapseTwo' class='panel-collapse collapse'>
-                <div class='panel-body' style='margin-left: 35px'>
-                    <ol>
-                        <li>Click each grey or orange box and complete a response for all best practices<br /> listed <sup>(1).</sup> [<span style='color:#FFFF00;'>Responses must be accurate and verifiable</span>, so mouse over each column heading<br />to clearly understand response choices. Also click a best practice for guidance <sup>(2)</sup> on what<br />should be in place to respond “Yes”].</li>
-                        <li>Click the “Results” button (bottom of page) to display per-practice<br>benchmarking<sup>(3)</sup> and opportunity assessment.
-                        </li>
-                        <li>Select <i>Scorecard</i> for overall performance scores<sup>(1)</sup> and benchmark graphs<sup>(3)</sup>.
-                        </li>
-                    </ol>
-                    <ol class='list-unstyled' style='margin-left:27px;'>
-                        <li><sub style='font-size:12px;'>(1) There must be a response for each best practice to generate a complete Scorecard.</sub></li>
-                        <li><sub style='font-size:12px;'>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</sub></li>
-                        <li><sub style='font-size:12px;'>(3) Benchmarking may change as more users complete Assessments on the system.</sub></li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-        <div class='panel'>
-            <div class='pedit'>
-                <h4 class='panel-title'><strong>Improve.</strong> Select highest value improvements, and see impact on scores.
-                    <a data-toggle='collapse' data-parent='#accordion' href='#collapseThree'><span style='color:#33B8FF' class='glyphicon glyphicon-plus'></span></a>
-                </h4>
-            </div>
-            <div id='collapseThree' class='panel-collapse collapse'>
-                <div class='panel-body' style='margin-left: 35px'>
-                    <ol>
-                            <li>Select <i>Planning</i>.</li>
-                            <li>Click the <i>Planning dashboard</i> (orange button at bottom of page).</li>
-                            <li>Click each grey and orange box to display the improvement opportunities.</li>
-                            <li>Select the best practices you plan address over the next year or so from the <br><i>Select for Improvement Plan column.</i></br></li>
-                            <li>Click <i>Complete</i> once you’ve selected all improvement items you plan to tackle.</li>
-                        </ol>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-                </div">
-                <i class="fa fa-question-circle fa-3x" aria-hidden="true"></i></a>
+                {% block help_menus %}
+                {% endblock %}
             </div> <!-- .question-mark -->
             <ol class="col-md-9 breadcrumb env-breadcrumb">
                 <li><a href="{% url 'homepage' %}">Home</a></li>
@@ -119,160 +21,8 @@
             </ol>
             <div class="container-fluid">
                 {% block supplier_menus %}
-                <div class="row">
-                    <div id="learn-action-header">
-                        <div class="col-md-offset-2 col-md-3">
-                            <h2>Learn <i class="fa fa-angle-right"></i></h2>
-                            <ul class="nav">
-                                <li{% if '/info/' in request.path %} class="active"{% endif %}><a id="submenu-sustainability" href="{{urls.summary}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><i class="fa-li fa{% if '/info/' in request.path %} fa-hand-o-right{% endif %}"></i> Environmental practices</a></li>
-                                <li{% if '/#/' in request.path %} class="active"{% endif %}><button id="submenu-ethics" disabled style="font-style:italic;"> Ethical business practices <i class="fa fa-wrench" aria-hidden="true"></i></button></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-3">
-                            <h2>Measure <i class="fa fa-angle-right"></i></h2>
-                            <ul class="nav">
-                                <li{% if '/assess/' in request.path %} class="active"{% endif %}><a id="submenu-self-assessment" href="{% if request|is_broker_manager %}{% url 'envconnect_assess_organization_download' 'envconnect' breadcrumbs|category_entry %}{% else %}{{urls.assess}}[[activeIcon !== null ? '?active=' + activeIcon : '']]{% endif %}"><i class="fa-li fa{% if '/assess/' in request.path %} fa-hand-o-right{% endif %}"></i> Assessment</a></li>
-                                <li{% if '/benchmark/' in request.path %} class="active"{% endif %}><a id="submenu-benchmark"{% if request|is_broker_manager %} disabled{% endif %} href="{% url 'benchmark' breadcrumbs|category_entry %}"><i class="fa-li fa{% if '/benchmark/' in request.path %} fa-hand-o-right{% endif %}"></i> Scorecard</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-3">
-                            <h2>Improve <i class="fa fa-angle-right"></i></h2>
-                            <ul class="nav">
-                                <li{% if '/improve/' in request.path %} class="active"{% endif %}><a id="submenu-improve"{% if request|is_broker_manager %} class="disabled"{% else %} href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"{% endif %}><i class="fa-li fa{% if '/improve/' in request.path %} fa-hand-o-right{% endif %}"></i> Planning</a></li>
-                                <li{% if '/suppliers/' in request.path %} class="active"{% endif %}><button id="submenu-suppliers" disabled style="font-style:italic;">Find suppliers <i class="fa fa-wrench"></i></button></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="clearfix"></div>
                 {% endblock supplier_menus %}
                 {% block consumption_content %}
-                <div id="panel-icons" class="panel-icons panel-icons-no-benchmark">
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-12 text-center" style="display:table-row;">
-                                <div class="row-icons">
-                                    <div style="display:inline-block;float:left;flex:auto;">
-                                        {% block icon_row_title %}
-                                        {% endblock %}
-                                        <div class="header-tuple">
-                                            {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
-                                            <ul class="nav nav-tabs squared-tabs">
-                                                {% if request|is_broker_manager and not organization %}
-                                                    <!-- start of Angular code for broker -->
-                                                    <li data-id="[[icon[0].path]]"
-                                                        ng-repeat="icon in getEntries('{{ icon_prefix }}', 1)"
-                                                        data-drag="true"
-                                                        jqyoui-draggable="{animate:true}"
-                                                        data-jqyoui-options="{revert: 'invalid'}"
-                                                        data-drop="true"
-                                                        jqyoui-droppable="{onDrop: 'sortIcons()'}"
-                                                        class="squared-tabs-li [[ containsTag(icon[0], 'management') ? 'bordered-right' : '' ]]">
-                                                        <div class="icon-container">
-                                                            <div style="position:relative; vertical-align:top;">
-                                                                <a class="text-danger delete"
-                                                                   href="" data-toggle="modal" data-target="#confirm-delete"
-                                                                   ng-click="setActiveElement({ slug: icon[0].slug, title: icon[0].title, tag: icon[0].tag, path: icon[0].path }, true)"
-                                                                   style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i>
-                                                                </a>
-                                                                <a id="incl-[[icon[0].slug]]" href=""
-                                                                   ng-click="toggleScorecard(icon[0].path, true, { slug: icon[0].slug, tag: icon[0].tag })"
-                                                                   style="position:absolute;top:20px;left:0px;"><i class="fa [[containsTag({ tag: icon[0].tag }, TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i>
-                                                                </a>
-                                                                <a class="edit"
-                                                                   href="" data-toggle="modal" data-target="#edit-element-modal"
-                                                                   ng-click="setActiveElement({ slug: icon[0].slug, title: icon[0].title, tag: icon[0].tag, path: icon[0].path }, true)"
-                                                                   style="position:absolute;top:40px;left:0px;"><i class="fa fa-edit"></i>
-                                                                </a>
-                                                            </div>
-                                                            {% include "envconnect/_icon.html" with icon=icon %}
-                                                            <div id="[[icon[0].slug]]-score" class="icon-score">
-                                                                <div>
-                                                                    (<span class="rollup-weight" data-id="[[icon[0].path]]" data-key="weight" ng-click="editScoreWeight($event)" ng-cloak>[[icon[0].score_percentage ? ("" + icon[0].score_percentage + "%") : icon[0].score_weight]]</span>)
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="system-menus" ng-if="getEntriesByTag(icon[0].path, TAG_SYSTEM).length > 0">
-                                                            <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag(icon[0].path, TAG_SYSTEM)" ng-cloak>
-                                                                <a id="[[practice[0].slug]]" href="{{urls.context_base}}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                <a id="incl-[[practice[0].slug]]" href=""
-                                                                   ng-click="toggleScorecard(getPath(practice[0]), false, practice[0])">
-                                                                   <i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i>
-                                                                </a>
-                                                                <a class="edit"
-                                                                   href="" data-toggle="modal" data-target="#edit-element-modal"
-                                                                   ng-click="setActiveElement(practice[0])">
-                                                                   <i class="fa fa-edit"></i>
-                                                                </a>
-                                                                <a class="text-danger delete" href=""
-                                                                   data-toggle="modal" data-target="#confirm-delete"
-                                                                   ng-click="setActiveElement(practice[0])">
-                                                                   <i class="fa fa-trash-o"></i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        <div class="system-add">
-                                                            <button
-                                                                aria-controls="home"
-                                                                data-toggle="modal"
-
-                                                                data-target="#add-element-modal" ng-click="setNewElement(icon[0].path, HEADING_ELEMENT, TAG_SYSTEM)">
-                                                                <i class="fa fa-plus"></i>
-                                                            </button>
-                                                        </div>
-                                                    </li>
-
-                                                    <li class="squared-tabs-li" style="min-width:150px;">
-                                                      <div class="icon-container">
-                                                        <button class="icon-inner fixed-width orange"
-                                                                aria-controls="home"
-                                                                data-toggle="modal"
-
-                                                                data-target="#add-element-modal" ng-click="setNewElement(icon[0].path, HEADING_ELEMENT, TAG_SCORECARD, true)">
-
-                                                            <i class="fa fa-plus fa-5x" style="color:white;"></i>
-                                                        </button>
-                                                      </div>
-                                                    </li>
-
-                                                    <!-- end of Angular code for broker -->
-                                                {% else %}
-                                                    <!-- start of Django template code for non-broker -->
-                                                    {% for abs_prefix, icon_tuple in root.1|iteritems %}
-                                                        {% with icon_tuple.0 as icon %}
-                                                            {% with forloop.first as draw_border %}
-                                                            <li id="{{icon.slug}}" class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% block extra_icon_classes %}{% endblock %}{% if icon.slug == active %} active{% endif %}">
-                                                                <div class="icon-container">
-                                                                    {% include "envconnect/_icon.html" with icon=icon %}
-                                                                    <div id="{{icon.slug}}-score" class="icon-score">
-                                                                        <div>
-                                                                            (<span class="rollup-weight">{% if icon.score_percentage %}{{icon.score_percentage}}%{% else %}{{icon.score_weight}}{% endif %}</span>)
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="system-menus" ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length > 0">
-                                                                    <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM)" ng-cloak>
-                                                                        <a id="[[practice[0].slug]]" href="{{urls.context_base}}[[practice[0].slug]]/">[[practice[0].title]]</a>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                            {% endwith %}
-                                                        {% endwith %}
-                                                    {% endfor %}
-                                                    <!-- start of Django template code for non-broker -->
-                                                    <!-- toggles nav icons for broker -->
-                                                {% endif %}
-                                            </ul>
-                                            {% endwith %}
-                                        </div> <!-- .header-tuple -->
-                                    </div>
-                                </div> <!-- .row-icons -->
-                            </div> <!-- .col-md-12 -->
-                        </div> <!-- .row -->
-                        {% block icons_content %}
-                        {% endblock %}
-                    </div> <!-- .panel-body -->
-                </div> <!-- .panel-icons -->
                 {% endblock consumption_content %}
                 <div class="row">
                     <div class="col-md-offset-3 col-md-6 content-sponsors">
@@ -282,90 +32,6 @@ Please <a href="{{'sponsors/'|site_prefixed}}">click here</a> to see a list of
 contributors responsible for providing information, time and/or funding
 to develop content on this website.
                         </p>
-                    </div>
-                </div>
-            </div>
-            <!-- modals -->
-            <div id="add-element-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addElement" style="color: #000;">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="addElement">Add Content ...</h4>
-                        </div>
-                        <form>
-                            <div class="modal-body">
-                                <script type="text/ng-template" id="customTemplate.html">
-                                    <a>
-                                        <span ng-bind-html="match.title | uibTypeaheadHighlight:query"></span>
-                                    </a>
-                                </script>
-                                <div class="form-group">
-                                    <label>Title</label>
-                                    <input class="form-control search-page-element" style="width:100%;" name="title" type="text" placeholder="[[newElement.elementTypeModal]] title"
-                                       autocomplete="off"
-                                       ng-model="newElement.value"
-                                       uib-typeahead="candidate as candidate.title for candidate in getBestPracticeCandidates($viewValue)"
-                                       uib-typeahead-loading="loadingBestpractices"
-                                       uib-typeahead-template-url="customTemplate.html" />
-                                </div>
-                                <div class="form-group" ng-if="newElement.elementTypeModal != BEST_PRACTICE_ELEMENT">
-                                    <label>Optional tag</label>
-                                    <select ng-model="newElement.value.tag"
-                                            class="form-control" name="tag">
-                                        <option value="">None</option>
-                                        <option value="management">Management</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <div class="input-group-btn">
-<button class="btn btn-primary add-element" type="submit" value="submit" ng-click="addElement($event)"><i class="fa fa-plus"></i> Add</button>
-<button class="btn btn-primary" type="submit" value="mirror" ng-click="mirrorElement($event)"><i class="fa fa-arrow-right"></i> Mirror</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div id="edit-element-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="edit element" style="color: #000;">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Edit ...</h4>
-                        </div>
-                        <form class="form-inline" ng-submit="editElement($event)">
-                            <div class="modal-body">
-                                <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title" ng-model="activeElement.value.title">
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-warning" type="submit">Save</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div id="confirm-delete" class="modal fade"
-                 tabindex="-1" role="dialog"
-                 aria-labelledby="ConfirmDelete" aria-hidden="true"
-                 style="color: #000;">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Delete ...</h4>
-                        </div>
-                        <div class="modal-body">
-Please confirm you want to delete '[[activeElement.value.title]]'.
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary"
-                                    data-dismiss="modal">Cancel</button>
-                            <a id="delete-action-btn"
-                               class="btn btn-danger btn-ok delete" data-dismiss="modal"
-                               ng-click="deleteBestPractice()">Delete</a>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -443,56 +109,22 @@ jQuery(document).ready(function($) {
 
     if ($('[data-trip]').length > 0){
         $("#help-request").parent().show();
-        $("#help-request").click(function(){
+        $("#help-request").click(function(event){
+            event.preventDefault();
             var trip = new Trip({
                 enableAnimation: false,
-                showCloseBox: true,
-                delay:10000,
-                tripTheme:'black',
+                delay:-1,
+                tripTheme: "black",
+                showNavigation: true,
+                canGoPrev: false,
+                prevLabel: " ",
+                nextLabel: "OK",
+                skipLabel: " ",
+                finishLabel: "OK",
             });
             trip.start();
         });
     }
-{% if request|is_authenticated and not request.session.last_visited %}
-/* XXX temporarly disabled.
-    if( $("#help-request").length > 0 ){
-        var trip = new Trip({
-            sel: $("#help-request"),
-            enableAnimation: false,
-            showCloseBox: true,
-            delay:-1,
-            tripTheme:'black',
-        });
-        trip.start();
-    }
-*/
-/* XXX temporarly disabled.
-    var sustainabilityTrip = new Trip([{
-        sel: $("#submenu-sustainability"),
-        position: "screen-center",
-        content: "<ol class='text-left'>" +
-"<li>Click each grey or orange box to display and browse its best practices<sup>(1)</sup>.</li>" +
-"<li>Click on a practice to see if there is more detailed guidance on it<sup>(2)</sup>.</li>" +
-"<li>Use the columns on the right of the page for guidance on practice value. [Mouse<br /> over each column's heading graphic to see the title. Click on the key at the bottom of the page for color key definitions.]</li>" +
-"</ol>" +
-"<ul class='text-left list-unstyled' style='font-size:10px;'>" +
-"<li>(1) You can skip this step and go straight to <em>Assessment</em> if you do not wish to browse practices.</li>" +
-"<li>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</li>"
-        },
-        ], {
-            enableAnimation: false,
-            showCloseBox: true,
-            delay:-1,
-            tripTheme:'black',
-    });
-    $("#submenu-sustainability").click(function(event) {
-        var self = this;
-        event.preventDefault();
-        $(self).off("click");
-        sustainabilityTrip.start();
-    });
-*/
-{% endif %}
 });
 </script>
 {% endblock %}

@@ -1088,17 +1088,19 @@
   .trip-block .trip-next,
   .trip-block .trip-skip {
     padding: 5px 10px; }
-  .trip-block .trip-prev,
-  .trip-block .trip-next {
+ .trip-block .trip-prev {
     -webkit-flex: 1;
     flex: 1; }
-    .trip-block .trip-prev.disabled,
+  .trip-block .trip-next {
+    -webkit-flex: 2;
+    flex: 2; }
+  .trip-block .trip-skip {
+    -webkit-flex: 1;
+    flex: 1; }
+   .trip-block .trip-prev.disabled,
     .trip-block .trip-next.disabled {
       color: grey;
       pointer-events: none; }
-  .trip-block .trip-skip {
-    -webkit-flex: 2;
-    flex: 2; }
   .trip-block .trip-progress-bar {
     height: 1px;
     background-color: #444;
