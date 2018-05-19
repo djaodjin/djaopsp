@@ -378,6 +378,10 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         has an empty tag attribute, it will be set to the value of the
         first parent's tag which is meaningful.
         """
+        if not rollup_tree:
+            # `rollup_tree` will be `None` when a user attempts to print
+            # an empty list of improvement.
+            return
         title = rollup_tree[0].get('title', "")
         if isinstance(breadcrumbs, list) and title:
             breadcrumbs.append(title)

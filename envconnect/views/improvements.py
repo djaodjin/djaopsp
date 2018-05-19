@@ -288,21 +288,22 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         self.wsheet.merge_cells('D2:D3')
 
         # Create "Impact of Improvement Plan" worksheet.
-        wsheet = self.wbook.create_sheet(title="Impact of Improvement Plan")
-        # XXX get data from actual score.
-        chart = {
-            'slug': 'totals',
-            'highest_normalized_score': 100,
-            'avg_normalized_score': 50,
-            'normalized_score': 64,
-        }
-        self.generate_printable_html([chart])
-        image_path = chart['image']
-        if image_path.startswith('file://'):
-            image_path = image_path[7:]
-        img = Image(image_path)
-        img.anchor(wsheet.cell('A1'))
-        wsheet.add_image(img)
+        if False: #pylint:disable=using-constant-test
+            wsheet = self.wbook.create_sheet(title="Impact of Improvement Plan")
+            # XXX get data from actual score.
+            chart = {
+                'slug': 'totals',
+                'highest_normalized_score': 100,
+                'avg_normalized_score': 50,
+                'normalized_score': 64,
+            }
+            self.generate_printable_html([chart])
+            image_path = chart['image']
+            if image_path.startswith('file://'):
+                image_path = image_path[7:]
+            img = Image(image_path)
+            img.anchor(wsheet.cell('A1'))
+            wsheet.add_image(img)
 
         # Write out the Excel file.
         content = io.BytesIO()
