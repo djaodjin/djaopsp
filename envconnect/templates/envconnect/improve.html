@@ -98,3 +98,54 @@ Do you wish to continue?
 </div>
 {% include "envconnect/_improvement_planning_dashboard.html" %}
 {% endblock %}
+
+{% block supplier_menus_scripts %}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    var tripElements = [
+{% if request|is_authenticated and not request.session.last_visited %}
+        {
+            sel: $("#help-request"),
+            content: $("#help-request").data("trip-content"),
+            position: "screen-center",
+            enableAnimation: false,
+            delay:-1,
+            tripTheme: "black",
+            showNavigation: true,
+            canGoPrev: false,
+            prevLabel: " ",
+            nextLabel: "OK",
+            skipLabel: " ",
+            finishLabel: "OK",
+        },
+{% endif %}
+{% if request|is_authenticated and not request.session.last_visited or request.session.last_visited == 'app' %}
+        {
+            sel: $("#submenu-improve"),
+            content: "<ol class='text-left'>" +
+"<li>Click the organge <em>Planning dashboard</em> button (bottom of page)" +
+"<li>Click each grey and orange box to display the improvement opportunities" +
+"<li>Select the best practices you plan to address over the next year or so" +
+"<br />from the <em>Select for Improvement Plan</em> column." +
+"<li>Click <em>Complete</em> once you've selected all improvement items you" +
+" plan to tackle.</ol>",
+            position: "screen-center",
+            enableAnimation: false,
+            delay:-1,
+            tripTheme: "black",
+            showNavigation: true,
+            canGoPrev: false,
+            prevLabel: " ",
+            nextLabel: "OK",
+            skipLabel: " ",
+            finishLabel: "OK",
+        }
+{% endif %}
+    ];
+    if( tripElements.length > 0  ) {
+        var trip = new Trip(tripElements);
+        trip.start();
+    }
+});
+</script>
+{% endblock %}

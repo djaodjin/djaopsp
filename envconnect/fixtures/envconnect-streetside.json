@@ -268,7 +268,7 @@
     "path": "/app/:organization/improve/:industry/",
     "rule_op": 3,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
-    "engaged": "app"
+    "engaged": "app,improve"
   },
   "model": "rules.Rule", "pk": 11
 },
