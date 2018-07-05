@@ -263,19 +263,19 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         # Implementation Note: We style the cells here instead of the rows
         # otherwise opening the file on Excel leads to weird background coloring
         # (LibreOffice looks fine).
-        cell = self.wsheet.cell('A1')
+        cell = self.wsheet['A1']
         cell.fill = title_fill
         cell.font = title_font
         cell.border = self.border
         cell.alignment = alignment
         for col in ['A', 'B', 'C', 'D', 'E']:
-            cell = self.wsheet.cell('%s2' % col)
+            cell = self.wsheet['%s2' % col]
             cell.fill = subtitle_fill
             cell.font = subtitle_font
             cell.border = self.border
             cell.alignment = subtitle_alignment
         for col in ['E', 'F', 'G', 'H', 'I']:
-            cell = self.wsheet.cell('%s3' % col)
+            cell = self.wsheet['%s3' % col]
             cell.fill = subtitle_fill
             cell.font = subtitle_font
             cell.border = self.border
@@ -302,7 +302,7 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
             if image_path.startswith('file://'):
                 image_path = image_path[7:]
             img = Image(image_path)
-            img.anchor(wsheet.cell('A1'))
+#           img.anchor(wsheet['A1']) # XXX img.anchor is not callable in 2.5.4
             wsheet.add_image(img)
 
         # Write out the Excel file.

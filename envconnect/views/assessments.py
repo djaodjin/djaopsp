@@ -345,23 +345,23 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
         # Implementation Note: We style the cells here instead of the rows
         # otherwise opening the file on Excel leads to weird background coloring
         # (LibreOffice looks fine).
-        cell = self.wsheet.cell('A1')
+        cell = self.wsheet['A1']
         cell.fill = title_fill
         cell.font = title_font
         cell.border = border
         cell.alignment = alignment
-        cell = self.wsheet.cell('A2')
+        cell = self.wsheet['A2']
         cell.fill = subtitle_fill
         cell.font = subtitle_font
         cell.border = border
         cell.alignment = alignment
-        cell = self.wsheet.cell('B2')
+        cell = self.wsheet['B2']
         cell.fill = subtitle_fill
         cell.font = subtitle_font
         cell.border = border
         cell.alignment = alignment
         for col in ['B', 'C', 'D', 'E', 'F']:
-            cell = self.wsheet.cell('%s3' % col)
+            cell = self.wsheet['%s3' % col]
             cell.fill = subtitle_fill
             cell.font = subtitle_font
             cell.border = border
