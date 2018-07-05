@@ -20,7 +20,7 @@
         <bin>dws</bin>
         <share>(dws)/prefix.mk</share>
       </dep>
-      <dep name="Django" target="python" includes="1.9.9">
+      <dep name="Django" target="python" includes="1.11.13">
         <lib>.*/(django)/core/wsgi.py</lib>
       </dep>
       <dep name="gunicorn" target="python">
@@ -216,6 +216,9 @@
       </dep>
       <dep name="contrib/django-storages">
         <lib>.*/(storages)/__init__.py</lib>
+      </dep>
+      <dep name="djaodjin-deployutils" target="python">
+        <lib>.*/(deployutils)/__init__.py</lib>
       </dep>
       <dep name="jinja2" target="python" includes="2.8.1">
         <!-- Jinja2>=2.9 will serve the first index.html file it loaded

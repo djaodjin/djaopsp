@@ -1,16 +1,12 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 import os.path, sys
 
 from django.contrib.messages import constants as messages
 from django.core.urlresolvers import reverse_lazy
-from django.utils.translation import gettext_lazy as _
 
 from deployutils.configs import load_config, update_settings
-
-SLUG_RE = r'[a-zA-Z0-9-]+'
-PATH_RE = r'(/[a-zA-Z0-9\-]+)*'
 
 #pylint: disable=undefined-variable
 
@@ -67,49 +63,8 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'envconnect',  # project should be the last entry.
 )
 
-
-EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
-EMAILER_BACKEND = 'extended_templates.backends.TemplateEmailBackend'
-
-DATABASES = {
-    'default': {
-        'ENGINE':DB_ENGINE,
-        'NAME': DB_NAME,
-        'USER': DB_USER,                 # Not used with sqlite3.
-        'PASSWORD': DB_PASSWORD,         # Not used with sqlite3.
-        'HOST': DB_HOST,                 # Not used with sqlite3.
-        'PORT': DB_PORT,                 # Not used with sqlite3.
-        'TEST_NAME': ':memory:',
-    }
-}
-
-if DEBUG:
-    MIDDLEWARE_CLASSES = (
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-        )
-else:
-    MIDDLEWARE_CLASSES = ()
-
-MIDDLEWARE_CLASSES += (
-    'django.middleware.common.CommonMiddleware',
-    'deployutils.apps.django.middleware.RequestLoggingMiddleware',
-    'deployutils.apps.django.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
-
-ROOT_URLCONF = 'envconnect.urls'
-
-SITE_ID = 1  # XXX must match ActivatedUser.pk == 1 in testing.
-
-# Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'envconnect.wsgi.application'
-
-MANAGERS = ADMINS
+ROOT_URLCONF = 'envconnect.urls'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -224,50 +179,45 @@ if DEBUG:
         'filters': ['request'],
         'class': 'logging.StreamHandler'}
 
+if DEBUG:
+    MIDDLEWARE_CLASSES = (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+        )
+else:
+    MIDDLEWARE_CLASSES = ()
 
-# Language settings
-# -----------------
-
-# ADD languages
-LANGUAGES = (
-    ('en-us', _('English')),
-    ('fr', _('French')),
-    ('es', _('Spanish')),
+MIDDLEWARE_CLASSES += (
+    'django.middleware.security.SecurityMiddleware',
+    'deployutils.apps.django.middleware.RequestLoggingMiddleware',
+    'deployutils.apps.django.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+DATABASES = {
+    'default': {
+        'ENGINE':DB_ENGINE,
+        'NAME': DB_NAME,
+        'USER': DB_USER,                 # Not used with sqlite3.
+        'PASSWORD': DB_PASSWORD,         # Not used with sqlite3.
+        'HOST': DB_HOST,                 # Not used with sqlite3.
+        'PORT': DB_PORT,                 # Not used with sqlite3.
+        'TEST_NAME': ':memory:',
+    }
+}
 
-# add LOCALE_PATHS for i18n in case of manually change
-LOCALE_PATHS = (
-    BASE_DIR + '/locale',
-)
-
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
-USE_I18N = True
-
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale.
-USE_L10N = True
-
-# If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
-
-# Local time zone for this installation. Choices can be found here:
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-# although not all choices may be available on all operating systems.
-# In a Windows environment this must be set to your system time zone.
-#
-# We must use UTC here otherwise the date of request in gunicorn access
-# and error logs will be off compared to the dates shown in nginx logs.
-# (see https://github.com/benoitc/gunicorn/issues/963)
-TIME_ZONE = 'UTC'
+SITE_ID = 1  # XXX must match ActivatedUser.pk == 1 in testing.
+EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
+EMAILER_BACKEND = 'extended_templates.backends.TemplateEmailBackend'
+MANAGERS = ADMINS
 
 
-# Static assets
-# -------------
+# Static assets (CSS, JavaScript, Images)
+# ---------------------------------------
 HTDOCS = os.path.join(BASE_DIR, 'htdocs')
 
 ASSETS_DEBUG = DEBUG
@@ -285,10 +235,6 @@ if not hasattr(sys.modules[__name__], 'MEDIA_ROOT'):
 # the paths generated to print PDFs will be incorrect.
 MEDIA_URL = '/media/'
 
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/var/www/example.com/static/"
 APP_STATIC_ROOT = HTDOCS + '/static'
 if DEBUG:
     STATIC_ROOT = ''
@@ -376,34 +322,40 @@ TEMPLATES = [
         }
     }]
 
+# Internationalization settings
+# -----------------------------
 
-# debug_toolbar settings
-# ----------------------
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
-DEBUG_TOOLBAR_CONFIG = {
-    'JQUERY_URL': '%svendor/jquery.js' % STATIC_URL,
-    'SHOW_COLLAPSED': True,
+# Language code for this installation. All choices can be found here:
+# http://www.i18nguy.com/unicode/language-identifiers.html
+LANGUAGE_CODE = 'en-us'
+
+# If you set this to False, Django will make some optimizations so as not
+# to load the internationalization machinery.
+USE_I18N = True
+
+# If you set this to False, Django will not format dates, numbers and
+# calendars according to the current locale.
+USE_L10N = True
+
+# If you set this to False, Django will not use timezone-aware datetimes.
+USE_TZ = True
+
+# Local time zone for this installation. Choices can be found here:
+# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
+# although not all choices may be available on all operating systems.
+# In a Windows environment this must be set to your system time zone.
+#
+# We must use UTC here otherwise the date of request in gunicorn access
+# and error logs will be off compared to the dates shown in nginx logs.
+# (see https://github.com/benoitc/gunicorn/issues/963)
+TIME_ZONE = 'UTC'
+
+# API settings
+# ------------
+REST_FRAMEWORK = {
+    'PAGE_SIZE': 25,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
 }
-INTERNAL_IPS = ('127.0.0.1', '::1')  # Yes, this one is also for debug_toolbar.
-
-# User settings
-# -------------
-LOGIN_URL = 'login'
-if DEBUG:
-    LOGIN_REDIRECT_URL = '/%s/app/' % APP_NAME
-else:
-    LOGIN_REDIRECT_URL = '/app/'
-ACCOUNT_ACTIVATION_DAYS = 2
-
-
-# The Django Middleware expects to find the authentication backend
-# before returning an authenticated user model.
-AUTHENTICATION_BACKENDS = (
-    'deployutils.apps.django.backends.auth.ProxyUserBackend',
-    # XXX We cannot remove dependency on a db `User` until django_comments
-    # is made to use the deployutils version.
-    'django.contrib.auth.backends.ModelBackend'
-)
 
 # Session settings
 # ----------------
@@ -453,7 +405,82 @@ DEPLOYUTILS = {
         reverse_lazy('homepage'), reverse_lazy('homepage_index')]
 }
 
+# User settings
+# -------------
+LOGIN_URL = 'login'
+if DEBUG:
+    LOGIN_REDIRECT_URL = '/%s/app/' % APP_NAME
+else:
+    LOGIN_REDIRECT_URL = '/app/'
+ACCOUNT_ACTIVATION_DAYS = 2
+
+
+# The Django Middleware expects to find the authentication backend
+# before returning an authenticated user model.
+AUTHENTICATION_BACKENDS = (
+    'deployutils.apps.django.backends.auth.ProxyUserBackend',
+    # XXX We cannot remove dependency on a db `User` until django_comments
+    # is made to use the deployutils version.
+    'django.contrib.auth.backends.ModelBackend'
+)
+
+# Password validation
+# https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME':
+    'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME':
+        'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME':
+        'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME':
+        'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# awnsers app
+# -----------
+ANSWERS = {
+    'QUESTION_MODEL': 'pages.PageElement'
+}
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+    },
+}
+
+# debug_toolbar app
+# -----------------
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+DEBUG_TOOLBAR_CONFIG = {
+    'JQUERY_URL': '%svendor/jquery.js' % STATIC_URL,
+    'SHOW_COLLAPSED': True,
+}
+INTERNAL_IPS = ('127.0.0.1', '::1')  # Yes, this one is also for debug_toolbar.
+
+
+# envconnect app
+# --------------
 ACCOUNT_MODEL = 'saas.Organization'
+TAG_SCORECARD = 'scorecard'
+
+
+# pages app
+# ---------
+PAGES = {
+    'ACCOUNT_MODEL': 'saas.Organization',
+    'DEFAULT_ACCOUNT_CALLABLE': 'saas.models.get_broker',
+    'PAGELEMENT_SERIALIZER' : "envconnect.serializers.PageElementSerializer"
+}
+
 
 # SaaS settings
 # -------------
@@ -463,8 +490,9 @@ ACCOUNT_MODEL = 'saas.Organization'
 #        'EXTRA_FIELD': 'django.contrib.postgres.fields.JSONField'
 #    }
 
-# Survey settings
-# ---------------
+
+# survey app
+# ----------
 QUESTION_MODEL = 'envconnect.Consumption'
 
 SURVEY = {
@@ -474,35 +502,3 @@ SURVEY = {
     'QUESTION_MODEL': 'envconnect.Consumption',
     'QUESTION_SERIALIZER': 'envconnect.serializers.ConsumptionSerializer'
 }
-
-# Awnsers app
-# -----------
-ANSWERS = {
-    'QUESTION_MODEL': 'pages.PageElement'
-}
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-    },
-}
-
-PAGES = {
-    'ACCOUNT_MODEL': 'saas.Organization',
-    'DEFAULT_ACCOUNT_CALLABLE': 'saas.models.get_broker',
-    'PAGELEMENT_SERIALIZER' : "envconnect.serializers.PageElementSerializer"
-}
-
-VERSION_REGISTERED_APP = (
-    'envconnect',
-)
-
-# API settings
-# ------------
-REST_FRAMEWORK = {
-    'PAGE_SIZE': 25,
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
-}
-
-# envconnect
-TAG_SCORECARD = 'scorecard'

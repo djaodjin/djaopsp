@@ -4,6 +4,7 @@
 from django.conf import settings
 from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as static_serve
+from pages.settings import PATH_RE, SLUG_RE
 from urldecorators import include, url
 
 from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
@@ -45,7 +46,6 @@ else:
             {'document_root': settings.MEDIA_ROOT}),
     ]
 
-SLUG_RE = r'[a-zA-Z0-9-]+'
 IDENTIFIER_RE = r'[_a-zA-Z][_a-zA-Z0-9]*'
 NON_EMPTY_PATH_RE = r'(/[a-zA-Z0-9\-]+)+'
 
@@ -62,7 +62,7 @@ urlpatterns += [
     url_direct(r'api/', include('envconnect.urls.api.suppliers')),
 
     # authenticated user
-    url_authenticated(r'app/info/portfolios(?P<path>%s)/' % settings.PATH_RE,
+    url_authenticated(r'app/info/portfolios(?P<path>%s)/' % PATH_RE,
         MyTSPRedirectView.as_view(
             pattern_name='matrix_chart',
             new_account_url='/%sapp/new/' % APP_PREFIX),
@@ -72,29 +72,29 @@ urlpatterns += [
             pattern_name='organization_reporting_entities',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='envconnect_share_requests'),
-    url_authenticated(r'app/info/assess(?P<path>%s)/' % settings.PATH_RE,
+    url_authenticated(r'app/info/assess(?P<path>%s)/' % PATH_RE,
         AccountRedirectView.as_view(
             pattern_name='envconnect_assess_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX),
                 name='envconnect_assess'),
-    url_authenticated(r'app/info/improve(?P<path>%s)/' % settings.PATH_RE,
+    url_authenticated(r'app/info/improve(?P<path>%s)/' % PATH_RE,
         AccountRedirectView.as_view(
             pattern_name='envconnect_improve_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='envconnect_improve'),
     url_authenticated(r'app/info/benchmark(?P<path>%s)/'
-        % settings.PATH_RE,
+        % PATH_RE,
         AccountRedirectView.as_view(
             pattern_name='benchmark_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='benchmark'),
     url_authenticated(r'app/info/scorecard(?P<path>%s)/'
-        % settings.PATH_RE,
+        % PATH_RE,
         AccountRedirectView.as_view(
             pattern_name='scorecard_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='scorecard'),
-    url_authenticated(r'app/info(?P<path>%s)/' % settings.PATH_RE,
+    url_authenticated(r'app/info(?P<path>%s)/' % PATH_RE,
       DetailView.as_view(), name='summary'),
 
     url_authenticated(r'app/comments/', include('django_comments.urls')),
@@ -110,39 +110,39 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/portfolios/' % SLUG_RE,
         include('survey.urls.matrix')),
     url_direct(r'app/(?P<organization>%s)/assess(?P<path>%s)/download/' % (
-        SLUG_RE, settings.PATH_RE), AssessmentXLSXView.as_view(),
+        SLUG_RE, PATH_RE), AssessmentXLSXView.as_view(),
         name='envconnect_assess_organization_download'),
     url_direct(r'app/(?P<organization>%s)/assess(?P<path>%s)/' % (
-        SLUG_RE, settings.PATH_RE), AssessmentView.as_view(),
+        SLUG_RE, PATH_RE), AssessmentView.as_view(),
         name='envconnect_assess_organization'),
     url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/print/' % (
-        SLUG_RE, settings.PATH_RE), ImprovementPDFView.as_view(),
+        SLUG_RE, PATH_RE), ImprovementPDFView.as_view(),
         name='envconnect_improve_organization_print'),
     url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/download/' % (
-        SLUG_RE, settings.PATH_RE), ImprovementXLSXView.as_view(),
+        SLUG_RE, PATH_RE), ImprovementXLSXView.as_view(),
         name='envconnect_improve_organization_download'),
     url_direct(r'app/(?P<organization>%s)/improve(?P<path>%s)/' % (
-        SLUG_RE, settings.PATH_RE), ImprovementView.as_view(),
+        SLUG_RE, PATH_RE), ImprovementView.as_view(),
         name='envconnect_improve_organization'),
     url_direct(r'app/(?P<organization>%s)/benchmark/$' % (
         SLUG_RE), ScoreCardRedirectView.as_view(
             pattern_name='benchmark_organization'),
         name='benchmark_organization_redirect'),
     url_direct(r'app/(?P<organization>%s)/benchmark(?P<path>%s)/' % (
-        SLUG_RE, settings.PATH_RE), BenchmarkView.as_view(),
+        SLUG_RE, PATH_RE), BenchmarkView.as_view(),
         name='benchmark_organization'),
     url_direct(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/download/' % (
-        SLUG_RE, settings.PATH_RE), ScoreCardDownloadView.as_view(),
+        SLUG_RE, PATH_RE), ScoreCardDownloadView.as_view(),
         name='scorecard_download_organization'),
     url_direct(r'app/(?P<organization>%s)/scorecard/?$' % (
         SLUG_RE), ScoreCardRedirectView.as_view(
             pattern_name='scorecard_organization'),
         name='scorecard_organization_redirect'),
     url_direct(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/' % (
-        SLUG_RE, settings.PATH_RE), ScoreCardView.as_view(),
+        SLUG_RE, PATH_RE), ScoreCardView.as_view(),
         name='scorecard_organization'),
     url_direct(r'app/(?P<organization>%s)/info(?P<path>%s)/' % (
-        SLUG_RE, settings.PATH_RE),
+        SLUG_RE, PATH_RE),
         DetailView.as_view(), name='summary_organization'),
 
     url_direct(r'app/(?P<organization>%s)/$' % SLUG_RE,

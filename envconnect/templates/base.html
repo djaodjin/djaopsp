@@ -61,7 +61,7 @@ ga('send', 'pageview');
                                 <i class="fa fa-plus"></i>
                             </button>
                             {% endblock %}
-                            <a class="navbar-brand navbar-name" href="/"><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;margin-bottom:4px;" /> The Sustainability Project</a>
+                            {% block logo_top %}<a class="navbar-brand navbar-name" href="/"><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;margin-bottom:4px;" /> The Sustainability Project</a>{% endblock %}
                         </div>
                         {% block header_navbar_large %}
                         <div class="navbar-collapse collapse">
