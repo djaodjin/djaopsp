@@ -56,7 +56,7 @@ urlpatterns += [
     # envconnect manager
     url_direct(r'api/content/', include('envconnect.urls.api.content')),
     # XXX only used in testing?
-    url_direct(r'api/', include('pages.urls.api.elements')),
+    url_direct(r'api/themes/', include('pages.urls.api.templates')),
 
     # API to manage reporting, assessment and improvement planning.
     url_direct(r'api/', include('envconnect.urls.api.suppliers')),
