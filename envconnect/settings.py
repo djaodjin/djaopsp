@@ -295,6 +295,9 @@ TEMPLATES = [
     {
         'BACKEND': 'extended_templates.backends.eml.EmlEngine',
         'DIRS': _TEMPLATE_DIRS,
+        'OPTIONS': {
+            'engine': 'html',
+        }
     },
     {
         'BACKEND': 'extended_templates.backends.pdf.PdfEngine',
@@ -304,6 +307,7 @@ TEMPLATES = [
         }
     },
     {
+        'NAME': 'html',
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': _TEMPLATE_DIRS,
         'OPTIONS': {

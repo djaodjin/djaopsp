@@ -8,10 +8,10 @@
     <meta name="copyright" content="Copyright (c) 2018 DjaoDjin inc.">
     <title>{% block title %}Best Practices | Sustainability Project{% endblock %}</title>
     {% assets "css_base" %}
-    <link rel="stylesheet" media="screen" href="{{ASSET_URL}}" />
+    <link rel="stylesheet" media="screen" href="{{ASSET_URL|asset}}" />
     {% endassets %}
     {% assets "js_base" %}
-    <script type="text/javascript" src="{{ASSET_URL}}"></script>
+    <script type="text/javascript" src="{{ASSET_URL|asset}}"></script>
     {% endassets %}
     {% if csrf_token %}
     <meta name="csrf-token" content="{{csrf_token}}">
@@ -49,82 +49,74 @@ ga('send', 'pageview');
     {% endif %}
 </head>
 <body>
-    <div id="wrap">
-        <div id="main">
+  <div id="wrap">
+    <div id="main">
+      <div class="dashboard-container">
+        <div class="dashboard-inner-container">
+          {% block dashboard_nav %}
+          <!-- <div class="dashboard-nav"></div> -->
+          {% endblock %}
+          <div class="dashboard-content">
             <header>
-                <nav class="navbar navbar-default navbar-top">
-                    <div class="navbar-border">
-                        <div class="navbar-header">
-                            {% block header_navbar_small %}
-                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                                <span class="sr-only">Toggle navigation</span>
-                                <i class="fa fa-plus"></i>
-                            </button>
-                            {% endblock %}
-                            {% block logo_top %}<a class="navbar-brand navbar-name" href="/"><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;margin-bottom:4px;" /> The Sustainability Project</a>{% endblock %}
-                        </div>
-                        {% block header_navbar_large %}
-                        <div class="navbar-collapse collapse">
-                            <ul class="nav navbar-nav navbar-right">
-                                {% block navbar %}
-                                {% include "generic_navbar.html" %}
-                                {% endblock %}
-                            </ul>
-                        </div>
-                        {% endblock %}
-                    </div>
-                </nav>
-                {% block fullviewport %}
-                {% endblock %}
+              <nav class="navbar navbar-default navbar-top">
+                <div class="navbar-border">
+                  {% block content_navbarbrand %}
+                  {% include "_navbarbrand.html" %}
+                  {% endblock %}
+                  <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                      {% block navbar %}
+                      {% include "generic_navbar.html" %}
+                      {% endblock %}
+                    </ul>
+                  </div>
+                </div>
+              </nav>
+              {% block fullviewport %}
+              {% endblock %}
             </header>
             <div>
-                <div class="dashboard-container">
-                    <div class="dashboard-inner-container">
-                        {% block dashboard_nav %}
-                        <!-- <div class="dashboard-nav"></div> -->
-                        {% endblock %}
-                        <div class="dashboard-content">
-                            <div>
-                                <div id="messages">
-                                    <div id="messages-content">
-                                        {% for message in request|messages %}
-                                        <div class="alert{% if message.tags %} alert-{{message.tags}}{% endif %}">
-                                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                            {% if 'safe' in message.tags %}
-                                            <div>{{message|safe}}</div>
-                                            {% else %}
-                                            <div>{{message}}</div>
-                                            {% endif %}
-                                        </div>
-                                        {% endfor %}
-                                        {% if form %}
-                                        {% for message in form|messages %}
-                                        <div class="alert alert-danger">
-                                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                            <div>{{message}}</div>
-                                        </div>
-                                        {% endfor %}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                 {% block content %}
-                                {% endblock %}
-                            </div>
-                        </div>
-                    </div>
+              <div id="messages">
+                <div id="messages-content">
+                  {% for message in request|messages %}
+                  <div class="alert{% if message.tags %} alert-{{message.tags}}{% endif %}">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {% if 'safe' in message.tags %}
+                    <div>{{message|safe}}</div>
+                    {% else %}
+                    <div>{{message}}</div>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                  {% if form %}
+                  {% for message in form|messages %}
+                  <div class="alert alert-danger">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <div>{{message}}</div>
+                  </div>
+                  {% endfor %}
+                  {% endif %}
                 </div>
+              </div>
+              {% block content %}
+              {% endblock %}
             </div>
-        </div>
+          </div><!-- /.dashboard-content -->
+        </div><!-- /.dashboard-inner-container -->
+      </div><!-- /.dashboard-container -->
+    </div><!-- /#main -->
+  </div><!-- /.wrap -->
+  {% block footer %}
+  <footer class="footer">
+    <div>
+      <span><a href="{{'contact/'|site_prefixed}}">Contact us</a></span>
+      &nbsp;&dash;&nbsp<span><a href="{{'legal/general-disclaimer/'|site_prefixed}}">General disclaimer</a></span>
+      &nbsp;&dash;&nbsp<span><a href="{{'legal/terms-of-use/'|site_prefixed}}">Terms of use</a></span>
+      &nbsp;&dash;&nbsp<span><a href="{{'legal/'|site_prefixed}}">Privacy</a></span>
+      &nbsp;&dash;&nbsp<span class="copyr">&copy; 2018 All rights reserved.</span>&nbsp;<a href="https://djaodjin.com/">DjaoDjin inc.</a>
     </div>
-    <footer class="footer">
-        <div>
-        <span><a href="{{'contact/'|site_prefixed}}">Contact us</a></span>
-        &nbsp;&dash;&nbsp<span><a href="{{'legal/general-disclaimer/'|site_prefixed}}">General disclaimer</a></span>
-        &nbsp;&dash;&nbsp<span><a href="{{'legal/terms-of-use/'|site_prefixed}}">Terms of use</a></span>
-        &nbsp;&dash;&nbsp<span><a href="{{'legal/'|site_prefixed}}">Privacy</a></span>
-        &nbsp;&dash;&nbsp<span class="copyr">&copy; 2018 All rights reserved.</span>&nbsp;<a href="https://djaodjin.com/">DjaoDjin inc.</a>
-        </div>
-    </footer>
-    {% block bodyscripts %}{% endblock %}
+  </footer>
+  {% endblock footer %}
+  {% block bodyscripts %}{% endblock %}
 </body>
 </html>

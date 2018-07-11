@@ -11,13 +11,15 @@ THIS AGREEMENT AND MAY NOT USE THE SERVICE.
 Violations of any of the terms below will result in the termination of
 your Account.
 
-1. Account Terms
+1. User Accounts
 ----------------
 
-1.1 Your user account may only be used by one person. A single account shared
-    by multiple users is not permitted. Registration of a user account is
-    free so please create as many user accounts as necessary for your
-    productive use of the Service.
+1.1 Your user account may only be used by one person. Login records
+    are used to investigate any claim of unauthorized access. Shared
+    user accounts defy your personal interest and the interests of
+    the Organization you represent. Registration of a user account is free
+    so please create as many user accounts as necessary for your productive
+    use of the Service.
 
 1.2 You are responsible for maintaining the security of your username
     and password. {{organization.printable_name}} will not be liable
@@ -28,6 +30,22 @@ your Account.
 1.3 You must not use the Service to carry on any illegal or unauthorized
     activities (including but not limited to copyright or trademark
     infringements).
+
+2. Organization Accounts
+------------------------
+
+2.1 By creating an Organization account, you certify that you are
+    a representative of that Organization.
+
+2.2 As a manager of an Organization profile, you certify that users you invite
+    and grant permissions to, such as editing the Organization assessment,
+    are also representative, or authorized to act on behalf, of that
+    Organization with regards to the Organization profile on {{site_url}}.
+
+2.3 At your sole discretion, you can share an Organization scorecard you manages
+    with current and potential customers. You understand that deleting the
+    Organization profile after a scorecard is shared will not delete the copy
+    you shared.
 
 2. Payment and Refunds
 ----------------------
@@ -50,9 +68,9 @@ your Account.
     An email or phone request to cancel an account is not considered
     cancellation.
 
-3.2 If you decide to delete an Profile, all of the Content associated with
+3.2 If you decide to delete a Profile, the Content directly associated with
     that Profile will be immediately deleted from the Service. This information
-     can not be recovered once it has been deleted.
+    can not be recovered once it has been deleted.
 
 3.3 {{organization.printable_name}}, in its sole discretion, has the right
     to suspend or terminate a Profile at any time.
@@ -75,8 +93,8 @@ your Account.
 
 4.3 You shall indemnify {{organization.printable_name}} for any damages finally
     awarded against, and for reasonable attorney’s fees incurred by,
-    {{organization.printable_name}} in connection with any such claim, demand, suit
-    or proceeding; provided, that {{organization.printable_name}}
+    {{organization.printable_name}} in connection with any such claim, demand,
+    suit or proceeding; provided, that {{organization.printable_name}}
 
 <ul>
     (1) promptly provides you written notice of the claim, demand, suit
