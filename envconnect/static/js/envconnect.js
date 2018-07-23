@@ -98,7 +98,6 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
                 var attachPath = $(ui.item).parents("table").data("prefix");
                 if( newIndex > 0 ) {
                     var entries = scope.getEntries(attachPath);
-                    console.log("entries(", entries, ")[",newIndex, " - (", newIndex, " < ", startIndex, " ? 1 : 0)]");
                     var attachNode = entries[newIndex - ((newIndex < startIndex) ? 1 : 0)];
                     attachPath = attachNode[0].path;
                     if( movedNode[0].consumption ) {
@@ -875,11 +874,18 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.demoteBestPractice = function($event) {
         var iconParent = angular.element($event.toElement).parents(".squared-tabs-li");
-        var startPath = iconParent.data('id');
-        var tableParent = angular.element($event.target).parents("table");
-        var attachPath = tableParent.data('prefix');
-
-        $scope.moveBestPractice(startPath, attachPath, null, "demote");
+        if( iconParent.length > 0 ) {
+            // `demoteBestPractice` will always be called because of
+            // `{onDrop:'demoteBestPractice()'}` in detal.html forces a call
+            // to `demoteBestPractice` on each drop event. This is required
+            // to bring icon-level nodes to a lower level but has
+            // the side-effect to generate a second (bogus) call
+            // to `moveBestPractice` after `sortable` handled the in-table move.
+            var startPath = iconParent.data('id');
+            var tableParent = angular.element($event.target).parents("table");
+            var attachPath = tableParent.data('prefix');
+            $scope.moveBestPractice(startPath, attachPath, null, "demote");
+        }
     };
 
     $scope.sortIcons = function($event) {

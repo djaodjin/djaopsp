@@ -176,7 +176,15 @@ def path_with_prefix(answer, prefix):
 
 @register.filter
 def path_to_legend(root):
-    tags = json.loads(root[0]['tag'])['tags']
-    for tag in tags:
-        if tag.startswith('legend'):
-            return site_prefixed("/docs/" + tag + "/")
+    legend = 'legend-1'
+    try:
+        tags = json.loads(root[0]['tag'])['tags']
+        for tag in tags:
+            if tag.startswith('legend'):
+                legend = tag
+                break
+    except TypeError:
+        # If we have a pb, better to use a default legend rather than
+        # blowing up with a 500 error.
+        pass
+    return site_prefixed("/docs/" + legend + "/")
