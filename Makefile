@@ -56,7 +56,8 @@ package-theme: build-django-assets
 		--build_dir=$(objDir) --install_dir=htdocs/themes \
 		--exclude='_form.html' --exclude='.*/' \
 		--include='accounts/' --include='docs/' \
-		--include='saas/' --include='notification/'
+		--include='saas/' --include='notification/' \
+		--include='euissca/' --include='about.html'
 	zip -d $(srcDir)/htdocs/themes/envconnect.zip "envconnect/public/static/cache/angular.js" "envconnect/templates/accounts/base.html"
 
 
