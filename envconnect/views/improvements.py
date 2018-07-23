@@ -376,11 +376,14 @@ class ImprovementPDFView(ImprovementOnlyMixin, ListView):
 
     def __init__(self, **kwargs):
         super(ImprovementPDFView, self).__init__(**kwargs)
+        self.table_of_content = []
         self.report_items = []
 
     def write_tree(self, root, indent=''):
         if not root:
             return
+        self.table_of_content += [(
+            len(indent), root[0].get('title', '(no title)'))]
         consumption = root[0].get('consumption', None)
         if consumption:
             breadcrumbs = root[0].get('breadcrumbs', None)
@@ -394,9 +397,9 @@ class ImprovementPDFView(ImprovementOnlyMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         root = self._improvements_only()
-        self.decorate_with_breadcrumbs(root)
         self.report_items = []
         self.write_tree(root)
         self.object_list = self.report_items
         context = self.get_context_data(**kwargs)
+        context.update({'table_of_content': self.table_of_content})
         return PdfTemplateResponse(request, self.template_name, context)
