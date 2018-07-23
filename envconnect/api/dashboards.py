@@ -182,30 +182,11 @@ class SupplierQuerySet(object):
         return SupplierQuerySet(items)
 
 
-class SupplierListBaseAPIView(DashboardMixin, generics.ListAPIView):
+class SupplierListMixin(DashboardMixin):
     """
-    List of suppliers accessible by the request user
-    with normalized (total) score when the supplier completed
-    an assessment.
-
-    GET /api/:organization/suppliers
-
-    Example Response:
-
-        {
-          "count":1,
-          "next":null
-          "previous":null,
-          "results":[{
-             "slug":"andy-shop",
-             "printable_name":"Andy's Shop",
-             "created_at": "2017-01-01",
-             "normalized_score":94
-          }]
-        }
+    Scores for all reporting entities in a format that can be used by the API
+    and spreadsheet downloads.
     """
-    serializer_class = AccountSerializer
-    pagination_class = CompletionSummaryPagination
 
     def get_queryset(self):
         results = []
@@ -261,6 +242,32 @@ class SupplierListBaseAPIView(DashboardMixin, generics.ListAPIView):
             except self.account_model.DoesNotExist:
                 pass
         return SupplierQuerySet(results)
+
+
+class SupplierListBaseAPIView(SupplierListMixin, generics.ListAPIView):
+    """
+    List of suppliers accessible by the request user
+    with normalized (total) score when the supplier completed
+    an assessment.
+
+    GET /api/:organization/suppliers
+
+    Example Response:
+
+        {
+          "count":1,
+          "next":null
+          "previous":null,
+          "results":[{
+             "slug":"andy-shop",
+             "printable_name":"Andy's Shop",
+             "created_at": "2017-01-01",
+             "normalized_score":94
+          }]
+        }
+    """
+    serializer_class = AccountSerializer
+    pagination_class = CompletionSummaryPagination
 
 
 class SupplierSmartListMixin(SortableListMixin, SearchableListMixin):

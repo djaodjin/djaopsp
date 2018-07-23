@@ -13,7 +13,8 @@ from ..views import AccountRedirectView, MyTSPRedirectView
 from ..views.assessments import AssessmentView, AssessmentXLSXView
 from ..views.benchmark import (BenchmarkView,
     ScoreCardView, ScoreCardDownloadView, ScoreCardRedirectView)
-from ..views.compare import ReportingEntitiesView, PortfoliosDetailView
+from ..views.compare import (SuppliersView, SuppliersXLSXView,
+    PortfoliosDetailView)
 from ..views.detail import DetailView
 from ..views.index import IndexView
 from ..views.improvements import (ImprovementView, ImprovementPDFView,
@@ -100,8 +101,11 @@ urlpatterns += [
     url_authenticated(r'app/comments/', include('django_comments.urls')),
 
     # direct manager of :organization
+    url_direct(r'app/(?P<organization>%s)/reporting/download/' % SLUG_RE,
+        SuppliersXLSXView.as_view(),
+        name='organization_reporting_entities_download'),
     url_direct(r'app/(?P<organization>%s)/reporting/' % SLUG_RE,
-        ReportingEntitiesView.as_view(),
+        SuppliersView.as_view(),
         name='organization_reporting_entities'),
     url_direct(r'app/(?P<organization>%s)/portfolios(?P<path>%s)/'
                % (SLUG_RE, NON_EMPTY_PATH_RE),

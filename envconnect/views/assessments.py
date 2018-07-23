@@ -11,6 +11,7 @@ from django.db import connection
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder
+from deployutils.helpers import datetime_or_now
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
@@ -279,7 +280,7 @@ class AssessmentCSVView(AssessmentSpreadsheetView):
         return self.content
 
     def get_filename(self):
-        return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.csv')
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d.csv')
 
 
 class AssessmentXLSXView(AssessmentSpreadsheetView):
@@ -375,4 +376,4 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
         return content
 
     def get_filename(self):
-        return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.xlsx')
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')

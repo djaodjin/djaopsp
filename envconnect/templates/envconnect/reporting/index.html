@@ -232,10 +232,15 @@ Thank you.
 </div>
     </div>
   </div>
-  <div>
-    <label style="color:#000;margin-top: 10px;">
-      <input type="checkbox"> Remind suppliers to complete assessment and planning every Friday morning.
-    </label>
+  <div class="row" style="margin-top: 5px;">
+    <div class="col-sm-6">
+      <a id="download-reporting" class="btn btn-default" href="{% url 'organization_reporting_entities_download' organization %}" target="_blank"><i class="fa fa-download"></i> Download scores</a>
+    </div>
+    <div class="col-sm-6">
+      <label style="color:#000;margin-top: 10px;">
+        <input type="checkbox"> Remind suppliers to complete assessment and planning every Friday morning.
+      </label>
+    </div>
   </div>
 </section>
 {% endblock %}
