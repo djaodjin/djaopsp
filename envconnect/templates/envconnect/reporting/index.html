@@ -172,8 +172,8 @@ Completed: Assessment and Planning are complete">
           <div class="modal-body">
             <p class="text-danger" ng-model="item">
 There are no records of the domain name associated with the email address you
-just entered in the system. This is an opportunity to invite a manager
-for that organization to join The Sustainability Project.
+just entered in the system. This is an opportunity to invite that organization
+to join The Sustainability Project.
             </p>
             <div class="row form-group">
               <div class="col-sm-2">
@@ -203,6 +203,14 @@ for that organization to join The Sustainability Project.
 Hello,
 I would like to invite you to create a scorecard for your organization on The Sustainability Project and share it with us.
 
+Follow the steps below to do so:
+- Navigate to www.tspproject.org
+- Select your industry segment from the drop down menu on the home page.
+- Click on the Assessment at the top of the resulting screen.
+- After completing the assessment, click on Scorecard.
+- Grant me access to the Scorecard by clicking Share scorecard and following
+instructions.
+
 Thank you.
 - {{request.user.first_name}}
                 </textarea>
@@ -214,7 +222,7 @@ Thank you.
                     data-dismiss="modal">Cancel</button>
             <button id="new-rule-submit" ng-click="create($event)"
                     type="submit" class="btn btn-primary"
-                    data-dismiss="modal">Request access</button>
+                    data-dismiss="modal">Request scorecard</button>
           </div>
         </form>
       </div>
