@@ -20,6 +20,7 @@ from pages.models import PageElement
 from .assessments import AssessmentBaseMixin, AssessmentView
 from .benchmark import PrintableChartsMixin
 from ..mixins import ContentCut, ImprovementQuerySetMixin
+from ..helpers import as_valid_sheet_title
 
 
 LOGGER = logging.getLogger(__name__)
@@ -199,8 +200,7 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         self.wbook = Workbook()
         self.wsheet = self.wbook.active
         if title:
-            # Prevents 'Invalid character / found in sheet title' errors
-            self.wsheet.title = title.replace('/', '-')
+            self.wsheet.title = as_valid_sheet_title(title)
         self.wsheet.row_dimensions[1].height = 0.36 * (6 * col_scale)
         self.wsheet.column_dimensions['A'].width = 6.56 * col_scale
         for col_num in range(0, len(headings)):

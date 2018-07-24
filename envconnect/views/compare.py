@@ -3,10 +3,12 @@
 
 import io, logging, json, re
 
+from collections import OrderedDict
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils import six
 from django.views.generic import TemplateView
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
@@ -18,7 +20,9 @@ from survey.views.matrix import MatrixDetailView
 
 from ..api.benchmark import BenchmarkMixin
 from ..api.dashboards import SupplierListMixin
+from ..helpers import as_valid_sheet_title
 from ..mixins import AccountMixin, PermissionMixin
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -168,23 +172,100 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
     def get_filename(self):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
 
-    def get(self, *args, **kwargs): #pylint: disable=unused-argument
-        queryset = self.get_queryset()
+    def writerow(self, rec):
+        last_activity_at = ""
+        normalized_score = "N/A"
+        if rec['request_key']:
+            normalized_score = "Requested"
+        else:
+            if rec['last_activity_at']:
+                last_activity_at = rec['last_activity_at'].isoformat()
+            if rec['assessment_completed']:
+                normalized_score = rec['normalized_score']
+        row = [rec['printable_name'], "", rec['email'], "", "", "",
+            last_activity_at, normalized_score]
+        for score in rec.get('scores', []):
+            row += [score[1]]
+        self.wsheet.append(row)
+
+    def get(self, request, *args, **kwargs):
+        #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks
+        #pylint: disable=too-many-statements
+        rollup_tree = self.rollup_scores()
+        account_scores = rollup_tree[0]['accounts']
         wbook = Workbook()
-        wsheet = wbook.active
-        wsheet.append(self.get_headings())
-        for rec in queryset:
-            last_activity_at = ""
-            normalized_score = "N/A"
-            if rec['request_key']:
-                normalized_score = "Requested"
-            else:
-                if rec['last_activity_at']:
-                    last_activity_at = rec['last_activity_at'].isoformat()
-                if rec['assessment_completed']:
-                    normalized_score = rec['normalized_score']
-            wsheet.append([rec['printable_name'], "", rec['email'], "", "", "",
-                last_activity_at, normalized_score])
+
+        # Populate the Total sheet
+        self.wsheet = wbook.active
+        self.wsheet.title = as_valid_sheet_title("Total scores")
+        self.wsheet.append(self.get_headings())
+        for account in self.requested_accounts:
+            self.writerow(self.get_score(account, account_scores,
+                    self.complete_assessments, self.complete_improvements))
+
+        # Populate industry segments sheet
+        industries = [elem['slug'] for elem in PageElement.objects.filter(
+            slug__startswith='sustainability-').values('slug')]
+        for industry in industries:
+            trail = self.get_full_element_path(industry)
+            from_root = "/" + "/".join([element.slug for element in trail])
+            try:
+                rollup_industry = self.get_rollup_at_path_prefix(
+                    from_root, rollup_tree)
+            except KeyError:
+                # We don't have any score for that industry segment
+                continue
+            account_rows = OrderedDict()
+            headings = [] + self.get_headings()
+            account_scores = rollup_industry[0]['accounts']
+            for account in self.requested_accounts:
+                if account.pk in account_scores:
+                    account_rows[account.pk] = self.get_score(
+                        account, account_scores,
+                        self.complete_assessments, self.complete_improvements)
+            for icon_nodes in six.itervalues(rollup_industry[1]):
+                # These are icon-level scores
+                icon_node = icon_nodes[0]
+                icon_slug = icon_node['slug']
+                icon_title = icon_node['title']
+                headings += [icon_title]
+                icon_account_scores = icon_node['accounts']
+                for account in self.requested_accounts:
+                    if account.pk in account_rows:
+                        meta = self.get_score(
+                            account, icon_account_scores,
+                            self.complete_assessments,
+                            self.complete_improvements)
+                        score = meta.get('normalized_score', "N/A")
+                        if 'scores' not in account_rows[account.pk]:
+                            account_rows[account.pk]['scores'] = []
+                        account_rows[account.pk]['scores'] += [
+                            (icon_slug, score)]
+                for system_nodes in six.itervalues(icon_nodes[1]):
+                    # These are system-level scores
+                    system_slug = system_nodes[0]['slug']
+                    system_title = system_nodes[0]['title']
+                    headings += [system_title]
+                    system_account_scores = system_nodes[0]['accounts']
+                    for account in self.requested_accounts:
+                        if account.pk in account_rows:
+                            meta = self.get_score(
+                                account, system_account_scores,
+                                self.complete_assessments,
+                                self.complete_improvements)
+                            score = meta.get('normalized_score', "N/A")
+                            if 'scores' not in account_rows[account.pk]:
+                                account_rows[account.pk]['scores'] = []
+                            account_rows[account.pk]['scores'] += [
+                                (system_slug, score)]
+
+            if account_rows:
+                self.wsheet = wbook.create_sheet(
+                    title=as_valid_sheet_title(rollup_industry[0]['title']))
+                self.wsheet.append(headings)
+                for rec in six.itervalues(account_rows):
+                    self.writerow(rec)
+
         content = io.BytesIO()
         wbook.save(content)
         content.seek(0)

@@ -91,14 +91,18 @@ class DashboardMixin(BenchmarkMixin):
 
     account_model = get_account_model()
 
-    def get_requested_accounts(self):
-        ends_at = datetime_or_now()
-        return [AccountType._make(val) for val in Subscription.objects.filter(
-            ends_at__gt=ends_at, # from `SubscriptionMixin.get_queryset`
-            plan__organization=self.account).select_related(
-            'organization').values_list('organization__pk',
-            'organization__slug', 'organization__full_name',
-            'organization__email', 'grant_key')]
+    @property
+    def requested_accounts(self):
+        if not hasattr(self, '_requested_accounts'):
+            ends_at = datetime_or_now()
+            self._requested_accounts = [AccountType._make(val)
+                for val in Subscription.objects.filter(
+                    ends_at__gt=ends_at, # from `SubscriptionMixin.get_queryset`
+                    plan__organization=self.account).select_related(
+                    'organization').values_list('organization__pk',
+                    'organization__slug', 'organization__full_name',
+                    'organization__email', 'grant_key')]
+        return self._requested_accounts
 
     def get_accounts(self):
         ends_at = datetime_or_now()
@@ -188,57 +192,73 @@ class SupplierListMixin(DashboardMixin):
     and spreadsheet downloads.
     """
 
+    @property
+    def complete_assessments(self):
+        if not hasattr(self, '_complete_assessments'):
+            self._complete_assessments = set([])
+            # We have to get complete assessments separately from complete
+            # improvements the sample is always not frozen by definition.
+            for rec in Sample.objects.filter(
+                    extra__isnull=True, is_frozen=True,
+                    account__in=self.requested_accounts).values(
+                        'account').annotate(Max('created_at')):
+                self._complete_assessments |= set([rec['account']])
+        return self._complete_assessments
+
+    @property
+    def complete_improvements(self):
+        if not hasattr(self, '_complete_improvements'):
+            self._complete_improvements = set([])
+            # We have to get complete assessments separately from complete
+            # improvements the sample is always not frozen by definition.
+            for rec in Sample.objects.filter(
+                    extra='is_planned', is_frozen=True,
+                    account__in=self.requested_accounts).values(
+                    'account').annotate(Max('created_at')):
+                self._complete_improvements |= set([rec['account']])
+        return self._complete_improvements
+
+    @staticmethod
+    def get_score(account, scores, complete_assessments, complete_improvements):
+        score = scores.get(account.pk, None)
+        result = {'slug': account.slug,
+            'printable_name': account.printable_name,
+            'email': account.email,
+            'request_key': account.request_key}
+        if score is not None:
+            created_at = score.get('created_at', None)
+            if created_at:
+                result.update({'last_activity_at': created_at})
+            nb_answers = score.get('nb_answers', 0)
+            nb_questions = score.get('nb_questions', 0)
+            result.update({
+                'nb_answers': nb_answers,
+                'nb_questions': nb_questions,
+                'assessment_completed': (
+                    account.pk in complete_assessments),
+                'improvement_completed': (
+                    account.pk in complete_improvements),
+            })
+            if nb_answers == nb_questions and nb_questions != 0:
+                normalized_score = score.get('normalized_score', None)
+            else:
+                normalized_score = None
+            if normalized_score is not None:
+                result.update({'normalized_score': normalized_score})
+            # XXX We should really compute a score here.
+            improvement_score = score.get('improvement_numerator', None)
+            if improvement_score is not None:
+                result.update({'improvement_score': improvement_score})
+        return result
+
     def get_queryset(self):
         results = []
         rollup_tree = self.rollup_scores()
         account_scores = rollup_tree[0]['accounts']
-        # We have to get those separately as the sample is always not frozen
-        # by definition.
-        complete_assessments = set([])
-        for rec in Sample.objects.filter(
-                extra__isnull=True, is_frozen=True,
-                account__in=self.get_requested_accounts()).values(
-                    'account').annotate(Max('created_at')):
-            complete_assessments |= set([rec['account']])
-
-        complete_improvements = set([])
-        for rec in Sample.objects.filter(
-                extra='is_planned', is_frozen=True,
-                account__in=self.get_requested_accounts()).values(
-                'account').annotate(Max('created_at')):
-            complete_improvements |= set([rec['account']])
-        for account in self.get_requested_accounts():
+        for account in self.requested_accounts:
             try:
-                score = account_scores.get(account.pk, None)
-                dct = {'slug': account.slug,
-                    'printable_name': account.printable_name,
-                    'email': account.email,
-                    'request_key': account.request_key}
-                if score is not None:
-                    created_at = score.get('created_at', None)
-                    if created_at:
-                        dct.update({'last_activity_at': created_at})
-                    nb_answers = score.get('nb_answers', 0)
-                    nb_questions = score.get('nb_questions', 0)
-                    dct.update({
-                        'nb_answers': nb_answers,
-                        'nb_questions': nb_questions,
-                        'assessment_completed': (
-                            account.pk in complete_assessments),
-                        'improvement_completed': (
-                            account.pk in complete_improvements),
-                    })
-                    if nb_answers == nb_questions and nb_questions != 0:
-                        normalized_score = score.get('normalized_score', None)
-                    else:
-                        normalized_score = None
-                    if normalized_score is not None:
-                        dct.update({'normalized_score': normalized_score})
-                    # XXX We should really compute a score here.
-                    improvement_score = score.get('improvement_numerator', None)
-                    if improvement_score is not None:
-                        dct.update({'improvement_score': improvement_score})
-                results += [dct]
+                results += [self.get_score(account, account_scores,
+                    self.complete_assessments, self.complete_improvements)]
             except self.account_model.DoesNotExist:
                 pass
         return SupplierQuerySet(results)

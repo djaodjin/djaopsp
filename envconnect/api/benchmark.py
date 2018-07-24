@@ -277,6 +277,25 @@ class BenchmarkMixin(ReportMixin):
         return rollup_tree
 
 
+    def get_rollup_at_path_prefix(self, root_prefix, rollup_tree=None):
+        """
+        Traverse the `rollup_tree` to find and return the node
+        matching `root_prefix`.
+        """
+        if rollup_tree is None:
+            rollup_tree = self.rollup_scores()
+        if root_prefix in rollup_tree[1]:
+            return rollup_tree[1][root_prefix]
+        parts = root_prefix.split('/')
+        while parts:
+            parts.pop()
+            from_root = '/'.join(parts)
+            if from_root in rollup_tree[1]:
+                return self.get_rollup_at_path_prefix(
+                    root_prefix, rollup_tree[1][from_root])
+        raise KeyError(root_prefix)
+
+
 class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
     """
     .. sourcecode:: http

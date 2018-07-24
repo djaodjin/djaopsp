@@ -2,7 +2,7 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import csv, datetime, json, logging, io
+import csv, json, logging, io
 from collections import namedtuple
 
 from django.utils import six
