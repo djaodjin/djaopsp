@@ -18,7 +18,7 @@ NPM           := $(binBuildDir)/npm
 PIP           := $(binDir)/pip
 PYTHON        := $(binDir)/python
 installFiles  := install -p -m 644
-MANAGE        := ENVCONNECT_CONFIG_DIR=$(CONFIG_DIR) $(PYTHON) manage.py
+MANAGE        := ENVCONNECT_SETTINGS_LOCATION=$(CONFIG_DIR) $(PYTHON) manage.py
 
 DB_FILENAME   := $(shell grep ^DB_NAME $(CONFIG_DIR)/site.conf | cut -f 2 -d '"')
 EMAIL_FIXTURE_OPT := $(if $(shell git config user.email),--email="$(shell git config user.email)",)
@@ -78,7 +78,7 @@ initdb: install-conf
 
 # Once tests are completed, run 'coverage report'.
 run-coverage: initdb
-	cd $(srcDir) && ENVCONNECT_CONFIG_DIR=$(CONFIG_DIR) \
+	cd $(srcDir) && ENVCONNECT_SETTINGS_LOCATION=$(CONFIG_DIR) \
 		coverage run --source='.,survey,answers' manage.py runserver 8040 --noreload
 
 
