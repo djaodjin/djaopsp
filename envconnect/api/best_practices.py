@@ -180,7 +180,7 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
             "slug": "energy-efficiency",
             "path": "/boxes-enclosures/energy-efficiency",
             "title": "Energy Efficiency",
-            "tag": "system",
+            "tag": "{\"tags\":[\"pagebreak\"]}",
             "rank": null,
             "is_empty": true,
             "consumption": null

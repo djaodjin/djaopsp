@@ -14,6 +14,8 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 
 from ..models import Consumption
+from ..mixins import ContentCut
+
 
 register = template.Library()
 
@@ -153,6 +155,12 @@ def containsTag(node, tag):#pylint:disable=invalid-name
             except KeyError:
                 pass
     return bool(node_tag) and tag in node_tag
+
+
+@register.filter
+def is_pagebreak(node):
+    return containsTag(node, ContentCut.TAG_PAGEBREAK)
+
 
 @register.filter
 def iteritems(dic):

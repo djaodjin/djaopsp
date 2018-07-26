@@ -144,7 +144,7 @@ def populate_rollup(rollup_tree, normalize_to_one):
               "path": "/boxes-and-enclosures/production/energy-efficiency",
                         "slug": "energy-efficiency",
                         "title": "Energy Efficiency",
-                        "tag": "{\"tags\":[\"system\",\"scorecard\"]}",
+                        "tag": "{\"tags\":[\"pagebreak\",\"scorecard\"]}",
                         "score_weight": 1.0,
                         "transparent_to_rollover": false,
                         "accounts": {

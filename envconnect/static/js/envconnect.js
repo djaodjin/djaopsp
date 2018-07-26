@@ -212,10 +212,11 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.HEADING_ELEMENT = 'heading';
 
     $scope.TAG_SCORECARD = 'scorecard';
-    $scope.TAG_SYSTEM = 'system';
+    $scope.TAG_PAGEBREAK = 'system';
 
     $scope.containsTag = function(bestpractise, tag) {
-        return bestpractise.tag && bestpractise.tag.indexOf(tag) >= 0;
+        return (bestpractise && bestpractise.tag
+            && bestpractise.tag.indexOf(tag) >= 0);
     }
 
     $scope.YES = 'Yes'
@@ -719,6 +720,14 @@ envconnectControllers.controller("EnvconnectCtrl",
     // Prepares to edit or delete an element.
     $scope.setActiveElement = function(element, reload) {
         $scope.activeElement.value = element;
+        var extra = JSON.parse($scope.activeElement.value.tag);
+        $scope.activeElement.is_pagebreak = false;
+        for( var idx = 0; idx < extra['tags'].length; ++idx ) {
+            if( extra['tags'][idx] === $scope.TAG_PAGEBREAK ) {
+                $scope.activeElement.is_pagebreak = true;
+                break;
+            }
+        }
         if ( typeof reload !== "undefined" ) {
             $scope.activeElement.reload = reload;
         } else {
@@ -729,6 +738,35 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.editElement = function(event) {
         var form = angular.element(event.target);
         var data = {title: $scope.activeElement.value.title};
+        var extra = JSON.parse($scope.activeElement.value.tag);
+        if( $scope.activeElement.is_pagebreak ) {
+            var found = false;
+            for( var idx = 0; idx < extra['tags'].length; ++idx ) {
+                if( extra['tags'][idx] === $scope.TAG_PAGEBREAK ) {
+                    found = true;
+                    break;
+                }
+            }
+            if( !found ) {
+                extra['tags'].push($scope.TAG_PAGEBREAK);
+                $scope.activeElement.value.tag = JSON.stringify(extra);
+                data['tag'] = $scope.activeElement.value.tag;
+            }
+        } else {
+            var tags = [];
+            var found = false;
+            for( var idx = 0; idx < extra['tags'].length; ++idx ) {
+                if( extra['tags'][idx] !== $scope.TAG_PAGEBREAK ) {
+                    tags.push(extra['tags'][idx]);
+                    found = true;
+                }
+            }
+            if( found ) {
+                extra['tags'] = tags;
+                $scope.activeElement.value.tag = JSON.stringify(extra);
+                data['tag'] = $scope.activeElement.value.tag;
+            }
+        }
         $http.put(settings.urls.api_page_elements
                    + $scope.activeElement.value.slug + '/', data).then(
             function success(resp) {

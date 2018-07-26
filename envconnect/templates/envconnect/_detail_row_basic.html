@@ -6,7 +6,7 @@
         </div>
     </div>
     {% endif %}
-    <div ng-if="!containsTag(practice[0], TAG_SYSTEM)" ng-class="indentHeader(practice, '{{abs_prefix}}')" style="display:inline-block;">
+    <div ng-if="!containsTag(practice[0], TAG_PAGEBREAK)" ng-class="indentHeader(practice, '{{abs_prefix}}')" style="display:inline-block;">
         <a class="title" href="[[practice[0].consumption ? '{{urls.best_practice_base}}' + practice[0].slug + '/' : '']]">[[practice[0].title]]</a>
         {% if request|is_broker_manager and not organization %}
         <a class="incl" href=""

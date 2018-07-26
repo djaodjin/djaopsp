@@ -25,7 +25,7 @@
                                         <div style="position:relative; vertical-align:top;">
                                             <a class="text-danger delete"
                                                href="" data-toggle="modal" data-target="#confirm-delete"
-                                               ng-click="setActiveElement({ slug: icon[0].slug, title: icon[0].title, tag: icon[0].tag, path: icon[0].path }, true)"
+                                               ng-click="setActiveElement(icon[0])"
                                                style="position:absolute;top:0px;left:0px;"><i class="fa fa-trash-o"></i>
                                             </a>
                                             <a id="incl-[[icon[0].slug]]" href=""
@@ -34,7 +34,7 @@
                                             </a>
                                             <a class="edit"
                                                href="" data-toggle="modal" data-target="#edit-element-modal"
-                                               ng-click="setActiveElement({ slug: icon[0].slug, title: icon[0].title, tag: icon[0].tag, path: icon[0].path }, true)"
+                                               ng-click="setActiveElement(icon[0])"
                                                style="position:absolute;top:40px;left:0px;"><i class="fa fa-edit"></i>
                                             </a>
                                         </div>
@@ -45,8 +45,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="system-menus" ng-if="getEntriesByTag(icon[0].path, TAG_SYSTEM).length > 0">
-                                        <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag(icon[0].path, TAG_SYSTEM)" ng-cloak>
+                                    <div class="system-menus" ng-if="getEntriesByTag(icon[0].path, TAG_PAGEBREAK).length > 0">
+                                        <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag(icon[0].path, TAG_PAGEBREAK)" ng-cloak>
                                             <a id="[[practice[0].slug]]" href="{{urls.context_base}}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                             <a id="incl-[[practice[0].slug]]" href=""
                                                ng-click="toggleScorecard(getPath(practice[0]), false, practice[0])">
@@ -68,7 +68,7 @@
                                         <button
                                              aria-controls="home"
                                              data-toggle="modal"
-                                             data-target="#add-element-modal" ng-click="setNewElement(icon[0].path, HEADING_ELEMENT, TAG_SYSTEM)">
+                                             data-target="#add-element-modal" ng-click="setNewElement(icon[0].path, HEADING_ELEMENT, TAG_PAGEBREAK)">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
@@ -99,8 +99,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="system-menus" ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length > 0">
-                                        <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM)" ng-cloak>
+                                    <div class="system-menus" ng-if="getEntriesByTag('{{abs_prefix}}', TAG_PAGEBREAK).length > 0">
+                                        <div class="system-menu system-menu-link [[$first ? 'system-menu-bordered' : '']]" ng-repeat="practice in getEntriesByTag('{{abs_prefix}}', TAG_PAGEBREAK)" ng-cloak>
                                             <a id="[[practice[0].slug]]" href="{{urls.context_base}}[[practice[0].slug]]/">[[practice[0].title]]</a>
                                         </div>
                                     </div>
@@ -175,6 +175,11 @@
             <form class="form-inline" ng-submit="editElement($event)">
                 <div class="modal-body">
                     <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title" ng-model="activeElement.value.title">
+                    <div class="checkbox" style="margin-top:10px;">
+                        <label for="is_pagebreak">
+                            <input class="checkboxinput" type="checkbox" name="is_pagebreak" ng-model="activeElement.is_pagebreak"> Clicking on icon will break to a different page.
+                        </label>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-warning" type="submit">Save</button>

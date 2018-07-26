@@ -56,11 +56,11 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 
 class ContentCut(object):
     """
-    Visitor used to cut down a content tree whenever TAG_SYSTEM is encountered.
+    Visitor that cuts down a content tree whenever TAG_PAGEBREAK is encountered.
     """
-    TAG_SYSTEM = 'system'
+    TAG_PAGEBREAK = 'system'
 
-    def __init__(self, tag=TAG_SYSTEM, depth=1):
+    def __init__(self, tag=TAG_PAGEBREAK, depth=1):
         self.depth = depth
         self.match = tag
 

@@ -7,7 +7,7 @@
     {% for abs_prefix, icon_tuple in root.1|iteritems %}
         {% with icon_tuple.0 as icon %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}" ng-cloak>
-          <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_SYSTEM).length === 0">
+          <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_PAGEBREAK).length === 0">
             <!-- cost, payback, etc. -->
             <div style="position:absolute;left:40%;background-color:rgba(200,200,200,0.5);width:300px;height:200px;text-align:center;z-index:10;" ng-show="!valueSummaryToggle" ng-cloak>
               <div style="position:relative;">
