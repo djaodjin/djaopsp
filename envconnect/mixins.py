@@ -58,7 +58,7 @@ class ContentCut(object):
     """
     Visitor that cuts down a content tree whenever TAG_PAGEBREAK is encountered.
     """
-    TAG_PAGEBREAK = 'system'
+    TAG_PAGEBREAK = 'pagebreak'
 
     def __init__(self, tag=TAG_PAGEBREAK, depth=1):
         self.depth = depth

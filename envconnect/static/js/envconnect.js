@@ -212,7 +212,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.HEADING_ELEMENT = 'heading';
 
     $scope.TAG_SCORECARD = 'scorecard';
-    $scope.TAG_PAGEBREAK = 'system';
+    $scope.TAG_PAGEBREAK = 'pagebreak';
 
     $scope.containsTag = function(bestpractise, tag) {
         return (bestpractise && bestpractise.tag
