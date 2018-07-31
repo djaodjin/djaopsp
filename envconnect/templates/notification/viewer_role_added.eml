@@ -14,7 +14,7 @@ You were added as a {{role}} to {{organization.printable_name|safe}}
 </p>
 {% else %}
 <p>Hi {{user.printable_name}},</p>
-{%endif %}
+{% endif %}
 <p>
 You are receiving this email, because you have been added
 {% if request_user %}by {{request_user.printable_name}}{% endif %}

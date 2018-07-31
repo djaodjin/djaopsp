@@ -11,7 +11,7 @@ HTML encoded. #}
 <p>
 {{reason|md}}
 </p>
-{%endif %}
+{% endif %}
 <p>
 {{user.printable_name}} is requesting access to your scorecard and
 planning status on https://tspproject.org/ on behalf
