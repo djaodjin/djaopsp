@@ -167,7 +167,7 @@
     "registration": 2,
     "entry_point": "http://localhost:8040"
   },
-  "model": "djagent.app", "pk": 6
+  "model": "rules.app", "pk": 6
 },
 { "fields": {
     "name": "envconnect",
