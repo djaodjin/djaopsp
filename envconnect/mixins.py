@@ -286,11 +286,11 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
         if not rollup_tree[1].keys():
             return {path: rollup_tree}
-        else:
-            text = PageElement.objects.filter(
-                slug=rollup_tree[0]['slug']).values('text').first()
-            if text and text['text']:
-                rollup_tree[0].update(text)
+
+        text = PageElement.objects.filter(
+            slug=rollup_tree[0]['slug']).values('text').first()
+        if text and text['text']:
+            rollup_tree[0].update(text)
         leafs = OrderedDict({})
         for key, level_detail in six.iteritems(rollup_tree[1]):
             leafs.update(self.get_leafs(level_detail, path=key))

@@ -721,9 +721,10 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.setActiveElement = function(element, reload) {
         $scope.activeElement.value = element;
         var extra = JSON.parse($scope.activeElement.value.tag);
+        var tags = (extra && extra.hasOwnProperty('tags')) ? extra['tags'] : [];
         $scope.activeElement.is_pagebreak = false;
-        for( var idx = 0; idx < extra['tags'].length; ++idx ) {
-            if( extra['tags'][idx] === $scope.TAG_PAGEBREAK ) {
+        for( var idx = 0; idx < tags.length; ++idx ) {
+            if( tags[idx] === $scope.TAG_PAGEBREAK ) {
                 $scope.activeElement.is_pagebreak = true;
                 break;
             }
@@ -1194,6 +1195,80 @@ envconnectControllers.controller("EnvconnectCtrl",
                 showErrorMessages(resp);
             }
         );
+    };
+
+    $scope.addMeasure = function(prefix, $event) {
+        if( $event ) {
+            $event.preventDefault();
+        }
+        var path = prefix;
+        if( !path && $scope.activeElement ) {
+            path = $scope.activeElement.value.path;
+        }
+        if( path ) {
+            var node = $scope.getEntriesRecursive($scope.entries, path);
+            if( ! node.measures ) {
+                node.measures = {items: [], freetext: "", comments: ""};
+            }
+            node.measures.items.push({measured: 0, name: "", stick: "",
+                meaning: "", scope: "", frequency: ""});
+        }
+    };
+
+    $scope.getMeasures = function(prefix) {
+        var path = prefix;
+        if( !path && $scope.activeElement ) {
+            path = $scope.activeElement.value.path;
+        }
+        if( path ) {
+            var node = $scope.getEntriesRecursive($scope.entries, path);
+            if( ! node.measures ) {
+                $scope.addMeasure(path);
+            }
+            return node.measures;
+        }
+        return {items: [], freetext: "", comments: ""};
+    };
+
+    $scope.submitMeasures = function(prefix, event) {
+        var form = angular.element(event.target);
+        var modalDialog = form.parents('.modal');
+        var data = [];
+        var measures = $scope.getMeasures(prefix);
+        for( var idx = 0; idx < measures.items.length; ++idx ) {
+            if( measures.items[idx].measured ) {
+                data.push({
+                    metric: measures.items[idx].name
+                        + "-" + measures.items[idx].meaning
+                        + "-" + measures.items[idx].stick
+                        + "-" + measures.items[idx].frequency
+                        + "-" + measures.items[idx].scope,
+                    measured: measures.items[idx].measured});
+            }
+        }
+        if( measures.freetext ) {
+            data.push({metric: "freetext", measured: measures.freetext});
+        }
+        if( measures.comments ) {
+            data.push({metric: "comments", measured: measures.comments});
+        }
+        var path = prefix;
+        var node = $scope.activeElement ? $scope.activeElement.value : null;
+        if( !path && node ) {
+            path = node.path;
+        }
+        if( !node && path ) {
+            node = $scope.getEntriesRecursive($scope.entries, path);
+        }
+        $http.post(settings.urls.api_assessment_sample + node.consumption.rank + "/measures/",
+                   {measures: data}).then(
+            function success(resp) {
+                modalDialog.modal('hide');
+            },
+            function error(resp) {
+                modalDialog.modal('hide');
+                showErrorMessages(resp);
+            });
     };
 
     var savingsElements = angular.element("#improvement-dashboard").find(".savings");

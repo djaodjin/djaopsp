@@ -161,6 +161,8 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                 'survey_api_sample', args=(organization, self.sample)),
             'api_assessment_sample_new': reverse(
                 'survey_api_sample_new', args=(organization,)),
+#            'api_assessment_measures': reverse(
+#                'api_assessment_measures', args=(organization, self.sample)),
         })
         return context
 

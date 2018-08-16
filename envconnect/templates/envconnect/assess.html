@@ -215,19 +215,124 @@ of the currently completed assessment or do you want to create a new assessment?
      aria-labelledby="Report measurements" aria-hidden="true"
      style="color: #000;">
     <div class="modal-dialog">
+      <form class="form" ng-submit="submitMeasures('{{abs_prefix}}', $event)">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title"><i class="fa fa-wrench"></i> Report data ...</h4>
+                <h4 class="modal-title">DO YOU MEASURE/REPORT?</h4>
             </div>
             <div class="modal-body">
-Data entry, trending, reporting and dashboard creation is under construction.
+                <h5>For bonus points tell us what you measure and report</h5>
+                <p>
+Each additional measure you tell us about is worth 4 bonus points
+                </p>
+                <fieldset>
+                  <legend>ABSOLUTE/TOTAL MEASUREMENTS</legend>
+                  <div class="row" ng-repeat="measure in getMeasures('{{abs_prefix}}').items">
+                    <div class="col-sm-2">
+                      <input class="form-control" type="number" ng-model="measure.measured" placeholder="Enter data point">
+                    </div>
+                    <div class="col-sm-2">
+                      <select class="form-control" ng-model="measure.name" name="metric-name" value="Subject of measure">
+                        <option value="">Select subject of measure...</option>
+                        <option value="energy">Energy</option>
+                        <option value="fuel">Fuel</option>
+                        <option value="ghg-emissions">GHG emissions</option>
+                        <option value="hazardous-waste">Hazardous waste</option>
+                        <option value="material">Material</option>
+                        <option value="nox-emissions">NOx emissions</option>
+                        <option value="particulate-emissions">Particulate emissions</option>
+                        <option value="sox-emissions">SOx emissions</option>
+                        <option value="solid-general-waste">Solid/general waste</option>
+                        <option value="spend">Spend</option>
+                        <option value="water-use">Water use</option>
+                        <option value="waste-water-effluent">Waste water effluent</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <select class="form-control" ng-model="measure.stick" name="metric-stick" value="Unit of measure">
+                              <option value="">Select unit of measure...</option>
+                              <option value="count">Count or number</option>
+                              <option value="currency">Currency</option>
+                              <option value="gallons">Gallons</option>
+                              <option value="joules">Joules</option>
+                              <option value="kilograms">Kilograms</option>
+                              <option value="liters">Liters</option>
+                              <option value="metric-tons">Metric tons</option>
+                              <option value="percentage">Percentage</option>
+                              <option value="pounds">Pounds</option>
+                              <option value="short-tons">Tons (short/US)</option>
+                              <option value="long-tons">Tons (long/UK)</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                            <select class="form-control" ng-model="measure.meaning" name="metric-meaning" value="Select">
+                                    <option value="">Select meaning ...</option>
+                                    <option value="saved">Saved</option>
+                                    <option value="avoided">Avoided</option>
+                                    <option value="reduced">Reduced</option>
+                                    <option value="generated">Generated</option>
+                                    <option value="emitted">Emitted</option>
+                                    <option value="with-environmental-controls">With environmental controls</option>
+                            </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <select class="form-control" ng-model="measure.scope" name="metric-scope" value="Scope of measure">
+                        <option value="">Select scope ...</option>
+                        <option value="corporate-level-of-which-reporting-entity-is-part">Corporate level, of which reporting entity is part</option>
+                        <option value="business-unit-Reporting-entity">Business unit/Reporting entity</option>
+                        <option value="some-activities">Some activities</option>
+                        <option value="all-activities">All activities</option>
+                        <option value="ad-hoc-projects">Ad hoc projects</option>
+                        <option value="some-projects">Some projects</option>
+                        <option value="all-projects">All projects</option>
+                        <option value="office-footprint-only">Office footprint only</option>
+                        <option value="full-operations-footprint">Full operations footprint</option>
+                        <option value="partial-operations-footprint">Partial operations footprint</option>
+                        <option value="scope-1-full">Scope 1 - full</option>
+                        <option value="scope-2-full">Scope 2 - full</option>
+                        <option value="scope-3-full">Scope 3 – full</option>
+                        <option value="scope-1-partial">Scope 1 - partial</option>
+                        <option value="scope-2-partial">Scope 2 - partial</option>
+                        <option value="scope-3-partial">Scope 3 – partial</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2">
+                      <select class="form-control" ng-model="measure.frequency" name="metric-frequency" value="Frequency">
+                        <option value="">Select frequency ...</option>
+                        <option value="annual">Annual</option>
+                        <option value="quarterly">Quarterly</option>
+                        <option value="semi-annual">Semi-annual</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button class="btn btn-default" type="button" ng-click="addMeasure('{{abs_prefix}}', $event)"><i class="fa fa-plus"></i> Report another item</button>
+                </fieldset>
+                <fieldset>
+                  <legend>OTHER MEASURES</legend>
+                  <p>Also for bonus points, list other measures and reporting your organization does that aren’t included above options.</p>
+                  <textarea class="form-control"
+                            name="other-measures"
+                            maxlength="255" type="text" rows="10"
+                            placeholder="For example:
+- Office energy intensity/square foot
+- Energy intensity/meter of cable
+- Joules/distribution transformer
+- Carbon emissions/parcel delivered"
+                            ng-model="getMeasures('{{abs_prefix}}').freetext"></textarea>
+                  <p>And/or tell us what measures you think make the most sense for your type of organization, or the challenges of reporting environmental metrics</p>
+                  <textarea class="form-control"
+                            name="message"
+                            maxlength="255" type="text" rows="10"
+                            placeholder="Insert text"
+                            ng-model="getMeasures('{{abs_prefix}}').comments"></textarea>
+                </fieldset>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary"
-                    data-dismiss="modal">OK</button>
+                <button class="btn btn-primary" type="submit" value="submit">Submit</button>
             </div>
         </div>
+      </form>
     </div>
 </div>
 {% endblock %}

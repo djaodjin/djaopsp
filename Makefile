@@ -74,7 +74,9 @@ initdb: install-conf
 	cd $(srcDir) && $(MANAGE) migrate $(RUNSYNCDB) --noinput
 	cd $(srcDir) && $(MANAGE) loadfixtures $(EMAIL_FIXTURE_OPT) \
 			envconnect/fixtures/streetsidelite.json \
-			envconnect/fixtures/default-db.json
+			envconnect/fixtures/default-db.json \
+			envconnect/fixtures/measures.json
+
 
 # Once tests are completed, run 'coverage report'.
 run-coverage: initdb

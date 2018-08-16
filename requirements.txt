@@ -19,6 +19,7 @@ openpyxl==2.5.4
 yuicompressor==2.4.8
 pytz
 
-# C/C++
-#cffi==1.11.2
-#port install py36-cairo pango npm5
+# These have C/C++ components, installed through the native package manager
+# cffi==1.11.2
+# psycopg2==2.7.5
+# port install py36-cairo pango npm5

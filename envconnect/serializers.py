@@ -7,9 +7,17 @@ from rest_framework import serializers
 
 from pages.models import PageElement
 from pages.serializers import PageElementSerializer as BasePageElementSerializer
-from survey.models import EnumeratedQuestions
+from survey.models import Answer, EnumeratedQuestions, Metric
 
 from .models import ColumnHeader, Consumption
+
+class NoModelSerializer(serializers.Serializer):
+
+    def create(self, validated_data):
+        raise RuntimeError('`create()` should not be called.')
+
+    def update(self, instance, validated_data):
+        raise RuntimeError('`update()` should not be called.')
 
 
 class ColumnHeaderSerializer(serializers.ModelSerializer):
@@ -79,7 +87,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
         return 0
 
 
-class AccountSerializer(serializers.Serializer):
+class AccountSerializer(NoModelSerializer):
     """
     Used to list accessible suppliers
     """
@@ -95,24 +103,32 @@ class AccountSerializer(serializers.Serializer):
     assessment_completed = serializers.BooleanField(required=False)
     improvement_completed = serializers.BooleanField(required=False)
 
-    def create(self, validated_data):
-        raise NotImplementedError('This serializer is read-only')
 
-    def update(self, instance, validated_data):
-        raise NotImplementedError('This serializer is read-only')
+class MeasureSerializer(serializers.ModelSerializer):
+
+    metric = serializers.SlugRelatedField(
+        queryset=Metric.objects.all(), slug_field='slug')
+    measured = serializers.CharField()
+
+    class Meta:
+        model = Answer
+        fields = ('metric', 'measured', 'created_at',
+            'collected_by')
+        read_only_fields = ('created_at', 'collected_by')
 
 
-class MoveRankSerializer(serializers.Serializer):
+class AssessmentMeasuresSerializer(NoModelSerializer):
+    """
+    measures which are not just Yes/No.
+    """
+    measures = MeasureSerializer(many=True)
+
+
+class MoveRankSerializer(NoModelSerializer):
     """
     Move a best practice into the tree of best practices.
     """
     source = serializers.CharField(write_only=True)
-
-    def create(self, validated_data):
-        raise NotImplementedError('This serializer is read-only')
-
-    def update(self, instance, validated_data):
-        raise NotImplementedError('This serializer is read-only')
 
 
 class PageElementSerializer(BasePageElementSerializer):
@@ -135,16 +151,10 @@ class PageElementSerializer(BasePageElementSerializer):
         return not obj.text
 
 
-class ScoreWeightSerializer(serializers.Serializer):
+class ScoreWeightSerializer(NoModelSerializer):
 
     weight = serializers.DecimalField(decimal_places=2, max_digits=3,
         required=True)
 
     class Meta:
         fields = ('weight',)
-
-    def create(self, validated_data):
-        raise NotImplementedError('done is APIView')
-
-    def update(self, instance, validated_data):
-        raise NotImplementedError('done is APIView')

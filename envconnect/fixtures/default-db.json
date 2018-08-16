@@ -23,6 +23,13 @@
   "model" : "survey.unit", "pk" : 2
 },
 { "fields": {
+    "slug": "freetext",
+    "title": "Free text",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk" : 3
+},
+{ "fields": {
     "unit": 1,
     "rank": 1,
     "text": "Yes"
@@ -70,6 +77,20 @@
     "unit": 2
   },
   "model" : "survey.metric", "pk" : 2
+},
+{ "fields": {
+    "slug": "freetext",
+    "title": "Other measures",
+    "unit": 3
+  },
+  "model" : "survey.metric", "pk" : 3
+},
+{ "fields": {
+    "slug": "comments",
+    "title": "Comments",
+    "unit": 3
+  },
+  "model" : "survey.metric", "pk" : 4
 },
 {
     "fields": {
