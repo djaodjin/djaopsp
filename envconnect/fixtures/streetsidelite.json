@@ -153,7 +153,7 @@
 },
 {
     "fields": {
-        "slug":"energy-utility-reporting",
+        "slug":"energy-utility-report",
         "title":"Reporting suppliers",
         "created_at":"2017-10-01T00:00:00+00:00",
         "is_not_priced": 1,
