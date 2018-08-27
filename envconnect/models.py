@@ -273,6 +273,16 @@ class Consumption(SurveyQuestion):
         NOT_APPLICABLE: 'Not applicable'
     }
 
+    NO_MEASUREMENTS = 0
+    FREETEXT_MEASUREMENTS = 1
+    CATEGORIZED_MEASUREMENTS = 2
+
+    MEASUREMENTS = (
+        (NO_MEASUREMENTS, 'none'),
+        (FREETEXT_MEASUREMENTS, 'freetext'),
+        (CATEGORIZED_MEASUREMENTS, 'categorized')
+    )
+
     # ColumnHeader objects are inserted lazily at the time a column
     # is hidden so we need a default set of columns to compute visible ones
     # in all cases.
@@ -309,11 +319,10 @@ class Consumption(SurveyQuestion):
     #   - a Consumption is initially created
     avg_value = models.IntegerField(default=0)
 
-# XXX Before migration:
-#    question = models.OneToOneField('survey.Question', parent_link=True)
-# XXX After migration:
     # Additional metric on the Question.
-    requires_measurements = models.BooleanField(default=False)
+    requires_measurements = models.PositiveSmallIntegerField(
+        choices=MEASUREMENTS, default=NO_MEASUREMENTS)
+
     class Meta:
         db_table = 'survey_question'
 

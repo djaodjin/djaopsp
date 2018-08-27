@@ -1195,6 +1195,11 @@ envconnectControllers.controller("EnvconnectCtrl",
                 showErrorMessages(resp);
             }
         );
+        if( newValue === $scope.YES
+            || newValue === $scope.NEEDS_MODERATE_IMPROVEMENT ) {
+            $scope.setActiveElement(practice);
+            angular.element("#report-measurements-" + practice.consumption.requires_measurements).modal('show');
+        }
     };
 
     $scope.addMeasure = function(prefix, $event) {

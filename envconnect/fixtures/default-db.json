@@ -313,7 +313,7 @@
     "implementation_ease": 1,
     "profitability": 1,
     "avg_value": 1,
-    "requires_measurements": true
+    "requires_measurements": 2
   },
   "model": "envconnect.Consumption", "pk": 1
 },
@@ -346,7 +346,8 @@
     "environmental_value": 2,
     "implementation_ease": 2,
     "profitability": 2,
-    "avg_value": 2
+    "avg_value": 2,
+    "requires_measurements": 1
   },
   "model": "envconnect.Consumption", "pk": 2
 },
