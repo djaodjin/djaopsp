@@ -35,7 +35,7 @@
                     {% with forloop.first as draw_border %}
                     <li id="{{icon.slug}}" class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}{% block extra_icon_classes %} active no-color-chage{% endblock %}{% if icon.slug == active %} active{% endif %}">
                       <div class="icon-container">
-                      {% if is_content_manager and not organization %}
+                      {% if request|is_broker_manager and not organization %}
                         <div style="position:relative; vertical-align:top;">
                           <a class="text-danger delete"
                              href="" data-toggle="modal"
@@ -59,7 +59,7 @@
                         <div id="{{icon.slug}}-score" class="icon-score" data-toggle="tooltip" data-placement="top" title="An icon sore is the sum of all (3 * opportunity where answered 'yes', 2 * opportunity where answered 'needs little improvement', opportunity  where answered 'needs lot of improvement') * 100 / sum of all (opportunity where not answered 'Not applicable')">
                           <h3 class="rollup-score"><i class="fa fa-spinner fa-spin"></i></h3>
                             <div>
-                                (<span class="rollup-weight"{% if is_content_manager %} data-id="{{abs_prefix}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)
+                                (<span class="rollup-weight"{% if request|is_broker_manager %} data-id="{{abs_prefix}}" data-key="weight" ng-click="editScoreWeight($event)"{% endif %}><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>)
                             </div>
                         </div>
                         {% endblock score %}
