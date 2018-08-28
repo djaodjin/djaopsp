@@ -11,7 +11,7 @@
                         <div class="header-tuple">
                             {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
                             <ul class="nav nav-tabs squared-tabs">
-                                {% if request|is_broker_manager and not organization %}
+                                {% if is_content_manager and not organization %}
                                 <!-- start of Angular code for broker -->
                                 <li data-id="[[icon[0].path]]"
                                     ng-repeat="icon in getEntries('{{ icon_prefix }}', 1)"
@@ -223,7 +223,7 @@ jQuery(document).ready(function($) {
 });
 </script>
 
-{% if request|is_broker_manager %}
+{% if is_content_manager %}
 <script type="text/javascript">
 var pageElementUrl = "{% url 'page_elements' %}";
 

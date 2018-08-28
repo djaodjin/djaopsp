@@ -9,6 +9,7 @@ from deployutils.helpers import datetime_or_now
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import models, transaction
+from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils import six
 from pages.mixins import TrailMixin
@@ -108,13 +109,28 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.migrate_survey()
-            self.migrate_completion_status()
+            self.update_pageelement_accounts()
+#            self.migrate_survey()
+#            self.migrate_completion_status()
 #            self.print_updated_scores()
 #            self.tag_as_json()
 #            self.dump_sql_statements(options.get('paths'))
 #            self.relabel_to_fix_error()
 #            self.recompute_avg_value()
+
+
+    @staticmethod
+    def update_pageelement_accounts():
+        with transaction.atomic():
+            elems = set([])
+            for question in Consumption.objects.filter(
+                Q(path__startswith='/energy-utility')
+                | Q(path__startswith='/corporate-shared-services')
+                | Q(path__startswith='/electric-procurement')
+                | Q(path__startswith='/gas-procurement')
+                | Q(path__startswith='/materials-planning-inventory')):
+                elems |= set(question.path[1:].split('/'))
+            PageElement.objects.filter(slug__in=elems).update(account_id=148)
 
     @staticmethod
     def migrate_completion_status():

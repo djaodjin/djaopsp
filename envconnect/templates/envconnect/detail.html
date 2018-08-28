@@ -32,7 +32,7 @@
                             </span>
                             {% endif %}
                         </div>
-                        {% if request|is_broker_manager %}
+                        {% if is_content_manager %}
                         <button class="btn-link btn-hide" ng-click="showHide('{{col_header.slug}}', '{{abs_prefix}}')">
                             <i class="fa fa-eye[[hidden['{{abs_prefix}}'].{{col_header.slug}} ? '-slash' : '']]"></i>
                         </button>
@@ -49,7 +49,7 @@
                         <button class="btn-link btn-sort" ng-click="sortBy('{{col_header.slug}}')">
                             <i class="fa fa-sort[[dir.{{col_header.slug}} ? ('-' + dir.{{col_header.slug}}) : '']]"></i>
                         </button>
-                        {% if request|is_broker_manager %}
+                        {% if is_content_manager %}
                         <button class="btn-link btn-hide" ng-click="showHide('{{col_header.slug}}', '{{abs_prefix}}')">
                             <i class="fa fa-eye[[hidden['{{abs_prefix}}'].{{col_header.slug}} ? '-slash' : '']]"></i>
                         </button>
@@ -62,7 +62,7 @@
                     </tr>
                 </thead>
                 <tbody
-                    {% if request|is_broker_manager %}
+                    {% if is_content_manager %}
                     dnd-list="getEntries('{{abs_prefix}}')"
                     data-drop="true"
                     data-jqyoui-options
@@ -70,7 +70,7 @@
                     {% endif %}
                     ng-if="sortedOnKeys === 0" ng-show="valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        {% if request|is_broker_manager %}
+                        {% if is_content_manager %}
                         data-drag="false"
                         data-jqyoui-options
                         jqyoui-draggable
@@ -80,7 +80,7 @@
                     </tr>
                 </tbody>
                 <tbody
-                    {% if request|is_broker_manager %}
+                    {% if is_content_manager %}
                     dnd-list="getEntries('{{abs_prefix}}')"
                     data-drop="true"
                     data-jqyoui-options
@@ -88,7 +88,7 @@
                     {% endif %}
                     ng-if="sortedOnKeys !== 0" ng-show="valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        {% if request|is_broker_manager %}
+                        {% if is_content_manager %}
                         data-drag="false"
                         data-jqyoui-options
                         jqyoui-draggable
@@ -98,7 +98,7 @@
                     </tr>
                 </tbody>
                 <tbody
-                    {% if request|is_broker_manager %}
+                    {% if is_content_manager %}
                     dnd-list="getEntries('{{abs_prefix}}')"
                     data-drop="true"
                     data-jqyoui-options
@@ -106,7 +106,7 @@
                     {% endif %}
                     ng-if="sortedOnKeys === 0" ng-show="!valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        {% if request|is_broker_manager %}
+                        {% if is_content_manager %}
                         data-drag="false"
                         data-jqyoui-options
                         jqyoui-draggable
@@ -116,7 +116,7 @@
                     </tr>
                 </tbody>
                 <tbody
-                    {% if request|is_broker_manager %}
+                    {% if is_content_manager %}
                     dnd-list="getEntries('{{abs_prefix}}')"
                     data-drop="true"
                     data-jqyoui-options
@@ -124,7 +124,7 @@
                     {% endif %}
                     ng-if="sortedOnKeys !== 0"  ng-show="!valueSummaryToggle">
                     <tr data-id="[[getPath(practice[0])]]"
-                        {% if request|is_broker_manager %}
+                        {% if is_content_manager %}
                         data-drag="false"
                         data-jqyoui-options
                         jqyoui-draggable
@@ -146,7 +146,7 @@ See the following for examples of content developed for best practices:
                         </td>
                     </tr>
                 </tbody>
-                {% if request|is_broker_manager %}
+                {% if is_content_manager %}
                 <tbody>
                     <tr data-id="{{abs_prefix}}">
                         <td colspan="[[!valueSummaryToggle ? {{icon.profitability_headers_len}} : {{icon.value_headers_len}}]]">

@@ -46,13 +46,6 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
     def get_roots():
         return PageElement.objects.get_roots().filter(tag__contains='industry')
 
-    def get_context_data(self, **kwargs):
-        context = super(
-            PermissionMixin, self).get_context_data(**kwargs)
-        context.update({
-            'is_envconnect_manager': self.manages(settings.APP_NAME)})
-        return context
-
 
 class ContentCut(object):
     """
@@ -748,6 +741,11 @@ class BestPracticeMixin(BreadcrumbMixin):
     def get_context_data(self, **kwargs):
         context = super(
             BestPracticeMixin, self).get_context_data(**kwargs)
+        breadcrumbs = context.get('breadcrumbs', [])
+        if breadcrumbs:
+            context.update({
+                'is_content_manager': self.manages(
+                    breadcrumbs[-1][0].account.slug)})
         if not self.best_practice:
             return context
         context.update({

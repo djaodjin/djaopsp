@@ -1,5 +1,5 @@
 <div style="display:inline-block;">
-    {% if request|is_broker_manager and not organization %}
+    {% if is_content_manager and not organization %}
     <div role="toolbar" style="display:inline-block;align-items:center;margin-right:2px;">
         <div class="btn btn-default btn-sm" style="background-color:#aaa;border-color:#aaa;">
             <i class="fa fa-bars move-rank"></i>
@@ -8,7 +8,7 @@
     {% endif %}
     <div ng-if="!containsTag(practice[0], TAG_PAGEBREAK)" ng-class="indentHeader(practice, '{{abs_prefix}}')" style="display:inline-block;">
         <a class="title" href="[[practice[0].consumption ? '{{urls.best_practice_base}}' + practice[0].slug + '/' : '']]">[[practice[0].title]]</a>
-        {% if request|is_broker_manager and not organization %}
+        {% if is_content_manager and not organization %}
         <a class="incl" href=""
            ng-click="toggleScorecard(getPath(practice[0]), false, practice[0])"><i class="fa [[containsTag(practice[0],TAG_SCORECARD) ? 'fa-bar-chart' : 'fa-sticky-note-o']]"></i></a>
         <a class="edit" href=""

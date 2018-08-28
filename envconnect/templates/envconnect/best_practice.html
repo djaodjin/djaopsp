@@ -23,7 +23,7 @@
 							<div id="{{best_practice.slug}}" class="panel-body">
 								<div class="padding_20">
 									<h1 class="editable" data-key="title">{{best_practice.title}}</h1>
-{% if request|is_broker_manager %}
+{% if is_content_manager %}
 									<div>
 										<button id="lock" type="submit" class="btn {% if 'locked' in best_practice.tag %}btn-warning{% else %}btn-primary{% endif %} btn-sm">{% if 'locked' in best_practice.tag %}Re-Open{% else %}Complete{% endif %}</button>
 <button id="duplicate-content-btn" class="btn btn-default btn-sm" href=""
@@ -51,7 +51,7 @@ See the following for examples of content developed for other practices:
 </p>
 {% endif %}
 										</div>
-{% if request|is_broker_manager %}
+{% if is_content_manager %}
 <div class="text-center">
 {% if aliases %}
 <div style="margin-top: 15px;">
@@ -130,7 +130,7 @@ $(document).ready(function(){
 	});
 });
 </script>
-{% if request|is_broker_manager %}
+{% if is_content_manager %}
 <script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
 	$(".editable").editor({

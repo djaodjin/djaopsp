@@ -636,7 +636,7 @@
     "title": "Construction",
     "slug": "construction",
     "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"enabled\"]}",
-    "account": 6
+    "account": 10
   },
   "model": "pages.PageElement", "pk": 28
 },
@@ -644,7 +644,7 @@
   "fields": {
     "title": "Construction",
     "slug": "sustainability-construction",
-    "account": 6
+    "account": 10
   },
   "model": "pages.PageElement", "pk": 29
 },
@@ -659,7 +659,7 @@
   "fields": {
     "title": "Management",
     "slug": "management-construction",
-    "account": 6
+    "account": 10
   },
   "model": "pages.PageElement", "pk": 30
 },
@@ -683,7 +683,7 @@
   "fields": {
     "title": "A process is in place",
     "slug": "process-in-place",
-    "account": 6
+    "account": 10
   },
   "model": "pages.PageElement", "pk": 32
 },

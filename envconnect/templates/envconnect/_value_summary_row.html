@@ -9,7 +9,7 @@
 </td>
 {% else %}
 <td ng-class="'green-level-' + practice[0].consumption.{{col_header.slug}} + ' editable-consumption edit-range cell-fix-width'"
-    {% if request|is_broker_manager and not organization %}
+    {% if is_content_manager and not organization %}
     data-key="{{col_header.slug}}"
     data-range-step="1" data-range-min="0" data-range-max="4"
     data-range-value="[[practice[0].consumption.{{col_header.slug}}]]"

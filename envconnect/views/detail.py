@@ -1,9 +1,8 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 import json
 
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
@@ -44,7 +43,7 @@ class DetailView(BestPracticeMixin, TemplateView):
 
         # attach visible column headers
         hidden_columns = {}
-        is_envconnect_manager = self.manages(settings.APP_NAME)
+        is_content_manager = context.get('is_content_manager', False)
         for icon_path, icon_tuple in six.iteritems(root[1]):
             hidden_columns[icon_path] = {}
             hidden = set([row['slug']
@@ -76,7 +75,7 @@ class DetailView(BestPracticeMixin, TemplateView):
 " average of the totals represented by the range.\n\nClick individual best"\
 " practice headings and navigate to the \"References\" section for more"\
 " detail on data provenance."}]:
-                if is_envconnect_manager:
+                if is_content_manager:
                     profitability_headers += [col_header]
                     hidden_columns[icon_path][col_header['slug']] = (
                         col_header['slug'] in hidden)
@@ -101,7 +100,7 @@ class DetailView(BestPracticeMixin, TemplateView):
                      "tooltip": "Implementation ease"},
                     {"slug": "avg_value",
                      "title": "Average Value"}]:
-                if is_envconnect_manager:
+                if is_content_manager:
                     value_headers += [col_header]
                     hidden_columns[icon_path][col_header['slug']] = (
                         col_header['slug'] in hidden)
@@ -114,7 +113,7 @@ class DetailView(BestPracticeMixin, TemplateView):
                 icon_tuple[0]['value_headers_len'])
         self._report_queries("attached visiblity of columns.")
 
-        if not is_envconnect_manager:
+        if not is_content_manager:
             context.update({'sort_by': "{'agv_value': 'desc'}"})
         context.update({
             'role': "tab",
