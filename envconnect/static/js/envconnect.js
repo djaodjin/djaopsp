@@ -1005,6 +1005,23 @@ envconnectControllers.controller("EnvconnectCtrl",
     // Select all answers
     $scope.selectAll = function ($event, answer) {
         $event.preventDefault();
+        if( answer === $scope.NOT_APPLICABLE ) {
+            var trip = new Trip([{
+                sel: $("#assess-content"),
+                content: "Did you mean to select <strong>Not applicable</strong> for all multuple<br />responses below. If not, revise your response by selecting a<br />response for each individual row under the heading row.",
+                position: "screen-center",
+                enableAnimation: false,
+                delay:-1,
+                tripTheme: "black",
+                showNavigation: true,
+                canGoPrev: false,
+                prevLabel: " ",
+                nextLabel: "OK",
+                skipLabel: " ",
+                finishLabel: "OK",
+            }]);
+            trip.start();
+        }
         var element = angular.element($event.target);
         var prefix = element.parents('table').find('tbody').data('prefix');
         var prefixElements = element.parents("tr[data-id]");
@@ -1189,7 +1206,24 @@ envconnectControllers.controller("EnvconnectCtrl",
             measured: newValue
         }).then(
             function success(resp) {
-                practice.consumption = resp.data;
+                practice.consumption = resp.data.consumption;
+                if( resp.data.first ) {
+                    var trip = new Trip([{
+                        sel: $("#assess-content"),
+                        content: $("#assess-content").data("trip-content"),
+                        position: "screen-center",
+                        enableAnimation: false,
+                        delay:-1,
+                        tripTheme: "black",
+                        showNavigation: true,
+                        canGoPrev: false,
+                        prevLabel: " ",
+                        nextLabel: "OK",
+                        skipLabel: " ",
+                        finishLabel: "OK",
+                    }]);
+                    trip.start();
+                }
             },
             function error(resp) {
                 showErrorMessages(resp);

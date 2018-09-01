@@ -87,6 +87,15 @@ class ConsumptionSerializer(serializers.ModelSerializer):
         return 0
 
 
+class AnswerUpdateSerializer(NoModelSerializer):
+
+    consumption = ConsumptionSerializer()
+    first = serializers.BooleanField()
+
+    class Meta:
+        fields = ('consumption', 'first')
+
+
 class AccountSerializer(NoModelSerializer):
     """
     Used to list accessible suppliers

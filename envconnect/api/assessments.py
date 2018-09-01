@@ -18,7 +18,7 @@ from survey.utils import get_question_model
 
 from ..mixins import ExcludeDemoSample, ReportMixin
 from ..models import Consumption, get_scored_answers
-from ..serializers import ConsumptionSerializer, AssessmentMeasuresSerializer
+from ..serializers import AnswerUpdateSerializer, AssessmentMeasuresSerializer
 
 
 LOGGER = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
             metric=self.question.default_metric)
 
     def get_http_response(self, serializer,
-                     status=HTTP_200_OK, headers=None):
+                     status=HTTP_200_OK, headers=None, first_answer=False):
         #pylint:disable=protected-access
         scored_answers = get_scored_answers(
             population=Consumption.objects.get_active_by_accounts(
@@ -47,9 +47,12 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
             decorated_answer_tuple = namedtuple('DecoratedAnswerTuple',
                 [col[0] for col in col_headers])
             decorated_answer = decorated_answer_tuple(*cursor.fetchone())
-        data = ConsumptionSerializer(context={
+        data = AnswerUpdateSerializer(context={
             'campaign': self.sample.survey
-        }).to_representation(decorated_answer)
+        }).to_representation({
+            'consumption':decorated_answer,
+            'first': first_answer
+        })
         return http.Response(data, status=status, headers=headers)
 
 

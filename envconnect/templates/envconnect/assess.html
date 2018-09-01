@@ -3,7 +3,11 @@
 {% load static from staticfiles %}
 
 {% block icons_content %}
-<div class="tab-content collapse{% if active %} in{% endif %}">
+<div id="assess-content" class="tab-content collapse{% if active %} in{% endif %}"
+   data-trip data-trip-delay="-1"
+   data-trip-index="2"
+   data-trip-navigation="0"
+   data-trip-position="screen-center" data-trip-content="<div class='text-left'><h4>What each response option means</h4><p>The practice is implemented across the following scope of activities/services/products/offices/facilities to which it could apply:</p><ul><li><strong>Yes</strong>: All. <span style='color:#FFF633'>[Click a best practice to see if there is more guidance on what should be in place to respond &quot;Yes&quot;]</span>.</li><li><strong>Mostly yes</strong>: Roughly 50% OR MORE.</li><li><strong>Mostly no</strong>: Roughly 50% OR LESS.</li><li><strong>No</strong>: Negligible to none.</li><li><strong>Not applicable</strong>: The practice is not applicable to the organization, or the organization has no influence or control over its implementation.</li></ul><h4>Why it is critical to respond accurately</h4><ol><li>Each response creates a statement of record, which a customer or client may request evidence for.</li><li>2. Create a meaningful baseline for benchmarking with peers and for tracking improvements over time.</li></ol></div>">
     {% for abs_prefix, icon_tuple in root.1|iteritems %}
         {% with icon_tuple.0 as icon %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
