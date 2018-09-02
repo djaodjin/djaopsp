@@ -1073,8 +1073,8 @@ border-right: 1px solid #ffffff;
   margin: 0 6px 0 0;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li a,
-.dropdown.dropdown-homepage>.dropdown-menu>li a:hover {
+.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item a,
+.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item a:hover {
   color: #555;
   text-decoration: none;
   cursor: pointer;
@@ -1086,20 +1086,20 @@ border-right: 1px solid #ffffff;
   font-style: italic;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-menu-indent-1 {
+.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item-indent-1 {
   list-style: none;
   margin-left: 25px;
   font-size: 16px;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-menu-indent-1 a,
-.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-menu-indent-1 a:hover {
+.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item-indent-1 a,
+.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item-indent-1 a:hover {
     color: #555;
     text-decoration: none;
     cursor: pointer;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-menu-indent-1>div:hover {
+.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item-indent-1>div:hover {
     background-color: #f5f5f5;
 }
 
@@ -1933,4 +1933,11 @@ color: #000;
 .faq-list ul li
 {
     margin: 15px 0 !important;
+}
+
+a.header-anchor {
+  opacity: 0;
+}
+a.header-anchor:hover{
+  opacity: 1.0;
 }

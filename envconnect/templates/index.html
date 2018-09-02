@@ -50,8 +50,9 @@
 						<span class="caret-icon"><i class="fa fa-caret-down"></i></span>
 					</button>
 					<ul class="dropdown-menu" role="menu" aria-labelledby="industry_selector">
+<li><div style="font-size:14px;">Don't know what to select? <a href="{{'/docs/faq/#general-3'|site_prefixed}}" target="_blank">Click here</a></div></li>
 {% for industry in industries %}
-						<li class="dropdown-menu-indent-{{industry.0}}">
+						<li class="dropdown-item dropdown-item-indent-{{industry.0}}">
 							<div>
 {% if request|is_broker_manager %}
 <input type="checkbox" name="industry" value="{{industry.1.slug}}"
