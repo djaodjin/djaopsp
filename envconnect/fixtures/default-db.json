@@ -1989,7 +1989,7 @@
   "fields": {
     "slug": "totals",
     "account": 6,
-    "title": "Total scores by supplier industry sub-sector",
+    "title": "Average scores by supplier industry sub-sector",
     "metric": 1,
     "cohorts": [13, 14, 2, 3]
   },
@@ -1999,7 +1999,7 @@
   "fields": {
     "slug": "energy-utility-totals",
     "account": 10,
-    "title": "Total scores by supplier industry sub-sector",
+    "title": "Average scores by supplier industry sub-sector",
     "metric": 1,
     "cut": 3,
     "cohorts": [13, 14, 2, 3]

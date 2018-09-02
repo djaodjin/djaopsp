@@ -345,7 +345,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
 
         [{
            "slug": "totals",
-           "title": "Total scores by supplier industry sub-sector"
+           "title": "Average scores by supplier industry sub-sector"
            "scores":[{
                "portfolio-a": "0.1",
                "portfolio-b": "0.5",
