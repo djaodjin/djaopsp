@@ -191,6 +191,8 @@ def path_to_legend(root):
             if tag.startswith('legend'):
                 legend = tag
                 break
+    except json.JSONDecodeError:
+        pass
     except TypeError:
         # If we have a pb, better to use a default legend rather than
         # blowing up with a 500 error.

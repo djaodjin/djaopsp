@@ -198,8 +198,8 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
 var envconnectControllers = angular.module("envconnectControllers", []);
 
 envconnectControllers.controller("EnvconnectCtrl",
-    ["$scope", "$http", "$timeout", "settings",
-     function($scope, $http, $timeout, settings) {
+    ["$scope", "$window", "$http", "$timeout", "settings",
+     function($scope, $window, $http, $timeout, settings) {
     "use strict";
     $scope.dir = {};
     $scope.reverse = false;
@@ -640,7 +640,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         var parent = prefix.substring(prefix.lastIndexOf('/') + 1);
         var data = {title: title, orig_elements: [parent]};
         if( tag ) {
-            data.tag = {"tags": [tag]};
+            data.tag = JSON.stringify({"tags": [tag]});
         }
         $http.post(settings.urls.api_page_elements, data).then(
             function success(resp) {
@@ -671,7 +671,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                     if( $scope.newElement.reload ) {
                         // icon-level are rendered by the template engine
                         // server-side.
-                        window.location = window.location;
+                        $window.location.reload();
                     }
                 }
             },
@@ -698,12 +698,13 @@ envconnectControllers.controller("EnvconnectCtrl",
         $http.post(postUrl, data).then(
         function success(resp) {
             var node = $scope.getEntriesRecursive($scope.entries, prefix);
-            node[1].push(resp.data);
-            // XXX unsure we can use `node`. Do we need to update
-            // from the root?
+            node[1][resp.data[0].path] = resp.data;
             $scope.calcSavingsAndCost($scope.entries);
             $scope.newElement.value = "";
             modalDialog.modal('hide');
+            if( $scope.newElement.reload ) {
+                $window.location.reload();
+            }
 
         }, function(resp) { // error
             $scope.newElement.value = "";
