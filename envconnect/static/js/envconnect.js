@@ -743,13 +743,17 @@ envconnectControllers.controller("EnvconnectCtrl",
         var extra = JSON.parse($scope.activeElement.value.tag);
         if( $scope.activeElement.is_pagebreak ) {
             var found = false;
-            for( var idx = 0; idx < extra['tags'].length; ++idx ) {
-                if( extra['tags'][idx] === $scope.TAG_PAGEBREAK ) {
-                    found = true;
-                    break;
+            if( extra && extra.hasOwnProperty('tags') ) {
+                for( var idx = 0; idx < extra['tags'].length; ++idx ) {
+                    if( extra['tags'][idx] === $scope.TAG_PAGEBREAK ) {
+                        found = true;
+                        break;
+                    }
                 }
             }
             if( !found ) {
+                if( !extra ) { extra = {}; }
+                if( !extra.hasOwnProperty('tags') ) { extra['tags'] = []; }
                 extra['tags'].push($scope.TAG_PAGEBREAK);
                 $scope.activeElement.value.tag = JSON.stringify(extra);
                 data['tag'] = $scope.activeElement.value.tag;
@@ -757,13 +761,16 @@ envconnectControllers.controller("EnvconnectCtrl",
         } else {
             var tags = [];
             var found = false;
-            for( var idx = 0; idx < extra['tags'].length; ++idx ) {
-                if( extra['tags'][idx] !== $scope.TAG_PAGEBREAK ) {
-                    tags.push(extra['tags'][idx]);
-                    found = true;
+            if( extra && extra.hasOwnProperty('tags') ) {
+                for( var idx = 0; idx < extra['tags'].length; ++idx ) {
+                    if( extra['tags'][idx] !== $scope.TAG_PAGEBREAK ) {
+                        tags.push(extra['tags'][idx]);
+                        found = true;
+                    }
                 }
             }
             if( found ) {
+                if( !extra ) { extra = {}; }
                 extra['tags'] = tags;
                 $scope.activeElement.value.tag = JSON.stringify(extra);
                 data['tag'] = $scope.activeElement.value.tag;
