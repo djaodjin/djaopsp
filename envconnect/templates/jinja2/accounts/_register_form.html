@@ -12,7 +12,7 @@
     <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
     <fieldset style="margin: 0 15px;">
         <legend>Login Credentials</legend>
-        {{input_field(form['user_full_name'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['full_name'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['username'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['email'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['new_password1'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
@@ -20,43 +20,43 @@
     </fieldset>
     <fieldset style="margin: 0 15px;">
         <legend>Organization</legend>
-        <div class="form-group{% if form.full_name.errors %} has-error{% endif %}">
+        <div class="form-group{% if form.organization_name.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
             <label class="col-sm-5 control-label requiredField">Organization name</label>
             {% endif %}
             <div class="col-sm-7 controls">
-                <input class="form-control" type="text" name="full_name"{% if form.full_name.value() %} value="{{form.full_name.value()}}"{% endif %} style="float:right;">
-                {% for error in form.full_name.errors %}
+                <input class="form-control" type="text" name="organization_name"{% if form.organization_name.value() %} value="{{form.organization_name.value()}}"{% endif %} style="float:right;">
+                {% for error in form.organization_name.errors %}
                 <span class="help-block"><strong>{{error}}</strong></span>
                 {% endfor %}
-                {% if form.full_name.help_text %}
-                <span class="help-block">{{form.full_name.help_text}}</span>
+                {% if form.organization_name.help_text %}
+                <span class="help-block">{{form.organization_name.help_text}}</span>
                 {% endif %}
             </div>
         </div>
-        <div class="form-group{% if form.function.errors %} has-error{% endif %}">
+        <div class="form-group{% if form.role_function.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
-            <label class="col-sm-5 control-label{% if form.function.field.required %} requiredField{% endif %}">{{form.function.label|safe}}{% if form.function.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
+            <label class="col-sm-5 control-label{% if form.role_function.field.required %} requiredField{% endif %}">{{form.role_function.label|safe}}{% if form.role_function.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
             {% endif %}
             <div class="col-sm-7 controls">
-                <select class="form-control" name="{{form.function.name}}">
+                <select class="form-control" name="{{form.role_function.name}}">
                     <option>Please select...</option>
-                    <option {% if form.function.value() == "ehs" %}selected="1"{% endif %} value="ehs">EHS</option>
-                    <option {% if form.function.value() == "operations" %}selected="1"{% endif %} value="operations">Operations</option>
-                    <option {% if form.function.value() == "corporate" %}selected="1"{% endif %} value="corporate">Corporate Responsability/Sustainability</option>
-                    <option {% if form.function.value() == "marketing" %}selected="1"{% endif %} value="marketing">Marketing/Communications</option>
-                    <option {% if form.function.value() == "supply-chain" %}selected="1"{% endif %} value="supply-chain">Supply chain</option>
-                    <option {% if form.function.value() == "other" %}selected="1"{% endif %} value="other">Other</option>
+                    <option {% if form.role_function.value() == "ehs" %}selected="1"{% endif %} value="ehs">EHS</option>
+                    <option {% if form.role_function.value() == "operations" %}selected="1"{% endif %} value="operations">Operations</option>
+                    <option {% if form.role_function.value() == "corporate" %}selected="1"{% endif %} value="corporate">Corporate Responsability/Sustainability</option>
+                    <option {% if form.role_function.value() == "marketing" %}selected="1"{% endif %} value="marketing">Marketing/Communications</option>
+                    <option {% if form.role_function.value() == "supply-chain" %}selected="1"{% endif %} value="supply-chain">Supply chain</option>
+                    <option {% if form.role_function.value() == "other" %}selected="1"{% endif %} value="other">Other</option>
                 </select>
-                {% for error in form.function.errors %}
+                {% for error in form.role_function.errors %}
                 <span class="help-block"><strong>{{error}}</strong></span>
                 {% endfor %}
-                {% if form.function.help_text %}
-                <span class="help-block">{{form.function.help_text}}</span>
+                {% if form.role_function.help_text %}
+                <span class="help-block">{{form.role_function.help_text}}</span>
                 {% endif %}
             </div>
         </div>
-        {{input_field(form['parent_corporation'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['organization_parent_corporation'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['country'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['region'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['locality'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}

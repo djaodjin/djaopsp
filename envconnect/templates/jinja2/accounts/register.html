@@ -44,14 +44,14 @@ and anonymous</span> and displayed only in aggregated format.
 			<div class="modal-body">
 <h2>Welcome to The Sustainability Project!</h2>
 <p>
-It seems your organization, {{form.full_name.value()}}, already has
+It seems your organization, {{form.organization_name.value()}}, already has
 a profile on The Sustainability Project website. You could request access
 to the organization’s profile from one of the managers.
 </p>
 <form class="form-horizontal" method="post" action="{{'/contact/'|site_prefixed}}">
   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
   <input type="hidden" name="provider" value="{{already_present_candidate}}">
-  <input type="hidden" name="full_name" value="{{form.full_name.value()}}">
+  <input type="hidden" name="full_name" value="{{form.organization_name.value()}}">
   <input type="hidden" name="email" value="{{form.email.value()}}">
   <div class="form-group">
     <div class="col-sm-12 controls">
@@ -61,10 +61,10 @@ to the organization’s profile from one of the managers.
                 maxlength="255" type="text" rows="10">
 Hello,
 
-I would like access to {{form.full_name.value()}}.
+I would like access to {{form.organization_name.value()}}.
 
 Thank you,
-- {{form.user_full_name.value()}}
+- {{form.full_name.value()}}
  {{form.email.value()}}
       </textarea>
     </div>
@@ -93,7 +93,7 @@ jQuery(document).ready(function($) {
   $("#join-organization").modal("show");
 {% endif %}
 
-  $("[name='full_name']").focus(function() {
+  $("[name='organization_name']").focus(function() {
       var self = $(this);
       var trip = new Trip([{
             sel: self,
