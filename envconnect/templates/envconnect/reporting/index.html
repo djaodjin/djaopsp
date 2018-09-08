@@ -113,7 +113,7 @@ Completed: Assessment and Planning are complete">
       <tr id="[[entry.slug]]" ng-repeat="entry in items.results" ng-cloak ng-show="items.$resolved && items.results.length > 0">
         <td>[[$index+1]]</td>
         <td style="line-height:1em;">
-          <a href="{{'app/'|site_prefixed}}[[entry.slug]]/scorecard/">[[entry.printable_name]]</a>
+          <a href="{{'app/'|site_prefixed}}[[entry.slug]]/benchmark/">[[entry.printable_name]]</a>
           &nbsp;&nbsp;&dash;&nbsp;&nbsp;<a ng-if="entry.email" href="mailto:[[entry.email]]" style="color:black;"><i class="fa fa-envelope"></i> Email &raquo;</a>
           <div ng-if="entry.role_description" style="font-size:0.7em;">([[entry.role_description]])</div>
         </td>

@@ -52,8 +52,7 @@
     "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
     "username": "steve"
   },
-  "model": "auth.User",
-  "pk": 7
+  "model": "auth.User", "pk": 7
 },
 { "fields": {
     "slug": "steve-shop",

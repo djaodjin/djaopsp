@@ -204,7 +204,7 @@
     "app": 6,
     "rank": 4,
     "path": "/api/:organization/benchmark/",
-    "rule_op": 6,
+    "rule_op": 18,
     "kwargs": "{\"organization\": \"\", \"roledescription\": [\"viewer\", \"contributor\"]}"
   },
   "model": "rules.Rule", "pk": 4
@@ -247,7 +247,7 @@
     "app": 6,
     "rank": 9,
     "path": "/app/:organization/scorecard/",
-    "rule_op": 6,
+    "rule_op": 18,
     "kwargs": "{\"organization\": \"\", \"roledescription\": [\"viewer\", \"contributor\"]}"
   },
   "model": "rules.Rule", "pk": 9
@@ -256,7 +256,7 @@
     "app": 6,
     "rank": 10,
     "path": "/app/:organization/info/:industry/",
-    "rule_op": 3,
+    "rule_op": 18,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
     "engaged": "app,info"
   },
@@ -266,7 +266,7 @@
     "app": 6,
     "rank": 11,
     "path": "/app/:organization/improve/:industry/",
-    "rule_op": 3,
+    "rule_op": 18,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
     "engaged": "app,improve"
   },
@@ -275,8 +275,8 @@
 { "fields": {
     "app": 6,
     "rank": 12,
-    "path": "/app/:organization/benchmark/:industry/",
-    "rule_op": 3,
+    "path": "/app/:organization/benchmark/",
+    "rule_op": 18,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
     "engaged": "app"
   },
@@ -286,7 +286,7 @@
     "app": 6,
     "rank": 13,
     "path": "/app/:organization/assess/:industry/",
-    "rule_op": 3,
+    "rule_op": 18,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
     "engaged": "app,assess"
   },
