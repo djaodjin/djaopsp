@@ -19,10 +19,11 @@ from survey.models import (Answer, Campaign, EditablePredicate,
     EnumeratedQuestions, Sample)
 from survey.utils import get_account_model
 
-from ...mixins import BreadcrumbMixin, ReportMixin
-from ...models import Consumption, ColumnHeader
 from ...api.assessments import AssessmentAPIView
 from ...api.dashboards import SupplierListBaseAPIView
+from ...helpers import freeze_scores
+from ...mixins import BreadcrumbMixin, ReportMixin
+from ...models import Consumption, ColumnHeader
 
 
 @python_2_unicode_compatible
@@ -145,12 +146,11 @@ class Command(BaseCommand):
                     if scores:
                         normalized_score = scores.get('normalized_score', None)
                         if normalized_score is not None:
-                            assess_api = AssessmentAPIView()
                             sample = Sample.objects.filter(
                                 extra__isnull=True,
                                 survey__title=ReportMixin.report_title,
                                 account=account).order_by('-created_at').first()
-                            assess_api.freeze_scores(sample,
+                            freeze_scores(sample,
                                 includes=[sample],
                                 excludes=settings.TESTING_RESPONSE_IDS,
                                 created_at=created_at)

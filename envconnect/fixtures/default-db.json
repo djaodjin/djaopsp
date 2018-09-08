@@ -1506,7 +1506,7 @@
     "survey": 1,
     "account": 7,
     "time_spent": "0:00:00",
-    "is_frozen": false
+    "is_frozen": true
   },
   "model": "survey.sample", "pk": 3
 },

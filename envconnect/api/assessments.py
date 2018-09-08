@@ -16,6 +16,7 @@ from survey.models import Answer, Choice, EnumeratedQuestions, Sample, Unit
 from survey.mixins import SampleMixin
 from survey.utils import get_question_model
 
+from ..helpers import freeze_scores
 from ..mixins import ExcludeDemoSample, ReportMixin
 from ..models import Consumption, get_scored_answers
 from ..serializers import AnswerUpdateSerializer, AssessmentMeasuresSerializer
@@ -60,53 +61,14 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 
     account_url_kwarg = 'interviewee'
 
-    @staticmethod
-    def freeze_scores(sample, includes=None, excludes=None,
-                      collected_by=None, created_at=None):
-        LOGGER.info("freeze scores for %s", sample.account)
-        created_at = datetime_or_now(created_at)
-        scored_answers = get_scored_answers(
-            population=Consumption.objects.get_active_by_accounts(
-                excludes=excludes),
-            includes=includes)
-        score_sample = Sample.objects.create(
-            created_at=created_at,
-            survey=sample.survey,
-            account=sample.account,
-            is_frozen=True)
-        with connection.cursor() as cursor:
-            cursor.execute(scored_answers, params=None)
-            col_headers = cursor.description
-            decorated_answer_tuple = namedtuple(
-                'DecoratedAnswerTuple', [col[0] for col in col_headers])
-            for decorated_answer in cursor.fetchall():
-                decorated_answer = decorated_answer_tuple(
-                    *decorated_answer)
-                if decorated_answer.answer_id:
-                    numerator = decorated_answer.numerator
-                    denominator = decorated_answer.denominator
-                    _ = Answer.objects.create(
-                        created_at=created_at,
-                        question_id=decorated_answer.id,
-                        metric_id=2,
-                        measured=numerator,
-                        denominator=denominator,
-                        collected_by=collected_by,
-                        sample=score_sample,
-                        rank=decorated_answer.rank)
-        sample.created_at = datetime_or_now()
-        sample.save()
-        return score_sample
-
     def update(self, request, *args, **kwargs):
         with transaction.atomic():
-            result = super(AssessmentAPIView, self).update(
-                request, *args, **kwargs)
-            if self.sample.extra is None and self.sample.is_frozen:
-                self.freeze_scores(self.sample,
-                    includes=self.get_included_samples(),
-                    excludes=self._get_filter_out_testing(),
-                    collected_by=self.request.user)
+            # We donot call super() because the up-to-date assessment should
+            # never be frozen.
+            freeze_scores(self.sample,
+                includes=self.get_included_samples(),
+                excludes=self._get_filter_out_testing(),
+                collected_by=self.request.user)
         return result
 
 

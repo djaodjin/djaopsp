@@ -207,6 +207,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.entries = settings.entries;
     $scope.valueSummaryToggle = settings.valueSummaryToggle;
     $scope.scoreToggle = settings.scoreToggle;
+    $scope.supplierManagers =  settings.supplierManagers || [];
 
     $scope.BEST_PRACTICE_ELEMENT = 'best-practice';
     $scope.HEADING_ELEMENT = 'heading';
@@ -801,7 +802,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                     element.tag = resp.data;
                     if( reload ) { window.location = ""; }
                 }, function error(resp) {
-                    showErrorMessage(resp);
+                    showErrorMessages(resp);
                 });
         } else {
             $http.put(
@@ -810,10 +811,69 @@ envconnectControllers.controller("EnvconnectCtrl",
                     element.tag = resp.data;
                     if( reload ) { window.location = ""; }
                 }, function error(resp) {
-                    showErrorMessage(resp);
+                    showErrorMessages(resp);
                 });
         }
     };
+
+    $scope.activeSupplierManager = null;
+    $scope.thirdPartySupplierManager = null;
+    $scope.thirdPartySupplierManagerEmail = null;
+
+    $scope.$watch('activeSupplierManager', function(newValue, oldValue) {
+        $scope.thirdPartySupplierManager = null;
+    });
+
+    $scope.$watch('thirdPartySupplierManager', function(newValue, oldValue) {
+        $scope.activeSupplierManager = null;
+    });
+
+    $scope.getCandidates = function(val) {
+        return $http.get(settings.urls.api_organizations, {
+            params: {q: val}
+        }).then(function(res){
+            return res.data.results;
+        });
+    };
+
+    $scope.shareScorecard = function(event) {
+        event.preventDefault();
+        var form = angular.element(event.target);
+        var modalDialog = form.parents('.modal');
+        var data = {};
+        if( $scope.activeSupplierManager ) {
+            data['slug'] = $scope.activeSupplierManager;
+            for( var idx = 0; idx < $scope.supplierManagers.length; ++idx ) {
+                if( $scope.supplierManagers[idx].slug === $scope.activeSupplierManager ) {
+                    data['full_name'] =  $scope.supplierManagers[idx].printable_name;
+                    break;
+                }
+            }
+        } else if( $scope.thirdPartySupplierManager ) {
+            if( $scope.thirdPartySupplierManager.hasOwnProperty('slug') ) {
+                data['slug'] = $scope.thirdPartySupplierManager.slug;
+                data['full_name'] = $scope.thirdPartySupplierManager.full_name;
+            } else {
+                data['email'] = $scope.thirdPartySupplierManagerEmail;
+                data['full_name'] = $scope.thirdPartySupplierManager;
+            }
+        }
+        $http.post(settings.urls.api_benchmark_share, data).then(
+            function success(resp) {
+                modalDialog.modal('hide');
+                $scope.activeSupplierManager = null;
+                $scope.thirdPartySupplierManager = null;
+                $scope.thirdPartySupplierManagerEmail = null;
+                showMessages(['Supplier managers at ' + data['full_name']
+                              + ' have been notified. Thank you.'], 'info');
+            }, function error(resp) {
+                modalDialog.modal('hide');
+                $scope.activeSupplierManager = null;
+                $scope.thirdPartySupplierManager = null;
+                $scope.thirdPartySupplierManagerEmail = null;
+                showErrorMessages(resp);
+            });
+    }
 
     $scope.editConsumption = function(event, practice) {
         angular.element(event.target).editor({

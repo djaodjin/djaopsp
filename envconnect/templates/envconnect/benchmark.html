@@ -157,11 +157,100 @@
       </div><!-- /#environmental-metrics-measured -->
     </div><!-- /#scorecard-tab -->
     <div id="history-tab" class="panel-icons" ng-show="scoreToggle">
-        <div class="panel-body benchmarks-box">
-          <h2 class="icon-row-title">History</h2>
-          <div id="history-chart" style="width:500px;height:400px;margin:auto;"></div>
+      <div class="panel-body benchmarks-box">
+        <h2 class="icon-row-title">History</h2>
+        <div id="history-chart" style="width:500px;height:400px;margin:auto;"></div>
+      </div>
     </div><!-- /#history-tab -->
   </div><!-- /.tab-content -->
+
+  <!-- modals -->
+  <div id="share-scorecard"
+       class="add-role-modal modal fade" tabindex="-1" role="dialog"
+       aria-labelledby="Request access" aria-hidden="true" style="color: #000;"
+       ng-submit="shareScorecard($event)">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close"
+                  data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Share your assessment ...</h4>
+        </div>
+        <form>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-6">
+                <label>With an organization that requested it</label>
+                <select class="form-control" ng-model="activeSupplierManager">
+                  <option value="">Select ...</option>
+                  <option ng-value="supplierManager.slug" ng-repeat="supplierManager in supplierManagers">[[supplierManager.printable_name]]</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label>Or with another third-party organization</label>
+                <div>
+                  <div class="input-group" style="width:100%;">
+                    <input name="organization" type="text"
+                         placeholder="Organization name"
+                         autocomplete="off"
+                         ng-model="thirdPartySupplierManager"
+                         ng-model-options="{ debounce: 500 }"
+                         uib-typeahead="candidate as candidate.printable_name for candidate in getCandidates($viewValue)"
+                         uib-typeahead-loading="loadingOrganizations"
+                         uib-typeahead-template-url="customTemplate.html"
+                         class="form-control" style="width: 100%;">
+                  </div>
+                  <div style="height:14px" ng-cloak>
+                    <i ng-show="loadingOrganizations" class="fa fa-spinner fa-spin"></i>
+                  </div>
+                  <div ng-show="thirdPartySupplierManager && !thirdPartySupplierManager.slug">
+                    <p class="text-danger">
+We cannot find this profile on TSP.
+Please enter the e-mail address of your contact at this organization.
+                    </p>
+                    <input name="organization" type="text"
+                         placeholder="Email of contact at customer/client/investor" class="form-control" style="width: 100%;" ng-model="thirdPartySupplierManagerEmail">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p>
+You certify that the assessment responses provided for your organization
+are true and correct to the best of your knowledge. Additionally, you
+acknowledge that the responses form a statement of record which current
+or future clients may request to verify.
+            </p>
+            <p>
+Update your assessment and share it again when you have improvements to report.
+            </p>
+            <label class="text-danger">
+              <input class="checkboxinput" type="checkbox" ng-checked="noImprovements"> I have not selected any best practice for improvement under <em>planning</em>, please share anyway.
+            </label>
+            <div class="form-group">
+              <div class="controls">
+                <label>The following invite message will be sent (or modify the message by typing in the box below).</label>
+                <textarea class="form-control" name="message"
+                          type="text" rows="10">
+Hello,
+I would like to share {{organization.printable_name}} assessment
+on The Sustainability Project with you.
+
+Thank you.
+- {{request.user.first_name}}
+                </textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary"
+                    data-dismiss="modal">Cancel</button>
+            <button id="share-scorecard-submit"
+                    type="submit" class="btn btn-primary">Share scorecard</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div> <!-- /#share-scorecard -->
 </div>
 {% endblock %}
 

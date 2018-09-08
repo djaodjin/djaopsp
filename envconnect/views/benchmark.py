@@ -14,6 +14,8 @@ from django.template.loader import get_template
 from django.views.generic.base import (RedirectView, TemplateView,
     ContextMixin, TemplateResponseMixin)
 from django.utils import six
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_prefixed)
 from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now
 from extended_templates.backends.pdf import PdfTemplateResponse
@@ -22,6 +24,7 @@ from pages.models import PageElement
 from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
 from ..mixins import ReportMixin, TransparentCut
 from ..models import Consumption
+from ..suppliers import get_supplier_managers
 
 
 LOGGER = logging.getLogger(__name__)
@@ -146,11 +149,20 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                 'entries': json.dumps(root, cls=JSONEncoder),
                 'last_updated_at': last_updated_at,
             })
+            # Find supplier managers subscribed to this profile
+            # to share scorecard with.
+            context.update({
+                'supplier_managers': json.dumps(
+                    get_supplier_managers(self.account))})
+
             self.update_context_urls(context, {
                 'api_account_benchmark': reverse('api_benchmark',
                     args=(context['organization'], from_root)),
                 'api_historical_scores': reverse('api_historical_scores',
                     args=(context['organization'], from_root)),
+                'api_benchmark_share': reverse('api_benchmark_share',
+                    args=(context['organization'], from_root)),
+                'api_organizations': site_prefixed("/api/profile/"),
             })
         return context
 

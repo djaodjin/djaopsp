@@ -89,6 +89,7 @@ app.constant('settings', {
     hidden: {% if hidden %}{{hidden|safe}}{% else %}{}{% endif %},
     valueSummaryToggle: true,
     scoreToggle: {% if score_toggle %}true{% else %}false{% endif %},
+    supplierManagers: {% if supplier_managers %}{{supplier_managers|safe}}{% else %}[]{% endif %},
 {% if sort_by %}
     sortBy:{{sort_by|safe}},
 {% endif %}

@@ -18,6 +18,7 @@ from saas.models import Organization
 from survey.models import Answer, Sample, Campaign
 
 from ...api.assessments import AssessmentAPIView
+from ...helpers import freeze_scores
 from ...mixins import ReportMixin
 from ...models import Consumption
 
@@ -95,7 +96,7 @@ class Command(BaseCommand):
                 answer.measured = random.choice(choices[(answer.measured - 1):])
                 answer.save()
             created_at = today - relativedelta(months=months)
-            score_sample = AssessmentAPIView().freeze_scores(assessment_sample,
+            score_sample = freeze_scores(assessment_sample,
                 includes=[assessment_sample.pk],
                 excludes=settings.TESTING_RESPONSE_IDS,
                 created_at=created_at)

@@ -11,19 +11,23 @@ from django.db.models import Q, Max
 from django.http import Http404
 from django.utils import six
 from django.utils.timezone import utc
+from django.utils.translation import ugettext_lazy as _
 from deployutils.helpers import datetime_or_now
 from extra_views.contrib.mixins import SearchableListMixin, SortableListMixin
 from pages.models import PageElement
-from rest_framework import generics
+from rest_framework import generics, serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from saas.models import Subscription
 from survey.api.matrix import MatrixDetailAPIView
-from survey.models import EditableFilter, Sample
+from survey.models import Answer, EditableFilter, Matrix, Sample
 from survey.utils import get_account_model
 
 from .benchmark import BenchmarkMixin
-from ..serializers import AccountSerializer
+from ..helpers import freeze_scores
+from ..mixins import ReportMixin
+from ..serializers import AccountSerializer, NoModelSerializer
 
 
 LOGGER = logging.getLogger(__name__)
@@ -529,3 +533,84 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
             charts += [us_suppliers]
 
         return Response(charts)
+
+
+class ShareScorecardSerializer(NoModelSerializer):
+
+    full_name = serializers.CharField()
+    slug = serializers.SlugField(required=False)
+    email = serializers.EmailField(required=False)
+
+    def validate(self, attrs):
+        if not (attrs.get('slug', None) or attrs.get('email', None)):
+            raise ValidationError({'detail': _("An organization profile must"\
+            " exist on TSP or a contact e-mail provided.")})
+        return attrs
+
+
+class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
+    """
+    Share a supplier assessment, scorecard and improvement planning
+    with customers, clients and/or investors.
+    """
+    serializer_class = ShareScorecardSerializer
+
+    @property
+    def improvement_sample(self):
+        # duplicate from `ImprovementQuerySetMixin.improvement_sample`
+        if not hasattr(self, '_improvement_sample'):
+            self._improvement_sample = Sample.objects.filter(
+                extra='is_planned',
+                survey__title=self.report_title,
+                account=self.account).order_by('-created_at').first()
+        return self._improvement_sample
+
+    def perform_create(self, serializer):
+        last_activity_at = Answer.objects.filter(
+            sample=self.assessment_sample).aggregate(Max('created_at')).get(
+                'created_at__max', None)
+        if not last_activity_at:
+            raise ValidationError({'detail': "You cannot share a scorecard"\
+            " before completing the assessment."})
+        last_scored_assessment = Sample.objects.filter(
+            is_frozen=True,
+            extra__isnull=True,
+            survey__title=self.report_title,
+            account=self.account).order_by('-created_at').first()
+        if (not last_scored_assessment
+            or last_scored_assessment.created_at < last_activity_at):
+            # New activity since last record, let's freeze the assessment
+            # and planning.
+            last_scored_assessment = freeze_scores(self.assessment_sample,
+                includes=self.get_included_samples(),
+                excludes=self._get_filter_out_testing(),
+                collected_by=self.request.user)
+            freeze_scores(self.improvement_sample,
+                includes=self.get_included_samples(),
+                excludes=self._get_filter_out_testing(),
+                collected_by=self.request.user)
+
+        # send assessment updated and invite notifications
+        supplier_manager_slug = serializer.validated_data.get('slug', None)
+        if supplier_manager_slug:
+            try:
+                Matrix.objects.get(account__slug=supplier_manager_slug,
+                    metric__slug='totals')
+                # Supplier manager already has a dashboard
+                LOGGER.info("%s shared %s assessment (%s) with %s",
+                    self.request.user, self.account, last_scored_assessment,
+                    supplier_manager_slug)
+                # XXX send assessment updated.
+            except Matrix.DoesNotExist:
+                # Registered supplier manager but no dashboard
+                # XXX send hint to get paid version.
+                LOGGER.error("%s shared %s assessment (%s) with %s",
+                    self.request.user, self.account, last_scored_assessment,
+                    supplier_manager_slug)
+        else:
+            # Organization profile cannot be found.
+            # XXX Send a viewer invite.
+            contact_email = serializer.validated_data.get('email', None)
+            LOGGER.error("%s shared %s assessment (%s) with %s",
+                self.request.user, self.account, last_scored_assessment,
+                contact_email)

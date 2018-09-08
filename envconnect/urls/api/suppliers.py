@@ -9,7 +9,8 @@ from ...api.assessments import (AssessmentAPIView, AssessmentAnswerAPIView,
 from ...api.benchmark import BenchmarkAPIView, HistoricalScoreAPIView
 from ...api.improvements import (ImprovementListAPIView,
     ImprovementToggleAPIView)
-from ...api.dashboards import SupplierListAPIView, TotalScoreBySubsectorAPIView
+from ...api.dashboards import (SupplierListAPIView,
+    TotalScoreBySubsectorAPIView, ShareScorecardAPIView)
 
 urlpatterns = [
     url(r'(?P<organization>%s)/suppliers/?' % SLUG_RE,
@@ -22,6 +23,10 @@ urlpatterns = [
     url(r'(?P<organization>%s)/matrix/' % SLUG_RE,
         include('survey.urls.api.matrix')),
 
+    url(r'(?P<organization>%s)/benchmark/share(?P<path>%s)/?' % (
+        SLUG_RE, PATH_RE),
+        ShareScorecardAPIView.as_view(),
+        name="api_benchmark_share"),
     url(r'(?P<organization>%s)/benchmark/current(?P<path>%s)/?' % (
         SLUG_RE, PATH_RE),
         BenchmarkAPIView.as_view(),
