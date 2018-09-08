@@ -1,0 +1,674 @@
+{% extends "base.html" %}
+
+{% block localheader %}
+<style>
+#load {
+  color: white;
+  background: #3ca65b;
+  background: -webkit-linear-gradient(#3ca65b, white);
+  background: -o-linear-gradient(#3ca65b, white);
+  background: -moz-linear-gradient(#3ca65b, white);
+  background: linear-gradient(#3ca65b, white);
+}
+
+.dashboard-container {
+  overflow: initial;
+}
+
+.dashboard-content {
+  overflow: initial;
+}
+
+.home-icon {
+  color: #b9d7c2;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section id="load">
+  <div class="jumbotron">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+          <h2 class="text-center" style="font-size: 45px;">Tutorials</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="clearfix"></div>
+  <div class="container text-center">
+    <ul class="faq-list row" style="background-color:#fff;color:#000;margin-bottom:35px;">
+      <li class="col-xs-12 col-sm-6"><h2>For suppliers</h2>
+        <ul class="list-unstyled text-left">
+          <li><a href="#suppliers-1">See summary of functions</a></li>
+          <li><a href="#suppliers-2">Register an organization</a></li>
+          <li><a href="#suppliers-3">Browse best practices</a></li>
+          <li><a href="#suppliers-4">Use the assessment tool (Survey)</a></li>
+          <li><a href="#suppliers-5">Forward the assessment to colleagues</a></li>
+          <li><a href="#suppliers-6">View scores and benchmark results</a></li>
+          <li><a href="#suppliers-7">Use the planning tool</a></li>
+          <li><a href="#suppliers-8">Share results with customers, clients and investors</a></li>
+          <li><a href="#suppliers-9">Add/change a profile manager</a></li>
+        </ul>
+      </li>
+      <li class="col-xs-12 col-sm-6"><h2>For supplier managers</h2>
+        <ul class="list-unstyled text-left">
+          <li><a href="#supplier-managers-1">Browse dashboards and find scores</a></li>
+          <li><a href="#supplier-managers-2">Invite suppliers to take survey</a></li>
+          <li><a href="#supplier-managers-3">Turn on auto-reminder for survey completion</a></li>
+          <li><a href="#supplier-managers-4">Invite a colleague to view dashboards</a></li>
+          <li><a href="#supplier-managers-5">Add/change a profile manager</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</section>
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <h2>For suppliers</h2><a href="#suppliers" name="#suppliers" class="header-anchor"><i class="fa fa-link"></i></a>
+        <dl>
+          <dt><h3>See summary of functions<a href="#suppliers-1" name="#suppliers-1" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+From the homepage, select your industry segment (If you are unsure what to select, view some <a href="faq.html#general-3">examples</a>).
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-1-1.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+This will navigate you to a landing page for the segment.
+<ol>
+  <li>The tiles represent the segment’s high level work flow areas.</li>
+  <li>The weight under each tile is a rough indicator of its environmental footprint relative to other tiles.</li>
+</ol>
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-1-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+Above the tiles, are the three primary functions of the TSP website
+<ol>
+  <li><strong>Learn</strong>
+    <ul>
+      <li>Browse industry segment-specific best practices</li>
+      <li>See how they are prioritized by economic and sustainability value</li>
+    </ul>
+  </li>
+  <li><strong>Measure</strong> (includes survey tool)
+    <ul>
+      <li>Assess your maturity relative to best practices</li>
+      <li>Benchmark with industry peers</li>
+      <li>Get an overall score</li>
+    </ul>
+  </li>
+  <li><strong>Improve</strong>
+    <ul>
+      <li>Select improvement actions on a value-prioritized basis</li>
+      <li>See their impact on overall performance scores and benchmarking</li>
+    </ul>
+  </li>
+</ol>
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-1-3.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Register an organization<a href="#suppliers-2" name="#suppliers-2" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+From the home page, click the SIGN IN button
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-2-1.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+From the SIGN IN screen, select the SIGN UP option
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-2-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+From the resulting SIGN UP page, register the requested basic details.
+<ul>
+<li>Why the system asks you to register - A basic profile of your organization
+is needed as a basis for recording assessment results and for benchmarking
+against a select comparison group.</li>
+<li>Information is kept confidential and anonymous - Unless you specify
+the release of data to a client or customer, all information you provide
+for benchmarking purposes is treated as confidential and anonymous and
+displayed only in aggregated form.</li>
+<li>You can delete the profile at any time.</li>
+</ul>
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-2-3.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                <p>
+Pay careful attention to the pop up instructions on what TSP defines as an
+ORGANIZATION.
+                </p>
+                <div class="important-note">
+                  <h4><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;" /> Why is this important?</h4>
+                  <p>
+The assessment tool relies on determining if best
+practices have been implemented by a discrete operating unit with the ability
+to control policies and practices across all activities, offices, facilities,
+projects, activities, regions, products, etc.
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-2-4.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Browse best practices<a href="#suppliers-3" name="#suppliers-3" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+From the industry segment landing page, click the ENVIRONMENTAL PRACTICES option. Get here by selecting your industry segment from the HOME page.
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-3-1.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+Click on each tile to reveal the environmentally preferable practices relevant to a workflow area. See next page to learn more.
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-3-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+Click on a practice to see if there is more guidance for it.
+Use the columns on the right for guidance on practice value. Mouse over each
+column’s graphic heading for the title: Environmental, Operational and
+maintenance, Financial, Implementation ease. These four value factors are
+rolled into an AVERAGE value intended to roughly indicate which practices are
+of highest combined value.
+Click on the LEGEND at the bottom of the page for color key definitions.
+Colors give a rough ranking of value: Low, Medium, High, Gold (i.e. Very high)
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-3-3.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-3-4.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Use the assessment tool (Survey)<a href="#suppliers-4" name="#suppliers-4" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+From the industry segment landing page, click the ASSESSMENT option.
+Get here by selecting your industry segment from the HOME page.
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-4-1.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+Click on each tile to reveal the ASSESSMENT questions.
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-4-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                  <p>
+Study what each response option means before selecting your ASSESSMENT responses.
+                  </p>
+                <div class="important-note">
+                  <h4><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;" /> Why is this important?</h4>
+                  <ul>
+<li>Each response creates a statement of record, which
+a customer or client may request evidence for.</li>
+<li>It creates a meaningful baseline for benchmarking with peers and or
+tracking improvements over time.</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-4-3.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+After selecting a response for each row, you can click the RESULTS toggle at
+the bottom of page.
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-4-5.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+This will display a detailed benchmark results page. Hover your mouse over
+a column heading for its description.
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-4-6.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+Click COMPLETE to register the completion of your ASSESSMENT in the system and
+to share the results with clients/customers.
+                <div class="important-note">
+                  <h4><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;" /> Why is this important?</h4>
+<ul>
+<li>By clicking COMPLETE the system knows to create a
+record of your results that you may elect to forward to clients/customers.</li>
+<li>It also provides a measurement of your maturity in time against which you
+can monitor progress.</li>
+</ul>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-4-7.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Forward the assessment to colleagues<a href="#suppliers-5" name="#suppliers-5" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+<p>
+From any screen, click the ORGANIZATION’S PROFILE option (top right).
+</p>
+<p>
+Then click on CONTRIBUTORS (left side of page).
+</p>
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-5-1.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                  <p>
+Type in the name of the colleague you wish to invite to help with the ASSESSMENT and click the orange ADD CONTRIBUTOR button.
+                  </p>
+                  <p>
+An email will be sent to the new contributor with a link to www.tspproject.org and instructions on how to sign up to TSP.
+                  </p>
+                <div class="important-note">
+                  <h4><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;" /> Why is this important?</h4>
+                  <p>
+You will have to follow-up with the colleague to explain what you require of them i.e. help completing the ASSESSMENT on the online system.
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-5-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+If preferred, forward an Excel spreadsheet of the assessment questions to colleagues by clicking the DOWNLOAD QUESTIONS button on any ASSESSMENT page.
+
+Note: Once you have received the completed responses, these will need to be manually copied into the matching  TSP ASSESSMENT section
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-5-3.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>View scores and benchmark results<a href="#suppliers-6" name="#suppliers-6" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+<p>
+Click SCORECARD to view your overall scores (top half), and your benchmark position among peers who took the ASSESSMENT (bottom half).
+</p>
+<p>
+Click SHARE SCORECARD to send a scorecard link to a client or customer, or download and print via PRINT SCORECARD.
+</p>
+<p>
+Click HISTORICAL to view progress over time. Note: Each time you update your ASSESSMENT and click COMPLETE (bottom of ASSESSMENT page), the system records the new scores as a measure in time on your HISTORICAL performance graph.
+</p>
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-6-1.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Use the planning tool<a href="#suppliers-7" name="#suppliers-7" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+<p>
+Select PLANNING (top right), then
+</p>
+<p>
+Click the tile you want to browse for improvement opportunities.
+</p>
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-7-1.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="important-note">
+                  <h4><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;" /> Use your SCORECARD to prioritize your focus (see example below):</h4>
+<ul>
+<li>Workflow areas (tiles) with high weights (percentage under tile) in which you score low.</li>
+<li>Areas where your organization benchmarks low relative to peers.</li>
+</ul>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-7-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+<p>
+Click a tile to view relevant practices, peer implementation rate, and your extent of practice implementation.
+</p>
+<p>
+Use the OPPORTUNITY SCORE column to guide your selection of actions in the SELECT FOR IMPROVEMENT PLAN column (high score = high environmental and business value).
+</p>
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-7-3.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+Click the orange CLICK FOR PLANNING DASHBOARD button (page bottom) to view a dashboard which shows the impact of your selections on your overall score and benchmark position.
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-7-4.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Share results with customers, clients and investors<a href="#suppliers-8" name="#suppliers-8" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+<p>
+Click COMPLETE to register the completion of your ASSESSMENT (or Survey) in the system and to share the results with clients/customers.
+</p>
+                <div class="important-note">
+                  <h4><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;" /> Why is this important?</h4>
+<ul>
+<li>By clicking COMPLETE the system knows to create a record of your results, which you may then elect to forward to clients/customers.</li>
+<li>It also provides a measurement of your maturity in time against which you can track progress.</li>
+</ul>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-8-1.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Add/change a profile manager<a href="#suppliers-9" name="#suppliers-9" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+Click the ORGANIZATION’S PROFILE option (top right). This will navigate you to a screen showing the organization’s profile details (example below).
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-9-1.png'|asset}}" />
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-9-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+From the ORGANIZATION PROFILE page, click on PROFILE MANAGERS (left side of page).
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-9-3.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                  <p>
+Type in the name you wish to add as a PROFILE MANAGER and click the orange ADD PROFILE MANAGER button.
+                  </p>
+                  <p>
+An email will be sent to the new PROFILE MANAGER with a link to www.tspproject.org and instructions on how to sign up to TSP.
+                  </p>
+                <div class="important-note">
+                  <h4><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;" /> Why is this important?</h4>
+                  <p>
+You may have to follow-up with the colleague to explain what you require of them e.g. Using the DASHBOARD to add and communicate with reporting entities, monitoring the DASHBOARD.
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/suppliers-9-4.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+      </div>
+    </div><!-- /.row -->
+    <div class="row">
+      <div class="col-sm-12">
+        <h2>For supplier managers</h2><a href="#supplier-managers" name="#supplier-managers" class="header-anchor"><i class="fa fa-link"></i></a>
+        <dl>
+          <dt><h3>Browse dashboards and find scores<a href="#supplier-managers-1" name="#supplier-managers-1" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+From any page, click the DASHBOARD option (top middle of page) to be navigated to a screen titled REPORTING ENTITIES (example below).
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-1-1.png'|asset}}" />
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-1-2.png'|asset}}" />
+              </div>
+            </div>
+              <div class="col-sm-6">
+<ol>
+<li>ASSESSMENT and PLANNING completion statistics (mouse over the text for definitions).</li>
+<li>Number of reporting entities on your dashboard.</li>
+<li>Search for an individual reporting entity.</li>
+<li>Invite a new reporting entity to take an ASSESSMENT.</li>
+<li>Click on a reporting entity name to view their scorecard.</li>
+<li>Email a reporting entity.</li>
+<li>Set an auto-reminder for reporting entities to complete their ASSESSMENT.</li>
+<li>Download a spreadsheet of all scores.</li>
+<li>Toggle to graphical view of reporting entity data.</li>
+</ol>
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-1-3.png'|asset}}" />
+              </div>
+            </div>
+              <div class="col-sm-6">
+<ol>
+<li>Toggle back to list of reporting entities.</li>
+<li>Each bar = average % score for an industry segment.  Click on a bar to navigate to the industry segment-specific graph.</li>
+<li>Each bar = % score for a single reporting entity in an industry segment. Mouse over bar to see reporting entity name. Click on a bar to navigate to the reporting entity’s scorecard.</li>
+</ol>
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-1-4.png'|asset}}" />
+              </div>
+            </div>
+
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Invite suppliers to take survey<a href="#supplier-managers-2" name="#supplier-managers-2" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+From any page, click the DASHBOARD option (top middle of page) to be navigated
+to a screen titled REPORTING ENTITIES (example below).
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-2-1.png'|asset}}" />
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-2-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+<p>
+Type the email address of the reporting entity (e.g. supplier) you wish to invite to take an ASSESSMENT (and PLANNING process if desired).
+</p>
+<p>
+Click the orange ADD REPORTING ENTITY button. The system will generate an template email that you can customize to the recipient.
+</p>
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-2-3.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Turn on auto-reminder for survey completion<a href="#supplier-managers-3" name="#supplier-managers-3" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+From any page, click the DASHBOARD option (top middle of page) to be navigated to a screen titled REPORTING ENTITIES (example below).
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-3-1.png'|asset}}" />
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-3-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+Scroll to the bottom of the screen and check the box at the bottom right of the page.
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-3-3.png'|asset}}" />
+              </div>
+            </div>
+
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Invite a colleague to view dashboards<a href="#supplier-managers-4" name="#supplier-managers-4" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+Click the ORGANIZATION’S PROFILE option (top right).  This will navigate you to a screen showing the organization’s profile details (example below).
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-4-1.png'|asset}}" />
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-4-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+From the PROFILE page, click on VIEWERS (left side of page).
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-4-3.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+<p>
+Type in the name of the colleague you wish to invite to view the DASHBOARD and click the orange ADD VIEWER button. 
+</p>
+<p>
+An email will be sent to the new VIEWER with a link to www.tspproject.org and instructions on how to sign up to TSP.</li>
+</p>
+                <div class="important-note">
+                  <h4><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;" /> Why is this important?</h4>
+                  <p>
+You may have to follow-up with the colleague to explain what you require of them i.e. monitoring completion status of their suppliers, accessing individual scorecards.
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-4-4.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+        <dl>
+          <dt><h3>Add/change a profile manager<a href="#supplier-managers-5" name="#supplier-managers-5" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+Click the ORGANIZATION’S PROFILE option (top right). This will navigate you to a screen showing the organization’s profile details (example below).
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-5-1.png'|asset}}" />
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-5-2.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+From the ORGANIZATION PROFILE page, click on PROFILE MANAGERS (left side of page).
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-5-3.png'|asset}}" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+<p>
+Type in the name you wish to add as a PROFILE MANAGER and click the orange ADD PROFILE MANAGER button.
+</p>
+<p>
+An email will be sent to the new PROFILE MANAGER with a link to www.tspproject.org and instructions on how to sign up to TSP.</li>
+</p>
+                <div class="important-note">
+                  <h4><img src="{{'static/img/envconnect-logo.png'|asset}}" style="height:15px;" /> Why is this important?</h4>
+                  <p>
+You may have to follow-up with the colleague to explain what you require of them e.g. Using the DASHBOARD to add and communicate with reporting entities, monitoring the DASHBOARD.
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <img class="img-responsive" src="{{'/static/img/tutorials/supplier-managers-5-4.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+      </div>
+    </div><!-- /.row -->
+  </div>
+</section>
+{% endblock %}
