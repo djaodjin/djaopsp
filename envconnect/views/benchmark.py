@@ -387,7 +387,9 @@ class ScoreCardDownloadView(PrintableChartsMixin, BenchmarkAPIView):
                 'at_time': datetime_or_now()
             })
             context.update({
-                'not_applicables': self.get_not_applicables_context()
+                'not_applicables': self.get_not_applicables_context(),
+                'environmental_metrics_measured':
+                    self.get_measured_metrics_context()
             })
         return context
 

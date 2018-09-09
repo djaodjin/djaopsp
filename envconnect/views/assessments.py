@@ -2,7 +2,7 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import csv, json, logging, io
+import csv, io, json, logging, re
 from collections import namedtuple
 
 from django.utils import six
@@ -234,20 +234,39 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
         # We use cut=None here so we print out the full assessment
         root = self._build_tree(trail[0][0], from_trail_head, cut=None)
 
-        self.create_writer(
-            self.get_headings(self._get_tag(root[0])),
-            title=self._get_title(root[0]))
+        self.headings = self.get_headings(self._get_tag(root[0]))
+        self.create_writer(self.headings, title=self._get_title(root[0]))
         self.writerow(
             ["Assessment - Environmental practices"], leaf=True)
         self.writerow(
             ["Practice", "Implemented as a standard practice?"], leaf=True)
-        self.writerow(
-            [""] + self.get_headings(self._get_tag(root[0])), leaf=True)
+        self.writerow([""] + self.headings, leaf=True)
         indent = self.indent_step
         for nodes in six.itervalues(root[1]):
             self.writerow([indent + self._get_title(nodes[0])])
             for elements in six.itervalues(nodes[1]):
                 self.write_tree(elements, indent=indent + self.indent_step)
+        # Environmental metrics measured/reported
+        measured_metrics = self.get_measured_metrics_context()
+        if measured_metrics:
+            self.writerow([])
+            self.measured_title_row_idx = self.writerow(
+                ["Environmental metrics measured/reported"], leaf=True)
+            self.writerow(["Practice", "metric"]
+                + ([""] * (len(self.headings) // 2))
+                + ["measured"], leaf=True)
+            for measured_metric in measured_metrics:
+                look = re.match(r'.*indent-header-(\d+)', measured_metric[0])
+                indent = " " * int(look.group(1))
+                datapoints = measured_metric[3].get('environmental_metrics', [])
+                self.writerow(["%s%s" % (indent, measured_metric[2].title)],
+                    leaf=bool(datapoints))
+                for datapoint in datapoints:
+                    self.writerow(["",
+                        datapoint['metric_title']]
+                        + ([""] * (len(self.headings) // 2))
+                        + [str(datapoint['measured'])], leaf=True)
+
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
             self.get_filename())
@@ -306,6 +325,7 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
                     max_row=self.wsheet._current_row):
                 row_cells[0].font = self.heading_font
                 row_cells[0].alignment = self.heading_alignment
+        return self.wsheet._current_row
 
     def create_writer(self, headings, title=None):
         col_scale = 11.9742857142857
@@ -372,6 +392,45 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
         self.wsheet.merge_cells('A1:F1')
         self.wsheet.merge_cells('B2:F2')
         self.wsheet.merge_cells('A2:A3')
+
+        # Environmental metrics measured/reported
+        col_scale = 11.9742857142857
+        self.wsheet.row_dimensions[self.measured_title_row_idx].height = (
+            0.36 * (6 * col_scale))
+        self.wsheet.merge_cells(
+            start_row=self.measured_title_row_idx, start_column=1,
+            end_row=self.measured_title_row_idx,
+            end_column=1 + len(self.headings))
+        for row_cells in self.wsheet.iter_rows(
+                min_row=self.measured_title_row_idx,
+                max_row=self.measured_title_row_idx):
+            row_cells[0].fill = title_fill
+            row_cells[0].font = title_font
+            row_cells[0].border = border
+            row_cells[0].alignment = alignment
+
+        for row_cells in self.wsheet.iter_rows(
+                min_row=self.measured_title_row_idx + 1,
+                max_row=self.measured_title_row_idx + 1):
+            row_cells[0].fill = subtitle_fill
+            row_cells[0].font = subtitle_font
+            row_cells[0].alignment = alignment
+            for cell in row_cells[1:]:
+                cell.fill = subtitle_fill
+                cell.font = subtitle_font
+                cell.border = border
+                cell.alignment = alignment
+        self.wsheet.merge_cells(
+            start_row=self.measured_title_row_idx + 1,
+            start_column=2,
+            end_row=self.measured_title_row_idx + 1,
+            end_column=2 + len(self.headings) // 2)
+        self.wsheet.merge_cells(
+            start_row=self.measured_title_row_idx + 1,
+            start_column=3 + len(self.headings) // 2,
+            end_row=self.measured_title_row_idx + 1,
+            end_column=3 + (len(self.headings) - len(self.headings) // 2))
+
         content = io.BytesIO()
         self.wbook.save(content)
         content.seek(0)

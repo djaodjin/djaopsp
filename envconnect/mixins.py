@@ -19,7 +19,8 @@ from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
 from rest_framework.generics import get_object_or_404
-from survey.models import Answer, Sample, Campaign, EnumeratedQuestions
+from survey.models import (Answer, Choice, Campaign, EnumeratedQuestions,
+    Sample, Unit)
 from survey.utils import get_account_model
 
 from .models import (Consumption, get_score_weight, _show_query_and_result,
@@ -685,6 +686,60 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 self.account.pk, {}).get('denominator', 0)
             push_improvement_factors(root, total_numerator, total_denominator)
         return root
+
+    def _insert_path(self, root, path, depth=1, values=None):
+        parts = path.split('/')
+        if len(parts) >= depth:
+            prefix = '/'.join(parts[:depth])
+            if not prefix in root[1]:
+                root[1].update({prefix: (OrderedDict({}), OrderedDict({}))})
+            if len(parts) == depth and values:
+                root[1][prefix].update(values)
+                return root
+            return self._insert_path(root[1][prefix], path, depth=depth + 1,
+                values=values)
+        return root
+
+    def flatten_answers(self, root, url_prefix, depth=0):
+        """
+        returns a list from the tree passed as an argument.
+        """
+        results = []
+        for prefix, nodes in six.iteritems(root[1]):
+            element = PageElement.objects.get(slug=prefix.split('/')[-1])
+            if nodes[1]:
+                results += [("heading-%d indent-header-%d" % (depth, depth),
+                    "", element, {})]
+                results += self.flatten_answers(
+                    nodes, url_prefix, depth=depth + 1)
+            else:
+                results += [("bestpractice-%d indent-header-%d" % (
+                    depth, depth), url_prefix + '/' + element.slug,
+                    element, nodes[0])]
+        return results
+
+    def get_measured_metrics_context(self):
+        from_root, trail = self.breadcrumbs
+        url_prefix = trail[-1][1] if trail else ""
+        env_metric_answers = Answer.objects.filter(
+            sample=self.assessment_sample).exclude(
+            metric_id__in=(1, 2)).select_related('question')
+        root = (OrderedDict({}), OrderedDict({}))
+        depth = len(from_root.split('/')) + 1
+        for env_metric_answer in env_metric_answers:
+            if env_metric_answer.metric.unit.system != Unit.SYSTEM_ENUMERATED:
+                measured = '%d' % env_metric_answer.measured
+            else:
+                measured = Choice.objects.get(pk=env_metric_answer.measured)
+            node = self._insert_path(root, env_metric_answer.question.path,
+                depth=depth)
+            if 'environmental_metrics' not in node[0]:
+                node[0].update({'environmental_metrics': []})
+            node[0]['environmental_metrics'] += [{
+                'metric_title': env_metric_answer.metric.title,
+                'measured': measured
+            }]
+        return self.flatten_answers(root, url_prefix)
 
 
 class ImprovementQuerySetMixin(ReportMixin):

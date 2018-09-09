@@ -10,7 +10,6 @@ from collections import OrderedDict
 from django.conf import settings
 from django.utils import six
 from pages.mixins import TrailMixin
-from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as HttpResponse
 from survey.models import Sample
@@ -27,31 +26,6 @@ LOGGER = logging.getLogger(__name__)
 
 class BenchmarkMixin(ReportMixin):
 
-    def _insert_path(self, root, path, depth=1):
-        parts = path.split('/')
-        if len(parts) >= depth:
-            prefix = '/'.join(parts[:depth])
-            if not prefix in root[1]:
-                root[1].update({prefix: (OrderedDict({}), OrderedDict({}))})
-            self._insert_path(root[1][prefix], path, depth=depth + 1)
-
-    def flatten_not_applicables(self, root, url_prefix, depth=0):
-        """
-        returns a list from the tree passed as an argument.
-        """
-        results = []
-        for prefix, nodes in six.iteritems(root[1]):
-            element = PageElement.objects.get(slug=prefix.split('/')[-1])
-            if nodes[1]:
-                results += [("heading-%d indent-header-%d" % (depth, depth),
-                    "", element)]
-                results += self.flatten_not_applicables(
-                    nodes, url_prefix, depth=depth + 1)
-            else:
-                results += [("bestpractice-%d indent-header-%d" % (
-                    depth, depth), url_prefix + '/' + element.slug, element)]
-        return results
-
     def get_not_applicables_context(self):
         from_root, trail = self.breadcrumbs
         url_prefix = trail[-1][1] if trail else ""
@@ -62,11 +36,15 @@ class BenchmarkMixin(ReportMixin):
         depth = len(from_root.split('/')) + 1
         for not_applicable in not_applicable_answers:
             self._insert_path(root, not_applicable.path, depth=depth)
-        return self.flatten_not_applicables(root, url_prefix)
+        return self.flatten_answers(root, url_prefix)
 
     def get_context_data(self, **kwargs):
         context = super(BenchmarkMixin, self).get_context_data(**kwargs)
-        context.update({'not_applicables': self.get_not_applicables_context()})
+        context.update({
+            'not_applicables': self.get_not_applicables_context(),
+            'environmental_metrics_measured':
+                self.get_measured_metrics_context()
+        })
         return context
 
     def get_drilldown(self, rollup_tree, prefix):
