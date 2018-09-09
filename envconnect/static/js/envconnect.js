@@ -840,7 +840,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         event.preventDefault();
         var form = angular.element(event.target);
         var modalDialog = form.parents('.modal');
-        var data = {};
+        var data = {'message': modalDialog.find("[name='message']").val()};
         if( $scope.activeSupplierManager ) {
             data['slug'] = $scope.activeSupplierManager;
             for( var idx = 0; idx < $scope.supplierManagers.length; ++idx ) {
@@ -867,11 +867,31 @@ envconnectControllers.controller("EnvconnectCtrl",
                 showMessages(['Supplier managers at ' + data['full_name']
                               + ' have been notified. Thank you.'], 'info');
             }, function error(resp) {
-                modalDialog.modal('hide');
-                $scope.activeSupplierManager = null;
-                $scope.thirdPartySupplierManager = null;
-                $scope.thirdPartySupplierManagerEmail = null;
-                showErrorMessages(resp);
+                if( resp.status === 404 ) {
+                    data = resp.data;
+                    $http.post(settings.urls.api_viewers+ "?force=1", data).then(
+                        function success(resp) {
+                            modalDialog.modal('hide');
+                            $scope.activeSupplierManager = null;
+                            $scope.thirdPartySupplierManager = null;
+                            $scope.thirdPartySupplierManagerEmail = null;
+                            showMessages(['Supplier managers at '
+                              + data['full_name']
+                              + ' have been notified. Thank you.'], 'info');
+                        }, function error(resp) {
+                            modalDialog.modal('hide');
+                            $scope.activeSupplierManager = null;
+                            $scope.thirdPartySupplierManager = null;
+                            $scope.thirdPartySupplierManagerEmail = null;
+                            showErrorMessages(resp);
+                        });
+                } else {
+                    modalDialog.modal('hide');
+                    $scope.activeSupplierManager = null;
+                    $scope.thirdPartySupplierManager = null;
+                    $scope.thirdPartySupplierManagerEmail = null;
+                    showErrorMessages(resp);
+                }
             });
     }
 

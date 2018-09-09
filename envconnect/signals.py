@@ -1,14 +1,20 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
 from answers.models import Follow, get_question_model
 from answers.signals import question_new
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.contrib.sites.requests import RequestSite
-from django.dispatch import receiver
+from django.dispatch import Signal, receiver
 from django_comments.signals import comment_was_posted
 from extended_templates.backends import get_email_backend
+
+
+assessment_completed = Signal(providing_args=[#pylint:disable=invalid-name
+    'assessment', 'notified'])
 
 #pylint: disable=unused-argument
 def get_site(request):
@@ -47,3 +53,23 @@ def on_answer_posted(sender, comment, request, *args, **kwargs):
                      'site': get_site(request)})
         # Subscribe the commenting user to this question
         Follow.objects.subscribe(question, user=request.user)
+
+
+@receiver(assessment_completed, dispatch_uid="assessment_completed_notice")
+def on_assessment_completed(assessment, notified, *args, **kwargs):
+    request = kwargs.get('request', None)
+    reason = kwargs.get('reason', None)
+    recipients = [manager.email
+        for manager in notified.with_role('manager')]
+    if not recipients:
+        # Avoids 500 errors when no managers
+        recipients = [settings.DEFAULT_FROM_EMAIL]
+    back_url = request.build_absolute_uri(
+        reverse('benchmark_organization_redirect', args=(assessment.account,)))
+    get_email_backend().send(
+        recipients=recipients,
+        template='notification/assessment_completed.eml',
+        context={'organization': assessment.account,
+                 'reason': reason,
+                 'back_url': back_url,
+                 'site': get_site(request)})

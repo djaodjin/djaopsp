@@ -221,7 +221,8 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
             for element in six.itervalues(root[1]):
                 self.write_tree(element, indent=indent + self.indent_step)
 
-    def get(self, *args, **kwargs): #pylint: disable=unused-argument
+    def get(self, *args, **kwargs):
+        #pylint: disable=unused-argument,too-many-locals
         # All assessment questions for an industry, regardless
         # of the actual from_path.
         # XXX if we do that, we shouldn't use from_root (i.e. system pages)

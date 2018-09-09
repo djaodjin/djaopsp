@@ -13,5 +13,4 @@ def get_supplier_managers(account):
                 ends_at__gt=ends_at, organization=account).select_related(
                 'plan__organization').values_list(
                 'plan__organization__slug', 'plan__organization__full_name')]
-    print("XXX suppliers for %s (%s) = %s" % (account, account.__class__, supplier_managers))
     return supplier_managers

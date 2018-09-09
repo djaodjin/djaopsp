@@ -19,7 +19,6 @@ from survey.models import (Answer, Campaign, EditablePredicate,
     EnumeratedQuestions, Sample)
 from survey.utils import get_account_model
 
-from ...api.assessments import AssessmentAPIView
 from ...api.dashboards import SupplierListBaseAPIView
 from ...helpers import freeze_scores
 from ...mixins import BreadcrumbMixin, ReportMixin

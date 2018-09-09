@@ -12,7 +12,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.status import HTTP_200_OK
 from survey.api.sample import AnswerAPIView, SampleAPIView
-from survey.models import Answer, Choice, EnumeratedQuestions, Sample, Unit
+from survey.models import Answer, Choice, EnumeratedQuestions, Unit
 from survey.mixins import SampleMixin
 from survey.utils import get_question_model
 
@@ -62,14 +62,20 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
     account_url_kwarg = 'interviewee'
 
     def update(self, request, *args, **kwargs):
+        #pylint:disable=unused-argument
+        # We donot call super() because the up-to-date assessment should
+        # never be frozen.
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance,
+            data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
         with transaction.atomic():
-            # We donot call super() because the up-to-date assessment should
-            # never be frozen.
             freeze_scores(self.sample,
                 includes=self.get_included_samples(),
                 excludes=self._get_filter_out_testing(),
                 collected_by=self.request.user)
-        return result
+        return http.Response(serializer.data)
 
 
 class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):

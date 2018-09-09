@@ -21,9 +21,9 @@ You are receiving this email, because you have been added
 as a {{role}} on {{broker.printable_name}} website for
 {{organization.printable_name}}.
 You can access the information on
-<a href="{{back_url}}scorecard/">{{organization.printable_name}}</a>
+<a href="{% if '/roles/accept/' in back_url %}{{back_url}}?next={{''|site_prefixed}}/app/{{organization}}/scorecard/{% else %}{{back_url}}scorecard{% endif %}">{{organization.printable_name}}</a>
 by clicking on the previous link, or by cutting and pasting the following
 link into your browser:
-{{back_url}}scorecard/.
+{% if '/roles/accept/' in back_url %}{{back_url}}?next={{''|site_prefixed}}/app/{{organization}}/scorecard/{% else %}{{back_url}}scorecard{% endif %}.
 </p>
 {% endblock %}

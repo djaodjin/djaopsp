@@ -10,12 +10,13 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q, Max
 from django.http import Http404
 from django.utils import six
+from django.utils.encoding import force_text
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 from deployutils.helpers import datetime_or_now
 from extra_views.contrib.mixins import SearchableListMixin, SortableListMixin
 from pages.models import PageElement
-from rest_framework import generics, serializers
+from rest_framework import generics, serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
@@ -25,6 +26,7 @@ from survey.models import Answer, EditableFilter, Matrix, Sample
 from survey.utils import get_account_model
 
 from .benchmark import BenchmarkMixin
+from .. import signals
 from ..helpers import freeze_scores
 from ..mixins import ReportMixin
 from ..serializers import AccountSerializer, NoModelSerializer
@@ -540,6 +542,7 @@ class ShareScorecardSerializer(NoModelSerializer):
     full_name = serializers.CharField()
     slug = serializers.SlugField(required=False)
     email = serializers.EmailField(required=False)
+    message = serializers.CharField(required=False)
 
     def validate(self, attrs):
         if not (attrs.get('slug', None) or attrs.get('email', None)):
@@ -565,7 +568,10 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
                 account=self.account).order_by('-created_at').first()
         return self._improvement_sample
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
+        #pylint:disable=too-many-locals
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         last_activity_at = Answer.objects.filter(
             sample=self.assessment_sample).aggregate(Max('created_at')).get(
                 'created_at__max', None)
@@ -585,32 +591,70 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
                 includes=self.get_included_samples(),
                 excludes=self._get_filter_out_testing(),
                 collected_by=self.request.user)
-            freeze_scores(self.improvement_sample,
-                includes=self.get_included_samples(),
-                excludes=self._get_filter_out_testing(),
-                collected_by=self.request.user)
+            if self.improvement_sample:
+                freeze_scores(self.improvement_sample,
+                    includes=self.get_included_samples(),
+                    excludes=self._get_filter_out_testing(),
+                    collected_by=self.request.user)
 
         # send assessment updated and invite notifications
         supplier_manager_slug = serializer.validated_data.get('slug', None)
         if supplier_manager_slug:
             try:
-                Matrix.objects.get(account__slug=supplier_manager_slug,
+                matrix = Matrix.objects.get(account__slug=supplier_manager_slug,
                     metric__slug='totals')
                 # Supplier manager already has a dashboard
                 LOGGER.info("%s shared %s assessment (%s) with %s",
                     self.request.user, self.account, last_scored_assessment,
                     supplier_manager_slug)
-                # XXX send assessment updated.
+
+                # Update or create dashboard entry
+                ends_at = datetime_or_now() + relativedelta(years=1)
+                Subscription.objects.update_or_create(
+                    organization=self.account,
+                    plan__organization=matrix.account,
+                    defaults={'ends_at':ends_at})
+                # send assessment updated.
+                reason = serializer.validated_data.get('message', None)
+                if reason:
+                    reason = force_text(reason)
+                signals.assessment_completed.send(sender=__name__,
+                    assessment=last_scored_assessment, notified=matrix.account,
+                    reason=reason, request=self.request)
+
+                headers = self.get_success_headers(serializer.data)
+                return Response(serializer.data,
+                    status=status.HTTP_201_CREATED, headers=headers)
+
             except Matrix.DoesNotExist:
                 # Registered supplier manager but no dashboard
                 # XXX send hint to get paid version.
                 LOGGER.error("%s shared %s assessment (%s) with %s",
                     self.request.user, self.account, last_scored_assessment,
                     supplier_manager_slug)
-        else:
-            # Organization profile cannot be found.
-            # XXX Send a viewer invite.
-            contact_email = serializer.validated_data.get('email', None)
-            LOGGER.error("%s shared %s assessment (%s) with %s",
-                self.request.user, self.account, last_scored_assessment,
-                contact_email)
+                # XXX Should technically add all managers
+                # of `supplier_manager_slug`
+                account_model = get_account_model()
+                try:
+                    supplier_manager = account_model.objects.get(
+                        slug=supplier_manager_slug)
+                    data = {}
+                    data.update(serializer.validated_data)
+                    data.update({
+                        'slug': supplier_manager.email,
+                        'email': supplier_manager.email
+                    })
+                    return Response(data, status=status.HTTP_404_NOT_FOUND)
+                except account_model.DoesNotExist:
+                    raise ValidationError({'detail':
+                        _("Cannot find account '%s'" % supplier_manager_slug)})
+
+        # Organization profile cannot be found.
+        contact_email = serializer.validated_data.get('email', None)
+        LOGGER.error("%s shared %s assessment (%s) with %s",
+            self.request.user, self.account, last_scored_assessment,
+            contact_email)
+        data = {}
+        data.update(serializer.validated_data)
+        data.update({'slug': serializer.validated_data['email']})
+        return Response(data, status=status.HTTP_404_NOT_FOUND)
