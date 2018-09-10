@@ -395,42 +395,43 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
         self.wsheet.merge_cells('A2:A3')
 
         # Environmental metrics measured/reported
-        col_scale = 11.9742857142857
-        self.wsheet.row_dimensions[self.measured_title_row_idx].height = (
-            0.36 * (6 * col_scale))
-        self.wsheet.merge_cells(
-            start_row=self.measured_title_row_idx, start_column=1,
-            end_row=self.measured_title_row_idx,
-            end_column=1 + len(self.headings))
-        for row_cells in self.wsheet.iter_rows(
-                min_row=self.measured_title_row_idx,
-                max_row=self.measured_title_row_idx):
-            row_cells[0].fill = title_fill
-            row_cells[0].font = title_font
-            row_cells[0].border = border
-            row_cells[0].alignment = alignment
+        if hasattr(self, 'measured_title_row_idx'):
+            col_scale = 11.9742857142857
+            self.wsheet.row_dimensions[self.measured_title_row_idx].height = (
+                0.36 * (6 * col_scale))
+            self.wsheet.merge_cells(
+                start_row=self.measured_title_row_idx, start_column=1,
+                end_row=self.measured_title_row_idx,
+                end_column=1 + len(self.headings))
+            for row_cells in self.wsheet.iter_rows(
+                    min_row=self.measured_title_row_idx,
+                    max_row=self.measured_title_row_idx):
+                row_cells[0].fill = title_fill
+                row_cells[0].font = title_font
+                row_cells[0].border = border
+                row_cells[0].alignment = alignment
 
-        for row_cells in self.wsheet.iter_rows(
-                min_row=self.measured_title_row_idx + 1,
-                max_row=self.measured_title_row_idx + 1):
-            row_cells[0].fill = subtitle_fill
-            row_cells[0].font = subtitle_font
-            row_cells[0].alignment = alignment
-            for cell in row_cells[1:]:
-                cell.fill = subtitle_fill
-                cell.font = subtitle_font
-                cell.border = border
-                cell.alignment = alignment
-        self.wsheet.merge_cells(
-            start_row=self.measured_title_row_idx + 1,
-            start_column=2,
-            end_row=self.measured_title_row_idx + 1,
-            end_column=2 + len(self.headings) // 2)
-        self.wsheet.merge_cells(
-            start_row=self.measured_title_row_idx + 1,
-            start_column=3 + len(self.headings) // 2,
-            end_row=self.measured_title_row_idx + 1,
-            end_column=3 + (len(self.headings) - len(self.headings) // 2))
+            for row_cells in self.wsheet.iter_rows(
+                    min_row=self.measured_title_row_idx + 1,
+                    max_row=self.measured_title_row_idx + 1):
+                row_cells[0].fill = subtitle_fill
+                row_cells[0].font = subtitle_font
+                row_cells[0].alignment = alignment
+                for cell in row_cells[1:]:
+                    cell.fill = subtitle_fill
+                    cell.font = subtitle_font
+                    cell.border = border
+                    cell.alignment = alignment
+            self.wsheet.merge_cells(
+                start_row=self.measured_title_row_idx + 1,
+                start_column=2,
+                end_row=self.measured_title_row_idx + 1,
+                end_column=2 + len(self.headings) // 2)
+            self.wsheet.merge_cells(
+                start_row=self.measured_title_row_idx + 1,
+                start_column=3 + len(self.headings) // 2,
+                end_row=self.measured_title_row_idx + 1,
+                end_column=3 + (len(self.headings) - len(self.headings) // 2))
 
         content = io.BytesIO()
         self.wbook.save(content)
