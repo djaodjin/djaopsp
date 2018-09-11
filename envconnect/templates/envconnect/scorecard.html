@@ -8,3 +8,26 @@
 <h2>{{organization.printable_name}}</h2>
 {% endblock %}
 
+{% block supplier_menus_scripts %}
+{# XXX copy/paste from benchmark.html to remove trip autostart. #}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $("#scorecard-tab").improvementDashboard({
+        api_account_benchmark: "{{urls.api_account_benchmark}}",
+        benchmark: "{{root.0.slug}}",
+        scoreFunc: function (elem) { return elem.normalized_score; }
+    });
+    $("#history-chart").historicalScoreChart({
+        scores: "{{urls.api_historical_scores}}"
+    });
+
+    // Copy/Paste from vendor/js/bootstrap.js and inserted
+    // a forced trigger of 'resize' for NVD3 to redraw the chart
+    // using correct dimensions.
+    $(document).on('shown.bs.tab',
+        '[data-toggle="tab"], [data-toggle="pill"]', function () {
+            window.dispatchEvent(new Event('resize'));
+    });
+});
+</script>
+{% endblock %}
