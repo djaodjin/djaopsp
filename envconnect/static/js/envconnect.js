@@ -1096,7 +1096,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( answer === $scope.NOT_APPLICABLE ) {
             var trip = new Trip([{
                 sel: $("#assess-content"),
-                content: "Did you mean to select <strong>Not applicable</strong> for all multuple<br />responses below. If not, revise your response by selecting a<br />response for each individual row under the heading row.",
+                content: "<p class='text-left'>Did you mean to select <strong>Not applicable</strong> for all responses below.<br />If not, revise your response by selecting a response for each<br />individual row under the heading row.</p>",
                 position: "screen-center",
                 enableAnimation: false,
                 delay:-1,
