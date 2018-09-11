@@ -74,24 +74,25 @@ See the following for examples of content developed for best practices:
      aria-labelledby="Complete assessment" aria-hidden="true"
      style="color: #000;">
     <div class="modal-dialog">
-        <form class="modal-content" ng-submit="freezeAssessment($event, 'improvement planning')">
+        <form class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Mark your planning as complete ...</h4>
             </div>
             <div class="modal-body">
                     <p>
-After clicking "Yes", users with whom you shared your organization's scorecard
-will be notified that you have completed the improvement planning phase.
+Congratulations!
                     </p>
                     <p>
-Do you wish to continue?
+Now all that remains for you is to
                     </p>
+<ol>
+    <li>Share your scorecard with suppliers managers that requested it.</li>
+</ol>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-defaut"
-                    data-dismiss="modal">No</button>
-                <button type="submit" class="btn btn-primary">Yes</button>
+                <button type="button" class="btn btn-primary"
+                    data-dismiss="modal">OK</button>
             </div>
         </form>
     </div>

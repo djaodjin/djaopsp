@@ -165,29 +165,27 @@ Do you wish to continue?
      aria-labelledby="Complete assessment" aria-hidden="true"
      style="color: #000;">
     <div class="modal-dialog">
-        <form class="modal-content" ng-submit="freezeAssessment($event, 'assessment', 'Browse to the Scorecard to see how you compare with peers.')">
+        <form class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Mark your assessment as complete ...</h4>
             </div>
             <div class="modal-body">
                     <p>
-You certify that the assessment responses provided for your organization
-are true and correct to the best of your knowledge. Additionally, you
-acknowledge that the responses form a statement of record which current
-or future clients may request to verify.</p>
-<p>After clicking "Yes", you will no longer be able to change
-responses in <strong>this assessment</strong>. Start a new assessment when
-you have improvements to report.
+Congratulations!
                     </p>
                     <p>
-Do you wish to continue?
+Now all that remains for you is to
                     </p>
+<ol>
+    <li>See your scorecard and how you compare with your peers.</li>
+    <li>Create an improvement plan.</li>
+    <li>Share your scorecard with suppliers managers that requested it.</li>
+</ol>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-defaut"
-                    data-dismiss="modal">No</button>
-                <button type="submit" class="btn btn-primary">Yes</button>
+                <button type="button" class="btn btn-primary"
+                    data-dismiss="modal">OK</button>
             </div>
         </form>
     </div>
