@@ -15,6 +15,8 @@ from django.utils import six
 from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip
 from answers.models import Question as AnswersQuestion
+from saas.models import Subscription
+from saas.utils import generate_random_slug
 from survey.models import (Answer, Campaign, EditablePredicate,
     EnumeratedQuestions, Sample)
 from survey.utils import get_account_model
@@ -109,7 +111,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.update_pageelement_accounts()
+            self.add_grant_key()
+#            self.update_pageelement_accounts()
 #            self.migrate_survey()
 #            self.migrate_completion_status()
 #            self.print_updated_scores()
@@ -117,6 +120,15 @@ class Command(BaseCommand):
 #            self.dump_sql_statements(options.get('paths'))
 #            self.relabel_to_fix_error()
 #            self.recompute_avg_value()
+
+
+    def add_grant_key(self):
+        self.stdout.write("BEGIN;")
+        for subscription in Subscription.objects.filter(
+                created_at='2018-08-13 07:54:31.875025-07'):
+            self.stdout.write("UPDATE saas_subscription SET grant_key='%s'"\
+                " WHERE id=%d;" % (generate_random_slug(), subscription.id))
+        self.stdout.write("COMMIT;")
 
 
     @staticmethod

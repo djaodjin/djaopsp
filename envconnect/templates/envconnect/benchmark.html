@@ -180,14 +180,14 @@
           <div class="modal-body">
             <div class="row">
               <div class="col-sm-6">
-                <label>With an organization that requested it</label>
+                <label>With an organization that requested it.</label>
                 <select class="form-control" ng-model="activeSupplierManager">
                   <option value="">Select ...</option>
                   <option ng-value="supplierManager.slug" ng-repeat="supplierManager in supplierManagers">[[supplierManager.printable_name]]</option>
                 </select>
               </div>
               <div class="col-sm-6">
-                <label>Or with another third-party organization</label>
+                <label>Or with another organization.</label>
                 <div>
                   <div class="input-group" style="width:100%;">
                     <input name="organization" type="text"
@@ -216,7 +216,7 @@ Please enter the e-mail address of your contact at this organization.
             </div>
             <p>
 <strong>You agree to share a copy</strong> of your most current assessment
-with the organization listed above.
+with the organization(s) listed above.
             </p>
             <p>
 <strong>You certify</strong> that the assessment responses provided for your
@@ -231,19 +231,20 @@ or future clients may request to verify.
 -->
             <div class="form-group">
               <div class="controls">
-                <label>The following invite message will be sent (or modify the message by typing in the box below).</label>
+                <label>The following message will be sent to listed organizations (type in the box to modify the message).</label>
                 <textarea class="form-control" name="message"
                           type="text" rows="10">
 Hello,
-I would like to share {{organization.printable_name}} assessment
-on The Sustainability Project with you.
+
+I would like to invite you to view {{organization.printable_name}}’s Scorecard
+information on The Sustainability Project.
 
 Thank you.
 - {{request.user.first_name}}
                 </textarea>
               </div>
             </div>
-            <p>
+            <p class="text-danger">
 Note: Update your assessment and share it again when you have improvements
 to report.
             </p>

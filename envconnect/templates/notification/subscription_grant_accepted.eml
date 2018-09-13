@@ -13,13 +13,19 @@ HTML encoded. #}
 </p>
 {% endif %}
 <p>
-{{user.printable_name}} accepted your request to access
-{{organization.printable_name}} scorecard and planning status
-on https://tspproject.org/
+{{user.printable_name}} accepted your request for
+ {{organization.printable_name}} assessment of their environmental
+ sustainability assessment on https://tspproject.org/.
+ The results will soon be accessible in your &quot;Reporting Entities&quot;
+ Dashboard.
 </p>
 <p>
-Login to your "Reporting entities" dashboard to see
-{{organization.printable_name}}'s scores for the implementation
-of sustainability best practices.
+Login to TSP, click on <em>Dashboard</em> in the top menu to see
+ {{organization.printable_name}}'s assessment for the implementation
+ of sustainability best practices.
+</p>
+<p>
+Tutorials on navigating your dashboard are available
+<a href="https://tspproject.org/docs/tutorials/#supplier-managers">here</a>.
 </p>
 {% endblock %}

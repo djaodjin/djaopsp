@@ -16,6 +16,7 @@ from ...models import Consumption
 
 INDUSTRIES = [
     'architecture-design',
+    'aviation-services',
     'boxes-and-enclosures',
     'construction',
     'consulting',
@@ -29,6 +30,7 @@ INDUSTRIES = [
     'engineering',
     'epc',
     'fabricated-metals',
+    'facilities',
     'facilities-management-industry',
     'freight-and-shipping',
     'fuel-supply',
