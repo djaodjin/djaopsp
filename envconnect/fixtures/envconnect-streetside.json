@@ -195,134 +195,142 @@
 { "fields": {
     "app": 6,
     "rank": 3,
-    "path": "/api/profile/",
-    "rule_op": 1
+    "path": "/api/profile/:organization/",
+    "rule_op": 3
   },
   "model": "rules.Rule", "pk": 3
 },
 { "fields": {
     "app": 6,
     "rank": 4,
-    "path": "/api/:organization/benchmark/",
-    "rule_op": 18,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": [\"viewer\", \"contributor\"]}"
+    "path": "/api/profile/",
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 4
 },
 { "fields": {
     "app": 6,
     "rank": 5,
-    "path": "/api/:organization/",
-    "rule_op": 4,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
+    "path": "/api/:organization/benchmark/",
+    "rule_op": 18,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": [\"viewer\", \"contributor\"]}"
   },
   "model": "rules.Rule", "pk": 5
 },
 { "fields": {
     "app": 6,
     "rank": 6,
-    "path": "/api/",
-    "rule_op": 1
+    "path": "/api/:organization/",
+    "rule_op": 4,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
   },
   "model": "rules.Rule", "pk": 6
 },
 { "fields": {
     "app": 6,
     "rank": 7,
-    "path": "/app/info/:industry/",
-    "rule_op": 1,
-    "engaged": "app,info"
+    "path": "/api/",
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 7
 },
 { "fields": {
     "app": 6,
     "rank": 8,
-    "path": "/app/comments/",
-    "rule_op": 1
+    "path": "/app/info/:industry/",
+    "rule_op": 1,
+    "engaged": "app,info"
   },
   "model": "rules.Rule", "pk": 8
 },
 { "fields": {
     "app": 6,
     "rank": 9,
-    "path": "/app/:organization/scorecard/",
-    "rule_op": 18,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": [\"viewer\", \"contributor\"]}"
+    "path": "/app/comments/",
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 9
 },
 { "fields": {
     "app": 6,
     "rank": 10,
-    "path": "/app/:organization/info/:industry/",
+    "path": "/app/:organization/scorecard/",
     "rule_op": 18,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
-    "engaged": "app,info"
+    "kwargs": "{\"organization\": \"\", \"roledescription\": [\"viewer\", \"contributor\"]}"
   },
   "model": "rules.Rule", "pk": 10
 },
 { "fields": {
     "app": 6,
     "rank": 11,
-    "path": "/app/:organization/improve/:industry/",
+    "path": "/app/:organization/info/:industry/",
     "rule_op": 18,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
-    "engaged": "app,improve"
+    "engaged": "app,info"
   },
   "model": "rules.Rule", "pk": 11
 },
 { "fields": {
     "app": 6,
     "rank": 12,
-    "path": "/app/:organization/benchmark/",
+    "path": "/app/:organization/improve/:industry/",
     "rule_op": 18,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
-    "engaged": "app"
+    "engaged": "app,improve"
   },
   "model": "rules.Rule", "pk": 12
 },
 { "fields": {
     "app": 6,
     "rank": 13,
-    "path": "/app/:organization/assess/:industry/",
+    "path": "/app/:organization/benchmark/",
     "rule_op": 18,
     "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
-    "engaged": "app,assess"
+    "engaged": "app"
   },
   "model": "rules.Rule", "pk": 13
 },
 { "fields": {
     "app": 6,
     "rank": 14,
-    "path": "/app/:organization/",
-    "rule_op": 3,
-    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
+    "path": "/app/:organization/assess/:industry/",
+    "rule_op": 18,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}",
+    "engaged": "app,assess"
   },
   "model": "rules.Rule", "pk": 14
 },
 { "fields": {
     "app": 6,
     "rank": 15,
-    "path": "/app/",
-    "rule_op": 1
+    "path": "/app/:organization/",
+    "rule_op": 3,
+    "kwargs": "{\"organization\": \"\", \"roledescription\": \"contributor\"}"
   },
   "model": "rules.Rule", "pk": 15
 },
 { "fields": {
     "app": 6,
     "rank": 16,
-    "path": "/docs/",
-    "rule_op": 0,
-    "is_forward": false
+    "path": "/app/",
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 16
 },
 { "fields": {
     "app": 6,
     "rank": 17,
+    "path": "/docs/",
+    "rule_op": 0,
+    "is_forward": false
+  },
+  "model": "rules.Rule", "pk": 17
+},
+{ "fields": {
+    "app": 6,
+    "rank": 18,
     "path": "/",
     "rule_op": 0
   },
-  "model": "rules.Rule", "pk": 17
+  "model": "rules.Rule", "pk": 18
 }]

@@ -1598,17 +1598,31 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     };
 
     $scope.create = function() {
-        $http.post(settings.urls.api_accessibles + "?force=1",
-                   {organization: $scope.item, message: angular.element(
-            settings.modalId + " [name='message']").val()}).then(
-            function success(resp) {
+       $http.post(settings.urls.api_accessibles,
+                   {organization: $scope.item}).then(
+            function(success) {
                 // XXX Couldn't figure out how to get the status code
-                //   here so we just reload the list.
+                // here so we just reload the list.
                 $scope.refresh();
                 $scope.item = null;
             },
-            function error(resp) {
-                showErrorMessages(resp);
+            function(resp) {
+                if( resp.status === 404 ) {
+                    $http.post(settings.urls.api_accessibles + "?force=1",
+                       {organization: $scope.item, message: angular.element(
+                       settings.modalId + " [name='message']").val()}).then(
+                    function success(resp) {
+                        // XXX Couldn't figure out how to get the status code
+                        //   here so we just reload the list.
+                        $scope.refresh();
+                        $scope.item = null;
+                    },
+                    function error(resp) {
+                        showErrorMessages(resp);
+                    });
+                } else {
+                    showErrorMessages(resp);
+                }
             });
     };
 
@@ -1620,21 +1634,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
             $scope.item = {slug: $scope.item, email: $scope.item,
                 full_name: "", printable_name: ""};
         }
-        $http.post(settings.urls.api_accessibles,
-                   {organization: $scope.item}).then(
-            function(success) {
-                // XXX Couldn't figure out how to get the status code
-                // here so we just reload the list.
-                $scope.refresh();
-                $scope.item = null;
-            },
-            function(resp) {
-                if( resp.status === 404 ) {
-                    angular.element(settings.modalId).modal("show");
-                } else {
-                    showErrorMessages(resp);
-                }
-            });
+        angular.element(settings.modalId).modal("show");
     };
 
     $scope.remove = function ($event, idx) {
