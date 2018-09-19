@@ -81,15 +81,18 @@ See the following for examples of content developed for best practices:
             </div>
             <div class="modal-body">
                     <p>
-Congratulations!
+After clicking OK, then:
                     </p>
+<ol>
+    <li>Click PLANNING DASHBOARD (page bottom).</li>
+    <li>Click SHARE PLANNED ACTIONS to send these to requesters.</li>
+</ol>
                     <p>
 Once improvements are implemented:
                     </p>
 <ol>
-    <li>Revisit ASSESSMENT to update your score and benchmarking.</li>
-    <li>Click PLANNING to select additional improvement actions.</li>
-    <li>Click SHARE SCORECARD (in the Scorecard) to send your responses to requesters.</li>
+    <li>Modify your ASSESSMENT to update scores and benchmarking.</li>
+    <li>Click SHARE SCORECARD (in the Scorecard) to share updates.</li>
 </ol>
             </div>
             <div class="modal-footer">
@@ -99,6 +102,88 @@ Once improvements are implemented:
         </form>
     </div>
 </div>
+<div id="share-scorecard"
+     class="add-role-modal modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="Request access" aria-hidden="true" style="color: #000;"
+     ng-submit="shareScorecard($event)">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close"
+                data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Share your planned actions ...</h4>
+      </div>
+      <form>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <label>With an organization that requested it.</label>
+                <select class="form-control" ng-model="activeSupplierManager">
+                  <option value="">Select ...</option>
+                  <option ng-value="supplierManager.slug" ng-repeat="supplierManager in supplierManagers">[[supplierManager.printable_name]]</option>
+                </select>
+            </div>
+            <div class="col-sm-6">
+              <label>Or with another organization.</label>
+              <div>
+                <div class="input-group" style="width:100%;">
+                  <input name="organization" type="text"
+                         placeholder="Organization name"
+                         autocomplete="off"
+                         ng-model="thirdPartySupplierManager"
+                         ng-model-options="{ debounce: 500 }"
+                         uib-typeahead="candidate as candidate.printable_name for candidate in getCandidates($viewValue)"
+                         uib-typeahead-loading="loadingOrganizations"
+                         uib-typeahead-template-url="customTemplate.html"
+                         class="form-control" style="width: 100%;">
+                </div>
+                <div style="height:14px" ng-cloak>
+                  <i ng-show="loadingOrganizations" class="fa fa-spinner fa-spin"></i>
+                </div>
+                <div ng-show="thirdPartySupplierManager && !thirdPartySupplierManager.slug">
+                  <p class="text-danger">
+We cannot find this profile on TSP.
+Please enter the e-mail address of your contact at this organization.
+                  </p>
+                  <input name="organization" type="text"
+                         placeholder="Email of contact at customer/client/investor" class="form-control" style="width: 100%;" ng-model="thirdPartySupplierManagerEmail">
+                </div>
+              </div>
+            </div>
+          </div>
+          <p>
+<strong>You agree to share a copy</strong> of your most current planned actions
+with the organization listed above.
+          </p>
+            <div class="form-group">
+              <div class="controls">
+                <label>The following message will be sent to listed organization (type in the box to modify).</label>
+                <textarea class="form-control" name="message"
+                          type="text" rows="10">
+Hello,
+
+I would like to invite you to view {{organization.printable_name}}’s planned actions on The Sustainability Project.
+
+Thank you.
+- {{request.user.first_name}}
+                </textarea>
+              </div>
+            </div>
+            <p class="text-danger">
+Note: Update your planned actions and share these again when you have
+improvements to report.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary"
+                    data-dismiss="modal">Cancel</button>
+            <button id="share-scorecard-submit"
+                    type="submit" class="btn btn-primary">Share planned actions</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div> <!-- /#share-scorecard -->
 {% include "envconnect/_improvement_planning_dashboard.html" %}
 {% endblock %}
 

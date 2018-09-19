@@ -5,16 +5,18 @@ from __future__ import unicode_literals
 import csv, datetime, logging, io
 from collections import OrderedDict
 
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_prefixed)
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.generic.list import ListView
 from django.utils import six
+from extended_templates.backends.pdf import PdfTemplateResponse
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
-from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
 
 from .assessments import AssessmentBaseMixin, AssessmentView
@@ -56,11 +58,18 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
 
     def get_context_data(self, **kwargs):
         context = super(ImprovementView, self).get_context_data(**kwargs)
+        from_root, trail = self.breadcrumbs
         organization = context['organization']
         self.update_context_urls(context, {
             'api_account_benchmark': reverse('api_benchmark',
                 args=(organization, self.get_scorecard_path(
-                    self.kwargs.get('path'))))})
+                    self.kwargs.get('path')))),
+            'api_benchmark_share': reverse('api_benchmark_share',
+                args=(context['organization'], from_root)),
+            'api_organizations': site_prefixed("/api/profile/"),
+            'api_viewers': site_prefixed(
+                "/api/profile/%s/roles/viewers/" % self.account),
+        })
         return context
 
 

@@ -224,20 +224,14 @@ organization are true and correct to the best of your knowledge. Additionally,
 you acknowledge that the responses form a statement of record which current
 or future clients may request to verify.
             </p>
-<!-- XXX currently disabled:
-            <label class="text-danger">
-              <input class="checkboxinput" type="checkbox" ng-checked="noImprovements"> I have not selected any best practice for improvement under <em>planning</em>, please share anyway.
-            </label>
--->
             <div class="form-group">
               <div class="controls">
-                <label>The following message will be sent to listed organizations (type in the box to modify the message).</label>
+                <label>The following message will be sent to listed organizations (type in the box to modify).</label>
                 <textarea class="form-control" name="message"
                           type="text" rows="10">
 Hello,
 
-I would like to invite you to view {{organization.printable_name}}’s Scorecard
-information on The Sustainability Project.
+I would like to invite you to view {{organization.printable_name}}’s Scorecard information on The Sustainability Project.
 
 Thank you.
 - {{request.user.first_name}}

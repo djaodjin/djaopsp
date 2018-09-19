@@ -153,6 +153,14 @@
 },
 {
     "fields": {
+      "last_signed": "2017-01-01T00:00:00-00:00",
+      "agreement": 1,
+      "user": 11
+    },
+    "model": "saas.signature", "pk": 11
+},
+{
+    "fields": {
       "created_at": "2012-09-14T14:16:55-09:00",
       "role_description": 1,
       "organization": 10,
@@ -196,7 +204,9 @@
     "app": 6,
     "rank": 3,
     "path": "/api/profile/:organization/",
-    "rule_op": 3
+    "kwargs": "{\"organization\": \"\"}",
+    "rule_op": 6,
+    "is_forward": false
   },
   "model": "rules.Rule", "pk": 3
 },
@@ -204,7 +214,8 @@
     "app": 6,
     "rank": 4,
     "path": "/api/profile/",
-    "rule_op": 1
+    "rule_op": 1,
+    "is_forward": false
   },
   "model": "rules.Rule", "pk": 4
 },

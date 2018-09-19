@@ -5,7 +5,7 @@
     <button class="btn btn-primary" type="button"
             data-toggle="collapse" data-target="#improvement-dashboard"
             aria-expanded="false" aria-controls="improvement-dashboard">
-        Click for planning dashboard
+        Planning dashboard
     </button>
     <div id="improvement-dashboard" class="text-center inner collapse" style="">
       <div class="row">
@@ -49,24 +49,22 @@
         <div class="benchmarks-top-border">
           <div class="row" style="margin-top: 25px;margin-bottom:15px;">
             <div class="col-sm-4">
+              <a id="share-scorecard-btn"
+                 class="improve-link" style="margin-left:15px;"
+                 data-toggle="modal" data-target="#share-scorecard"
+                 href="">Share planned actions</a>
+            </div>
+            <div class="col-sm-4">
               <a id="download-improvements"
-                 class="btn btn-default"
-                 style="margin-left:15px;"
+                 class="improve-link"
                  href="{% url 'envconnect_improve_organization_download' organization path %}"
-                 target="_blank">Improvement list</a>
+                 target="_blank">Print planned actions</a>
             </div>
             <div class="col-sm-4">
-              <a id="download-improvements"
-                 class="btn btn-default"
+              <a id="print-actions-guidance"
+                 class="improve-link"  style="margin-right:15px;"
                  href="{% url 'envconnect_improve_organization_print' organization path %}"
-                 target="_blank">Improvement guidance</a>
-            </div>
-            <div class="col-sm-4">
-              <a id="find-suppliers"
-                 class="btn btn-primary"
-                 style="margin-right:15px;"
-                 href="#"
-                 target="_blank">Find Suppliers <i class="fa fa-wrench"></i></a>
+                 target="_blank">Print actions guidance</a>
             </div>
           </div>
         </div>
