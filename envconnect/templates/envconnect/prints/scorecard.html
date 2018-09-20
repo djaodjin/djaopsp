@@ -314,21 +314,6 @@ indicator for a best practice.
       </div>
     </div>
   </section>
-  <section id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
-      <h2 style="margin-left: 5px;">"Not Applicable" Answers</h2>
-      {% if not_applicables %}
-      <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
-      <div style="margin-left: 5px; margin-bottom: 15px;">
-          {% for not_applicable in not_applicables %}
-          <div class="{{not_applicable.0}}" style="display:block;">
-            <span class="title">{{ not_applicable.2.title }}</span>
-          </div>
-          {% endfor %}
-      </div>
-      {% else %}
-      <h5 style="margin-left: 5px;">No questions have been marked as "Not Applicable".</h5>
-      {% endif %}
-  </section>
   <section id="environmental-metrics-measured" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
       <h2 style="margin-left: 5px;">Environmental metrics measured/reported</h2>
       {% if environmental_metrics_measured %}
@@ -349,6 +334,21 @@ indicator for a best practice.
       </div>
       {% else %}
       <h5 style="margin-left: 5px;">No environmental metrics measured/reported.</h5>
+      {% endif %}
+  </section>
+  <section id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
+      <h2 style="margin-left: 5px;">"Not Applicable" Answers</h2>
+      {% if not_applicables %}
+      <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
+      <div style="margin-left: 5px; margin-bottom: 15px;">
+          {% for not_applicable in not_applicables %}
+          <div class="{{not_applicable.0}}" style="display:block;">
+            <span class="title">{{ not_applicable.2.title }}</span>
+          </div>
+          {% endfor %}
+      </div>
+      {% else %}
+      <h5 style="margin-left: 5px;">No questions have been marked as "Not Applicable".</h5>
       {% endif %}
   </section>
 </body>

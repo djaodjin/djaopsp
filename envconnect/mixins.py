@@ -700,6 +700,49 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 values=values)
         return root
 
+    def _natural_order(self, root):
+        candidate_prefix = ""
+        paths = list(root[1])
+        if paths:
+            paths.sort(key=len)
+            parts = paths[0].split('/')
+            if len(paths) == 1:
+                # If there is only one path/key, we prevent skipping
+                # a level here.
+                candidate_prefix = '/'.join(parts[:-1])
+            else:
+                candidate_prefix = '/'.join(parts)
+                found = False
+                while not found:
+                    found = True
+                    for path in paths:
+                        if not path.startswith(candidate_prefix):
+                            parts = parts[:-1]
+                            candidate_prefix = '/'.join(parts)
+                            found = False
+                            break
+
+        commonprefix = candidate_prefix
+        if commonprefix:
+            if commonprefix.endswith('/'):
+                commonprefix = commonprefix[:-1]
+            orig_element_slug = commonprefix.split('/')[-1]
+            edges = [rec['dest_element__slug']
+                for rec in RelationShip.objects.filter(
+                    orig_element__slug=orig_element_slug).values(
+                        'dest_element__slug').order_by('rank', 'pk')]
+        else:
+            edges = []
+        ordered_root = (root[0], OrderedDict({}))
+        for edge in edges:
+            path = "%s/%s" % (commonprefix, edge)
+            if path in root[1]:
+                ordered_root[1].update({path: root[1][path]})
+        for path, nodes in six.iteritems(ordered_root[1]):
+            ordered_root[1][path] = self._natural_order(nodes)
+        return ordered_root
+
+
     def flatten_answers(self, root, url_prefix, depth=0):
         """
         returns a list from the tree passed as an argument.
@@ -721,11 +764,24 @@ GROUP BY account_id, sample_id, is_planned;""" % {
     def get_measured_metrics_context(self):
         from_root, trail = self.breadcrumbs
         url_prefix = trail[-1][1] if trail else ""
+        root = (OrderedDict({}), OrderedDict({}))
+        depth = len(from_root.split('/')) + 1
+
+        env_metrics = Consumption.objects.filter(
+            path__startswith=from_root,
+            requires_measurements__gt=0)
+        for env_metric in env_metrics:
+            node = self._insert_path(root, env_metric.path, depth=depth)
+            if 'environmental_metrics' not in node[0]:
+                node[0].update({'environmental_metrics': [{
+                'metric_title': "No data provided.",
+                'measured': ""
+            }]})
+        root = self._natural_order(root)
+
         env_metric_answers = Answer.objects.filter(
             sample=self.assessment_sample).exclude(
             metric_id__in=(1, 2)).select_related('question')
-        root = (OrderedDict({}), OrderedDict({}))
-        depth = len(from_root.split('/')) + 1
         for env_metric_answer in env_metric_answers:
             if env_metric_answer.metric.unit.system != Unit.SYSTEM_ENUMERATED:
                 measured = '%d' % env_metric_answer.measured
@@ -735,6 +791,11 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 depth=depth)
             if 'environmental_metrics' not in node[0]:
                 node[0].update({'environmental_metrics': []})
+            else:
+                for env_metric in node[0]['environmental_metrics']:
+                    if env_metric['metric_title'] == "No data provided.":
+                        node[0].update({'environmental_metrics': []})
+                        break
             node[0]['environmental_metrics'] += [{
                 'metric_title': env_metric_answer.metric.title,
                 'measured': measured

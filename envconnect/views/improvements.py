@@ -58,7 +58,7 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
 
     def get_context_data(self, **kwargs):
         context = super(ImprovementView, self).get_context_data(**kwargs)
-        from_root, trail = self.breadcrumbs
+        from_root, _ = self.breadcrumbs
         organization = context['organization']
         self.update_context_urls(context, {
             'api_account_benchmark': reverse('api_benchmark',

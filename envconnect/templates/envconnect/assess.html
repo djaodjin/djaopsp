@@ -221,17 +221,33 @@ of the currently completed assessment or do you want to create a new assessment?
                 <h4 class="modal-title">DO YOU MEASURE/REPORT?</h4>
             </div>
             <div class="modal-body">
-                <h5>For bonus points tell us what you measure and report</h5>
+                <h5>For bonus points tell us what you measure and report.</h5>
                 <p>
-Each additional measure you tell us about is worth 4 bonus points
+Each additional measure you tell us about is worth 4 bonus points.
                 </p>
                 <fieldset>
                   <legend>ABSOLUTE/TOTAL MEASUREMENTS</legend>
                   <div class="row" ng-repeat="measure in getMeasures('{{abs_prefix}}').items">
-                    <div class="col-sm-2">
+                    <div class="col-sm-2" style="padding-right:0;">
                       <input class="form-control" type="number" ng-model="measure.measured" placeholder="Enter data point">
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-2" style="padding-left:0;padding-right:0;">
+                      <select class="form-control" ng-model="measure.stick" name="metric-stick" value="Unit of measure">
+                              <option value="">Select unit of measure...</option>
+                              <option value="count">Count or number</option>
+                              <option value="currency">Currency</option>
+                              <option value="gallons">Gallons</option>
+                              <option value="joules">Joules</option>
+                              <option value="kilograms">Kilograms</option>
+                              <option value="liters">Liters</option>
+                              <option value="metric-tons">Metric tons</option>
+                              <option value="percentage">Percentage</option>
+                              <option value="pounds">Pounds</option>
+                              <option value="short-tons">Tons (short/US)</option>
+                              <option value="long-tons">Tons (long/UK)</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2" style="padding-left:0;padding-right:0;">
                       <select class="form-control" ng-model="measure.name" name="metric-name" value="Subject of measure">
                         <option value="">Select subject of measure...</option>
                         <option value="energy">Energy</option>
@@ -248,23 +264,7 @@ Each additional measure you tell us about is worth 4 bonus points
                         <option value="waste-water-effluent">Waste water effluent</option>
                       </select>
                     </div>
-                    <div class="col-sm-2">
-                      <select class="form-control" ng-model="measure.stick" name="metric-stick" value="Unit of measure">
-                              <option value="">Select unit of measure...</option>
-                              <option value="count">Count or number</option>
-                              <option value="currency">Currency</option>
-                              <option value="gallons">Gallons</option>
-                              <option value="joules">Joules</option>
-                              <option value="kilograms">Kilograms</option>
-                              <option value="liters">Liters</option>
-                              <option value="metric-tons">Metric tons</option>
-                              <option value="percentage">Percentage</option>
-                              <option value="pounds">Pounds</option>
-                              <option value="short-tons">Tons (short/US)</option>
-                              <option value="long-tons">Tons (long/UK)</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-2" style="padding-left:0;padding-right:0;">
                             <select class="form-control" ng-model="measure.meaning" name="metric-meaning" value="Select">
                                     <option value="">Select meaning ...</option>
                                     <option value="saved">Saved</option>
@@ -275,7 +275,7 @@ Each additional measure you tell us about is worth 4 bonus points
                                     <option value="with-environmental-controls">With environmental controls</option>
                             </select>
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-2" style="padding-left:0;padding-right:0;">
                       <select class="form-control" ng-model="measure.scope" name="metric-scope" value="Scope of measure">
                         <option value="">Select scope ...</option>
                         <option value="corporate-level-of-which-reporting-entity-is-part">Corporate level, of which reporting entity is part</option>
@@ -296,7 +296,7 @@ Each additional measure you tell us about is worth 4 bonus points
                         <option value="scope-3-partial">Scope 3 – partial</option>
                       </select>
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-2" style="padding-left:0;">
                       <select class="form-control" ng-model="measure.frequency" name="metric-frequency" value="Frequency">
                         <option value="">Select frequency ...</option>
                         <option value="annual">Annual</option>
@@ -305,7 +305,7 @@ Each additional measure you tell us about is worth 4 bonus points
                       </select>
                     </div>
                   </div>
-                  <button class="btn btn-default" type="button" ng-click="addMeasure('{{abs_prefix}}', $event)"><i class="fa fa-plus"></i> Report another item</button>
+                  <button class="btn btn-default" type="button" ng-click="addMeasure('{{abs_prefix}}', $event)" style="margin: 10px 0;"><i class="fa fa-plus"></i> Report another item</button>
                 </fieldset>
                 <fieldset>
                   <legend>OTHER MEASURES</legend>
@@ -319,7 +319,7 @@ Each additional measure you tell us about is worth 4 bonus points
 - Joules/distribution transformer
 - Carbon emissions/parcel delivered"
                             ng-model="getMeasures('{{abs_prefix}}').freetext"></textarea>
-                  <p>And/or tell us what measures you think make the most sense for your type of organization, or the challenges of reporting environmental metrics</p>
+                  <p>And/or tell us what measures you think make the most sense for your type of organization, or the challenges of reporting environmental metrics.</p>
                   <textarea class="form-control"
                             name="message"
                             maxlength="255" type="text" rows="10"
@@ -346,9 +346,9 @@ Each additional measure you tell us about is worth 4 bonus points
                 <h4 class="modal-title">DO YOU MEASURE/REPORT?</h4>
             </div>
             <div class="modal-body">
-                <h5>For bonus points tell us what you measure and report</h5>
+                <h5>For bonus points tell us what you measure and report.</h5>
                 <p>
-Each additional measure you tell us about is worth 4 bonus points
+Each additional measure you tell us about is worth 4 bonus points.
                 </p>
                 <textarea class="form-control"
                           name="other-measures"
