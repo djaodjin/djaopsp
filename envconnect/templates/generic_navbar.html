@@ -1,5 +1,5 @@
 {% if request|url_profile %}
-<li><a href="{{'/app/info/requests/'|site_prefixed}}">My TSP</a></li>
+<li><a href="{{'/app/info/requests/'|site_prefixed}}">Dashboard</a></li>
 {% if urls and urls.profiles|length > 1 %}
 <!--[if !IE]><!-->
  <li class="divider-vertical hidden-xs"><li>
@@ -25,8 +25,13 @@
 <!--[if !IE]><!-->
  <li class="divider-vertical hidden-xs"><li>
 <!--<![endif]-->
-<li{% if "/faq/" in request.path %} class="active"{% endif %}>
-<a href="{{'/docs/faq/'|site_prefixed}}">FAQ</a>
+<li class="dropdown {% if '/docs/' in request.path %} active{% endif %}">
+ <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help <span class="caret"></span></a>
+ <ul class="dropdown-menu" role="menu">
+  <li role="presentation"><a role="menuitem" tabindex="-1" href="{{'/docs/faq/'|site_prefixed}}">Faq</a></li>
+  <li role="presentation"><a role="menuitem" tabindex="-1" href="{{'/docs/tutorials/'|site_prefixed}}">Tutorials</a></li>
+  <li role="presentation"><a role="menuitem" tabindex="-1" href="{{'/contact/'|site_prefixed}}">Contact us</a></li>
+ </ul>
 </li>
 <!--[if !IE]><!-->
  <li class="divider-vertical hidden-xs"><li>
