@@ -41,6 +41,7 @@ INDUSTRIES = [
     'lab-services',
     'marketing-and-communications',
     'materials-planning-inventory',
+    'metal',
     'office-space-only',
     'print-services',
     'shipping-and-logistics',
@@ -48,6 +49,7 @@ INDUSTRIES = [
     'vehicle-equipment-and-parts',
     'waste-industry',
     'wire-and-cable',
+    # Important pages which are not part of the sustainability content
 ]
 
 
