@@ -20,7 +20,7 @@ from rest_framework import generics, serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from saas.models import Subscription
+from saas.models import Plan, Subscription
 from survey.api.matrix import MatrixDetailAPIView
 from survey.models import Answer, EditableFilter, Matrix, Sample
 from survey.utils import get_account_model
@@ -601,8 +601,9 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
         supplier_manager_slug = serializer.validated_data.get('slug', None)
         if supplier_manager_slug:
             try:
-                matrix = Matrix.objects.get(account__slug=supplier_manager_slug,
-                    metric__slug='totals')
+                matrix = Matrix.objects.filter(
+                    account__slug=supplier_manager_slug,
+                    metric__slug='totals').select_related('account').get()
                 # Supplier manager already has a dashboard
                 LOGGER.info("%s shared %s assessment (%s) with %s",
                     self.request.user, self.account, last_scored_assessment,
@@ -612,7 +613,7 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
                 ends_at = datetime_or_now() + relativedelta(years=1)
                 Subscription.objects.update_or_create(
                     organization=self.account,
-                    plan__organization=matrix.account,
+                    plan=Plan.objects.get(organization=matrix.account),
                     defaults={'ends_at':ends_at})
                 # send assessment updated.
                 reason = serializer.validated_data.get('message', None)
