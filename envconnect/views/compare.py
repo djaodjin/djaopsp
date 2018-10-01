@@ -48,9 +48,14 @@ class SuppliersView(AccountMixin, PermissionMixin, TemplateView):
                 "/api/profile/%(account)s/plans/%(account)s-report/"\
                 "subscriptions/" % {'account': self.account}),
             'api_organizations': site_prefixed("/api/profile/"),
+            'api_organization_profile': site_prefixed(
+                "/api/profile/%(account)s/" % {'account': self.account}),
             'totals_chart': totals_chart_url,
         }
-        context.update({'score_toggle': True})
+        context.update({
+            'score_toggle': True,
+            'account_extra': self.account.extra
+        })
         self.update_context_urls(context, urls)
         return context
 

@@ -87,6 +87,7 @@ app.constant('settings', {
     activeIcon: {% if active %}"{{active}}"{% else %}null{% endif %},
     entries: {% if entries %}{{entries|safe}}{% else %}{}{% endif %},
     hidden: {% if hidden %}{{hidden|safe}}{% else %}{}{% endif %},
+    accountExtra: {% if account_extra %}{{account_extra|safe}}{% else %}{}{% endif %},
     valueSummaryToggle: true,
     scoreToggle: {% if score_toggle %}true{% else %}false{% endif %},
     supplierManagers: {% if supplier_managers %}{{supplier_managers|safe}}{% else %}[]{% endif %},

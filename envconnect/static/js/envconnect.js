@@ -1441,6 +1441,8 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     $scope.formats = ["dd-MMMM-yyyy", "yyyy/MM/dd", "dd.MM.yyyy", "shortDate"];
     $scope.format = $scope.formats[0];
 
+    $scope.accountExtra = (typeof settings.accountExtra
+        !== 'undefined') ? settings.accountExtra : false;
 
     $scope.item = null;
 
@@ -1505,6 +1507,16 @@ envconnectControllers.controller("envconnectMyTSPReporting",
             delete $scope.params.page;
         }
         $scope.items.$resolved = false;
+    };
+
+    $scope.remindSuppliersChanged = function(event) {
+        $http.patch(settings.urls.api_organization_profile, {
+            extra: JSON.stringify($scope.accountExtra)}).then(
+            function(resp) {
+            },
+            function(resp) {
+            }
+        );
     };
 
     $scope.sortBy = function(fieldName) {
