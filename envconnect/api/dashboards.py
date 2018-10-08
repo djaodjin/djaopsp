@@ -231,7 +231,7 @@ class SupplierListMixin(DashboardMixin):
             'printable_name': account.printable_name,
             'email': account.email,
             'request_key': account.request_key}
-        if score is not None:
+        if score is not None and not account.request_key:
             created_at = score.get('created_at', None)
             if created_at:
                 result.update({'last_activity_at': created_at})
