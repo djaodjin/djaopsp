@@ -1338,7 +1338,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 node.measures = {items: [], freetext: "", comments: ""};
             }
             node.measures.items.push({measured: 0, name: "", stick: "",
-                meaning: "", scope: "", frequency: ""});
+                meaning: "", scope: "", frequency: "annual"});
         }
     };
 

@@ -221,7 +221,7 @@ of the currently completed assessment or do you want to create a new assessment?
                 <h4 class="modal-title">DO YOU MEASURE/REPORT?</h4>
             </div>
             <div class="modal-body">
-                <h5>For bonus points tell us what you measure and report.</h5>
+                <h5>For bonus points tell us what you measure and report on an annual basis.</h5>
                 <p>
 Each additional measure you tell us about is worth 4 bonus points.
                 </p>
@@ -240,14 +240,14 @@ Each additional measure you tell us about is worth 4 bonus points.
                               <option value="joules">Joules</option>
                               <option value="kilograms">Kilograms</option>
                               <option value="liters">Liters</option>
-                              <option value="metric-tons">Metric tons</option>
+                              <option value="tons">Metric tons</option>
                               <option value="percentage">Percentage</option>
                               <option value="pounds">Pounds</option>
                               <option value="short-tons">Tons (short/US)</option>
                               <option value="long-tons">Tons (long/UK)</option>
                       </select>
                     </div>
-                    <div class="col-sm-2" style="padding-left:0;padding-right:0;">
+                    <div class="col-sm-3" style="padding-left:0;padding-right:0;">
                       <select class="form-control" ng-model="measure.name" name="metric-name" value="Subject of measure">
                         <option value="">Select subject of measure...</option>
                         <option value="energy">Energy</option>
@@ -275,7 +275,7 @@ Each additional measure you tell us about is worth 4 bonus points.
                                     <option value="with-environmental-controls">With environmental controls</option>
                             </select>
                     </div>
-                    <div class="col-sm-2" style="padding-left:0;padding-right:0;">
+                    <div class="col-sm-3" style="padding-left:0;">
                       <select class="form-control" ng-model="measure.scope" name="metric-scope" value="Scope of measure">
                         <option value="">Select scope ...</option>
                         <option value="corporate-level-of-which-reporting-entity-is-part">Corporate level, of which reporting entity is part</option>
@@ -294,14 +294,6 @@ Each additional measure you tell us about is worth 4 bonus points.
                         <option value="scope-1-partial">Scope 1 - partial</option>
                         <option value="scope-2-partial">Scope 2 - partial</option>
                         <option value="scope-3-partial">Scope 3 – partial</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-2" style="padding-left:0;">
-                      <select class="form-control" ng-model="measure.frequency" name="metric-frequency" value="Frequency">
-                        <option value="">Select frequency ...</option>
-                        <option value="annual">Annual</option>
-                        <option value="quarterly">Quarterly</option>
-                        <option value="semi-annual">Semi-annual</option>
                       </select>
                     </div>
                   </div>
