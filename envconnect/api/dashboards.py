@@ -156,26 +156,43 @@ class SupplierQuerySet(object):
                 break
         #pylint:disable=redefined-variable-type
         if isinstance(val, (six.integer_types, float)):
-            default = 0
+            key_func = lambda rec: rec.get(field, 0)
         elif isinstance(val, datetime.datetime):
             default = datetime.datetime.min
             if default.tzinfo is None:
                 default = default.replace(tzinfo=utc)
+            key_func = lambda rec: rec.get(field, default)
         else:
-            default = ""
+            key_func = lambda rec: rec.get(field, "").lower()
         return SupplierQuerySet(sorted(self.items,
-            key=lambda rec: rec.get(field, default),
-            reverse=reverse_order))
+            key=key_func, reverse=reverse_order))
 
     def filter(self, *args, **kwargs): #pylint:disable=unused-argument
         items = []
         for arg in args:
             if isinstance(arg, Q):
-                for child in arg.children:
-                    name, _ = child[0].split('__')
-                    pat = child[1].upper()
-                    items += [item for item in self.items
-                        if pat in item[name].upper()]
+                if arg.connector == arg.AND:
+                    items = self.items
+                    for child in arg.children:
+                        filter_items = items
+                        items = []
+                        if isinstance(child, tuple):
+                            name, _ = child[0].split('__')
+                            pat = child[1].upper()
+                            items += [item for item in filter_items
+                                if pat in item[name].upper()]
+                        else:
+                            items += [item for item in self.filter(child)
+                                if item in filter_items]
+                elif arg.connector == arg.OR:
+                    for child in arg.children:
+                        if isinstance(child, tuple):
+                            name, _ = child[0].split('__')
+                            pat = child[1].upper()
+                            items += [item for item in self.items
+                                if pat in item[name].upper()]
+                        else:
+                            items += self.filter(child)
         return SupplierQuerySet(items)
 
     def distinct(self):
