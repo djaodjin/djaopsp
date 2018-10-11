@@ -631,7 +631,7 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
                 Subscription.objects.update_or_create(
                     organization=self.account,
                     plan=Plan.objects.get(organization=matrix.account),
-                    defaults={'ends_at':ends_at})
+                    defaults={'grant_key': None, 'ends_at':ends_at})
                 # send assessment updated.
                 reason = serializer.validated_data.get('message', None)
                 if reason:
