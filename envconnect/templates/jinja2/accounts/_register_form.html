@@ -2,6 +2,9 @@
 
 {% block form_block %}
 <style>
+.asteriskField {
+  display:none;
+}
 .tooltip-inner {
   width: 350px !important;
   max-width: 350px;
@@ -15,7 +18,7 @@
         {{input_field(form['full_name'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['username'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['email'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-        {{input_field(form['new_password1'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{input_field(form['password'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['new_password2'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
     </fieldset>
     <fieldset style="margin: 0 15px;">
