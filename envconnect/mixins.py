@@ -820,8 +820,9 @@ class ImprovementQuerySetMixin(ReportMixin):
 
     def get_or_create_improve_sample(self):
         # We create the sample if it does not exists.
-        self._sample, _ = Sample.objects.get_or_create(
-            extra='is_planned', survey=self.survey, account=self.account)
+        if not self.improvement_sample:
+            self._sample = Sample.objects.create(
+                extra='is_planned', survey=self.survey, account=self.account)
 
     def get_included_samples(self):
         results = super(ImprovementQuerySetMixin, self).get_included_samples()
