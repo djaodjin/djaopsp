@@ -65,7 +65,7 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
                 args=(organization, self.get_scorecard_path(
                     self.kwargs.get('path')))),
             'api_benchmark_share': reverse('api_benchmark_share',
-                args=(context['organization'], from_root)),
+                args=(organization, from_root)),
             'api_organizations': site_prefixed("/api/profile/"),
             'api_viewers': site_prefixed(
                 "/api/profile/%s/roles/viewers/" % self.account),

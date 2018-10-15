@@ -30,6 +30,7 @@ from .. import signals
 from ..helpers import freeze_scores
 from ..mixins import ReportMixin
 from ..serializers import AccountSerializer, NoModelSerializer
+from ..suppliers import get_supplier_managers
 
 
 LOGGER = logging.getLogger(__name__)
@@ -242,13 +243,24 @@ class SupplierListMixin(DashboardMixin):
         return self._complete_improvements
 
     @staticmethod
-    def get_score(account, scores, complete_assessments, complete_improvements):
-        score = scores.get(account.pk, None)
-        result = {'slug': account.slug,
+    def _prepare_account(account):
+        """
+        Returns the initial dictionnary used to populate results.
+
+        Overriding this method and setting `request_key` to `None`
+        enables to show scores for all accounts.
+        """
+        return {
+            'slug': account.slug,
             'printable_name': account.printable_name,
             'email': account.email,
             'request_key': account.request_key}
-        if score is not None and not account.request_key:
+
+    def get_score(self, account, scores,
+                  complete_assessments, complete_improvements):
+        score = scores.get(account.pk, None)
+        result = self._prepare_account(account)
+        if score is not None and not result['request_key']:
             created_at = score.get('created_at', None)
             if created_at:
                 result.update({'last_activity_at': created_at})
@@ -587,8 +599,13 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         #pylint:disable=too-many-locals
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if request.data:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            supplier_managers = [serializer.validated_data]
+        else:
+            supplier_managers = get_supplier_managers(self.account)
+
         last_activity_at = Answer.objects.filter(
             sample=self.assessment_sample).aggregate(Max('created_at')).get(
                 'created_at__max', None)
@@ -615,64 +632,69 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
                     collected_by=self.request.user)
 
         # send assessment updated and invite notifications
-        supplier_manager_slug = serializer.validated_data.get('slug', None)
-        if supplier_manager_slug:
-            try:
-                matrix = Matrix.objects.filter(
-                    account__slug=supplier_manager_slug,
-                    metric__slug='totals').select_related('account').get()
-                # Supplier manager already has a dashboard
-                LOGGER.info("%s shared %s assessment (%s) with %s",
-                    self.request.user, self.account, last_scored_assessment,
-                    supplier_manager_slug)
+        data = {}
+        status_code = None
+        for supplier_manager in supplier_managers:
+            supplier_manager_slug = supplier_manager.get('slug', None)
+            if supplier_manager_slug:
+                try:
+                    matrix = Matrix.objects.filter(
+                        account__slug=supplier_manager_slug,
+                        metric__slug='totals').select_related('account').get()
+                    # Supplier manager already has a dashboard
+                    LOGGER.info("%s shared %s assessment (%s) with %s",
+                        self.request.user, self.account, last_scored_assessment,
+                        supplier_manager_slug)
 
-                # Update or create dashboard entry
-                ends_at = datetime_or_now() + relativedelta(years=1)
-                Subscription.objects.update_or_create(
-                    organization=self.account,
-                    plan=Plan.objects.get(organization=matrix.account),
-                    defaults={'grant_key': None, 'ends_at':ends_at})
-                # send assessment updated.
-                reason = serializer.validated_data.get('message', None)
-                if reason:
-                    reason = force_text(reason)
-                signals.assessment_completed.send(sender=__name__,
-                    assessment=last_scored_assessment, notified=matrix.account,
-                    reason=reason, request=self.request)
+                    # Update or create dashboard entry
+                    ends_at = datetime_or_now() + relativedelta(years=1)
+                    Subscription.objects.update_or_create(
+                        organization=self.account,
+                        plan=Plan.objects.get(organization=matrix.account),
+                        defaults={'grant_key': None, 'ends_at':ends_at})
+                    # send assessment updated.
+                    reason = supplier_manager.get('message', None)
+                    if reason:
+                        reason = force_text(reason)
+                    signals.assessment_completed.send(sender=__name__,
+                        assessment=last_scored_assessment,
+                        notified=matrix.account,
+                        reason=reason, request=self.request)
+                    if status_code is None:
+                        status_code = status.HTTP_201_CREATED
 
-                headers = self.get_success_headers(serializer.data)
-                return Response(serializer.data,
-                    status=status.HTTP_201_CREATED, headers=headers)
-
-            except Matrix.DoesNotExist:
-                # Registered supplier manager but no dashboard
-                # XXX send hint to get paid version.
+                except Matrix.DoesNotExist:
+                    # Registered supplier manager but no dashboard
+                    # XXX send hint to get paid version.
+                    LOGGER.error("%s shared %s assessment (%s) with %s",
+                        self.request.user, self.account, last_scored_assessment,
+                        supplier_manager_slug)
+                    # XXX Should technically add all managers
+                    # of `supplier_manager_slug`
+                    account_model = get_account_model()
+                    try:
+                        supplier_manager = account_model.objects.get(
+                            slug=supplier_manager_slug)
+                        data = {}
+                        data.update(supplier_manager)
+                        data.update({
+                            'slug': supplier_manager.email,
+                            'email': supplier_manager.email
+                        })
+                        if status_code is None:
+                            status_code = status.HTTP_404_NOT_FOUND
+                    except account_model.DoesNotExist:
+                        raise ValidationError({
+                            'detail': _("Cannot find account '%s'") %
+                            supplier_manager_slug})
+            else:
+                # Organization profile cannot be found.
+                contact_email = supplier_manager.get('email', None)
                 LOGGER.error("%s shared %s assessment (%s) with %s",
                     self.request.user, self.account, last_scored_assessment,
-                    supplier_manager_slug)
-                # XXX Should technically add all managers
-                # of `supplier_manager_slug`
-                account_model = get_account_model()
-                try:
-                    supplier_manager = account_model.objects.get(
-                        slug=supplier_manager_slug)
-                    data = {}
-                    data.update(serializer.validated_data)
-                    data.update({
-                        'slug': supplier_manager.email,
-                        'email': supplier_manager.email
-                    })
-                    return Response(data, status=status.HTTP_404_NOT_FOUND)
-                except account_model.DoesNotExist:
-                    raise ValidationError({'detail':
-                        _("Cannot find account '%s'" % supplier_manager_slug)})
-
-        # Organization profile cannot be found.
-        contact_email = serializer.validated_data.get('email', None)
-        LOGGER.error("%s shared %s assessment (%s) with %s",
-            self.request.user, self.account, last_scored_assessment,
-            contact_email)
-        data = {}
-        data.update(serializer.validated_data)
-        data.update({'slug': serializer.validated_data['email']})
-        return Response(data, status=status.HTTP_404_NOT_FOUND)
+                    contact_email)
+                data.update(supplier_manager)
+                data.update({'slug': contact_email})
+                if status_code is None:
+                    status_code = status.HTTP_404_NOT_FOUND
+        return Response(data, status=status_code)

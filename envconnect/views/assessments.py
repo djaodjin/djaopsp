@@ -22,7 +22,7 @@ from survey.models import Choice
 from ..mixins import ReportMixin, BestPracticeMixin
 from ..models import Consumption, get_scored_answers
 from ..serializers import ConsumptionSerializer
-
+from ..suppliers import get_supplier_managers
 
 LOGGER = logging.getLogger(__name__)
 
@@ -143,6 +143,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AssessmentView, self).get_context_data(**kwargs)
         self.get_or_create_assessment_sample()
+        from_root, _ = self.breadcrumbs
         root = self.get_report_tree()
         if root:
             context.update({
@@ -155,14 +156,22 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
             'survey': self.sample.survey,
             'role': "tab",
             'score_toggle': self.request.GET.get('toggle', False)})
+
+        # Find supplier managers subscribed to this profile
+        # to share scorecard with.
+        if self.manages(self.account):
+            context.update({
+                'supplier_managers': json.dumps(
+                    get_supplier_managers(self.account))})
+
         organization = context['organization']
         self.update_context_urls(context, {
             'api_assessment_sample': reverse(
                 'survey_api_sample', args=(organization, self.sample)),
             'api_assessment_sample_new': reverse(
                 'survey_api_sample_new', args=(organization,)),
-#            'api_assessment_measures': reverse(
-#                'api_assessment_measures', args=(organization, self.sample)),
+            'api_benchmark_share': reverse('api_benchmark_share',
+                args=(organization, from_root)),
         })
         return context
 
