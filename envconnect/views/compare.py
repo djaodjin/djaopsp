@@ -187,7 +187,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
             if last_activity_at:
                 last_activity_at = last_activity_at.isoformat()
             if rec.get('assessment_completed', False):
-                normalized_score = rec['normalized_score']
+                normalized_score = rec.get('normalized_score', "N/A")
         row = [rec['printable_name'], "", rec['email'], "", "", "",
             last_activity_at, normalized_score]
         for score in rec.get('scores', []):
