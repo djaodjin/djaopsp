@@ -233,6 +233,22 @@ class BenchmarkMixin(ReportMixin):
         rollups = self._cut_tree(self.build_content_tree(
             roots, prefix=root_prefix, cut=TransparentCut()),
             cut=TransparentCut())
+
+        # Moves up all industry segments which are under a category
+        # (ex: /facilities/janitorial-services).
+        # If we donot do that, then assessment score will be incomplete
+        # in the dashboard, as the aggregator will wait for other sub-segments
+        # in the top level category.
+        removes = []
+        ups = OrderedDict({})
+        for root_path, root in six.iteritems(rollups):
+            if not 'pagebreak' in root[0].get('tag', ""):
+                removes += [root_path]
+                ups.update(root[1])
+        for root_path in removes:
+            del rollups[root_path]
+        rollups.update(ups)
+
         rollup_tree = (OrderedDict({}), rollups)
         self._report_queries("rollup_tree generated")
         if 'title' not in rollup_tree[0]:
