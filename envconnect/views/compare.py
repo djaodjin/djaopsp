@@ -2,8 +2,9 @@
 # see LICENSE.
 
 import io, logging, json, re
-
 from collections import OrderedDict
+
+from dateutil.relativedelta import relativedelta
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse
@@ -205,9 +206,11 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
         self.wsheet = wbook.active
         self.wsheet.title = as_valid_sheet_title("Total scores")
         self.wsheet.append(self.get_headings())
+        expired_at = datetime_or_now() - relativedelta(year=1)
         for account in self.requested_accounts:
             self.writerow(self.get_score(account, account_scores,
-                    self.complete_assessments, self.complete_improvements))
+                    self.complete_assessments, self.complete_improvements,
+                    expired_at))
 
         # Populate industry segments sheet
         industries = [elem['slug'] for elem in PageElement.objects.filter(
@@ -228,7 +231,8 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                 if account.pk in account_scores:
                     account_rows[account.pk] = self.get_score(
                         account, account_scores,
-                        self.complete_assessments, self.complete_improvements)
+                        self.complete_assessments, self.complete_improvements,
+                        expired_at)
             for icon_nodes in six.itervalues(rollup_industry[1]):
                 # These are icon-level scores
                 icon_node = icon_nodes[0]
@@ -241,7 +245,8 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                         meta = self.get_score(
                             account, icon_account_scores,
                             self.complete_assessments,
-                            self.complete_improvements)
+                            self.complete_improvements,
+                            expired_at)
                         score = meta.get('normalized_score', "N/A")
                         if 'scores' not in account_rows[account.pk]:
                             account_rows[account.pk]['scores'] = []
@@ -258,7 +263,8 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                             meta = self.get_score(
                                 account, system_account_scores,
                                 self.complete_assessments,
-                                self.complete_improvements)
+                                self.complete_improvements,
+                                expired_at)
                             score = meta.get('normalized_score', "N/A")
                             if 'scores' not in account_rows[account.pk]:
                                 account_rows[account.pk]['scores'] = []

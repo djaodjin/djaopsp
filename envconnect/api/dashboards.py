@@ -39,6 +39,29 @@ AccountType = namedtuple('AccountType',
     ['pk', 'slug', 'printable_name', 'email', 'request_key'])
 
 
+def get_reporting_status(account, expired_at):
+    #pylint:disable=too-many-return-statements
+    last_activity_at = account.get('last_activity_at', None)
+    if last_activity_at:
+        if account.get('assessment_completed', False):
+            if account.get('improvement_completed', False):
+                if last_activity_at < expired_at:
+                    return AccountSerializer.REPORTING_EXPIRED
+                else:
+                    return AccountSerializer.REPORTING_COMPLETED
+            else:
+                if last_activity_at < expired_at:
+                    return AccountSerializer.REPORTING_ABANDONED
+                else:
+                    return AccountSerializer.REPORTING_PLANNING_PHASE
+        else:
+            if last_activity_at < expired_at:
+                return AccountSerializer.REPORTING_ABANDONED
+            else:
+                return AccountSerializer.REPORTING_ASSESSMENT_PHASE
+    return AccountSerializer.REPORTING_NOT_STARTED
+
+
 class CompletionSummaryPagination(PageNumberPagination):
     """
     Decorate the results of an API call with stats on completion of assessment
@@ -46,7 +69,6 @@ class CompletionSummaryPagination(PageNumberPagination):
     """
 
     def paginate_queryset(self, queryset, request, view=None):
-        expired_at = datetime_or_now() - relativedelta(year=1)
         self.no_assessment = 0
         self.abandoned = 0
         self.expired = 0
@@ -54,24 +76,19 @@ class CompletionSummaryPagination(PageNumberPagination):
         self.improvement_phase = 0
         self.completed = 0
         for account in queryset:
-            last_activity_at = account.get('last_activity_at', None)
-            if last_activity_at:
-                if account.get('assessment_completed', False):
-                    if account.get('improvement_completed', False):
-                        if last_activity_at < expired_at:
-                            self.expired += 1
-                        else:
-                            self.completed += 1
-                    else:
-                        if last_activity_at < expired_at:
-                            self.abandoned += 1
-                        else:
-                            self.improvement_phase += 1
-                else:
-                    if last_activity_at < expired_at:
-                        self.abandoned += 1
-                    else:
-                        self.assessment_phase += 1
+            reporting_status = account.get(
+                'reporting_status', AccountSerializer.REPORTING_NOT_STARTED)
+            if reporting_status == AccountSerializer.REPORTING_ABANDONED:
+                self.abandoned += 1
+            elif reporting_status == AccountSerializer.REPORTING_EXPIRED:
+                self.expired += 1
+            elif (reporting_status
+                  == AccountSerializer.REPORTING_ASSESSMENT_PHASE):
+                self.assessment_phase += 1
+            elif reporting_status == AccountSerializer.REPORTING_PLANNING_PHASE:
+                self.improvement_phase += 1
+            elif reporting_status == AccountSerializer.REPORTING_COMPLETED:
+                self.completed += 1
             else:
                 self.no_assessment += 1
         return super(CompletionSummaryPagination, self).paginate_queryset(
@@ -257,7 +274,8 @@ class SupplierListMixin(DashboardMixin):
             'request_key': account.request_key}
 
     def get_score(self, account, scores,
-                  complete_assessments, complete_improvements):
+                  complete_assessments, complete_improvements, expired_at):
+        #pylint:disable=too-many-arguments
         score = scores.get(account.pk, None)
         result = self._prepare_account(account)
         if score is not None and not result['request_key']:
@@ -274,6 +292,8 @@ class SupplierListMixin(DashboardMixin):
                 'improvement_completed': (
                     account.pk in complete_improvements),
             })
+            reporting_status = get_reporting_status(result, expired_at)
+            result.update({'reporting_status': reporting_status})
             if nb_answers == nb_questions and nb_questions != 0:
                 normalized_score = score.get('normalized_score', None)
             else:
@@ -290,10 +310,12 @@ class SupplierListMixin(DashboardMixin):
         results = []
         rollup_tree = self.rollup_scores()
         account_scores = rollup_tree[0]['accounts']
+        expired_at = datetime_or_now() - relativedelta(year=1)
         for account in self.requested_accounts:
             try:
                 results += [self.get_score(account, account_scores,
-                    self.complete_assessments, self.complete_improvements)]
+                    self.complete_assessments, self.complete_improvements,
+                    expired_at)]
             except self.account_model.DoesNotExist:
                 pass
         return SupplierQuerySet(results)

@@ -100,6 +100,22 @@ class AccountSerializer(NoModelSerializer):
     """
     Used to list accessible suppliers
     """
+    REPORTING_NOT_STARTED = 0
+    REPORTING_ABANDONED = 1
+    REPORTING_EXPIRED = 2
+    REPORTING_ASSESSMENT_PHASE = 3
+    REPORTING_PLANNING_PHASE = 4
+    REPORTING_COMPLETED = 5
+
+    REPORTING_STATUS = (
+        (REPORTING_NOT_STARTED, 'Not started'),
+        (REPORTING_ABANDONED, 'Abandoned'),
+        (REPORTING_EXPIRED, 'Expired'),
+        (REPORTING_ASSESSMENT_PHASE, 'Assessment phase'),
+        (REPORTING_PLANNING_PHASE, 'Planning phase'),
+        (REPORTING_COMPLETED, 'Completed'),
+    )
+
     slug = serializers.CharField()
     printable_name = serializers.CharField()
     email = serializers.EmailField()
@@ -109,8 +125,12 @@ class AccountSerializer(NoModelSerializer):
     nb_answers = serializers.IntegerField(required=False)
     improvement_score = serializers.IntegerField(required=False)
     request_key = serializers.CharField(required=False)
-    assessment_completed = serializers.BooleanField(required=False)
+    reporting_status = serializers.SerializerMethodField(required=False)
     improvement_completed = serializers.BooleanField(required=False)
+
+    def get_reporting_status(self, obj):
+        return self.REPORTING_STATUS[obj.get(
+            'reporting_status', self.REPORTING_NOT_STARTED)][1]
 
 
 class MeasureSerializer(serializers.ModelSerializer):
