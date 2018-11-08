@@ -20,21 +20,11 @@
                       <th class="text-center" colspan="{{choices|length}}">Implemented as standard practice? <a style="cursor:pointer;" href="" data-toggle="tooltip" data-placement="right" title="Read this question to mean, Has the practice been implemented as standard or routine for all activities, projects or services to which the practice could apply, and over which the reporting entity has operational influence or control? If the reporting entity has no influence or control over a practice, then the response to the question should be 'Not applicable'."><i class="fa fa-question-circle"></i></a></th>
                     </tr>
                     <tr>
+                      {% for choice in choices %}
                       <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
-                          <div data-toggle="tooltip" data-placement="bottom" title="The practice is implemented across all activities/services/products/offices/ facilities to which it could apply.">Yes</div>
+                          <div data-toggle="tooltip" data-placement="bottom" title="{{choice.descr}}">{{choice.text}}</div>
                       </th>
-                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
-                          <div data-toggle="tooltip" data-placement="bottom" title="The practice is implemented across roughly 50% OR MORE of the activities/services/products/offices/ facilities to which it could apply.">Mostly yes</div>
-                      </th>
-                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
-                          <div data-toggle="tooltip" data-placement="bottom" title="The practice is implemented across roughly 50% OR LESS of the activities/services/products/offices/ facilities to which it could apply.">Mostly no</div>
-                      </th>
-                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
-                          <div data-toggle="tooltip" data-placement="bottom" title="The practice is implemented across negligible to no activities/services/products/offices/ facilities to which it could apply.">No</div>
-                      </th>
-                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
-                          <div data-toggle="tooltip" data-placement="bottom" title="The practice is not applicable to the organization, or the organization has no influence or control over its implementation.">Not applicable</div>
-                      </th>
+                      {% endfor %}
                     </tr>
                 </thead>
                 <thead ng-show="scoreToggle">

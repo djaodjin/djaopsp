@@ -263,8 +263,8 @@ class BenchmarkMixin(ReportMixin):
         includes = list(Consumption.objects.get_latest_samples_by_accounts())
         for prefix, values_tuple in six.iteritems(leafs):
             self.populate_leaf(prefix, values_tuple[0],
-                get_scored_answers(population=population, includes=includes,
-                    prefix=prefix))
+                get_scored_answers(population, self.default_metric_id,
+                    includes=includes, prefix=prefix))
         self._report_queries("leafs populated")
         populate_rollup(rollup_tree, True)
         self._report_queries("rollup_tree populated")

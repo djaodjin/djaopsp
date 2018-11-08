@@ -1,6 +1,6 @@
 [
 { "fields" : {
-    "slug" : "best-practices-report",
+    "slug" : "assessment",
     "title" : "Best Practices Report",
     "description" : "Best Practices Report",
     "account" : 6,
@@ -32,35 +32,40 @@
 { "fields": {
     "unit": 1,
     "rank": 1,
-    "text": "Yes"
+    "text": "Yes",
+    "descr": "The practice is implemented across all activities/services/products/offices/ facilities to which it could apply."
   },
   "model" : "survey.choice", "pk" : 1
 },
 { "fields": {
     "unit": 1,
     "rank": 2,
-    "text": "Mostly yes"
+    "text": "Mostly yes",
+    "descr": "The practice is implemented across roughly 50% OR MORE of the activities/services/products/offices/ facilities to which it could apply."
   },
   "model" : "survey.choice", "pk" : 2
 },
 { "fields": {
     "unit": 1,
     "rank": 3,
-    "text": "Mostly no"
+    "text": "Mostly no",
+    "descr": "The practice is implemented across roughly 50% OR LESS of the activities/services/products/offices/ facilities to which it could apply."
   },
   "model" : "survey.choice", "pk" : 3
 },
 { "fields": {
     "unit": 1,
     "rank": 4,
-    "text": "No"
+    "text": "No",
+    "descr": "The practice is implemented across negligible to no activities/services/products/offices/ facilities to which it could apply."
   },
   "model" : "survey.choice", "pk" : 4
 },
 { "fields": {
     "unit": 1,
     "rank": 5,
-    "text": "Not applicable"
+    "text": "Not applicable",
+    "descr": "The practice is not applicable to the organization, or the organization has no influence or control over its implementation."
   },
   "model" : "survey.choice", "pk" : 5
 },
@@ -91,6 +96,71 @@
     "unit": 3
   },
   "model" : "survey.metric", "pk" : 4
+},
+{ "fields" : {
+    "slug" : "framework",
+    "title" : "Sustainability Framework",
+    "description" : "Sustainability Framework",
+    "account" : 6,
+    "active": true
+  },
+  "model" : "survey.campaign", "pk" : 2
+},
+{ "fields": {
+    "slug": "framework",
+    "title": "Framework",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk" : 4
+},
+{ "fields": {
+    "unit": 4,
+    "rank": 1,
+    "text": "Initiating"
+  },
+  "model" : "survey.choice", "pk" : 6
+},
+{ "fields": {
+    "unit": 4,
+    "rank": 2,
+    "text": "Progressing"
+  },
+  "model" : "survey.choice", "pk" : 7
+},
+{ "fields": {
+    "unit": 4,
+    "rank": 3,
+    "text": "Optimizing"
+  },
+  "model" : "survey.choice", "pk" : 8
+},
+{ "fields": {
+    "unit": 4,
+    "rank": 4,
+    "text": "Leading"
+  },
+  "model" : "survey.choice", "pk" : 9
+},
+{ "fields": {
+    "unit": 4,
+    "rank": 5,
+    "text": "Transforming"
+  },
+  "model" : "survey.choice", "pk" : 10
+},
+{ "fields": {
+    "unit": 4,
+    "rank": 6,
+    "text": "Do not know"
+  },
+  "model" : "survey.choice", "pk" : 11
+},
+{ "fields": {
+    "slug": "framework",
+    "title": "Framework",
+    "unit": 4
+  },
+  "model" : "survey.metric", "pk" : 5
 },
 {
     "fields": {
@@ -2039,39 +2109,12 @@
 },
 {
   "fields": {
-    "title": "Distribution",
-    "slug": "distribution",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 69
-},
-{
-  "fields": {
     "title": "Diversified, corporate level",
     "slug": "diversified-corporate-level",
     "tag": "{\"tags\":[\"industry\",\"pagebreak\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 70
-},
-{
-  "fields": {
-    "title": "Fuel supply",
-    "slug": "fuel-supply",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 71
-},
-{
-  "fields": {
-    "title": "Shipping & logistics",
-    "slug": "shipping-and-logistics",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 72
 },
 {
   "fields": {
@@ -2222,4 +2265,86 @@
     "rank": 11
   },
   "model": "survey.EnumeratedQuestions", "pk": 11
+},
+{
+  "fields": {
+    "title": "Sustainability Framework",
+    "slug": "framework",
+    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"enabled\"]}",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 80
+},
+{
+  "fields": {
+    "title": "Sustainability Framework",
+    "slug": "sustainability-framework",
+    "tag": "{\"tags\":[\"scorecard\"]}",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 81
+},
+{
+  "fields": {
+    "orig_element": 80,
+    "dest_element": 81
+  },
+  "model": "pages.Relationship", "pk": 80
+},
+{
+  "fields": {
+    "title": "Governance & management",
+    "slug": "framework-management-basics",
+    "text": "/envconnect/static/img/management-basics.png",
+    "tag": "{\"tags\":[\"management\",\"scorecard\",\"framework\"]}",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 82
+},
+{
+  "fields": {
+    "orig_element": 81,
+    "dest_element": 82
+  },
+  "model": "pages.Relationship", "pk": 82
+},
+{
+  "fields": {
+    "slug": "policy-accountability-and-responsibility",
+    "title": "Policy, Accountability and Responsibility",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 83
+},
+{
+  "fields": {
+    "orig_element": 82,
+    "dest_element": 83
+  },
+  "model": "pages.Relationship", "pk": 83
+},
+{
+  "fields": {
+    "path": "/framework/sustainability-framework/framework-management-basics/policy-accountability-and-responsibility",
+    "text": "Policy, Accountability and Responsibility",
+    "question_type": "radio",
+    "default_metric": 5,
+    "avg_energy_saving": "* * * *",
+    "capital_cost": "$$$",
+    "payback_period": "0-1.8 (0.3)",
+    "business_value": 2,
+    "environmental_value": 2,
+    "implementation_ease": 2,
+    "profitability": 2,
+    "avg_value": 2
+  },
+  "model": "envconnect.Consumption", "pk": 83
+},
+{
+  "fields": {
+    "campaign": 2,
+    "question": 83,
+    "rank": 1
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 83
 }]

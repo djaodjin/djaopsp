@@ -13,7 +13,6 @@ from survey.models import Choice
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 
-from ..models import Consumption
 from ..mixins import ContentCut
 
 
@@ -30,10 +29,12 @@ def is_broker_manager(request):
 
 @register.filter
 def assessment_choices(tag):
-    return [val['text'] for val in Choice.objects.filter(
-        pk__in=Consumption.ASSESSMENT_CHOICES.get(tag,
-        Consumption.ASSESSMENT_CHOICES.get('default'))).order_by('rank').values(
-        'text')]
+    unit_slug = 'assessment'
+    if 'framework' in tag:
+        unit_slug = 'framework'
+    results = Choice.objects.filter(unit__slug=unit_slug).order_by('pk')
+    return results
+
 
 @register.filter
 def is_icon(title):

@@ -17,12 +17,13 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from pages.models import PageElement
-from survey.models import Choice
 
 from ..mixins import ReportMixin, BestPracticeMixin
 from ..models import Consumption, get_scored_answers
 from ..serializers import ConsumptionSerializer
 from ..suppliers import get_supplier_managers
+from ..templatetags.navactive import assessment_choices
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -48,8 +49,9 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
         consumptions = {}
         consumptions_planned = set([])
         scored_answers = get_scored_answers(
-            population=Consumption.objects.get_active_by_accounts(
+            Consumption.objects.get_active_by_accounts(
                 excludes=self._get_filter_out_testing()),
+            self.default_metric_id,
             includes=self.get_included_samples())
 
         # We are running the query a second time because we did not populate
@@ -284,9 +286,7 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
 
     @staticmethod
     def get_headings(tag):
-        return [str(choice) for choice in Choice.objects.filter(
-            pk__in=Consumption.ASSESSMENT_CHOICES.get(tag,
-                Consumption.ASSESSMENT_CHOICES.get('default'))).order_by('pk')]
+        return [str(choice) for choice in assessment_choices(tag)]
 
 
 class AssessmentCSVView(AssessmentSpreadsheetView):

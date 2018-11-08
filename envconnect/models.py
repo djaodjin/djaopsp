@@ -469,7 +469,7 @@ ON questions_with_opportunity.id = samples.question_id
     return expected_opportunities
 
 
-def get_answer_with_account(includes=None):
+def get_answer_with_account(includes=None, metric_id=1):
     """
     Returns a list of tuples (answer_id, question_id, sample_id, account_id,
     created_at, measured, is_planned) that corresponds to all answers
@@ -490,7 +490,7 @@ INNER JOIN survey_sample
   ON survey_answer.sample_id = survey_sample.id
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
-        includes=includes, extra="survey_answer.metric_id = 1")}
+        includes=includes, extra="survey_answer.metric_id = %d" % metric_id)}
     _show_query_and_result(query)
     return query
 
@@ -536,7 +536,8 @@ INNER JOIN survey_question
     return scored_answers
 
 
-def get_scored_answers(population, includes=None, questions=None, prefix=None):
+def get_scored_answers(population, metric_id,
+                       includes=None, questions=None, prefix=None):
     """
     Returns a list of tuples with the following fields:
 
@@ -633,6 +634,7 @@ ON expected_choices.measured = survey_choice.id
        'expected_opportunities': get_expected_opportunities(
            population,
            includes=includes, questions=questions, prefix=prefix),
-       'answers': get_answer_with_account(includes=includes)}
+       'answers': get_answer_with_account(
+           includes=includes, metric_id=metric_id)}
     _show_query_and_result(scored_answers)
     return scored_answers

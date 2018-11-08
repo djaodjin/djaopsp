@@ -38,8 +38,9 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
                      status=HTTP_200_OK, headers=None, first_answer=False):
         #pylint:disable=protected-access
         scored_answers = get_scored_answers(
-            population=Consumption.objects.get_active_by_accounts(
+            Consumption.objects.get_active_by_accounts(
                 excludes=self._get_filter_out_testing()),
+            self.question.default_metric_id,
             includes=(self.sample,),
             questions=(self.question.pk,))
         with connection.cursor() as cursor:

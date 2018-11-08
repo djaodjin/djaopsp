@@ -6,7 +6,7 @@ from collections import namedtuple
 
 from deployutils.helpers import datetime_or_now
 from django.db import connection
-from survey.models import Answer, Sample
+from survey.models import Answer, Metric, Sample
 
 from .models import Consumption, get_scored_answers
 
@@ -23,11 +23,15 @@ def as_valid_sheet_title(title):
 
 def freeze_scores(sample, includes=None, excludes=None,
                   collected_by=None, created_at=None):
+    #pylint:disable=too-many-locals
     LOGGER.info("freeze scores for %s", sample.account)
     created_at = datetime_or_now(created_at)
+    # XXX relies on metric.slug == campaign.slug (also see default_metric_id
+    # in mixins.py)
+    metric_id = Metric.objects.get(slug=sample.survey.slug).pk
     scored_answers = get_scored_answers(
-        population=Consumption.objects.get_active_by_accounts(
-            excludes=excludes),
+        Consumption.objects.get_active_by_accounts(excludes=excludes),
+        metric_id,
         includes=includes)
     score_sample = Sample.objects.create(
         created_at=created_at,

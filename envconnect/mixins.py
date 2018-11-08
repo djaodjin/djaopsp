@@ -20,7 +20,7 @@ from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
 from rest_framework.generics import get_object_or_404
 from survey.models import (Answer, Choice, Campaign, EnumeratedQuestions,
-    Sample, Unit)
+    Metric, Sample, Unit)
 from survey.utils import get_account_model
 
 from .models import (Consumption, get_score_weight, _show_query_and_result,
@@ -111,9 +111,21 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     @property
     def survey(self):
         if not hasattr(self, '_survey'):
-            self._survey = get_object_or_404(
-                Campaign.objects.all(), title=self.report_title)
+            if self.kwargs.get(
+                    'path', "").startswith('/sustainability-framework'):
+                slug = 'framework'
+            else:
+                slug = 'assessment'
+            self._survey = get_object_or_404(Campaign.objects.all(), slug=slug)
         return self._survey
+
+    @property
+    def default_metric_id(self):
+        if not hasattr(self, '_default_metric_id'):
+            # XXX relies on Metric.slug == Campaign.slug
+            self._default_metric_id = Metric.objects.get(
+                slug=self.survey.slug).pk
+        return self._default_metric_id
 
     @property
     def breadcrumbs(self):
@@ -531,7 +543,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
         if not hasattr(self, '_assessment_sample'):
             self._assessment_sample = Sample.objects.filter(
                 extra__isnull=True,
-                survey__title=self.report_title,
+                survey=self.survey,
                 account=self.account).order_by('-created_at').first()
         return self._assessment_sample
 
@@ -660,8 +672,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
             excludes=self._get_filter_out_testing())
         for prefix, values_tuple in six.iteritems(leafs):
             self.populate_leaf(prefix, values_tuple[0],
-                get_scored_answers(
-                    population,
+                get_scored_answers(population, self.default_metric_id,
                     includes=self.get_included_samples(),
                     prefix=prefix))
         super(ReportMixin, self).decorate_leafs(leafs)
@@ -814,7 +825,7 @@ class ImprovementQuerySetMixin(ReportMixin):
         if not hasattr(self, '_improvement_sample'):
             self._improvement_sample = Sample.objects.filter(
                 extra='is_planned',
-                survey__title=self.report_title,
+                survey=self.survey,
                 account=self.account).order_by('-created_at').first()
         return self._improvement_sample
 
@@ -834,7 +845,7 @@ class ImprovementQuerySetMixin(ReportMixin):
     def get_queryset(self):
         return self.model.objects.filter(
             sample__extra='is_planned',
-            sample__survey__title=self.report_title,
+            sample__survey=self.survey,
             sample__account=self.account)
 
     def get_reverse_kwargs(self):

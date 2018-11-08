@@ -615,7 +615,7 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
         if not hasattr(self, '_improvement_sample'):
             self._improvement_sample = Sample.objects.filter(
                 extra='is_planned',
-                survey__title=self.report_title,
+                survey=self.survey,
                 account=self.account).order_by('-created_at').first()
         return self._improvement_sample
 
@@ -637,7 +637,7 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
         last_scored_assessment = Sample.objects.filter(
             is_frozen=True,
             extra__isnull=True,
-            survey__title=self.report_title,
+            survey=self.survey,
             account=self.account).order_by('-created_at').first()
         if (not last_scored_assessment
             or last_scored_assessment.created_at < last_activity_at):
