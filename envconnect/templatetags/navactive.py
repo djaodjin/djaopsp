@@ -30,7 +30,7 @@ def is_broker_manager(request):
 @register.filter
 def assessment_choices(tag):
     unit_slug = 'assessment'
-    if 'framework' in tag:
+    if tag and 'framework' in tag:
         unit_slug = 'framework'
     results = Choice.objects.filter(unit__slug=unit_slug).order_by('pk')
     return results
