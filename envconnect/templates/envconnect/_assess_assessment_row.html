@@ -1,6 +1,9 @@
 <td id="[[practice[0].slug]]">
     {% include "envconnect/_detail_row_basic.html" %}
-    <a ng-click="setActiveElement(practice[0])" ng-if="practice[0].consumption && practice[0].consumption.requires_measurements" href="" data-toggle="modal" data-target="#report-measurements-[[practice[0].consumption.requires_measurements]]" title="Got data to report? Click here." class="report-measurements-link" style="float:right;"><i class="fa fa-line-chart fa-2x"></i></a>
+    <div class="bestpractice" style="display:inline-block;float:right;">
+    <a ng-click="setActiveElement(practice[0])" ng-if="practice[0].consumption && practice[0].consumption.requires_measurements" href="" data-toggle="modal" data-target="#report-measurements-[[practice[0].consumption.requires_measurements]]" title="Got data to report? Click here." class="report-measurements-link"><i class="fa fa-line-chart fa-2x"></i></a>
+    <a class="title" ng-click="setActiveElement(practice[0])" ng-if="practice[0].consumption && !practice[0].consumption.requires_measurements" href="" data-toggle="modal" data-target="#report-comments" title="Got a comment? Click here."><i class="fa fa-sticky-note-o"></i></a>
+    </div>
 </td>
 {% for choice in choices %}
 <td class="text-center cell-fix-width-5">
