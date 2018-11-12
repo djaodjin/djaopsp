@@ -355,6 +355,7 @@ TIME_ZONE = 'UTC'
 # API settings
 # ------------
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'envconnect.views.errors.drf_exception_handler',
     'PAGE_SIZE': 25,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
 }
