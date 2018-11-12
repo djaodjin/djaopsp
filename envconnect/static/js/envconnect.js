@@ -1520,12 +1520,12 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     };
 
     $scope.sortBy = function(fieldName) {
-        if( $scope.dir[fieldName] == "asc" ) {
-            $scope.dir = {};
-            $scope.dir[fieldName] = "desc";
-        } else {
+        if( $scope.dir[fieldName] == "desc" ) {
             $scope.dir = {};
             $scope.dir[fieldName] = "asc";
+        } else {
+            $scope.dir = {};
+            $scope.dir[fieldName] = "desc";
         }
         $scope.params.o = fieldName;
         $scope.params.ot = $scope.dir[fieldName];
