@@ -1140,11 +1140,14 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.toggleMyTSP = function(event, defaultUrl) {
         var urlParts = window.location.href.split('/');
-        urlParts.pop();
+        var lastPart = urlParts.pop();
         if( window.location.href[window.location.href.length - 1] === '/' ) {
-            urlParts.pop();
+            lastPart = urlParts.pop();
         }
-        if( !$scope.scoreToggle ) {
+        if( lastPart === "reporting" ) {
+            // We are not relying on `scoreToggle` because it seems to be
+            // updated after the event when it was updated before the event
+            // earlier on. Browser change?
             urlParts.push('portfolios', 'totals');
             window.location = urlParts.join('/') + '/';
         } else {
