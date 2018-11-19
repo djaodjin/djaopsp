@@ -31,6 +31,7 @@ class BenchmarkMixin(ReportMixin):
         url_prefix = trail[-1][1] if trail else ""
         not_applicable_answers = Consumption.objects.filter(
             answer__sample=self.assessment_sample,
+            answer__metric_id=self.default_metric_id,
             answer__measured=Consumption.NOT_APPLICABLE)
         root = (OrderedDict({}), OrderedDict({}))
         depth = len(from_root.split('/')) + 1
