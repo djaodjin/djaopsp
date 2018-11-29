@@ -7,6 +7,7 @@ from collections import namedtuple
 from deployutils.helpers import datetime_or_now
 from django.db import connection, transaction
 from django.db.models import Max
+from django.db.utils import DataError
 from rest_framework import response as http
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView
@@ -100,30 +101,44 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
         rank = EnumeratedQuestions.objects.get(
             campaign=self.sample.survey,
             question=self.question).rank
-        with transaction.atomic():
-            for datapoint in serializer.validated_data['measures']:
-                metric = datapoint['metric']
-                try:
-                    measured = int(datapoint['measured'])
-                except ValueError:
-                    if metric.unit.system != Unit.SYSTEM_ENUMERATED:
-                        raise ValidationError({'detail':
-                            "\"%s\" is invalid for '%s'" % (
-                                datapoint['measured'].replace('"', '\\"'),
-                                metric.title)})
-                    choice_rank = Choice.objects.filter(
-                        unit=metric.unit).aggregate(Max('rank')).get(
-                            'rank__max', 0)
-                    choice_rank = choice_rank + 1 if choice_rank else 1
-                    choice = Choice.objects.create(
-                        text=datapoint['measured'],
-                        unit=metric.unit,
-                        rank=choice_rank)
-                    measured = choice.id
-                Answer.objects.update_or_create(
-                    sample=self.sample, question=self.question, metric=metric,
-                    defaults={
-                        'created_at': created_at,
-                        'measured': measured,
-                        'collected_by': self.request.user,
-                        'rank': rank})
+        errors = []
+        for datapoint in serializer.validated_data['measures']:
+            try:
+                with transaction.atomic():
+                    metric = datapoint['metric']
+                    try:
+                        measured = int(datapoint['measured'])
+                    except ValueError:
+                        if metric.unit.system != Unit.SYSTEM_ENUMERATED:
+                            raise ValidationError({'detail':
+                                "\"%s\" is invalid for '%s'" % (
+                                    datapoint['measured'].replace('"', '\\"'),
+                                    metric.title)})
+                        choice_rank = Choice.objects.filter(
+                            unit=metric.unit).aggregate(Max('rank')).get(
+                                'rank__max', 0)
+                        choice_rank = choice_rank + 1 if choice_rank else 1
+                        choice = Choice.objects.create(
+                            text=datapoint['measured'],
+                            unit=metric.unit,
+                            rank=choice_rank)
+                        measured = choice.id
+                    Answer.objects.update_or_create(
+                        sample=self.sample, question=self.question,
+                        metric=metric, defaults={
+                            'created_at': created_at,
+                            'measured': measured,
+                            'collected_by': self.request.user,
+                            'rank': rank})
+            except ValidationError as err:
+                errors += [err]
+            except DataError as err:
+                LOGGER.exception(err)
+                errors += [
+                    "\"%(measured)s\": %(err)s for '%(metric)s'" % {
+                        'measured': datapoint['measured'].replace('"', '\\"'),
+                        'err': str(err),
+                        'metric': metric.title}
+                ]
+            if errors:
+                raise ValidationError(errors)
