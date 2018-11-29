@@ -695,13 +695,13 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
                     # of `supplier_manager_slug`
                     account_model = get_account_model()
                     try:
-                        supplier_manager = account_model.objects.get(
+                        dashboard_account = account_model.objects.get(
                             slug=supplier_manager_slug)
                         data = {}
                         data.update(supplier_manager)
                         data.update({
-                            'slug': supplier_manager.email,
-                            'email': supplier_manager.email
+                            'slug': dashboard_account.email,
+                            'email': dashboard_account.email
                         })
                         if status_code is None:
                             status_code = status.HTTP_404_NOT_FOUND

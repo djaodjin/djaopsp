@@ -32,6 +32,7 @@ INDUSTRIES = [
     'fabricated-metals',
     'facilities',
     'facilities-management-industry',
+    'framework',
     'freight-and-shipping',
     'fuel-supply',
     'gas-procurement',
