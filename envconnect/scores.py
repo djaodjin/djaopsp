@@ -270,13 +270,16 @@ def push_improvement_factors(rollup_tree, total_numerator, total_denominator,
     accounts = values['accounts']
     for _, scores in six.iteritems(accounts):
         if 'opportunity_numerator' in scores:
-            opportunity_denominator = scores.get('opportunity_denominator', 0)
-            opportunity_numerator = scores.get('opportunity_numerator', 0)
+            opportunity_denominator = Decimal(
+                scores.get('opportunity_denominator', 0))
+            opportunity_numerator = Decimal(
+                scores.get('opportunity_numerator', 0))
             if total_denominator:
                 scores['improvement_percentage'] = Decimal(100) * (
-                    (total_numerator + path_weight * opportunity_numerator)
-                    / (total_denominator
+                    (Decimal(total_numerator)
+                     + path_weight * opportunity_numerator)
+                    / (Decimal(total_denominator)
                        + path_weight * opportunity_denominator)
-                    - (total_numerator / total_denominator))
+                    - (Decimal(total_numerator) / Decimal(total_denominator)))
             else:
                 scores['improvement_percentage'] = 0
