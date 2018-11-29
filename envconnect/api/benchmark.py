@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import json, logging
 from collections import OrderedDict
 
+from deployutils.crypt import JSONEncoder
 from django.conf import settings
 from django.utils import six
 from pages.mixins import TrailMixin
@@ -14,7 +15,7 @@ from rest_framework import generics
 from rest_framework.response import Response as HttpResponse
 from survey.models import Sample
 
-from .best_practices import DecimalEncoder, ToggleTagContentAPIView
+from .best_practices import ToggleTagContentAPIView
 from ..mixins import ReportMixin, TransparentCut
 from ..models import (get_score_weight, get_scored_answers,
     get_historical_scores, Consumption)
@@ -435,7 +436,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
         except (TypeError, ValueError):
             pass
         extra.update(serializer.validated_data)
-        element.tag = json.dumps(extra, cls=DecimalEncoder)
+        element.tag = json.dumps(extra, cls=JSONEncoder)
         element.save()
 
 

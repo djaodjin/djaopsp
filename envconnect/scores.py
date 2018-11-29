@@ -32,21 +32,21 @@ def _normalize(scores, normalize_to_one=False):
     if nb_answers == nb_questions:
         # If we don't have the same number of questions
         # and answers, numerator and denominator are meaningless.
-        denominator = scores.get(denominator_key, 0)
+        denominator = Decimal(scores.get(denominator_key, 0))
         if denominator > 0:
             scores['normalized_score'] = int(
-                scores[numerator_key] * Decimal(100) / denominator)
+                Decimal(scores[numerator_key]) * Decimal(100) / denominator)
             if 'improvement_numerator' in scores:
                 scores['improvement_score'] = (
-                    scores['improvement_numerator'] * Decimal(100)
+                    Decimal(scores['improvement_numerator']) * Decimal(100)
                     / denominator)
             if normalize_to_one:
                 if numerator_key in scores:
                     scores[numerator_key] = (
-                        float(scores[numerator_key]) / denominator)
+                        Decimal(scores[numerator_key]) / denominator)
                 if 'improvement_numerator' in scores:
                     scores['improvement_numerator'] = (
-                        float(scores['improvement_numerator']) / denominator)
+                        Decimal(scores['improvement_numerator']) / denominator)
                 scores[denominator_key] = Decimal(1)
         else:
             scores['normalized_score'] = Decimal(0)
@@ -221,8 +221,8 @@ def populate_rollup(rollup_tree, normalize_to_one):
                 agg_scores['nb_questions'] += nb_questions
                 for key in [numerator_key, denominator_key,
                             'improvement_numerator']:
-                    agg_scores[key] = agg_scores.get(key, 0) + (
-                        scores.get(key, 0) * score_weight)
+                    agg_scores[key] = Decimal(agg_scores.get(key, 0)) + (
+                        Decimal(scores.get(key, 0)) * score_weight)
 
     for account_id, scores in six.iteritems(accounts):
         _normalize(scores, normalize_to_one=normalize_to_one)

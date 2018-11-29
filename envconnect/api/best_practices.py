@@ -1,8 +1,9 @@
 # Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
-import decimal, json, logging, re
+import json, logging, re
 
+from deployutils.crypt import JSONEncoder
 from django.db import transaction
 from django.http import Http404
 from rest_framework import status
@@ -21,14 +22,6 @@ from ..models import Consumption
 from ..serializers import PageElementSerializer
 
 LOGGER = logging.getLogger(__name__)
-
-
-class DecimalEncoder(json.JSONEncoder):
-
-    def default(self, obj): #pylint: disable=method-hidden
-        if isinstance(obj, decimal.Decimal):
-            return float(obj)
-        return super(DecimalEncoder, self).default(obj)
 
 
 class ToggleTagContentAPIView(TrailMixin, UpdateAPIView):
@@ -52,7 +45,7 @@ class ToggleTagContentAPIView(TrailMixin, UpdateAPIView):
                 extra['tags'].remove(self.removed_tag)
             if self.added_tag and not self.added_tag in extra['tags']:
                 extra['tags'].append(self.added_tag)
-        element.tag = json.dumps(extra, cls=DecimalEncoder)
+        element.tag = json.dumps(extra, cls=JSONEncoder)
         element.save()
         return Response(element.tag)
 
