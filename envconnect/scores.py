@@ -7,6 +7,7 @@ Compute organization assessment and improvement scores.
 from __future__ import unicode_literals
 
 import datetime
+from decimal import Decimal
 
 from django.utils import six
 
@@ -34,10 +35,10 @@ def _normalize(scores, normalize_to_one=False):
         denominator = scores.get(denominator_key, 0)
         if denominator > 0:
             scores['normalized_score'] = int(
-                scores[numerator_key] * 100.0 / denominator)
+                scores[numerator_key] * Decimal(100) / denominator)
             if 'improvement_numerator' in scores:
                 scores['improvement_score'] = (
-                    scores['improvement_numerator'] * 100.0
+                    scores['improvement_numerator'] * Decimal(100)
                     / denominator)
             if normalize_to_one:
                 if numerator_key in scores:
@@ -46,9 +47,9 @@ def _normalize(scores, normalize_to_one=False):
                 if 'improvement_numerator' in scores:
                     scores['improvement_numerator'] = (
                         float(scores['improvement_numerator']) / denominator)
-                scores[denominator_key] = 1.0
+                scores[denominator_key] = Decimal(1)
         else:
-            scores['normalized_score'] = 0
+            scores['normalized_score'] = Decimal(0)
     else:
         scores.pop(numerator_key, None)
         scores.pop(denominator_key, None)
@@ -176,10 +177,10 @@ def populate_rollup(rollup_tree, normalize_to_one):
     total_score_weight = 0
     if len(rollup_tree[1]) > 1:
         for node in six.itervalues(rollup_tree[1]):
-            score_weight = node[0].get('score_weight', 1.0)
+            score_weight = Decimal(node[0].get('score_weight', 1))
             total_score_weight += score_weight
-        normalize_children = ((1.0 - 0.01) < total_score_weight
-            and total_score_weight < (1.0 + 0.01))
+        normalize_children = ((Decimal(1) - Decimal(0.01)) < total_score_weight
+            and total_score_weight < (Decimal(1) + Decimal(0.01)))
     else:
         # With only one children the weight will always be 1 yet we don't
         # want to normalize here.
@@ -190,7 +191,7 @@ def populate_rollup(rollup_tree, normalize_to_one):
     accounts = values['accounts']
     for node in six.itervalues(rollup_tree[1]):
         populate_rollup(node, normalize_children) # recursive call
-        score_weight = node[0].get('score_weight', 1.0)
+        score_weight = Decimal(node[0].get('score_weight', 1))
         for account_id, scores in six.iteritems(
                 node[0].get('accounts', {})):
             if not account_id in accounts:
@@ -228,7 +229,7 @@ def populate_rollup(rollup_tree, normalize_to_one):
 
 
 def push_improvement_factors(rollup_tree, total_numerator, total_denominator,
-                             normalize_to_one=True, path_weight=1.0):
+                             normalize_to_one=True, path_weight=Decimal(1)):
     """
     Push factors which are used to compute percentage added to a total
     score when improvements are selected.
@@ -248,14 +249,14 @@ def push_improvement_factors(rollup_tree, total_numerator, total_denominator,
     # If the total of the children weights is 1.0, we are dealing
     # with percentages so we need to normalize all children numerators
     # and denominators to compute this node score.
-    root_score_weight = values.get('score_weight', 1.0)
+    root_score_weight = Decimal(values.get('score_weight', 1))
     if len(rollup_tree[1]) > 1:
         total_score_weight = 0
         for node in six.itervalues(rollup_tree[1]):
-            score_weight = node[0].get('score_weight', 1.0)
+            score_weight = Decimal(node[0].get('score_weight', 1))
             total_score_weight += score_weight
-        normalize_children = ((1.0 - 0.01) < total_score_weight
-            and total_score_weight < (1.0 + 0.01))
+        normalize_children = ((Decimal(1) - Decimal(0.01)) < total_score_weight
+            and total_score_weight < (Decimal(1) + Decimal(0.01)))
     else:
         # With only one children the weight will always be 1 yet we don't
         # want to normalize here.
@@ -272,7 +273,7 @@ def push_improvement_factors(rollup_tree, total_numerator, total_denominator,
             opportunity_denominator = scores.get('opportunity_denominator', 0)
             opportunity_numerator = scores.get('opportunity_numerator', 0)
             if total_denominator:
-                scores['improvement_percentage'] = 100.0 * (
+                scores['improvement_percentage'] = Decimal(100) * (
                     (total_numerator + path_weight * opportunity_numerator)
                     / (total_denominator
                        + path_weight * opportunity_denominator)
