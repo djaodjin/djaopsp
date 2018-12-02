@@ -2,7 +2,7 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import csv, decimal, io, json, logging, re
+import csv, io, json, logging, re
 from collections import namedtuple
 
 from django.utils import six
@@ -79,8 +79,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                 opportunity = consumption.opportunity
                 nb_respondents = consumption.nb_respondents
                 if nb_respondents > 0:
-                    added = decimal.Decimal(
-                        3 * avg_value) / decimal.Decimal(nb_respondents)
+                    added = 3 * avg_value / float(nb_respondents)
                 else:
                     added = 0
                 if 'accounts' not in vals[0]:
@@ -108,15 +107,13 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                       Consumption.ASSESSMENT_ANSWERS[
                           Consumption.NEEDS_MODERATE_IMPROVEMENT]):
                     scores.update({
-                        'opportunity_numerator': decimal.Decimal(
-                            2 * opportunity) + added,
+                        'opportunity_numerator': 2 * opportunity + added,
                         'opportunity_denominator': added
                     })
                 else:
                     # No and not yet answered.
                     scores.update({
-                        'opportunity_numerator': decimal.Decimal(
-                            3 * opportunity) + added,
+                        'opportunity_numerator': 3 * opportunity + added,
                         'opportunity_denominator': added
                     })
                 vals[0]['consumption'] \
