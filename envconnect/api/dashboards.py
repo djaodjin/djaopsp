@@ -29,8 +29,7 @@ from .benchmark import BenchmarkMixin
 from .. import signals
 from ..helpers import freeze_scores
 from ..mixins import ReportMixin
-from ..models import (_show_query_and_result, _additional_filters,
-    get_scored_answers)
+from ..models import _show_query_and_result
 from ..serializers import AccountSerializer, NoModelSerializer
 from ..suppliers import get_supplier_managers
 
@@ -142,6 +141,7 @@ class DashboardMixin(BenchmarkMixin):
         - (dummy) rate
         - opportunity
         """
+        #pylint:disable=too-many-arguments
         scored_answers = """
 WITH samples AS (
 SELECT survey_sample.* FROM survey_sample
@@ -215,7 +215,7 @@ WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
 #        scored_answers = super(DashboardMixin, self)._get_scored_answers(
 #            population, metric_id,
 #            includes=includes, questions=questions, prefix=prefix)
-        _show_query_and_result(scored_answers, show=False)
+        _show_query_and_result(scored_answers)
         return scored_answers
 
     @property
@@ -381,10 +381,11 @@ class SupplierListMixin(DashboardMixin):
         #pylint:disable=too-many-arguments
         score = scores.get(account.pk, None)
         result = self._prepare_account(account)
-        if score is not None and not result['request_key']:
+        if score is not None:
             created_at = score.get('created_at', None)
             if created_at:
                 result.update({'last_activity_at': created_at})
+        if score is not None and not result['request_key']:
             nb_answers = score.get('nb_answers', 0)
             nb_questions = score.get('nb_questions', 0)
             result.update({
@@ -395,8 +396,6 @@ class SupplierListMixin(DashboardMixin):
                 'improvement_completed': (
                     account.pk in complete_improvements),
             })
-            reporting_status = get_reporting_status(result, expired_at)
-            result.update({'reporting_status': reporting_status})
             if nb_answers == nb_questions and nb_questions != 0:
                 normalized_score = score.get('normalized_score', None)
             else:
@@ -407,6 +406,8 @@ class SupplierListMixin(DashboardMixin):
             improvement_score = score.get('improvement_numerator', None)
             if improvement_score is not None:
                 result.update({'improvement_score': improvement_score})
+        reporting_status = get_reporting_status(result, expired_at)
+        result.update({'reporting_status': reporting_status})
         return result
 
     def get_queryset(self):
@@ -414,6 +415,13 @@ class SupplierListMixin(DashboardMixin):
         rollup_tree = self.rollup_scores()
         account_scores = rollup_tree[0]['accounts']
         expired_at = datetime_or_now() - relativedelta(year=1)
+        actives = get_account_model().objects.filter(
+            pk__in=[account.pk for account in self.requested_accounts],
+            samples__extra__isnull=True).values('pk', 'samples__created_at')
+        for account in actives:
+            if account['pk'] not in account_scores:
+                account_scores[account['pk']] = {
+                    'created_at': account['samples__created_at']}
         for account in self.requested_accounts:
             try:
                 results += [self.get_score(account, account_scores,

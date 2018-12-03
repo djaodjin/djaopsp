@@ -120,8 +120,7 @@ user).</em>
               </td>
               <td>
                 <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>
-                <span ng-if="entry.$resolved && entry.request_key">Requested</span>
-                <span ng-if="entry.$resolved && !entry.request_key">[[entry.last_activity_at ? (entry.last_activity_at|date: shortDate) : 'No activity']]</span>
+                <span ng-if="entry.$resolved">[[entry.last_activity_at ? (entry.last_activity_at|date: shortDate) : 'No activity']]</span>
               </td>
               <td style="line-height:1em;">
                 <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>

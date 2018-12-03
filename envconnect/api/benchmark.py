@@ -228,6 +228,7 @@ class BenchmarkMixin(ReportMixin):
     @staticmethod
     def _get_scored_answers(population, metric_id,
                             includes=None, questions=None, prefix=None):
+        #pylint:disable=unused-argument
         return get_scored_answers(population, metric_id,
             includes=includes, prefix=prefix)
 
