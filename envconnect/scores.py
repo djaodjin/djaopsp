@@ -35,17 +35,19 @@ def _normalize(scores, normalize_to_one=False):
         if denominator > 0:
             scores['normalized_score'] = int(
                 scores[numerator_key] * 100.0 / denominator)
-            if 'improvement_numerator' in scores:
+            improvement_numerator = scores.get('improvement_numerator', None)
+            if improvement_numerator is not None:
                 scores['improvement_score'] = (
-                    scores['improvement_numerator'] * 100.0
-                    / denominator)
+                    improvement_numerator * 100.0 / denominator)
             if normalize_to_one:
                 if numerator_key in scores:
                     scores[numerator_key] = (
                         float(scores[numerator_key]) / denominator)
-                if 'improvement_numerator' in scores:
+                improvement_numerator = scores.get(
+                    'improvement_numerator', None)
+                if improvement_numerator is not None:
                     scores['improvement_numerator'] = (
-                        float(scores['improvement_numerator']) / denominator)
+                        float(improvement_numerator) / denominator)
                 scores[denominator_key] = 1.0
         else:
             scores['normalized_score'] = 0
@@ -220,8 +222,11 @@ def populate_rollup(rollup_tree, normalize_to_one):
                 agg_scores['nb_questions'] += nb_questions
                 for key in [numerator_key, denominator_key,
                             'improvement_numerator']:
+                    value = scores.get(key, 0)
+                    if value is None:
+                        value = 0
                     agg_scores[key] = agg_scores.get(key, 0) + (
-                        scores.get(key, 0) * score_weight)
+                        value * score_weight)
 
     for account_id, scores in six.iteritems(accounts):
         _normalize(scores, normalize_to_one=normalize_to_one)

@@ -29,6 +29,8 @@ from .benchmark import BenchmarkMixin
 from .. import signals
 from ..helpers import freeze_scores
 from ..mixins import ReportMixin
+from ..models import (_show_query_and_result, _additional_filters,
+    get_scored_answers)
 from ..serializers import AccountSerializer, NoModelSerializer
 from ..suppliers import get_supplier_managers
 
@@ -114,6 +116,107 @@ class CompletionSummaryPagination(PageNumberPagination):
 class DashboardMixin(BenchmarkMixin):
 
     account_model = get_account_model()
+
+    def _get_scored_answers(self, population, metric_id,
+                            includes=None, questions=None, prefix=None):
+        """
+        Returns a list of tuples with the following fields:
+
+        - account_id
+        - sample_id
+        - is_completed
+        - is_planned
+        - numerator
+        - denominator
+        - last_activity_at
+        - answer_id
+        - question_id
+        - path
+        - (dummy) implemented
+        - environmental_value
+        - business_value
+        - profitability
+        - implementation_ease
+        - avg_value
+        - (dummy) nb_respondents
+        - (dummy) rate
+        - opportunity
+        """
+        scored_answers = """
+WITH samples AS (
+SELECT survey_sample.* FROM survey_sample
+INNER JOIN (
+    SELECT survey_sample.account_id, MAX(survey_sample.created_at) as created_at
+    FROM survey_answer
+    INNER JOIN survey_question
+      ON survey_answer.question_id = survey_question.id
+    INNER JOIN survey_sample
+      ON survey_answer.sample_id = survey_sample.id
+    WHERE survey_question.path ILIKE '%(prefix)s%%'
+      AND survey_sample.extra IS NULL
+      AND survey_sample.is_frozen = 't'
+      GROUP BY survey_sample.account_id) AS last_frozen_assessments
+    ON survey_sample.account_id = last_frozen_assessments.account_id
+      AND survey_sample.created_at = last_frozen_assessments.created_at
+),
+expected_opportunities AS (
+SELECT
+    survey_question.id AS question_id,
+    survey_question.path AS path,
+    '' AS implemented,
+    survey_question.environmental_value AS environmental_value,
+    survey_question.business_value AS business_value,
+    survey_question.profitability AS profitability,
+    survey_question.implementation_ease AS implementation_ease,
+    survey_question.avg_value AS avg_value,
+    0 AS nb_respondents,
+    0 AS rate,
+    survey_question.requires_measurements AS requires_measurements,
+    survey_question.opportunity AS opportunity,
+    samples.account_id AS account_id,
+    samples.id AS sample_id,
+    samples.is_frozen AS is_completed,
+    samples.extra AS is_planned
+FROM samples
+INNER JOIN survey_enumeratedquestions
+    ON samples.survey_id = survey_enumeratedquestions.campaign_id
+INNER JOIN survey_question
+    ON survey_question.id = survey_enumeratedquestions.question_id
+WHERE survey_question.path ILIKE '%(prefix)s%%'
+)
+SELECT
+    expected_opportunities.question_id AS id,
+    expected_opportunities.account_id AS account_id,
+    expected_opportunities.sample_id AS sample_id,
+    expected_opportunities.is_completed AS is_completed,
+    expected_opportunities.is_planned AS is_planned,
+    CAST(survey_answer.measured AS FLOAT) AS numerator,
+    CAST(survey_answer.denominator AS FLOAT) AS denominator,
+    survey_answer.created_at AS last_activity_at,
+    survey_answer.id AS answer_id,
+    survey_answer.rank AS rank,
+    expected_opportunities.path AS path,
+    expected_opportunities.implemented AS implemented,
+    expected_opportunities.environmental_value AS environmental_value,
+    expected_opportunities.business_value AS business_value,
+    expected_opportunities.profitability AS profitability,
+    expected_opportunities.implementation_ease AS implementation_ease,
+    expected_opportunities.avg_value AS avg_value,
+    expected_opportunities.nb_respondents AS nb_respondents,
+    expected_opportunities.rate AS rate,
+    expected_opportunities.requires_measurements AS requires_measurements,
+    expected_opportunities.opportunity AS opportunity
+FROM expected_opportunities
+LEFT OUTER JOIN survey_answer
+    ON expected_opportunities.question_id = survey_answer.question_id
+    AND expected_opportunities.sample_id = survey_answer.sample_id
+WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
+    'prefix': prefix}
+#        scored_answers = super(DashboardMixin, self)._get_scored_answers(
+#            population, metric_id,
+#            includes=includes, questions=questions, prefix=prefix)
+        _show_query_and_result(scored_answers, show=False)
+        return scored_answers
 
     @property
     def requested_accounts(self):

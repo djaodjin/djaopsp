@@ -225,6 +225,13 @@ class BenchmarkMixin(ReportMixin):
                     distribution['organization_rate'] = distribution['x'][3]
         return distribution
 
+    @staticmethod
+    def _get_scored_answers(population, metric_id,
+                            includes=None, questions=None, prefix=None):
+        return get_scored_answers(population, metric_id,
+            includes=includes, prefix=prefix)
+
+
     def rollup_scores(self, roots=None, root_prefix=None):
         """
         Returns a tree populated with scores per accounts.
@@ -265,7 +272,7 @@ class BenchmarkMixin(ReportMixin):
         includes = list(Consumption.objects.get_latest_samples_by_accounts())
         for prefix, values_tuple in six.iteritems(leafs):
             self.populate_leaf(prefix, values_tuple[0],
-                get_scored_answers(population, self.default_metric_id,
+                self._get_scored_answers(population, self.default_metric_id,
                     includes=includes, prefix=prefix))
         self._report_queries("leafs populated")
         populate_rollup(rollup_tree, True)
