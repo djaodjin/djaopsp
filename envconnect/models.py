@@ -283,6 +283,13 @@ class Consumption(SurveyQuestion):
         (CATEGORIZED_MEASUREMENTS, 'categorized')
     )
 
+
+    NOT_MEASUREMENTS_METRICS = (
+        'assessment',
+        'score',
+        'framework'
+    )
+
     # ColumnHeader objects are inserted lazily at the time a column
     # is hidden so we need a default set of columns to compute visible ones
     # in all cases.

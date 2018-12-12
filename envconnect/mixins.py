@@ -794,6 +794,10 @@ GROUP BY account_id, sample_id, is_planned;""" % {
             sample=self.assessment_sample).exclude(
             metric_id__in=(1, 2)).select_related('question')
         for env_metric_answer in env_metric_answers:
+            rank = EnumeratedQuestions.objects.filter(
+                question=env_metric_answer.question,
+                campaign=self.sample.survey).values('rank').get().get(
+                    'rank', None)
             if env_metric_answer.metric.unit.system != Unit.SYSTEM_ENUMERATED:
                 measured = '%d' % env_metric_answer.measured
             else:
@@ -809,7 +813,10 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                         break
             node[0]['environmental_metrics'] += [{
                 'metric_title': env_metric_answer.metric.title,
-                'measured': measured
+                'measured': measured,
+                'location': reverse('api_measures_delete', args=(
+                    self.sample.account, self.sample,
+                    rank, env_metric_answer.metric.slug))
             }]
         return self.flatten_answers(root, url_prefix)
 

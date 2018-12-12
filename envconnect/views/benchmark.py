@@ -153,9 +153,9 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             # to share scorecard with.
             if self.manages(self.account):
                 context.update({
+                    'is_account_manager': True,
                     'supplier_managers': json.dumps(
                         get_supplier_managers(self.account))})
-
             self.update_context_urls(context, {
                 'api_account_benchmark': reverse('api_benchmark',
                     args=(context['organization'], from_root)),

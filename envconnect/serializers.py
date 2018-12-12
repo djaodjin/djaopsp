@@ -28,6 +28,19 @@ class ColumnHeaderSerializer(serializers.ModelSerializer):
         read_only_fields = ('slug',)
 
 
+class MeasureSerializer(serializers.ModelSerializer):
+
+    metric = serializers.SlugRelatedField(
+        queryset=Metric.objects.all(), slug_field='slug')
+    measured = serializers.CharField()
+
+    class Meta:
+        model = Answer
+        fields = ('metric', 'measured', 'created_at',
+            'collected_by')
+        read_only_fields = ('created_at', 'collected_by')
+
+
 class ConsumptionSerializer(serializers.ModelSerializer):
 
     path = serializers.CharField(required=False)
@@ -37,6 +50,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
     opportunity = serializers.SerializerMethodField()
     implemented = serializers.SerializerMethodField()
     planned = serializers.SerializerMethodField()
+    measures = MeasureSerializer(many=True, required=False)
 
     class Meta:
         model = Consumption
@@ -51,7 +65,8 @@ class ConsumptionSerializer(serializers.ModelSerializer):
             "implementation_ease", "avg_value",
             # benchmarks
             "nb_respondents", "rate", "opportunity",
-            "rank", "implemented", "planned", "requires_measurements")
+            "rank", "implemented", "planned", "requires_measurements",
+            "measures")
 
     @staticmethod
     def get_nb_respondents(obj):
@@ -73,10 +88,6 @@ class ConsumptionSerializer(serializers.ModelSerializer):
         return obj.implemented if hasattr(obj, 'implemented') else (
             obj.measured if hasattr(obj, 'measured') else "")
 
-    def get_planned(self, obj):
-        return (hasattr(obj, 'is_planned') and bool(obj.is_planned)
-            or self.context.get('is_planned', False))
-
     def get_opportunity(self, obj):
         if hasattr(obj, 'opportunity'):
             return obj.opportunity
@@ -85,6 +96,10 @@ class ConsumptionSerializer(serializers.ModelSerializer):
         if opportunities is not None:
             return opportunities.get(obj.pk, 0) * 3
         return 0
+
+    def get_planned(self, obj):
+        return (hasattr(obj, 'is_planned') and bool(obj.is_planned)
+            or self.context.get('is_planned', False))
 
 
 class AnswerUpdateSerializer(NoModelSerializer):
@@ -131,19 +146,6 @@ class AccountSerializer(NoModelSerializer):
     def get_reporting_status(self, obj):
         return self.REPORTING_STATUS[obj.get(
             'reporting_status', self.REPORTING_NOT_STARTED)][1]
-
-
-class MeasureSerializer(serializers.ModelSerializer):
-
-    metric = serializers.SlugRelatedField(
-        queryset=Metric.objects.all(), slug_field='slug')
-    measured = serializers.CharField()
-
-    class Meta:
-        model = Answer
-        fields = ('metric', 'measured', 'created_at',
-            'collected_by')
-        read_only_fields = ('created_at', 'collected_by')
 
 
 class AssessmentMeasuresSerializer(NoModelSerializer):

@@ -10,7 +10,7 @@ from django.db.models import Max
 from django.db.utils import DataError
 from rest_framework import response as http
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import DestroyAPIView, ListCreateAPIView
 from rest_framework.status import HTTP_200_OK
 from survey.api.sample import AnswerAPIView, SampleAPIView
 from survey.models import Answer, Choice, EnumeratedQuestions, Unit
@@ -37,7 +37,7 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
 
     def get_http_response(self, serializer,
                      status=HTTP_200_OK, headers=None, first_answer=False):
-        #pylint:disable=protected-access
+        #pylint:disable=protected-access,arguments-differ
         scored_answers = get_scored_answers(
             Consumption.objects.get_active_by_accounts(
                 excludes=self._get_filter_out_testing()),
@@ -142,3 +142,22 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
                 ]
             if errors:
                 raise ValidationError(errors)
+
+
+class DestroyMeasureAPIView(SampleMixin, DestroyAPIView):
+    """
+    Deletes a comment or reported measure on an assessment.
+
+    **Examples
+
+    .. code-block:: http
+
+        DELETE /api/supplier1/sample/abcdef1234567/1/measures/comments/ HTTP/1.1
+    """
+
+    def get_object(self):
+        measures = Answer.objects.filter(
+            sample=self.sample,
+            sample__is_frozen=False,
+            metric__slug=self.kwargs.get('metric'))
+        return measures

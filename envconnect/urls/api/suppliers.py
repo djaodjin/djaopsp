@@ -5,7 +5,7 @@ from django.conf.urls import url, include
 from pages.settings import PATH_RE, SLUG_RE
 
 from ...api.assessments import (AssessmentAPIView, AssessmentAnswerAPIView,
-    AssessmentMeasuresAPIView)
+    AssessmentMeasuresAPIView, DestroyMeasureAPIView)
 from ...api.benchmark import BenchmarkAPIView, HistoricalScoreAPIView
 from ...api.improvements import (ImprovementListAPIView,
     ImprovementToggleAPIView)
@@ -42,6 +42,9 @@ urlpatterns = [
     url(r'(?P<organization>%s)/improvement/?' % SLUG_RE,
         ImprovementListAPIView.as_view(),
         name='api_improvement_base'),
+    url(r'^(?P<interviewee>%s)/sample/(?P<sample>%s)/(?P<rank>\d+)/'\
+    'measures/(?P<metric>%s)/' % (SLUG_RE, SLUG_RE, SLUG_RE),
+        DestroyMeasureAPIView.as_view(), name='api_measures_delete'),
     url(r'^(?P<interviewee>%s)/sample/(?P<sample>%s)/(?P<rank>\d+)/measures/'
         % (SLUG_RE, SLUG_RE),
         AssessmentMeasuresAPIView.as_view(), name='api_assessment_measures'),

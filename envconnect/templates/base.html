@@ -59,17 +59,15 @@ ga('send', 'pageview');
           <div class="dashboard-content">
             <header>
               <nav class="navbar navbar-default navbar-top">
-                <div class="navbar-border">
-                  {% block content_navbarbrand %}
-                  {% include "_navbarbrand.html" %}
-                  {% endblock %}
-                  <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav navbar-right">
-                      {% block navbar %}
-                      {% include "generic_navbar.html" %}
-                      {% endblock %}
-                    </ul>
-                  </div>
+                {% block content_navbarbrand %}
+                {% include "_navbarbrand.html" %}
+                {% endblock %}
+                <div class="navbar-collapse collapse">
+                  <ul class="nav navbar-nav navbar-right">
+                    {% block navbar %}
+                    {% include "generic_navbar.html" %}
+                    {% endblock %}
+                  </ul>
                 </div>
               </nav>
               {% block fullviewport %}

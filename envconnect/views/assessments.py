@@ -17,6 +17,7 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from pages.models import PageElement
+from survey.models import Answer, Choice, Metric, Unit
 
 from ..mixins import ReportMixin, BestPracticeMixin
 from ..models import Consumption, get_scored_answers
@@ -26,6 +27,16 @@ from ..templatetags.navactive import assessment_choices
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+class AssessmentAnswer(object):
+
+    def __init__(self, **kwargs):
+        for key, val in six.iteritems(kwargs):
+            setattr(self, key, val)
+
+    def __getattr__(self, name):
+        return getattr(self.consumption, name)
 
 
 class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
@@ -45,7 +56,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
           numerator = (3-A) * opportunity
           denominator = 0
         """
-        #pylint:disable=too-many-locals
+        #pylint:disable=too-many-locals,too-many-statements
         consumptions = {}
         consumptions_planned = set([])
         scored_answers = get_scored_answers(
@@ -70,6 +81,25 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                         consumptions_planned |= set([consumption.path])
                 else:
                     consumptions[consumption.path] = consumption
+
+        # Get reported measures / comments
+        for datapoint in Answer.objects.filter(sample=self.sample).exclude(
+                    metric__in=Metric.objects.filter(
+                    slug__in=Consumption.NOT_MEASUREMENTS_METRICS)
+                ).select_related('question'):
+            consumption = consumptions[datapoint.question.path]
+            if not hasattr(consumption, 'measures'):
+                consumptions[datapoint.question.path] = AssessmentAnswer(
+                    consumption=consumption, measures=[])
+                consumption = consumptions[datapoint.question.path]
+            measured = datapoint.measured
+            if datapoint.metric.unit.system == Unit.SYSTEM_ENUMERATED:
+                measured = Choice.objects.get(pk=datapoint.measured).text
+            consumption.measures += [{
+                'metric': datapoint.metric,
+                'created_at': datapoint.created_at,
+#XXX                'collected_by': datapoint.collected_by,
+                'measured': measured}]
 
         # Populate leafs and cut nodes with data.
         for path, vals in six.iteritems(leafs):

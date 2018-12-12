@@ -226,6 +226,76 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.NO = 'No'
     $scope.NOT_APPLICABLE = 'Not applicable'
 
+    $scope.stickOptions = [
+        "count",
+        "currency",
+        "gallons",
+        "joules",
+        "kilograms",
+        "liters",
+        "tons",
+        "percentage",
+        "pounds",
+        "short-tons",
+        "long-tons",
+    ];
+
+    $scope.nameOptions = [
+        "energy",
+        "fuel",
+        "ghg-emissions",
+        "hazardous-waste",
+        "material",
+        "nox-emissions",
+        "particulate-emissions",
+        "sox-emissions",
+        "solid-general-waste",
+        "spend",
+        "water-use",
+        "waste-water-effluent"
+    ];
+
+    $scope.meaningOptions = [
+        "saved",
+        "avoided",
+        "reduced",
+        "generated",
+        "emitted",
+        "with-environmental-controls"
+    ];
+
+    $scope.frequencyOptions = [
+        "annual"
+    ];
+
+    $scope.scopeOptions = [
+        "corporate-level-of-which-reporting-entity-is-part",
+        "business-unit-Reporting-entity",
+        "some-activities",
+        "all-activities",
+        "ad-hoc-projects",
+        "some-projects",
+        "all-projects",
+        "office-footprint-only",
+        "full-operations-footprint",
+        "partial-operations-footprint",
+        "scope-1-full",
+        "scope-2-full",
+        "scope-3-full",
+        "scope-1-partial",
+        "scope-2-partial",
+        "scope-3-partial"
+    ];
+
+    $scope.findOption = function(value, options) {
+        for( var optIdx = 0; optIdx < options.length; ++optIdx ) {
+            if( value.lastIndexOf(options[optIdx], 0) === 0 ) {
+                return options[optIdx];
+            }
+        }
+        return undefined;
+    }
+
     $scope.isAtLeastYes = function (practice) {
       return (practice.consumption.implemented === $scope.YES);
     }
@@ -305,6 +375,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.calcSavingsAndCost = function(root) {
         if( typeof root[0] === 'undefined' ) return;
         if( root[0].hasOwnProperty('consumption') && root[0].consumption ) {
+            // leaf node
             var avg_energy_saving = parseInt(
                 root[0].consumption.avg_energy_saving);
             if( isNaN(avg_energy_saving) ) {
@@ -361,6 +432,55 @@ envconnectControllers.controller("EnvconnectCtrl",
                 capital_cost:
                     (isAvailable && $scope.getPlanned(root[0])) ?
                         capital_cost : 0
+            }
+            // reformat the `measures` array to make it easier on the UI.
+            if( root[0].consumption.measures ) {
+                if( !(root[0].consumption.measures.hasOwnProperty('items')
+                    || root[0].consumption.measures.hasOwnProperty('freetext')
+                    || root[0].consumption.measures.hasOwnProperty('comments')) ) {
+                    // We still have an array of measures from the API.
+                    // We reformat it in a dictionnary as expected by the UI.
+                    var measures = {items: [], freetext: "", comments: ""};
+                    for( var idx = 0; idx < root[0].consumption.measures.length; ++idx ) {
+                        var measure = root[0].consumption.measures[idx];
+                        if( measure.metric ) {
+                            if( measure.metric == 'freetext' ) {
+                                measures.freetext = measure.measured;
+                            } else if( measure.metric == 'comments' ) {
+                                measures.comments = measure.measured;
+                            } else {
+                                try {
+                                    // Same order as `submitMeasures`
+                                    var search = measure.metric;
+                                    var name = $scope.findOption(
+                                        search, $scope.nameOptions);
+                                    search = search.slice(name.length + 1);
+                                    var meaning = $scope.findOption(
+                                        search, $scope.meaningOptions);
+                                    search = search.slice(meaning.length + 1);
+                                    var stick = $scope.findOption(
+                                        search, $scope.stickOptions);
+                                    search = search.slice(stick.length + 1);
+                                    var frequency = $scope.findOption(
+                                        search, $scope.frequencyOptions);
+                                    search = search.slice(frequency.length + 1);
+                                    var scope = $scope.findOption(
+                                        search, $scope.scopeOptions);
+                                    search = search.slice(scope.length + 1);
+                                    measures.items.push({
+                                        measured: parseInt(measure.measured),
+                                        name: name,
+                                        stick: stick,
+                                        meaning: meaning,
+                                        scope: scope,
+                                        frequency: frequency});
+                                } catch(err) {
+                                }
+                            }
+                        }
+                    }
+                    root['measures'] = measures;
+                }
             }
         } else {
             var capturable = {avg_energy_saving: 1.0, capital_cost: 1.0};
@@ -721,8 +841,14 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     // Prepares to edit or delete an element.
     $scope.setActiveElement = function(element, reload) {
-        $scope.activeElement.value = element;
-        var extra = JSON.parse($scope.activeElement.value.tag);
+        if( typeof element === 'string' ) {
+            $scope.activeElement.value = $scope.getEntriesRecursive(
+                $scope.entries, element);
+        } else {
+            $scope.activeElement.value = element;
+        }
+        var extra = ($scope.activeElement.value.tag ?
+            JSON.parse($scope.activeElement.value.tag) : "");
         var tags = (extra && extra.hasOwnProperty('tags')) ? extra['tags'] : [];
         $scope.activeElement.is_pagebreak = false;
         for( var idx = 0; idx < tags.length; ++idx ) {
@@ -937,15 +1063,22 @@ envconnectControllers.controller("EnvconnectCtrl",
         });
     };
 
+    // Deletes a best practice or an assessment measure.
     $scope.deleteBestPractice = function() {
+        var url = $scope.activeElement.value.location;
         var path = $scope.getPath($scope.activeElement.value);
-        var splitIndex = path.lastIndexOf('/');
-        var prefix = path.substring(0, splitIndex);
-        $http.delete(settings.urls.api_best_practices
-                + $scope.getPath($scope.activeElement.value) + '/').then(
+        var prefix = null;
+        if( !url ) {
+            prefix = path.substring(0, path.lastIndexOf('/'));
+            url = settings.urls.api_best_practices + path + '/';
+        }
+        $http.delete(url).then(
             function success(resp) {
-                var root = $scope.getEntriesRecursive($scope.entries, prefix);
-                delete root[1][path];
+                if( prefix ) {
+                    var root = $scope.getEntriesRecursive(
+                        $scope.entries, prefix);
+                    delete root[1][path];
+                }
                 if( $scope.activeElement.reload ) {
                     window.location = "";
                 }
@@ -1156,6 +1289,8 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     /** Called when a user clicks on the "Improvement Planning" checkbox.
+        The function is also called at initialization time (with an undefined
+        `practice`) to recursively go through the `entries` tree.
      */
     $scope.updateImprovement = function(practice) {
         if( practice && practice[0].consumption ) {
