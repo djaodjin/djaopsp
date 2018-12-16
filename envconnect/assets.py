@@ -38,6 +38,8 @@ js_base = Bundle('vendor/jquery.js',
                  'vendor/bootbox.js',
                  'vendor/jquery.selection.js',
                  'vendor/trip.js',
+                 'vendor/djaodjin-menubar.js',
+                 'vendor/djaodjin-dashboard.js',
             filters='jsmin', output='cache/envconnect.js')
 register('js_base', js_base)
 

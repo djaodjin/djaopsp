@@ -1,26 +1,9 @@
-{% if request|url_profile %}
-<li><a href="{{'/app/info/requests/'|site_prefixed}}">Dashboard</a></li>
-{% if urls and urls.profiles|length > 1 %}
-<!--[if !IE]><!-->
- <li class="divider-vertical hidden-xs"><li>
-<!--<![endif]-->
-<li{% if "/profile/" in request.path %} class="active"{% endif %}>
-<a id="organization" href="{{'/profile/'|site_prefixed}}">My Organizations</a>
+{% if request|is_authenticated %}
+<li>
+  <a id="app_home" href="{{'/app/'|site_prefixed}}{% if organization %}{{organization}}/{% endif %}">Home</a>
 </li>
-{% elif urls and urls.profiles|length > 0 %}
-<!--[if !IE]><!-->
- <li class="divider-vertical hidden-xs"><li>
-<!--<![endif]-->
-<li{% if "/profile/" in request.path %} class="active"{% endif %}>
-<a id="organization" href="{{urls.profiles.0.location}}">{{urls.profiles.0.printable_name}}'s Profile</a>
-</li>
-{% endif %}
-
-<!--[if !IE]><!-->
- <li class="divider-vertical hidden-xs"><li>
-<!--<![endif]-->
-<li{% if "/users/" in request.path %} class="active"{% endif %}>
-<a id="authenticated-user" href="{{request|url_profile}}">{{request.user.username}}'s profile</a>
+<li>
+  <a href="{{'/app/info/requests/'|site_prefixed}}">Dashboard</a>
 </li>
 <!--[if !IE]><!-->
  <li class="divider-vertical hidden-xs"><li>
@@ -34,13 +17,6 @@
  </ul>
 </li>
 <!--[if !IE]><!-->
- <li class="divider-vertical hidden-xs"><li>
+<li class="divider-vertical hidden-xs"><li>
 <!--<![endif]-->
-<li{% if "/logout/" in request.path %} class="active"{% endif %}>
-<a id="logout" href="{{'logout/'|site_prefixed}}?next={{''|site_prefixed}}">Sign out <i class="fa fa-sign-out fa-lg"></i></a>
-</li>
-{% else %}
-<li class="login">
-<a id="login" href="{{'login/'|site_prefixed}}">Sign in</a>
-</li>
 {% endif %}
