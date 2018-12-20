@@ -152,7 +152,7 @@ INNER JOIN (
       ON survey_answer.question_id = survey_question.id
     INNER JOIN survey_sample
       ON survey_answer.sample_id = survey_sample.id
-    WHERE survey_question.path ILIKE '%(prefix)s%%'
+    WHERE survey_question.path LIKE '%(prefix)s%%'
       AND survey_sample.extra IS NULL
       AND survey_sample.is_frozen = 't'
       GROUP BY survey_sample.account_id) AS last_frozen_assessments
@@ -182,7 +182,7 @@ INNER JOIN survey_enumeratedquestions
     ON samples.survey_id = survey_enumeratedquestions.campaign_id
 INNER JOIN survey_question
     ON survey_question.id = survey_enumeratedquestions.question_id
-WHERE survey_question.path ILIKE '%(prefix)s%%'
+WHERE survey_question.path LIKE '%(prefix)s%%'
 )
 SELECT
     expected_opportunities.question_id AS id,

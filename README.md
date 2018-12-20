@@ -37,3 +37,10 @@ Development setup: Step-by-step
 
     $ python manage.py runserver
     # browser http://localhost:8000/envconnect/
+
+Testing
+-------
+
+    supplier user account: steve, yoyo
+    supplier manager user account: alice, yoyo
+    website administrator: donny, yoyo
