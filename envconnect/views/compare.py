@@ -179,16 +179,14 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
 
     def writerow(self, rec):
-        last_activity_at = ""
+        last_activity_at = rec.get('last_activity_at', "")
+        if last_activity_at:
+            last_activity_at = last_activity_at.isoformat()
         normalized_score = "N/A"
         if rec['request_key']:
             normalized_score = "Requested"
-        else:
-            last_activity_at = rec.get('last_activity_at', None)
-            if last_activity_at:
-                last_activity_at = last_activity_at.isoformat()
-            if rec.get('assessment_completed', False):
-                normalized_score = rec.get('normalized_score', "N/A")
+        elif rec.get('assessment_completed', False):
+            normalized_score = rec.get('normalized_score', "N/A")
         row = [rec['printable_name'], "", rec['email'], "", "", "",
             last_activity_at, normalized_score]
         for score in rec.get('scores', []):
