@@ -31,9 +31,6 @@ Development setup: Step-by-step
     $ diff -u ../../etc/envconnect/site.conf
     -DEBUG=False
     +DEBUG=True
-    $ pushd ../../bin
-    $ ln -s ../reps/envconnect/node_modules/less/bin/lessc
-    $ popd
 
     $ python manage.py runserver
     # browser http://localhost:8000/envconnect/

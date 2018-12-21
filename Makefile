@@ -93,38 +93,39 @@ require-resources:
 # Download prerequisites specified in package.json and install relevant files
 # in the directory assets are served from.
 vendor-assets-prerequisites: $(srcDir)/package.json
-	$(installFiles) $^ .
+	$(installFiles) $^ $(installTop)
 	$(NPM) install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp
 	install -d $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/angular/angular.min.js* $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/angular/angular.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/angular-animate/angular-animate.min.js* $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/angular-dragdrop/src/angular-dragdrop.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/angular-route/angular-route.min.js* $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/angular-sanitize/angular-sanitize.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/angular-touch/angular-touch.min.js* $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/bootbox/bootbox.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/bootstrap/dist/js/bootstrap.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/bootstrap-toggle/js/bootstrap-toggle.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/c3/c3.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/c3/c3.css $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/d3/d3.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/dropzone/dist/dropzone.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/font-awesome/css/font-awesome.css $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/font-awesome/fonts/* $(ASSETS_DIR)/fonts
-	$(installFiles) node_modules/hallo/dist/hallo.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/jquery/dist/jquery.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/jquery-ui-touch-punch/jquery.ui.touch-punch.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/nvd3/build/nv.d3.css $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/nvd3/build/nv.d3.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/rangy/lib/rangy-core.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/respond.js/src/respond.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/trip.js/dist/trip.css $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/trip.js/dist/trip.js $(ASSETS_DIR)/vendor
-	$(installFiles) node_modules/typeahead.js/dist/typeahead.bundle.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/angular/angular.min.js* $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/angular/angular.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/angular-animate/angular-animate.min.js* $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/angular-dragdrop/src/angular-dragdrop.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/angular-route/angular-route.min.js* $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/angular-sanitize/angular-sanitize.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/angular-touch/angular-touch.min.js* $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/bootbox/bootbox.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/bootstrap/dist/js/bootstrap.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/bootstrap-toggle/js/bootstrap-toggle.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/c3/c3.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/c3/c3.css $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/d3/d3.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/dropzone/dist/dropzone.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/font-awesome/css/font-awesome.css $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/font-awesome/fonts/* $(ASSETS_DIR)/fonts
+	$(installFiles) $(installTop)/node_modules/hallo/dist/hallo.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/jquery/dist/jquery.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/jquery-ui-touch-punch/jquery.ui.touch-punch.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/nvd3/build/nv.d3.css $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/nvd3/build/nv.d3.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/rangy/lib/rangy-core.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/respond.js/src/respond.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/trip.js/dist/trip.css $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/trip.js/dist/trip.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/typeahead.js/dist/typeahead.bundle.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/envconnect/static/vendor/PIE.htc $(ASSETS_DIR)/vendor
+	[ -f $(binDir)/lessc ] || (cd $(binDir) && ln -s ../node_modules/less/bin/lessc)
 
 
 install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \
