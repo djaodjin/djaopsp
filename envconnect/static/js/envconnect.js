@@ -1413,11 +1413,12 @@ envconnectControllers.controller("EnvconnectCtrl",
         var form = angular.element($event.target);
         var modalDialog = form.parents('.modal');
         modalDialog.modal('hide');
-        $http.post(settings.urls.api_assessment_sample + 'reset/').then(
+        var path = $scope.activeElement.value[0].path.substr(1); // remove '/'
+        $http.delete(settings.urls.api_assessment_sample + path + '/').then(
             function success(resp) {
                 $scope._resetAssessmentRecursive($scope.entries);
                 showMessages([
-                    "You have reset all answers in the current assessment."],
+                    "Reset successful. Please continue with this assessment or an assessment in a different industry segment."],
                     "success");
             },
             function error(resp) {

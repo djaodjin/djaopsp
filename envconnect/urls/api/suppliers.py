@@ -51,8 +51,8 @@ urlpatterns = [
     url(r'^(?P<interviewee>%s)/sample/(?P<sample>%s)/(?P<rank>\d+)/' % (
         SLUG_RE, SLUG_RE),
         AssessmentAnswerAPIView.as_view(), name='survey_api_answer'),
-    url(r'(?P<interviewee>%s)/sample/(?P<sample>%s)/$' % (
-        SLUG_RE, SLUG_RE),
+    url(r'(?P<interviewee>%s)/sample/(?P<sample>%s)(?P<path>%s)/?' % (
+        SLUG_RE, SLUG_RE, PATH_RE),
         AssessmentAPIView.as_view(), name='survey_api_sample'),
     url(r'(?P<interviewee>%s)/sample/' % (SLUG_RE,),
         include('survey.urls.api.sample')),

@@ -11,7 +11,7 @@ from django.db.utils import DataError
 from rest_framework import response as http
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import DestroyAPIView, ListCreateAPIView
-from rest_framework.status import HTTP_200_OK
+from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 from survey.api.sample import AnswerAPIView, SampleAPIView
 from survey.models import Answer, Choice, EnumeratedQuestions, Unit
 from survey.mixins import SampleMixin
@@ -63,6 +63,18 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 
     account_url_kwarg = 'interviewee'
 
+    def delete(self, request, *args, **kwargs):
+        """
+        Resets all answers whose question's path starts with a specified prefix.
+
+        **Examples
+
+        .. code-block:: http
+
+            DELETE /api/steve-shop/sample/0123abcd/ HTTP/1.1
+        """
+        return self.destroy(request, *args, **kwargs)
+
     def update(self, request, *args, **kwargs):
         #pylint:disable=unused-argument
         # We donot call super() because the up-to-date assessment should
@@ -78,6 +90,15 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
                 excludes=self._get_filter_out_testing(),
                 collected_by=self.request.user)
         return http.Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        prefix = kwargs.get('path', '')
+        if prefix:
+            Answer.objects.filter(
+                sample=self.sample,
+                question__path__startswith=prefix).delete()
+            return http.Response(status=HTTP_204_NO_CONTENT)
+        return super(AssessmentAPIView, self).destroy(request, *args, **kwargs)
 
 
 class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):

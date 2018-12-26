@@ -99,7 +99,10 @@ See the following for examples of content developed for best practices:
                 <a id="download-assessment" class="btn btn-default" href="{% url 'envconnect_assess_organization_download' organization path %}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
               </div>
               <div class="col-sm-6 text-right">
-                <button class="btn btn-primary" id="reset-button" href="" data-toggle="modal" data-target="#reset-assessment">Reset</button>
+                <button class="btn btn-primary" id="reset-button"
+                        data-toggle="modal" data-target="#reset-assessment"
+                        ng-click="setActiveElement('{{abs_prefix}}')"
+                        >Reset</button>
                 <button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
                 <a id="submit-button" class="btn btn-primary" href="" data-toggle="modal" data-target="#submit-assessment">Complete</a>
                 <div class="text-right"
@@ -132,11 +135,13 @@ See the following for examples of content developed for best practices:
         <form class="modal-content" ng-submit="resetAssessment($event)">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Reset your assessment ...</h4>
+                <h4 class="modal-title">Reset the answers under [[activeElement.value[0].title]] ...</h4>
             </div>
             <div class="modal-body">
                     <p>
-Resetting your assessment will delete all answers in the current assessment.
+By clicking &quot;Yes&quot; you will delete all answers under
+<em>[[activeElement.value[0].title]]</em> for the current assessment
+(Assessments which have already been completed will be preserved).
                     </p>
                     <p>
 Do you wish to continue?
