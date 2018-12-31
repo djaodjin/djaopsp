@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -547,6 +547,18 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                 account=self.account).order_by('-created_at').first()
         return self._assessment_sample
 
+    # `improvement_sample` is defined here because we use it to generate
+    # the highlighted practices in
+    # `BenchmarkMixin.get_highlighted_practices`
+    @property
+    def improvement_sample(self):
+        if not hasattr(self, '_improvement_sample'):
+            self._improvement_sample = Sample.objects.filter(
+                extra='is_planned',
+                survey=self.survey,
+                account=self.account).order_by('-created_at').first()
+        return self._improvement_sample
+
     def get_or_create_assessment_sample(self):
         # We create the sample if it does not exists.
         with transaction.atomic():
@@ -772,14 +784,10 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     element, nodes[0])]
         return results
 
-    def get_measured_metrics_context(self):
-        from_root, trail = self.breadcrumbs
-        url_prefix = trail[-1][1] if trail else ""
-        root = (OrderedDict({}), OrderedDict({}))
-        depth = len(from_root.split('/')) + 1
-
+    def _get_measured_metrics_context(self, root, prefix):
+        depth = len(prefix.split('/')) + 1
         env_metrics = Consumption.objects.filter(
-            path__startswith=from_root,
+            path__startswith=prefix,
             requires_measurements__gt=0)
         for env_metric in env_metrics:
             node = self._insert_path(root, env_metric.path, depth=depth)
@@ -788,7 +796,6 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 'metric_title': "No data provided.",
                 'measured': ""
             }]})
-        root = self._natural_order(root)
 
         env_metric_answers = Answer.objects.filter(
             sample=self.assessment_sample).exclude(
@@ -818,6 +825,14 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     self.sample.account, self.sample,
                     rank, env_metric_answer.metric.slug))
             }]
+        return root
+
+    def get_measured_metrics_context(self):
+        from_root, trail = self.breadcrumbs
+        url_prefix = trail[-1][1] if trail else ""
+        root = (OrderedDict({}), OrderedDict({}))
+        root = self._get_measured_metrics_context(root, from_root)
+        root = self._natural_order(root)
         return self.flatten_answers(root, url_prefix)
 
 
@@ -826,15 +841,6 @@ class ImprovementQuerySetMixin(ReportMixin):
     best practices which are part of an improvement plan for an ``Account``.
     """
     model = Answer
-
-    @property
-    def improvement_sample(self):
-        if not hasattr(self, '_improvement_sample'):
-            self._improvement_sample = Sample.objects.filter(
-                extra='is_planned',
-                survey=self.survey,
-                account=self.account).order_by('-created_at').first()
-        return self._improvement_sample
 
     def get_or_create_improve_sample(self):
         # We create the sample if it does not exists.

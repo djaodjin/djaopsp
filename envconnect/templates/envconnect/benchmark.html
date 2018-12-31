@@ -118,25 +118,30 @@
           </div>
         </div>
       </div> <!-- #benchmarks -->
-      <div id="environmental-metrics-measured" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
-        <h2 style="margin-left: 5px;">Environmental metrics measured/reported</h2>
-        {% if environmental_metrics_measured %}
+      <div id="highlighted-practices" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
+        <h2 style="margin-left: 5px;">Highlighted best practices</h2>
+        {% if highlighted_practices %}
           <div style="margin-left: 5px; margin-bottom: 15px;">
-          {% for env_metric_measured in environmental_metrics_measured %}
+          {% for highlighted_practice in highlighted_practices %}
           <div class="row">
             <div class="col-sm-6">
-              <div class="{{env_metric_measured.0}}" style="display:block;">
-                <a class="title" href="{% if env_metric_measured.1 %}{% url 'summary_organization' organization env_metric_measured.1 %}{% endif %}">{{ env_metric_measured.2.title }}</a>
+              <div class="{{highlighted_practice.0}}" style="display:block;">
+                <a class="title" href="{% if highlighted_practice.1 %}{% url 'summary_organization' organization highlighted_practice.1 %}{% endif %}">{{ highlighted_practice.2.title }}</a>
               </div>
             </div>
             <div class="col-sm-6">
-            {% if env_metric_measured.3.environmental_metrics %}
-                {% for reported in env_metric_measured.3.environmental_metrics %}
+            {% if highlighted_practice.3.planned %}
+                <strong>Planned for improvement.</strong>
+            {% endif %}
+            {% if highlighted_practice.3.not_applicable %}
+                Not applicable.
+            {% elif highlighted_practice.3.environmental_metrics %}
+                {% for reported in highlighted_practice.3.environmental_metrics %}
                     {{reported.metric_title}} {{reported.measured}}
                     {% if is_account_manager and reported.metric_title != 'No data provided.' %}
                     <a class="text-danger delete" href=""
                        data-toggle="modal" data-target="#confirm-delete"
-                       ng-click="setActiveElement({slug: '{{env_metric_measured.2.slug}}', title: '{{reported.metric_title}} {{reported.measured}}', path: '{{env_metric_measured.4}}', location: '{{reported.location}}'}, true)"><i class="fa fa-trash-o"></i></a>
+                       ng-click="setActiveElement({slug: '{{highlighted_practice.2.slug}}', title: '{{reported.metric_title}} {{reported.measured}}', path: '{{highlighted_practice.4}}', location: '{{reported.location}}'}, true)"><i class="fa fa-trash-o"></i></a>
                     {% endif %}
                 {% endfor %}
             {% endif %}
@@ -145,24 +150,9 @@
           {% endfor %}
           </div>
         {% else %}
-          <h5 style="margin-left: 5px;">No environmental metrics measured/reported.</h5>
+          <h5 style="margin-left: 5px;">No questions have been have been highlighted for special consideration.</h5>
         {% endif %}
-      </div><!-- /#environmental-metrics-measured -->
-      <div id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
-        <h2 style="margin-left: 5px;">"Not Applicable" Answers</h2>
-        {% if not_applicables %}
-          <h5 style="margin-left: 5px;">The scorecarded organization responded that the following practices are not applicable to them:</h5>
-          <div style="margin-left: 5px; margin-bottom: 15px;">
-          {% for not_applicable in not_applicables %}
-          <div class="{{not_applicable.0}}" style="display:block;">
-            <a class="title" href="{% if not_applicable.1 %}{% url 'summary_organization' organization not_applicable.1 %}{% endif %}">{{ not_applicable.2.title }}</a>
-          </div>
-          {% endfor %}
-          </div>
-        {% else %}
-          <h5 style="margin-left: 5px;">No questions have been marked as "Not Applicable".</h5>
-        {% endif %}
-      </div><!-- /#not-applicable-questions -->
+      </div><!-- /#highlighted-practices -->
     </div><!-- /#scorecard-tab -->
     <div id="history-tab" class="panel-icons" ng-show="scoreToggle">
       <div class="panel-body benchmarks-box">

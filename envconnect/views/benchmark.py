@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 from __future__ import unicode_literals
@@ -402,9 +402,7 @@ class ScoreCardDownloadView(PrintableChartsMixin, BenchmarkAPIView):
                 'at_time': datetime_or_now()
             })
             context.update({
-                'not_applicables': self.get_not_applicables_context(),
-                'environmental_metrics_measured':
-                    self.get_measured_metrics_context()
+                'highlighted_practices': self.get_highlighted_practices(),
             })
         return context
 

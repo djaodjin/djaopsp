@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 from __future__ import absolute_import
@@ -9,11 +9,12 @@ from collections import OrderedDict
 
 from deployutils.crypt import JSONEncoder
 from django.conf import settings
+from django.db.models import Q
 from django.utils import six
 from pages.mixins import TrailMixin
 from rest_framework import generics
 from rest_framework.response import Response as HttpResponse
-from survey.models import Sample
+from survey.models import  Sample
 
 from .best_practices import ToggleTagContentAPIView
 from ..mixins import ReportMixin, TransparentCut
@@ -27,25 +28,43 @@ LOGGER = logging.getLogger(__name__)
 
 class BenchmarkMixin(ReportMixin):
 
-    def get_not_applicables_context(self):
+    def get_highlighted_practices(self):
         from_root, trail = self.breadcrumbs
         url_prefix = trail[-1][1] if trail else ""
-        not_applicable_answers = Consumption.objects.filter(
-            answer__sample=self.assessment_sample,
-            answer__metric_id=self.default_metric_id,
-            answer__measured=Consumption.NOT_APPLICABLE)
-        root = (OrderedDict({}), OrderedDict({}))
+
+        flt = Q(answer__sample=self.assessment_sample,
+              answer__metric_id=self.default_metric_id,
+              answer__measured=Consumption.NOT_APPLICABLE)
+        if self.improvement_sample:
+            flt = flt | Q(answer__sample=self.improvement_sample,
+                answer__metric_id=self.default_metric_id,
+                answer__measured=Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT)
+        highlighted_practices = Consumption.objects.filter(flt).values(
+            'path', 'answer__sample_id', 'answer__measured')
+
         depth = len(from_root.split('/')) + 1
-        for not_applicable in not_applicable_answers:
-            self._insert_path(root, not_applicable.path, depth=depth)
+        root = (OrderedDict({}), OrderedDict({}))
+        assessment_sample_pk = (
+            self.assessment_sample.id if self.assessment_sample else 0)
+        improvement_sample_pk = (
+            self.improvement_sample.id if self.improvement_sample else 0)
+        for practice in highlighted_practices:
+            node = self._insert_path(root, practice['path'], depth=depth)
+            if (practice['answer__sample_id'] == assessment_sample_pk and
+                practice['answer__measured'] == Consumption.NOT_APPLICABLE):
+                node[0].update({'not_applicable': True})
+            if practice['answer__sample_id'] == improvement_sample_pk:
+                node[0].update({'planned': True})
+
+        # Populate environmental metrics answers
+        root = self._get_measured_metrics_context(root, from_root)
+        root = self._natural_order(root)
         return self.flatten_answers(root, url_prefix)
 
     def get_context_data(self, **kwargs):
         context = super(BenchmarkMixin, self).get_context_data(**kwargs)
         context.update({
-            'not_applicables': self.get_not_applicables_context(),
-            'environmental_metrics_measured':
-                self.get_measured_metrics_context()
+            'highlighted_practices': self.get_highlighted_practices(),
         })
         return context
 

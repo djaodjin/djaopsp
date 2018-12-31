@@ -314,42 +314,35 @@ indicator for a best practice.
       </div>
     </div>
   </section>
-  <section id="environmental-metrics-measured" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
-      <h2 style="margin-left: 5px;">Environmental metrics measured/reported</h2>
-      {% if environmental_metrics_measured %}
-      <div style="margin-left: 5px; margin-bottom: 15px;">
-          {% for env_metric_measured in environmental_metrics_measured %}
-          <div class="{{env_metric_measured.0}}" style="display:block;">
-              <span class="title">{{ env_metric_measured.2.title }}</span>
-              {% if env_metric_measured.3.environmental_metrics %}
-              {% for reported in env_metric_measured.3.environmental_metrics %}
-              <dl style="margin-left:15px;margin-bottom:0px;">
-                  <dt>{{reported.metric_title}}</dt>
-                  <dd>{{reported.measured}}</dd>
-              </dl>
-              {% endfor %}
-              {% endif %}
+  <section id="highlighted-practices" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
+        <h2 style="margin-left: 5px;">Highlighted best practices</h2>
+        {% if highlighted_practices %}
+          <div style="margin-left: 5px; margin-bottom: 15px;">
+          {% for highlighted_practice in highlighted_practices %}
+          <div>
+            <div style="display:inline-block;width:50%;">
+              <div class="{{highlighted_practice.0}}" style="display:block;">
+                <span class="title">{{ highlighted_practice.2.title }}</span>
+              </div>
+            </div>
+            <div style="display:inline-block;width:40%;">
+            {% if highlighted_practice.3.planned %}
+                <strong>Planned for improvement.</strong>
+            {% endif %}
+            {% if highlighted_practice.3.not_applicable %}
+                Not applicable.
+            {% elif highlighted_practice.3.environmental_metrics %}
+                {% for reported in highlighted_practice.3.environmental_metrics %}
+                    {{reported.metric_title}} {{reported.measured}}
+                {% endfor %}
+            {% endif %}
+            </div>
           </div>
           {% endfor %}
-      </div>
-      {% else %}
-      <h5 style="margin-left: 5px;">No environmental metrics measured/reported.</h5>
-      {% endif %}
-  </section>
-  <section id="not-applicable-questions" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
-      <h2 style="margin-left: 5px;">"Not Applicable" Answers</h2>
-      {% if not_applicables %}
-      <h5 style="margin-left: 5px;">The scorecarded organization responded that the following issues are not applicable to them</h5>
-      <div style="margin-left: 5px; margin-bottom: 15px;">
-          {% for not_applicable in not_applicables %}
-          <div class="{{not_applicable.0}}" style="display:block;">
-            <span class="title">{{ not_applicable.2.title }}</span>
           </div>
-          {% endfor %}
-      </div>
-      {% else %}
-      <h5 style="margin-left: 5px;">No questions have been marked as "Not Applicable".</h5>
-      {% endif %}
-  </section>
+        {% else %}
+          <h5 style="margin-left: 5px;">No questions have been have been highlighted for special consideration.</h5>
+        {% endif %}
+  </section><!-- /#highlighted-practices -->
 </body>
 </html>
