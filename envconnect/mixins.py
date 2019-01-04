@@ -1,6 +1,7 @@
 # Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
+#pylint:disable=too-many-lines
 import logging
 from collections import OrderedDict, namedtuple
 from datetime import datetime, timedelta

@@ -292,9 +292,6 @@ class BenchmarkMixin(ReportMixin):
         includes = list(
             Consumption.objects.get_latest_samples_by_accounts(self.survey))
         for prefix, values_tuple in six.iteritems(leafs):
-            scored_answers = self._get_scored_answers(
-                population, self.default_metric_id,
-                includes=includes, prefix=prefix)
             self.populate_leaf(prefix, values_tuple[0],
                 self._get_scored_answers(population, self.default_metric_id,
                     includes=includes, prefix=prefix))
