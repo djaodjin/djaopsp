@@ -46,8 +46,8 @@ Completed: Assessment and Planning are complete">
       <div>
         <div class="row">
           <div class="col-xs-6">
-            <div style="margin-top:3px;">
-              <span ng-show="items.$resolved" ng-cloak>[[items.count]] Reporting organizations</span>
+            <div style="margin-top:13px;">
+              <span ng-show="items.$resolved" ng-cloak style="font-weight: bold;">[[items.count]] reporting organizations</span>
             </div>
           </div>
           <div class="col-xs-6 text-right">
@@ -56,10 +56,11 @@ Completed: Assessment and Planning are complete">
                 <span ng-bind-html="match.label | uibTypeaheadHighlight:query"></span>
               </a>
             </script>
-            <span>Search</span> <input type="text"
-                                       ng-model="filterExpr"
-                                       ng-model-options="{ debounce: 1000 }"
-                                       ng-change="filterList(filterExpr)" />
+            <input type="text"
+                ng-model="filterExpr"
+                ng-model-options="{ debounce: 1000 }"
+                 />
+            <button class="btn btn-default" ng-click="filterList(filterExpr)" style="margin: 5px;">Search</button>
           </div>
         </div>
         <table class="table table-striped">
