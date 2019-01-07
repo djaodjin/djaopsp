@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 """Command to populate database with test data"""
@@ -17,7 +17,7 @@ from rest_framework.exceptions import ValidationError
 from saas.models import Organization
 from survey.models import Answer, Sample, Campaign
 
-from ...helpers import freeze_scores
+from ...helpers import freeze_scores, get_testing_accounts
 from ...mixins import ReportMixin
 from ...models import Consumption
 
@@ -97,7 +97,7 @@ class Command(BaseCommand):
             created_at = today - relativedelta(months=months)
             score_sample = freeze_scores(assessment_sample,
                 includes=[assessment_sample.pk],
-                excludes=settings.TESTING_RESPONSE_IDS,
+                excludes=get_testing_accounts(),
                 created_at=created_at)
             # XXX Sample.created_at is using `auto_now_add`
             score_sample.created_at = created_at

@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -19,6 +19,18 @@ from . import signals #pylint: disable=unused-import
 
 
 LOGGER = logging.getLogger(__name__)
+
+def _show_query_and_result(raw_query, show=False):
+    if show:
+        LOGGER.debug("%s\n", raw_query)
+        with connection.cursor() as cursor:
+            cursor.execute(raw_query, params=None)
+            count = 0
+            for row in cursor.fetchall():
+                LOGGER.debug(str(row))
+                count += 1
+            LOGGER.debug("%d row(s)", count)
+
 
 class ColumnHeaderQuerySet(models.QuerySet):
 
@@ -86,23 +98,19 @@ class ConsumptionQuerySet(models.QuerySet):
 
     """
 
-    @staticmethod
-    def _show_query_and_result(raw_query, show=False):
-        if show:
-            LOGGER.debug("%s\n", raw_query)
-            with connection.cursor() as cursor:
-                cursor.execute(raw_query)
-                count = 0
-                for row in cursor.fetchall():
-                    LOGGER.debug(str(row))
-                    count += 1
-                LOGGER.debug("%d row(s)", count)
-
     def get_active_by_accounts(self, excludes=None):
+        """
+        Returns the most recent assessment (i.e. "active"/"not frozen")
+        indexed by account. All accounts in ``excludes`` are not added
+        to the index.
+        """
         #pylint:disable=no-self-use
         if excludes:
-            filter_out_testing = "AND survey_sample.id NOT IN (%s)" % (
-                ', '.join([str(sample_id) for sample_id in excludes]))
+            if isinstance(excludes, list):
+                excludes = ','.join([
+                    str(account_id) for account_id in excludes])
+            filter_out_testing = (
+                "AND survey_sample.account_id NOT IN (%s)" % str(excludes))
         else:
             filter_out_testing = ""
         sql_query = """SELECT
@@ -148,7 +156,8 @@ class ConsumptionQuerySet(models.QuerySet):
       %(samples_filter)s""" % {'samples_filter': samples_filter}
         return Sample.objects.raw(sql_query)
 
-    def get_opportunities_sql(self, population, prefix=None):
+    @staticmethod
+    def get_opportunities_sql(population, prefix=None):
         sample_population = ', '.join(
             [str(sample.pk) for sample in population])
         if prefix:
@@ -206,7 +215,7 @@ opportunity_view AS (
   LEFT OUTER JOIN nb_positive_by_questions
   ON nb_positive_by_questions.question_id = nb_valid_by_questions.question_id)
 """ % {'implementation_rate': implementation_rate_view}
-        self._show_query_and_result(yes_opportunity_view)
+        _show_query_and_result(yes_opportunity_view)
 
         # All expected questions for each sample decorated with
         # an ``opportunity``.
@@ -234,7 +243,7 @@ LEFT OUTER JOIN opportunity_view
 """ % {
     'yes_opportunity_view': yes_opportunity_view,
     'filter_questions': "WHERE %s" % filter_questions if prefix else ""}
-        self._show_query_and_result(questions_with_opportunity)
+        _show_query_and_result(questions_with_opportunity)
         return questions_with_opportunity
 
     def with_opportunity(self, population):
@@ -385,18 +394,6 @@ def get_score_weight(tag):
     except (TypeError, ValueError):
         pass
     return 1.0
-
-
-def _show_query_and_result(raw_query, show=False):
-    if show:
-        LOGGER.debug("%s\n", raw_query)
-        with connection.cursor() as cursor:
-            cursor.execute(raw_query, params=None)
-            count = 0
-            for row in cursor.fetchall():
-                LOGGER.debug(str(row))
-                count += 1
-            LOGGER.debug("%d row(s)", count)
 
 
 def _additional_filters(includes=None, questions=None, prefix=None, extra=None):
@@ -645,3 +642,50 @@ ON expected_choices.measured = survey_choice.id
            includes=includes, metric_id=metric_id)}
     _show_query_and_result(scored_answers)
     return scored_answers
+
+
+def get_assessment_answers(campaign, population, prefix=None):
+    """
+    Returns a SQL query to retrive the specific assessment answer (Yes,
+    Mostly yes, Mostly no, No) for all accounts in ``population`` indexed
+    by questions. Questions are selected to be present in the index
+    if their path starts with ``prefix``.
+    """
+    assessment_answers = """
+WITH assessment_answers AS (
+  SELECT survey_answer.question_id AS question_id,
+         survey_sample.account_id AS account_id,
+         survey_answer.sample_id AS sample_id,
+         survey_answer.measured AS measured FROM survey_answer
+  INNER JOIN survey_sample
+  ON survey_answer.sample_id = survey_sample.id
+  WHERE
+    survey_answer.metric_id = 1
+    AND survey_sample.extra IS NULL
+    AND survey_sample.survey_id = %(campaign)d
+    AND survey_sample.account_id IN (%(population)s)
+), ranked_questions AS (
+  SELECT survey_question.id AS id,
+         survey_question.path AS path,
+         survey_enumeratedquestions.rank AS rank
+  FROM survey_question
+  INNER JOIN survey_enumeratedquestions
+  ON survey_question.id = survey_enumeratedquestions.question_id
+  WHERE
+    survey_question.path LIKE '%(prefix)s%%'
+    AND survey_enumeratedquestions.campaign_id = %(campaign)d
+)
+  SELECT ranked_questions.path AS path,
+         assessment_answers.account_id AS account_id,
+         assessment_answers.sample_id AS sample_id,
+         assessment_answers.measured AS measured
+  FROM ranked_questions
+  LEFT OUTER JOIN assessment_answers
+  ON ranked_questions.id = assessment_answers.question_id
+  ORDER BY ranked_questions.rank""" % {
+      'campaign': campaign.pk,
+      'population': ','.join([str(sample.pk) for sample in population]),
+      'prefix': prefix,
+  }
+    _show_query_and_result(assessment_answers)
+    return assessment_answers

@@ -23,6 +23,7 @@ from survey.models import (Answer, Choice, Campaign, EnumeratedQuestions,
     Metric, Sample, Unit)
 from survey.utils import get_account_model
 
+from .helpers import get_testing_accounts
 from .models import (Consumption, get_score_weight, _show_query_and_result,
     get_scored_answers)
 from .scores import populate_rollup, push_improvement_factors
@@ -526,7 +527,7 @@ class ExcludeDemoSample(object):
         # List of response ids that are only used for demo purposes.
         if self.request.user.username in settings.TESTING_USERNAMES:
             return []
-        return settings.TESTING_RESPONSE_IDS
+        return get_testing_accounts()
 
 
 class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):

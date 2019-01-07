@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 from django.db import transaction
@@ -67,7 +67,7 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
         # the content tree that was updated for the user interface to
         # refresh the display accordingly.
         from_root, trail = self.breadcrumbs
-        if len(trail) > 0:
+        if trail:
             root = self._build_tree(trail[-1][0], from_root)
             return Response(root)
         return Response(serializer.data)

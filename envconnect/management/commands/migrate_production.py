@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 """Command to migrate the envconnect production database"""
@@ -6,7 +6,6 @@
 import re
 
 from deployutils.helpers import datetime_or_now
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import models, transaction
 from django.db.models import Q
@@ -22,7 +21,7 @@ from survey.models import (Answer, Campaign, EditablePredicate,
 from survey.utils import get_account_model
 
 from ...api.dashboards import SupplierListBaseAPIView
-from ...helpers import freeze_scores
+from ...helpers import freeze_scores, get_testing_accounts
 from ...mixins import BreadcrumbMixin, ReportMixin
 from ...models import Consumption, ColumnHeader
 
@@ -89,7 +88,7 @@ class Question(models.Model):
 class SuppliersAPIView(SupplierListBaseAPIView):
 
     def _get_filter_out_testing(self):
-        return settings.TESTING_RESPONSE_IDS
+        return get_testing_accounts()
 
 
 class Command(BaseCommand):
@@ -163,7 +162,7 @@ class Command(BaseCommand):
                                 account=account).order_by('-created_at').first()
                             freeze_scores(sample,
                                 includes=[sample],
-                                excludes=settings.TESTING_RESPONSE_IDS,
+                                excludes=get_testing_accounts(),
                                 created_at=created_at)
                         improvement_score = scores.get(
                             'improvement_score', None)
@@ -553,24 +552,23 @@ class Command(BaseCommand):
             except Consumption.DoesNotExist:
                 Consumption.objects.create(path=path, practice=tree[0])
             return tree[0]
+        if tree[0].slug == top:
+            # Re-use top level industry
+            orig, _ = PageElement.objects.get_or_create(slug=industry_slug)
         else:
-            if tree[0].slug == top:
-                # Re-use top level industry
-                orig, _ = PageElement.objects.get_or_create(slug=industry_slug)
-            else:
-                slug = tree[0].slug + suffix
-                if len(slug) > 50:
-                    slug = tree[0].slug[:-(len(slug) - 50)] + suffix
-                orig, _ = PageElement.objects.get_or_create(
-                    slug=slug, title=tree[0].title, text=tree[0].text,
-                    tag=tree[0].tag)
-            path = "%s/%s" % (path, orig.slug)
-            for node in tree[1]:
-                dest = self.duplicate_tree(
-                    node, suffix, top, industry_slug, path)
-                _, _ = RelationShip.objects.get_or_create(
-                    orig_element=orig, dest_element=dest, tag="")
-            return orig
+            slug = tree[0].slug + suffix
+            if len(slug) > 50:
+                slug = tree[0].slug[:-(len(slug) - 50)] + suffix
+            orig, _ = PageElement.objects.get_or_create(
+                slug=slug, title=tree[0].title, text=tree[0].text,
+                tag=tree[0].tag)
+        path = "%s/%s" % (path, orig.slug)
+        for node in tree[1]:
+            dest = self.duplicate_tree(
+                node, suffix, top, industry_slug, path)
+            _, _ = RelationShip.objects.get_or_create(
+                orig_element=orig, dest_element=dest, tag="")
+        return orig
 
     def update_industries(self):
         #pylint:disable=protected-access
@@ -612,4 +610,3 @@ class Command(BaseCommand):
                 self.stderr.write(
                     "%d %s does not have an answers.Question\n" % (
                     page.pk, page.title))
-

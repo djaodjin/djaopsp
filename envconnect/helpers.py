@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -7,6 +7,7 @@ from collections import namedtuple
 from deployutils.helpers import datetime_or_now
 from django.db import connection
 from survey.models import Answer, Metric, Sample
+from survey.utils import get_account_model
 
 from .models import Consumption, get_scored_answers
 
@@ -62,3 +63,7 @@ def freeze_scores(sample, includes=None, excludes=None,
     sample.created_at = datetime_or_now()
     sample.save()
     return score_sample
+
+
+def get_testing_accounts():
+    return get_account_model().objects.filter(extra__contains='testing')

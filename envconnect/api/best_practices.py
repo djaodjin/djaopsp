@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 import json, logging, re
@@ -269,7 +269,7 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         from_root, trail = self.breadcrumbs
-        if len(trail) > 0:
+        if trail:
             root = self._build_tree(trail[-1][0], from_root)
             return Response(root)
         raise Http404

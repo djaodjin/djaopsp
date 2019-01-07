@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 import datetime, logging, re
@@ -48,18 +48,15 @@ def get_reporting_status(account, expired_at):
             if account.get('improvement_completed', False):
                 if last_activity_at < expired_at:
                     return AccountSerializer.REPORTING_EXPIRED
-                else:
-                    return AccountSerializer.REPORTING_COMPLETED
+                return AccountSerializer.REPORTING_COMPLETED
             else:
                 if last_activity_at < expired_at:
                     return AccountSerializer.REPORTING_ABANDONED
-                else:
-                    return AccountSerializer.REPORTING_PLANNING_PHASE
+                return AccountSerializer.REPORTING_PLANNING_PHASE
         else:
             if last_activity_at < expired_at:
                 return AccountSerializer.REPORTING_ABANDONED
-            else:
-                return AccountSerializer.REPORTING_ASSESSMENT_PHASE
+            return AccountSerializer.REPORTING_ASSESSMENT_PHASE
     return AccountSerializer.REPORTING_NOT_STARTED
 
 
@@ -154,7 +151,7 @@ INNER JOIN (
       ON survey_answer.sample_id = survey_sample.id
     WHERE survey_question.path LIKE '%(prefix)s%%'
       AND survey_sample.extra IS NULL
-      AND survey_sample.is_frozen = 't'
+      AND survey_sample.is_frozen = %(true)s
       GROUP BY survey_sample.account_id) AS last_frozen_assessments
     ON survey_sample.account_id = last_frozen_assessments.account_id
       AND survey_sample.created_at = last_frozen_assessments.created_at
@@ -211,6 +208,7 @@ LEFT OUTER JOIN survey_answer
     ON expected_opportunities.question_id = survey_answer.question_id
     AND expected_opportunities.sample_id = survey_answer.sample_id
 WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
+    'true': "1" if self._is_sqlite3() else "'t'",
     'prefix': prefix}
 #        scored_answers = super(DashboardMixin, self)._get_scored_answers(
 #            population, metric_id,
@@ -412,16 +410,19 @@ class SupplierListMixin(DashboardMixin):
 
     def get_queryset(self):
         results = []
-        rollup_tree = self.rollup_scores()
+        rollup_tree = self.rollup_scores() #SupplierListMixin
         account_scores = rollup_tree[0]['accounts']
         expired_at = datetime_or_now() - relativedelta(year=1)
-        actives = get_account_model().objects.filter(
-            pk__in=[account.pk for account in self.requested_accounts],
-            samples__extra__isnull=True).values('pk', 'samples__created_at')
+
+        # XXX currently a subset query of ``get_active_by_accounts`` because
+        # ``get_active_by_accounts`` returns unfrozen samples.
+        actives = Sample.objects.filter(account_id__in=[
+            account.pk for account in self.requested_accounts]).values(
+                'account_id').annotate(Max('created_at'))
         for account in actives:
-            if account['pk'] not in account_scores:
-                account_scores[account['pk']] = {
-                    'created_at': account['samples__created_at']}
+            if account['account_id'] not in account_scores:
+                account_scores[account['account_id']] = {
+                    'created_at': account['created_at__max']}
         for account in self.requested_accounts:
             try:
                 results += [self.get_score(account, account_scores,
@@ -534,7 +535,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
         if accounts is None:
             accounts = get_account_model().objects.all()
         scores = {}
-        rollup_tree = self.rollup_scores()
+        rollup_tree = self.rollup_scores()#TotalScoreBySubsectorAPIView
         rollup_scores = self.get_drilldown(rollup_tree, metric.slug)
         for cohort in cohorts:
             score = 0
@@ -644,6 +645,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
             from_root = ''
             trail = []
         roots = [trail[-1][0]] if len(trail) > 0 else None
+        # calls rollup_scores from TotalScoreBySubsectorAPIView
         rollup_tree = self.rollup_scores(roots, from_root)
         if roots:
             for node in six.itervalues(rollup_tree[1]):
