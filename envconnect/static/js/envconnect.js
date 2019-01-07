@@ -1,4 +1,4 @@
-/* Copyright (c) 2018, DjaoDjin inc.
+/* Copyright (c) 2019, DjaoDjin inc.
    see LICENSE. */
 
 /* Functionality related to the envconnect API.
@@ -1456,10 +1456,15 @@ envconnectControllers.controller("EnvconnectCtrl",
                 showErrorMessages(resp);
             }
         );
+        // XXX We use same definition as `isAtLeastNeedsModerateImprovement`
+        // but the practice hasn't been updated at this point.
         if( newValue === $scope.YES
             || newValue === $scope.NEEDS_MODERATE_IMPROVEMENT ) {
             $scope.setActiveElement(practice);
             angular.element("#report-measurements-" + practice.consumption.requires_measurements).modal('show');
+        } else if( newValue === $scope.NOT_APPLICABLE ) {
+            $scope.setActiveElement(practice);
+            angular.element("#report-comments").modal('show');
         }
     };
 
