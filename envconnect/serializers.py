@@ -142,6 +142,7 @@ class AccountSerializer(NoModelSerializer):
     request_key = serializers.CharField(required=False)
     reporting_status = serializers.SerializerMethodField(required=False)
     improvement_completed = serializers.BooleanField(required=False)
+    supplier_initiated = serializers.BooleanField(required=False)
 
     def get_reporting_status(self, obj):
         return self.REPORTING_STATUS[obj.get(

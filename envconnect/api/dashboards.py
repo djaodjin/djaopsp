@@ -37,7 +37,7 @@ from ..suppliers import get_supplier_managers
 LOGGER = logging.getLogger(__name__)
 
 AccountType = namedtuple('AccountType',
-    ['pk', 'slug', 'printable_name', 'email', 'request_key'])
+    ['pk', 'slug', 'printable_name', 'email', 'request_key', 'extra'])
 
 
 def get_reporting_status(account, expired_at):
@@ -226,7 +226,8 @@ WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
                     plan__organization=self.account).select_related(
                     'organization').values_list('organization__pk',
                     'organization__slug', 'organization__full_name',
-                    'organization__email', 'grant_key')]
+                    'organization__email', 'grant_key',
+                    'extra')]
         return self._requested_accounts
 
     def get_accounts(self):
@@ -237,7 +238,7 @@ WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
             plan__organization=self.account).select_related(
             'organization').values_list('organization__pk',
             'organization__slug', 'organization__full_name',
-            'organization__email', 'grant_key')]
+            'organization__email', 'grant_key', 'extra')]
 
 
 class SupplierQuerySet(object):
@@ -406,6 +407,10 @@ class SupplierListMixin(DashboardMixin):
                 result.update({'improvement_score': improvement_score})
         reporting_status = get_reporting_status(result, expired_at)
         result.update({'reporting_status': reporting_status})
+        if account.extra and '"originator"' in account.extra:
+            # XXX Hacky way to detect supplier initiated share of scorecard.
+            # that works for now.
+            result.update({'supplier_initiated': True})
         return result
 
     def get_queryset(self):
@@ -733,7 +738,7 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
         return self._improvement_sample
 
     def create(self, request, *args, **kwargs):
-        #pylint:disable=too-many-locals
+        #pylint:disable=too-many-locals,too-many-statements
         if request.data:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -783,10 +788,24 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
 
                     # Update or create dashboard entry
                     ends_at = datetime_or_now() + relativedelta(years=1)
-                    Subscription.objects.update_or_create(
+                    subscription_query = Subscription.objects.filter(
                         organization=self.account,
-                        plan=Plan.objects.get(organization=matrix.account),
-                        defaults={'grant_key': None, 'ends_at':ends_at})
+                        plan=Plan.objects.get(organization=matrix.account))
+                    if subscription_query.exists():
+                        # The Subscription already exists. The metadata (
+                        # either requested by supplier manager or pro-actively
+                        # shared) was set on creation. We thus just need to
+                        # extend the end date and clear the grant_key.
+                        subscription_query.update(
+                            grant_key=None, ends_at=ends_at)
+                    else:
+                        # Create the subscription with a request_key, and
+                        # a extra tag to keep track of originator.
+                        Subscription.objects.create(
+                            organization=self.account,
+                            plan=Plan.objects.get(organization=matrix.account),
+                            ends_at=ends_at,
+                            extra='{"originator":"supplier"}')
                     # send assessment updated.
                     reason = supplier_manager.get('message', None)
                     if reason:

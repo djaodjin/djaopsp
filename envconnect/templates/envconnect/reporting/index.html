@@ -111,7 +111,7 @@ user).</em>
             <tr ng-show="items.$resolved && items.results.length == 0" ng-cloak>
               <td colspan="7">No organization accessible for {{user}}</td>
             </tr>
-            <tr id="[[entry.slug]]" ng-repeat="entry in items.results" ng-cloak ng-show="items.$resolved && items.results.length > 0">
+            <tr id="[[entry.slug]]" ng-class="entry.supplier_initiated ? 'supplier-initiated' : ''" ng-repeat="entry in items.results" ng-show="items.$resolved && items.results.length > 0" ng-cloak>
               <td>[[$index+1]]</td>
               <td style="line-height:1em;">
                 <a href="{{'app/'|site_prefixed}}[[entry.slug]]/benchmark/">[[entry.printable_name]]</a>
