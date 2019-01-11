@@ -171,7 +171,7 @@ class PageElementSerializer(BasePageElementSerializer):
 
     class Meta:
         model = PageElement
-        fields = ('slug', 'path', 'title', 'tag',
+        fields = ('slug', 'path', 'title', 'text', 'tag',
             'rank', 'is_empty', 'consumption')
 
     @staticmethod

@@ -1,4 +1,4 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 from django.conf import settings
@@ -28,6 +28,14 @@ def url_authenticated(regex, view, name=None):
     """
     return url_prefixed(regex, view, name=name,
         decorators=['django.contrib.auth.decorators.login_required'])
+
+
+def url_content_manager(regex, view, name=None):
+    """
+    Builds URLs for a direct decorator.
+    """
+    return url_prefixed(regex, view, name=name,
+        decorators=['envconnect.decorators.requires_content_manager'])
 
 
 def url_direct(regex, view, name=None):

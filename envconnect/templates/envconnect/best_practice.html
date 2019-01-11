@@ -134,16 +134,16 @@ $(document).ready(function(){
 <script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
 	$(".editable").editor({
-		baseUrl: "{% url 'page_elements' %}",
+		baseUrl: "{{urls.api_page_elements}}/",
 		preventBlurOnClick: "#media-gallery, .dj-gallery-item"
 	});
 
 	$("#lock").click(function (event) {
 		var self = $(this);
-		var url = "{% url 'page_elements' %}{{best_practice.slug}}/add-tags";
+		var url = "{{urls.api_page_elements}}/{{best_practice.slug}}/add-tags";
 		var locked = (self.text() === "Re-Open");
 		if( locked ) {
-			url = "{% url 'page_elements' %}{{best_practice.slug}}/remove-tags"
+			url = "{{urls.api_page_elements}}/{{best_practice.slug}}/remove-tags"
 		}
 		event.preventDefault();
 		$.ajax({

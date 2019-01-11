@@ -1,7 +1,7 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
-from django.conf.urls import url
+from django.conf.urls import url, include
 from pages.settings import PATH_RE
 
 from ...api.benchmark import (DisableScorecardAPIView, EnableScorecardAPIView,
@@ -40,4 +40,5 @@ urlpatterns = [
       ColumnAPIView.as_view(), name="api_column"),
     url(r'^column/?',
       ColumnAPIView.as_view(), name="api_column_base"),
+    url(r'^', include('pages.urls.api.templates')),
 ]

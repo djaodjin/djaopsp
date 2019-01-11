@@ -8,7 +8,7 @@ from pages.settings import PATH_RE, SLUG_RE
 from urldecorators import include, url
 
 from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
-    url_direct)
+    url_direct, url_content_manager)
 from ..views import AccountRedirectView, MyTSPRedirectView
 from ..views.assessments import AssessmentView, AssessmentXLSXView
 from ..views.benchmark import (BenchmarkView,
@@ -53,11 +53,8 @@ NON_EMPTY_PATH_RE = r'(/[a-zA-Z0-9\-]+)+'
 urlpatterns += [
     # User authenticated
     url_authenticated(r'api/suppliers/', include('answers.urls.api')),
-
-    # envconnect manager
-    url_direct(r'api/content/', include('envconnect.urls.api.content')),
-    # XXX only used in testing?
-    url_direct(r'api/themes/', include('pages.urls.api.templates')),
+    url_content_manager(r'api/content/',
+        include('envconnect.urls.api.content')),
 
     # API to manage reporting, assessment and improvement planning.
     url_direct(r'api/', include('envconnect.urls.api.suppliers')),

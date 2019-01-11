@@ -948,6 +948,9 @@ class BestPracticeMixin(BreadcrumbMixin):
                 'improve': reverse('envconnect_improve',
                     args=(contextual_path,)) + active_section
             }
+        urls.update({'api_page_elements': reverse('api_detail', args=(
+            context['root_prefix'],)),
+        })
         self.update_context_urls(context, urls)
         return context
 

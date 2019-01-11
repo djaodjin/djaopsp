@@ -265,7 +265,8 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
     serializer_class = PageElementSerializer
 
     def get_object(self):
-        return self.best_practice
+        trail = self.get_full_element_path(self.kwargs.get('path'))
+        return trail[-1]
 
     def get(self, request, *args, **kwargs):
         from_root, trail = self.breadcrumbs
@@ -310,7 +311,7 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer): #pylint:disable=too-many-locals
         with transaction.atomic():
             super(BestPracticeAPIView, self).perform_update(serializer)
-            cmpt_serializer = serializer.get('consumption', None)
+            cmpt_serializer = serializer.validated_data.get('consumption', None)
             if cmpt_serializer:
                 # Force "Gold" value to be outside the linear scale.
                 for field_name in Consumption.VALUE_SUMMARY_FIELDS:
