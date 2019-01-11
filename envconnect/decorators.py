@@ -23,17 +23,18 @@ def requires_content_manager(function=None):
         def _wrapped_view(request, *args, **kwargs):
             if request.method.lower() in ['post', 'put', 'patch']:
                 path = kwargs.get('path', kwargs.get('slug', None))
-                slug = path.split('/')[-1]
-                page_element = get_object_or_404(PageElement, slug=slug)
-                account_slug = str(page_element.account)
-                found = False
-                for organization in request.session.get(
-                        'roles', {}).get('manager', []):
-                    if account_slug == organization['slug']:
-                        found = True
-                        break
-                if not found:
-                    raise PermissionDenied
+                if path:
+                    slug = path.split('/')[-1]
+                    page_element = get_object_or_404(PageElement, slug=slug)
+                    account_slug = str(page_element.account)
+                    found = False
+                    for organization in request.session.get(
+                            'roles', {}).get('manager', []):
+                        if account_slug == organization['slug']:
+                            found = True
+                            break
+                    if not found:
+                        raise PermissionDenied
             return view_func(request, *args, **kwargs)
         return _wrapped_view
 
