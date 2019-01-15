@@ -7,7 +7,7 @@
 */
 
 angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
-    "ngSanitize", "envconnectControllers"
+    "ngSanitize", "envconnectFilters", "envconnectControllers"
     ]).directive('toggleCheckbox', function() {
         /**
          * Directive
@@ -195,6 +195,23 @@ angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
     };
 });
 
+/*=============================================================================
+  Filters
+  ============================================================================*/
+angular.module("envconnectFilters", [])
+    .filter("asPercent", function() {
+        "use strict";
+        return function(val) {
+            if( val ) {
+                return "" + Math.round(val) + "%";
+            }
+            return "0%";
+        };
+    })
+
+/*=============================================================================
+  Controllers
+  ============================================================================*/
 var envconnectControllers = angular.module("envconnectControllers", []);
 
 envconnectControllers.controller("EnvconnectCtrl",
@@ -287,6 +304,10 @@ envconnectControllers.controller("EnvconnectCtrl",
         "scope-3-partial"
     ];
 
+    $scope.prevSample = settings.prevSample ? settings.prevSample : "";
+    $scope.nbAnswers = settings.nbAnswers ? settings.nbAnswers : 0;
+    $scope.nbQuestions = settings.nbQuestions ? settings.nbQuestions : 0;
+
     $scope.findOption = function(value, options) {
         for( var optIdx = 0; optIdx < options.length; ++optIdx ) {
             if( value.lastIndexOf(options[optIdx], 0) === 0 ) {
@@ -357,8 +378,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         return practice.consumption.planned;
     }
 
-    $scope.implementationRateWidth = function(practice) {
-        return {width: "" + practice[0].consumption.rate  + "%"};
+    $scope.implementationRateWidth = function(rate) {
+        return {width: "" + rate  + "%"};
     }
 
     $scope.onToggleScore = function() {
@@ -1417,6 +1438,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         $http.delete(settings.urls.api_assessment_sample + path + '/').then(
             function success(resp) {
                 $scope._resetAssessmentRecursive($scope.entries);
+                $scope.nbAnswers = (resp.data && resp.data.nb_answers) ?
+                    resp.data.nb_answers : 0;
                 showMessages([
                     "Reset successful. Please continue with this assessment or an assessment in a different industry segment."],
                     "success");
@@ -1433,6 +1456,9 @@ envconnectControllers.controller("EnvconnectCtrl",
             measured: newValue
         }).then(
             function success(resp) {
+                if( resp.status == 201 ) {
+                    $scope.nbAnswers++;
+                }
                 practice.consumption = resp.data.consumption;
                 if( resp.data.first ) {
                     var trip = new Trip([{
@@ -1467,6 +1493,10 @@ envconnectControllers.controller("EnvconnectCtrl",
             angular.element("#report-comments").modal('show');
         }
     };
+
+    $scope.browsePrevSample = function() {
+        $window.location = $scope.prevSample;
+    }
 
     $scope.addMeasure = function(prefix, $event) {
         if( $event ) {

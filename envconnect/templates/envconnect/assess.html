@@ -29,6 +29,13 @@
                 </thead>
                 <thead ng-show="scoreToggle">
                     <th style="vertical-align:middle;border-top:0;">Practices</th>
+                    {% if icon.tag and 'framework' in icon.tag %}
+                    {% for choice in choices %}
+                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
+                          <div data-toggle="tooltip" data-placement="bottom" title="{{choice.descr}}">{{choice.text}}</div>
+                      </th>
+                      {% endfor %}
+                    {% else %}
                     <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Percentage of peer respondents that have implemented a best practice.">
                         <button class="btn-link btn-sort" ng-click="sortBy('rate')">
                             <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
@@ -47,6 +54,7 @@
                         </button>
                             Opportunity score
                     </th>
+                    {% endif %}
                 </thead>
                 <tbody data-prefix="{{abs_prefix}}">
                     <tr data-id="[[getPath(practice[0])]]"
@@ -99,26 +107,25 @@ See the following for examples of content developed for best practices:
                 <a id="download-assessment" class="btn btn-default" href="{% url 'envconnect_assess_organization_download' organization path %}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
               </div>
               <div class="col-sm-6 text-right">
-                <button class="btn btn-primary" id="reset-button"
-                        data-toggle="modal" data-target="#reset-assessment"
-                        ng-click="setActiveElement('{{abs_prefix}}')"
-                        >Reset</button>
-                <button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
-                <a id="submit-button" class="btn btn-primary" href="" data-toggle="modal" data-target="#submit-assessment">Complete</a>
                 <div class="text-right"
                      style="display:inline-block;padding-left:10px;">
-                        <!-- WORKAROUND: we set data-width and data-height
-                             otherwise bootstrap-toggle will crop the size
-                             inside a class="tab-content collapse". -->
-                        <input id="toggle-results-{{icon.slug}}"
-                               type="checkbox" toggle-checkbox
-                               data-toggle="toggle"
-                               data-on="<span>Assessment</span>"
-                               data-onstyle="green-level-2"
-                               data-off="<span>Results</span>"
-                               data-offstyle="green-level-2"
-                               data-width="125px" data-height="34px"
-                               ng-model="scoreToggle">
+                    <button class="btn btn-primary" id="reset-button"
+                            data-toggle="modal" data-target="#reset-assessment"
+                            ng-click="setActiveElement('{{abs_prefix}}')"
+                            >Reset</button>
+                    <button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
+                    <!-- WORKAROUND: we set data-width and data-height
+                         otherwise bootstrap-toggle will crop the size
+                         inside a class="tab-content collapse". -->
+                    <input id="toggle-results-{{icon.slug}}"
+                           type="checkbox" toggle-checkbox
+                           data-toggle="toggle"
+                           data-on="<span>Assessment</span>"
+                           data-onstyle="green-level-2"
+                           data-off="<span>Results</span>"
+                           data-offstyle="green-level-2"
+                           data-width="125px" data-height="34px"
+                           ng-model="scoreToggle">
                 </div>
               </div>
             </div>
@@ -196,28 +203,6 @@ Then:
             <button type="button" class="btn btn-default"
                     data-dismiss="modal">Cancel</button>
                 <button type="submit" value="submit" class="btn btn-primary">Yes</button>
-            </div>
-        </form>
-    </div>
-</div>
-<div id="new-assessment" class="modal fade"
-     tabindex="-1" role="dialog"
-     aria-labelledby="Review or create new assessment" aria-hidden="true"
-     style="color: #000;">
-    <div class="modal-dialog">
-        <form class="modal-content" ng-submit="createAssessment($event)">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Review or create new assessment ...</h4>
-            </div>
-            <div class="modal-body">
-You have already completed an assessment. Do you want to review the answers
-of the currently completed assessment or do you want to create a new assessment?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-defaut"
-                    data-dismiss="modal"><i class="fa fa-eye"></i> Review</button>
-                <button type="submit" class="btn btn-primary"><i class="fa fa-plus"></i> New</button>
             </div>
         </form>
     </div>
@@ -393,7 +378,45 @@ Each additional measure you tell us about is worth 4 bonus points.
       </form>
     </div>
 </div><!-- /#report-measurements-1 -->
+{% endblock icons_content %}
+
+
+{% block panel_footer %}
+<div class="panel-footer">
+  <div class="row">
+    <div class="col-sm-4 text-left">
+    </div>
+    <div class="col-sm-4 text-center">
+        <p ng-cloak>
+        [[nbAnswers]] out of [[nbQuestions]] questions answered.
+        </p>
+        {% if not sample.is_frozen %}
+        <button id="submit-button" class="btn btn-primary"
+            data-toggle="modal" data-target="#submit-assessment"
+            ng-disabled="nbAnswers < nbQuestions">Complete</button>
+        {% endif %}
+    </div>
+    <div class="col-sm-4 text-right">
+        {% if prev_samples %}
+        <form class="form-inline">
+        <label class="form-label">Previous responses </label>
+        <select class="form-control"
+                ng-model="prevSample"
+                name="prev-sample"
+                ng-change="browsePrevSample()"
+                value="">
+            <option value="">Select previous response ...</option>
+            {% for prev_sample in prev_samples %}
+            <option value="{{prev_sample.0}}">{{prev_sample.1}}</option>
+            {% endfor %}
+        </select>
+        </form>
+        {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock %}
+
 
 {% block supplier_menus_scripts %}
 <script type="text/javascript">
@@ -449,10 +472,6 @@ jQuery(document).ready(function($) {
         var trip = new Trip(tripElements);
         trip.start();
     }
-
-{% if sample.is_frozen %}
-    $("#new-assessment").modal("show");
-{% endif %}
 });
 </script>
 {% endblock %}

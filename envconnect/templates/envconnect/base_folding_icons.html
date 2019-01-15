@@ -2,8 +2,8 @@
 {% load assets %}
 
 {% block consumption_content %}
-<div id="panel-icons" class="panel-icons panel-icons-no-benchmark">
-    <div class="panel-body">
+<div id="panel-icons" class="panel-icons">
+    <div class="panel-body panel-icons-no-benchmark">
         <div class="row">
             <div class="col-md-12 text-center" style="display:table-row;">
                 <div class="row-icons">
@@ -113,15 +113,19 @@
                                 {% endif %}
                             </ul>
                             {% endwith %}
-                        </div> <!-- .header-tuple -->
+                        </div> {# .header-tuple #}
                     </div>
-                </div> <!-- .row-icons -->
-            </div> <!-- .col-md-12 -->
-        </div> <!-- .row -->
+                </div> {# .row-icons #}
+            </div> {# .col-md-12 #}
+        </div> {# .row #}
         {% block icons_content %}
         {% endblock %}
-    </div> <!-- .panel-body -->
-</div> <!-- .panel-icons -->
+    </div> {# .panel-body #}
+    {% block panel_footer %}
+    <div class="panel-footer" style="padding:0;">
+    </div>
+    {% endblock %}
+</div> {# .panel-icons #}
 <!-- modals -->
 <div id="add-element-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addElement" style="color: #000;">
     <div class="modal-dialog" role="document">
@@ -225,8 +229,6 @@ jQuery(document).ready(function($) {
 
 {% if is_content_manager %}
 <script type="text/javascript">
-var pageElementUrl = "{% url 'page_elements' %}";
-
 jQuery(document).ready(function($) {
     $(".icon-equipment").droppable({
         drop: function( event, ui ) {

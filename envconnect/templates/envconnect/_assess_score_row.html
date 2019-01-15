@@ -2,12 +2,23 @@
     colspan="[[practice[0].consumption ? 1 : 4]]">
     {% include "envconnect/_detail_row_basic.html" %}
 </td>
+{% if icon.tag and 'framework' in icon.tag %}
+{% for choice in choices %}
+<td>
+<div class="progress" style="margin:0">
+  <div class="progress-bar progress-bar-success green-level-3" role="progressbar" aria-valuenow="[[practice[0].consumption.rate['{{choice}}'] ]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice[0].consumption.rate['{{choice}}'])">
+    <span ng-class="{'text-muted': !practice[0].consumption.rate['{{choice}}']}">[[practice[0].consumption.rate['{{choice}}']|asPercent]]</span>
+  </div>
+</div>
+</td>
+{% endfor %}
+{% else %}
 <td class="text-center cell-fix-width-3"
     ng-if="practice[0].consumption">
     [[practice[0].consumption.nb_respondents]] respondents
     <div class="progress" style="margin:0">
-        <div class="progress-bar progress-bar-success green-level-[[practice[0].consumption.avg_value]]" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice)">
-            <span ng-class="{'text-muted': practice[0].consumption.rate === 0}">[[practice[0].consumption.rate|number:0]]%</span>
+        <div class="progress-bar progress-bar-success green-level-[[practice[0].consumption.avg_value]]" role="progressbar" aria-valuenow="[[practice[0].consumption.rate]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice[0].consumption.rate)">
+            <span ng-class="{'text-muted': !practice[0].consumption.rate}">[[practice[0].consumption.rate|asPercent]]</span>
         </div>
     </div>
 </td>
@@ -24,3 +35,4 @@
     ng-if="practice[0].consumption">
     [[getOpportunity(practice[0])]]
 </td>
+{% endif %}

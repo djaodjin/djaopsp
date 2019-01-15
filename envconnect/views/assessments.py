@@ -1,13 +1,15 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
 import csv, io, json, logging, re
 from collections import namedtuple
 
+from dateutil.relativedelta import relativedelta
 from django.utils import six
 from django.core.urlresolvers import reverse
 from django.db import connection
+from django.db.models import Q, Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder
@@ -17,7 +19,7 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from pages.models import PageElement
-from survey.models import Answer, Choice, Metric, Unit
+from survey.models import Answer, Choice, Metric, Sample, Unit
 
 from ..mixins import ReportMixin, BestPracticeMixin
 from ..models import Consumption, get_scored_answers
@@ -42,6 +44,44 @@ class AssessmentAnswer(object):
 class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
     # Implementation Note: uses BestPracticeMixin in order to display
     # bestpractice info through links in assess and improve pages.
+
+    def _framework_results(self, consumptions):
+        if self.survey.slug == 'framework':
+            start_at = self.sample.created_at - relativedelta(months=1)
+            ends_at = self.sample.created_at + relativedelta(months=1)
+            results = Answer.objects.filter(
+                metric_id=self.default_metric_id,
+                sample_id__in=Sample.objects.filter(
+                Q(created_at__gte=start_at) & Q(created_at__lt=ends_at))
+            ).values('question__path', 'measured').annotate(Count('sample_id'))
+            totals = {}
+            for row in Answer.objects.filter(
+                    metric_id=self.default_metric_id,
+                    sample_id__in=Sample.objects.filter(
+                        Q(created_at__gte=start_at) & Q(created_at__lt=ends_at))
+                    ).values('question__path').annotate(Count('sample_id')):
+                totals[row['question__path']] = row['sample_id__count']
+            choices = {}
+            for choice in Choice.objects.filter(
+                    unit__metric=self.default_metric_id):
+                choices[choice.pk] = choice.text
+
+            for row in results:
+                path = row['question__path']
+                measured = row['measured']
+                count = row['sample_id__count']
+                consumption = consumptions.get(path, None)
+                if consumption:
+                    if not isinstance(consumption.rate, dict):
+                        if not isinstance(consumption, AssessmentAnswer):
+                            consumptions[path] = AssessmentAnswer(
+                                consumption=consumption, rate={})
+                            consumption = consumptions[path]
+                        else:
+                            consumption.rate = {}
+                    total = totals.get(path, None)
+                    consumption.rate[choices[measured]] = \
+                        int(count * 100 // total)
 
     def decorate_leafs(self, leafs):
         """
@@ -100,6 +140,9 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                 'created_at': datapoint.created_at,
 #XXX                'collected_by': datapoint.collected_by,
                 'measured': measured}]
+
+        # Find all framework samples / answers for a time period
+        self._framework_results(consumptions)
 
         # Populate leafs and cut nodes with data.
         for path, vals in six.iteritems(leafs):
@@ -182,7 +225,22 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                 'root': root,
                 'entries': json.dumps(root, cls=JSONEncoder)
             })
+
+        prev_samples = Sample.objects.filter(
+            is_frozen=True,
+            extra__isnull=True,
+            survey=self.survey,
+            account=self.account).order_by('-created_at')
+        nb_questions = Consumption.objects.filter(
+            path__startswith=from_root).count()
+        nb_answers = Answer.objects.filter(sample=self.sample,
+            question__path__startswith=from_root).count()
         context.update({
+            'prev_samples': [(reverse('envconnect_sample_organization',
+                args=(self.account, prev_sample, self.kwargs.get('path'))),
+                prev_sample.created_at) for prev_sample in prev_samples],
+            'nb_answers': nb_answers,
+            'nb_questions': nb_questions,
             'page_icon': self.icon,
             'sample': self.sample,
             'survey': self.sample.survey,

@@ -112,8 +112,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     @property
     def survey(self):
         if not hasattr(self, '_survey'):
-            if self.kwargs.get(
-                    'path', "").startswith('/sustainability-framework'):
+            path = self.kwargs.get('path', "")
+            if (path.startswith('/framework')
+                or path.startswith('/sustainability-framework')):
                 slug = 'framework'
             else:
                 slug = 'assessment'
@@ -130,6 +131,19 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     @property
     def breadcrumbs(self):
+        """
+        Returns a tuple that can be used to browse up into the content tree.
+
+        The first element of the tuple is the full path to the current element
+        identified by ``path``. It can be used to filter ``Consumption`` models.
+
+        The second element is a list of nodes in the content tree that have
+        been identified as interesting to jump back to, aka trail.
+
+        Each item in the trail is a ``PageElement``, a full path to that
+        node in the content tree and a URL path that can be used to create
+        links (a href).
+        """
         if not hasattr(self, '_breadcrumbs'):
             self._breadcrumbs = self.get_breadcrumbs(self.kwargs.get('path'))
         return self._breadcrumbs
@@ -542,10 +556,19 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
     @property
     def assessment_sample(self):
         if not hasattr(self, '_assessment_sample'):
-            self._assessment_sample = Sample.objects.filter(
-                extra__isnull=True,
-                survey=self.survey,
-                account=self.account).order_by('-created_at').first()
+            sample_kwarg = self.kwargs.get('sample', None)
+            if sample_kwarg:
+                self._assessment_sample = get_object_or_404(
+                    Sample.objects.all(),
+                    slug=sample_kwarg,
+                    extra__isnull=True,
+                    survey=self.survey,
+                    account=self.account)
+            else:
+                self._assessment_sample = Sample.objects.filter(
+                    extra__isnull=True,
+                    survey=self.survey,
+                    account=self.account).order_by('-created_at').first()
         return self._assessment_sample
 
     # `improvement_sample` is defined here because we use it to generate

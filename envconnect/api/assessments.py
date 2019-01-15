@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -94,10 +94,20 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
     def destroy(self, request, *args, **kwargs):
         prefix = kwargs.get('path', '')
         if prefix:
-            Answer.objects.filter(
+            queryset = Answer.objects.filter(
                 sample=self.sample,
-                question__path__startswith=prefix).delete()
-            return http.Response(status=HTTP_204_NO_CONTENT)
+                question__path__startswith=prefix)
+            queryset.delete()
+            _, trail = self.breadcrumbs
+            segment = trail[0][1] if trail else None
+            if segment:
+                nb_questions = Consumption.objects.filter(
+                    path__startswith=segment).count()
+                nb_answers = Answer.objects.filter(sample=self.sample,
+                    question__path__startswith=segment).count()
+                data = {'nb_answers': nb_answers, 'nb_questions': nb_questions}
+                return http.Response(data, status=HTTP_200_OK)
+            return http.Response(data, status=HTTP_204_NO_CONTENT)
         return super(AssessmentAPIView, self).destroy(request, *args, **kwargs)
 
 
