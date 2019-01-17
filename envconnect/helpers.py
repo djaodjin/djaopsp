@@ -66,4 +66,5 @@ def freeze_scores(sample, includes=None, excludes=None,
 
 
 def get_testing_accounts():
-    return get_account_model().objects.filter(extra__contains='testing')
+    return [val['pk'] for val in get_account_model().objects.filter(
+        extra__contains='testing').values('pk')]
