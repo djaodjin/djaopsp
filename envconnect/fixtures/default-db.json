@@ -2312,7 +2312,8 @@
   "fields": {
     "slug": "policy-accountability-and-responsibility",
     "title": "Policy, Accountability and Responsibility",
-    "account": 6
+    "account": 6,
+    "text": "There is minimal management support.\nSupport is visible and clearly demonstrated.\nExecutive management reviews environmental performance, risks and opportunities, and endorses/sets goals.\nThe Board of Directors annually reviews environmental performance and sets or endorses goals.\nExecutive management sponsors transformative change in industry sector and beyond."
   },
   "model": "pages.PageElement", "pk": 83
 },
@@ -2347,4 +2348,101 @@
     "rank": 1
   },
   "model": "survey.EnumeratedQuestions", "pk": 83
+},
+{
+  "fields": {
+    "slug": "environmental-assessment",
+    "title": "Environmental Assessment",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 84
+},
+{
+  "fields": {
+    "orig_element": 82,
+    "dest_element": 84
+  },
+  "model": "pages.Relationship", "pk": 84
+},
+{
+  "fields": {
+    "path": "/framework/sustainability-framework/framework-management-basics/environmental-assessment",
+    "text": "Environmental Assessment",
+    "question_type": "radio",
+    "default_metric": 5,
+    "avg_energy_saving": "* * * *",
+    "capital_cost": "$$$",
+    "payback_period": "0-1.8 (0.3)",
+    "business_value": 2,
+    "environmental_value": 2,
+    "implementation_ease": 2,
+    "profitability": 2,
+    "avg_value": 2
+  },
+  "model": "envconnect.Consumption", "pk": 84
+},
+{
+  "fields": {
+    "campaign": 2,
+    "question": 84,
+    "rank": 2
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 84
+},
+
+{
+  "fields": {
+    "title": "Additional questions",
+    "slug": "framework-additional-questions",
+    "tag": "{\"tags\":[\"scorecard\",\"framework\"]}",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 85
+},
+{
+  "fields": {
+    "orig_element": 81,
+    "dest_element": 85
+  },
+  "model": "pages.Relationship", "pk": 85
+},
+{
+  "fields": {
+    "slug": "top-successful-supply-chain-sustainabillity-practice",
+    "title": "What was your top successful supply chain sustainabillity practice?",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 86
+},
+{
+  "fields": {
+    "orig_element": 85,
+    "dest_element": 86
+  },
+  "model": "pages.Relationship", "pk": 86
+},
+{
+  "fields": {
+    "path": "/framework/sustainability-framework/framework-additional-questions/top-successful-supply-chain-sustainabillity-practice",
+    "text": "What was your top successful supply chain sustainabillity practice?",
+    "question_type": "text",
+    "default_metric": 5,
+    "avg_energy_saving": "* * * *",
+    "capital_cost": "$$$",
+    "payback_period": "0-1.8 (0.3)",
+    "business_value": 2,
+    "environmental_value": 2,
+    "implementation_ease": 2,
+    "profitability": 2,
+    "avg_value": 2
+  },
+  "model": "envconnect.Consumption", "pk": 86
+},
+{
+  "fields": {
+    "campaign": 2,
+    "question": 86,
+    "rank": 3
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 86
 }]

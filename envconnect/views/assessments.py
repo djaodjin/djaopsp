@@ -146,6 +146,10 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
 
         # Populate leafs and cut nodes with data.
         for path, vals in six.iteritems(leafs):
+            # First, let's split the text fields in multiple rows
+            # so we can populate the choices.
+            if 'text' in vals[0]:
+                vals[0]['text'] = vals[0]['text'].splitlines()
             consumption = consumptions.get(path, None)
             if consumption:
                 avg_value = consumption.avg_value
@@ -219,7 +223,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         context = super(AssessmentView, self).get_context_data(**kwargs)
         self.get_or_create_assessment_sample()
         from_root, _ = self.breadcrumbs
-        root = self.get_report_tree()
+        root = self.get_report_tree(load_text=(self.survey.slug == 'framework'))
         if root:
             context.update({
                 'root': root,

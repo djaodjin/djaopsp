@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -48,10 +48,11 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
                 'envconnect_improve_organization', args=(organization, path))
         return super(ImprovementView, self).get_breadcrumb_url(path)
 
-    def get_report_tree(self, node=None, from_root=None, cut=ContentCut()):
+    def get_report_tree(self, node=None, from_root=None, cut=ContentCut(),
+                        load_text=False):
         self.get_or_create_improve_sample()
         root = super(ImprovementView, self).get_report_tree(
-            node=node, from_root=from_root, cut=cut)
+            node=node, from_root=from_root, cut=cut, load_text=load_text)
         if root:
             self.decorate_with_breadcrumbs(root)
         return root

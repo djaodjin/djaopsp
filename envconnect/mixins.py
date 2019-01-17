@@ -184,8 +184,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 args=(organization, path,))
         return reverse(self.breadcrumb_url, args=(path,))
 
-    def build_content_tree(self, roots=None, prefix=None, cut=ContentCut()):
-        #pylint:disable=too-many-locals
+    def build_content_tree(self, roots=None, prefix=None, cut=ContentCut(),
+                           load_text=False):
+        #pylint:disable=too-many-locals,too-many-statements
         """
         Returns a tree from a list of roots.
 
@@ -245,11 +246,14 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             pks_to_leafs[orig_element_id] = (result_node, OrderedDict())
             results.update({base: pks_to_leafs[orig_element_id]})
 
+        args = tuple([])
+        if load_text:
+            args = ('dest_element__text',)
         edges = RelationShip.objects.filter(
             orig_element__in=list(roots)).values(
             'orig_element_id', 'dest_element_id', 'rank',
             'dest_element__slug', 'dest_element__title',
-            'dest_element__tag').order_by('rank', 'pk')
+            'dest_element__tag', *args).order_by('rank', 'pk')
         while edges:
             next_pks_to_leafs = {}
             total_score_weight = 0
@@ -259,12 +263,12 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             normalize_children = ((1.0 - 0.01) < total_score_weight
                 and total_score_weight < (1.0 + 0.01))
             for edge in edges:
-                slug = edge.get('slug', edge.get('dest_element__slug'))
                 orig_element_id = edge.get('orig_element_id')
                 dest_element_id = edge.get('dest_element_id')
+                slug = edge.get('slug', edge.get('dest_element__slug'))
+                base = pks_to_leafs[orig_element_id][0]['path'] + "/" + slug
                 title = edge.get('dest_element__title')
                 tag = edge.get('dest_element__tag')
-                base = pks_to_leafs[orig_element_id][0]['path'] + "/" + slug
                 score_weight = get_score_weight(tag)
                 result_node = {
                     'path': base,
@@ -273,6 +277,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     'tag': tag,
                     'score_weight': score_weight,
                 }
+                text = edge.get('dest_element__text', None)
+                if text:
+                    result_node.update({'text': text})
                 if normalize_children:
                     result_node.update({
                         'score_percentage': int(score_weight * 100)})
@@ -286,7 +293,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 orig_element_id__in=pks_to_leafs.keys()).values(
                 'orig_element_id', 'dest_element_id', 'rank',
                 'dest_element__slug', 'dest_element__title',
-                'dest_element__tag').order_by('rank', 'pk')
+                'dest_element__tag', *args).order_by('rank', 'pk')
         return results
 
     def get_leafs(self, rollup_tree=None, path=None):
@@ -308,10 +315,11 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         if not rollup_tree[1].keys():
             return {path: rollup_tree}
 
-        text = PageElement.objects.filter(
-            slug=rollup_tree[0]['slug']).values('text').first()
-        if text and text['text']:
-            rollup_tree[0].update(text)
+        if 'text' not in rollup_tree[0]:
+            element = PageElement.objects.filter(
+                slug=rollup_tree[0]['slug']).values('text').first()
+            if element and element['text']:
+                rollup_tree[0].update(element)
         leafs = OrderedDict({})
         for key, level_detail in six.iteritems(rollup_tree[1]):
             leafs.update(self.get_leafs(level_detail, path=key))
@@ -341,7 +349,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 if text and text['text']:
                     vals[0].update(text)
 
-    def _build_tree(self, root, path, cut=ContentCut()):
+    def _build_tree(self, root, path, cut=ContentCut(), load_text=False):
         # hack to remove slug that will be added.
         prefix = '/'.join(path.split('/')[:-1])
         try:
@@ -351,7 +359,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         except TypeError:
             roots = [root]
         rollup_trees = self._cut_tree(self.build_content_tree(
-            roots, prefix=prefix, cut=cut), cut=cut)
+            roots, prefix=prefix, cut=cut, load_text=load_text), cut=cut)
         try:
             # We only have one root by definition of the function signature.
             rollup_tree = next(six.itervalues(rollup_trees))
@@ -713,7 +721,8 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     prefix=prefix))
         super(ReportMixin, self).decorate_leafs(leafs)
 
-    def get_report_tree(self, node=None, from_root=None, cut=ContentCut()):
+    def get_report_tree(self, node=None, from_root=None, cut=ContentCut(),
+                        load_text=False):
         """
         Returns the content tree decorated with assessment and improvement data.
         """
@@ -725,7 +734,8 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 node = trail[-1][0]
         if node:
             self.get_or_create_assessment_sample()
-            root = self._build_tree(node, from_root, cut=cut)
+            root = self._build_tree(node, from_root, cut=cut,
+                load_text=load_text)
             populate_rollup(root, True)
             total_numerator = root[0]['accounts'].get(
                 self.account.pk, {}).get('numerator', 0)

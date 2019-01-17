@@ -19,6 +19,7 @@
            ng-checked="practice[0].consumption.implemented === '{{choice.text}}'"
            ng-change="updateAssessmentAnswer(practice[0], '{{choice.text}}')"
            ng-model="practice[0].consumption.implemented" />
+    <span style="font-size:10px;">[[practice[0].text ? practice[0].text[{{forloop.counter0}}] : ""]]</span>
     </label>
 </td>
 {% endfor %}
