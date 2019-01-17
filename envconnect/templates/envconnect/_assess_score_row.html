@@ -1,18 +1,23 @@
+{% if icon.tag and 'framework' in icon.tag %}
+<td id="[[practice[0].slug]]"
+    colspan="[[practice[0].consumption ? 1 : {{choices|length}}]]">
+    {% include "envconnect/_detail_row_basic.html" %}
+</td>
+{% for choice in choices %}
+<td class="text-center"
+    ng-if="practice[0].consumption">
+  <div class="progress" style="margin:0">
+    <div class="progress-bar progress-bar-success green-level-3" role="progressbar" aria-valuenow="[[practice[0].consumption.rate['{{choice}}'] ]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice[0].consumption.rate['{{choice}}'])">
+      <span ng-class="{'text-muted': !practice[0].consumption.rate['{{choice}}']}">[[practice[0].consumption.rate['{{choice}}']|asPercent]]</span>
+    </div>
+  </div>
+</td>
+{% endfor %}
+{% else %}
 <td id="[[practice[0].slug]]"
     colspan="[[practice[0].consumption ? 1 : 4]]">
     {% include "envconnect/_detail_row_basic.html" %}
 </td>
-{% if icon.tag and 'framework' in icon.tag %}
-{% for choice in choices %}
-<td>
-<div class="progress" style="margin:0">
-  <div class="progress-bar progress-bar-success green-level-3" role="progressbar" aria-valuenow="[[practice[0].consumption.rate['{{choice}}'] ]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice[0].consumption.rate['{{choice}}'])">
-    <span ng-class="{'text-muted': !practice[0].consumption.rate['{{choice}}']}">[[practice[0].consumption.rate['{{choice}}']|asPercent]]</span>
-  </div>
-</div>
-</td>
-{% endfor %}
-{% else %}
 <td class="text-center cell-fix-width-3"
     ng-if="practice[0].consumption">
     [[practice[0].consumption.nb_respondents]] respondents
