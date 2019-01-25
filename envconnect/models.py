@@ -98,7 +98,7 @@ class ConsumptionQuerySet(models.QuerySet):
 
     """
 
-    def get_active_by_accounts(self, excludes=None):
+    def get_active_by_accounts(self, survey, excludes=None):
         """
         Returns the most recent assessment (i.e. "active"/"not frozen")
         indexed by account. All accounts in ``excludes`` are not added
@@ -121,13 +121,15 @@ class ConsumptionQuerySet(models.QuerySet):
   INNER JOIN (SELECT account_id, MAX(created_at) AS last_updated_at
               FROM survey_sample
               WHERE survey_sample.extra IS NULL %(filter_out_testing)s
+                    AND survey_sample.survey_id = %(survey_id)d
               GROUP BY account_id) AS last_updates
   ON survey_sample.account_id = last_updates.account_id AND
      survey_sample.created_at = last_updates.last_updated_at
-""" % {'filter_out_testing': filter_out_testing}
+""" % {'survey_id': survey.pk,
+       'filter_out_testing': filter_out_testing}
         return Sample.objects.raw(sql_query)
 
-    def get_latest_samples_by_accounts(self, includes=None):
+    def get_latest_samples_by_accounts(self, survey, includes=None):
         """
         assessment and planning
         """
@@ -148,12 +150,15 @@ class ConsumptionQuerySet(models.QuerySet):
       INNER JOIN (
         SELECT account_id, extra, MAX(created_at) AS last_updated_at
         FROM survey_sample
-        WHERE survey_sample.extra IS NULL
-          OR survey_sample.extra = 'is_planned'
+        WHERE survey_sample.survey_id = %(survey_id)d
+          AND (survey_sample.extra IS NULL
+            OR survey_sample.extra = 'is_planned')
         GROUP BY account_id, extra) AS latests
       ON survey_sample.account_id = latests.account_id
         AND survey_sample.created_at = latests.last_updated_at
-      %(samples_filter)s""" % {'samples_filter': samples_filter}
+      %(samples_filter)s""" % {
+          'survey_id': survey.pk,
+          'samples_filter': samples_filter}
         return Sample.objects.raw(sql_query)
 
     @staticmethod

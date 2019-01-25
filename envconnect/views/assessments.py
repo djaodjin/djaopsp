@@ -101,7 +101,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
         consumptions_planned = set([])
         scored_answers = get_scored_answers(
             Consumption.objects.get_active_by_accounts(
-                excludes=self._get_filter_out_testing()),
+                self.survey, excludes=self._get_filter_out_testing()),
             self.default_metric_id,
             includes=self.get_included_samples())
 

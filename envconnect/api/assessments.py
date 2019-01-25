@@ -40,7 +40,7 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
         #pylint:disable=protected-access,arguments-differ
         scored_answers = get_scored_answers(
             Consumption.objects.get_active_by_accounts(
-                excludes=self._get_filter_out_testing()),
+                self.survey, excludes=self._get_filter_out_testing()),
             self.question.default_metric_id,
             includes=(self.sample,),
             questions=(self.question.pk,))

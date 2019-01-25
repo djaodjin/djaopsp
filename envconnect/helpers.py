@@ -31,7 +31,8 @@ def freeze_scores(sample, includes=None, excludes=None,
     # in mixins.py)
     metric_id = Metric.objects.get(slug=sample.survey.slug).pk
     scored_answers = get_scored_answers(
-        Consumption.objects.get_active_by_accounts(excludes=excludes),
+        Consumption.objects.get_active_by_accounts(
+            sample.survey, excludes=excludes),
         metric_id,
         includes=includes)
     score_sample = Sample.objects.create(

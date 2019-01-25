@@ -713,7 +713,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         """
         #pylint:disable=too-many-locals
         population = Consumption.objects.get_active_by_accounts(
-            excludes=self._get_filter_out_testing())
+            self.survey, excludes=self._get_filter_out_testing())
         for prefix, values_tuple in six.iteritems(leafs):
             self.populate_leaf(prefix, values_tuple[0],
                 get_scored_answers(population, self.default_metric_id,
