@@ -417,7 +417,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         elif rollup_tree[0].get('slug', "").startswith('sustainability-'):
             breadcrumbs = []
         icon_candidate = rollup_tree[0].get('text', "")
-        if icon_candidate and icon_candidate.endswith('.png'):
+        if (icon_candidate and isinstance(icon_candidate, six.string_types)
+            and icon_candidate.endswith('.png')):
             icon = icon_candidate
         tag_candidate = rollup_tree[0].get('tag', "")
         if tag_candidate:
