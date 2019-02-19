@@ -27,7 +27,7 @@ Completed: Assessment and Planning are complete">
 </section>
 <section id="managed" ng-controller="envconnectMyTSPReporting">
   <div class="row">
-    <div class="col-md-offset-6 col-md-6 text-right" style="margin-bottom:5px;">
+    <div class="offset-md-6 col-md-6 text-right" style="margin-bottom:5px;">
       <!-- WORKAROUND: we set data-width and data-height
            otherwise bootstrap-toggle will crop the size
            inside a class="tab-content collapse". -->
@@ -47,7 +47,8 @@ Completed: Assessment and Planning are complete">
         <div class="row">
           <div class="col-xs-6">
             <div style="margin-top:13px;">
-              <span ng-show="items.$resolved" ng-cloak style="font-weight: bold;">[[items.count]] reporting organizations</span>
+              <span style="font-weight: bold;" ng-show="items.$resolved" ng-cloak>[[items.count]] reporting organizations</span>
+              <span ng-show="items.$resolved" ng-cloak>([[items.reporting_publicly_count]] also reporting publicly)</span>
             </div>
           </div>
           <div class="col-xs-6 text-right">
@@ -255,6 +256,7 @@ Thank you.
   <div class="row" style="margin-top: 5px;">
     <div class="col-sm-6">
       <a id="download-reporting" class="btn btn-default" href="{% url 'organization_reporting_entities_download' organization %}" target="_blank"><i class="fa fa-download"></i> Download scores</a>
+      <a id="download-improvements" class="btn btn-default" href="{% url 'organization_reporting_improvements_download' organization %}" target="_blank"><i class="fa fa-download"></i> Download improvements</a>
     </div>
     <div class="col-sm-6">
       <label style="color:#000;margin-top: 10px;">

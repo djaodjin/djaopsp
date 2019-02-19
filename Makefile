@@ -50,7 +50,7 @@ clean:
 	-cd $(srcDir) && rm -rf htdocs/static/.webassets-cache htdocs/static/cache
 
 
-package-theme: build-django-assets
+package-theme: build-assets
 	cd $(srcDir) && DEBUG=0 FEATURES_REVERT_TO_DJANGO=0 \
 		$(MANAGE) package_theme \
 		--build_dir=$(objDir) --install_dir=htdocs/themes \
@@ -60,9 +60,19 @@ package-theme: build-django-assets
 		--include='euissca/' --include='about.html'
 	zip -d $(srcDir)/htdocs/themes/envconnect.zip "envconnect/public/static/cache/angular.js" "envconnect/templates/accounts/base.html"
 
+build-assets: htdocs/static/cache/_base.css \
+                htdocs/static/cache/_email.css
+	cd $(srcDir) && DEBUG=1 $(PYTHON) manage.py assets build
 
-build-django-assets: clean
-	cd $(srcDir) && DEBUG=1 $(MANAGE) assets build
+htdocs/static/cache/_base.css: \
+                $(wildcard $(srcDir)/assets/scss/vendor/bootstrap/*.scss) \
+                $(wildcard $(srcDir)/assets/scss/vendor/djaodjin/*.scss) \
+                $(wildcard $(srcDir)/assets/scss/base/*.scss)
+	cd $(srcDir) && $(binDir)/sassc assets/scss/base/base.scss $@
+
+htdocs/static/cache/_email.css: \
+                $(wildcard $(srcDir)/assets/scss/email/*.scss)
+	cd $(srcDir) && $(binDir)/sassc assets/scss/email/email.scss $@
 
 
 # download and install prerequisites then create the db.
@@ -94,7 +104,7 @@ require-resources:
 # in the directory assets are served from.
 vendor-assets-prerequisites: $(srcDir)/package.json
 	$(installFiles) $^ $(installTop)
-	$(NPM) install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp
+	$(NPM) install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp --prefix $(installTop)
 	install -d $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/angular/angular.min.js* $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/angular/angular.js $(ASSETS_DIR)/vendor
@@ -125,7 +135,7 @@ vendor-assets-prerequisites: $(srcDir)/package.json
 	$(installFiles) $(installTop)/node_modules/trip.js/dist/trip.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/typeahead.js/dist/typeahead.bundle.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/envconnect/static/vendor/PIE.htc $(ASSETS_DIR)/vendor
-	[ -f $(binDir)/lessc ] || (cd $(binDir) && ln -s ../node_modules/less/bin/lessc)
+	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../node_modules/.bin/sass sassc)
 
 
 install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \

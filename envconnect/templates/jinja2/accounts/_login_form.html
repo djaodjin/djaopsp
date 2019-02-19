@@ -8,7 +8,7 @@
       {{ input_field(form[name], form.hide_labels) }} {## creates a BoundField ##}
     {% endfor %}
     <div class="row">
-        <div class="col-sm-offset-4 col-sm-4">
+        <div class="offset-sm-4 col-sm-4">
             <div class="form-action text-center">
                 <button type="submit" class="btn btn-block btn-primary btn-lg">{% if form.submit_title %}{{form.submit_title}}{% else %}Submit{% endif %}</button>
             </div>
