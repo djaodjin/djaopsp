@@ -14,19 +14,15 @@ $score-card-width: 300px;
   border-bottom: 1px solid #ACAFAF;
 }
 
-#learn-action-header {
-  margin-top: 60px;
-}
-
 #learn-action-header h2 {
   margin-bottom: 5px;
 }
 
 #learn-action-header .nav > li {
-  padding: 5px;
+  padding: 5px 0;
+  margin: 0;
+  font-size: 1.05rem;
   color: white;
-  margin: 0 15px;
-  font-size: 1.2em;
 }
 
 #learn-action-header .nav > li > a,
@@ -50,16 +46,9 @@ $score-card-width: 300px;
 #learn-action-header li.active > a,
 #learn-action-header li > a:hover {
   color: $navbar-light-color;
-  background-color: $navbar-dark-color;
+  background-color: transparent;
   font-weight: bold;
   text-decoration: underline;
-/*
-  background: #3ca65b;
-  background: -webkit-radial-gradient(#fff, rgba(60,166,91,0));
-  background:    -moz-radial-gradient(#fff, rgba(60,166,91,0));
-  background:      -o-radial-gradient(#fff, rgba(60,166,91,0));
-  background:         radial-gradient(#fff, rgba(60,166,91,0));
-*/
 }
 
 .start-here > p {
@@ -332,6 +321,7 @@ li.squared-tabs-li > ul > li:first-child{
 }
 
 .nav-tabs.squared-tabs > li.squared-tabs-li {
+  display: inline-block;
   position: relative;
   bottom:0;
   padding:0;
@@ -603,16 +593,7 @@ li.active .system-menus {
     cursor: default;
 }
 
-.icon-container {
-  position: relative;
-  bottom: 0;
-  display: inline-block;
-  padding: 0;
-  width: 120px;
-  text-align: center;
-}
-
-.icon-container > .icon-inner {
+.squared-tabs-li > .icon-inner {
   display: inline-block;
   position: relative;
   bottom:0;
@@ -625,8 +606,9 @@ li.active .system-menus {
   padding: 5px 0;
 }
 
-.icon-container > .icon-inner:hover{
+.squared-tabs-li > .icon-inner:hover{
   text-decoration: none;
+  color: white;
 }
 
 .icon-equipment {
@@ -954,7 +936,7 @@ a.text-grey{
   margin-right: 15px; /* @navbar-padding-horizontal */
 }
 
-.navbar-default .navbar-nav > .login > a {
+.navbar-light .navbar-nav > .login > a {
   padding: 10px 15px;
   background-color: #8cd063; /* @login-bg */
   -webkit-border-radius: 8px;
@@ -963,15 +945,12 @@ a.text-grey{
           border-radius: 8px;
 }
 
-.navbar-default .navbar-nav > .login > a:hover, .login > a:focus {
+.navbar-light .navbar-nav  > .login > a:hover, .login > a:focus {
   background-color:#79c84a; /* darken(@login-bg, 6.5%) */
 }
 
 .navbar .divider-vertical {
-height: 25px;
-margin: 0 9px;
-margin-top:13px;
-border-right: 1px solid #ffffff;
+  border-right: 1px solid #ffffff;
 }
 
 @media (max-width: 767px) {
@@ -1002,41 +981,6 @@ border-right: 1px solid #ffffff;
 
 /************* Dropdown homepage custom ****************/
 
-.dropdown-next > .btn-default{
-  color: #69ae38;
-}
-
-.dropdown.dropdown-homepage > .btn-default{
-   border:0px;
-   font-family:'myriad-regular';
-}
-
-@media (max-width: 991px) {
-    .dropdown.dropdown-homepage > .btn-default{
-       width: 100%;
-       text-align: left;
-    }
-}
-
-.dropdown.dropdown-homepage > .btn-default:hover{
-  background-color:transparent;
-}
-
-.open.dropdown-homepage > .dropdown-toggle.btn-default {
-  background-color: transparent;
-}
-
-.dropdown.dropdown-homepage > button > .text {
-   padding:5px 0;
-}
-
-.dropdown.dropdown-homepage > button > .caret-icon{
-   margin-left:10px;
-   padding:5px 5px 2px 5px;
-   border:1px solid white;
-   border-radius:4px;
-}
-
 .dropdown.dropdown-homepage>.dropdown-menu {
   color: #000;
 }
@@ -1045,6 +989,10 @@ border-right: 1px solid #ffffff;
     margin-left: 5px;
     font-size: 18px;
     font-weight: 900;
+}
+
+.dropdown.dropdown-homepage .dropdown-item {
+  width: auto;
 }
 
 .dropdown.dropdown-homepage>.dropdown-menu>li>div {
@@ -1108,13 +1056,17 @@ border-right: 1px solid #ffffff;
 }
 
 
-
 @media (max-width: 767px) {
   .col-sm-4.text-right,
   .col-sm-4.text-left{
     text-align: center;
   }
 }
+
+.feature-index {
+  margin-top: 20px;
+}
+
 
 /************** panel group for consumption ***********/
 
@@ -1765,7 +1717,8 @@ html[data-useragent*='rv:11.0'] .toggle-off>span {
 
 /* user login and registration */
 .auth-form {
-  margin-top: 50px;
+  padding-top: 50px;
+  background: transparent;
 }
 
 /* benchmark page (charts) */
@@ -1857,6 +1810,10 @@ color: #000;
 [data-target="#confirm-delete"]:hover,
 [data-target="#confirm-delete"]:active {
   text-decoration: none;
+}
+
+.totals-chart {
+  font-size: 0.8rem;
 }
 
 .totals-preview {

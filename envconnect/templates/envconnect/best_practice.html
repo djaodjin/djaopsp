@@ -7,10 +7,8 @@
 		<div class="row">
 			<div class="col-lg-12 col-md-12 col-sm-12">
 				<ul class="nav nav-tabs squared-tabs surrounded-tabs">
-					<li class="squared-tabs-li text-center first_tab">
-						<div class="icon-container" style="width: 100%;">
-							{% include "envconnect/_icon.html" with icon=icon %}
-						</div>
+					<li class="nav-item squared-tabs-li text-center first_tab">
+						{% include "envconnect/_icon.html" with icon=icon %}
 					</li>
 				</ul>
 			</div>
@@ -19,14 +17,14 @@
 			<div class="tab-pane active in" id="box_1">
 				<div class="tab-content col-lg-12">
 					<div class="tab-pane active" id="tab_{{forloop.counter}}">
-						<div class="panel panel-grey panel-cartitem over-radius">
-							<div id="{{best_practice.slug}}" class="panel-body">
+						<div class="card panel-grey panel-cartitem over-radius">
+							<div id="{{best_practice.slug}}" class="card-body">
 								<div class="padding_20">
 									<h1 class="editable" data-key="title">{{best_practice.title}}</h1>
 {% if is_content_manager %}
 									<div>
-										<button id="lock" type="submit" class="btn {% if 'locked' in best_practice.tag %}btn-warning{% else %}btn-primary{% endif %} btn-sm">{% if 'locked' in best_practice.tag %}Re-Open{% else %}Complete{% endif %}</button>
-<button id="duplicate-content-btn" class="btn btn-default btn-sm" href=""
+										<button id="lock" type="submit" class="btn {% if 'locked' in best_practice.tag %}btn-secondary{% else %}btn-primary{% endif %} btn-sm">{% if 'locked' in best_practice.tag %}Re-Open{% else %}Complete{% endif %}</button>
+<button id="duplicate-content-btn" class="btn btn-secondary btn-sm" href=""
    data-toggle="modal" data-target="#duplicate-content">Copy content from ...</button>
 										<div class="clearfix" />
 									</div>
@@ -57,9 +55,9 @@ See the following for examples of content developed for other practices:
 <div style="margin-top: 15px;">
 <h4>This content is aliased through:</h4>
 {% for alias in aliases %}
-<ol class="breadcrumb env-breadcrumb">
+<ol class="breadcrumb">
         {% for alias_breadcrumb in alias %}
-          <li>{{alias_breadcrumb.title}}</li>
+          <li class="breadcrumb-item">{{alias_breadcrumb.title}}</li>
         {% endfor %}
 </ol>
 {% endfor %}
@@ -89,8 +87,8 @@ See the following for examples of content developed for other practices:
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 id="duplicateContent" class="modal-title" style="color:#000;">Copy content from ...</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <form class="form-inline" ng-submit="copyBestpracticeContent($event)">
                     <div class="modal-body">
@@ -109,7 +107,7 @@ See the following for examples of content developed for other practices:
                             class="form-control" style="width: 100%;">
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-default" type="submit">Copy content</button>
+                        <button class="btn btn-secondary" type="submit">Copy content</button>
                     </div>
                 </form>
             </div>
@@ -153,7 +151,7 @@ $(document).ready(function(){
 			datatype: "json",
 			contentType: "application/json; charset=utf-8",
 			success: function(data) {
-				self.toggleClass("btn-warning");
+				self.toggleClass("btn-secondary");
 				self.toggleClass("btn-primary");
 				self.text(locked ? "Complete" : "Re-Open");
 {% with breadcrumbs|previous_to_last as last %}

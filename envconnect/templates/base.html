@@ -97,10 +97,10 @@ ga('send', 'pageview');
                     </ul>
                 </div>
                 <ul class="nav navbar-nav ml-auto mt-lg-0 header-menubar">
-                    <!-- this area will be populated by _menubar.html -->
-                    <li class="nav-item">
-                    <a class="nav-link" id="login" href="{{'/login/'|site_prefixed}}"><i class="fa fa-lock fa-lg"></i> Sign In</a>
-                    </li>
+                  <!-- this area will be populated by _menubar.html -->
+                  <li class="nav-item login">
+                    <a id="login" class="nav-link" title="Click Here to sign into your account" href="{{'login/'|site_prefixed}}"><span class="fa fa-sign-in fa-lg"></span> Sign in</a></li>
+                  </li>
                 </ul>
               </nav>
               {% block fullviewport %}

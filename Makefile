@@ -129,6 +129,8 @@ vendor-assets-prerequisites: $(srcDir)/package.json
 	$(installFiles) $(installTop)/node_modules/jquery-ui-touch-punch/jquery.ui.touch-punch.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/nvd3/build/nv.d3.css $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/nvd3/build/nv.d3.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/popper.js/dist/umd/popper.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/popper.js/dist/umd/popper-utils.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/rangy/lib/rangy-core.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/respond.js/src/respond.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/trip.js/dist/trip.css $(ASSETS_DIR)/vendor

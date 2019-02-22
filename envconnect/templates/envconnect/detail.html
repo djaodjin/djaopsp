@@ -3,7 +3,7 @@
 {% load static from staticfiles %}
 
 {% block icons_content %}
-<div class="tab-content collapse{% if active %} in{% endif %}">
+<div class="tab-content collapse{% if active %} show{% endif %}">
     {% for abs_prefix, icon_tuple in root.1|iteritems %}
         {% with icon_tuple.0 as icon %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}" ng-cloak>
@@ -23,7 +23,7 @@
                     <th style="vertical-align:middle;border-top:0;">Practices</th>
                     {% for col_header in icon.value_headers %}
                     <th class="text-center cell-fix-width-5 {{col_header.slug}} {% if col_header.slug == 'avg_value' %}total-sep{% endif %}" style="vertical-align:middle;border-top:0;">
-                        <div class="btn-link btn-sort text-center" ng-click="sortBy('{{col_header.slug}}')">
+                        <div class="btn btn-link btn-sort text-center" ng-click="sortBy('{{col_header.slug}}')">
                             {% if col_header.title|is_icon %}
                             <img src="{{col_header.title|asset}}" width="32" hegiht="32" data-toggle="tooltip" title="{{col_header.tooltip}}" />
                             {% else %}
@@ -46,7 +46,7 @@
                     <th style="vertical-align:middle;border-top:0;">Practices</th>
                     {% for col_header in icon.profitability_headers %}
                     <th class="text-center cell-fix-width-3 {{col_header.slug}}" style="border-top:0;">
-                        <button class="btn-link btn-sort" ng-click="sortBy('{{col_header.slug}}')">
+                        <button class="btn btn-link btn-sort" ng-click="sortBy('{{col_header.slug}}')">
                             <i class="fa fa-sort[[dir.{{col_header.slug}} ? ('-' + dir.{{col_header.slug}}) : '']]"></i>
                         </button>
                         {% if is_content_manager %}

@@ -4,16 +4,16 @@
 {% block content %}
 <div class="backdrop">
 <div>
-  <ol class="col-md-9 breadcrumb env-breadcrumb">
+  <ol class="col-md-9 breadcrumb">
     <li><a href="{% url 'homepage' %}">Home</a></li>
     {% for breadcrumb_tuple in breadcrumbs %}
-    <li>
+    <li class="breadcrumb-item">
       <a id="bc-{{breadcrumb_tuple.0}}" href="{{breadcrumb_tuple.2}}">{{breadcrumb_tuple.0.title}}</a>
     </li>
     {% endfor %}
     <li><a href="{% url 'matrix_base' account %}">Charts</a></li>
   </ol>
-  <ol class="col-md-3 breadcrumb env-breadcrumb">
+  <ol class="col-md-3 breadcrumb">
     <li style="float:right;display:none;cursor:pointer;"><a id="help-request"><i class="fa fa-question-circle"></i> take a tour of the page &raquo;</a></li>
   </ol>
 </div>
@@ -44,10 +44,10 @@
           <select class="form-control operator">
           </select>
         </div>
-        <div class="col-xs-5">
+        <div class="col-5">
           <input class="form-control operand" type="text">
         </div>
-        <div class="col-xs-1">
+        <div class="col-1">
           <button class="btn btn-danger delete"><i class="fa fa-trash-o"></i></button>
         </div>
       </div>

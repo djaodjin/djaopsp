@@ -42,16 +42,16 @@ Completed: Assessment and Planning are complete">
     </div>
   </div>
   <div id="panel-icons" class="panel-icons panel-icons-no-benchmark">
-    <div class="panel-body">
+    <div class="card-body">
       <div>
         <div class="row">
-          <div class="col-xs-6">
+          <div class="col-6">
             <div style="margin-top:13px;">
               <span style="font-weight: bold;" ng-show="items.$resolved" ng-cloak>[[items.count]] reporting organizations</span>
               <span ng-show="items.$resolved" ng-cloak>([[items.reporting_publicly_count]] also reporting publicly)</span>
             </div>
           </div>
-          <div class="col-xs-6 text-right">
+          <div class="col-6 text-right">
             <script type="text/ng-template" id="customTemplate.html">
               <a>
                 <span ng-bind-html="match.label | uibTypeaheadHighlight:query"></span>
@@ -61,18 +61,18 @@ Completed: Assessment and Planning are complete">
                 ng-model="filterExpr"
                 ng-model-options="{ debounce: 1000 }"
                  />
-            <button class="btn btn-default" ng-click="filterList(filterExpr)" style="margin: 5px;">Search</button>
+            <button class="btn btn-secondary" ng-click="filterList(filterExpr)" style="margin: 5px;">Search</button>
           </div>
         </div>
         <table class="table table-striped">
           <thead>
             <tr>
               <th></th>
-              <th>Supplier/facility<button class="btn-link btn-sort" ng-click="sortBy('printable_name')"><i class="fa fa-sort[[dir.printable_name ? ('-' + dir.printable_name) : '']]"></i></button></th>
-              <th>Last activity<button class="btn-link btn-sort" ng-click="sortBy('last_activity_at')"><i class="fa fa-sort[[dir.last_activity_at ? ('-' + dir.last_activity_at) : '']]"></i></button></th>
-              <th>Status<button class="btn-link btn-sort" ng-click="sortBy('assessment_completed')"><i class="fa fa-sort[[dir.assessment_completed ? ('-' + dir.assessment_completed) : '']]"></i></button></th>
-              <th>Score<button class="btn-link btn-sort" ng-click="sortBy('normalized_score')"><i class="fa fa-sort[[dir.normalized_score ? ('-' + dir.normalized_score) : '']]"></i></button></th>
-              <th>Planning<button class="btn-link btn-sort" ng-click="sortBy('improvement_completed')"><i class="fa fa-sort[[dir.improvement_completed ? ('-' + dir.improvement_completed) : '']]"></i></button></th>
+              <th>Supplier/facility<button class="btn btn-link btn-sort" ng-click="sortBy('printable_name')"><i class="fa fa-sort[[dir.printable_name ? ('-' + dir.printable_name) : '']]"></i></button></th>
+              <th>Last activity<button class="btn btn-link btn-sort" ng-click="sortBy('last_activity_at')"><i class="fa fa-sort[[dir.last_activity_at ? ('-' + dir.last_activity_at) : '']]"></i></button></th>
+              <th>Status<button class="btn btn-link btn-sort" ng-click="sortBy('assessment_completed')"><i class="fa fa-sort[[dir.assessment_completed ? ('-' + dir.assessment_completed) : '']]"></i></button></th>
+              <th>Score<button class="btn btn-link btn-sort" ng-click="sortBy('normalized_score')"><i class="fa fa-sort[[dir.normalized_score ? ('-' + dir.normalized_score) : '']]"></i></button></th>
+              <th>Planning<button class="btn btn-link btn-sort" ng-click="sortBy('improvement_completed')"><i class="fa fa-sort[[dir.improvement_completed ? ('-' + dir.improvement_completed) : '']]"></i></button></th>
               <th></th>
             </tr>
           </thead>
@@ -89,9 +89,9 @@ Completed: Assessment and Planning are complete">
                            uib-typeahead="candidate as candidate.printable_name for candidate in getCandidates($viewValue)"
                            uib-typeahead-loading="loadingOrganizations"
                            uib-typeahead-template-url="customTemplate.html"
-                           class="form-control input-sm" style="width: 100%;">
+                           class="form-control">
                     <div class="input-group-btn">
-                      <button class="btn btn-primary btn-sm" type="submit" ng-click="save($event)">Add reporting entity</button>
+                      <button class="btn btn-primary" type="submit" ng-click="save($event)">Add reporting entity</button>
                     </div>
                   </div>
                   <div style="height:14px" ng-cloak>
@@ -165,9 +165,9 @@ user).</em>
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
+                <h4 class="modal-title">Add a reporting entity ...</h4>
                 <button type="button" class="close"
                         data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Add a reporting entity ...</h4>
               </div>
               <form>
                 <div class="modal-body">
@@ -255,8 +255,8 @@ Thank you.
   </div>
   <div class="row" style="margin-top: 5px;">
     <div class="col-sm-6">
-      <a id="download-reporting" class="btn btn-default" href="{% url 'organization_reporting_entities_download' organization %}" target="_blank"><i class="fa fa-download"></i> Download scores</a>
-      <a id="download-improvements" class="btn btn-default" href="{% url 'organization_reporting_improvements_download' organization %}" target="_blank"><i class="fa fa-download"></i> Download improvements</a>
+      <a id="download-reporting" class="btn btn-secondary" href="{% url 'organization_reporting_entities_download' organization %}" target="_blank"><i class="fa fa-download"></i> Download scores</a>
+      <a id="download-improvements" class="btn btn-secondary" href="{% url 'organization_reporting_improvements_download' organization %}" target="_blank"><i class="fa fa-download"></i> Download improvements</a>
     </div>
     <div class="col-sm-6">
       <label style="color:#000;margin-top: 10px;">

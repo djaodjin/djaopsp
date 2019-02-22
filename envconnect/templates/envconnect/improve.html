@@ -12,19 +12,19 @@
                 <thead>
                     <th style="vertical-align:middle;border-top:0;">Practices</th>
                     <th class="text-center cell-fix-width-3" data-toggle="tooltip" data-placement="top" title="Percentage of respondents that have implemented a best practice.">
-                        <button class="btn-link btn-sort" ng-click="sortBy('rate')">
+                        <button class="btn btn-link btn-sort" ng-click="sortBy('rate')">
                             <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
                         </button>
                             Implementation rate
                     </th>
                     <th class="text-center cell-fix-width-3">
-                        <button class="btn-link btn-sort" ng-click="sortBy('implemented')">
+                        <button class="btn btn-link btn-sort" ng-click="sortBy('implemented')">
                             <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
                         </button>
                             Implemented by you?
                     </th>
                     <th class="text-center cell-fix-width-3" data-toggle="tooltip" data-placement="top" title="Higher numbers equate to higher priority opportunities based on the following calculation: Practice green level * (1 + implementation rate / 100). Practice green levels: Dark green = 3; medium green = 2, light green = 1">
-                        <button class="btn-link btn-sort" ng-click="sortBy('opportunity')">
+                        <button class="btn btn-link btn-sort" ng-click="sortBy('opportunity')">
                             <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
                         </button>
                             Opportunity score
@@ -76,8 +76,8 @@ See the following for examples of content developed for best practices:
     <div class="modal-dialog">
         <form class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Mark your planning as complete ...</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                     <p>
@@ -109,9 +109,9 @@ Once improvements are implemented:
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
+        <h4 class="modal-title">Share your planned actions ...</h4>
         <button type="button" class="close"
                 data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Share your planned actions ...</h4>
       </div>
       <form>
         <div class="modal-body">

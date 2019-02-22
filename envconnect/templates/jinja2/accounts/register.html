@@ -5,8 +5,8 @@
   <div class="container">
     <div class="row auth-form">
       <div class="col-md-6" >
-        <div class="panel panel-grey">
-          <div class="panel-body" style="padding: 0 15px;">
+        <div class="card card-grey">
+          <div class="card-body" style="padding: 0 15px;">
             <h1><span class="fa fa-pencil"></span> Sign up</h1>
             {% if form %}
             {% include "accounts/_register_form.html" %}
@@ -70,7 +70,7 @@ Thank you,
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-default"
+    <button type="button" class="btn btn-secondary"
             data-dismiss="modal">Cancel</button>
     <button type="submit" class="btn btn-primary">Request access</button>
   </div>

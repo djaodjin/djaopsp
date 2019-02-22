@@ -52,10 +52,9 @@
 	<div class="container">
 		<div class="text-center">
 			<div style="display:inline-block;">
-				<div class="dropdown dropdown-homepage dropdown-select dropdown-next" id="industry_selector">
-					<button class="btn btn-lg btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
+				<div class="dropdown dropdown-homepage" id="industry_selector">
+					<button class="btn btn-lg btn-primary dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
 						<span class="text">Make a selection</span>
-						<span class="caret-icon"><i class="fa fa-caret-down"></i></span>
 					</button>
 					<ul class="dropdown-menu" role="menu" aria-labelledby="industry_selector">
 <li><div style="font-size:14px;">Don't know what to select? <a href="{{'/docs/faq/#general-3'|site_prefixed}}" target="_blank">Click here</a></div></li>
@@ -92,7 +91,7 @@
 					</div>
 	</div>
 	<div class="container">
-		<div class="col-xs-12 text-center">
+		<div class="col-12 text-center">
 			<div style="display:inline-block;margin-top:15px;">
 				<img src="{{'static/img/envconnect-tree.png'|asset}}" class="img-fluid"></img>
 			</div>
@@ -110,10 +109,10 @@
 	</div>
 </div>
 <div id="text-section" class="container" style="margin-bottom: 50px;">
+	<div class="text-center" style="margin-bottom: 20px;">
+		<h2>About The Sustainability Project</h2>
+	</div>
 	<div class="row">
-		<div class="text-center" style="margin-bottom: 20px;">
-			<h2>About The Sustainability Project</h2>
-		</div>
 		<div class="col-md-6">
 <p id="about-all-companies" class="editable edit-markdown">
 <strong>For all companies</strong>, TSP is a tool that lets you identify
@@ -136,7 +135,7 @@ scorecards).
 	</div>
 	<div class="row" style="margin-bottom: 20px;">
 		<div class="col-md-6">
-			<section id="best-practices">
+			<section id="best-practices" class="feature-index">
 				<h3>Best practices</h3>
 				<div class="row">
 					<div class="col-md-3 text-center">
@@ -150,7 +149,7 @@ value.
 					</div>
 				</div>
 			</section>
-			<section id="benchmarking">
+			<section id="benchmarking" class="feature-index">
 				<h3>Benchmarking</h3>
 				<div class="row">
 					<div class="col-md-3 text-center">
@@ -164,7 +163,7 @@ anonymous, aggregated reports.
 					</div>
 				</div>
 			</section>
-			<section id="products">
+			<section id="products" class="feature-index">
 				<h3>Technology, products, services</h3>
 				<div class="row">
 					<div class="col-md-3 text-center">
@@ -177,7 +176,7 @@ Find best practice-linked technologies, products and services.
 					</div>
 				</div>
 			</section>
-			<section id="improvement-planning">
+			<section id="improvement-planning" class="feature-index">
 				<h3>Planning</h3>
 				<div class="row">
 					<div class="col-md-3 text-center">
@@ -193,7 +192,7 @@ on cost, savings and overall performance scores.
 			</section>
 		</div>
 		<div class="col-md-6" style="margin-top:35px;">
-			<section id="self-assessment">
+			<section id="self-assessment" class="feature-index">
 				<h3>Self-assessment</h3>
 				<div class="row">
 					<div class="col-md-3 text-center">
@@ -207,7 +206,7 @@ by business value and peer implementation rate.
 					</div>
 				</div>
 			</section>
-			<section id="performance-scoring">
+			<section id="performance-scoring" class="feature-index">
 				<h3>Performance scoring</h3>
 				<div class="row">
 					<div class="col-md-3 text-center">
@@ -221,7 +220,7 @@ scorecards with client organizations at your discretion.
 					</div>
 				</div>
 			</section>
-			<section id="supplier-assessment">
+			<section id="supplier-assessment" class="feature-index">
 				<h3>Supplier/facility assessment</h3>
 				<div class="row">
 					<div class="col-md-3 text-center">
@@ -234,7 +233,7 @@ Find sector-specific RFP/solicitation and annual survey questions and tools.
 					</div>
 				</div>
 			</section>
-			<section id="mytsp">
+			<section id="mytsp" class="feature-index">
 				<h3>MyTSP</h3>
 				<div class="row">
 					<div class="col-md-3 text-center">
@@ -250,11 +249,12 @@ trends and improvement opportunities over time.
 			</section>
 		</div>
 	</div>
-	<div class="row">
+	<section>
 		<div class="text-center" style="margin-bottom: 20px;">
 			<h2>Content development process</h2>
 		</div>
-		<div class="offset-md-2 col-md-8">
+		<div class="row">
+			<div class="offset-md-2 col-md-8">
 <p id="content-development-process-1" class="editable edit-markdown">
 <strong>Developed by all, for all.</strong>
 Content on this website is made freely available for anyone to access under
@@ -269,36 +269,39 @@ or in creating a new industry segment that is not yet represented on TSP,
 <a href="{{'contact/'|site_prefixed}}">contact us</a> for more information
 about the process.
 </p>
+			</div>
 		</div>
-	</div>
-	<div class="row">
+	</section>
+	<section>
 		<div class="text-center" style="margin-bottom: 20px;">
 			<h2>Platform source code</h2>
 		</div>
-		<div class="offset-md-2 col-md-8">
+		<div class="row">
+			<div class="offset-md-2 col-md-8">
 The Sustainability Project’s web-based platform was created under a General
 Public License (GPL). This means that the source code is freely available
 to anyone to duplicate, run, study, share and modify with the provision that
 any resulting modifications or additions are also made freely available under
 the original GPL license to benefit the greater good, rather being exploited
 for private benefit or profit.
+			</div>
 		</div>
-	</div>
+	</section>
 </div>
 <!-- modals -->
 <div id="add-element-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addElement" style="color: #000;">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="addElement">Add...</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <form class="form-inline">
                 <div class="modal-body">
                     <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title">
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-warning add-element" type="submit">Add</button>
+                    <button class="btn btn-primary add-element" type="submit">Add</button>
                 </div>
             </form>
         </div>
@@ -308,15 +311,15 @@ for private benefit or profit.
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Edit ...</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <form class="form-inline" ng-submit="editElement($event)">
                 <div class="modal-body">
                     <input class="form-control search-page-element" style="width:100%;" type="text" name="title" placeholder="Title" ng-model="activeElement.value.title">
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-warning" type="submit">Save</button>
+                    <button class="btn btn-primary" type="submit">Save</button>
                 </div>
             </form>
         </div>

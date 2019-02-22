@@ -5,8 +5,8 @@
 {% block response_content %}
 <section class="row">
 <div class="offset-md-2 col-md-10">
-	<div class="panel panel-grey padding_20">
-		<div class="panel-body">
+	<div class="card card-grey padding_20">
+		<div class="card-body">
 			<form method="post" action=".">
 				{% csrf_token %}
 {% for answer in answers %}
@@ -50,7 +50,7 @@ No Description available.
 					<input type="submit" name="submit" value="submit" class="btn btn-primary" id="submit-id-submit" />
 				</div>
 			</form>
-		</div><!-- /.panel-body -->
+		</div><!-- /.card-body -->
 	</div>
 </div>
 </section>

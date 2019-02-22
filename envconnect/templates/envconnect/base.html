@@ -11,10 +11,10 @@
                 {% block help_menus %}
                 {% endblock %}
             </div> <!-- .question-mark -->
-            <ol class="col-md-9 breadcrumb env-breadcrumb">
-                <li><a href="{% url 'homepage' %}">Home</a></li>
+            <ol class="col-md-9 breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'homepage' %}">Home</a></li>
                 {% for breadcrumb_tuple in breadcrumbs %}
-                <li>
+                <li class="breadcrumb-item">
                     <a id="bc-{{breadcrumb_tuple.0}}" href="{{breadcrumb_tuple.2}}">{{breadcrumb_tuple.0.title}}</a>
                 </li>
                 {% endfor %}

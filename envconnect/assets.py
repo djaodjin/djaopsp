@@ -12,9 +12,7 @@ from django.conf import settings
 # bandwidth and latency is good as long as we have a high and consistent
 # utilization of all the CSS tags for all pages on the site.
 css_base = Bundle(
-    Bundle(os.path.join(
-        settings.BASE_DIR, 'assets/less/base/envconnect-bootstrap.less'),
-        filters='less', output='cache/bootstrap.css', debug=False),
+    'cache/_base.css',
     'vendor/font-awesome.css',
     'vendor/nv.d3.css',
     'vendor/c3.css',
@@ -26,14 +24,16 @@ register('css_base', css_base)
 
 
 css_email = Bundle(
-    os.path.join(settings.BASE_DIR, 'assets/less/email/email.less'),
-    filters=['less', 'cssmin'],
+    'cache/_email.css',
+    filters=['cssmin'],
     output='cache/email.css', debug=False)
 register('css_email', css_email)
 
 
 # Minimal: jquery and bootstrap always active on the site
 js_base = Bundle('vendor/jquery.js',
+                 'vendor/popper-utils.js',
+                 'vendor/popper.js',
                  'vendor/bootstrap.js',
                  'vendor/bootbox.js',
                  'vendor/jquery.selection.js',

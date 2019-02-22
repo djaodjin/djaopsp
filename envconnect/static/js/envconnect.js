@@ -8,7 +8,18 @@
 
 angular.module("envconnectApp", ["ui.bootstrap", "ngRoute", "ngDragDrop",
     "ngSanitize", "envconnectFilters", "envconnectControllers"
-    ]).directive('toggleCheckbox', function() {
+]).config(['$locationProvider', function($locationProvider) {
+/*
+    XXX 2 lines to prevent added `#!`, aka hash-bang issue.
+    These work to add the expected #tab-*** hash with no modifications,
+    but they prevent `?active=` url links to actually change to a new
+    page.
+
+    $locationProvider.hashPrefix('');
+    $locationProvider.html5Mode({
+        enabled: true, requireBase: false, rewriteLinks: true});
+*/
+}]).directive('toggleCheckbox', function() {
         /**
          * Directive
          */
@@ -1348,18 +1359,16 @@ envconnectControllers.controller("EnvconnectCtrl",
         var self = angular.element($event.currentTarget);
         angular.element("input[type=\"range\"]").trigger("mouseup");
         var contentTabs = angular.element(".tab-content");
-        if (!contentTabs.hasClass("in")){
-            contentTabs.addClass("in");
-        }
         var targetTab = angular.element(self.attr("href"));
-        var parentTab = angular.element(self.data("parent-li"));
-        if (targetTab.hasClass("active")){
-            targetTab.removeClass("active");
-            contentTabs.removeClass("in");
-            self.parents("li").removeClass("active");
-            $event.stopPropagation();
+        var parentTab = self.parents("li");
+        if (parentTab.hasClass("active")){
+            contentTabs.removeClass("show");
             parentTab.removeClass("active");
         } else {
+            if (!contentTabs.hasClass("show")){
+                contentTabs.addClass("show");
+            }
+            self.parents("ul").find("li").removeClass("active");
             parentTab.addClass("active");
         }
         // Change active tab

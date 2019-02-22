@@ -8,7 +8,7 @@
         <div id="select-redirects" class="offset-md-4 col-md-4">
           {% for redirect in redirects %}
           <div class="center" style="padding-top: 20px;">
-            <a class="btn btn-default" id="{{redirect.1|slugify}}" style="width: 100%;" href="{{redirect.0}}">{{redirect.1}}</a>
+            <a class="btn btn-secondary" id="{{redirect.1|slugify}}" style="width: 100%;" href="{{redirect.0}}">{{redirect.1}}</a>
 
           </div>
           {% endfor %}

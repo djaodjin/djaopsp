@@ -48,19 +48,19 @@
                       {% endfor %}
                     {% else %}
                     <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Percentage of peer respondents that have implemented a best practice.">
-                        <button class="btn-link btn-sort" ng-click="sortBy('rate')">
+                        <button class="btn btn-link btn-sort" ng-click="sortBy('rate')">
                             <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
                         </button>
                             Implementation rate
                     </th>
                     <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Extent to which you indicated the practice is implemented across activities/services/projects/facilities etc. to which it could apply: 3 ticks = All, 2 ticks = More than 60%, 1 tick = Less than 40%, x = Not implemented or not applicable">
-                        <button class="btn-link btn-sort" ng-click="sortBy('implemented')">
+                        <button class="btn btn-link btn-sort" ng-click="sortBy('implemented')">
                             <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
                         </button>
                             Implemented by you?
                     </th>
                     <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Opportunity points by which your score could increase if this best practice is implemented. See FAQs for scoring methodology and calculations.">
-                        <button class="btn-link btn-sort" ng-click="sortBy('opportunity')">
+                        <button class="btn btn-link btn-sort" ng-click="sortBy('opportunity')">
                             <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
                         </button>
                             Opportunity score
@@ -115,7 +115,7 @@ See the following for examples of content developed for best practices:
             </div>
             <div class="row" style="margin-bottom: 5px;">
               <div class="col-sm-6 text-left">
-                <a id="download-assessment" class="btn btn-default" href="{% url 'envconnect_assess_organization_download' organization path %}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
+                <a id="download-assessment" class="btn btn-secondary" href="{% url 'envconnect_assess_organization_download' organization path %}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
               </div>
               <div class="col-sm-6 text-right">
                 <div class="text-right"
@@ -152,8 +152,8 @@ See the following for examples of content developed for best practices:
     <div class="modal-dialog">
         <form class="modal-content" ng-submit="resetAssessment($event)">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Reset the answers under [[activeElement.value[0].title]] ...</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                     <p>
@@ -180,8 +180,8 @@ Do you wish to continue?
     <div class="modal-dialog">
         <form class="modal-content" ng-submit="shareScorecard($event)">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Mark your assessment as complete ...</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                     <p>
@@ -211,7 +211,7 @@ Then:
 </ol>
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-default"
+            <button type="button" class="btn btn-secondary"
                     data-dismiss="modal">Cancel</button>
                 <button type="submit" value="submit" class="btn btn-primary">Yes</button>
             </div>
@@ -226,8 +226,8 @@ Then:
       <form class="form" ng-submit="submitMeasures('{{abs_prefix}}', $event)">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Comments</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <textarea class="form-control"
@@ -251,8 +251,8 @@ Then:
       <form class="form" ng-submit="submitMeasures('{{abs_prefix}}', $event)">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">DO YOU MEASURE/REPORT?</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <h5>For bonus points tell us what you measure and report on an annual basis.</h5>
@@ -331,7 +331,7 @@ Each additional measure you tell us about is worth 4 bonus points.
                       </select>
                     </div>
                   </div>
-                  <button class="btn btn-default" type="button" ng-click="addMeasure('{{abs_prefix}}', $event)" style="margin: 10px 0;"><i class="fa fa-plus"></i> Report another item</button>
+                  <button class="btn btn-secondary" type="button" ng-click="addMeasure('{{abs_prefix}}', $event)" style="margin: 10px 0;"><i class="fa fa-plus"></i> Report another item</button>
                 </fieldset>
                 <fieldset>
                   <legend>OTHER MEASURES</legend>
@@ -368,8 +368,8 @@ Each additional measure you tell us about is worth 4 bonus points.
       <form class="form" ng-submit="submitMeasures('{{abs_prefix}}', $event)">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">DO YOU MEASURE/REPORT?</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <h5>For bonus points tell us what you measure and report.</h5>
@@ -393,7 +393,7 @@ Each additional measure you tell us about is worth 4 bonus points.
 
 
 {% block panel_footer %}
-<div class="panel-footer">
+<div class="card-footer">
   <div class="row">
     <div class="col-sm-4 text-left">
     </div>
