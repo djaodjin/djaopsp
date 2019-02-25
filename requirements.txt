@@ -8,7 +8,7 @@ djangorestframework==3.8.2
 djaodjin-answers==0.1.5
 djaodjin-deployutils==0.5.8
 djaodjin-extended-templates==0.2.4
-djaodjin-pages==0.2.2
+djaodjin-pages==0.2.4
 djaodjin-saas==0.3.4
 djaodjin-survey==0.2.5
 gunicorn==19.7.1

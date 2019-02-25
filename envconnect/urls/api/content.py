@@ -40,5 +40,5 @@ urlpatterns = [
       ColumnAPIView.as_view(), name="api_column"),
     url(r'^column/?',
       ColumnAPIView.as_view(), name="api_column_base"),
-    url(r'^', include('pages.urls.api.templates')),
+    url(r'^', include('pages.urls.api.editables')),
 ]
