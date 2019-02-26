@@ -3,7 +3,7 @@
 {% load static from staticfiles %}
 
 {% block icons_content %}
-<div class="tab-content collapse{% if active %} in{% endif %}">
+<div class="tab-content collapse{% if active %} show{% endif %}">
     {% for abs_prefix, icon_tuple in root.1|iteritems %}
         {% with icon_tuple.0 as icon %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">

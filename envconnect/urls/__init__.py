@@ -101,6 +101,7 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/reporting/download/' % SLUG_RE,
         SuppliersXLSXView.as_view(),
         name='organization_reporting_entities_download'),
+
     url_direct(r'app/(?P<organization>%s)/reporting/' % SLUG_RE,
         SuppliersView.as_view(),
         name='organization_reporting_entities'),

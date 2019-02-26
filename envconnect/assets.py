@@ -1,10 +1,7 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
-import os
-
 from django_assets import Bundle, register
-from django.conf import settings
 
 #pylint: disable=invalid-name
 

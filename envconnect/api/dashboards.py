@@ -2,12 +2,13 @@
 # see LICENSE.
 
 import datetime, logging, re
-from collections import namedtuple, OrderedDict
+from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models import Q, Max
+from django.db import connection
+from django.db.models import Count, Max, Q
 from django.http import Http404
 from django.utils import six
 from django.utils.encoding import force_text
@@ -27,17 +28,35 @@ from survey.utils import get_account_model
 
 from .benchmark import BenchmarkMixin
 from .. import signals
-from ..helpers import freeze_scores
+from ..helpers import freeze_scores, get_testing_accounts
 from ..mixins import ReportMixin
-from ..models import _show_query_and_result
+from ..models import _show_query_and_result, Consumption
 from ..serializers import AccountSerializer, NoModelSerializer
 from ..suppliers import get_supplier_managers
 
 
 LOGGER = logging.getLogger(__name__)
 
-AccountType = namedtuple('AccountType',
-    ['pk', 'slug', 'printable_name', 'email', 'request_key', 'extra'])
+#AccountType = namedtuple('AccountType',
+#    ['pk', 'slug', 'printable_name', 'email', 'request_key', 'extra'])
+
+class AccountType(object):
+
+    def __init__(self, pk=None, slug=None, printable_name=None, email=None,
+        request_key=None, extra=None):
+        #pylint:disable=invalid-name
+        self.pk = pk
+        self.slug = slug
+        self.printable_name = printable_name
+        self.email = email
+        self.request_key = request_key
+        self.extra = extra
+        self.reports_to = []
+
+    @classmethod
+    def _make(cls, val):
+        return cls(pk=val[0], slug=val[1], printable_name=val[2],
+            email=val[3], request_key=val[4], extra=val[5])
 
 
 def get_reporting_status(account, expired_at):
@@ -49,14 +68,12 @@ def get_reporting_status(account, expired_at):
                 if last_activity_at < expired_at:
                     return AccountSerializer.REPORTING_EXPIRED
                 return AccountSerializer.REPORTING_COMPLETED
-            else:
-                if last_activity_at < expired_at:
-                    return AccountSerializer.REPORTING_ABANDONED
-                return AccountSerializer.REPORTING_PLANNING_PHASE
-        else:
             if last_activity_at < expired_at:
                 return AccountSerializer.REPORTING_ABANDONED
-            return AccountSerializer.REPORTING_ASSESSMENT_PHASE
+            return AccountSerializer.REPORTING_PLANNING_PHASE
+        if last_activity_at < expired_at:
+            return AccountSerializer.REPORTING_ABANDONED
+        return AccountSerializer.REPORTING_ASSESSMENT_PHASE
     return AccountSerializer.REPORTING_NOT_STARTED
 
 
@@ -89,6 +106,8 @@ class CompletionSummaryPagination(PageNumberPagination):
                 self.completed += 1
             else:
                 self.no_assessment += 1
+        if hasattr(queryset, 'reporting_publicly'):
+            self.reporting_publicly_count = queryset.reporting_publicly
         return super(CompletionSummaryPagination, self).paginate_queryset(
             queryset, request, view=view)
 
@@ -102,6 +121,7 @@ class CompletionSummaryPagination(PageNumberPagination):
                     ('Planning phase', self.improvement_phase),
                     ('Completed', self.completed),
             )),
+            ('reporting_publicly_count', self.reporting_publicly_count),
             ('count', self.page.paginator.count),
             ('next', self.get_next_link()),
             ('previous', self.get_previous_link()),
@@ -220,25 +240,47 @@ WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
     def requested_accounts(self):
         if not hasattr(self, '_requested_accounts'):
             ends_at = datetime_or_now()
-            self._requested_accounts = [AccountType._make(val)
-                for val in Subscription.objects.filter(
+            self._requested_accounts = []
+            level = set([self.account.pk])
+            next_level = level | set([rec['organization']
+                for rec in Subscription.objects.filter(
+                        plan__organization__in=level).exclude(
+                        organization__in=get_testing_accounts()).values(
+                        'organization').distinct()])
+            while len(level) < len(next_level):
+                level = next_level
+                next_level = level | set([rec['organization']
+                    for rec in Subscription.objects.filter(
+                        plan__organization__in=level).exclude(
+                        organization__in=get_testing_accounts()).values(
+                        'organization').distinct()])
+            prev = None
+            self._requested_accounts = []
+            for val in Subscription.objects.filter(
                     ends_at__gt=ends_at, # from `SubscriptionMixin.get_queryset`
-                    plan__organization=self.account).select_related(
+                    plan__organization__in=level).select_related(
                     'organization').values_list('organization__pk',
                     'organization__slug', 'organization__full_name',
                     'organization__email', 'grant_key',
-                    'extra')]
+                    'extra', 'plan__organization__slug').order_by(
+                        'organization__full_name', 'organization__pk'):
+                account = AccountType._make(val)
+                # XXX deals with grant_key and extra
+                if prev and prev.pk != account.pk:
+                    self._requested_accounts += [prev]
+                    prev = account
+                elif not prev:
+                    prev = account
+                else:
+                    if not prev.extra:
+                        prev.extra = []
+                prev.reports_to += [val[6]]
+            if prev:
+                self._requested_accounts += [prev]
         return self._requested_accounts
 
     def get_accounts(self):
-        ends_at = datetime_or_now()
-        return [AccountType._make(val) for val in Subscription.objects.filter(
-            ends_at__gt=ends_at, # from `SubscriptionMixin.get_queryset`
-            grant_key__isnull=True,
-            plan__organization=self.account).select_related(
-            'organization').values_list('organization__pk',
-            'organization__slug', 'organization__full_name',
-            'organization__email', 'grant_key', 'extra')]
+        return [val for val in self.requested_accounts if not val.grant_key]
 
 
 class SupplierQuerySet(object):
@@ -249,8 +291,9 @@ class SupplierQuerySet(object):
     It is not suitable for other kinds of lists at this point.
     """
 
-    def __init__(self, items):
+    def __init__(self, items, reporting_publicly=None):
         self.items = items
+        self._reporting_publicly = reporting_publicly
 
     def __getattr__(self, name):
         return getattr(self.items, name)
@@ -285,7 +328,8 @@ class SupplierQuerySet(object):
         else:
             key_func = lambda rec: rec.get(field, "").lower()
         return SupplierQuerySet(sorted(self.items,
-            key=key_func, reverse=reverse_order))
+            key=key_func, reverse=reverse_order),
+            reporting_publicly=self.reporting_publicly)
 
     def filter(self, *args, **kwargs): #pylint:disable=unused-argument
         items = []
@@ -313,7 +357,8 @@ class SupplierQuerySet(object):
                                 if pat in item[name].upper()]
                         else:
                             items += self.filter(child)
-        return SupplierQuerySet(items)
+        return SupplierQuerySet(items,
+            reporting_publicly=self.reporting_publicly)
 
     def distinct(self):
         pk_field = 'printable_name'
@@ -326,7 +371,12 @@ class SupplierQuerySet(object):
                     break
             if not found:
                 items += [new_item]
-        return SupplierQuerySet(items)
+        return SupplierQuerySet(items,
+            reporting_publicly=self.reporting_publicly)
+
+    @property
+    def reporting_publicly(self):
+        return self._reporting_publicly
 
 
 class SupplierListMixin(DashboardMixin):
@@ -336,6 +386,37 @@ class SupplierListMixin(DashboardMixin):
     """
 
     @property
+    def requested_accounts_pk(self):
+        return [account.pk for account in self.requested_accounts]
+
+    @staticmethod
+    def get_nb_questions_per_segment():
+        # XXX This is Postgres-specific code
+        raw_query = "SELECT distinct(substring(survey_question.path"\
+" from '.*/sustainability-[^/]+/')) FROM survey_question;"
+        nb_questions_per_segment = {}
+        with connection.cursor() as cursor:
+            cursor.execute(raw_query)
+            for row in cursor.fetchall():
+                nb_questions = Consumption.objects.filter(
+                    path__startswith=row[0]).count()
+                nb_questions_per_segment.update({row[0]: nb_questions})
+        return nb_questions_per_segment
+
+    @staticmethod
+    def get_segments(sample_ids):
+        results = []
+        raw_query = ("SELECT distinct(substring(survey_question.path from"\
+" '.*/sustainability-[^/]+/')) FROM survey_question INNER JOIN survey_answer"\
+" ON survey_question.id = survey_answer.question_id WHERE sample_id IN (%s);" %
+            ", ".join([str(sample_id) for sample_id in sample_ids]))
+        with connection.cursor() as cursor:
+            cursor.execute(raw_query)
+            for row in cursor.fetchall():
+                results += [row[0]]
+        return results
+
+    @property
     def complete_assessments(self):
         if not hasattr(self, '_complete_assessments'):
             self._complete_assessments = set([])
@@ -343,9 +424,26 @@ class SupplierListMixin(DashboardMixin):
             # improvements the sample is always not frozen by definition.
             for rec in Sample.objects.filter(
                     extra__isnull=True, is_frozen=True,
-                    account__in=self.requested_accounts).values(
+                    account__in=self.requested_accounts_pk).values(
                         'account').annotate(Max('created_at')):
                 self._complete_assessments |= set([rec['account']])
+
+            # Using per-segment method, within 10% of completion
+            #for segment_path, segment_nb_questions in six.iteritems(
+            #        self.get_nb_questions_per_segment()):
+            #    assessement_completed = Sample.objects.filter(
+            #        answers__question__path__startswith=segment_path,
+# We don't keep the actual answer, just the score.
+#                    answers__metric_id=self.default_metric_id,
+            #        extra__isnull=True, is_frozen=True,
+            #        account__in=self.requested_accounts_pk).values(
+            #                'account').annotate(
+            #        Max('created_at'), Count('answers__pk'))
+            #    for rec in assessement_completed:
+            #        within_10_percent = int(0.9 * segment_nb_questions)
+            #        if rec['answers__pk__count'] >= within_10_percent:
+            #            self._complete_assessments |= set([rec['account']])
+
         return self._complete_assessments
 
     @property
@@ -354,10 +452,19 @@ class SupplierListMixin(DashboardMixin):
             self._complete_improvements = set([])
             # We have to get complete assessments separately from complete
             # improvements the sample is always not frozen by definition.
-            for rec in Sample.objects.filter(
+            improvements_planned = Sample.objects.filter(
                     extra='is_planned', is_frozen=True,
-                    account__in=self.requested_accounts).values(
-                    'account').annotate(Max('created_at')):
+                    account__in=self.requested_accounts_pk).values(
+                    'account').annotate(Max('created_at'))
+            # XXX counts only improvement plans with an actual item selected.
+            #improvements_planned = Sample.objects.filter(
+            #    extra='is_planned', is_frozen=True,
+            #    answers__metric_id=self.default_metric_id,
+            #    answers__measured=Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
+            #    account__in=self.requested_accounts_pk).values(
+            #        'account').annotate(
+            #        Max('created_at'), Count('answers__pk'))
+            for rec in improvements_planned:
                 self._complete_improvements |= set([rec['account']])
         return self._complete_improvements
 
@@ -421,13 +528,20 @@ class SupplierListMixin(DashboardMixin):
 
         # XXX currently a subset query of ``get_active_by_accounts`` because
         # ``get_active_by_accounts`` returns unfrozen samples.
-        actives = Sample.objects.filter(account_id__in=[
-            account.pk for account in self.requested_accounts]).values(
-                'account_id').annotate(Max('created_at'))
+        actives = Sample.objects.filter(
+            account_id__in=self.requested_accounts_pk).values(
+            'account_id').annotate(Max('created_at'))
         for account in actives:
             if account['account_id'] not in account_scores:
                 account_scores[account['account_id']] = {
                     'created_at': account['created_at__max']}
+
+        # Suppliers reporting publicly
+        nb_suppliers_reporting_publicly = Answer.objects.filter(
+           question__requires_measurements=Consumption.CATEGORIZED_MEASUREMENTS,
+           measured=Consumption.YES,
+           sample__in=actives.values_list('pk', flat=True)).count()
+
         for account in self.requested_accounts:
             try:
                 results += [self.get_score(account, account_scores,
@@ -435,7 +549,8 @@ class SupplierListMixin(DashboardMixin):
                     expired_at)]
             except self.account_model.DoesNotExist:
                 pass
-        return SupplierQuerySet(results)
+        return SupplierQuerySet(results,
+            reporting_publicly=nb_suppliers_reporting_publicly)
 
 
 class SupplierListBaseAPIView(SupplierListMixin, generics.ListAPIView):
@@ -520,7 +635,13 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
         [{
            "slug": "totals",
            "title": "Average scores by supplier industry sub-sector"
-           "scores":[{
+           "tag": ["scorecard"],
+           "cohorts": [{
+               "slug": "/portfolio-a",
+               "title":"Portfolio A",
+               "likely_metric":"http://localhost/app/energy-utility/portfolios/portfolio-a/"
+           },
+           "values": [{
                "portfolio-a": "0.1",
                "portfolio-b": "0.5",
            }
@@ -596,8 +717,8 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
 
         score = {}
         cohorts = []
-        for account_id, account_score in six.iteritems(rollup_tree[0].get(
-                'accounts', {})):
+        accounts_with_score = rollup_tree[0].get('accounts', {})
+        for account_id, account_score in six.iteritems(accounts_with_score):
             if account_id in accounts:
                 n_score = account_score.get('normalized_score', 0)
                 if n_score > 0:
@@ -649,7 +770,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
         except Http404:
             from_root = ''
             trail = []
-        roots = [trail[-1][0]] if len(trail) > 0 else None
+        roots = [trail[-1][0]] if trail else None
         # calls rollup_scores from TotalScoreBySubsectorAPIView
         rollup_tree = self.rollup_scores(roots, from_root)
         if roots:
@@ -684,24 +805,32 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
                         'grey' if (tag and 'management' in tag) else 'orange'
                 })
 
-        for chart in charts:
-            if 'accounts' in chart:
-                del chart['accounts']
-
-        # XXX
-        if False and charts[0].get('slug') == 'totals':
+        # XXX Shows average value in encompassing supply chain.
+        if charts[0].get('slug') == 'totals':
             us_suppliers = charts[0].copy()
             us_suppliers['slug'] = "aggregates-%s" % us_suppliers['slug']
             us_suppliers['title'] = "US suppliers"
-            us_suppliers['cohorts'] = [{
-                'slug': "us-suppliers", 'title': "US suppliers"}]
-            us_suppliers['values'] = OrderedDict({})
-            sum_scores = 0
-            for _, val in six.iteritems(charts[0]['values']):
-                sum_scores += val
-            us_suppliers['values'] = OrderedDict({
-                'us-suppliers': sum_scores / len(charts[0]['values'])})
+            score = {}
+            for path, values in six.iteritems(rollup_tree[1]):
+                nb_accounts = 0
+                normalized_score = 0
+                for account_id, account_score in six.iteritems(
+                        values[0].get('accounts', {})):
+                    if True: # XXX account_id in ``accounts from alliance``
+                        n_score = account_score.get('normalized_score', 0)
+                        if n_score > 0:
+                            nb_accounts += 1
+                            normalized_score += n_score
+                if normalized_score > 0 and nb_accounts > 0:
+                    if path in set([supplier['slug']
+                            for supplier in us_suppliers['cohorts']]):
+                        score[path] = normalized_score / nb_accounts
+            us_suppliers['values'] = score
             charts += [us_suppliers]
+
+        for chart in charts:
+            if 'accounts' in chart:
+                del chart['accounts']
 
         return Response(charts)
 

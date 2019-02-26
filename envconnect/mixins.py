@@ -791,7 +791,9 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     orig_element__slug=orig_element_slug).values(
                         'dest_element__slug').order_by('rank', 'pk')]
         else:
-            edges = []
+            edges = self.get_roots().order_by('title').values_list(
+                'slug', flat=True)
+
         ordered_root = (root[0], OrderedDict({}))
         for edge in edges:
             path = "%s/%s" % (commonprefix, edge)
@@ -801,6 +803,13 @@ GROUP BY account_id, sample_id, is_planned;""" % {
             ordered_root[1][path] = self._natural_order(nodes)
         return ordered_root
 
+    @staticmethod
+    def get_indent_bestpractice(depth=0):
+        return "bestpractice-%d indent-header-%d" % (depth, depth)
+
+    @staticmethod
+    def get_indent_heading(depth=0):
+        return "heading-%d indent-header-%d" % (depth, depth)
 
     def flatten_answers(self, root, url_prefix, depth=0):
         """
@@ -810,13 +819,13 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         for prefix, nodes in six.iteritems(root[1]):
             element = PageElement.objects.get(slug=prefix.split('/')[-1])
             if nodes[1]:
-                results += [("heading-%d indent-header-%d" % (depth, depth),
+                results += [(self.get_indent_heading(depth),
                     "", element, {})]
                 results += self.flatten_answers(
                     nodes, url_prefix, depth=depth + 1)
             else:
-                results += [("bestpractice-%d indent-header-%d" % (
-                    depth, depth), url_prefix + '/' + element.slug,
+                results += [(self.get_indent_bestpractice(depth),
+                    url_prefix + '/' + element.slug,
                     element, nodes[0])]
         return results
 

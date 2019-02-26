@@ -1,12 +1,12 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
-import io, logging, json, re
+import io, json, logging, re
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import six
@@ -23,6 +23,7 @@ from ..api.benchmark import BenchmarkMixin
 from ..api.dashboards import SupplierListMixin
 from ..helpers import as_valid_sheet_title
 from ..mixins import AccountMixin, PermissionMixin
+from ..models import Consumption
 
 
 LOGGER = logging.getLogger(__name__)
@@ -175,6 +176,14 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
     def get_headings(self):
         return self.headings
 
+    @staticmethod
+    def get_indent_bestpractice(depth=0):
+        return "  " * depth
+
+    @staticmethod
+    def get_indent_heading(depth=0):
+        return "  " * depth
+
     def get_filename(self):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
 
@@ -276,6 +285,39 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                 for rec in six.itervalues(account_rows):
                     self.writerow(rec)
 
+        # Populate improvements planned sheet
+        headings = ('Best practice',
+            'Nb suppliers who have selected the practice for improvement.')
+
+        practices = Consumption.objects.filter(
+            answer__sample__extra='is_planned',
+            answer__sample__is_frozen=True,
+            answer__metric_id=self.default_metric_id,
+            answer__measured=Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT
+        ).annotate(nb_suppliers=Count('answer__sample')).values(
+            'path', 'nb_suppliers')
+
+        depth = 2
+        root = (OrderedDict({}), OrderedDict({}))
+        for practice in practices:
+            node = self._insert_path(root, practice['path'], depth=depth)
+            node[0].update({'nb_suppliers': practice['nb_suppliers']})
+        root = self._natural_order(root)
+        rows = self.flatten_answers(root, '')
+
+        self.wsheet = wbook.create_sheet(
+            title=as_valid_sheet_title("Improvements"))
+        self.wsheet.append(self.get_headings())
+        for row in rows:
+            if row[2].slug.startswith('sustainability-'):
+                # Avoids double back-to-back rows with same title
+                continue
+            indent = row[0]
+            title = row[2].title
+            nb_suppliers = row[3].get('nb_suppliers', "")
+            self.wsheet.append([indent + title, nb_suppliers])
+
+        # Prepares the result file
         content = io.BytesIO()
         wbook.save(content)
         content.seek(0)

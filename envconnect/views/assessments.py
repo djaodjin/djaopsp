@@ -238,6 +238,8 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         nb_questions = Consumption.objects.filter(
             path__startswith=from_root).count()
         nb_answers = Answer.objects.filter(sample=self.sample,
+            # XXX should be metric_id=question__default_metric,
+            metric_id=self.default_metric_id,
             question__path__startswith=from_root).count()
         context.update({
             'prev_samples': [(reverse('envconnect_sample_organization',
