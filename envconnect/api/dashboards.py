@@ -50,6 +50,7 @@ class AccountType(object):
         self.printable_name = printable_name
         self.email = email
         self.request_key = request_key
+        self.grant_key = request_key # XXX
         self.extra = extra
         self.reports_to = []
 
