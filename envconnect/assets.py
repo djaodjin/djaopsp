@@ -16,7 +16,7 @@ css_base = Bundle(
     'vendor/trip.css',
     'vendor/bootstrap-toggle.css',
     'css/matrix-chart.css',
-    filters='cssmin', output='cache/envconnect.css')
+    filters=[], output='cache/envconnect.css')
 register('css_base', css_base)
 
 

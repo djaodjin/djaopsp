@@ -541,7 +541,7 @@ class Command(BaseCommand):
 
     def duplicate_tree(self, tree, suffix, top, industry_slug, path=""):
         #pylint:disable=too-many-arguments
-        if len(tree[1]) == 0:
+        if not tree[1]:
             # We are at the bottom. Link instead of duplicate.
             path = "%s/%s" % (path, tree[0].slug)
             try:

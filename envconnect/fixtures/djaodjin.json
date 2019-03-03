@@ -26,6 +26,7 @@
 {
     "fields": {
       "slug": "envconnect",
+      "is_path_prefix": true,
       "db_name": "envconnect",
       "tag": "streetside"
     },

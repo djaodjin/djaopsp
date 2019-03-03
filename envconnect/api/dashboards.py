@@ -262,9 +262,9 @@ WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
                     plan__organization__in=level).select_related(
                     'organization').values_list('organization__pk',
                     'organization__slug', 'organization__full_name',
-                    'organization__email', 'grant_key',
-                    'extra', 'plan__organization__slug').order_by(
-                        'organization__full_name', 'organization__pk'):
+                    'organization__email', 'grant_key', 'extra',
+                    'plan__organization__slug', 'plan__organization__full_name'
+                    ).order_by('organization__full_name', 'organization__pk'):
                 account = AccountType._make(val)
                 # XXX deals with grant_key and extra
                 if prev and prev.pk != account.pk:
@@ -275,7 +275,7 @@ WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
                 else:
                     if not prev.extra:
                         prev.extra = []
-                prev.reports_to += [val[6]]
+                prev.reports_to += [(val[6], val[7])]
             if prev:
                 self._requested_accounts += [prev]
         return self._requested_accounts
@@ -318,6 +318,7 @@ class SupplierQuerySet(object):
             val = item.get(field, None)
             if val is not None:
                 break
+
         #pylint:disable=redefined-variable-type
         if isinstance(val, (six.integer_types, float)):
             key_func = lambda rec: rec.get(field, 0)
@@ -326,6 +327,13 @@ class SupplierQuerySet(object):
             if default.tzinfo is None:
                 default = default.replace(tzinfo=utc)
             key_func = lambda rec: rec.get(field, default)
+        elif isinstance(val, list):
+            if reverse_order:
+                key_func = lambda rec: min([
+                    score[0] for score in rec.get(field, [100])])
+            else:
+                key_func = lambda rec: max([
+                    score[0] for score in rec.get(field, [0])])
         else:
             key_func = lambda rec: rec.get(field, "").lower()
         return SupplierQuerySet(sorted(self.items,
@@ -481,40 +489,54 @@ class SupplierListMixin(DashboardMixin):
             'slug': account.slug,
             'printable_name': account.printable_name,
             'email': account.email,
-            'request_key': account.request_key}
+            'request_key': account.request_key,
+            'extra': account.extra,
+            'reports_to': account.reports_to}
 
-    def get_score(self, account, scores,
+    def get_scores(self, account, segments, actives,
                   complete_assessments, complete_improvements, expired_at):
         #pylint:disable=too-many-arguments
-        score = scores.get(account.pk, None)
         result = self._prepare_account(account)
-        if score is not None:
+        last_activity_at = None
+        account_scores = []
+        for segment_key, segment_val in six.iteritems(segments):
+            segment = segment_val[0]
+            scores = segment['accounts']
+            score = scores.get(account.pk, None)
+            if score is None:
+                continue
             created_at = score.get('created_at', None)
-            if created_at:
-                result.update({'last_activity_at': created_at})
-        if score is not None and not result['request_key']:
-            nb_answers = score.get('nb_answers', 0)
-            nb_questions = score.get('nb_questions', 0)
-            result.update({
-                'nb_answers': nb_answers,
-                'nb_questions': nb_questions,
-                'assessment_completed': (
-                    account.pk in complete_assessments),
-                'improvement_completed': (
-                    account.pk in complete_improvements),
-            })
-            if nb_answers == nb_questions and nb_questions != 0:
-                normalized_score = score.get('normalized_score', None)
-            else:
-                normalized_score = None
-            if normalized_score is not None:
-                result.update({'normalized_score': normalized_score})
-            # XXX We should really compute a score here.
-            improvement_score = score.get('improvement_numerator', None)
-            if improvement_score is not None:
-                result.update({'improvement_score': improvement_score})
-        reporting_status = get_reporting_status(result, expired_at)
-        result.update({'reporting_status': reporting_status})
+            if not last_activity_at or (
+                    created_at and last_activity_at < created_at):
+                last_activity_at = created_at
+            if not result['request_key']:
+                nb_answers = score.get('nb_answers', 0)
+                nb_questions = score.get('nb_questions', 0)
+                if nb_answers == nb_questions and nb_questions != 0:
+                    normalized_score = score.get('normalized_score', None)
+                else:
+                    normalized_score = None
+                if normalized_score is not None:
+                    account_scores += [
+                        (normalized_score, segment['slug'], segment['title'])]
+                # XXX We should really compute a score here.
+                improvement_score = score.get('improvement_numerator', None)
+                if improvement_score is not None:
+                    result.update({'improvement_score': improvement_score})
+
+        if not last_activity_at:
+            last_activity_at = actives.get(account.pk, None)
+        result.update({
+            'scores': account_scores,
+            'last_activity_at': last_activity_at,
+            'assessment_completed': (
+                account.pk in complete_assessments),
+            'improvement_completed': (
+                account.pk in complete_improvements),
+        })
+        result.update({
+            # `get_reporting_status` uses fields set previously in `result`.
+            'reporting_status': get_reporting_status(result, expired_at)})
         if account.extra and '"originator"' in account.extra:
             # XXX Hacky way to detect supplier initiated share of scorecard.
             # that works for now.
@@ -524,7 +546,6 @@ class SupplierListMixin(DashboardMixin):
     def get_queryset(self):
         results = []
         rollup_tree = self.rollup_scores() #SupplierListMixin
-        account_scores = rollup_tree[0]['accounts']
         expired_at = datetime_or_now() - relativedelta(year=1)
 
         # XXX currently a subset query of ``get_active_by_accounts`` because
@@ -532,10 +553,8 @@ class SupplierListMixin(DashboardMixin):
         actives = Sample.objects.filter(
             account_id__in=self.requested_accounts_pk).values(
             'account_id').annotate(Max('created_at'))
-        for account in actives:
-            if account['account_id'] not in account_scores:
-                account_scores[account['account_id']] = {
-                    'created_at': account['created_at__max']}
+        actives_d = dict([(act['account_id'], act['created_at__max'])
+            for act in list(actives)])
 
         # Suppliers reporting publicly
         nb_suppliers_reporting_publicly = Answer.objects.filter(
@@ -545,7 +564,7 @@ class SupplierListMixin(DashboardMixin):
 
         for account in self.requested_accounts:
             try:
-                results += [self.get_score(account, account_scores,
+                results += [self.get_scores(account, rollup_tree[1], actives_d,
                     self.complete_assessments, self.complete_improvements,
                     expired_at)]
             except self.account_model.DoesNotExist:
@@ -572,6 +591,7 @@ class SupplierListBaseAPIView(SupplierListMixin, generics.ListAPIView):
              "slug":"andy-shop",
              "printable_name":"Andy's Shop",
              "created_at": "2017-01-01",
+             "scores": ["boxes-and-enclosures", 94, "Boxes & enclosures"]
              "normalized_score":94
           }]
         }
@@ -607,7 +627,7 @@ class SupplierSmartListMixin(SortableListMixin, SearchableListMixin):
     sort_fields_aliases = [('printable_name', 'printable_name'),
                            ('last_activity_at', 'last_activity_at'),
                            ('assessment_completed', 'assessment_completed'),
-                           ('normalized_score', 'normalized_score'),
+                           ('scores', 'scores'),
                            ('improvement_completed', 'improvement_completed')]
 
 

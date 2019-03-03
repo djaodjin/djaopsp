@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 #pylint: disable=old-style-class,no-init
@@ -134,10 +134,8 @@ class AccountSerializer(NoModelSerializer):
     slug = serializers.CharField()
     printable_name = serializers.CharField()
     email = serializers.EmailField()
-    normalized_score = serializers.IntegerField(required=False)
+    scores = serializers.ListField(required=False)
     last_activity_at = serializers.DateTimeField(required=False)
-    nb_questions = serializers.IntegerField(required=False)
-    nb_answers = serializers.IntegerField(required=False)
     improvement_score = serializers.IntegerField(required=False)
     request_key = serializers.CharField(required=False)
     reporting_status = serializers.SerializerMethodField(required=False)

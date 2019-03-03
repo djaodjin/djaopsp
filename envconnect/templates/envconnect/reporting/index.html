@@ -71,7 +71,7 @@ Completed: Assessment and Planning are complete">
               <th>Supplier/facility<button class="btn btn-link btn-sort" ng-click="sortBy('printable_name')"><i class="fa fa-sort[[dir.printable_name ? ('-' + dir.printable_name) : '']]"></i></button></th>
               <th>Last activity<button class="btn btn-link btn-sort" ng-click="sortBy('last_activity_at')"><i class="fa fa-sort[[dir.last_activity_at ? ('-' + dir.last_activity_at) : '']]"></i></button></th>
               <th>Status<button class="btn btn-link btn-sort" ng-click="sortBy('assessment_completed')"><i class="fa fa-sort[[dir.assessment_completed ? ('-' + dir.assessment_completed) : '']]"></i></button></th>
-              <th>Score<button class="btn btn-link btn-sort" ng-click="sortBy('normalized_score')"><i class="fa fa-sort[[dir.normalized_score ? ('-' + dir.normalized_score) : '']]"></i></button></th>
+              <th>Score<button class="btn btn-link btn-sort" ng-click="sortBy('scores')"><i class="fa fa-sort[[dir.scores ? ('-' + dir.scores) : '']]"></i></button></th>
               <th>Planning<button class="btn btn-link btn-sort" ng-click="sortBy('improvement_completed')"><i class="fa fa-sort[[dir.improvement_completed ? ('-' + dir.improvement_completed) : '']]"></i></button></th>
               <th></th>
             </tr>
@@ -114,28 +114,30 @@ user).</em>
               <td colspan="7">No organization accessible for {{user}}</td>
             </tr>
             <tr id="[[entry.slug]]" ng-class="entry.supplier_initiated ? 'supplier-initiated' : ''" ng-repeat="entry in items.results" ng-show="items.$resolved && items.results.length > 0" ng-cloak>
-              <td>[[$index+1]]</td>
-              <td style="line-height:1em;">
+              <td style="vertical-align:middle;">[[$index+1]]</td>
+              <td style="vertical-align:middle;">
                 <a href="{{'app/'|site_prefixed}}[[entry.slug]]/benchmark/">[[entry.printable_name]]</a>
                 &nbsp;&nbsp;&dash;&nbsp;&nbsp;<a ng-if="entry.email" href="mailto:[[entry.email]]" style="color:black;"><i class="fa fa-envelope"></i> Email &raquo;</a>
                 <div ng-if="entry.role_description" style="font-size:0.7em;">([[entry.role_description]])</div>
               </td>
-              <td>
+              <td style="vertical-align:middle;">
                 <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>
                 <span ng-if="entry.$resolved">[[entry.last_activity_at ? (entry.last_activity_at|date: shortDate) : 'No activity']]</span>
               </td>
-              <td style="line-height:1em;">
+              <td style="vertical-align:middle;">
                 <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>
                 <span ng-if="entry.$resolved && entry.request_key">Requested</span>
                 <div ng-if="entry.$resolved && !entry.request_key">[[entry.reporting_status]]<!--<br /><span style="font-size:0.7em;">([[entry.nb_answers]] answers)</span>--></div>
               </td>
-              <td>
+              <td style="vertical-align:middle;">
                 <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>
                 <span ng-if="entry.$resolved && entry.request_key">Requested</span>
-                <span ng-if="entry.$resolved && !entry.request_key && !entry.normalized_score">not available</span>
-                <span ng-if="entry.$resolved && !entry.request_key && entry.normalized_score">[[entry.normalized_score]]%</span>
+                <span ng-if="entry.$resolved && !entry.request_key && entry.scores.length == 0">not available</span>
+                <ul class="list-unstyled" style="margin-bottom:0;" ng-if="entry.$resolved && !entry.request_key && entry.scores.length > 0">
+                  <li ng-repeat="score in entry.scores">[[ score[0] ]]%&nbsp;&dash;&nbsp;<a href="{{'app/'|site_prefixed}}[[entry.slug]]/benchmark/sustainability-[[ score[1] ]]/">[[ score[2] ]]</a></li>
+                </ul>
               </td>
-              <td style="line-height:1em;">
+              <td style="vertical-align:middle;">
                 <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>
                 <span ng-if="entry.$resolved && entry.request_key">Requested</span>
                 <div ng-if="entry.$resolved && !entry.request_key && isImprovementPlan(entry)">Yes</div>

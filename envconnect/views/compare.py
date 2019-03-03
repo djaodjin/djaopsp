@@ -9,7 +9,6 @@ from django.core.urlresolvers import reverse
 from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils import six
 from django.views.generic import TemplateView
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
@@ -191,104 +190,36 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
         last_activity_at = rec.get('last_activity_at', "")
         if last_activity_at:
             last_activity_at = last_activity_at.isoformat()
-        normalized_score = "N/A"
-        if rec['request_key']:
-            normalized_score = "Requested"
-        elif rec.get('assessment_completed', False):
-            normalized_score = rec.get('normalized_score', "N/A")
-        row = [rec['printable_name'], "", rec['email'], "", "", "",
-            last_activity_at, normalized_score]
-        for score in rec.get('scores', []):
-            row += [score[1]]
-        self.wsheet.append(row)
+        for rep in rec.get('reports_to', [(
+                self.account.slug, self.account.full_name)]):
+            report_to = "" if rep[0] == self.account.slug else rep[1]
+            if rec['request_key']:
+                self.wsheet.append([
+                    rec['printable_name'], "", rec['email'], "", "", "",
+                    last_activity_at, "Requested", report_to])
+            else:
+                for score in rec.get('scores', [("N/A", "", "")]):
+                    normalized_score = score[0]
+                    segment = score[2]
+                    row = [rec['printable_name'], "",
+                        rec['email'], "", "", segment,
+                        last_activity_at, normalized_score, report_to]
+                    self.wsheet.append(row)
 
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks
         #pylint: disable=too-many-statements
         rollup_tree = self.rollup_scores()
-        account_scores = rollup_tree[0]['accounts']
         wbook = Workbook()
 
         # Populate the Total sheet
         self.wsheet = wbook.active
         self.wsheet.title = as_valid_sheet_title("Total scores")
         self.wsheet.append(self.get_headings())
-        expired_at = datetime_or_now() - relativedelta(year=1)
-        for account in self.requested_accounts:
-            self.writerow(self.get_score(account, account_scores,
-                    self.complete_assessments, self.complete_improvements,
-                    expired_at))
-
-        # Populate industry segments sheet
-        industries = [elem['slug'] for elem in PageElement.objects.filter(
-            slug__startswith='sustainability-').values('slug')]
-        for industry in industries:
-            trail = self.get_full_element_path(industry)
-            from_root = "/" + "/".join([element.slug for element in trail])
-            try:
-                rollup_industry = self.get_rollup_at_path_prefix(
-                    from_root, rollup_tree)
-            except KeyError:
-                # We don't have any score for that industry segment
-                continue
-            account_rows = OrderedDict()
-            headings = [] + self.get_headings()
-            account_scores = rollup_industry[0]['accounts']
-            for account in self.requested_accounts:
-                if account.pk in account_scores:
-                    account_rows[account.pk] = self.get_score(
-                        account, account_scores,
-                        self.complete_assessments, self.complete_improvements,
-                        expired_at)
-            for icon_nodes in six.itervalues(rollup_industry[1]):
-                # These are icon-level scores
-                icon_node = icon_nodes[0]
-                icon_slug = icon_node['slug']
-                icon_title = icon_node['title']
-                headings += [icon_title]
-                icon_account_scores = icon_node['accounts']
-                for account in self.requested_accounts:
-                    if account.pk in account_rows:
-                        meta = self.get_score(
-                            account, icon_account_scores,
-                            self.complete_assessments,
-                            self.complete_improvements,
-                            expired_at)
-                        score = meta.get('normalized_score', "N/A")
-                        if 'scores' not in account_rows[account.pk]:
-                            account_rows[account.pk]['scores'] = []
-                        account_rows[account.pk]['scores'] += [
-                            (icon_slug, score)]
-                for system_nodes in six.itervalues(icon_nodes[1]):
-                    # These are system-level scores
-                    system_slug = system_nodes[0]['slug']
-                    system_title = system_nodes[0]['title']
-                    headings += [system_title]
-                    system_account_scores = system_nodes[0]['accounts']
-                    for account in self.requested_accounts:
-                        if account.pk in account_rows:
-                            meta = self.get_score(
-                                account, system_account_scores,
-                                self.complete_assessments,
-                                self.complete_improvements,
-                                expired_at)
-                            score = meta.get('normalized_score', "N/A")
-                            if 'scores' not in account_rows[account.pk]:
-                                account_rows[account.pk]['scores'] = []
-                            account_rows[account.pk]['scores'] += [
-                                (system_slug, score)]
-
-            if account_rows:
-                self.wsheet = wbook.create_sheet(
-                    title=as_valid_sheet_title(rollup_industry[0]['title']))
-                self.wsheet.append(headings)
-                for rec in six.itervalues(account_rows):
-                    self.writerow(rec)
+        for account in self.get_queryset():
+            self.writerow(account)
 
         # Populate improvements planned sheet
-        headings = ('Best practice',
-            'Nb suppliers who have selected the practice for improvement.')
-
         practices = Consumption.objects.filter(
             answer__sample__extra='is_planned',
             answer__sample__is_frozen=True,
@@ -307,7 +238,8 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
 
         self.wsheet = wbook.create_sheet(
             title=as_valid_sheet_title("Improvements"))
-        self.wsheet.append(self.get_headings())
+        self.wsheet.append(('Best practice',
+            'Nb suppliers who have selected the practice for improvement.'))
         for row in rows:
             if row[2].slug.startswith('sustainability-'):
                 # Avoids double back-to-back rows with same title
