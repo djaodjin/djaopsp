@@ -544,8 +544,10 @@ class SupplierListMixin(DashboardMixin):
         return result
 
     def get_queryset(self):
+        return self.get_suppliers(self.rollup_scores()) #SupplierListMixin
+
+    def get_suppliers(self, rollup_tree):
         results = []
-        rollup_tree = self.rollup_scores() #SupplierListMixin
         expired_at = datetime_or_now() - relativedelta(year=1)
 
         # XXX currently a subset query of ``get_active_by_accounts`` because

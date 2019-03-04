@@ -7,6 +7,7 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.core.urlresolvers import reverse
 from django.db.models import Count, Q
+from django.utils import six
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
@@ -186,38 +187,80 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
     def get_filename(self):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
 
-    def writerow(self, rec):
+    def writerow(self, rec, headings=None):
         last_activity_at = rec.get('last_activity_at', "")
         if last_activity_at:
             last_activity_at = last_activity_at.isoformat()
-        for rep in rec.get('reports_to', [(
-                self.account.slug, self.account.full_name)]):
-            report_to = "" if rep[0] == self.account.slug else rep[1]
+        if headings:
             if rec['request_key']:
                 self.wsheet.append([
                     rec['printable_name'], "", rec['email'], "", "", "",
-                    last_activity_at, "Requested", report_to])
+                    last_activity_at] + ["Requested" for val in headings])
             else:
-                for score in rec.get('scores', [("N/A", "", "")]):
-                    normalized_score = score[0]
-                    segment = score[2]
-                    row = [rec['printable_name'], "",
-                        rec['email'], "", "", segment,
-                        last_activity_at, normalized_score, report_to]
-                    self.wsheet.append(row)
+                scores = []
+                for heading in headings:
+                    section_score = "N/A"
+                    for score in rec.get('scores', []):
+                        if score[2] == heading:
+                            section_score = score[0]
+                            break
+                    scores += [section_score]
+                self.wsheet.append([
+                    rec['printable_name'], "", rec['email'], "", "", "",
+                    last_activity_at] + scores)
+        else:
+            for rep in rec.get('reports_to', [(
+                    self.account.slug, self.account.full_name)]):
+                report_to = "" if rep[0] == self.account.slug else rep[1]
+                if rec['request_key']:
+                    self.wsheet.append([
+                        rec['printable_name'], "", rec['email'], "", "", "",
+                        last_activity_at, "Requested", report_to])
+                else:
+                    for score in rec.get('scores', [("N/A", "", "")]):
+                        normalized_score = score[0]
+                        segment_slug = score[1]
+                        segment = score[2]
+                        row = [rec['printable_name'], "",
+                            rec['email'], "", "", segment,
+                            last_activity_at, normalized_score, report_to]
+                        self.wsheet.append(row)
+                        if segment_slug:
+                            if segment_slug not in self.suppliers_per_segment:
+                                self.suppliers_per_segment[segment_slug] = set(
+                                    [])
+                            self.suppliers_per_segment[segment_slug] |= set(
+                                [rec['slug']])
 
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks
         #pylint: disable=too-many-statements
         rollup_tree = self.rollup_scores()
+        self.suppliers_per_segment = {}
         wbook = Workbook()
 
         # Populate the Total sheet
         self.wsheet = wbook.active
         self.wsheet.title = as_valid_sheet_title("Total scores")
         self.wsheet.append(self.get_headings())
-        for account in self.get_queryset():
+        for account in self.get_suppliers(rollup_tree):
             self.writerow(account)
+
+        # Populate per-segment sheets
+        for container in six.itervalues(rollup_tree[1]):
+            if not self.suppliers_per_segment.get(container[0]['slug'], []):
+                continue
+            for segment in six.itervalues(container[1]):
+                headings = [val[0]['title']
+                    for val in six.itervalues(segment[1])]
+                all_headings = self.get_headings()[:-2] + headings
+                suppliers_per_segment = self.get_suppliers(segment)
+                if suppliers_per_segment:
+                    self.wsheet = wbook.create_sheet(
+                        title=as_valid_sheet_title(segment[0]['title']))
+                    self.wsheet.append(all_headings)
+                    for account in suppliers_per_segment:
+                        self.writerow(account, headings=headings)
 
         # Populate improvements planned sheet
         practices = Consumption.objects.filter(
