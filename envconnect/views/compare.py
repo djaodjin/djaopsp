@@ -248,19 +248,22 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
 
         # Populate per-segment sheets
         for container in six.itervalues(rollup_tree[1]):
-            if not self.suppliers_per_segment.get(container[0]['slug'], []):
+            segment_suppliers = self.suppliers_per_segment.get(
+                container[0]['slug'], set([]))
+            if not segment_suppliers:
                 continue
             for segment in six.itervalues(container[1]):
                 headings = [val[0]['title']
                     for val in six.itervalues(segment[1])]
-                all_headings = self.get_headings()[:-2] + headings
+                all_headings = self.get_headings()[:-1] + headings
                 suppliers_per_segment = self.get_suppliers(segment)
                 if suppliers_per_segment:
                     self.wsheet = wbook.create_sheet(
                         title=as_valid_sheet_title(segment[0]['title']))
                     self.wsheet.append(all_headings)
                     for account in suppliers_per_segment:
-                        self.writerow(account, headings=headings)
+                        if account['slug'] in segment_suppliers:
+                            self.writerow(account, headings=headings)
 
         # Populate improvements planned sheet
         practices = Consumption.objects.filter(
