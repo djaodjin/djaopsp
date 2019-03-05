@@ -851,6 +851,11 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
             us_suppliers['values'] = score
             charts += [us_suppliers]
 
+        self.create_distributions(rollup_tree)
+        self.decorate_with_breadcrumbs(rollup_tree)
+        distribution_charts, complete = self.flatten_distributions(
+            rollup_tree, prefix=from_root)
+
         for chart in charts:
             if 'accounts' in chart:
                 del chart['accounts']

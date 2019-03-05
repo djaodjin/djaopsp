@@ -1873,7 +1873,19 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     ImprovementDashboard.prototype = {
         init: function () {
             var self = this;
-            self.load();
+            self.charts = self.options.charts;
+            if( self.charts ) {
+                self.populate(self.charts);
+            } else {
+                self.load();
+            }
+        },
+
+        idAsSlug: function(chartId) {
+            if( chartId ) {
+                return chartId.replace(/(-chart|-distribution)$/, "");
+            }
+            return "";
         },
 
         populate: function (data) {
@@ -1882,19 +1894,19 @@ envconnectControllers.controller("envconnectMyTSPReporting",
             var elems = self.element.find(".chart-container");
             var defaultElem = self.element.find(
                 ".chart-container.chart-container-default");
-            var defaultChartId = defaultElem.attr("id");
+            var defaultChartId = self.idAsSlug(defaultElem.attr("id"));
             var defaultChart = null;
             for( var chartIdx = 0; chartIdx < data.length; ++chartIdx ) {
-                if( (data[chartIdx].slug + '-chart') === defaultChartId ) {
+                if( data[chartIdx].slug === defaultChartId ) {
                     defaultChart = data[chartIdx];
                     break;
                 }
             }
             for( var idx = 0; idx < elems.length; ++idx ) {
-                var chartId = $(elems[idx]).attr('id');
+                var chartId = self.idAsSlug($(elems[idx]).attr('id'));
                 var found = defaultChart;
                 for( var chartIdx = 0; chartIdx < data.length; ++chartIdx ) {
-                    if( (data[chartIdx].slug + '-chart') === chartId ) {
+                    if( data[chartIdx].slug === chartId ) {
                         found = data[chartIdx];
                         break;
                     }
@@ -1918,8 +1930,12 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                     $(elems[idx]).find(".chart-content").benchmarkChart({
                         title: found.title,
                         scores: found.distribution,
-                        nb_answers: found.nb_answers,
-                        nb_questions: found.nb_questions});
+                        // XXX follow workarounds for matrix pages
+                        nb_answers: (typeof found.nb_answers !== "undefined") ?
+                            found.nb_answers : 1,
+                        nb_questions: (
+                            typeof found.nb_questions !== "undefined") ?
+                            found.nb_questions : 1});
                 }
             }
             // Scores
@@ -1967,7 +1983,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                     // score
                     var elemPath = "#" + data[idx].slug + "-score .rollup-score";
                     var benchmarkElement = self.element.find(elemPath);
-                    if( benchmarkElement ) {
+                    if( benchmarkElement.length > 0 ) {
                         if( data[idx].nb_questions > 0
                             && data[idx].nb_answers >= data[idx].nb_questions ) {
                             benchmarkElement.text("" + data[idx].normalized_score + "%");
@@ -1978,7 +1994,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                     // score weight
                     elemPath = "#" + data[idx].slug + "-score .rollup-weight";
                     benchmarkElement = self.element.find(elemPath);
-                    if( benchmarkElement ) {
+                    if( benchmarkElement.length > 0 ) {
                         var weight = data[idx].score_weight.toFixed(2);
                         if( data[idx].score_percentage ) {
                             weight = "" + data[idx].score_percentage + "%";
@@ -1998,7 +2014,8 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                 datatype: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function(data) {
-                    self.populate(data);
+                    self.charts = data;
+                    self.populate(self.charts);
                 },
                 error: function(resp) { showErrorMessages(resp); }
             });
@@ -2017,7 +2034,8 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     };
 
     $.fn.improvementDashboard.defaults = {
-        api_account_benchmark: null,
+        charts: null,
+        api_account_benchmark: null, // API endpoint to load charts.
         benchmark: null,
         scoreFunc: function(elem) { return elem.normalized_score }
     };

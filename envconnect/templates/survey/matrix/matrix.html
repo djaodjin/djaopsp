@@ -30,147 +30,69 @@ display: none;
              ng-change="toggleMyTSP($event, '{% url 'organization_reporting_entities' organization %}')">
     </div>
   </div>
-<div align="center" id="panel-icons" class="panel-icons panel-icons-no-benchmark">
-  <div class="card-body">
-  <!-- global metric -->
-  <div id="{{object.slug}}-chart" class="row">
+  <div align="center" id="panel-icons" class="panel-icons panel-icons-no-benchmark">
     <div>
-      <div class="col-md-offset-2 col-md-8">
-        <h2>{{object.title}}</h2>
-        <div class="chart totals-preview text-center" style="display: inline-block;">
-          <i class="fa fa-spinner fa-spin fa-2x"></i>
-        </div>
-      </div>
-      <div class="col-md-4 text-left">
-        <!-- dialog to create new portfolio analysis -->
-        <div id="new-portfolio-analysis" class="modal fade" tabindex="-1"
-             role="dialog" aria-labelledby="New portfolio analysis"
-             aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h4 class="modal-title">New portfolio analysis ...</h4>
-                <button type="button" class="close"
-                        data-dismiss="modal" aria-hidden="true">&times;</button>
-              </div>
-              <form id="new-matrix" class="form-inline" style="width: 100%;">
-                <div class="modal-body">
-                  <div class="form-group">
-                    <label>Title</label>
-                    <input class="form-control"
-                           type="text" max-length="150"
-                           name="title" placeholder="My portfolio analysis"
-                           autofocus />
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary"
-                          data-dismiss="modal">Cancel</button>
-                  <button id="new-portfolio-analysis-submit"
-                          type="submit" class="btn btn-primary">New</button>
-                </div>
-              </form>
+      <!-- global metric -->
+      <div id="{{object.slug}}-chart" class="row">
+        <div>
+          <div class="offset-md-2 col-md-8">
+            <h2>{{object.title}}</h2>
+            <div class="chart totals-preview text-center" style="display: inline-block;">
+              <i class="fa fa-spinner fa-spin fa-2x"></i>
             </div>
           </div>
         </div>
-        <!-- end of modal dialog -->
       </div>
-    </div>
-  </div>
-  <!-- dialog to create new cohort -->
-  <div id="new-cohort-modal" class="modal fade" tabindex="-1"
-       role="dialog" aria-labelledby="New portfolio "
-       aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">New portfolio ...</h4>
-          <button type="button" class="close"
-                  data-dismiss="modal" aria-hidden="true">&times;</button>
-        </div>
-        <form id="new-cohort" class="form-inline" style="width: 100%;">
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Title</label>
-              <input class="form-control"
-                     type="text" max-length="150"
-                     name="cohort-title" placeholder="My portfolio"
-                     autofocus />
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary"
-                    data-dismiss="modal">Cancel</button>
-            <button id="new-cohort-submit"
-                    type="submit" class="btn btn-primary">New</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  <!-- end of modal dialog -->
-  <!-- dialog to create new metric -->
-  <div id="new-metric-modal" class="modal fade" tabindex="-1"
-       role="dialog" aria-labelledby="New metric "
-       aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">New metric ...</h4>
-          <button type="button" class="close"
-                  data-dismiss="modal" aria-hidden="true">&times;</button>
-        </div>
-        <form id="new-metric" class="form-inline" style="width: 100%;">
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Title</label>
-              <input class="form-control"
-                     type="text" max-length="150"
-                     name="metric-title" placeholder="My metric"
-                     autofocus />
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary"
-                    data-dismiss="modal">Cancel</button>
-            <button id="new-metric-submit"
-                    type="submit" class="btn btn-primary">New</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  <!-- end of modal dialog -->
 
 <!-- sub-metrics -->
 {% block submetrics %}
-<div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
-  <h2 style="margin-left: 5px;">Individual scores by industry segment</h2>
-  <div>
+<div id="by-suppliers" class="benchmarks-box" style="margin-top: 25px;">
+  <h2 style="margin-top:20px;">Sub-segments scores by suppliers</h2>
+  <div class="row row-flex">
+    {% for chart in charts %}
+    {% if forloop.counter0|divisibleby:3 %}
+    </div>
     <div class="row row-flex">
-      {% for chart in charts %}
-      {% if forloop.counter0|divisibleby:3 %}
-      </div>
-      <div class="row row-flex">
-      {% endif %}
-      <div class="col-md-4">
-          <div id="chart-{{chart.slug}}" class="chart-container">
-              {% include "envconnect/_chart_title.html" with practice=chart %}
-              <div>
-                  <div class="chart-content c3" style="width:250px;height:120px;">
-                    <div class="distribution-chart c3">
-                      <div class="chart text-center">
-                        <i class="fa fa-spinner fa-spin fa-2x"></i>
-                      </div>
-                    </div>
-                  </div>
+    {% endif %}
+    <div class="col-md-4">
+      <div id="chart-{{chart.slug}}" class="chart-container">
+        {% include "envconnect/_chart_title.html" with practice=chart %}
+        <div>
+          <div class="chart-content c3" style="width:250px;height:120px;">
+            <div class="distribution-chart c3">
+              <div class="chart text-center">
+                <i class="fa fa-spinner fa-spin fa-2x"></i>
               </div>
+            </div>
           </div>
+        </div>
       </div>
-      {% endfor %}
-      </div>
+    </div>
+    {% endfor %}
   </div>
 </div>
+{% if charts %}
+<div id="by-scores" class="benchmarks-box" style="margin-top: 25px;">
+  <h2 style="margin-top:20px;">Sub-segments suppliers by scores</h2>
+  <div class="row row-flex">
+    {% for chart in charts %}
+    {% if forloop.counter0|divisibleby:3 %}
+    </div>
+    <div class="row row-flex">
+    {% endif %}
+    <div class="col-md-4">
+      <div id="{{chart.slug}}-distribution" class="chart-container">
+        {% include "envconnect/_chart_title.html" with practice=chart %}
+        <div>
+          <div class="chart-content c3 benchmark-chart-small">
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 {% endblock %}
   </div>
 </div>
@@ -181,27 +103,6 @@ display: none;
 {{block.super}}
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-  $("#edit-matrix-btn").click(function(event) {
-      event.preventDefault();
-      $("#edit-matrix").show();
-  });
-
-  $("#new-matrix").submit(function() {
-      var self = $(this);
-      var title = self.find("[name=\"title\"]").val();
-      $.ajax({
-          method: "POST",
-          url: "{{matrix_api_base}}",
-          data: JSON.stringify({title: title, cohorts: []}),
-          datatype: "json",
-          contentType: "application/json; charset=utf-8",
-          success: function(data){
-              window.location = data.slug + "/";
-          }
-      });
-      return false;
-  });
-
   $.ajax({
       method: "GET",
       url: "{{matrix_api}}",
@@ -235,7 +136,7 @@ jQuery(document).ready(function($) {
                       var title = (data[idx].breadcrumbs && data[idx].breadcrumbs.length > 0) ? data[idx].breadcrumbs[0] : data[idx].slug;
                       var subtitle = (data[idx].breadcrumbs && data[idx].breadcrumbs.length > 1) ? data[idx].breadcrumbs[1] : "";
                       var subsubtitle = (data[idx].breadcrumbs && data[idx].breadcrumbs.length > 2) ? data[idx].breadcrumbs[2] : "";
-                      $("#benchmarks .row").last().append(
+                      $("#by-suppliers .row").last().append(
       "<div class=\"col-md-4\"><div id=\"chart-" + data[idx].slug + "\" class=\"chart-container\"><div class=\"chart-title\"><div class=\"icon-benchmark " + data[idx].icon_css + "\"><img class=\"icon-equipment\" src=\"" + data[idx].icon + "\"></div><div class=\"title\"><h3>" + title + "</h3><h4>" + subtitle + "</h4><h5>" + subsubtitle + "</h5></div></div><div><div class=\"chart-content c3\" style=\"width:250px;height:120px;\"><div class=\"distribution-chart c3\"><div class=\"chart text-center\"><i class=\"fa fa-spinner fa-spin fa-2x\"></i></div></div></div></div></div></div>");
                       chartElement = $('[id^="chart-' + data[idx].slug + '"]');
                   }
@@ -248,6 +149,10 @@ jQuery(document).ready(function($) {
                   });
               }
           }
+
+          $("#by-scores").improvementDashboard({
+              charts: data,
+          });
       },
       error: function(resp) {
           showErrorMessages(resp);
