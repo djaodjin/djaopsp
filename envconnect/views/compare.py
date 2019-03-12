@@ -35,16 +35,7 @@ class SuppliersView(AccountMixin, PermissionMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SuppliersView, self).get_context_data(**kwargs)
-        accounts = self.managed_accounts
-        if len(accounts) == 1:
-            totals = get_object_or_404(
-                Matrix, account__slug=accounts[0], metric__slug='totals')
-            totals_chart_url = reverse('matrix_chart',
-                args=(accounts[0], '/%s' % totals.slug))
-        else:
-            totals_chart_url = reverse('envconnect_portfolio',
-                args=('/totals',))
-        urls = {
+        self.update_context_urls(context, {
             'api_suppliers': reverse('api_suppliers', args=(self.account,)),
             'api_accessibles': site_prefixed(
                 "/api/profile/%(account)s/plans/%(account)s-report/"\
@@ -52,13 +43,11 @@ class SuppliersView(AccountMixin, PermissionMixin, TemplateView):
             'api_organizations': site_prefixed("/api/profile/"),
             'api_organization_profile': site_prefixed(
                 "/api/profile/%(account)s/" % {'account': self.account}),
-            'totals_chart': totals_chart_url,
-        }
+        })
         context.update({
             'score_toggle': True,
             'account_extra': self.account.extra
         })
-        self.update_context_urls(context, urls)
         return context
 
 

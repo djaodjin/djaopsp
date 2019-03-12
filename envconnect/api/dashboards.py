@@ -329,11 +329,11 @@ class SupplierQuerySet(object):
             key_func = lambda rec: rec.get(field, default)
         elif isinstance(val, list):
             if reverse_order:
-                key_func = lambda rec: min([
-                    score[0] for score in rec.get(field, [100])])
+                key_func = lambda rec: min([score[0] for score in (
+                    rec.get(field) if rec.get(field, None) else [[0]])])
             else:
-                key_func = lambda rec: max([
-                    score[0] for score in rec.get(field, [0])])
+                key_func = lambda rec: max([score[0] for score in (
+                    rec.get(field) if rec.get(field, None) else [[100]])])
         else:
             key_func = lambda rec: rec.get(field, "").lower()
         return SupplierQuerySet(sorted(self.items,
