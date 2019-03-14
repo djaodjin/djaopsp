@@ -321,12 +321,13 @@ class SupplierQuerySet(object):
 
         #pylint:disable=redefined-variable-type
         if isinstance(val, (six.integer_types, float)):
-            key_func = lambda rec: rec.get(field, 0)
+            key_func = lambda rec: rec.get(field) if rec.get(field, None) else 0
         elif isinstance(val, datetime.datetime):
             default = datetime.datetime.min
             if default.tzinfo is None:
                 default = default.replace(tzinfo=utc)
-            key_func = lambda rec: rec.get(field, default)
+            key_func = lambda rec: (rec.get(field)
+                if rec.get(field, None) else default)
         elif isinstance(val, list):
             if reverse_order:
                 key_func = lambda rec: min([score[0] for score in (
