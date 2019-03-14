@@ -147,7 +147,7 @@ user).</em>
             </tr>
           </tbody>
         </table>
-        <div class="text-center" ng-cloak ng-show="items.$resolved && totalItems > itemsPerPage">
+        <div class="d-flex justify-content-center" ng-show="items.$resolved && totalItems > itemsPerPage" ng-cloak>
           <ul uib-pagination class="pagination-sm" ng-model="currentPage"
                 total-items="totalItems"
                 items-per-page="itemsPerPage"

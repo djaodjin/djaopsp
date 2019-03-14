@@ -109,7 +109,7 @@ vendor-assets-prerequisites: $(srcDir)/package.json
 	$(installFiles) $(installTop)/node_modules/angular/angular.min.js* $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/angular/angular.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/angular-animate/angular-animate.min.js* $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/node_modules/ui-bootstrap4/dist/ui-bootstrap-tpls.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/angular-dragdrop/src/angular-dragdrop.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/angular-route/angular-route.min.js* $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/angular-sanitize/angular-sanitize.js $(ASSETS_DIR)/vendor
