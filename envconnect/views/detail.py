@@ -1,14 +1,21 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
-import json
+import io, json
 
+from deployutils.helpers import datetime_or_now
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
-from django.views.generic import TemplateView
+from django.http import HttpResponse, HttpResponseRedirect
+from django.views.generic import TemplateView, ListView
 from django.utils import six
+from openpyxl import Workbook
+from openpyxl.drawing.image import Image
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.styles.borders import BORDER_THIN
+from openpyxl.styles.fills import FILL_SOLID
 
-from ..mixins import BestPracticeMixin
+from ..helpers import as_valid_sheet_title
+from ..mixins import BreadcrumbMixin, BestPracticeMixin
 from ..models import ColumnHeader
 
 
@@ -122,3 +129,155 @@ class DetailView(BestPracticeMixin, TemplateView):
             'hidden': json.dumps(hidden_columns)
         })
         return context
+
+
+class DetailSpreadsheetView(BreadcrumbMixin, ListView):
+
+    basename = 'best-practices'
+    headings = ['', 'Environmental', 'Ops/maintenance', 'Financial',
+        'Implementation ease', 'AVERAGE VALUE']
+    indent_step = '    '
+
+    def write_tree(self, root, indent=''):
+        if not root:
+            return
+        element = root[0].get('consumption', None)
+        if element:
+            # We reached a leaf
+            self.writerow([
+                indent + root[0]['title'],
+                element['environmental_value'],
+                element['business_value'],
+                element['profitability'],
+                element['implementation_ease'],
+                element['avg_value']
+            ], leaf=True)
+        else:
+            element = root[0]
+            self.writerow([indent + element['title']])
+            for _, nodes in six.iteritems(root[1]):
+                self.write_tree(nodes, indent=indent + self.indent_step)
+
+    def get(self, request, *args, **kwargs): #pylint: disable=unused-argument
+        from_root, trail = self.breadcrumbs
+        # It is OK here to index by -1 since we would have generated a redirect
+        # in the `get` method when the path is "/".
+        root = self._build_tree(trail[-1][0], from_root)
+        self.create_writer(self.get_headings(), title="Best practices")
+        self.writerow(self.get_headings(), leaf=True)
+        self.write_tree(root)
+        resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
+        resp['Content-Disposition'] = \
+            'attachment; filename="{}"'.format(self.get_filename())
+        return resp
+
+    def get_headings(self):
+        return self.headings
+
+    def get_filename(self):
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d.csv')
+
+
+class DetailXLSXView(DetailSpreadsheetView):
+
+    content_type = \
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    valueFills = [
+        PatternFill(fill_type=FILL_SOLID, fgColor='FF9CD76B'), # green-level-0
+        PatternFill(fill_type=FILL_SOLID, fgColor='FF69B02B'), # green-level-1
+        PatternFill(fill_type=FILL_SOLID, fgColor='FF007C3F'), # green-level-2
+        PatternFill(fill_type=FILL_SOLID, fgColor='FFFFD700'), # green-level-3
+    ]
+
+    def create_writer(self, headings, title=None):
+        col_scale = 11.9742857142857
+        self.wbook = Workbook()
+        self.wsheet = self.wbook.active
+        if title:
+            self.wsheet.title = as_valid_sheet_title(title)
+        self.wsheet.row_dimensions[1].height = 0.36 * (6 * col_scale)
+        self.wsheet.column_dimensions['A'].width = 6.56 * col_scale
+        for col_num in range(0, len(headings)):
+            self.wsheet.column_dimensions[chr(ord('E') + col_num)].width \
+                = 0.99 * col_scale
+        self.heading_font = Font(
+            name='Calibri', size=12, bold=False, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF0071BB')
+        self.heading_alignment = Alignment(wrap_text=True)
+        self.border = Border(
+            left=Side(border_style=BORDER_THIN, color='FF000000'),
+            right=Side(border_style=BORDER_THIN, color='FF000000'),
+            top=Side(border_style=BORDER_THIN, color='FF000000'),
+            bottom=Side(border_style=BORDER_THIN, color='FF000000'))
+        self.text_center = Alignment(horizontal='center')
+
+    def flush_writer(self):
+        #pylint:disable=protected-access,too-many-statements
+        bold_font = Font(
+            name='Calibri', size=11, bold=True, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF000000')
+        alignment = Alignment(
+            horizontal='center', vertical='center',
+            text_rotation=0, wrap_text=False,
+            shrink_to_fit=False, indent=0)
+        subtitle_fill = PatternFill(fill_type=FILL_SOLID, fgColor='FFEEECE2')
+        subtitle_font = Font(
+            name='Calibri', size=10, bold=False, italic=False,
+            vertAlign='baseline', underline='none', strike=False,
+            color='FF000000')
+        subtitle_alignment = Alignment(
+            horizontal='center', vertical='center',
+            text_rotation=0, wrap_text=True,
+            shrink_to_fit=True, indent=0)
+        # Implementation Note: We style the cells here instead of the rows
+        # otherwise opening the file on Excel leads to weird background coloring
+        # (LibreOffice looks fine).
+        for col in ['A', 'B', 'C', 'D', 'E', 'F']:
+            cell = self.wsheet['%s2' % col]
+            cell.fill = subtitle_fill
+            cell.font = subtitle_font
+            cell.border = self.border
+            cell.alignment = subtitle_alignment
+
+        # Write out the Excel file.
+        content = io.BytesIO()
+        self.wbook.save(content)
+        content.seek(0)
+        return content
+
+    def get_filename(self):
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
+
+    def get_value_fill(self, val):
+        if val < len(self.valueFills):
+            return self.valueFills[val]
+        return self.valueFills[-1]
+
+    def writerow(self, row, leaf=False):
+        #pylint:disable=protected-access
+        self.wsheet.append(row)
+        if leaf:
+            if len(row) >= 6:
+                for row_cells in self.wsheet.iter_rows(
+                        min_row=self.wsheet._current_row,
+                        max_row=self.wsheet._current_row):
+                    for cell_idx in range(1, 6):
+                        # environmental_value, business_value,
+                        # implementation_ease, profitability,
+                        # avg_value
+                        try:
+                            row_cells[cell_idx].border = self.border
+                            row_cells[cell_idx].fill = self.get_value_fill(
+                                int(row_cells[cell_idx].value))
+                        except ValueError:
+                            # might be the header
+                            pass
+        else:
+            for row_cells in self.wsheet.iter_rows(
+                    min_row=self.wsheet._current_row,
+                    max_row=self.wsheet._current_row):
+                row_cells[0].font = self.heading_font
+                row_cells[0].alignment = self.heading_alignment

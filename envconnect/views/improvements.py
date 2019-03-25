@@ -2,11 +2,12 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import csv, datetime, logging, io
+import csv, logging, io
 from collections import OrderedDict
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
+from deployutils.helpers import datetime_or_now
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.generic.list import ListView
@@ -167,7 +168,7 @@ class ImprovementSpreadsheetView(ImprovementOnlyMixin, ListView):
         return self.headings
 
     def get_filename(self):
-        return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.csv')
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d.csv')
 
 
 class ImprovementCSVView(ImprovementSpreadsheetView):
@@ -190,7 +191,7 @@ class ImprovementCSVView(ImprovementSpreadsheetView):
         return self.content
 
     def get_filename(self):
-        return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.csv')
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d.csv')
 
 
 class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
@@ -322,7 +323,7 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         return content
 
     def get_filename(self):
-        return datetime.datetime.now().strftime(self.basename + '-%Y%m%d.xlsx')
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
 
     def get_value_fill(self, val):
         if val < len(self.valueFills):

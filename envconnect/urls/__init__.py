@@ -15,7 +15,7 @@ from ..views.benchmark import (BenchmarkView,
     ScoreCardView, ScoreCardDownloadView, ScoreCardRedirectView)
 from ..views.compare import (SuppliersView, SuppliersXLSXView,
     PortfoliosDetailView)
-from ..views.detail import DetailView
+from ..views.detail import DetailView, DetailXLSXView
 from ..views.index import IndexView
 from ..views.improvements import (ImprovementView, ImprovementPDFView,
     ImprovementXLSXView)
@@ -92,6 +92,8 @@ urlpatterns += [
             pattern_name='scorecard_organization',
             new_account_url='/%sapp/new/' % APP_PREFIX),
         name='scorecard'),
+    url_authenticated(r'app/info(?P<path>%s)/download/' % PATH_RE,
+      DetailXLSXView.as_view(), name='summary_download'),
     url_authenticated(r'app/info(?P<path>%s)/' % PATH_RE,
       DetailView.as_view(), name='summary'),
 
@@ -151,6 +153,9 @@ urlpatterns += [
     url_direct(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/' % (
         SLUG_RE, PATH_RE), ScoreCardView.as_view(),
         name='scorecard_organization'),
+    url_direct(r'app/(?P<organization>%s)/info(?P<path>%s)/download/' % (
+        SLUG_RE, PATH_RE),
+        DetailXLSXView.as_view(), name='summary_organization_download'),
     url_direct(r'app/(?P<organization>%s)/info(?P<path>%s)/' % (
         SLUG_RE, PATH_RE),
         DetailView.as_view(), name='summary_organization'),

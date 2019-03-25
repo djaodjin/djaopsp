@@ -4,7 +4,6 @@
 import io, json, logging, re
 from collections import OrderedDict
 
-from dateutil.relativedelta import relativedelta
 from django.core.urlresolvers import reverse
 from django.db.models import Count, Q
 from django.utils import six
