@@ -9,18 +9,20 @@ from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
     DestroyModelMixin)
 from rest_framework.response import Response
 from survey.models import Answer, EnumeratedQuestions, get_question_model
+from survey.api.serializers import AnswerSerializer
 
 from ..mixins import ImprovementQuerySetMixin
 from ..models import Consumption
 
 
-class ImprovementSerializer(serializers.ModelSerializer):
+class ImprovementSerializer(AnswerSerializer):
 
+    measured = serializers.CharField(required=False)
     consumption = serializers.SerializerMethodField()
 
     class Meta(object):
         model = Answer
-        fields = ('consumption',)
+        fields = ('created_at', 'measured', 'consumption')
 
     @staticmethod
     def get_consumption(obj):
@@ -44,9 +46,9 @@ class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
         return context
 
 
-class ImprovementToggleAPIView(ImprovementQuerySetMixin,
-                                CreateModelMixin, RetrieveModelMixin,
-                                DestroyModelMixin, GenericAPIView):
+class ImprovementAnswerAPIView(ImprovementQuerySetMixin,
+                               CreateModelMixin, RetrieveModelMixin,
+                               DestroyModelMixin, GenericAPIView):
     """
     Assessment:
     implementation rate, nb respondents
@@ -61,26 +63,39 @@ class ImprovementToggleAPIView(ImprovementQuerySetMixin,
         return get_object_or_404(self.get_queryset(),
             question__path=self.kwargs.get('path'))
 
+    @property
+    def question(self):
+        if not hasattr(self, '_question'):
+            self._question = get_object_or_404(
+                get_question_model().objects.all(),
+                path=self.kwargs.get('path'))
+        return self._question
+
+    def get_serializer_context(self):
+        context = super(ImprovementAnswerAPIView, self).get_serializer_context()
+        context.update({'question': self.question})
+        return context
+
     def create(self, request, *args, **kwargs):
-        question = get_object_or_404(get_question_model().objects.all(),
-            path=self.kwargs.get('path'))
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # Implementation Note: We need to set the `measured` field
+        # otherwise `get_scored_answers` will return a numerator
+        # of zero. We use `NEEDS_SIGNIFICANT_IMPROVEMENT` such
+        # as to be conservative in the calculation.
+        measured = serializer.validated_data.get('measured',
+            Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT)
         with transaction.atomic():
             self.get_or_create_improve_sample()
             with transaction.atomic():
-                # Implementation Note: We need to set the `measured` field
-                # otherwise `get_scored_answers` will return a numerator
-                # of zero. We use `NEEDS_SIGNIFICANT_IMPROVEMENT` such
-                # as to be conservative in the calculation.
                 rank = EnumeratedQuestions.objects.get(
                     campaign=self.improvement_sample.survey,
-                    question=question).rank
+                    question=self.question).rank
                 _, created = self.model.objects.get_or_create(
                     sample=self.improvement_sample,
-                    question=question,
-                    metric=question.default_metric,
-                    defaults={
-                        'measured': Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
-                        'rank': rank})
+                    question=self.question,
+                    metric=self.question.default_metric,
+                    defaults={'measured': measured, 'rank': rank})
         return Response({},
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 

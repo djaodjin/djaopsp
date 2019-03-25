@@ -1324,10 +1324,15 @@ envconnectControllers.controller("EnvconnectCtrl",
         The function is also called at initialization time (with an undefined
         `practice`) to recursively go through the `entries` tree.
      */
-    $scope.updateImprovement = function(practice) {
+    $scope.updateImprovement = function(practice, newValue) {
         if( practice && practice[0].consumption ) {
             if( $scope.getPlanned(practice[0]) ) {
-                $http.post(settings.urls.api_improvements + practice[0].path
+                var data = {};
+                if( newValue ) {
+                    data['measured'] = newValue;
+                }
+                $http.post(
+                    settings.urls.api_improvements + practice[0].path, data
                 ).then(function success(resp) {
                     $("#improvement-dashboard").data('improvementDashboard').load();
                 }, function(resp) { // error
@@ -1541,8 +1546,11 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     $scope.submitMeasures = function(prefix, event) {
-        var form = angular.element(event.target);
-        var modalDialog = form.parents('.modal');
+        var modalDialog = null;
+        if( event ) {
+            var form = angular.element(event.target);
+            modalDialog = form.parents('.modal');
+        }
         var data = [];
         var measures = $scope.getMeasures(prefix);
         for( var idx = 0; idx < measures.items.length; ++idx ) {
@@ -1573,10 +1581,10 @@ envconnectControllers.controller("EnvconnectCtrl",
         $http.post(settings.urls.api_assessment_sample + node.consumption.rank + "/measures/",
                    {measures: data}).then(
             function success(resp) {
-                modalDialog.modal('hide');
+                if( modalDialog ) modalDialog.modal('hide');
             },
             function error(resp) {
-                modalDialog.modal('hide');
+                if( modalDialog ) modalDialog.modal('hide');
                 showErrorMessages(resp);
             });
     };

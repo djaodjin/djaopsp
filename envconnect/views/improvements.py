@@ -96,7 +96,7 @@ class ImprovementOnlyMixin(ImprovementQuerySetMixin, AssessmentBaseMixin):
         filtered = OrderedDict()
         consumption = root[0].get('consumption', {})
         if consumption:
-            planned = consumption.get('planned', False)
+            planned = consumption.get('planned', None)
             if planned:
                 page_element = PageElement.objects.get(slug=root[0].get('slug'))
                 root[0]['consumption'].update({

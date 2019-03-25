@@ -8,7 +8,7 @@ from ...api.assessments import (AssessmentAPIView, AssessmentAnswerAPIView,
     AssessmentMeasuresAPIView, DestroyMeasureAPIView)
 from ...api.benchmark import BenchmarkAPIView, HistoricalScoreAPIView
 from ...api.improvements import (ImprovementListAPIView,
-    ImprovementToggleAPIView)
+    ImprovementAnswerAPIView)
 from ...api.dashboards import (SupplierListAPIView,
     TotalScoreBySubsectorAPIView, ShareScorecardAPIView)
 
@@ -37,7 +37,7 @@ urlpatterns = [
         name="api_historical_scores"),
     url(r'(?P<organization>%s)/improvement(?P<path>%s)/?' % (
         SLUG_RE, PATH_RE),
-        ImprovementToggleAPIView.as_view(),
+        ImprovementAnswerAPIView.as_view(),
         name='api_improvement'),
     url(r'(?P<organization>%s)/improvement/?' % SLUG_RE,
         ImprovementListAPIView.as_view(),

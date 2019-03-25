@@ -98,7 +98,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
         """
         #pylint:disable=too-many-locals,too-many-statements
         consumptions = {}
-        consumptions_planned = set([])
+        consumptions_planned = {}
         scored_answers = get_scored_answers(
             Consumption.objects.get_active_by_accounts(
                 self.survey, excludes=self._get_filter_out_testing()),
@@ -118,7 +118,8 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                     if consumption.answer_id:
                         # This is part of the plan, we mark it for the planning
                         # page but otherwise don't use values stored here.
-                        consumptions_planned |= set([consumption.path])
+                        consumptions_planned.update({
+                            consumption.path: consumption.implemented})
                 else:
                     consumptions[consumption.path] = consumption
 
@@ -196,7 +197,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                 vals[0]['consumption'] \
                     = ConsumptionSerializer(context={
                         'campaign': self.survey,
-                        'is_planned': (path in consumptions_planned)
+                        'planned': consumptions_planned.get(path, None)
                     }).to_representation(consumption)
             else:
                 # Cut node: loads icon url.

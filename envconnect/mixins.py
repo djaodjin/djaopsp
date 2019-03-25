@@ -572,7 +572,6 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                     Sample.objects.all(),
                     slug=sample_kwarg,
                     extra__isnull=True,
-                    survey=self.survey,
                     account=self.account)
             else:
                 self._assessment_sample = Sample.objects.filter(

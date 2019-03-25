@@ -1,0 +1,27 @@
+<td id="[[practice[0].slug]]"
+    colspan="[[practice[0].consumption ? 1 : {{choices|length|add:2}}]]">
+    {% include "envconnect/_detail_row_basic.html" %}
+</td>
+<td class="text-center cell-fix-width-3"
+    ng-if="practice[0].consumption">
+    <span ng-if="practice[0].consumption.implemented">[[practice[0].consumption.implemented]]</span>
+    <i ng-if="!practice[0].consumption.implemented">&dash;</i>
+</td>
+{% for choice in choices %}
+<td class="text-center cell-fix-width-5">
+    <button ng-if="!(practice[0].consumption)"
+            class="btn btn-select-all" href=""
+            ng-click="selectAll($event, '{{choice.text}}')"><i class="fa fa-circle"></i></button>
+    <label ng-if="practice[0].consumption"
+           for="{{choice.text|slugify}}-[[$index]]"
+           style="margin-bottom:0">
+    <input id="{{choice.text|slugify}}-[[$index]]" type="radio"
+           value="{{choice.text}}"
+           name="planned-[[practice[0].consumption.rank]]"
+           ng-checked="practice[0].consumption.planned === '{{choice.text}}'"
+           ng-change="updateImprovement(practice, '{{choice.text}}')"
+           ng-model="practice[0].consumption.planned" />
+    <span style="font-size:10px;">[[practice[0].text ? practice[0].text[{{forloop.counter0}}] : ""]]</span>
+    </label>
+</td>
+{% endfor %}

@@ -45,6 +45,8 @@ class ConsumptionSerializer(serializers.ModelSerializer):
 
     path = serializers.CharField(required=False)
     rank = serializers.SerializerMethodField()
+#    default_metric = serializers.SlugRelatedField(
+#        queryset=Metric.objects.all(), slug_field='slug')
     nb_respondents = serializers.SerializerMethodField()
     rate = serializers.SerializerMethodField()
     opportunity = serializers.SerializerMethodField()
@@ -98,8 +100,9 @@ class ConsumptionSerializer(serializers.ModelSerializer):
         return 0
 
     def get_planned(self, obj):
-        return (hasattr(obj, 'is_planned') and bool(obj.is_planned)
-            or self.context.get('is_planned', False))
+        if hasattr(obj, 'planned'):
+            return bool(obj.planned)
+        return self.context.get('planned', None)
 
 
 class AnswerUpdateSerializer(NoModelSerializer):
