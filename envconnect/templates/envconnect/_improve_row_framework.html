@@ -8,12 +8,8 @@
     <i ng-if="!practice[0].consumption.implemented">&dash;</i>
 </td>
 {% for choice in choices %}
-<td class="text-center cell-fix-width-5">
-    <button ng-if="!(practice[0].consumption)"
-            class="btn btn-select-all" href=""
-            ng-click="selectAll($event, '{{choice.text}}')"><i class="fa fa-circle"></i></button>
-    <label ng-if="practice[0].consumption"
-           for="{{choice.text|slugify}}-[[$index]]"
+<td class="text-center cell-fix-width-5" ng-if="practice[0].consumption">
+    <label for="{{choice.text|slugify}}-[[$index]]"
            style="margin-bottom:0">
     <input id="{{choice.text|slugify}}-[[$index]]" type="radio"
            value="{{choice.text}}"
