@@ -251,7 +251,6 @@ class DetailXLSXView(DetailSpreadsheetView):
             text_rotation=0, wrap_text=True,
             shrink_to_fit=True, indent=0)
         for col_num in range(1, self.depth + 1):
-            print("XXX col_num=%d" % col_num)
             max_length = 0
             for row in self.wsheet.iter_rows(
                     min_row=3, min_col=col_num, max_col=col_num):
@@ -259,10 +258,7 @@ class DetailXLSXView(DetailSpreadsheetView):
                     if cell.value:
                         max_length = max(len(cell.value), max_length)
             if max_length > 60:
-                print("XXX max_length=%d (sat=60)" % max_length)
                 max_length = 60
-            else:
-                print("XXX max_length=%d" % max_length)
             col_idx = chr(ord('A') + col_num - 1)
             self.wsheet.column_dimensions[col_idx].width = \
                 max_length * col_scale

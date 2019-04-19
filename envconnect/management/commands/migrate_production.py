@@ -110,7 +110,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.add_grant_key()
+            self.add_root()
+#            self.add_grant_key()
 #            self.update_pageelement_accounts()
 #            self.migrate_survey()
 #            self.migrate_completion_status()
@@ -120,6 +121,80 @@ class Command(BaseCommand):
 #            self.relabel_to_fix_error()
 #            self.recompute_avg_value()
 
+
+    def add_root(self):
+        self.stdout.write("BEGIN;")
+        campaign_slug = 'assessment'
+        slug = 'energy-utility'
+        for question in Consumption.objects.filter(
+                path__startswith='/%s/' % slug):
+            question_new_path = question.path.replace(
+                '/%s/sustainability-%s/' % (slug, slug),
+                '/euissca-procurement/sustainability-euissca-procurement/')
+            self.stdout.write("INSERT INTO survey_question (path, \"text\", question_type, environmental_value, business_value, implementation_ease, profitability, avg_energy_saving, avg_fuel_saving, capital_cost_low, capital_cost_high, capital_cost, payback_period, nb_respondents, opportunity, rate, avg_value, requires_measurements) VALUES")
+            self.stdout.write("('%s', '',"
+                    " '%s', %d, %d, %d, %d, '%s', '%s', %d, %d,"\
+                    " '%s', '%s', %d, %d, %d, %d, %d);" % (
+                    question_new_path,
+                    question.question_type,
+                    question.environmental_value,
+                    question.business_value,
+                    question.implementation_ease,
+                    question.profitability,
+                    question.avg_energy_saving,
+                    question.avg_fuel_saving,
+                    question.capital_cost_low if question.capital_cost_low else 0,
+                    question.capital_cost_high if question.capital_cost_high else 0,
+                    question.capital_cost,
+                    question.payback_period,
+                    question.nb_respondents,
+                    question.opportunity,
+                    question.rate,
+                    question.avg_value,
+                    question.requires_measurements
+            ))
+            enc = EnumeratedQuestions.objects.get(
+                campaign__slug=campaign_slug,
+                question=question)
+            self.stdout.write("INSERT INTO survey_enumeratedquestions (required, campaign_id, question_id, rank) VALUES")
+            self.stdout.write("('f', (SELECT id FROM survey_campaign WHERE slug='%s'), (SELECT id FROM survey_question WHERE path='%s'), %d);" % (campaign_slug, question_new_path, enc.rank))
+        for slug in ("corporate-shared-services",
+                     "electric-procurement",
+                     "gas-procurement",
+                     "materials-planning-inventory"):
+            for question in Consumption.objects.filter(
+                    path__startswith='/%s/' % slug):
+                question_new_path = question.path.replace(
+                    '/%s/' % slug,
+                    '/euissca-procurement/sustainability-euissca-procurement/')
+                self.stdout.write("INSERT INTO survey_question (path, \"text\", question_type, environmental_value, business_value, implementation_ease, profitability, avg_energy_saving, avg_fuel_saving, capital_cost_low, capital_cost_high, capital_cost, payback_period, nb_respondents, opportunity, rate, avg_value, requires_measurements) VALUES")
+                self.stdout.write("('%s', '',"
+                    " '%s', %d, %d, %d, %d, '%s', '%s', %d, %d,"\
+                    " '%s', '%s', %d, %d, %d, %d, %d);" % (
+                    question_new_path,
+                    question.question_type,
+                    question.environmental_value,
+                    question.business_value,
+                    question.implementation_ease,
+                    question.profitability,
+                    question.avg_energy_saving,
+                    question.avg_fuel_saving,
+                    question.capital_cost_low if question.capital_cost_low else 0,
+                    question.capital_cost_high if question.capital_cost_high else 0,
+                    question.capital_cost,
+                    question.payback_period,
+                    question.nb_respondents,
+                    question.opportunity,
+                    question.rate,
+                    question.avg_value,
+                    question.requires_measurements
+                ))
+                enc = EnumeratedQuestions.objects.get(
+                    campaign__slug=campaign_slug,
+                    question=question)
+                self.stdout.write("INSERT INTO survey_enumeratedquestions (required, campaign_id, question_id, rank) VALUES")
+                self.stdout.write("('f', (SELECT id FROM survey_campaign WHERE slug='%s'), (SELECT id FROM survey_question WHERE path='%s'), %d);" % (campaign_slug, question_new_path, enc.rank))
+        self.stdout.write("COMMIT;")
 
     def add_grant_key(self):
         self.stdout.write("BEGIN;")
