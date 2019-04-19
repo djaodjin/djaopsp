@@ -134,18 +134,32 @@ class DetailView(BestPracticeMixin, TemplateView):
 class DetailSpreadsheetView(BreadcrumbMixin, ListView):
 
     basename = 'best-practices'
-    headings = ['', 'Environmental', 'Ops/maintenance', 'Financial',
+    headings = ['Environmental', 'Ops/maintenance', 'Financial',
         'Implementation ease', 'AVERAGE VALUE']
-    indent_step = '    '
 
-    def write_tree(self, root, indent=''):
+    def tree_depth(self, root):
+        if not root:
+            return 0
+        element = root[0].get('consumption', None)
+        if element:
+            return 1
+        depth = 0
+        element = root[0]
+        for _, nodes in six.iteritems(root[1]):
+            depth = max(self.tree_depth(nodes), depth)
+        return depth + 1
+
+    def write_tree(self, root, indent=[]):
         if not root:
             return
         element = root[0].get('consumption', None)
+        local_indent = indent
         if element:
             # We reached a leaf
-            self.writerow([
-                indent + root[0]['title'],
+            if len(local_indent) < self.depth:
+                local_indent = local_indent + ["" for unnamed in range(
+                    len(local_indent), self.depth - 1)] + [root[0]['title']]
+            self.writerow(local_indent + [
                 element['environmental_value'],
                 element['business_value'],
                 element['profitability'],
@@ -153,17 +167,18 @@ class DetailSpreadsheetView(BreadcrumbMixin, ListView):
                 element['avg_value']
             ], leaf=True)
         else:
-            element = root[0]
-            self.writerow([indent + element['title']])
             for _, nodes in six.iteritems(root[1]):
-                self.write_tree(nodes, indent=indent + self.indent_step)
+                self.write_tree(nodes, indent=local_indent + [root[0]['title']])
 
     def get(self, request, *args, **kwargs): #pylint: disable=unused-argument
         from_root, trail = self.breadcrumbs
         # It is OK here to index by -1 since we would have generated a redirect
         # in the `get` method when the path is "/".
         root = self._build_tree(trail[-1][0], from_root)
+        self.depth = self.tree_depth(root)
         self.create_writer(self.get_headings(), title="Best practices")
+        self.writerow(["Find value assignment at"\
+" https://tspproject.org/docs/faq/#scorecard-1"], leaf=True)
         self.writerow(self.get_headings(), leaf=True)
         self.write_tree(root)
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
@@ -172,13 +187,16 @@ class DetailSpreadsheetView(BreadcrumbMixin, ListView):
         return resp
 
     def get_headings(self):
-        return self.headings
+        return ['' for unnamed in range(0, self.depth)] + self.headings
 
     def get_filename(self):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.csv')
 
 
 class DetailXLSXView(DetailSpreadsheetView):
+    """
+    Downloads the best practices as an Excel spreadsheet.
+    """
 
     content_type = \
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -196,11 +214,10 @@ class DetailXLSXView(DetailSpreadsheetView):
         self.wsheet = self.wbook.active
         if title:
             self.wsheet.title = as_valid_sheet_title(title)
-        self.wsheet.row_dimensions[1].height = 0.36 * (6 * col_scale)
-        self.wsheet.column_dimensions['A'].width = 6.56 * col_scale
-        for col_num in range(0, len(headings)):
-            self.wsheet.column_dimensions[chr(ord('E') + col_num)].width \
-                = 0.99 * col_scale
+        self.wsheet.row_dimensions[2].height = 35
+        for col_num in range(self.depth, self.depth + len(self.headings)):
+            col_idx = chr(ord('A') + col_num)
+            self.wsheet.column_dimensions[col_idx].width = 1.1 * col_scale
         self.heading_font = Font(
             name='Calibri', size=12, bold=False, italic=False,
             vertAlign='baseline', underline='none', strike=False,
@@ -215,6 +232,7 @@ class DetailXLSXView(DetailSpreadsheetView):
 
     def flush_writer(self):
         #pylint:disable=protected-access,too-many-statements
+        col_scale = 0.8
         bold_font = Font(
             name='Calibri', size=11, bold=True, italic=False,
             vertAlign='baseline', underline='none', strike=False,
@@ -232,10 +250,28 @@ class DetailXLSXView(DetailSpreadsheetView):
             horizontal='center', vertical='center',
             text_rotation=0, wrap_text=True,
             shrink_to_fit=True, indent=0)
+        for col_num in range(1, self.depth + 1):
+            print("XXX col_num=%d" % col_num)
+            max_length = 0
+            for row in self.wsheet.iter_rows(
+                    min_row=3, min_col=col_num, max_col=col_num):
+                for cell in row:
+                    if cell.value:
+                        max_length = max(len(cell.value), max_length)
+            if max_length > 60:
+                print("XXX max_length=%d (sat=60)" % max_length)
+                max_length = 60
+            else:
+                print("XXX max_length=%d" % max_length)
+            col_idx = chr(ord('A') + col_num - 1)
+            self.wsheet.column_dimensions[col_idx].width = \
+                max_length * col_scale
+
         # Implementation Note: We style the cells here instead of the rows
         # otherwise opening the file on Excel leads to weird background coloring
         # (LibreOffice looks fine).
-        for col in ['A', 'B', 'C', 'D', 'E', 'F']:
+        for col in [chr(ord('A') + x) for x in range(0,
+                        self.depth + len(self.headings))]:
             cell = self.wsheet['%s2' % col]
             cell.fill = subtitle_fill
             cell.font = subtitle_font
@@ -260,11 +296,12 @@ class DetailXLSXView(DetailSpreadsheetView):
         #pylint:disable=protected-access
         self.wsheet.append(row)
         if leaf:
-            if len(row) >= 6:
+            bp_length = self.depth + len(self.headings)
+            if len(row) >= bp_length:
                 for row_cells in self.wsheet.iter_rows(
                         min_row=self.wsheet._current_row,
                         max_row=self.wsheet._current_row):
-                    for cell_idx in range(1, 6):
+                    for cell_idx in range(self.depth, bp_length):
                         # environmental_value, business_value,
                         # implementation_ease, profitability,
                         # avg_value
