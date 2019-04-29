@@ -14,7 +14,7 @@ from django.utils import six
 from pages.mixins import TrailMixin
 from rest_framework import generics
 from rest_framework.response import Response as HttpResponse
-from survey.models import  Sample
+from survey.models import  Campaign, Metric, Sample
 
 from .best_practices import ToggleTagContentAPIView
 from ..mixins import ReportMixin, TransparentCut
@@ -291,9 +291,23 @@ class BenchmarkMixin(ReportMixin):
             self.survey, excludes=self._get_filter_out_testing()))
         includes = list(
             Consumption.objects.get_latest_samples_by_accounts(self.survey))
+        metric_id = self.default_metric_id
+        metric_id = Metric.objects.get(slug='framework').pk
+        framework_survey = Campaign.objects.get(slug='framework')
+        framework_includes = list(
+            Consumption.objects.get_latest_samples_by_accounts(
+                framework_survey))
         for prefix, values_tuple in six.iteritems(leafs):
+            if prefix.startswith('/framework/'):
+                accounts = {}
+                for sample in framework_includes:
+                    accounts.update({sample.account_id: {'nb_questions': 1}})
+                if not 'accounts' in values_tuple[0]:
+                    values_tuple[0]['accounts'] = {}
+                values_tuple[0]['accounts'].update(accounts)
+
             self.populate_leaf(prefix, values_tuple[0],
-                self._get_scored_answers(population, self.default_metric_id,
+                self._get_scored_answers(population, metric_id,
                     includes=includes, prefix=prefix))
         self._report_queries("leafs populated")
         populate_rollup(rollup_tree, True)

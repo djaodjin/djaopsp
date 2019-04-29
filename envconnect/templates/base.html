@@ -99,7 +99,11 @@ ga('send', 'pageview');
                 <ul class="nav navbar-nav ml-auto mt-lg-0 header-menubar">
                   <!-- this area will be populated by _menubar.html -->
                   <li class="nav-item login">
+                    {% if request and request|is_authenticated %}
+                    <a class="nav-link">{{request.user.username}}</a>
+                    {% else %}
                     <a id="login" class="nav-link" title="Click Here to sign into your account" href="{{'login/'|site_prefixed}}"><span class="fa fa-sign-in fa-lg"></span> Sign in</a></li>
+                    {% endif %}
                   </li>
                 </ul>
               </nav>

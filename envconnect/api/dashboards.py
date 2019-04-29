@@ -1,7 +1,7 @@
 # Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
-import datetime, logging, re
+import datetime, json, logging, re
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
@@ -15,6 +15,7 @@ from django.utils.encoding import force_text
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 from deployutils.helpers import datetime_or_now
+from deployutils.crypt import JSONEncoder
 from extra_views.contrib.mixins import SearchableListMixin, SortableListMixin
 from pages.models import PageElement
 from rest_framework import generics, serializers, status
@@ -248,13 +249,15 @@ WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
                         plan__organization__in=level).exclude(
                         organization__in=get_testing_accounts()).values(
                         'organization').distinct()])
-            while len(level) < len(next_level):
-                level = next_level
-                next_level = level | set([rec['organization']
-                    for rec in Subscription.objects.filter(
-                        plan__organization__in=level).exclude(
-                        organization__in=get_testing_accounts()).values(
-                        'organization').distinct()])
+            if (self.account.extra and
+                self.account.extra.get('supply_chain', None)):
+                while len(level) < len(next_level):
+                    level = next_level
+                    next_level = level | set([rec['organization']
+                        for rec in Subscription.objects.filter(
+                            plan__organization__in=level).exclude(
+                            organization__in=get_testing_accounts()).values(
+                            'organization').distinct()])
             prev = None
             self._requested_accounts = []
             for val in Subscription.objects.filter(
@@ -517,9 +520,18 @@ class SupplierListMixin(DashboardMixin):
                     normalized_score = score.get('normalized_score', None)
                 else:
                     normalized_score = None
-                if normalized_score is not None:
+                if segment['slug'].startswith('framework'):
+                    score_url = reverse('envconnect_assess_organization',
+                        args=(account.slug,
+                              '/sustainability-%s' % str(segment['slug'])))
+                else:
+                    score_url = reverse('benchmark_organization',
+                        args=(account.slug,
+                              '/sustainability-%s' % str(segment['slug'])))
+                if (segment['slug'].startswith('framework') or
+                    normalized_score is not None):
                     account_scores += [
-                        (normalized_score, segment['slug'], segment['title'])]
+                        (normalized_score, score_url, segment['title'])]
                 # XXX We should really compute a score here.
                 improvement_score = score.get('improvement_numerator', None)
                 if improvement_score is not None:
@@ -554,7 +566,8 @@ class SupplierListMixin(DashboardMixin):
         # XXX currently a subset query of ``get_active_by_accounts`` because
         # ``get_active_by_accounts`` returns unfrozen samples.
         actives = Sample.objects.filter(
-            account_id__in=self.requested_accounts_pk).values(
+            account_id__in=self.requested_accounts_pk,
+            extra=None).values(
             'account_id').annotate(Max('created_at'))
         actives_d = dict([(act['account_id'], act['created_at__max'])
             for act in list(actives)])

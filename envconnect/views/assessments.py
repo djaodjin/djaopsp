@@ -231,11 +231,21 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                 'entries': json.dumps(root, cls=JSONEncoder)
             })
 
-        prev_samples = Sample.objects.filter(
-            is_frozen=True,
-            extra__isnull=True,
-            survey=self.survey,
-            account=self.account).order_by('-created_at')
+        prev_samples = [(reverse('envconnect_sample_organization',
+            args=(self.account, prev_sample, self.kwargs.get('path'))),
+                prev_sample.created_at)
+            for prev_sample in Sample.objects.filter(
+                is_frozen=True,
+                extra__isnull=True,
+                survey=self.survey,
+                account=self.account).order_by('-created_at')]
+        if prev_samples:
+            context.update({'prev_samples': prev_samples})
+            if self.sample.is_frozen:
+                selected_sample = reverse('envconnect_sample_organization',
+                    args=(self.account, self.sample, self.kwargs.get('path')))
+                context.update({'selected_sample': selected_sample})
+
         nb_questions = Consumption.objects.filter(
             path__startswith=from_root).count()
         nb_answers = Answer.objects.filter(sample=self.sample,
@@ -243,9 +253,6 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
             metric_id=self.default_metric_id,
             question__path__startswith=from_root).count()
         context.update({
-            'prev_samples': [(reverse('envconnect_sample_organization',
-                args=(self.account, prev_sample, self.kwargs.get('path'))),
-                prev_sample.created_at) for prev_sample in prev_samples],
             'nb_answers': nb_answers,
             'nb_questions': nb_questions,
             'page_icon': self.icon,

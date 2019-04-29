@@ -113,11 +113,12 @@ urlpatterns += [
 
     url_direct(r'app/(?P<organization>%s)/portfolios/' % SLUG_RE,
         include('survey.urls.matrix')),
-    url_direct(r'app/(?P<organization>%s)/sample/(?P<sample>%s)(?P<path>%s)'\
-        '/download/' % (SLUG_RE, SLUG_RE, PATH_RE),
+    url_direct(r'app/(?P<organization>%s)/assess/(?P<sample>%s)/'\
+        'sample(?P<path>%s)/download/' % (SLUG_RE, SLUG_RE, PATH_RE),
         AssessmentXLSXView.as_view(),
         name='envconnect_sample_organization_download'),
-    url_direct(r'app/(?P<organization>%s)/sample/(?P<sample>%s)(?P<path>%s)/'
+    url_direct(r'app/(?P<organization>%s)/assess/(?P<sample>%s)/'\
+        'sample(?P<path>%s)/'
         % (SLUG_RE, SLUG_RE, PATH_RE),
         AssessmentView.as_view(),
         name='envconnect_sample_organization'),

@@ -134,7 +134,7 @@ user).</em>
                 <span ng-if="entry.$resolved && entry.request_key">Requested</span>
                 <span ng-if="entry.$resolved && !entry.request_key && entry.scores.length == 0">not available</span>
                 <ul class="list-unstyled" style="margin-bottom:0;" ng-if="entry.$resolved && !entry.request_key && entry.scores.length > 0">
-                  <li ng-repeat="score in entry.scores">[[ score[0] ]]%&nbsp;&dash;&nbsp;<a href="{{'app/'|site_prefixed}}[[entry.slug]]/benchmark/sustainability-[[ score[1] ]]/">[[ score[2] ]]</a></li>
+                  <li ng-repeat="score in entry.scores">[[ getScoreDisplay(score) ]]&nbsp;&dash;&nbsp;<a href="[[ score[1] ]]">[[ score[2] ]]</a></li>
                 </ul>
               </td>
               <td style="vertical-align:middle;">
@@ -256,10 +256,15 @@ Thank you.
     </div>
   </div>
   <div class="row" style="margin-top: 5px;">
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       <a id="download-reporting" class="btn btn-secondary" href="{% url 'organization_reporting_entities_download' organization %}" target="_blank"><i class="fa fa-download"></i> Download scores</a>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-4">
+      <label style="color:#000;margin-top: 10px;">
+        <input type="checkbox" ng-model="accountExtra.supply_chain" ng-change="supplyChainChanged($event)"> Display full supply chain.
+      </label>
+    </div>
+    <div class="col-sm-4">
       <label style="color:#000;margin-top: 10px;">
         <input type="checkbox" ng-model="accountExtra.reminder" ng-change="remindSuppliersChanged($event)"> Remind suppliers to complete assessment and planning every Friday morning.
       </label>

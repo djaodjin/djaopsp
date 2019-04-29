@@ -428,11 +428,10 @@ Each additional measure you tell us about is worth 4 bonus points.
         <select class="form-control"
                 ng-model="prevSample"
                 name="prev-sample"
-                ng-change="browsePrevSample()"
-                value="">
+                ng-change="browsePrevSample()">
             <option value="">Select previous response ...</option>
             {% for prev_sample in prev_samples %}
-            <option value="{{prev_sample.0}}">{{prev_sample.1}}</option>
+            <option value="{{prev_sample.0}}">{{prev_sample.1|date:"M d, Y"}}</option>
             {% endfor %}
         </select>
         </form>

@@ -390,7 +390,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     }
 
     $scope.implementationRateWidth = function(rate) {
-        return {width: "" + rate  + "%"};
+        return {width: "" + (rate ? rate : 0) + "%"};
     }
 
     $scope.onToggleScore = function() {
@@ -1698,6 +1698,21 @@ envconnectControllers.controller("envconnectMyTSPReporting",
             delete $scope.params.page;
         }
         $scope.items.$resolved = false;
+    };
+
+    $scope.supplyChainChanged = function(event) {
+        $http.patch(settings.urls.api_organization_profile, {
+            extra: JSON.stringify($scope.accountExtra)}).then(
+            function(resp) {
+                $scope.refresh();
+            },
+            function(resp) {
+            }
+        );
+    };
+
+    $scope.getScoreDisplay = function(score) {
+        return score[0] ? score[0].toString() + "%" : "";
     };
 
     $scope.remindSuppliersChanged = function(event) {

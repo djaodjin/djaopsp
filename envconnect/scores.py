@@ -212,8 +212,8 @@ def populate_rollup(rollup_tree, normalize_to_one):
                       isinstance(scores['created_at'], datetime.datetime)):
                     agg_scores['created_at'] = max(
                         agg_scores['created_at'], scores['created_at'])
-            nb_answers = scores['nb_answers']
-            nb_questions = scores['nb_questions']
+            nb_answers = scores.get('nb_answers', 0)
+            nb_questions = scores.get('nb_questions', 0)
             if slug != 'totals' or nb_answers > 0:
                 # Aggregation of total scores is different. We only want to
                 # count scores for assessment that matter
