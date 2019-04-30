@@ -249,8 +249,11 @@ WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
                         plan__organization__in=level).exclude(
                         organization__in=get_testing_accounts()).values(
                         'organization').distinct()])
-            if (self.account.extra and
-                self.account.extra.get('supply_chain', None)):
+            try:
+                extra = json.loads(self.account.extra)
+            except (TypeError, ValueError):
+                extra = None
+            if extra and extra.get('supply_chain', None):
                 while len(level) < len(next_level):
                     level = next_level
                     next_level = level | set([rec['organization']
