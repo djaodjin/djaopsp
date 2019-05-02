@@ -120,7 +120,7 @@
                   <a id="submenu-self-assessment" href="{% if request|is_broker_manager %}{% url 'envconnect_assess_organization_download' 'envconnect' breadcrumbs|category_entry %}{% else %}{{urls.assess}}[[activeIcon !== null ? '?active=' + activeIcon : '']]{% endif %}"><i class="fa-li fa{% if '/assess/' in request.path %} fa-hand-o-right{% endif %}"></i> Assessment</a>
                 </li>
                 <li class="nav-item{% if '/benchmark/' in request.path %} active{% endif %}">
-                  <a id="submenu-benchmark"{% if request|is_broker_manager %} disabled{% endif %} href="{% url 'benchmark' breadcrumbs|category_entry %}"><i class="fa-li fa{% if '/benchmark/' in request.path %} fa-hand-o-right{% endif %}"></i> Scorecard</a>
+                  <a id="submenu-benchmark"{% if request|is_broker_manager %} disabled{% endif %} href="{{urls.benchmark}}"><i class="fa-li fa{% if '/benchmark/' in request.path %} fa-hand-o-right{% endif %}"></i> Scorecard</a>
                 </li>
             </ul>
         </div>
