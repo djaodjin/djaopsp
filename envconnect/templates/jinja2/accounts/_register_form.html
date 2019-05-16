@@ -23,7 +23,7 @@
     </fieldset>
     <fieldset style="margin: 0 15px;">
         <legend>Organization</legend>
-        <div class="form-group{% if form.organization_name.errors %} has-error{% endif %}">
+        <div class="form-group row{% if form.organization_name.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
             <label class="col-sm-5 control-label requiredField">Organization name</label>
             {% endif %}
@@ -37,7 +37,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="form-group{% if form.role_function.errors %} has-error{% endif %}">
+        <div class="form-group row{% if form.role_function.errors %} has-error{% endif %}">
             {% if not form.hide_labels %}
             <label class="col-sm-5 control-label{% if form.role_function.field.required %} requiredField{% endif %}">{{form.role_function.label|safe}}{% if form.role_function.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
             {% endif %}

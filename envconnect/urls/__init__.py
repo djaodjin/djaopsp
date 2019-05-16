@@ -178,9 +178,9 @@ urlpatterns += [
     # XXX The following URL should be envconnect/app/contact/ but for some
     # reasons it would appear there is some javascript code on the
     # IndustryListView that prevents it.
-    url_prefixed(r'sponsors/',
-        TemplateView.as_view(template_name='sponsors.html'),
-        name='sponsors'),
+    url_prefixed(r'about/',
+        TemplateView.as_view(template_name='about.html'),
+        name='about'),
     url_prefixed(r'docs/faq/',
         TemplateView.as_view(template_name='docs/faq.html'),
         name='faq'),
