@@ -23,13 +23,13 @@
                     class="best-practice-row"
                     ng-repeat="practice in getEntries('{{abs_prefix}}')"
                     ng-if="getEntries('{{abs_prefix}}').length > 0">
-                  <td id="[[practice[0].slug]]">
+                  <td id="[[practice[0].slug]]" style="width:50%;max-width:50%;">
                     {% include "envconnect/_detail_row_basic.html" %}
                   </td>
                   <td class="text-center">
                 <textarea class="form-control"
                           maxlength="255" type="text" rows="10"
-                          placeholder="Hello"
+                          placeholder=""
                           ng-model="getMeasures(getPath(practice[0])).freetext"
                           ng-focus="setActiveElement(practice[0])"
                           ng-blur="submitMeasures(getPath(practice[0]))"></textarea>
