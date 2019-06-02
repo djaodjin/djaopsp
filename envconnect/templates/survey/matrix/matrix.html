@@ -119,6 +119,7 @@ jQuery(document).ready(function($) {
               }
           }
           for( var idx = 0; idx < data.length; ++idx ) {
+              if( data[idx].slug.substr(0, 11) === 'aggregates-' ) continue;
               var chartElement = $('[id$="' + data[idx].slug + '-chart"]');
               if( chartElement.length > 0 ) {
                   var chartData = [data[idx]];
