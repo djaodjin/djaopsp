@@ -22,8 +22,8 @@ display: none;
            inside a class="tab-content collapse". -->
       <input id="toggle-results"
              type="checkbox" toggle-checkbox data-toggle="toggle"
-             data-on="<span>Performance graphs</span>"
-             data-off="<span>Reporting entities</span>"
+             data-on="<span style='font-size:0.8em;'>Performance graphs</span>"
+             data-off="<span style='font-size:0.8em;'>Reporting entities</span>"
              data-offstyle="green-level-2"
              data-width="150px" data-height="34px"
              ng-model="scoreToggle"
@@ -31,16 +31,19 @@ display: none;
     </div>
   </div>
   <div align="center" id="panel-icons" class="panel-icons panel-icons-no-benchmark">
-    <div>
+    <div class="mt-3">
       <!-- global metric -->
+      <h2>{{object.title}}</h2>
       <div id="{{object.slug}}-chart" class="row">
-        <div>
-          <div class="offset-md-2 col-md-8">
-            <h2>{{object.title}}</h2>
-            <div class="chart totals-preview text-center" style="display: inline-block;">
-              <i class="fa fa-spinner fa-spin fa-2x"></i>
-            </div>
+        <div class="offset-md-2 col-md-8">
+          <div class="chart totals-preview text-center" style="display: inline-block;">
+            <i class="fa fa-spinner fa-spin fa-2x"></i>
           </div>
+        </div>
+        <div class="col-md-2">
+          <div class="mt-5" style="font-size:0.8em;">
+            <span style="text-decoration: line-through;color:#1f66a9;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Average by industry segment accross all suppliers on TSP.
+            </div>
         </div>
       </div>
 
