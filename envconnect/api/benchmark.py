@@ -12,6 +12,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.utils import six
 from pages.mixins import TrailMixin
+from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as HttpResponse
 from survey.models import  Campaign, Metric, Sample
@@ -418,6 +419,16 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         self.decorate_with_breadcrumbs(rollup_tree)
         charts, complete = self.flatten_distributions(rollup_tree,
             prefix=from_root)
+
+        # Done in BenchmarkBaseView through `_build_tree` > `decorate_leafs`.
+        # This code is here otherwise the printable scorecard doesn't show
+        # icons.
+        for chart in charts:
+            text = PageElement.objects.filter(
+                slug=chart['slug']).values('text').first()
+            if text and text['text']:
+                chart.update({'icon': text['text']})
+
         total_score = None
         parts = from_root.split('/')
         if parts:

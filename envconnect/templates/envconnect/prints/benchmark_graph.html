@@ -10,14 +10,14 @@
          align vertically because attribute `transform` is not interpreted.
       -->
     <div class="row chart-title" style="margin-left:15px;margin-right:15px;">
-      <div class="col-xs-4 icon-benchmark {{chart.icon_css}}">
+      <div class="col-4 icon-benchmark {{chart.icon_css}}">
         {% if chart.icon %}
         <img class="icon-equipment" src="{{chart.icon}}">
         {% else %}
         <span class="icon-equipment">{{chart.title}}</span>
         {% endif %}
       </div>
-      <div class="col-xs-8 title" style="display:table-cell;min-height:60px;">
+      <div class="col-8 title" style="min-height:60px;">
         <div style="position:absolute;">
           <h3>{{chart.breadcrumbs.0}}</h3>
           <h4>{% if chart.breadcrumbs|length > 1 %}{{chart.breadcrumbs.1}}{% endif %}</h4>
