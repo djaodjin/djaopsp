@@ -40,17 +40,20 @@ display: none;
             <i class="fa fa-spinner fa-spin fa-2x"></i>
           </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-2 text-left">
           <div class="mt-5" style="font-size:0.8em;">
-            <span style="text-decoration: line-through;color:#1f66a9;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Average by industry segment across all organizations on TSP.
-            </div>
+            <span style="text-decoration: line-through;color:#1f66a9;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> All organizations on TSP
+          </div>
+          <div style="font-size:0.8em;">
+            <span style="text-decoration: line-through;color:#f7a036;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Your Reporting Entities
+          </div>
         </div>
       </div>
 
 <!-- sub-metrics -->
 {% block submetrics %}
-<div id="by-suppliers" class="benchmarks-box" style="margin-top: 25px;">
-  <h2 style="margin-top:20px;">Sub-segments scores by suppliers</h2>
+<div id="by-suppliers" class="benchmarks-box mt-4">
+  <h2 style="margin-top:20px;">Organization scores by industry segment</h2>
   <div class="row row-flex">
     {% for chart in charts %}
     {% if forloop.counter0|divisibleby:3 %}
