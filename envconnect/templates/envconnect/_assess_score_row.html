@@ -4,7 +4,7 @@
     {% include "envconnect/_detail_row_basic.html" %}
 </td>
 {% for choice in choices %}
-<td class="text-center"
+<td ng-class="practice[0].consumption.implemented === '{{choice}}' ? 'choice-selected text-center' : 'text-center'"
     ng-if="practice[0].consumption">
   <div class="progress" style="margin:0">
     <div class="progress-bar progress-bar-success green-level-3" role="progressbar" aria-valuenow="[[practice[0].consumption.rate['{{choice}}'] ]]" aria-valuemin="0" aria-valuemax="100" ng-style="implementationRateWidth(practice[0].consumption.rate['{{choice}}'])">

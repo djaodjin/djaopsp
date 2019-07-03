@@ -1475,6 +1475,10 @@ thead{
   padding-bottom:20px;
 }
 
+.choice-selected {
+  background-color: $secondary;
+}
+
 .table thead > tr > th.sticky-cell {
   background: white;
   padding: 0;
