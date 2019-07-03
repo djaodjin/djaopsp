@@ -13,10 +13,18 @@
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
           <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_PAGEBREAK).length === 0">
             <table class="table table-striped table-bordered table-assessment">
-            {% if icon.slug == 'framework-additional-questions' %}
+            {% if 'metrics' in icon.tag %}
             <thead>
-                <th style="vertical-align:bottom;">Practices</th>
-                <th></th>
+              <th class="sticky-cell">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content" style="padding-left:0.75rem;">Practices</div>
+                </div>
+              </th>
+              <th class="sticky-cell">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content" style="padding-left:0.75rem;">Your answer</div>
+                </div>
+              </th>
             </thead>
             <tbody>
                 <tr data-id="[[getPath(practice[0])]]"
@@ -40,73 +48,37 @@
                 {% with icon.tag|assessment_choices as choices %}
                 <thead ng-show="!scoreToggle">
                     <tr>
-                      <th rowspan="2" style="vertical-align:bottom;">Practices</th>
+                      <th style="border-bottom:none;"></th>
                       <th class="text-center" colspan="{{choices|length}}">{% if survey.slug == 'framework' %}Select maturity level for each attribute{% else %}Implemented as standard practice? <a style="cursor:pointer;" href="" data-toggle="tooltip" data-placement="right" title="Read this question to mean, Has the practice been implemented as standard or routine for all activities, projects or services to which the practice could apply, and over which the reporting entity has operational influence or control? If the reporting entity has no influence or control over a practice, then the response to the question should be 'Not applicable'."><i class="fa fa-question-circle"></i></a>{% endif %}</th>
                     </tr>
                     <tr>
+                      <th class="sticky-cell">
+                        <div class="sticky-cell-content-container">
+                          <div class="sticky-cell-content" style="padding-left:0.75rem;">Practices</div>
+                        </div>
+                      </th>
                       {% for choice in choices %}
-                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
-                          <div data-toggle="tooltip" data-placement="bottom" title="{{choice.descr}}">{{choice.text}}</div>
+                      <th class="sticky-cell text-center cell-fix-width-5">
+                          <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" title="{{choice.descr}}"><div class="sticky-cell-content">{{choice.text}}</div></div>
                       </th>
                       {% endfor %}
                     </tr>
                 </thead>
-                <thead ng-show="scoreToggle">
-                    <th style="vertical-align:middle;border-top:0;">Practices</th>
-                    {% if icon.tag and 'framework' in icon.tag %}
-                    {% for choice in choices %}
-                      <th class="text-center cell-fix-width-5" style="vertical-align:bottom;">
-                          <div data-toggle="tooltip" data-placement="bottom" title="{{choice.descr}}">{{choice.text}}</div>
-                      </th>
-                      {% endfor %}
-                    {% else %}
-                    <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Percentage of peer respondents that have implemented a best practice.">
-                        <button class="btn btn-link btn-sort" ng-click="sortBy('rate')">
-                            <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
-                        </button>
-                            Implementation rate
-                    </th>
-                    <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Extent to which you indicated the practice is implemented across activities/services/projects/facilities etc. to which it could apply: 3 ticks = All, 2 ticks = More than 60%, 1 tick = Less than 40%, x = Not implemented or not applicable">
-                        <button class="btn btn-link btn-sort" ng-click="sortBy('implemented')">
-                            <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
-                        </button>
-                            Implemented by you?
-                    </th>
-                    <th class="text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Opportunity points by which your score could increase if this best practice is implemented. See FAQs for scoring methodology and calculations.">
-                        <button class="btn btn-link btn-sort" ng-click="sortBy('opportunity')">
-                            <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
-                        </button>
-                            Opportunity score
-                    </th>
-                    {% endif %}
-                </thead>
-                <tbody data-prefix="{{abs_prefix}}">
+                <tbody data-prefix="{{abs_prefix}}" ng-show="!scoreToggle">
                     <tr data-id="[[getPath(practice[0])]]"
                         class="best-practice-row"
                         ng-repeat="practice in getEntries('{{abs_prefix}}')"
-                        ng-if="sortedOnKeys === 0 && getEntries('{{abs_prefix}}').length > 0"
-                        ng-show="!scoreToggle">
+                        ng-if="sortedOnKeys === 0 && getEntries('{{abs_prefix}}').length > 0">
                             {% include "envconnect/_assess_assessment_row.html" %}
-                    </tr>
-                    <tr ng-repeat="practice in getEntries('{{abs_prefix}}')"
-                        ng-if="sortedOnKeys === 0 && getEntries('{{abs_prefix}}').length > 0"
-                        ng-show="scoreToggle">
-                            {% include "envconnect/_assess_score_row.html" %}
                     </tr>
                     <tr data-id="[[getPath(practice[0])]]"
                         class="best-practice-row"
                         ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
-                        ng-if="sortedOnKeys !== 0 && getEntries('{{abs_prefix}}').length > 0"
-                        ng-show="!scoreToggle">
+                        ng-if="sortedOnKeys !== 0 && getEntries('{{abs_prefix}}').length > 0">
                             {% include "envconnect/_assess_assessment_row.html" %}
                     </tr>
-                    <tr ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
-                        ng-if="sortedOnKeys !== 0 && getEntries('{{abs_prefix}}').length > 0"
-                        ng-show="scoreToggle">
-                            {% include "envconnect/_assess_score_row.html" %}
-                    </tr>
                     <tr ng-if="getEntries('{{abs_prefix}}').length === 0">
-                        <td colspan="[[!scoreToggle ? {{choices|length|add:1}} : 4]]">
+                        <td colspan="{{choices|length|add:1}}">
 <em>Guidance has not yet been developed for this section. If you would like to
 see guidance, or are interested in authoring content for this section, please
 <a href="{{'contact/'|site_prefixed}}">contact us &raquo;</a>.
@@ -117,6 +89,7 @@ See the following for examples of content developed for best practices:
                         </td>
                     </tr>
                 </tbody>
+                {% include "envconnect/_assess_results_table.html" %}
                 {% endwith %}
             {% endif %}
             </table>

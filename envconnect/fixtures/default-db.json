@@ -2394,7 +2394,7 @@
   "fields": {
     "title": "Additional questions",
     "slug": "framework-additional-questions",
-    "tag": "{\"tags\":[\"scorecard\",\"framework\"]}",
+    "tag": "{\"tags\":[\"metrics\",\"scorecard\",\"framework\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 85

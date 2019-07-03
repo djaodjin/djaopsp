@@ -56,6 +56,14 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
             node=node, from_root=from_root, cut=cut, load_text=load_text)
         if root:
             self.decorate_with_breadcrumbs(root)
+        # Removes framework additional questions and other assessments
+        # questions which are irrelevant when making an improvement plan.
+        to_remove = []
+        for key, node in six.iteritems(root[1]):
+            if 'metrics' in node[0].get('tag', ""):
+                to_remove += [key]
+        for key in to_remove:
+            del root[1][key]
         return root
 
     def get_context_data(self, **kwargs):

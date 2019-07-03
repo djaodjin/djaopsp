@@ -937,7 +937,7 @@ a.text-grey{
 }
 
 .navbar-light .navbar-nav > .login > a {
-  padding: 10px 15px;
+  padding: 5px 15px;
   background-color: #8cd063; /* @login-bg */
   -webkit-border-radius: 8px;
      -moz-border-radius: 8px;
@@ -1469,10 +1469,34 @@ thead{
   padding-top:10px;
   padding-bottom:10px;
 }
-.table thead > tr > th{
+
+.table thead > tr > th {
   padding-top:20px;
   padding-bottom:20px;
-  border-bottom:1px solid #616363;
+}
+
+.table thead > tr > th.sticky-cell {
+  background: white;
+  padding: 0;
+  border-top: none;
+  border-bottom: none;
+  // from bootstrap4 sticky-top
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.table thead > tr > th.sticky-cell > .sticky-cell-content-container {
+  height:100%;
+  display:block;
+  overflow:auto;
+  background: white;
+  border-bottom: 1px solid #616363;
+  padding: 20px 0;
+}
+
+.table thead > tr > th.sticky-cell > .sticky-cell-content-container > .sticky-cell-content {
+  height:100%;
 }
 
 .table thead > tr > th.total-sep{
@@ -1482,17 +1506,6 @@ thead{
 
 .table tbody > tr > td.total-sep {
    border-left: 2px solid #cccdcd;
-}
-
-.table.table-self-assessment thead > tr > th.cell-fix-width-5{
-  padding:10px 0 10px 0;
-}
-
-.table.table-self-assessment .btn-select-all {
-  width:100%;
-  background:transparent;
-  border:none;
-  color:theme-color(primary);
 }
 
 .report-measurements-link {
@@ -1631,21 +1644,11 @@ thead{
 }
 
 .table thead>tr>th.cell-fix-width-3{
-  width:15%;
   border-right: 1px dotted #616363;
-  vertical-align: top;
 }
 
 .table thead>tr>th.cell-fix-width-5{
-  width:9%;
   border-right: 1px dotted #616363;
-  vertical-align: top;
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-.table thead>tr>th.cell-fix-width-5>div{
-  display:inline-block;
   font-size:10px;
 }
 

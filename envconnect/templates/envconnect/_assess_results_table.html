@@ -1,0 +1,55 @@
+<thead ng-show="scoreToggle">
+  <th class="sticky-cell">
+    <div class="sticky-cell-content-container">
+      <div class="sticky-cell-content" style="padding-left:0.75rem;">Practices</div>
+    </div>
+  </th>
+  {% if icon.tag and 'framework' in icon.tag %}
+  {% for choice in choices %}
+  <th class="sticky-cell text-center cell-fix-width-5">
+    <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" title="{{choice.descr}}"><div class="sticky-cell-content">{{choice.text}}</div></div>
+  </th>
+  {% endfor %}
+  {% else %}
+  <th class="sticky-cell text-center cell-fix-width-3" data-toggle="tooltip" data-placement="top" title="Percentage of peer respondents that have implemented a best practice.">
+    <div class="sticky-cell-content-container">
+      <div class="sticky-cell-content">
+        <button class="btn btn-link btn-sort" ng-click="sortBy('rate')">
+          <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
+        </button>
+        Implementation rate
+      </div>
+    </div>
+  </th>
+  <th class="sticky-cell text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Extent to which you indicated the practice is implemented across activities/services/projects/facilities etc. to which it could apply: 3 ticks = All, 2 ticks = More than 60%, 1 tick = Less than 40%, x = Not implemented or not applicable">
+    <div class="sticky-cell-content-container">
+      <div class="sticky-cell-content">
+        <button class="btn btn-link btn-sort" ng-click="sortBy('implemented')">
+          <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
+        </button>
+        Implemented by you?
+      </div>
+    </div>
+  </th>
+  <th class="sticky-cell text-center cell-fix-width-3" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Opportunity points by which your score could increase if this best practice is implemented. See FAQs for scoring methodology and calculations.">
+    <div class="sticky-cell-content-container">
+      <div class="sticky-cell-content">
+        <button class="btn btn-link btn-sort" ng-click="sortBy('opportunity')">
+          <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
+        </button>
+        Opportunity score
+      </div>
+    </div>
+  </th>
+  {% endif %}
+</thead>
+<tbody data-prefix="{{abs_prefix}}" ng-show="scoreToggle">
+  <tr ng-repeat="practice in getEntries('{{abs_prefix}}')"
+      ng-if="sortedOnKeys === 0 && getEntries('{{abs_prefix}}').length > 0">
+    {% include "envconnect/_assess_score_row.html" %}
+  </tr>
+  <tr ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
+      ng-if="sortedOnKeys !== 0 && getEntries('{{abs_prefix}}').length > 0">
+    {% include "envconnect/_assess_score_row.html" %}
+  </tr>
+</tbody>
