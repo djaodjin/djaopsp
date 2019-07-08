@@ -849,9 +849,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 question=env_metric_answer.question,
                 campaign=self.sample.survey).values('rank').get().get(
                     'rank', None)
-            if env_metric_answer.metric.unit.system in [Unit.SYSTEM_STANDARD,
-                                                        Unit.SYSTEM_IMPERIAL,
-                                                        Unit.SYSTEM_RANK]:
+            if env_metric_answer.metric.unit.system in Unit.NUMERICAL_SYSTEMS:
                 measured = '%d' % env_metric_answer.measured
             else:
                 measured = Choice.objects.get(pk=env_metric_answer.measured)

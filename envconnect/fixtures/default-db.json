@@ -2426,7 +2426,7 @@
     "path": "/framework/sustainability-framework/framework-additional-questions/top-successful-supply-chain-sustainabillity-practice",
     "text": "What was your top successful supply chain sustainabillity practice?",
     "question_type": "text",
-    "default_metric": 4,
+    "default_metric": 3,
     "avg_energy_saving": "* * * *",
     "capital_cost": "$$$",
     "payback_period": "0-1.8 (0.3)",

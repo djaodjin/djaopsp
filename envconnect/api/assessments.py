@@ -174,7 +174,7 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
                     try:
                         measured = int(datapoint['measured'])
                     except ValueError:
-                        if metric.unit.system != Unit.SYSTEM_ENUMERATED:
+                        if metric.unit.system in Unit.NUMERICAL_SYSTEMS:
                             raise ValidationError({'detail':
                                 "\"%s\" is invalid for '%s'" % (
                                     datapoint['measured'].replace('"', '\\"'),

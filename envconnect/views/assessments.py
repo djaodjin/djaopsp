@@ -134,7 +134,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                     consumption=consumption, measures=[])
                 consumption = consumptions[datapoint.question.path]
             measured = datapoint.measured
-            if datapoint.metric.unit.system == Unit.SYSTEM_ENUMERATED:
+            if datapoint.metric.unit.system not in Unit.NUMERICAL_SYSTEMS:
                 measured = Choice.objects.get(pk=datapoint.measured).text
             consumption.measures += [{
                 'metric': datapoint.metric,
