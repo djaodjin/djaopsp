@@ -1,0 +1,16 @@
+<td id="[[practice[0].slug]]" style="width:50%;max-width:50%;">
+  <div style="display:inline-block;">
+    <div ng-if="!containsTag(practice[0], TAG_PAGEBREAK)" ng-class="indentHeader(practice, '{{abs_prefix}}')" style="display:inline-block;">
+        <span class="title">[[practice[0].title]]</span>
+    </div>
+  </div>
+</td>
+<td class="text-center">
+    <textarea class="form-control"
+              maxlength="255" type="text" rows="10"
+              placeholder=""
+              ng-model="getMeasures(getPath(practice[0])).freetext"
+              ng-focus="setActiveElement(practice[0])"
+              ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).freetext)"></textarea>
+{#              ng-blur="submitMeasures(getPath(practice[0]))"></textarea>#}
+</td>

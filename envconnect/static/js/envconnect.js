@@ -1474,7 +1474,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                     $scope.nbAnswers++;
                 }
                 practice.consumption = resp.data.consumption;
-                if( resp.data.first ) {
+                if( resp.data.first && $("#assess-content").data("trip-content") ) {
                     var trip = new Trip([{
                         sel: $("#assess-content"),
                         content: $("#assess-content").data("trip-content"),

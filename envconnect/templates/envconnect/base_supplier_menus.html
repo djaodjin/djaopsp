@@ -107,7 +107,13 @@
         <div class="offset-md-2 col-md-3">
             <h2>Learn <i class="fa fa-angle-right"></i></h2>
             <ul class="nav flex-column fa-ul">
-                <li class="nav-item{% if '/info/' in request.path %} active{% endif %}"><a id="submenu-sustainability" href="{{urls.summary}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><i class="fa-li fa{% if '/info/' in request.path %} fa-hand-o-right{% endif %}"></i> Environmental practices</a></li>
+                <li class="nav-item{% if '/info/' in request.path %} active{% endif %}">
+                    {% if survey and survey.slug == 'framework' %}
+                    <button id="submenu-sustainability" disabled style="font-style:italic;"> Environmental practices</button>
+                    {% else %}
+                    <a id="submenu-sustainability" href="{{urls.summary}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><i class="fa-li fa{% if '/info/' in request.path %} fa-hand-o-right{% endif %}"></i> Environmental practices</a>
+                    {% endif %}
+                </li>
                 <li class="nav-item{% if '/#/' in request.path %} active{% endif %}">
                   <button id="submenu-ethics" disabled style="font-style:italic;"> Ethical business practices <i class="fa fa-wrench" aria-hidden="true"></i></button>
                 </li>

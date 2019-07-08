@@ -7,7 +7,7 @@
    data-trip data-trip-delay="-1"
    data-trip-index="2"
    data-trip-navigation="0"
-   data-trip-position="screen-center" data-trip-content="<div class='text-left'><h4>What each response option means</h4><p>The practice is implemented across the following scope of activities/services/products/offices/facilities to which it could apply:</p><ul><li><strong>Yes</strong>: All. <span style='color:#FFF633'>[Click a best practice to see if there is more guidance on what should be in place to respond &quot;Yes&quot;]</span>.</li><li><strong>Mostly yes</strong>: Roughly 50% OR MORE.</li><li><strong>Mostly no</strong>: Roughly 50% OR LESS.</li><li><strong>No</strong>: Negligible to none.</li><li><strong>Not applicable</strong>: The practice is not applicable to the organization, or the organization has no influence or control over its implementation.</li></ul><h4>Why it is critical to respond accurately</h4><ol><li>Each response creates a statement of record, which a customer or client may request evidence for.</li><li>Create a meaningful baseline for benchmarking with peers and for tracking improvements over time.</li></ol></div>">
+   data-trip-position="screen-center" {% if survey.slug != 'framework' %}data-trip-content="<div class='text-left'><h4>What each response option means</h4><p>The practice is implemented across the following scope of activities/services/products/offices/facilities to which it could apply:</p><ul><li><strong>Yes</strong>: All. <span style='color:#FFF633'>[Click a best practice to see if there is more guidance on what should be in place to respond &quot;Yes&quot;]</span>.</li><li><strong>Mostly yes</strong>: Roughly 50% OR MORE.</li><li><strong>Mostly no</strong>: Roughly 50% OR LESS.</li><li><strong>No</strong>: Negligible to none.</li><li><strong>Not applicable</strong>: The practice is not applicable to the organization, or the organization has no influence or control over its implementation.</li></ul><h4>Why it is critical to respond accurately</h4><ol><li>Each response creates a statement of record, which a customer or client may request evidence for.</li><li>Create a meaningful baseline for benchmarking with peers and for tracking improvements over time.</li></ol></div>"{% endif %} >
     {% for abs_prefix, icon_tuple in root.1|iteritems %}
         {% with icon_tuple.0 as icon %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
@@ -31,17 +31,7 @@
                     class="best-practice-row"
                     ng-repeat="practice in getEntries('{{abs_prefix}}')"
                     ng-if="getEntries('{{abs_prefix}}').length > 0">
-                  <td id="[[practice[0].slug]]" style="width:50%;max-width:50%;">
-                    {% include "envconnect/_detail_row_basic.html" %}
-                  </td>
-                  <td class="text-center">
-                <textarea class="form-control"
-                          maxlength="255" type="text" rows="10"
-                          placeholder=""
-                          ng-model="getMeasures(getPath(practice[0])).freetext"
-                          ng-focus="setActiveElement(practice[0])"
-                          ng-blur="submitMeasures(getPath(practice[0]))"></textarea>
-                  </td>
+                    {% include "envconnect/_assess_metrics_row.html" %}
                 </tr>
             </tbody>
             {% else %}
@@ -69,13 +59,21 @@
                         class="best-practice-row"
                         ng-repeat="practice in getEntries('{{abs_prefix}}')"
                         ng-if="sortedOnKeys === 0 && getEntries('{{abs_prefix}}').length > 0">
-                            {% include "envconnect/_assess_assessment_row.html" %}
+                      {% if survey.slug == 'framework' %}
+                      {% include "envconnect/_assess_framework_row.html" %}
+                      {% else %}
+                      {% include "envconnect/_assess_row.html" %}
+                      {% endif %}
                     </tr>
                     <tr data-id="[[getPath(practice[0])]]"
                         class="best-practice-row"
                         ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
                         ng-if="sortedOnKeys !== 0 && getEntries('{{abs_prefix}}').length > 0">
-                            {% include "envconnect/_assess_assessment_row.html" %}
+                      {% if survey.slug == 'framework' %}
+                      {% include "envconnect/_assess_framework_row.html" %}
+                      {% else %}
+                      {% include "envconnect/_assess_row.html" %}
+                      {% endif %}
                     </tr>
                     <tr ng-if="getEntries('{{abs_prefix}}').length === 0">
                         <td colspan="{{choices|length|add:1}}">
@@ -419,6 +417,7 @@ Each additional measure you tell us about is worth 4 bonus points.
 <script type="text/javascript">
 jQuery(document).ready(function($) {
     var tripElements = [
+{% if survey.slug != 'framework' %}
 {% if request|is_authenticated and not request.session.last_visited %}
         {
             sel: $("#help-request"),
@@ -463,6 +462,7 @@ jQuery(document).ready(function($) {
             skipLabel: " ",
             finishLabel: "OK",
         }
+{% endif %}
 {% endif %}
     ];
     if( tripElements.length > 0  ) {

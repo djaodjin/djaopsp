@@ -96,7 +96,7 @@
               ng-repeat="practice in getEntries('{{abs_prefix}}')"
               ng-if="sortedOnKeys === 0 && getEntries('{{abs_prefix}}').length > 0">
             {% if survey.slug == 'framework' %}
-              {% include "envconnect/_improve_row_framework.html" %}
+              {% include "envconnect/_improve_framework_row.html" %}
             {% else %}
               {% include "envconnect/_improve_row.html" %}
             {% endif %}
@@ -106,7 +106,7 @@
               ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
               ng-if="sortedOnKeys !== 0 && getEntries('{{abs_prefix}}').length > 0">
             {% if survey.slug == 'framework' %}
-              {% include "envconnect/_improve_row_framework.html" %}
+              {% include "envconnect/_improve_framework_row.html" %}
             {% else %}
               {% include "envconnect/_improve_row.html" %}
             {% endif %}
@@ -269,13 +269,16 @@ improvements to report.
       </div>
     </div>
   </div> <!-- /#share-scorecard -->
+{% if survey.slug != 'framework' %}
 {% include "envconnect/_improvement_planning_dashboard.html" %}
+{% endif %}
 {% endblock %}
 
 {% block supplier_menus_scripts %}
 <script type="text/javascript">
 jQuery(document).ready(function($) {
     var tripElements = [
+{% if survey.slug != 'framework' %}
 {% if request|is_authenticated and not request.session.last_visited %}
         {
             sel: $("#help-request"),
@@ -313,6 +316,7 @@ jQuery(document).ready(function($) {
             skipLabel: " ",
             finishLabel: "OK",
         }
+{% endif %}
 {% endif %}
     ];
     if( tripElements.length > 0  ) {

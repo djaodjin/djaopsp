@@ -29,6 +29,22 @@ LOGGER = logging.getLogger(__name__)
 class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
     """
     Answers about the implementation of a best practice.
+
+    **Examples
+
+    .. code-block:: http
+
+        POST /envconnect/api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/3/ HTTP/1.1
+
+    .. code-block:: json
+
+        {}
+
+    responds
+
+    .. code-block:: json
+
+        {}
     """
 
     def get_queryset(self):
@@ -112,7 +128,25 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 
 
 class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
+    """
+    Adds a measurement or comment to an answer.
 
+    **Examples
+
+    .. code-block:: http
+
+        POST /envconnect/api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/3/measures/ HTTP/1.1
+
+    .. code-block:: json
+
+        {}
+
+    responds
+
+    .. code-block:: json
+
+        {}
+    """
     account_url_kwarg = 'interviewee'
     lookup_rank_kwarg = 'rank'
     lookup_field = 'rank'

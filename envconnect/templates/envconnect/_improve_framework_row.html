@@ -1,6 +1,10 @@
 <td id="[[practice[0].slug]]"
     colspan="[[practice[0].consumption ? 1 : {{choices|length|add:2}}]]">
-    {% include "envconnect/_detail_row_basic.html" %}
+  <div style="display:inline-block;">
+    <div ng-if="!containsTag(practice[0], TAG_PAGEBREAK)" ng-class="indentHeader(practice, '{{abs_prefix}}')" style="display:inline-block;">
+        <span class="title">[[practice[0].title]]</span>
+    </div>
+  </div>
 </td>
 <td class="text-center cell-fix-width-3"
     ng-if="practice[0].consumption">

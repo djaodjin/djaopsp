@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 from django.utils import six
 from django.core.urlresolvers import reverse
 from django.db import connection
-from django.db.models import Q, Count
+from django.db.models import F, Q, Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder
@@ -249,8 +249,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         nb_questions = Consumption.objects.filter(
             path__startswith=from_root).count()
         nb_answers = Answer.objects.filter(sample=self.sample,
-            # XXX should be metric_id=question__default_metric,
-            metric_id=self.default_metric_id,
+            question__default_metric=F('metric_id'),
             question__path__startswith=from_root).count()
         context.update({
             'nb_answers': nb_answers,
