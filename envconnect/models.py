@@ -120,8 +120,9 @@ class ConsumptionQuerySet(models.QuerySet):
   FROM survey_sample
   INNER JOIN (SELECT account_id, MAX(created_at) AS last_updated_at
               FROM survey_sample
-              WHERE survey_sample.extra IS NULL %(filter_out_testing)s
-                    AND survey_sample.survey_id = %(survey_id)d
+              WHERE survey_sample.survey_id = %(survey_id)d
+                    AND survey_sample.extra IS NULL
+                    %(filter_out_testing)s
               GROUP BY account_id) AS last_updates
   ON survey_sample.account_id = last_updates.account_id AND
      survey_sample.created_at = last_updates.last_updated_at
@@ -129,16 +130,62 @@ class ConsumptionQuerySet(models.QuerySet):
        'filter_out_testing': filter_out_testing}
         return Sample.objects.raw(sql_query)
 
-    def get_latest_samples_by_accounts(self, survey, includes=None):
+
+    def get_latest_assessment_by_accounts(self, survey,
+                                          before=None, excludes=None):
+        """
+        Returns the most recent frozen assessment before an optionally specified
+        date, indexed by account.
+
+        All accounts in ``excludes`` are not added to the index. This is
+        typically used to filter out 'testing' accounts
+        """
+        #pylint:disable=no-self-use
+        if excludes:
+            if isinstance(excludes, list):
+                excludes = ','.join([
+                    str(account_id) for account_id in excludes])
+            filter_out_testing = (
+                "AND survey_sample.account_id NOT IN (%s)" % str(excludes))
+        else:
+            filter_out_testing = ""
+        before_clause = ("AND created_at < '%s'" % before.isoformat()
+            if before else "")
+        sql_query = """SELECT
+      survey_sample.account_id AS account_id,
+      survey_sample.id AS id,
+      survey_sample.created_at AS created_at
+  FROM survey_sample
+  INNER JOIN (SELECT account_id, MAX(created_at) AS last_updated_at
+              FROM survey_sample
+              WHERE survey_sample.survey_id = %(survey_id)d
+                    AND survey_sample.extra IS NULL
+                    AND survey_sample.is_frozen
+                    %(before_clause)s
+                    %(filter_out_testing)s
+              GROUP BY account_id) AS last_updates
+  ON survey_sample.account_id = last_updates.account_id AND
+     survey_sample.created_at = last_updates.last_updated_at
+""" % {'survey_id': survey.pk,
+       'before_clause': before_clause,
+       'filter_out_testing': filter_out_testing}
+        return Sample.objects.raw(sql_query)
+
+
+    def get_latest_samples_by_accounts(self, survey,
+                                       before=None, excludes=None):
         """
         assessment and planning
         """
         #pylint:disable=no-self-use
-        if includes:
-            samples_filter = "WHERE survey_sample.id IN (%s)" % (
-                ', '.join([str(sample_pk) for sample_pk in includes]))
+        if excludes:
+            if isinstance(excludes, list):
+                excludes = ','.join([
+                    str(account_id) for account_id in excludes])
+            filter_out_testing = (
+                "AND survey_sample.account_id NOT IN (%s)" % str(excludes))
         else:
-            samples_filter = ""
+            filter_out_testing = ""
         sql_query = """SELECT
         survey_sample.account_id AS account_id,
         survey_sample.id AS id,
@@ -153,12 +200,15 @@ class ConsumptionQuerySet(models.QuerySet):
         WHERE survey_sample.survey_id = %(survey_id)d
           AND (survey_sample.extra IS NULL
             OR survey_sample.extra = 'is_planned')
+          %(filter_out_testing)s
+          %(before_clause)s
         GROUP BY account_id, extra) AS latests
       ON survey_sample.account_id = latests.account_id
-        AND survey_sample.created_at = latests.last_updated_at
-      %(samples_filter)s""" % {
+        AND survey_sample.created_at = latests.last_updated_at""" % {
           'survey_id': survey.pk,
-          'samples_filter': samples_filter}
+          'filter_out_testing': filter_out_testing,
+          'before_clause': ("AND created_at < '%s'" % before.isoformat()
+            if before else "")}
         return Sample.objects.raw(sql_query)
 
     @staticmethod

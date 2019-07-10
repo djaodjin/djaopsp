@@ -1018,11 +1018,17 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
         $http.post(settings.urls.api_benchmark_share, data).then(
             function success(resp) {
+                var contacts = "";
+                var sep = "";
+                for( var idx = 0; idx < resp.data.length; ++idx ) {
+                    contacts += sep + resp.data[idx]['printable_name'];
+                    sep = ", ";
+                }
                 modalDialog.modal('hide');
                 $scope.activeSupplierManager = null;
                 $scope.thirdPartySupplierManager = null;
                 $scope.thirdPartySupplierManagerEmail = null;
-                showMessages(['Supplier managers at ' + data['full_name']
+                showMessages(['TSP contacts for ' + contacts
                               + ' have been notified. Thank you.'], 'info');
             }, function error(resp) {
                 if( resp.status === 404 ) {

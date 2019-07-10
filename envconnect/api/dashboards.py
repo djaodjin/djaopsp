@@ -7,7 +7,7 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db import connection
+from django.db import connection, transaction
 from django.db.models import Count, Max, Q
 from django.http import Http404
 from django.utils import six
@@ -935,18 +935,19 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
             or last_scored_assessment.created_at < last_activity_at):
             # New activity since last record, let's freeze the assessment
             # and planning.
-            last_scored_assessment = freeze_scores(self.assessment_sample,
-                includes=self.get_included_samples(),
-                excludes=self._get_filter_out_testing(),
-                collected_by=self.request.user)
-            if self.improvement_sample:
-                freeze_scores(self.improvement_sample,
+            with transaction.atomic():
+                last_scored_assessment = freeze_scores(self.assessment_sample,
                     includes=self.get_included_samples(),
                     excludes=self._get_filter_out_testing(),
                     collected_by=self.request.user)
+                if self.improvement_sample:
+                    freeze_scores(self.improvement_sample,
+                        includes=self.get_included_samples(),
+                        excludes=self._get_filter_out_testing(),
+                        collected_by=self.request.user)
 
         # send assessment updated and invite notifications
-        data = {}
+        data = supplier_managers
         status_code = None
         for supplier_manager in supplier_managers:
             supplier_manager_slug = supplier_manager.get('slug', None)
@@ -994,7 +995,7 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
                 except Matrix.DoesNotExist:
                     # Registered supplier manager but no dashboard
                     # XXX send hint to get paid version.
-                    LOGGER.error("%s shared %s assessment (%s) with %s",
+                    LOGGER.error("%s shared %s assessment (%s) with matrix %s",
                         self.request.user, self.account, last_scored_assessment,
                         supplier_manager_slug)
                     # XXX Should technically add all managers
@@ -1021,6 +1022,7 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
                 LOGGER.error("%s shared %s assessment (%s) with %s",
                     self.request.user, self.account, last_scored_assessment,
                     contact_email)
+                data = {}
                 data.update(supplier_manager)
                 data.update({'slug': contact_email})
                 if status_code is None:

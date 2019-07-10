@@ -25,22 +25,28 @@ def as_valid_sheet_title(title):
 def freeze_scores(sample, includes=None, excludes=None,
                   collected_by=None, created_at=None):
     #pylint:disable=too-many-locals
+    # This function must be executed in a `transaction.atomic` block.
     LOGGER.info("freeze scores for %s", sample.account)
     created_at = datetime_or_now(created_at)
-    # XXX relies on metric.slug == campaign.slug (also see default_metric_id
-    # in mixins.py)
-    metric_id = Metric.objects.get(slug=sample.survey.slug).pk
-    scored_answers = get_scored_answers(
-        Consumption.objects.get_active_by_accounts(
-            sample.survey, excludes=excludes),
-        metric_id,
-        includes=includes)
     score_sample = Sample.objects.create(
         created_at=created_at,
         survey=sample.survey,
         account=sample.account,
         extra=sample.extra,
         is_frozen=True)
+    # Copy the actual answers
+    for answer in Answer.objects.filter(sample=sample):
+        answer.pk = None
+        answer.sample = score_sample
+        answer.save()
+    # Create frozen scores for answers we can derive a score from
+    # (i.e. assessment).
+    assessment_metric_id = Metric.objects.get(slug='assessment').pk
+    score_metric_id = Metric.objects.get(slug='score').pk
+    scored_answers = get_scored_answers(
+        Consumption.objects.get_active_by_accounts(
+            sample.survey, excludes=excludes),
+        assessment_metric_id, includes=includes)
     with connection.cursor() as cursor:
         cursor.execute(scored_answers, params=None)
         col_headers = cursor.description
@@ -55,7 +61,7 @@ def freeze_scores(sample, includes=None, excludes=None,
                 _ = Answer.objects.create(
                     created_at=created_at,
                     question_id=decorated_answer.id,
-                    metric_id=2,
+                    metric_id=score_metric_id,
                     measured=numerator,
                     denominator=denominator,
                     collected_by=collected_by,

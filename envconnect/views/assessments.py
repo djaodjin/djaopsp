@@ -21,6 +21,7 @@ from openpyxl.styles.fills import FILL_SOLID
 from pages.models import PageElement
 from survey.models import Answer, Choice, Metric, Sample, Unit
 
+from ..helpers import get_testing_accounts
 from ..mixins import ReportMixin, BestPracticeMixin
 from ..models import Consumption, get_scored_answers
 from ..serializers import ConsumptionSerializer
@@ -47,18 +48,19 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
 
     def _framework_results(self, consumptions):
         if self.survey.slug == 'framework':
-            start_at = self.sample.created_at - relativedelta(months=1)
             ends_at = self.sample.created_at + relativedelta(months=1)
+            last_frozen_assessments = \
+                Consumption.objects.get_latest_assessment_by_accounts(
+                    self.survey, before=ends_at,
+                    excludes=get_testing_accounts())
             results = Answer.objects.filter(
                 metric_id=self.default_metric_id,
-                sample_id__in=Sample.objects.filter(
-                Q(created_at__gte=start_at) & Q(created_at__lt=ends_at))
+                sample_id__in=last_frozen_assessments
             ).values('question__path', 'measured').annotate(Count('sample_id'))
             totals = {}
             for row in Answer.objects.filter(
                     metric_id=self.default_metric_id,
-                    sample_id__in=Sample.objects.filter(
-                        Q(created_at__gte=start_at) & Q(created_at__lt=ends_at))
+                    sample_id__in=last_frozen_assessments
                     ).values('question__path').annotate(Count('sample_id')):
                 totals[row['question__path']] = row['sample_id__count']
             choices = {}
