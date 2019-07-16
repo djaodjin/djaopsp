@@ -12,7 +12,7 @@
     <i ng-if="!practice[0].consumption.implemented">&dash;</i>
 </td>
 {% for choice in choices %}
-<td class="text-center cell-fix-width-5" ng-if="practice[0].consumption">
+<td ng-class="(practice[0].consumption.implemented !== practice[0].consumption.planned) && (practice[0].consumption.planned === '{{choice.text}}') ? 'text-center cell-fix-width-5 green-level-4' : 'text-center cell-fix-width-5'" ng-if="practice[0].consumption">
     <label for="{{choice.text|slugify}}-[[$index]]"
            style="margin-bottom:0">
     <input id="{{choice.text|slugify}}-[[$index]]" type="radio"
