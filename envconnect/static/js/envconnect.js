@@ -235,6 +235,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.entries = settings.entries;
     $scope.valueSummaryToggle = settings.valueSummaryToggle;
     $scope.scoreToggle = settings.scoreToggle;
+    $scope.vsPeersToggle = 0;
     $scope.supplierManagers =  settings.supplierManagers || [];
 
     $scope.BEST_PRACTICE_ELEMENT = 'best-practice';

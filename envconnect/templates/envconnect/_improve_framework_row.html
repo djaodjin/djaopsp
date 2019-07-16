@@ -2,7 +2,7 @@
     colspan="[[practice[0].consumption ? 1 : {{choices|length|add:2}}]]">
   <div style="display:inline-block;">
     <div ng-if="!containsTag(practice[0], TAG_PAGEBREAK)" ng-class="indentHeader(practice, '{{abs_prefix}}')" style="display:inline-block;">
-        <span class="title">[[practice[0].title]]</span>
+        <a class="title">[[practice[0].title]]</a>
     </div>
   </div>
 </td>
