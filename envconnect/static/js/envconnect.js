@@ -255,6 +255,34 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.NO = 'No'
     $scope.NOT_APPLICABLE = 'Not applicable'
 
+    $scope.nameOptions = [
+        "energy",
+        "employee",
+        "fuel",
+        "ghg-emissions",
+        "hazardous-waste",
+        "material",
+        "nox-emissions",
+        "particulate-emissions",
+        "revenue",
+        "sox-emissions",
+        "solid-general-waste",
+        "spend",
+        "water",
+        "waste"
+    ];
+
+    $scope.meaningOptions = [
+        "consumed",
+        "counted",
+        "saved",
+        "avoided",
+        "reduced",
+        "generated",
+        "emitted",
+        "with-environmental-controls"
+    ];
+
     $scope.stickOptions = [
         "count",
         "currency",
@@ -269,51 +297,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         "long-tons",
     ];
 
-    $scope.nameOptions = [
-        "energy",
-        "fuel",
-        "ghg-emissions",
-        "hazardous-waste",
-        "material",
-        "nox-emissions",
-        "particulate-emissions",
-        "sox-emissions",
-        "solid-general-waste",
-        "spend",
-        "water-use",
-        "waste-water-effluent"
-    ];
-
-    $scope.meaningOptions = [
-        "saved",
-        "avoided",
-        "reduced",
-        "generated",
-        "emitted",
-        "with-environmental-controls"
-    ];
-
     $scope.frequencyOptions = [
         "annual"
-    ];
-
-    $scope.scopeOptions = [
-        "corporate-level-of-which-reporting-entity-is-part",
-        "business-unit-Reporting-entity",
-        "some-activities",
-        "all-activities",
-        "ad-hoc-projects",
-        "some-projects",
-        "all-projects",
-        "office-footprint-only",
-        "full-operations-footprint",
-        "partial-operations-footprint",
-        "scope-1-full",
-        "scope-2-full",
-        "scope-3-full",
-        "scope-1-partial",
-        "scope-2-partial",
-        "scope-3-partial"
     ];
 
     $scope.prevSample = settings.prevSample ? settings.prevSample : "";
@@ -361,6 +346,18 @@ envconnectControllers.controller("EnvconnectCtrl",
             | $scope.isNo(practice) | $scope.isNotApplicable(practice));
     }
 
+    $scope.isGHGEmissionBreakDown = function (practice) {
+        return practice[0].consumption && (
+          practice[0].consumption.metric === 'ghg-emissions-generated' &&
+          practice[0].consumption.path.indexOf('ghg-emissions-breakdown') >= 0);
+    }
+
+    $scope.isGHGEmissionNotBreakDown = function (practice) {
+        return practice[0].consumption && (
+          practice[0].consumption.metric === 'ghg-emissions-generated' &&
+          practice[0].consumption.path.indexOf('ghg-emissions-breakdown') < 0);
+    }
+
     $scope._getValForActiveAccount = function(practice, fieldName) {
         if( typeof practice.accounts !== 'undefined' ) {
             for( var key in practice.accounts ) {
@@ -398,6 +395,20 @@ envconnectControllers.controller("EnvconnectCtrl",
         $scope.$evalAsync(function() {
             $timeout(function() {window.dispatchEvent(new Event('resize'));});
         });
+    }
+
+    $scope.defaultMetricUnit = function(metric) {
+        if( metric ) {
+            if( metric === 'energy-consumed' ) {
+                return 'kwh-year';
+            } else if( metric === 'ghg-emissions-generated' ||
+                       metric === 'waste-generated' ) {
+                return 'tons-year';
+            } else if( metric === 'water-consumed' ) {
+                return 'gallons-year';
+            }
+        }
+        return null;
     }
 
     /** Decorates the tree with two sets, ``capturable`` and ``captured``.
@@ -473,7 +484,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                     || root[0].consumption.measures.hasOwnProperty('comments')) ) {
                     // We still have an array of measures from the API.
                     // We reformat it in a dictionnary as expected by the UI.
-                    var measures = {items: [], freetext: "", comments: ""};
+                    var measures = {measured: "", freetext: "", comments: ""};
                     for( var idx = 0; idx < root[0].consumption.measures.length; ++idx ) {
                         var measure = root[0].consumption.measures[idx];
                         if( measure.metric ) {
@@ -481,6 +492,10 @@ envconnectControllers.controller("EnvconnectCtrl",
                                 measures.freetext = measure.measured;
                             } else if( measure.metric == 'comments' ) {
                                 measures.comments = measure.measured;
+                            } else if( measure.metric == 'yes-no' ) {
+                                root[0].consumption.implemented = measure.measured;
+                            } else if( measure.metric == 'year' ) {
+                                measures.freetext = measure.measured;
                             } else {
                                 try {
                                     // Same order as `submitMeasures`
@@ -490,6 +505,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                                     search = search.slice(name.length + 1);
                                     var meaning = $scope.findOption(
                                         search, $scope.meaningOptions);
+/*
                                     search = search.slice(meaning.length + 1);
                                     var stick = $scope.findOption(
                                         search, $scope.stickOptions);
@@ -497,16 +513,18 @@ envconnectControllers.controller("EnvconnectCtrl",
                                     var frequency = $scope.findOption(
                                         search, $scope.frequencyOptions);
                                     search = search.slice(frequency.length + 1);
-                                    var scope = $scope.findOption(
-                                        search, $scope.scopeOptions);
-                                    search = search.slice(scope.length + 1);
-                                    measures.items.push({
+*/
+                                    $.extend(measures, {
                                         measured: parseInt(measure.measured),
                                         name: name,
-                                        stick: stick,
                                         meaning: meaning,
-                                        scope: scope,
-                                        frequency: frequency});
+//                                        stick: stick,
+                                        frequency: 'annual'
+                                    });
+                                    $.extend(measures, {
+                                        unit: $scope.defaultMetricUnit(
+                                            root[0].consumption.metric)
+                                    });
                                 } catch(err) {
                                 }
                             }
@@ -1530,10 +1548,14 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( path ) {
             var node = $scope.getEntriesRecursive($scope.entries, path);
             if( ! node.measures ) {
-                node.measures = {items: [], freetext: "", comments: ""};
+                node.measures = {measured: "", freetext: "", comments: ""};
+                if( node[0].consumption.metric == 'year' ) {
+                    node.measures.freetext = "2020";
+                }
+                $.extend(node.measures, {
+                    unit: $scope.defaultMetricUnit(node[0].consumption.metric)
+                });
             }
-            node.measures.items.push({measured: 0, name: "", stick: "",
-                meaning: "", scope: "", frequency: "annual"});
         }
     };
 
@@ -1546,10 +1568,11 @@ envconnectControllers.controller("EnvconnectCtrl",
             var node = $scope.getEntriesRecursive($scope.entries, path);
             if( ! node.measures ) {
                 $scope.addMeasure(path);
+            } else {
             }
             return node.measures;
         }
-        return {items: [], freetext: "", comments: ""};
+        return {measured: "", freetext: "", comments: ""};
     };
 
     $scope.submitMeasures = function(prefix, event) {
@@ -1560,16 +1583,13 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
         var data = [];
         var measures = $scope.getMeasures(prefix);
-        for( var idx = 0; idx < measures.items.length; ++idx ) {
-            if( measures.items[idx].measured ) {
-                data.push({
-                    metric: measures.items[idx].name
-                        + "-" + measures.items[idx].meaning
-                        + "-" + measures.items[idx].stick
-                        + "-" + measures.items[idx].frequency
-                        + "-" + measures.items[idx].scope,
-                    measured: measures.items[idx].measured});
-            }
+        if( measures.measured ) {
+            data.push({
+                metric: measures.name
+                    + "-" + measures.meaning
+                    + "-" + measures.stick
+                    + "-" + measures.frequency,
+                measured: measures.measured});
         }
         if( measures.freetext ) {
             data.push({metric: "freetext", measured: measures.freetext});

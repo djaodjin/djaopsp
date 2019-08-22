@@ -190,7 +190,7 @@ SELECT
     survey_question.avg_value AS avg_value,
     0 AS nb_respondents,
     0 AS rate,
-    survey_question.requires_measurements AS requires_measurements,
+    survey_question.default_metric_id AS default_metric_id,
     survey_question.opportunity AS opportunity,
     samples.account_id AS account_id,
     samples.id AS sample_id,
@@ -223,7 +223,7 @@ SELECT
     expected_opportunities.avg_value AS avg_value,
     expected_opportunities.nb_respondents AS nb_respondents,
     expected_opportunities.rate AS rate,
-    expected_opportunities.requires_measurements AS requires_measurements,
+    expected_opportunities.default_metric_id AS default_metric_id,
     expected_opportunities.opportunity AS opportunity
 FROM expected_opportunities
 LEFT OUTER JOIN survey_answer
@@ -576,8 +576,10 @@ class SupplierListMixin(DashboardMixin):
             for act in list(actives)])
 
         # Suppliers reporting publicly
+        CATEGORIZED_MEASUREMENTS = [4]
         nb_suppliers_reporting_publicly = Answer.objects.filter(
-           question__requires_measurements=Consumption.CATEGORIZED_MEASUREMENTS,
+           question__path=Consumption.objects.filter(
+               default_metric_id__in=CATEGORIZED_MEASUREMENTS).values('path'),
            measured=Consumption.YES,
            sample__in=actives.values_list('pk', flat=True)).count()
 
@@ -841,8 +843,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
                 chart.update({
                     'breadcrumbs': [chart['title']],
                     'icon': element.text if element is not None else "",
-                    'icon_css':
-                        'grey' if (tag and 'management' in tag) else 'orange'
+                    'icon_css': 'orange'
                 })
 
         # XXX Shows average value in encompassing supply chain.

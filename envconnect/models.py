@@ -289,7 +289,7 @@ SELECT
   survey_question.implementation_ease AS implementation_ease,
   survey_question.profitability AS profitability,
   survey_question.avg_value AS avg_value,
-  survey_question.requires_measurements AS requires_measurements,
+  survey_question.default_metric_id AS default_metric_id,
   survey_question.path AS path
 FROM survey_question
 LEFT OUTER JOIN opportunity_view
@@ -337,17 +337,6 @@ class Consumption(SurveyQuestion):
         NOT_APPLICABLE: 'Not applicable'
     }
 
-    NO_MEASUREMENTS = 0
-    FREETEXT_MEASUREMENTS = 1
-    CATEGORIZED_MEASUREMENTS = 2
-
-    MEASUREMENTS = (
-        (NO_MEASUREMENTS, 'none'),
-        (FREETEXT_MEASUREMENTS, 'freetext'),
-        (CATEGORIZED_MEASUREMENTS, 'categorized')
-    )
-
-
     NOT_MEASUREMENTS_METRICS = (
         'assessment',
         'score',
@@ -389,10 +378,6 @@ class Consumption(SurveyQuestion):
     #   - a value summary is updated
     #   - a Consumption is initially created
     avg_value = models.IntegerField(default=0)
-
-    # Additional metric on the Question.
-    requires_measurements = models.PositiveSmallIntegerField(
-        choices=MEASUREMENTS, default=NO_MEASUREMENTS)
 
     class Meta:
         db_table = 'survey_question'
@@ -507,7 +492,7 @@ def get_expected_opportunities(population, includes=None,
     questions_with_opportunity.avg_value AS avg_value,
     questions_with_opportunity.nb_respondents AS nb_respondents,
     questions_with_opportunity.rate AS rate,
-    questions_with_opportunity.requires_measurements AS requires_measurements
+    questions_with_opportunity.default_metric_id AS default_metric_id
 FROM (%(questions_with_opportunity)s) AS questions_with_opportunity
 INNER JOIN (
     SELECT survey_enumeratedquestions.question_id AS question_id,
@@ -651,40 +636,43 @@ def get_scored_answers(population, metric_id,
     expected_choices.avg_value AS avg_value,
     expected_choices.nb_respondents AS nb_respondents,
     expected_choices.rate AS rate,
-    expected_choices.requires_measurements AS requires_measurements,
+    survey_metric.slug AS metric,
     expected_choices.opportunity AS opportunity
 FROM (SELECT
-    expected_opportunities.account_id AS account_id,
-    expected_opportunities.sample_id AS sample_id,
-    expected_opportunities.is_completed AS is_completed,
-    expected_opportunities.is_planned AS is_planned,
-    CASE WHEN measured = %(yes)s THEN (opportunity * 3)
-         WHEN measured = %(moderate_improvement)s THEN (opportunity * 2)
-         WHEN measured = %(significant_improvement)s THEN opportunity
-         ELSE 0.0 END AS numerator,
-    CASE WHEN measured IN (%(yes_no)s) THEN (opportunity * 3)
-         ELSE 0.0 END AS denominator,
-    answers.created_at AS last_activity_at,
-    answers.id AS answer_id,
-    answers.rank as rank,
-    expected_opportunities.id AS id,
-    expected_opportunities.path AS path,
-    answers.measured AS measured,
-    expected_opportunities.environmental_value AS environmental_value,
-    expected_opportunities.business_value AS business_value,
-    expected_opportunities.profitability AS profitability,
-    expected_opportunities.implementation_ease AS implementation_ease,
-    expected_opportunities.avg_value AS avg_value,
-    expected_opportunities.nb_respondents AS nb_respondents,
-    expected_opportunities.rate AS rate,
-    expected_opportunities.requires_measurements AS requires_measurements,
-    expected_opportunities.opportunity AS opportunity
-FROM (%(expected_opportunities)s) AS expected_opportunities
-LEFT OUTER JOIN (%(answers)s) AS answers
-ON expected_opportunities.id = answers.question_id
-   AND expected_opportunities.sample_id = answers.sample_id) AS expected_choices
+        expected_opportunities.account_id AS account_id,
+        expected_opportunities.sample_id AS sample_id,
+        expected_opportunities.is_completed AS is_completed,
+        expected_opportunities.is_planned AS is_planned,
+        CASE WHEN measured = %(yes)s THEN (opportunity * 3)
+            WHEN measured = %(moderate_improvement)s THEN (opportunity * 2)
+            WHEN measured = %(significant_improvement)s THEN opportunity
+            ELSE 0.0 END AS numerator,
+        CASE WHEN measured IN (%(yes_no)s) THEN (opportunity * 3)
+            ELSE 0.0 END AS denominator,
+        answers.created_at AS last_activity_at,
+        answers.id AS answer_id,
+        answers.rank as rank,
+        expected_opportunities.id AS id,
+        expected_opportunities.path AS path,
+        answers.measured AS measured,
+        expected_opportunities.environmental_value AS environmental_value,
+        expected_opportunities.business_value AS business_value,
+        expected_opportunities.profitability AS profitability,
+        expected_opportunities.implementation_ease AS implementation_ease,
+        expected_opportunities.avg_value AS avg_value,
+        expected_opportunities.nb_respondents AS nb_respondents,
+        expected_opportunities.rate AS rate,
+        expected_opportunities.default_metric_id AS default_metric_id,
+        expected_opportunities.opportunity AS opportunity
+      FROM (%(expected_opportunities)s) AS expected_opportunities
+      LEFT OUTER JOIN (%(answers)s) AS answers
+      ON expected_opportunities.id = answers.question_id
+          AND expected_opportunities.sample_id = answers.sample_id
+     ) AS expected_choices
 LEFT OUTER JOIN survey_choice
-ON expected_choices.measured = survey_choice.id
+  ON expected_choices.measured = survey_choice.id
+INNER JOIN survey_metric
+  ON expected_choices.default_metric_id = survey_metric.id
 """ % {
        'yes': Consumption.YES,
        'moderate_improvement': Consumption.NEEDS_MODERATE_IMPROVEMENT,

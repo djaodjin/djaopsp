@@ -101,6 +101,12 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
         #pylint:disable=too-many-locals,too-many-statements
         consumptions = {}
         consumptions_planned = {}
+        # The call to `get_expected_opportunities` within `get_scored_answers`
+        # will insure all questions for the assessment are picked up, either
+        # they have an answer or not.
+        # This is done by listing all question in `get_opportunities_sql`
+        # and filtering them out through the `survey_enumeratedquestions`
+        # table in `get_expected_opportunities`.
         scored_answers = get_scored_answers(
             Consumption.objects.get_active_by_accounts(
                 self.survey, excludes=self._get_filter_out_testing()),

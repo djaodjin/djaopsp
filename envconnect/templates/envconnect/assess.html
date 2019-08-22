@@ -13,33 +13,40 @@
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
           <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_PAGEBREAK).length === 0">
             <table class="table table-striped table-bordered table-assessment">
-            {% if 'metrics' in icon.tag %}
-            <thead>
-              <th class="sticky-cell">
-                <div class="sticky-cell-content-container">
-                  <div class="sticky-cell-content" style="padding-left:0.75rem;">Practices</div>
-                </div>
-              </th>
-              <th class="sticky-cell">
-                <div class="sticky-cell-content-container">
-                  <div class="sticky-cell-content" style="padding-left:0.75rem;">Your answer</div>
-                </div>
-              </th>
-            </thead>
-            <tbody>
-                <tr data-id="[[getPath(practice[0])]]"
-                    class="best-practice-row"
-                    ng-repeat="practice in getEntries('{{abs_prefix}}')"
-                    ng-if="getEntries('{{abs_prefix}}').length > 0">
-                    {% include "envconnect/_assess_metrics_row.html" %}
-                </tr>
-            </tbody>
-            {% else %}
-                {% with icon.tag|assessment_choices as choices %}
+               {% with icon.tag|assessment_choices as choices %}
                 <thead ng-show="!scoreToggle">
+                    {% if 'metrics' in icon.tag %}
                     <tr>
                       <th style="border-bottom:none;"></th>
-                      <th class="text-center" colspan="{{choices|length}}">{% if survey.slug == 'framework' %}Select maturity level for each attribute{% else %}Implemented as standard practice? <a style="cursor:pointer;" href="" data-toggle="tooltip" data-placement="right" title="Read this question to mean, Has the practice been implemented as standard or routine for all activities, projects or services to which the practice could apply, and over which the reporting entity has operational influence or control? If the reporting entity has no influence or control over a practice, then the response to the question should be 'Not applicable'."><i class="fa fa-question-circle"></i></a>{% endif %}</th>
+                      <th class="text-center" colspan="{{choices|length}}"></th>
+                    </tr>
+                    <tr>
+                      <th class="sticky-cell">
+                        <div class="sticky-cell-content-container">
+                          <div class="sticky-cell-content" style="padding-left:0.75rem;">
+This section about data, metrics and targets is optional. If you are reporting
+environmental initiatives publicly, please answer the following questions:
+                          </div>
+                        </div>
+                      </th>
+                      {% for choice in choices %}
+                      <th class="sticky-cell text-center cell-fix-width-5">
+                          <div class="sticky-cell-content-container">
+                            <div class="sticky-cell-content"></div>
+                          </div>
+                      </th>
+                      {% endfor %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <th style="border-bottom:none;"></th>
+                      <th class="text-center" colspan="{{choices|length}}">
+                        {% if survey.slug == 'framework' %}
+                        Select maturity level for each attribute
+                        {% else %}
+                        Implemented as standard practice? <a style="cursor:pointer;" href="" data-toggle="tooltip" data-placement="right" title="Read this question to mean, Has the practice been implemented as standard or routine for all activities, projects or services to which the practice could apply, and over which the reporting entity has operational influence or control? If the reporting entity has no influence or control over a practice, then the response to the question should be 'Not applicable'."><i class="fa fa-question-circle"></i></a>
+                        {% endif %}
+                      </th>
                     </tr>
                     <tr>
                       <th class="sticky-cell">
@@ -53,6 +60,7 @@
                       </th>
                       {% endfor %}
                     </tr>
+                    {% endif %}
                 </thead>
                 <tbody data-prefix="{{abs_prefix}}" ng-show="!scoreToggle">
                     <tr data-id="[[getPath(practice[0])]]"
@@ -87,9 +95,10 @@ See the following for examples of content developed for best practices:
                         </td>
                     </tr>
                 </tbody>
+                {% if 'metrics' not in icon.tag %}
                 {% include "envconnect/_assess_results_table.html" %}
+                {% endif %}
                 {% endwith %}
-            {% endif %}
             </table>
             <div class="row" style="margin-top:-15px;">
                 <div class="offset-md-6 col-md-6 text-right" style="margin-bottom: 10px;">
@@ -228,152 +237,6 @@ Then:
       </form>
     </div>
 </div><!-- /#report-comments -->
-<div id="report-measurements-2" class="modal fade"
-     tabindex="-1" role="dialog"
-     aria-labelledby="Report measurements" aria-hidden="true"
-     style="color: #000;">
-    <div class="modal-dialog">
-      <form class="form" ng-submit="submitMeasures('{{abs_prefix}}', $event)">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">DO YOU MEASURE/REPORT?</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-body">
-                <h5>For bonus points tell us what you measure and report on an annual basis.</h5>
-                <p>
-Each additional measure you tell us about is worth 4 bonus points.
-                </p>
-                <fieldset>
-                  <legend>ABSOLUTE/TOTAL MEASUREMENTS</legend>
-                  <div class="row" ng-repeat="measure in getMeasures('{{abs_prefix}}').items">
-                    <div class="col-sm-2" style="padding-right:0;">
-                      <input class="form-control" type="number" ng-model="measure.measured" placeholder="Enter data point">
-                    </div>
-                    <div class="col-sm-2" style="padding-left:0;padding-right:0;">
-                      <select class="form-control" ng-model="measure.stick" name="metric-stick" value="Unit of measure">
-                              <option value="">Select unit of measure...</option>
-                              <option value="count">Count or number</option>
-                              <option value="currency">Currency</option>
-                              <option value="gallons">Gallons</option>
-                              <option value="joules">Joules</option>
-                              <option value="kilograms">Kilograms</option>
-                              <option value="liters">Liters</option>
-                              <option value="tons">Metric tons</option>
-                              <option value="percentage">Percentage</option>
-                              <option value="pounds">Pounds</option>
-                              <option value="short-tons">Tons (short/US)</option>
-                              <option value="long-tons">Tons (long/UK)</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3" style="padding-left:0;padding-right:0;">
-                      <select class="form-control" ng-model="measure.name" name="metric-name" value="Subject of measure">
-                        <option value="">Select subject of measure...</option>
-                        <option value="energy">Energy</option>
-                        <option value="fuel">Fuel</option>
-                        <option value="ghg-emissions">GHG emissions</option>
-                        <option value="hazardous-waste">Hazardous waste</option>
-                        <option value="material">Material</option>
-                        <option value="nox-emissions">NOx emissions</option>
-                        <option value="particulate-emissions">Particulate emissions</option>
-                        <option value="sox-emissions">SOx emissions</option>
-                        <option value="solid-general-waste">Solid/general waste</option>
-                        <option value="spend">Spend</option>
-                        <option value="water-use">Water use</option>
-                        <option value="waste-water-effluent">Waste water effluent</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-2" style="padding-left:0;padding-right:0;">
-                            <select class="form-control" ng-model="measure.meaning" name="metric-meaning" value="Select">
-                                    <option value="">Select meaning ...</option>
-                                    <option value="saved">Saved</option>
-                                    <option value="avoided">Avoided</option>
-                                    <option value="reduced">Reduced</option>
-                                    <option value="generated">Generated</option>
-                                    <option value="emitted">Emitted</option>
-                                    <option value="with-environmental-controls">With environmental controls</option>
-                            </select>
-                    </div>
-                    <div class="col-sm-3" style="padding-left:0;">
-                      <select class="form-control" ng-model="measure.scope" name="metric-scope" value="Scope of measure">
-                        <option value="">Select scope ...</option>
-                        <option value="corporate-level-of-which-reporting-entity-is-part">Corporate level, of which reporting entity is part</option>
-                        <option value="business-unit-Reporting-entity">Business unit/Reporting entity</option>
-                        <option value="some-activities">Some activities</option>
-                        <option value="all-activities">All activities</option>
-                        <option value="ad-hoc-projects">Ad hoc projects</option>
-                        <option value="some-projects">Some projects</option>
-                        <option value="all-projects">All projects</option>
-                        <option value="office-footprint-only">Office footprint only</option>
-                        <option value="full-operations-footprint">Full operations footprint</option>
-                        <option value="partial-operations-footprint">Partial operations footprint</option>
-                        <option value="scope-1-full">Scope 1 - full</option>
-                        <option value="scope-2-full">Scope 2 - full</option>
-                        <option value="scope-3-full">Scope 3 – full</option>
-                        <option value="scope-1-partial">Scope 1 - partial</option>
-                        <option value="scope-2-partial">Scope 2 - partial</option>
-                        <option value="scope-3-partial">Scope 3 – partial</option>
-                      </select>
-                    </div>
-                  </div>
-                  <button class="btn btn-secondary" type="button" ng-click="addMeasure('{{abs_prefix}}', $event)" style="margin: 10px 0;"><i class="fa fa-plus"></i> Report another item</button>
-                </fieldset>
-                <fieldset>
-                  <legend>OTHER MEASURES</legend>
-                  <p>Also for bonus points, list other measures and reporting your organization does that aren’t included above options.</p>
-                  <textarea class="form-control"
-                            name="other-measures"
-                            maxlength="255" type="text" rows="10"
-                            placeholder="For example:
-- Office energy intensity/square foot
-- Energy intensity/meter of cable
-- Joules/distribution transformer
-- Carbon emissions/parcel delivered"
-                            ng-model="getMeasures('{{abs_prefix}}').freetext"></textarea>
-                  <p>And/or tell us what measures you think make the most sense for your type of organization, or the challenges of reporting environmental metrics.</p>
-                  <textarea class="form-control"
-                            name="message"
-                            maxlength="255" type="text" rows="10"
-                            placeholder="Insert text"
-                            ng-model="getMeasures('{{abs_prefix}}').comments"></textarea>
-                </fieldset>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" type="submit" value="submit">Submit</button>
-            </div>
-        </div>
-      </form>
-    </div>
-</div><!-- /#report-measurements-2 -->
-<div id="report-measurements-1" class="modal fade"
-     tabindex="-1" role="dialog"
-     aria-labelledby="Report measurements" aria-hidden="true"
-     style="color: #000;">
-    <div class="modal-dialog">
-      <form class="form" ng-submit="submitMeasures('{{abs_prefix}}', $event)">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">DO YOU MEASURE/REPORT?</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-body">
-                <h5>For bonus points tell us what you measure and report.</h5>
-                <p>
-Each additional measure you tell us about is worth 4 bonus points.
-                </p>
-                <textarea class="form-control"
-                          name="other-measures"
-                          maxlength="255" type="text" rows="10"
-                          placeholder="Note measures here"
-                          ng-model="getMeasures('{{abs_prefix}}').freetext"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" type="submit" value="submit">Submit</button>
-            </div>
-        </div>
-      </form>
-    </div>
-</div><!-- /#report-measurements-1 -->
 {% endblock icons_content %}
 
 
@@ -438,7 +301,7 @@ jQuery(document).ready(function($) {
         {
             sel: $("#submenu-self-assessment"),
             content: "<ol class='text-left'>" +
-"<li>Click each grey or orange box and complete a response for all best practices" +
+"<li>Click each orange box and complete a response for all best practices" +
 " listed<sup>(1)</sup>.<br />[<strong style='color:#FFF633'>Responses must be accurate and verifiable</strong>, so mouse over each column heading to clearly<br />" +
 "understand response choices. Also click a best practice for guidance<sup>(2)</sup> on what should be in place to<br />" +
 "respond <em>&quot;Yes&quot;</em>.</li>" +

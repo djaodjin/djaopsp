@@ -48,6 +48,15 @@ class DetailView(BestPracticeMixin, TemplateView):
         root = self._build_tree(trail[-1][0], from_root)
         self._report_queries("content tree built.")
 
+        # Removes framework additional questions and other assessments
+        # questions which are irrelevant when making an improvement plan.
+        to_remove = []
+        for key, node in six.iteritems(root[1]):
+            if 'metrics' in node[0].get('tag', ""):
+                to_remove += [key]
+        for key in to_remove:
+            del root[1][key]
+
         # attach visible column headers
         hidden_columns = {}
         is_content_manager = context.get('is_content_manager', False)

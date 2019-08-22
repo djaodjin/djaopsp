@@ -1,19 +1,203 @@
 <td id="[[practice[0].slug]]">
-    {% include "envconnect/_detail_row_basic.html" %}
-    <div class="bestpractice" style="display:inline-block;float:right;">
-    <a ng-click="setActiveElement(practice[0])" ng-if="practice[0].consumption && practice[0].consumption.requires_measurements" href="" data-toggle="modal" data-target="#report-measurements-[[practice[0].consumption.requires_measurements]]" title="Got data to report? Click here." class="report-measurements-link"><i class="fa fa-line-chart fa-2x"></i></a>
+  {% include "envconnect/_detail_row_basic.html" %}
+  <div class="bestpractice" style="display:inline-block;float:right;">
     {% if survey.slug != 'framework' %}
-    <a class="title" ng-click="setActiveElement(practice[0])" ng-if="practice[0].consumption && !practice[0].consumption.requires_measurements" href="" data-toggle="modal" data-target="#report-comments" title="Got a comment? Click here."><i class="fa fa-sticky-note-o"></i></a>
+    <a class="title" ng-click="setActiveElement(practice[0])" ng-if="practice[0].consumption" href="" data-toggle="modal" data-target="#report-comments" title="Got a comment? Click here."><i class="fa fa-sticky-note-o"></i></a>
     {% endif %}
-    </div>
+  </div>
 </td>
+
+{# headers #}
+{% if 'metrics' in icon.tag %}
+<td class="text-center" colspan="{{choices|length}}"
+    ng-if="!(practice[0].consumption)"
+</td>
+{% else %}
 {% for choice in choices %}
-<td class="text-center cell-fix-width-5">
+<td class="text-center cell-fix-width-5"
+    ng-if="!(practice[0].consumption)"
     <button ng-if="!(practice[0].consumption)"
             class="btn btn-select-all" href=""
             ng-click="selectAll($event, '{{choice.text}}')"><i class="fa fa-circle"></i></button>
-    <label ng-if="practice[0].consumption"
-           for="{{choice.text|slugify}}-[[$index]]"
+</td>
+{% endfor %}
+{% endif %}
+
+{# questions #}
+<td class="text-center" colspan="{{choices|length}}"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="practice[0].consumption && (practice[0].consumption.metric === 'freetext')">
+    <textarea class="form-control"
+              type="text" rows="10"
+              placeholder=""
+              ng-model="getMeasures(getPath(practice[0])).freetext"
+              ng-focus="setActiveElement(practice[0])"
+              ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).freetext)"></textarea>
+</td>
+
+<td class="text-center" colspan="{{choices|length}}"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="practice[0].consumption && (practice[0].consumption.metric === 'year')">
+    <select class="form-control"
+            ng-model="getMeasures(getPath(practice[0])).freetext"
+            ng-focus="setActiveElement(practice[0])"
+            ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).freetext)">
+        <option value="2019">2019</value>
+        <option value="2020">2020</value>
+        <option value="2021">2021</value>
+        <option value="2022">2022</value>
+        <option value="2023">2023</value>
+        <option value="2024">2024</value>
+        <option value="2025">2025</value>
+    </select>
+</td>
+
+{# general #}
+<td class="text-center" colspan="{{choices|length}}"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="practice[0].consumption && (practice[0].consumption.metric === 'revenue-generated' || practice[0].consumption.metric === 'employee-counted')">
+    <input class="form-control"
+           type="number"
+           placeholder=""
+           ng-model="getMeasures(getPath(practice[0])).measured"
+           ng-focus="setActiveElement(practice[0])"
+           ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).measured)"></input>
+</td>
+{# end of general #}
+
+{# energy #}
+<td class="text-center" colspan="{{choices|length|add:'-1'}}"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="practice[0].consumption && (practice[0].consumption.metric === 'energy-consumed' || practice[0].consumption.metric === 'water-consumed' || practice[0].consumption.metric === 'waste-generated')">
+    <input class="form-control"
+           type="number"
+           placeholder=""
+           ng-model="getMeasures(getPath(practice[0])).measured"
+           ng-focus="setActiveElement(practice[0])"
+           ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).measured)"></input>
+</td>
+<td class="text-center"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="practice[0].consumption && (practice[0].consumption.metric === 'energy-consumed')">
+    <select class="form-control"
+            ng-model="getMeasures(getPath(practice[0])).unit"
+            ng-focus="setActiveElement(practice[0])"
+            ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).measured)">
+        <option value="kwh-year">kWh/Year</value>
+    </select>
+</td>
+<td class="text-center"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="practice[0].consumption && (practice[0].consumption.metric === 'water-consumed')">
+    <select class="form-control"
+            ng-model="getMeasures(getPath(practice[0])).unit"
+            ng-focus="setActiveElement(practice[0])"
+            ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).measured)">
+        <option value="gallons-year" selected>Gallons / year</value>
+    </select>
+</td>
+<td class="text-center"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="practice[0].consumption && (practice[0].consumption.metric === 'waste-generated')">
+    <select class="form-control"
+            ng-model="getMeasures(getPath(practice[0])).unit"
+            ng-focus="setActiveElement(practice[0])"
+            ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).measured)">
+        <option value="tons-year" selected>Metric tons / year</value>
+    </select>
+</td>
+{# end of energy #}
+
+{# scope ghg-emissions-generated #}
+<td class="text-center"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="isGHGEmissionBreakDown(practice)">
+    <select class="form-control"
+            ng-model="getMeasures(getPath(practice[0])).freetext"
+            ng-focus="setActiveElement(practice[0])"
+            ng-blur="submitMeasures(getPath(practice[0]), $event)">
+        <option value="">Select relevance ...</option>
+        <option value="not-relevant">Not Relevant</value>
+        <option value="relevant-always-included">Relevant, always included</value>
+        <option value="relevant-not-yet-calculated">Relevant, not yet calculated</value>
+        <option value="relevant-and-calculated-but-not-disclosed">Relevant and calculated, but not disclosed</value>
+        <option value="not-evaluated">Not evaluated</value>
+    </select>
+</td>
+<td class="text-center" colspan="{{choices|length|add:'-2'}}"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="isGHGEmissionBreakDown(practice)">
+    <input class="form-control"
+              type="number"
+              placeholder=""
+              ng-model="getMeasures(getPath(practice[0])).measured"
+              ng-focus="setActiveElement(practice[0])"
+              ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).measured)"></input>
+</td>
+<td class="text-center" colspan="{{choices|length|add:'-1'}}"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="isGHGEmissionNotBreakDown(practice)">
+    <input class="form-control"
+              type="number"
+              placeholder=""
+              ng-model="getMeasures(getPath(practice[0])).measured"
+              ng-focus="setActiveElement(practice[0])"
+              ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).measured)"></input>
+</td>
+<td class="text-center"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="practice[0].consumption && (practice[0].consumption.metric === 'ghg-emissions-generated')">
+    <select class="form-control"
+            ng-model="getMeasures(getPath(practice[0])).unit"
+            ng-focus="setActiveElement(practice[0])"
+            ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).measured)">
+        <option value="tons-year" selected>Metric Tons CO2/Year</value>
+    </select>
+</td>
+{# end of scope ghg-emissions-generated #}
+
+{# Yes/No #}
+<td class="text-center"
+    ng-if="practice[0].consumption && practice[0].consumption.metric === 'yes-no'">
+    <label for="yes-[[$index]]"
+           style="margin-bottom:0">
+        <input id="yes-[[$index]]"
+           type="radio"
+           value="Yes"
+           name="implemented-[[practice[0].consumption.rank]]"
+           ng-checked="practice[0].consumption.implemented === 'Yes'"
+           ng-change="updateAssessmentAnswer(practice[0], 'Yes')"
+           ng-model="practice[0].consumption.implemented"/> Yes
+    </label>
+</td>
+<td class="text-center"
+    ng-if="practice[0].consumption && practice[0].consumption.metric === 'yes-no'">
+    <label for="no-[[$index]]"
+           style="margin-bottom:0">
+        <input id="no-[[$index]]"
+           type="radio"
+           value="No"
+           name="implemented-[[practice[0].consumption.rank]]"
+           ng-checked="practice[0].consumption.implemented === 'No'"
+           ng-change="updateAssessmentAnswer(practice[0], 'No')"
+           ng-model="practice[0].consumption.implemented"/> No
+    </label>
+</td>
+<td class="text-center" colspan="{{choices|length|add:'-2'}}"
+    ng-if="practice[0].consumption && practice[0].consumption.metric === 'yes-no'">
+    <textarea class="form-control"
+           type="text" rows="3"
+           placeholder="Please, enter URL or specify ..."
+           ng-model="getMeasures(getPath(practice[0])).freetext"
+           ng-focus="setActiveElement(practice[0])"
+           ng-blur="submitMeasures(getPath(practice[0]), $event)"></textarea>
+</td>
+{# end of Yes/No #}
+
+{% for choice in choices %}
+<td class="text-center cell-fix-width-5"
+    ng-if="practice[0].consumption && practice[0].consumption.metric === 'assessment'">
+    <label for="{{choice.text|slugify}}-[[$index]]"
            style="margin-bottom:0">
     <input id="{{choice.text|slugify}}-[[$index]]" type="radio"
            value="{{choice.text}}"

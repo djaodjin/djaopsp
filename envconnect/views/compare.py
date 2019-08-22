@@ -129,8 +129,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                     'slug': cohort.slug,
                     'breadcrumbs': [cohort.title],
                     'icon': element.text if element is not None else "",
-                    'icon_css':
-                        'grey' if (tag and 'management' in tag) else 'orange'
+                    'icon_css': 'orange'
                 }]
             charts = []
         url_kwargs = self.get_url_kwargs()

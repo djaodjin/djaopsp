@@ -7,6 +7,9 @@
     </div>
     {% endif %}
     <div ng-if="!containsTag(practice[0], TAG_PAGEBREAK)" ng-class="indentHeader(practice, '{{abs_prefix}}')" style="display:inline-block;">
+        {% if 'metrics' in icon.tag %}
+        <span class="title">[[practice[0].title]]</span>
+        {% else %}
         <a class="title" href="[[practice[0].consumption ? '{{urls.best_practice_base}}' + practice[0].slug + '/' : '']]">[[practice[0].title]]</a>
         {% if is_content_manager and not organization %}
         <a class="incl" href=""
@@ -26,6 +29,7 @@
             </button>
             <button id="header-[[practice[0].slug]]" class="btn btn-link" data-toggle="modal" data-target="#add-element-modal" ng-click="setNewElement(getHeadingPath(practice[0]), BEST_PRACTICE_ELEMENT)"><i class="fa fa-plus"></i> Add</button>
         </div>
+        {% endif %}
         {% endif %}
     </div>
 </div>

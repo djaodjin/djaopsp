@@ -3,7 +3,7 @@
 
 """Command to migrate the envconnect production database"""
 
-import re
+import random, re
 
 from deployutils.helpers import datetime_or_now
 from django.core.management.base import BaseCommand
@@ -110,7 +110,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.add_root()
+            self.data_import_sql()
+#            self.add_root()
 #            self.add_grant_key()
 #            self.update_pageelement_accounts()
 #            self.migrate_survey()
@@ -121,6 +122,60 @@ class Command(BaseCommand):
 #            self.relabel_to_fix_error()
 #            self.recompute_avg_value()
 
+    def data_import_sql_recursive(self, element, suffix,
+                                  path_prefix, new_path_prefix):
+        if RelationShip.objects.filter(orig_element=element).exists():
+            orig_element_slug = element.slug + suffix
+            self.stdout.write("INSERT INTO pages_pageelement (slug, title, text, tag, account_id) VALUES ('%(slug)s', '%(title)s', '%(text)s', '%(tag)s', %(account)d);" % {
+            'slug': orig_element_slug,
+            'title': element.title,
+            'text': element.text,
+            'tag': element.tag,
+            'account': 6})
+            for rel in RelationShip.objects.filter(orig_element=element):
+                dest_element_slug = self.data_import_sql_recursive(
+                    rel.dest_element, suffix,
+                    path_prefix + '/%s' % element.slug,
+                    new_path_prefix + '/%s' % orig_element_slug)
+                self.stdout.write("INSERT INTO pages_relationship (rank, orig_element_id, dest_element_id) VALUES (%(rank)d, (SELECT id FROM pages_pageelement WHERE slug='%(orig_element_slug)s'), (SELECT id FROM pages_pageelement WHERE slug='%(dest_element_slug)s'));"
+                % {'rank': rel.rank,
+                   'orig_element_slug': orig_element_slug,
+                   'dest_element_slug': dest_element_slug})
+        else:
+            orig_element_slug = element.slug
+            #self.stderr.write("XXX looking for path='%s'" % (path_prefix + '/%s' % orig_element_slug))
+            best_practice = Consumption.objects.get(
+                path=path_prefix + '/%s' % orig_element_slug)
+            new_path = new_path_prefix + '/%s' % orig_element_slug
+            self.stdout.write("INSERT INTO survey_question (path, question_type, default_metric_id, title, text, environmental_value, business_value, implementation_ease, profitability, avg_energy_saving, avg_fuel_saving, capital_cost, payback_period, nb_respondents, opportunity, rate, avg_value) VALUES ('%(path)s', '%(question_type)s', %(default_metric_id)d, '', '', 0, 0, 0, 0, '-', '-', '-', '-', 0, 0, 0, 0);" % {
+                'path': new_path,
+                'question_type': best_practice.question_type,
+                'default_metric_id': best_practice.default_metric_id})
+            pos = EnumeratedQuestions.objects.get(question=best_practice)
+            self.stdout.write("INSERT INTO survey_enumeratedquestions (campaign_id, required, rank, question_id) VALUES (%(campaign_id)d, 0, (SELECT count(id) + 1 FROM survey_enumeratedquestions WHERE campaign_id=%(campaign_id)d), (SELECT id FROM survey_question WHERE path='%(new_path)s'));"% {
+                'campaign_id': 1,
+                'new_path': new_path})
+        return orig_element_slug
+
+
+    def data_import_sql(self):
+        root = PageElement.objects.get(slug='additional-questions')
+        path_prefix = '/metal/%s/sustainability-%s' % (
+            'boxes-and-enclosures', 'boxes-and-enclosures')
+        self.stdout.write("BEGIN;")
+        for element in PageElement.objects.filter(slug__in=[
+                'construction']):
+            orig_element_slug = element.slug
+            suffix = '-' + "".join([
+                    random.choice("abcdef0123456789") for val in range(5)])
+            new_element_slug = self.data_import_sql_recursive(
+                root, suffix, path_prefix,
+                '/%s/sustainability-%s' % (
+                    orig_element_slug, orig_element_slug))
+            self.stdout.write("INSERT INTO pages_relationship (rank, orig_element_id, dest_element_id) VALUES ((SELECT count(id) FROM pages_relationship WHERE orig_element_id=(SELECT id FROM pages_pageelement WHERE slug='%(orig_element_slug)s')), (SELECT id FROM pages_pageelement WHERE slug='%(orig_element_slug)s'), (SELECT id FROM pages_pageelement WHERE slug='%(dest_element_slug)s'));"
+                % {'orig_element_slug': 'sustainability-%s' % orig_element_slug,
+                   'dest_element_slug': new_element_slug})
+        self.stdout.write("COMMIT;")
 
     def add_root(self):
         self.stdout.write("BEGIN;")

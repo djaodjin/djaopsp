@@ -45,8 +45,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
 
     path = serializers.CharField(required=False)
     rank = serializers.SerializerMethodField()
-#    default_metric = serializers.SlugRelatedField(
-#        queryset=Metric.objects.all(), slug_field='slug')
+    metric = serializers.CharField(required=False)
     nb_respondents = serializers.SerializerMethodField()
     rate = serializers.SerializerMethodField()
     opportunity = serializers.SerializerMethodField()
@@ -67,7 +66,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
             "implementation_ease", "avg_value",
             # benchmarks
             "nb_respondents", "rate", "opportunity",
-            "rank", "implemented", "planned", "requires_measurements",
+            "rank", "implemented", "planned", "metric",
             "measures")
 
     @staticmethod

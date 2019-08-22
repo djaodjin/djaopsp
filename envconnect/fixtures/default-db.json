@@ -163,6 +163,137 @@
   "model" : "survey.metric", "pk" : 5
 },
 {
+  "fields": {
+    "slug": "usd",
+    "title": "USD",
+    "system": 2
+  },
+  "model": "survey.unit", "pk": 5
+},
+{
+  "fields": {
+    "slug": "revenue-generated",
+    "title": "Annual Revenue (USD)",
+    "unit": 5
+  },
+  "model": "survey.metric", "pk": 6
+},
+{
+  "fields": {
+    "slug": "person",
+    "title": "Person",
+    "system": 2
+  },
+  "model": "survey.unit", "pk": 6
+},
+{
+  "fields": {
+    "slug": "employee-counted",
+    "title": "Full-time Employee Count",
+    "unit": 6
+  },
+  "model": "survey.metric", "pk": 7
+},
+{ "fields": {
+    "slug": "yes-no",
+    "title": "Yes/No",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk" : 7
+},
+{ "fields": {
+    "unit": 7,
+    "rank": 1,
+    "text": "Yes"
+  },
+  "model" : "survey.choice", "pk" : 12
+},
+{ "fields": {
+    "unit": 7,
+    "rank": 2,
+    "text": "No"
+  },
+  "model" : "survey.choice", "pk" : 13
+},
+{
+  "fields": {
+    "slug": "yes-no",
+    "title": "Yes/No",
+    "unit": 7
+  },
+  "model": "survey.metric", "pk": 8
+},
+{ "fields": {
+    "slug": "year",
+    "title": "Year",
+    "system": 2
+  },
+  "model" : "survey.unit", "pk" : 8
+},
+{
+  "fields": {
+    "slug": "year",
+    "title": "Year",
+    "unit": 8
+  },
+  "model": "survey.metric", "pk": 9
+},
+{ "fields": {
+    "slug": "kwh-year",
+    "title": "KWh / Year",
+    "system": 0
+  },
+  "model" : "survey.unit", "pk" : 9
+},
+{
+  "fields": {
+    "slug": "energy-consumed",
+    "title": "Energy consumed",
+    "unit": 9
+  },
+  "model": "survey.metric", "pk": 10
+},
+{ "fields": {
+    "slug": "tons-year",
+    "title": "Metric Tons / Year",
+    "system": 0
+  },
+  "model" : "survey.unit", "pk" : 10
+},
+{
+  "fields": {
+    "slug": "ghg-emissions-generated",
+    "title": "GHG Emissions",
+    "unit": 11
+  },
+  "model": "survey.metric", "pk": 11
+},
+{ "fields": {
+    "slug": "gallons-year",
+    "title": "Gallons / Year",
+    "system": 1
+  },
+  "model" : "survey.unit", "pk" : 11
+},
+{
+  "fields": {
+    "slug": "water-consumed",
+    "title": "Water consumed",
+    "unit": 11
+  },
+  "model": "survey.metric", "pk": 12
+},
+
+{
+  "fields": {
+    "slug": "waste-generated",
+    "title": "Waste generated",
+    "unit": 10
+  },
+  "model": "survey.metric", "pk": 13
+},
+
+{
     "fields": {
         "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
         "slug": "avg_energy_saving",
@@ -382,8 +513,7 @@
     "environmental_value": 1,
     "implementation_ease": 1,
     "profitability": 1,
-    "avg_value": 1,
-    "requires_measurements": 2
+    "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 1
 },
@@ -416,15 +546,14 @@
     "environmental_value": 2,
     "implementation_ease": 2,
     "profitability": 2,
-    "avg_value": 2,
-    "requires_measurements": 1
+    "avg_value": 2
   },
-  "model": "envconnect.Consumption", "pk": 2
+  "model": "envconnect.Consumption", "pk": 3
 },
 {
   "fields": {
     "campaign": 1,
-    "question": 2,
+    "question": 3,
     "rank": 2
   },
   "model": "survey.EnumeratedQuestions", "pk": 2
@@ -651,12 +780,12 @@
     "profitability": 3,
     "avg_value": 1
   },
-  "model": "envconnect.Consumption", "pk": 3
+  "model": "envconnect.Consumption", "pk": 5
 },
 {
   "fields": {
     "campaign": 1,
-    "question": 3,
+    "question": 5,
     "rank": 3
   },
   "model": "survey.EnumeratedQuestions", "pk": 3
@@ -691,12 +820,12 @@
     "profitability": 1,
     "avg_value": 1
   },
-  "model": "envconnect.Consumption", "pk": 4
+  "model": "envconnect.Consumption", "pk": 6
 },
 {
   "fields": {
     "campaign": 1,
-    "question": 4,
+    "question": 6,
     "rank": 4
   },
   "model": "survey.EnumeratedQuestions", "pk": 4
@@ -888,12 +1017,12 @@
     "profitability": 1,
     "avg_value": 1
   },
-  "model": "envconnect.Consumption", "pk": 5
+  "model": "envconnect.Consumption", "pk": 7
 },
 {
   "fields": {
     "campaign": 1,
-    "question": 5,
+    "question": 7,
     "rank": 5
   },
   "model": "survey.EnumeratedQuestions", "pk": 5
@@ -951,12 +1080,12 @@
     "profitability": 1,
     "avg_value": 1
   },
-  "model": "envconnect.Consumption", "pk": 6
+  "model": "envconnect.Consumption", "pk": 8
 },
 {
   "fields": {
     "campaign": 1,
-    "question": 6,
+    "question": 8,
     "rank": 6
   },
   "model": "survey.EnumeratedQuestions", "pk": 6
@@ -992,12 +1121,12 @@
     "profitability": 1,
     "avg_value": 1
   },
-  "model": "envconnect.Consumption", "pk": 7
+  "model": "envconnect.Consumption", "pk": 9
 },
 {
   "fields": {
     "campaign": 1,
-    "question": 7,
+    "question": 9,
     "rank": 7
   },
   "model": "survey.EnumeratedQuestions", "pk": 7
@@ -1354,15 +1483,14 @@
     "environmental_value": 1,
     "implementation_ease": 1,
     "profitability": 1,
-    "avg_value": 1,
-    "requires_measurements": 1
+    "avg_value": 1
   },
-  "model": "envconnect.Consumption", "pk": 8
+  "model": "envconnect.Consumption", "pk": 10
 },
 {
   "fields": {
     "campaign": 1,
-    "question": 8,
+    "question": 10,
     "rank": 8
   },
   "model": "survey.EnumeratedQuestions", "pk": 8
@@ -1398,12 +1526,12 @@
     "profitability": 1,
     "avg_value": 1
   },
-  "model": "envconnect.Consumption", "pk": 9
+  "model": "envconnect.Consumption", "pk": 12
 },
 {
   "fields": {
     "campaign": 1,
-    "question": 9,
+    "question": 12,
     "rank": 9
   },
   "model": "survey.EnumeratedQuestions", "pk": 9
@@ -1423,12 +1551,12 @@
     "profitability": 1,
     "avg_value": 1
   },
-  "model": "envconnect.Consumption", "pk": 10
+  "model": "envconnect.Consumption", "pk": 13
 },
 {
   "fields": {
     "campaign": 1,
-    "question": 10,
+    "question": 13,
     "rank": 10
   },
   "model": "survey.EnumeratedQuestions", "pk": 10
@@ -1512,18 +1640,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:35:58.183Z",
-    "question": 2,
-    "metric": 1,
-    "measured": 1,
-    "collected_by": 8,
-    "sample": 2,
-    "rank": 2
-  },
-  "model": "survey.answer", "pk": 5
-},
-{
-  "fields": {
     "created_at": "2016-07-15T00:36:16.558Z",
     "question": 3,
     "metric": 1,
@@ -1533,18 +1649,6 @@
     "rank": 3
   },
   "model": "survey.answer", "pk": 6
-},
-{
-  "fields": {
-    "created_at": "2016-07-15T00:36:17.276Z",
-    "question": 4,
-    "metric": 1,
-    "measured": 1,
-    "collected_by": 8,
-    "sample": 2,
-    "rank": 4
-  },
-  "model": "survey.answer", "pk": 7
 },
 {
   "fields": {
@@ -1635,19 +1739,6 @@
 },
 {
   "fields": {
-    "created_at": "2016-07-15T00:35:58.183Z",
-    "question": 2,
-    "metric": 2,
-    "measured": 1,
-    "denominator": 2,
-    "collected_by": 7,
-    "sample": 3,
-    "rank": 2
-  },
-  "model": "survey.answer", "pk": 15
-},
-{
-  "fields": {
     "created_at": "2016-07-15T00:36:16.558Z",
     "question": 3,
     "metric": 2,
@@ -1658,19 +1749,6 @@
     "rank": 3
   },
   "model": "survey.answer", "pk": 16
-},
-{
-  "fields": {
-    "created_at": "2016-07-15T00:36:17.276Z",
-    "question": 4,
-    "metric": 2,
-    "measured": 1,
-    "denominator": 3,
-    "collected_by": 7,
-    "sample": 3,
-    "rank": 4
-  },
-  "model": "survey.answer", "pk": 17
 },
 {
   "fields": {
@@ -1752,19 +1830,6 @@
 {
   "fields": {
     "created_at": "2017-01-01T00:00:00.000Z",
-    "question": 2,
-    "metric": 2,
-    "measured": 2,
-    "denominator": 4,
-    "collected_by": 7,
-    "sample": 4,
-    "rank": 2
-  },
-  "model": "survey.answer", "pk": 45
-},
-{
-  "fields": {
-    "created_at": "2017-01-01T00:00:00.000Z",
     "question": 3,
     "metric": 2,
     "measured": 3,
@@ -1774,19 +1839,6 @@
     "rank": 3
   },
   "model": "survey.answer", "pk": 46
-},
-{
-  "fields": {
-    "created_at": "2017-01-01T00:00:00.000Z",
-    "question": 4,
-    "metric": 2,
-    "measured": 3,
-    "denominator": 4,
-    "collected_by": 7,
-    "sample": 4,
-    "rank": 4
-  },
-  "model": "survey.answer", "pk": 47
 },
 {
   "fields": {
@@ -2256,12 +2308,12 @@
     "profitability": 1,
     "avg_value": 1
   },
-  "model": "envconnect.Consumption", "pk": 11
+  "model": "envconnect.Consumption", "pk": 15
 },
 {
   "fields": {
     "campaign": 1,
-    "question": 11,
+    "question": 15,
     "rank": 11
   },
   "model": "survey.EnumeratedQuestions", "pk": 11
@@ -2339,15 +2391,15 @@
     "profitability": 2,
     "avg_value": 2
   },
-  "model": "envconnect.Consumption", "pk": 83
+  "model": "envconnect.Consumption", "pk": 16
 },
 {
   "fields": {
     "campaign": 2,
-    "question": 83,
+    "question": 16,
     "rank": 1
   },
-  "model": "survey.EnumeratedQuestions", "pk": 83
+  "model": "survey.EnumeratedQuestions", "pk": 16
 },
 {
   "fields": {
@@ -2379,15 +2431,15 @@
     "profitability": 2,
     "avg_value": 2
   },
-  "model": "envconnect.Consumption", "pk": 84
+  "model": "envconnect.Consumption", "pk": 17
 },
 {
   "fields": {
     "campaign": 2,
-    "question": 84,
+    "question": 17,
     "rank": 2
   },
-  "model": "survey.EnumeratedQuestions", "pk": 84
+  "model": "survey.EnumeratedQuestions", "pk": 17
 },
 
 {
@@ -2436,13 +2488,13 @@
     "profitability": 2,
     "avg_value": 2
   },
-  "model": "envconnect.Consumption", "pk": 86
+  "model": "envconnect.Consumption", "pk": 18
 },
 {
   "fields": {
     "campaign": 2,
-    "question": 86,
+    "question": 18,
     "rank": 3
   },
-  "model": "survey.EnumeratedQuestions", "pk": 86
+  "model": "survey.EnumeratedQuestions", "pk": 18
 }]

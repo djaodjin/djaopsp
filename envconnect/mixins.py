@@ -338,7 +338,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     def decorate_leafs(self, leafs):
         for path, vals in six.iteritems(leafs):
-            consumption = Consumption.objects.filter(path=path).first()
+            consumption = Consumption.objects.filter(
+                enumeratedquestions__campaign=self.survey, path=path).first()
             if consumption:
                 vals[0]['consumption'] \
                     = ConsumptionSerializer(context={'campaign': self.survey
@@ -428,7 +429,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'breadcrumbs':
                 list(breadcrumbs) if breadcrumbs else [title],
             'icon': icon,
-            'icon_css': 'grey' if (tag and 'management' in tag) else 'orange'
+            'icon_css': 'orange'
         })
         for node in six.itervalues(rollup_tree[1]):
             self.decorate_with_breadcrumbs(node, icon=icon, tag=tag,
@@ -831,8 +832,8 @@ GROUP BY account_id, sample_id, is_planned;""" % {
     def _get_measured_metrics_context(self, root, prefix):
         depth = len(prefix.split('/')) + 1
         env_metrics = Consumption.objects.filter(
-            path__startswith=prefix,
-            requires_measurements__gt=0)
+            path__startswith=prefix).exclude(
+                default_metric=self.default_metric_id)
         for env_metric in env_metrics:
             node = self._insert_path(root, env_metric.path, depth=depth)
             if 'environmental_metrics' not in node[0]:
