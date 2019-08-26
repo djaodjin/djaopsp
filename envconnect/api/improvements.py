@@ -91,7 +91,7 @@ class ImprovementAnswerAPIView(ImprovementQuerySetMixin,
                 rank = EnumeratedQuestions.objects.get(
                     campaign=self.improvement_sample.survey,
                     question=self.question).rank
-                _, created = self.model.objects.get_or_create(
+                _, created = self.model.objects.update_or_create(
                     sample=self.improvement_sample,
                     question=self.question,
                     metric=self.question.default_metric,
