@@ -255,52 +255,6 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.NO = 'No'
     $scope.NOT_APPLICABLE = 'Not applicable'
 
-    $scope.nameOptions = [
-        "energy",
-        "employee",
-        "fuel",
-        "ghg-emissions",
-        "hazardous-waste",
-        "material",
-        "nox-emissions",
-        "particulate-emissions",
-        "revenue",
-        "sox-emissions",
-        "solid-general-waste",
-        "spend",
-        "water",
-        "waste"
-    ];
-
-    $scope.meaningOptions = [
-        "consumed",
-        "counted",
-        "saved",
-        "avoided",
-        "reduced",
-        "generated",
-        "emitted",
-        "with-environmental-controls"
-    ];
-
-    $scope.stickOptions = [
-        "count",
-        "currency",
-        "gallons",
-        "joules",
-        "kilograms",
-        "liters",
-        "tons",
-        "percentage",
-        "pounds",
-        "short-tons",
-        "long-tons",
-    ];
-
-    $scope.frequencyOptions = [
-        "annual"
-    ];
-
     $scope.prevSample = settings.prevSample ? settings.prevSample : "";
     $scope.nbAnswers = settings.nbAnswers ? settings.nbAnswers : 0;
     $scope.nbQuestions = settings.nbQuestions ? settings.nbQuestions : 0;
@@ -479,54 +433,30 @@ envconnectControllers.controller("EnvconnectCtrl",
             }
             // reformat the `measures` array to make it easier on the UI.
             if( root[0].consumption.measures ) {
-                if( !(root[0].consumption.measures.hasOwnProperty('items')
-                    || root[0].consumption.measures.hasOwnProperty('freetext')
-                    || root[0].consumption.measures.hasOwnProperty('comments')) ) {
+                if( !root[0].consumption.measures.hasOwnProperty('comments') ) {
                     // We still have an array of measures from the API.
                     // We reformat it in a dictionnary as expected by the UI.
-                    var measures = {measured: "", freetext: "", comments: ""};
+                    var measures = {comments: ""};
                     for( var idx = 0; idx < root[0].consumption.measures.length; ++idx ) {
-                        var measure = root[0].consumption.measures[idx];
-                        if( measure.metric ) {
-                            if( measure.metric == 'freetext' ) {
-                                measures.freetext = measure.measured;
-                            } else if( measure.metric == 'comments' ) {
-                                measures.comments = measure.measured;
-                            } else if( measure.metric == 'yes-no' ) {
-                                root[0].consumption.implemented = measure.measured;
-                            } else if( measure.metric == 'year' ) {
-                                measures.freetext = measure.measured;
+                        var qMeasure = root[0].consumption.measures[idx];
+                        if( qMeasure.metric ) {
+                            if( qMeasure.metric == 'comments' ) {
+                                measures.comments = qMeasure.measured;
+                            } else if( qMeasure.metric == 'yes-no' ) {
+                                root[0].consumption.implemented = qMeasure.measured;
                             } else {
-                                try {
-                                    // Same order as `submitMeasures`
-                                    var search = measure.metric;
-                                    var name = $scope.findOption(
-                                        search, $scope.nameOptions);
-                                    search = search.slice(name.length + 1);
-                                    var meaning = $scope.findOption(
-                                        search, $scope.meaningOptions);
-/*
-                                    search = search.slice(meaning.length + 1);
-                                    var stick = $scope.findOption(
-                                        search, $scope.stickOptions);
-                                    search = search.slice(stick.length + 1);
-                                    var frequency = $scope.findOption(
-                                        search, $scope.frequencyOptions);
-                                    search = search.slice(frequency.length + 1);
-*/
-                                    $.extend(measures, {
-                                        measured: parseInt(measure.measured),
-                                        name: name,
-                                        meaning: meaning,
-//                                        stick: stick,
-                                        frequency: 'annual'
-                                    });
-                                    $.extend(measures, {
-                                        unit: $scope.defaultMetricUnit(
-                                            root[0].consumption.metric)
-                                    });
-                                } catch(err) {
+                                var measured = parseInt(qMeasure.measured);
+                                if( qMeasure.metric == 'target-by' ||
+                                    qMeasure.metric == 'target-baseline' ||
+                                    measured.toString() !== qMeasure.measured) {
+                                    measured = qMeasure.measured;
                                 }
+                                var measure = {
+                                    measured: measured,
+                                    unit: $scope.defaultMetricUnit(
+                                        root[0].consumption.metric)
+                                };
+                                measures[qMeasure.metric.replace(/-/g, '_')] = measure;
                             }
                         }
                     }
@@ -1548,13 +1478,11 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( path ) {
             var node = $scope.getEntriesRecursive($scope.entries, path);
             if( ! node.measures ) {
-                node.measures = {measured: "", freetext: "", comments: ""};
-                if( node[0].consumption.metric == 'year' ) {
-                    node.measures.freetext = "2020";
-                }
-                $.extend(node.measures, {
+                node.measures = {comments: ""};
+                node.measures[node[0].consumption.metric.replace(/-/g, '_')] = {
+                    measured: "",
                     unit: $scope.defaultMetricUnit(node[0].consumption.metric)
-                });
+                };
             }
         }
     };
@@ -1572,7 +1500,7 @@ envconnectControllers.controller("EnvconnectCtrl",
             }
             return node.measures;
         }
-        return {measured: "", freetext: "", comments: ""};
+        return [];
     };
 
     $scope.submitMeasures = function(prefix, event) {
@@ -1583,19 +1511,21 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
         var data = [];
         var measures = $scope.getMeasures(prefix);
-        if( measures.measured ) {
-            data.push({
-                metric: measures.name
-                    + "-" + measures.meaning
-                    + "-" + measures.stick
-                    + "-" + measures.frequency,
-                measured: measures.measured});
-        }
-        if( measures.freetext ) {
-            data.push({metric: "freetext", measured: measures.freetext});
-        }
-        if( measures.comments ) {
-            data.push({metric: "comments", measured: measures.comments});
+        for( var measure in measures ) {
+            if( measures.hasOwnProperty(measure) ) {
+                var measured = "";
+                if( typeof measures[measure].measured !== 'undefined' ) {
+                    measured = measures[measure].measured.toString();
+                } else {
+                    measured = measures[measure];
+                }
+                if( measured ) {
+                    data.push({
+                        metric: measure.replace(/_/g, '-'),
+                        measured: measured
+                    });
+                }
+            }
         }
         var path = prefix;
         var node = $scope.activeElement ? $scope.activeElement.value : null;

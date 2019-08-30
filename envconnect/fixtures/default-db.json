@@ -264,7 +264,7 @@
   "fields": {
     "slug": "ghg-emissions-generated",
     "title": "GHG Emissions",
-    "unit": 11
+    "unit": 10
   },
   "model": "survey.metric", "pk": 11
 },
@@ -291,6 +291,31 @@
     "unit": 10
   },
   "model": "survey.metric", "pk": 13
+},
+
+{
+  "fields": {
+    "slug": "target-reduced",
+    "title": "Target ",
+    "unit": 3
+  },
+  "model": "survey.metric", "pk": 14
+},
+{
+  "fields": {
+    "slug": "target-by",
+    "title": "Target by",
+    "unit": 8
+  },
+  "model": "survey.metric", "pk": 15
+},
+{
+  "fields": {
+    "slug": "target-baseline",
+    "title": "Target baseline",
+    "unit": 8
+  },
+  "model": "survey.metric", "pk": 16
 },
 
 {

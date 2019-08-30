@@ -123,12 +123,14 @@ class Command(BaseCommand):
 #            self.recompute_avg_value()
 
     def data_import_sql_recursive(self, element, suffix,
-                                  path_prefix, new_path_prefix):
+                                  path_prefix, new_path_prefix,
+                                  first_time=False):
+        campaign_slug = 'assessment'
         if RelationShip.objects.filter(orig_element=element).exists():
             orig_element_slug = element.slug + suffix
             self.stdout.write("INSERT INTO pages_pageelement (slug, title, text, tag, account_id) VALUES ('%(slug)s', '%(title)s', '%(text)s', '%(tag)s', %(account)d);" % {
             'slug': orig_element_slug,
-            'title': element.title,
+            'title': element.title.replace("'", "''"),
             'text': element.text,
             'tag': element.tag,
             'account': 6})
@@ -136,14 +138,21 @@ class Command(BaseCommand):
                 dest_element_slug = self.data_import_sql_recursive(
                     rel.dest_element, suffix,
                     path_prefix + '/%s' % element.slug,
-                    new_path_prefix + '/%s' % orig_element_slug)
+                    new_path_prefix + '/%s' % orig_element_slug,
+                    first_time=first_time)
                 self.stdout.write("INSERT INTO pages_relationship (rank, orig_element_id, dest_element_id) VALUES (%(rank)d, (SELECT id FROM pages_pageelement WHERE slug='%(orig_element_slug)s'), (SELECT id FROM pages_pageelement WHERE slug='%(dest_element_slug)s'));"
                 % {'rank': rel.rank,
                    'orig_element_slug': orig_element_slug,
                    'dest_element_slug': dest_element_slug})
         else:
             orig_element_slug = element.slug
-            #self.stderr.write("XXX looking for path='%s'" % (path_prefix + '/%s' % orig_element_slug))
+            if first_time:
+                self.stdout.write("INSERT INTO pages_pageelement (slug, title, text, tag, account_id) VALUES ('%(slug)s', '%(title)s', '%(text)s', '%(tag)s', %(account)d);" % {
+                'slug': orig_element_slug,
+                'title': element.title.replace("'", "''"),
+                'text': element.text,
+                'tag': element.tag,
+                'account': 6})
             best_practice = Consumption.objects.get(
                 path=path_prefix + '/%s' % orig_element_slug)
             new_path = new_path_prefix + '/%s' % orig_element_slug
@@ -152,28 +161,73 @@ class Command(BaseCommand):
                 'question_type': best_practice.question_type,
                 'default_metric_id': best_practice.default_metric_id})
             pos = EnumeratedQuestions.objects.get(question=best_practice)
-            self.stdout.write("INSERT INTO survey_enumeratedquestions (campaign_id, required, rank, question_id) VALUES (%(campaign_id)d, 0, (SELECT count(id) + 1 FROM survey_enumeratedquestions WHERE campaign_id=%(campaign_id)d), (SELECT id FROM survey_question WHERE path='%(new_path)s'));"% {
-                'campaign_id': 1,
+            self.stdout.write("INSERT INTO survey_enumeratedquestions (campaign_id, required, rank, question_id) VALUES ((SELECT id FROM survey_campaign WHERE slug='%(campaign_slug)s'), 'f', (SELECT MAX(rank) + 1 FROM survey_enumeratedquestions WHERE campaign_id=(SELECT id FROM survey_campaign WHERE slug='%(campaign_slug)s')), (SELECT id FROM survey_question WHERE path='%(new_path)s'));"% {
+                'campaign_slug': campaign_slug,
                 'new_path': new_path})
         return orig_element_slug
 
 
     def data_import_sql(self):
         root = PageElement.objects.get(slug='additional-questions')
+        self.stdout.write("INSERT INTO pages_pageelement (slug, title, text, tag, account_id) VALUES ('%(slug)s', '%(title)s', '%(text)s', '%(tag)s', %(account)d);" % {
+            'slug': root.slug,
+            'title': root.title.replace("'", "''"),
+            'text': root.text,
+            'tag': root.tag,
+            'account': 6})
         path_prefix = '/metal/%s/sustainability-%s' % (
             'boxes-and-enclosures', 'boxes-and-enclosures')
         self.stdout.write("BEGIN;")
-        for element in PageElement.objects.filter(slug__in=[
-                'construction']):
-            orig_element_slug = element.slug
+        first_time = True
+        for orig_element_slug in [
+                'euissca-procurement',
+                'energy-utility',
+                'corporate-shared-services',
+                'electric-procurement',
+                'gas-procurement',
+                'materials-planning-inventory',
+                'architecture-design',
+                'aviation-services',
+                'construction',
+                'consulting',
+                'distribution-industry',
+                'energy-efficiency-contracting',
+                'engineering',
+                'epc',
+                'ecec',
+                'freight-and-shipping',
+                'fuel-supply',
+                'general-contractors',
+                'interior-design',
+                'lab-services',
+                'marketing-and-communications',
+                'print-services',
+                'office-space-only',
+                'vehicle-equipment-and-parts',
+                'shipping-and-logistics',
+                'vegetation-industry',
+                'waste-industry',
+                'facilities/facilities-management-industry',
+                'facilities/grounds-maintenance',
+                'facilities/janitorial-services',
+                'metal/boxes-and-enclosures',
+                'metal/distribution-transformers',
+                'metal/fabricated-metals',
+                'metal/general-manufacturing',
+                'metal/wire-and-cable']:
+            sustainability_orig_element_slug = 'sustainability-%s' % (''.join(
+                orig_element_slug.split('/')[-1:]))
+            self.stderr.write("generates %s ..." % sustainability_orig_element_slug)
             suffix = '-' + "".join([
                     random.choice("abcdef0123456789") for val in range(5)])
             new_element_slug = self.data_import_sql_recursive(
                 root, suffix, path_prefix,
-                '/%s/sustainability-%s' % (
-                    orig_element_slug, orig_element_slug))
+                '/%s/%s' % (
+                    orig_element_slug, sustainability_orig_element_slug),
+                first_time=first_time)
+            first_time = False
             self.stdout.write("INSERT INTO pages_relationship (rank, orig_element_id, dest_element_id) VALUES ((SELECT count(id) FROM pages_relationship WHERE orig_element_id=(SELECT id FROM pages_pageelement WHERE slug='%(orig_element_slug)s')), (SELECT id FROM pages_pageelement WHERE slug='%(orig_element_slug)s'), (SELECT id FROM pages_pageelement WHERE slug='%(dest_element_slug)s'));"
-                % {'orig_element_slug': 'sustainability-%s' % orig_element_slug,
+                % {'orig_element_slug': sustainability_orig_element_slug,
                    'dest_element_slug': new_element_slug})
         self.stdout.write("COMMIT;")
 

@@ -171,14 +171,15 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
             try:
                 with transaction.atomic():
                     metric = datapoint['metric']
-                    try:
-                        measured = int(datapoint['measured'])
-                    except ValueError:
-                        if metric.unit.system in Unit.NUMERICAL_SYSTEMS:
+                    if metric.unit.system in Unit.NUMERICAL_SYSTEMS:
+                        try:
+                            measured = int(datapoint['measured'])
+                        except ValueError:
                             raise ValidationError({'detail':
                                 "\"%s\" is invalid for '%s'" % (
                                     datapoint['measured'].replace('"', '\\"'),
                                     metric.title)})
+                    else:
                         choice_rank = Choice.objects.filter(
                             unit=metric.unit).aggregate(Max('rank')).get(
                                 'rank__max', 0)
