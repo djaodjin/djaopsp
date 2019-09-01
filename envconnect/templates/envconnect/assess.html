@@ -2,6 +2,35 @@
 {% load pages_tags %}
 {% load static from staticfiles %}
 
+{% block page_top_help %}
+<p class="text-center">
+<span style="text-decoration: underline;">ACTION:</span>
+Click each tile and provide responses. Then click <em>Scorecard</em>.
+</p>
+{% endblock %}
+
+{% block page_bottom_help %}
+<div class="offset-md-3 col-md-6 content-sponsors">
+  <h3>Tips:</h3>
+  <ol>
+    <li>
+<span style="text-decoration: underscore;">Responses must be accurate and verifiable</span>,
+so mouse over each column heading to understand response choices. Also click
+a best practice for guidance on what should be in place to respond “Yes”.
+    </li>
+    <li>
+Click “Results” at the top of the page to display benchmarking per practice and
+an initial opportunity assessment.
+    </li>
+    <li>
+After completing all questions, click “Scorecard” to see your maturity score
+and benchmark positions.
+    </li>
+  </ol>
+</div>
+{% endblock %}
+
+
 {% block icons_content %}
 <div id="assess-content" class="tab-content collapse{% if active %} show{% endif %}"
    data-trip data-trip-delay="-1"

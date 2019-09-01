@@ -4,39 +4,40 @@
 
 {% block content %}
 <div class="backdrop">
-    <div ng-app="envconnectApp">
-        <div ng-controller="EnvconnectCtrl">
-            <div class="question-mark"
-                 style="float: right; padding-right: 25px;">
-                {% block help_menus %}
-                {% endblock %}
-            </div> <!-- .question-mark -->
-            <ol class="col-md-9 breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'homepage' %}">Home</a></li>
-                {% for breadcrumb_tuple in breadcrumbs %}
-                <li class="breadcrumb-item">
-                    <a id="bc-{{breadcrumb_tuple.0}}" href="{{breadcrumb_tuple.2}}">{{breadcrumb_tuple.0.title}}</a>
-                </li>
-                {% endfor %}
-            </ol>
-            <div class="container-fluid">
-                {% block supplier_menus %}
-                {% endblock supplier_menus %}
-                {% block consumption_content %}
-                {% endblock consumption_content %}
-                <div class="row">
-                    <div class="offset-md-3 col-md-6 content-sponsors">
-                        <h3>Content sponsors</h3>
-                        <p>
+  <div ng-app="envconnectApp">
+    <div ng-controller="EnvconnectCtrl">
+      <div class="question-mark" style="float: right; padding-right: 25px;">
+        {% block help_menus %}
+        {% endblock %}
+      </div> <!-- .question-mark -->
+      <ol class="col-md-9 breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'homepage' %}">Home</a></li>
+        {% for breadcrumb_tuple in breadcrumbs %}
+        <li class="breadcrumb-item">
+          <a id="bc-{{breadcrumb_tuple.0}}" href="{{breadcrumb_tuple.2}}">{{breadcrumb_tuple.0.title}}</a>
+        </li>
+        {% endfor %}
+      </ol>
+      <div class="container-fluid">
+        {% block supplier_menus %}
+        {% endblock supplier_menus %}
+        {% block consumption_content %}
+        {% endblock consumption_content %}
+        <div class="row">
+          {% block page_bottom_help %}
+          {% endblock %}
+          <div class="offset-md-3 col-md-6 content-sponsors">
+            <h3>Content sponsors</h3>
+            <p>
 Please <a href="{{'about/'|site_prefixed}}" target="_blank">click here</a>
 to see a list of contributors responsible for providing information, time
 and/or funding to develop content on this website.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div> <!-- controller -->
-    </div>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div> <!-- controller -->
+  </div>
 </div>
 {% endblock %}
 

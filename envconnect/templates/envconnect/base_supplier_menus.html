@@ -1,147 +1,32 @@
 {% extends "envconnect/base.html" %}
 {% load assets %}
 
-{% block help_menus %}
-<a id="help-request" style="cursor:pointer; color: #FFFFFF;"
-   data-trip data-trip-delay="-1"
-   data-trip-index="1"
-   data-trip-navigation="0"
-   data-trip-position="screen-center" data-trip-content="
-<div class='text-left start-here'>
-    <p>What each menu function lets you do:</p>
-    <ul>
-<style type='text/css'>
-    .bs-example{
-        margin: 20px;
-    }
-    .card-title .fa{
-        font-size: 14px;
-    }
-    .card {
-  background:none;
-    }
-</style>
-<script>
-    $(document).ready(function(){
-        $('.collapse').on('show.bs.collapse', function(){
-            $(this).parent().find('.fa').removeClass('fa-plus').addClass('fa-minus');
-        }).on('hide.bs.collapse', function(){
-            $(this).parent().find('.fa').removeClass('fa-minus').addClass('fa-plus');
-        });
-    });
-</script>
-<div>
-    <div class='bs-expand'>
-    <div id='accordion' style='color: #FFFFFF'>
-        <div class='card'>
-            <div class='pedit'>
-                <h4 class='card-title'><strong>Learn.</strong> Best practices and their value.
-                    <a class='btn btn-link' data-toggle='collapse' data-target='#collapseOne'><span style='color:#33B8FF' class='fa fa-plus'></span></a>
-                </h4>
-            </div>
-            <div id='collapseOne' class='panel-collapse collapse' data-parent='#accordion'>
-              <div class='card-body' style='margin-left: 20px'>
-                <ol>
-                  <li>Select <i>Environmental</i> or <i>Business ethics</i> <sup style='color:#FFF633'>(1).</sup></li>
-                  <li>Click an orange box to display and browse its best practices.</li>
-                  <li>Click on a practice to see if there is guidance on it <sup>(2).</sup></li>
-                  <li>Use the columns on the right of the page for guidance on practice value.<br />[Mouse over each column's heading graphic to see the title. Click on the Key at the bottom<br />of the page for color key definitions.]</li>
-                </ol>
-                <ol class='list-unstyled' style='margin-left:27px;'>
-                  <li><sub style='font-size:12px; color:#FFF633'>(1) Skip this step and go to <i>Assessment</i> if you do not wish to browse best practice.</sub></li>
-                  <li><sub style='font-size:12px'>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail<br />page.</sub></li>
-                </ol>
-              </div>
-            </div>
-        </div>
-        <div class='card'>
-            <div class='pedit'>
-                <h4 class='card-title'><strong>Measure.</strong> Assess maturity in best practices, benchmark with peers, <br> get a scorecard and benchmark report.
-                    <a class='btn btn-link' data-toggle='collapse' data-target='#collapseTwo'><span style='color:#33B8FF' class='fa fa-plus'></span></a>
-                </h4>
-            </div>
-            <div id='collapseTwo' class='panel-collapse collapse' data-parent='#accordion'>
-                <div class='card-body' style='margin-left: 35px'>
-                    <ol>
-                        <li>Click each orange box and complete a response for all best practices<br /> listed <sup>(1).</sup> [<span style='color:#FFFF00;'>Responses must be accurate and verifiable</span>, so mouse over each column heading<br />to clearly understand response choices. Also click a best practice for guidance <sup>(2)</sup> on what<br />should be in place to respond “Yes”].</li>
-                        <li>Click the “Results” button (bottom of page) to display per-practice benchmarking<sup>(3)</sup><br />and opportunity assessment.
-                        </li>
-                        <li>Select <i>Scorecard</i> for overall performance scores<sup>(1)</sup> and benchmark graphs<sup>(3)</sup>.
-                        </li>
-                    </ol>
-                    <ol class='list-unstyled' style='margin-left:27px;'>
-                        <li><sub style='font-size:12px;'>(1) There must be a response for each best practice to generate a complete Scorecard.</sub></li>
-                        <li><sub style='font-size:12px;'>(2) If guidance has not yet been developed for a practice, you may request it from the best practice detail page.</sub></li>
-                        <li><sub style='font-size:12px;'>(3) Benchmarking may change as more users complete Assessments on the website.</sub></li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-        <div class='card'>
-            <div class='pedit'>
-                <h4 class='card-title'><strong>Improve.</strong> Select highest value improvements, and see impact on scores.
-                    <a class='btn btn-link' data-toggle='collapse' data-target='#collapseThree'><span style='color:#33B8FF' class='fa fa-plus'></span></a>
-                </h4>
-            </div>
-            <div id='collapseThree' class='panel-collapse collapse' data-parent='#accordion'>
-                <div class='card-body' style='margin-left: 35px'>
-                    <ol>
-                            <li>Select <i>Planning</i>.</li>
-                            <li>Click the <i>Planning dashboard</i> (orange button at bottom of page).</li>
-                            <li>Click each orange box to display the improvement opportunities.</li>
-                            <li>Select the best practices you plan address over the next year or so from the <br><i>Select for Improvement Plan column.</i></br></li>
-                            <li>Click <i>Complete</i> once you’ve selected all improvement items you plan to tackle.</li>
-                        </ol>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-                </div">
-    <i class="fa fa-question-circle fa-3x" aria-hidden="true"></i></a>
-{% endblock %}
-
 {% block supplier_menus %}
-<div id="learn-action-header">
-  <div class="row">
-        <div class="offset-md-2 col-md-3">
-            <h2>Learn <i class="fa fa-angle-right"></i></h2>
-            <ul class="nav flex-column fa-ul">
-                <li class="nav-item{% if '/info/' in request.path %} active{% endif %}">
-                    {% if survey and survey.slug == 'framework' %}
-                    <button id="submenu-sustainability" disabled style="font-style:italic;"> Environmental practices</button>
-                    {% else %}
-                    <a id="submenu-sustainability" href="{{urls.summary}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><i class="fa-li fa{% if '/info/' in request.path %} fa-hand-o-right{% endif %}"></i> Environmental practices</a>
-                    {% endif %}
-                </li>
-                <li class="nav-item{% if '/#/' in request.path %} active{% endif %}">
-                  <button id="submenu-ethics" disabled style="font-style:italic;"> Ethical business practices <i class="fa fa-wrench" aria-hidden="true"></i></button>
-                </li>
-            </ul>
-        </div>
-        <div class="col-md-3">
-            <h2>Measure <i class="fa fa-angle-right"></i></h2>
-            <ul class="nav flex-column fa-ul">
-                <li class="nav-item{% if '/assess/' in request.path %} active{% endif %}">
-                  <a id="submenu-self-assessment" href="{% if request|is_broker_manager %}{% url 'envconnect_assess_organization_download' 'envconnect' breadcrumbs|category_entry %}{% else %}{{urls.assess}}[[activeIcon !== null ? '?active=' + activeIcon : '']]{% endif %}"><i class="fa-li fa{% if '/assess/' in request.path %} fa-hand-o-right{% endif %}"></i> Assessment</a>
-                </li>
-                <li class="nav-item{% if '/benchmark/' in request.path %} active{% endif %}">
-                  <a id="submenu-benchmark"{% if request|is_broker_manager %} disabled{% endif %} href="{{urls.benchmark}}"><i class="fa-li fa{% if '/benchmark/' in request.path %} fa-hand-o-right{% endif %}"></i> Scorecard</a>
-                </li>
-            </ul>
-        </div>
-        <div class="col-md-3">
-            <h2>Improve <i class="fa fa-angle-right"></i></h2>
-            <ul class="nav flex-column fa-ul">
-                <li class="nav-item{% if '/improve/' in request.path %} active{% endif %}">
-                  <a id="submenu-improve"{% if request|is_broker_manager %} class="disabled"{% else %} href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"{% endif %}><i class="fa-li fa{% if '/improve/' in request.path %} fa-hand-o-right{% endif %}"></i> Planning</a>
-                </li>
-                <li class="nav-item{% if '/suppliers/' in request.path %} active{% endif %}">
-                  <button id="submenu-suppliers" disabled style="font-style:italic;">Find suppliers <i class="fa fa-wrench"></i></button>
-                </li>
-            </ul>
-        </div>
-    </div>
+<div>
+  <div class="progressbar-container">
+    <ul class="progressbar">
+      {% if not survey or survey.slug != 'framework' %}
+      <li class="active">
+        <a id="submenu-sustainability" href="{{urls.summary}}[[activeIcon !== null ? '?active=' + activeIcon : '']]">Learn</a>
+      </li>
+      {% endif %}
+      <li{% if request.path == urls.assess or request.path == urls.benchmark or request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-self-assessment" href="{{urls.assess}}[[activeIcon !== null ? '?active=' + activeIcon : '']]">Assess</a>
+      </li>
+      <li{% if request.path == urls.benchmark or request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-benchmark" href="{{urls.benchmark}}">Scorecard</a>
+      </li>
+      <li{% if request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-improve" href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]">Improve</a>
+      </li>
+      <li{% if request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-scorecard" href="{{urls.scorecard}}">Scorecard</a>
+      </li>
+      <li{% if request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-share" href="{{urls.share}}">Share</a>
+      </li>
+    </ul>
+  </div>
 </div>
 <div class="clearfix"></div>
 {% endblock supplier_menus %}

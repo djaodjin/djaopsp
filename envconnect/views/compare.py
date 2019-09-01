@@ -42,6 +42,8 @@ class SuppliersView(AccountMixin, PermissionMixin, TemplateView):
             'api_organizations': site_prefixed("/api/profile/"),
             'api_organization_profile': site_prefixed(
                 "/api/profile/%(account)s/" % {'account': self.account}),
+            'download': reverse('organization_reporting_entities_download',
+                                args=(self.account,))
         })
         context.update({
             'score_toggle': True,

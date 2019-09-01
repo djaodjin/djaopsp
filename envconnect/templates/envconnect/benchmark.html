@@ -2,6 +2,16 @@
 {% load static from staticfiles %}
 
 {% block consumption_content %}
+<div class="offset-sm-2 col-sm-8 mt-2">
+{% block page_top_help %}
+<p class="text-center">
+<span style="text-decoration: underline;">ACTION:</span>
+Review the scorecard to identify areas of excellence and for improvement.
+For improvement, prioritize areas with low percentage scores, high weight,
+and poor benchmark position. Then click <em>Improve</em>.
+</p>
+{% endblock %}
+</div>
 <div>
   <!-- Tab menus -->
   <div class="text-right" style="margin-bottom:15px;">
@@ -26,7 +36,7 @@
         <div class="col-md-12 text-center" style="display:table-row;">
           <div class="row-icons benchmarks-box" id="score-card">
             <div style="display:inline-block;float:left;flex:auto;">
-              <h2 class="icon-row-title" style="margin-top: 20px;">Scorecard</h2>
+              <h2 class="icon-row-title mt-3">{{organization.printable_name}} Scorecard</h2>
               <div class="header-tuple">
                 {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
                 <ul class="nav nav-tabs squared-tabs">
@@ -160,95 +170,10 @@
     </div><!-- /#history-tab -->
   </div><!-- /.tab-content -->
 
+  {% block page_bottom_help %}
+  {% endblock %}
+
   <!-- modals -->
-  <div id="share-scorecard"
-       class="add-role-modal modal fade" tabindex="-1" role="dialog"
-       aria-labelledby="Request access" aria-hidden="true" style="color: #000;"
-       ng-submit="shareScorecard($event)">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">Share your assessment ...</h4>
-          <button type="button" class="close"
-                  data-dismiss="modal" aria-hidden="true">&times;</button>
-        </div>
-        <form>
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-sm-6">
-                <label>With an organization that requested it.</label>
-                <select class="form-control" ng-model="activeSupplierManager">
-                  <option value="">Select ...</option>
-                  <option ng-value="supplierManager.slug" ng-repeat="supplierManager in supplierManagers">[[supplierManager.printable_name]]</option>
-                </select>
-              </div>
-              <div class="col-sm-6">
-                <label>Or with another organization.</label>
-                <div>
-                  <div class="input-group" style="width:100%;">
-                    <input name="organization" type="text"
-                         placeholder="Organization name"
-                         autocomplete="off"
-                         ng-model="thirdPartySupplierManager"
-                         ng-model-options="{ debounce: 500 }"
-                         uib-typeahead="candidate as candidate.printable_name for candidate in getCandidates($viewValue)"
-                         uib-typeahead-loading="loadingOrganizations"
-                         uib-typeahead-template-url="customTemplate.html"
-                         class="form-control" style="width: 100%;">
-                  </div>
-                  <div style="height:14px" ng-cloak>
-                    <i ng-show="loadingOrganizations" class="fa fa-spinner fa-spin"></i>
-                  </div>
-                  <div ng-show="thirdPartySupplierManager && !thirdPartySupplierManager.slug">
-                    <p class="text-danger">
-We cannot find this profile on TSP.
-Please enter the e-mail address of your contact at this organization.
-                    </p>
-                    <input name="organization" type="text"
-                         placeholder="Email of contact at customer/client/investor" class="form-control" style="width: 100%;" ng-model="thirdPartySupplierManagerEmail">
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p>
-<strong>You agree to share a copy</strong> of your most current assessment
-with the organization(s) listed above.
-            </p>
-            <p>
-<strong>You certify</strong> that the assessment responses provided for your
-organization are true and correct to the best of your knowledge. Additionally,
-you acknowledge that the responses form a statement of record which current
-or future clients may request to verify.
-            </p>
-            <div class="form-group">
-              <div class="controls">
-                <label>The following message will be sent to listed organizations (type in the box to modify).</label>
-                <textarea class="form-control" name="message"
-                          type="text" rows="10">
-Hello,
-
-I would like to invite you to view {{organization.printable_name}}’s Scorecard information on The Sustainability Project.
-
-Thank you.
-- {{request.user.first_name}}
-                </textarea>
-              </div>
-            </div>
-            <p class="text-danger">
-Note: Update your assessment and share it again when you have improvements
-to report.
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary"
-                    data-dismiss="modal">Cancel</button>
-            <button id="share-scorecard-submit"
-                    type="submit" class="btn btn-primary">Share scorecard</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div> <!-- /#share-scorecard -->
   <div id="confirm-delete" class="modal fade"
        tabindex="-1" role="dialog"
        aria-labelledby="ConfirmDelete" aria-hidden="true" style="color:#000;">
@@ -279,45 +204,6 @@ to report.
 {% block supplier_menus_scripts %}
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-    var tripElements = [
-{% if request|is_authenticated and not request.session.last_visited %}
-        {
-            sel: $("#help-request"),
-            content: $("#help-request").data("trip-content"),
-            position: "screen-center",
-            enableAnimation: false,
-            delay:-1,
-            tripTheme: "black",
-            showNavigation: true,
-            canGoPrev: false,
-            prevLabel: " ",
-            nextLabel: "OK",
-            skipLabel: " ",
-            finishLabel: "OK",
-        },
-{% endif %}
-{% if request|is_authenticated and no_assessment_warning %}
-        {
-            sel: $("submenu-benchmark"),
-            content: "{{no_assessment_warning|safe}}",
-            position: "screen-center",
-            enableAnimation: false,
-            delay:-1,
-            tripTheme: "black",
-            showNavigation: true,
-            canGoPrev: false,
-            prevLabel: " ",
-            nextLabel: "OK",
-            skipLabel: " ",
-            finishLabel: "OK",
-        }
-{% endif %}
-    ];
-    if( tripElements.length > 0  ) {
-        var trip = new Trip(tripElements);
-        trip.start();
-    }
-
     $("#scorecard-tab").improvementDashboard({
         api_account_benchmark: "{{urls.api_account_benchmark}}",
         benchmark: "{{root.0.slug}}",

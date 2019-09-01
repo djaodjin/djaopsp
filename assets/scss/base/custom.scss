@@ -14,41 +14,80 @@ $score-card-width: 300px;
   border-bottom: 1px solid #ACAFAF;
 }
 
-#learn-action-header h2 {
-  margin-bottom: 5px;
+.index-users {
+  padding: 15px;
+  border: 1px solid #faf6e1;
+  background-color: #fcf8e3;
+  color: #222;
 }
 
-#learn-action-header .nav > li {
-  padding: 5px 0;
-  margin: 0;
-  font-size: 1.05rem;
+.progressbar-container {
+  width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.progressbar {
+  counter-reset: step;
+  position: relative;
+  z-index: 2;
+}
+.progressbar li {
+  list-style-type: none;
+  width: 16%;
+  float: left;
+  font-size: 12px;
+  text-align: center;
+  text-transform: uppercase;
+  color: #7d7d7d;
+  position: relative;
+}
+
+.progressbar li a {
   color: white;
 }
 
-#learn-action-header .nav > li > a,
-#learn-action-header .nav > li > button {
-  padding: 0;
-  color: white;
-  margin: 0;
+.progressbar li:before {
+  width: 30px;
+  height: 30px;
+  content: " "; //counter(step);
+  counter-increment: step;
+  line-height: 30px;
+  border: 2px solid #7d7d7d;
+  display: block;
+  text-align: center;
+  margin: 0 auto 10px auto;
+  border-radius: 50%;
+  background-color: white;
+  position: relative;
 }
 
-#learn-action-header .nav > li > button {
-  background: transparent;
-  border: none;
+.progressbar li:after {
+  width: 100%;
+  height: 2px;
+  content: '';
+  position: absolute;
+  background-color: #7d7d7d;
+  top: 15px;
+  left: -50%;
+  z-index: -1;
 }
 
-#learn-action-header .nav > li > a.disabled,
-#learn-action-header .nav > li > a.disabled:hover {
-  font-style: italic;
-  cursor: default;
+.progressbar li:first-child:after {
+  content: none;
 }
 
-#learn-action-header li.active > a,
-#learn-action-header li > a:hover {
-  color: $navbar-light-color;
-  background-color: transparent;
-  font-weight: bold;
-  text-decoration: underline;
+.progressbar li.active {
+  color: theme-color(primary);
+}
+
+.progressbar li.active:before {
+  border-color: theme-color(primary);
+  background-color: theme-color(primary);
+}
+
+.progressbar li.active + li:after {
+  background-color: theme-color(primary);
 }
 
 .start-here > p {
@@ -517,6 +556,7 @@ li.active .icon-inner.grey:after{
 
 .benchmarks-box {
   border: 1px solid #ACAFAF;
+  background-color: white;
 }
 
 .benchmarks-top-border {
@@ -834,6 +874,16 @@ a.text-grey{
   margin-left: 100px;
 }
 
+.indent-header-6 {
+  display:inline-block;
+  margin-left: 120px;
+}
+
+.indent-header-7 {
+  display:inline-block;
+  margin-left: 140px;
+}
+
 .heading-0 {
    font-size: 18px;
    font-family: inherit;
@@ -861,7 +911,11 @@ a.text-grey{
 .heading-0>.title,
 .heading-1>.title,
 .heading-2>.title,
-.heading-3>.title {
+.heading-3>.title,
+.heading-4>.title,
+.heading-5>.title,
+.heading-6>.title,
+.heading-7>.title {
    color:#54BAD8;
 }
 
@@ -871,7 +925,9 @@ a.text-grey{
 .bestpractice-2>a.title,
 .bestpractice-3>a.title,
 .bestpractice-4>a.title,
-.bestpractice-5>a.title {
+.bestpractice-5>a.title,
+.bestpractice-6>a.title,
+.bestpractice-7>a.title {
    color: #777;
 }
 
@@ -969,6 +1025,15 @@ a.text-grey{
 }
 
 /************* Dropdown homepage custom ****************/
+
+.dropdown-homepage .dropdown-toggle {
+  width: 100%;
+  line-height: 1em;
+}
+.dropdown-homepage .text-subtitle {
+  font-size: 0.6rem;
+  color: white;
+}
 
 .dropdown.dropdown-homepage>.dropdown-menu {
   color: #000;

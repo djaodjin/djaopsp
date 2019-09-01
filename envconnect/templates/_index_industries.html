@@ -1,0 +1,30 @@
+<ul class="dropdown-menu" role="menu" aria-labelledby="industry_selector">
+  <li>
+    <div style="font-size:14px;">Don't know what to select? <a href="{{'/docs/faq/#general-3'|site_prefixed}}" target="_blank">Click here</a>
+    </div>
+  </li>
+  {% for industry in industries %}
+  <li class="dropdown-item dropdown-item-indent-{{industry.0}}">
+    <div>
+    {% if request|is_broker_manager %}
+      <input type="checkbox" name="industry" value="{{industry.1.slug}}">
+      {% if industry.1|containsTag:'enabled' %}checked{% endif %} />
+      <a id="{{industry.1.slug}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
+      {% else %}
+      {% if industry.1|containsTag:'enabled' %}
+      {% if industry.1|containsTag:'heading' %}
+      <button id="{{industry.1.slug}}" disabled>{{industry.1.title}}</button>
+      {% else %}
+      <a id="{{industry.1.slug}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
+      {% endif %}
+      {% else %}
+      <span id="{{industry.1.slug}}" class="disabled" role="menuitem" tabindex="-1">{{industry.1.title}} <i class="fa fa-wrench"></i></span>
+      {% endif %}
+    {% endif %}
+    </div>
+  </li>
+  {% endfor %}
+  {% if request|is_broker_manager %}
+  <!-- <li><button class="btn btn-link" data-toggle="modal" data-target="#add-element-modal"><i class="fa fa-plus"></i> Add industry ...</button></li> -->
+  {% endif %}
+</ul>

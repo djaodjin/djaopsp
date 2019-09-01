@@ -151,21 +151,11 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             })
             # Find supplier managers subscribed to this profile
             # to share scorecard with.
-            if self.manages(self.account):
-                context.update({
-                    'is_account_manager': True,
-                    'supplier_managers': json.dumps(
-                        get_supplier_managers(self.account))})
             self.update_context_urls(context, {
                 'api_account_benchmark': reverse('api_benchmark',
                     args=(context['organization'], from_root)),
                 'api_historical_scores': reverse('api_historical_scores',
                     args=(context['organization'], from_root)),
-                'api_benchmark_share': reverse('api_benchmark_share',
-                    args=(context['organization'], from_root)),
-                'api_organizations': site_prefixed("/api/profile/"),
-                'api_viewers': site_prefixed(
-                    "/api/profile/%s/roles/viewers/" % self.account),
             })
         return context
 

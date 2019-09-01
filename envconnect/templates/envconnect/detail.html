@@ -2,6 +2,26 @@
 {% load pages_tags %}
 {% load static from staticfiles %}
 
+{% block page_top_help %}
+<p class="text-center">
+<span style="text-decoration: underline;">ACTION:</span>
+Click each tile to browse best practices. Then click <em>Assess</em>.
+</p>
+{% endblock %}
+
+{% block page_bottom_help %}
+<div class="offset-md-3 col-md-6 content-sponsors">
+  <h3>Tips:</h3>
+  <ol>
+    <li>In each tile, click on a practice to see if there is guidance on it.</li>
+    <li>Use the columns on the right of the page for guidance on practice value.</li>
+    <li>Mouse over a column heading to see the title.</li>
+    <li>Click on the Legend at the bottom of the page for color value definitions.</li>
+  </ol>
+</div>
+{% endblock %}
+
+
 {% block icons_content %}
 <div class="tab-content collapse{% if active %} show{% endif %}">
     {% for abs_prefix, icon_tuple in root.1|iteritems %}

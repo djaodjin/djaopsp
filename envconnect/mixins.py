@@ -520,21 +520,27 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             urls.update({
                 'api_improvements': reverse('api_improvement_base',
                     args=(context['organization'],)),
+                'summary': reverse('summary_organization',
+                    args=(context['organization'], path)),
                 'assess': reverse('envconnect_assess_organization',
                     args=(context['organization'], path)),
                 'benchmark': reverse('benchmark_organization',
                     args=(context['organization'], path)),
                 'improve': reverse('envconnect_improve_organization',
                     args=(context['organization'], path)),
-                'summary': reverse('summary_organization',
+                'scorecard': reverse('scorecard_organization',
+                    args=(context['organization'], path)),
+                'share': reverse('envconnect_share_organization',
                     args=(context['organization'], path)),
             })
         else:
             urls.update({
+                'summary': reverse('summary', args=(path,)),
                 'assess': reverse('envconnect_assess', args=(path,)),
                 'benchmark': reverse('benchmark', args=(path,)),
                 'improve': reverse('envconnect_improve', args=(path,)),
-                'summary': reverse('summary', args=(path,)),
+                'scorecard': reverse('scorecard', args=(path,)),
+                'share': reverse('envconnect_share', args=(path,)),
             })
         if self.__class__.__name__ == 'DetailView':
             urls.update({'context_base': urls['summary']})
@@ -542,6 +548,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             urls.update({'context_base': urls['assess']})
         elif self.__class__.__name__ == 'ImprovementView':
             urls.update({'context_base': urls['improve']})
+        elif self.__class__.__name__ == 'ShareView':
+            urls.update({'context_base': urls['share']})
         self.update_context_urls(context, urls)
         return context
 

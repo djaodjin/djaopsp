@@ -52,7 +52,8 @@ class DetailView(BestPracticeMixin, TemplateView):
         # questions which are irrelevant when making an improvement plan.
         to_remove = []
         for key, node in six.iteritems(root[1]):
-            if 'metrics' in node[0].get('tag', ""):
+            tags = node[0].get('tag', "")
+            if tags and 'metrics' in tags:
                 to_remove += [key]
         for key in to_remove:
             del root[1][key]

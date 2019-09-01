@@ -237,6 +237,9 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.scoreToggle = settings.scoreToggle;
     $scope.vsPeersToggle = 0;
     $scope.supplierManagers =  settings.supplierManagers || [];
+    for( var idx = 0; idx < $scope.supplierManagers.length; ++idx ) {
+        $scope.supplierManagers[idx].checked = true;
+    }
 
     $scope.BEST_PRACTICE_ELEMENT = 'best-practice';
     $scope.HEADING_ELEMENT = 'heading';
@@ -923,17 +926,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         }
     };
 
-    $scope.activeSupplierManager = null;
     $scope.thirdPartySupplierManager = null;
     $scope.thirdPartySupplierManagerEmail = null;
-
-    $scope.$watch('activeSupplierManager', function(newValue, oldValue) {
-        $scope.thirdPartySupplierManager = null;
-    });
-
-    $scope.$watch('thirdPartySupplierManager', function(newValue, oldValue) {
-        $scope.activeSupplierManager = null;
-    });
 
     $scope.getCandidates = function(val) {
         return $http.get(settings.urls.api_organizations, {
@@ -943,69 +937,89 @@ envconnectControllers.controller("EnvconnectCtrl",
         });
     };
 
-    $scope.shareScorecard = function(event) {
+    $scope.addShareScorecard = function(event) {
         event.preventDefault();
-        var form = angular.element(event.target);
-        var modalDialog = form.parents('.modal');
-        var data = {'message': modalDialog.find("[name='message']").val()};
-        if( $scope.activeSupplierManager ) {
-            data['slug'] = $scope.activeSupplierManager;
-            for( var idx = 0; idx < $scope.supplierManagers.length; ++idx ) {
-                if( $scope.supplierManagers[idx].slug === $scope.activeSupplierManager ) {
-                    data['full_name'] =  $scope.supplierManagers[idx].printable_name;
-                    break;
-                }
-            }
-        } else if( $scope.thirdPartySupplierManager ) {
+        if( $scope.thirdPartySupplierManager ) {
+            var data = {checked: true};
             if( $scope.thirdPartySupplierManager.hasOwnProperty('slug') ) {
-                data['slug'] = $scope.thirdPartySupplierManager.slug;
-                data['full_name'] = $scope.thirdPartySupplierManager.full_name;
+                $.extend(data, $scope.thirdPartySupplierManager);
             } else {
                 data['email'] = $scope.thirdPartySupplierManagerEmail;
                 data['full_name'] = $scope.thirdPartySupplierManager;
             }
+            $scope.supplierManagers.push(data);
         }
-        $http.post(settings.urls.api_benchmark_share, data).then(
-            function success(resp) {
-                var contacts = "";
-                var sep = "";
-                for( var idx = 0; idx < resp.data.length; ++idx ) {
-                    contacts += sep + resp.data[idx]['printable_name'];
+        $scope.thirdPartySupplierManager = null;
+    };
+
+    $scope.shareCompleted = 0;
+    $scope.shareToComplete = 0;
+
+    $scope.shareScorecard = function(event) {
+        event.preventDefault();
+        $scope.shareCompleted = 0;
+        $scope.shareToComplete = 0;
+        var contacts = "";
+        var sep = "";
+        for( var idx = 0; idx < $scope.supplierManagers.length; ++idx ) {
+            if( $scope.supplierManagers[idx].checked ) {
+                $scope.shareToComplete += 1;
+                if( $scope.supplierManagers[idx].printable_name ) {
+                    contacts += sep + $scope.supplierManagers[idx].printable_name;
+                    sep = ", ";
+                } else if( $scope.supplierManagers[idx].full_name ) {
+                    contacts += sep + $scope.supplierManagers[idx].full_name;
                     sep = ", ";
                 }
-                modalDialog.modal('hide');
-                $scope.activeSupplierManager = null;
-                $scope.thirdPartySupplierManager = null;
-                $scope.thirdPartySupplierManagerEmail = null;
-                showMessages(['TSP contacts for ' + contacts
-                              + ' have been notified. Thank you.'], 'info');
-            }, function error(resp) {
-                if( resp.status === 404 ) {
-                    data = resp.data;
-                    $http.post(settings.urls.api_viewers+ "?force=1", data).then(
-                        function success(resp) {
-                            modalDialog.modal('hide');
-                            $scope.activeSupplierManager = null;
-                            $scope.thirdPartySupplierManager = null;
-                            $scope.thirdPartySupplierManagerEmail = null;
-                            showMessages(['Supplier managers at '
-                              + data['full_name']
-                              + ' have been notified. Thank you.'], 'info');
-                        }, function error(resp) {
-                            modalDialog.modal('hide');
-                            $scope.activeSupplierManager = null;
-                            $scope.thirdPartySupplierManager = null;
-                            $scope.thirdPartySupplierManagerEmail = null;
-                            showErrorMessages(resp);
-                        });
-                } else {
-                    modalDialog.modal('hide');
-                    $scope.activeSupplierManager = null;
-                    $scope.thirdPartySupplierManager = null;
-                    $scope.thirdPartySupplierManagerEmail = null;
-                    showErrorMessages(resp);
-                }
-            });
+            }
+        }
+        for( var idx = 0; idx < $scope.supplierManagers.length; ++idx ) {
+            if( $scope.supplierManagers[idx].checked ) {
+                var data = {
+                    message: angular.element("[name='message']").val(),
+                    slug: $scope.supplierManagers[idx].slug,
+                    full_name: $scope.supplierManagers[idx].printable_name
+                };
+                $http.post(settings.urls.api_benchmark_share, data).then(
+                function success(resp) {
+                    $scope.shareCompleted += 1;
+                    if( $scope.shareCompleted >= $scope.shareToComplete ) {
+                        $scope.shareCompleted = 0;
+                        $scope.shareToComplete = 0;
+                        showMessages(['Supplier managers at ' + contacts
+                            + ' have been notified. Thank you.'], 'info');
+                    }
+                }, function error(resp) {
+                    if( resp.status === 404 ) {
+                        data = resp.data;
+                        $http.post(settings.urls.api_viewers+ "?force=1", data).then(
+                            function success(resp) {
+                                $scope.shareCompleted += 1;
+                                if( $scope.shareCompleted >= $scope.shareToComplete ) {
+                                    $scope.shareCompleted = 0;
+                                    $scope.shareToComplete = 0;
+                                    showMessages(['Supplier managers at ' + contacts
+                                        + ' have been notified. Thank you.'], 'info');
+                                }
+                            }, function error(resp) {
+                                $scope.shareCompleted += 1;
+                                if( $scope.shareCompleted >= $scope.shareToComplete ) {
+                                    $scope.shareCompleted = 0;
+                                    $scope.shareToComplete = 0;
+                                }
+                                showErrorMessages(resp);
+                            });
+                    } else {
+                        $scope.shareCompleted += 1;
+                        if( $scope.shareCompleted >= $scope.shareToComplete ) {
+                            $scope.shareCompleted = 0;
+                            $scope.shareToComplete = 0;
+                        }
+                        showErrorMessages(resp);
+                    }
+                });
+            }
+        }
     }
 
     $scope.editConsumption = function(event, practice) {
