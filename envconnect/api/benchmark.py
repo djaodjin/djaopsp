@@ -576,7 +576,10 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
         rollups = self._cut_tree(self.build_content_tree(
             roots, prefix=from_root, cut=TransparentCut()),
             cut=TransparentCut())
-        rollup_tree = (OrderedDict({}), rollups)
+        for _, rollup in six.iteritems(rollups):
+            rollup_tree = rollup
+            break
+#XXX        rollup_tree = (OrderedDict({}), rollups)
         self._report_queries("rollup_tree generated")
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
