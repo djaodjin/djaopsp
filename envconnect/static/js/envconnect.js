@@ -454,12 +454,11 @@ envconnectControllers.controller("EnvconnectCtrl",
                                     measured.toString() !== qMeasure.measured) {
                                     measured = qMeasure.measured;
                                 }
-                                var measure = {
-                                    measured: measured,
-                                    unit: $scope.defaultMetricUnit(
-                                        root[0].consumption.metric)
-                                };
-                                measures[qMeasure.metric.replace(/-/g, '_')] = measure;
+                                measures[qMeasure.metric.replace(
+                                    /-/g, '_')] = {
+                                        measured: measured,
+                                        unit: qMeasure.unit
+                                    };
                             }
                         }
                     }
@@ -1524,6 +1523,7 @@ envconnectControllers.controller("EnvconnectCtrl",
             modalDialog = form.parents('.modal');
         }
         var data = [];
+        var found = false;
         var measures = $scope.getMeasures(prefix);
         for( var measure in measures ) {
             if( measures.hasOwnProperty(measure) ) {
@@ -1534,8 +1534,10 @@ envconnectControllers.controller("EnvconnectCtrl",
                     measured = measures[measure];
                 }
                 if( measured ) {
+                    found = true;
                     data.push({
                         metric: measure.replace(/_/g, '-'),
+                        unit: measures[measure].unit,
                         measured: measured
                     });
                 }
@@ -1549,8 +1551,9 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( !node && path ) {
             node = $scope.getEntriesRecursive($scope.entries, path);
         }
-        $http.post(settings.urls.api_assessment_sample + node.consumption.rank + "/measures/",
-                   {measures: data}).then(
+        if( found ) {
+            $http.post(settings.urls.api_assessment_sample
+                + node.consumption.rank + "/measures/", {measures: data}).then(
             function success(resp) {
                 if( modalDialog ) modalDialog.modal('hide');
             },
@@ -1558,6 +1561,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 if( modalDialog ) modalDialog.modal('hide');
                 showErrorMessages(resp);
             });
+        }
     };
 
     var savingsElements = angular.element("#improvement-dashboard").find(".savings");

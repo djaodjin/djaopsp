@@ -146,9 +146,12 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                 measured = Choice.objects.get(pk=datapoint.measured).text
             consumption.measures += [{
                 'metric': datapoint.metric,
+                'unit': (datapoint.unit
+                    if datapoint.unit else datapoint.metric.unit),
+                'measured': measured,
                 'created_at': datapoint.created_at,
 #XXX                'collected_by': datapoint.collected_by,
-                'measured': measured}]
+                }]
 
         # Find all framework samples / answers for a time period
         self._framework_results(consumptions)

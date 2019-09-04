@@ -240,7 +240,7 @@
 },
 { "fields": {
     "slug": "kwh-year",
-    "title": "KWh / Year",
+    "title": "Kilowatt-hour (kWh) of Electricity  / Year",
     "system": 0
   },
   "model" : "survey.unit", "pk" : 9
@@ -270,10 +270,53 @@
 },
 { "fields": {
     "slug": "gallons-year",
-    "title": "Gallons / Year",
+    "title": "US Gallons / Year",
     "system": 1
   },
   "model" : "survey.unit", "pk" : 11
+},
+{ "fields": {
+    "slug": "mmbtu-year",
+    "title": "mmBtu / Year",
+    "system": 1
+  },
+  "model" : "survey.unit", "pk" : 13
+},
+{ "fields": {
+    "slug": "m3-year",
+    "title": "Cubic meters / Year",
+    "system": 1
+  },
+  "model" : "survey.unit", "pk" : 14
+},
+{ "fields": {
+    "slug": "kiloliters-year",
+    "title": "Kilo liters / Year",
+    "system": 1
+  },
+  "model" : "survey.unit", "pk" : 15
+},
+{ "fields": {
+    "slug": "ft3-year",
+    "title": "Cubic feet / Year",
+    "system": 2
+  },
+  "model" : "survey.unit", "pk" : 16
+},
+
+{ "fields": {
+    "slug": "ft3-year",
+    "title": "Cubic feet / Year",
+    "system": 2
+  },
+  "model" : "survey.unit", "pk" : 16
+},
+{ "fields": {
+    "slug": "lbs-year",
+    "title": "Pounds / Year",
+    "system": 2
+  },
+  "model" : "survey.unit", "pk" : 17
 },
 {
   "fields": {
@@ -317,6 +360,98 @@
   },
   "model": "survey.metric", "pk": 16
 },
+{
+  "fields": {
+    "slug": "mmbtu-of-natural-gas-year",
+    "title": "mmBtu of Natural gas / Year"
+  },
+  "model": "survey.unit", "pk": 17
+},
+{
+  "fields": {
+    "slug": "mmbtu-of-blast-furnance-gas-year",
+    "title": "mmBtu of Blast furnance gas  / Year"
+  },
+  "model": "survey.unit", "pk": 18
+},
+{
+  "fields": {
+    "slug": "mmbtu-of-coke-oven-gas-year",
+    "title": "mmBtu of Coke oven gas  / Year"
+  },
+  "model": "survey.unit", "pk": 19
+},
+{
+  "fields": {
+    "slug": "mmbtu-of-fuel-gas-year",
+    "title": "mmBtu of Fuel gas  / Year"
+  },
+  "model": "survey.unit", "pk": 20
+},
+{
+  "fields": {
+    "slug": "mmbtu-of-propane-gas-year",
+    "title": "mmBtu of Propane (gas)  / Year"
+  },
+  "model": "survey.unit", "pk": 21
+},
+{
+  "fields": {
+    "slug": "gallon-of-aviation-gasoline-year",
+    "title": "Gallon of Aviation gasoline  / Year"
+  },
+  "model": "survey.unit", "pk": 22
+},
+{
+  "fields": {
+    "slug": "gallon-of-kerosene-year",
+    "title": "Gallon of Kerosene  / Year"
+  },
+  "model": "survey.unit", "pk": 23
+},
+{
+  "fields": {
+    "slug": "gallon-of-liquified-petroleum-gases-lpg-year",
+    "title": "Gallon of Liquified Petroleum Gases (LPG)  / Year"
+  },
+  "model": "survey.unit", "pk": 24
+},
+{
+  "fields": {
+    "slug": "gallon-of-motor-gasoline-year",
+    "title": "Gallon of Motor gasoline  / Year"
+  },
+  "model": "survey.unit", "pk": 25
+},
+{
+  "fields": {
+    "slug": "gallon-of-propane-liquid-year",
+    "title": "Gallon of Propane (liquid)  / Year"
+  },
+  "model": "survey.unit", "pk": 26
+},
+{
+  "fields": {
+    "slug": "gallon-of-crude-oil-year",
+    "title": "Gallon of Crude oil  / Year"
+  },
+  "model": "survey.unit", "pk": 27
+},
+{
+  "fields": {
+    "slug": "gallon-of-motor-diesel-fuel-year",
+    "title": "Gallon of Motor diesel fuel  / Year"
+  },
+  "model": "survey.unit", "pk": 28
+},
+{
+  "fields": {
+    "slug": "gallon-of-liquified-natural-gas-lng-year",
+    "title": "Gallon of Liquified Natural Gas (LNG)  / Year"
+  },
+  "model": "survey.unit", "pk": 29
+},
+
 
 {
     "fields": {

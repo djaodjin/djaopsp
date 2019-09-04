@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from pages.models import PageElement
 from pages.serializers import PageElementSerializer as BasePageElementSerializer
-from survey.models import Answer, EnumeratedQuestions, Metric
+from survey.models import Answer, EnumeratedQuestions, Metric, Unit
 
 from .models import ColumnHeader, Consumption
 
@@ -32,12 +32,14 @@ class MeasureSerializer(serializers.ModelSerializer):
 
     metric = serializers.SlugRelatedField(
         queryset=Metric.objects.all(), slug_field='slug')
+    unit = serializers.SlugRelatedField(
+        queryset=Unit.objects.all(), slug_field='slug')
     measured = serializers.CharField()
 
     class Meta:
         model = Answer
-        fields = ('metric', 'measured', 'created_at',
-            'collected_by')
+        fields = ('metric', 'unit', 'measured',
+            'created_at', 'collected_by')
         read_only_fields = ('created_at', 'collected_by')
 
 

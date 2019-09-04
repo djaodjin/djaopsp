@@ -67,7 +67,7 @@
            placeholder=""
            ng-model="getMeasures(getPath(practice[0])).energy_consumed.measured"
            ng-focus="setActiveElement(practice[0])"
-           ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).energy_consumed.measured)"></input>
+           ng-blur="submitMeasures(getPath(practice[0]), $event)"></input>
 </td>
 <td class="text-center"
     data-metric="[[practice[0].consumption.metric]]"
@@ -75,8 +75,21 @@
     <select class="form-control"
             ng-model="getMeasures(getPath(practice[0])).energy_consumed.unit"
             ng-focus="setActiveElement(practice[0])"
-            ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).energy_consumed.measured)">
-        <option value="kwh-year">kWh/Year</value>
+            ng-blur="submitMeasures(getPath(practice[0]), $event)">
+      <option value="mmbtu-of-natural-gas-year">mmBtu of Natural gas / Year</option>
+      <option value="mmbtu-of-blast-furnance-gas-year">mmBtu of Blast furnance gas / Year</option>
+      <option value="mmbtu-of-coke-oven-gas-year">mmBtu of Coke oven gas / Year</option>
+      <option value="mmbtu-of-fuel-gas-year">mmBtu of Fuel gas / Year</option>
+      <option value="mmbtu-of-propane-gas-year">mmBtu of Propane (gas) / Year</option>
+      <option value="gallon-of-aviation-gasoline-year">Gallon of Aviation gasoline / Year</option>
+      <option value="gallon-of-kerosene-year">Gallon of Kerosene / Year</option>
+      <option value="gallon-of-liquified-petroleum-gases-lpg-year">Gallon of Liquified Petroleum Gases (LPG) / Year</option>
+      <option value="gallon-of-motor-gasoline-year">Gallon of Motor gasoline / Year</option>
+      <option value="gallon-of-propane-liquid-year">Gallon of Propane (liquid) / Year</option>
+      <option value="gallon-of-crude-oil-year">Gallon of Crude oil / Year</option>
+      <option value="gallon-of-motor-diesel-fuel-year">Gallon of Motor diesel fuel / Year</option>
+      <option value="gallon-of-liquified-natural-gas-lng-year">Gallon of Liquified Natural Gas (LNG) / Year</option>
+      <option value="kwh-year">Kilowatt-hour (kWh) of Electricity / Year</option>
     </select>
 </td>
 {# end of energy #}
@@ -91,7 +104,7 @@
            placeholder=""
            ng-model="getMeasures(getPath(practice[0])).water_consumed.measured"
            ng-focus="setActiveElement(practice[0])"
-           ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).water_consumed.measured)"></input>
+           ng-blur="submitMeasures(getPath(practice[0]), $event)"></input>
 </td>
 <td class="text-center"
     data-metric="[[practice[0].consumption.metric]]"
@@ -99,8 +112,11 @@
     <select class="form-control"
             ng-model="getMeasures(getPath(practice[0])).water_consumed.unit"
             ng-focus="setActiveElement(practice[0])"
-            ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).water_consumed.measured)">
-        <option value="gallons-year">Gallons / year</value>
+            ng-blur="submitMeasures(getPath(practice[0]), $event)">
+        <option value="m3-year">Cubic meters (m<sup>3</sup>) / Year</value>
+        <option value="kiloliters-year">Kilo liters / Year</value>
+        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>) / Year</value>
+        <option value="gallons-year">US Gallon / Year</value>
     </select>
 </td>
 {# end of water #}
@@ -114,7 +130,7 @@
            placeholder=""
            ng-model="getMeasures(getPath(practice[0])).waste_generated.measured"
            ng-focus="setActiveElement(practice[0])"
-           ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).waste_generated.measured)"></input>
+           ng-blur="submitMeasures(getPath(practice[0]), $event)"></input>
 </td>
 <td class="text-center"
     data-metric="[[practice[0].consumption.metric]]"
@@ -122,8 +138,13 @@
     <select class="form-control"
             ng-model="getMeasures(getPath(practice[0])).waste_generated.unit"
             ng-focus="setActiveElement(practice[0])"
-            ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).waste_generated.measured)">
+            ng-blur="submitMeasures(getPath(practice[0]), $event)">
         <option value="tons-year">Metric tons / year</value>
+        <option value="lbs-year">Pounds / year</value>
+        <option value="m3-year">Cubic meters (m<sup>3</sup>) / Year</value>
+        <option value="kiloliters-year">Kilo liters / Year</value>
+        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>) / Year</value>
+        <option value="gallons-year">US Gallon / Year</value>
     </select>
 </td>
 {# end of waste #}
@@ -137,10 +158,10 @@
             ng-focus="setActiveElement(practice[0])"
             ng-blur="submitMeasures(getPath(practice[0]), $event)">
         <option value="">Select relevance ...</option>
-        <option value="not-relevant">Not Relevant</value>
-        <option value="relevant-always-included">Relevant, always included</value>
+        <option value="relevant-and-calculated">Relevant, calculated</value>
         <option value="relevant-not-yet-calculated">Relevant, not yet calculated</value>
-        <option value="relevant-and-calculated-but-not-disclosed">Relevant and calculated, but not disclosed</value>
+        <option value="not-relevant-calculated">Not relevant, calculated</value>
+        <option value="not-relevant-explanation-provided">Not relevant, explanation provided</value>
         <option value="not-evaluated">Not evaluated</value>
     </select>
 </td>
@@ -211,6 +232,21 @@
           <option value="2033">2033</option>
           <option value="2034">2034</option>
           <option value="2035">2035</option>
+          <option value="2036">2036</option>
+          <option value="2037">2037</option>
+          <option value="2038">2038</option>
+          <option value="2039">2039</option>
+          <option value="2040">2040</option>
+          <option value="2041">2041</option>
+          <option value="2042">2042</option>
+          <option value="2043">2043</option>
+          <option value="2044">2044</option>
+          <option value="2045">2045</option>
+          <option value="2046">2046</option>
+          <option value="2047">2047</option>
+          <option value="2048">2048</option>
+          <option value="2049">2049</option>
+          <option value="2050">2050</option>
         </select>
       </div>
       <div class="input-group col-sm-6">
@@ -221,6 +257,16 @@
            ng-model="getMeasures(getPath(practice[0])).target_baseline.measured"
            ng-focus="setActiveElement(practice[0])"
            ng-blur="submitMeasures(getPath(practice[0]), $event)">
+          <option value="2000">2000</option>
+          <option value="2001">2001</option>
+          <option value="2002">2002</option>
+          <option value="2003">2003</option>
+          <option value="2004">2004</option>
+          <option value="2005">2005</option>
+          <option value="2006">2006</option>
+          <option value="2007">2007</option>
+          <option value="2008">2008</option>
+          <option value="2009">2009</option>
           <option value="2010">2010</option>
           <option value="2011">2011</option>
           <option value="2012">2012</option>

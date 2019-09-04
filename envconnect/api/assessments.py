@@ -171,7 +171,8 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
             try:
                 with transaction.atomic():
                     metric = datapoint['metric']
-                    if metric.unit.system in Unit.NUMERICAL_SYSTEMS:
+                    unit = datapoint.get('unit', metric.unit)
+                    if unit.system in Unit.NUMERICAL_SYSTEMS:
                         try:
                             measured = int(datapoint['measured'])
                         except ValueError:
@@ -181,19 +182,20 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
                                     metric.title)})
                     else:
                         choice_rank = Choice.objects.filter(
-                            unit=metric.unit).aggregate(Max('rank')).get(
+                            unit=unit).aggregate(Max('rank')).get(
                                 'rank__max', 0)
                         choice_rank = choice_rank + 1 if choice_rank else 1
                         choice = Choice.objects.create(
                             text=datapoint['measured'],
-                            unit=metric.unit,
+                            unit=unit,
                             rank=choice_rank)
                         measured = choice.id
                     Answer.objects.update_or_create(
                         sample=self.sample, question=self.question,
                         metric=metric, defaults={
-                            'created_at': created_at,
                             'measured': measured,
+                            'unit': unit,
+                            'created_at': created_at,
                             'collected_by': self.request.user,
                             'rank': rank})
             except ValidationError as err:
