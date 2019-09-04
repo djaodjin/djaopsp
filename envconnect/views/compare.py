@@ -82,7 +82,8 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
             #pylint:disable=unsubscriptable-object
             del self.kwargs[self.matrix_url_kwarg]
 
-        context = super(PortfoliosDetailView, self).get_context_data(**kwargs)
+        context = MatrixDetailView.get_context_data(self, **kwargs)
+        context.update({'organization': self.kwargs.get('organization')})
         context.update({'available_matrices': self.get_available_matrices()})
 
         from_root, trail = self.breadcrumbs
