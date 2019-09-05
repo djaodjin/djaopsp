@@ -5,21 +5,47 @@
     </div>
   </div>
 </td>
+
+{# headers #}
+{% if 'metrics' in icon.tag %}
+<td class="text-center" colspan="{{choices|length}}"
+    ng-if="!(practice[0].consumption)"
+</td>
+{% else %}
 {% for choice in choices %}
-<td class="text-center cell-fix-width-5">
+<td class="text-center cell-fix-width-5"
+    ng-if="!(practice[0].consumption)"
     <button ng-if="!(practice[0].consumption)"
             class="btn btn-select-all" href=""
             ng-click="selectAll($event, '{{choice.text}}')"><i class="fa fa-circle"></i></button>
-    <label ng-if="practice[0].consumption"
-           for="{{choice.text|slugify}}-[[$index]]"
+</td>
+{% endfor %}
+{% endif %}
+
+{# freetext question #}
+<td class="text-center" colspan="{{choices|length}}"
+    data-metric="[[practice[0].consumption.metric]]"
+    ng-if="practice[0].consumption && (practice[0].consumption.metric === 'freetext')">
+    <textarea class="form-control"
+              type="text" rows="10"
+              placeholder=""
+              ng-model="getMeasures(getPath(practice[0])).freetext.measured"
+              ng-focus="setActiveElement(practice[0])"
+              ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).freetext.measured)"></textarea>
+</td>
+
+{% for choice in choices %}
+<td class="text-center cell-fix-width-5"
+    ng-if="practice[0].consumption && practice[0].consumption.metric === 'framework'">
+    <label for="{{choice.text|slugify}}-[[$index]]"
            style="margin-bottom:0">
-    <input id="{{choice.text|slugify}}-[[$index]]" type="radio"
+      <input id="{{choice.text|slugify}}-[[$index]]" type="radio"
            value="{{choice.text}}"
            name="implemented-[[practice[0].consumption.rank]]"
            ng-checked="practice[0].consumption.implemented === '{{choice.text}}'"
            ng-change="updateAssessmentAnswer(practice[0], '{{choice.text}}')"
            ng-model="practice[0].consumption.implemented" />
-    <span style="font-size:10px;">[[practice[0].text ? practice[0].text[{{forloop.counter0}}] : ""]]</span>
+      <span style="font-size:10px;">[[practice[0].text ? practice[0].text[{{forloop.counter0}}] : ""]]</span>
     </label>
 </td>
 {% endfor %}
