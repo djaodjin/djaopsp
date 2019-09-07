@@ -2,6 +2,7 @@
 # see LICENSE.
 
 #pylint: disable=old-style-class,no-init
+import json
 
 from rest_framework import serializers
 
@@ -145,11 +146,19 @@ class AccountSerializer(NoModelSerializer):
     reporting_status = serializers.SerializerMethodField(required=False)
     improvement_completed = serializers.BooleanField(required=False)
     supplier_initiated = serializers.BooleanField(required=False)
+    tags = serializers.SerializerMethodField(required=False)
 
     def get_reporting_status(self, obj):
         return self.REPORTING_STATUS[obj.get(
             'reporting_status', self.REPORTING_NOT_STARTED)][1]
 
+    def get_tags(self, obj):
+        try:
+            extra = json.loads(obj['extra'])
+            return extra.keys()
+        except Exception as err:
+            pass
+        return []
 
 class AssessmentMeasuresSerializer(NoModelSerializer):
     """

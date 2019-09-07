@@ -118,7 +118,7 @@ user).</em>
               <td style="vertical-align:middle;">
                 <a href="{{'app/'|site_prefixed}}[[entry.slug]]/benchmark/">[[entry.printable_name]]</a>
                 &nbsp;&nbsp;&dash;&nbsp;&nbsp;<a ng-if="entry.email" href="mailto:[[entry.email]]" style="color:black;"><i class="fa fa-envelope"></i> Email &raquo;</a>
-                <div ng-if="entry.role_description" style="font-size:0.7em;">([[entry.role_description]])</div>
+                <span class="badge badge-pill badge-primary" ng-repeat="tag in entry.tags">[[tag]]</span>
               </td>
               <td style="vertical-align:middle;">
                 <i ng-if="!entry.$resolved" class="fa fa-refresh fa-spin"></i>
