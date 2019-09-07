@@ -7,7 +7,7 @@
   <li class="dropdown-item dropdown-item-indent-{{industry.0}}">
     <div>
     {% if request|is_broker_manager %}
-      <input type="checkbox" name="industry" value="{{industry.1.slug}}">
+      <input type="checkbox" name="industry" value="{{industry.1.slug}}"
       {% if industry.1|containsTag:'enabled' %}checked{% endif %} />
       <a id="{{industry.1.slug}}" href="{{'app/info/assess/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
       {% else %}

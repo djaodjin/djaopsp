@@ -1,7 +1,7 @@
 //
 
 $score-card-width: 300px;
-
+$green-level-4-color: #FFD700;
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
@@ -12,13 +12,6 @@ $score-card-width: 300px;
 .navbar-top {
   border-top: 0;
   border-bottom: 1px solid #ACAFAF;
-}
-
-.index-users {
-  padding: 15px;
-  border: 1px solid #faf6e1;
-  background-color: #fcf8e3;
-  color: #222;
 }
 
 .progressbar-container {
@@ -78,16 +71,16 @@ $score-card-width: 300px;
 }
 
 .progressbar li.active {
-  color: theme-color(primary);
+  color: $green-level-4-color;
 }
 
 .progressbar li.active:before {
-  border-color: theme-color(primary);
-  background-color: theme-color(primary);
+  border-color: $green-level-4-color;
+  background-color: $green-level-4-color;
 }
 
 .progressbar li.active + li:after {
-  background-color: theme-color(primary);
+  background-color: $green-level-4-color;
 }
 
 .start-here > p {
@@ -721,7 +714,7 @@ li.active .system-menus {
 .btn-green-level-6,
 .btn-green-level-6:hover{
   color:white;
-  background-color:#FFD700 !important;
+  background-color:$green-level-4-color !important;
 }
 
 .c3-text {
@@ -998,11 +991,48 @@ a.text-grey{
   border-right: 1px solid #ffffff;
 }
 
-@media (max-width: 767px) {
+@include media-breakpoint-down(sm) {
 .navbar-collapse .nav > .divider-vertical {
     display: none;
   }
 }
+
+#load {
+  color: white;
+  background: #3ca65b;
+  background: -webkit-linear-gradient(#3ca65b, white);
+  background: -o-linear-gradient(#3ca65b, white);
+  background: -moz-linear-gradient(#3ca65b, white);
+  background: linear-gradient(#3ca65b, white);
+}
+
+#load a.white,
+#load a.white:active,
+#load a.white:hover,
+#load a.white:visited {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.index-users,
+.index-users a {
+  color: #222;
+}
+
+@include media-breakpoint-up(sm) {
+
+  #load {
+    min-height: calc(100vh - 53px);
+    height: calc(100vh - 53px);
+  }
+
+  .index-users,
+  .index-users a {
+    color: white;
+    border-left: 1px solid white;
+  }
+}
+
 
 #logo-envconnect{
    position:absolute;
