@@ -1,8 +1,9 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 import logging
 
+from deployutils.helpers import update_context_urls
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
 from django.utils import six
@@ -38,7 +39,7 @@ class IndexView(BreadcrumbMixin, TemplateView):
                     [root], prefix='', cut=cut), cut=cut)
                 menus += self.flatten(rollup_trees)
         context.update({'industries': menus})
-        self.update_context_urls(context, {
+        update_context_urls(context, {
             'api_enable': reverse('api_enable', args=("",)),
             'api_disable': reverse('api_disable', args=("",)),
         })

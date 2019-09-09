@@ -7,6 +7,7 @@ from collections import OrderedDict, namedtuple
 from datetime import datetime, timedelta
 
 import monotonic
+from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import connection, connections, transaction
@@ -550,7 +551,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             urls.update({'context_base': urls['improve']})
         elif self.__class__.__name__ == 'ShareView':
             urls.update({'context_base': urls['share']})
-        self.update_context_urls(context, urls)
+        update_context_urls(context, urls)
         return context
 
 
@@ -1003,7 +1004,7 @@ class BestPracticeMixin(BreadcrumbMixin):
         urls.update({'api_page_elements': reverse('api_detail', args=(
             context['root_prefix'],)),
         })
-        self.update_context_urls(context, urls)
+        update_context_urls(context, urls)
         return context
 
     @property

@@ -10,6 +10,11 @@
           <h2 class="icon-row-title mt-3">Share {{organization.printable_name}} scorecard(s)...</h2>
           <div class="row">
             <div class="col-sm-8">
+              <p class="text-danger text-left m-4">
+Please make sure you have an up-to-date assessment before sharing it. In order
+to do so, review the answers under <em>Assess</em>
+and click <em>Complete</em> at the bottom of the page.
+              </p>
               <form class="text-left m-2" ng-submit="shareScorecard($event)">
                 <h3>With the following organizations</h3>
                 <div>

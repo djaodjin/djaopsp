@@ -1,16 +1,19 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 from django.db import transaction
+
+from rest_framework import response as http
 from rest_framework import serializers, status
 from rest_framework.generics import (get_object_or_404, ListAPIView,
      GenericAPIView)
 from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
-    DestroyModelMixin)
+    DestroyModelMixin, UpdateModelMixin)
 from rest_framework.response import Response
 from survey.models import Answer, EnumeratedQuestions, get_question_model
 from survey.api.serializers import AnswerSerializer
 
+from ..helpers import freeze_scores
 from ..mixins import ImprovementQuerySetMixin
 from ..models import Consumption
 
@@ -29,7 +32,8 @@ class ImprovementSerializer(AnswerSerializer):
         return obj.question.path
 
 
-class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
+class ImprovementListAPIView(ImprovementQuerySetMixin,
+                             UpdateModelMixin, ListAPIView):
 
     serializer_class = ImprovementSerializer
 
@@ -44,6 +48,23 @@ class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
 #        context.update({'opportunities': Consumption.objects.with_opportunity(
 #            filter_out_testing=self._get_filter_out_testing())})
         return context
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        #pylint:disable=unused-argument
+        # We donot call super() because the up-to-date assessment should
+        # never be frozen.
+        with transaction.atomic():
+            freeze_scores(self.improvement_sample,
+                includes=self.get_included_samples(),
+                excludes=self._get_filter_out_testing(),
+                collected_by=self.request.user)
+        return http.Response({})
 
 
 class ImprovementAnswerAPIView(ImprovementQuerySetMixin,

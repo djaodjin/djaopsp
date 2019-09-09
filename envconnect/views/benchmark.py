@@ -7,24 +7,21 @@ import io, logging, json, subprocess, tempfile
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.views.generic.base import (RedirectView, TemplateView,
     ContextMixin, TemplateResponseMixin)
 from django.utils import six
-from deployutils.apps.django.templatetags.deployutils_prefixtags import (
-    site_prefixed)
 from deployutils.crypt import JSONEncoder
-from deployutils.helpers import datetime_or_now
+from deployutils.helpers import datetime_or_now, update_context_urls
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
 
 from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
 from ..mixins import ReportMixin, TransparentCut
 from ..models import Consumption
-from ..suppliers import get_supplier_managers
 
 
 LOGGER = logging.getLogger(__name__)
@@ -44,22 +41,7 @@ class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
     If *organization* has started an assessment then we have candidates
     to redirect to (i.e. /app/:organization/scorecard/:path).
     """
-
     template_name = 'envconnect/scorecard/index.html'
-
-    def get_redirect_url(self, *args, **kwargs):
-        if self.kwargs.get('organization') in self.accessibles(
-                ['manager', 'contributor']):
-            # If the user has a more than a `viewer` role on the organization,
-            # we force the redirect to the benchmark page such that
-            # the contextual menu with assessment, etc. appears.
-            try:
-                return reverse('benchmark_organization',
-                    args=args, kwargs=kwargs)
-            except NoReverseMatch:
-                return None
-        return super(ScoreCardRedirectView, self).get_redirect_url(
-            *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         candidates = []
@@ -151,7 +133,7 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             })
             # Find supplier managers subscribed to this profile
             # to share scorecard with.
-            self.update_context_urls(context, {
+            update_context_urls(context, {
                 'api_account_benchmark': reverse('api_benchmark',
                     args=(context['organization'], from_root)),
                 'api_historical_scores': reverse('api_historical_scores',

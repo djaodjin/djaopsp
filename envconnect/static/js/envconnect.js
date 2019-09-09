@@ -1395,6 +1395,28 @@ envconnectControllers.controller("EnvconnectCtrl",
         });
     };
 
+    $scope.freezeImprovement = function ($event, $title, next) {
+        $event.preventDefault();
+        var form = angular.element($event.target);
+        var modalDialog = form.parents('.modal');
+        modalDialog.modal('hide');
+        var title = $title;
+        if( typeof title === 'undefined' ) {
+            title = "planned actions";
+        }
+        $http.put(settings.urls.api_improve_sample, {is_frozen: true}).then(
+            function success(resp) {
+                var msgs = ["You have completed the " + title + ". Thank you!"];
+                if( typeof next !== 'undefined' ) {
+                    msgs.push(next);
+                }
+                showMessages(msgs, "info");
+            },
+            function error(resp) {
+                showErrorMessages(resp);
+        });
+    };
+
     $scope._resetAssessmentRecursive = function(root) {
         if( typeof root[0] === 'undefined' ) return;
         if( root[0].hasOwnProperty('consumption')

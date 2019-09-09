@@ -3,28 +3,22 @@
 
 from __future__ import unicode_literals
 
-import io, logging, json, subprocess, tempfile
+import logging, json
 
-from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.template.loader import get_template
 from django.views.generic.base import (RedirectView, TemplateView,
     ContextMixin, TemplateResponseMixin)
-from django.utils import six
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
-from deployutils.crypt import JSONEncoder
-from deployutils.helpers import datetime_or_now
-from extended_templates.backends.pdf import PdfTemplateResponse
+from deployutils.helpers import update_context_urls
 from pages.models import PageElement
 
-from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
-from ..mixins import ReportMixin, TransparentCut
+from ..mixins import ReportMixin
 from ..models import Consumption
 from ..suppliers import get_supplier_managers
+from .benchmark import VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED
 
 
 LOGGER = logging.getLogger(__name__)
@@ -106,7 +100,7 @@ class ShareView(ReportMixin, TemplateView):
                 'is_account_manager': True,
                 'supplier_managers': json.dumps(
                     get_supplier_managers(self.account))})
-        self.update_context_urls(context, {
+        update_context_urls(context, {
             'api_benchmark_share': reverse('api_benchmark_share',
                 args=(context['organization'], from_root)),
             'api_organizations': site_prefixed("/api/profile/"),

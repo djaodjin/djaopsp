@@ -3,10 +3,14 @@
 {% load static from staticfiles %}
 
 {% block page_top_help %}
-<p class="text-center">
+<div class="offset-sm-2 col-sm-8">
+  <p class="text-center">
 <span style="text-decoration: underline;">ACTION:</span>
-Click each tile and provide responses. Then click <em>Scorecard</em>.
-</p>
+Click each tile and provide responses. Click the <em>Complete</em> button
+at the bottom of the page when the assessment is complete.
+Then click <em>Scorecard</em> to view scores and benchmarking.
+  </p>
+</div>
 {% endblock %}
 
 {% block page_bottom_help %}
@@ -203,7 +207,7 @@ Do you wish to continue?
      aria-labelledby="Complete assessment" aria-hidden="true"
      style="color: #000;">
     <div class="modal-dialog">
-        <form class="modal-content" ng-submit="shareScorecard($event)">
+        <form class="modal-content" ng-submit="freezeAssessment($event)">
             <div class="modal-header">
                 <h4 class="modal-title">Mark your assessment as complete ...</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -211,15 +215,6 @@ Do you wish to continue?
             <div class="modal-body">
                     <p>
 By clicking &quot;Yes&quot;:
-            <div ng-if="supplierManagers">
-              <p>
-<strong>You agree to share a copy</strong> of your most current assessment
-with the following organization(s):
-              </p>
-              <ul>
-<li ng-repeat="supplierManager in supplierManagers">[[supplierManager.printable_name]]</li>
-              </ul>
-            </div>
             <p>
 <strong>You certify</strong> that the assessment responses provided for your
 organization are true and correct to the best of your knowledge. Additionally,
@@ -231,8 +226,8 @@ Then:
             </p>
 <ol>
     <li>Click SCORECARD to view scores and benchmarking.</li>
-    <li>Click SHARE SCORECARD (in the Scorecard) to send your responses to customers, investors, etc.</li>
-    <li>After 1 and 2, click PLANNING to create an Improvement Plan.</li>
+    <li>Click IMPROVE to create an improvement plan.</li>
+    <li>Click SHARE to send your responses to customers, investors, etc.</li>
 </ol>
             </div>
             <div class="modal-footer">

@@ -26,7 +26,8 @@ def freeze_scores(sample, includes=None, excludes=None,
                   collected_by=None, created_at=None):
     #pylint:disable=too-many-locals
     # This function must be executed in a `transaction.atomic` block.
-    LOGGER.info("freeze scores for %s", sample.account)
+    LOGGER.info("freeze scores for %s based of sample %s",
+        sample.account, sample.slug)
     created_at = datetime_or_now(created_at)
     score_sample = Sample.objects.create(
         created_at=created_at,
@@ -35,14 +36,15 @@ def freeze_scores(sample, includes=None, excludes=None,
         extra=sample.extra,
         is_frozen=True)
     # Copy the actual answers
-    for answer in Answer.objects.filter(sample=sample):
+    score_metric_id = Metric.objects.get(slug='score').pk
+    for answer in Answer.objects.filter(
+            sample=sample).exclude(metric_id=score_metric_id):
         answer.pk = None
         answer.sample = score_sample
         answer.save()
     # Create frozen scores for answers we can derive a score from
     # (i.e. assessment).
     assessment_metric_id = Metric.objects.get(slug='assessment').pk
-    score_metric_id = Metric.objects.get(slug='score').pk
     scored_answers = get_scored_answers(
         Consumption.objects.get_active_by_accounts(
             sample.survey, excludes=excludes),

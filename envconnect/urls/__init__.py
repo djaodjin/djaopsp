@@ -130,6 +130,11 @@ urlpatterns += [
         % (SLUG_RE, SLUG_RE, PATH_RE),
         AssessmentView.as_view(),
         name='envconnect_sample_organization'),
+    url_direct(r'app/(?P<organization>%s)/assess/?$' % (
+        SLUG_RE), ScoreCardRedirectView.as_view(
+            pattern_name='envconnect_assess_organization'),
+        name='assess_organization_redirect'),
+
     url_direct(r'app/(?P<organization>%s)/assess(?P<path>%s)/download/' % (
         SLUG_RE, PATH_RE), AssessmentXLSXView.as_view(),
         name='envconnect_assess_organization_download'),
@@ -180,7 +185,7 @@ urlpatterns += [
         IndexView.as_view(), name='homepage_organization'),
     url_authenticated(r'app/',
         AccountRedirectView.as_view(
-            pattern_name='scorecard_organization_redirect',
+            pattern_name='assess_organization_redirect',
             new_account_url='/%sapp/new/' % APP_PREFIX)),
 
     # URL to download theme to install on proxy.

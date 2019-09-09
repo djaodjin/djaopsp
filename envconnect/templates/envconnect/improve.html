@@ -3,11 +3,15 @@
 {% load static from staticfiles %}
 
 {% block page_top_help %}
-<p class="text-center">
+<div class="offset-sm-2 col-sm-8">
+  <p class="text-center">
 <span style="text-decoration: underline;">ACTION:</span>
 Click each tile and select high value improvements.
+Click the <em>Complete</em> button
+at the bottom of the page when the improvement plan is complete.
 Then click <em>Scorecard</em>.
-</p>
+  </p>
+</div>
 {% endblock %}
 
 {% block page_bottom_help %}
@@ -181,119 +185,44 @@ See the following for examples of content developed for best practices:
 <div id="submit-planning" class="modal fade"
      tabindex="-1" role="dialog"
      aria-labelledby="Complete assessment" aria-hidden="true"
-     style="color: #000;">
-    <div class="modal-dialog">
-        <form class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Mark your planning as complete ...</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-body">
-                    <p>
-After clicking OK, then:
-                    </p>
-<ol>
-    <li>Click PLANNING DASHBOARD (page bottom).</li>
-    <li>Click SHARE PLANNED ACTIONS to send these to requesters.</li>
-</ol>
-                    <p>
-Once improvements are implemented:
-                    </p>
-<ol>
-    <li>Modify your ASSESSMENT to update scores and benchmarking.</li>
-    <li>Click SHARE SCORECARD (in the Scorecard) to share updates.</li>
-</ol>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary"
-                    data-dismiss="modal">OK</button>
-            </div>
-        </form>
-    </div>
-</div>
-<div id="share-scorecard"
-     class="add-role-modal modal fade" tabindex="-1" role="dialog"
-     aria-labelledby="Request access" aria-hidden="true" style="color: #000;"
-     ng-submit="shareScorecard($event)">
+     style="color: #000;"
+     ng-submit="freezeImprovement($event)">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <form class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Share your planned actions ...</h4>
-        <button type="button" class="close"
-                data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Mark your planning as complete ...</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
-      <form>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-sm-6">
-              <label>With an organization that requested it.</label>
-                <select class="form-control" ng-model="activeSupplierManager">
-                  <option value="">Select ...</option>
-                  <option ng-value="supplierManager.slug" ng-repeat="supplierManager in supplierManagers">[[supplierManager.printable_name]]</option>
-                </select>
-            </div>
-            <div class="col-sm-6">
-              <label>Or with another organization.</label>
-              <div>
-                <div class="input-group" style="width:100%;">
-                  <input name="organization" type="text"
-                         placeholder="Organization name"
-                         autocomplete="off"
-                         ng-model="thirdPartySupplierManager"
-                         ng-model-options="{ debounce: 500 }"
-                         uib-typeahead="candidate as candidate.printable_name for candidate in getCandidates($viewValue)"
-                         uib-typeahead-loading="loadingOrganizations"
-                         uib-typeahead-template-url="customTemplate.html"
-                         class="form-control" style="width: 100%;">
-                </div>
-                <div style="height:14px" ng-cloak>
-                  <i ng-show="loadingOrganizations" class="fa fa-spinner fa-spin"></i>
-                </div>
-                <div ng-show="thirdPartySupplierManager && !thirdPartySupplierManager.slug">
-                  <p class="text-danger">
-We cannot find this profile on TSP.
-Please enter the e-mail address of your contact at this organization.
-                  </p>
-                  <input name="organization" type="text"
-                         placeholder="Email of contact at customer/client/investor" class="form-control" style="width: 100%;" ng-model="thirdPartySupplierManagerEmail">
-                </div>
-              </div>
-            </div>
-          </div>
-          <p>
-<strong>You agree to share a copy</strong> of your most current planned
-improvement actions with the organization listed above.
-          </p>
-            <div class="form-group">
-              <div class="controls">
-                <label>The following message will be sent to listed organization (type in the box to modify).</label>
-                <textarea class="form-control" name="message"
-                          type="text" rows="10">
-Hello,
-
-I would like to invite you to view {{organization.printable_name}}’s planned
-improvement actions on The Sustainability Project.
-
-Thank you.
-- {{request.user.first_name}}
-                </textarea>
-              </div>
-            </div>
-            <p class="text-danger">
-Note: Update your planned actions and share these again when you have
-improvements to report.
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary"
-                    data-dismiss="modal">Cancel</button>
-            <button id="share-scorecard-submit"
-                    type="submit" class="btn btn-primary">Share planned actions</button>
-          </div>
-        </form>
+      <div class="modal-body">
+        <p>
+By clicking &quot;Yes&quot;:
+        </p>
+        <p>
+<strong>You commit</strong> to improve upon the selected best practices.
+        </p>
+        <p>
+Then:
+        </p>
+        <ol>
+          <li>Click SHARE to send these to requesters.</li>
+        </ol>
+        <p>
+Once improvements are implemented:
+        </p>
+        <ol>
+          <li>Modify your ASSESSMENT to update scores and benchmarking.</li>
+          <li>Make a new plan by selecting high value improvements.</li>
+          <li>Click SHARE to share updates.</li>
+        </ol>
       </div>
-    </div>
-  </div> <!-- /#share-scorecard -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+                data-dismiss="modal">Cancel</button>
+        <button type="submit" value="submit" class="btn btn-primary">Yes</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% if survey.slug != 'framework' %}
 {% include "envconnect/_improvement_planning_dashboard.html" %}
 {% endif %}

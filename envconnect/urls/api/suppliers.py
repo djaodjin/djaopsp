@@ -35,13 +35,13 @@ urlpatterns = [
         SLUG_RE, PATH_RE),
         HistoricalScoreAPIView.as_view(),
         name="api_historical_scores"),
+    url(r'(?P<organization>%s)/improvement/$' % SLUG_RE,
+        ImprovementListAPIView.as_view(),
+        name='api_improvement_base'),
     url(r'(?P<organization>%s)/improvement(?P<path>%s)/?' % (
         SLUG_RE, PATH_RE),
         ImprovementAnswerAPIView.as_view(),
         name='api_improvement'),
-    url(r'(?P<organization>%s)/improvement/?' % SLUG_RE,
-        ImprovementListAPIView.as_view(),
-        name='api_improvement_base'),
     url(r'^(?P<interviewee>%s)/sample/(?P<sample>%s)/(?P<rank>\d+)/'\
     'measures/(?P<metric>%s)/' % (SLUG_RE, SLUG_RE, SLUG_RE),
         DestroyMeasureAPIView.as_view(), name='api_measures_delete'),

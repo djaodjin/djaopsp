@@ -7,7 +7,7 @@ from collections import OrderedDict
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
-from deployutils.helpers import datetime_or_now
+from deployutils.helpers import datetime_or_now, update_context_urls
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.generic.list import ListView
@@ -71,12 +71,12 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
         context = super(ImprovementView, self).get_context_data(**kwargs)
         from_root, _ = self.breadcrumbs
         organization = context['organization']
-        self.update_context_urls(context, {
+        update_context_urls(context, {
             'api_account_benchmark': reverse('api_benchmark',
                 args=(organization, self.get_scorecard_path(
                     self.kwargs.get('path')))),
-            'api_benchmark_share': reverse('api_benchmark_share',
-                args=(organization, from_root)),
+            'api_improve_sample': reverse('api_improvement_base',
+                args=(organization,)),
             'api_organizations': site_prefixed("/api/profile/"),
             'api_viewers': site_prefixed(
                 "/api/profile/%s/roles/viewers/" % self.account),

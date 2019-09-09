@@ -9,11 +9,11 @@ from dateutil.relativedelta import relativedelta
 from django.utils import six
 from django.core.urlresolvers import reverse
 from django.db import connection
-from django.db.models import F, Q, Count
+from django.db.models import F, Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder
-from deployutils.helpers import datetime_or_now
+from deployutils.helpers import datetime_or_now, update_context_urls
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
@@ -258,7 +258,8 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                 context.update({'selected_sample': selected_sample})
 
         nb_questions = Consumption.objects.filter(
-            path__startswith=from_root).count()
+            path__startswith=from_root,
+            default_metric_id=self.default_metric_id).count()
         nb_answers = Answer.objects.filter(sample=self.sample,
             question__default_metric=F('metric_id'),
             question__path__startswith=from_root).count()
@@ -279,7 +280,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                     get_supplier_managers(self.account))})
 
         organization = context['organization']
-        self.update_context_urls(context, {
+        update_context_urls(context, {
             'api_assessment_sample': reverse(
                 'survey_api_sample', args=(organization, self.sample)),
             'api_assessment_sample_new': reverse(

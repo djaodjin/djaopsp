@@ -4,6 +4,7 @@
 import io, json, logging, re
 from collections import OrderedDict
 
+from deployutils.helpers import update_context_urls
 from django.core.urlresolvers import reverse
 from django.db.models import Count, Q
 from django.utils import six
@@ -34,7 +35,7 @@ class SuppliersView(AccountMixin, PermissionMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SuppliersView, self).get_context_data(**kwargs)
-        self.update_context_urls(context, {
+        update_context_urls(context, {
             'api_suppliers': reverse('api_suppliers', args=(self.account,)),
             'api_accessibles': site_prefixed(
                 "/api/profile/%(account)s/plans/%(account)s-report/"\
