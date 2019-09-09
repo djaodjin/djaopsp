@@ -1404,7 +1404,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( typeof title === 'undefined' ) {
             title = "planned actions";
         }
-        $http.put(settings.urls.api_improve_sample, {is_frozen: true}).then(
+        $http.put(settings.urls.api_improvements, {is_frozen: true}).then(
             function success(resp) {
                 var msgs = ["You have completed the " + title + ". Thank you!"];
                 if( typeof next !== 'undefined' ) {

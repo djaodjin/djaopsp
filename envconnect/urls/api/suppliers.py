@@ -35,7 +35,7 @@ urlpatterns = [
         SLUG_RE, PATH_RE),
         HistoricalScoreAPIView.as_view(),
         name="api_historical_scores"),
-    url(r'(?P<organization>%s)/improvement/$' % SLUG_RE,
+    url(r'(?P<organization>%s)/improvement$' % SLUG_RE,
         ImprovementListAPIView.as_view(),
         name='api_improvement_base'),
     url(r'(?P<organization>%s)/improvement(?P<path>%s)/?' % (

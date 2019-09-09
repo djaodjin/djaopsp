@@ -42,6 +42,12 @@ def freeze_scores(sample, includes=None, excludes=None,
         answer.pk = None
         answer.sample = score_sample
         answer.save()
+        LOGGER.debug("save(created_at=%s, question_id=%s, metric_id=%s,"\
+            " measured=%s, denominator=%s, collected_by=%s,"\
+            " sample=%s, rank=%d)",
+            answer.created_at, answer.question_id, answer.metric_id,
+            answer.measured, answer.denominator, answer.collected_by,
+            answer.sample, answer.rank)
     # Create frozen scores for answers we can derive a score from
     # (i.e. assessment).
     assessment_metric_id = Metric.objects.get(slug='assessment').pk
@@ -57,9 +63,16 @@ def freeze_scores(sample, includes=None, excludes=None,
         for decorated_answer in cursor.fetchall():
             decorated_answer = decorated_answer_tuple(
                 *decorated_answer)
-            if decorated_answer.answer_id:
+            if (decorated_answer.answer_id and
+                decorated_answer.is_planned == sample.extra):
                 numerator = decorated_answer.numerator
                 denominator = decorated_answer.denominator
+                LOGGER.debug("create(created_at=%s, question_id=%s,"\
+                    " metric_id=%s, measured=%s, denominator=%s,"\
+                    " collected_by=%s, sample=%s, rank=%d)",
+                    created_at, decorated_answer.id, score_metric_id,
+                    numerator, denominator, collected_by, score_sample,
+                    decorated_answer.rank)
                 _ = Answer.objects.create(
                     created_at=created_at,
                     question_id=decorated_answer.id,

@@ -75,8 +75,6 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
             'api_account_benchmark': reverse('api_benchmark',
                 args=(organization, self.get_scorecard_path(
                     self.kwargs.get('path')))),
-            'api_improve_sample': reverse('api_improvement_base',
-                args=(organization,)),
             'api_organizations': site_prefixed("/api/profile/"),
             'api_viewers': site_prefixed(
                 "/api/profile/%s/roles/viewers/" % self.account),
