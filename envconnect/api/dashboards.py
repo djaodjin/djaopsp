@@ -342,7 +342,7 @@ class SupplierQuerySet(object):
                 key_func = lambda rec: max([score[0] for score in (
                     rec.get(field) if rec.get(field, None) else [[100]])])
         else:
-            key_func = lambda rec: rec.get(field, "").lower()
+            key_func = lambda rec: rec.get(field).lower() if rec.get(field, None) else ""
         return SupplierQuerySet(sorted(self.items,
             key=key_func, reverse=reverse_order),
             reporting_publicly=self.reporting_publicly)
