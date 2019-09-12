@@ -33,7 +33,7 @@ class MeasureSerializer(serializers.ModelSerializer):
 
     metric = serializers.SlugRelatedField(
         queryset=Metric.objects.all(), slug_field='slug')
-    unit = serializers.SlugRelatedField(
+    unit = serializers.SlugRelatedField(required=False,
         queryset=Unit.objects.all(), slug_field='slug')
     measured = serializers.CharField()
 
