@@ -208,7 +208,10 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                         rec['printable_name'], "", rec['email'], "", "", "",
                         last_activity_at, "Requested", report_to])
                 else:
-                    for score in rec.get('scores', [("N/A", "", "")]):
+                    scores = rec.get('scores', [("N/A", "", "")])
+                    if not scores:
+                        scores = [("N/A", "", "")]
+                    for score in scores:
                         normalized_score = score[0]
                         segment_slug = score[1]
                         segment = score[2]
