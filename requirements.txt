@@ -9,7 +9,7 @@ djaodjin-answers==0.1.5
 djaodjin-deployutils==0.5.13
 djaodjin-extended-templates==0.2.4
 djaodjin-pages==0.2.4
-djaodjin-saas==0.3.4
+djaodjin-saas==0.7.0
 djaodjin-survey==0.2.5
 gunicorn==19.7.1
 html5lib==1.0b10

@@ -143,7 +143,12 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                 consumption = consumptions[datapoint.question.path]
             measured = datapoint.measured
             if datapoint.metric.unit.system not in Unit.NUMERICAL_SYSTEMS:
-                measured = Choice.objects.get(pk=datapoint.measured).text
+                try:
+                    measured = Choice.objects.get(pk=datapoint.measured).text
+                except Choice.DoesNotExist:
+                    LOGGER.error("cannot find Choice %s for %s",
+                        datapoint.measured, datapoint)
+                    measured = ""
             consumption.measures += [{
                 'metric': datapoint.metric,
                 'unit': (datapoint.unit
