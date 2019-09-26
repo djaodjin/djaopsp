@@ -862,7 +862,12 @@ GROUP BY account_id, sample_id, is_planned;""" % {
             if env_metric_answer.metric.unit.system in Unit.NUMERICAL_SYSTEMS:
                 measured = '%d' % env_metric_answer.measured
             else:
-                measured = Choice.objects.get(pk=env_metric_answer.measured)
+                try:
+                    measured = Choice.objects.get(pk=env_metric_answer.measured)
+                except Choice.DoesNotExist:
+                    LOGGER.error("cannot find Choice %s for %s",
+                        env_metric_answer.measured, env_metric_answer)
+                    measured = ""
             node = self._insert_path(root, env_metric_answer.question.path,
                 depth=depth)
             if 'environmental_metrics' not in node[0]:
