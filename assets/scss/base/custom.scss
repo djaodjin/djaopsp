@@ -1019,6 +1019,12 @@ a.text-grey{
   color: #222;
 }
 
+.dashboard-cta {
+  background-color: #eee;
+  color: black;
+  padding: 5px;
+}
+
 @include media-breakpoint-up(sm) {
 
   #load {

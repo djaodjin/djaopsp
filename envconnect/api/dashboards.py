@@ -135,6 +135,25 @@ class DashboardMixin(BenchmarkMixin):
 
     account_model = get_account_model()
 
+    @property
+    def start_at(self):
+        if not hasattr(self, '_start_at'):
+            self._start_at = self.request.GET.get('start_at', None)
+            if self._start_at:
+                self._start_at = datetime_or_now(self._start_at.strip('"'))
+            else:
+                self._start_at = self.ends_at - relativedelta(years=1)
+        return self._start_at
+
+    @property
+    def ends_at(self):
+        if not hasattr(self, '_ends_at'):
+            self._ends_at = self.request.GET.get('ends_at', None)
+            if self._ends_at:
+                self._ends_at = self._ends_at.strip('"')
+            self._ends_at = datetime_or_now(self._ends_at)
+        return self._ends_at
+
     def _get_scored_answers(self, population, metric_id,
                             includes=None, questions=None, prefix=None):
         """
@@ -241,7 +260,7 @@ WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
     @property
     def requested_accounts(self):
         if not hasattr(self, '_requested_accounts'):
-            ends_at = datetime_or_now()
+            ends_at = self.ends_at
             self._requested_accounts = []
             level = set([self.account.pk])
             next_level = level | set([rec['organization']
@@ -564,7 +583,6 @@ class SupplierListMixin(DashboardMixin):
 
     def get_suppliers(self, rollup_tree):
         results = []
-        expired_at = datetime_or_now() - relativedelta(year=1)
 
         # XXX currently a subset query of ``get_active_by_accounts`` because
         # ``get_active_by_accounts`` returns unfrozen samples.
@@ -587,7 +605,7 @@ class SupplierListMixin(DashboardMixin):
             try:
                 results += [self.get_scores(account, rollup_tree[1], actives_d,
                     self.complete_assessments, self.complete_improvements,
-                    expired_at)]
+                    self.start_at)]
             except self.account_model.DoesNotExist:
                 pass
         return SupplierQuerySet(results,

@@ -173,6 +173,7 @@
     "account": 6,
     "session_backend": 1,
     "registration": 2,
+    "authentication": 0,
     "entry_point": "http://localhost:8040"
   },
   "model": "rules.app", "pk": 6

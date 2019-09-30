@@ -1659,17 +1659,30 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     $scope.$watch("params", function(newVal, oldVal, scope) {
         var updated = (newVal.o !== oldVal.o || newVal.ot !== oldVal.ot
             || newVal.q !== oldVal.q || newVal.page !== oldVal.page );
-        if( newVal.start_at !== oldVal.start_at
-            && newVal.ends_at === oldVal.ends_at ) {
-            updated = true;
-            if( $scope.params.ends_at < newVal.start_at ) {
-                $scope.params.ends_at = newVal.start_at;
-            }
-        } else if( newVal.start_at === oldVal.start_at
-            && newVal.ends_at !== oldVal.ends_at ) {
-            updated = true;
-            if( $scope.params.start_at > newVal.ends_at ) {
-                $scope.params.start_at = newVal.ends_at;
+        if( (typeof newVal.start_at !== "undefined")
+            && (typeof newVal.ends_at !== "undefined")
+            && (typeof oldVal.start_at !== "undefined")
+            && (typeof oldVal.ends_at !== "undefined") ) {
+            /* We try to prevent triggering updates for dates being edited. */
+            var cutOffDate = new Date(2000, 1, 1);
+            if( newVal.start_at > cutOffDate && newVal.ends_at > cutOffDate ) {
+                /* Implementation Note:
+                   The Date objects can be compared using the >, <, <=
+                   or >= operators. The ==, !=, ===, and !== operators require
+                   you to use date.getTime(). Don't ask. */
+                if( newVal.start_at.getTime() !== oldVal.start_at.getTime()
+                    && newVal.ends_at.getTime() === oldVal.ends_at.getTime() ) {
+                    updated = true;
+                    if( $scope.params.ends_at < newVal.start_at ) {
+                        $scope.params.ends_at = newVal.start_at;
+                    }
+                } else if( newVal.start_at.getTime() === oldVal.start_at.getTime()
+                           && newVal.ends_at.getTime() !== oldVal.ends_at.getTime() ) {
+                    updated = true;
+                    if( $scope.params.start_at > newVal.ends_at ) {
+                        $scope.params.start_at = newVal.ends_at;
+                    }
+                }
             }
         }
         if( updated ) {

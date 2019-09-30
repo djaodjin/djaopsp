@@ -27,7 +27,27 @@ Completed: Assessment and Planning are complete">
 </section>
 <section id="managed" ng-controller="envconnectMyTSPReporting">
   <div class="row">
-    <div class="offset-md-6 col-md-6 text-right" style="margin-bottom:5px;">
+    <div class="col-md-6">
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="input-group input-group-sm">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="from-inp">From</span>
+            </div>
+            <input class="form-control" type="date" ng-model="params.start_at" ng-cloak>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="input-group input-group-sm">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="from-inp">To</span>
+            </div>
+            <input class="form-control" type="date" ng-model="params.ends_at" ng-cloak>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 text-right" style="margin-bottom:5px;">
       <!-- WORKAROUND: we set data-width and data-height
            otherwise bootstrap-toggle will crop the size
            inside a class="tab-content collapse". -->

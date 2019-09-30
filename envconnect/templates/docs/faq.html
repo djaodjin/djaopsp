@@ -1,121 +1,130 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <div class="faq">
-        <div class="row">
-            <div class="col-md-12">
-                 <h1>Frequently Asked Questions</h1>
-                 <ul>
-                    <li>General
-                        <ul>
-                            <li><a href="#general-1">Don't see what you're looking for?</a></li>
-                            <li><a href="#general-2">Why was TSP developed?</a></li>
-                            <li><a href="#general-3">How do I pick the industry segment that applies to my organization?</a></li>
-                            <li><a href="#general-4">Why did I get a &quot;You were added as a profile manager...&quot; email?</a></li>
-                            <li><a href="#general-5">Why did I get a &quot;Company X requested your scorecard on TSP&quot; email?</a></li>
-                        </ul>
-                    </li>
-                    <li>Enviromental Best Practices
-                        <ul>
-                            <li><a href="#best-practices-1">How were best practices for each industry segment identified or selected?</a></li>
-                            <li><a href="#best-practices-2">How are environmental and business values assigned to best practices?</a></li>
-                            <li><a href="#best-practices-3">Are best practices on TSP subject to change?</a></li>
-                            <li><a href="#best-practices-4">Who can add best practices and best practice guidance?</a></li>
-                            <li><a href="#best-practices-5">How will I know if new best practices relevant to me are added to TSP?</a></li>
-                        </ul>
-                    </li>
-                    <li>Assessment
-                    <ul>
-                        <li><a href="#assessment-1">How frequently does an Assessment need to be completed?</a></li>
-                        <li><a href="#assessment-2">If best practices are added to TSP, will that affect my Assessment results?</a></li>
-                        <li><a href="#assessment-3">Explain the “Opportunity score” shown on the Assessment results page?</a></li>
-                    </ul>
-                    </li>
-                    <li>Scorecard
-                        <ul>
-                            <li><a href="#scorecard-1">How does scoring work?</a></li>
-                            <li><a href="#scorecard-2">How does benchmarking work?</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+<section id="faq" class="backdrop">
+  <div class="jumbotron">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 offset-md-2">
+          <h1 class="text-center" style="font-size: 45px;">Frequently Asked Questions</h1>
         </div>
-
-
-        <div class="clearfix">
-            <section id="create-web-product">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="page-header">
-            <div class="row">
-            <h2>General</h2>
-            <dl>
-                <dt>Don’t see what you’re looking for?<a href="#general-1" name="general-1" class="header-anchor">&nbsp;<i class="fa fa-link"></i></a></dt>
-                <dd><a href="{{'contact/'|site_prefixed}}">Contact us</a> with your question.</dd>
-            </dl>
-            <dl>
-                <dt>Why was TSP developed?<a href="#general-2" name="general-2" class="header-anchor">&nbsp;<i class="fa fa-link"></i></a></dt>
-                <dd>
-                    TSP has three main objectives:
-                    <ul>
-                        <li><strong>Learning:</strong> To make identifying and prioritizing environmental best practices easier and industry specific.</li>
-                        <li><strong>Measuring:</strong> To provide benchmarking and meaningful measurement of an organization’s environmental performance.</li>
-                        <li><strong>Improving:</strong> To enable improvement planning based on environmental and business value.</li>
-                    </ul>
-                    The purpose of TSP is to help accelerate the adoption of sustainability best practices by two user groups: 
-                    <ol>
-                        <li><strong>Any organization.</strong> For organizations beginning the process of implementing environmental sustainability measures, the process of identifying and prioritizing environmental issues can be complex, expensive and time consuming. TSP aims to make that process easier by providing industry segment-specific best practices that are prioritized by environmental and business value. It also provides tools for self-assessment and benchmarking, and planning tools to help identify improvement opportunities based on environmental and business value.</li>
-                        <li><strong>Managers of multiple reporting entities</strong> (e.g. suppliers, owned facilities). The TSP capabilities described above can be used to accelerate the adoption of sustainability best practices by a target group. TSP also provides meaningful measures of quality and maturity of sustainability management for evaluation and reporting purposes (e.g. RFP, surveys, scorecards).</li>
-                    </ol>
-                </dd>
-            </dl>
-            <dl>
-                <dt>How do I pick the industry segment that applies to my organization?<a href="#general-3" name="general-3" class="header-anchor">&nbsp;<i class="fa fa-link"></i></a></dt>
-                <dd>
-                    <div>
-                    <table class="table table-bordered">
-                        <tr style="background-color:#eee;">
-                            <th>Industry segment</th>
-                            <th>Examples</th>
-                        </tr>
-                        <tr>
-                            <td>Architectural design</td>
-                            <td>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Aviation services</td>
-                            <td>
+      </div>
+    </div>
+  </div>
+  <div class="clearfix"></div>
+  <div class="container">
+    <div class="faq">
+      <div class="row">
+        <div class="col-md-12">
+          <ul class="faq-list" style="background-color:#fff;color:#000;margin-bottom:35px;">
+              <li>General
+                  <ul>
+                      <li><a href="#general-1">Don't see what you're looking for?</a></li>
+                      <li><a href="#general-2">Why was TSP developed?</a></li>
+                      <li><a href="#general-3">How do I pick the industry segment that applies to my organization?</a></li>
+                      <li><a href="#general-4">Why did I get a &quot;You were added as a profile manager...&quot; email?</a></li>
+                      <li><a href="#general-5">Why did I get a &quot;Company X requested your scorecard on TSP&quot; email?</a></li>
+                  </ul>
+              </li>
+              <li>Enviromental Best Practices
+                  <ul>
+                      <li><a href="#best-practices-1">How were best practices for each industry segment identified or selected?</a></li>
+                      <li><a href="#best-practices-2">How are environmental and business values assigned to best practices?</a></li>
+                      <li><a href="#best-practices-3">Are best practices on TSP subject to change?</a></li>
+                      <li><a href="#best-practices-4">Who can add best practices and best practice guidance?</a></li>
+                      <li><a href="#best-practices-5">How will I know if new best practices relevant to me are added to TSP?</a></li>
+                  </ul>
+              </li>
+              <li>Assessment
+                  <ul>
+                      <li><a href="#assessment-1">How frequently does an Assessment need to be completed?</a></li>
+                      <li><a href="#assessment-2">If best practices are added to TSP, will that affect my Assessment results?</a></li>
+                      <li><a href="#assessment-3">Explain the “Opportunity score” shown on the Assessment results page?</a></li>
+                  </ul>
+              </li>
+              <li>Scorecard
+                  <ul>
+                      <li><a href="#scorecard-1">How does scoring work?</a></li>
+                      <li><a href="#scorecard-2">How does benchmarking work?</a></li>
+                  </ul>
+              </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div>
+        <h2>General</h2>
+        <dl>
+          <dt>Don’t see what you’re looking for?<a href="#general-1" name="general-1" class="header-anchor">&nbsp;<i class="fa fa-link"></i></a></dt>
+          <dd><a href="{{'contact/'|site_prefixed}}">Contact us</a> with your question.</dd>
+        </dl>
+        <dl>
+          <dt>Why was TSP developed?<a href="#general-2" name="general-2" class="header-anchor">&nbsp;<i class="fa fa-link"></i></a></dt>
+          <dd>
+          TSP has three main objectives:
+            <ul>
+              <li><strong>Learning:</strong> To make identifying and prioritizing environmental best practices easier and industry specific.</li>
+              <li><strong>Measuring:</strong> To provide benchmarking and meaningful measurement of an organization’s environmental performance.</li>
+              <li><strong>Improving:</strong> To enable improvement planning based on environmental and business value.</li>
+            </ul>
+            The purpose of TSP is to help accelerate the adoption of sustainability best practices by two user groups: 
+            <ol>
+                <li><strong>Any organization.</strong> For organizations beginning the process of implementing environmental sustainability measures, the process of identifying and prioritizing environmental issues can be complex, expensive and time consuming. TSP aims to make that process easier by providing industry segment-specific best practices that are prioritized by environmental and business value. It also provides tools for self-assessment and benchmarking, and planning tools to help identify improvement opportunities based on environmental and business value.</li>
+                <li><strong>Managers of multiple reporting entities</strong> (e.g. suppliers, owned facilities). The TSP capabilities described above can be used to accelerate the adoption of sustainability best practices by a target group. TSP also provides meaningful measures of quality and maturity of sustainability management for evaluation and reporting purposes (e.g. RFP, surveys, scorecards).</li>
+            </ol>
+          </dd>
+        </dl>
+        <dl>
+          <dt>How do I pick the industry segment that applies to my organization?<a href="#general-3" name="general-3" class="header-anchor">&nbsp;<i class="fa fa-link"></i></a></dt>
+          <dd>
+            <div>
+              <table class="table table-bordered">
+                <tr style="background-color:#eee;">
+                    <th>Industry segment</th>
+                    <th>Examples</th>
+                </tr>
+                <tr>
+                    <td>Architectural design</td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Aviation services</td>
+                    <td>
 Aerial leak detection<br />
 Aerial transportation<br />
 Helicopter services<br />
 Line inspections<br />
 Line cleaning
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Construction</td>
-                            <td>
+                    </td>
+                </tr>
+                <tr>
+                  <td>Construction</td>
+                  <td>
 Building/facilities construction<br />
 Hard surface installation/repair<br />
 Overhead construction<br />
 Underground construction
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Consulting/ Advisory services</td>
-                            <td>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Consulting/ Advisory services</td>
+                  <td>
 Legal services<br />
 Accounting and other financial services<br />
 Management consulting<br />
 Human resources advisory services<br />
 Health care advisory services
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Distribution/Logistics & shipping</td>
-                            <td>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Distribution/Logistics & shipping</td>
+                  <td>
 Chemical distributor<br />
 Components, equipment, instruments, parts, tools distributor<br />
                             </td>
@@ -352,7 +361,7 @@ for help on how to take an assessment and share your resulting scorecard.
         <div>
             <h2>Environmental best practices</h2>
             <dl>
-                <dt>How were best practices for each industry segment identified or selected?<a href="#best-practices-1" name="best-practices-1" class="header-anchor">&nbsp;<i class="fa fa-link"></i></a</dt>
+                <dt>How were best practices for each industry segment identified or selected?<a href="#best-practices-1" name="best-practices-1" class="header-anchor">&nbsp;<i class="fa fa-link"></i></a></dt>
                 <dd>Best practices were selected on the basis of their being leading indicators of the quality and maturity of an organization’s environmental sustainability management.  Practices were compiled and peer-reviewed by cross-functional sustainability and industry subject matter experts, and by organizations in the field of environmental sustainability.</dd>
             </dl>
             <dl>
@@ -432,10 +441,8 @@ Opportunity scores for a best practice represent the number of points by which y
                 <dd>Your relative position against peers in your industry segment is shown in the “Benchmark graph” section of your Scorecard. Benchmark positions may change over time as more respondents from your industry peer group respond to the Assessment, so it is important to check back into the system from time to time to monitor for updates in the benchmark outcome.</dd>
             </dl>
         </div>
+      </div>
     </div>
-    </div>
-    </div>
-    </section>
-    </div>
-</div>
+  </div>
+</section>
 {% endblock %}

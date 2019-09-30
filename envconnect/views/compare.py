@@ -1,7 +1,7 @@
 # Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
-import io, json, logging, re
+import datetime, io, json, logging, re
 from collections import OrderedDict
 
 from deployutils.helpers import update_context_urls
@@ -48,7 +48,11 @@ class SuppliersView(AccountMixin, PermissionMixin, TemplateView):
         })
         context.update({
             'score_toggle': True,
-            'account_extra': self.account.extra
+            'account_extra': self.account.extra,
+            'date_range': {
+                'start_at': datetime.datetime(2019, 9, 5).isoformat(),
+                'ends_at': datetime.datetime(2019, 12, 1).isoformat(),
+            }
         })
         return context
 

@@ -73,6 +73,7 @@ js_angular = Bundle(
 register('js_angular', js_angular)
 
 js_envconnect = Bundle(
+    'vendor/moment.js',
     'vendor/d3.js',
     'vendor/nv.d3.js',
     'vendor/c3.js',

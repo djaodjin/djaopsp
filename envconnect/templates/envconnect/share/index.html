@@ -17,10 +17,14 @@ and click <em>Complete</em> at the bottom of the page.
               </p>
               <form class="text-left m-2" ng-submit="shareScorecard($event)">
                 <h3>With the following organizations</h3>
-                <div>
-                  <label class="form-group" ng-repeat="supplierManager in supplierManagers" ng-cloak>
-                    <input type="checkbox" ng-model="supplierManager.checked" ng-value="supplierManager.slug"> [[supplierManager.printable_name]]
-                  </label>
+                <div class="ml-4">
+                  <ul class="list-unstyled">
+                    <li ng-repeat="supplierManager in supplierManagers" ng-cloak>
+                      <label class="form-group">
+                        <input type="checkbox" ng-model="supplierManager.checked" ng-value="supplierManager.slug"> [[supplierManager.printable_name]]
+                      </label>
+                    </li>
+                  </ul>
                 </div>
                 <div class="row">
                   <div class="col-sm-6">
@@ -91,19 +95,21 @@ to report.
               </form>
             </div>
             <div class="col-sm-4" style="border-left: 1px solid grey;">
-              <div class="text-left dashboard-cta">
-              <h2>Looking to get more value out of TSP?</h2>
-              <p>
+              <div class="text-left dashboard-cta" style="margin-right:5px;">
+                <h2>Looking to get more value out of TSP?</h2>
+                <p>
 Interested in tracking the sustainability performance of your own supply chain?
 Please <a href="{{'contact/'|site_prefixed}}">contact us</a> for information
 and pricing details.
-              </p>
-              <p>
+                </p>
+                <p>
 The dashboard features allow you to create your own list of reporting entities
 (e.g. suppliers, owned facilities, departments, floors within a building),
 to track performance trends and improvement opportunities over time.
-              </p>
+                </p>
               </div>
+              {% include "envconnect/share/_extra_messages.html" %}
+              <div>
             </div>
           </div>
         </div>

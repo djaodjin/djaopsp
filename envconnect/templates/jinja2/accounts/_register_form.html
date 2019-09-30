@@ -37,29 +37,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="form-group row{% if form.role_function.errors %} has-error{% endif %}">
-            {% if not form.hide_labels %}
-            <label class="col-sm-5 control-label{% if form.role_function.field.required %} requiredField{% endif %}">{{form.role_function.label|safe}}{% if form.role_function.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
-            {% endif %}
-            <div class="col-sm-7 controls">
-                <select class="form-control" name="{{form.role_function.name}}">
-                    <option>Please select...</option>
-                    <option {% if form.role_function.value() == "ehs" %}selected="1"{% endif %} value="ehs">EHS</option>
-                    <option {% if form.role_function.value() == "operations" %}selected="1"{% endif %} value="operations">Operations</option>
-                    <option {% if form.role_function.value() == "corporate" %}selected="1"{% endif %} value="corporate">Corporate Responsability/Sustainability</option>
-                    <option {% if form.role_function.value() == "marketing" %}selected="1"{% endif %} value="marketing">Marketing/Communications</option>
-                    <option {% if form.role_function.value() == "supply-chain" %}selected="1"{% endif %} value="supply-chain">Supply chain</option>
-                    <option {% if form.role_function.value() == "other" %}selected="1"{% endif %} value="other">Other</option>
-                </select>
-                {% for error in form.role_function.errors %}
-                <span class="help-block"><strong>{{error}}</strong></span>
-                {% endfor %}
-                {% if form.role_function.help_text %}
-                <span class="help-block">{{form.role_function.help_text}}</span>
-                {% endif %}
-            </div>
-        </div>
-        {{input_field(form['organization_dba_name'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+        {{select_input_field([("ehs", "EHS"), ("operations", "Operations"), ("corporate", "Corporate Responsability/Sustainability"), ("marketing", "Marketing/Communications"), ("supply-chain", "Supply chain"), ("other", "Other")], "role_function", False, "Role Function", "", "", False, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['country'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['region'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
         {{input_field(form['locality'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}

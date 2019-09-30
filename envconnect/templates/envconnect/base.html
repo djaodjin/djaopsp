@@ -98,6 +98,9 @@ app.constant('settings', {
     sortBy:{{sort_by|safe}},
 {% endif %}
     itemsPerPage: {% if items_per_page %}{{items_per_page}}{% else %}25{% endif %},
+{% if date_range %}
+    date_range: {{date_range|to_json}},
+{% endif %}
     modalId: "#new-user-relation",
     entries: {% if entries %}{{entries|safe}}{% else %}{}{% endif %},
 });
