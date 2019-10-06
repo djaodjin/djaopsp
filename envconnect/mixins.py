@@ -850,25 +850,25 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 'metric_title': "No data provided.",
                 'measured': ""
             }]})
-
-        env_metric_answers = Answer.objects.filter(
-            sample=self.assessment_sample).exclude(
-            metric_id__in=(1, 2)).select_related('question')
-        for env_metric_answer in env_metric_answers:
+        for datapoint in Answer.objects.filter(sample=self.sample).exclude(
+                    metric__in=Metric.objects.filter(
+                    slug__in=Consumption.NOT_MEASUREMENTS_METRICS)
+                ).select_related('question'):
             rank = EnumeratedQuestions.objects.filter(
-                question=env_metric_answer.question,
+                question=datapoint.question,
                 campaign=self.sample.survey).values('rank').get().get(
                     'rank', None)
-            if env_metric_answer.metric.unit.system in Unit.NUMERICAL_SYSTEMS:
-                measured = '%d' % env_metric_answer.measured
+            unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
+            if unit.system in Unit.NUMERICAL_SYSTEMS:
+                measured = '%d' % datapoint.measured
             else:
                 try:
-                    measured = Choice.objects.get(pk=env_metric_answer.measured)
+                    measured = Choice.objects.get(pk=datapoint.measured)
                 except Choice.DoesNotExist:
                     LOGGER.error("cannot find Choice %s for %s",
-                        env_metric_answer.measured, env_metric_answer)
+                        datapoint.measured, datapoint)
                     measured = ""
-            node = self._insert_path(root, env_metric_answer.question.path,
+            node = self._insert_path(root, datapoint.question.path,
                 depth=depth)
             if 'environmental_metrics' not in node[0]:
                 node[0].update({'environmental_metrics': []})
@@ -878,11 +878,11 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                         node[0].update({'environmental_metrics': []})
                         break
             node[0]['environmental_metrics'] += [{
-                'metric_title': env_metric_answer.metric.title,
+                'metric_title': datapoint.metric.title,
                 'measured': measured,
                 'location': reverse('api_measures_delete', args=(
                     self.sample.account, self.sample,
-                    rank, env_metric_answer.metric.slug))
+                    rank, datapoint.metric.slug))
             }]
         return root
 

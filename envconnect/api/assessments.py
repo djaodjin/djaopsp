@@ -3,6 +3,7 @@
 
 import logging
 from collections import namedtuple
+from decimal import Decimal
 
 from deployutils.helpers import datetime_or_now
 from django.db import connection, transaction
@@ -34,7 +35,8 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
 
     .. code-block:: http
 
-        POST /envconnect/api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/3/ HTTP/1.1
+        POST /api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/3/ \
+          HTTP/1.1
 
     .. code-block:: json
 
@@ -135,7 +137,7 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
 
     .. code-block:: http
 
-        POST /envconnect/api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/3/measures/ HTTP/1.1
+        POST /api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/3/measures/ HTTP/1.1
 
     .. code-block:: json
 
@@ -168,48 +170,66 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
             question=self.question).rank
         errors = []
         for datapoint in serializer.validated_data['measures']:
+            measured = datapoint.get('measured', None)
             try:
                 with transaction.atomic():
-                    metric = datapoint['metric']
+                    metric = datapoint.get(
+                        'metric', self.question.default_metric)
                     unit = datapoint.get('unit', metric.unit)
                     if unit.system in Unit.NUMERICAL_SYSTEMS:
                         try:
-                            measured = int(datapoint['measured'])
-                        except ValueError:
-                            raise ValidationError({'detail':
-                                "\"%s\" is invalid for '%s'" % (
-                                    datapoint['measured'].replace('"', '\\"'),
-                                    metric.title)})
-                    else:
-                        choice_rank = Choice.objects.filter(
-                            unit=unit).aggregate(Max('rank')).get(
-                                'rank__max', 0)
-                        choice_rank = choice_rank + 1 if choice_rank else 1
-                        choice = Choice.objects.create(
-                            text=datapoint['measured'],
-                            unit=unit,
-                            rank=choice_rank)
-                        measured = choice.id
-                    Answer.objects.update_or_create(
-                        sample=self.sample, question=self.question,
-                        metric=metric, defaults={
-                            'measured': measured,
-                            'unit': unit,
-                            'created_at': created_at,
-                            'collected_by': self.request.user,
-                            'rank': rank})
-            except ValidationError as err:
-                errors += [err]
+                            try:
+                                measured = str(int(measured))
+                            except ValueError:
+                                measured = '{:.0f}'.format(Decimal(measured))
+                            Answer.objects.update_or_create(
+                                sample=self.sample, question=self.question,
+                                metric=metric, defaults={
+                                    'measured': int(measured),
+                                    'unit': unit,
+                                    'created_at': created_at,
+                                    'collected_by': self.request.user,
+                                    'rank': rank})
+                        except (ValueError, DataError) as err:
+                            # We cannot convert to integer (ex: "12.8kW/h")
+                            # or the value exceeds 32-bit representation.
+                            # XXX We store as a text value so it is not lost.
+                            LOGGER.warning(
+                                "\"%(measured)s\": %(err)s for '%(metric)s'" % {
+                                'measured': measured.replace('"', '\\"'),
+                                'err': str(err).strip(),
+                                'metric': metric.title})
+                            unit = Unit.objects.get(slug='freetext')
+
+                    if unit.system not in Unit.NUMERICAL_SYSTEMS:
+                        if unit.system != Unit.SYSTEM_ENUMERATED:
+                            choice_rank = Choice.objects.filter(
+                                unit=unit).aggregate(Max('rank')).get(
+                                    'rank__max', 0)
+                            choice_rank = choice_rank + 1 if choice_rank else 1
+                            choice = Choice.objects.create(
+                                text=measured,
+                                unit=unit,
+                                rank=choice_rank)
+                            measured = choice.pk
+                        Answer.objects.update_or_create(
+                            sample=self.sample, question=self.question,
+                            metric=metric, defaults={
+                                'measured': measured,
+                                'unit': unit,
+                                'created_at': created_at,
+                                'collected_by': self.request.user,
+                                'rank': rank})
             except DataError as err:
                 LOGGER.exception(err)
                 errors += [
                     "\"%(measured)s\": %(err)s for '%(metric)s'" % {
-                        'measured': datapoint['measured'].replace('"', '\\"'),
-                        'err': str(err),
+                        'measured': measured.replace('"', '\\"'),
+                        'err': str(err).strip(),
                         'metric': metric.title}
                 ]
-            if errors:
-                raise ValidationError(errors)
+        if errors:
+            raise ValidationError(errors)
 
 
 class DestroyMeasureAPIView(SampleMixin, DestroyAPIView):
