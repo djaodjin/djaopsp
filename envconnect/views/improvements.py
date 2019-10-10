@@ -8,7 +8,6 @@ from collections import OrderedDict
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 from deployutils.helpers import datetime_or_now, update_context_urls
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.generic.list import ListView
 from django.utils import six
@@ -22,6 +21,7 @@ from pages.models import PageElement
 
 from .assessments import AssessmentBaseMixin, AssessmentView
 from .benchmark import PrintableChartsMixin
+from ..compat import reverse
 from ..mixins import ContentCut, ImprovementQuerySetMixin
 from ..helpers import as_valid_sheet_title
 

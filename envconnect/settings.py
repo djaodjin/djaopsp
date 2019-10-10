@@ -4,9 +4,8 @@
 import os.path, sys
 
 from django.contrib.messages import constants as messages
-from django.core.urlresolvers import reverse_lazy
-
 from deployutils.configs import load_config, update_settings
+from envconnect.compat import reverse_lazy
 
 #pylint: disable=undefined-variable
 
@@ -20,20 +19,17 @@ update_settings(sys.modules[__name__],
 
 if os.getenv('DEBUG'):
     # Enable override on command line.
-    DEBUG = True if int(os.getenv('DEBUG')) > 0 else False
+    DEBUG = (int(os.getenv('DEBUG')) > 0)
 
 FEATURES_REVERT_TO_DJANGO = True
 if os.getenv('FEATURES_REVERT_TO_DJANGO'):
     # Enable override on command line so we can package Jinja2 theme.
-    FEATURES_REVERT_TO_DJANGO = (
-        True if int(os.getenv('FEATURES_REVERT_TO_DJANGO')) > 0 else False)
+    FEATURES_REVERT_TO_DJANGO = (int(os.getenv('FEATURES_REVERT_TO_DJANGO')) > 0)
 
 # Installed apps
 # --------------
 if DEBUG:
     ENV_INSTALLED_APPS = (
-        'django.contrib.admin',
-        'django.contrib.admindocs',
         'debug_toolbar',
         'django_extensions',
         )
@@ -49,7 +45,6 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'deployutils.apps.django',
-    'crispy_forms',
     'django_assets',
     'rest_framework',
     'saas',
@@ -177,13 +172,13 @@ if DEBUG:
         'class': 'logging.StreamHandler'}
 
 if DEBUG:
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
         )
 else:
-    MIDDLEWARE_CLASSES = ()
+    MIDDLEWARE = ()
 
-MIDDLEWARE_CLASSES += (
+MIDDLEWARE += (
     'django.middleware.security.SecurityMiddleware',
     'deployutils.apps.django.middleware.RequestLoggingMiddleware',
     'deployutils.apps.django.middleware.SessionMiddleware',

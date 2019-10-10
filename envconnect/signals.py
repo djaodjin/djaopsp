@@ -1,16 +1,17 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 from answers.models import Follow, get_question_model
 from answers.signals import question_new
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.contrib.sites.requests import RequestSite
 from django.dispatch import Signal, receiver
 from django_comments.signals import comment_was_posted
 from extended_templates.backends import get_email_backend
+
+from .compat import reverse
 
 
 assessment_completed = Signal(providing_args=[#pylint:disable=invalid-name

@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 
 import logging, json
 
-from django.core.urlresolvers import reverse, NoReverseMatch
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.views.generic.base import (RedirectView, TemplateView,
@@ -15,6 +14,7 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
 from deployutils.helpers import update_context_urls
 from pages.models import PageElement
 
+from ..compat import reverse, NoReverseMatch
 from ..mixins import ReportMixin
 from ..models import Consumption
 from ..suppliers import get_supplier_managers

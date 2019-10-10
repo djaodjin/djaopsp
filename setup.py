@@ -1,4 +1,4 @@
-# Copyright (c) 2015, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # All rights reserved.
 
 from distutils.core import setup
@@ -9,7 +9,7 @@ setup(
     author='DjaoDjin inc.',
     author_email='support@djaodjin.com',
     packages=['envconnect' ],
-    url='git@devel.djaodjin.com:envconnect.git',
-    description='the Enviro-Connect web application',
+    url='https://github.com/djaodjin/envconnect.git',
+    description='Web application for assessment against best practices',
     long_description=open('README.md').read(),
 )

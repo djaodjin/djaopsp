@@ -1,15 +1,15 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 -include $(buildTop)/share/dws/prefix.mk
 
-APP_NAME      := envconnect
 srcDir        ?= $(realpath .)
 objDir        ?= $(realpath .)/build
 installTop    ?= $(VIRTUAL_ENV)
 binDir        ?= $(installTop)/bin
 SYSCONFDIR    := $(installTop)/etc
 LOCALSTATEDIR := $(installTop)/var
+APP_NAME      := $(notdir $(srcDir))
 CONFIG_DIR    := $(SYSCONFDIR)/$(APP_NAME)
 
 ASSETS_DIR    := $(srcDir)/htdocs/static

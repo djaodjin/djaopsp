@@ -6,7 +6,6 @@ from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import connection, transaction
 from django.db.models import Count, Max, Q
 from django.http import Http404
@@ -29,6 +28,7 @@ from survey.utils import get_account_model
 
 from .benchmark import BenchmarkMixin
 from .. import signals
+from ..compat import reverse
 from ..helpers import freeze_scores, get_testing_accounts
 from ..mixins import ReportMixin
 from ..models import _show_query_and_result, Consumption

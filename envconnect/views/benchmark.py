@@ -7,7 +7,6 @@ import io, logging, json, subprocess, tempfile
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.template.loader import get_template
@@ -19,6 +18,7 @@ from deployutils.helpers import datetime_or_now, update_context_urls
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
 
+from ..compat import reverse
 from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
 from ..mixins import ReportMixin, TransparentCut
 from ..models import Consumption

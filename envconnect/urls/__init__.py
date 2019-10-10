@@ -23,19 +23,15 @@ from ..views.share import ShareView, ShareRedirectView
 
 
 if settings.DEBUG: #pylint: disable=no-member
-    from django.contrib import admin
     from django.views.defaults import page_not_found, server_error
     from django.contrib.staticfiles.urls import staticfiles_urlpatterns
     import debug_toolbar
 
-    admin.autodiscover()
     urlpatterns = staticfiles_urlpatterns()
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
         url(r'^envconnect%s(?P<path>.*)$' % settings.MEDIA_URL, static_serve, {
             'document_root': settings.MEDIA_ROOT}),
-        url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-        url(r'^admin/', include(admin.site.urls)),
         url(r'^404/$', page_not_found),
         url(r'^500/$', server_error),
     ]

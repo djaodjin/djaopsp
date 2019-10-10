@@ -5,7 +5,6 @@ import datetime, io, json, logging, re
 from collections import OrderedDict
 
 from deployutils.helpers import update_context_urls
-from django.core.urlresolvers import reverse
 from django.db.models import Count, Q
 from django.utils import six
 from django.http import HttpResponse
@@ -19,6 +18,7 @@ from pages.models import PageElement
 from survey.models import Matrix
 from survey.views.matrix import MatrixDetailView
 
+from ..compat import reverse
 from ..api.benchmark import BenchmarkMixin
 from ..api.dashboards import SupplierListMixin
 from ..helpers import as_valid_sheet_title

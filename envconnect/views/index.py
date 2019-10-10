@@ -4,10 +4,10 @@
 import logging
 
 from deployutils.helpers import update_context_urls
-from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
 from django.utils import six
 
+from ..compat import reverse
 from ..mixins import BreadcrumbMixin, ContentCut
 
 

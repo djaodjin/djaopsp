@@ -1,17 +1,17 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
 import logging
 
 from django import http
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 from deployutils.apps.django.redirects import (
     AccountRedirectView as AccountRedirectBaseView)
 from survey.models import Matrix
 
+from ..compat import reverse
 from ..mixins import ReportMixin
 from ..models import Consumption
 

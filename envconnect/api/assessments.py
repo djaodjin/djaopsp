@@ -1,9 +1,8 @@
 # Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
-import logging
+import decimal, logging
 from collections import namedtuple
-from decimal import Decimal
 
 from deployutils.helpers import datetime_or_now
 from django.db import connection, transaction
@@ -181,7 +180,7 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
                             try:
                                 measured = str(int(measured))
                             except ValueError:
-                                measured = '{:.0f}'.format(Decimal(measured))
+                                measured = '{:.0f}'.format(decimal.Decimal(measured))
                             Answer.objects.update_or_create(
                                 sample=self.sample, question=self.question,
                                 metric=metric, defaults={
@@ -190,7 +189,7 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
                                     'created_at': created_at,
                                     'collected_by': self.request.user,
                                     'rank': rank})
-                        except (ValueError, DataError) as err:
+                        except (ValueError, decimal.InvalidOperation, DataError) as err:
                             # We cannot convert to integer (ex: "12.8kW/h")
                             # or the value exceeds 32-bit representation.
                             # XXX We store as a text value so it is not lost.

@@ -5,7 +5,6 @@ import json, markdown, re
 
 from django.conf import settings
 from django import template
-from django.core.urlresolvers import reverse
 from django.utils import six
 from django.utils.safestring import mark_safe
 from pages.models import PageElement
@@ -13,6 +12,7 @@ from survey.models import Choice
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 
+from ..compat import reverse
 from ..mixins import ContentCut
 
 

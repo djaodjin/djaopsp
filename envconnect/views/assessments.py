@@ -7,7 +7,6 @@ from collections import namedtuple
 
 from dateutil.relativedelta import relativedelta
 from django.utils import six
-from django.core.urlresolvers import reverse
 from django.db import connection
 from django.db.models import F, Count
 from django.http import HttpResponse, HttpResponseRedirect
@@ -21,6 +20,7 @@ from openpyxl.styles.fills import FILL_SOLID
 from pages.models import PageElement
 from survey.models import Answer, Choice, Metric, Sample, Unit
 
+from ..compat import reverse
 from ..helpers import get_testing_accounts
 from ..mixins import ReportMixin, BestPracticeMixin
 from ..models import Consumption, get_scored_answers

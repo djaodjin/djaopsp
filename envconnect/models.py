@@ -40,7 +40,6 @@ class ColumnHeaderQuerySet(models.QuerySet):
         if parts:
             if not parts[0]:
                 parts = parts[1:]
-            #pylint:disable=redefined-variable-type
             candidates = Q(path="/%s" % '/'.join(parts[:1]))
             for idx in range(2, len(parts)):
                 candidates |= Q(path="/%s" % '/'.join(parts[:idx]))

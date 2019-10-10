@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 import monotonic
 from deployutils.helpers import update_context_urls
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import connection, connections, transaction
 from django.db.models import Max, Sum
 from django.db.utils import DEFAULT_DB_ALIAS
@@ -25,6 +24,7 @@ from survey.models import (Answer, Choice, Campaign, EnumeratedQuestions,
     Metric, Sample, Unit)
 from survey.utils import get_account_model
 
+from .compat import reverse
 from .helpers import get_testing_accounts
 from .models import (Consumption, get_score_weight, _show_query_and_result,
     get_scored_answers)
