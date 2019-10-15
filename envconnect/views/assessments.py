@@ -267,6 +267,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
             default_metric_id=self.default_metric_id).count()
         nb_answers = Answer.objects.filter(sample=self.sample,
             question__default_metric=F('metric_id'),
+            question__default_metric_id=self.default_metric_id,
             question__path__startswith=from_root).count()
         context.update({
             'nb_answers': nb_answers,
