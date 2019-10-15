@@ -21,6 +21,7 @@ from survey.views.matrix import MatrixDetailView
 from ..compat import reverse
 from ..api.benchmark import BenchmarkMixin
 from ..api.dashboards import SupplierListMixin
+from ..serializers import AccountSerializer
 from ..helpers import as_valid_sheet_title
 from ..mixins import AccountMixin, PermissionMixin
 from ..models import Consumption
@@ -164,9 +165,9 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     basename = 'dashboard'
 
-    headings = ['Supplier name', 'Contact name', 'Email',
-        'Telephone number', 'Mobile number', 'Industry segment', 'Last updated',
-        'Total score']
+    headings = ['Supplier name', 'Categories', 'Contact name', 'Email',
+        'Telephone number', 'Mobile number',
+        'Last activity', 'Status', 'Industry segment', 'Total score']
 
     def get_headings(self):
         return self.headings
@@ -185,12 +186,20 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
     def writerow(self, rec, headings=None):
         last_activity_at = rec.get('last_activity_at', "")
         if last_activity_at:
-            last_activity_at = last_activity_at.isoformat()
+            last_activity_at = last_activity_at.strftime("%Y-%m-%d")
+        reporting_status = rec.get('reporting_status')
+        if reporting_status < len(AccountSerializer.REPORTING_STATUS):
+            reporting_status = AccountSerializer.REPORTING_STATUS[reporting_status][1]
+        else:
+            reporting_status = ""
+        categories = ','.join(json.loads(rec['extra']).keys()) if rec['extra'] else ""
         if headings:
             if rec['request_key']:
                 self.wsheet.append([
-                    rec['printable_name'], "", rec['email'], "", "", "",
-                    last_activity_at] + ["Requested" for val in headings])
+                    rec['printable_name'], categories,
+                    "", rec['email'], "", "",
+                    last_activity_at, reporting_status, ""] + [
+                        "Requested" for val in headings])
             else:
                 scores = []
                 for heading in headings:
@@ -201,16 +210,19 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                             break
                     scores += [section_score]
                 self.wsheet.append([
-                    rec['printable_name'], "", rec['email'], "", "", "",
-                    last_activity_at] + scores)
+                    rec['printable_name'], categories,
+                    "", rec['email'], "", "",
+                    last_activity_at, reporting_status, ""] + scores)
         else:
             for rep in rec.get('reports_to', [(
                     self.account.slug, self.account.full_name)]):
                 report_to = "" if rep[0] == self.account.slug else rep[1]
                 if rec['request_key']:
                     self.wsheet.append([
-                        rec['printable_name'], "", rec['email'], "", "", "",
-                        last_activity_at, "Requested", report_to])
+                        rec['printable_name'], categories,
+                        "", rec['email'], "", "",
+                        last_activity_at, reporting_status,
+                        "", "Requested", report_to])
                 else:
                     scores = rec.get('scores', [("N/A", "", "")])
                     if not scores:
@@ -219,9 +231,10 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                         normalized_score = score[0]
                         segment_slug = score[1]
                         segment = score[2]
-                        row = [rec['printable_name'], "",
-                            rec['email'], "", "", segment,
-                            last_activity_at, normalized_score, report_to]
+                        row = [rec['printable_name'], categories,
+                            "", rec['email'], "", "",
+                            last_activity_at, reporting_status,
+                            segment, normalized_score, report_to]
                         self.wsheet.append(row)
                         if segment_slug:
                             if segment_slug not in self.suppliers_per_segment:
