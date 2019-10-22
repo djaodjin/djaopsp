@@ -1,5 +1,5 @@
 cssmin==0.2.0
-Django==1.11.16
+Django==1.11.23
 django-assets==0.12
 django-contrib-comments==1.8.0
 django-crispy-forms==1.6.1
