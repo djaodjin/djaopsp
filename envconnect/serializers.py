@@ -36,12 +36,20 @@ class MeasureSerializer(serializers.ModelSerializer):
     unit = serializers.SlugRelatedField(required=False,
         queryset=Unit.objects.all(), slug_field='slug')
     measured = serializers.CharField()
+    text = serializers.SerializerMethodField()
 
     class Meta:
         model = Answer
         fields = ('metric', 'unit', 'measured',
-            'created_at', 'collected_by')
+            'created_at', 'collected_by', 'text')
         read_only_fields = ('created_at', 'collected_by')
+
+    def get_text(self, obj):
+        if hasattr(obj, 'text'):
+            return obj.text
+        if isinstance(obj, dict) and 'text' in obj:
+            return obj['text']
+        return ""
 
 
 class ConsumptionSerializer(serializers.ModelSerializer):

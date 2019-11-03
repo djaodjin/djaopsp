@@ -150,13 +150,20 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                     LOGGER.error("cannot find Choice %s for %s",
                         datapoint.measured, datapoint)
                     measured = ""
-            consumption.measures += [{
+            measure = {
                 'metric': datapoint.metric,
                 'unit': unit,
                 'measured': measured,
                 'created_at': datapoint.created_at,
 #XXX                'collected_by': datapoint.collected_by,
-                }]
+            }
+            if datapoint.metric.slug == 'target-baseline':
+                measure['text'] = "baseline %s" % str(measured)
+            elif datapoint.metric.slug == 'target-by':
+                measure['text'] = "by %s" % str(measured)
+            elif unit.system in [Unit.SYSTEM_STANDARD, Unit.SYSTEM_IMPERIAL]:
+                measure['text'] = "%s %s" % (measured, unit.title)
+            consumption.measures += [measure]
 
         # Find all framework samples / answers for a time period
         self._framework_results(consumptions)
@@ -345,6 +352,18 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
                         row += ['X']
                     else:
                         row += ['']
+                measures = consumption.get('measures', None)
+                if measures:
+                    comments = ""
+                    sep = ""
+                    for measure in measures:
+                        if 'text' in measure and measure['text']:
+                            comments += sep + str(measure['text'])
+                        else:
+                            comments += sep + str(measure['measured'])
+                        sep = " "
+                    if comments:
+                        row += [comments]
             self.writerow(row, leaf=True)
         else:
             self.writerow([indent + self._get_title(root[0])])
