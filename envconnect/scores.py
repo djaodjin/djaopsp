@@ -11,7 +11,7 @@ import datetime
 from django.utils import six
 
 
-def _normalize(scores, normalize_to_one=False):
+def _normalize(scores, normalize_to_one=False, force_score=False):
     """
     Adds keys ``normalized_score`` and ``improvement_score``
     into the dictionnary *scores* when keys ``nb_answers``
@@ -28,11 +28,11 @@ def _normalize(scores, normalize_to_one=False):
     denominator_key = 'denominator'
     nb_answers = scores.get('nb_answers', 0)
     nb_questions = scores.get('nb_questions', 0)
-    if nb_answers == nb_questions:
+    if force_score or nb_answers == nb_questions:
         # If we don't have the same number of questions
         # and answers, numerator and denominator are meaningless.
         denominator = scores.get(denominator_key, 0)
-        if denominator > 0:
+        if denominator:
             scores['normalized_score'] = int(
                 scores[numerator_key] * 100.0 / denominator)
             improvement_numerator = scores.get('improvement_numerator', None)
@@ -49,14 +49,14 @@ def _normalize(scores, normalize_to_one=False):
                     scores['improvement_numerator'] = (
                         float(improvement_numerator) / denominator)
                 scores[denominator_key] = 1.0
-        else:
+        elif nb_questions != 0:
             scores['normalized_score'] = 0
     else:
         scores.pop(numerator_key, None)
         scores.pop(denominator_key, None)
 
 
-def populate_rollup(rollup_tree, normalize_to_one):
+def populate_rollup(rollup_tree, normalize_to_one, force_score=False):
     """
     Recursively populate the tree *rollup_tree* with aggregated scores
     for assessment.
@@ -180,8 +180,8 @@ def populate_rollup(rollup_tree, normalize_to_one):
         for node in six.itervalues(rollup_tree[1]):
             score_weight = node[0].get('score_weight', 1.0)
             total_score_weight += score_weight
-        normalize_children = ((1.0 - 0.01) < total_score_weight
-            and total_score_weight < (1.0 + 0.01))
+        normalize_children = (
+            (1.0 - 0.01) < total_score_weight < (1.0 + 0.01))
     else:
         # With only one children the weight will always be 1 yet we don't
         # want to normalize here.
@@ -191,7 +191,8 @@ def populate_rollup(rollup_tree, normalize_to_one):
         values['accounts'] = {}
     accounts = values['accounts']
     for node in six.itervalues(rollup_tree[1]):
-        populate_rollup(node, normalize_children) # recursive call
+        populate_rollup(                                       # recursive call
+            node, normalize_children, force_score=force_score)
         score_weight = node[0].get('score_weight', 1.0)
         for account_id, scores in six.iteritems(
                 node[0].get('accounts', {})):
@@ -203,6 +204,8 @@ def populate_rollup(rollup_tree, normalize_to_one):
             if not 'nb_questions' in agg_scores:
                 agg_scores['nb_questions'] = 0
 
+            if 'sample' in scores:
+                agg_scores['sample'] = scores['sample']
             if 'created_at' in scores:
                 if not ('created_at' in agg_scores and isinstance(
                         agg_scores['created_at'], datetime.datetime)):
@@ -229,7 +232,8 @@ def populate_rollup(rollup_tree, normalize_to_one):
                         value * score_weight)
 
     for account_id, scores in six.iteritems(accounts):
-        _normalize(scores, normalize_to_one=normalize_to_one)
+        _normalize(
+            scores, normalize_to_one=normalize_to_one, force_score=force_score)
 
 
 def push_improvement_factors(rollup_tree, total_numerator, total_denominator,
@@ -259,8 +263,8 @@ def push_improvement_factors(rollup_tree, total_numerator, total_denominator,
         for node in six.itervalues(rollup_tree[1]):
             score_weight = node[0].get('score_weight', 1.0)
             total_score_weight += score_weight
-        normalize_children = ((1.0 - 0.01) < total_score_weight
-            and total_score_weight < (1.0 + 0.01))
+        normalize_children = (
+            (1.0 - 0.01) < total_score_weight < (1.0 + 0.01))
     else:
         # With only one children the weight will always be 1 yet we don't
         # want to normalize here.

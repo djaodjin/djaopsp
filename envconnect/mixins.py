@@ -11,7 +11,6 @@ from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db import connection, connections, transaction
 from django.db.models import Max, Sum
-from django.db.utils import DEFAULT_DB_ALIAS
 from django.http import Http404
 from django.utils import six
 from django.utils.dateparse import parse_datetime
@@ -25,7 +24,7 @@ from survey.models import (Answer, Choice, Campaign, EnumeratedQuestions,
 from survey.utils import get_account_model
 
 from .compat import reverse
-from .helpers import get_testing_accounts
+from .helpers import is_sqlite3, get_testing_accounts
 from .models import (Consumption, get_score_weight, _show_query_and_result,
     get_scored_answers)
 from .scores import populate_rollup, push_improvement_factors
@@ -262,8 +261,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             for edge in edges:
                 tag = edge.get('dest_element__tag')
                 total_score_weight += get_score_weight(tag)
-            normalize_children = ((1.0 - 0.01) < total_score_weight
-                and total_score_weight < (1.0 + 0.01))
+            normalize_children = (
+                (1.0 - 0.01) < total_score_weight < (1.0 + 0.01))
             for edge in edges:
                 orig_element_id = edge.get('orig_element_id')
                 dest_element_id = edge.get('dest_element_id')
@@ -616,7 +615,8 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
         return results
 
     @staticmethod
-    def populate_account(accounts, agg_score, agg_key='account_id'):
+    def populate_account(accounts, agg_score,
+                         agg_key='account_id', force_score=False):
         """
         Populate the *accounts* dictionnary with scores in *agg_score*.
 
@@ -668,18 +668,13 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                 'assessment_completed': is_completed,
                 'created_at': created_at
             })
-            if nb_questions == nb_answers:
+            if force_score or nb_answers == nb_questions:
                 accounts[account_id].update({
                     'numerator': numerator,
                     'denominator': denominator})
 
-    @staticmethod
-    def _is_sqlite3(db_key=None):
-        if db_key is None:
-            db_key = DEFAULT_DB_ALIAS
-        return connections.databases[db_key]['ENGINE'].endswith('sqlite3')
-
-    def populate_leaf(self, prefix, attrs, answers, agg_key='account_id'):
+    def populate_leaf(self, attrs, answers,
+                      agg_key='account_id', force_score=False):
         """
         Populate all leafs with aggregated scores.
         """
@@ -694,9 +689,9 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
 FROM (%(answers)s) AS answers
 GROUP BY account_id, sample_id, is_planned;""" % {
     'answers': answers,
-    'bool_agg': 'MAX' if self._is_sqlite3() else 'bool_or',
+    'bool_agg': 'MAX' if is_sqlite3() else 'bool_or',
 }
-        _show_query_and_result(agg_scores)
+        _show_query_and_result(agg_scores, show=True)
         with connection.cursor() as cursor:
             cursor.execute(agg_scores, params=None)
             col_headers = cursor.description
@@ -707,7 +702,8 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 if not 'accounts' in attrs:
                     attrs['accounts'] = {}
                 self.populate_account(
-                    attrs['accounts'], agg_score, agg_key=agg_key)
+                    attrs['accounts'], agg_score,
+                    agg_key=agg_key, force_score=force_score)
 
     def decorate_leafs(self, leafs):
         """
@@ -726,7 +722,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         population = Consumption.objects.get_active_by_accounts(
             self.survey, excludes=self._get_filter_out_testing())
         for prefix, values_tuple in six.iteritems(leafs):
-            self.populate_leaf(prefix, values_tuple[0],
+            self.populate_leaf(values_tuple[0],
                 get_scored_answers(population, self.default_metric_id,
                     includes=self.get_included_samples(),
                     prefix=prefix))

@@ -225,6 +225,29 @@ angular.module("envconnectFilters", [])
   ============================================================================*/
 var envconnectControllers = angular.module("envconnectControllers", []);
 
+envconnectControllers.controller("AppCtrl",
+    ["$scope", "$window", "$http", "$timeout", "settings",
+     function($scope, $window, $http, $timeout, settings) {
+    "use strict";
+
+    $scope.segments = [];
+    $scope.items = {};
+
+    $scope.refresh = function() {
+        return $http.get(settings.urls.api_historical_scores).then(function(resp) {
+            $scope.items = {results: resp.data.results};
+            $scope.items.$resolved = true;
+            if( resp.data.latest ) {
+                $scope.segments = resp.data.latest.segments;
+            }
+            $scope.segments.$resolved = true;
+        });
+    }
+
+    $scope.refresh();
+}]);
+
+
 envconnectControllers.controller("EnvconnectCtrl",
     ["$scope", "$window", "$http", "$timeout", "settings",
      function($scope, $window, $http, $timeout, settings) {
@@ -1615,10 +1638,12 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     $scope.params['ot'] = settings.sortDirection || "asc";
     $scope.dir[$scope.params['o']] = $scope.params['ot'];
     if( settings.date_range && settings.date_range.start_at ) {
-        $scope.params['start_at'] = moment(settings.date_range.start_at).toDate();
+        $scope.start_at = moment(settings.date_range.start_at).toDate();
+        $scope.params['start_at'] = $scope.start_at;
     }
     if( settings.date_range && settings.date_range.ends_at ) {
-        $scope.params['ends_at'] = moment(settings.date_range.ends_at).toDate()
+        $scope.ends_at = moment(settings.date_range.ends_at).toDate();
+        $scope.params['ends_at'] = $scope.ends_at;
     };
 
     $scope.filterExpr = "";
@@ -1659,32 +1684,22 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     $scope.$watch("params", function(newVal, oldVal, scope) {
         var updated = (newVal.o !== oldVal.o || newVal.ot !== oldVal.ot
             || newVal.q !== oldVal.q || newVal.page !== oldVal.page );
+
         if( (typeof newVal.start_at !== "undefined")
             && (typeof newVal.ends_at !== "undefined")
             && (typeof oldVal.start_at !== "undefined")
             && (typeof oldVal.ends_at !== "undefined") ) {
-            /* We try to prevent triggering updates for dates being edited. */
-            var cutOffDate = new Date(2000, 1, 1);
-            if( newVal.start_at > cutOffDate && newVal.ends_at > cutOffDate ) {
-                /* Implementation Note:
-                   The Date objects can be compared using the >, <, <=
-                   or >= operators. The ==, !=, ===, and !== operators require
-                   you to use date.getTime(). Don't ask. */
-                if( newVal.start_at.getTime() !== oldVal.start_at.getTime()
-                    && newVal.ends_at.getTime() === oldVal.ends_at.getTime() ) {
-                    updated = true;
-                    if( $scope.params.ends_at < newVal.start_at ) {
-                        $scope.params.ends_at = newVal.start_at;
-                    }
-                } else if( newVal.start_at.getTime() === oldVal.start_at.getTime()
-                           && newVal.ends_at.getTime() !== oldVal.ends_at.getTime() ) {
-                    updated = true;
-                    if( $scope.params.start_at > newVal.ends_at ) {
-                        $scope.params.start_at = newVal.ends_at;
-                    }
-                }
+
+            // Implementation Note:
+            // The Date objects can be compared using the >, <, <=
+            // or >= operators. The ==, !=, ===, and !== operators require
+            // you to use date.getTime(). Don't ask.
+            if( newVal.start_at.getTime() !== oldVal.start_at.getTime()
+                || newVal.ends_at.getTime() !== oldVal.ends_at.getTime() ) {
+                updated = true;
             }
         }
+
         if( updated ) {
             $scope.refresh();
         }
@@ -1698,6 +1713,12 @@ envconnectControllers.controller("envconnectMyTSPReporting",
             $scope.params.q = regex;
         } else {
             delete $scope.params.q;
+        }
+        if( $scope.start_at ) {
+            $scope.params.start_at = $scope.start_at;
+        }
+        if( $scope.ends_at ) {
+            $scope.params.ends_at = $scope.ends_at;
         }
     };
 

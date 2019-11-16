@@ -11,6 +11,8 @@ from deployutils.crypt import JSONEncoder
 from django.conf import settings
 from django.db.models import Q
 from django.utils import six
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import utc
 from pages.mixins import TrailMixin
 from pages.models import PageElement
 from rest_framework import generics
@@ -18,6 +20,8 @@ from rest_framework.response import Response as HttpResponse
 from survey.models import  Campaign, Metric, Sample
 
 from .best_practices import ToggleTagContentAPIView
+from ..compat import reverse
+from ..helpers import get_segments
 from ..mixins import ReportMixin, TransparentCut
 from ..models import (get_score_weight, get_scored_answers,
     get_historical_scores, Consumption)
@@ -126,8 +130,8 @@ class BenchmarkMixin(ReportMixin):
             if is_view_account:
                 rollup_tree[0].update(account_metrics)
             normalized_score = account_metrics.get('normalized_score', None)
-            if (normalized_score is None
-                or account_metrics.get('nb_questions', 0) == 0):
+            nb_questions = account_metrics.get('nb_questions', 0)
+            if normalized_score is None or nb_questions == 0:
                 # `nb_questions == 0` to show correct number of respondents
                 # in relation with the `slug = 'totals'` statement
                 # in populate_rollup.
@@ -206,8 +210,8 @@ class BenchmarkMixin(ReportMixin):
                 complete &= leaf_complete
                 charts += [chart[0]]
                 if 'distribution' in chart[0]:
-                    complete &= (chart[0].get(
-                        'normalized_score', None) is not None)
+                    normalized_score = chart[0].get('normalized_score', None)
+                    complete &= (normalized_score is not None)
         return charts, complete
 
     @staticmethod
@@ -253,7 +257,7 @@ class BenchmarkMixin(ReportMixin):
             includes=includes, prefix=prefix)
 
 
-    def rollup_scores(self, roots=None, root_prefix=None):
+    def rollup_scores(self, roots=None, root_prefix=None, force_score=False):
         """
         Returns a tree populated with scores per accounts.
         """
@@ -307,11 +311,13 @@ class BenchmarkMixin(ReportMixin):
                     values_tuple[0]['accounts'] = {}
                 values_tuple[0]['accounts'].update(accounts)
 
-            self.populate_leaf(prefix, values_tuple[0],
+            self.populate_leaf(values_tuple[0],
+                # `DashboardMixin` overrides _get_scored_answers to get
+                # the frozen scores.
                 self._get_scored_answers(population, metric_id,
-                    includes=includes, prefix=prefix))
+                    includes=includes, prefix=prefix), force_score=force_score)
         self._report_queries("leafs populated")
-        populate_rollup(rollup_tree, True)
+        populate_rollup(rollup_tree, True, force_score=force_score)
         self._report_queries("rollup_tree populated")
         return rollup_tree
 
@@ -413,6 +419,10 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
         from_root, trail = self.breadcrumbs
         roots = [trail[-1][0]] if trail else None
         rollup_tree = self.rollup_scores(roots, from_root)
+        # XXX `nb_questions` will not be computed correctly if some sections
+        #     have not been answered, and as a result `populate_leaf` wasn't
+        #     called for that particular section.
+
         self.create_distributions(rollup_tree,
             view_account=(self.assessment_sample.account.pk
                 if self.assessment_sample else None))
@@ -493,7 +503,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
         element.save()
 
 
-# XXX ReportMixin because we use populate_leafs
+# XXX ReportMixin because we use populate_leaf
 class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
     """
     .. sourcecode:: http
@@ -508,12 +518,24 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
 
     .. sourcecode:: http
 
-        GET /api/steve-shop/benchmark/boxes-and-enclosures/energy-efficiency/
+        GET /api/steve-shop/benchmark/historical/metal/boxes-and-enclosures\
+/sustainability-boxes-and-enclosures
 
     **Example response**:
 
     .. sourcecode:: http
-        [
+
+        {
+            "latest": {
+                "assessment": "abc123",
+                "segments": [
+                    [
+                     "/construction/sustainability-construction/",
+                     "Construction"
+                    ]
+                ]
+            }
+            "results": [
             {
                 "key": "May 2018",
                 "values": [
@@ -543,12 +565,13 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                     ["Construction", 49],
                     ["Office", 40],
                 ],
-            },
-        ]
+            ,
+            ]
+        }
     """
+    force_score = True
 
-    @staticmethod
-    def flatten_distributions(rollup_tree, accounts, prefix=None):
+    def flatten_distributions(self, rollup_tree, accounts, prefix=None):
         """
         A rollup_tree is keyed best practices and we need a structure
         keyed on historical samples here.
@@ -564,8 +587,17 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                     'accounts', OrderedDict({}))):
                 if account_key not in accounts:
                     accounts[account_key] = OrderedDict({})
-                accounts[account_key].update({
-                    node_key: account.get('normalized_score', 0)})
+                by_industry = {
+                    'normalized_score': account.get('normalized_score', 0)
+                }
+                if 'sample' in account:
+                    by_industry.update({
+                        'url': self.request.build_absolute_uri(
+                            reverse('envconnect_sample_organization',
+                            args=(self.account.slug, account['sample'],
+                                node_path)))
+                    })
+                accounts[account_key].update({node_key: by_industry})
 
     def get(self, request, *args, **kwargs):
         #pylint:disable=unused-argument,too-many-locals
@@ -583,26 +615,59 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
         self._report_queries("rollup_tree generated")
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
-        for prefix, values_tuple in six.iteritems(leafs):
-            self.populate_leaf(prefix, values_tuple[0],
-                get_historical_scores(
-                    includes=Sample.objects.filter(account=self.account),
-                    prefix=prefix),
-                agg_key='last_activity_at') # Relies on
-                                            # `get_historical_scores()`
-                                            # to use `Sample.created_at`
-        self._report_queries("leafs populated")
-        populate_rollup(rollup_tree, True)
-        self._report_queries("rollup_tree populated")
+        includes = Sample.objects.filter(account=self.account)
+        if includes:
+            for prefix, values_tuple in six.iteritems(leafs):
+                self.populate_leaf(values_tuple[0],
+                    get_historical_scores(
+                        includes=includes,
+                        prefix=prefix),
+                    agg_key='last_activity_at',
+                    force_score=self.force_score)
+                                      # Relies on `get_historical_scores()`
+                                      # to use `Sample.created_at`
+            self._report_queries("leafs populated")
+            populate_rollup(rollup_tree, True, force_score=self.force_score)
+            self._report_queries("rollup_tree populated")
+
         # We populated the historical scores per section.
         # Now we need to transpose them by sample_id.
         accounts = OrderedDict({})
         self.flatten_distributions(
             rollup_tree, accounts, prefix=from_root)
-        result = []
-        for account_key, account in six.iteritems(accounts):
-            result += [{
+        results = []
+        for account_key in reversed(sorted(accounts)):
+            account = accounts[account_key]
+            values = []
+            for segment_title, scores in six.iteritems(account):
+                values += [
+                    (segment_title, scores['normalized_score'], scores['url'])]
+            results += [{
                 "key": account_key.strftime("%b %Y"),
-                "values": list(six.iteritems(account))
+                "values": values,
+                "created_at": account_key
             }]
-        return HttpResponse(result)
+
+        resp_data = {"results": results}
+        if self.assessment_sample:
+            resp_data.update({
+                "latest": {
+                    "assessment": str(self.assessment_sample),
+                    "segments": get_segments([self.assessment_sample.id])
+                }
+            })
+        return HttpResponse(resp_data)
+
+    def populate_account(self, accounts, agg_score,
+                         agg_key='account_id', force_score=False):
+        super(HistoricalScoreAPIView, self).populate_account(
+            accounts, agg_score, agg_key=agg_key, force_score=force_score)
+        created_at = agg_score.last_activity_at
+        if created_at:
+            if isinstance(created_at, six.string_types):
+                created_at = parse_datetime(created_at)
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=utc)
+        account_id = (created_at if agg_key == 'last_activity_at'
+            else getattr(agg_score, agg_key))
+        accounts[account_id].update({'sample': agg_score.sample_id})

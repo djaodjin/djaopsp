@@ -27,27 +27,8 @@ Completed: Assessment and Planning are complete">
 </section>
 <section id="managed" ng-controller="envconnectMyTSPReporting">
   <div class="row">
-    <div class="col-md-6">
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">From</span>
-            </div>
-            <input class="form-control" type="date" ng-model="params.start_at" ng-cloak>
-          </div>
-        </div>
-        <div class="col-sm-6">
-          <div class="input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">To</span>
-            </div>
-            <input class="form-control" type="date" ng-model="params.ends_at" ng-cloak>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6 text-right" style="margin-bottom:5px;">
+    <div class="col-md-12 text-right">
+      <div style="padding-right: 1.25rem;">
       <!-- WORKAROUND: we set data-width and data-height
            otherwise bootstrap-toggle will crop the size
            inside a class="tab-content collapse". -->
@@ -59,29 +40,47 @@ Completed: Assessment and Planning are complete">
              data-width="150px" data-height="34px"
              ng-model="scoreToggle"
              ng-change="toggleMyTSP($event)">
+      </div>
     </div>
   </div>
   <div id="panel-icons" class="panel-icons panel-icons-no-benchmark">
     <div class="card-body">
-      <div>
         <div class="row">
-          <div class="col-6">
-            <div style="margin-top:13px;">
+          <div class="col-md-2">
               <span style="font-weight: bold;" ng-show="items.$resolved" ng-cloak>[[items.count]] reporting organizations</span>
+              <br />
               <span ng-show="items.$resolved" ng-cloak>([[items.reporting_publicly_count]] also reporting publicly)</span>
+          </div>
+          <div class="col-sm-3 text-right">
+            <div class="input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="from-inp">From</span>
+              </div>
+              <input class="form-control" type="date" ng-model="start_at" ng-cloak>
             </div>
           </div>
-          <div class="col-6 text-right">
-            <script type="text/ng-template" id="customTemplate.html">
-              <a>
-                <span ng-bind-html="match.label | uibTypeaheadHighlight:query"></span>
-              </a>
-            </script>
-            <input type="text"
-                ng-model="filterExpr"
-                ng-model-options="{ debounce: 1000 }"
-                 />
-            <button class="btn btn-secondary" ng-click="filterList(filterExpr)" style="margin: 5px;">Search</button>
+          <div class="col-md-3 text-right">
+            <div class="input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="from-inp">To</span>
+              </div>
+              <input class="form-control" type="date" ng-model="ends_at" ng-cloak>
+            </div>
+          </div>
+          <div class="col-md-3 text-right">
+            <div class="input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
+              </div>
+              <input class="form-control"
+                     type="text"
+                     ng-model="filterExpr"
+                     ng-model-options="{ debounce: 1000 }"
+                     />
+            </div>
+          </div>
+          <div class="col-md-1 text-right">
+            <button class="btn btn-secondary btn-sm mb-2" style="width:100%;" ng-click="filterList(filterExpr)">Search</button>
           </div>
         </div>
         <table class="table table-striped">
@@ -101,6 +100,11 @@ Completed: Assessment and Planning are complete">
               <td></td>
               <td>
                 <form class="form-inline">
+                  <script type="text/ng-template" id="customTemplate.html">
+                    <a>
+                      <span ng-bind-html="match.label | uibTypeaheadHighlight:query"></span>
+                    </a>
+                  </script>
                   <div class="input-group" style="width:100%;" data-trip data-trip-index="2" data-trip-content="<p>Start typing the name or email of the organization you wish to add.</p>" data-trip-position="s">
                     <input name="organization" type="text" placeholder="Name or email"
                            autocomplete="off"
@@ -136,7 +140,7 @@ user).</em>
             <tr id="[[entry.slug]]" ng-class="entry.supplier_initiated ? 'supplier-initiated' : ''" ng-repeat="entry in items.results" ng-show="items.$resolved && items.results.length > 0" ng-cloak>
               <td style="vertical-align:middle;">[[$index+1]]</td>
               <td style="vertical-align:middle;">
-                <a href="{{'app/'|site_prefixed}}[[entry.slug]]/benchmark/">[[entry.printable_name]]</a>
+                <a href="{{'app/'|site_prefixed}}[[entry.slug]]">[[entry.printable_name]]</a>
                 &nbsp;&nbsp;&dash;&nbsp;&nbsp;<a ng-if="entry.email" href="mailto:[[entry.email]]" style="color:black;"><i class="fa fa-envelope"></i> Email &raquo;</a>
                 <span class="badge badge-pill badge-primary" ng-repeat="tag in entry.tags">[[tag]]</span>
               </td>
@@ -272,7 +276,6 @@ Thank you.
           </div>
         </div>
         <!-- end of modal dialog -->
-      </div>
     </div>
   </div>
   <div class="row" style="margin-top: 5px;">

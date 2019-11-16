@@ -175,7 +175,7 @@
                 url: self.options.scores, // interpreted as API endpoint
                 contentType: "application/json; charset=utf-8",
                 success: function(data) {
-                    self.updateChart(data);
+                    self.updateChart(data.results);
                     $(self.element).trigger("chart.loaded");
                 },
                 error: function(resp) {

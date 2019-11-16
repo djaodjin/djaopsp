@@ -1,0 +1,101 @@
+{% extends "envconnect/base.html" %}
+
+{% block consumption_content %}
+  <div class="container text-center" style="background-color:#fff;color:#000;padding-bottom:50px;">
+    <h2 class="text-center" style="padding: 15px 0;">What do you need help with?</h2>
+    {% block menu_items %}
+    <div class="row mb-4">
+      <div class="col-sm-12 text-center">
+        <h5>Assess, benchmark and plan</h5>
+        <div class="dropdown dropdown-homepage">
+          <button class="btn btn-lg btn-primary dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
+            <span class="text">Make a selection</span>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="industry_selector">
+            <li><div style="font-size:14px;">Don't know what to select? <a href="{{'/docs/faq/#general-3'|site_prefixed}}" target="_blank">Click here</a></div></li>
+            {% for industry in industries %}
+            <li class="dropdown-item dropdown-item-indent-{{industry.0}}">
+              <div>
+                {% if industry.1|containsTag:'enabled' %}
+                  {% if industry.1|containsTag:'heading' %}
+                  <button id="{{industry.1.slug}}" disabled>{{industry.1.title}}</button>
+                  {% else %}
+                  <a id="{{industry.1.slug}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
+                  {% endif %}
+                {% else %}
+                <span id="{{industry.1.slug}}" class="disabled" role="menuitem" tabindex="-1">{{industry.1.title}} <i class="fa fa-wrench"></i></span>
+                {% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <!-- XXX
+      <div class="col-sm-6 text-center">
+        <h5>Environmental sustainability on contract bids</h5>
+        <div>
+          <a class="btn btn-lg btn-primary" href="{{'/app/info/assess/sustainability-framework/'|site_prefixed}}">Take RFx assessment</a>
+        </div>
+      </div>
+      -->
+    </div><!-- /.row -->
+    <!-- XXX
+    <div class="row">
+      <div class="col-sm-12">
+        {% include "envconnect/_extra_messages.html" %}
+      </div>
+    </div>
+    -->
+    {% endblock %}
+    <div class="row mt-4">
+      <div class="col-sm-12">
+        <div id="history" ng-controller="AppCtrl">
+            <table class="table text-left">
+              <tbody style="border:none;" ng-show="!items.$resolved">
+              <tr>
+                <td colspan="3">
+                  <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
+                </td>
+              </tr>
+              </tbody>
+              <tbody style="border:none;">
+                  <tr ng-if="segments.$resolved && segments.length > 0" ng-cloak>
+                    <th style="border-top:none;border-bottom:1px solid;" colspan="3">Update assessment and plan improvements</th>
+                  </tr>
+                  <tr ng-repeat="segment in segments" ng-show="segments.$resolved && segments.length > 0" ng-cloak>
+                    <td style="border:none;">[[segment[1] ]]</td>
+                    <td style="border:none;"><a ng-href="{{urls.assess}}[[segment[0].substring(1)]]">Update assessment</a></td>
+                    <td style="border:none;"><a ng-href="{{urls.improve}}[[segment[0].substring(1)]]">Plan improvements</a></td>
+                  </tr>
+              </tbody>
+              <tbody style="border:none;" ng-show="items.$resolved && items.results.length == 0" ng-cloak>
+              <tr>
+                  <td colspan="3">No previous assessments</td>
+              </tr>
+              </tbody>
+              <tbody style="border:none;" ng-repeat="entry in items.results" ng-show="items.$resolved && items.results.length > 0" ng-cloak>
+                <tr>
+                    <td style="border-top:none;border-bottom:1px solid;" colspan="3">
+                        [[entry.key]]
+                    </td>
+                </tr>
+                <tr ng-repeat="score in entry.values">
+                  <td style="border:none;">
+                      <a href="[[score[2] ]]">[[score[0] ]]</a>
+                  </td>
+                  <td style="border:none;">
+                      [[score[1] ]]%
+                  </td>
+                  <td style="border:none;">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+      </div>
+    </div><!-- /.row -->
+  </div><!-- /.faq-list -->
+  </div>
+</div>
+{% endblock %}

@@ -24,7 +24,8 @@ if os.getenv('DEBUG'):
 FEATURES_REVERT_TO_DJANGO = True
 if os.getenv('FEATURES_REVERT_TO_DJANGO'):
     # Enable override on command line so we can package Jinja2 theme.
-    FEATURES_REVERT_TO_DJANGO = (int(os.getenv('FEATURES_REVERT_TO_DJANGO')) > 0)
+    FEATURES_REVERT_TO_DJANGO = (
+        int(os.getenv('FEATURES_REVERT_TO_DJANGO')) > 0)
 
 # Installed apps
 # --------------

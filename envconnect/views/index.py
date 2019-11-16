@@ -8,7 +8,7 @@ from django.views.generic import TemplateView
 from django.utils import six
 
 from ..compat import reverse
-from ..mixins import BreadcrumbMixin, ContentCut
+from ..mixins import AccountMixin, BreadcrumbMixin, ContentCut
 
 
 LOGGER = logging.getLogger(__name__)
@@ -42,5 +42,21 @@ class IndexView(BreadcrumbMixin, TemplateView):
         update_context_urls(context, {
             'api_enable': reverse('api_enable', args=("",)),
             'api_disable': reverse('api_disable', args=("",)),
+        })
+        return context
+
+
+class AppView(AccountMixin, IndexView):
+    """
+    Homepage for an organization.
+    """
+
+    template_name = 'envconnect/app.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AppView, self).get_context_data(**kwargs)
+        update_context_urls(context, {
+            'api_historical_scores': reverse('api_historical_scores',
+                    args=(self.account, '')),
         })
         return context

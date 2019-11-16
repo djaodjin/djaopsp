@@ -140,8 +140,11 @@ class DashboardMixin(BenchmarkMixin):
         if not hasattr(self, '_start_at'):
             self._start_at = self.request.GET.get('start_at', None)
             if self._start_at:
-                self._start_at = datetime_or_now(self._start_at.strip('"'))
-            else:
+                try:
+                    self._start_at = datetime_or_now(self._start_at.strip('"'))
+                except ValueError:
+                    self._start_at = None
+            if not self._start_at:
                 self._start_at = self.ends_at - relativedelta(years=1)
         return self._start_at
 
@@ -151,7 +154,10 @@ class DashboardMixin(BenchmarkMixin):
             self._ends_at = self.request.GET.get('ends_at', None)
             if self._ends_at:
                 self._ends_at = self._ends_at.strip('"')
-            self._ends_at = datetime_or_now(self._ends_at)
+            try:
+                self._ends_at = datetime_or_now(self._ends_at)
+            except ValueError:
+                self._ends_at = datetime_or_now()
         return self._ends_at
 
     def _get_scored_answers(self, population, metric_id,
@@ -180,22 +186,27 @@ class DashboardMixin(BenchmarkMixin):
         - opportunity
         """
         #pylint:disable=too-many-arguments
-        scored_answers = """
-WITH samples AS (
-SELECT survey_sample.* FROM survey_sample
+        scored_answers = """WITH samples AS (
+SELECT
+    survey_sample.*
+FROM survey_sample
 INNER JOIN (
-    SELECT survey_sample.account_id, MAX(survey_sample.created_at) as created_at
+    SELECT
+        survey_sample.account_id,
+        MAX(survey_sample.created_at) as last_updated_at
     FROM survey_answer
     INNER JOIN survey_question
       ON survey_answer.question_id = survey_question.id
     INNER JOIN survey_sample
       ON survey_answer.sample_id = survey_sample.id
-    WHERE survey_question.path LIKE '%(prefix)s%%'
-      AND survey_sample.extra IS NULL
-      AND survey_sample.is_frozen = %(true)s
-      GROUP BY survey_sample.account_id) AS last_frozen_assessments
-    ON survey_sample.account_id = last_frozen_assessments.account_id
-      AND survey_sample.created_at = last_frozen_assessments.created_at
+    WHERE survey_question.path LIKE '%(prefix)s%%' AND
+          survey_sample.extra IS NULL AND
+          survey_sample.is_frozen
+    GROUP BY survey_sample.account_id) AS last_frozen_assessments
+ON survey_sample.account_id = last_frozen_assessments.account_id AND
+   survey_sample.created_at = last_frozen_assessments.last_updated_at
+WHERE survey_sample.extra IS NULL AND
+      survey_sample.is_frozen
 ),
 expected_opportunities AS (
 SELECT
@@ -249,7 +260,6 @@ LEFT OUTER JOIN survey_answer
     ON expected_opportunities.question_id = survey_answer.question_id
     AND expected_opportunities.sample_id = survey_answer.sample_id
 WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
-    'true': "1" if self._is_sqlite3() else "'t'",
     'prefix': prefix}
 #        scored_answers = super(DashboardMixin, self)._get_scored_answers(
 #            population, metric_id,
@@ -344,7 +354,6 @@ class SupplierQuerySet(object):
             if val is not None:
                 break
 
-        #pylint:disable=redefined-variable-type
         if isinstance(val, (six.integer_types, float)):
             key_func = lambda rec: rec.get(field) if rec.get(field, None) else 0
         elif isinstance(val, datetime.datetime):
@@ -361,7 +370,9 @@ class SupplierQuerySet(object):
                 key_func = lambda rec: max([score[0] for score in (
                     rec.get(field) if rec.get(field, None) else [[100]])])
         else:
-            key_func = lambda rec: rec.get(field).lower() if rec.get(field, None) else ""
+            key_func = (
+                lambda rec: rec.get(field).lower()
+                if rec.get(field, None) else "")
         return SupplierQuerySet(sorted(self.items,
             key=key_func, reverse=reverse_order),
             reporting_publicly=self.reporting_publicly)
@@ -438,19 +449,6 @@ class SupplierListMixin(DashboardMixin):
                 nb_questions_per_segment.update({row[0]: nb_questions})
         return nb_questions_per_segment
 
-    @staticmethod
-    def get_segments(sample_ids):
-        results = []
-        raw_query = ("SELECT distinct(substring(survey_question.path from"\
-" '.*/sustainability-[^/]+/')) FROM survey_question INNER JOIN survey_answer"\
-" ON survey_question.id = survey_answer.question_id WHERE sample_id IN (%s);" %
-            ", ".join([str(sample_id) for sample_id in sample_ids]))
-        with connection.cursor() as cursor:
-            cursor.execute(raw_query)
-            for row in cursor.fetchall():
-                results += [row[0]]
-        return results
-
     @property
     def complete_assessments(self):
         if not hasattr(self, '_complete_assessments'):
@@ -525,7 +523,7 @@ class SupplierListMixin(DashboardMixin):
         result = self._prepare_account(account)
         last_activity_at = None
         account_scores = []
-        for segment_key, segment_val in six.iteritems(segments):
+        for segment_val in six.itervalues(segments):
             segment = segment_val[0]
             scores = segment['accounts']
             score = scores.get(account.pk, None)
@@ -536,12 +534,7 @@ class SupplierListMixin(DashboardMixin):
                     created_at and last_activity_at < created_at):
                 last_activity_at = created_at
             if not result['request_key']:
-                nb_answers = score.get('nb_answers', 0)
-                nb_questions = score.get('nb_questions', 0)
-                if nb_answers == nb_questions and nb_questions != 0:
-                    normalized_score = score.get('normalized_score', None)
-                else:
-                    normalized_score = None
+                normalized_score = score.get('normalized_score', None)
                 if segment['slug'].startswith('framework'):
                     score_url = reverse('envconnect_assess_organization',
                         args=(account.slug,
@@ -579,7 +572,8 @@ class SupplierListMixin(DashboardMixin):
         return result
 
     def get_queryset(self):
-        return self.get_suppliers(self.rollup_scores()) #SupplierListMixin
+        return self.get_suppliers(
+            self.rollup_scores(force_score=True)) #SupplierListMixin
 
     def get_suppliers(self, rollup_tree):
         results = []
@@ -594,12 +588,18 @@ class SupplierListMixin(DashboardMixin):
             for act in list(actives)])
 
         # Suppliers reporting publicly
-        CATEGORIZED_MEASUREMENTS = [4]
-        nb_suppliers_reporting_publicly = Answer.objects.filter(
-           question__path=Consumption.objects.filter(
-               default_metric_id__in=CATEGORIZED_MEASUREMENTS).values('path'),
-           measured=Consumption.YES,
-           sample__in=actives.values_list('pk', flat=True)).count()
+        nb_suppliers_reporting_publicly = 0
+        if False:
+            # XXX incorrect code
+            CATEGORIZED_MEASUREMENTS = [4]
+            suppliers_reporting_publicly = Answer.objects.filter(
+               question__path=Consumption.objects.filter(
+                   default_metric_id__in=CATEGORIZED_MEASUREMENTS).values(
+                       'path'),
+               measured=Consumption.YES,
+               sample__in=actives.values_list('pk', flat=True))
+            nb_suppliers_reporting_publicly = \
+                suppliers_reporting_publicly.count()
 
         for account in self.requested_accounts:
             try:
@@ -721,7 +721,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
         if accounts is None:
             accounts = get_account_model().objects.all()
         scores = {}
-        rollup_tree = self.rollup_scores()#TotalScoreBySubsectorAPIView
+        rollup_tree = self.rollup_scores(force_score=True)#TotalScoreBySubsectorAPIView
         rollup_scores = self.get_drilldown(rollup_tree, metric.slug)
         for cohort in cohorts:
             score = 0
@@ -832,7 +832,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
             trail = []
         roots = [trail[-1][0]] if trail else None
         # calls rollup_scores from TotalScoreBySubsectorAPIView
-        rollup_tree = self.rollup_scores(roots, from_root)
+        rollup_tree = self.rollup_scores(roots, from_root, force_score=True)
         if roots:
             for node in six.itervalues(rollup_tree[1]):
                 rollup_tree = node
@@ -857,7 +857,6 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
             charts = self.get_charts(rollup_tree)
             for chart in charts:
                 element = PageElement.objects.filter(slug=chart['slug']).first()
-                tag = element.tag if element is not None else ""
                 chart.update({
                     'breadcrumbs': [chart['title']],
                     'icon': element.text if element is not None else "",
@@ -889,8 +888,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
 
         self.create_distributions(rollup_tree)
         self.decorate_with_breadcrumbs(rollup_tree)
-        distribution_charts, complete = self.flatten_distributions(
-            rollup_tree, prefix=from_root)
+        self.flatten_distributions(rollup_tree, prefix=from_root)
 
         for chart in charts:
             if 'accounts' in chart:

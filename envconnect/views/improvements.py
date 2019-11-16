@@ -59,8 +59,8 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
         # Removes framework additional questions and other assessments
         # questions which are irrelevant when making an improvement plan.
         to_remove = []
-        for key, node in six.iteritems(root[1]):
-            tags = node[0].get('tag', "")
+        for key, child_node in six.iteritems(root[1]):
+            tags = child_node[0].get('tag', "")
             if tags and 'metrics' in tags:
                 to_remove += [key]
         for key in to_remove:

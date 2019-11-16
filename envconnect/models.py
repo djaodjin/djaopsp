@@ -151,20 +151,25 @@ class ConsumptionQuerySet(models.QuerySet):
         before_clause = ("AND created_at < '%s'" % before.isoformat()
             if before else "")
         sql_query = """SELECT
-      survey_sample.account_id AS account_id,
-      survey_sample.id AS id,
-      survey_sample.created_at AS created_at
-  FROM survey_sample
-  INNER JOIN (SELECT account_id, MAX(created_at) AS last_updated_at
-              FROM survey_sample
-              WHERE survey_sample.survey_id = %(survey_id)d
-                    AND survey_sample.extra IS NULL
-                    AND survey_sample.is_frozen
-                    %(before_clause)s
-                    %(filter_out_testing)s
-              GROUP BY account_id) AS last_updates
-  ON survey_sample.account_id = last_updates.account_id AND
-     survey_sample.created_at = last_updates.last_updated_at
+    survey_sample.account_id AS account_id,
+    survey_sample.id AS id,
+    survey_sample.created_at AS created_at
+FROM survey_sample
+INNER JOIN (
+    SELECT
+        account_id,
+        MAX(created_at) AS last_updated_at
+    FROM survey_sample
+    WHERE survey_sample.survey_id = %(survey_id)d AND
+          survey_sample.extra IS NULL AND
+          survey_sample.is_frozen
+          %(before_clause)s
+          %(filter_out_testing)s
+    GROUP BY account_id) AS last_updates
+ON survey_sample.account_id = last_updates.account_id AND
+   survey_sample.created_at = last_updates.last_updated_at
+WHERE survey_sample.extra IS NULL AND
+      survey_sample.is_frozen
 """ % {'survey_id': survey.pk,
        'before_clause': before_clause,
        'filter_out_testing': filter_out_testing}
@@ -543,7 +548,7 @@ def get_historical_scores(includes=None, prefix=None):
     Returns a list of tuples with the following fields:
 
         - account_id
-        - sample_id
+        - sample_id       (actually `sample.slug` here so we can create urls)
         - is_completed
         - is_planned
         - numerator
@@ -558,7 +563,7 @@ def get_historical_scores(includes=None, prefix=None):
     """
     scored_answers = """SELECT
 survey_sample.account_id AS account_id,
-survey_answer.sample_id AS sample_id,
+survey_sample.slug AS sample_id,
 survey_sample.is_frozen AS is_completed,
 survey_sample.extra = 'is_planned' AS is_planned,
 survey_answer.measured AS numerator,

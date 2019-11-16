@@ -133,7 +133,6 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                 if look:
                     candidate = look.group(1)
                 element = PageElement.objects.filter(slug=candidate).first()
-                tag = element.tag if element is not None else ""
                 charts += [{
                     'slug': cohort.slug,
                     'breadcrumbs': [cohort.title],
@@ -189,10 +188,12 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
             last_activity_at = last_activity_at.strftime("%Y-%m-%d")
         reporting_status = rec.get('reporting_status')
         if reporting_status < len(AccountSerializer.REPORTING_STATUS):
-            reporting_status = AccountSerializer.REPORTING_STATUS[reporting_status][1]
+            reporting_status = (
+                AccountSerializer.REPORTING_STATUS[reporting_status][1])
         else:
             reporting_status = ""
-        categories = ','.join(json.loads(rec['extra']).keys()) if rec['extra'] else ""
+        categories = ','.join(
+            json.loads(rec['extra']).keys()) if rec['extra'] else ""
         if headings:
             if rec['request_key']:
                 self.wsheet.append([
@@ -214,8 +215,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                     "", rec['email'], "", "",
                     last_activity_at, reporting_status, ""] + scores)
         else:
-            for rep in rec.get('reports_to', [(
-                    self.account.slug, self.account.full_name)]):
+            for rep in [(self.account.slug, self.account.full_name)]:
                 report_to = "" if rep[0] == self.account.slug else rep[1]
                 if rec['request_key']:
                     self.wsheet.append([
@@ -246,7 +246,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks
         #pylint: disable=too-many-statements
-        rollup_tree = self.rollup_scores()
+        rollup_tree = self.rollup_scores(force_score=True)
         self.suppliers_per_segment = {}
         wbook = Workbook()
 

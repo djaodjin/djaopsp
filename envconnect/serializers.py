@@ -1,7 +1,7 @@
 # Copyright (c) 2019, DjaoDjin inc.
 # see LICENSE.
 
-#pylint: disable=old-style-class,no-init
+#pylint: no-init
 import json
 
 from rest_framework import serializers
@@ -44,7 +44,8 @@ class MeasureSerializer(serializers.ModelSerializer):
             'created_at', 'collected_by', 'text')
         read_only_fields = ('created_at', 'collected_by')
 
-    def get_text(self, obj):
+    @staticmethod
+    def get_text(obj):
         if hasattr(obj, 'text'):
             return obj.text
         if isinstance(obj, dict) and 'text' in obj:
@@ -160,11 +161,12 @@ class AccountSerializer(NoModelSerializer):
         return self.REPORTING_STATUS[obj.get(
             'reporting_status', self.REPORTING_NOT_STARTED)][1]
 
-    def get_tags(self, obj):
+    @staticmethod
+    def get_tags(obj):
         try:
             extra = json.loads(obj['extra'])
             return extra.keys()
-        except Exception as err:
+        except (IndexError, TypeError, ValueError):
             pass
         return []
 

@@ -307,22 +307,6 @@ Then:
 jQuery(document).ready(function($) {
     var tripElements = [
 {% if survey.slug != 'framework' %}
-{% if request|is_authenticated and not request.session.last_visited %}
-        {
-            sel: $("#help-request"),
-            content: $("#help-request").data("trip-content"),
-            position: "screen-center",
-            enableAnimation: false,
-            delay:-1,
-            tripTheme: "black",
-            showNavigation: true,
-            canGoPrev: false,
-            prevLabel: " ",
-            nextLabel: "OK",
-            skipLabel: " ",
-            finishLabel: "OK",
-        },
-{% endif %}
 {% if request|is_authenticated and not request.session.last_visited or request.session.last_visited == 'app' %}
         {
             sel: $("#submenu-self-assessment"),

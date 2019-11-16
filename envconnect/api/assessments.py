@@ -17,7 +17,7 @@ from survey.models import Answer, Choice, EnumeratedQuestions, Unit
 from survey.mixins import SampleMixin
 from survey.utils import get_question_model
 
-from ..helpers import freeze_scores
+from ..helpers import freeze_scores, get_segments
 from ..mixins import ExcludeDemoSample, ReportMixin
 from ..models import Consumption, get_scored_answers
 from ..serializers import AnswerUpdateSerializer, AssessmentMeasuresSerializer
@@ -136,7 +136,8 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
 
     .. code-block:: http
 
-        POST /api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/3/measures/ HTTP/1.1
+        POST /api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/\
+3/measures/ HTTP/1.1
 
     .. code-block:: json
 
@@ -180,7 +181,8 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
                             try:
                                 measured = str(int(measured))
                             except ValueError:
-                                measured = '{:.0f}'.format(decimal.Decimal(measured))
+                                measured = '{:.0f}'.format(
+                                    decimal.Decimal(measured))
                             Answer.objects.update_or_create(
                                 sample=self.sample, question=self.question,
                                 metric=metric, defaults={
@@ -189,7 +191,8 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
                                     'created_at': created_at,
                                     'collected_by': self.request.user,
                                     'rank': rank})
-                        except (ValueError, decimal.InvalidOperation, DataError) as err:
+                        except (ValueError,
+                            decimal.InvalidOperation, DataError) as err:
                             # We cannot convert to integer (ex: "12.8kW/h")
                             # or the value exceeds 32-bit representation.
                             # XXX We store as a text value so it is not lost.

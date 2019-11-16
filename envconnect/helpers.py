@@ -5,7 +5,8 @@ import logging
 from collections import namedtuple
 
 from deployutils.helpers import datetime_or_now
-from django.db import connection
+from django.db import connection, connections
+from django.db.utils import DEFAULT_DB_ALIAS
 from survey.models import Answer, Metric, Sample
 from survey.utils import get_account_model
 
@@ -13,6 +14,12 @@ from .models import Consumption, get_scored_answers
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def is_sqlite3(db_key=None):
+    if db_key is None:
+        db_key = DEFAULT_DB_ALIAS
+    return connections.databases[db_key]['ENGINE'].endswith('sqlite3')
 
 
 def as_valid_sheet_title(title):
@@ -85,6 +92,35 @@ def freeze_scores(sample, includes=None, excludes=None,
     sample.created_at = datetime_or_now()
     sample.save()
     return score_sample
+
+
+def get_segments(sample_ids):
+    """
+    Returns segments which contain at least one answer
+    for samples in `sample_ids`.
+    """
+    results = []
+    if is_sqlite3():
+        LOGGER.warning(
+        "`get_segments` does not support SQLite3 at this time. returning `[]`")
+    else:
+        raw_query = ("""WITH segments AS (
+SELECT distinct(substring(survey_question.path from
+        '.*/sustainability-[^/]+/')) AS path
+    FROM survey_question INNER JOIN survey_answer
+    ON survey_question.id = survey_answer.question_id WHERE sample_id IN (%s))
+SELECT segments.path, pages_pageelement.title
+    FROM pages_pageelement INNER JOIN segments
+    ON pages_pageelement.slug = substring(segments.path from
+        '/(sustainability-[^/]+)/')
+    ORDER BY pages_pageelement.title;
+""" %
+            ", ".join([str(sample_id) for sample_id in sample_ids]))
+        with connection.cursor() as cursor:
+            cursor.execute(raw_query)
+            #results = OrderedDict(cursor.fetchall())
+            results = list(cursor.fetchall())
+    return results
 
 
 def get_testing_accounts():
