@@ -2,7 +2,7 @@
 
 {% block consumption_content %}
   <div class="container text-center" style="background-color:#fff;color:#000;padding-bottom:50px;">
-    <h2 class="text-center" style="padding: 15px 0;">What do you need help with?</h2>
+    <h2 class="text-center py-4">What do you need help with?</h2>
     {% block menu_items %}
     <div class="row mb-4">
       <div class="col-sm-12 text-center">
@@ -20,7 +20,7 @@
                   {% if industry.1|containsTag:'heading' %}
                   <button id="{{industry.1.slug}}" disabled>{{industry.1.title}}</button>
                   {% else %}
-                  <a id="{{industry.1.slug}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
+                  <a id="{{industry.1.slug}}" href="{{'app/'|site_prefixed}}{{organization}}/assess/sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
                   {% endif %}
                 {% else %}
                 <span id="{{industry.1.slug}}" class="disabled" role="menuitem" tabindex="-1">{{industry.1.title}} <i class="fa fa-wrench"></i></span>

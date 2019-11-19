@@ -311,7 +311,7 @@ class BenchmarkMixin(ReportMixin):
                     values_tuple[0]['accounts'] = {}
                 values_tuple[0]['accounts'].update(accounts)
 
-            self.populate_leaf(values_tuple[0],
+            self.populate_leaf(prefix, values_tuple[0],
                 # `DashboardMixin` overrides _get_scored_answers to get
                 # the frozen scores.
                 self._get_scored_answers(population, metric_id,
@@ -604,50 +604,55 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
         self._start_time()
         from_root, trail = self.breadcrumbs
         roots = [trail[-1][0]] if trail else None
-        self._report_queries("at rollup_scores entry point")
-        rollups = self._cut_tree(self.build_content_tree(
-            roots, prefix=from_root, cut=TransparentCut()),
-            cut=TransparentCut())
-        for _, rollup in six.iteritems(rollups):
-            rollup_tree = rollup
-            break
-#XXX        rollup_tree = (OrderedDict({}), rollups)
-        self._report_queries("rollup_tree generated")
-        leafs = self.get_leafs(rollup_tree=rollup_tree)
-        self._report_queries("leafs loaded")
-        includes = Sample.objects.filter(account=self.account)
+        # At this point rollups is a dictionary
+        #     {prefix: (node(Dict), children(Dict))}
+        # and we want to a rooted tree (node(Dict), children(Dict)).
+        by_created_at = OrderedDict({})
+        includes = Sample.objects.filter(
+            account=self.account, extra__isnull=True, is_frozen=True)
         if includes:
-            for prefix, values_tuple in six.iteritems(leafs):
-                self.populate_leaf(values_tuple[0],
-                    get_historical_scores(
-                        includes=includes,
-                        prefix=prefix),
-                    agg_key='last_activity_at',
-                    force_score=self.force_score)
-                                      # Relies on `get_historical_scores()`
-                                      # to use `Sample.created_at`
-            self._report_queries("leafs populated")
-            populate_rollup(rollup_tree, True, force_score=self.force_score)
-            self._report_queries("rollup_tree populated")
+            self._report_queries("at rollup_scores entry point")
+            rollups = self._cut_tree(self.build_content_tree(
+                roots, prefix=from_root, cut=TransparentCut()),
+                cut=TransparentCut())
+            for rollup_tree in six.itervalues(rollups):
+                self._report_queries("rollup_tree generated")
+                leafs = self.get_leafs(rollup_tree=rollup_tree)
+                self._report_queries("leafs loaded")
+                for prefix, values_tuple in six.iteritems(leafs):
+                    self.populate_leaf(prefix, values_tuple[0],
+                        get_historical_scores(
+                            includes=includes,
+                            prefix=prefix),
+                        agg_key='last_activity_at',
+                        force_score=self.force_score)
+                                          # Relies on `get_historical_scores()`
+                                          # to use `Sample.created_at`
+                self._report_queries("leafs populated")
+                populate_rollup(rollup_tree, True, force_score=self.force_score)
+                self._report_queries("rollup_tree populated")
 
-        # We populated the historical scores per section.
-        # Now we need to transpose them by sample_id.
-        accounts = OrderedDict({})
-        self.flatten_distributions(
-            rollup_tree, accounts, prefix=from_root)
+                # We populated the historical scores per section.
+                # Now we need to transpose them by sample_id.
+                accounts = OrderedDict({})
+                self.flatten_distributions(
+                    rollup_tree, accounts, prefix=from_root)
+                for account_key in reversed(sorted(accounts)):
+                    account = accounts[account_key]
+                    values = []
+                    for segment_title, scores in six.iteritems(account):
+                        if account_key not in by_created_at:
+                            by_created_at[account_key] = []
+                        by_created_at[account_key] += [(segment_title,
+                            scores['normalized_score'], scores['url'])]
+
         results = []
-        for account_key in reversed(sorted(accounts)):
-            account = accounts[account_key]
-            values = []
-            for segment_title, scores in six.iteritems(account):
-                values += [
-                    (segment_title, scores['normalized_score'], scores['url'])]
+        for created_at, values in six.iteritems(by_created_at):
             results += [{
-                "key": account_key.strftime("%b %Y"),
+                "key": created_at.strftime("%b %Y"),
                 "values": values,
-                "created_at": account_key
+                "created_at": created_at
             }]
-
         resp_data = {"results": results}
         if self.assessment_sample:
             resp_data.update({

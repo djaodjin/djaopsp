@@ -669,11 +669,13 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                 'created_at': created_at
             })
             if force_score or nb_answers == nb_questions:
+                # We might end-up here with an unanswered question
+                # that was added after the sample was frozen.
                 accounts[account_id].update({
                     'numerator': numerator,
                     'denominator': denominator})
 
-    def populate_leaf(self, attrs, answers,
+    def populate_leaf(self, prefix, attrs, answers,
                       agg_key='account_id', force_score=False):
         """
         Populate all leafs with aggregated scores.
@@ -722,7 +724,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         population = Consumption.objects.get_active_by_accounts(
             self.survey, excludes=self._get_filter_out_testing())
         for prefix, values_tuple in six.iteritems(leafs):
-            self.populate_leaf(values_tuple[0],
+            self.populate_leaf(prefix, values_tuple[0],
                 get_scored_answers(population, self.default_metric_id,
                     includes=self.get_included_samples(),
                     prefix=prefix))

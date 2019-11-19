@@ -200,6 +200,7 @@ INNER JOIN (
     INNER JOIN survey_sample
       ON survey_answer.sample_id = survey_sample.id
     WHERE survey_question.path LIKE '%(prefix)s%%' AND
+          survey_sample.created_at < '%(ends_at)s' AND
           survey_sample.extra IS NULL AND
           survey_sample.is_frozen
     GROUP BY survey_sample.account_id) AS last_frozen_assessments
@@ -259,8 +260,9 @@ FROM expected_opportunities
 LEFT OUTER JOIN survey_answer
     ON expected_opportunities.question_id = survey_answer.question_id
     AND expected_opportunities.sample_id = survey_answer.sample_id
-WHERE survey_answer.id IS NULL OR survey_answer.metric_id = 2""" % {
-    'prefix': prefix}
+WHERE survey_answer.metric_id = 2""" % {
+    'prefix': prefix,
+    'ends_at': self.ends_at}
 #        scored_answers = super(DashboardMixin, self)._get_scored_answers(
 #            population, metric_id,
 #            includes=includes, questions=questions, prefix=prefix)
@@ -456,8 +458,9 @@ class SupplierListMixin(DashboardMixin):
             # We have to get complete assessments separately from complete
             # improvements the sample is always not frozen by definition.
             for rec in Sample.objects.filter(
-                    extra__isnull=True, is_frozen=True,
-                    account__in=self.requested_accounts_pk).values(
+                    account__in=self.requested_accounts_pk,
+                    is_frozen=True, created_at__lte=self.ends_at,
+                    extra__isnull=True).values(
                         'account').annotate(Max('created_at')):
                 self._complete_assessments |= set([rec['account']])
 
@@ -486,8 +489,9 @@ class SupplierListMixin(DashboardMixin):
             # We have to get complete assessments separately from complete
             # improvements the sample is always not frozen by definition.
             improvements_planned = Sample.objects.filter(
-                    extra='is_planned', is_frozen=True,
-                    account__in=self.requested_accounts_pk).values(
+                    account__in=self.requested_accounts_pk,
+                    is_frozen=True, created_at__lte=self.ends_at,
+                    extra='is_planned').values(
                     'account').annotate(Max('created_at'))
             # XXX counts only improvement plans with an actual item selected.
             #improvements_planned = Sample.objects.filter(
@@ -581,9 +585,9 @@ class SupplierListMixin(DashboardMixin):
         # XXX currently a subset query of ``get_active_by_accounts`` because
         # ``get_active_by_accounts`` returns unfrozen samples.
         actives = Sample.objects.filter(
-            account_id__in=self.requested_accounts_pk,
-            extra=None).values(
-            'account_id').annotate(Max('created_at'))
+            account_id__in=self.requested_accounts_pk, extra=None,
+            created_at__lte=self.ends_at).values('account_id').annotate(
+            Max('created_at'))
         actives_d = dict([(act['account_id'], act['created_at__max'])
             for act in list(actives)])
 

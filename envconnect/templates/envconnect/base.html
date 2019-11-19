@@ -11,7 +11,13 @@
         {% endblock %}
       </div> <!-- .question-mark -->
       <ol class="col-md-9 breadcrumb">
-        <li class="breadcrumb-item"><a href="{% if organization %}{% url 'organization_app' organization %}{% else %}{% url 'homepage' %}{% endif %}">Home</a></li>
+        <li class="breadcrumb-item">
+          {% if organization %}
+          <a href="{% url 'organization_app' organization %}">{{organization.printable_name}}</a>
+          {% else %}
+          <a href="{% url 'homepage' %}">Home</a>
+          {% endif %}
+        </li>
         {% for breadcrumb_tuple in breadcrumbs %}
         <li class="breadcrumb-item">
           <a id="bc-{{breadcrumb_tuple.0}}" href="{{breadcrumb_tuple.2}}">{{breadcrumb_tuple.0.title}}</a>
