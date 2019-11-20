@@ -2014,6 +2014,10 @@ a.header-anchor:hover{
   background: theme-color(primary);
 }
 
+.table-striped tbody tr:nth-of-type(odd).supplier-initiated {
+  background: darken(theme-color(primary), 5%);
+}
+
 .supplier-initiated a,
 .supplier-initiated a:hover,
 .supplier-initiated a:focus {
