@@ -143,6 +143,7 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         path = kwargs.get('path')
+        prefix = path
         parts = path.split('/')
         for idx, part in enumerate(parts):
             if part.startswith('sustainability-'):
