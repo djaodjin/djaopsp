@@ -140,7 +140,7 @@ user).</em>
             <tr id="[[entry.slug]]" ng-class="entry.supplier_initiated ? 'supplier-initiated' : ''" ng-repeat="entry in items.results" ng-show="items.$resolved && items.results.length > 0" ng-cloak>
               <td style="vertical-align:middle;">[[$index+1]]</td>
               <td style="vertical-align:middle;">
-                <a href="{{'app/'|site_prefixed}}[[entry.slug]]/">[[entry.printable_name]]</a>
+                <a href="{{'app/'|site_prefixed}}[[entry.slug]]/benchmark/">[[entry.printable_name]]</a>
                 &nbsp;&nbsp;&dash;&nbsp;&nbsp;<a ng-if="entry.email" href="mailto:[[entry.email]]" style="color:black;"><i class="fa fa-envelope"></i> Email &raquo;</a>
                 <span class="badge badge-pill badge-primary" ng-repeat="tag in entry.tags">[[tag]]</span>
               </td>
