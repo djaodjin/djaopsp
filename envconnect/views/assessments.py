@@ -127,7 +127,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                         # This is part of the plan, we mark it for the planning
                         # page but otherwise don't use values stored here.
                         consumptions_planned.update({
-                            consumption.path: consumption.implemented})
+                            consumption.path: True})
                 else:
                     consumptions[consumption.path] = consumption
 
