@@ -7,23 +7,23 @@
     <ul class="progressbar">
       {% if not survey or survey.slug != 'framework' %}
       <li class="active">
-        <a id="submenu-sustainability" href="{{urls.summary}}[[activeIcon !== null ? '?active=' + activeIcon : '']]">Learn</a>
+        <a id="submenu-sustainability" href="{{urls.summary}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><span class="progressbar-step"></span>Learn</a>
       </li>
       {% endif %}
       <li{% if request.path == urls.assess or request.path == urls.benchmark or request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
-        <a id="submenu-self-assessment" href="{{urls.assess}}[[activeIcon !== null ? '?active=' + activeIcon : '']]">Assess</a>
+        <a id="submenu-self-assessment" href="{{urls.assess}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><span class="progressbar-step"></span>Assess</a>
       </li>
       <li{% if request.path == urls.benchmark or request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
-        <a id="submenu-benchmark" href="{{urls.benchmark}}">Scorecard</a>
+        <a id="submenu-benchmark" href="{{urls.benchmark}}"><span class="progressbar-step"></span>Scorecard</a>
       </li>
       <li{% if request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
-        <a id="submenu-improve" href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]">Improve</a>
+        <a id="submenu-improve" href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><span class="progressbar-step"></span>Improve</a>
       </li>
       <li{% if request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
-        <a id="submenu-scorecard" href="{{urls.scorecard}}">Scorecard</a>
+        <a id="submenu-scorecard" href="{{urls.scorecard}}"><span class="progressbar-step"></span>Scorecard</a>
       </li>
       <li{% if request.path == urls.share %} class="active"{% endif %}>
-        <a id="submenu-share" href="{{urls.share}}">Share</a>
+        <a id="submenu-share" href="{{urls.share}}"><span class="progressbar-step"></span>Share</a>
       </li>
     </ul>
   </div>

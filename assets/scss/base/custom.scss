@@ -40,7 +40,7 @@ $green-level-4-color: #FFD700;
   color: white;
 }
 
-.progressbar li:before {
+.progressbar li a>.progressbar-step {
   width: 30px;
   height: 30px;
   content: " "; //counter(step);
@@ -74,7 +74,7 @@ $green-level-4-color: #FFD700;
   color: $green-level-4-color;
 }
 
-.progressbar li.active:before {
+.progressbar li.active a>.progressbar-step {
   border-color: $green-level-4-color;
   background-color: $green-level-4-color;
 }
