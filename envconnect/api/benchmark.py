@@ -591,7 +591,11 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                     'normalized_score': account.get('normalized_score', 0)
                 }
                 if 'sample' in account:
-                    prefix = '/sustainability-%s' % node_path.split('/')[-1]
+                    last_part = node_path.split('/')[-1]
+                    if last_part.startswith('sustainability-'):
+                        prefix = '/%s' % last_part
+                    else:
+                        prefix = '/sustainability-%s' % last_part
                     by_industry.update({
                         'url': self.request.build_absolute_uri(
                             reverse('envconnect_sample_organization',
