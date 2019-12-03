@@ -8,7 +8,9 @@
 <span style="text-decoration: underline;">ACTION:</span>
 Click each tile and provide responses. Click the <em>Complete</em> button
 at the bottom of the page when the assessment is complete.
-Then click <em>Scorecard</em> to view scores and benchmarking.
+{% if urls.benchmark %}
+    Then click <em>Scorecard</em> to view scores and benchmarking.
+{% endif %}
   </p>
 </div>
 {% endblock %}
@@ -221,6 +223,7 @@ organization are true and correct to the best of your knowledge. Additionally,
 you acknowledge that the responses form a statement of record which current
 or future clients may request to verify.
             </p>
+{% if urls.benchmark %}
             <p>
 Then:
             </p>
@@ -229,6 +232,7 @@ Then:
     <li>Click IMPROVE to create an improvement plan.</li>
     <li>Click SHARE to send your responses to customers, investors, etc.</li>
 </ol>
+{% endif %}
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary"

@@ -21,7 +21,7 @@ from pages.models import PageElement
 from survey.models import Answer, Choice, Metric, Sample, Unit
 
 from ..compat import reverse
-from ..helpers import get_testing_accounts
+from ..helpers import as_measured_value, get_testing_accounts
 from ..mixins import ReportMixin, BestPracticeMixin
 from ..models import Consumption, get_scored_answers
 from ..serializers import ConsumptionSerializer
@@ -141,15 +141,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                 consumptions[datapoint.question.path] = AssessmentAnswer(
                     consumption=consumption, measures=[])
                 consumption = consumptions[datapoint.question.path]
-            measured = datapoint.measured
-            unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
-            if unit.system not in Unit.NUMERICAL_SYSTEMS:
-                try:
-                    measured = Choice.objects.get(pk=datapoint.measured).text
-                except Choice.DoesNotExist:
-                    LOGGER.error("cannot find Choice %s for %s",
-                        datapoint.measured, datapoint)
-                    measured = ""
+            measured = as_measured_value(datapoint)
             measure = {
                 'metric': datapoint.metric,
                 'unit': unit,
@@ -176,6 +168,21 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                 vals[0]['text'] = vals[0]['text'].splitlines()
             consumption = consumptions.get(path, None)
             if consumption:
+                if (path.startswith('/euissca-rfx') and #XXX /rfx hack
+                    not consumption.answer_id):
+                    answer = Answer.objects.filter(sample=self.sample,
+                        metric_id=self.default_metric_id,
+                        question__path__endswith=path.split('/')[-1]).first()
+                    if answer:
+                        answer.pk = None
+                        answer.question = Consumption.objects.get(path=path)
+                        answer.save()
+                        if True:
+                            if not hasattr(consumption, 'measures'):
+                                consumption = AssessmentAnswer(
+                                    consumption=consumption, measures=[])
+                            consumption.answer_id = answer.pk
+                            consumption.implemented = as_measured_value(answer)
                 avg_value = consumption.avg_value
                 opportunity = consumption.opportunity
                 nb_respondents = consumption.nb_respondents

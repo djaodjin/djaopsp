@@ -13,15 +13,21 @@
       <li{% if request.path == urls.assess or request.path == urls.benchmark or request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
         <a id="submenu-self-assessment" href="{{urls.assess}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><span class="progressbar-step"></span>Assess</a>
       </li>
+      {% if urls.benchmark %}
       <li{% if request.path == urls.benchmark or request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
         <a id="submenu-benchmark" href="{{urls.benchmark}}"><span class="progressbar-step"></span>Scorecard</a>
       </li>
+      {% endif %}
+      {% if urls.improve %}
       <li{% if request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
         <a id="submenu-improve" href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><span class="progressbar-step"></span>Improve</a>
       </li>
+      {% endif %}
+      {% if urls.scorecard %}
       <li{% if request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
         <a id="submenu-scorecard" href="{{urls.scorecard}}"><span class="progressbar-step"></span>Scorecard</a>
       </li>
+      {% endif %}
       <li{% if request.path == urls.share %} class="active"{% endif %}>
         <a id="submenu-share" href="{{urls.share}}"><span class="progressbar-step"></span>Share</a>
       </li>

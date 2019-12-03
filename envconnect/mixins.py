@@ -24,7 +24,7 @@ from survey.models import (Answer, Choice, Campaign, EnumeratedQuestions,
 from survey.utils import get_account_model
 
 from .compat import reverse
-from .helpers import is_sqlite3, get_testing_accounts
+from .helpers import as_measured_value, is_sqlite3, get_testing_accounts
 from .models import (Consumption, get_score_weight, _show_query_and_result,
     get_scored_answers)
 from .scores import populate_rollup, push_improvement_factors
@@ -516,6 +516,10 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         active_section = ""
         if self.request.GET.get('active', ""):
             active_section += "?active=%s" % self.request.GET.get('active')
+        has_scorecard = bool(trail and trail[0] and trail[0][0].tag and
+            'scorecard' in trail[0][0].tag)
+        has_assessonly = bool(trail and trail[0] and trail[0][0].tag and
+            'assessonly' in trail[0][0].tag)
         if 'organization' in context:
             urls.update({
                 'api_improvements': reverse('api_improvement_base',
@@ -524,24 +528,36 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     args=(context['organization'], path)),
                 'assess': reverse('envconnect_assess_organization',
                     args=(context['organization'], path)),
-                'benchmark': reverse('benchmark_organization',
-                    args=(context['organization'], path)),
-                'improve': reverse('envconnect_improve_organization',
-                    args=(context['organization'], path)),
-                'scorecard': reverse('scorecard_organization',
-                    args=(context['organization'], path)),
                 'share': reverse('envconnect_share_organization',
                     args=(context['organization'], path)),
             })
+            if has_scorecard:
+                urls.update({
+                'benchmark': reverse('benchmark_organization',
+                    args=(context['organization'], path)),
+                'scorecard': reverse('scorecard_organization',
+                    args=(context['organization'], path)),
+                })
+            if has_assessonly:
+                urls.update({
+                    'improve': reverse('envconnect_improve_organization',
+                        args=(context['organization'], path)),
+                })
         else:
             urls.update({
                 'summary': reverse('summary', args=(path,)),
                 'assess': reverse('envconnect_assess', args=(path,)),
-                'benchmark': reverse('benchmark', args=(path,)),
-                'improve': reverse('envconnect_improve', args=(path,)),
-                'scorecard': reverse('scorecard', args=(path,)),
                 'share': reverse('envconnect_share', args=(path,)),
             })
+            if has_scorecard:
+                urls.update({
+                    'benchmark': reverse('benchmark', args=(path,)),
+                    'scorecard': reverse('scorecard', args=(path,)),
+                })
+            if has_assessonly:
+                urls.update({
+                    'improve': reverse('envconnect_improve', args=(path,)),
+                })
         if self.__class__.__name__ == 'DetailView':
             urls.update({'context_base': urls['summary']})
         elif self.__class__.__name__ == 'AssessmentView':
@@ -856,16 +872,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 question=datapoint.question,
                 campaign=self.sample.survey).values('rank').get().get(
                     'rank', None)
-            unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
-            if unit.system in Unit.NUMERICAL_SYSTEMS:
-                measured = '%d' % datapoint.measured
-            else:
-                try:
-                    measured = Choice.objects.get(pk=datapoint.measured)
-                except Choice.DoesNotExist:
-                    LOGGER.error("cannot find Choice %s for %s",
-                        datapoint.measured, datapoint)
-                    measured = ""
+            measured = as_measured_value(datapoint)
             node = self._insert_path(root, datapoint.question.path,
                 depth=depth)
             if 'environmental_metrics' not in node[0]:

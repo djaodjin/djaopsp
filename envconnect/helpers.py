@@ -7,7 +7,7 @@ from collections import namedtuple
 from deployutils.helpers import datetime_or_now
 from django.db import connection, connections
 from django.db.utils import DEFAULT_DB_ALIAS
-from survey.models import Answer, Metric, Sample
+from survey.models import Answer, Choice, Metric, Sample, Unit
 from survey.utils import get_account_model
 
 from .models import Consumption, get_scored_answers
@@ -20,6 +20,20 @@ def is_sqlite3(db_key=None):
     if db_key is None:
         db_key = DEFAULT_DB_ALIAS
     return connections.databases[db_key]['ENGINE'].endswith('sqlite3')
+
+
+def as_measured_value(datapoint):
+    unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
+    if unit.system in Unit.NUMERICAL_SYSTEMS:
+        measured = '%d' % datapoint.measured
+    else:
+        try:
+            measured = str(Choice.objects.get(pk=datapoint.measured))
+        except Choice.DoesNotExist:
+            LOGGER.error("cannot find Choice %s for %s",
+                datapoint.measured, datapoint)
+            measured = ""
+    return measured
 
 
 def as_valid_sheet_title(title):
