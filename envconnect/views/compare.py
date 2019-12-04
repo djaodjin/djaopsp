@@ -52,7 +52,9 @@ class SuppliersView(AccountMixin, PermissionMixin, TemplateView):
             'account_extra': self.account.extra,
             'date_range': {
                 'start_at': datetime.datetime(2019, 9, 5).isoformat(),
-                'ends_at': datetime.datetime(2019, 12, 1).isoformat(),
+                'ends_at': max(datetime_or_now(),
+                    datetime_or_now(datetime.datetime(2019, 12, 1))
+                ).isoformat(),
             }
         })
         return context
