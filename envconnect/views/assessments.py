@@ -141,6 +141,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                 consumptions[datapoint.question.path] = AssessmentAnswer(
                     consumption=consumption, measures=[])
                 consumption = consumptions[datapoint.question.path]
+            unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
             measured = as_measured_value(datapoint)
             measure = {
                 'metric': datapoint.metric,
