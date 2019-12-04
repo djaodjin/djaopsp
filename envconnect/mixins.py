@@ -538,7 +538,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 'scorecard': reverse('scorecard_organization',
                     args=(context['organization'], path)),
                 })
-            if has_assessonly:
+            if not has_assessonly:
                 urls.update({
                     'improve': reverse('envconnect_improve_organization',
                         args=(context['organization'], path)),
@@ -554,7 +554,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     'benchmark': reverse('benchmark', args=(path,)),
                     'scorecard': reverse('scorecard', args=(path,)),
                 })
-            if has_assessonly:
+            if not has_assessonly:
                 urls.update({
                     'improve': reverse('envconnect_improve', args=(path,)),
                 })
