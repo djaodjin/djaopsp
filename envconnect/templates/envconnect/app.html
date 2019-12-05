@@ -5,7 +5,7 @@
     <h2 class="text-center py-4">What do you need help with?</h2>
     {% block menu_items %}
     <div class="row mb-4">
-      <div class="col-sm-12 text-center">
+      <div class="col{% if FEATURES_DEBUG %}-sm-6{% endif %} text-center">
         <h5>Assess, benchmark and plan</h5>
         <div class="dropdown dropdown-homepage">
           <button class="btn btn-lg btn-primary dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
@@ -31,14 +31,14 @@
           </ul>
         </div>
       </div>
-      <!-- XXX
+      {% if FEATURES_DEBUG %}
       <div class="col-sm-6 text-center">
         <h5>Environmental sustainability on contract bids</h5>
         <div>
-          <a class="btn btn-lg btn-primary" href="{{'/app/info/assess/sustainability-framework/'|site_prefixed}}">Take RFx assessment</a>
+          <a class="btn btn-lg btn-primary" href="{{'/app/info/assess/sustainability-euissca-rfx/'|site_prefixed}}">Take RFx assessment</a>
         </div>
       </div>
-      -->
+      {% endif %}
     </div><!-- /.row -->
     <!-- XXX
     <div class="row">

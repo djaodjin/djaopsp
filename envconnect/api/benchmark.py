@@ -642,7 +642,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                 accounts = OrderedDict({})
                 self.flatten_distributions(
                     rollup_tree, accounts, prefix=from_root)
-                for account_key in reversed(sorted(accounts)):
+                for account_key in accounts:
                     account = accounts[account_key]
                     values = []
                     for segment_title, scores in six.iteritems(account):
@@ -658,6 +658,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                 "values": values,
                 "created_at": created_at
             }]
+        results.sort(key=lambda sample: sample['key'])
         resp_data = {"results": results}
         if self.assessment_sample:
             resp_data.update({
