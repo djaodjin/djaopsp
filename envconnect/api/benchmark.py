@@ -658,7 +658,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                 "values": values,
                 "created_at": created_at
             }]
-        results.sort(key=lambda sample: sample['key'])
+        results.sort(key=lambda sample: sample['created_at'], reverse=True)
         resp_data = {"results": results}
         if self.assessment_sample:
             resp_data.update({

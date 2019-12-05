@@ -516,9 +516,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         active_section = ""
         if self.request.GET.get('active', ""):
             active_section += "?active=%s" % self.request.GET.get('active')
-        has_scorecard = bool(trail and trail[0] and trail[0][0].tag and
+        hide_scorecard = bool(trail and trail[0] and trail[0][0].tag and
             'hide-benchmark' in trail[0][0].tag)
-        has_improve = bool(trail and trail[0] and trail[0][0].tag and
+        hide_improve = bool(trail and trail[0] and trail[0][0].tag and
             'hide-improve' in trail[0][0].tag)
         if 'organization' in context:
             urls.update({
@@ -531,14 +531,14 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 'share': reverse('envconnect_share_organization',
                     args=(context['organization'], path)),
             })
-            if has_scorecard:
+            if not hide_scorecard:
                 urls.update({
                 'benchmark': reverse('benchmark_organization',
                     args=(context['organization'], path)),
                 'scorecard': reverse('scorecard_organization',
                     args=(context['organization'], path)),
                 })
-            if has_improve:
+            if not hide_improve:
                 urls.update({
                     'improve': reverse('envconnect_improve_organization',
                         args=(context['organization'], path)),
@@ -549,12 +549,12 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 'assess': reverse('envconnect_assess', args=(path,)),
                 'share': reverse('envconnect_share', args=(path,)),
             })
-            if has_scorecard:
+            if not hide_scorecard:
                 urls.update({
                     'benchmark': reverse('benchmark', args=(path,)),
                     'scorecard': reverse('scorecard', args=(path,)),
                 })
-            if has_improve:
+            if not hide_improve:
                 urls.update({
                     'improve': reverse('envconnect_improve', args=(path,)),
                 })
