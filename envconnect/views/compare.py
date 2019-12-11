@@ -4,6 +4,7 @@
 import datetime, io, json, logging, re
 from collections import OrderedDict
 
+from dateutil.relativedelta import relativedelta
 from deployutils.helpers import update_context_urls
 from django.db.models import Count, Q
 from django.utils import six
@@ -52,8 +53,8 @@ class SuppliersView(AccountMixin, PermissionMixin, TemplateView):
             'account_extra': self.account.extra,
             'date_range': {
                 'start_at': datetime.datetime(2019, 9, 5).isoformat(),
-                'ends_at': max(datetime_or_now(), datetime_or_now(
-                    datetime.datetime(2019, 12, 1)) + relativedelta(days=1)
+                'ends_at': (max(datetime_or_now(), datetime_or_now(
+                    datetime.datetime(2019, 12, 1))) + relativedelta(days=1)
                 ).isoformat(),
             }
         })
