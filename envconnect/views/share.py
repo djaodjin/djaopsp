@@ -95,11 +95,13 @@ class ShareView(ReportMixin, TemplateView):
         from_root, trail = self.breadcrumbs
         # Find supplier managers subscribed to this profile
         # to share scorecard with.
-        if self.manages(self.account):
+        is_account_manager = self.manages(self.account)
+        if is_account_manager:
             context.update({
-                'is_account_manager': True,
-                'supplier_managers': json.dumps(
-                    get_supplier_managers(self.account))})
+                'is_account_manager': is_account_manager})
+        context.update({
+            'supplier_managers': json.dumps(
+                get_supplier_managers(self.account))})
         update_context_urls(context, {
             'api_benchmark_share': reverse('api_benchmark_share',
                 args=(context['organization'], from_root)),
