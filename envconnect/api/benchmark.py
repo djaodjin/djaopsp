@@ -25,7 +25,8 @@ from ..helpers import get_segments
 from ..mixins import ReportMixin, TransparentCut
 from ..models import (get_score_weight, get_scored_answers,
     get_historical_scores, Consumption)
-from ..serializers import ScoreWeightSerializer
+from ..serializers import (BenchmarkSerializer, MetricsSerializer,
+    ScoreWeightSerializer)
 from ..scores import populate_rollup
 
 LOGGER = logging.getLogger(__name__)
@@ -411,8 +412,8 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
             "score_weight": 1.0
          }]
     """
-
     http_method_names = ['get']
+    serializer_class = BenchmarkSerializer
 
     def get_queryset(self):
         #pylint:disable=too-many-locals
@@ -464,17 +465,74 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
 
 
 class EnableScorecardAPIView(ToggleTagContentAPIView):
+    """
+    Enable scorecard
 
+    **Tags**: survey
+
+    **Examples**
+
+    .. code-block:: http
+
+         PUT /api/content/scorecard/disable/water/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "created_at": "2020-01-01T00:00:00Z",
+            "measured": 12
+        }
+    """
     added_tag = 'scorecard'
 
 
 class DisableScorecardAPIView(ToggleTagContentAPIView):
+    """
+    Disable scorecard
 
+    **Tags**: survey
+
+    **Examples**
+
+    .. code-block:: http
+
+         PUT /api/content/scorecard/disable/water/  HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "created_at": "2020-01-01T00:00:00Z",
+            "measured": 12
+        }
+    """
     removed_tag = 'scorecard'
 
 
 class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
+    """
+    Retrieve score
 
+    **Tags**: survey
+
+    **Examples**
+
+    .. code-block:: http
+
+         GET /api/content/score/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "created_at": "2020-01-01T00:00:00Z",
+            "measured": 12
+        }
+    """
     lookup_field = 'path'
     serializer_class = ScoreWeightSerializer
 
@@ -569,6 +627,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
             ]
         }
     """
+    serializer_class = MetricsSerializer
     force_score = True
 
     def flatten_distributions(self, rollup_tree, accounts, prefix=None):

@@ -11,30 +11,35 @@ from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
     DestroyModelMixin, UpdateModelMixin)
 from rest_framework.response import Response
 from survey.models import Answer, EnumeratedQuestions, get_question_model
-from survey.api.serializers import AnswerSerializer
 
 from ..helpers import freeze_scores
 from ..mixins import ImprovementQuerySetMixin
 from ..models import Consumption
-
-
-class ImprovementSerializer(AnswerSerializer):
-
-    measured = serializers.CharField(required=False)
-    consumption = serializers.SerializerMethodField()
-
-    class Meta(object):
-        model = Answer
-        fields = ('created_at', 'measured', 'consumption')
-
-    @staticmethod
-    def get_consumption(obj):
-        return obj.question.path
+from ..serializers import ImprovementSerializer
 
 
 class ImprovementListAPIView(ImprovementQuerySetMixin,
                              UpdateModelMixin, ListAPIView):
+    """
+    Retrieve improvements
 
+    **Tags**: survey
+
+    **Examples**
+
+    .. code-block:: http
+
+         GET /api/xia/improvement/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "created_at": "2020-01-01T00:00:00Z",
+            "measured": 12
+        }
+    """
     serializer_class = ImprovementSerializer
 
     def get_serializer_context(self):
@@ -77,7 +82,6 @@ class ImprovementAnswerAPIView(ImprovementQuerySetMixin,
     opportunity score
     selected from improvement
     """
-
     serializer_class = ImprovementSerializer
 
     def get_object(self):

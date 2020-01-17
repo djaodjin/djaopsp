@@ -22,6 +22,7 @@
           <li><a href="#suppliers-4">Use the assessment tool (Survey)</a></li>
           <li><a href="#suppliers-5">Forward the assessment to colleagues</a></li>
           <li><a href="#suppliers-6">View scores and benchmark results</a></li>
+          <li><a href="#suppliers-10">Find a previous year answers</a></li>
           <li><a href="#suppliers-7">Use the planning tool</a></li>
           <li><a href="#suppliers-8">Share results with customers, clients and investors</a></li>
           <li><a href="#suppliers-9">Add/change a profile manager</a></li>
@@ -338,6 +339,23 @@ Click HISTORICAL to view progress over time. Note: Each time you update your ASS
           </dd>
         </dl>
         <dl>
+
+          <dt><h3>Find a previous year answers <a href="#suppliers-10" name="suppliers-10" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
+          <dd>
+            <div class="row">
+              <div class="col-sm-6">
+<p>
+Select one of the historical completed answers at the bottom of the ASSESSMENT page.
+</p>
+              </div>
+              <div class="col-sm-6">
+                  <img class="img-fluid" src="{{'/static/img/tutorials/suppliers-10-1.png'|asset}}" />
+              </div>
+            </div>
+          </dd>
+        </dl>
+
+        <dl>
           <dt><h3>Use the planning tool<a href="#suppliers-7" name="suppliers-7" class="header-anchor"><i class="fa fa-link"></i></a></h3></dt>
           <dd>
             <div class="row">
@@ -506,8 +524,8 @@ Functions available on the REPORTING ENTITIES page:
               </div>
             </div>
             <div class="row">
-              <h5><a name="supplier-managers-1-3b"></a>Interpreting the columns on the dashboard<a href="#supplier-managers-1-3b" class="header-anchor"><i class="fa fa-link"></i></a></h5>
               <div class="col-sm-6">
+              <h5><a name="supplier-managers-1-3b"></a>Interpreting the columns on the dashboard<a href="#supplier-managers-1-3b" class="header-anchor"><i class="fa fa-link"></i></a></h5>
 <p>
 The <strong>Last activity</strong> column shows the last time a supplier
 updated at least one answer on an assessment, or the last time a supplier
@@ -571,8 +589,45 @@ an improvement plan.
 </p>
               </div>
               <div class="col-sm-6">
-                <img class="img-fluid" src="{{'/static/img/tutorials/supplier-managers-1-3b.png'|asset}}" />
-              <h5 class="text-center">Suppliers workflow and status</h5>
+<h5><a name="supplier-managers-1-3c"></a>Searching date ranges<a href="#supplier-managers-1-3c" class="header-anchor"><i class="fa fa-link"></i></a></h5>
+<p>
+You can select to see responses for suppliers between a <strong>From</strong>
+and <strong>To</strong> date. How both From and To are interpreted is as follows:
+</p>
+<ul>
+<li>All suppliers that are still on the dashboard after the <strong>To</strong>
+date are included. For those suppliers, the lastest response before the
+<strong>To</strong> date is shown.
+</li>
+<li>The latest supplier response is then compared to the <strong>From</strong>
+date. If the supplier response is older than the <strong>From</strong>
+date, it is marked <em>Abandoned</em> or <em>Expired</em>.
+</li>
+</ul>
+<p>
+For example, <em>Steve's Shop</em> is a supplier to <em>Energy Utility</em>
+that answered the assessment on Nov 10th 2018 and again on Oct 2nd 2019.
+After review <em>Energy Utility</em> decided on Apr 1st 2019 that <em>Steve's Shop</em>
+is not a high impact supplier after all and wouldn't be required to answer yearly
+assessments going forward.
+</p>
+<p>
+When a <em>Energy Utility</em> supplier manager selects the following search dates,
+the dashboard is updated as follows:
+<table>
+<tr>
+  <th>From Sep 1st 2018 To Dec 1st 2018</th>
+  <td>Steve's Shop Nov 10th 2018 assessment is showing on the dashboard as <em>Completed</em>.</td>
+</tr>
+<tr>
+  <th>From Sep 1st 2019 To Dec 1st 2019</th>
+  <td>Steve's Shop is not showing on the dashboard because it was removed on Apr 1st 2019.</td>
+<tr>
+  <th>From Dec 1st 2018 To Mar 31st 2019</th>
+  <td>Steve's Shop Nov 10th 2018 assessment is showing on the dashboard as <em>Expired</em> because it was completed before Dec 1st 2018.</td>
+   </tr>
+</tr>
+</table>
               </div>
             </div>
             <div class="row">

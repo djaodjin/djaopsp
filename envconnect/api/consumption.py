@@ -11,6 +11,26 @@ from ..models import Consumption
 
 
 class ConsumptionListAPIView(BreadcrumbMixin, generics.ListCreateAPIView):
+    """
+    Retrieve consumptions
+
+    **Tags**: survey
+
+    **Examples**
+
+    .. code-block:: http
+
+         GET /api/content/consumption/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "created_at": "2020-01-01T00:00:00Z",
+            "measured": 12
+        }
+    """
 
     queryset = Consumption.objects.all()
     serializer_class = ConsumptionSerializer

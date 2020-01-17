@@ -617,28 +617,7 @@ class SupplierListMixin(DashboardMixin):
 
 
 class SupplierListBaseAPIView(SupplierListMixin, generics.ListAPIView):
-    """
-    List of suppliers accessible by the request user
-    with normalized (total) score when the supplier completed
-    an assessment.
 
-    GET /api/:organization/suppliers
-
-    Example Response:
-
-        {
-          "count":1,
-          "next":null
-          "previous":null,
-          "results":[{
-             "slug":"andy-shop",
-             "printable_name":"Andy's Shop",
-             "created_at": "2017-01-01",
-             "scores": ["boxes-and-enclosures", 94, "Boxes & enclosures"]
-             "normalized_score":94
-          }]
-        }
-    """
     serializer_class = AccountSerializer
     pagination_class = CompletionSummaryPagination
 
@@ -675,7 +654,28 @@ class SupplierSmartListMixin(SortableListMixin, SearchableListMixin):
 
 
 class SupplierListAPIView(SupplierSmartListMixin, SupplierListBaseAPIView):
+    """
+    List of suppliers accessible by the request user
+    with normalized (total) score when the supplier completed
+    an assessment.
 
+    GET /api/:organization/suppliers
+
+    Example Response:
+
+        {
+          "count":1,
+          "next":null
+          "previous":null,
+          "results":[{
+             "slug":"andy-shop",
+             "printable_name":"Andy's Shop",
+             "created_at": "2017-01-01",
+             "scores": ["boxes-and-enclosures", 94, "Boxes & enclosures"]
+             "normalized_score":94
+          }]
+        }
+    """
     pass
 
 

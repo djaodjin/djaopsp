@@ -9,6 +9,7 @@ from rest_framework import serializers
 from pages.models import PageElement
 from pages.serializers import PageElementSerializer as BasePageElementSerializer
 from survey.models import Answer, EnumeratedQuestions, Metric, Unit
+from survey.api.serializers import AnswerSerializer
 
 from .models import ColumnHeader, Consumption
 
@@ -19,6 +20,31 @@ class NoModelSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         raise RuntimeError('`update()` should not be called.')
+
+class DistributionSerializer(NoModelSerializer):
+
+    x = serializers.ListField(child=serializers.IntegerField())
+    y = serializers.ListField(serializers.CharField())
+    organization_rate = serializers.CharField()
+
+
+class BenchmarkSerializer(NoModelSerializer):
+
+    metric = serializers.CharField()
+    title = serializers.CharField()
+    nb_answers = serializers.IntegerField()
+    nb_questions = serializers.IntegerField()
+    nb_respondents = serializers.IntegerField()
+    numerator = serializers.FloatField()
+    improvement_numerator = serializers.FloatField()
+    denominator = serializers.FloatField()
+    normalized_score = serializers.IntegerField()
+    improvement_score = serializers.IntegerField()
+    score_weight = serializers.FloatField()
+    highest_normalized_score = serializers.IntegerField()
+    avg_normalized_score = serializers.IntegerField()
+    created_at = serializers.DateTimeField()
+    distribution = DistributionSerializer()
 
 
 class ColumnHeaderSerializer(serializers.ModelSerializer):
@@ -175,6 +201,46 @@ class AssessmentMeasuresSerializer(NoModelSerializer):
     measures which are not just Yes/No.
     """
     measures = MeasureSerializer(many=True)
+
+
+class ImprovementSerializer(AnswerSerializer):
+
+    measured = serializers.CharField(required=False)
+    consumption = serializers.SerializerMethodField()
+
+    class Meta(object):
+        model = Answer
+        fields = ('created_at', 'measured', 'consumption')
+
+    @staticmethod
+    def get_consumption(obj):
+        if obj and obj.question:
+            return obj.question.path
+        return None
+
+
+class KeyValueTuple(serializers.ListField):
+
+    child = serializers.CharField() # XXX (String, Integer)
+    min_length = 2
+    max_length = 2
+
+
+class TableSerializer(NoModelSerializer):
+
+    # XXX use `key` instead of `slug` here?
+    key = serializers.CharField(
+        help_text="Unique key in the table for the data series")
+    values = serializers.ListField(
+        child=KeyValueTuple(),
+        help_text="Datapoints in the serie")
+
+
+class MetricsSerializer(NoModelSerializer):
+
+    title = serializers.CharField(
+        help_text="Title for the table")
+    results = TableSerializer(many=True)
 
 
 class MoveRankSerializer(NoModelSerializer):

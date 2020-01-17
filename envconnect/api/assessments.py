@@ -20,7 +20,8 @@ from survey.utils import get_question_model
 from ..helpers import freeze_scores, get_segments
 from ..mixins import ExcludeDemoSample, ReportMixin
 from ..models import Consumption, get_scored_answers
-from ..serializers import AnswerUpdateSerializer, AssessmentMeasuresSerializer
+from ..serializers import (AnswerUpdateSerializer, AssessmentMeasuresSerializer,
+    NoModelSerializer)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -77,7 +78,26 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
 
 
 class AssessmentAPIView(ReportMixin, SampleAPIView):
+    """
+    Retrieve a sample
 
+    **Tags**: survey
+
+    **Examples**
+
+    .. code-block:: http
+
+         GET /api/xia/sample/0123456789abcdef/water-use/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "created_at": "2020-01-01T00:00:00Z",
+            "measured": 12
+        }
+    """
     account_url_kwarg = 'interviewee'
 
     def delete(self, request, *args, **kwargs):
@@ -244,6 +264,7 @@ class DestroyMeasureAPIView(SampleMixin, DestroyAPIView):
 
         DELETE /api/supplier1/sample/abcdef1234567/1/measures/comments/ HTTP/1.1
     """
+    serializer_class = NoModelSerializer
 
     def get_object(self):
         measures = Answer.objects.filter(

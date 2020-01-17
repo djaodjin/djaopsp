@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 import json, logging, re
@@ -6,7 +6,7 @@ import json, logging, re
 from deployutils.crypt import JSONEncoder
 from django.db import transaction
 from django.http import Http404
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView, UpdateAPIView)
@@ -19,13 +19,19 @@ from survey.models import EnumeratedQuestions
 
 from ..mixins import BestPracticeMixin, BreadcrumbMixin
 from ..models import Consumption
-from ..serializers import PageElementSerializer
+from ..serializers import NoModelSerializer, PageElementSerializer
 
 LOGGER = logging.getLogger(__name__)
 
 
+class ExtraSerializer(NoModelSerializer):
+
+    tags = serializers.CharField()
+
+
 class ToggleTagContentAPIView(TrailMixin, UpdateAPIView):
 
+    serializer_class = ExtraSerializer
     added_tag = None
     removed_tag = None
 
@@ -123,6 +129,23 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
 
 
 class BestPracticeMoveAPIView(PageElementMoveAPIView):
+    """
+    Moves an editable node
+
+    Moves a PageElement from one attachement to another.
+
+    **Examples
+
+    .. code-block:: http
+
+        POST /api/themes/editables/attach/content-root/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {}
+    """
 
     def post(self, request, *args, **kwargs):#pylint: disable=unused-argument
         LOGGER.debug("move %s under %s", request.data, kwargs.get('path'))
