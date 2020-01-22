@@ -124,10 +124,15 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                 consumption = consumption_tuple(*consumption)
                 if consumption.is_planned:
                     if consumption.answer_id:
-                        # This is part of the plan, we mark it for the planning
-                        # page but otherwise don't use values stored here.
-                        consumptions_planned.update({
-                            consumption.path: True})
+                        if self.survey.slug == 'framework':
+                            consumptions_planned.update({
+                                consumption.path: consumption.implemented})
+                        else:
+                            # This is part of the plan, we mark it for
+                            # the planning page but otherwise don't use values
+                            # stored here.
+                            consumptions_planned.update({
+                                consumption.path: True})
                 else:
                     consumptions[consumption.path] = consumption
 
