@@ -1,11 +1,11 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 #pylint: no-init
 import json
 
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-
 from pages.models import PageElement
 from pages.serializers import PageElementSerializer as BasePageElementSerializer
 from survey.models import Answer, EnumeratedQuestions, Metric, Unit
@@ -171,17 +171,26 @@ class AccountSerializer(NoModelSerializer):
         (REPORTING_COMPLETED, 'Completed'),
     )
 
-    slug = serializers.CharField()
-    printable_name = serializers.CharField()
-    email = serializers.EmailField()
+    slug = serializers.CharField(
+        help_text=_("Unique identifier that can be used in a URL"))
+    printable_name = serializers.CharField(
+        help_text=_("Printable name"))
+    email = serializers.EmailField(
+        help_text=_("Primary contact e-mail"))
     scores = serializers.ListField(required=False)
-    last_activity_at = serializers.DateTimeField(required=False)
+    last_activity_at = serializers.DateTimeField(required=False,
+        help_text=_("Most recent time an assessment was updated"))
     improvement_score = serializers.IntegerField(required=False)
-    request_key = serializers.CharField(required=False)
-    reporting_status = serializers.SerializerMethodField(required=False)
-    improvement_completed = serializers.BooleanField(required=False)
-    supplier_initiated = serializers.BooleanField(required=False)
-    tags = serializers.SerializerMethodField(required=False)
+    request_key = serializers.CharField(required=False,
+        help_text=_("Unique key for the scorecard request"))
+    reporting_status = serializers.SerializerMethodField(required=False,
+        help_text=_("current reporting status"))
+    improvement_completed = serializers.BooleanField(required=False,
+        help_text=_("was the improvement plan completed"))
+    supplier_initiated = serializers.BooleanField(required=False,
+        help_text=_("share was supplier initiated"))
+    tags = serializers.SerializerMethodField(required=False,
+        help_text=_("extra information tags"))
 
     def get_reporting_status(self, obj):
         return self.REPORTING_STATUS[obj.get(
@@ -273,7 +282,8 @@ class PageElementSerializer(BasePageElementSerializer):
 class ScoreWeightSerializer(NoModelSerializer):
 
     weight = serializers.DecimalField(decimal_places=2, max_digits=3,
-        required=True)
+        required=True,
+        help_text=_("weight to apply to the score at the content node"))
 
     class Meta:
         fields = ('weight',)

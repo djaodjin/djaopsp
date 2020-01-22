@@ -6,6 +6,7 @@ import json, logging, re
 from deployutils.crypt import JSONEncoder
 from django.db import transaction
 from django.http import Http404
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
@@ -26,7 +27,8 @@ LOGGER = logging.getLogger(__name__)
 
 class ExtraSerializer(NoModelSerializer):
 
-    tags = serializers.CharField()
+    tags = serializers.CharField(
+        help_text=_("extra/tag field from a PageElement"))
 
 
 class ToggleTagContentAPIView(TrailMixin, UpdateAPIView):
@@ -59,6 +61,14 @@ class ToggleTagContentAPIView(TrailMixin, UpdateAPIView):
 class EnableContentAPIView(ToggleTagContentAPIView):
     """
     Enable a top level segment.
+
+    **Tags**: content
+
+    **Examples
+
+    .. code-block:: http
+
+       POST /api/XXX HTTP/1.1
     """
     added_tag = "enabled"
     removed_tag = "disabled"
@@ -67,6 +77,14 @@ class EnableContentAPIView(ToggleTagContentAPIView):
 class DisableContentAPIView(ToggleTagContentAPIView):
     """
     Disable a top level segment.
+
+    **Tags**: content
+
+    **Examples
+
+    .. code-block:: http
+
+       POST /api/XXX HTTP/1.1
     """
     added_tag = "disabled"
     removed_tag = "enabled"
@@ -79,6 +97,14 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
     A a result, we return the content tree that was updated
     instead of the `Column` instance because the user interface will
     want a chance to refresh the display accordingly.
+
+    **Tags**: content
+
+    **Examples
+
+    .. code-block:: http
+
+       POST /api/XXX HTTP/1.1
     """
 
     def create(self, request, *args, **kwargs):
@@ -134,6 +160,8 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
 
     Moves a PageElement from one attachement to another.
 
+    **Tags**: content
+
     **Examples
 
     .. code-block:: http
@@ -181,15 +209,17 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
     by *path*. It includes the title, text and, if applicable, the metrics
     associated to the content elements in the tree.
 
-    **Example request**:
+    **Tags**: content
 
-    .. sourcecode:: http
+    **Examples
 
-        GET /api/content/detail/boxes-enclosures/energy-efficiency/
+    .. code-block:: http
 
-    **Example response**:
+        GET /api/content/detail/boxes-enclosures/energy-efficiency/ HTTP/1.1
 
-    .. sourcecode:: http
+    responds
+
+    .. code-block:: json
 
         [
           {
@@ -234,55 +264,6 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
             ]
           ]
         ]
-
-    ``PUT`` updates the title, text and, if applicable, the metrics associated
-    associated to the content element referenced by *path*.
-
-    **Example request**:
-
-    .. sourcecode:: http
-
-        PUT /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/
-
-        {
-          "title": "Adjust air/fuel ratio",
-          "tag": "",
-          "consumption": {
-            "path": "/boxes-enclosures/energy-efficiency/air-flow",
-            "text": "Adjust air/fuel ratio",
-            "avg_energy_saving": "* * * *",
-            "avg_fuel_saving": "-",
-            "capital_cost": "$$",
-            "payback_period": "0-1.8 (0.3)",
-            "environmental_value": 1,
-            "business_value": 1,
-            "profitability": 3,
-            "implementation_ease": 1,
-            "avg_value": 2,
-            "rank": 3,
-            "nb_respondents": 0,
-            "rate": 0,
-            "opportunity": 0,
-            "implemented": "",
-            "planned": false
-           }
-        }
-
-    **Example response**:
-
-    .. sourcecode:: http
-
-    XXX
-
-   ``DELETE`` removes content element referenced by path from the content
-    hierarchy.
-
-    **Example request**:
-
-    .. sourcecode:: http
-
-        DELETE /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/
-
     """
     queryset = PageElement.objects.all()
     serializer_class = PageElementSerializer
@@ -299,7 +280,66 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
         raise Http404
 
     def post(self, request, *args, **kwargs):
+        """
+        ``PUT`` updates the title, text and, if applicable, the metrics associated
+        associated to the content element referenced by *path*.
+
+        **Tags**: content
+
+        **Examples
+
+        .. code-block:: http
+
+            PUT /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/ HTTP/1.1
+
+        .. code-block:: json
+
+            {
+              "title": "Adjust air/fuel ratio",
+              "tag": "",
+              "consumption": {
+                "path": "/boxes-enclosures/energy-efficiency/air-flow",
+                "text": "Adjust air/fuel ratio",
+                "avg_energy_saving": "* * * *",
+                "avg_fuel_saving": "-",
+                "capital_cost": "$$",
+                "payback_period": "0-1.8 (0.3)",
+                "environmental_value": 1,
+                "business_value": 1,
+                "profitability": 3,
+                "implementation_ease": 1,
+                "avg_value": 2,
+                "rank": 3,
+                "nb_respondents": 0,
+                "rate": 0,
+                "opportunity": 0,
+                "implemented": "",
+                "planned": false
+               }
+            }
+
+        responds:
+
+        .. code-block:: json
+
+        XXX
+        """
         return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        removes content element referenced by path from the content
+        hierarchy.
+
+        **Tags**: content
+
+        **Examples
+
+        .. code-block:: http
+
+            DELETE /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/ HTTP/1.1
+        """
+        return super(BestPracticeAPIView, self).delete(request, *args, **kwargs)
 
     def _destroy_trees(self, roots):
         if not roots:

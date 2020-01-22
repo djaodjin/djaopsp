@@ -508,7 +508,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'api_move_node': reverse('api_move_detail', args=("",)),
             'api_columns': reverse('api_column_base'),
             'api_consumptions': reverse('api_consumption_base'),
-            'api_weights': reverse('api_score_base'),
+            'api_weights': reverse('api_score', kwargs={'path': '/'}),
             'api_page_elements': reverse('page_elements'),
             'best_practice_base': self.get_breadcrumb_url(
                 path)

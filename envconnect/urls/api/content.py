@@ -24,8 +24,6 @@ urlpatterns = [
       DisableScorecardAPIView.as_view(), name="api_scorecard_disable"),
     url(r'^score(?P<path>%s)/?' % PATH_RE,
       ScoreWeightAPIView.as_view(), name="api_score"),
-    url(r'^score/?',
-      ScoreWeightAPIView.as_view(), name="api_score_base"),
     url(r'^consumption(?P<path>%s)/' % PATH_RE,
       ConsumptionDetailAPIView.as_view(), name="api_consumption"),
     url(r'^consumption/?',

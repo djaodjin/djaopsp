@@ -538,6 +538,7 @@ class SupplierListMixin(DashboardMixin):
                     created_at and last_activity_at < created_at):
                 last_activity_at = created_at
             if not result['request_key']:
+                print("XXX score: %s" % str(score))
                 normalized_score = score.get('normalized_score', None)
                 if segment['slug'].startswith('framework'):
                     score_url = reverse('envconnect_assess_organization',
@@ -655,24 +656,34 @@ class SupplierSmartListMixin(SortableListMixin, SearchableListMixin):
 
 class SupplierListAPIView(SupplierSmartListMixin, SupplierListBaseAPIView):
     """
+    Lists of accessible supplier scorecards
+
     List of suppliers accessible by the request user
     with normalized (total) score when the supplier completed
     an assessment.
 
-    GET /api/:organization/suppliers
+    **Tags**: benchmark
 
-    Example Response:
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/xia/suppliers HTTP/1.1
+
+    responds
+
+    .. code-block:: json
 
         {
-          "count":1,
-          "next":null
-          "previous":null,
+          "count": 1,
+          "next": null,
+          "previous": null,
           "results":[{
-             "slug":"andy-shop",
-             "printable_name":"Andy's Shop",
+             "slug": "andy-shop",
+             "printable_name": "Andy's Shop",
              "created_at": "2017-01-01",
-             "scores": ["boxes-and-enclosures", 94, "Boxes & enclosures"]
-             "normalized_score":94
+             "scores": [ "boxes-and-enclosures", 94, "Boxes & enclosures"],
+             "normalized_score": 94
           }]
         }
     """
@@ -688,13 +699,17 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
     by the assessment surveys and present aggregates
     by industry sub-sectors (Boxes & enclosures, etc.)
 
-    **Examples**:
+    **Tags**: benchmark
 
-    .. sourcecode:: http
+    **Examples
 
-        GET /api/matrix/totals
+    .. code-block:: http
 
-        Response:
+        GET /api/matrix/totals HTTP/1.1
+
+    responds
+
+    .. code-block:: json
 
         [{
            "slug": "totals",
@@ -917,8 +932,18 @@ class ShareScorecardSerializer(NoModelSerializer):
 
 class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
     """
+    Share a benchmark
+
     Share a supplier assessment, scorecard and improvement planning
     with customers, clients and/or investors.
+
+    **Tags**: share
+
+    **Examples
+
+    .. code-block:: http
+
+       POST /api/XXX HTTP/1.1
     """
     serializer_class = ShareScorecardSerializer
 

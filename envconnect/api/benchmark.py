@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 from __future__ import absolute_import
@@ -13,6 +13,7 @@ from django.db.models import Q
 from django.utils import six
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import utc
+from django.utils.translation import ugettext_lazy as _
 from pages.mixins import TrailMixin
 from pages.models import PageElement
 from rest_framework import generics
@@ -344,22 +345,22 @@ class BenchmarkMixin(ReportMixin):
 
 class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
     """
-    .. sourcecode:: http
-
-        GET /api/*organization*/benchmark*path*
+    Retrieves aggregated benchmark
 
     Returns list of *organization*'s scores for all relevant section
     of the best practices based on *path*.
 
-    **Example request**:
+    **Tags**: benchmark
 
-    .. sourcecode:: http
+    **Examples
 
-        GET /api/steve-shop/benchmark/boxes-and-enclosures/energy-efficiency/
+    .. code-block:: http
 
-    **Example response**:
+        GET /api/steve-shop/benchmark/boxes-and-enclosures/energy-efficiency/ HTTP/1.1
 
-    .. sourcecode:: http
+    responds
+
+    .. code-block:: json
 
         [{
             "slug":"totals",
@@ -468,21 +469,23 @@ class EnableScorecardAPIView(ToggleTagContentAPIView):
     """
     Enable scorecard
 
-    **Tags**: survey
+    XXX same description/behavior as /api/content/score but writing
+    to a bolean value. returns tags.
+
+    **Tags**: benchmark
 
     **Examples**
 
     .. code-block:: http
 
-         PUT /api/content/scorecard/disable/water/ HTTP/1.1
+         PUT /api/content/scorecard/enable/water-use/ HTTP/1.1
 
     responds
 
     .. code-block:: json
 
         {
-            "created_at": "2020-01-01T00:00:00Z",
-            "measured": 12
+            "tags": "scorecard"
         }
     """
     added_tag = 'scorecard'
@@ -492,21 +495,20 @@ class DisableScorecardAPIView(ToggleTagContentAPIView):
     """
     Disable scorecard
 
-    **Tags**: survey
+    **Tags**: benchmark
 
     **Examples**
 
     .. code-block:: http
 
-         PUT /api/content/scorecard/disable/water/  HTTP/1.1
+         PUT /api/content/scorecard/disable/water-use/  HTTP/1.1
 
     responds
 
     .. code-block:: json
 
         {
-            "created_at": "2020-01-01T00:00:00Z",
-            "measured": 12
+            "tags": "scorecard"
         }
     """
     removed_tag = 'scorecard'
@@ -516,21 +518,25 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
     """
     Retrieve score
 
-    **Tags**: survey
+    XXX score weight is embed in the PageElement tag. Do we really care
+    about the path or just the PageElement.slug? Since we do not have
+    aliasing at the node level (only leaf best practices), that seems
+    `path` is only used for API consistency.
+
+    **Tags**: benchmark
 
     **Examples**
 
     .. code-block:: http
 
-         GET /api/content/score/ HTTP/1.1
+         GET /api/content/score/water-use/ HTTP/1.1
 
     responds
 
     .. code-block:: json
 
         {
-            "created_at": "2020-01-01T00:00:00Z",
-            "measured": 12
+            "weight": 2.0
         }
     """
     lookup_field = 'path'
@@ -564,24 +570,24 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
 # XXX ReportMixin because we use populate_leaf
 class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
     """
-    .. sourcecode:: http
-
-        GET /api/*organization*/historical*path*
+    Retrieves historical scorecards
 
     Returns list of historical *organization*'s scores for all top level
     icons based on *path*. The output format is compatible
     with `HistoricalScoreChart` (see draw-chart.js).
 
-    **Example request**:
+    **Tags**: benchmark
 
-    .. sourcecode:: http
+    **Examples
+
+    .. code-block:: http
 
         GET /api/steve-shop/benchmark/historical/metal/boxes-and-enclosures\
-/sustainability-boxes-and-enclosures
+/sustainability-boxes-and-enclosures HTTP/1.1
 
-    **Example response**:
+    responds
 
-    .. sourcecode:: http
+    .. code-block:: http
 
         {
             "latest": {

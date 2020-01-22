@@ -14,6 +14,10 @@ class ConsumptionListAPIView(BreadcrumbMixin, generics.ListCreateAPIView):
     """
     Retrieve consumptions
 
+    XXX It seems only POST is used, and what it is used for is:
+    - to duplicate the content sent to PageElement.
+    - update the environmental_value, business_value, profitability, etc.
+
     **Tags**: survey
 
     **Examples**
@@ -57,18 +61,25 @@ class ConsumptionDetailAPIView(BreadcrumbMixin,
     """
     Retrieve, update and delete a `Consumption`.
 
-    **Example request**:
+    **Tags**: survey
 
-    .. sourcecode:: http
+    **Examples
 
-        PUT /api/consumption/boxes-enclosures/energy-efficiency/air-flow/
+    .. code-block:: http
+
+        PUT /api/consumption/boxes-enclosures/energy-efficiency/air-flow/ HTTP/1.1
+
+    .. code-block:: json
+
         {
         }
 
-    **Example response**:
+    responds
 
-    .. sourcecode:: http
+    .. code-block:: json
 
+        {
+        }
     """
 
     queryset = Consumption.objects.all()

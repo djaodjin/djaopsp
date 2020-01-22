@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 import decimal, logging
@@ -13,6 +13,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import DestroyAPIView, ListCreateAPIView
 from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 from survey.api.sample import AnswerAPIView, SampleAPIView
+from survey.api.serializers import AnswerSerializer, SampleSerializer
 from survey.models import Answer, Choice, EnumeratedQuestions, Unit
 from survey.mixins import SampleMixin
 from survey.utils import get_question_model
@@ -31,6 +32,8 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
     """
     Answers about the implementation of a best practice.
 
+    **Tags**: survey
+
     **Examples
 
     .. code-block:: http
@@ -48,8 +51,10 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
 
         {}
     """
+    serializer_class = AnswerSerializer # otherwise API doc is not generated.
 
     def get_queryset(self):
+        # XXX Same as AnswerAPIView but filters only the `default_metric`
         return super(AssessmentAnswerAPIView, self).get_queryset().filter(
             metric=self.question.default_metric)
 
@@ -81,21 +86,29 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
     """
     Retrieve a sample
 
+    Providing {sample} is a set of datapoints for {interviewee}, returns
+    a subset of datapoints whose question starts with a {path} prefix.
+
     **Tags**: survey
 
     **Examples**
 
     .. code-block:: http
 
-         GET /api/xia/sample/0123456789abcdef/water-use/ HTTP/1.1
+         GET /api/steve-shop/sample/0123456789abcdef/water-use/ HTTP/1.1
 
     responds
 
     .. code-block:: json
 
         {
+            "slug": "0123456789abcdef",
+            "account": "steve-shop",
             "created_at": "2020-01-01T00:00:00Z",
-            "measured": 12
+            "is_frozen": true,
+            "campaign": null,
+            "time_spent": null,
+            "answers": []
         }
     """
     account_url_kwarg = 'interviewee'
@@ -108,7 +121,7 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 
         .. code-block:: http
 
-            DELETE /api/steve-shop/sample/0123abcd/ HTTP/1.1
+            DELETE /api/steve-shop/sample/0123456789abcdef/water-use/ HTTP/1.1
         """
         return self.destroy(request, *args, **kwargs)
 
@@ -151,6 +164,8 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
     """
     Adds a measurement or comment to an answer.
+
+    **Tags**: survey
 
     **Examples
 
@@ -257,6 +272,8 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
 class DestroyMeasureAPIView(SampleMixin, DestroyAPIView):
     """
     Deletes a comment or reported measure on an assessment.
+
+    **Tags**: survey
 
     **Examples
 

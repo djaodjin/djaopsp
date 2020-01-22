@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 from django.db import transaction
@@ -36,8 +36,22 @@ class ImprovementListAPIView(ImprovementQuerySetMixin,
     .. code-block:: json
 
         {
-            "created_at": "2020-01-01T00:00:00Z",
-            "measured": 12
+            "count": 2,
+            "previous": null,
+            "next": null,
+            "results": [
+                {
+                    "created_at": "2020-01-01T00:00:00Z",
+                    "measured": 12,
+                    "consumption": "water-use"
+                },
+            "results": [
+                {
+                    "created_at": "2020-01-01T00:00:00Z",
+                    "measured": 10,
+                    "consumption": "gas-emissions"
+                }
+            ]
         }
     """
     serializer_class = ImprovementSerializer
@@ -76,11 +90,21 @@ class ImprovementAnswerAPIView(ImprovementQuerySetMixin,
                                CreateModelMixin, RetrieveModelMixin,
                                DestroyModelMixin, GenericAPIView):
     """
-    Assessment:
+    Assessment details
+
     implementation rate, nb respondents
     "implemented by you?"
     opportunity score
     selected from improvement
+
+    **Tags**: survey
+
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/xia/improvement/1/ HTTP/1.1
+
     """
     serializer_class = ImprovementSerializer
 

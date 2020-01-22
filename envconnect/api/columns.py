@@ -19,8 +19,16 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
     A a result, on `update` we return the content tree that was updated
     instead of the `Column` instance because the user interface will
     want a chance to refresh the display accordingly.
-    """
 
+    **Tags**: content
+
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/XXX HTTP/1.1
+
+    """
     lookup_field = 'path'
     serializer_class = ColumnHeaderSerializer
 

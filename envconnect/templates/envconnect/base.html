@@ -69,28 +69,7 @@ app.config(['$interpolateProvider', '$httpProvider',
     $interpolateProvider.endSymbol(']]');
 }]);
 app.constant('settings', {
-{% if urls %}
-    urls: {{urls|to_json}},
-{% else %}
-    urls: {
-        api_scorecard_disable: "{% url 'api_scorecard_disable' '' %}",
-        api_scorecard_enable: "{% url 'api_scorecard_enable' '' %}",
-        api_best_practices: "{% url 'api_detail' '' %}",
-        api_mirror_node: "{% url 'api_mirror_detail' '' %}",
-        api_move_node: "{% url 'api_move_detail' '' %}",
-        api_columns: "{% url 'api_column_base' %}",
-        api_consumptions: "{% url 'api_consumption_base' %}",
-{% if organization %}
-        api_improvements: "{% url 'api_improvement_base' organization %}",
-        {% if sample %}
-        api_assessment_sample: "{% url 'survey_api_sample' organization sample %}",
-        {% endif %}
-        api_assessment_sample_new: "{% url 'survey_api_sample_new' organization %}",
-{% endif %}
-        api_weights: "{% url 'api_score_base' %}",
-        api_page_elements: "{% url 'page_elements' %}",
-    },
-{% endif %}
+    urls: {% if urls %}{{urls|to_json}}{% else %}{}{% endif %},
     activeIcon: {% if active %}"{{active}}"{% else %}null{% endif %},
     nbAnswers: {% if nb_questions %}{{nb_answers}}{% else %}0{% endif %},
     nbQuestions: {% if nb_questions %}{{nb_questions}}{% else %}0{% endif %},
