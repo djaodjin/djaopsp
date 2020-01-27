@@ -1,0 +1,31 @@
+{% extends "accounts/base.html" %}
+
+{% block content %}
+<div class="backdrop">
+  <div class="container">
+    <div class="row">
+      <div class="offset-sm-2 col-sm-8 pb-5 pt-0 mt-5 mb-5">
+        <div class="card panel-grey">
+          <div class="card-body">
+            <div class="page-header my-4">
+              <h1 class="text-center">Get started!</h1>
+            </div>
+            <div class="signup-group row">
+              <div class="offset-sm-2 col-sm-8">
+                <p>
+We will attempt to connect you to your organization's profile on
+The Sustainability Project (TSP) website. If you have any questions, please
+feel free to <a href="{{'/contact/'|site_prefixed}}" target="_blank">contact us</a>
+                </p>
+                {% if form %}
+                {% include "accounts/activate/_index_form.html" %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

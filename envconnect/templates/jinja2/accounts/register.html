@@ -3,114 +3,96 @@
 {% block content %}
 <div class="backdrop">
   <div class="container">
-    <div class="row auth-form">
-      <div class="col-md-6" >
-        <div class="card card-grey">
-          <div class="card-body" style="padding: 0 15px;color:black;">
-            <h1><span class="fa fa-pencil"></span> Sign up</h1>
-            {% if form %}
-            {% include "accounts/_register_form.html" %}
-            {% endif %}
-            <hr />
+    <div class="card panel-grey">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="page-header my-4">
+              <h1 class="text-center">Sign up</h1>
+            </div>
+            <div class="text-center mb-2">
+              {% trans %}Already have an account?{% endtrans %}
+              <a id="login-instead" href="{{urls.user.login}}{% if next %}?next={{next}}{% endif %}">{% trans %}Sign In{% endtrans %}</a>
+            </div>
+            <div>
+              {% if form %}
+              {% include "accounts/_register_form.html" %}
+              {% endif %}
+            </div>
+            <div class="text-center my-2">
+              {% trans %}Already have an account?{% endtrans %}
+              <a id="login-instead" href="{{urls.user.login}}{% if next %}?next={{next}}{% endif %}">{% trans %}Sign In{% endtrans %}</a>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="page-header my-4">
+              <h2>Why Register?</h2>
+            </div>
+            <p>
+The entire purpose of The Sustainability Project (TSP) is to promote
+environmental sustainability best practices across entire supply chains.
+            </p>
+            <p>
+When you register, you will be able to:
+            </p>
             <div class="row">
-              <div class="col-md-8">
-                Already have an account? <a id="login-instead" href="{{'login/'|site_prefixed}}{% if next %}?next={{next}}{% endif %}">Sign in</a>
+              <div class="col-sm-3 text-center">
+                <i class="home-icon fa fa-bar-chart fa-4x"></i>
               </div>
-              <div class="col-md-4">
-                <span class="text-danger pull-right">* required fields</span>
+              <div class="col-sm-7">
+Benchmark your company's environmental sustainability performance against
+industry peers.
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="col-sm-3 text-center">
+                <i class="home-icon fa fa-file fa-4x"></i>
+              </div>
+              <div class="col-sm-7">
+Create improvement plans with clearly spelled out return-on-investment (ROI)
+to share with your colleagues and executives.
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="col-sm-3 text-center">
+                <i class="home-icon fa fa-share-alt fa-4x"></i>
+              </div>
+              <div class="col-sm-7">
+Promote your company's environmental sustainability achievements and plans
+with clients, customers or investors that require it; either as part of a
+request for proposal (RFP) and/or on-going suppliers relations.
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="col-md-6">
-        <h1>Why Register?</h1>
-        <p>
-In order to benchmark your company's performance against a selected comparison
-group, we need to create a profile of your organization. Unless you specify
-the release of data, all information you provide for benchmarking purposes
-is treated as <span style="text-decoration: underline;">confidential
-and anonymous</span> and displayed only in aggregated format.
-        </p>
-      </div>
     </div>
-  </div>
+        <div class="row my-5" style="color:black;">
+          <div class="offset-md-2 col-md-8">
+            <p>
+To evaluate and promote environmental sustainability best practices, this website
+relies on a transparent government process.
+            </p>
+            <p>
+The source code for the website is
+<a href="https://en.wikipedia.org/wiki/Open-source_model" target="_blank">Open Source</a>;
+you can review yourself how scores are computed. The best practices content is
+available under a <a href="https://en.wikipedia.org/wiki/Creative_Commons_license" target="_blank">Creative Common License</a>;
+you are free to copy, use and distribute what you read of this website.
+            </p>
+            <p>
+Unless you specify the release of data, all information you provide for
+benchmarking purposes is treated as
+<span style="text-decoration: underline;">confidential and anonymous</span>
+and displayed only in aggregated format.
+            </p>
+            <p>
+We encourage you to read the <a target="_blank" href="{{'/legal/terms-of-use/'|site_prefixed}}">terms of service</a>
+for details. If you want to participate in the governance of this site,
+please <a href="{{'/contact'|site_prefixed}}">contact us</a>.
+            </p>
 </div>
-<!-- Dialog to ask to join an organization -->
-{% if form %}
-<div id="join-organization" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="Joining an organization" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-body">
-<h2>Welcome to The Sustainability Project!</h2>
-<p>
-It seems your organization, {{form.organization_name.value()}}, already has
-a profile on The Sustainability Project website. You could request access
-to the organization’s profile from one of the managers.
-</p>
-<form class="form-horizontal" method="post" action="{{'/contact/'|site_prefixed}}">
-  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-  <input type="hidden" name="provider" value="{{already_present_candidate}}">
-  <input type="hidden" name="full_name" value="{{form.organization_name.value()}}">
-  <input type="hidden" name="email" value="{{form.email.value()}}">
-  <div class="form-group">
-    <div class="col-sm-12 controls">
-      <label>The following message will be sent along your request:</label>
-      <textarea class="form-control"
-                name="message"
-                maxlength="255" type="text" rows="10">
-Hello,
-
-I would like access to {{form.organization_name.value()}}.
-
-Thank you,
-- {{form.full_name.value()}}
- {{form.email.value()}}
-      </textarea>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary"
-            data-dismiss="modal">Cancel</button>
-    <button type="submit" class="btn btn-primary">Request access</button>
-  </div>
-</form>
-            </div>
         </div>
-    </div>
+  </div>
 </div>
-{% endif %}
-{% endblock %}
-
-{% block accounts_scripts %}
-<script type="text/javascript">
-jQuery(document).ready(function($) {
-  $("#join-organization").on('shown.bs.modal', function () {
-    var self = this;
-    $(self).find("[name='message']").focus();
-  });
-{% if already_present_candidate %}
-  $("#join-organization").modal("show");
-{% endif %}
-
-  $("[name='organization_name']").focus(function() {
-      var self = $(this);
-      var trip = new Trip([{
-            sel: self,
-            content: "<p class=\"text-left\">Please enter a legal entity name (i.e. W9 form in the U.S.A).<br /><br />The &quot;Organization&quot; you register must be a discrete business or legal<br />entity (e.g. business unit) that has the ability to control policies and<br />practices related to the organization's environmental impacts and<br />the allocation of resources to the implementation of environmental<br />controls and improvements.<br />Examples include, but are not limited to:</p><ul class=\"text-left\"><li>A local business with single or multiple facilities or offices.<li>A business unit of a multinational organization.</ul>",
-            position: "e",
-            enableAnimation: false,
-            delay:-1,
-            tripTheme: "black",
-            showNavigation: true,
-            canGoPrev: false,
-            prevLabel: " ",
-            nextLabel: "OK",
-            skipLabel: " ",
-            finishLabel: "OK"}]);
-      trip.start();
-      self.unbind("focus");
-  });
-});
-</script>
-{% endblock %}
+{% endblock content %}

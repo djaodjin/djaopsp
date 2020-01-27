@@ -12,49 +12,24 @@
 </style>
 <form{% if form.form_id %} id="{{form.form_id}}"{% endif %} class="form-horizontal"
     method="post" action=".{% if next %}/?next={{next}}{% endif %}">
-    <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-    <fieldset style="margin: 0 15px;">
-        <legend>Login Credentials</legend>
-        {{input_field(form['full_name'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-        {{input_field(form['username'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-        {{input_field(form['email'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-        {{input_field(form['new_password'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-        {{input_field(form['new_password2'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-    </fieldset>
-    <fieldset style="margin: 0 15px;">
-        <legend>Organization</legend>
-        <div class="form-group row{% if form.organization_name.errors %} has-error{% endif %}">
-            {% if not form.hide_labels %}
-            <label class="col-sm-5 control-label requiredField">Organization name</label>
-            {% endif %}
-            <div class="col-sm-7 controls">
-                <input class="form-control" type="text" name="organization_name"{% if form.organization_name.value() %} value="{{form.organization_name.value()}}"{% endif %} style="float:right;">
-                {% for error in form.organization_name.errors %}
-                <span class="help-block"><strong>{{error}}</strong></span>
-                {% endfor %}
-                {% if form.organization_name.help_text %}
-                <span class="help-block">{{form.organization_name.help_text}}</span>
-                {% endif %}
-            </div>
-        </div>
-        {{select_input_field([("ehs", "EHS"), ("operations", "Operations"), ("corporate", "Corporate Responsability/Sustainability"), ("marketing", "Marketing/Communications"), ("supply-chain", "Supply chain"), ("other", "Other")], "role_function", False, "Role Function", "", "", False, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-        {{input_field(form['country'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-        {{input_field(form['region'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-        {{input_field(form['locality'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-        {{input_field(form['postal_code'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
-    </fieldset>
-        <p>
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+  {{input_field(form['full_name'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+  {{input_field(form['username'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+  {{input_field(form['email'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+  {{input_field(form['new_password'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+  {{input_field(form['new_password2'], form.hide_labels, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+  {{select_input_field([("ehs", "EHS"), ("operations", "Operations"), ("corporate", "Corporate Responsability/Sustainability"), ("marketing", "Marketing/Communications"), ("supply-chain", "Supply chain"), ("other", "Other")], "role_function", False, "Role Function", "", "", False, extra_label_classes="col-sm-5", extra_control_classes="col-sm-7")}}
+  <p>
 By clicking on the &quot;Register&quot; button below,
 <b>I signify that I have read and accept the
-<a target="_blank" href="/legal/terms-of-use/">terms of service</a></b>.
-        </p>
-    <div class="">
+<a target="_blank" href="{{'/legal/terms-of-use/'|site_prefixed}}">terms of service</a></b>.
+  </p>
+    <div class="row">
         <div class="offset-sm-4 col-sm-4">
-            <div class="form-action">
-                <button type="submit" class="btn btn-block btn-primary btn-lg">Register</button>
-            </div>
-        </div>
-        <div style="clear: both;"></div>
-    </div>
+  <div class="form-action">
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Register</button>
+  </div>
+</div>
+</div>
 </form>
 {% endblock %}

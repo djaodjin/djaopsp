@@ -8,15 +8,19 @@
 <!--[if !IE]><!-->
  <li class="divider-vertical d-none d-sm-block"><li>
 <!--<![endif]-->
+{% endif %}
 <li class="nav-item dropdown {% if request and '/docs/' in request.path %} active{% endif %}">
  <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help <span class="caret"></span></a>
   <ul class="dropdown-menu" role="menu">
     <li role="presentation"><a class="dropdown-item" role="menuitem" tabindex="-1" href="{{'/docs/faq/'|site_prefixed}}">Faq</a></li>
     <li role="presentation"><a class="dropdown-item" role="menuitem" tabindex="-1" href="{{'/docs/tutorials/'|site_prefixed}}">Tutorials</a></li>
     <li role="presentation"><a class="dropdown-item" role="menuitem" tabindex="-1" href="{{'/contact/'|site_prefixed}}">Contact us</a></li>
+{% if request and request|is_authenticated %}
+    <li class="dropdown-divider" role="separator"></li>
+    <li role="presentation"><a class="dropdown-item" role="menuitem" tabindex="-1" href="{{'/euissca/docs/tutorials/sustainability-framework/'|site_prefixed}}">EUISSCA Framework</a></li>
+{% endif %}
   </ul>
 </li>
 <!--[if !IE]><!-->
 <li class="divider-vertical d-none d-sm-block"><li>
 <!--<![endif]-->
-{% endif %}
