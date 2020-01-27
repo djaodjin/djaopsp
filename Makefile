@@ -58,7 +58,7 @@ package-theme: build-assets
 		--include='accounts/' --include='docs/' \
 		--include='saas/' --include='notification/' \
 		--include='euissca/' --include='about.html'
-	zip -d $(srcDir)/htdocs/themes/envconnect.zip "envconnect/public/static/cache/angular.js" "envconnect/templates/accounts/base.html"
+	zip -d $(srcDir)/htdocs/themes/envconnect.zip "envconnect/templates/accounts/base.html"
 
 build-assets: htdocs/static/cache/_base.css \
                 htdocs/static/cache/_email.css

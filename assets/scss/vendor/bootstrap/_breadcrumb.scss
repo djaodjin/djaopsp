@@ -8,6 +8,13 @@
   @include border-radius($breadcrumb-border-radius);
 }
 
+.breadcrumb-item > a,
+.breadcrumb-item > a:active,
+.breadcrumb-item > a:hover,
+.breadcrumb-item > a:visited {
+  color: $breadcrumb-divider-color;
+}
+
 .breadcrumb-item {
   // The separator between breadcrumbs (by default, a forward-slash: "/")
   + .breadcrumb-item {
@@ -38,11 +45,11 @@
   &.active {
     color: $breadcrumb-active-color;
   }
-}
 
-.breadcrumb-item > a,
-.breadcrumb-item > a:active,
-.breadcrumb-item > a:hover,
-.breadcrumb-item > a:visited {
-  color: $breadcrumb-divider-color;
+  .breadcrumb-item > a,
+  .breadcrumb-item > a:active,
+  .breadcrumb-item > a:hover,
+  .breadcrumb-item > a:visited {
+    color: $breadcrumb-divider-color;
+  }
 }
