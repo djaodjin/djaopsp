@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 from __future__ import unicode_literals
@@ -106,6 +106,13 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
             if self.assessment_sample:
                 last_updated_at = self.assessment_sample.created_at.strftime(
                     "%b %Y")
+                update_context_urls(context, {
+                    'api_account_benchmark': reverse('api_benchmark',
+                        args=(context['organization'], self.assessment_sample,
+                            from_root)),
+                    'api_historical_scores': reverse('api_historical_scores',
+                        args=(context['organization'], from_root)),
+                })
             else:
                 # There are no assessment yet.
                 last_updated_at = "Current"
@@ -130,14 +137,6 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                 'root': root,
                 'entries': json.dumps(root, cls=JSONEncoder),
                 'last_updated_at': last_updated_at,
-            })
-            # Find supplier managers subscribed to this profile
-            # to share scorecard with.
-            update_context_urls(context, {
-                'api_account_benchmark': reverse('api_benchmark',
-                    args=(context['organization'], from_root)),
-                'api_historical_scores': reverse('api_historical_scores',
-                    args=(context['organization'], from_root)),
             })
         return context
 

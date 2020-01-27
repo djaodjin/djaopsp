@@ -132,7 +132,7 @@ See the following for examples of content developed for best practices:
                         </td>
                     </tr>
                 </tbody>
-                {% if 'metrics' not in icon.tag %}
+                {% if not icon.tag or not 'metrics' in icon.tag %}
                 {% include "envconnect/_assess_results_table.html" %}
                 {% endif %}
                 {% endwith %}
@@ -159,6 +159,7 @@ See the following for examples of content developed for best practices:
                     <!-- WORKAROUND: we set data-width and data-height
                          otherwise bootstrap-toggle will crop the size
                          inside a class="tab-content collapse". -->
+                    {% if not icon.tag or not 'metrics' in icon.tag %}
                     <input id="toggle-results-{{icon.slug}}"
                            type="checkbox" toggle-checkbox
                            data-toggle="toggle"
@@ -168,6 +169,7 @@ See the following for examples of content developed for best practices:
                            data-offstyle="green-level-2"
                            data-width="125px" data-height="34px"
                            ng-model="scoreToggle">
+                    {% endif %}
                 </div>
               </div>
             </div>

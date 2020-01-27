@@ -225,6 +225,7 @@ SELECT
     survey_question.opportunity AS opportunity,
     samples.account_id AS account_id,
     samples.id AS sample_id,
+    samples.slug AS sample_slug,
     samples.is_frozen AS is_completed,
     samples.extra AS is_planned
 FROM samples
@@ -237,7 +238,7 @@ WHERE survey_question.path LIKE '%(prefix)s%%'
 SELECT
     expected_opportunities.question_id AS id,
     expected_opportunities.account_id AS account_id,
-    expected_opportunities.sample_id AS sample_id,
+    expected_opportunities.sample_slug AS sample_id,
     expected_opportunities.is_completed AS is_completed,
     expected_opportunities.is_planned AS is_planned,
     CAST(survey_answer.measured AS FLOAT) AS numerator,
@@ -525,8 +526,10 @@ class SupplierListMixin(DashboardMixin):
                   complete_assessments, complete_improvements, expired_at):
         #pylint:disable=too-many-arguments
         result = self._prepare_account(account)
-        last_activity_at = None
+        path_prefix = self.kwargs.get('path')
         account_scores = []
+        last_activity_at = None
+        planned_improvements = None
         for segment_val in six.itervalues(segments):
             segment = segment_val[0]
             scores = segment['accounts']
@@ -538,37 +541,50 @@ class SupplierListMixin(DashboardMixin):
                     created_at and last_activity_at < created_at):
                 last_activity_at = created_at
             if not result['request_key']:
-                print("XXX score: %s" % str(score))
+                # The following are only required when supplier granted
+                # access to their scorecard.
                 normalized_score = score.get('normalized_score', None)
                 if segment['slug'].startswith('framework'):
                     score_url = reverse('envconnect_assess_organization',
                         args=(account.slug,
                               '/sustainability-%s' % str(segment['slug'])))
+                elif 'sample' in score:
+                    score_url = reverse('benchmark_organization_sample',
+                        args=(account.slug, score['sample'],
+                              '/sustainability-%s' % str(segment['slug'])))
                 else:
                     score_url = reverse('benchmark_organization',
                         args=(account.slug,
                               '/sustainability-%s' % str(segment['slug'])))
-                if (segment['slug'].startswith('framework') or
-                    normalized_score is not None):
+                if ((not path_prefix or
+                     segment['path'].startswith(path_prefix)) and
+                    (segment['slug'].startswith('framework') or
+                    normalized_score is not None)):
                     account_scores += [
                         (normalized_score, score_url, segment['title'])]
                 # XXX We should really compute a score here.
                 improvement_score = score.get('improvement_numerator', None)
                 if improvement_score is not None:
-                    result.update({'improvement_score': improvement_score})
-
+                    planned_improvements = improvement_score
         if not last_activity_at:
             last_activity_at = actives.get(account.pk, None)
+
+        if path_prefix and not account_scores:
+            return None
+
         result.update({
             'scores': account_scores,
             'last_activity_at': last_activity_at,
+            'improvement_score': planned_improvements,
             'assessment_completed': (
                 account.pk in complete_assessments),
             'improvement_completed': (
                 account.pk in complete_improvements),
         })
         result.update({
-            # `get_reporting_status` uses fields set previously in `result`.
+            # `get_reporting_status` uses fields (last_activity_at,
+            # assessment_completed, improvement_completed) previously set
+            # in `result`.
             'reporting_status': get_reporting_status(result, expired_at)})
         if account.extra and '"originator"' in account.extra:
             # XXX Hacky way to detect supplier initiated share of scorecard.
@@ -581,6 +597,7 @@ class SupplierListMixin(DashboardMixin):
             self.rollup_scores(force_score=True)) #SupplierListMixin
 
     def get_suppliers(self, rollup_tree):
+        root = self.kwargs.get('path')
         results = []
 
         # XXX currently a subset query of ``get_active_by_accounts`` because
@@ -608,9 +625,11 @@ class SupplierListMixin(DashboardMixin):
 
         for account in self.requested_accounts:
             try:
-                results += [self.get_scores(account, rollup_tree[1], actives_d,
-                    self.complete_assessments, self.complete_improvements,
-                    self.start_at)]
+                scores_by_account = self.get_scores(account, rollup_tree[1],
+                    actives_d, self.complete_assessments,
+                    self.complete_improvements, self.start_at)
+                if scores_by_account:
+                    results += [scores_by_account]
             except self.account_model.DoesNotExist:
                 pass
         return SupplierQuerySet(results,

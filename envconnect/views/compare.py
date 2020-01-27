@@ -15,6 +15,7 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 from deployutils.helpers import datetime_or_now
 from openpyxl import Workbook
+from pages.mixins import TrailMixin
 from pages.models import PageElement
 from survey.models import Matrix
 from survey.views.matrix import MatrixDetailView
@@ -24,21 +25,23 @@ from ..api.benchmark import BenchmarkMixin
 from ..api.dashboards import SupplierListMixin
 from ..serializers import AccountSerializer
 from ..helpers import as_valid_sheet_title
-from ..mixins import AccountMixin, PermissionMixin
+from ..mixins import AccountMixin, PermissionMixin, BreadcrumbMixin
 from ..models import Consumption
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-class SuppliersView(AccountMixin, PermissionMixin, TemplateView):
+class SuppliersView(AccountMixin, BreadcrumbMixin, TemplateView):
 
     template_name = 'envconnect/reporting/index.html'
 
     def get_context_data(self, **kwargs):
         context = super(SuppliersView, self).get_context_data(**kwargs)
+        root, trail = self.breadcrumbs
         update_context_urls(context, {
-            'api_suppliers': reverse('api_suppliers', args=(self.account,)),
+            'api_suppliers': reverse('api_suppliers',
+                args=(self.account, root)),
             'api_accessibles': site_prefixed(
                 "/api/profile/%(account)s/plans/%(account)s-report/"\
                 "subscriptions/" % {'account': self.account}),
@@ -46,7 +49,7 @@ class SuppliersView(AccountMixin, PermissionMixin, TemplateView):
             'api_organization_profile': site_prefixed(
                 "/api/profile/%(account)s/" % {'account': self.account}),
             'download': reverse('organization_reporting_entities_download',
-                                args=(self.account,))
+                                args=(self.account, root))
         })
         context.update({
             'score_toggle': True,

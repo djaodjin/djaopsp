@@ -280,7 +280,7 @@ Thank you.
   </div>
   <div class="row" style="margin-top: 5px;">
     <div class="col-sm-4">
-      <a id="download-reporting" class="btn btn-secondary" href="{% url 'organization_reporting_entities_download' organization %}?start_at=[[params['start_at'] ]]&ends_at=[[params['ends_at'] ]]" target="_blank"><i class="fa fa-download"></i> Download scores</a>
+      <a id="download-reporting" class="btn btn-secondary" href="{{urls.download}}?start_at=[[params['start_at'] ]]&ends_at=[[params['ends_at'] ]]" target="_blank"><i class="fa fa-download"></i> Download scores</a>
     </div>
     <div class="col-sm-4">
       <label style="color:#000;margin-top: 10px;">

@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 from django.conf.urls import url, include
@@ -13,8 +13,9 @@ from ...api.dashboards import (SupplierListAPIView,
     TotalScoreBySubsectorAPIView, ShareScorecardAPIView)
 
 urlpatterns = [
-    url(r'(?P<organization>%s)/suppliers/?' % SLUG_RE,
-      SupplierListAPIView.as_view(), name="api_suppliers"),
+    url(r'(?P<organization>%s)/suppliers(?P<path>%s)/?$'
+        % (SLUG_RE, PATH_RE),
+        SupplierListAPIView.as_view(), name="api_suppliers"),
     url(r'(?P<organization>%s)/matrix/(?P<path>%s)/?$' % (
         SLUG_RE, SLUG_RE + PATH_RE),
         TotalScoreBySubsectorAPIView.as_view()),
@@ -27,8 +28,8 @@ urlpatterns = [
         SLUG_RE, PATH_RE),
         ShareScorecardAPIView.as_view(),
         name="api_benchmark_share"),
-    url(r'(?P<organization>%s)/benchmark/current(?P<path>%s)/?' % (
-        SLUG_RE, PATH_RE),
+    url(r'(?P<organization>%s)/benchmark/(?P<sample>%s)/'\
+        'sample(?P<path>%s)/?' % (SLUG_RE, SLUG_RE, PATH_RE),
         BenchmarkAPIView.as_view(),
         name="api_benchmark"),
     url(r'(?P<organization>%s)/benchmark/historical(?P<path>%s)/?' % (

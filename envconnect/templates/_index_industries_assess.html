@@ -9,13 +9,13 @@
     {% if request|is_broker_manager %}
       <input type="checkbox" name="industry" value="{{industry.1.slug}}"
       {% if industry.1|containsTag:'enabled' %}checked{% endif %} />
-      <a id="{{industry.1.slug}}" href="{{'app/info/assess/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
+      <a id="{{industry.1.slug}}" href="{{'app/assess/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
       {% else %}
       {% if industry.1|containsTag:'enabled' %}
       {% if industry.1|containsTag:'heading' %}
       <button id="{{industry.1.slug}}" disabled>{{industry.1.title}}</button>
       {% else %}
-      <a id="{{industry.1.slug}}" href="{{'app/info/assess/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
+      <a id="{{industry.1.slug}}" href="{{'app/assess/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
       {% endif %}
       {% else %}
       <span id="{{industry.1.slug}}" class="disabled" role="menuitem" tabindex="-1">{{industry.1.title}} <i class="fa fa-wrench"></i></span>

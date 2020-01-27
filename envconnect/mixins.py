@@ -639,6 +639,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
         *agg_score* is a tuple (account_id, sample_id, is_planned, numerator,
         denominator, last_activity_at, nb_answers, nb_questions)
         """
+        sample_id = agg_score.sample_id
         is_completed = agg_score.is_completed
         is_planned = agg_score.is_planned
         numerator = agg_score.numerator
@@ -682,7 +683,8 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                 'nb_answers': nb_answers,
                 'nb_questions': nb_questions,
                 'assessment_completed': is_completed,
-                'created_at': created_at
+                'created_at': created_at,
+                'sample': sample_id
             })
             if force_score or nb_answers == nb_questions:
                 # We might end-up here with an unanswered question
@@ -709,7 +711,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
     'answers': answers,
     'bool_agg': 'MAX' if is_sqlite3() else 'bool_or',
 }
-        _show_query_and_result(agg_scores, show=True)
+        _show_query_and_result(agg_scores)
         with connection.cursor() as cursor:
             cursor.execute(agg_scores, params=None)
             col_headers = cursor.description

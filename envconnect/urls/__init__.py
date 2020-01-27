@@ -1,13 +1,15 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_prefixed)
 from django.conf import settings
 from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as static_serve
 from pages.settings import PATH_RE, SLUG_RE
 from urldecorators import include, url
 
-from ..urlbuilders import (APP_PREFIX, url_prefixed, url_authenticated,
+from ..urlbuilders import (url_prefixed, url_authenticated,
     url_direct, url_content_manager)
 from ..views.redirects import AccountRedirectView, MyTSPRedirectView
 from ..views.assessments import AssessmentView, AssessmentXLSXView
@@ -61,7 +63,7 @@ urlpatterns += [
     url_authenticated(r'app/',
         AccountRedirectView.as_view(
             pattern_name='organization_app',
-            new_account_url='/%sapp/new/' % APP_PREFIX)),
+            new_account_url=site_prefixed('/users/roles/accept/'))),
 
     # These URLs will be served by the djaodjin webapp.
     # XXX fix: remove envconnect prefix when themes are ready.

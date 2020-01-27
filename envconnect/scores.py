@@ -194,8 +194,7 @@ def populate_rollup(rollup_tree, normalize_to_one, force_score=False):
         populate_rollup(                                       # recursive call
             node, normalize_children, force_score=force_score)
         score_weight = node[0].get('score_weight', 1.0)
-        for account_id, scores in six.iteritems(
-                node[0].get('accounts', {})):
+        for account_id, scores in six.iteritems(node[0].get('accounts', {})):
             if not account_id in accounts:
                 accounts[account_id] = {}
             agg_scores = accounts[account_id]

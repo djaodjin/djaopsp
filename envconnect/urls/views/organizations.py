@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 from pages.settings import PATH_RE, SLUG_RE
@@ -19,19 +19,25 @@ NON_EMPTY_PATH_RE = r'(/[a-zA-Z0-9\-]+)+'
 
 urlpatterns = [
     # direct manager of :organization
-    url(r'app/(?P<organization>%s)/reporting/download/' % SLUG_RE,
+    url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/download/'
+        % (SLUG_RE, PATH_RE),
         SuppliersXLSXView.as_view(),
         name='organization_reporting_entities_download'),
-
-    url(r'app/(?P<organization>%s)/reporting/' % SLUG_RE,
+    url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/'
+        % (SLUG_RE, PATH_RE),
         SuppliersView.as_view(),
         name='organization_reporting_entities'),
-    url(r'app/(?P<organization>%s)/portfolios(?P<path>%s)/'
-               % (SLUG_RE, NON_EMPTY_PATH_RE),
-        PortfoliosDetailView.as_view(), name='matrix_chart'),
+    url(r'app/(?P<organization>%s)/reporting/$' % SLUG_RE,
+        SuppliersView.as_view(),
+        name='organization_reporting_entities_base'),
 
+    url(r'app/(?P<organization>%s)/portfolios(?P<path>%s)/'
+        % (SLUG_RE, NON_EMPTY_PATH_RE),
+        PortfoliosDetailView.as_view(), name='matrix_chart'),
     url(r'app/(?P<organization>%s)/portfolios/' % SLUG_RE,
         include('survey.urls.matrix')),
+
+    # Assessments
     url(r'app/(?P<organization>%s)/assess/(?P<sample>%s)/'\
         'sample(?P<path>%s)/download/' % (SLUG_RE, SLUG_RE, PATH_RE),
         AssessmentXLSXView.as_view(),
@@ -45,13 +51,32 @@ urlpatterns = [
         SLUG_RE), ScoreCardRedirectView.as_view(
             pattern_name='envconnect_assess_organization'),
         name='assess_organization_redirect'),
-
     url(r'app/(?P<organization>%s)/assess(?P<path>%s)/download/' % (
         SLUG_RE, PATH_RE), AssessmentXLSXView.as_view(),
         name='envconnect_assess_organization_download'),
     url(r'app/(?P<organization>%s)/assess(?P<path>%s)/' % (
         SLUG_RE, PATH_RE), AssessmentView.as_view(),
         name='envconnect_assess_organization'),
+
+    # Benchmarks
+    url(r'app/(?P<organization>%s)/benchmark/(?P<sample>%s)/'\
+        'sample(?P<path>%s)/download/' % (SLUG_RE, SLUG_RE, PATH_RE),
+        ScoreCardDownloadView.as_view(),
+        name='benchmark_organization_sample_download'),
+    url(r'app/(?P<organization>%s)/benchmark/(?P<sample>%s)/'\
+        'sample(?P<path>%s)/'
+        % (SLUG_RE, SLUG_RE, PATH_RE),
+        BenchmarkView.as_view(),
+        name='benchmark_organization_sample'),
+
+    url(r'app/(?P<organization>%s)/benchmark/$' % (
+        SLUG_RE), ScoreCardRedirectView.as_view(
+            pattern_name='benchmark_organization'),
+        name='benchmark_organization_redirect'),
+    url(r'app/(?P<organization>%s)/benchmark(?P<path>%s)/' % (
+        SLUG_RE, PATH_RE), BenchmarkView.as_view(),
+        name='benchmark_organization'),
+
     url(r'app/(?P<organization>%s)/improve(?P<path>%s)/print/' % (
         SLUG_RE, PATH_RE), ImprovementPDFView.as_view(),
         name='envconnect_improve_organization_print'),
@@ -61,13 +86,7 @@ urlpatterns = [
     url(r'app/(?P<organization>%s)/improve(?P<path>%s)/' % (
         SLUG_RE, PATH_RE), ImprovementView.as_view(),
         name='envconnect_improve_organization'),
-    url(r'app/(?P<organization>%s)/benchmark/$' % (
-        SLUG_RE), ScoreCardRedirectView.as_view(
-            pattern_name='benchmark_organization'),
-        name='benchmark_organization_redirect'),
-    url(r'app/(?P<organization>%s)/benchmark(?P<path>%s)/' % (
-        SLUG_RE, PATH_RE), BenchmarkView.as_view(),
-        name='benchmark_organization'),
+
     url(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/download/' % (
         SLUG_RE, PATH_RE), ScoreCardDownloadView.as_view(),
         name='scorecard_download_organization'),
@@ -78,6 +97,8 @@ urlpatterns = [
     url(r'app/(?P<organization>%s)/scorecard(?P<path>%s)/' % (
         SLUG_RE, PATH_RE), ScoreCardView.as_view(),
         name='scorecard_organization'),
+
+
     url(r'app/(?P<organization>%s)/share/?$' % (
         SLUG_RE), ShareRedirectView.as_view(
             pattern_name='envconnect_share_organization'),

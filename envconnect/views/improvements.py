@@ -72,13 +72,15 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
         from_root, _ = self.breadcrumbs
         organization = context['organization']
         update_context_urls(context, {
-            'api_account_benchmark': reverse('api_benchmark',
-                args=(organization, self.get_scorecard_path(
-                    self.kwargs.get('path')))),
             'api_organizations': site_prefixed("/api/profile/"),
             'api_viewers': site_prefixed(
                 "/api/profile/%s/roles/viewers/" % self.account),
         })
+        if self.assessment_sample:
+            update_context_urls(context, {
+                'api_account_benchmark': reverse('api_benchmark',
+                args=(organization, self.assessment_sample,
+                      self.get_scorecard_path(self.kwargs.get('path'))))})
         return context
 
 
