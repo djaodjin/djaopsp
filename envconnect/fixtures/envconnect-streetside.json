@@ -279,8 +279,7 @@
     "app": 6,
     "rank": 8,
     "path": "/app/assess/",
-    "rule_op": 1,
-    "engaged": "app,info"
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 8
 },
@@ -288,8 +287,7 @@
     "app": 6,
     "rank": 9,
     "path": "/app/benchmark/",
-    "rule_op": 1,
-    "engaged": "app,info"
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 9
 },
@@ -322,8 +320,7 @@
     "app": 6,
     "rank": 13,
     "path": "/app/portfolios/",
-    "rule_op": 1,
-    "engaged": "app,info"
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 13
 },
@@ -331,8 +328,7 @@
     "app": 6,
     "rank": 14,
     "path": "/app/requests/",
-    "rule_op": 1,
-    "engaged": "app,info"
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 14
 },
@@ -340,8 +336,7 @@
     "app": 6,
     "rank": 15,
     "path": "/app/scorecard/",
-    "rule_op": 1,
-    "engaged": "app,info"
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 15
 },
@@ -349,8 +344,7 @@
     "app": 6,
     "rank": 16,
     "path": "/app/share/",
-    "rule_op": 1,
-    "engaged": "app,info"
+    "rule_op": 1
   },
   "model": "rules.Rule", "pk": 16
 },

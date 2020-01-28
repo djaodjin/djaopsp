@@ -288,9 +288,9 @@
 {# Yes/No #}
 <td class="text-center"
     ng-if="practice[0].consumption && practice[0].consumption.metric === 'yes-no'">
-    <label for="yes-[[$index]]"
+    <label for="yes-[[practice[0].consumption.rank]]"
            style="margin-bottom:0">
-        <input id="yes-[[$index]]"
+        <input id="yes-[[practice[0].consumption.rank]]"
            type="radio"
            value="Yes"
            name="implemented-[[practice[0].consumption.rank]]"
@@ -301,9 +301,9 @@
 </td>
 <td class="text-center"
     ng-if="practice[0].consumption && practice[0].consumption.metric === 'yes-no'">
-    <label for="no-[[$index]]"
+    <label for="no-[[practice[0].consumption.rank]]"
            style="margin-bottom:0">
-        <input id="no-[[$index]]"
+        <input id="no-[[practice[0].consumption.rank]]"
            type="radio"
            value="No"
            name="implemented-[[practice[0].consumption.rank]]"
@@ -326,9 +326,9 @@
 {% for choice in choices %}
 <td class="text-center cell-fix-width-5"
     ng-if="practice[0].consumption && practice[0].consumption.metric === 'assessment'">
-    <label for="{{choice.text|slugify}}-[[$index]]"
+    <label for="{{choice.text|slugify}}-[[practice[0].consumption.rank]]"
            style="margin-bottom:0">
-    <input id="{{choice.text|slugify}}-[[$index]]" type="radio"
+    <input id="{{choice.text|slugify}}-[[practice[0].consumption.rank]]" type="radio"
            value="{{choice.text}}"
            name="implemented-[[practice[0].consumption.rank]]"
            ng-checked="practice[0].consumption.implemented === '{{choice.text}}'"
