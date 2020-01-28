@@ -28,6 +28,10 @@ urlpatterns = [
         SLUG_RE, PATH_RE),
         ShareScorecardAPIView.as_view(),
         name="api_benchmark_share"),
+    url(r'(?P<organization>%s)/benchmark/historical(?P<path>%s)/?' % (
+        SLUG_RE, PATH_RE),
+        HistoricalScoreAPIView.as_view(),
+        name="api_historical_scores"),
     url(r'(?P<organization>%s)/benchmark/(?P<sample>%s)/'\
         'sample(?P<path>%s)/?' % (SLUG_RE, SLUG_RE, PATH_RE),
         BenchmarkAPIView.as_view(),
@@ -35,10 +39,6 @@ urlpatterns = [
     url(r'(?P<organization>%s)/benchmark/(?P<path>%s)/?' % (SLUG_RE, PATH_RE),
         BenchmarkAPIView.as_view(),
         name="api_benchmark_base"),
-    url(r'(?P<organization>%s)/benchmark/historical(?P<path>%s)/?' % (
-        SLUG_RE, PATH_RE),
-        HistoricalScoreAPIView.as_view(),
-        name="api_historical_scores"),
     url(r'(?P<organization>%s)/improvement$' % SLUG_RE,
         ImprovementListAPIView.as_view(),
         name='api_improvement_base'),
