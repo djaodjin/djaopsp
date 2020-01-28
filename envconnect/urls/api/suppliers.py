@@ -32,6 +32,9 @@ urlpatterns = [
         'sample(?P<path>%s)/?' % (SLUG_RE, SLUG_RE, PATH_RE),
         BenchmarkAPIView.as_view(),
         name="api_benchmark"),
+    url(r'(?P<organization>%s)/benchmark/(?P<path>%s)/?' % (SLUG_RE, PATH_RE),
+        BenchmarkAPIView.as_view(),
+        name="api_benchmark_base"),
     url(r'(?P<organization>%s)/benchmark/historical(?P<path>%s)/?' % (
         SLUG_RE, PATH_RE),
         HistoricalScoreAPIView.as_view(),

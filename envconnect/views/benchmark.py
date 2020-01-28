@@ -103,6 +103,12 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                 else:
                     excludes = [parts[1]]
             charts = self.get_charts(root, excludes=excludes)
+            update_context_urls(context, {
+                'api_account_benchmark': reverse('api_benchmark_base',
+                    args=(context['organization'], from_root)),
+                'api_historical_scores': reverse('api_historical_scores',
+                    args=(context['organization'], from_root)),
+                })
             if self.assessment_sample:
                 last_updated_at = self.assessment_sample.created_at.strftime(
                     "%b %Y")
@@ -110,8 +116,6 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                     'api_account_benchmark': reverse('api_benchmark',
                         args=(context['organization'], self.assessment_sample,
                             from_root)),
-                    'api_historical_scores': reverse('api_historical_scores',
-                        args=(context['organization'], from_root)),
                 })
             else:
                 # There are no assessment yet.
