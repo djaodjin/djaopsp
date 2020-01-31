@@ -17,9 +17,9 @@ urlpatterns = [
             pattern_name='matrix_chart',
             new_account_url=site_prefixed('/users/roles/accept/')),
         name='envconnect_portfolio'),
-    url(r'app/requests/',
+    url(r'app/requests(?P<path>%s)/' % PATH_RE,
         MyTSPRedirectView.as_view(
-            pattern_name='organization_reporting_entities_base',
+            pattern_name='organization_reporting_entities',
             new_account_url=site_prefixed('/users/roles/accept/')),
         name='envconnect_share_requests'),
     url(r'app/assess(?P<path>%s)/' % PATH_RE,
