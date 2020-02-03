@@ -2295,8 +2295,26 @@
         dialogId = "" + this.options.uuid + "-dialog";
         butTitle = this.options.dialogOpts.buttonTitle;
         butUpdateTitle = this.options.dialogOpts.buttonUpdateTitle;
-        dialog = jQuery("<div id=\"" + dialogId + "\">        <form action=\"#\" method=\"post\" class=\"linkForm\">          <input class=\"url\" type=\"text\" name=\"url\"            value=\"" + this.options.defaultUrl + "\" />          <input type=\"submit\" id=\"addlinkButton\" value=\"" + butTitle + "\"/>        </form></div>");
+        dialog = jQuery(
+"<div id=\"" + dialogId + "\">" +
+   "<form action=\"#\" method=\"post\" class=\"text-center linkForm\">" +
+     "<div class=\"dj-upload\" djupload-success >" +
+       "<div class=\"dropzone-previews previewsContainer\">" +
+         "<span class=\"dz-default dz-message\"><i class=\"fa fa-cloud\"></i> Upload document</span>" +
+       "</div>" +
+     "</div>" +
+     "<input class=\"form-control url\" type=\"text\" name=\"url\" value=\"" + this.options.defaultUrl + "\" />" +
+     "<input class=\"btn btn-primary mt-1\" type=\"submit\" id=\"addlinkButton\" value=\"" + butTitle + "\"/>" +
+   "</form>" +
+"</div>");
         urlInput = jQuery('input[name=url]', dialog);
+        dialog.find(".dj-upload").djupload({
+            uploadUrl:assetsUploadUrl,
+            acl: "public-read",
+            uploadSuccess: function(file, resp) {
+                urlInput.val(resp.location);
+            }
+        });
         isEmptyLink = function(link) {
           if ((new RegExp(/^\s*$/)).test(link)) {
             return true;
@@ -2315,8 +2333,8 @@
           if (isEmptyLink(link)) {
             document.execCommand("unlink", null, "");
           } else {
-            if (!(/:\/\//.test(link)) && !(/^mailto:/.test(link))) {
-              link = 'http://' + link;
+            if( !(/^\/[^\/]/.test(link)) && !(/^https:\/\//.test(link)) && !(/^mailto:/.test(link))) {
+              link = 'https://' + link;
             }
             if (widget.lastSelection.startContainer.parentNode.href === void 0) {
               if (widget.lastSelection.collapsed) {
@@ -2398,7 +2416,7 @@
           buttonset.hallobuttonset();
           return dialog.dialog(this.options.dialogOpts);
         }
-      }
+      } // populateToolbar
     });
   })(jQuery);
 
