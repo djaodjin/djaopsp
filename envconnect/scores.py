@@ -1,4 +1,4 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -9,7 +9,8 @@ from __future__ import unicode_literals
 import datetime
 
 from django.utils import six
-
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import utc
 
 def _normalize(scores, normalize_to_one=False, force_score=False):
     """
@@ -54,6 +55,107 @@ def _normalize(scores, normalize_to_one=False, force_score=False):
     else:
         scores.pop(numerator_key, None)
         scores.pop(denominator_key, None)
+
+
+def populate_account(accounts, agg_score,
+                     agg_key='account_id', force_score=False):
+    """
+    Populate the *accounts* dictionnary with scores in *agg_score*.
+
+    *agg_score* is a tuple (account_id, sample_id, is_planned, numerator,
+    denominator, last_activity_at, nb_answers, nb_questions)
+    """
+    sample_id = agg_score.sample_id
+    is_completed = agg_score.is_completed # i.e. survey_sample.is_frozen
+    is_planned = agg_score.is_planned
+    numerator = agg_score.numerator
+    denominator = agg_score.denominator
+    created_at = agg_score.last_activity_at
+    if created_at:
+        if isinstance(created_at, six.string_types):
+            created_at = parse_datetime(created_at)
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=utc)
+    if agg_key == 'last_activity_at':
+        account_id = created_at
+    else:
+        account_id = getattr(agg_score, agg_key)
+    nb_answers = getattr(agg_score, 'nb_answers', None)
+    if nb_answers is None:
+        # Putting the following statement in the default clause will lead
+        # to an exception since `getattr(agg_score, 'answer_id')` will be
+        # evaluated first.
+        nb_answers = 0 if getattr(agg_score, 'answer_id') is None else 1
+    nb_questions = getattr(agg_score, 'nb_questions', 1)
+    if not account_id in accounts:
+        accounts[account_id] = {}
+    if is_planned:
+        accounts[account_id].update({
+            'improvement_numerator': numerator,
+            'improvement_denominator': denominator,
+            'improvement_completed': is_completed,
+        })
+        if not 'nb_answers' in accounts[account_id]:
+            accounts[account_id].update({
+                'nb_answers': nb_answers})
+        if not 'nb_questions' in accounts[account_id]:
+            accounts[account_id].update({
+                'nb_questions': nb_questions})
+        if not 'created_at' in accounts[account_id]:
+            accounts[account_id].update({
+                'created_at': created_at})
+    else:
+        accounts[account_id].update({
+            'nb_answers': nb_answers,
+            'nb_questions': nb_questions,
+            'assessment_completed': is_completed,
+            'created_at': created_at,
+            'sample': sample_id
+        })
+        if force_score or nb_answers == nb_questions:
+            # We might end-up here with an unanswered question
+            # that was added after the sample was frozen.
+            accounts[account_id].update({
+                'numerator': numerator,
+                'denominator': denominator})
+
+
+def populate_account_na_answers(accounts, agg_score,
+                                agg_key='account_id', force_score=False):
+    """
+    Adds `nb_na_answers` field in `accounts`.
+    """
+    account_id = getattr(agg_score, 'account_id', None)
+    nb_answers = getattr(agg_score, 'nb_answers', None)
+    if nb_answers is None:
+        # Putting the following statement in the default clause will lead
+        # to an exception since `getattr(agg_score, 'answer_id')` will be
+        # evaluated first.
+        nb_answers = 0 if getattr(agg_score, 'answer_id') is None else 1
+    if not account_id in accounts:
+        accounts[account_id] = {}
+    accounts[account_id].update({
+        'nb_na_answers': nb_answers
+    })
+
+
+def populate_account_planned_improvements(accounts, agg_score,
+                     agg_key='account_id', force_score=False):
+    """
+    Adds `nb_planned_improvements` to `accounts`.
+    """
+    account_id = getattr(agg_score, 'account_id', None)
+    nb_answers = getattr(agg_score, 'nb_answers', None)
+    if nb_answers is None:
+        # Putting the following statement in the default clause will lead
+        # to an exception since `getattr(agg_score, 'answer_id')` will be
+        # evaluated first.
+        nb_answers = 0 if getattr(agg_score, 'answer_id') is None else 1
+    if not account_id in accounts:
+        accounts[account_id] = {}
+    accounts[account_id].update({
+        'nb_planned_improvements': nb_answers
+    })
 
 
 def populate_rollup(rollup_tree, normalize_to_one, force_score=False):
@@ -171,8 +273,6 @@ def populate_rollup(rollup_tree, normalize_to_one, force_score=False):
          }]
     """
     #pylint:disable=too-many-locals
-    numerator_key = 'numerator'
-    denominator_key = 'denominator'
     values = rollup_tree[0]
     slug = values.get('slug', None)
     total_score_weight = 0
@@ -198,11 +298,6 @@ def populate_rollup(rollup_tree, normalize_to_one, force_score=False):
             if not account_id in accounts:
                 accounts[account_id] = {}
             agg_scores = accounts[account_id]
-            if not 'nb_answers' in agg_scores:
-                agg_scores['nb_answers'] = 0
-            if not 'nb_questions' in agg_scores:
-                agg_scores['nb_questions'] = 0
-
             if 'sample' in scores:
                 agg_scores['sample'] = scores['sample']
             if 'created_at' in scores:
@@ -214,21 +309,22 @@ def populate_rollup(rollup_tree, normalize_to_one, force_score=False):
                       isinstance(scores['created_at'], datetime.datetime)):
                     agg_scores['created_at'] = max(
                         agg_scores['created_at'], scores['created_at'])
-            nb_answers = scores.get('nb_answers', 0)
-            nb_questions = scores.get('nb_questions', 0)
-            if slug != 'totals' or nb_answers > 0:
+            nb_answers = scores.get('nb_answers')
+            if slug != 'totals' or nb_answers:
                 # Aggregation of total scores is different. We only want to
-                # count scores for assessment that matter
-                # for an organization's industry.
-                agg_scores['nb_answers'] += nb_answers
-                agg_scores['nb_questions'] += nb_questions
-                for key in [numerator_key, denominator_key,
+                # count scores for assessment that matter for an organization's
+                # segment.
+                for key in ('nb_answers', 'nb_questions',
+                            'nb_na_answers', 'nb_planned_improvements'):
+                    value = scores.get(key)
+                    if value is not None:
+                        agg_scores[key] = agg_scores.get(key, 0) + value
+                for key in ['numerator', 'denominator',
                             'improvement_numerator']:
-                    value = scores.get(key, 0)
-                    if value is None:
-                        value = 0
-                    agg_scores[key] = agg_scores.get(key, 0) + (
-                        value * score_weight)
+                    value = scores.get(key)
+                    if value is not None:
+                        agg_scores[key] = agg_scores.get(key, 0) + (
+                            value * score_weight)
 
     for account_id, scores in six.iteritems(accounts):
         _normalize(

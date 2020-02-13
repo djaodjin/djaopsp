@@ -1,4 +1,4 @@
-/* Copyright (c) 2019, DjaoDjin inc.
+/* Copyright (c) 2020, DjaoDjin inc.
    see LICENSE. */
 
 /* Functionality related to the envconnect API.
@@ -1633,11 +1633,18 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     $scope.dir = {};
     $scope.totalItems = 0;
     $scope.opened = { "start_at": false, "ends_at": false };
+    $scope.accountExtra = (typeof settings.accountExtra
+        !== 'undefined') ? settings.accountExtra : {};
     $scope.params = {};
-    $scope.params['o'] = settings.sortByField || "printable_name";
-    $scope.params['ot'] = settings.sortDirection || "asc";
+    $scope.params['o'] =
+        $scope.accountExtra['o'] || settings.sortByField || "printable_name";
+    $scope.params['ot'] =
+        $scope.accountExtra['ot'] || settings.sortDirection || "asc";
     $scope.dir[$scope.params['o']] = $scope.params['ot'];
-    if( settings.date_range && settings.date_range.start_at ) {
+    if( $scope.accountExtra.start_at ) {
+        $scope.start_at = moment($scope.accountExtra.start_at).toDate();
+        $scope.params['start_at'] = $scope.start_at;
+    } else if( settings.date_range && settings.date_range.start_at ) {
         $scope.start_at = moment(settings.date_range.start_at).toDate();
         $scope.params['start_at'] = $scope.start_at;
     }
@@ -1653,9 +1660,6 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     // currentPage will be saturated at maxSize when maxSize is defined.
     $scope.formats = ["dd-MMMM-yyyy", "yyyy/MM/dd", "dd.MM.yyyy", "shortDate"];
     $scope.format = $scope.formats[0];
-
-    $scope.accountExtra = (typeof settings.accountExtra
-        !== 'undefined') ? settings.accountExtra : false;
 
     $scope.item = null;
 
@@ -1685,19 +1689,28 @@ envconnectControllers.controller("envconnectMyTSPReporting",
         var updated = (newVal.o !== oldVal.o || newVal.ot !== oldVal.ot
             || newVal.q !== oldVal.q || newVal.page !== oldVal.page );
 
-        if( (typeof newVal.start_at !== "undefined")
-            && (typeof newVal.ends_at !== "undefined")
-            && (typeof oldVal.start_at !== "undefined")
-            && (typeof oldVal.ends_at !== "undefined") ) {
-
-            // Implementation Note:
-            // The Date objects can be compared using the >, <, <=
-            // or >= operators. The ==, !=, ===, and !== operators require
-            // you to use date.getTime(). Don't ask.
-            if( newVal.start_at.getTime() !== oldVal.start_at.getTime()
-                || newVal.ends_at.getTime() !== oldVal.ends_at.getTime() ) {
+        // Implementation Note:
+        // The Date objects can be compared using the >, <, <=
+        // or >= operators. The ==, !=, ===, and !== operators require
+        // you to use date.getTime(). Don't ask.
+        if( (typeof oldVal.start_at !== "undefined")
+            && (typeof newVal.start_at !== "undefined") ) {
+            if( newVal.start_at.getTime() !== oldVal.start_at.getTime() ) {
                 updated = true;
             }
+        } else if( (typeof oldVal.start_at !== "undefined")
+            || (typeof newVal.start_at !== "undefined") ) {
+            updated = true;
+        }
+
+        if( (typeof oldVal.ends_at !== "undefined")
+            && (typeof newVal.ends_at !== "undefined") ) {
+            if( newVal.ends_at.getTime() !== oldVal.ends_at.getTime() ) {
+                updated = true;
+            }
+        } else if( (typeof oldVal.ends_at !== "undefined")
+            || (typeof newVal.ends_at !== "undefined") ) {
+            updated = true;
         }
 
         if( updated ) {
@@ -1743,7 +1756,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     };
 
     $scope.getScoreDisplay = function(score) {
-        return score[0] ? score[0].toString() + "%" : "";
+        return score ? score.toString() + "%" : "";
     };
 
     $scope.remindSuppliersChanged = function(event) {
@@ -1752,6 +1765,28 @@ envconnectControllers.controller("envconnectMyTSPReporting",
             function(resp) {
             },
             function(resp) {
+            }
+        );
+    };
+
+    $scope.savePreferences = function(event) {
+        var updated = false;
+        $scope.accountExtra['o'] = $scope.params.o;
+        $scope.accountExtra['ot'] = $scope.params.ot;
+        if( $scope.start_at ) {
+            $scope.accountExtra['start_at'] = $scope.start_at;
+            updated = true;
+        } else {
+            delete $scope.accountExtra.start_at;
+        }
+        $http.patch(settings.urls.api_organization_profile, {
+            extra: JSON.stringify($scope.accountExtra)}).then(
+            function(resp) {
+                if( updated ) $scope.filterList();
+                showMessages(['Preferences saved.'], 'info');
+            },
+            function(resp) {
+                showErrorMessages(resp);
             }
         );
     };

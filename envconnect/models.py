@@ -22,14 +22,14 @@ LOGGER = logging.getLogger(__name__)
 
 def _show_query_and_result(raw_query, show=False):
     if show:
-        LOGGER.debug("%s\n", raw_query)
+        LOGGER.info("%s\n", raw_query)
         with connection.cursor() as cursor:
             cursor.execute(raw_query, params=None)
             count = 0
             for row in cursor.fetchall():
-                LOGGER.debug(str(row))
+                LOGGER.info(str(row))
                 count += 1
-            LOGGER.debug("%d row(s)", count)
+            LOGGER.info("%d row(s)", count)
 
 
 class ColumnHeaderQuerySet(models.QuerySet):
@@ -129,6 +129,37 @@ class ConsumptionQuerySet(models.QuerySet):
        'filter_out_testing': filter_out_testing}
         return Sample.objects.raw(sql_query)
 
+    def get_latest_samples_by_prefix(self, before=None, prefix=None, tag=None):
+        if tag:
+            extra = "survey_sample.extra LIKE '%%%(tag)s%%'" % {'tag': tag}
+        else:
+            extra = "survey_sample.extra IS NULL"
+        return """
+SELECT
+    survey_sample.*
+FROM survey_sample
+INNER JOIN (
+    SELECT
+        survey_sample.account_id,
+        MAX(survey_sample.created_at) as last_updated_at
+    FROM survey_answer
+    INNER JOIN survey_question
+      ON survey_answer.question_id = survey_question.id
+    INNER JOIN survey_sample
+      ON survey_answer.sample_id = survey_sample.id
+    WHERE survey_question.path LIKE '%(prefix)s%%' AND
+          survey_sample.created_at < '%(ends_at)s' AND
+          %(extra)s AND
+          survey_sample.is_frozen
+    GROUP BY survey_sample.account_id) AS last_frozen_assessments
+ON survey_sample.account_id = last_frozen_assessments.account_id AND
+   survey_sample.created_at = last_frozen_assessments.last_updated_at
+WHERE %(extra)s AND
+      survey_sample.is_frozen
+        """ % {
+            'ends_at': before,
+            'extra': extra,
+            'prefix': prefix}
 
     def get_latest_assessment_by_accounts(self, survey,
                                           before=None, excludes=None):
@@ -589,6 +620,7 @@ def get_scored_answers(population, metric_id,
     """
     Returns a list of tuples with the following fields:
 
+        - id
         - account_id
         - sample_id
         - is_completed
@@ -597,7 +629,7 @@ def get_scored_answers(population, metric_id,
         - denominator
         - last_activity_at
         - answer_id
-        - question_id
+        - rank
         - path
         - implemented
         - environmental_value
@@ -607,6 +639,7 @@ def get_scored_answers(population, metric_id,
         - avg_value
         - nb_respondents
         - rate
+        - metric
         - opportunity
 
     the list corresponds to all answers for all (or a subset when *includes*

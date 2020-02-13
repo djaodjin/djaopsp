@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 import datetime, json, logging, re
@@ -38,8 +38,6 @@ from ..suppliers import get_supplier_managers
 
 LOGGER = logging.getLogger(__name__)
 
-#AccountType = namedtuple('AccountType',
-#    ['pk', 'slug', 'printable_name', 'email', 'request_key', 'extra'])
 
 class AccountType(object):
 
@@ -67,13 +65,13 @@ def get_reporting_status(account, expired_at):
     if last_activity_at:
         if account.get('assessment_completed', False):
             if account.get('improvement_completed', False):
-                if last_activity_at < expired_at:
+                if expired_at and last_activity_at < expired_at:
                     return AccountSerializer.REPORTING_EXPIRED
                 return AccountSerializer.REPORTING_COMPLETED
-            if last_activity_at < expired_at:
+            if expired_at and last_activity_at < expired_at:
                 return AccountSerializer.REPORTING_ABANDONED
             return AccountSerializer.REPORTING_PLANNING_PHASE
-        if last_activity_at < expired_at:
+        if expired_at and last_activity_at < expired_at:
             return AccountSerializer.REPORTING_ABANDONED
         return AccountSerializer.REPORTING_ASSESSMENT_PHASE
     return AccountSerializer.REPORTING_NOT_STARTED
@@ -86,13 +84,32 @@ class CompletionSummaryPagination(PageNumberPagination):
     """
 
     def paginate_queryset(self, queryset, request, view=None):
+        self.nb_organizations = 0
+        self.reporting_publicly_count = 0
         self.no_assessment = 0
         self.abandoned = 0
         self.expired = 0
         self.assessment_phase = 0
         self.improvement_phase = 0
         self.completed = 0
-        for account in queryset:
+        accounts = {}
+        for sample in queryset:
+            slug = sample.get('slug')
+            reporting_status = sample.get(
+                'reporting_status', AccountSerializer.REPORTING_NOT_STARTED)
+            if not slug in accounts:
+                accounts[slug] = {
+                    'reporting_status': reporting_status,
+                    'reporting_publicly': bool(sample.get('reporting_publicly'))
+                }
+                continue
+            if reporting_status > accounts[slug]['reporting_status']:
+                accounts[slug]['reporting_status'] == reporting_status
+            if sample.get('reporting_publicly'):
+                accounts[slug]['reporting_publicly'] = True
+
+        self.nb_organizations = len(accounts)
+        for account in six.itervalues(accounts):
             reporting_status = account.get(
                 'reporting_status', AccountSerializer.REPORTING_NOT_STARTED)
             if reporting_status == AccountSerializer.REPORTING_ABANDONED:
@@ -108,8 +125,9 @@ class CompletionSummaryPagination(PageNumberPagination):
                 self.completed += 1
             else:
                 self.no_assessment += 1
-        if hasattr(queryset, 'reporting_publicly'):
-            self.reporting_publicly_count = queryset.reporting_publicly
+            if account.get('reporting_publicly'):
+                self.reporting_publicly_count += 1
+
         return super(CompletionSummaryPagination, self).paginate_queryset(
             queryset, request, view=view)
 
@@ -124,7 +142,7 @@ class CompletionSummaryPagination(PageNumberPagination):
                     ('Completed', self.completed),
             )),
             ('reporting_publicly_count', self.reporting_publicly_count),
-            ('count', self.page.paginator.count),
+            ('count', self.nb_organizations),
             ('next', self.get_next_link()),
             ('previous', self.get_previous_link()),
             ('results', data)
@@ -144,8 +162,6 @@ class DashboardMixin(BenchmarkMixin):
                     self._start_at = datetime_or_now(self._start_at.strip('"'))
                 except ValueError:
                     self._start_at = None
-            if not self._start_at:
-                self._start_at = self.ends_at - relativedelta(years=1)
         return self._start_at
 
     @property
@@ -163,6 +179,9 @@ class DashboardMixin(BenchmarkMixin):
     def _get_scored_answers(self, population, metric_id,
                             includes=None, questions=None, prefix=None):
         """
+        Returns aggregates for scores (metric_id is ignored; '2' is
+        hard-coded) of assessment samples for a specific `prefix`.
+
         Returns a list of tuples with the following fields:
 
         - account_id
@@ -186,28 +205,10 @@ class DashboardMixin(BenchmarkMixin):
         - opportunity
         """
         #pylint:disable=too-many-arguments
+        latest_assessments = Consumption.objects.get_latest_samples_by_prefix(
+            before=self.ends_at, prefix=prefix)
         scored_answers = """WITH samples AS (
-SELECT
-    survey_sample.*
-FROM survey_sample
-INNER JOIN (
-    SELECT
-        survey_sample.account_id,
-        MAX(survey_sample.created_at) as last_updated_at
-    FROM survey_answer
-    INNER JOIN survey_question
-      ON survey_answer.question_id = survey_question.id
-    INNER JOIN survey_sample
-      ON survey_answer.sample_id = survey_sample.id
-    WHERE survey_question.path LIKE '%(prefix)s%%' AND
-          survey_sample.created_at < '%(ends_at)s' AND
-          survey_sample.extra IS NULL AND
-          survey_sample.is_frozen
-    GROUP BY survey_sample.account_id) AS last_frozen_assessments
-ON survey_sample.account_id = last_frozen_assessments.account_id AND
-   survey_sample.created_at = last_frozen_assessments.last_updated_at
-WHERE survey_sample.extra IS NULL AND
-      survey_sample.is_frozen
+%(latest_assessments)s
 ),
 expected_opportunities AS (
 SELECT
@@ -262,13 +263,71 @@ LEFT OUTER JOIN survey_answer
     ON expected_opportunities.question_id = survey_answer.question_id
     AND expected_opportunities.sample_id = survey_answer.sample_id
 WHERE survey_answer.metric_id = 2""" % {
-    'prefix': prefix,
-    'ends_at': self.ends_at}
+    'latest_assessments': latest_assessments,
+    'prefix': prefix}
 #        scored_answers = super(DashboardMixin, self)._get_scored_answers(
 #            population, metric_id,
 #            includes=includes, questions=questions, prefix=prefix)
         _show_query_and_result(scored_answers)
         return scored_answers
+
+    @staticmethod
+    def _get_answers(samples, metric_id, prefix=None, choice=None,
+                     includes=None):
+        answers = """WITH samples AS (%(samples)s
+),
+expected_opportunities AS (
+SELECT
+    survey_question.id AS question_id,
+    samples.account_id AS account_id,
+    samples.id AS sample_id,
+    samples.extra AS is_planned,
+    samples.slug AS sample_slug,
+    samples.is_frozen AS is_completed
+FROM samples
+INNER JOIN survey_enumeratedquestions
+    ON samples.survey_id = survey_enumeratedquestions.campaign_id
+INNER JOIN survey_question
+    ON survey_question.id = survey_enumeratedquestions.question_id
+WHERE survey_question.path LIKE '%(prefix)s%%'
+)
+SELECT
+    expected_opportunities.account_id AS account_id,
+    expected_opportunities.sample_slug AS sample_id,
+    expected_opportunities.is_planned AS is_planned,
+    CAST(survey_answer.measured AS FLOAT) AS numerator,
+    CAST(survey_answer.denominator AS FLOAT) AS denominator,
+    survey_answer.created_at AS last_activity_at,
+    survey_answer.id AS answer_id,
+    expected_opportunities.is_completed AS is_completed
+FROM expected_opportunities
+LEFT OUTER JOIN survey_answer
+    ON expected_opportunities.question_id = survey_answer.question_id
+    AND expected_opportunities.sample_id = survey_answer.sample_id
+WHERE survey_answer.metric_id = %(metric_id)s AND
+    survey_answer.measured = %(choice)s""" % {
+    'samples': samples,
+    'metric_id': metric_id,
+    'choice': choice,
+    'prefix': prefix}
+        _show_query_and_result(answers)
+        return answers
+
+    def _get_na_answers(self, population, metric_id, prefix=None,
+                        includes=None):
+        latest_assessments = Consumption.objects.get_latest_samples_by_prefix(
+            before=self.ends_at, prefix=prefix)
+        return self._get_answers(latest_assessments, metric_id,
+            prefix=prefix, choice=Consumption.NOT_APPLICABLE,
+            includes=includes)
+
+    def _get_planned_improvements(self, population, metric_id, prefix=None,
+                                  includes=None):
+        latest_improvements = Consumption.objects.get_latest_samples_by_prefix(
+            before=self.ends_at, prefix=prefix, tag='is_planned')
+        return self._get_answers(latest_improvements, metric_id,
+            prefix=prefix, choice=Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
+            includes=includes)
 
     @property
     def requested_accounts(self):
@@ -300,20 +359,35 @@ WHERE survey_answer.metric_id = 2""" % {
                     plan__organization__in=level).select_related(
                     'organization').values_list('organization__pk',
                     'organization__slug', 'organization__full_name',
-                    'organization__email', 'grant_key', 'extra',
+                    'organization__email', 'grant_key', 'extra', 'created_at',
                     'plan__organization__slug', 'plan__organization__full_name'
                     ).order_by('organization__full_name', 'organization__pk'):
                 account = AccountType._make(val)
-                # XXX deals with grant_key and extra
-                if prev and prev.pk != account.pk:
+                created_at = val[6]
+                provider_slug = val[7]
+                provider_full_name = val[8]
+                if not prev:
+                    prev = account
+                elif prev.pk != account.pk:
                     self._requested_accounts += [prev]
                     prev = account
-                elif not prev:
-                    prev = account
-                else:
+                # aggregate grant_key, extra and reports_to
+                if not account.request_key:
+                    prev.request_key = None
+                try:
+                    extra = json.loads(account.extra)
                     if not prev.extra:
-                        prev.extra = []
-                prev.reports_to += [(val[6], val[7])]
+                        prev.extra = {}
+                    elif isinstance(prev.extra, six.string_types):
+                        try:
+                            prev.extra = json.loads(prev.extra)
+                        except (TypeError, ValueError):
+                            prev.extra = {}
+                    prev.extra.update(extra)
+                except (TypeError, ValueError):
+                    pass
+                prev.reports_to += [
+                    (provider_slug, provider_full_name, created_at)]
             if prev:
                 self._requested_accounts += [prev]
         return self._requested_accounts
@@ -330,9 +404,8 @@ class SupplierQuerySet(object):
     It is not suitable for other kinds of lists at this point.
     """
 
-    def __init__(self, items, reporting_publicly=None):
+    def __init__(self, items):
         self.items = items
-        self._reporting_publicly = reporting_publicly
 
     def __getattr__(self, name):
         return getattr(self.items, name)
@@ -377,8 +450,7 @@ class SupplierQuerySet(object):
                 lambda rec: rec.get(field).lower()
                 if rec.get(field, None) else "")
         return SupplierQuerySet(sorted(self.items,
-            key=key_func, reverse=reverse_order),
-            reporting_publicly=self.reporting_publicly)
+            key=key_func, reverse=reverse_order))
 
     def filter(self, *args, **kwargs): #pylint:disable=unused-argument
         items = []
@@ -406,8 +478,7 @@ class SupplierQuerySet(object):
                                 if pat in item[name].upper()]
                         else:
                             items += self.filter(child)
-        return SupplierQuerySet(items,
-            reporting_publicly=self.reporting_publicly)
+        return SupplierQuerySet(items)
 
     def distinct(self):
         pk_field = 'printable_name'
@@ -420,12 +491,7 @@ class SupplierQuerySet(object):
                     break
             if not found:
                 items += [new_item]
-        return SupplierQuerySet(items,
-            reporting_publicly=self.reporting_publicly)
-
-    @property
-    def reporting_publicly(self):
-        return self._reporting_publicly
+        return SupplierQuerySet(items)
 
 
 class SupplierListMixin(DashboardMixin):
@@ -506,26 +572,72 @@ class SupplierListMixin(DashboardMixin):
                 self._complete_improvements |= set([rec['account']])
         return self._complete_improvements
 
-    @staticmethod
-    def _prepare_account(account):
+    def _prepare_account(self, account):
         """
         Returns the initial dictionnary used to populate results.
 
         Overriding this method and setting `request_key` to `None`
         enables to show scores for all accounts.
         """
-        return {
+        requested_at = None
+        if account.request_key:
+            for slug, full_name, created_at in account.reports_to:
+                if self.account.slug == slug:
+                    requested_at = created_at
+                    break
+        result = {
             'slug': account.slug,
             'printable_name': account.printable_name,
             'email': account.email,
-            'request_key': account.request_key,
+            'requested_at': requested_at,
             'extra': account.extra,
-            'reports_to': account.reports_to}
+            'reports_to': account.reports_to
+        }
+        if account.extra and '"originator"' in account.extra:
+            # XXX Hacky way to detect supplier initiated share of scorecard.
+            # that works for now.
+            result.update({'supplier_initiated': True})
+        return result
 
     def get_scores(self, account, segments, actives,
                   complete_assessments, complete_improvements, expired_at):
+        """
+        Returns a list of frozen scores for `account`.
+          [
+            {
+              "supplier": {
+                "slug": "andy-shop",
+                "printable_name": "Andy's Shop"
+              },
+              "segment": {
+                "printable_name": "Boxes & enclosures",
+                "nb_questions": XXX
+              }
+              "last_updated_at": "2017-01-01",
+              "score_url": "/andy-shop/scorecard/boxes-and-enclosures",
+              "normalized_score": 94,
+              "nb_answers":,
+              "nb_na_answers": ,
+              "nb_improvements_planned": ,
+            },
+            {
+              "":
+            }
+          ]
+        """
         #pylint:disable=too-many-arguments
-        result = self._prepare_account(account)
+        account_dict = self._prepare_account(account)
+        # When `_prepare_account` returns, result contains a dictionnary
+        # that looks like:
+        # {
+        #   "slug": *slug*,
+        #   "printable_name": *string*,
+        #   "email": *email*,
+        #   "requested_at": *** date of request or None ***,
+        #   "extra": ***,
+        #   "supplier_initiated": *bool*,
+        #   "reports_to": [[*slug*, *full_name*]]
+        # }
         path_prefix = self.kwargs.get('path')
         account_scores = []
         last_activity_at = None
@@ -534,63 +646,108 @@ class SupplierListMixin(DashboardMixin):
             segment = segment_val[0]
             scores = segment['accounts']
             score = scores.get(account.pk, None)
+            # `score` contains a dictionnary that looks like:
+            # {
+            #   "nb_answers": 5,
+            #   "nb_questions": 5,
+            #   "sample": "f1e2e916eb494b90f9ff0a36982341",
+            #   "created_at": "2017-01-01T00:00:00+00:00",
+            #   "numerator": 18.0,
+            #   "denominator": 20.0,
+            #   "improvement_numerator": 0.0,
+            #   "normalized_score": 90,
+            #   "improvement_score": 0.0
+            # }
             if score is None:
                 continue
+
+            # We get the last activity even in case we are returning
+            # an entry with no score.
             created_at = score.get('created_at', None)
             if not last_activity_at or (
                     created_at and last_activity_at < created_at):
                 last_activity_at = created_at
-            if not result['request_key']:
-                # The following are only required when supplier granted
-                # access to their scorecard.
-                normalized_score = score.get('normalized_score', None)
-                if segment['slug'].startswith('framework'):
-                    score_url = reverse('envconnect_assess_organization',
-                        args=(account.slug,
-                              '/sustainability-%s' % str(segment['slug'])))
-                elif 'sample' in score:
-                    score_url = reverse('benchmark_organization_sample',
-                        args=(account.slug, score['sample'],
-                              '/sustainability-%s' % str(segment['slug'])))
-                else:
-                    score_url = reverse('benchmark_organization',
-                        args=(account.slug,
-                              '/sustainability-%s' % str(segment['slug'])))
-                if ((not path_prefix or
-                     segment['path'].startswith(path_prefix)) and
-                    (segment['slug'].startswith('framework') or
-                    normalized_score is not None)):
-                    account_scores += [
-                        (normalized_score, score_url, segment['title'])]
-                # XXX We should really compute a score here.
-                improvement_score = score.get('improvement_numerator', None)
-                if improvement_score is not None:
-                    planned_improvements = improvement_score
+
+            normalized_score = score.get('normalized_score', None)
+
+            if not ((not path_prefix or
+                 segment['path'].startswith(path_prefix)) and
+                (segment['slug'].startswith('framework') or
+                normalized_score is not None)):
+                continue
+
+            if segment['slug'].startswith('framework'):
+                score_url = reverse('envconnect_assess_organization',
+                    args=(account.slug,
+                          '/sustainability-%s' % str(segment['slug'])))
+            elif 'sample' in score:
+                score_url = reverse('benchmark_organization_sample',
+                    args=(account.slug, score['sample'],
+                          '/sustainability-%s' % str(segment['slug'])))
+            else:
+                score_url = reverse('benchmark_organization',
+                    args=(account.slug,
+                          '/sustainability-%s' % str(segment['slug'])))
+            score.update({
+                'segment': segment['title'],
+                'score_url': score_url,
+                'assessment_completed': (
+                    account.pk in complete_assessments),
+                'improvement_completed': (
+                    account.pk in complete_improvements)
+            })
+            score.update(account_dict)
+            if not 'last_activity_at' in score:
+                score.update({'last_activity_at': created_at})
+            if not 'reporting_publicly' in score:
+                score.update({'reporting_publicly': None})
+            if not 'nb_na_answers' in score:
+                score.update({'nb_na_answers': None})
+            if not 'nb_planned_improvements' in score:
+                score.update({'nb_planned_improvements': None})
+            score.update({
+                # `get_reporting_status` uses fields (last_activity_at,
+                # assessment_completed, improvement_completed)
+                # previously set in `result`.
+                'reporting_status': get_reporting_status(
+                    score, expired_at)})
+            if account_dict.get('requested_at'):
+                # The supplier has not granted access to the scorecard
+                # so we remove sensistive keys from the result.
+                for key in ('normalized_score', 'nb_na_answers',
+                            'reporting_publicly'):
+                   score[key] = None
+            account_scores += [score]
+
+        if account_scores:
+            return account_scores
+
+        if path_prefix:
+            # We are filtering the dashboard by segment.
+            return []
+
         if not last_activity_at:
             last_activity_at = actives.get(account.pk, None)
-
-        if path_prefix and not account_scores:
-            return None
-
-        result.update({
-            'scores': account_scores,
+        account_dict.update({
             'last_activity_at': last_activity_at,
-            'improvement_score': planned_improvements,
+            'segment': "",
+            'score_url': "",
+            'normalized_score': None,
+            'nb_na_answers': None,
+            'nb_planned_improvements': None,
+            'reporting_publicly': None,
             'assessment_completed': (
                 account.pk in complete_assessments),
             'improvement_completed': (
                 account.pk in complete_improvements),
         })
-        result.update({
+        account_dict.update({
             # `get_reporting_status` uses fields (last_activity_at,
             # assessment_completed, improvement_completed) previously set
             # in `result`.
-            'reporting_status': get_reporting_status(result, expired_at)})
-        if account.extra and '"originator"' in account.extra:
-            # XXX Hacky way to detect supplier initiated share of scorecard.
-            # that works for now.
-            result.update({'supplier_initiated': True})
-        return result
+            'reporting_status': get_reporting_status(
+                account_dict, expired_at)})
+        return [account_dict]
 
     def get_queryset(self):
         return self.get_suppliers(
@@ -609,31 +766,18 @@ class SupplierListMixin(DashboardMixin):
         actives_d = dict([(act['account_id'], act['created_at__max'])
             for act in list(actives)])
 
-        # Suppliers reporting publicly
-        nb_suppliers_reporting_publicly = 0
-        if False:
-            # XXX incorrect code
-            CATEGORIZED_MEASUREMENTS = [4]
-            suppliers_reporting_publicly = Answer.objects.filter(
-               question__path=Consumption.objects.filter(
-                   default_metric_id__in=CATEGORIZED_MEASUREMENTS).values(
-                       'path'),
-               measured=Consumption.YES,
-               sample__in=actives.values_list('pk', flat=True))
-            nb_suppliers_reporting_publicly = \
-                suppliers_reporting_publicly.count()
-
+        # list of scores
         for account in self.requested_accounts:
             try:
                 scores_by_account = self.get_scores(account, rollup_tree[1],
                     actives_d, self.complete_assessments,
                     self.complete_improvements, self.start_at)
                 if scores_by_account:
-                    results += [scores_by_account]
+                    results += scores_by_account
             except self.account_model.DoesNotExist:
                 pass
-        return SupplierQuerySet(results,
-            reporting_publicly=nb_suppliers_reporting_publicly)
+
+        return SupplierQuerySet(results)
 
 
 class SupplierListBaseAPIView(SupplierListMixin, generics.ListAPIView):
@@ -687,7 +831,7 @@ class SupplierListAPIView(SupplierSmartListMixin, SupplierListBaseAPIView):
 
     .. code-block:: http
 
-        GET /api/xia/suppliers HTTP/1.1
+        GET /api/energy-utility/suppliers HTTP/1.1
 
     responds
 
@@ -698,10 +842,15 @@ class SupplierListAPIView(SupplierSmartListMixin, SupplierListBaseAPIView):
           "next": null,
           "previous": null,
           "results":[{
-             "slug": "andy-shop",
-             "printable_name": "Andy's Shop",
+             "segment": {
+               "score_url": "/andy-shop/scorecard/boxes-and-enclosures",
+               "printable_name": "Boxes & enclosures"
+             }
+             "supplier": {
+               "slug": "andy-shop",
+               "printable_name": "Andy's Shop"
+             }
              "created_at": "2017-01-01",
-             "scores": [ "boxes-and-enclosures", 94, "Boxes & enclosures"],
              "normalized_score": 94
           }]
         }

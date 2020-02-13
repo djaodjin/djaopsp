@@ -1664,15 +1664,15 @@
 },
 {
   "fields": {
-    "title": "A policy is in place appropriate to the nature and scale of the organization*",
-    "slug": "a-policy-is-in-place-appropriate-to-the-nature-and-scale",
+    "title": "Report externally, on an annual basis, on program elements, key environmental issues and goals, challenges, and continual improvement efforts.",
+    "slug": "report-externally",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 68
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/general/a-policy-is-in-place-appropriate-to-the-nature-and-scale",
+    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/general/report-externally",
     "text": "The assessment process is rigorous and thorough*",
     "question_type": "radio",
     "default_metric": 1,
@@ -1925,6 +1925,19 @@
   },
   "model": "survey.answer", "pk": 18
 },
+{
+  "fields": {
+    "created_at": "2016-07-15T00:36:18.464Z",
+    "question": 12,
+    "metric": 1,
+    "sample": 3,
+    "measured": 1,
+    "denominator": 1,
+    "collected_by": 7,
+    "rank": 9
+  },
+  "model": "survey.answer", "pk": 19
+},
 
 {
   "fields": {
@@ -1936,6 +1949,32 @@
     "is_frozen": true
   },
   "model": "survey.sample", "pk": 4
+},
+{
+  "fields": {
+    "created_at": "2017-01-01T00:00:00.000Z",
+    "question": 12,
+    "metric": 1,
+    "sample": 4,
+    "measured": 1,
+    "denominator": 1,
+    "collected_by": 7,
+    "rank": 9
+  },
+  "model": "survey.answer", "pk": 30
+},
+{
+  "fields": {
+    "created_at": "2017-01-01T00:00:00.000Z",
+    "question": 1,
+    "metric": 1,
+    "sample": 4,
+    "measured": 5,
+    "denominator": 6,
+    "collected_by": 7,
+    "rank": 7
+  },
+  "model": "survey.answer", "pk": 40
 },
 {
   "fields": {
@@ -2015,6 +2054,33 @@
   },
   "model": "survey.answer", "pk": 48
 },
+{
+  "fields": {
+    "created_at": "2017-01-01T00:00:00.000Z",
+    "question": 6,
+    "metric": 7,
+    "sample": 4,
+    "measured": 100,
+    "denominator": 1,
+    "collected_by": 7,
+    "rank": 7
+  },
+  "model": "survey.answer", "pk": 49
+},
+{
+  "fields": {
+    "created_at": "2017-01-01T00:00:00.000Z",
+    "question": 6,
+    "metric": 6,
+    "sample": 4,
+    "measured": 1000000,
+    "unit_id": 5,
+    "denominator": 1,
+    "collected_by": 7,
+    "rank": 7
+  },
+  "model": "survey.answer", "pk": 50
+},
 
 {
   "fields": {
@@ -2037,7 +2103,33 @@
     "collected_by": 7,
     "rank": 7
   },
-  "model": "survey.answer", "pk": 49
+  "model": "survey.answer", "pk": 60
+},
+
+
+{
+  "fields": {
+    "slug": "f1e2e916eb494b90f9ff0a36982343",
+    "created_at": "2017-01-01T00:00:00.001Z",
+    "survey": 1,
+    "account": 7,
+    "time_spent": "0:00:00",
+    "is_frozen": true,
+    "extra": "is_planned"
+  },
+  "model": "survey.sample", "pk": 6
+},
+{
+  "fields": {
+    "created_at": "2017-01-01T00:00:00.001Z",
+    "question": 1,
+    "metric": 1,
+    "sample": 6,
+    "measured": 3,
+    "collected_by": 7,
+    "rank": 7
+  },
+  "model": "survey.answer", "pk": 61
 },
 
 {

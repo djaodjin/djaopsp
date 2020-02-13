@@ -24,6 +24,7 @@ from ..compat import reverse
 from ..helpers import as_measured_value, get_testing_accounts
 from ..mixins import ReportMixin, BestPracticeMixin
 from ..models import Consumption, get_scored_answers
+from ..scores import populate_account
 from ..serializers import ConsumptionSerializer
 from ..suppliers import get_supplier_managers
 from ..templatetags.navactive import assessment_choices
@@ -200,7 +201,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
                     vals[0]['accounts'] = {}
                 if self.account.pk not in vals[0]['accounts']:
                     vals[0]['accounts'][self.account.pk] = {}
-                self.populate_account(vals[0]['accounts'], consumption)
+                populate_account(vals[0]['accounts'], consumption)
                 scores = vals[0]['accounts'][self.account.pk]
                 if (consumption.implemented ==
                     Consumption.ASSESSMENT_ANSWERS[Consumption.YES]) or (

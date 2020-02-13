@@ -177,16 +177,26 @@ class AccountSerializer(NoModelSerializer):
         help_text=_("Printable name"))
     email = serializers.EmailField(
         help_text=_("Primary contact e-mail"))
-    scores = serializers.ListField(required=False)
     last_activity_at = serializers.DateTimeField(required=False,
         help_text=_("Most recent time an assessment was updated"))
-    improvement_score = serializers.IntegerField(required=False)
-    request_key = serializers.CharField(required=False,
-        help_text=_("Unique key for the scorecard request"))
+    requested_at = serializers.DateTimeField(required=False,
+        help_text=_("Datetime at which the scorecard was requested"))
     reporting_status = serializers.SerializerMethodField(required=False,
         help_text=_("current reporting status"))
-    improvement_completed = serializers.BooleanField(required=False,
-        help_text=_("was the improvement plan completed"))
+
+    segment = serializers.CharField(
+        help_text=_("segment that was answered"))
+    score_url =  serializers.CharField(
+        help_text=_("link to the scorecard"))
+    normalized_score =  serializers.IntegerField(
+        help_text=_("score"))
+    nb_na_answers =  serializers.IntegerField(
+        help_text=_("number of answers marked N/A"))
+    reporting_publicly = serializers.BooleanField(
+        help_text=_("also reporting publicly"))
+
+    nb_planned_improvements = serializers.IntegerField(required=False,
+        help_text=_("number of planned improvements"))
     supplier_initiated = serializers.BooleanField(required=False,
         help_text=_("share was supplier initiated"))
     tags = serializers.SerializerMethodField(required=False,
@@ -198,11 +208,9 @@ class AccountSerializer(NoModelSerializer):
 
     @staticmethod
     def get_tags(obj):
-        try:
-            extra = json.loads(obj['extra'])
+        extra = obj.get('extra')
+        if isinstance(extra, dict):
             return extra.keys()
-        except (IndexError, TypeError, ValueError):
-            pass
         return []
 
 class AssessmentMeasuresSerializer(NoModelSerializer):

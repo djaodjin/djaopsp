@@ -9,6 +9,7 @@ from collections import OrderedDict
 
 from deployutils.crypt import JSONEncoder
 from django.conf import settings
+from django.db import connection
 from django.db.models import Q
 from django.utils import six
 from django.utils.dateparse import parse_datetime
@@ -18,17 +19,17 @@ from pages.mixins import TrailMixin
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as HttpResponse
-from survey.models import  Campaign, Metric, Sample
+from survey.models import  Campaign, Choice, Metric, Sample, Unit
 
 from .best_practices import ToggleTagContentAPIView
 from ..compat import reverse
 from ..helpers import get_segments
 from ..mixins import ReportMixin, TransparentCut
-from ..models import (get_score_weight, get_scored_answers,
+from ..models import (_show_query_and_result, get_score_weight, get_scored_answers,
     get_historical_scores, Consumption)
 from ..serializers import (BenchmarkSerializer, MetricsSerializer,
     ScoreWeightSerializer)
-from ..scores import populate_rollup
+from ..scores import populate_account_na_answers, populate_account_planned_improvements, populate_rollup
 
 LOGGER = logging.getLogger(__name__)
 
@@ -258,6 +259,17 @@ class BenchmarkMixin(ReportMixin):
         return get_scored_answers(population, metric_id,
             includes=includes, prefix=prefix)
 
+    @staticmethod
+    def _get_na_answers(population, metric_id, includes=None, prefix=None):
+        return None
+
+    @staticmethod
+    def _get_planned_improvements(population, metric_id, includes=None, prefix=None):
+        return None
+
+    @property
+    def requested_accounts_pk(self):
+        return []
 
     def rollup_scores(self, roots=None, root_prefix=None, force_score=False):
         """
@@ -286,22 +298,26 @@ class BenchmarkMixin(ReportMixin):
         rollups.update(ups)
 
         rollup_tree = (OrderedDict({}), rollups)
-        self._report_queries("rollup_tree generated")
         if 'title' not in rollup_tree[0]:
             rollup_tree[0].update({
                 'slug': "totals",
                 'title': "Total Score",
                 'tag': [settings.TAG_SCORECARD]})
+        self._report_queries("rollup_tree generated")
+
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
+
         population = list(Consumption.objects.get_active_by_accounts(
             self.survey, excludes=self._get_filter_out_testing()))
+
         includes = list(
             Consumption.objects.get_latest_samples_by_accounts(self.survey))
         framework_metric_id = Metric.objects.get(slug='framework').pk
         framework_includes = list(
             Consumption.objects.get_latest_samples_by_accounts(
                 Campaign.objects.get(slug='framework')))
+
         for prefix, values_tuple in six.iteritems(leafs):
             metric_id = self.default_metric_id
             if prefix.startswith('/framework/'):
@@ -313,14 +329,149 @@ class BenchmarkMixin(ReportMixin):
                     values_tuple[0]['accounts'] = {}
                 values_tuple[0]['accounts'].update(accounts)
 
-            self.populate_leaf(prefix, values_tuple[0],
+            # 1. Populate scores
+            self.populate_leaf(values_tuple[0],
                 # `DashboardMixin` overrides _get_scored_answers to get
-                # the frozen scores.
+                # the frozen scores. `population`, `metric_id`, `includes`
+                # and `questions` are not used in
+                # DashboardMixin._get_scored_answers
                 self._get_scored_answers(population, metric_id,
                     includes=includes, prefix=prefix), force_score=force_score)
+
+            # 2. Populate N/A answers
+            self.populate_leaf(values_tuple[0],
+                self._get_na_answers(population, metric_id,
+                    includes=includes, prefix=prefix),
+                    populate_account=populate_account_na_answers)
+
+            # 3. Populate planned improvements
+            self.populate_leaf(values_tuple[0],
+                self._get_planned_improvements(population, metric_id,
+                    includes=includes, prefix=prefix),
+                    populate_account=populate_account_planned_improvements)
+
         self._report_queries("leafs populated")
+
+
         populate_rollup(rollup_tree, True, force_score=force_score)
         self._report_queries("rollup_tree populated")
+
+        # Adds if the supplier is reporting publicly or not.
+        latest_assessments = Consumption.objects.get_latest_samples_by_prefix(
+            before=self.ends_at, prefix="/") # at least one public report.
+        reporting_publicly_sql = """
+WITH samples AS (
+%(latest_assessments)s
+)
+SELECT DISTINCT samples.account_id
+FROM survey_answer
+INNER JOIN survey_question
+  ON survey_answer.question_id = survey_question.id
+INNER JOIN samples
+  ON survey_answer.sample_id = samples.id
+WHERE samples.account_id IN %(accounts)s AND
+  survey_answer.measured = %(yes)s AND
+  (survey_question.path LIKE '%%report-extern%%' OR
+   survey_question.path LIKE '%%publicly-reported%%')
+""" % {
+    'latest_assessments': latest_assessments,
+    'yes': Consumption.YES,
+    'accounts': tuple(self.requested_accounts_pk)
+}
+        _show_query_and_result(reporting_publicly_sql)
+        with connection.cursor() as cursor:
+            cursor.execute(reporting_publicly_sql , params=None)
+            reporting_publicly = [row[0] for row in cursor]
+
+        # XXX We add `reporting_publicly` no matter whichever segment
+        # the boolean comes from.
+        for segment in six.itervalues(rollup_tree[1]):
+            for account_pk, account in six.iteritems(
+                    segment[0].get('accounts')):
+                if int(account_pk) in reporting_publicly:
+                    account.update({'reporting_publicly': True})
+        self._report_queries("reporting publicly completed")
+
+        employee_count_sql = """
+WITH samples AS (
+%(latest_assessments)s
+)
+SELECT DISTINCT samples.account_id, survey_answer.measured
+FROM survey_answer
+INNER JOIN samples
+  ON survey_answer.sample_id = samples.id
+WHERE samples.account_id IN %(accounts)s AND
+  survey_answer.metric_id = (
+      SELECT id FROM survey_metric WHERE slug='%(metric)s');
+""" % {
+    'latest_assessments': latest_assessments,
+    'metric': 'employee-counted',
+    'accounts': tuple(self.requested_accounts_pk)
+}
+        _show_query_and_result(employee_count_sql)
+        with connection.cursor() as cursor:
+            cursor.execute(employee_count_sql, params=None)
+            employee_counts = dict(cursor)
+
+        # XXX We add `employee_count` no matter whichever segment
+        # the metric comes from.
+        for segment in six.itervalues(rollup_tree[1]):
+            for account_pk, account in six.iteritems(
+                    segment[0].get('accounts')):
+                if int(account_pk) in employee_counts:
+                    account.update({
+                        'employee_count': employee_counts[int(account_pk)]})
+        self._report_queries("reporting employee count completed")
+
+        revenue_generated_sql = """
+WITH samples AS (
+%(latest_assessments)s
+)
+SELECT DISTINCT samples.account_id,
+  survey_answer.measured,
+  survey_answer.unit_id, survey_unit.system
+FROM survey_answer
+INNER JOIN samples
+  ON survey_answer.sample_id = samples.id
+INNER JOIN survey_unit
+  ON survey_answer.unit_id = survey_unit.id
+WHERE samples.account_id IN %(accounts)s AND
+  survey_answer.metric_id = (
+      SELECT id FROM survey_metric WHERE slug='%(metric)s');
+""" % {
+    'latest_assessments': latest_assessments,
+    'metric': 'revenue-generated',
+    'accounts': tuple(self.requested_accounts_pk)
+}
+        _show_query_and_result(revenue_generated_sql)
+        revenue_generateds = {}
+        with connection.cursor() as cursor:
+            cursor.execute(revenue_generated_sql, params=None)
+            for row in cursor:
+                account_id = int(row[0])
+                measured = row[1]
+                unit_id = row[2]
+                unit_system = row[3]
+                if unit_system not in Unit.NUMERICAL_SYSTEMS:
+                    try:
+                        choice = Choice.objects.get(
+                            id=measured, unit_id=unit_id)
+                        measured = choice.text
+                    except Choice.DoesNotExist:
+                        pass
+                revenue_generateds[account_id] = measured
+
+        # XXX We add `revenue_generated` no matter whichever segment
+        # the metric comes from.
+        for segment in six.itervalues(rollup_tree[1]):
+            for account_pk, account in six.iteritems(
+                    segment[0].get('accounts')):
+                if int(account_pk) in revenue_generateds:
+                    account.update({
+                        'revenue_generated': revenue_generateds[int(account_pk)]})
+        self._report_queries("reporting employee count completed")
+
+
         return rollup_tree
 
 
@@ -567,6 +718,20 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
         element.save()
 
 
+def _populate_account_historical(accounts, agg_score,
+                         agg_key='account_id', force_score=False):
+    populate_account(
+        accounts, agg_score, agg_key=agg_key, force_score=force_score)
+    created_at = agg_score.last_activity_at
+    if created_at:
+        if isinstance(created_at, six.string_types):
+            created_at = parse_datetime(created_at)
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=utc)
+    account_id = (created_at if agg_key == 'last_activity_at'
+        else getattr(agg_score, agg_key))
+    accounts[account_id].update({'sample': agg_score.sample_id})
+
 # XXX ReportMixin because we use populate_leaf
 class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
     """
@@ -690,10 +855,11 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                 leafs = self.get_leafs(rollup_tree=rollup_tree)
                 self._report_queries("leafs loaded")
                 for prefix, values_tuple in six.iteritems(leafs):
-                    self.populate_leaf(prefix, values_tuple[0],
+                    self.populate_leaf(values_tuple[0],
                         get_historical_scores(
                             includes=includes,
                             prefix=prefix),
+                        populate_account=_populate_account_historical,
                         agg_key='last_activity_at',
                         force_score=self.force_score)
                                           # Relies on `get_historical_scores()`
@@ -733,17 +899,3 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                 }
             })
         return HttpResponse(resp_data)
-
-    def populate_account(self, accounts, agg_score,
-                         agg_key='account_id', force_score=False):
-        super(HistoricalScoreAPIView, self).populate_account(
-            accounts, agg_score, agg_key=agg_key, force_score=force_score)
-        created_at = agg_score.last_activity_at
-        if created_at:
-            if isinstance(created_at, six.string_types):
-                created_at = parse_datetime(created_at)
-            if created_at.tzinfo is None:
-                created_at = created_at.replace(tzinfo=utc)
-        account_id = (created_at if agg_key == 'last_activity_at'
-            else getattr(agg_score, agg_key))
-        accounts[account_id].update({'sample': agg_score.sample_id})

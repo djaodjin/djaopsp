@@ -51,14 +51,20 @@ class SuppliersView(AccountMixin, BreadcrumbMixin, TemplateView):
             'download': reverse('organization_reporting_entities_download',
                                 args=(self.account, root))
         })
+        try:
+            extra = json.loads(self.account.extra)
+        except (IndexError, TypeError, ValueError) as err:
+            extra = {}
+        start_at = extra.get('start_at', None)
         context.update({
             'score_toggle': True,
             'account_extra': self.account.extra,
             'date_range': {
-                'start_at': datetime.datetime(2019, 9, 5).isoformat(),
-                'ends_at': (max(datetime_or_now(), datetime_or_now(
-                    datetime.datetime(2019, 12, 1))) + relativedelta(days=1)
-                ).isoformat(),
+                'start_at': start_at,
+                'ends_at': datetime.datetime(2019, 1, 1).isoformat(),
+#                'ends_at': (max(datetime_or_now(), datetime_or_now(
+#                    datetime.datetime(2019, 12, 1))) + relativedelta(days=1)
+#                ).isoformat(),
             }
         })
         return context
@@ -170,9 +176,11 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     basename = 'dashboard'
 
-    headings = ['Supplier name', 'Categories', 'Contact name', 'Email',
-        'Telephone number', 'Mobile number',
-        'Last activity', 'Status', 'Industry segment', 'Total score']
+    headings = [
+        'Supplier name', 'Categories', 'Contact name', 'Email', 'Phone',
+        'Last activity', 'Status', 'Industry segment', 'Score',
+        '# N/A', 'Reporting publicly', '# Planned actions',
+        'Full-time Employee Count', 'Annual Revenue (USD)']
 
     def get_headings(self):
         return self.headings
@@ -198,56 +206,80 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                 AccountSerializer.REPORTING_STATUS[reporting_status][1])
         else:
             reporting_status = ""
-        categories = ','.join(
-            json.loads(rec['extra']).keys()) if rec['extra'] else ""
+        extra = rec['extra']
+        if extra and isinstance(extra, six.string_types):
+            try:
+                extra = json.loads(extra)
+            except (TypeError, ValueError):
+                extra = {}
+        categories = ','.join(extra.keys()) if extra else ""
         if headings:
             if rec['request_key']:
-                self.wsheet.append([
-                    rec['printable_name'], categories,
-                    "", rec['email'], "", "",
-                    last_activity_at, reporting_status, ""] + [
-                        "Requested" for val in headings])
+                normalized_score = "Requested"
+                segment = "Requested"
+                nb_na_answers = "Requested"
+                reporting_publicly = "Requested"
+                nb_planned_improvements = "Requested"
+                employee_count = "Requested"
+                revenue_generated = "Requested"
             else:
-                scores = []
-                for heading in headings:
-                    section_score = "N/A"
-                    for score in rec.get('scores', []):
-                        if score[2] == heading:
-                            section_score = score[0]
-                            break
-                    scores += [section_score]
-                self.wsheet.append([
-                    rec['printable_name'], categories,
-                    "", rec['email'], "", "",
-                    last_activity_at, reporting_status, ""] + scores)
+                normalized_score = rec.get('normalized_score', "N/A")
+                segment = rec.get('segment', "N/A")
+                nb_na_answers = rec.get('nb_na_answers', "N/A")
+                reporting_publicly = rec.get('reporting_publicly', "N/A")
+                if reporting_publicly and str(reporting_publicly) != "N/A":
+                    reporting_publicly = "Yes"
+                nb_planned_improvements = rec.get(
+                    'nb_planned_improvements', "N/A")
+                employee_count = rec.get(
+                    'employee_count', "N/A")
+                revenue_generated = rec.get(
+                    'revenue_generated', "N/A")
+            self.wsheet.append([
+                rec['printable_name'], categories,
+                "", rec['email'], rec.get('phone', ""),
+                last_activity_at, reporting_status,
+                segment, normalized_score,
+                nb_na_answers, reporting_publicly,
+                nb_planned_improvements,
+                employee_count, revenue_generated])
         else:
             for rep in [(self.account.slug, self.account.full_name)]:
                 report_to = "" if rep[0] == self.account.slug else rep[1]
                 if rec['request_key']:
-                    self.wsheet.append([
-                        rec['printable_name'], categories,
-                        "", rec['email'], "", "",
-                        last_activity_at, reporting_status,
-                        "", "Requested", report_to])
+                    normalized_score = "Requested"
+                    segment = "Requested"
+                    nb_na_answers = "Requested"
+                    reporting_publicly = "Requested"
+                    nb_planned_improvements = "Requested"
+                    employee_count = "Requested"
+                    revenue_generated = "Requested"
                 else:
-                    scores = rec.get('scores', [("N/A", "", "")])
-                    if not scores:
-                        scores = [("N/A", "", "")]
-                    for score in scores:
-                        normalized_score = score[0]
-                        segment_slug = score[1]
-                        segment = score[2]
-                        row = [rec['printable_name'], categories,
-                            "", rec['email'], "", "",
-                            last_activity_at, reporting_status,
-                            segment, normalized_score, report_to]
-                        self.wsheet.append(row)
-                        if segment_slug:
-                            if segment_slug not in self.suppliers_per_segment:
-                                self.suppliers_per_segment[segment_slug] = set(
-                                    [])
-                            self.suppliers_per_segment[segment_slug] |= set(
-                                [rec['slug']])
+                    normalized_score = rec.get('normalized_score', "N/A")
+                    segment = rec.get('segment', "N/A")
+                    nb_na_answers = rec.get('nb_na_answers', "N/A")
+                    reporting_publicly = rec.get('reporting_publicly', "N/A")
+                    nb_planned_improvements = rec.get(
+                        'nb_planned_improvements', "N/A")
+                    employee_count = rec.get(
+                        'employee_count', "N/A")
+                    revenue_generated = rec.get(
+                        'revenue_generated', "N/A")
+                segment_slug = None
+                self.wsheet.append([rec['printable_name'], categories,
+                    "", rec['email'], rec.get('phone', ""),
+                    last_activity_at, reporting_status,
+                    segment, normalized_score,
+                    nb_na_answers, reporting_publicly,
+                    nb_planned_improvements,
+                    employee_count, revenue_generated,
+                    report_to])
+                if segment_slug:
+                    if segment_slug not in self.suppliers_per_segment:
+                        self.suppliers_per_segment[segment_slug] = set(
+                            [])
+                    self.suppliers_per_segment[segment_slug] |= set(
+                        [rec['slug']])
 
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks

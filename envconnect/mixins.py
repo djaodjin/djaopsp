@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 #pylint:disable=too-many-lines
@@ -27,7 +27,7 @@ from .compat import reverse
 from .helpers import as_measured_value, is_sqlite3, get_testing_accounts
 from .models import (Consumption, get_score_weight, _show_query_and_result,
     get_scored_answers)
-from .scores import populate_rollup, push_improvement_factors
+from .scores import populate_account, populate_rollup, push_improvement_factors
 from .serializers import ConsumptionSerializer
 
 
@@ -631,74 +631,21 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
         return results
 
     @staticmethod
-    def populate_account(accounts, agg_score,
-                         agg_key='account_id', force_score=False):
-        """
-        Populate the *accounts* dictionnary with scores in *agg_score*.
-
-        *agg_score* is a tuple (account_id, sample_id, is_planned, numerator,
-        denominator, last_activity_at, nb_answers, nb_questions)
-        """
-        sample_id = agg_score.sample_id
-        is_completed = agg_score.is_completed
-        is_planned = agg_score.is_planned
-        numerator = agg_score.numerator
-        denominator = agg_score.denominator
-        created_at = agg_score.last_activity_at
-        if created_at:
-            if isinstance(created_at, six.string_types):
-                created_at = parse_datetime(created_at)
-            if created_at.tzinfo is None:
-                created_at = created_at.replace(tzinfo=utc)
-        if agg_key == 'last_activity_at':
-            account_id = created_at
-        else:
-            account_id = getattr(agg_score, agg_key)
-        nb_answers = getattr(agg_score, 'nb_answers', None)
-        if nb_answers is None:
-            # Putting the following statement in the default clause will lead
-            # to an exception since `getattr(agg_score, 'answer_id')` will be
-            # evaluated first.
-            nb_answers = 0 if getattr(agg_score, 'answer_id') is None else 1
-        nb_questions = getattr(agg_score, 'nb_questions', 1)
-        if not account_id in accounts:
-            accounts[account_id] = {}
-        if is_planned:
-            accounts[account_id].update({
-                'improvement_numerator': numerator,
-                'improvement_denominator': denominator,
-                'improvement_completed': is_completed,
-            })
-            if not 'nb_answers' in accounts[account_id]:
-                accounts[account_id].update({
-                    'nb_answers': nb_answers})
-            if not 'nb_questions' in accounts[account_id]:
-                accounts[account_id].update({
-                    'nb_questions': nb_questions})
-            if not 'created_at' in accounts[account_id]:
-                accounts[account_id].update({
-                    'created_at': created_at})
-        else:
-            accounts[account_id].update({
-                'nb_answers': nb_answers,
-                'nb_questions': nb_questions,
-                'assessment_completed': is_completed,
-                'created_at': created_at,
-                'sample': sample_id
-            })
-            if force_score or nb_answers == nb_questions:
-                # We might end-up here with an unanswered question
-                # that was added after the sample was frozen.
-                accounts[account_id].update({
-                    'numerator': numerator,
-                    'denominator': denominator})
-
-    def populate_leaf(self, prefix, attrs, answers,
+    def populate_leaf(attrs, answers,
+                      populate_account=populate_account,
                       agg_key='account_id', force_score=False):
         """
-        Populate all leafs with aggregated scores.
+        Populate `attrs['accounts']` with aggregates of `answers`.
+        `attrs['accounts']` is a dictionnary that will be keyed by
+        the field `agg_key`.
+
+        `attrs` is a dictionnary of attributes on a leaf.
+        `answers` is a queryset of (account_id, sample_id, is_planned,
+        numerator, denominator, last_activity_at, nb_answers, nb_questions,
+        is_frozen).
         """
-        #pylint:disable=too-many-locals,unused-argument
+        if answers is None:
+            return
         agg_scores = """SELECT account_id, sample_id, is_planned,
     SUM(numerator) AS numerator,
     SUM(denominator) AS denominator,
@@ -721,7 +668,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 agg_score = agg_score_tuple(*agg_score)
                 if not 'accounts' in attrs:
                     attrs['accounts'] = {}
-                self.populate_account(
+                populate_account(
                     attrs['accounts'], agg_score,
                     agg_key=agg_key, force_score=force_score)
 
@@ -742,7 +689,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         population = Consumption.objects.get_active_by_accounts(
             self.survey, excludes=self._get_filter_out_testing())
         for prefix, values_tuple in six.iteritems(leafs):
-            self.populate_leaf(prefix, values_tuple[0],
+            self.populate_leaf(values_tuple[0],
                 get_scored_answers(population, self.default_metric_id,
                     includes=self.get_included_samples(),
                     prefix=prefix))
