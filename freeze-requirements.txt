@@ -59,7 +59,7 @@ Pygments==2.2.0
 pylint==1.7.1
 pylint-django==0.7.2
 pylint-plugin-utils==0.2.6
-pyOpenSSL==16.2.0
+pyOpenSSL==17.5.0
 pyparsing==2.2.0
 PyPDF2==1.26.0
 python-dateutil==2.6.0
