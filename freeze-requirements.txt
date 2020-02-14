@@ -50,7 +50,7 @@ Markdown==2.6.8
 MarkupSafe==1.0
 mccabe==0.6.1
 packaging==16.8
-paramiko==2.1.2
+paramiko==2.1.6
 ply==3.8
 premailer==3.0.1
 pyasn1==0.2.3
