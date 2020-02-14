@@ -1,5 +1,5 @@
 cssmin==0.2.0
-Django==1.11.27
+Django==1.11.28
 django-assets==0.12
 django-contrib-comments==1.8.0
 django-urldecorators==0.6
