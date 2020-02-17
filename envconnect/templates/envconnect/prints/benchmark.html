@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+<style>
+@font-face{
+  font-family:'myriad-light';
+  src: url('{{base_url}}/static/fonts/MyriadPro-Light.otf') format('opentype');
+  src: url('{{base_url}}/static/fonts/MyriadPro-Light.woff') format('woff');
+}
+@font-face{
+  font-family:'myriad-regular';
+  src: url('{{base_url}}/static/fonts/MyriadPro-Regular.otf') format('opentype');
+  src: url('{{base_url}}/static/fonts/MyriadPro-Regular.woff') format('woff');
+
+}
+@font-face{
+  font-family:'myriad-semibold';
+  src: url('{{base_url}}/static/fonts/MyriadPro-Semibold.otf') format('opentype');
+  src: url('{{base_url}}/static/fonts/MyriadPro-Semibold.woff') format('woff');
+}
+
+* {
+    box-sizing: border-box;
+}
+
+*:before, *:after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 10px;
+}
+
+html {
+    font-family: sans-serif;
+}
+
+body {
+    margin: 0;
+    font-family: "myriad-light",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: #fff;
+}
+
+h1 {
+    margin: .67em 0;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+}
+
+h1, .h1, h2, .h2, h3, .h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 37px;
+}
+
+h2 {
+    font-size: 29px;
+}
+
+img {
+    vertical-align: middle;
+}
+
+img {
+    border: 0;
+}
+
+.benchmarks-box {
+  border: 1px solid #ACAFAF;
+}
+
+.score-card-background {
+  background-color: #e5e9dd;
+  border: 1px solid #ACAFAF;
+}
+
+.bordered-left {
+    border-left:1px dashed grey;
+}
+
+.nav {
+    margin-bottom: 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.nav-squared-tabs {
+    display: block;
+    margin: 30px 0 30px 0;
+    border-bottom: 0;
+}
+
+.nav-tabs>li {
+    display: inline-block;
+    margin-bottom: -1px;
+}
+
+.nav-squared-tabs>li.squared-tabs-li {
+    position: relative;
+    bottom: 0;
+    padding: 0;
+    width: 120px;
+    text-align: center;
+}
+
+.icon-container {
+    position: relative;
+    bottom: 0;
+    display: inline-block;
+    padding: 0;
+    width: 120px;
+    text-align: center;
+}
+
+.nav-squared-tabs>li.squared-tabs-li .icon-inner {
+    display: inline-block;
+    position: relative;
+    bottom: 0;
+}
+
+.icon-container>.icon-inner {
+    display: inline-block;
+    position: relative;
+    bottom: 0;
+    background-color: transparent;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    height: 90px;
+    width: 90px;
+    padding: 5px 0;
+}
+
+.orange {
+    color: white;
+    background-color: #F89407!important;
+}
+
+
+.icon-equipment {
+    width: 50px;
+    height: 50px;
+    max-width: 50px;
+    max-height: 50px;
+}
+
+.icon-caption {
+  height: 36px;
+  width: 90px;
+  display: table-cell;
+  vertical-align: middle;
+  font-size: 13px;
+  line-height: 12px;
+  text-align: center;
+  color: #fff !important;
+}
+
+.icon-score > h3 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0 0 0;
+}
+
+.score-card p {
+    border-top: 1px dashed grey;
+    padding-top: 5px;
+    margin: 0 10px 0 10px;
+}
+
+.benchmarks-align {
+/*  margin-left: 15px; // closest to matching alignment in #subtotals */
+    margin-left: 50px; // more like centered
+}
+
+.indent-header-0 {
+   display:inline-block;
+   margin:0;
+}
+
+.indent-header-1 {
+  display:inline-block;
+  margin-left: 20px;
+}
+
+.indent-header-2 {
+  display:inline-block;
+  margin-left: 40px;
+}
+
+.indent-header-3 {
+  display:inline-block;
+  margin-left: 60px;
+}
+
+.indent-header-4 {
+  display:inline-block;
+  margin-left: 80px;
+}
+
+.indent-header-5 {
+  display:inline-block;
+  margin-left: 100px;
+}
+
+.heading-0 {
+   font-size: 18px;
+   font-family: inherit;
+   font-weight: 500;
+   line-height: 1.1;
+}
+
+.heading-1 {
+   font-size: 16px;
+   font-family: inherit;
+   font-weight: 500;
+   line-height: 1.1;
+}
+
+.heading-2 {
+   font-size: 14px;
+   font-family: inherit;
+}
+
+.heading-3 {
+   font-size: 14px;
+   font-family: inherit;
+}
+
+@media print {
+    section {page-break-after: always;}
+}
+  </style>
+</head>
+<body>
+  <section id="scorecard">
+    <h1>Scorecard - {{organization.printable_name}}</h1>
+      <div id="totals" class="benchmarks-box" style="margin-top:25px;">
+        <h2 style="margin-left: 5px;">Total score</h2>
+          <div>
+            <div class="score-card-background" style="display:inline-block;width:50%;margin-left:5px;">
+              <div id="score">
+                <img src="{{total_chart.image}}" />
+              </div>
+            </div>
+            {% block benchmark_nb_respondants %}
+            <div style="display:inline-block;width:45%;vertical-align:middle;padding-left:5px;">
+Benchmarking is based on responses from {{nb_respondents}}
+companies in the &quot;{{breadcrumbs.0.0.title}}&quot; industry segment.
+Note: Your score will rise if the implementation rate for the best practices
+you have implemented rises, because implementation rate is used as value
+indicator for a best practice.
+            </div>
+            {% endblock %}
+            <div style="text-align:right;margin-right:15px;">
+                <span>Generated: {{at_time|date}}</span>
+            </div>
+          </div>
+      </div>
+      {% if charts %}
+      <div id="subtotals" class="benchmarks-box" style="margin-top: 25px;">
+        <h2 style="margin-left: 5px;">Subtotals</h2>
+        {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
+        <ul class="nav nav-tabs nav-squared-tabs">
+          {% for abs_prefix, icon_tuple in root.1|iteritems  %}
+          {% with icon_tuple.0 as icon %}
+          {% with forloop.first as draw_border %}
+          <li class="squared-tabs-li{% ifchanged icon|containsTag:'management' %}{% if not draw_border %} bordered-left{% endif %}{% endifchanged %}">
+            <div class="icon-container">
+              <a class="icon-inner{% if icon|containsTag:'management' %} grey{% else %} orange{% endif %}">
+                {% if icon.text %}
+                <img class="icon-equipment" src="{{icon.text}}">
+                {% endif %}
+                <div class="icon-caption">{{icon.title}}</div>
+              </a>
+              <div class="icon-score">
+                <h3 class="rollup-score">{{icon.normalized_score}}</h3>
+                <div>
+                  (<span class="rollup-weight">{{icon.score_weight}}</span>)
+                </div>
+              </div>
+            </div>
+          </li>
+          {% endwith %}
+          {% endwith %}
+          {% endfor %}
+        </ul>
+        {% endwith %}
+      </div>
+      {% endif %}
+  </section>
+  {% if charts %}
+  <section id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
+    <h2 style="margin-left: 5px;">Benchmark graphs</h2>
+    <div class="benchmarks-align">
+      <div>
+        {% for chart in charts %}
+        {% if forloop.counter0|divisibleby:2 %}
+      </div>
+      <div>
+        {% endif %}
+        <img src="{{chart.image}}" style="display:inline-block;" />
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+  {% block special_considerations %}
+  <section id="highlighted-practices" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
+        <h2 style="margin-left: 5px;">Highlighted best practices</h2>
+        {% if highlighted_practices %}
+          <div style="margin-left: 5px; margin-bottom: 15px;">
+          {% for highlighted_practice in highlighted_practices %}
+          <div>
+            <div style="display:inline-block;width:50%;">
+              <div class="{{highlighted_practice.0}}" style="display:block;">
+                <span class="title">{{ highlighted_practice.2.title }}</span>
+              </div>
+            </div>
+            <div style="display:inline-block;width:40%;">
+            {% if highlighted_practice.3.planned %}
+                <strong>Planned for improvement.</strong>
+            {% endif %}
+            {% if highlighted_practice.3.not_applicable %}
+                Not applicable.
+            {% elif highlighted_practice.3.environmental_metrics %}
+                {% for reported in highlighted_practice.3.environmental_metrics %}
+                    {{reported.metric_title}} {{reported.measured}}
+                {% endfor %}
+            {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+          </div>
+        {% else %}
+          <h5 style="margin-left: 5px;">No questions have been have been highlighted for special consideration.</h5>
+        {% endif %}
+  </section><!-- /#highlighted-practices -->
+  {% endblock %}
+</body>
+</html>

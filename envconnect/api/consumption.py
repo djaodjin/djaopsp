@@ -67,7 +67,8 @@ class ConsumptionDetailAPIView(BreadcrumbMixin,
 
     .. code-block:: http
 
-        PUT /api/consumption/boxes-enclosures/energy-efficiency/air-flow/ HTTP/1.1
+        PUT /api/consumption/boxes-enclosures/energy-efficiency/air-flow/\
+ HTTP/1.1
 
     .. code-block:: json
 

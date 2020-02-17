@@ -14,6 +14,7 @@ and poor benchmark position. Then click <em>Improve</em>.
 </div>
 <div>
   <!-- Tab menus -->
+  {% if urls.api_historical_scores %}
   <div class="text-right" style="margin-bottom:15px;">
     <!-- WORKAROUND: we set data-width and data-height
          otherwise bootstrap-toggle will crop the size
@@ -29,6 +30,7 @@ and poor benchmark position. Then click <em>Improve</em>.
            ng-model="scoreToggle"
            ng-change="onToggleScore()">
   </div>
+  {% endif %}
   <!-- Tab panes -->
   <div class="tab-content">
     <div id="scorecard-tab" class="panel-icons" ng-show="!scoreToggle">
@@ -37,6 +39,7 @@ and poor benchmark position. Then click <em>Improve</em>.
           <div class="row-icons benchmarks-box" id="score-card">
             <div style="display:inline-block;float:left;flex:auto;">
               <h2 class="icon-row-title mt-3">{{organization.printable_name}} Scorecard</h2>
+              {% block header_icons %}
               <div class="header-tuple">
                 {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
                 <ul class="nav nav-tabs squared-tabs">
@@ -99,11 +102,15 @@ and poor benchmark position. Then click <em>Improve</em>.
                 </ul>
                 {% endwith %}
               </div>
+              {% endblock header_icons %}
             </div>
+            {% block score_arc %}
             {% include "envconnect/_arc.html" %}
+            {% endblock %}
           </div>
         </div>
       </div> <!-- .row -->
+      {% if charts %}
       <div id="benchmarks" class="benchmarks-box" style="margin-top: 25px;">
         <h2 style="margin-left: 5px;">Benchmark graphs</h2>
         <div>
@@ -126,6 +133,8 @@ and poor benchmark position. Then click <em>Improve</em>.
           </div>
         </div>
       </div> <!-- #benchmarks -->
+      {% endif %}
+      {% block special_considerations %}
       <div id="highlighted-practices" class="benchmarks-box" style="margin-top: 25px; margin-bottom: 25px;">
         <h2 style="margin-left: 5px;">Highlighted best practices</h2>
         {% if highlighted_practices %}
@@ -134,7 +143,7 @@ and poor benchmark position. Then click <em>Improve</em>.
           <div class="row">
             <div class="col-sm-6">
               <div class="{{highlighted_practice.0}}" style="display:block;">
-                <a class="title" href="{% if highlighted_practice.1 %}{% url 'summary_organization' organization highlighted_practice.1 %}{% endif %}">{{ highlighted_practice.2.title }}</a>
+                <a class="title" href="{% if highlighted_practice.1 %}{% url 'summary_organization_redirect' organization highlighted_practice.1 %}{% endif %}">{{ highlighted_practice.2.title }}</a>
               </div>
             </div>
             <div class="col-sm-6">
@@ -161,6 +170,10 @@ and poor benchmark position. Then click <em>Improve</em>.
           <h5 style="margin-left: 5px;">No questions have been have been highlighted for special consideration.</h5>
         {% endif %}
       </div><!-- /#highlighted-practices -->
+      {% endblock special_considerations %}
+      <div>
+          <a id="download" class="btn btn-secondary" href="{{urls.benchmark_organization_download}}" target="_blank"><i class="fa fa-file-text"></i>&nbsp;&nbsp;Download</a>
+      </div>
     </div><!-- /#scorecard-tab -->
     <div id="history-tab" class="panel-icons" ng-show="scoreToggle">
       <div class="card-body benchmarks-box">

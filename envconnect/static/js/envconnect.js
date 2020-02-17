@@ -2033,13 +2033,13 @@ envconnectControllers.controller("envconnectMyTSPReporting",
                 if( data[idx].slug === "totals" ) {
                     var totalScoreElement = self.element.find(
                         "#" + data[idx].slug);
-                    if( typeof data[idx].normalized_score !== 'undefined'
-                        && typeof data[idx].avg_normalized_score !== 'undefined'
-                        && typeof data[idx].highest_normalized_score !== 'undefined') {
-                    totalScoreElement.empty();
+                    var avg_normalized_score  = data[idx].avg_normalized_score || -1;
+                    var highest_normalized_score = data[idx].highest_normalized_score  || -1;
+                    if( typeof data[idx].normalized_score !== 'undefined') {
+                        totalScoreElement.empty();
                         radialProgress(totalScoreElement[0])
-                            .value1(data[idx].highest_normalized_score)
-                            .value2(data[idx].avg_normalized_score)
+                            .value1(highest_normalized_score)
+                            .value2(avg_normalized_score)
                             .value3(self.options.scoreFunc(data[idx]))
                             .render();
                     } else {

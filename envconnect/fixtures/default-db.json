@@ -2610,7 +2610,7 @@
   "fields": {
     "title": "Sustainability Framework",
     "slug": "sustainability-framework",
-    "tag": "{\"tags\":[\"scorecard\"]}",
+    "tag": "{\"tags\":[\"scorecard\",\"hide-summary\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 81

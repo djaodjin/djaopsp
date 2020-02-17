@@ -12,16 +12,7 @@ from urldecorators import include, url
 from ..urlbuilders import (url_prefixed, url_authenticated,
     url_direct, url_content_manager)
 from ..views.redirects import AccountRedirectView, MyTSPRedirectView
-from ..views.assessments import AssessmentView, AssessmentXLSXView
-from ..views.benchmark import (BenchmarkView,
-    ScoreCardView, ScoreCardDownloadView, ScoreCardRedirectView)
-from ..views.compare import (SuppliersView, SuppliersXLSXView,
-    PortfoliosDetailView)
-from ..views.detail import DetailView, DetailXLSXView
 from ..views.index import IndexView
-from ..views.improvements import (ImprovementView, ImprovementPDFView,
-    ImprovementXLSXView)
-from ..views.share import ShareView, ShareRedirectView
 
 
 if settings.DEBUG: #pylint: disable=no-member
@@ -63,7 +54,8 @@ urlpatterns += [
     url_authenticated(r'app/',
         AccountRedirectView.as_view(
             pattern_name='organization_app',
-            new_account_url=site_prefixed('/users/roles/accept/'))),
+            new_account_url=site_prefixed('/users/roles/accept/')),
+        name='app_redirect'),
 
     # These URLs will be served by the djaodjin webapp.
     # XXX fix: remove envconnect prefix when themes are ready.

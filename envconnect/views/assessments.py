@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -253,7 +253,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
     def get_breadcrumb_url(self, path):
         organization = self.kwargs.get('organization', None)
         if organization:
-            return reverse('envconnect_assess_organization',
+            return reverse('assess_organization',
                 args=(organization, path))
         return super(AssessmentView, self).get_breadcrumb_url(path)
 
@@ -268,7 +268,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                 'entries': json.dumps(root, cls=JSONEncoder)
             })
 
-        prev_samples = [(reverse('envconnect_sample_organization',
+        prev_samples = [(reverse('assess_organization_sample',
             args=(self.account, prev_sample, self.kwargs.get('path'))),
                 prev_sample.created_at)
             for prev_sample in Sample.objects.filter(
@@ -279,7 +279,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         if prev_samples:
             context.update({'prev_samples': prev_samples})
             if self.sample.is_frozen:
-                selected_sample = reverse('envconnect_sample_organization',
+                selected_sample = reverse('assess_organization_sample',
                     args=(self.account, self.sample, self.kwargs.get('path')))
                 context.update({'selected_sample': selected_sample})
 
@@ -308,6 +308,9 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
 
         organization = context['organization']
         update_context_urls(context, {
+            'download': reverse(
+                'assess_organization_sample_download',
+                args=(organization, self.sample, from_root)),
             'api_assessment_sample': reverse(
                 'survey_api_sample', args=(organization, self.sample)),
             'api_assessment_sample_new': reverse(

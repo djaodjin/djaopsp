@@ -2,8 +2,6 @@
 # see LICENSE.
 
 #pylint: no-init
-import json
-
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from pages.models import PageElement
@@ -186,11 +184,11 @@ class AccountSerializer(NoModelSerializer):
 
     segment = serializers.CharField(
         help_text=_("segment that was answered"))
-    score_url =  serializers.CharField(
+    score_url = serializers.CharField(
         help_text=_("link to the scorecard"))
-    normalized_score =  serializers.IntegerField(
+    normalized_score = serializers.IntegerField(
         help_text=_("score"))
-    nb_na_answers =  serializers.IntegerField(
+    nb_na_answers = serializers.IntegerField(
         help_text=_("number of answers marked N/A"))
     reporting_publicly = serializers.BooleanField(
         help_text=_("also reporting publicly"))

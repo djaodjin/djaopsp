@@ -7,14 +7,13 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.db import connection, transaction
-from django.db.models import Count, Max, Q
+from django.db.models import Max, Q
 from django.http import Http404
 from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 from deployutils.helpers import datetime_or_now
-from deployutils.crypt import JSONEncoder
 from extra_views.contrib.mixins import SearchableListMixin, SortableListMixin
 from pages.models import PageElement
 from rest_framework import generics, serializers, status
@@ -152,29 +151,6 @@ class CompletionSummaryPagination(PageNumberPagination):
 class DashboardMixin(BenchmarkMixin):
 
     account_model = get_account_model()
-
-    @property
-    def start_at(self):
-        if not hasattr(self, '_start_at'):
-            self._start_at = self.request.GET.get('start_at', None)
-            if self._start_at:
-                try:
-                    self._start_at = datetime_or_now(self._start_at.strip('"'))
-                except ValueError:
-                    self._start_at = None
-        return self._start_at
-
-    @property
-    def ends_at(self):
-        if not hasattr(self, '_ends_at'):
-            self._ends_at = self.request.GET.get('ends_at', None)
-            if self._ends_at:
-                self._ends_at = self._ends_at.strip('"')
-            try:
-                self._ends_at = datetime_or_now(self._ends_at)
-            except ValueError:
-                self._ends_at = datetime_or_now()
-        return self._ends_at
 
     def _get_scored_answers(self, population, metric_id,
                             includes=None, questions=None, prefix=None):
@@ -641,7 +617,6 @@ class SupplierListMixin(DashboardMixin):
         path_prefix = self.kwargs.get('path')
         account_scores = []
         last_activity_at = None
-        planned_improvements = None
         for segment_val in six.itervalues(segments):
             segment = segment_val[0]
             scores = segment['accounts']
@@ -677,15 +652,15 @@ class SupplierListMixin(DashboardMixin):
                 continue
 
             if segment['slug'].startswith('framework'):
-                score_url = reverse('envconnect_assess_organization',
+                score_url = reverse('assess_organization',
                     args=(account.slug,
                           '/sustainability-%s' % str(segment['slug'])))
             elif 'sample' in score:
-                score_url = reverse('benchmark_organization_sample',
+                score_url = reverse('benchmark_organization',
                     args=(account.slug, score['sample'],
                           '/sustainability-%s' % str(segment['slug'])))
             else:
-                score_url = reverse('benchmark_organization',
+                score_url = reverse('benchmark_organization_redirect',
                     args=(account.slug,
                           '/sustainability-%s' % str(segment['slug'])))
             score.update({
@@ -716,7 +691,7 @@ class SupplierListMixin(DashboardMixin):
                 # so we remove sensistive keys from the result.
                 for key in ('normalized_score', 'nb_na_answers',
                             'reporting_publicly'):
-                   score[key] = None
+                    score[key] = None
             account_scores += [score]
 
         if account_scores:
@@ -886,7 +861,8 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
            "cohorts": [{
                "slug": "/portfolio-a",
                "title":"Portfolio A",
-               "likely_metric":"http://localhost/app/energy-utility/portfolios/portfolio-a/"
+               "likely_metric":"http://localhost/app/energy-utility/portfolios/\
+portfolio-a/"
            },
            "values": [{
                "portfolio-a": "0.1",
@@ -908,7 +884,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
         if accounts is None:
             accounts = get_account_model().objects.all()
         scores = {}
-        rollup_tree = self.rollup_scores(force_score=True)#TotalScoreBySubsectorAPIView
+        rollup_tree = self.rollup_scores(force_score=True)#TotalScoreBySubsector
         rollup_scores = self.get_drilldown(rollup_tree, metric.slug)
         for cohort in cohorts:
             score = 0

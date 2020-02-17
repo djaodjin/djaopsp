@@ -7,10 +7,10 @@ from pages.settings import PATH_RE, SLUG_RE
 from ...api.assessments import (AssessmentAPIView, AssessmentAnswerAPIView,
     AssessmentMeasuresAPIView, DestroyMeasureAPIView)
 from ...api.benchmark import BenchmarkAPIView, HistoricalScoreAPIView
-from ...api.improvements import (ImprovementListAPIView,
-    ImprovementAnswerAPIView)
 from ...api.dashboards import (SupplierListAPIView,
     TotalScoreBySubsectorAPIView, ShareScorecardAPIView)
+from ...api.improvements import (ImprovementListAPIView,
+    ImprovementAnswerAPIView)
 
 urlpatterns = [
     url(r'(?P<organization>%s)/suppliers(?P<path>%s)/?$'

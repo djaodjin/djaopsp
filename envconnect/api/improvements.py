@@ -4,13 +4,13 @@
 from django.db import transaction
 
 from rest_framework import response as http
-from rest_framework import serializers, status
+from rest_framework import status
 from rest_framework.generics import (get_object_or_404, ListAPIView,
      GenericAPIView)
 from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
     DestroyModelMixin, UpdateModelMixin)
 from rest_framework.response import Response
-from survey.models import Answer, EnumeratedQuestions, get_question_model
+from survey.models import EnumeratedQuestions, get_question_model
 
 from ..helpers import freeze_scores
 from ..mixins import ImprovementQuerySetMixin

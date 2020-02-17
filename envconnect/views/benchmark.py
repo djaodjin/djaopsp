@@ -10,73 +10,18 @@ from django.core.files.storage import FileSystemStorage
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.template.loader import get_template
-from django.views.generic.base import (RedirectView, TemplateView,
-    ContextMixin, TemplateResponseMixin)
+from django.views.generic.base import TemplateView
 from django.utils import six
 from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now, update_context_urls
 from extended_templates.backends.pdf import PdfTemplateResponse
-from pages.models import PageElement
 
 from ..compat import reverse
 from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
-from ..mixins import ReportMixin, TransparentCut
-from ..models import Consumption
+from ..mixins import TransparentCut
 
 
 LOGGER = logging.getLogger(__name__)
-
-VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED = \
-    "%(organization)s has not yet started to complete"\
-    " their assessment. You will be able able to see"\
-    " %(organization)s as soon as they do."
-
-
-class ScoreCardRedirectView(ReportMixin, TemplateResponseMixin,
-                            ContextMixin, RedirectView):
-    """
-    On login, by default the user will be redirected to `/app/` which in turn
-    will redirect to `/app/:organization/scorecard/$`.
-
-    If *organization* has started an assessment then we have candidates
-    to redirect to (i.e. /app/:organization/scorecard/:path).
-    """
-    template_name = 'envconnect/scorecard/index.html'
-
-    def get(self, request, *args, **kwargs):
-        candidates = []
-        organization = kwargs.get('organization')
-        if self.assessment_sample:
-            for element in PageElement.objects.filter(tag__contains='industry'):
-                root_prefix = '/%s/sustainability-%s' % (
-                    element.slug, element.slug)
-                if Consumption.objects.filter(
-                        answer__sample=self.assessment_sample,
-                        path__contains=root_prefix).exists():
-                    candidates += [element]
-        if not candidates:
-            # On user login, registration and activation,
-            # we will end-up here.
-            if not organization in self.accessibles(
-                    roles=['manager', 'contributor']):
-                messages.warning(self.request,
-                    VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED % {
-                        'organization': organization})
-            return HttpResponseRedirect(reverse('homepage'))
-
-        redirects = []
-        for element in candidates:
-            root_prefix = '/sustainability-%s' % element.slug
-            kwargs.update({'path': root_prefix})
-            url = self.get_redirect_url(*args, **kwargs)
-            print_name = element.title
-            redirects += [(url, print_name)]
-
-        if len(redirects) > 1:
-            context = self.get_context_data(**kwargs)
-            context.update({'redirects': redirects})
-            return self.render_to_response(context)
-        return super(ScoreCardRedirectView, self).get(request, *args, **kwargs)
 
 
 class BenchmarkBaseView(BenchmarkMixin, TemplateView):
@@ -103,24 +48,32 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                 else:
                     excludes = [parts[1]]
             charts = self.get_charts(root, excludes=excludes)
-            update_context_urls(context, {
-                'api_account_benchmark': reverse('api_benchmark_base',
-                    args=(context['organization'], from_root)),
-                'api_historical_scores': reverse('api_historical_scores',
-                    args=(context['organization'], from_root)),
-                })
+            organization = kwargs.get('organization')
             if self.assessment_sample:
                 last_updated_at = self.assessment_sample.created_at.strftime(
                     "%b %Y")
                 update_context_urls(context, {
+                    'benchmark_organization_download': reverse(
+                        'benchmark_organization_download',
+                        args=(organization, self.assessment_sample, from_root)),
+                })
+                update_context_urls(context, {
                     'api_account_benchmark': reverse('api_benchmark',
-                        args=(context['organization'], self.assessment_sample,
-                            from_root)),
+                        args=(organization, self.assessment_sample,
+                              from_root)),
+                    'api_historical_scores': reverse(
+                        'api_historical_scores', args=(
+                            organization, from_root)),
                 })
             else:
                 # There are no assessment yet.
                 last_updated_at = "Current"
-                organization = kwargs.get('organization')
+                update_context_urls(context, {
+                    'api_account_benchmark': reverse('api_benchmark_base',
+                        args=(organization, from_root)),
+                    'api_historical_scores': reverse('api_historical_scores',
+                        args=(organization, from_root)),
+                    })
                 if organization in self.accessibles(roles=[
                         'manager', 'contributor']):
                     if organization != settings.APP_NAME:
@@ -178,36 +131,10 @@ class BenchmarkView(BenchmarkBaseView):
                 "You need to complete an assessment before"\
                 " moving on to the scorecard.")
             return HttpResponseRedirect(
-                reverse('envconnect_assess_organization',
+                reverse('assess_organization',
                     kwargs={'organization': organization, 'path': path}))
-        return HttpResponseRedirect(reverse('summary_organization',
+        return HttpResponseRedirect(reverse('summary_organization_redirect',
             kwargs={'organization': organization, 'path': path}))
-
-
-class ScoreCardView(BenchmarkView):
-    """
-    Shows the scorecard of an organization, accessible through
-    the "My TSP" menu.
-    """
-    template_name = 'envconnect/scorecard.html'
-    breadcrumb_url = 'scorecard'
-
-    def get(self, request, *args, **kwargs):
-        organization = kwargs.get('organization')
-        if not self.assessment_sample:
-            if not organization in self.accessibles(
-                    roles=['manager', 'contributor']):
-                # /app/:organization/scorecard/:path
-                # Only when accessing an actual scorecard and if the request
-                # user is a viewer will we explain why the scorecard is not
-                # visible. If the request user is manager/contributor
-                # for the organization, calling `get_assessment_redirect_url`
-                # will prompt the message to complete the assessment.
-                messages.warning(self.request,
-                    VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED % {
-                        'organization': organization})
-            return self.get_assessment_redirect_url(*args, **kwargs)
-        return super(ScoreCardView, self).get(request, *args, **kwargs)
 
 
 class PrintableChartsMixin(object):
@@ -290,12 +217,12 @@ casper.run();
         subprocess.check_call(cmd)
 
 
-class ScoreCardDownloadView(PrintableChartsMixin, BenchmarkAPIView):
+class BenchmarkDownloadView(PrintableChartsMixin, BenchmarkAPIView):
     """
     Shows the scorecard of an organization, accessible through
     the "My TSP" menu.
     """
-    template_name = 'envconnect/prints/scorecard.html'
+    template_name = 'envconnect/prints/benchmark.html'
 
     @property
     def score_charts(self):

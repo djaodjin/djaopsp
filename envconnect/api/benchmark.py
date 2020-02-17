@@ -8,6 +8,7 @@ import json, logging
 from collections import OrderedDict
 
 from deployutils.crypt import JSONEncoder
+from deployutils.helpers import datetime_or_now
 from django.conf import settings
 from django.db import connection
 from django.db.models import Q
@@ -25,16 +26,40 @@ from .best_practices import ToggleTagContentAPIView
 from ..compat import reverse
 from ..helpers import get_segments
 from ..mixins import ReportMixin, TransparentCut
-from ..models import (_show_query_and_result, get_score_weight, get_scored_answers,
-    get_historical_scores, Consumption)
+from ..models import (_show_query_and_result, get_score_weight,
+    get_scored_answers, get_historical_scores, Consumption)
 from ..serializers import (BenchmarkSerializer, MetricsSerializer,
     ScoreWeightSerializer)
-from ..scores import populate_account_na_answers, populate_account_planned_improvements, populate_rollup
+from ..scores import (populate_account, populate_account_na_answers,
+    populate_account_planned_improvements, populate_rollup)
 
 LOGGER = logging.getLogger(__name__)
 
 
 class BenchmarkMixin(ReportMixin):
+
+    @property
+    def start_at(self):
+        if not hasattr(self, '_start_at'):
+            self._start_at = self.request.GET.get('start_at', None)
+            if self._start_at:
+                try:
+                    self._start_at = datetime_or_now(self._start_at.strip('"'))
+                except ValueError:
+                    self._start_at = None
+        return self._start_at
+
+    @property
+    def ends_at(self):
+        if not hasattr(self, '_ends_at'):
+            self._ends_at = self.request.GET.get('ends_at', None)
+            if self._ends_at:
+                self._ends_at = self._ends_at.strip('"')
+            try:
+                self._ends_at = datetime_or_now(self._ends_at)
+            except ValueError:
+                self._ends_at = datetime_or_now()
+        return self._ends_at
 
     def get_highlighted_practices(self):
         from_root, trail = self.breadcrumbs
@@ -264,7 +289,8 @@ class BenchmarkMixin(ReportMixin):
         return None
 
     @staticmethod
-    def _get_planned_improvements(population, metric_id, includes=None, prefix=None):
+    def _get_planned_improvements(population, metric_id,
+                                  includes=None, prefix=None):
         return None
 
     @property
@@ -380,7 +406,7 @@ WHERE samples.account_id IN %(accounts)s AND
 }
         _show_query_and_result(reporting_publicly_sql)
         with connection.cursor() as cursor:
-            cursor.execute(reporting_publicly_sql , params=None)
+            cursor.execute(reporting_publicly_sql, params=None)
             reporting_publicly = [row[0] for row in cursor]
 
         # XXX We add `reporting_publicly` no matter whichever segment
@@ -468,7 +494,7 @@ WHERE samples.account_id IN %(accounts)s AND
                     segment[0].get('accounts')):
                 if int(account_pk) in revenue_generateds:
                     account.update({
-                        'revenue_generated': revenue_generateds[int(account_pk)]})
+                      'revenue_generated': revenue_generateds[int(account_pk)]})
         self._report_queries("reporting employee count completed")
 
 
@@ -507,7 +533,8 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
 
     .. code-block:: http
 
-        GET /api/steve-shop/benchmark/boxes-and-enclosures/energy-efficiency/ HTTP/1.1
+        GET /api/steve-shop/benchmark/boxes-and-enclosures/energy-efficiency/\
+ HTTP/1.1
 
     responds
 
@@ -828,7 +855,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                         prefix = '/sustainability-%s' % last_part
                     by_industry.update({
                         'url': self.request.build_absolute_uri(
-                            reverse('envconnect_sample_organization',
+                            reverse('assess_organization_sample',
                             args=(self.account.slug, account['sample'],
                                 prefix)))
                     })

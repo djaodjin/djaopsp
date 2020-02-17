@@ -13,14 +13,12 @@ from django.db import connection, connections, transaction
 from django.db.models import Max, Sum
 from django.http import Http404
 from django.utils import six
-from django.utils.dateparse import parse_datetime
-from django.utils.timezone import utc
 from deployutils.apps.django import mixins as deployutils_mixins
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
 from rest_framework.generics import get_object_or_404
-from survey.models import (Answer, Choice, Campaign, EnumeratedQuestions,
-    Metric, Sample, Unit)
+from survey.models import (Answer, Campaign, EnumeratedQuestions,
+    Metric, Sample)
 from survey.utils import get_account_model
 
 from .compat import reverse
@@ -181,7 +179,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     def get_breadcrumb_url(self, path):
         organization = self.kwargs.get('organization')
         if organization:
-            return reverse("%s_organization" % self.breadcrumb_url,
+            return reverse("%s_organization_redirect" % self.breadcrumb_url,
                 args=(organization, path,))
         return reverse(self.breadcrumb_url, args=(path,))
 
@@ -516,48 +514,85 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         active_section = ""
         if self.request.GET.get('active', ""):
             active_section += "?active=%s" % self.request.GET.get('active')
-        hide_scorecard = bool(trail and trail[0] and trail[0][0].tag and
+        hide_summary = bool(trail and trail[0] and trail[0][0].tag and
+            'hide-summary' in trail[0][0].tag)
+        hide_benchmark = bool(trail and trail[0] and trail[0][0].tag and
             'hide-benchmark' in trail[0][0].tag)
         hide_improve = bool(trail and trail[0] and trail[0][0].tag and
             'hide-improve' in trail[0][0].tag)
-        if 'organization' in context:
+        hide_scorecard = bool(trail and trail[0] and trail[0][0].tag and
+            'hide-scorecard' in trail[0][0].tag)
+        organization = kwargs.get('organization')
+        if organization:
+            sample = kwargs.get('sample')
             urls.update({
-                'api_improvements': reverse('api_improvement_base',
-                    args=(context['organization'],)),
-                'summary': reverse('summary_organization',
-                    args=(context['organization'], path)),
-                'assess': reverse('envconnect_assess_organization',
-                    args=(context['organization'], path)),
-                'share': reverse('envconnect_share_organization',
-                    args=(context['organization'], path)),
+                'share': reverse('share_organization',
+                    args=(organization, path)),
             })
-            if not hide_scorecard:
+            if not hide_summary:
                 urls.update({
-                'benchmark': reverse('benchmark_organization',
-                    args=(context['organization'], path)),
-                'scorecard': reverse('scorecard_organization',
-                    args=(context['organization'], path)),
+                    'summary': reverse('summary_organization_redirect',
+                        args=(organization, path)),
                 })
             if not hide_improve:
                 urls.update({
-                    'improve': reverse('envconnect_improve_organization',
-                        args=(context['organization'], path)),
+                    'api_improvements': reverse('api_improvement_base',
+                        args=(organization,)),
+                    'improve': reverse('improve_organization',
+                        args=(organization, path)),
                 })
+            if sample:
+                urls.update({
+                    'assess': reverse('assess_organization_sample',
+                        args=(organization, sample, path))
+                })
+                if not hide_benchmark:
+                    urls.update({
+                    'benchmark': reverse('benchmark_organization',
+                        args=(organization, sample, path)),
+                    })
+                elif not hide_scorecard:
+                    urls.update({
+                        'scorecard': reverse('scorecard_organization',
+                            args=(organization, sample, path)),
+                    })
+            else:
+                urls.update({
+                    'assess': reverse('assess_organization',
+                        args=(organization, path))
+                })
+                if not hide_benchmark:
+                    urls.update({
+                    'benchmark': reverse('benchmark_organization_redirect',
+                        args=(organization, path)),
+                    })
+                elif not hide_scorecard:
+                    urls.update({
+                        'scorecard': reverse('scorecard_organization_redirect',
+                            args=(organization, path)),
+                    })
         else:
             urls.update({
-                'summary': reverse('summary', args=(path,)),
-                'assess': reverse('envconnect_assess', args=(path,)),
-                'share': reverse('envconnect_share', args=(path,)),
+                'assess': reverse('assess_redirect', args=(path,)),
+                'share': reverse('share_redirect', args=(path,)),
             })
-            if not hide_scorecard:
+            if not hide_summary:
                 urls.update({
-                    'benchmark': reverse('benchmark', args=(path,)),
-                    'scorecard': reverse('scorecard', args=(path,)),
+                    'summary': reverse('summary', args=(path,)),
+                })
+            if not hide_benchmark:
+                urls.update({
+                    'benchmark': reverse('benchmark_redirect', args=(path,)),
                 })
             if not hide_improve:
                 urls.update({
-                    'improve': reverse('envconnect_improve', args=(path,)),
+                    'improve': reverse('improve_redirect', args=(path,)),
                 })
+            if not hide_scorecard:
+                urls.update({
+                    'scorecard': reverse('scorecard_redirect', args=(path,)),
+                })
+
         if self.__class__.__name__ == 'DetailView':
             urls.update({'context_base': urls['summary']})
         elif self.__class__.__name__ == 'AssessmentView':
@@ -948,16 +983,16 @@ class BestPracticeMixin(BreadcrumbMixin):
             active_section = ""
         if organization:
             urls = {
-                'assess': reverse('envconnect_assess_organization',
+                'assess': reverse('assess_organization',
                     args=(organization, contextual_path)) + active_section,
-                'improve': reverse('envconnect_improve_organization',
+                'improve': reverse('improve_organization',
                     args=(organization, contextual_path)) + active_section
             }
         else:
             urls = {
-                'assess': reverse('envconnect_assess',
+                'assess': reverse('assess_redirect',
                     args=(contextual_path,)) + active_section,
-                'improve': reverse('envconnect_improve',
+                'improve': reverse('improve_redirect',
                     args=(contextual_path,)) + active_section
             }
         urls.update({'api_page_elements': reverse('api_detail', args=(

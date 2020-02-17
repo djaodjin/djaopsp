@@ -13,12 +13,12 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import DestroyAPIView, ListCreateAPIView
 from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 from survey.api.sample import AnswerAPIView, SampleAPIView
-from survey.api.serializers import AnswerSerializer, SampleSerializer
+from survey.api.serializers import AnswerSerializer
 from survey.models import Answer, Choice, EnumeratedQuestions, Unit
 from survey.mixins import SampleMixin
 from survey.utils import get_question_model
 
-from ..helpers import freeze_scores, get_segments
+from ..helpers import freeze_scores
 from ..mixins import ExcludeDemoSample, ReportMixin
 from ..models import Consumption, get_scored_answers
 from ..serializers import (AnswerUpdateSerializer, AssessmentMeasuresSerializer,

@@ -130,8 +130,8 @@ svg:not(:root) {
 <script type="text/javascript">
 jQuery(document).ready(function($) {
   radialProgress("#totals", 1)
-    .value1({{total_score.highest_normalized_score}})
-    .value2({{total_score.avg_normalized_score}})
+    .value1({% if total_score.highest_normalized_score %}{{total_score.highest_normalized_score}}{% else %}-1{% endif %})
+    .value2({% if total_score.avg_normalized_score %}{{total_score.avg_normalized_score}}{% else %}-1{% endif %})
     .value3({{total_score.normalized_score}})
     .render();
 });

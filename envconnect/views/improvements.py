@@ -46,7 +46,7 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
         organization = self.kwargs.get('organization', None)
         if organization:
             return reverse(
-                'envconnect_improve_organization', args=(organization, path))
+                'improve_organization', args=(organization, path))
         return super(ImprovementView, self).get_breadcrumb_url(path)
 
     def get_report_tree(self, node=None, from_root=None, cut=ContentCut(),
@@ -76,6 +76,15 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
             'api_viewers': site_prefixed(
                 "/api/profile/%s/roles/viewers/" % self.account),
         })
+        if self.improvement_sample:
+            update_context_urls(context, {
+                'print': reverse('improve_organization_sample_print',
+                    args=(organization, self.assessment_sample,
+                          self.get_scorecard_path(self.kwargs.get('path')))),
+                'download': reverse('improve_organization_sample_download',
+                    args=(organization, self.assessment_sample,
+                          self.get_scorecard_path(self.kwargs.get('path'))))
+            })
         if self.assessment_sample:
             update_context_urls(context, {
                 'api_account_benchmark': reverse('api_benchmark',

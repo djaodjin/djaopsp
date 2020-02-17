@@ -1,7 +1,7 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
-import datetime, io, json, logging, re
+import io, json, logging, re
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
@@ -15,7 +15,6 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 from deployutils.helpers import datetime_or_now
 from openpyxl import Workbook
-from pages.mixins import TrailMixin
 from pages.models import PageElement
 from survey.models import Matrix
 from survey.views.matrix import MatrixDetailView
@@ -25,7 +24,7 @@ from ..api.benchmark import BenchmarkMixin
 from ..api.dashboards import SupplierListMixin
 from ..serializers import AccountSerializer
 from ..helpers import as_valid_sheet_title
-from ..mixins import AccountMixin, PermissionMixin, BreadcrumbMixin
+from ..mixins import AccountMixin, BreadcrumbMixin
 from ..models import Consumption
 
 
@@ -48,7 +47,7 @@ class SuppliersView(AccountMixin, BreadcrumbMixin, TemplateView):
             'api_organizations': site_prefixed("/api/profile/"),
             'api_organization_profile': site_prefixed(
                 "/api/profile/%(account)s/" % {'account': self.account}),
-            'download': reverse('organization_reporting_entities_download',
+            'download': reverse('reporting_organization_download',
                                 args=(self.account, root))
         })
         try:
@@ -61,10 +60,8 @@ class SuppliersView(AccountMixin, BreadcrumbMixin, TemplateView):
             'account_extra': self.account.extra,
             'date_range': {
                 'start_at': start_at,
-                'ends_at': datetime.datetime(2019, 1, 1).isoformat(),
-#                'ends_at': (max(datetime_or_now(), datetime_or_now(
-#                    datetime.datetime(2019, 12, 1))) + relativedelta(days=1)
-#                ).isoformat(),
+                'ends_at': (datetime_or_now() + relativedelta(days=1)
+                ).isoformat(),
             }
         })
         return context

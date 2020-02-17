@@ -358,7 +358,7 @@
 { "fields": {
     "app": 6,
     "rank": 14,
-    "path": "/app/requests/",
+    "path": "/app/reporting/",
     "rule_op": 1
   },
   "model": "rules.Rule", "pk": 14

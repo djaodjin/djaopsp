@@ -349,35 +349,41 @@ function radialProgress(parent, dur) {
             enter.append("g").attr("class", "arcs");
             var arcs = svg.select(".arcs");
 
-            /* top score */
-            var path1 = arcs.selectAll("#arc1").data(data);
-            path1.enter().append("path")
-                .attr("id","arc1")
-                .attr("class", fillClass("#arc1", _value1))
-                .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
-                .attr("d", _arc1);
+            // top score
+            var path1 = _value1 >= 0 ? arcs.selectAll("#arc1").data(data) : null;
+            if( path1 ) {
+                path1.enter().append("path")
+                    .attr("id","arc1")
+                    .attr("class", fillClass("#arc1", _value1))
+                    .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
+                    .attr("d", _arc1);
 
-            arcs.append("text")
-                .attr("x", 6)
-                .attr("dy", 15).append("textPath")
-                .attr("class", textClass("#arc1", _value1))
-                .attr("xlink:href","#arc1")
-                .text("top score (" + _value1 + "%)");
+                arcs.append("text")
+                    .attr("x", 6)
+                    .attr("dy", 15).append("textPath")
+                    .attr("class", textClass("#arc1", _value1))
+                    .attr("xlink:href","#arc1")
+                    .text("top score (" + _value1 + "%)");
+            }
 
-            var path2 = arcs.selectAll("#arc2").data(data);
-            path2.enter().append("path")
-                .attr("id","arc2")
-                .attr("class", fillClass("#arc2", _value2))
-                .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
-                .attr("d", _arc2);
+            // average score
+            var path2 = _value2 >= 0 ? arcs.selectAll("#arc2").data(data) : null;
+            if( path2 ) {
+                path2.enter().append("path")
+                    .attr("id","arc2")
+                    .attr("class", fillClass("#arc2", _value2))
+                    .attr("transform", "translate(" + _width/2 + "," + _width/2 + ")")
+                    .attr("d", _arc2);
 
-            arcs.append("text")
-                .attr("x", 6)
-                .attr("dy", 15).append("textPath")
-                .attr("class", textClass("#arc2", _value2))
-                .attr("xlink:href","#arc2")
-                .text("average (" + _value2 + "%)");
+                arcs.append("text")
+                    .attr("x", 6)
+                    .attr("dy", 15).append("textPath")
+                    .attr("class", textClass("#arc2", _value2))
+                    .attr("xlink:href","#arc2")
+                    .text("average (" + _value2 + "%)");
+            }
 
+            // organization score
             var path3 = arcs.selectAll("#arc3").data(data);
             path3.enter().append("path")
                 .attr("id","arc3")
@@ -407,21 +413,26 @@ function radialProgress(parent, dur) {
                         + "%"; })
                 .style("font-size",_fontSize+"px");
 
-            path1.exit().transition().duration(_duration / 2).attr("x", _duration).remove();
+            if( path1 ) {
+                path1.exit().transition().duration(_duration / 2).attr(
+                    "x", _duration).remove();
+            }
 
             layout(svg);
 
             function layout(svg) {
-                path1.datum((- Math.PI / 2) + Math.PI * Math.min(
-                    (_value1 - _minValue) / (_maxValue - _minValue), 1));
-                path1.transition().duration(_duration)
-                    .attrTween("d", arcTween);
-
-                path2.datum((- Math.PI / 2) + Math.PI * Math.min(
-                    (_value2 - _minValue) / (_maxValue - _minValue), 1));
-                path2.transition().duration(_duration)
+                if( path1 ) {
+                    path1.datum((- Math.PI / 2) + Math.PI * Math.min(
+                        (_value1 - _minValue) / (_maxValue - _minValue), 1));
+                    path1.transition().duration(_duration)
+                        .attrTween("d", arcTween);
+                }
+                if( path2 ) {
+                    path2.datum((- Math.PI / 2) + Math.PI * Math.min(
+                        (_value2 - _minValue) / (_maxValue - _minValue), 1));
+                    path2.transition().duration(_duration)
                         .attrTween("d", arcTween2);
-
+                }
                 var ratio = (_value3 - _minValue) / (_maxValue - _minValue);
                 path3.datum((- Math.PI / 2) + Math.PI * Math.min(ratio, 1));
                 path3.transition().duration(_duration)
