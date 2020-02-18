@@ -70,21 +70,24 @@ class LastCompletedRedirectView(ReportMixin, TemplateResponseMixin,
     def get(self, request, *args, **kwargs):
         candidates = []
         organization = kwargs.get('organization')
-        path = kwargs.get('path')
-        if path:
-            parts = path.split('/')
-            for part in parts:
-                if part and part.startswith('sustainability-'):
-                    candidates += [get_object_or_404(PageElement, slug=part)]
-                    break
-        elif self.sample:
-            for element in PageElement.objects.filter(tag__contains='industry'):
-                root_prefix = '/%s/sustainability-%s' % (
-                    element.slug, element.slug)
-                if Consumption.objects.filter(
-                        answer__sample=self.sample,
-                        path__contains=root_prefix).exists():
-                    candidates += [element]
+        if self.sample:
+            path = kwargs.get('path')
+            if path:
+                parts = path.split('/')
+                for part in parts:
+                    if part and part.startswith('sustainability-'):
+                        candidates += [
+                            get_object_or_404(PageElement, slug=part)]
+                        break
+            else:
+                for element in PageElement.objects.filter(
+                        tag__contains='industry'):
+                    root_prefix = '/%s/sustainability-%s' % (
+                        element.slug, element.slug)
+                    if Consumption.objects.filter(
+                            answer__sample=self.sample,
+                            path__contains=root_prefix).exists():
+                        candidates += [element]
         if not candidates:
             # On user login, registration and activation,
             # we will end-up here.
@@ -93,7 +96,8 @@ class LastCompletedRedirectView(ReportMixin, TemplateResponseMixin,
                 messages.warning(self.request,
                     VIEWER_SELF_ASSESSMENT_NOT_YET_STARTED % {
                         'organization': organization})
-            return HttpResponseRedirect(reverse('homepage')) # XXX app page `organization_app`
+            return HttpResponseRedirect(
+                reverse('organization_app', args=(organization,)))
 
         kwargs.update({'sample': self.sample})
         redirects = []
