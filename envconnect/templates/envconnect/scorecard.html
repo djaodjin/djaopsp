@@ -21,18 +21,18 @@ Then click <em>Share</em>.
 
 {% block special_considerations %}
 <div id="highlighted-practices" class="benchmarks-box my-4">
-  <h2 style="margin-left: 5px;">Highlighted best practices</h2>
+  <h2 class="mt-3">Highlighted best practices</h2>
 <table class="table table-assessment">
   <tbody data-prefix="{{abs_prefix}}">
     <tr data-id="[[getPath(practice[0])]]"
         class="best-practice-row"
         ng-repeat="practice in getEntries('{{abs_prefix}}')"
         ng-if="getEntries('{{abs_prefix}}').length > 0">
-        <td>
-            <span class="title">[[practice[0].title]]</span>
+        <td style="border:none;">
+            <span ng-class="indentHeader(practice, '{{abs_prefix}}')">[[practice[0].title]]</span>
         </td>
-        <td>
-          [[practice[0].implemented ? practice[0].implemented : ""]]
+        <td style="border:none;">
+            [[practice[0].implemented ? practice[0].implemented : ""]]
         </td>
     </tr>
   </tbody>

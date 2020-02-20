@@ -1580,11 +1580,14 @@ envconnectControllers.controller("EnvconnectCtrl",
                 }
                 if( measured ) {
                     found = true;
-                    data.push({
+                    var datapoint = {
                         metric: measure.replace(/_/g, '-'),
-                        unit: measures[measure].unit,
                         measured: measured
-                    });
+                    }
+                    if( measures[measure].unit ) {
+                        datapoint[unit] = measures[measure].unit;
+                    }
+                    data.push(datapoint);
                 }
             }
         }
