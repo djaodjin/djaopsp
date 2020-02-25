@@ -57,7 +57,7 @@ class AppView(AccountMixin, IndexView):
     def get_context_data(self, **kwargs):
         context = super(AppView, self).get_context_data(**kwargs)
         context.update({
-            'FEATURES_DEBUG': True, #self.account.pk in get_testing_accounts()
+            'FEATURES_DEBUG': self.account.pk in get_testing_accounts()
         })
         update_context_urls(context, {
             'api_historical_scores': reverse('api_historical_scores',
