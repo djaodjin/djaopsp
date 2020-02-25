@@ -10,7 +10,7 @@ import monotonic
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db import connection, connections, transaction
-from django.db.models import Max, Sum
+from django.db.models import Max, Q, Sum
 from django.http import Http404
 from django.utils import six
 from deployutils.apps.django import mixins as deployutils_mixins
@@ -43,8 +43,15 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 
     redirect_roles = ['manager', 'contributor']
 
-    @staticmethod
-    def get_roots():
+    def get_roots(self):
+        path = self.kwargs.get('path', "")
+        if path:
+            if path.startswith('/sustainability-'):
+                segment = path[17:]
+            else:
+                segment = path[1:]
+            return PageElement.objects.get_roots().filter(
+                Q(tag__contains='industry') | Q(slug=segment))
         return PageElement.objects.get_roots().filter(tag__contains='industry')
 
 

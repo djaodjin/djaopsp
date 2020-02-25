@@ -24,7 +24,7 @@ from survey.models import  Campaign, Choice, Metric, Sample, Unit
 
 from .best_practices import ToggleTagContentAPIView
 from ..compat import reverse
-from ..helpers import get_segments
+from ..helpers import get_segments, as_measured_value
 from ..mixins import ReportMixin, TransparentCut
 from ..models import (_show_query_and_result, get_score_weight,
     get_scored_answers, get_historical_scores, Consumption)
@@ -300,6 +300,9 @@ class BenchmarkMixin(ReportMixin):
     def rollup_scores(self, roots=None, root_prefix=None, force_score=False):
         """
         Returns a tree populated with scores per accounts.
+
+        `force_score` makes sure that we compute an aggregated score when
+        a question was added after the sample was frozen.
         """
         self._start_time()
         self._report_queries("at rollup_scores entry point")
@@ -383,120 +386,201 @@ class BenchmarkMixin(ReportMixin):
         self._report_queries("rollup_tree populated")
 
         # Adds if the supplier is reporting publicly or not.
-        latest_assessments = Consumption.objects.get_latest_samples_by_prefix(
-            before=self.ends_at, prefix="/") # at least one public report.
-        reporting_publicly_sql = """
-WITH samples AS (
-%(latest_assessments)s
-)
-SELECT DISTINCT samples.account_id
-FROM survey_answer
-INNER JOIN survey_question
-  ON survey_answer.question_id = survey_question.id
-INNER JOIN samples
-  ON survey_answer.sample_id = samples.id
-WHERE samples.account_id IN %(accounts)s AND
-  survey_answer.measured = %(yes)s AND
-  (survey_question.path LIKE '%%report-extern%%' OR
-   survey_question.path LIKE '%%publicly-reported%%')
-""" % {
-    'latest_assessments': latest_assessments,
-    'yes': Consumption.YES,
-    'accounts': tuple(self.requested_accounts_pk)
-}
-        _show_query_and_result(reporting_publicly_sql)
-        with connection.cursor() as cursor:
-            cursor.execute(reporting_publicly_sql, params=None)
-            reporting_publicly = [row[0] for row in cursor]
 
-        # XXX We add `reporting_publicly` no matter whichever segment
-        # the boolean comes from.
-        for segment in six.itervalues(rollup_tree[1]):
-            for account_pk, account in six.iteritems(
-                    segment[0].get('accounts')):
-                if int(account_pk) in reporting_publicly:
-                    account.update({'reporting_publicly': True})
-        self._report_queries("reporting publicly completed")
+        if self.requested_accounts_pk:
+            latest_assessments = Consumption.objects.get_latest_samples_by_prefix(
+                before=self.ends_at, prefix="/") # at least one public report.
 
-        employee_count_sql = """
-WITH samples AS (
-%(latest_assessments)s
-)
-SELECT DISTINCT samples.account_id, survey_answer.measured
-FROM survey_answer
-INNER JOIN samples
-  ON survey_answer.sample_id = samples.id
-WHERE samples.account_id IN %(accounts)s AND
-  survey_answer.metric_id = (
-      SELECT id FROM survey_metric WHERE slug='%(metric)s');
-""" % {
-    'latest_assessments': latest_assessments,
-    'metric': 'employee-counted',
-    'accounts': tuple(self.requested_accounts_pk)
-}
-        _show_query_and_result(employee_count_sql)
-        with connection.cursor() as cursor:
-            cursor.execute(employee_count_sql, params=None)
-            employee_counts = dict(cursor)
+            reporting_publicly = True
+            reporting_targets = False
+            reporting_employee_count = False
+            reporting_revenue_generated = False
 
-        # XXX We add `employee_count` no matter whichever segment
-        # the metric comes from.
-        for segment in six.itervalues(rollup_tree[1]):
-            for account_pk, account in six.iteritems(
-                    segment[0].get('accounts')):
-                if int(account_pk) in employee_counts:
-                    account.update({
-                        'employee_count': employee_counts[int(account_pk)]})
-        self._report_queries("reporting employee count completed")
+            if reporting_publicly:
+                reporting_publicly_sql = """
+        WITH samples AS (
+        %(latest_assessments)s
+        )
+        SELECT DISTINCT samples.account_id
+        FROM survey_answer
+        INNER JOIN survey_question
+          ON survey_answer.question_id = survey_question.id
+        INNER JOIN samples
+          ON survey_answer.sample_id = samples.id
+        WHERE samples.account_id IN %(accounts)s AND
+          survey_answer.measured = %(yes)s AND
+          (survey_question.path LIKE '%%report-extern%%' OR
+           survey_question.path LIKE '%%publicly-reported%%')
+        """ % {
+            'latest_assessments': latest_assessments,
+            'yes': Consumption.YES,
+            'accounts': tuple(self.requested_accounts_pk)
+        }
+                _show_query_and_result(reporting_publicly_sql)
+                with connection.cursor() as cursor:
+                    cursor.execute(reporting_publicly_sql, params=None)
+                    reporting_publicly = [row[0] for row in cursor]
 
-        revenue_generated_sql = """
-WITH samples AS (
-%(latest_assessments)s
-)
-SELECT DISTINCT samples.account_id,
-  survey_answer.measured,
-  survey_answer.unit_id, survey_unit.system
-FROM survey_answer
-INNER JOIN samples
-  ON survey_answer.sample_id = samples.id
-INNER JOIN survey_unit
-  ON survey_answer.unit_id = survey_unit.id
-WHERE samples.account_id IN %(accounts)s AND
-  survey_answer.metric_id = (
-      SELECT id FROM survey_metric WHERE slug='%(metric)s');
-""" % {
-    'latest_assessments': latest_assessments,
-    'metric': 'revenue-generated',
-    'accounts': tuple(self.requested_accounts_pk)
-}
-        _show_query_and_result(revenue_generated_sql)
-        revenue_generateds = {}
-        with connection.cursor() as cursor:
-            cursor.execute(revenue_generated_sql, params=None)
-            for row in cursor:
-                account_id = int(row[0])
-                measured = row[1]
-                unit_id = row[2]
-                unit_system = row[3]
-                if unit_system not in Unit.NUMERICAL_SYSTEMS:
-                    try:
-                        choice = Choice.objects.get(
-                            id=measured, unit_id=unit_id)
-                        measured = choice.text
-                    except Choice.DoesNotExist:
-                        pass
-                revenue_generateds[account_id] = measured
+                # XXX We add `reporting_publicly` no matter whichever segment
+                # the boolean comes from.
+                for segment in six.itervalues(rollup_tree[1]):
+                    for account_pk, account in six.iteritems(
+                            segment[0].get('accounts')):
+                        if int(account_pk) in reporting_publicly:
+                            account.update({'reporting_publicly': True})
+                self._report_queries("reporting publicly completed")
 
-        # XXX We add `revenue_generated` no matter whichever segment
-        # the metric comes from.
-        for segment in six.itervalues(rollup_tree[1]):
-            for account_pk, account in six.iteritems(
-                    segment[0].get('accounts')):
-                if int(account_pk) in revenue_generateds:
-                    account.update({
-                      'revenue_generated': revenue_generateds[int(account_pk)]})
-        self._report_queries("reporting employee count completed")
+            if reporting_targets:
+                reporting_targets_sql = """
+        WITH samples AS (
+        %(latest_assessments)s
+        )
+        SELECT samples.account_id,
+          survey_answer.measured,
+          survey_answer.unit_id,
+          survey_metric.slug,
+          survey_question.path
+        FROM survey_answer
+        INNER JOIN survey_question
+          ON survey_answer.question_id = survey_question.id
+        INNER JOIN samples
+          ON survey_answer.sample_id = samples.id
+        INNER JOIN survey_metric
+          ON survey_answer.metric_id = survey_metric.id
+        WHERE samples.account_id IN %(accounts)s AND
+          (survey_metric.slug = 'target-reduced' OR
+           survey_metric.slug = 'target-by' OR
+           survey_metric.slug = 'target-baseline') AND
+          (survey_question.path LIKE '%%/energy-target' OR
+           survey_question.path LIKE '%%/ghg-emissions-scope-1-emissions-target' OR
+           survey_question.path LIKE '%%/water-withdrawn-target' OR
+           survey_question.path LIKE '%%/hazardous-waste-target')
+        """ % {
+            'latest_assessments': latest_assessments,
+            'yes': Consumption.YES,
+            'accounts': tuple(self.requested_accounts_pk)
+        }
+                _show_query_and_result(reporting_targets_sql)
+                targets = {}
+                with connection.cursor() as cursor:
+                    cursor.execute(reporting_targets_sql, params=None)
+                    for row in cursor:
+                        account_pk = int(row[0])
+                        measured = row[1]
+                        unit_id = row[2]
+                        metric = row[3]
+                        question = row[4]
+                        if not account_pk in targets:
+                            targets[account_pk] = {}
+                        if question.endswith('/energy-target'):
+                            question = 'Energy'
+                        elif question.endswith('/ghg-emissions-scope-1-emissions-target'):
+                            question = 'GHG Emissions'
+                        elif question.endswith('/water-withdrawn-target'):
+                            question = 'Water'
+                        elif question.endswith('/hazardous-waste-target'):
+                            question = 'Waste'
+                        if not question in targets[account_pk]:
+                            targets[account_pk][question] = {}
+                        if unit_id:
+                            measured = as_measured_value(
+                                None, Unit.objects.get(pk=unit_id), measured=measured)
+                        targets[account_pk][question][metric] = measured
 
+                # XXX We add `employee_count` no matter whichever segment
+                # the metric comes from.
+                for segment in six.itervalues(rollup_tree[1]):
+                    for account_pk, account in six.iteritems(
+                            segment[0].get('accounts')):
+                        account_pk = int(account_pk)
+                        if account_pk in targets:
+                            texts = []
+                            for question, values in six.iteritems(targets[account_pk]):
+                                planned = "%s: %s by %s on baseline of %s" % (question, targets[account_pk][question].get('target-reduced'), targets[account_pk][question].get('target-by'), targets[account_pk][question].get('target-baseline'))
+                                texts += [planned]
+                            account.update({'targets': texts})
+                self._report_queries("reporting Energy, GHG, Water and Waste targets completed")
+
+            if reporting_employee_count:
+                    employee_count_sql = """
+            WITH samples AS (
+            %(latest_assessments)s
+            )
+            SELECT DISTINCT samples.account_id, survey_answer.measured
+            FROM survey_answer
+            INNER JOIN samples
+              ON survey_answer.sample_id = samples.id
+            WHERE samples.account_id IN %(accounts)s AND
+              survey_answer.metric_id = (
+                  SELECT id FROM survey_metric WHERE slug='%(metric)s');
+            """ % {
+                'latest_assessments': latest_assessments,
+                'metric': 'employee-counted',
+                'accounts': tuple(self.requested_accounts_pk)
+            }
+                    _show_query_and_result(employee_count_sql)
+                    with connection.cursor() as cursor:
+                        cursor.execute(employee_count_sql, params=None)
+                        employee_counts = dict(cursor)
+
+                    # XXX We add `employee_count` no matter whichever segment
+                    # the metric comes from.
+                    for segment in six.itervalues(rollup_tree[1]):
+                        for account_pk, account in six.iteritems(
+                                segment[0].get('accounts')):
+                            if int(account_pk) in employee_counts:
+                                account.update({
+                                    'employee_count': employee_counts[int(account_pk)]})
+                    self._report_queries("reporting employee count completed")
+
+            if reporting_revenue_generated:
+                    revenue_generated_sql = """
+            WITH samples AS (
+            %(latest_assessments)s
+            )
+            SELECT DISTINCT samples.account_id,
+              survey_answer.measured,
+              survey_answer.unit_id, survey_unit.system
+            FROM survey_answer
+            INNER JOIN samples
+              ON survey_answer.sample_id = samples.id
+            INNER JOIN survey_unit
+              ON survey_answer.unit_id = survey_unit.id
+            WHERE samples.account_id IN %(accounts)s AND
+              survey_answer.metric_id = (
+                  SELECT id FROM survey_metric WHERE slug='%(metric)s');
+            """ % {
+                'latest_assessments': latest_assessments,
+                'metric': 'revenue-generated',
+                'accounts': tuple(self.requested_accounts_pk)
+            }
+                    _show_query_and_result(revenue_generated_sql)
+                    revenue_generateds = {}
+                    with connection.cursor() as cursor:
+                        cursor.execute(revenue_generated_sql, params=None)
+                        for row in cursor:
+                            account_id = int(row[0])
+                            measured = row[1]
+                            unit_id = row[2]
+                            unit_system = row[3]
+                            if unit_system not in Unit.NUMERICAL_SYSTEMS:
+                                try:
+                                    choice = Choice.objects.get(
+                                        id=measured, unit_id=unit_id)
+                                    measured = choice.text
+                                except Choice.DoesNotExist:
+                                    pass
+                            revenue_generateds[account_id] = measured
+
+                    # XXX We add `revenue_generated` no matter whichever segment
+                    # the metric comes from.
+                    for segment in six.itervalues(rollup_tree[1]):
+                        for account_pk, account in six.iteritems(
+                                segment[0].get('accounts')):
+                            if int(account_pk) in revenue_generateds:
+                                account.update({
+                                  'revenue_generated': revenue_generateds[int(account_pk)]})
+                    self._report_queries("reporting revenue completed")
 
         return rollup_tree
 

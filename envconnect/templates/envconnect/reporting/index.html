@@ -138,7 +138,7 @@ user).</em>
             <tr id="[[entry.slug]]" ng-class="entry.supplier_initiated ? 'supplier-initiated' : ''" ng-repeat="entry in items.results" ng-show="items.$resolved && items.results.length > 0" ng-cloak>
               <td style="vertical-align:middle;">[[$index+1]]</td>
               <td style="vertical-align:middle;">
-                <a href="{{'app/'|site_prefixed}}[[entry.slug]]/benchmark/">[[entry.printable_name]]</a>
+                [[entry.printable_name]]
                 &nbsp;&nbsp;&dash;&nbsp;&nbsp;<a ng-if="entry.email" href="mailto:[[entry.email]]" style="color:black;"><i class="fa fa-envelope"></i> Email &raquo;</a>
                 <span class="badge badge-pill badge-primary" ng-repeat="tag in entry.tags">[[tag]]</span>
               </td>
@@ -151,7 +151,7 @@ user).</em>
               </td>
               <!-- Segment -->
               <td style="vertical-align:middle;">
-                <a href="entry.score_url">[[ entry.segment ]]</a>
+                <a href="[[entry.score_url]]">[[ entry.segment ]]</a>
               </td>
               <td colspan="4" style="vertical-align:middle;" ng-if="entry.requested_at">
                 <em>Requested on [[entry.requested_at|date: shortDate]]</em>
@@ -170,7 +170,14 @@ user).</em>
               </td>
               <!-- nb planned actions -->
               <td style="vertical-align:middle;" ng-if="!entry.requested_at">
-                [[ entry.nb_planned_improvements ]]
+                <div ng-if="entry.nb_planned_improvements">
+                  [[ entry.nb_planned_improvements ]]{# best practices #}
+                </div>
+                {% comment %}
+                <div ng-repeat="planned in entry.targets" ng-if="entry.targets">
+                  [[planned]]
+                </div>
+                {% endcomment %}
               </td>
               <td style="vertical-align:middle;text-align:right;"><button class="btn btn-danger btn-sm" ng-click="remove($event, $index)" data-trip data-trip-index="3" data-trip-content="<p>Click here to cancel access request.</p>" data-trip-position="s"><i class="fa fa-trash-o"></i></button></td>
             </tr>

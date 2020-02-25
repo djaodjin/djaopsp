@@ -195,6 +195,9 @@ class AccountSerializer(NoModelSerializer):
 
     nb_planned_improvements = serializers.IntegerField(required=False,
         help_text=_("number of planned improvements"))
+    targets = serializers.ListField(required=False,
+        child=serializers.CharField(),
+        help_text=_("improvement targets"))
     supplier_initiated = serializers.BooleanField(required=False,
         help_text=_("share was supplier initiated"))
     tags = serializers.SerializerMethodField(required=False,

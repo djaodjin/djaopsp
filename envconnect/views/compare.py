@@ -176,7 +176,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
     headings = [
         'Supplier name', 'Categories', 'Contact name', 'Email', 'Phone',
         'Last activity', 'Status', 'Industry segment', 'Score',
-        '# N/A', 'Reporting publicly', '# Planned actions',
+        '# N/A', 'Reporting publicly', 'Targets', '# Planned actions',
         'Full-time Employee Count', 'Annual Revenue (USD)']
 
     def get_headings(self):
@@ -211,12 +211,13 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                 extra = {}
         categories = ','.join(extra.keys()) if extra else ""
         if headings:
-            if rec['request_key']:
+            if rec.get('requested_at'):
                 normalized_score = "Requested"
                 segment = "Requested"
                 nb_na_answers = "Requested"
                 reporting_publicly = "Requested"
                 nb_planned_improvements = "Requested"
+                targets = "Requested"
                 employee_count = "Requested"
                 revenue_generated = "Requested"
             else:
@@ -228,6 +229,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                     reporting_publicly = "Yes"
                 nb_planned_improvements = rec.get(
                     'nb_planned_improvements', "N/A")
+                targets =  '\n'.join(rec.get('targets', []))
                 employee_count = rec.get(
                     'employee_count', "N/A")
                 revenue_generated = rec.get(
@@ -238,16 +240,17 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                 last_activity_at, reporting_status,
                 segment, normalized_score,
                 nb_na_answers, reporting_publicly,
-                nb_planned_improvements,
+                targets, nb_planned_improvements,
                 employee_count, revenue_generated])
         else:
             for rep in [(self.account.slug, self.account.full_name)]:
                 report_to = "" if rep[0] == self.account.slug else rep[1]
-                if rec['request_key']:
+                if rec.get('requested_at'):
                     normalized_score = "Requested"
                     segment = "Requested"
                     nb_na_answers = "Requested"
                     reporting_publicly = "Requested"
+                    targets = "Requested"
                     nb_planned_improvements = "Requested"
                     employee_count = "Requested"
                     revenue_generated = "Requested"
@@ -258,6 +261,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                     reporting_publicly = rec.get('reporting_publicly', "N/A")
                     nb_planned_improvements = rec.get(
                         'nb_planned_improvements', "N/A")
+                    targets =  '\n'.join(rec.get('targets', []))
                     employee_count = rec.get(
                         'employee_count', "N/A")
                     revenue_generated = rec.get(
@@ -268,7 +272,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                     last_activity_at, reporting_status,
                     segment, normalized_score,
                     nb_na_answers, reporting_publicly,
-                    nb_planned_improvements,
+                    targets, nb_planned_improvements,
                     employee_count, revenue_generated,
                     report_to])
                 if segment_slug:

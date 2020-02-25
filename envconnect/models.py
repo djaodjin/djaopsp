@@ -610,7 +610,9 @@ INNER JOIN survey_question
   ON survey_answer.question_id = survey_question.id
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
-        includes=includes, prefix=prefix, extra="survey_answer.metric_id = 2")}
+        includes=includes, prefix=prefix,
+        extra="survey_answer.metric_id = (SELECT id FROM survey_metric"\
+" WHERE slug='score')")}
     _show_query_and_result(scored_answers)
     return scored_answers
 

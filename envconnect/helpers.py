@@ -22,16 +22,19 @@ def is_sqlite3(db_key=None):
     return connections.databases[db_key]['ENGINE'].endswith('sqlite3')
 
 
-def as_measured_value(datapoint):
-    unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
+def as_measured_value(datapoint, unit=None, measured=None):
+    if not unit:
+        unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
+    if not measured:
+        measured = datapoint.measured
     if unit.system in Unit.NUMERICAL_SYSTEMS:
-        measured = '%d' % datapoint.measured
+        measured = '%d' % measured
     else:
         try:
-            measured = str(Choice.objects.get(pk=datapoint.measured))
+            measured = str(Choice.objects.get(pk=measured))
         except Choice.DoesNotExist:
             LOGGER.error("cannot find Choice %s for %s",
-                datapoint.measured, datapoint)
+                measured, datapoint)
             measured = ""
     return measured
 
@@ -132,8 +135,10 @@ SELECT segments.path, pages_pageelement.title
             ", ".join([str(sample_id) for sample_id in sample_ids]))
         with connection.cursor() as cursor:
             cursor.execute(raw_query)
-            #results = OrderedDict(cursor.fetchall())
-            results = list(cursor.fetchall())
+            for segment in cursor:
+                if not segment[0].startswith('/euissca-rfx'):
+                    results += [segment]
+#            results = list(cursor.fetchall())
     return results
 
 

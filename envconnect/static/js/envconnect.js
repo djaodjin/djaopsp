@@ -1294,6 +1294,16 @@ envconnectControllers.controller("EnvconnectCtrl",
         return "N/A";
     };
 
+    $scope.getSegmentUrl = function(base, path) {
+        var parts = path.split('/');
+        for( var idx = 0; idx < parts.length; ++idx ) {
+            if( parts[idx].indexOf('sustainability-') == 0 ) {
+                return base + parts[idx] + '/';
+            }
+        }
+        return base + path.substring(1);
+    };
+
     $scope.toggleMyTSP = function(event, defaultUrl) {
         var urlParts = window.location.href.split('/');
         var lastPart = urlParts.pop();
