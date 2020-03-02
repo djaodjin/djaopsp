@@ -924,7 +924,7 @@ portfolio-a/"
             except EditableFilter.DoesNotExist:
                 pass
         if likely_metric is None:
-            likely_metric = reverse('scorecard_organization',
+            likely_metric = reverse('benchmark_organization_redirect',
                 args=(cohort_slug, "/sustainability-%s" % default))
         if likely_metric:
             likely_metric = self.request.build_absolute_uri(likely_metric)

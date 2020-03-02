@@ -145,6 +145,7 @@ class BenchmarkMixin(ReportMixin):
         denominator = None
         highest_normalized_score = 0
         sum_normalized_scores = 0
+        nb_normalized_scores = 0
         nb_respondents = 0
         nb_implemeted_respondents = 0
         distribution = None
@@ -157,15 +158,15 @@ class BenchmarkMixin(ReportMixin):
 
             if is_view_account:
                 rollup_tree[0].update(account_metrics)
+
+            if account_metrics.get('nb_answers', 0):
+                nb_respondents += 1
+
             normalized_score = account_metrics.get('normalized_score', None)
-            nb_questions = account_metrics.get('nb_questions', 0)
-            if normalized_score is None or nb_questions == 0:
-                # `nb_questions == 0` to show correct number of respondents
-                # in relation with the `slug = 'totals'` statement
-                # in populate_rollup.
+            if normalized_score is None:
                 continue
 
-            nb_respondents += 1
+            nb_normalized_scores += 1
             numerator = account_metrics.get('numerator')
             denominator = account_metrics.get('denominator')
             if numerator == denominator:
@@ -203,8 +204,9 @@ class BenchmarkMixin(ReportMixin):
         if distribution is not None:
             if nb_respondents > 0:
                 avg_normalized_score = int(
-                    sum_normalized_scores / nb_respondents)
-                rate = int(100.0 * nb_implemeted_respondents / nb_respondents)
+                    sum_normalized_scores / nb_normalized_scores)
+                rate = int(100.0
+                    * nb_implemeted_respondents / nb_normalized_scores)
             else:
                 avg_normalized_score = 0
                 rate = 0
@@ -976,6 +978,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                                           # Relies on `get_historical_scores()`
                                           # to use `Sample.created_at`
                 self._report_queries("leafs populated")
+
                 populate_rollup(rollup_tree, True, force_score=self.force_score)
                 self._report_queries("rollup_tree populated")
 

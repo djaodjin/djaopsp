@@ -65,6 +65,7 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                         'api_historical_scores', args=(
                             organization, from_root)),
                 })
+                context.update({'sample': self.assessment_sample})
             else:
                 # There are no assessment yet.
                 last_updated_at = "Current"

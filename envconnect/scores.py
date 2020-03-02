@@ -309,12 +309,16 @@ def populate_rollup(rollup_tree, normalize_to_one, force_score=False):
                       isinstance(scores['created_at'], datetime.datetime)):
                     agg_scores['created_at'] = max(
                         agg_scores['created_at'], scores['created_at'])
+            nb_questions = scores.get('nb_questions')
+            if nb_questions is not None:
+                agg_scores['nb_questions'] = (
+                    agg_scores.get('nb_questions', 0) + nb_questions)
             nb_answers = scores.get('nb_answers')
             if slug != 'totals' or nb_answers:
                 # Aggregation of total scores is different. We only want to
                 # count scores for assessment that matter for an organization's
                 # segment.
-                for key in ('nb_answers', 'nb_questions',
+                for key in ('nb_answers',
                             'nb_na_answers', 'nb_planned_improvements'):
                     value = scores.get(key)
                     if value is not None:

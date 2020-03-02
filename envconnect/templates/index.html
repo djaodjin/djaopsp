@@ -394,7 +394,6 @@ for private benefit or profit.
 <script>alert('Please note that your current browser version is no longer supported by this application. Consider using a more up-to-date browser');</script>
 <![endif]-->
 <!-- Javascript specific for the page -->
-<script type="text/javascript" src="{{'static/js/djaodjin-editor.js'|site_prefixed}}"></script>
 <script type="text/javascript">
 jQuery(document).ready(function($) {
   $('#scroll-page').click(function(){
@@ -405,9 +404,9 @@ jQuery(document).ready(function($) {
 {% if not request|is_authenticated %}
   $(".dropdown-menu li a[role='menuitem']").bind("click touchstart",
     function(event) {
-      event.preventDefault();
       var element = $(this);
       if( element.attr("id") ) {
+        event.preventDefault();
         redirectTo = element.attr("href");
         window.location = "{{'register/'|site_prefixed}}?next=" + redirectTo;
       }

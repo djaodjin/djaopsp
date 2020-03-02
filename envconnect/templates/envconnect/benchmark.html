@@ -39,6 +39,11 @@ and poor benchmark position. Then click <em>Improve</em>.
           <div class="row-icons benchmarks-box" id="score-card">
             <div style="display:inline-block;float:left;flex:auto;">
               <h2 class="icon-row-title mt-3">{{organization.printable_name}} Scorecard</h2>
+              {% if sample and sample.is_frozen %}
+              <p class="text-left ml-2">
+                  {{sample.created_at|date}}
+              </p>
+              {% endif %}
               {% block header_icons %}
               <div class="header-tuple">
                 {% with root_prefix|add:"/"|add:root.0.slug as icon_prefix %}
