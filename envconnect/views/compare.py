@@ -350,9 +350,7 @@ class SuppliersImprovementsXLSXView(SupplierListMixin, TemplateView):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
 
     def get(self, request, *args, **kwargs):
-        #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks
-        #pylint: disable=too-many-statements
-        rollup_tree = self.rollup_scores(force_score=True)
+        #pylint: disable=unused-argument
         wbook = Workbook()
 
         # Populate improvements planned sheet
