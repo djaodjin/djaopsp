@@ -6,8 +6,8 @@ from urldecorators import include, url
 
 from ...views.assessments import AssessmentView, AssessmentXLSXView
 from ...views.benchmark import BenchmarkView, BenchmarkDownloadView
-from ...views.compare import (SuppliersView, SuppliersXLSXView,
-    PortfoliosDetailView)
+from ...views.compare import (PortfoliosDetailView, SuppliersView,
+    SuppliersXLSXView, SuppliersImprovementsXLSXView)
 from ...views.detail import DetailView, DetailXLSXView
 from ...views.index import AppView
 from ...views.improvements import (ImprovementView, ImprovementPDFView,
@@ -19,6 +19,10 @@ NON_EMPTY_PATH_RE = r'(/[a-zA-Z0-9\-]+)+'
 
 urlpatterns = [
     # direct manager of :organization
+    url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/improvements/download/'
+        % (SLUG_RE, PATH_RE),
+        SuppliersImprovementsXLSXView.as_view(),
+        name='reporting_organization_improvements_download'),
     url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/download/'
         % (SLUG_RE, PATH_RE),
         SuppliersXLSXView.as_view(),

@@ -48,7 +48,10 @@ class SuppliersView(AccountMixin, BreadcrumbMixin, TemplateView):
             'api_organization_profile': site_prefixed(
                 "/api/profile/%(account)s/" % {'account': self.account}),
             'download': reverse('reporting_organization_download',
-                                args=(self.account, root))
+                                args=(self.account, root)),
+            'improvements_download': reverse(
+                'reporting_organization_improvements_download',
+                args=(self.account, root))
         })
         try:
             extra = json.loads(self.account.extra)
@@ -297,23 +300,60 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
             self.writerow(account)
 
         # Populate per-segment sheets
-        for container in six.itervalues(rollup_tree[1]):
-            segment_suppliers = self.suppliers_per_segment.get(
-                container[0]['slug'], set([]))
-            if not segment_suppliers:
-                continue
-            for segment in six.itervalues(container[1]):
-                headings = [val[0]['title']
-                    for val in six.itervalues(segment[1])]
-                all_headings = self.get_headings()[:-1] + headings
-                suppliers_per_segment = self.get_suppliers(segment)
-                if suppliers_per_segment:
-                    self.wsheet = wbook.create_sheet(
-                        title=as_valid_sheet_title(segment[0]['title']))
-                    self.wsheet.append(all_headings)
-                    for account in suppliers_per_segment:
-                        if account['slug'] in segment_suppliers:
-                            self.writerow(account, headings=headings)
+        if False:
+            for container in six.itervalues(rollup_tree[1]):
+                segment_suppliers = self.suppliers_per_segment.get(
+                    container[0]['slug'], set([]))
+                if not segment_suppliers:
+                    continue
+                for segment in six.itervalues(container[1]):
+                    headings = [val[0]['title']
+                        for val in six.itervalues(segment[1])]
+                    all_headings = self.get_headings()[:-1] + headings
+                    suppliers_per_segment = self.get_suppliers(segment)
+                    if suppliers_per_segment:
+                        self.wsheet = wbook.create_sheet(
+                            title=as_valid_sheet_title(segment[0]['title']))
+                        self.wsheet.append(all_headings)
+                        for account in suppliers_per_segment:
+                            if account['slug'] in segment_suppliers:
+                                self.writerow(account, headings=headings)
+
+        # Prepares the result file
+        content = io.BytesIO()
+        wbook.save(content)
+        content.seek(0)
+
+        resp = HttpResponse(content, content_type=self.content_type)
+        resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
+            self.get_filename())
+        return resp
+
+
+class SuppliersImprovementsXLSXView(SupplierListMixin, TemplateView):
+    """
+    Download planned actions accross reporting entities as an Excel spreadsheet.
+    """
+    content_type = \
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    basename = 'dashboard-improvements'
+
+    @staticmethod
+    def get_indent_bestpractice(depth=0):
+        return "  " * depth
+
+    @staticmethod
+    def get_indent_heading(depth=0):
+        return "  " * depth
+
+    def get_filename(self):
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
+
+    def get(self, request, *args, **kwargs):
+        #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks
+        #pylint: disable=too-many-statements
+        rollup_tree = self.rollup_scores(force_score=True)
+        wbook = Workbook()
 
         # Populate improvements planned sheet
         practices = Consumption.objects.filter(
@@ -332,8 +372,8 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
         root = self._natural_order(root)
         rows = self.flatten_answers(root, '')
 
-        self.wsheet = wbook.create_sheet(
-            title=as_valid_sheet_title("Improvements"))
+        self.wsheet = wbook.active
+        self.wsheet.title = as_valid_sheet_title("Improvements")
         self.wsheet.append(('Best practice',
             'Nb suppliers who have selected the practice for improvement.'))
         for row in rows:
