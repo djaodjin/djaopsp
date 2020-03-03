@@ -107,7 +107,7 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                 prefix = '/'.join(parts[:idx + 1])
         if prefix != path:
             return HttpResponseRedirect(
-                reverse(self.breadcrumb_url, args=(prefix,)))
+                self.get_breadcrumb_url(self, prefix))
         return super(BenchmarkBaseView, self).get(request, *args, **kwargs)
 
 
