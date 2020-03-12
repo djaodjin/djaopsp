@@ -283,16 +283,31 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                     args=(self.account, self.sample, self.kwargs.get('path')))
                 context.update({'selected_sample': selected_sample})
 
+        industry_parts = []
+        for part in from_root.split('/'):
+            if part.startswith('sustainability-'):
+                break
+            industry_parts += [part]
+        industry_root = '/'.join(industry_parts)
+
         nb_questions = Consumption.objects.filter(
-            path__startswith=from_root,
+            path__startswith=industry_root).count()
+        nb_required_questions = Consumption.objects.filter(
+            path__startswith=industry_root,
             default_metric_id=self.default_metric_id).count()
         nb_answers = Answer.objects.filter(sample=self.sample,
             question__default_metric=F('metric_id'),
             question__default_metric_id=self.default_metric_id,
-            question__path__startswith=from_root).count()
+            question__path__startswith=industry_root).count()
+        nb_required_answers = Answer.objects.filter(sample=self.sample,
+            question__default_metric=F('metric_id'),
+            question__default_metric_id=self.default_metric_id,
+            question__path__startswith=industry_root).count()
         context.update({
             'nb_answers': nb_answers,
+            'nb_required_answers': nb_required_answers,
             'nb_questions': nb_questions,
+            'nb_required_questions': nb_required_questions,
             'page_icon': self.icon,
             'sample': self.sample,
             'survey': self.sample.survey,
@@ -310,13 +325,13 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         update_context_urls(context, {
             'download': reverse(
                 'assess_organization_sample_download',
-                args=(organization, self.sample, from_root)),
+                args=(organization, self.sample, industry_root)),
             'api_assessment_sample': reverse(
                 'survey_api_sample', args=(organization, self.sample)),
             'api_assessment_sample_new': reverse(
                 'survey_api_sample_new', args=(organization,)),
             'api_benchmark_share': reverse('api_benchmark_share',
-                args=(organization, from_root)),
+                args=(organization, industry_root)),
         })
         return context
 

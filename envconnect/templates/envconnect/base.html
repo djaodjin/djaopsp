@@ -73,6 +73,8 @@ app.constant('settings', {
     activeIcon: {% if active %}"{{active}}"{% else %}null{% endif %},
     nbAnswers: {% if nb_questions %}{{nb_answers}}{% else %}0{% endif %},
     nbQuestions: {% if nb_questions %}{{nb_questions}}{% else %}0{% endif %},
+    nbRequiredAnswers: {% if nb_required_answers %}{{nb_required_answers}}{% else %}0{% endif %},
+    nbRequiredQuestions: {% if nb_required_questions %}{{nb_required_questions}}{% else %}0{% endif %},
     prevSample: {% if selected_sample %}"{{selected_sample}}"{% else %}""{% endif %},
     hidden: {% if hidden %}{{hidden|safe}}{% else %}{}{% endif %},
     accountExtra: {% if account_extra %}{{account_extra|safe}}{% else %}{}{% endif %},

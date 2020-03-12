@@ -81,6 +81,7 @@ class ConsumptionSerializer(serializers.ModelSerializer):
 
     path = serializers.CharField(required=False)
     rank = serializers.SerializerMethodField()
+    required = serializers.SerializerMethodField()
     metric = serializers.CharField(required=False)
     nb_respondents = serializers.SerializerMethodField()
     rate = serializers.SerializerMethodField()
@@ -102,12 +103,17 @@ class ConsumptionSerializer(serializers.ModelSerializer):
             "implementation_ease", "avg_value",
             # benchmarks
             "nb_respondents", "rate", "opportunity",
-            "rank", "implemented", "planned", "metric",
+            "rank", "required", "implemented", "planned", "metric",
             "measures")
 
     @staticmethod
     def get_nb_respondents(obj):
         return obj.nb_respondents if hasattr(obj, 'nb_respondents') else 0
+
+    def get_required(self, obj):
+        if hasattr(obj, 'required') and obj.required:
+            return obj.required
+        return self.context.get('required', False)
 
     def get_rank(self, obj):
         if hasattr(obj, 'rank') and obj.rank:

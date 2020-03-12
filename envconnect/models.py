@@ -726,7 +726,7 @@ INNER JOIN survey_metric
     return scored_answers
 
 
-def get_assessment_answers(campaign, population, prefix=None):
+def get_assessment_answers(campaign, population, metric_id=1, prefix=None):
     """
     Returns a SQL query to retrive the specific assessment answer (Yes,
     Mostly yes, Mostly no, No) for all accounts in ``population`` indexed
@@ -742,14 +742,15 @@ WITH assessment_answers AS (
   INNER JOIN survey_sample
   ON survey_answer.sample_id = survey_sample.id
   WHERE
-    survey_answer.metric_id = 1
+    survey_answer.metric_id = %(metric_id)s
     AND survey_sample.extra IS NULL
     AND survey_sample.survey_id = %(campaign)d
     AND survey_sample.account_id IN (%(population)s)
 ), ranked_questions AS (
   SELECT survey_question.id AS id,
          survey_question.path AS path,
-         survey_enumeratedquestions.rank AS rank
+         survey_enumeratedquestions.rank AS rank,
+         survey_enumeratedquestions.required AS required
   FROM survey_question
   INNER JOIN survey_enumeratedquestions
   ON survey_question.id = survey_enumeratedquestions.question_id
@@ -760,13 +761,15 @@ WITH assessment_answers AS (
   SELECT ranked_questions.path AS path,
          assessment_answers.account_id AS account_id,
          assessment_answers.sample_id AS sample_id,
-         assessment_answers.measured AS measured
+         assessment_answers.measured AS measured,
+         ranked_questions.required AS required
   FROM ranked_questions
   LEFT OUTER JOIN assessment_answers
   ON ranked_questions.id = assessment_answers.question_id
   ORDER BY ranked_questions.rank""" % {
       'campaign': campaign.pk,
       'population': ','.join([str(sample.pk) for sample in population]),
+      'metric_id': metric_id,
       'prefix': prefix,
   }
     _show_query_and_result(assessment_answers)

@@ -74,7 +74,10 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
                 [col[0] for col in col_headers])
             decorated_answer = decorated_answer_tuple(*cursor.fetchone())
         data = AnswerUpdateSerializer(context={
-            'campaign': self.sample.survey
+            'campaign': self.sample.survey,
+            'required': EnumeratedQuestions.objects.filter(
+                campaign=self.sample.survey,
+                question_id=self.question.pk).first().required
         }).to_representation({
             'consumption':decorated_answer,
             'first': first_answer

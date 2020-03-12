@@ -283,7 +283,11 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.prevSample = settings.prevSample ? settings.prevSample : "";
     $scope.nbAnswers = settings.nbAnswers ? settings.nbAnswers : 0;
+    $scope.nbRequiredAnswers = (
+        settings.nbRequiredAnswers ? settings.nbRequiredAnswers : 0);
     $scope.nbQuestions = settings.nbQuestions ? settings.nbQuestions : 0;
+    $scope.nbRequiredQuestions = (
+        settings.nbRequiredQuestions ? settings.nbRequiredQuestions : 0);
 
     $scope.findOption = function(value, options) {
         for( var optIdx = 0; optIdx < options.length; ++optIdx ) {
@@ -1477,6 +1481,9 @@ envconnectControllers.controller("EnvconnectCtrl",
                 $scope._resetAssessmentRecursive($scope.entries);
                 $scope.nbAnswers = (resp.data && resp.data.nb_answers) ?
                     resp.data.nb_answers : 0;
+                $scope.nbRequiredAnswers = (
+                    resp.data && resp.data.nb_required_answers) ?
+                    resp.data.nb_required_answers : 0;
                 showMessages([
                     "Reset successful. Please continue with this assessment or an assessment in a different industry segment."],
                     "success");
@@ -1495,6 +1502,9 @@ envconnectControllers.controller("EnvconnectCtrl",
             function success(resp) {
                 if( resp.status == 201 ) {
                     $scope.nbAnswers++;
+                    if( resp.data.consumption.required ) {
+                        $scope.nbRequiredAnswers++;
+                    }
                 }
                 practice.consumption = resp.data.consumption;
                 if( resp.data.first && $("#assess-content").data("trip-content") ) {
