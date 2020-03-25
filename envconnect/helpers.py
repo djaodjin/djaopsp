@@ -25,7 +25,7 @@ def is_sqlite3(db_key=None):
 def as_measured_value(datapoint, unit=None, measured=None):
     if not unit:
         unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
-    if not measured:
+    if measured is None:
         measured = datapoint.measured
     if unit.system in Unit.NUMERICAL_SYSTEMS:
         measured = '%d' % measured

@@ -79,10 +79,10 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
         if self.improvement_sample:
             update_context_urls(context, {
                 'print': reverse('improve_organization_sample_print',
-                    args=(organization, self.assessment_sample,
+                    args=(organization, self.improvement_sample,
                           self.get_scorecard_path(self.kwargs.get('path')))),
                 'download': reverse('improve_organization_sample_download',
-                    args=(organization, self.assessment_sample,
+                    args=(organization, self.improvement_sample,
                           self.get_scorecard_path(self.kwargs.get('path'))))
             })
         if self.assessment_sample:

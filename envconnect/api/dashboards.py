@@ -1093,7 +1093,7 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
 
     @property
     def improvement_sample(self):
-        # duplicate from `ImprovementQuerySetMixin.improvement_sample`
+        # XXX duplicate from `ImprovementQuerySetMixin.improvement_sample`
         if not hasattr(self, '_improvement_sample'):
             self._improvement_sample = Sample.objects.filter(
                 extra='is_planned',
@@ -1177,6 +1177,7 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
                         reason = force_text(reason)
                     signals.assessment_completed.send(sender=__name__,
                         assessment=last_scored_assessment,
+                        path=self.kwargs.get('path'),
                         notified=matrix.account,
                         reason=reason, request=self.request)
                     if status_code is None:

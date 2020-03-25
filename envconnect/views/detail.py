@@ -7,6 +7,7 @@ from deployutils.helpers import datetime_or_now
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView
 from django.utils import six
+from lxml import html
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
@@ -146,6 +147,14 @@ class DetailSpreadsheetView(BreadcrumbMixin, ListView):
     basename = 'best-practices'
     headings = ['Environmental', 'Ops/maintenance', 'Financial',
         'Implementation ease', 'AVERAGE VALUE']
+
+    def create_writer(self, headings, title=None):
+        raise NotImplemented(
+            "`create_writer` must be implemented in derived class")
+
+    def flush_writer(self):
+        raise NotImplemented(
+            "`flush_writer` must be implemented in derived class")
 
     def tree_depth(self, root):
         if not root:
@@ -324,3 +333,67 @@ class DetailXLSXView(DetailSpreadsheetView):
                     max_row=self.wsheet._current_row):
                 row_cells[0].font = self.heading_font
                 row_cells[0].alignment = self.heading_alignment
+
+
+class ContentDetailXLSXView(DetailSpreadsheetView):
+    """
+    Outputs text content of best practices in an Excel spreadsheet.
+    """
+    basename = 'best-practices-content'
+    headings = ['Description content']
+    content_type = \
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    def create_writer(self, headings, title=None):
+        self.wbook = Workbook()
+        self.wsheet = self.wbook.active
+        if title:
+            self.wsheet.title = as_valid_sheet_title(title)
+
+    def flush_writer(self):
+        # Write out the Excel file.
+        content = io.BytesIO()
+        self.wbook.save(content)
+        content.seek(0)
+        return content
+
+    def writerow(self, row, leaf=False):
+        self.wsheet.append(row)
+
+    def write_tree(self, root, indent=[]):
+        if not root:
+            return
+        title = root[0]['title']
+        text = root[0].get('text', "")
+        if text:
+            text = html.fromstring(text).text_content()
+        element = root[0].get('consumption', None)
+        local_indent = indent
+        if element:
+            # We reached a leaf
+            if len(local_indent) < self.depth:
+                local_indent = local_indent + ["" for unnamed in range(
+                    len(local_indent), self.depth - 1)] + [title]
+            self.writerow(local_indent + [
+                text
+            ], leaf=True)
+        else:
+            for _, nodes in six.iteritems(root[1]):
+                self.write_tree(nodes, indent=local_indent + [title])
+
+    def get(self, request, *args, **kwargs): #pylint: disable=unused-argument
+        from_root, trail = self.breadcrumbs
+        # It is OK here to index by -1 since we would have generated a redirect
+        # in the `get` method when the path is "/".
+        root = self._build_tree(trail[-1][0], from_root, load_text=True)
+        self.depth = self.tree_depth(root)
+        self.create_writer(self.get_headings(), title="Best practices")
+        self.writerow(self.get_headings(), leaf=True)
+        self.write_tree(root)
+        resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
+        resp['Content-Disposition'] = \
+            'attachment; filename="{}"'.format(self.get_filename())
+        return resp
+
+    def get_filename(self):
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')

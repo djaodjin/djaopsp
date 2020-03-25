@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import json, logging
+import json, logging, re
 from collections import OrderedDict
 
 from deployutils.crypt import JSONEncoder
@@ -394,6 +394,7 @@ class BenchmarkMixin(ReportMixin):
                 before=self.ends_at, prefix="/") # at least one public report.
 
             reporting_publicly = True
+            reporting_data = False
             reporting_targets = False
             reporting_employee_count = False
             reporting_revenue_generated = False
@@ -431,6 +432,85 @@ class BenchmarkMixin(ReportMixin):
                         if int(account_pk) in reporting_publicly:
                             account.update({'reporting_publicly': True})
                 self._report_queries("reporting publicly completed")
+
+            if reporting_data:
+                reporting_data_sql = """
+        WITH samples AS (
+        %(latest_assessments)s
+        )
+        SELECT samples.account_id,
+          survey_answer.measured,
+          survey_answer.unit_id,
+          survey_metric.slug,
+          survey_question.path
+        FROM survey_answer
+        INNER JOIN survey_question
+          ON survey_answer.question_id = survey_question.id
+        INNER JOIN samples
+          ON survey_answer.sample_id = samples.id
+        INNER JOIN survey_metric
+          ON survey_answer.metric_id = survey_metric.id
+        WHERE samples.account_id IN %(accounts)s AND
+          (survey_metric.slug = 'energy-consumed' OR
+           survey_metric.slug = 'ghg-emissions-generated' OR
+           survey_metric.slug = 'water-consumed' OR
+           survey_metric.slug = 'waste-generated') AND
+          (survey_question.path LIKE '%%/energy-consumed' OR
+           survey_question.path LIKE '%%/ghg-emissions-total-scope-%%-emissions' OR
+           survey_question.path LIKE '%%/ghg-emissions-breakdown-of-scope-3-emissions%%' OR
+           survey_question.path LIKE '%%/water-total-water-discharged' OR
+           survey_question.path LIKE '%%/water-total-water-recycled-and-reused' OR
+           survey_question.path LIKE '%%/water-total-water-withdrawn' OR
+           survey_question.path LIKE '%%/waste-total-hazardous-waste' OR
+           survey_question.path LIKE '%%/waste-total-non-hazardous-waste' OR
+           survey_question.path LIKE '%%/waste-total-waste-recycled')
+        """ % {
+            'latest_assessments': latest_assessments,
+            'yes': Consumption.YES,
+            'accounts': tuple(self.requested_accounts_pk)
+        }
+                _show_query_and_result(reporting_data_sql)
+                reported = {}
+                with connection.cursor() as cursor:
+                    cursor.execute(reporting_data_sql, params=None)
+                    for row in cursor:
+                        account_pk = int(row[0])
+                        measured = row[1]
+                        unit_id = row[2]
+                        metric = row[3]
+                        question = row[4]
+                        if not account_pk in reported:
+                            reported[account_pk] = {}
+                        if question.endswith('/energy-consumed'):
+                            question = 'Energy'
+                        elif re.match(r'/ghg-emissions-', question):
+                            question = 'GHG Emissions'
+                        elif re.match(r'/water-', question):
+                            question = 'Water'
+                        elif re.match(r'/waste-', question):
+                            question = 'Waste'
+                        if not question in reported[account_pk]:
+                            reported[account_pk][question] = {}
+                        if unit_id:
+                            measured = as_measured_value(
+                                None, Unit.objects.get(pk=unit_id),
+                                measured=measured)
+                        reported[account_pk][question][metric] = measured
+
+                # XXX We add `employee_count` no matter whichever segment
+                # the metric comes from.
+                for segment in six.itervalues(rollup_tree[1]):
+                    for account_pk, account in six.iteritems(
+                            segment[0].get('accounts')):
+                        account_pk = int(account_pk)
+                        if account_pk in reported:
+                            texts = []
+                            for question, values in six.iteritems(
+                                    reported[account_pk]):
+                                planned = "%s" % str(question)
+                                texts += [planned]
+                            account.update({'reported': texts})
+                self._report_queries("reporting Energy, GHG, Water and Waste measurements completed")
 
             if reporting_targets:
                 reporting_targets_sql = """

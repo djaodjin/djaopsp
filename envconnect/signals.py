@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 from answers.models import Follow, get_question_model
@@ -15,7 +15,7 @@ from .compat import reverse
 
 
 assessment_completed = Signal(providing_args=[#pylint:disable=invalid-name
-    'assessment', 'notified'])
+    'assessment', 'path', 'notified'])
 
 #pylint: disable=unused-argument
 def get_site(request):
@@ -57,7 +57,7 @@ def on_answer_posted(sender, comment, request, *args, **kwargs):
 
 
 @receiver(assessment_completed, dispatch_uid="assessment_completed_notice")
-def on_assessment_completed(assessment, notified, *args, **kwargs):
+def on_assessment_completed(assessment, path, notified, *args, **kwargs):
     request = kwargs.get('request', None)
     reason = kwargs.get('reason', None)
     recipients = [manager.email
@@ -66,7 +66,8 @@ def on_assessment_completed(assessment, notified, *args, **kwargs):
         # Avoids 500 errors when no managers
         recipients = [settings.DEFAULT_FROM_EMAIL]
     back_url = request.build_absolute_uri(
-        reverse('benchmark_organization_redirect', args=(assessment.account,)))
+        reverse('benchmark_organization',
+                args=(assessment.account, assessment, path)))
     get_email_backend().send(
         recipients=recipients,
         template='notification/assessment_completed.eml',

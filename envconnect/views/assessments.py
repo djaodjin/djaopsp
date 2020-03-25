@@ -406,15 +406,23 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
         #pylint: disable=unused-argument,too-many-locals
         # All assessment questions for an industry, regardless
         # of the actual from_path.
-        # XXX if we do that, we shouldn't use from_root (i.e. system pages)
-        _, trail = self.breadcrumbs
-        trail_head = ("/"
-            + trail[0][0].slug.decode('utf-8') if six.PY2 else trail[0][0].slug)
+        from_root, trail = self.breadcrumbs
+        head = None
+        industry_parts = []
+        for idx, part in enumerate(from_root.split('/')):
+            if part.startswith('sustainability-'):
+                head = trail[idx][0]
+                break
+            industry_parts += [part]
+        industry_root = '/'.join(industry_parts)
+        if not head:
+            head = trail[-1][0]
+
         from_trail_head = "/" + "/".join([
             element.slug.decode('utf-8') if six.PY2 else element.slug
-            for element in self.get_full_element_path(trail_head)])
+            for element in self.get_full_element_path(industry_root)])
         # We use cut=None here so we print out the full assessment
-        root = self._build_tree(trail[0][0], from_trail_head, cut=None)
+        root = self._build_tree(head, from_trail_head, cut=None)
 
         self.headings = self.get_headings(self._get_tag(root[0]))
         self.create_writer(self.headings, title=self._get_title(root[0]))

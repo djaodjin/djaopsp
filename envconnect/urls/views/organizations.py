@@ -68,11 +68,11 @@ urlpatterns = [
             pattern_name='benchmark_organization'),
         name='benchmark_organization_redirect'),
 
-    url(r'app/(?P<organization>%s)/improve(?P<sample>%s)/'\
+    url(r'app/(?P<organization>%s)/improve/(?P<sample>%s)/'\
         'sample(?P<path>%s)/print/' % (SLUG_RE,
         SLUG_RE, PATH_RE), ImprovementPDFView.as_view(),
         name='improve_organization_sample_print'),
-    url(r'app/(?P<organization>%s)/improve(?P<sample>%s)/'\
+    url(r'app/(?P<organization>%s)/improve/(?P<sample>%s)/'\
         'sample(?P<path>%s)/download/' % (SLUG_RE,
         SLUG_RE, PATH_RE), ImprovementXLSXView.as_view(),
         name='improve_organization_sample_download'),

@@ -635,12 +635,15 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
         if not hasattr(self, '_assessment_sample'):
             sample_kwarg = self.kwargs.get('sample', None)
             if sample_kwarg:
-                self._assessment_sample = get_object_or_404(
-                    Sample.objects.all(),
-                    slug=sample_kwarg,
-                    extra__isnull=True,
-                    account=self.account)
-            else:
+                try:
+                    self._assessment_sample = Sample.objects.get(
+                        slug=sample_kwarg,
+                        extra__isnull=True,
+                        account=self.account)
+                except Sample.DoesNotExist:
+                    # XXX The sample slug might be matching a improvement plan.
+                    pass
+            if not hasattr(self, '_assessment_sample'):
                 self._assessment_sample = Sample.objects.filter(
                     extra__isnull=True,
                     survey=self.survey,
@@ -653,10 +656,21 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
     @property
     def improvement_sample(self):
         if not hasattr(self, '_improvement_sample'):
-            self._improvement_sample = Sample.objects.filter(
-                extra='is_planned',
-                survey=self.survey,
-                account=self.account).order_by('-created_at').first()
+            sample_kwarg = self.kwargs.get('sample', None)
+            if sample_kwarg:
+                try:
+                    self._improvement_sample = Sample.objects.get(
+                        slug=sample_kwarg,
+                        extra='is_planned',
+                        account=self.account)
+                except Sample.DoesNotExist:
+                    # XXX The sample slug might be matching a improvement plan.
+                    pass
+            if not hasattr(self, '_improvement_sample'):
+                self._improvement_sample = Sample.objects.filter(
+                    extra='is_planned',
+                    survey=self.survey,
+                    account=self.account).order_by('-created_at').first()
         return self._improvement_sample
 
     def get_or_create_assessment_sample(self):

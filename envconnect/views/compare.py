@@ -179,7 +179,8 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
     headings = [
         'Supplier name', 'Categories', 'Contact name', 'Email', 'Phone',
         'Last activity', 'Status', 'Industry segment', 'Score',
-        '# N/A', 'Reporting publicly', 'Targets', '# Planned actions',
+        '# N/A', 'Reporting publicly', 'Reported measurements',
+        'Targets', '# Planned actions',
         'Full-time Employee Count', 'Annual Revenue (USD)']
 
     def get_headings(self):
@@ -220,6 +221,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                 nb_na_answers = "Requested"
                 reporting_publicly = "Requested"
                 nb_planned_improvements = "Requested"
+                measurements = "Requested"
                 targets = "Requested"
                 employee_count = "Requested"
                 revenue_generated = "Requested"
@@ -232,6 +234,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                     reporting_publicly = "Yes"
                 nb_planned_improvements = rec.get(
                     'nb_planned_improvements', "N/A")
+                measurements =  '\n'.join(rec.get('reported', []))
                 targets =  '\n'.join(rec.get('targets', []))
                 employee_count = rec.get(
                     'employee_count', "N/A")
@@ -243,7 +246,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                 last_activity_at, reporting_status,
                 segment, normalized_score,
                 nb_na_answers, reporting_publicly,
-                targets, nb_planned_improvements,
+                measurements, targets, nb_planned_improvements,
                 employee_count, revenue_generated])
         else:
             for rep in [(self.account.slug, self.account.full_name)]:
@@ -253,6 +256,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                     segment = "Requested"
                     nb_na_answers = "Requested"
                     reporting_publicly = "Requested"
+                    measurements = "Requested"
                     targets = "Requested"
                     nb_planned_improvements = "Requested"
                     employee_count = "Requested"
@@ -264,6 +268,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                     reporting_publicly = rec.get('reporting_publicly', "N/A")
                     nb_planned_improvements = rec.get(
                         'nb_planned_improvements', "N/A")
+                    measurements =  '\n'.join(rec.get('reported', []))
                     targets =  '\n'.join(rec.get('targets', []))
                     employee_count = rec.get(
                         'employee_count', "N/A")
@@ -275,7 +280,7 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
                     last_activity_at, reporting_status,
                     segment, normalized_score,
                     nb_na_answers, reporting_publicly,
-                    targets, nb_planned_improvements,
+                    measurements, targets, nb_planned_improvements,
                     employee_count, revenue_generated,
                     report_to])
                 if segment_slug:
