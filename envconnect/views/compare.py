@@ -6,6 +6,7 @@ from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from deployutils.helpers import update_context_urls
+from django.db import connection
 from django.db.models import Count, Q
 from django.utils import six
 from django.http import HttpResponse
@@ -25,8 +26,7 @@ from ..api.dashboards import SupplierListMixin
 from ..serializers import AccountSerializer
 from ..helpers import as_valid_sheet_title
 from ..mixins import AccountMixin, BreadcrumbMixin
-from ..models import Consumption
-
+from ..models import Consumption, _show_query_and_result
 
 LOGGER = logging.getLogger(__name__)
 
@@ -168,7 +168,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         return context
 
 
-class SuppliersXLSXView(SupplierListMixin, TemplateView):
+class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
     """
     Download scores of all reporting entities as an Excel spreadsheet.
     """
@@ -333,6 +333,168 @@ class SuppliersXLSXView(SupplierListMixin, TemplateView):
         resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
             self.get_filename())
         return resp
+
+
+class SuppliersAssessmentsXLSXView(SupplierListMixin, TemplateView):
+    """
+    Download detailed answers of each suppliers
+    """
+    content_type = \
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    basename = 'dashboard-assessments'
+
+    indent_step = '    '
+
+    @staticmethod
+    def _get_consumption(element):
+        return element.get('consumption', None)
+
+    @staticmethod
+    def _get_tag(element):
+        return element.get('tag', "")
+
+    @staticmethod
+    def _get_title(element):
+        return element.get('title', "")
+
+    def writerow(self, row, leaf=False):
+        #pylint:disable=protected-access
+        self.wsheet.append(row)
+
+    def write_tree(self, root, indent=''):
+        """
+        The *root* parameter looks like:
+        (PageElement, [(PageElement, [...]), (PageElement, [...]), ...])
+        """
+        if not root[1]:
+            # We reached a leaf
+            row = [indent + self._get_title(root[0])]
+            by_accounts = self.by_paths.get(root[0]['path'])
+            if by_accounts:
+                for account_id in self.requested_accounts_pk:
+                    answer = by_accounts[account_id]
+                    text = answer['measured']
+                    if answer['comments']:
+                        text += " - %s" % answer['comments']
+                    row += [text]
+            self.writerow(row, leaf=True)
+        else:
+            self.writerow([indent + self._get_title(root[0])])
+            for element in six.itervalues(root[1]):
+                self.write_tree(element, indent=indent + self.indent_step)
+
+    def get_latest_samples(self, from_root):
+        return Consumption.objects.get_latest_samples_by_prefix(
+            before=self.ends_at, prefix=from_root)
+
+    def get(self, request, *args, **kwargs):
+        from_root, trail = self.breadcrumbs
+        head = trail[-1][0]
+        # We use cut=None here so we print out the full assessment
+        root = self._build_tree(head, from_root, cut=None)
+
+        latest_assessments = self.get_latest_samples(from_root)
+
+        reporting_answers_sql = """
+WITH samples AS (
+    %(latest_assessments)s
+)
+SELECT
+    survey_question.path,
+    samples.account_id,
+    survey_choice.text,
+    survey_answer.metric_id,
+    survey_answer.unit_id
+FROM survey_answer
+INNER JOIN survey_metric
+  ON survey_answer.metric_id = survey_metric.id
+INNER JOIN survey_choice
+  ON survey_choice.unit_id = survey_metric.unit_id
+INNER JOIN survey_question
+  ON survey_answer.question_id = survey_question.id
+INNER JOIN samples
+  ON survey_answer.sample_id = samples.id
+WHERE survey_choice.id = survey_answer.measured AND
+  samples.account_id IN %(accounts)s""" % {
+            'latest_assessments': latest_assessments,
+            'accounts': self.requested_accounts_pk_as_sql
+        }
+        _show_query_and_result(reporting_answers_sql)
+        self.by_paths = {}
+        with connection.cursor() as cursor:
+            cursor.execute(reporting_answers_sql, params=None)
+            for row in cursor:
+                path = row[0]
+                account_id = row[1]
+                measured = row[2]
+                metric_id = row[3]
+                unit_id = row[4]
+                if path not in self.by_paths:
+                    by_accounts = OrderedDict()
+                    for account in self.requested_accounts_pk:
+                        by_accounts[account] = {'measured': "", 'comments': ""}
+                    self.by_paths[path] = by_accounts
+                if metric_id == self.default_metric_id:
+                    self.by_paths[path][account_id]['measured'] = measured
+                else:
+                    self.by_paths[path][account_id]['comments'] += measured
+
+        # Populate the worksheet
+        wbook = Workbook()
+        self.wsheet = wbook.active
+        self.wsheet.title = as_valid_sheet_title("Answers")
+        headings = ['']
+        for account in self.requested_accounts:
+            headings += [account.printable_name]
+        self.wsheet.append(headings)
+
+        by_accounts = OrderedDict()
+        for account in self.requested_accounts_pk:
+            by_accounts[account] = ""
+        with connection.cursor() as cursor:
+            cursor.execute(latest_assessments, params=None)
+            for sample in cursor:
+                last_activity_at = sample[2]
+                account_id = sample[4]
+                by_accounts[account_id] = last_activity_at
+        headings = ['Last completed at']
+        for account_id in self.requested_accounts_pk:
+            last_activity_at = by_accounts[account_id]
+            if last_activity_at:
+                headings += [last_activity_at.strftime("%Y-%m-%d")]
+            else:
+                headings += [""]
+        self.wsheet.append(headings)
+
+        indent = self.indent_step
+        for nodes in six.itervalues(root[1]):
+            self.writerow([indent + self._get_title(nodes[0])])
+            for elements in six.itervalues(nodes[1]):
+                self.write_tree(elements, indent=indent + self.indent_step)
+
+        # Prepares the result file
+        content = io.BytesIO()
+        wbook.save(content)
+        content.seek(0)
+
+        resp = HttpResponse(content, content_type=self.content_type)
+        resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
+            self.get_filename())
+        return resp
+
+    def get_filename(self):
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
+
+
+class SuppliersPlanningXLSXView(SuppliersAssessmentsXLSXView):
+    """
+    Download detailed planned improvements of each suppliers
+    """
+    basename = 'dashboard-planning'
+
+    def get_latest_samples(self, from_root):
+        return Consumption.objects.get_latest_samples_by_prefix(
+            before=self.ends_at, prefix=from_root, tag='is_planned')
 
 
 class SuppliersImprovementsXLSXView(SupplierListMixin, TemplateView):

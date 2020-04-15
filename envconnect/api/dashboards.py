@@ -478,7 +478,10 @@ class SupplierListMixin(DashboardMixin):
 
     @property
     def requested_accounts_pk(self):
-        return [account.pk for account in self.requested_accounts]
+        if not hasattr(self, '_requested_accounts_pk'):
+            self._requested_accounts_pk = [
+                account.pk for account in self.requested_accounts]
+        return self._requested_accounts_pk
 
     @staticmethod
     def get_nb_questions_per_segment():

@@ -299,6 +299,13 @@ class BenchmarkMixin(ReportMixin):
     def requested_accounts_pk(self):
         return []
 
+    @property
+    def requested_accounts_pk_as_sql(self):
+        if not hasattr(self, '_requested_accounts_pk_as_sql'):
+            self._requested_accounts_pk_as_sql = "(%s)" % ','.join(
+                [str(pk) for pk in self.requested_accounts_pk])
+        return self._requested_accounts_pk_as_sql
+
     def rollup_scores(self, roots=None, root_prefix=None, force_score=False):
         """
         Returns a tree populated with scores per accounts.
@@ -388,7 +395,6 @@ class BenchmarkMixin(ReportMixin):
         self._report_queries("rollup_tree populated")
 
         # Adds if the supplier is reporting publicly or not.
-
         if self.requested_accounts_pk:
             latest_assessments = Consumption.objects.get_latest_samples_by_prefix(
                 before=self.ends_at, prefix="/") # at least one public report.
@@ -417,7 +423,7 @@ class BenchmarkMixin(ReportMixin):
         """ % {
             'latest_assessments': latest_assessments,
             'yes': Consumption.YES,
-            'accounts': tuple(self.requested_accounts_pk)
+            'accounts': self.requested_accounts_pk_as_sql
         }
                 _show_query_and_result(reporting_publicly_sql)
                 with connection.cursor() as cursor:
@@ -467,7 +473,7 @@ class BenchmarkMixin(ReportMixin):
         """ % {
             'latest_assessments': latest_assessments,
             'yes': Consumption.YES,
-            'accounts': tuple(self.requested_accounts_pk)
+            'accounts': self.requested_accounts_pk_as_sql
         }
                 _show_query_and_result(reporting_data_sql)
                 reported = {}
@@ -540,7 +546,7 @@ class BenchmarkMixin(ReportMixin):
         """ % {
             'latest_assessments': latest_assessments,
             'yes': Consumption.YES,
-            'accounts': tuple(self.requested_accounts_pk)
+            'accounts': self.requested_accounts_pk_as_sql
         }
                 _show_query_and_result(reporting_targets_sql)
                 targets = {}
@@ -598,7 +604,7 @@ class BenchmarkMixin(ReportMixin):
             """ % {
                 'latest_assessments': latest_assessments,
                 'metric': 'employee-counted',
-                'accounts': tuple(self.requested_accounts_pk)
+                'accounts': self.requested_accounts_pk_as_sql
             }
                     _show_query_and_result(employee_count_sql)
                     with connection.cursor() as cursor:
@@ -634,7 +640,7 @@ class BenchmarkMixin(ReportMixin):
             """ % {
                 'latest_assessments': latest_assessments,
                 'metric': 'revenue-generated',
-                'accounts': tuple(self.requested_accounts_pk)
+                'accounts': self.requested_accounts_pk_as_sql
             }
                     _show_query_and_result(revenue_generated_sql)
                     revenue_generateds = {}

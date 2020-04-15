@@ -7,7 +7,8 @@ from urldecorators import include, url
 from ...views.assessments import AssessmentView, AssessmentXLSXView
 from ...views.benchmark import BenchmarkView, BenchmarkDownloadView
 from ...views.compare import (PortfoliosDetailView, SuppliersView,
-    SuppliersXLSXView, SuppliersImprovementsXLSXView)
+    SuppliersSummaryXLSXView, SuppliersAssessmentsXLSXView,
+    SuppliersPlanningXLSXView, SuppliersImprovementsXLSXView)
 from ...views.detail import DetailView, DetailXLSXView
 from ...views.index import AppView
 from ...views.improvements import (ImprovementView, ImprovementPDFView,
@@ -23,9 +24,17 @@ urlpatterns = [
         % (SLUG_RE, PATH_RE),
         SuppliersImprovementsXLSXView.as_view(),
         name='reporting_organization_improvements_download'),
+    url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/improve/download/'
+        % (SLUG_RE, PATH_RE),
+        SuppliersPlanningXLSXView.as_view(),
+        name='reporting_organization_improve_download'),
+    url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/assess/download/'
+        % (SLUG_RE, PATH_RE),
+        SuppliersAssessmentsXLSXView.as_view(),
+        name='reporting_organization_assess_download'),
     url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/download/'
         % (SLUG_RE, PATH_RE),
-        SuppliersXLSXView.as_view(),
+        SuppliersSummaryXLSXView.as_view(),
         name='reporting_organization_download'),
     url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/'
         % (SLUG_RE, PATH_RE),
