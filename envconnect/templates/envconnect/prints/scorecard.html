@@ -14,7 +14,17 @@
       </div>
     </div>
     <div style="display:inline-block;width:40%;">
+      {% if highlighted_practice.3.environmental_metrics %}
+        {% for reported in highlighted_practice.3.environmental_metrics %}
+          {% if reported.text %}
+            {{reported.text}}
+          {% else %}
+            {{reported.measured}}
+          {% endif %}
+        {% endfor %}
+      {% else %}
       {{ highlighted_practice.3.implemented }}
+      {% endif %}
     </div>
   </div>
   {% endfor %}

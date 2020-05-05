@@ -1605,7 +1605,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                         measured: measured
                     }
                     if( measures[measure].unit ) {
-                        datapoint[unit] = measures[measure].unit;
+                        datapoint['unit'] = measures[measure].unit;
                     }
                     data.push(datapoint);
                 }

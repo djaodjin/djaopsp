@@ -141,7 +141,7 @@ class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
         for datapoint in Answer.objects.filter(sample=self.sample).exclude(
                     metric__in=Metric.objects.filter(
                     slug__in=Consumption.NOT_MEASUREMENTS_METRICS)
-                ).select_related('question'):
+                ).select_related('question').order_by('-metric_id'):
             consumption = consumptions[datapoint.question.path]
             if not hasattr(consumption, 'measures'):
                 consumptions[datapoint.question.path] = AssessmentAnswer(
@@ -437,7 +437,9 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
             for elements in six.itervalues(nodes[1]):
                 self.write_tree(elements, indent=indent + self.indent_step)
         # Environmental metrics measured/reported
-        measured_metrics = self.get_measured_metrics_context()
+        measured_metrics = None
+        # removed duplicate dump in .xslx spreadsheet when
+        # `self.get_measured_metrics_context()` is used instead of `None`.
         if measured_metrics:
             self.writerow([])
             self.measured_title_row_idx = self.writerow(

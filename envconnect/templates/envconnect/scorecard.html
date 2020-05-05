@@ -32,7 +32,14 @@ Then click <em>Share</em>.
             <span ng-class="indentHeader(practice, '{{abs_prefix}}')">[[practice[0].title]]</span>
         </td>
         <td style="border:none;">
+            <div ng-if="practice[0].environmental_metrics && practice[0].environmental_metrics.length > 0">
+                <span ng-repeat="reported in practice[0].environmental_metrics">
+                    [[reported.text ? reported.text : reported.measured]]
+                </span>
+            </div>
+            <span ng-if="!practice[0].environmental_metrics || practice[0].environmental_metrics.length == 0">
             [[practice[0].implemented ? practice[0].implemented : ""]]
+            </span>
         </td>
     </tr>
   </tbody>

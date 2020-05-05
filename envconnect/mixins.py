@@ -18,7 +18,7 @@ from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
 from rest_framework.generics import get_object_or_404
 from survey.models import (Answer, Campaign, EnumeratedQuestions,
-    Metric, Sample)
+    Metric, Sample, Unit)
 from survey.utils import get_account_model
 
 from .compat import reverse
@@ -869,15 +869,17 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 'metric_title': "No data provided.",
                 'measured': ""
             }]})
-        for datapoint in Answer.objects.filter(sample=self.sample).exclude(
+        # XXX see AssessmentBaseMixin.decorate_leafs
+        for datapoint in Answer.objects.filter(
+                question__path__startswith=prefix,
+                sample=self.sample).exclude(
                     metric__in=Metric.objects.filter(
                     slug__in=Consumption.NOT_MEASUREMENTS_METRICS)
-                ).select_related('question'):
+                ).select_related('question').order_by('-metric_id'):
             rank = EnumeratedQuestions.objects.filter(
                 question=datapoint.question,
                 campaign=self.sample.survey).values('rank').get().get(
                     'rank', None)
-            measured = as_measured_value(datapoint)
             node = self._insert_path(root, datapoint.question.path,
                 depth=depth)
             if 'environmental_metrics' not in node[0]:
@@ -887,13 +889,28 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     if env_metric['metric_title'] == "No data provided.":
                         node[0].update({'environmental_metrics': []})
                         break
-            node[0]['environmental_metrics'] += [{
-                'metric_title': datapoint.metric.title,
+
+            unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
+            measured = as_measured_value(datapoint)
+            measure = {
+#XXX                'metric': datapoint.metric,
+#XXX                'unit': unit,
+#XXX                'collected_by': datapoint.collected_by,
                 'measured': measured,
+                'created_at': datapoint.created_at,
+                'metric_title': datapoint.metric.title,
                 'location': reverse('api_measures_delete', args=(
                     self.sample.account, self.sample,
                     rank, datapoint.metric.slug))
-            }]
+            }
+            if datapoint.metric.slug == 'target-baseline':
+                measure['text'] = "baseline %s" % str(measured)
+            elif datapoint.metric.slug == 'target-by':
+                measure['text'] = "by %s" % str(measured)
+            elif unit.system in [Unit.SYSTEM_STANDARD, Unit.SYSTEM_IMPERIAL]:
+                measure['text'] = "%s %s" % (measured, unit.title)
+
+            node[0]['environmental_metrics'] += [measure]
         return root
 
     def get_measured_metrics_context(self):

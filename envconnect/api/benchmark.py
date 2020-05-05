@@ -65,11 +65,13 @@ class BenchmarkMixin(ReportMixin):
         from_root, trail = self.breadcrumbs
         url_prefix = trail[-1][1] if trail else ""
 
-        flt = Q(answer__sample=self.assessment_sample,
-              answer__metric_id=self.default_metric_id,
-              answer__measured=Consumption.NOT_APPLICABLE)
+        flt = Q(path__startswith=from_root,
+            answer__sample=self.assessment_sample,
+            answer__metric_id=self.default_metric_id,
+            answer__measured=Consumption.NOT_APPLICABLE)
         if self.improvement_sample:
-            flt = flt | Q(answer__sample=self.improvement_sample,
+            flt = flt | Q(path__startswith=from_root,
+                answer__sample=self.improvement_sample,
                 answer__metric_id=self.default_metric_id,
                 answer__measured=Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT)
         highlighted_practices = Consumption.objects.filter(flt).values(
