@@ -97,8 +97,7 @@ run-coverage: initdb
 require-pip:
 	$(PIP) install -r $(srcDir)/requirements.txt --upgrade
 
-require-resources:
-	cd $(srcDir) && $(MANAGE) download_resources
+require-resources: vendor-assets-prerequisites build-assets
 
 # Download prerequisites specified in package.json and install relevant files
 # in the directory assets are served from.

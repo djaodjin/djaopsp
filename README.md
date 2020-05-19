@@ -18,7 +18,7 @@ Install
 Development setup: Step-by-step
 -------------------------------
 
-    $ virtualenv envconnect
+    $ python -m venv envconnect
     $ source envconnect/bin/activate
     $ mkdir -p envconnect/reps
     $ cd envconnect/reps
@@ -28,6 +28,7 @@ Development setup: Step-by-step
     $ make install
     $ make initdb
     $ make vendor-assets-prerequisites NPM=npm
+    $ make build-assets
     $ diff -u ../../etc/envconnect/site.conf
     -DEBUG=False
     +DEBUG=True
