@@ -53,12 +53,12 @@ clean:
 package-theme: build-assets
 	cd $(srcDir) && DEBUG=0 FEATURES_REVERT_TO_DJANGO=0 \
 		$(MANAGE) package_theme \
-		--build_dir=$(objDir) --install_dir=htdocs/themes \
+		--build_dir=$(objDir) --install_dir=dist \
 		--exclude='_form.html' --exclude='.*/' \
 		--include='accounts/' --include='docs/' \
 		--include='saas/' --include='notification/' \
 		--include='euissca/' --include='about.html'
-	zip -d $(srcDir)/htdocs/themes/envconnect.zip "envconnect/templates/accounts/base.html"
+	zip -d $(srcDir)/dist/envconnect.zip "envconnect/templates/accounts/base.html"
 
 build-assets: htdocs/static/cache/_base.css \
                 htdocs/static/cache/_email.css
