@@ -1,8 +1,8 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 from django.conf import settings
-from urldecorators import url
+from rules.urldecorators import url
 
 if settings.DEBUG:
     # In debug mode we add a path_prefix such that we can test

@@ -48,6 +48,7 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'deployutils.apps.django',
     'django_assets',
     'rest_framework',
+    'rules',
     'saas',
     'django_comments',
     'answers',

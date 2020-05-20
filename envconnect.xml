@@ -20,7 +20,7 @@
         <bin>dws</bin>
         <share>(dws)/prefix.mk</share>
       </dep>
-      <dep name="Django" target="python" includes="1.11.13">
+      <dep name="Django" target="python" includes="1.11.29">
         <lib>.*/(django)/core/wsgi.py</lib>
       </dep>
       <dep name="gunicorn" target="python">
@@ -31,9 +31,6 @@
       </dep>
       <dep name="django-assets" target="python">
         <lib>.*/(django_assets)/__init__.py</lib>
-      </dep>
-      <dep name="django-urldecorators" target="python">
-        <lib>.*/(urldecorators)/__init__.py</lib>
       </dep>
       <dep name="Markdown" target="python">
         <lib>.*/(markdown)/__init__.py</lib>
@@ -60,6 +57,9 @@
       </dep>
       <dep name="djaodjin-pages">
         <lib>.*/(pages)/__init__.py</lib>
+      </dep>
+      <dep name="djaodjin-rules" target="python">
+        <lib>.*/(rules)/__init__.py</lib>
       </dep>
       <dep name="djaodjin-survey">
         <lib>.*/(survey)/__init__.py</lib>

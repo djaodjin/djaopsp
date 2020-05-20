@@ -7,7 +7,7 @@ from django.conf import settings
 from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as static_serve
 from pages.settings import PATH_RE, SLUG_RE
-from urldecorators import include, url
+from rules.urldecorators import include, url
 
 from ..urlbuilders import (url_prefixed, url_authenticated,
     url_direct, url_content_manager)

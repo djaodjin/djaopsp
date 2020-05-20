@@ -4,7 +4,7 @@
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 from pages.settings import PATH_RE
-from urldecorators import include, url
+from rules.urldecorators import include, url
 
 from ...views.redirects import AccountRedirectView, MyTSPRedirectView
 from ...views.detail import ContentDetailXLSXView, DetailView, DetailXLSXView

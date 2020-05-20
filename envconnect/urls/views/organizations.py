@@ -2,7 +2,7 @@
 # see LICENSE.
 
 from pages.settings import PATH_RE, SLUG_RE
-from urldecorators import include, url
+from rules.urldecorators import include, url
 
 from ...views.assessments import AssessmentView, AssessmentXLSXView
 from ...views.benchmark import BenchmarkView, BenchmarkDownloadView
