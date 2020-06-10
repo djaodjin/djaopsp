@@ -1,35 +1,35 @@
-import Vue from "vue";
-import Router from "vue-router";
-import Home from "./views/Home";
-import Learn from "./views/Learn";
-import Assess from "./views/Assess";
-import Scorecard from "./views/Scorecard";
+import Vue from 'vue'
+import Router from 'vue-router'
+import Home from './views/Home'
+import Learn from './views/Learn'
+import Assess from './views/Assess'
+import Scorecard from './views/Scorecard'
 
-Vue.use(Router);
+Vue.use(Router)
 
 export default new Router({
-  mode: "history",
+  mode: 'history',
   base: process.env.BASE_URL,
   routes: [
     {
-      path: "/",
-      name: "home",
+      path: '/',
+      name: 'home',
       component: Home,
     },
     {
-      path: "/learn",
-      name: "learn",
+      path: '/learn',
+      name: 'learn',
       component: Learn,
     },
     {
-      path: "/assess",
-      name: "assess",
+      path: '/assess',
+      name: 'assess',
       component: Assess,
     },
     {
-      path: "/scorecard",
-      name: "scorecard",
+      path: '/scorecard',
+      name: 'scorecard',
       component: Scorecard,
     },
   ],
-});
+})
