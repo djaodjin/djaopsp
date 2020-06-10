@@ -644,15 +644,12 @@ def get_scored_answers(population, metric_id,
         - metric
         - opportunity
 
-    the list corresponds to all answers for all (or a subset when *includes*
-    is not `None`) accounts excluding accounts that were filtered out
-    by *excludes*, decorated with a numerator and denominator.
+    the list corresponds to all answers (or a subset when *questions*
+    or *prefix* is not `None`) to a *metric_id* for all accounts
+    (or a subset when *includes* is not `None`).
 
-    Set is_planned to `True` for assessment results only or is_planned
-    to `False` for improvement results only. Otherwise both.
-
-    If not `None`, *includes* and *excludes* are the set of organization
-    samples which are included and excluded respectively.
+    *population* is a set of accounts used to compute the expected
+    oportunities.
     """
     #pylint:disable=protected-access
     scored_answers = """SELECT

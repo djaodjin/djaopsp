@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 """Command to populate database with test data"""
@@ -17,9 +17,10 @@ from rest_framework.exceptions import ValidationError
 from saas.models import Organization
 from survey.models import Answer, Sample, Campaign
 
-from ...helpers import freeze_scores, get_testing_accounts
+from ...helpers import get_testing_accounts
 from ...mixins import ReportMixin
 from ...models import Consumption
+from ...scores import freeze_scores
 
 class Command(BaseCommand):
 

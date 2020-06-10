@@ -696,7 +696,7 @@ class BenchmarkMixin(ReportMixin):
 
 class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
     """
-    Retrieves aggregated benchmark
+    Retrieves a scorecard
 
     Returns list of *organization*'s scores for all relevant section
     of the best practices based on *path*.
@@ -953,7 +953,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
 
     responds
 
-    .. code-block:: http
+    .. code-block:: json
 
         {
             "latest": {
@@ -964,38 +964,22 @@ class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
                      "Construction"
                     ]
                 ]
-            }
+            },
             "results": [
             {
                 "key": "May 2018",
+                "created_at": "2018-05-28T17:39:59.368272Z",
                 "values": [
-                    ["Governance & Management", 80],
-                    ["Engineering & Design", 78],
-                    ["Procurement", 72],
-                    ["Construction", 73],
-                    ["Office", 74],
-                ],
+                    ["Construction", 80, "/app/steve-shop/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
+                ]
             },
             {
                 "key": "Dec 2017",
+                "created_at": "2017-12-28T17:39:59.368272Z",
                 "values": [
-                    ["Governance & Management", 60],
-                    ["Engineering & Design", 67],
-                    ["Procurement", 56],
-                    ["Construction", 52],
-                    ["Office", 59],
-                ],
-            },
-            {
-                "key": "Jan 2017",
-                "values": [
-                    ["Governance & Management", 60],
-                    ["Engineering & Design", 67],
-                    ["Procurement", 16],
-                    ["Construction", 49],
-                    ["Office", 40],
-                ],
-            ,
+                    ["Construction", 80, "/app/steve-shop/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
+                ]
+            }
             ]
         }
     """

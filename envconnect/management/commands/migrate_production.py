@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 """Command to migrate the envconnect production database"""
@@ -21,9 +21,10 @@ from survey.models import (Answer, Campaign, EditablePredicate,
 from survey.utils import get_account_model
 
 from ...api.dashboards import SupplierListBaseAPIView
-from ...helpers import freeze_scores, get_testing_accounts
+from ...helpers import get_testing_accounts
 from ...mixins import BreadcrumbMixin, ReportMixin
 from ...models import Consumption, ColumnHeader
+from ...scores import freeze_scores
 
 
 @python_2_unicode_compatible

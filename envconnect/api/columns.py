@@ -13,12 +13,11 @@ from ..serializers import ColumnHeaderSerializer
 
 class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
     """
+    Retrieves the visible hidden status of a column
+
     This API end-point toggles columns / `Consumption` fields to be visible
     or hidden. The visible/hidden status of a column will have an effect
     of how average values are computed.
-    A a result, on `update` we return the content tree that was updated
-    instead of the `Column` instance because the user interface will
-    want a chance to refresh the display accordingly.
 
     **Tags**: content
 
@@ -26,11 +25,33 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
 
     .. code-block:: http
 
-        GET /api/XXX HTTP/1.1
+        GET /api/content/column/boxes-enclosures/energy-efficiency/ HTTP/1.1
 
     """
     lookup_field = 'path'
     serializer_class = ColumnHeaderSerializer
+
+    def put(self, request, *args, **kwargs):
+        """
+        Sets the visible hidden status of a column
+
+        This API end-point toggles columns / `Consumption` fields to be visible
+        or hidden. The visible/hidden status of a column will have an effect
+        of how average values are computed.
+        A a result, on `update` we return the content tree that was updated
+        instead of the `Column` instance because the user interface will
+        want a chance to refresh the display accordingly.
+
+        **Tags**: content
+
+        **Examples
+
+        .. code-block:: http
+
+            PUT /api/content/column/boxes-enclosures/energy-efficiency/ HTTP/1.1
+
+        """
+        return super(ColumnAPIView, self).put(request, *args, **kwargs)
 
     def get_queryset(self):
         return ColumnHeader.objects.filter(path=self.kwargs.get('path'))

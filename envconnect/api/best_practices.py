@@ -60,7 +60,7 @@ class ToggleTagContentAPIView(TrailMixin, UpdateAPIView):
 
 class EnableContentAPIView(ToggleTagContentAPIView):
     """
-    Enable a top level segment.
+    Enable a top level segment
 
     **Tags**: content
 
@@ -76,7 +76,7 @@ class EnableContentAPIView(ToggleTagContentAPIView):
 
 class DisableContentAPIView(ToggleTagContentAPIView):
     """
-    Disable a top level segment.
+    Disable a top level segment
 
     **Tags**: content
 
@@ -92,6 +92,8 @@ class DisableContentAPIView(ToggleTagContentAPIView):
 
 class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
     """
+    Mirror a content tree
+
     This API end-point mirrors content element under another node.
 
     A a result, we return the content tree that was updated
@@ -104,7 +106,7 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
 
     .. code-block:: http
 
-       POST /api/XXX HTTP/1.1
+       POST /api/content/mirror/boxes-enclosures/energy-efficiency/ HTTP/1.1
     """
 
     def create(self, request, *args, **kwargs):
@@ -156,7 +158,7 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
 
 class BestPracticeMoveAPIView(PageElementMoveAPIView):
     """
-    Moves an editable node
+    Moves a content tree
 
     Moves a PageElement from one attachement to another.
 
@@ -166,7 +168,7 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
 
     .. code-block:: http
 
-        POST /api/themes/editables/attach/content-root/ HTTP/1.1
+        POST /api/content/attach/content-root/ HTTP/1.1
 
     responds
 
@@ -202,10 +204,12 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
 # XXX should not derive from BestPracticeMixin but PageElement instead?
 class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
     """
+    Retrieves a content tree
+
     This API end-point manages a content element referenced by a *path*
     from the root of the content hierarchy.
 
-    ``GET`` returns the content tree rooted at the content element referenced
+    It returns the content tree rooted at the content element referenced
     by *path*. It includes the title, text and, if applicable, the metrics
     associated to the content elements in the tree.
 
@@ -281,7 +285,58 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
     def post(self, request, *args, **kwargs):
         """
-        ``PUT`` updates the title, text and, if applicable, the metrics associated
+        Updates a content node
+
+        Updates the title, text and, if applicable, the metrics associated
+        associated to the content element referenced by *path*.
+
+        **Tags**: content
+
+        **Examples
+
+        .. code-block:: http
+
+            POST /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/ HTTP/1.1
+
+        .. code-block:: json
+
+            {
+              "title": "Adjust air/fuel ratio",
+              "tag": "",
+              "consumption": {
+                "path": "/boxes-enclosures/energy-efficiency/air-flow",
+                "text": "Adjust air/fuel ratio",
+                "avg_energy_saving": "* * * *",
+                "avg_fuel_saving": "-",
+                "capital_cost": "$$",
+                "payback_period": "0-1.8 (0.3)",
+                "environmental_value": 1,
+                "business_value": 1,
+                "profitability": 3,
+                "implementation_ease": 1,
+                "avg_value": 2,
+                "rank": 3,
+                "nb_respondents": 0,
+                "rate": 0,
+                "opportunity": 0,
+                "implemented": "",
+                "planned": false
+               }
+            }
+
+        responds:
+
+        .. code-block:: json
+
+        XXX
+        """
+        return self.update(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Updates a content node
+
+        Updates the title, text and, if applicable, the metrics associated
         associated to the content element referenced by *path*.
 
         **Tags**: content
@@ -324,10 +379,12 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
         XXX
         """
-        return self.update(request, *args, **kwargs)
+        return self.put(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
+        Removes a content tree
+
         removes content element referenced by path from the content
         hierarchy.
 
@@ -340,6 +397,7 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
             DELETE /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/ HTTP/1.1
         """
         return super(BestPracticeAPIView, self).delete(request, *args, **kwargs)
+
 
     def _destroy_trees(self, roots):
         if not roots:

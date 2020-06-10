@@ -1419,7 +1419,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( typeof title === 'undefined' ) {
             title = "assessment";
         }
-        $http.put(settings.urls.api_assessment_sample, {is_frozen: true}).then(
+        $http.put(settings.urls.api_assessment_sample_segment, {is_frozen: true}).then(
             function success(resp) {
                 var msgs = ["You have completed the " + title + ". Thank you!"];
                 if( typeof next !== 'undefined' ) {
