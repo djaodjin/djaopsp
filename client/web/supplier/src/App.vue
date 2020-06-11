@@ -13,3 +13,7 @@ export default {
   }),
 }
 </script>
+
+<style lang="scss">
+@import '@/styles/app.scss';
+</style>

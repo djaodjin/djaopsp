@@ -1,0 +1,18 @@
+@import '~vue-cli-plugin-vuetify-preset-rally/preset/variables.scss';
+
+$xsResponsiveFontFactor: 0.8;
+
+h1 {
+  font-size: calc(
+    #{map-deep-get($headings, 'h2', 'size')} * #{$xsResponsiveFontFactor}
+  );
+  font-weight: 500;
+  margin-top: 24px;
+  margin-bottom: 16px;
+
+  @media #{map-get($display-breakpoints, 'sm-and-up')} {
+    font-size: map-deep-get($headings, 'h2', 'size');
+    margin-top: 32px;
+    margin-bottom: 24px;
+  }
+}

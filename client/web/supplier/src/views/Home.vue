@@ -10,13 +10,14 @@
     </v-app-bar>
 
     <v-content>
-      <hello-world />
+      <h1>S1 Tamerin</h1>
+      <home-actions />
     </v-content>
   </div>
 </template>
 
 <script>
-import HelloWorld from '../components/HelloWorld'
+import HomeActions from '../components/HomeActions'
 import NavDrawer from '../components/NavDrawer'
 
 export default {
@@ -27,7 +28,7 @@ export default {
   }),
 
   components: {
-    HelloWorld,
+    HomeActions,
     NavDrawer,
   },
 }
