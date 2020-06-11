@@ -7,6 +7,8 @@
     <v-app-bar app clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>TSP / Suppliers</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <locale-changer />
     </v-app-bar>
 
     <v-content>
@@ -19,8 +21,9 @@
 </template>
 
 <script>
-import HomeActions from '../components/HomeActions'
-import NavDrawer from '../components/NavDrawer'
+import HomeActions from '@/components/HomeActions'
+import LocaleChanger from '@/components/LocaleChanger'
+import NavDrawer from '@/components/NavDrawer'
 
 export default {
   name: 'Home',
@@ -31,6 +34,7 @@ export default {
 
   components: {
     HomeActions,
+    LocaleChanger,
     NavDrawer,
   },
 }
