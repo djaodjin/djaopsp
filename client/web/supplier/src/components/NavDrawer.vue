@@ -1,5 +1,5 @@
 <template>
-  <v-list dense>
+  <v-list>
     <v-list-item link>
       <v-list-item-action>
         <v-icon>mdi-compass</v-icon>
