@@ -16,3 +16,12 @@ h1 {
     margin-bottom: 24px;
   }
 }
+
+#tsp-supplier {
+  .v-navigation-drawer__border {
+    @media #{map-get($display-breakpoints, 'lg-and-up')} {
+      width: 1px;
+      background-color: map-deep-get($material-dark, 'status-bar', 'regular');
+    }
+  }
+}

@@ -10,8 +10,10 @@
     </v-app-bar>
 
     <v-content>
-      <h1>S1 Tamerin</h1>
-      <home-actions />
+      <div class="px-4 px-sm-8">
+        <h1>S1 Tamerin</h1>
+        <home-actions />
+      </div>
     </v-content>
   </div>
 </template>

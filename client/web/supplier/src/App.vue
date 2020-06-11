@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app id="tsp-supplier">
     <router-view />
   </v-app>
 </template>
