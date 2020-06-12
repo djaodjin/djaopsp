@@ -1,13 +1,20 @@
 {
   "app": {
-    "title": "TSP / Proveedores",
-    "help": "Ayuda"
+    "help": "Ayuda",
+    "title": "TSP / Proveedores"
   },
   "nav": {
+    "opt-help": "@:app.help",
     "opt-projects": "Proyectos",
     "opt-settings": "Configuración",
-    "opt-help": "@:app.help",
     "opt-sign-out": "Desconectar"
   },
-  "message": "hola i18n!"
+  "home": {
+    "btn-assessment": "Take Sustainability Assessment",
+    "btn-best-practices": "View Best Practices",
+    "btn-history": "View Assessment History",
+    "desc-assessment": "Record your organization's environmental sustainability practices.",
+    "desc-best-practices": "Learn about the recommended environmental sustainability practices in your industry segment.",
+    "desc-history": "View complete history of all organization assessments in the TSP platform."
+  }
 }
