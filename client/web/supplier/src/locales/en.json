@@ -1,3 +1,13 @@
 {
+  "app": {
+    "title": "TSP / Suppliers",
+    "help": "Help"
+  },
+  "nav": {
+    "opt-projects": "Projects",
+    "opt-settings": "Settings",
+    "opt-help": "@:app.help",
+    "opt-sign-out": "Sign Out"
+  },
   "message": "hello i18n!"
 }
