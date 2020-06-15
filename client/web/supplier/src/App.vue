@@ -1,16 +1,39 @@
 <template>
   <v-app id="tsp-supplier">
-    <router-view />
+    <div v-if="this.$route.name === 'home' || $vuetify.breakpoint.smAndUp">
+      <v-app-bar app clipped-left>
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+        <v-toolbar-title>{{ $t('app.title') }}</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <locale-changer />
+      </v-app-bar>
+
+      <v-navigation-drawer v-model="drawer" app clipped>
+        <nav-drawer :routeName="this.$route.name" />
+      </v-navigation-drawer>
+    </div>
+
+    <v-content>
+      <router-view />
+    </v-content>
   </v-app>
 </template>
 
 <script>
+import LocaleChanger from '@/components/LocaleChanger'
+import NavDrawer from '@/components/NavDrawer'
+
 export default {
   name: 'App',
 
   data: () => ({
-    //
+    drawer: null,
   }),
+
+  components: {
+    LocaleChanger,
+    NavDrawer,
+  },
 }
 </script>
 
