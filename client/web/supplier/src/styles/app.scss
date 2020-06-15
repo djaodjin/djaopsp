@@ -29,7 +29,7 @@ h1 {
 }
 
 .assessment-container {
-  padding: 1rem;
+  padding: 1rem 0;
 
   @media #{map-get($display-breakpoints, 'sm-and-up')} {
     padding: 3rem 2rem;
