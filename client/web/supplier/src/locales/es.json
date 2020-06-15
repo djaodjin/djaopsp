@@ -5,6 +5,7 @@
   },
   "nav": {
     "opt-help": "@:app.help",
+    "opt-home": "Inicio",
     "opt-projects": "Proyectos",
     "opt-settings": "Configuración",
     "opt-sign-out": "Desconectar"

@@ -1,5 +1,13 @@
 <template>
   <v-list>
+    <v-list-item link :to="{ name: 'home' }" exact>
+      <v-list-item-action>
+        <v-icon>mdi-home</v-icon>
+      </v-list-item-action>
+      <v-list-item-content>
+        <v-list-item-title>{{ $t('nav.opt-home') }}</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
     <v-list-item link>
       <v-list-item-action>
         <v-icon>mdi-compass</v-icon>
@@ -38,5 +46,12 @@
 <script>
 export default {
   name: 'NavDrawer',
+  props: ['routeName'],
+  mounted: function () {
+    console.log(this.routeName)
+  },
+  updated: function () {
+    console.log(this.routeName)
+  },
 }
 </script>
