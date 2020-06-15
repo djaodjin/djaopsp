@@ -9,7 +9,7 @@
       </v-app-bar>
 
       <v-navigation-drawer v-model="drawer" app clipped>
-        <nav-drawer :routeName="this.$route.name" />
+        <nav-drawer />
       </v-navigation-drawer>
     </div>
 

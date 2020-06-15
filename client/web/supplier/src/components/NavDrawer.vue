@@ -46,12 +46,5 @@
 <script>
 export default {
   name: 'NavDrawer',
-  props: ['routeName'],
-  mounted: function () {
-    console.log(this.routeName)
-  },
-  updated: function () {
-    console.log(this.routeName)
-  },
 }
 </script>
