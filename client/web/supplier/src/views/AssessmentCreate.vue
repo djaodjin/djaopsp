@@ -1,12 +1,12 @@
 <template>
   <div class="home">
-    <h3>Learn</h3>
+    <h3>Create Assessment</h3>
     <img alt="Vue logo" src="../assets/images/logo.png" />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'home',
+  name: 'AssessmentCreate',
 }
 </script>

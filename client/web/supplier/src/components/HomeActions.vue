@@ -4,7 +4,9 @@
       <v-col cols="12" md="6" lg="4">
         <section class="mb-4 px-md-4">
           <p>{{ $t('home.desc-assessment') }}</p>
-          <button-primary>{{ $t('home.btn-assessment') }}</button-primary>
+          <button-primary :to="{ name: 'newAssessment' }">{{
+            $t('home.btn-assessment')
+          }}</button-primary>
         </section>
       </v-col>
       <v-col cols="12" md="6" lg="4">

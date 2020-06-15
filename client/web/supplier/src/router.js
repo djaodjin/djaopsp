@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import AssessmentCreate from './views/AssessmentCreate'
 import Home from './views/Home'
-import Learn from './views/Learn'
 import Assess from './views/Assess'
 import Scorecard from './views/Scorecard'
 
@@ -17,9 +17,9 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/learn',
-      name: 'learn',
-      component: Learn,
+      path: '/new-assessment',
+      name: 'newAssessment',
+      component: AssessmentCreate,
     },
     {
       path: '/assess',
