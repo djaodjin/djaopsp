@@ -16,6 +16,20 @@
     <v-content>
       <router-view />
     </v-content>
+
+    <div v-if="this.$route.name !== 'home' && $vuetify.breakpoint.xs">
+      <v-bottom-navigation :value="mobileActiveBtn" grow>
+        <v-btn :to="{ name: 'home' }">
+          <span>Home</span>
+          <v-icon>mdi-home</v-icon>
+        </v-btn>
+
+        <v-btn>
+          <span>Help</span>
+          <v-icon>mdi-help-circle</v-icon>
+        </v-btn>
+      </v-bottom-navigation>
+    </div>
   </v-app>
 </template>
 
@@ -28,6 +42,7 @@ export default {
 
   data: () => ({
     drawer: null,
+    mobileActiveBtn: null,
   }),
 
   components: {
