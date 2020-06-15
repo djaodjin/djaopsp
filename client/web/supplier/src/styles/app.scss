@@ -3,18 +3,36 @@
 $xsResponsiveFontFactor: 0.8;
 
 h1 {
+  text-align: center;
+  font-weight: 500;
+  margin-top: 24px;
   font-size: calc(
     #{map-deep-get($headings, 'h2', 'size')} * #{$xsResponsiveFontFactor}
   );
-  font-weight: 500;
-  margin-top: 24px;
+  @media #{map-get($display-breakpoints, 'md-and-up')} {
+    margin-top: 32px;
+    margin-bottom: 16px;
+    font-size: map-deep-get($headings, 'h2', 'size');
+  }
+
+  &.assessment-title {
+    margin-top: 0;
+    line-height: 2rem;
+    font-size: calc(
+      #{map-deep-get($headings, 'h4', 'size')} * #{$xsResponsiveFontFactor}
+    );
+
+    @media #{map-get($display-breakpoints, 'md-and-up')} {
+      font-size: map-deep-get($headings, 'h4', 'size');
+    }
+  }
+}
+
+.assessment-container {
+  padding: 1rem;
 
   @media #{map-get($display-breakpoints, 'sm-and-up')} {
-    font-size: map-deep-get($headings, 'h2', 'size');
-    margin-top: 32px;
-  }
-  @media #{map-get($display-breakpoints, 'md-and-up')} {
-    margin-bottom: 16px;
+    padding: 3rem 2rem;
   }
 }
 

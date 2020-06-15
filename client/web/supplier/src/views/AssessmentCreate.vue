@@ -1,6 +1,6 @@
 <template>
-  <div class="home">
-    <h3>Create Assessment</h3>
+  <div class="assessment-container">
+    <h1 class="assessment-title">Environment Sustainability Assessment</h1>
     <img alt="Vue logo" src="../assets/images/logo.png" />
   </div>
 </template>
