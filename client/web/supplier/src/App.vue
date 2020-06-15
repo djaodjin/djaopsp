@@ -13,9 +13,9 @@
       </v-navigation-drawer>
     </div>
 
-    <v-content>
+    <v-main>
       <router-view />
-    </v-content>
+    </v-main>
 
     <div v-if="this.$route.name !== 'home' && $vuetify.breakpoint.xs">
       <v-bottom-navigation :value="mobileActiveBtn" grow>
