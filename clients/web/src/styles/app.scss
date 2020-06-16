@@ -42,11 +42,9 @@ h1 {
 #tsp-supplier {
   background: $background-app;
 
-  .v-navigation-drawer__border {
-    @media #{map-get($display-breakpoints, 'lg-and-up')} {
-      width: 1px;
-      background-color: map-deep-get($material-dark, 'status-bar', 'regular');
-    }
+  ul {
+    padding: 0;
+    list-style: none;
   }
 
   .theme--light.v-app-bar.v-toolbar.v-sheet {
