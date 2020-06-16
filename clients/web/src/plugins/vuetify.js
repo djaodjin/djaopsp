@@ -13,7 +13,14 @@ const options = {
     locales: { en, es },
   },
   theme: {
-    dark: true,
+    dark: false,
+    themes: {
+      light: {
+        primary: '#4CAF50',
+        secondary: '#FF9800',
+        accent: '#709440',
+      },
+    },
   },
 }
 

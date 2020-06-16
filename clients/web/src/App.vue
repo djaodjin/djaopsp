@@ -3,7 +3,18 @@
     <div v-if="this.$route.name === 'home' || $vuetify.breakpoint.smAndUp">
       <v-app-bar app clipped-left>
         <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-        <v-toolbar-title>{{ $t('app.title') }}</v-toolbar-title>
+        <v-toolbar-title>
+          <v-img
+            class="d-inline-block mr-3"
+            contain
+            height="24"
+            width="44"
+            alt=""
+            style="vertical-align: text-bottom;"
+            src="./assets/images/tsp-logo.png"
+          />
+          <span>{{ $t('app.title') }}</span>
+        </v-toolbar-title>
         <v-spacer></v-spacer>
         <locale-changer />
       </v-app-bar>

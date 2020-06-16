@@ -1,7 +1,7 @@
 {
   "app": {
     "help": "Help",
-    "title": "TSP / Suppliers"
+    "title": "TSP"
   },
   "nav": {
     "opt-help": "@:app.help",
