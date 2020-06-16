@@ -5,7 +5,7 @@
     :block="!display || display !== 'inline'"
     :type="!type ? 'button' : type"
     large
-    color="primary"
+    color="secondary"
   >
     <slot></slot>
   </v-btn>

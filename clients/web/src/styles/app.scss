@@ -1,6 +1,7 @@
 @import '~vue-cli-plugin-vuetify-preset-rally/preset/variables.scss';
 
-$background-app: radial-gradient(#ffffff, #E2ECE4);
+$primary-color: #4caf50;
+$background-app: radial-gradient(#ffffff, #e2ece4);
 $background-toolbar: #b0eabd;
 $xs-responsive-font-factor: 0.8;
 
@@ -50,5 +51,8 @@ h1 {
 
   .theme--light.v-app-bar.v-toolbar.v-sheet {
     background-color: $background-toolbar;
+  }
+  .theme--light.v-bottom-navigation {
+    background-color: $primary-color;
   }
 }
