@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import AssessmentCreate from './views/AssessmentCreate'
+import AssessmentHome from './views/AssessmentHome'
 import Home from './views/Home'
-import Assess from './views/Assess'
 import Scorecard from './views/Scorecard'
 
 Vue.use(Router)
@@ -22,9 +22,9 @@ export default new Router({
       component: AssessmentCreate,
     },
     {
-      path: '/assess',
-      name: 'assess',
-      component: Assess,
+      path: '/assessment/:id',
+      name: 'assessmentHome',
+      component: AssessmentHome,
     },
     {
       path: '/scorecard',
