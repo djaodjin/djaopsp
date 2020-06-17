@@ -1,7 +1,7 @@
-# Copyright (c) 2017, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
-from django.contrib.sites.models import Site
+from django.conf import settings
 
-def site(request): #pylint:disable=unused-argument
-    return {'site': Site.objects.get_current()}
+def feature_flags(request): #pylint:disable=unused-argument
+    return {'FEATURES_VUEJS': settings.FEATURES_VUEJS}

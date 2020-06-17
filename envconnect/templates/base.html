@@ -30,11 +30,6 @@
     });
     </script>
     {% endif %}
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
     {% block localheader %}{% endblock %}
     {% if request and 'tspproject.org' in request|host %}
     <!-- Google Analytics -->
@@ -81,6 +76,7 @@ ga('send', 'pageview');
           </div>
           {% endblock %}
           <div class="dashboard-content">
+
             <header>
               <nav class="navbar navbar-light navbar-expand-md {% block navbar_extra_classes %}{% endblock %}">
                 <a href="" class="sidebar-toggle d-inline-block d-sm-none position-relative">
@@ -93,16 +89,15 @@ ga('send', 'pageview');
                 {% endblock %}
                 <div class="navbar-collapse collapse navbar-right">
                     <ul class="nav navbar-nav ml-auto mt-lg-0">
-                        {% include "_generic_navbar.html" %}
+                      {% include "_generic_navbar.html" %}
                     </ul>
                 </div>
                 <ul class="nav navbar-nav ml-auto mt-lg-0 header-menubar">
-                  <!-- this area will be populated by _menubar.html -->
                   <li class="nav-item login">
                     {% if request and request|is_authenticated %}
                     <a class="nav-link">{{request.user.username}}</a>
                     {% else %}
-                    <a id="login" class="nav-link" title="Click Here to sign into your account" href="{{'login/'|site_prefixed}}"><span class="fa fa-sign-in fa-lg"></span> Sign in</a></li>
+                    <a id="login" class="nav-link" title="Click Here to sign into your account" href="{{'login/'|site_prefixed}}"><span class="fa fa-sign-in fa-lg"></span> Sign in</a>
                     {% endif %}
                   </li>
                 </ul>
@@ -110,6 +105,7 @@ ga('send', 'pageview');
               {% block fullviewport %}
               {% endblock %}
             </header>
+
             <div class="content-area-container">
               <div id="messages">
                 <div id="messages-content">

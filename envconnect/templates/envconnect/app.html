@@ -1,6 +1,7 @@
 {% extends "envconnect/base.html" %}
 
 {% block consumption_content %}
+<div id="app">
 <div class="container text-center" style="background-color:#fff;color:#000;padding-bottom:50px;">
   <h2 class="text-center py-4">What do you need help with?</h2>
   {% block menu_items %}
@@ -95,4 +96,5 @@ Responding to a Sustainability Sourcing Event?&nbsp;&nbsp;&nbsp;<a href="{% url 
     </p>
   </div>
 </div><!-- /.faq-list -->
+</div>
 {% endblock %}
