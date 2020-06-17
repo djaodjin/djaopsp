@@ -28,6 +28,20 @@
       <router-view />
     </v-main>
 
+    <div v-if="this.$route.name === 'home'">
+      <v-footer min-height="4rem">
+        <v-col cols="12" class="text-center">
+          &copy; {{ new Date().getFullYear() }} All rights reserved.
+          <a
+            class="d-inline-block ml-1"
+            href="https://djaodjin.com/"
+            target="_blank"
+            >DjaoDjin inc.</a
+          >
+        </v-col>
+      </v-footer>
+    </div>
+
     <div v-if="this.$route.name !== 'home' && $vuetify.breakpoint.xs">
       <v-bottom-navigation app :value="mobileActiveBtn" grow>
         <v-btn :to="{ name: 'home' }">
