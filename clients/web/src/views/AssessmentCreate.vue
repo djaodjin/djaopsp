@@ -38,6 +38,10 @@ export default {
   methods: {
     processForm: function () {
       console.log('form submitted: ', this.industry)
+      this.$router.push({
+        name: 'assessmentHome',
+        params: { id: 123 },
+      })
     },
   },
 
