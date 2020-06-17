@@ -12,6 +12,10 @@ from envconnect.compat import reverse_lazy
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = os.path.basename(BASE_DIR)
 
+DEBUG = True
+FEATURES_VUEJS = True
+FEATURES_REVERT_TO_DJANGO = True
+
 TESTING_USERNAMES = []
 
 update_settings(sys.modules[__name__],
@@ -21,7 +25,6 @@ if os.getenv('DEBUG'):
     # Enable override on command line.
     DEBUG = (int(os.getenv('DEBUG')) > 0)
 
-FEATURES_REVERT_TO_DJANGO = True
 if os.getenv('FEATURES_REVERT_TO_DJANGO'):
     # Enable override on command line so we can package Jinja2 theme.
     FEATURES_REVERT_TO_DJANGO = (
@@ -51,6 +54,7 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'rules',
     'saas',
     'django_comments',
+    'livereload',
     'answers',
     'survey',
     'pages',
@@ -176,6 +180,7 @@ if DEBUG:
 if DEBUG:
     MIDDLEWARE = (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
+        'livereload.middleware.LiveReloadScript',
         )
 else:
     MIDDLEWARE = ()
@@ -267,6 +272,7 @@ _TEMPLATE_LOADERS = (
 )
 
 _TEMPLATE_DIRS = [
+    os.path.join(BASE_DIR, 'envconnect', 'templates', 'cache'),
     os.path.join(BASE_DIR, 'envconnect', 'templates')]
 if FEATURES_REVERT_TO_DJANGO:
     _TEMPLATE_DIRS += [
@@ -274,15 +280,6 @@ if FEATURES_REVERT_TO_DJANGO:
 else:
     _TEMPLATE_DIRS += [
         os.path.join(BASE_DIR, 'envconnect', 'templates', 'jinja2')]
-
-
-_TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.request',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-)
 
 # Django 1.8+
 TEMPLATES = [
@@ -306,6 +303,7 @@ TEMPLATES = [
         'DIRS': _TEMPLATE_DIRS,
         'OPTIONS': {
             'context_processors': [
+    'envconnect.context_processors.feature_flags',
     'django.contrib.auth.context_processors.auth', # because of admin/
     'django.template.context_processors.request',
     'django.template.context_processors.media',

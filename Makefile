@@ -6,7 +6,9 @@
 srcDir        ?= $(realpath .)
 objDir        ?= $(realpath .)/build
 installTop    ?= $(VIRTUAL_ENV)
+buildTop      ?= $(installTop)/build
 binDir        ?= $(installTop)/bin
+libDir        ?= $(installTop)/lib
 SYSCONFDIR    := $(installTop)/etc
 LOCALSTATEDIR := $(installTop)/var
 APP_NAME      := $(notdir $(srcDir))
@@ -14,7 +16,7 @@ CONFIG_DIR    := $(SYSCONFDIR)/$(APP_NAME)
 
 ASSETS_DIR    := $(srcDir)/htdocs/static
 
-NPM           := $(binBuildDir)/npm
+NPM           := $(if $(wildcard $(binBuildDir)/npm),$(binBuildDir)/npm,npm)
 PIP           := $(binDir)/pip
 PYTHON        := $(binDir)/python
 installFiles  := install -p -m 644
@@ -101,9 +103,9 @@ require-resources: vendor-assets-prerequisites build-assets
 
 # Download prerequisites specified in package.json and install relevant files
 # in the directory assets are served from.
-vendor-assets-prerequisites: $(srcDir)/package.json
-	$(installFiles) $^ $(installTop)
-	$(NPM) install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp --prefix $(installTop)
+vendor-assets-prerequisites: $(srcDir)/package.json $(srcDir)/clients/web/package.json
+	$(installFiles) $(srcDir)/package.json $(installTop)
+	cd $(srcDir) && $(NPM) install --cache $(buildTop)/.npm --tmp $(buildTop)/tmp --prefix $(installTop)
 	install -d $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/angular/angular.min.js* $(ASSETS_DIR)/vendor
 	$(installFiles) $(installTop)/node_modules/angular/angular.js $(ASSETS_DIR)/vendor
@@ -137,11 +139,13 @@ vendor-assets-prerequisites: $(srcDir)/package.json
 	$(installFiles) $(installTop)/node_modules/typeahead.js/dist/typeahead.bundle.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/envconnect/static/vendor/PIE.htc $(ASSETS_DIR)/vendor
 	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../node_modules/.bin/sass sassc)
+	cd $(srcDir)/clients/web && $(NPM) install --cache $(buildTop)/.npm --tmp $(buildTop)/tmp
 
 
 install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \
                 $(DESTDIR)$(CONFIG_DIR)/site.conf \
                 $(DESTDIR)$(CONFIG_DIR)/gunicorn.conf \
+                $(DESTDIR)$(SYSCONFDIR)/supervisord.conf \
                 $(DESTDIR)$(SYSCONFDIR)/sysconfig/$(APP_NAME) \
                 $(DESTDIR)$(SYSCONFDIR)/logrotate.d/$(APP_NAME) \
                 $(DESTDIR)$(SYSCONFDIR)/monit.d/$(APP_NAME) \
@@ -153,6 +157,13 @@ install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \
 # Implementation Note:
 # We use [ -f file ] before install here such that we do not blindly erase
 # already present configuration files with template ones.
+$(DESTDIR)$(SYSCONFDIR)/%/credentials: $(srcDir)/etc/credentials
+	install -d $(dir $@)
+	[ -f $@ ] || \
+		sed -e "s,\%(SECRET_KEY)s,$(SECRET_KEY)," \
+			-e "s,\%(DJAODJIN_SECRET_KEY)s,$(DJAODJIN_SECRET_KEY)," \
+			$< > $@
+
 $(DESTDIR)$(SYSCONFDIR)/%/site.conf: $(srcDir)/etc/site.conf
 	install -d $(dir $@)
 	[ -f $@ ] || \
@@ -162,17 +173,17 @@ $(DESTDIR)$(SYSCONFDIR)/%/site.conf: $(srcDir)/etc/site.conf
 			-e "s,%(DB_NAME)s,$(notdir $(patsubst %/,%,$(dir $@)))," \
 			-e "s,%(binDir)s,$(binDir)," $< > $@
 
-$(DESTDIR)$(SYSCONFDIR)/%/credentials: $(srcDir)/etc/credentials
-	install -d $(dir $@)
-	[ -f $@ ] || \
-		sed -e "s,\%(SECRET_KEY)s,$(SECRET_KEY)," \
-			-e "s,\%(DJAODJIN_SECRET_KEY)s,$(DJAODJIN_SECRET_KEY)," \
-			$< > $@
-
 $(DESTDIR)$(SYSCONFDIR)/%/gunicorn.conf: $(srcDir)/etc/gunicorn.conf
 	install -d $(dir $@)
 	[ -f $@ ] || \
 		sed -e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' $< > $@
+
+$(DESTDIR)$(SYSCONFDIR)/supervisord.conf: $(srcDir)/etc/supervisord.conf
+	install -d $(dir $@)
+	[ -f $@ ] || \
+		sed -e 's,%(srcDir)s,$(srcDir),' \
+			-e 's,%(binDir)s,$(binDir),' \
+			-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' $< > $@
 
 $(DESTDIR)$(SYSCONFDIR)/systemd/system/%.service: \
                $(srcDir)/etc/service.conf
