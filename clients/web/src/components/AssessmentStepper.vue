@@ -36,6 +36,10 @@
     <v-stepper-step
       :editable="currentStep >= 4"
       step="4"
+      :class="{
+        active: currentStep >= 4,
+        'v-stepper__step--complete': currentStep >= 4,
+      }"
       @click.stop="goToScorecard"
     >
       <span>Review scorecard</span>
@@ -69,7 +73,7 @@ export default {
   name: 'ButtonPrimary',
 
   data: () => ({
-    currentStep: 5,
+    currentStep: 1,
   }),
 
   methods: {
@@ -114,3 +118,11 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+@import '@/styles/variables.scss';
+.active ::v-deep .v-stepper__step__step {
+  background-color: $primary-color !important;
+  border-color: $primary-color !important;
+}
+</style>
