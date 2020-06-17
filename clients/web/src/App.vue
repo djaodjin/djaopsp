@@ -29,7 +29,7 @@
     </v-main>
 
     <div v-if="this.$route.name !== 'home' && $vuetify.breakpoint.xs">
-      <v-bottom-navigation :value="mobileActiveBtn" grow>
+      <v-bottom-navigation app :value="mobileActiveBtn" grow>
         <v-btn :to="{ name: 'home' }">
           <span>Home</span>
           <v-icon>mdi-home</v-icon>
