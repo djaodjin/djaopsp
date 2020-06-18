@@ -80,28 +80,28 @@ export default {
     goToCurrentPractices() {
       if (this.currentStep < 6) {
         this.$router.push({
-          name: 'home',
+          name: 'introPractices',
         })
       }
     },
     goToTargets() {
       if (this.currentStep >= 2 && this.currentStep < 6) {
         this.$router.push({
-          name: 'home',
+          name: 'introTargets',
         })
       }
     },
     goToImprovementPlan() {
       if (this.currentStep >= 3 && this.currentStep < 6) {
         this.$router.push({
-          name: 'home',
+          name: 'introPlan',
         })
       }
     },
     goToScorecard() {
       if (this.currentStep >= 4) {
         this.$router.push({
-          name: 'home',
+          name: 'assessmentScorecard',
         })
       }
     },
@@ -111,7 +111,7 @@ export default {
     goToShare() {
       if (this.currentStep === 6) {
         this.$router.push({
-          name: 'home',
+          name: 'assessmentShare',
         })
       }
     },

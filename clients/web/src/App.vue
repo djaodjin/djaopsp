@@ -9,7 +9,7 @@
             contain
             height="24"
             width="44"
-            alt=""
+            alt
             style="vertical-align: text-bottom;"
             src="./assets/images/tsp-logo.png"
           />
@@ -49,6 +49,20 @@
           <v-icon>mdi-home</v-icon>
         </v-btn>
 
+        <v-btn
+          v-if="
+            this.$route.name === 'introPractices' ||
+            this.$route.name === 'introTargets' ||
+            this.$route.name === 'introPlan' ||
+            this.$route.name === 'assessmentScorecard' ||
+            this.$route.name === 'assessmentShare'
+          "
+          :to="{ name: 'assessmentHome', params: { id: '123' } }"
+        >
+          <span>Assessment</span>
+          <v-icon>mdi-map</v-icon>
+        </v-btn>
+
         <v-btn>
           <span>Help</span>
           <v-icon>mdi-help-circle</v-icon>
@@ -69,6 +83,10 @@ export default {
     drawer: null,
     mobileActiveBtn: null,
   }),
+
+  mounted() {
+    console.log(this.$route.path)
+  },
 
   components: {
     LocaleChanger,

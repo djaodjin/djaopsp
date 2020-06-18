@@ -3,7 +3,7 @@
     <h1 class="assessment-title">Environment Sustainability Assessment</h1>
     <v-container>
       <v-row justify="center">
-        <v-col cols="12" md="8" lg="6">
+        <v-col cols="11" md="8" lg="6">
           <form @submit.prevent="processForm">
             <label for="industry" class="d-block mb-3">
               Please choose the industry that best applies to your organization:

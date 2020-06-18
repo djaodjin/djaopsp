@@ -2,8 +2,12 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import AssessmentCreate from './views/AssessmentCreate'
 import AssessmentHome from './views/AssessmentHome'
+import AssessmentScorecard from './views/AssessmentScorecard'
+import AssessmentShare from './views/AssessmentShare'
 import Home from './views/Home'
-import Scorecard from './views/Scorecard'
+import IntroCurrentPractices from './views/IntroCurrentPractices'
+import IntroEnvironmentalTargets from './views/IntroEnvironmentalTargets'
+import IntroImprovementPlan from './views/IntroImprovementPlan'
 
 Vue.use(Router)
 
@@ -27,9 +31,29 @@ export default new Router({
       component: AssessmentHome,
     },
     {
-      path: '/scorecard',
-      name: 'scorecard',
-      component: Scorecard,
+      path: '/assessment/:id/practices',
+      name: 'introPractices',
+      component: IntroCurrentPractices,
+    },
+    {
+      path: '/assessment/:id/targets',
+      name: 'introTargets',
+      component: IntroEnvironmentalTargets,
+    },
+    {
+      path: '/assessment/:id/plan',
+      name: 'introPlan',
+      component: IntroImprovementPlan,
+    },
+    {
+      path: '/assessment/:id/scorecard',
+      name: 'assessmentScorecard',
+      component: AssessmentScorecard,
+    },
+    {
+      path: '/assessment/:id/share',
+      name: 'assessmentShare',
+      component: AssessmentShare,
     },
   ],
 })

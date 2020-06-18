@@ -1,5 +1,5 @@
 <template>
-  <div class="px-4 px-sm-8">
+  <div>
     <h1>S1 Tamerin</h1>
     <home-actions />
   </div>

@@ -1,7 +1,7 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col cols="12" md="6" lg="4">
+    <v-row justify="center" justify-md="start">
+      <v-col cols="11" md="6" lg="4">
         <section class="mb-4 px-md-4">
           <p>{{ $t('home.desc-assessment') }}</p>
           <button-primary :to="{ name: 'newAssessment' }">{{
@@ -9,13 +9,13 @@
           }}</button-primary>
         </section>
       </v-col>
-      <v-col cols="12" md="6" lg="4">
+      <v-col cols="11" md="6" lg="4">
         <section class="mb-4 px-md-4">
           <p>{{ $t('home.desc-history') }}</p>
           <button-primary>{{ $t('home.btn-history') }}</button-primary>
         </section>
       </v-col>
-      <v-col cols="12" md="6" lg="4">
+      <v-col cols="11" md="6" lg="4">
         <section class="mb-4 px-md-4">
           <p>{{ $t('home.desc-best-practices') }}</p>
           <button-primary>{{ $t('home.btn-best-practices') }}</button-primary>
