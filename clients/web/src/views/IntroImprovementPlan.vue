@@ -15,7 +15,14 @@
           <li>Relevant business areas</li>
           <li>Other competitors in the industry</li>
         </ul>
-        <ButtonPrimary class="mt-8">Continue</ButtonPrimary>
+        <button-primary
+          class="mt-8"
+          :to="{
+            name: 'assessmentPlan',
+            params: { id: $route.params.id },
+          }"
+          >Continue</button-primary
+        >
       </div>
     </intro-section>
   </fragment>

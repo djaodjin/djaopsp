@@ -73,7 +73,7 @@ export default {
   name: 'ButtonPrimary',
 
   data: () => ({
-    currentStep: 1,
+    currentStep: 3,
   }),
 
   methods: {

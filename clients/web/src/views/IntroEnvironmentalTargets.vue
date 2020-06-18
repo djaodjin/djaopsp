@@ -11,7 +11,14 @@
           benchmarking your performance data against other competitors in the
           industry.
         </p>
-        <ButtonPrimary class="mt-8">Continue</ButtonPrimary>
+        <button-primary
+          class="mt-8"
+          :to="{
+            name: 'assessmentTargets',
+            params: { id: $route.params.id },
+          }"
+          >Continue</button-primary
+        >
       </div>
     </intro-section>
   </fragment>
