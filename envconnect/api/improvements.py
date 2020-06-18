@@ -12,16 +12,16 @@ from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
 from rest_framework.response import Response
 from survey.models import EnumeratedQuestions, get_question_model
 
-from ..helpers import freeze_scores
 from ..mixins import ImprovementQuerySetMixin
 from ..models import Consumption
+from ..scores import freeze_scores
 from ..serializers import ImprovementSerializer
 
 
 class ImprovementListAPIView(ImprovementQuerySetMixin,
                              UpdateModelMixin, ListAPIView):
     """
-    Retrieve improvements
+    List improvements
 
     **Tags**: survey
 
@@ -69,6 +69,23 @@ class ImprovementListAPIView(ImprovementQuerySetMixin,
         return context
 
     def put(self, request, *args, **kwargs):
+        """
+        Update improvement list
+
+        **Tags**: survey
+
+        **Examples**
+
+        .. code-block:: http
+
+             PUT /api/xia/improvement/ HTTP/1.1
+
+        responds
+
+        .. code-block:: json
+
+            {}
+        """
         return self.update(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
@@ -90,7 +107,7 @@ class ImprovementAnswerAPIView(ImprovementQuerySetMixin,
                                CreateModelMixin, RetrieveModelMixin,
                                DestroyModelMixin, GenericAPIView):
     """
-    Assessment details
+    Retrieves a single improvement
 
     implementation rate, nb respondents
     "implemented by you?"
@@ -158,10 +175,34 @@ class ImprovementAnswerAPIView(ImprovementQuerySetMixin,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, *args, **kwargs):
+        """
+        Removes a single improvement
+
+        **Tags**: survey
+
+        **Examples
+
+        .. code-block:: http
+
+            DELETE /api/xia/improvement/1/ HTTP/1.1
+
+        """
         return self.destroy(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        """
+        Adds a single improvement
+
+        **Tags**: survey
+
+        **Examples
+
+        .. code-block:: http
+
+            POST /api/xia/improvement/1/ HTTP/1.1
+
+        """
         return self.create(request, *args, **kwargs)

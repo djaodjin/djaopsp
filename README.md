@@ -24,16 +24,17 @@ Development setup: Step-by-step
     $ cd envconnect/reps
     $ git clone https://github.com/djaodjin/envconnect.git
     $ cd envconnect
+
     $ ../../bin/pip install -r requirements.txt -r dev-requirements.txt
     $ make install
     $ make initdb
-    $ make vendor-assets-prerequisites NPM=npm
+    $ make vendor-assets-prerequisites
     $ make build-assets
     $ diff -u ../../etc/envconnect/site.conf
     -DEBUG=False
     +DEBUG=True
 
-    $ python manage.py runserver
+    $ supervisord
     # browser http://localhost:8000/envconnect/
 
 Testing

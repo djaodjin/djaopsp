@@ -59,7 +59,7 @@ class ConsumptionListAPIView(BreadcrumbMixin, generics.ListCreateAPIView):
 class ConsumptionDetailAPIView(BreadcrumbMixin,
                                generics.RetrieveUpdateDestroyAPIView):
     """
-    Retrieve, update and delete a `Consumption`.
+    Retrieves values associated to a best practice.
 
     **Tags**: survey
 
@@ -67,7 +67,7 @@ class ConsumptionDetailAPIView(BreadcrumbMixin,
 
     .. code-block:: http
 
-        PUT /api/consumption/boxes-enclosures/energy-efficiency/air-flow/\
+        GET /api/consumption/boxes-enclosures/energy-efficiency/air-flow/\
  HTTP/1.1
 
     .. code-block:: json
@@ -82,10 +82,65 @@ class ConsumptionDetailAPIView(BreadcrumbMixin,
         {
         }
     """
-
     queryset = Consumption.objects.all()
     serializer_class = ConsumptionSerializer
     lookup_field = 'path'
+
+    def put(self, request, *args, **kwargs):
+        """
+        Updates values associated to a best practice.
+
+        **Tags**: survey
+
+        **Examples
+
+        .. code-block:: http
+
+            PUT /api/consumption/boxes-enclosures/energy-efficiency/air-flow/\
+     HTTP/1.1
+
+        .. code-block:: json
+
+            {
+            }
+
+        responds
+
+        .. code-block:: json
+
+            {
+            }
+        """
+        return super(ConsumptionDetailAPIView, self).put(
+            request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Deletes values associated to a best practice.
+
+        **Tags**: survey
+
+        **Examples
+
+        .. code-block:: http
+
+            DELETE /api/consumption/boxes-enclosures/energy-efficiency/air-flow/\
+     HTTP/1.1
+
+        .. code-block:: json
+
+            {
+            }
+
+        responds
+
+        .. code-block:: json
+
+            {
+            }
+        """
+        return super(ConsumptionDetailAPIView, self).delete(
+            request, *args, **kwargs)
 
     def perform_update(self, serializer):
         # Force "Gold" value to be outside the linear scale.

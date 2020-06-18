@@ -6,11 +6,58 @@ Compute organization assessment and improvement scores.
 """
 from __future__ import unicode_literals
 
-import datetime
+import datetime, logging
+from collections import namedtuple
 
+from deployutils.helpers import datetime_or_now
+from django.conf import settings
+from django.db import connection, connections
+from django.db.models import F
+from django.db.utils import DEFAULT_DB_ALIAS
 from django.utils import six
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import utc
+from django.utils.module_loading import import_string
+from survey.models import Answer, Metric, Sample
+from survey.utils import get_account_model
+
+from .models import Consumption, get_scored_answers as _get_scored_answers
+
+
+LOGGER = logging.getLogger(__name__)
+
+
+class ScoreCalculator(object):
+    """
+    Compute scores on individual answers and rolled up into section.
+    """
+    def get_scored_answers(self, campaign, assessment_metric_id,
+                           prefix=None, includes=None, excludes=None):
+        with connection.cursor() as cursor:
+            scored_answers = _get_scored_answers(
+                Consumption.objects.get_active_by_accounts(
+                    campaign, excludes=excludes),
+                assessment_metric_id, includes=includes, prefix=prefix)
+            cursor.execute(scored_answers, params=None)
+            col_headers = cursor.description
+            decorated_answer_tuple = namedtuple(
+                'DecoratedAnswerTuple', [col[0] for col in col_headers])
+            results = [decorated_answer_tuple(*decorated_answer)
+                for decorated_answer in cursor.fetchall()]
+        return results
+
+
+def get_score_calculator(segment_path):
+    """
+    Returns a specific calculator for scores if one exists for
+    the `segment_path`, otherwise return a default calculator.
+    """
+    for root_path, calculator_class in six.iteritems(
+            settings.SCORE_CALCULATORS):
+        if segment_path.startswith(root_path):
+            return import_string(calculator_class)()
+    return ScoreCalculator()
+
 
 def _normalize(scores, normalize_to_one=False, force_score=False):
     """
@@ -55,6 +102,64 @@ def _normalize(scores, normalize_to_one=False, force_score=False):
     else:
         scores.pop(numerator_key, None)
         scores.pop(denominator_key, None)
+
+
+def freeze_scores(sample, includes=None, excludes=None,
+                  collected_by=None, created_at=None, segment_path=None):
+    #pylint:disable=too-many-locals
+    # This function must be executed in a `transaction.atomic` block.
+    LOGGER.info("freeze scores for %s based of sample %s",
+        sample.account, sample.slug)
+    created_at = datetime_or_now(created_at)
+    score_sample = Sample.objects.create(
+        created_at=created_at,
+        survey=sample.survey,
+        account=sample.account,
+        extra=sample.extra,
+        is_frozen=True)
+    # Copy the actual answers
+    score_metric_id = Metric.objects.get(slug='score').pk
+    for answer in Answer.objects.filter(
+            sample=sample).exclude(metric_id=score_metric_id):
+        answer.pk = None
+        answer.sample = score_sample
+        answer.save()
+        LOGGER.debug("save(created_at=%s, question_id=%s, metric_id=%s,"\
+            " measured=%s, denominator=%s, collected_by=%s,"\
+            " sample=%s, rank=%d)",
+            answer.created_at, answer.question_id, answer.metric_id,
+            answer.measured, answer.denominator, answer.collected_by,
+            answer.sample, answer.rank)
+    # Create frozen scores for answers we can derive a score from
+    # (i.e. assessment).
+    assessment_metric_id = Metric.objects.get(slug='assessment').pk
+    calculator = get_score_calculator(segment_path)
+    scored_answers = calculator.get_scored_answers(
+        sample.survey, assessment_metric_id, prefix=segment_path,
+        includes=includes, excludes=excludes)
+    for decorated_answer in scored_answers:
+        if (decorated_answer.answer_id and
+            decorated_answer.is_planned == sample.extra):
+            numerator = decorated_answer.numerator
+            denominator = decorated_answer.denominator
+            LOGGER.debug("create(created_at=%s, question_id=%s,"\
+                " metric_id=%s, measured=%s, denominator=%s,"\
+                " collected_by=%s, sample=%s, rank=%d)",
+                created_at, decorated_answer.id, score_metric_id,
+                numerator, denominator, collected_by, score_sample,
+                decorated_answer.rank)
+            _ = Answer.objects.create(
+                created_at=created_at,
+                question_id=decorated_answer.id,
+                metric_id=score_metric_id,
+                measured=numerator,
+                denominator=denominator,
+                collected_by=collected_by,
+                sample=score_sample,
+                rank=decorated_answer.rank)
+    sample.created_at = datetime_or_now()
+    sample.save()
+    return score_sample
 
 
 def populate_account(accounts, agg_score,

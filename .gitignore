@@ -3,6 +3,7 @@
 *.xcodeproj
 .DS_Store
 .timestamp
+node_modules/
 htdocs
 htdocs/media/
 htdocs/static/.webassets-cache/

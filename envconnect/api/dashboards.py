@@ -5,6 +5,7 @@ import datetime, json, logging, re
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
+from deployutils.crypt import JSONEncoder
 from django.conf import settings
 from django.db import connection, transaction
 from django.db.models import Max, Q
@@ -28,9 +29,10 @@ from survey.utils import get_account_model
 from .benchmark import BenchmarkMixin
 from .. import signals
 from ..compat import reverse
-from ..helpers import freeze_scores, get_testing_accounts
+from ..helpers import get_testing_accounts
 from ..mixins import ReportMixin
 from ..models import _show_query_and_result, Consumption
+from ..scores import freeze_scores
 from ..serializers import AccountSerializer, NoModelSerializer
 from ..suppliers import get_supplier_managers
 
@@ -41,12 +43,13 @@ LOGGER = logging.getLogger(__name__)
 class AccountType(object):
 
     def __init__(self, pk=None, slug=None, printable_name=None, email=None,
-        request_key=None, extra=None):
+        phone=None, request_key=None, extra=None):
         #pylint:disable=invalid-name
         self.pk = pk
         self.slug = slug
         self.printable_name = printable_name
         self.email = email
+        self.phone = phone
         self.request_key = request_key
         self.grant_key = request_key # XXX
         self.extra = extra
@@ -55,7 +58,7 @@ class AccountType(object):
     @classmethod
     def _make(cls, val):
         return cls(pk=val[0], slug=val[1], printable_name=val[2],
-            email=val[3], request_key=val[4], extra=val[5])
+            email=val[3], phone=val[4], request_key=val[5], extra=val[6])
 
 
 def get_reporting_status(account, expired_at):
@@ -335,13 +338,16 @@ WHERE survey_answer.metric_id = %(metric_id)s AND
                     plan__organization__in=level).select_related(
                     'organization').values_list('organization__pk',
                     'organization__slug', 'organization__full_name',
-                    'organization__email', 'grant_key', 'extra', 'created_at',
-                    'plan__organization__slug', 'plan__organization__full_name'
-                    ).order_by('organization__full_name', 'organization__pk'):
+                    'organization__email', 'organization__phone',
+                    'grant_key', 'extra',
+                    'created_at',
+                    'plan__organization__slug',
+                    'plan__organization__full_name').order_by(
+                        'organization__full_name', 'organization__pk'):
                 account = AccountType._make(val)
-                created_at = val[6]
-                provider_slug = val[7]
-                provider_full_name = val[8]
+                created_at = val[7]
+                provider_slug = val[8]
+                provider_full_name = val[9]
                 if not prev:
                     prev = account
                 elif prev.pk != account.pk:
@@ -504,8 +510,8 @@ class SupplierListMixin(DashboardMixin):
             # We have to get complete assessments separately from complete
             # improvements the sample is always not frozen by definition.
             for rec in Sample.objects.filter(
-                    account__in=self.requested_accounts_pk,
-                    is_frozen=True, created_at__lte=self.ends_at,
+                    account__in=self.requested_accounts_pk, is_frozen=True,
+                    created_at__lte=self.ends_at,
                     extra__isnull=True).values(
                         'account').annotate(Max('created_at')):
                 self._complete_assessments |= set([rec['account']])
@@ -535,9 +541,9 @@ class SupplierListMixin(DashboardMixin):
             # We have to get complete assessments separately from complete
             # improvements the sample is always not frozen by definition.
             improvements_planned = Sample.objects.filter(
-                    account__in=self.requested_accounts_pk,
-                    is_frozen=True, created_at__lte=self.ends_at,
-                    extra='is_planned').values(
+                account__in=self.requested_accounts_pk, is_frozen=True,
+                created_at__lte=self.ends_at,
+                extra='is_planned').values(
                     'account').annotate(Max('created_at'))
             # XXX counts only improvement plans with an actual item selected.
             #improvements_planned = Sample.objects.filter(
@@ -568,6 +574,7 @@ class SupplierListMixin(DashboardMixin):
             'slug': account.slug,
             'printable_name': account.printable_name,
             'email': account.email,
+            'phone': account.phone,
             'requested_at': requested_at,
             'extra': account.extra,
             'reports_to': account.reports_to
@@ -659,12 +666,22 @@ class SupplierListMixin(DashboardMixin):
                     args=(account.slug,
                           '/sustainability-%s' % str(segment['slug'])))
             elif 'sample' in score:
-                score_url = reverse('benchmark_organization',
-                    args=(account.slug, score['sample'],
-                          '/sustainability-%s' % str(segment['slug'])))
+                if segment['slug'].endswith('rfx'):
+                    score_url = reverse('scorecard_organization',
+                        args=(account.slug, score['sample'],
+                              '/sustainability-%s' % str(segment['slug'])))
+                else:
+                    score_url = reverse('benchmark_organization',
+                        args=(account.slug, score['sample'],
+                              '/sustainability-%s' % str(segment['slug'])))
             else:
-                score_url = reverse('benchmark_organization_redirect',
-                    args=(account.slug,
+                if segment['slug'].endswith('rfx'):
+                    score_url = reverse('scorecard_organization_redirect',
+                        args=(account.slug,
+                            '/sustainability-%s' % str(segment['slug'])))
+                else:
+                    score_url = reverse('benchmark_organization_redirect',
+                        args=(account.slug,
                           '/sustainability-%s' % str(segment['slug'])))
             score.update({
                 'segment': segment['title'],

@@ -260,7 +260,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AssessmentView, self).get_context_data(**kwargs)
         self.get_or_create_assessment_sample()
-        from_root, _ = self.breadcrumbs
+        from_root, trail = self.breadcrumbs
         root = self.get_report_tree(load_text=(self.survey.slug == 'framework'))
         if root:
             context.update({
@@ -328,6 +328,9 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                 args=(organization, self.sample, industry_root)),
             'api_assessment_sample': reverse(
                 'survey_api_sample', args=(organization, self.sample)),
+            'api_assessment_sample_segment': reverse(
+                'survey_api_sample', args=(organization, self.sample,
+                    industry_root)),
             'api_assessment_sample_new': reverse(
                 'survey_api_sample_new', args=(organization,)),
             'api_benchmark_share': reverse('api_benchmark_share',

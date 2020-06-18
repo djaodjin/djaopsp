@@ -18,9 +18,9 @@ from survey.models import Answer, Choice, EnumeratedQuestions, Unit
 from survey.mixins import SampleMixin
 from survey.utils import get_question_model
 
-from ..helpers import freeze_scores
 from ..mixins import ExcludeDemoSample, ReportMixin
 from ..models import Consumption, get_scored_answers
+from ..scores import freeze_scores
 from ..serializers import (AnswerUpdateSerializer, AssessmentMeasuresSerializer,
     NoModelSerializer)
 
@@ -141,7 +141,8 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
             freeze_scores(self.sample,
                 includes=self.get_included_samples(),
                 excludes=self._get_filter_out_testing(),
-                collected_by=self.request.user)
+                collected_by=self.request.user,
+                segment_path=self.kwargs.get('path'))
         return http.Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
@@ -166,7 +167,7 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 
 class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
     """
-    Adds a measurement or comment to an answer.
+    Retrieves measurements or comment to an answer
 
     **Tags**: survey
 
@@ -174,7 +175,7 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
 
     .. code-block:: http
 
-        POST /api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/\
+        GET /api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/\
 3/measures/ HTTP/1.1
 
     .. code-block:: json
@@ -200,6 +201,32 @@ class AssessmentMeasuresAPIView(ReportMixin, SampleMixin, ListCreateAPIView):
                 enumeratedquestions__rank=self.kwargs.get(
                     self.lookup_rank_kwarg))
         return self._question
+
+    def post(self, request, *args, **kwargs):
+        """
+        Adds a measurement or comment to an answer
+
+        **Tags**: survey
+
+        **Examples
+
+        .. code-block:: http
+
+            POST /api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/\
+    3/measures/ HTTP/1.1
+
+        .. code-block:: json
+
+            {}
+
+        responds
+
+        .. code-block:: json
+
+            {}
+        """
+        return super(AssessmentMeasuresAPIView, self).post(
+            request, *args, **kwargs)
 
     def perform_create(self, serializer):
         created_at = datetime_or_now()
