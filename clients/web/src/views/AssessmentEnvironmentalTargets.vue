@@ -2,7 +2,38 @@
   <fragment>
     <section-title :title="$t('targets.title')" />
     <tab-container :tabs="tabs">
-      <template v-slot:tab1>Market Situation Content!</template>
+      <template v-slot:tab1>
+        <div class="pa-4">
+          <p>
+            {{ $t('targets.tab1.intro') }}
+          </p>
+          <img
+            class="d-block mx-auto mb-6"
+            alt
+            src="../assets/images/chart-management.png"
+          />
+          <img
+            class="d-block mx-auto mb-6"
+            alt
+            src="../assets/images/chart-construction.png"
+          />
+          <img
+            class="d-block mx-auto mb-6"
+            alt
+            src="../assets/images/chart-eng-and-design.png"
+          />
+          <img
+            class="d-block mx-auto mb-6"
+            alt
+            src="../assets/images/chart-office-grounds.png"
+          />
+          <img
+            class="d-block mx-auto mb-6"
+            alt
+            src="../assets/images/chart-procurement.png"
+          />
+        </div>
+      </template>
       <template v-slot:tab2>Environmental Targets Content!</template>
     </tab-container>
   </fragment>
@@ -19,8 +50,8 @@ export default {
   data() {
     return {
       tabs: [
-        { text: this.$t('targets.tab1-title'), href: 'tab-1' },
-        { text: this.$t('targets.tab2-title'), href: 'tab-2' },
+        { text: this.$t('targets.tab1.title'), href: 'tab-1' },
+        { text: this.$t('targets.tab2.title'), href: 'tab-2' },
       ],
       tab: null,
     }
