@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-4 mt-4 mb-6 ml-sm-8 mt-sm-8 mb-sm-10">
+  <div class="ml-4 mt-4 mb-6 ml-sm-8 mt-sm-8">
     <small>Environment Sustainability Assessment</small>
     <h1>{{ title }}</h1>
   </div>

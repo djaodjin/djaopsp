@@ -17,5 +17,10 @@
     "desc-assessment": "Record your organization's environmental sustainability practices.",
     "desc-best-practices": "Learn about the recommended environmental sustainability practices in your industry segment.",
     "desc-history": "View complete history of all organization assessments in the TSP platform."
+  },
+  "targets": {
+    "tab1-title": "Market Situation",
+    "tab2-title": "Targets",
+    "title": "Environmental Targets"
   }
 }
