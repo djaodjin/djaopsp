@@ -19,8 +19,13 @@
     "desc-history": "View complete history of all organization assessments in the TSP platform."
   },
   "targets": {
-    "tab1-title": "Market Situation",
-    "tab2-title": "Targets",
+    "tab1": {
+      "title": "Market Situation",
+      "intro": "Understand how your business compares to other companies"
+    },
+    "tab2": {
+      "title": "Targets"
+    },
     "title": "Environmental Targets"
   }
 }

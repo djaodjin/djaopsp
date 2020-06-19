@@ -16,7 +16,7 @@
     </div>
     <div v-else>
       <v-tabs
-        class="elevation-2"
+        class="elevation-1"
         v-model="currentTab"
         background-color="primary"
         dark
