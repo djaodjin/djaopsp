@@ -140,6 +140,8 @@ vendor-assets-prerequisites: $(srcDir)/package.json $(srcDir)/clients/web/packag
 	$(installFiles) $(srcDir)/envconnect/static/vendor/PIE.htc $(ASSETS_DIR)/vendor
 	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../node_modules/.bin/sass sassc)
 	cd $(srcDir)/clients/web && $(NPM) install --cache $(buildTop)/.npm --tmp $(buildTop)/tmp
+	[ -e $(srcDir)/clients/web/public/static ] || (cd $(srcDir)/clients/web/public && ln -s ../../../htdocs/static)
+
 
 
 install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \

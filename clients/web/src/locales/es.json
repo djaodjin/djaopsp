@@ -1,0 +1,21 @@
+{
+  "app": {
+    "help": "Ayuda",
+    "title": "TSP"
+  },
+  "nav": {
+    "opt-help": "@:app.help",
+    "opt-home": "Inicio",
+    "opt-projects": "Proyectos",
+    "opt-settings": "Configuración",
+    "opt-sign-out": "Desconectar"
+  },
+  "home": {
+    "btn-assessment": "Take Sustainability Assessment",
+    "btn-best-practices": "View Best Practices",
+    "btn-history": "View Assessment History",
+    "desc-assessment": "Record your organization's environmental sustainability practices.",
+    "desc-best-practices": "Learn about the recommended environmental sustainability practices in your industry segment.",
+    "desc-history": "View complete history of all organization assessments in the TSP platform."
+  }
+}
