@@ -11,7 +11,7 @@
             width="44"
             alt
             style="vertical-align: text-bottom;"
-            src="./assets/images/tsp-logo.png"
+            :src="`${publicPath}static/img/envconnect-logo.png`"
           />
           <span>{{ $t('app.title') }}</span>
         </v-toolbar-title>
@@ -82,6 +82,7 @@ export default {
   data: () => ({
     drawer: null,
     mobileActiveBtn: null,
+    publicPath: process.env.VUE_APP_ASSETS_URL || process.env.BASE_URL,
   }),
 
   components: {

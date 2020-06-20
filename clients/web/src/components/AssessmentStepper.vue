@@ -105,9 +105,7 @@ export default {
         })
       }
     },
-    freezeAssessment() {
-      console.log('Freeze assessment')
-    },
+    freezeAssessment() {},
     goToShare() {
       if (this.currentStep === 6) {
         this.$router.push({

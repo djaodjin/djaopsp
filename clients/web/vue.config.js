@@ -1,8 +1,9 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const assetsDir = 'static/cache'
 
 module.exports = {
   outputDir: '../../htdocs',
-  assetsDir: 'static/cache',
+  assetsDir: assetsDir,
   publicPath: '/envconnect',
   configureWebpack: {
     plugins: [
@@ -26,10 +27,12 @@ module.exports = {
     },
   },
 
-  // Fix: https://github.com/vuejs/vue-cli/issues/1132
+  /*
+  // If we use a fix derived from https://github.com/vuejs/vue-cli/issues/1132
+  // we fill the assets cache very quickly because we must run
+  // `build --no-clean` to aggregate assets in the htdocs directory.
   chainWebpack: (config) => {
-    if (process.env.NODE_ENV === 'development') {
-      config.output.filename('[name].[hash].js').end()
-    }
+      config.output.filename(assetsDir + '/[name].[hash].js')
   },
+  */
 }

@@ -10,6 +10,10 @@ Vue.use(VueCompositionApi)
 
 Vue.config.productionTip = false
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
 new Vue({
   router,
   vuetify,
