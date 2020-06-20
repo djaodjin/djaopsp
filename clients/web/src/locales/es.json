@@ -19,8 +19,24 @@
     "desc-history": "View complete history of all organization assessments in the TSP platform."
   },
   "targets": {
-    "tab1-title": "Market Situation",
-    "tab2-title": "Targets",
+    "tab1": {
+      "intro": "Understand how your business compares to other companies.",
+      "title": "Market Situation"
+    },
+    "tab2": {
+      "btn-submit": "Submit Environmental Targets",
+      "form": {
+        "baseline": "Baseline",
+        "by": "By",
+        "cbx-emissions": "GHG Emissions",
+        "cbx-energy": "Energy Reduction",
+        "cbx-waste": "Waste",
+        "cbx-water": "Water Use",
+        "textarea-label": "Target description"
+      },
+      "intro": "Describe and submit your targets.",
+      "title": "Targets"
+    },
     "title": "Environmental Targets"
   }
 }

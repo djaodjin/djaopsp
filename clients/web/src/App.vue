@@ -84,10 +84,6 @@ export default {
     mobileActiveBtn: null,
   }),
 
-  mounted() {
-    console.log(this.$route.path)
-  },
-
   components: {
     LocaleChanger,
     NavDrawer,
