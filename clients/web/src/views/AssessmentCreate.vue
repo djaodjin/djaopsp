@@ -5,9 +5,10 @@
       <v-row justify="center">
         <v-col cols="11" md="8" lg="6">
           <form @submit.prevent="processForm">
-            <label for="industry" class="d-block mb-3">
-              Please choose the industry that best applies to your organization:
-            </label>
+            <label for="industry" class="d-block mb-3"
+              >Please choose the industry that best applies to your
+              organization:</label
+            >
             <v-select
               id="industry"
               :items="items"
@@ -15,7 +16,9 @@
               v-model="industry"
             ></v-select>
             <div class="text-right">
-              <ButtonPrimary type="submit" display="inline">Next</ButtonPrimary>
+              <button-primary type="submit" display="inline">
+                Next
+              </button-primary>
             </div>
           </form>
         </v-col>

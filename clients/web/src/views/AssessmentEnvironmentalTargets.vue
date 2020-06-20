@@ -4,9 +4,7 @@
     <tab-container :tabs="tabs">
       <template v-slot:tab1>
         <div class="pa-4">
-          <p>
-            {{ $t('targets.tab1.intro') }}
-          </p>
+          <p>{{ $t('targets.tab1.intro') }}</p>
           <img
             class="d-block mx-auto mb-6"
             alt
@@ -34,13 +32,20 @@
           />
         </div>
       </template>
-      <template v-slot:tab2>Environmental Targets Content!</template>
+      <template v-slot:tab2>
+        <div class="pa-4">
+          <p>{{ $t('targets.tab2.intro') }}</p>
+          <form-environmental-targets />
+        </div>
+      </template>
     </tab-container>
   </fragment>
 </template>
 
 <script>
 import { Fragment } from 'vue-fragment'
+import ButtonPrimary from '@/components/ButtonPrimary'
+import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
 
@@ -58,6 +63,7 @@ export default {
   },
 
   components: {
+    FormEnvironmentalTargets,
     Fragment,
     SectionTitle,
     TabContainer,
