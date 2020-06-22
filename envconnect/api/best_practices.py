@@ -379,7 +379,7 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
         XXX
         """
-        return self.put(request, *args, **kwargs)
+        return super(BestPracticeAPIView, self).put(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
