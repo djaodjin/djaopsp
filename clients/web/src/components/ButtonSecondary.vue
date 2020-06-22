@@ -2,10 +2,10 @@
   <v-btn
     v-on="$listeners"
     :to="to"
-    :depressed="$vuetify.breakpoint.xs"
     :block="!display || display !== 'inline'"
     :type="!type ? 'button' : type"
     large
+    outlined
     color="secondary"
   >
     <slot></slot>

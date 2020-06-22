@@ -4,7 +4,7 @@
       <ul>
         <li>
           <span>Industry:</span>
-          <b>Engineering, Procurement, Construction, Cows</b>
+          <b>Engineering, Procurement, Construction</b>
         </li>
         <li>
           <span>Created:</span>

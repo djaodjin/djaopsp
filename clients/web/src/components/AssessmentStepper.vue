@@ -1,5 +1,5 @@
 <template>
-  <v-stepper v-model="currentStep" vertical class="pb-3">
+  <v-stepper v-model.number="currentStep" vertical class="pb-3">
     <v-stepper-step
       :complete="currentStep > 1 && currentStep < 6"
       :editable="currentStep < 6"
@@ -50,10 +50,30 @@
     <v-stepper-step
       :editable="currentStep === 5"
       step="5"
-      @click.stop="freezeAssessment"
+      @click.stop="isFreezeDialogOpen = true"
     >
       <span>Freeze assessment</span>
       <small v-if="currentStep === 5">Current step</small>
+      <dialog-action
+        title="Freeze Assessment"
+        actionText="Yes, freeze the assessment"
+        :isOpen="isFreezeDialogOpen"
+        @action="freezeAssessment"
+        @cancel="closeFreezeDialog"
+      >
+        <p>Would you like to record and freeze the assessment?</p>
+        <p>
+          By freezing the assessment, you certify that the assessment responses
+          provided for your organization are true and correct to the best of
+          your knowledge. Additionally, you acknowledge that the responses form
+          a statement of record which current or future clients may request to
+          verify.
+        </p>
+        <p>
+          After freezing the assessment, you will still be able to review its
+          scorecard, but the assessment will no longer be editable.
+        </p>
+      </dialog-action>
     </v-stepper-step>
     <v-stepper-content step="5" />
 
@@ -69,14 +89,20 @@
 </template>
 
 <script>
+import DialogAction from '@/components/DialogAction'
+
 export default {
   name: 'ButtonPrimary',
 
   data: () => ({
-    currentStep: 3,
+    currentStep: 5,
+    isFreezeDialogOpen: false,
   }),
 
   methods: {
+    closeFreezeDialog() {
+      this.isFreezeDialogOpen = false
+    },
     goToCurrentPractices() {
       if (this.currentStep < 6) {
         this.$router.push({
@@ -105,7 +131,10 @@ export default {
         })
       }
     },
-    freezeAssessment() {},
+    freezeAssessment() {
+      console.log('Freeze assessment')
+      this.isFreezeDialogOpen = false
+    },
     goToShare() {
       if (this.currentStep === 6) {
         this.$router.push({
@@ -113,6 +142,10 @@ export default {
         })
       }
     },
+  },
+
+  components: {
+    DialogAction,
   },
 }
 </script>
