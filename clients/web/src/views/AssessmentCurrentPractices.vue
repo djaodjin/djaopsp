@@ -34,11 +34,13 @@
         </div>
       </template>
     </tab-container>
+    <practices-progress-indicator questions="48" answered="46" />
   </fragment>
 </template>
 
 <script>
 import { Fragment } from 'vue-fragment'
+import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import PracticesSection from '@/components/PracticesSection'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
@@ -114,6 +116,7 @@ export default {
 
   components: {
     Fragment,
+    PracticesProgressIndicator,
     PracticesSection,
     SectionTitle,
     TabContainer,

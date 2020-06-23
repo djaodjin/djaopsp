@@ -48,6 +48,6 @@ h4 {
   line-height: 1;
 }
 .progress-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 </style>
