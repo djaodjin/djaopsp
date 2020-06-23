@@ -10,6 +10,7 @@
     "opt-settings": "Configuración",
     "opt-sign-out": "Desconectar"
   },
+
   "home": {
     "btn-assessment": "Take Sustainability Assessment",
     "btn-best-practices": "View Best Practices",
@@ -18,6 +19,18 @@
     "desc-best-practices": "Learn about the recommended environmental sustainability practices in your industry segment.",
     "desc-history": "View complete history of all organization assessments in the TSP platform."
   },
+
+  "practices": {
+    "tab1": {
+      "intro": "View all questionnaire sections.",
+      "title": "Sections"
+    },
+    "tab2": {
+      "intro": "List of all unanswered questions.",
+      "title": "Pending Questions"
+    }
+  },
+
   "targets": {
     "tab1": {
       "intro": "Understand how your business compares to other companies.",

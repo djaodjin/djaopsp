@@ -44,7 +44,6 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import ButtonPrimary from '@/components/ButtonPrimary'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
