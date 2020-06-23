@@ -49,4 +49,8 @@ ul {
   .theme--dark.v-bottom-navigation {
     background-color: $primary-color;
   }
+
+  .theme--light.v-sheet--outlined {
+    border: thin solid rgba(100, 100, 100, 0.14);
+  }
 }

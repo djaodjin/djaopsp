@@ -1,5 +1,5 @@
 <template>
-  <fragment>
+  <div class="practice-section">
     <span class="text-caption">{{ category }}</span>
     <h4>{{ title }}</h4>
     <v-container class="pa-0">
@@ -17,7 +17,7 @@
         </v-col>
       </v-row>
     </v-container>
-  </fragment>
+  </div>
 </template>
 
 <script>
@@ -35,6 +35,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.practice-section {
+  width: 100%;
+}
 .text-caption {
   font-weight: 600;
 }

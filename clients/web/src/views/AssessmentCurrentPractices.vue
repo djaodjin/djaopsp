@@ -6,10 +6,16 @@
         <div class="pa-4">
           <p>{{ $t('practices.tab1.intro') }}</p>
           <div class="sections">
-            <ul v-for="section in sections" :key="section.id">
-              <li
+            <v-list
+              class="mb-4"
+              outlined
+              v-for="section in sections"
+              :key="section.id"
+            >
+              <v-list-item
                 v-for="subcategory in section.subcategories"
                 :key="subcategory.id"
+                @click="showSectionDetail(section.id, subcategory.id)"
               >
                 <practices-section
                   :category="section.category"
@@ -17,8 +23,8 @@
                   :questions="subcategory.questions"
                   :answered="subcategory.answered"
                 />
-              </li>
-            </ul>
+              </v-list-item>
+            </v-list>
           </div>
         </div>
       </template>
@@ -100,6 +106,12 @@ export default {
     }
   },
 
+  methods: {
+    showSectionDetail(sectionId, subcategoryId) {
+      console.log(`clicked: ${sectionId} | ${subcategoryId}`)
+    },
+  },
+
   components: {
     Fragment,
     PracticesSection,
@@ -108,17 +120,3 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" scoped>
-.sections > ul {
-  margin-top: 16px;
-  padding-top: 20px;
-  border-top: 2px solid #eeeeee;
-
-  &:first-child {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: 0 none;
-  }
-}
-</style>
