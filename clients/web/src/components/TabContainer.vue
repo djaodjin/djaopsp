@@ -22,10 +22,18 @@
         dark
         grow
       >
-        <v-tab class="tab" :href="'#' + tabs[0].href">
+        <v-tab
+          class="tab"
+          :href="'#' + tabs[0].href"
+          @click="refreshTabInURL(tabs[0].href)"
+        >
           {{ tabs[0].text }}
         </v-tab>
-        <v-tab class="tab" :href="'#' + tabs[1].href">
+        <v-tab
+          class="tab"
+          :href="'#' + tabs[1].href"
+          @click="refreshTabInURL(tabs[1].href)"
+        >
           {{ tabs[1].text }}
         </v-tab>
 
@@ -50,10 +58,28 @@ export default {
 
   props: ['tabs'],
 
+  created() {
+    const hash = this.$route.hash
+    const nameTab1 = this.tabs[0].href
+    const nameTab2 = this.tabs[1].href
+
+    if (hash.indexOf(nameTab1) >= 0) {
+      this.currentTab = nameTab1
+    } else if (hash.indexOf(nameTab2) >= 0) {
+      this.currentTab = nameTab2
+    }
+  },
+
   data() {
     return {
       currentTab: null,
     }
+  },
+
+  methods: {
+    refreshTabInURL(newTab) {
+      window.location = `#${newTab}`
+    },
   },
 
   components: {
