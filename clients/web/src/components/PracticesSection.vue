@@ -1,7 +1,6 @@
 <template>
   <div class="practice-section">
-    <span class="text-caption">{{ category }}</span>
-    <h4>{{ title }}</h4>
+    <practice-section-header :category="category" :title="title" />
     <v-container class="pa-0">
       <v-row align="center">
         <v-col class="pt-1 pb-2" cols="6">
@@ -21,6 +20,8 @@
 </template>
 
 <script>
+import PracticeSectionHeader from '@/components/PracticeSectionHeader'
+
 export default {
   name: 'PracticesSection',
 
@@ -33,21 +34,16 @@ export default {
         : 0
     },
   },
+
+  components: {
+    PracticeSectionHeader,
+  },
 }
 </script>
 
 <style lang="scss" scoped>
 .practice-section {
   width: 100%;
-}
-.text-caption {
-  font-weight: 600;
-}
-h4 {
-  font-size: 1.3rem;
-  font-weight: 500;
-  margin-top: 0;
-  line-height: 1;
 }
 .progress-label {
   font-size: 0.85rem;
