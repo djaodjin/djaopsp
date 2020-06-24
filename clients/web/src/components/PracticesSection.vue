@@ -12,7 +12,7 @@
         </v-col>
         <v-col class="pt-1 pb-2" cols="6">
           <span class="progress-label">
-            {{ answered }} / {{ questions }} questions
+            {{ answers }} / {{ questions }} questions
           </span>
         </v-col>
       </v-row>
@@ -24,11 +24,13 @@
 export default {
   name: 'PracticesSection',
 
-  props: ['category', 'title', 'answered', 'questions'],
+  props: ['category', 'title', 'answers', 'questions'],
 
   computed: {
     completed() {
-      return Math.round((this.answered / this.questions) * 100)
+      return this.questions > 0
+        ? Math.round((this.answers / this.questions) * 100)
+        : 0
     },
   },
 }

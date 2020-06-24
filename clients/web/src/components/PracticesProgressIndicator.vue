@@ -1,13 +1,13 @@
 <template>
   <div class="progress-indicator">
-    <div class="bar pt-3 px-9" v-if="answered < questions">
+    <div class="bar pt-3 px-9" v-if="answers < questions">
       <v-progress-linear
         height="8"
         :value="completed"
         color="primary"
       ></v-progress-linear>
       <span class="d-block mt-2">
-        {{ answered }} / {{ questions }} questions
+        {{ answers }} / {{ questions }} questions
       </span>
     </div>
     <div class="action" v-else>
@@ -22,11 +22,13 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 export default {
   name: 'PracticesProgressIndicator',
 
-  props: ['answered', 'questions'],
+  props: ['answers', 'questions'],
 
   computed: {
     completed() {
-      return Math.round((this.answered / this.questions) * 100)
+      return this.questions > 0
+        ? Math.round((this.answers / this.questions) * 100)
+        : 0
     },
   },
 
