@@ -14,7 +14,7 @@
         </v-row>
       </v-container>
     </div>
-    <div v-else>
+    <div class="pb-12" v-else>
       <v-tabs
         class="elevation-1"
         v-model="currentTab"
@@ -72,7 +72,7 @@ export default {
 
   data() {
     return {
-      currentTab: null,
+      currentTab: this.tabs[0].href,
     }
   },
 
