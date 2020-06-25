@@ -293,6 +293,7 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
         self.wsheet.title = as_valid_sheet_title("Suppliers invited to TSP")
         self.wsheet.append(["Utility member", self.account.full_name])
         contact_model = get_user_model()
+        contact_name = ""
         try:
             contact = contact_model.objects.get(email__iexact=self.account.email)
             contact_name = contact.get_full_name()
