@@ -33,8 +33,15 @@
         exact
       />
       <practice-section-subcategory
-        :section="section"
-        :subcategory="subcategory"
+        :sections="this.sections"
+        :currentSectionIdx="currentSectionIdx"
+        :currentSubcategoryIdx="currentSubcategoryIdx"
+      />
+      <next-practice-section
+        class="mt-4"
+        :sections="this.sections"
+        :nextSectionIdx="nextSectionIdx"
+        :nextSubcategoryIdx="nextSubcategoryIdx"
       />
     </div>
     <div v-else class="sections pa-4" key="viewSections">
@@ -49,7 +56,7 @@
           v-for="subcategory in section.subcategories"
           :key="subcategory.id"
           :to="{
-            path: $route.fullPath,
+            path: `${$route.path}${$route.hash}`,
             query: { section: section.id, subcategory: subcategory.id },
           }"
           exact
@@ -68,6 +75,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import NextPracticeSection from '@/components/NextPracticeSection'
 import PracticesSection from '@/components/PracticesSection'
 import PracticeSectionSubcategory from '@/components/PracticeSectionSubcategory'
 import SectionBackLink from '@/components/SectionBackLink'
@@ -89,15 +97,42 @@ export default {
   },
 
   computed: {
+    currentSectionIdx() {
+      return this.sections.findIndex((s) => s.id === this.selectedSectionId)
+    },
+    currentSubcategoryIdx() {
+      if (this.currentSectionIdx >= 0) {
+        return this.sections[this.currentSectionIdx].subcategories.findIndex(
+          (s) => s.id === this.selectedSubcategoryId
+        )
+      }
+      return null
+    },
     section() {
-      return this.sections.find((s) => s.id === this.selectedSectionId)
+      return this.sections[this.currentSectionIdx]
     },
     subcategory() {
-      const section = this.sections.find((s) => s.id === this.selectedSectionId)
-      return (
-        section &&
-        section.subcategories.find((s) => s.id === this.selectedSubcategoryId)
+      return this.section.subcategories.find(
+        (s) => s.id === this.selectedSubcategoryId
       )
+    },
+    nextSectionIdx() {
+      if (this.section) {
+        return this.currentSubcategoryIdx <
+          this.section.subcategories.length - 1
+          ? this.currentSectionIdx
+          : (this.currentSectionIdx + 1) % this.sections.length
+      }
+      return null
+    },
+    nextSubcategoryIdx() {
+      if (this.section && this.subcategory) {
+        return this.currentSubcategoryIdx <
+          this.section.subcategories.length - 1
+          ? this.currentSubcategoryIdx + 1
+          : 0
+      }
+      return null
     },
   },
 
@@ -108,6 +143,7 @@ export default {
   data() {
     return {
       selectedSectionId: null,
+      selectedSubcategoryId: null,
       selectedQuestionId: null,
       sections: [
         {
@@ -165,7 +201,51 @@ export default {
             {
               id: '2',
               title: 'Management System Rigor',
-              questions: [],
+              questions: [
+                {
+                  id: '1',
+                  text:
+                    'Suspendisse ultricies, nunc aliquam laoreet pellentesque, odio mi pretium metus, facilisis pulvinar mi sapien in leo?',
+                  type: '3',
+                },
+                {
+                  id: '2',
+                  text:
+                    'Praesent bibendum, felis in scelerisque porta, lacus mauris elementum neque, non pretium sem sapien eu justo?',
+                  type: '3',
+                },
+                {
+                  id: '3',
+                  text:
+                    'Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae?',
+                  type: '3',
+                },
+              ],
+              answers: [],
+            },
+            {
+              id: '3',
+              title: 'Test Control',
+              questions: [
+                {
+                  id: '1',
+                  text:
+                    'Etiam sagittis risus sit amet quam iaculis, sit amet finibus mauris laoreet. Praesent faucibus interdum libero, tristique tempor felis dictum non. Suspendisse libero magna, tempus sit amet finibus vel, luctus id purus?',
+                  type: '3',
+                },
+                {
+                  id: '2',
+                  text:
+                    'Phasellus ut elit in enim laoreet ornare interdum vitae orci. Etiam quis feugiat tellus, ut condimentum nibh?',
+                  type: '3',
+                },
+                {
+                  id: '3',
+                  text:
+                    'Nunc non magna ullamcorper, vulputate justo id, viverra ligula. Integer feugiat lectus at arcu dapibus eleifend. Duis consectetur dolor ut scelerisque porta. Quisque at tortor eget sapien bibendum pharetra. Mauris eu dictum diam. Donec laoreet elit mollis, blandit libero quis, molestie ex?',
+                  type: '3',
+                },
+              ],
               answers: [],
             },
           ],
@@ -205,6 +285,7 @@ export default {
   },
 
   components: {
+    NextPracticeSection,
     SectionBackLink,
     PracticesSection,
     PracticeSectionSubcategory,

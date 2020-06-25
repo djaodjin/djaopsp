@@ -5,8 +5,8 @@
     :depressed="$vuetify.breakpoint.xs"
     :block="!display || display !== 'inline'"
     :type="!type ? 'button' : type"
+    :color="!color ? 'secondary' : color"
     large
-    color="secondary"
   >
     <slot></slot>
   </v-btn>
@@ -15,6 +15,6 @@
 <script>
 export default {
   name: 'ButtonPrimary',
-  props: ['to', 'display', 'type'],
+  props: ['color', 'to', 'display', 'type'],
 }
 </script>

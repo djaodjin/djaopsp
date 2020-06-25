@@ -92,7 +92,7 @@
 import DialogAction from '@/components/DialogAction'
 
 export default {
-  name: 'ButtonPrimary',
+  name: 'AssessmentStepper',
 
   data: () => ({
     currentStep: 5,

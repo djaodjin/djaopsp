@@ -39,7 +39,20 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 export default {
   name: 'PracticeSectionSubcategory',
 
-  props: ['section', 'subcategory'],
+  props: ['sections', 'currentSectionIdx', 'currentSubcategoryIdx'],
+
+  computed: {
+    section() {
+      return this.sections[this.currentSectionIdx]
+    },
+    subcategory() {
+      return this.section.subcategories[this.currentSubcategoryIdx]
+    },
+  },
+
+  updated() {
+    console.log('Re-render subcategory component ...')
+  },
 
   components: {
     PracticeSectionHeader,
