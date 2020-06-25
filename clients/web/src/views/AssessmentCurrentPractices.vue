@@ -6,9 +6,7 @@
         <assessment-sections />
       </template>
       <template v-slot:tab2>
-        <div class="pa-4">
-          <p>{{ $t('practices.tab2.intro') }}</p>
-        </div>
+        <pending-questions />
       </template>
     </tab-container>
     <practices-progress-indicator questions="48" answers="46" />
@@ -19,6 +17,7 @@
 import { Fragment } from 'vue-fragment'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
+import PendingQuestions from '@/components/PendingQuestions'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
 
@@ -38,6 +37,7 @@ export default {
     Fragment,
     PracticesProgressIndicator,
     AssessmentSections,
+    PendingQuestions,
     SectionTitle,
     TabContainer,
   },

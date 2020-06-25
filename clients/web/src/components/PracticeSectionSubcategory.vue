@@ -52,10 +52,6 @@ export default {
     },
   },
 
-  updated() {
-    console.log('Re-render subcategory component ...')
-  },
-
   components: {
     PracticeSectionHeader,
   },
@@ -63,6 +59,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/styles/variables.scss';
+
 .section-subcategory {
   & ::v-deep table {
     border-collapse: collapse;
@@ -77,7 +75,7 @@ export default {
       }
     }
     tr:nth-child(even) {
-      background-color: #f1f1f1;
+      background-color: $background-row-alternate;
     }
   }
 }
