@@ -1,6 +1,6 @@
 <template>
   <v-slide-x-transition mode="out-in">
-    <div v-if="selectedQuestionId" key="viewQuestion">
+    <div class="pt-2 pb-6 px-4" v-if="selectedQuestionId" key="viewQuestion">
       <section-back-link
         v-if="selectedSectionId && selectedSubcategoryId"
         :to="{
@@ -22,6 +22,7 @@
       View Question
     </div>
     <div
+      class="pt-2 pb-6 px-4"
       v-else-if="selectedSectionId && selectedSubcategoryId"
       key="viewSubcategory"
     >
@@ -36,7 +37,7 @@
         :subcategory="subcategory"
       />
     </div>
-    <div v-else class="sections" key="viewSections">
+    <div v-else class="sections pa-4" key="viewSections">
       <p>{{ $t('practices.tab1.intro') }}</p>
       <v-list
         class="mb-4"

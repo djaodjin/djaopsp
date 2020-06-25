@@ -3,9 +3,7 @@
     <section-title title="Current Practices" />
     <tab-container :tabs="tabs">
       <template v-slot:tab1>
-        <div class="pa-4">
-          <assessment-sections />
-        </div>
+        <assessment-sections />
       </template>
       <template v-slot:tab2>
         <div class="pa-4">
