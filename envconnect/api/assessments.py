@@ -87,7 +87,7 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
 
 class AssessmentAPIView(ReportMixin, SampleAPIView):
     """
-    Retrieve a sample
+    Retrieve a subset of datapoints for a sample
 
     Providing {sample} is a set of datapoints for {interviewee}, returns
     a subset of datapoints whose question starts with a {path} prefix.
@@ -118,6 +118,8 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 
     def delete(self, request, *args, **kwargs):
         """
+        Reset a subset of datapoints for a sample
+
         Resets all answers whose question's path starts with a specified prefix.
 
         **Examples

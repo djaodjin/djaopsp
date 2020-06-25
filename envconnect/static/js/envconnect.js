@@ -773,7 +773,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( tag ) {
             data.tag = JSON.stringify({"tags": [tag]});
         }
-        $http.post(settings.urls.api_page_elements, data).then(
+        $http.post(settings.urls.api_page_element_base, data).then(
             function success(resp) {
                 var path = prefix + '/' + resp.data.slug;
                 if( elementType === $scope.BEST_PRACTICE_ELEMENT ) {
@@ -913,7 +913,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 data['tag'] = $scope.activeElement.value.tag;
             }
         }
-        $http.put(settings.urls.api_page_elements
+        $http.put(settings.urls.api_page_element_base
                    + $scope.activeElement.value.slug + '/', data).then(
             function success(resp) {
                 form.parents('.modal').modal('hide');
@@ -1118,10 +1118,10 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.bestpractice = null;
 
     $scope.getBestPracticeCandidates = function(val) {
-        if( typeof settings.urls.api_page_elements === "undefined" ) {
+        if( typeof settings.urls.api_page_element_search === "undefined" ) {
             return [];
         }
-        return $http.get(settings.urls.api_page_elements, {
+        return $http.get(settings.urls.api_page_element_search, {
             params: {q: val}
         }).then(function(res){
             return res.data.results;
