@@ -102,7 +102,12 @@
         <v-icon small>mdi-trash-can</v-icon>
         <span class="ml-1">Delete</span>
       </v-btn>
-      <v-btn v-else text color="primary">
+      <v-btn
+        v-else
+        text
+        color="primary"
+        @click.stop="isArchiveDialogOpen = true"
+      >
         <v-icon small>mdi-folder-open</v-icon>
         <span class="ml-1">Archive</span>
       </v-btn>
@@ -117,6 +122,21 @@
       <p>Are you sure you want to delete this assessment?</p>
       <p>The assessment will be completely removed from the TSP platform</p>
     </dialog-action>
+    <dialog-action
+      title="Archive Assessment"
+      actionText="Yes, archive the assessment"
+      :isOpen="isArchiveDialogOpen"
+      @action="archiveAssessment"
+      @cancel="closeArchiveDialog"
+    >
+      <p>
+        Would you like to remove the assessment from your list of active
+        assessments?
+      </p>
+      <p>
+        You will still have access to the assessment from the assessment history
+      </p>
+    </dialog-action>
   </v-sheet>
 </template>
 
@@ -127,12 +147,16 @@ export default {
   name: 'AssessmentStepper',
 
   data: () => ({
-    currentStep: 5,
-    isFreezeDialogOpen: false,
+    currentStep: 6,
+    isArchiveDialogOpen: false,
     isDeleteDialogOpen: false,
+    isFreezeDialogOpen: false,
   }),
 
   methods: {
+    closeArchiveDialog() {
+      this.isArchiveDialogOpen = false
+    },
     closeDeleteDialog() {
       this.isDeleteDialogOpen = false
     },
@@ -166,6 +190,9 @@ export default {
           name: 'assessmentScorecard',
         })
       }
+    },
+    archiveAssessment() {
+      this.isArchiveDialogOpen = false
     },
     deleteAssessment() {
       this.isDeleteDialogOpen = false
