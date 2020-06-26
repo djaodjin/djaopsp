@@ -54,32 +54,39 @@ import { Fragment } from 'vue-fragment'
 import SectionTitle from '@/components/SectionTitle'
 
 export default {
-  name: 'AssessmentEnvironmentalTargets',
+  name: 'TabContainer',
 
   props: ['tabs'],
 
   created() {
-    const hash = this.$route.hash
-    const nameTab1 = this.tabs[0].href
-    const nameTab2 = this.tabs[1].href
+    this.setTabFromURL()
+  },
 
-    if (hash.indexOf(nameTab1) >= 0) {
-      this.currentTab = nameTab1
-    } else if (hash.indexOf(nameTab2) >= 0) {
-      this.currentTab = nameTab2
-    }
+  methods: {
+    setTabFromURL() {
+      const hash = this.$route.hash
+      const nameTab1 = this.tabs[0].href
+      const nameTab2 = this.tabs[1].href
+
+      if (hash.indexOf(nameTab1) >= 0) {
+        this.currentTab = nameTab1
+      } else if (hash.indexOf(nameTab2) >= 0) {
+        this.currentTab = nameTab2
+      }
+    },
+    refreshTabInURL(newTab) {
+      window.location = `#${newTab}`
+    },
+  },
+
+  watch: {
+    $route: 'setTabFromURL',
   },
 
   data() {
     return {
       currentTab: this.tabs[0].href,
     }
-  },
-
-  methods: {
-    refreshTabInURL(newTab) {
-      window.location = `#${newTab}`
-    },
   },
 
   components: {
