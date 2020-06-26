@@ -5,7 +5,7 @@
       <v-card-text class="pt-0 pb-2 text-body-2 text-body-2-sm">
         <slot></slot>
       </v-card-text>
-      <div class="actions px-6 pb-3">
+      <div class="actions px-6 pb-5">
         <button-primary class="mb-4" @click="$emit('action')">
           {{ actionText }}
         </button-primary>

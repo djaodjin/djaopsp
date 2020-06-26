@@ -93,7 +93,12 @@
         <span class="ml-1">Download</span>
       </v-btn>
       |
-      <v-btn v-if="currentStep <= 5" text color="primary">
+      <v-btn
+        v-if="currentStep <= 5"
+        text
+        color="primary"
+        @click.stop="isDeleteDialogOpen = true"
+      >
         <v-icon small>mdi-trash-can</v-icon>
         <span class="ml-1">Delete</span>
       </v-btn>
@@ -102,6 +107,16 @@
         <span class="ml-1">Archive</span>
       </v-btn>
     </div>
+    <dialog-action
+      title="Delete Assessment"
+      actionText="Yes, delete the assessment"
+      :isOpen="isDeleteDialogOpen"
+      @action="deleteAssessment"
+      @cancel="closeDeleteDialog"
+    >
+      <p>Are you sure you want to delete this assessment?</p>
+      <p>The assessment will be completely removed from the TSP platform</p>
+    </dialog-action>
   </v-sheet>
 </template>
 
@@ -114,9 +129,13 @@ export default {
   data: () => ({
     currentStep: 5,
     isFreezeDialogOpen: false,
+    isDeleteDialogOpen: false,
   }),
 
   methods: {
+    closeDeleteDialog() {
+      this.isDeleteDialogOpen = false
+    },
     closeFreezeDialog() {
       this.isFreezeDialogOpen = false
     },
@@ -148,8 +167,10 @@ export default {
         })
       }
     },
+    deleteAssessment() {
+      this.isDeleteDialogOpen = false
+    },
     freezeAssessment() {
-      console.log('Freeze assessment')
       this.isFreezeDialogOpen = false
     },
     goToShare() {
