@@ -19,7 +19,7 @@
         }"
         exact
       />
-      View Question
+      <questionnaire-container :questionId="selectedQuestionId" />
     </div>
     <div
       class="pt-2 pb-6 px-4"
@@ -78,6 +78,7 @@ import { Fragment } from 'vue-fragment'
 import NextPracticeSection from '@/components/NextPracticeSection'
 import PracticesSection from '@/components/PracticesSection'
 import PracticeSectionSubcategory from '@/components/PracticeSectionSubcategory'
+import QuestionnaireContainer from '@/components/QuestionnaireContainer'
 import SectionBackLink from '@/components/SectionBackLink'
 
 export default {
@@ -289,6 +290,7 @@ export default {
     SectionBackLink,
     PracticesSection,
     PracticeSectionSubcategory,
+    QuestionnaireContainer,
   },
 }
 </script>

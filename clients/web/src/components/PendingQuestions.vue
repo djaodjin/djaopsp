@@ -7,7 +7,7 @@
         }"
         exact
       />
-      View Question
+      <questionnaire-container :questionId="selectedQuestionId" />
     </div>
     <div v-else class="pending-questions py-4" key="pendingQuestions">
       <v-fade-transition mode="out-in">
@@ -28,7 +28,7 @@
               :key="question.id"
             >
               <practice-section-header
-                :category="question.category"
+                :category="question.section"
                 :title="question.subcategory"
               />
               <div class="content pt-3">
@@ -59,6 +59,7 @@
 
 <script>
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'
+import QuestionnaireContainer from '@/components/QuestionnaireContainer'
 import SectionBackLink from '@/components/SectionBackLink'
 
 export default {
@@ -84,7 +85,7 @@ export default {
       selectedQuestionId: null,
       questions: [
         {
-          category: 'Governance & Management',
+          section: 'Governance & Management',
           subcategory: 'Responsibility and Authority',
           id: '1',
           text:
@@ -92,7 +93,7 @@ export default {
           type: '3',
         },
         {
-          category: 'Governance & Management',
+          section: 'Governance & Management',
           subcategory: 'Responsibility and Authority',
           id: '3',
           text:
@@ -100,7 +101,7 @@ export default {
           type: '3',
         },
         {
-          category: 'Governance & Management',
+          section: 'Governance & Management',
           subcategory: 'Responsibility and Authority',
           id: '4',
           text:
@@ -108,7 +109,7 @@ export default {
           type: '3',
         },
         {
-          category: 'Governance & Management',
+          section: 'Governance & Management',
           subcategory: 'Management System Rigor',
           id: '6',
           text:
@@ -116,7 +117,7 @@ export default {
           type: '3',
         },
         {
-          category: 'Engineering & Design',
+          section: 'Engineering & Design',
           subcategory: 'General',
           id: '9',
           text:
@@ -124,7 +125,7 @@ export default {
           type: '3',
         },
         {
-          category: 'Engineering & Design',
+          section: 'Engineering & Design',
           subcategory: 'Material Selection',
           id: '12',
           text:
@@ -137,6 +138,7 @@ export default {
 
   components: {
     PracticeSectionHeader,
+    QuestionnaireContainer,
     SectionBackLink,
   },
 }

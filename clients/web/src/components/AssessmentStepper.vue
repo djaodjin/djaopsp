@@ -147,7 +147,7 @@ export default {
   name: 'AssessmentStepper',
 
   data: () => ({
-    currentStep: 6,
+    currentStep: 5,
     isArchiveDialogOpen: false,
     isDeleteDialogOpen: false,
     isFreezeDialogOpen: false,
