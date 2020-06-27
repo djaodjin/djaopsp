@@ -15,11 +15,10 @@
             subcategory: subcategory.id,
           },
         }"
-        ><span>View Next Section</span
-        ><v-icon class="ml-2" small color="white"
-          >mdi-arrow-right</v-icon
-        ></button-primary
       >
+        <span>View Next Section</span>
+        <v-icon class="ml-2" small color="white">mdi-arrow-right</v-icon>
+      </button-primary>
     </div>
   </v-card>
 </template>
