@@ -105,8 +105,7 @@ export default {
           text:
             'Etiam sagittis risus sit amet quam iaculis, sit amet finibus mauris laoreet. Praesent faucibus interdum libero, tristique tempor felis dictum non. Suspendisse libero magna, tempus sit amet finibus vel, luctus id purus?',
           type: '5',
-          textareaPlaceholder:
-            'Please explain how you plan to use the results of the assessment.',
+          textareaPlaceholder: 'Comments',
           answer: null,
           comment: '',
         },
