@@ -159,13 +159,13 @@ export default {
                   id: '1',
                   text:
                     'Suspendisse ultricies, nunc aliquam laoreet pellentesque, odio mi pretium metus, facilisis pulvinar mi sapien in leo?',
-                  type: '3',
+                  type: '1',
                 },
                 {
                   id: '2',
                   text:
                     'Praesent bibendum, felis in scelerisque porta, lacus mauris elementum neque, non pretium sem sapien eu justo?',
-                  type: '3',
+                  type: '2',
                 },
                 {
                   id: '3',
@@ -177,13 +177,13 @@ export default {
                   id: '4',
                   text:
                     'Aenean faucibus eu lectus ac imperdiet. Sed a nisi ac neque pulvinar venenatis ut vitae purus. Fusce sagittis nunc massa, vel pharetra mi maximus hendrerit. Curabitur diam mi, tristique sit amet diam ut, luctus blandit felis?',
-                  type: '3',
+                  type: '4',
                 },
                 {
                   id: '5',
                   text:
                     'Quisque vel est ac nunc vulputate sagittis nec sit amet nulla. Pellentesque rutrum enim mattis fermentum cursus?',
-                  type: '3',
+                  type: '5',
                 },
               ],
               answers: [

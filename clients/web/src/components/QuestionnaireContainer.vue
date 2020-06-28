@@ -92,8 +92,9 @@ export default {
           subcategory: 'Management System Rigor',
           text:
             'Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae?',
-          type: '1',
-          textareaPlaceholder: 'Please enter URL or specify',
+          type: '4',
+          textareaPlaceholder:
+            'Please explain how you plan to use the results of the assessment.',
           answer: null,
           comment: '',
         },
@@ -103,7 +104,7 @@ export default {
           subcategory: 'General',
           text:
             'Etiam sagittis risus sit amet quam iaculis, sit amet finibus mauris laoreet. Praesent faucibus interdum libero, tristique tempor felis dictum non. Suspendisse libero magna, tempus sit amet finibus vel, luctus id purus?',
-          type: '2',
+          type: '5',
           textareaPlaceholder:
             'Please explain how you plan to use the results of the assessment.',
           answer: null,

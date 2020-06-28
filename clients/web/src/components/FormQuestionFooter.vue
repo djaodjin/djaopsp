@@ -6,7 +6,7 @@
       hide-details="auto"
       auto-grow
       outlined
-      rows="2"
+      :rows="numRows"
       row-height="16"
       @input="$emit('textareaUpdate', textarea)"
     ></v-textarea>
@@ -26,7 +26,19 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 export default {
   name: 'FormQuestionFooter',
 
-  props: ['textareaPlaceholder', 'textareaValue'],
+  props: {
+    textareaPlaceholder: {
+      type: String,
+      required: true,
+    },
+    textareaValue: {
+      type: String,
+    },
+    numRows: {
+      type: Number,
+      default: 2,
+    },
+  },
 
   data() {
     return {
