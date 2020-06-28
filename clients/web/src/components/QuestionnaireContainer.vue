@@ -58,8 +58,8 @@ export default {
             'Suspendisse ultricies, nunc aliquam laoreet pellentesque, odio mi pretium metus, facilisis pulvinar mi sapien in leo?',
           type: '1',
           textareaPlaceholder: 'Comments',
-          answer: null,
-          comment: '',
+          answer: 'yes',
+          comment: 'Previous comment',
         },
         {
           id: '2',
@@ -70,8 +70,8 @@ export default {
           type: '2',
           textareaPlaceholder:
             'Please explain how you plan to use the results of the assessment.',
-          answer: null,
-          comment: '',
+          answer: 'most-yes',
+          comment: 'Previous comment',
         },
         {
           id: '3',
@@ -82,8 +82,8 @@ export default {
           type: '3',
           textareaPlaceholder:
             'If you do not report energy consumed, please explain why.',
-          answer: null,
-          comment: '',
+          answer: 'leading',
+          comment: 'A related comment written here',
           optional: true,
         },
         {
@@ -95,7 +95,8 @@ export default {
           type: '4',
           textareaPlaceholder:
             'Please explain how you plan to use the results of the assessment.',
-          answer: null,
+          answer:
+            'This is an answer for a textarea. Praesent faucibus interdum libero, tristique tempor felis dictum non. Sed a nisi ac neque pulvinar venenatis ut vitae purus. Fusce sagittis nunc massa, vel pharetra mi maximus hendrerit.',
           comment: '',
         },
         {
@@ -106,8 +107,9 @@ export default {
             'Etiam sagittis risus sit amet quam iaculis, sit amet finibus mauris laoreet. Praesent faucibus interdum libero, tristique tempor felis dictum non. Suspendisse libero magna, tempus sit amet finibus vel, luctus id purus?',
           type: '5',
           textareaPlaceholder: 'Comments',
-          answer: null,
-          comment: '',
+          answer: '18',
+          unit: 'gallons-year',
+          comment: 'Previous comment',
         },
         {
           id: '6',
