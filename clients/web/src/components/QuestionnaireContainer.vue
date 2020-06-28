@@ -42,7 +42,18 @@ export default {
 
   methods: {
     getNextQuestion() {
-      console.log('Get next question ...')
+      const nextQuestionIndex =
+        (this.currentQuestionIdx + 1) % this.questions.length
+      const nextQuestionId = this.questions[nextQuestionIndex].id
+      const queryParams = {
+        ...this.$route.query,
+        ...{ question: nextQuestionId },
+      }
+      this.$router.push({
+        path: this.$route.path,
+        hash: this.$route.hash,
+        query: queryParams,
+      })
     },
   },
 
