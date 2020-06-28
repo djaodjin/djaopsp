@@ -91,5 +91,9 @@ export default {
 <style lang="scss" scoped>
 .v-radio {
   align-items: start;
+
+  &::v-deep > .v-label {
+    padding-top: 2px;
+  }
 }
 </style>
