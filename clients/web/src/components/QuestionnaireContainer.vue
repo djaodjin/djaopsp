@@ -17,6 +17,8 @@
 <script>
 import { MAP_QUESTION_FORM_TYPES } from '@/config'
 import FormQuestionRadioDiscrete from '@/components/FormQuestionRadioDiscrete'
+import FormQuestionRadioRange from '@/components/FormQuestionRadioRange'
+import FormQuestionRadioState from '@/components/FormQuestionRadioState'
 import FormQuestionTextarea from '@/components/FormQuestionTextarea'
 import FormQuestionQuantity from '@/components/FormQuestionQuantity'
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'
@@ -82,6 +84,7 @@ export default {
             'If you do not report energy consumed, please explain why.',
           answer: null,
           comment: '',
+          optional: true,
         },
         {
           id: '4',
@@ -124,6 +127,8 @@ export default {
 
   components: {
     FormQuestionRadioDiscrete,
+    FormQuestionRadioRange,
+    FormQuestionRadioState,
     FormQuestionTextarea,
     FormQuestionQuantity,
     PracticeSectionHeader,
