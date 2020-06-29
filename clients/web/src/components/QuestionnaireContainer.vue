@@ -14,8 +14,9 @@
     >
 
     <component
-      :is="questionForm"
+      :is="questionForm.component"
       :question="currentQuestion"
+      :options="questionForm.options"
       @submit="getNextQuestion"
     />
   </div>
@@ -23,9 +24,7 @@
 
 <script>
 import { MAP_QUESTION_FORM_TYPES } from '@/config'
-import FormQuestionRadioDiscrete from '@/components/FormQuestionRadioDiscrete'
-import FormQuestionRadioRange from '@/components/FormQuestionRadioRange'
-import FormQuestionRadioState from '@/components/FormQuestionRadioState'
+import FormQuestionRadio from '@/components/FormQuestionRadio'
 import FormQuestionTextarea from '@/components/FormQuestionTextarea'
 import FormQuestionQuantity from '@/components/FormQuestionQuantity'
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'
@@ -79,6 +78,14 @@ export default {
           textareaPlaceholder: 'Comments',
           answer: 'yes',
           comment: 'Previous comment',
+          answers: [
+            {
+              value: 'yes',
+              text: 'Yes',
+              date: '2020-06-29T04:46:54.505Z',
+              author: 'michael@tamerinsolutions.com',
+            },
+          ],
         },
         {
           id: '2',
@@ -149,9 +156,7 @@ export default {
   },
 
   components: {
-    FormQuestionRadioDiscrete,
-    FormQuestionRadioRange,
-    FormQuestionRadioState,
+    FormQuestionRadio,
     FormQuestionTextarea,
     FormQuestionQuantity,
     PracticeSectionHeader,

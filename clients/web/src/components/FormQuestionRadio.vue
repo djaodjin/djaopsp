@@ -1,8 +1,15 @@
 <template>
   <form @submit.prevent="processForm">
     <v-radio-group class="mt-4 pt-0 pb-6" v-model="answer" hide-details="auto">
-      <v-radio label="Yes" value="yes"></v-radio>
-      <v-radio label="No" value="no"></v-radio>
+      <v-radio
+        v-for="option in options"
+        :key="option.value"
+        :value="option.value"
+      >
+        <template v-slot:label>
+          <span v-html="option.text"></span>
+        </template>
+      </v-radio>
       <v-radio
         v-if="question.optional"
         label="I don't know"
@@ -10,6 +17,7 @@
       ></v-radio>
     </v-radio-group>
     <FormQuestionFooter
+      :previousAnswers="question.answers"
       :textareaPlaceholder="question.textareaPlaceholder"
       :textareaValue="question.comment"
       @textareaUpdate="updateComment"
@@ -21,9 +29,9 @@
 import FormQuestionFooter from '@/components/FormQuestionFooter'
 
 export default {
-  name: 'FormQuestionRadioDiscrete',
+  name: 'FormQuestionRadio',
 
-  props: ['question'],
+  props: ['question', 'options'],
 
   methods: {
     processForm: function () {
@@ -48,3 +56,13 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.v-radio {
+  align-items: start;
+
+  &::v-deep > .v-label {
+    padding-top: 2px;
+  }
+}
+</style>
