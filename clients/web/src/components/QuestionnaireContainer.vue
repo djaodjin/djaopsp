@@ -17,6 +17,7 @@
       :is="questionForm.component"
       :question="currentQuestion"
       :options="questionForm.options"
+      :key="currentQuestion.id"
       @submit="getNextQuestion"
     />
   </div>
