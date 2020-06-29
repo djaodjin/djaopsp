@@ -5,6 +5,13 @@
       :title="currentQuestion.subcategory"
     />
     <p class="mt-3">{{ currentQuestion.text }}</p>
+    <span
+      class="d-block mb-4"
+      style="font-size: 0.9rem;"
+      v-if="currentQuestion.optional"
+    >
+      <sup>*</sup>This answer will not affect your score</span
+    >
 
     <component
       :is="questionForm"
@@ -59,6 +66,7 @@ export default {
 
   data() {
     // TODO: Get all assessment questions async
+    // TODO: Include section id and subcategory id so user is properly routed when clicking "back"
     return {
       questions: [
         {
@@ -109,6 +117,7 @@ export default {
           answer:
             'This is an answer for a textarea. Praesent faucibus interdum libero, tristique tempor felis dictum non. Sed a nisi ac neque pulvinar venenatis ut vitae purus. Fusce sagittis nunc massa, vel pharetra mi maximus hendrerit.',
           comment: '',
+          optional: true,
         },
         {
           id: '5',
@@ -133,6 +142,7 @@ export default {
             'Please explain how you plan to use the results of the assessment.',
           answer: null,
           comment: '',
+          optional: true,
         },
       ],
     }
