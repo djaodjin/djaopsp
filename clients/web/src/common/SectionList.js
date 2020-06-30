@@ -33,4 +33,20 @@ export class SectionList extends LinkedList {
   add(node, question) {
     super.add(node, question, node.addSubcategory)
   }
+
+  toArray() {
+    const res = []
+    if (!this.head) return res
+    let current = this.head
+    do {
+      const section = {
+        id: current.id,
+        content: { ...current.content },
+        subcategories: current.subcategories.toArray(),
+      }
+      res.push(section)
+      current = current.next
+    } while (current !== this.head)
+    return res
+  }
 }

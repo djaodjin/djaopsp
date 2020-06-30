@@ -1,3 +1,4 @@
+/* Doubly-linked list */
 export default class LinkedList {
   constructor() {
     this.head = null
@@ -53,6 +54,10 @@ export default class LinkedList {
     return this.head
   }
 
+  getNext() {
+    return this.head && this.head.next
+  }
+
   getNode(id) {
     if (!this.head) return null
     let current = this.head
@@ -63,10 +68,6 @@ export default class LinkedList {
       current = current.next
     } while (current !== this.head)
     return null
-  }
-
-  getNext() {
-    return this.head && this.head.next
   }
 
   next() {

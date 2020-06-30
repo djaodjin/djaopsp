@@ -1,6 +1,9 @@
 <template>
   <div class="practice-section">
-    <practice-section-header :category="category" :title="title" />
+    <practice-section-header
+      :category="section.content.name"
+      :title="subcategory.content.name"
+    />
     <v-container class="pa-0">
       <v-row align="center">
         <v-col class="pt-1 pb-2" cols="6">
@@ -11,7 +14,7 @@
         </v-col>
         <v-col class="pt-1 pb-2" cols="6">
           <span class="progress-label">
-            {{ answers }} / {{ questions }} questions
+            {{ answers }} / {{ numQuestions }} questions
           </span>
         </v-col>
       </v-row>
@@ -25,12 +28,15 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 export default {
   name: 'PracticesSection',
 
-  props: ['category', 'title', 'answers', 'questions'],
+  props: ['section', 'subcategory', 'answers'],
 
   computed: {
+    numQuestions() {
+      return this.subcategory.questions.length
+    },
     completed() {
       return this.questions > 0
-        ? Math.round((this.answers / this.questions) * 100)
+        ? Math.round((this.answers / this.numQuestions) * 100)
         : 0
     },
   },

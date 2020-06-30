@@ -14,6 +14,9 @@ export class SubcategoryNode extends ListNode {
   }
 }
 
+/* Linked list for storing subcategories
+ * Each new subcategory is appended to the end of the list
+ */
 export class SubcategoryList {
   constructor() {
     this.head = null
@@ -64,6 +67,14 @@ export class SubcategoryList {
     return this.current
   }
 
+  getFirst() {
+    return this.head
+  }
+
+  getNext() {
+    return this.current && this.current.next
+  }
+
   getNode(id) {
     let ptr = this.head
     while (ptr) {
@@ -75,8 +86,19 @@ export class SubcategoryList {
     return null
   }
 
-  getNext() {
-    return this.current && this.current.next
+  toArray() {
+    const res = []
+    let ptr = this.head
+    while (ptr) {
+      const subcategory = {
+        id: ptr.id,
+        content: { ...ptr.content },
+        questions: ptr.questions.slice(),
+      }
+      res.push(subcategory)
+      ptr = ptr.next
+    }
+    return res
   }
 
   next() {

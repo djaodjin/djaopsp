@@ -2,8 +2,8 @@
   <v-fade-transition mode="out-in">
     <div :key="subcategory.title" class="section-subcategory">
       <practice-section-header
-        :category="section.category"
-        :title="subcategory.title"
+        :category="section.content.name"
+        :title="subcategory.content.name"
       />
       <table class="mt-4 mx-n4">
         <thead>
@@ -41,16 +41,7 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 export default {
   name: 'PracticeSectionSubcategory',
 
-  props: ['sections', 'currentSectionIdx', 'currentSubcategoryIdx'],
-
-  computed: {
-    section() {
-      return this.sections[this.currentSectionIdx]
-    },
-    subcategory() {
-      return this.section.subcategories[this.currentSubcategoryIdx]
-    },
-  },
+  props: ['section', 'subcategory'],
 
   components: {
     PracticeSectionHeader,

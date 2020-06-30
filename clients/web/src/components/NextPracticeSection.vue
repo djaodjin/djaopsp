@@ -1,8 +1,8 @@
 <template>
   <v-card outlined class="py-3 px-4">
     <practice-section-header
-      :category="section.category"
-      :title="subcategory.title"
+      :category="section.content.name"
+      :title="subcategory.content.name"
     />
     <div class="mt-2 text-right">
       <button-primary
@@ -30,16 +30,7 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 export default {
   name: 'NextPracticeSection',
 
-  props: ['sections', 'nextSectionIdx', 'nextSubcategoryIdx'],
-
-  computed: {
-    section() {
-      return this.sections[this.nextSectionIdx]
-    },
-    subcategory() {
-      return this.section.subcategories[this.nextSubcategoryIdx]
-    },
-  },
+  props: ['section', 'subcategory'],
 
   components: {
     ButtonPrimary,

@@ -13,36 +13,12 @@ export default class Question {
     if (!VALID_QUESTION_TYPES.includes(type)) {
       throw new Error('Invalid question type')
     }
-    this._id = getUniqueId()
-    this._section = section
-    this._subcategory = subcategory
-    this._text = text
-    this._type = type
-    this._placeholder = placeholder
-    this._optional = optional
-  }
-
-  get section() {
-    return this._section
-  }
-
-  get subcategory() {
-    return this._subcategory
-  }
-
-  get text() {
-    return this._text
-  }
-
-  get type() {
-    return this._type
-  }
-
-  get placeholder() {
-    return this._placeholder
-  }
-
-  get optional() {
-    return this._optional
+    this.id = getUniqueId()
+    this.section = section
+    this.subcategory = subcategory
+    this.text = text
+    this.type = type
+    this.placeholder = placeholder
+    this.optional = optional
   }
 }
