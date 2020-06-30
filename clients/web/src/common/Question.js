@@ -3,6 +3,7 @@ import { getUniqueId } from './utils'
 
 export default class Question {
   constructor(
+    id,
     section,
     subcategory,
     text,
@@ -13,7 +14,7 @@ export default class Question {
     if (!VALID_QUESTION_TYPES.includes(type)) {
       throw new Error('Invalid question type')
     }
-    this.id = getUniqueId()
+    this.id = id || getUniqueId()
     this.section = section
     this.subcategory = subcategory
     this.text = text
