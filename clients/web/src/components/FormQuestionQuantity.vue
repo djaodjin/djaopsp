@@ -22,7 +22,7 @@
       </v-row>
     </v-container>
     <FormQuestionFooter
-      :textareaPlaceholder="question.textareaPlaceholder"
+      :textareaPlaceholder="question.placeholder"
       :textareaValue="question.comment"
       @textareaUpdate="updateComment"
     />

@@ -18,7 +18,7 @@
     </v-radio-group>
     <FormQuestionFooter
       :previousAnswers="question.answers"
-      :textareaPlaceholder="question.textareaPlaceholder"
+      :textareaPlaceholder="question.placeholder"
       :textareaValue="question.comment"
       @textareaUpdate="updateComment"
     />

@@ -1,13 +1,6 @@
 <template>
   <v-slide-x-transition mode="out-in">
-    <div v-if="loading">
-      Loading ...
-    </div>
-    <div
-      class="pt-2 pb-6 px-4"
-      v-else-if="selectedQuestionId"
-      key="viewQuestion"
-    >
+    <div class="pt-2 pb-6 px-4" v-if="selectedQuestionId" key="viewQuestion">
       <section-back-link
         v-if="selectedSectionId && selectedSubcategoryId"
         :to="{
@@ -26,7 +19,10 @@
         }"
         exact
       />
-      <questionnaire-container :questionId="selectedQuestionId" />
+      <questionnaire-container
+        :questions="questions"
+        :questionId="selectedQuestionId"
+      />
     </div>
     <div
       class="pt-2 pb-6 px-4"
@@ -79,7 +75,6 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getQuestions } from '../mocks/questions'
 import { SectionList } from '../common/SectionList'
 import NextPracticeSection from '@/components/NextPracticeSection'
 import PracticesSection from '@/components/PracticesSection'
@@ -90,18 +85,13 @@ import SectionBackLink from '@/components/SectionBackLink'
 export default {
   name: 'AssessmentSections',
 
+  props: ['questions'],
+
   created() {
-    this.fetchData()
     this.setStateFromQueryParams()
   },
 
   methods: {
-    async fetchData() {
-      this.loading = true
-      const questions = await getQuestions()
-      this.sectionList = SectionList.createFromQuestions(questions)
-      this.loading = false
-    },
     setStateFromQueryParams() {
       const { section, subcategory, question } = this.$route.query
       this.selectedSectionId = section
@@ -110,7 +100,14 @@ export default {
     },
   },
 
+  watch: {
+    $route: 'setStateFromQueryParams',
+  },
+
   computed: {
+    sectionList() {
+      return SectionList.createFromQuestions(this.questions)
+    },
     sections() {
       return this.sectionList.toArray()
     },
@@ -139,17 +136,11 @@ export default {
     },
   },
 
-  watch: {
-    $route: 'setStateFromQueryParams',
-  },
-
   data() {
     return {
-      loading: false,
       selectedSectionId: null,
       selectedSubcategoryId: null,
       selectedQuestionId: null,
-      sectionList: new SectionList(),
     }
   },
 

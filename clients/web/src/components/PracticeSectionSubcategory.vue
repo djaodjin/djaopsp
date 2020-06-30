@@ -1,6 +1,6 @@
 <template>
   <v-fade-transition mode="out-in">
-    <div :key="subcategory.title" class="section-subcategory">
+    <div :key="subcategory.id" class="section-subcategory">
       <practice-section-header
         :category="section.content.name"
         :title="subcategory.content.name"

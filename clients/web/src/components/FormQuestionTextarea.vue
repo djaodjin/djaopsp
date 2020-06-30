@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="processForm">
     <FormQuestionFooter
-      :textareaPlaceholder="question.textareaPlaceholder"
+      :textareaPlaceholder="question.placeholder"
       :textareaValue="question.answer"
       :numRows="8"
       @textareaUpdate="updateAnswer"
