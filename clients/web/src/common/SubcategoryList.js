@@ -1,4 +1,4 @@
-import ListNode from './ListNode'
+import { ListNode } from './LinkedList'
 
 export class SubcategoryNode extends ListNode {
   constructor(id, subcategory) {

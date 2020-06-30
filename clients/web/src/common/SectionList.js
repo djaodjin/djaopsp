@@ -1,5 +1,4 @@
-import ListNode from './ListNode'
-import LinkedList from './LinkedList'
+import { ListNode, LinkedList } from './LinkedList'
 import { SubcategoryNode, SubcategoryList } from './SubcategoryList'
 
 class SectionNode extends ListNode {
