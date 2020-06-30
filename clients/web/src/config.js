@@ -74,3 +74,5 @@ export const MAP_QUESTION_FORM_TYPES = {
     component: 'FormQuestionQuantity',
   },
 }
+
+export const VALID_QUESTION_TYPES = Object.keys(MAP_QUESTION_FORM_TYPES)
