@@ -7,7 +7,10 @@
         }"
         exact
       />
-      <questionnaire-container :questionId="selectedQuestionId" />
+      <questionnaire-container
+        :questions="questions"
+        :questionId="selectedQuestionId"
+      />
     </div>
     <div v-else class="pending-questions py-4" key="pendingQuestions">
       <v-fade-transition mode="out-in">
@@ -28,8 +31,8 @@
               :key="question.id"
             >
               <practice-section-header
-                :category="question.section"
-                :title="question.subcategory"
+                :category="question.section.name"
+                :title="question.subcategory.name"
               />
               <div class="content pt-3">
                 <p>{{ question.text }}</p>
@@ -65,6 +68,8 @@ import SectionBackLink from '@/components/SectionBackLink'
 export default {
   name: 'PendingQuestions',
 
+  props: ['questions'],
+
   created() {
     this.setStateFromQueryParams()
   },
@@ -83,56 +88,6 @@ export default {
   data() {
     return {
       selectedQuestionId: null,
-      questions: [
-        {
-          section: 'Governance & Management',
-          subcategory: 'Responsibility and Authority',
-          id: '1',
-          text:
-            'Suspendisse ultricies, nunc aliquam laoreet pellentesque, odio mi pretium metus, facilisis pulvinar mi sapien in leo?',
-          type: '3',
-        },
-        {
-          section: 'Governance & Management',
-          subcategory: 'Responsibility and Authority',
-          id: '3',
-          text:
-            'Aenean faucibus eu lectus ac imperdiet. Sed a nisi ac neque pulvinar venenatis ut vitae purus. Fusce sagittis nunc massa, vel pharetra mi maximus hendrerit. Curabitur diam mi, tristique sit amet diam ut, luctus blandit felis?',
-          type: '3',
-        },
-        {
-          section: 'Governance & Management',
-          subcategory: 'Responsibility and Authority',
-          id: '4',
-          text:
-            'Quisque vel est ac nunc vulputate sagittis nec sit amet nulla. Pellentesque rutrum enim mattis fermentum cursus?',
-          type: '3',
-        },
-        {
-          section: 'Governance & Management',
-          subcategory: 'Management System Rigor',
-          id: '6',
-          text:
-            'Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae?',
-          type: '3',
-        },
-        {
-          section: 'Engineering & Design',
-          subcategory: 'General',
-          id: '9',
-          text:
-            'Etiam sagittis risus sit amet quam iaculis, sit amet finibus mauris laoreet. Praesent faucibus interdum libero, tristique tempor felis dictum non. Suspendisse libero magna, tempus sit amet finibus vel, luctus id purus?',
-          type: '3',
-        },
-        {
-          section: 'Engineering & Design',
-          subcategory: 'Material Selection',
-          id: '12',
-          text:
-            'Praesent bibendum, felis in scelerisque porta, lacus mauris elementum neque, non pretium sem sapien eu justo?',
-          type: '3',
-        },
-      ],
     }
   },
 

@@ -1,6 +1,7 @@
 <template>
   <v-slide-x-transition mode="out-in">
     <div class="pt-2 pb-6 px-4" v-if="selectedQuestionId" key="viewQuestion">
+      <!-- TODO: Include question section id and subcategory id so user is properly routed when clicking "back" -->
       <section-back-link
         v-if="selectedSectionId && selectedSubcategoryId"
         :to="{
