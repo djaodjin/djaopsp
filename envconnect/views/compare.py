@@ -180,11 +180,11 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
     headings = [
         'Supplier name', 'Categories',
         'Contact name', 'Contact email', 'Contact phone',
-#        'Last activity', 'Status', 'Industry segment', 'Score',
-#        '# N/A', 'Reporting publicly', 'Reported measurements',
-#        'Targets', '# Planned actions',
+        'Last activity', 'Status', 'Industry segment', 'Score',
+        '# N/A', 'Reporting publicly', 'Reported measurements',
+        'Targets', '# Planned actions',
 #        'Full-time Employee Count', 'Annual Revenue (USD)'
-        'Responded in 2018', 'Responded in 2019'
+#        'Responded in 2018', 'Responded in 2019'
     ]
 
     def get_headings(self):
@@ -230,23 +230,25 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
         if not contact_name:
             contact_model = get_user_model()
             try:
-                contact = contact_model.objects.get(email__iexact=rec.get('email', ""))
+                contact = contact_model.objects.get(
+                    email__iexact=rec.get('email', ""))
                 contact_name = contact.get_full_name()
             except contact_model.DoesNotExist as err:
-                print("supplier '%s', contact e-mail '%s' not found!" % (rec['printable_name'], rec.get('email', "")))
+                LOGGER.warning("supplier '%s', contact e-mail '%s' not found!",
+                    rec['printable_name'], rec.get('email', ""))
         self.wsheet.append([
             rec['printable_name'], categories,
             contact_name,
             rec.get('email', ""),
             contact_phone,
-            "Yes" if rec.get('improvement_completed') else "",
-            "Yes" if rec.get('assessment_completed') else ""])
-            #XXX last_activity_at, reporting_status,
-            #XXX segment, normalized_score,
-            #XXX nb_na_answers, reporting_publicly,
-            #XXX measurements, targets, nb_planned_improvements,
+            last_activity_at, reporting_status,
+            segment, normalized_score,
+            nb_na_answers, reporting_publicly,
+            measurements, targets, nb_planned_improvements])
             #XXX employee_count, revenue_generated,
             #XXX report_to if report_to else ""])
+#            "Yes" if rec.get('improvement_completed') else "",
+#            "Yes" if rec.get('assessment_completed') else ""])
 
     def writerow(self, rec, headings=None):
         last_activity_at = rec.get('last_activity_at', "")
