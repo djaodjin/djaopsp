@@ -1,5 +1,11 @@
 import FormQuestion from './common/FormQuestion'
 
+function answersWarning(answers) {
+  console.warn('Unable to find matching answer in ', answers)
+  console.trace()
+  return ''
+}
+
 const FormQuestionRadioDiscrete = new FormQuestion('FormQuestionRadio', [
   {
     text: 'Yes',
@@ -10,9 +16,10 @@ const FormQuestionRadioDiscrete = new FormQuestion('FormQuestionRadio', [
     value: 'no',
   },
 ])
-FormQuestionRadioDiscrete.render = function (answerObj) {
-  const selected = this.options.find((opt) => opt.value === answerObj.answer)
-  return selected.text
+FormQuestionRadioDiscrete.render = function (answers) {
+  const selected = this.options.find((opt) => opt.value === answers[0])
+  if (selected) return selected.text
+  return answersWarning(answers)
 }
 
 const FormQuestionRadioRange = new FormQuestion('FormQuestionRadio', [
@@ -37,9 +44,10 @@ const FormQuestionRadioRange = new FormQuestion('FormQuestionRadio', [
     value: 'not-app',
   },
 ])
-FormQuestionRadioRange.render = function (answerObj) {
-  const selected = this.options.find((opt) => opt.value === answerObj.answer)
-  return selected.text
+FormQuestionRadioRange.render = function (answers) {
+  const selected = this.options.find((opt) => opt.value === answers[0])
+  if (selected) return selected.text
+  return answersWarning(answers)
 }
 
 const FormQuestionRadioLabeled = new FormQuestion('FormQuestionRadio', [
@@ -68,14 +76,15 @@ const FormQuestionRadioLabeled = new FormQuestion('FormQuestionRadio', [
     value: 'transforming',
   },
 ])
-FormQuestionRadioLabeled.render = function (answerObj) {
-  const selected = this.options.find((opt) => opt.value === answerObj.answer)
-  return selected.text
+FormQuestionRadioLabeled.render = function (answers) {
+  const selected = this.options.find((opt) => opt.value === answers[0])
+  if (selected) return selected.text
+  return answersWarning(answers)
 }
 
 const FormQuestionTextarea = new FormQuestion('FormQuestionTextarea')
-FormQuestionTextarea.render = function (answerObj) {
-  return answerObj.answer
+FormQuestionTextarea.render = function (answers) {
+  return answers[0] || ''
 }
 
 const FormQuestionQuantity = new FormQuestion('FormQuestionQuantity', [
@@ -116,9 +125,10 @@ const FormQuestionQuantity = new FormQuestion('FormQuestionQuantity', [
     value: 'ft3-year',
   },
 ])
-FormQuestionQuantity.render = function (answerObj) {
-  const unit = this.options.find((opt) => opt.value === answerObj.unit)
-  return `${answerObj.answer} ${unit.text}`
+FormQuestionQuantity.render = function (answers) {
+  const unit = this.options.find((opt) => opt.value === answers[1])
+  if (unit) return `${answers[0]} ${unit.text}`
+  return answersWarning(answers)
 }
 
 export const MAP_QUESTION_FORM_TYPES = {

@@ -43,7 +43,7 @@ export function getQuestions() {
           '1',
           'Comments',
           false,
-          [new Answer('qa1', 'michael@tamarinsolutions.com', 'yes')]
+          [new Answer('qa1', '1', 'michael@tamarinsolutions.com', ['yes'])]
         ),
         new Question(
           'qb2',
@@ -53,7 +53,7 @@ export function getQuestions() {
           '2',
           'Please explain how you plan to use the results of the assessment.',
           false,
-          [new Answer('qb2', 'michael@tamarinsolutions.com', 'most-no')]
+          [new Answer('qb2', '2', 'michael@tamarinsolutions.com', ['most-no'])]
         ),
         new Question(
           'qc3',
@@ -63,7 +63,7 @@ export function getQuestions() {
           '3',
           'Comments',
           true,
-          [new Answer('qc3', 'michael@tamarinsolutions.com', 'leading')]
+          [new Answer('qc3', '3', 'michael@tamarinsolutions.com', ['leading'])]
         ),
         new Question(
           'qd4',
@@ -74,11 +74,9 @@ export function getQuestions() {
           'Comments',
           true,
           [
-            new Answer(
-              'qd4',
-              'michael@tamarinsolutions.com',
-              'Nullam gravida leo vel libero imperdiet rhoncus tincidunt at enim. Sed vel enim ac leo mattis dapibus. Suspendisse ligula nisl, elementum sit amet velit in, tincidunt commodo sapien. In tincidunt at felis ac laoreet. Phasellus blandit velit in sem cursus tincidunt. Sed in tortor eget mauris rutrum eleifend. Sed quis dolor rutrum, ultrices eros ut, blandit turpis.'
-            ),
+            new Answer('qd4', '4', 'michael@tamarinsolutions.com', [
+              'Nullam gravida leo vel libero imperdiet rhoncus tincidunt at enim. Sed vel enim ac leo mattis dapibus. Suspendisse ligula nisl, elementum sit amet velit in, tincidunt commodo sapien. In tincidunt at felis ac laoreet. Phasellus blandit velit in sem cursus tincidunt. Sed in tortor eget mauris rutrum eleifend. Sed quis dolor rutrum, ultrices eros ut, blandit turpis.',
+            ]),
           ]
         ),
         new Question(
@@ -90,12 +88,10 @@ export function getQuestions() {
           'Comments',
           true,
           [
-            new Answer(
-              'qe5',
-              'michael@tamarinsolutions.com',
+            new Answer('qe5', '5', 'michael@tamarinsolutions.com', [
               '14',
-              'ghg-emissions-generated'
-            ),
+              'ghg-emissions-generated',
+            ]),
           ]
         ),
         new Question(

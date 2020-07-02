@@ -1,9 +1,6 @@
 <template>
   <fragment>
-    <question-previous-answers
-      :answers="previousAnswers"
-      :questionType="questionType"
-    />
+    <question-previous-answers :answers="previousAnswers" />
     <v-textarea
       :placeholder="textareaPlaceholder"
       v-model="textarea"

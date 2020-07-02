@@ -4,7 +4,7 @@
     <b v-html="answerText"></b>
     <p class="text-caption mt-1">
       Submitted by {{ previousAnswer.author }} on
-      {{ previousAnswer.date.toISOString() }} in previous sustainability
+      {{ previousAnswer.modified.toISOString() }} in previous sustainability
       assessment.
     </p>
   </div>
@@ -16,7 +16,7 @@ import { MAP_QUESTION_FORM_TYPES } from '@/config'
 export default {
   name: 'QuestionPreviousAnswers',
 
-  props: ['answers', 'questionType'],
+  props: ['answers'],
 
   computed: {
     previousAnswer() {
@@ -25,7 +25,9 @@ export default {
     answerText() {
       return (
         this.previousAnswer &&
-        MAP_QUESTION_FORM_TYPES[this.questionType].render(this.previousAnswer)
+        MAP_QUESTION_FORM_TYPES[this.previousAnswer.questionType].render(
+          this.previousAnswer.answers
+        )
       )
     },
   },
