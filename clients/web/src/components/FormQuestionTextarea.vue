@@ -4,7 +4,7 @@
       :previousAnswers="question.previousAnswers"
       :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
-      :textareaValue="question.answer"
+      :textareaValue="textAnswer"
       :numRows="8"
       @textareaUpdate="updateAnswer"
     />
@@ -17,21 +17,20 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionTextarea',
 
-  props: ['question'],
+  props: ['question', 'answer'],
 
   methods: {
     processForm: function () {
-      console.log('answer: ', this.answer)
-      this.$emit('submit')
+      this.$emit('submit', [this.textAnswer])
     },
     updateAnswer(value) {
-      this.answer = value
+      this.textAnswer = value
     },
   },
 
   data() {
     return {
-      answer: this.question.answer,
+      textAnswer: this.answer.answers[0],
     }
   },
 

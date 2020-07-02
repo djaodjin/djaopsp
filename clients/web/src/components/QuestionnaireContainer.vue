@@ -10,21 +10,23 @@
       style="font-size: 0.9rem;"
       v-if="currentQuestion.optional"
     >
-      <sup>*</sup>This answer will not affect your score</span
-    >
+      <sup>*</sup>This answer will not affect your score
+    </span>
 
     <component
       :is="questionForm.name"
       :question="currentQuestion"
+      :answer="currentAnswer"
       :options="questionForm.options"
       :key="currentQuestion.id"
-      @submit="getNextQuestion"
+      @submit="saveAndContinue"
     />
   </div>
 </template>
 
 <script>
 import { MAP_QUESTION_FORM_TYPES } from '@/config'
+import Answer from '@/common/Answer'
 import FormQuestionRadio from '@/components/FormQuestionRadio'
 import FormQuestionTextarea from '@/components/FormQuestionTextarea'
 import FormQuestionQuantity from '@/components/FormQuestionQuantity'
@@ -33,7 +35,7 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 export default {
   name: 'QuestionnaireContainer',
 
-  props: ['questions', 'questionId'],
+  props: ['questionId', 'questions', 'answers'],
 
   computed: {
     currentQuestionIdx() {
@@ -42,24 +44,45 @@ export default {
     currentQuestion() {
       return this.questions[this.currentQuestionIdx]
     },
+    currentAnswer() {
+      let answer = this.answers.find((a) => a.questionId === this.questionId)
+      if (!answer) {
+        answer = new Answer({
+          questionId: this.currentQuestion.id,
+          questionType: this.currentQuestion.type,
+          author: 'author@email.com', // TODO: Replace with user info
+        })
+      }
+      return answer
+    },
+    nextQuestion() {
+      const nextQuestionIndex =
+        (this.currentQuestionIdx + 1) % this.questions.length
+      return this.questions[nextQuestionIndex].id
+    },
     questionForm() {
       return MAP_QUESTION_FORM_TYPES[this.currentQuestion.type]
     },
   },
 
   methods: {
-    getNextQuestion() {
-      const nextQuestionIndex =
-        (this.currentQuestionIdx + 1) % this.questions.length
-      const nextQuestionId = this.questions[nextQuestionIndex].id
-      const queryParams = {
-        ...this.$route.query,
-        ...{ question: nextQuestionId },
-      }
-      this.$router.push({
-        path: this.$route.path,
-        hash: this.$route.hash,
-        query: queryParams,
+    saveAndContinue(answers) {
+      // Create new answer to make sure the update stays reactive
+      const updatedAnswer = new Answer({
+        ...this.currentAnswer,
+        ...{ answers: answers },
+      })
+
+      this.$emit('saveAnswer', updatedAnswer, () => {
+        const queryParams = {
+          ...this.$route.query,
+          ...{ question: this.nextQuestion },
+        }
+        this.$router.push({
+          path: this.$route.path,
+          hash: this.$route.hash,
+          query: queryParams,
+        })
       })
     },
   },

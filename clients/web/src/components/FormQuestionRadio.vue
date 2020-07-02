@@ -1,6 +1,10 @@
 <template>
   <form @submit.prevent="processForm">
-    <v-radio-group class="mt-4 pt-0 pb-6" v-model="answer" hide-details="auto">
+    <v-radio-group
+      class="mt-4 pt-0 pb-6"
+      v-model="selectedOption"
+      hide-details="auto"
+    >
       <v-radio
         v-for="option in options"
         :key="option.value"
@@ -20,7 +24,7 @@
       :previousAnswers="question.previousAnswers"
       :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
-      :textareaValue="question.comment"
+      :textareaValue="comment"
       @textareaUpdate="updateComment"
     />
   </form>
@@ -32,13 +36,11 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionRadio',
 
-  props: ['question', 'options'],
+  props: ['question', 'answer', 'options'],
 
   methods: {
     processForm: function () {
-      console.log('answer: ', this.answer)
-      console.log('comment: ', this.comment)
-      this.$emit('submit')
+      this.$emit('submit', [this.selectedOption, this.comment])
     },
     updateComment(value) {
       this.comment = value
@@ -47,8 +49,8 @@ export default {
 
   data() {
     return {
-      answer: this.question.answer,
-      comment: this.question.comment,
+      selectedOption: this.answer.answers[0],
+      comment: this.answer.answers[1],
     }
   },
 

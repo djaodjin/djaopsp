@@ -21,8 +21,10 @@
         exact
       />
       <questionnaire-container
-        :questions="questions"
         :questionId="selectedQuestionId"
+        :questions="questions"
+        :answers="answers"
+        @saveAnswer="saveAnswer"
       />
     </div>
     <div
@@ -86,13 +88,16 @@ import SectionBackLink from '@/components/SectionBackLink'
 export default {
   name: 'AssessmentSections',
 
-  props: ['questions'],
+  props: ['questions', 'answers'],
 
   created() {
     this.setStateFromQueryParams()
   },
 
   methods: {
+    saveAnswer(...args) {
+      this.$emit('saveAnswer', ...args)
+    },
     setStateFromQueryParams() {
       const { section, subcategory, question } = this.$route.query
       this.selectedSectionId = section

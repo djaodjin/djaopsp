@@ -43,7 +43,14 @@ export function getQuestions() {
           '1',
           'Comments',
           false,
-          [new Answer('qa1', '1', 'michael@tamarinsolutions.com', ['yes'])]
+          [
+            new Answer({
+              questionId: 'qa1',
+              questionType: '1',
+              author: 'michael@tamarinsolutions.com',
+              answers: ['yes'],
+            }),
+          ]
         ),
         new Question(
           'qb2',
@@ -53,7 +60,14 @@ export function getQuestions() {
           '2',
           'Please explain how you plan to use the results of the assessment.',
           false,
-          [new Answer('qb2', '2', 'michael@tamarinsolutions.com', ['most-no'])]
+          [
+            new Answer({
+              questionId: 'qb2',
+              questionType: '2',
+              author: 'michael@tamarinsolutions.com',
+              answers: ['most-no'],
+            }),
+          ]
         ),
         new Question(
           'qc3',
@@ -63,7 +77,14 @@ export function getQuestions() {
           '3',
           'Comments',
           true,
-          [new Answer('qc3', '3', 'michael@tamarinsolutions.com', ['leading'])]
+          [
+            new Answer({
+              questionId: 'qc3',
+              questionType: '3',
+              author: 'michael@tamarinsolutions.com',
+              answers: ['leading'],
+            }),
+          ]
         ),
         new Question(
           'qd4',
@@ -74,9 +95,14 @@ export function getQuestions() {
           'Comments',
           true,
           [
-            new Answer('qd4', '4', 'michael@tamarinsolutions.com', [
-              'Nullam gravida leo vel libero imperdiet rhoncus tincidunt at enim. Sed vel enim ac leo mattis dapibus. Suspendisse ligula nisl, elementum sit amet velit in, tincidunt commodo sapien. In tincidunt at felis ac laoreet. Phasellus blandit velit in sem cursus tincidunt. Sed in tortor eget mauris rutrum eleifend. Sed quis dolor rutrum, ultrices eros ut, blandit turpis.',
-            ]),
+            new Answer({
+              questionId: 'qd4',
+              questionType: '4',
+              author: 'michael@tamarinsolutions.com',
+              answers: [
+                'Nullam gravida leo vel libero imperdiet rhoncus tincidunt at enim. Sed vel enim ac leo mattis dapibus. Suspendisse ligula nisl, elementum sit amet velit in, tincidunt commodo sapien. In tincidunt at felis ac laoreet. Phasellus blandit velit in sem cursus tincidunt. Sed in tortor eget mauris rutrum eleifend. Sed quis dolor rutrum, ultrices eros ut, blandit turpis.',
+              ],
+            }),
           ]
         ),
         new Question(
@@ -88,10 +114,12 @@ export function getQuestions() {
           'Comments',
           true,
           [
-            new Answer('qe5', '5', 'michael@tamarinsolutions.com', [
-              '14',
-              'ghg-emissions-generated',
-            ]),
+            new Answer({
+              questionId: 'qe5',
+              questionType: '5',
+              author: 'michael@tamarinsolutions.com',
+              answers: ['14', 'ghg-emissions-generated'],
+            }),
           ]
         ),
         new Question(
@@ -150,24 +178,44 @@ export function getAnswers() {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve([
-        new Answer('qa1', '1', 'stephanie@tamarinsolutions.com', [
-          'yes',
-          'Sed volutpat ligula ante. Integer accumsan sollicitudin interdum.',
-        ]),
-        new Answer('qb2', '2', 'stephanie@tamarinsolutions.com', [
-          'most-no',
-          'Nam leo elit, bibendum id tincidunt ut, commodo malesuada felis.',
-        ]),
-        new Answer('qc3', '3', 'stephanie@tamarinsolutions.com', [
-          'leading',
-          '',
-        ]),
-        new Answer('qd4', '4', 'stephanie@tamarinsolutions.com', [
-          'Etiam aliquam eleifend magna sed iaculis. Suspendisse rhoncus maximus justo, ut pellentesque leo pharetra eget. In non orci lorem. Vivamus consequat turpis id cursus volutpat.',
-        ]),
-        new Answer('qe5', '5', 'stephanie@tamarinsolutions.com', [
-          ('14', 'ghg-emissions-generated', ''),
-        ]),
+        new Answer({
+          questionId: 'qa1',
+          questionType: '1',
+          author: 'stephanie@tamarinsolutions.com',
+          answers: [
+            'yes',
+            'Sed volutpat ligula ante. Integer accumsan sollicitudin interdum.',
+          ],
+        }),
+        new Answer({
+          questionId: 'qb2',
+          questionType: '2',
+          author: 'stephanie@tamarinsolutions.com',
+          answers: [
+            'most-yes',
+            'Nam leo elit, bibendum id tincidunt ut, commodo malesuada felis.',
+          ],
+        }),
+        new Answer({
+          questionId: 'qc3',
+          questionType: '3',
+          author: 'stephanie@tamarinsolutions.com',
+          answers: ['leading', ''],
+        }),
+        new Answer({
+          questionId: 'qd4',
+          questionType: '4',
+          author: 'stephanie@tamarinsolutions.com',
+          answers: [
+            'Etiam aliquam eleifend magna sed iaculis. Suspendisse rhoncus maximus justo, ut pellentesque leo pharetra eget. In non orci lorem. Vivamus consequat turpis id cursus volutpat.',
+          ],
+        }),
+        new Answer({
+          questionId: 'qe5',
+          questionType: '5',
+          author: 'stephanie@tamarinsolutions.com',
+          answers: [('14', 'ghg-emissions-generated', '')],
+        }),
       ])
     }, DELAY)
   })

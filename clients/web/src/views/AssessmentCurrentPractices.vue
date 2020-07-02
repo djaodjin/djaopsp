@@ -7,10 +7,18 @@
     <template v-else>
       <tab-container :tabs="tabs">
         <template v-slot:tab1>
-          <assessment-sections :questions="questions" />
+          <assessment-sections
+            :questions="questions"
+            :answers="answers"
+            @saveAnswer="saveAnswer"
+          />
         </template>
         <template v-slot:tab2>
-          <pending-questions :questions="unanswered" />
+          <pending-questions
+            :questions="unanswered"
+            :answers="answers"
+            @saveAnswer="saveAnswer"
+          />
         </template>
       </tab-container>
       <practices-progress-indicator questions="48" answers="46" />
@@ -40,6 +48,26 @@ export default {
       this.questions = await getQuestions()
       this.answers = await getAnswers()
       this.loading = false
+    },
+    saveAnswer(answer, callback) {
+      // TODO: Post answer to the backend then ...
+      // Update in-memory answers array
+      console.log('saving ...')
+      console.log(answer)
+
+      const answerIdx = this.answers.findIndex(
+        (a) => a.questionId === answer.questionId
+      )
+      if (answerIdx >= 0) {
+        // Replace answer instance with a new one
+        this.answers.splice(answerIdx, 1, answer)
+      } else {
+        this.answers.push(answer)
+      }
+
+      if (typeof callback === 'function') {
+        callback()
+      }
     },
   },
 

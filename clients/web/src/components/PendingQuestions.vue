@@ -8,8 +8,10 @@
         exact
       />
       <questionnaire-container
-        :questions="questions"
         :questionId="selectedQuestionId"
+        :questions="questions"
+        :answers="answers"
+        @saveAnswer="saveAnswer"
       />
     </div>
     <div v-else class="pending-questions py-4" key="pendingQuestions">
@@ -68,13 +70,16 @@ import SectionBackLink from '@/components/SectionBackLink'
 export default {
   name: 'PendingQuestions',
 
-  props: ['questions'],
+  props: ['questions', 'answers'],
 
   created() {
     this.setStateFromQueryParams()
   },
 
   methods: {
+    saveAnswer(...args) {
+      this.$emit('saveAnswer', ...args)
+    },
     setStateFromQueryParams() {
       const { question } = this.$route.query
       this.selectedQuestionId = question

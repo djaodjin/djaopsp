@@ -6,7 +6,7 @@
           <v-text-field
             label="Quantity"
             outlined
-            v-model="answer"
+            v-model="textAnswer"
             hide-details="auto"
           ></v-text-field>
         </v-col>
@@ -25,7 +25,7 @@
       :previousAnswers="question.previousAnswers"
       :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
-      :textareaValue="question.comment"
+      :textareaValue="comment"
       @textareaUpdate="updateComment"
     />
   </form>
@@ -37,14 +37,11 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionQuantity',
 
-  props: ['question', 'options'],
+  props: ['question', 'answer', 'options'],
 
   methods: {
     processForm: function () {
-      console.log('answer: ', this.answer)
-      console.log('unit: ', this.unit)
-      console.log('comment: ', this.comment)
-      this.$emit('submit')
+      this.$emit('submit', [this.textAnswer, this.unit, this.comment])
     },
     updateComment(value) {
       this.comment = value
@@ -53,9 +50,9 @@ export default {
 
   data() {
     return {
-      answer: this.question.answer,
-      unit: this.question.unit,
-      comment: this.question.comment,
+      textAnswer: this.answer.answers[0],
+      unit: this.answer.answers[1],
+      comment: this.answer.answers[2],
     }
   },
 
