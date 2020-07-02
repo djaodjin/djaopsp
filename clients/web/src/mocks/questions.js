@@ -145,3 +145,30 @@ export function getQuestions() {
     }, DELAY)
   })
 }
+
+export function getAnswers() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve([
+        new Answer('qa1', '1', 'stephanie@tamarinsolutions.com', [
+          'yes',
+          'Sed volutpat ligula ante. Integer accumsan sollicitudin interdum.',
+        ]),
+        new Answer('qb2', '2', 'stephanie@tamarinsolutions.com', [
+          'most-no',
+          'Nam leo elit, bibendum id tincidunt ut, commodo malesuada felis.',
+        ]),
+        new Answer('qc3', '3', 'stephanie@tamarinsolutions.com', [
+          'leading',
+          '',
+        ]),
+        new Answer('qd4', '4', 'stephanie@tamarinsolutions.com', [
+          'Etiam aliquam eleifend magna sed iaculis. Suspendisse rhoncus maximus justo, ut pellentesque leo pharetra eget. In non orci lorem. Vivamus consequat turpis id cursus volutpat.',
+        ]),
+        new Answer('qe5', '5', 'stephanie@tamarinsolutions.com', [
+          ('14', 'ghg-emissions-generated', ''),
+        ]),
+      ])
+    }, DELAY)
+  })
+}
