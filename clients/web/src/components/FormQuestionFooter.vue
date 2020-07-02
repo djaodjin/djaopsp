@@ -1,5 +1,9 @@
 <template>
   <fragment>
+    <question-previous-answers
+      :answers="previousAnswers"
+      :questionType="questionType"
+    />
     <v-textarea
       :placeholder="textareaPlaceholder"
       v-model="textarea"
@@ -22,21 +26,32 @@
 <script>
 import { Fragment } from 'vue-fragment'
 import ButtonPrimary from '@/components/ButtonPrimary'
+import QuestionPreviousAnswers from '@/components/QuestionPreviousAnswers'
 
 export default {
   name: 'FormQuestionFooter',
 
   props: {
+    numRows: {
+      type: Number,
+      default: 2,
+    },
+    previousAnswers: {
+      type: Array,
+      default: function () {
+        return []
+      },
+    },
+    questionType: {
+      type: String,
+      required: true,
+    },
     textareaPlaceholder: {
       type: String,
       required: true,
     },
     textareaValue: {
       type: String,
-    },
-    numRows: {
-      type: Number,
-      default: 2,
     },
   },
 
@@ -49,6 +64,7 @@ export default {
   components: {
     ButtonPrimary,
     Fragment,
+    QuestionPreviousAnswers,
   },
 }
 </script>

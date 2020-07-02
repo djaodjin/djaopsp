@@ -12,7 +12,7 @@
         </v-col>
         <v-col cols="9">
           <v-select
-            :items="units"
+            :items="options"
             label="Unit"
             outlined
             v-model="unit"
@@ -22,6 +22,8 @@
       </v-row>
     </v-container>
     <FormQuestionFooter
+      :previousAnswers="question.previousAnswers"
+      :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
       :textareaValue="question.comment"
       @textareaUpdate="updateComment"
@@ -35,7 +37,7 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionQuantity',
 
-  props: ['question'],
+  props: ['question', 'options'],
 
   methods: {
     processForm: function () {
@@ -51,44 +53,6 @@ export default {
 
   data() {
     return {
-      units: [
-        {
-          text: 'Kilowatt-hour (kWh) of Electricity  / Year',
-          value: 'kwh-year',
-        },
-        {
-          text: 'Metric Tons / Year',
-          value: 'tons-year',
-        },
-        {
-          text: 'GHG Emissions',
-          value: 'ghg-emissions-generated',
-        },
-        {
-          text: 'US Gallons / Year',
-          value: 'gallons-year',
-        },
-        {
-          text: 'mmBtu / Year',
-          value: 'mmbtu-year',
-        },
-        {
-          text: 'Cubic meters / Year',
-          value: 'm3-year',
-        },
-        {
-          text: 'Kilo liters / Year',
-          value: 'kiloliters-year',
-        },
-        {
-          text: 'Cubic feet / Year',
-          value: 'ft3-year',
-        },
-        {
-          text: 'Cubic feet / Year',
-          value: 'ft3-year',
-        },
-      ],
       answer: this.question.answer,
       unit: this.question.unit,
       comment: this.question.comment,

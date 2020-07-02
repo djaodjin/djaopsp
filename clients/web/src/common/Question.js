@@ -9,7 +9,8 @@ export default class Question {
     text,
     type,
     placeholder = '',
-    optional = false
+    optional = false,
+    previousAnswers = []
   ) {
     if (!VALID_QUESTION_TYPES.includes(type)) {
       throw new Error('Invalid question type')
@@ -21,5 +22,6 @@ export default class Question {
     this.type = type
     this.placeholder = placeholder
     this.optional = optional
+    this.previousAnswers = previousAnswers
   }
 }

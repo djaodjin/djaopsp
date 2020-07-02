@@ -1,4 +1,5 @@
 import { getRandomInt } from '../common/utils'
+import Answer from '../common/Answer'
 import Section from '../common/Section'
 import Subcategory from '../common/Subcategory'
 import Question from '../common/Question'
@@ -40,7 +41,9 @@ export function getQuestions() {
           subcategories[0],
           'Suspendisse ultricies, nunc aliquam laoreet pellentesque, odio mi pretium metus, facilisis pulvinar mi sapien in leo?',
           '1',
-          'Comments'
+          'Comments',
+          false,
+          [new Answer('qa1', 'michael@tamarinsolutions.com', 'yes')]
         ),
         new Question(
           'qb2',
@@ -48,7 +51,9 @@ export function getQuestions() {
           subcategories[0],
           'Aenean faucibus eu lectus ac imperdiet. Sed a nisi ac neque pulvinar venenatis ut vitae purus. Fusce sagittis nunc massa, vel pharetra mi maximus hendrerit. Curabitur diam mi, tristique sit amet diam ut, luctus blandit felis?',
           '2',
-          'Please explain how you plan to use the results of the assessment.'
+          'Please explain how you plan to use the results of the assessment.',
+          false,
+          [new Answer('qb2', 'michael@tamarinsolutions.com', 'most-no')]
         ),
         new Question(
           'qc3',
@@ -56,7 +61,9 @@ export function getQuestions() {
           subcategories[1],
           'Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae?',
           '3',
-          'Comments'
+          'Comments',
+          true,
+          [new Answer('qc3', 'michael@tamarinsolutions.com', 'leading')]
         ),
         new Question(
           'qd4',
@@ -64,7 +71,15 @@ export function getQuestions() {
           subcategories[0],
           'Etiam sagittis risus sit amet quam iaculis, sit amet finibus mauris laoreet. Praesent faucibus interdum libero, tristique tempor felis dictum non. Suspendisse libero magna, tempus sit amet finibus vel, luctus id purus?',
           '4',
-          'Comments'
+          'Comments',
+          true,
+          [
+            new Answer(
+              'qd4',
+              'michael@tamarinsolutions.com',
+              'Nullam gravida leo vel libero imperdiet rhoncus tincidunt at enim. Sed vel enim ac leo mattis dapibus. Suspendisse ligula nisl, elementum sit amet velit in, tincidunt commodo sapien. In tincidunt at felis ac laoreet. Phasellus blandit velit in sem cursus tincidunt. Sed in tortor eget mauris rutrum eleifend. Sed quis dolor rutrum, ultrices eros ut, blandit turpis.'
+            ),
+          ]
         ),
         new Question(
           'qe5',
@@ -72,7 +87,16 @@ export function getQuestions() {
           subcategories[1],
           'Praesent bibendum, felis in scelerisque porta, lacus mauris elementum neque, non pretium sem sapien eu justo?',
           '5',
-          'Comments'
+          'Comments',
+          true,
+          [
+            new Answer(
+              'qe5',
+              'michael@tamarinsolutions.com',
+              '14',
+              'ghg-emissions-generated'
+            ),
+          ]
         ),
         new Question(
           'qf6',

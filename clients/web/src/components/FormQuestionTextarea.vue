@@ -1,6 +1,8 @@
 <template>
   <form @submit.prevent="processForm">
     <FormQuestionFooter
+      :previousAnswers="question.previousAnswers"
+      :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
       :textareaValue="question.answer"
       :numRows="8"

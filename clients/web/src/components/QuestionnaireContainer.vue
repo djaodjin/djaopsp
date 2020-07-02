@@ -14,7 +14,7 @@
     >
 
     <component
-      :is="questionForm.component"
+      :is="questionForm.name"
       :question="currentQuestion"
       :options="questionForm.options"
       :key="currentQuestion.id"
