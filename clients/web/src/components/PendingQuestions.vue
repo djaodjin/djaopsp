@@ -1,6 +1,6 @@
 <template>
   <v-slide-x-transition mode="out-in">
-    <div class="pt-2 pb-6 px-4" v-if="selectedQuestionId" key="viewQuestion">
+    <div class="pt-2 pb-6 px-4" v-if="$route.query.question" key="viewQuestion">
       <section-back-link
         :to="{
           path: `${$route.path}${$route.hash}`,
@@ -8,7 +8,7 @@
         exact
       />
       <questionnaire-container
-        :questionId="selectedQuestionId"
+        :questionId="$route.query.question"
         :questions="questions"
         :answers="answers"
         @saveAnswer="saveAnswer"
@@ -72,28 +72,10 @@ export default {
 
   props: ['questions', 'answers'],
 
-  created() {
-    this.setStateFromQueryParams()
-  },
-
   methods: {
     saveAnswer(...args) {
       this.$emit('saveAnswer', ...args)
     },
-    setStateFromQueryParams() {
-      const { question } = this.$route.query
-      this.selectedQuestionId = question
-    },
-  },
-
-  watch: {
-    $route: 'setStateFromQueryParams',
-  },
-
-  data() {
-    return {
-      selectedQuestionId: null,
-    }
   },
 
   components: {
