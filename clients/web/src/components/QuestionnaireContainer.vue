@@ -56,6 +56,7 @@ export default {
       return answer
     },
     nextQuestion() {
+      if (this.questions.length <= 1) return null
       const nextQuestionIndex =
         (this.currentQuestionIdx + 1) % this.questions.length
       return this.questions[nextQuestionIndex].id
@@ -72,18 +73,27 @@ export default {
         ...this.currentAnswer,
         ...{ answers: answers },
       })
+      const callback = this.nextQuestion
+        ? function () {
+            const queryParams = {
+              ...this.$route.query,
+              ...{ question: this.nextQuestion },
+            }
+            this.$router.push({
+              path: this.$route.path,
+              hash: this.$route.hash,
+              query: queryParams,
+            })
+          }.bind(this)
+        : function () {
+            // There's no next question; reload the current path without query params
+            this.$router.push({
+              path: this.$route.path,
+              hash: this.$route.hash,
+            })
+          }.bind(this)
 
-      this.$emit('saveAnswer', updatedAnswer, () => {
-        const queryParams = {
-          ...this.$route.query,
-          ...{ question: this.nextQuestion },
-        }
-        this.$router.push({
-          path: this.$route.path,
-          hash: this.$route.hash,
-          query: queryParams,
-        })
-      })
+      this.$emit('saveAnswer', updatedAnswer, callback)
     },
   },
 
