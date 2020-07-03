@@ -21,7 +21,10 @@
           />
         </template>
       </tab-container>
-      <practices-progress-indicator questions="48" answers="46" />
+      <practices-progress-indicator
+        :questions="questions.length"
+        :answers="answers.length"
+      />
     </div>
   </fragment>
 </template>
