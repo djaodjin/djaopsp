@@ -10,6 +10,7 @@
           <assessment-sections
             :questions="questions"
             :answers="answers"
+            :unanswered="unanswered"
             @saveAnswer="saveAnswer"
           />
         </template>

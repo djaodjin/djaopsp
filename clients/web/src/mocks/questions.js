@@ -211,10 +211,10 @@ export function getAnswers() {
           ],
         }),
         new Answer({
-          questionId: 'qe5',
+          questionId: 'qj10',
           questionType: '5',
           author: 'stephanie@tamarinsolutions.com',
-          answers: [('14', 'ghg-emissions-generated', '')],
+          answers: ['14', 'ghg-emissions-generated', ''],
         }),
       ])
     }, DELAY)

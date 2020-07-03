@@ -8,14 +8,14 @@
       <v-row align="center">
         <v-col class="pt-1 pb-2" cols="6">
           <v-progress-linear
-            :value="completed"
+            :value="completePercentage"
             color="primary"
           ></v-progress-linear>
         </v-col>
         <v-col class="pt-1 pb-2" cols="6">
-          <span class="progress-label">
-            {{ answers }} / {{ numQuestions }} questions
-          </span>
+          <span class="progress-label"
+            >{{ numAnswered }} / {{ numQuestions }} questions</span
+          >
         </v-col>
       </v-row>
     </v-container>
@@ -28,15 +28,22 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 export default {
   name: 'PracticesSection',
 
-  props: ['section', 'subcategory', 'answers'],
+  props: ['section', 'subcategory', 'unanswered'],
 
   computed: {
     numQuestions() {
       return this.subcategory.questions.length
     },
-    completed() {
-      return this.questions > 0
-        ? Math.round((this.answers / this.numQuestions) * 100)
+    numAnswered() {
+      return this.subcategory.questions.reduce(
+        (acc, question) =>
+          !this.unanswered.find((q) => q.id === question.id) ? acc + 1 : acc,
+        0
+      )
+    },
+    completePercentage() {
+      return this.numQuestions > 0
+        ? Math.round((this.numAnswered / this.numQuestions) * 100)
         : 0
     },
   },

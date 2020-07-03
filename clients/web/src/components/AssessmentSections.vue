@@ -68,7 +68,7 @@
           <practices-section
             :section="loopSection"
             :subcategory="loopSubcategory"
-            :answers="0"
+            :unanswered="unanswered"
           />
         </v-list-item>
       </v-list>
@@ -88,7 +88,7 @@ import SectionBackLink from '@/components/SectionBackLink'
 export default {
   name: 'AssessmentSections',
 
-  props: ['questions', 'answers'],
+  props: ['questions', 'answers', 'unanswered'],
 
   methods: {
     saveAnswer(...args) {
