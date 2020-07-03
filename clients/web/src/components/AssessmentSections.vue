@@ -1,14 +1,14 @@
 <template>
   <v-slide-x-transition mode="out-in">
-    <div class="pt-2 pb-6 px-4" v-if="selectedQuestionId" key="viewQuestion">
+    <div class="pt-2 pb-6 px-4" v-if="$route.query.question" key="viewQuestion">
       <!-- TODO: Include question section id and subcategory id so user is properly routed when clicking "back" -->
       <section-back-link
-        v-if="selectedSectionId && selectedSubcategoryId"
+        v-if="$route.query.section && $route.query.subcategory"
         :to="{
           path: `${$route.path}${$route.hash}`,
           query: {
-            section: selectedSectionId,
-            subcategory: selectedSubcategoryId,
+            section: $route.query.section,
+            subcategory: $route.query.subcategory,
           },
         }"
         exact
@@ -21,7 +21,7 @@
         exact
       />
       <questionnaire-container
-        :questionId="selectedQuestionId"
+        :questionId="$route.query.question"
         :questions="questions"
         :answers="answers"
         @saveAnswer="saveAnswer"
@@ -29,7 +29,7 @@
     </div>
     <div
       class="pt-2 pb-6 px-4"
-      v-else-if="selectedSectionId && selectedSubcategoryId"
+      v-else-if="$route.query.section && $route.query.subcategory"
       key="viewSubcategory"
     >
       <section-back-link
@@ -90,24 +90,10 @@ export default {
 
   props: ['questions', 'answers'],
 
-  created() {
-    this.setStateFromQueryParams()
-  },
-
   methods: {
     saveAnswer(...args) {
       this.$emit('saveAnswer', ...args)
     },
-    setStateFromQueryParams() {
-      const { section, subcategory, question } = this.$route.query
-      this.selectedSectionId = section
-      this.selectedSubcategoryId = subcategory
-      this.selectedQuestionId = question
-    },
-  },
-
-  watch: {
-    $route: 'setStateFromQueryParams',
   },
 
   computed: {
@@ -118,12 +104,12 @@ export default {
       return this.sectionList.toArray()
     },
     section() {
-      return this.sectionList.getNode(this.selectedSectionId)
+      return this.sectionList.getNode(this.$route.query.section)
     },
     subcategory() {
       return (
         this.section &&
-        this.section.subcategories.getNode(this.selectedSubcategoryId)
+        this.section.subcategories.getNode(this.$route.query.subcategory)
       )
     },
     nextSection() {
@@ -140,14 +126,6 @@ export default {
       // start from the first subcategory of the next section
       return this.nextSection && this.nextSection.subcategories.getFirst()
     },
-  },
-
-  data() {
-    return {
-      selectedSectionId: null,
-      selectedSubcategoryId: null,
-      selectedQuestionId: null,
-    }
   },
 
   components: {
