@@ -4,7 +4,7 @@
     <div v-if="loading">
       <span>Loading ...</span>
     </div>
-    <template v-else>
+    <div v-else>
       <tab-container :tabs="tabs">
         <template v-slot:tab1>
           <assessment-sections
@@ -22,7 +22,7 @@
         </template>
       </tab-container>
       <practices-progress-indicator questions="48" answers="46" />
-    </template>
+    </div>
   </fragment>
 </template>
 

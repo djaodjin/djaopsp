@@ -25,14 +25,14 @@
         <v-tab
           class="tab"
           :href="'#' + tabs[0].href"
-          @click="refreshTabInURL(tabs[0].href)"
+          @click="refreshURL(tabs[0].href)"
         >
           {{ tabs[0].text }}
         </v-tab>
         <v-tab
           class="tab"
           :href="'#' + tabs[1].href"
-          @click="refreshTabInURL(tabs[1].href)"
+          @click="refreshURL(tabs[1].href)"
         >
           {{ tabs[1].text }}
         </v-tab>
@@ -74,13 +74,11 @@ export default {
         this.currentTab = nameTab2
       }
     },
-    refreshTabInURL(newTab) {
-      window.location = `#${newTab}`
+    refreshURL(newTab) {
+      // Remove any query params so they will not cause any conflicts
+      // when switching tabs
+      this.$router.replace(`${this.$route.path}#${newTab}`)
     },
-  },
-
-  watch: {
-    $route: 'setTabFromURL',
   },
 
   data() {
