@@ -41,6 +41,7 @@
       <practice-section-subcategory
         :section="section"
         :subcategory="subcategory"
+        :answers="answers"
       />
       <next-practice-section
         class="mt-4"

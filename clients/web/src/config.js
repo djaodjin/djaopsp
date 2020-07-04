@@ -52,33 +52,37 @@ FormQuestionRadioRange.render = function (answers) {
 
 const FormQuestionRadioLabeled = new FormQuestion('FormQuestionRadio', [
   {
-    text: "<b class='mr-1'>Initiating:</b>There is minimal management support",
+    text:
+      "<b>Initiating:</b><span class='ml-1'>There is minimal management support</span>",
     value: 'initiating',
   },
   {
     text:
-      "<b class='mr-1'>Progresssing:</b>Support is visible and clearly demonstrated",
+      "<b>Progressing:</b><span class='ml-1'>Support is visible and clearly demonstrated</span>",
     value: 'progressing',
   },
   {
     text:
-      "<b class='mr-1'>Optimizing:</b>Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals",
+      "<b>Optimizing:</b><span class='ml-1'>Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals</span>",
     value: 'optimizing',
   },
   {
     text:
-      "<b class='mr-1'>Leading:</b>The Board of Directors annually reviews environmental performance and sets or endorses goals",
+      "<b>Leading:</b><span class='ml-1'>The Board of Directors annually reviews environmental performance and sets or endorses goals</span>",
     value: 'leading',
   },
   {
     text:
-      "<b class='mr-1'>Transforming:</b>Executive management sponsors transformative change in industry sector and beyond",
+      "<b>Transforming:</b><span class='ml-1'>Executive management sponsors transformative change in industry sector and beyond</span>",
     value: 'transforming',
   },
 ])
 FormQuestionRadioLabeled.render = function (answers) {
   const selected = this.options.find((opt) => opt.value === answers[0])
-  if (selected) return selected.text
+  if (selected) {
+    const found = selected.text.match(/<b>(.*):<\/b>/)
+    return found && found[1]
+  }
   return answersWarning(answers)
 }
 

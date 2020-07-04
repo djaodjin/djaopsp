@@ -9,25 +9,17 @@
         <thead>
           <tr>
             <th class="pl-4">Questions</th>
-            <th>Answers</th>
+            <th class="pr-3">Answers</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="question in subcategory.questions" :key="question.id">
-            <td class="py-2 px-4">{{ question.text }}</td>
-            <td class="py-2 text-center">
-              <router-link
-                :to="{
-                  path: `${$route.path}${$route.hash}`,
-                  query: {
-                    section: section.id,
-                    subcategory: subcategory.id,
-                    question: question.id,
-                  },
-                }"
-                >TBD</router-link
-              >
-            </td>
+            <practice-section-subcategory-row
+              :section="section"
+              :subcategory="subcategory"
+              :question="question"
+              :answers="answers"
+            />
           </tr>
         </tbody>
       </table>
@@ -37,14 +29,16 @@
 
 <script>
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'
+import PracticeSectionSubcategoryRow from './PracticeSectionSubcategoryRow'
 
 export default {
   name: 'PracticeSectionSubcategory',
 
-  props: ['section', 'subcategory'],
+  props: ['section', 'subcategory', 'answers'],
 
   components: {
     PracticeSectionHeader,
+    PracticeSectionSubcategoryRow,
   },
 }
 </script>

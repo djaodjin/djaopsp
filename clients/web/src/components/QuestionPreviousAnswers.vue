@@ -1,7 +1,7 @@
 <template>
   <div v-if="previousAnswer">
     <span class="mr-1">Previous Answer:</span>
-    <b v-html="answerText"></b>
+    <b>{{ answerText }}</b>
     <p class="text-caption mt-1">
       Submitted by {{ previousAnswer.author }} on
       {{ previousAnswer.modified.toISOString() }} in previous sustainability
