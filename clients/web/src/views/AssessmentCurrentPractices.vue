@@ -27,6 +27,21 @@
         :answers="answers.length"
       />
     </div>
+    <dialog-confirm
+      :isOpen="showDialogPreviousAnswers"
+      title="Previous Answers"
+      actionText="Ok, thanks"
+      @confirm="closeAndSaveAsViewed"
+    >
+      <p>
+        Your organization has submitted a similar questionnaire in the past (per
+        the industry segment selected).
+      </p>
+      <p>
+        For each question, you will be presented the answer submitted in the
+        previous questionnaire to use as reference, if there was one.
+      </p>
+    </dialog-confirm>
   </fragment>
 </template>
 
@@ -35,25 +50,44 @@ import { Fragment } from 'vue-fragment'
 import { getQuestions, getAnswers } from '../mocks/questions'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
+import DialogConfirm from '@/components/DialogConfirm'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import PendingQuestions from '@/components/PendingQuestions'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
+
+const DIALOG_PREVIOUS_ANSWERS = 'previousAnswers'
 
 export default {
   name: 'AssessmentCurrentPractices',
 
   created() {
     this.fetchData()
+    this.viewDialog(DIALOG_PREVIOUS_ANSWERS)
   },
 
   methods: {
+    closeAndSaveAsViewed() {
+      this.showDialogPreviousAnswers = false
+      window.localStorage.setItem(DIALOG_PREVIOUS_ANSWERS, 'viewed')
+    },
     async fetchData() {
       this.loading = true
       this.questions = await getQuestions()
       this.answers = await getAnswers()
       this.loading = false
     },
+    async viewDialog(dialogName) {
+      const wasViewed = window.localStorage.getItem(dialogName)
+      if (!wasViewed) {
+        // TODO: Send request to check if a previous questionnaire has been submitted
+        const previousQuestionnaireSubmitted = true
+        if (previousQuestionnaireSubmitted) {
+          this.showDialogPreviousAnswers = true
+        }
+      }
+    },
+
     saveAnswer(answer, callback) {
       // TODO: Post answer to the backend then ...
       // Update in-memory answers array
@@ -98,6 +132,7 @@ export default {
       loading: false,
       questions: [],
       answers: [],
+      showDialogPreviousAnswers: false,
       tabs: [
         { text: this.$t('practices.tab1.title'), href: 'tab-1' },
         { text: this.$t('practices.tab2.title'), href: 'tab-2' },
@@ -109,6 +144,7 @@ export default {
     Fragment,
     PracticesProgressIndicator,
     AssessmentSections,
+    DialogConfirm,
     LoadingSpinner,
     PendingQuestions,
     SectionTitle,
