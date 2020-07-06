@@ -11,7 +11,9 @@
       </span>
     </div>
     <div class="action" v-else>
-      <button-primary>Submit Questionnaire</button-primary>
+      <button-primary @click="advanceAssessment">
+        Submit Questionnaire
+      </button-primary>
     </div>
   </div>
 </template>
@@ -23,6 +25,17 @@ export default {
   name: 'PracticesProgressIndicator',
 
   props: ['answers', 'questions'],
+
+  methods: {
+    advanceAssessment() {
+      // TODO: API call to update assessment status; then, redirect to assessment home
+      console.log('Call API to advance assessment')
+      this.$router.push({
+        name: 'assessmentHome',
+        params: { id: this.$route.params.id },
+      })
+    },
+  },
 
   computed: {
     completed() {
