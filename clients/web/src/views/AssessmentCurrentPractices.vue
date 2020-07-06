@@ -28,10 +28,10 @@
       />
     </div>
     <dialog-confirm
-      :isOpen="showDialogPreviousAnswers"
+      storageKey="previousAnswers"
+      :checkStateAsync="checkPreviousAnswers"
       title="Previous Answers"
       actionText="Ok, thanks"
-      @confirm="closeAndSaveAsViewed"
     >
       <p>
         Your organization has submitted a similar questionnaire in the past (per
@@ -56,36 +56,26 @@ import PendingQuestions from '@/components/PendingQuestions'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
 
-const DIALOG_PREVIOUS_ANSWERS = 'previousAnswers'
-
 export default {
   name: 'AssessmentCurrentPractices',
 
   created() {
     this.fetchData()
-    this.viewDialog(DIALOG_PREVIOUS_ANSWERS)
   },
 
   methods: {
-    closeAndSaveAsViewed() {
-      this.showDialogPreviousAnswers = false
-      window.localStorage.setItem(DIALOG_PREVIOUS_ANSWERS, 'viewed')
-    },
     async fetchData() {
       this.loading = true
       this.questions = await getQuestions()
       this.answers = await getAnswers()
       this.loading = false
     },
-    async viewDialog(dialogName) {
-      const wasViewed = window.localStorage.getItem(dialogName)
-      if (!wasViewed) {
-        // TODO: Send request to check if a previous questionnaire has been submitted
-        const previousQuestionnaireSubmitted = true
-        if (previousQuestionnaireSubmitted) {
-          this.showDialogPreviousAnswers = true
-        }
-      }
+    async checkPreviousAnswers() {
+      // TODO: Send request to check if previous questionnaire has been submitted
+      return new Promise((resolve) => {
+        console.log('Check if previous answers have been submitted')
+        resolve(true)
+      })
     },
 
     saveAnswer(answer, callback) {
@@ -132,7 +122,6 @@ export default {
       loading: false,
       questions: [],
       answers: [],
-      showDialogPreviousAnswers: false,
       tabs: [
         { text: this.$t('practices.tab1.title'), href: 'tab-1' },
         { text: this.$t('practices.tab2.title'), href: 'tab-2' },

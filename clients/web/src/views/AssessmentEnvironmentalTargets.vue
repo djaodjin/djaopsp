@@ -40,10 +40,10 @@
       </template>
     </tab-container>
     <dialog-confirm
-      :isOpen="showDialogPreviousTargets"
+      storageKey="previousTargets"
+      :checkStateAsync="checkPreviousTargets"
       title="Previous Targets"
       actionText="Ok, thanks"
-      @confirm="closeAndSaveAsViewed"
     >
       <p>
         Your organization has submitted environmental targets in the past for
@@ -63,36 +63,21 @@ import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
 
-const DIALOG_PREVIOUS_TARGETS = 'previousTargets'
-
 export default {
   name: 'AssessmentEnvironmentalTargets',
 
-  created() {
-    this.viewDialog(DIALOG_PREVIOUS_TARGETS)
-  },
-
   methods: {
-    closeAndSaveAsViewed() {
-      this.showDialogPreviousTargets = false
-      window.localStorage.setItem(DIALOG_PREVIOUS_TARGETS, 'viewed')
-    },
-
-    async viewDialog(dialogName) {
-      const wasViewed = window.localStorage.getItem(dialogName)
-      if (!wasViewed) {
-        // TODO: Send request to check if previous targets have been submitted
-        const previousTargetsSubmitted = true
-        if (previousTargetsSubmitted) {
-          this.showDialogPreviousTargets = true
-        }
-      }
+    async checkPreviousTargets() {
+      // TODO: Send request to check if previous targets have been submitted
+      return new Promise((resolve) => {
+        console.log('Check if previous targets have been submitted')
+        resolve(true)
+      })
     },
   },
 
   data() {
     return {
-      showDialogPreviousTargets: false,
       tabs: [
         { text: this.$t('targets.tab1.title'), href: 'tab-1' },
         { text: this.$t('targets.tab2.title'), href: 'tab-2' },
