@@ -2,7 +2,7 @@
   <fragment>
     <section-title title="Current Practices" />
     <div v-if="loading">
-      <span>Loading ...</span>
+      <loading-spinner />
     </div>
     <div v-else>
       <tab-container :tabs="tabs">
@@ -35,6 +35,7 @@ import { Fragment } from 'vue-fragment'
 import { getQuestions, getAnswers } from '../mocks/questions'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import PendingQuestions from '@/components/PendingQuestions'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
@@ -108,6 +109,7 @@ export default {
     Fragment,
     PracticesProgressIndicator,
     AssessmentSections,
+    LoadingSpinner,
     PendingQuestions,
     SectionTitle,
     TabContainer,
