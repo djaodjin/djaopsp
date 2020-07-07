@@ -1,7 +1,7 @@
 <template>
   <v-container class="scores px-0 pt-0">
     <v-row v-for="(item, index) in sortedScores" :key="index">
-      <v-col cols="5" class="pa-2">
+      <v-col cols="5" class="py-2">
         <span
           :class="[
             item.owner ? 'my-score-label' : 'score-label',
@@ -16,10 +16,15 @@
           {{ item.score }}%
         </span>
       </v-col>
-      <v-col v-if="item.isValid" cols="5" class="pa-2">
-        <span class="text-body-1">
-          {{ item.isValid }}
-        </span>
+      <v-col v-if="item.owner" cols="5" class="py-1 px-2">
+        <div class="score-quality" v-if="item.isValid">
+          <v-icon large color="green">mdi-check-decagram</v-icon>
+          <span class="text-caption">Valid<br />industry score</span>
+        </div>
+        <div class="score-quality" v-else>
+          <v-icon large color="red">mdi-cancel</v-icon>
+          <span class="text-caption">Invalid<br />industry score</span>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -98,5 +103,16 @@ export default {
 .my-score {
   font-size: 1.4rem !important;
   font-weight: 600;
+}
+
+.score-quality {
+  display: flex;
+
+  .text-caption {
+    display: inline-block;
+    line-height: 1.4;
+    padding-left: 6px;
+    padding-top: 2px;
+  }
 }
 </style>
