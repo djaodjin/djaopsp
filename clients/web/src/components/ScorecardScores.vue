@@ -1,33 +1,35 @@
 <template>
-  <v-container class="scores px-0 pt-0">
-    <v-row v-for="(item, index) in sortedScores" :key="index">
-      <v-col cols="5" class="py-2">
-        <span
-          :class="[
-            item.owner ? 'my-score-label' : 'score-label',
-            'text-body-1',
-          ]"
-        >
-          {{ item.title }}
-        </span>
-      </v-col>
-      <v-col cols="2" class="pa-2">
-        <span :class="[item.owner ? 'my-score' : 'score', 'text-subtitle-1']">
-          {{ item.score }}%
-        </span>
-      </v-col>
-      <v-col v-if="item.owner" cols="5" class="py-1 px-2">
-        <div class="score-quality" v-if="item.isValid">
-          <v-icon large color="green">mdi-check-decagram</v-icon>
-          <span class="text-caption">Valid<br />industry score</span>
-        </div>
-        <div class="score-quality" v-else>
-          <v-icon large color="red">mdi-cancel</v-icon>
-          <span class="text-caption">Invalid<br />industry score</span>
-        </div>
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-sheet elevation="1">
+    <v-container class="scores px-0">
+      <v-row v-for="(item, index) in sortedScores" :key="index">
+        <v-col cols="5" class="py-2">
+          <span
+            :class="[
+              item.owner ? 'my-score-label' : 'score-label',
+              'text-body-1',
+            ]"
+          >
+            {{ item.title }}
+          </span>
+        </v-col>
+        <v-col cols="2" class="pa-2">
+          <span :class="[item.owner ? 'my-score' : 'score', 'text-subtitle-1']">
+            {{ item.score }}%
+          </span>
+        </v-col>
+        <v-col v-if="item.owner" cols="5" class="py-1 px-2">
+          <div class="score-quality" v-if="item.isValid">
+            <v-icon large color="green">mdi-check-decagram</v-icon>
+            <span class="text-caption">Valid<br />industry score</span>
+          </div>
+          <div class="score-quality" v-else>
+            <v-icon large color="red">mdi-cancel</v-icon>
+            <span class="text-caption">Invalid<br />industry score</span>
+          </div>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-sheet>
 </template>
 
 <script>
