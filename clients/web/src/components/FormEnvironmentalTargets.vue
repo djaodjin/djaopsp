@@ -297,7 +297,7 @@
       </v-container>
     </v-expand-transition>
 
-    <button-primary class="mt-6" type="submit">{{
+    <button-primary class="my-5" type="submit">{{
       $t('targets.tab2.btn-submit')
     }}</button-primary>
   </form>

@@ -1,5 +1,5 @@
 <template>
-  <fragment>
+  <div v-bind="$attrs">
     <div v-if="$vuetify.breakpoint.smAndUp">
       <v-container>
         <v-row>
@@ -14,7 +14,7 @@
         </v-row>
       </v-container>
     </div>
-    <div class="pb-12" v-else>
+    <div v-else>
       <v-tabs
         class="elevation-1"
         v-model="currentTab"
@@ -46,11 +46,10 @@
         </v-tab-item>
       </v-tabs>
     </div>
-  </fragment>
+  </div>
 </template>
 
 <script>
-import { Fragment } from 'vue-fragment'
 import SectionTitle from '@/components/SectionTitle'
 
 export default {
@@ -85,10 +84,6 @@ export default {
     return {
       currentTab: this.tabs[0].href,
     }
-  },
-
-  components: {
-    Fragment,
   },
 }
 </script>

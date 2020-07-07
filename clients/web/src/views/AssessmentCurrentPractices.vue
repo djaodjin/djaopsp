@@ -5,7 +5,7 @@
       <loading-spinner />
     </div>
     <div v-else>
-      <tab-container :tabs="tabs">
+      <tab-container class="pb-16" :tabs="tabs">
         <template v-slot:tab1>
           <assessment-sections
             :questions="questions"
