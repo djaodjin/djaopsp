@@ -10,10 +10,10 @@
         </p>
         <p>Identify and prioritize opportunities for improvement based on:</p>
         <ul>
-          <li>Your environmental targets</li>
-          <li>Expert feedback</li>
-          <li>Relevant business areas</li>
-          <li>Other competitors in the industry</li>
+          <li class="mb-1">&mdash; Your environmental targets</li>
+          <li class="mb-1">&mdash; Expert feedback</li>
+          <li class="mb-1">&mdash; Relevant business areas</li>
+          <li class="mb-1">&mdash; Other competitors in the industry</li>
         </ul>
         <button-primary
           class="mt-8"
@@ -23,6 +23,11 @@
           }"
           >Continue</button-primary
         >
+        <div class="text-center">
+          <v-btn text class="mt-6" color="secondary" @click="advanceAssessment">
+            Continue without Improvement Plan
+          </v-btn>
+        </div>
       </div>
     </intro-section>
   </fragment>
@@ -35,6 +40,17 @@ import IntroSection from '@/components/IntroSection'
 
 export default {
   name: 'IntroCurrentPractices',
+
+  methods: {
+    advanceAssessment() {
+      // TODO: API call to update assessment status; then, redirect to assessment home
+      console.log('Call API to advance assessment')
+      this.$router.push({
+        name: 'assessmentHome',
+        params: { id: this.$route.params.id },
+      })
+    },
+  },
 
   components: {
     Fragment,
