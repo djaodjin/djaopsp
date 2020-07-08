@@ -51,5 +51,16 @@
       "title": "Targets"
     },
     "title": "Environmental Targets"
+  },
+
+  "improvement-plan": {
+    "tab1": {
+      "intro": "Prioritize opportunities for improvement based on expert feedback and other competitors.",
+      "title": "Opportunities"
+    },
+    "tab2": {
+      "title": "Improvement Plan"
+    },
+    "title": "Environmental Targets"
   }
 }
