@@ -4,7 +4,7 @@
     <tab-container :tabs="tabs">
       <template v-slot:tab1>
         <div class="pa-4">
-          <p>{{ $t('improvement-plan.tab1.intro') }}</p>
+          <p class="mb-2">{{ $t('improvement-plan.tab1.intro') }}</p>
           <form-improvement-plan />
         </div>
       </template>
