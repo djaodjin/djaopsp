@@ -103,7 +103,7 @@ export function getResults({
           text:
             'elit anim veniam id irure est qui ipsum aute irure incididunt ipsum mollit eiusmod dolor duis consectetur Lorem eu qui cillum ullamco eu nisi enim est sit voluptate officia occaecat in sint deserunt elit aliqua amet irure dolore excepteur tempor',
           value: 1,
-          implementation: 33,
+          implementation: 19,
         },
         {
           id: '5f0644325d07885e40b78374',

@@ -149,17 +149,21 @@ export const PRACTICE_VALUES = [
   {
     value: 1,
     label: 'Low',
+    color: '#9cd868',
   },
   {
     value: 2,
     label: 'Medium',
+    color: '#69b12b',
   },
   {
     value: 3,
     label: 'High',
+    color: '#007040',
   },
   {
     value: 4,
     label: 'Gold',
+    color: '#ffd802',
   },
 ]

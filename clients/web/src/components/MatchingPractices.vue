@@ -13,15 +13,33 @@
       disable-pagination
       disable-filtering
       hide-default-footer
-      @click:row="selectPractice"
     >
-      <template v-slot:item.implementation="{ value }">
-        <span>{{ `${value}%` }}</span>
-      </template>
-      <template v-slot:item.text="{ value }">
-        <p class="clamped mb-0">
-          {{ value }}
-        </p>
+      <template v-slot:item="{ item }">
+        <v-container class="pt-0">
+          <v-row>
+            <v-col cols="4">
+              <div>
+                <practice-value-chip dark :value="item.value" />
+                <br />
+                <v-subheader>Practice Value</v-subheader>
+              </div>
+              <div class="mt-2">
+                <implementation-value-chip :value="item.implementation" />
+                <br />
+                <v-subheader>
+                  Competitors implementing this practice
+                </v-subheader>
+              </div>
+            </v-col>
+            <v-col cols="8">
+              <v-subheader class="text-left">Practice Description</v-subheader>
+              <p class="description text-left">{{ item.text }}</p>
+              <button-secondary @click="addPractice(item.id)">
+                Remove From Plan
+              </button-secondary>
+            </v-col>
+          </v-row>
+        </v-container>
       </template>
     </v-data-table>
   </div>
@@ -32,14 +50,18 @@
 </template>
 
 <script>
+import ButtonSecondary from '@/components/ButtonSecondary'
+import PracticeValueChip from '@/components/PracticeValueChip'
+import ImplementationValueChip from '@/components/ImplementationValueChip'
+
 export default {
   name: 'MatchingPractices',
 
   props: ['results'],
 
   methods: {
-    selectPractice() {
-      console.log('Practice selected')
+    addPractice(id) {
+      console.log(`Add practice ${id} to improvement plan`)
     },
   },
 
@@ -66,6 +88,12 @@ export default {
       ],
     }
   },
+
+  components: {
+    PracticeValueChip,
+    ImplementationValueChip,
+    ButtonSecondary,
+  },
 }
 </script>
 
@@ -73,41 +101,16 @@ export default {
 @import '@/styles/variables.scss';
 
 .results {
-  & ::v-deep .v-data-table__mobile-table-row {
-    &:nth-child(even) .v-data-table__mobile-row {
-      background-color: $background-row-alternate;
-    }
+  & ::v-deep tbody > div:nth-child(even) {
+    background-color: #f8f8f8;
   }
-  & ::v-deep .v-data-table__mobile-row {
-    min-height: 36px;
-    height: 36px;
-
-    & > .v-data-table__mobile-row__cell {
-      text-align: left;
-      width: 55%;
-    }
-
-    &:last-child {
-      min-height: 76px;
-      height: 76px;
-      align-items: flex-start;
-      padding-top: 4px;
-
-      & > .v-data-table__mobile-row__cell {
-        width: 65%;
-      }
-    }
+  .v-subheader {
+    padding: 4px 0;
+    height: auto;
+    display: block;
   }
-
-  .clamped {
-    color: $primary-color;
-    text-decoration: underline;
-    cursor: pointer;
-    text-align: left;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    overflow: hidden;
+  .description {
+    font-size: 0.9rem;
   }
 }
 </style>
