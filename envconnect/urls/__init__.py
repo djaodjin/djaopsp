@@ -9,8 +9,7 @@ from django.views.static import serve as static_serve
 from pages.settings import PATH_RE, SLUG_RE
 from rules.urldecorators import include, url
 
-from ..urlbuilders import (url_prefixed, url_authenticated,
-    url_direct, url_content_manager)
+from ..urlbuilders import url_prefixed, url_authenticated, url_direct
 from ..views.redirects import AccountRedirectView, MyTSPRedirectView
 from ..views.index import IndexView
 
@@ -42,12 +41,7 @@ IDENTIFIER_RE = r'[_a-zA-Z][_a-zA-Z0-9]*'
 
 urlpatterns += [
     # User authenticated
-    url_authenticated(r'api/suppliers/', include('answers.urls.api')),
-    url_content_manager(r'api/content/',
-        include('envconnect.urls.api.content')),
-
-    # API to manage reporting, assessment and improvement planning.
-    url_prefixed(r'api/', include('envconnect.urls.api.suppliers')),
+    url_prefixed(r'api/', include('envconnect.urls.api')),
 
     url_authenticated(r'', include('envconnect.urls.views.browse')),
     url_direct(r'', include('envconnect.urls.views.organizations')),

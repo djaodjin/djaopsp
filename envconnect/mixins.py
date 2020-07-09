@@ -509,12 +509,14 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'api_scorecard_enable': reverse(
                 'api_scorecard_enable', args=("/",)),
             'api_best_practices': reverse('api_detail', args=("",)),
-            'api_mirror_node': reverse('api_mirror_detail', args=("",)),
-            'api_move_node': reverse('api_move_detail', args=("",)),
+            'api_mirror_node': reverse('api_mirror_node', args=("",)),
+            'api_move_node': reverse('api_move_node', args=("",)),
             'api_columns': reverse('api_column', args=("",)),
             'api_consumptions': reverse('api_consumption_base'),
             'api_weights': reverse('api_score', kwargs={'path': ''}),
-            'api_page_elements': reverse('page_elements'),
+            'api_page_element_base': reverse('api_page_element',
+                kwargs={'path':""}),
+            'api_page_element_search': reverse('api_page_element_search'),
             'best_practice_base': self.get_breadcrumb_url(
                 path)
         }
@@ -1033,7 +1035,8 @@ class BestPracticeMixin(BreadcrumbMixin):
                 'improve': reverse('improve_redirect',
                     args=(contextual_path,)) + active_section
             }
-        urls.update({'api_page_elements': reverse('api_detail', args=(
+        # XXX should `api_detail` be replaced by `api_page_element`?
+        urls.update({'api_page_element_base': reverse('api_detail', args=(
             context['root_prefix'],)),
         })
         update_context_urls(context, urls)

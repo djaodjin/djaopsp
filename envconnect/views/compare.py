@@ -300,7 +300,8 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
             contact = contact_model.objects.get(email__iexact=self.account.email)
             contact_name = contact.get_full_name()
         except contact_model.DoesNotExist as err:
-            print("member '%s', contact e-mail '%s' not found!" % (self.account.full_name, self.account.email))
+            LOGGER.warning("member '%s', contact e-mail '%s' not found!",
+                self.account.full_name, self.account.email)
         self.wsheet.append(["Utility contact name", contact_name])
         self.wsheet.append(["Utility contact email", self.account.email])
         self.wsheet.append(["Utility contact phone", self.account.phone])

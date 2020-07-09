@@ -134,16 +134,16 @@ assetsUploadUrl = "{% if api_upload_assets %}{{api_upload_assets}}{% else %}{{'/
 
 $(document).ready(function(){
 	$(".editable").editor({
-		baseUrl: "{{urls.api_page_elements}}/",
+		baseUrl: "{{urls.api_page_element_base}}/",
 		preventBlurOnClick: "#media-gallery, .dj-gallery-item"
 	});
 
 	$("#lock").click(function (event) {
 		var self = $(this);
-		var url = "{{urls.api_page_elements}}/{{best_practice.slug}}/add-tags";
+		var url = "{{urls.api_page_element_base}}/{{best_practice.slug}}/add-tags";
 		var locked = (self.text() === "Re-Open");
 		if( locked ) {
-			url = "{{urls.api_page_elements}}/{{best_practice.slug}}/remove-tags"
+			url = "{{urls.api_page_element_base}}/{{best_practice.slug}}/remove-tags"
 		}
 		event.preventDefault();
 		$.ajax({

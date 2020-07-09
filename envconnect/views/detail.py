@@ -149,11 +149,11 @@ class DetailSpreadsheetView(BreadcrumbMixin, ListView):
         'Implementation ease', 'AVERAGE VALUE']
 
     def create_writer(self, headings, title=None):
-        raise NotImplemented(
+        raise NotImplementedError(
             "`create_writer` must be implemented in derived class")
 
     def flush_writer(self):
-        raise NotImplemented(
+        raise NotImplementedError(
             "`flush_writer` must be implemented in derived class")
 
     def tree_depth(self, root):

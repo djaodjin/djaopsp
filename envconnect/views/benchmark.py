@@ -17,7 +17,7 @@ from deployutils.helpers import datetime_or_now, update_context_urls
 from extended_templates.backends.pdf import PdfTemplateResponse
 
 from ..compat import reverse
-from ..api.benchmark import BenchmarkMixin, BenchmarkAPIView
+from ..api.benchmark import BenchmarkMixin, ScorecardQuerySetMixin
 from ..mixins import TransparentCut
 
 
@@ -56,8 +56,6 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                     'benchmark_organization_download': reverse(
                         'benchmark_organization_download',
                         args=(organization, self.assessment_sample, from_root)),
-                })
-                update_context_urls(context, {
                     'api_account_benchmark': reverse('api_benchmark',
                         args=(organization, self.assessment_sample,
                               from_root)),
@@ -68,13 +66,7 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                 context.update({'sample': self.assessment_sample})
             else:
                 # There are no assessment yet.
-                last_updated_at = "Current"
-                update_context_urls(context, {
-                    'api_account_benchmark': reverse('api_benchmark_base',
-                        args=(organization, from_root)),
-                    'api_historical_scores': reverse('api_historical_scores',
-                        args=(organization, from_root)),
-                    })
+                last_updated_at = "N/A"
                 if organization in self.accessibles(roles=[
                         'manager', 'contributor']):
                     if organization != settings.APP_NAME:
@@ -218,10 +210,10 @@ casper.run();
         subprocess.check_call(cmd)
 
 
-class BenchmarkDownloadView(PrintableChartsMixin, BenchmarkAPIView):
+class BenchmarkDownloadView(PrintableChartsMixin, ScorecardQuerySetMixin,
+                            TemplateView):
     """
-    Shows the scorecard of an organization, accessible through
-    the "My TSP" menu.
+    Download the scorecard of an organization as a PDF
     """
     template_name = 'envconnect/prints/benchmark.html'
 

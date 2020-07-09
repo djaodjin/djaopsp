@@ -773,7 +773,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( tag ) {
             data.tag = JSON.stringify({"tags": [tag]});
         }
-        $http.post(settings.urls.api_page_elements, data).then(
+        $http.post(settings.urls.api_page_element_base, data).then(
             function success(resp) {
                 var path = prefix + '/' + resp.data.slug;
                 if( elementType === $scope.BEST_PRACTICE_ELEMENT ) {
@@ -913,7 +913,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 data['tag'] = $scope.activeElement.value.tag;
             }
         }
-        $http.put(settings.urls.api_page_elements
+        $http.put(settings.urls.api_page_element_base
                    + $scope.activeElement.value.slug + '/', data).then(
             function success(resp) {
                 form.parents('.modal').modal('hide');
@@ -1118,10 +1118,10 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.bestpractice = null;
 
     $scope.getBestPracticeCandidates = function(val) {
-        if( typeof settings.urls.api_page_elements === "undefined" ) {
+        if( typeof settings.urls.api_page_element_search === "undefined" ) {
             return [];
         }
-        return $http.get(settings.urls.api_page_elements, {
+        return $http.get(settings.urls.api_page_element_search, {
             params: {q: val}
         }).then(function(res){
             return res.data.results;
@@ -1249,6 +1249,27 @@ envconnectControllers.controller("EnvconnectCtrl",
         $scope.moveBestPractice(startPath, attachPath, null, "toUpperLevel");
     };
 
+    $scope.callUpdateAnswer = function(path, measured, successCallback, errorCallback) {
+        var data = ( measured.constructor === Array ) ? measured : {measured: measured};
+        $http.post(settings.urls.api_assessment_sample + '/answers' + path, data).then(
+            function success(resp) {
+                if( resp.status == 201 ) {
+                    $scope.nbAnswers++;
+                    if( resp.data.question.required ) {
+                        $scope.nbRequiredAnswers++;
+                    }
+                }
+                if( successCallback ) {
+                    successCallback(resp);
+                }
+            },
+            function error(resp) {
+                showErrorMessages(resp);
+                if( errorCallback ) {
+                    errorCallback(resp);
+                }
+            });
+    };
 
     // Select all answers
     $scope.selectAll = function ($event, answer) {
@@ -1280,13 +1301,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         for( var idx = 0; idx < practices.length; ++idx ) {
             if( practices[idx][0].consumption ) {
                 practices[idx][0].consumption.implemented = answer;
-                $http.put(settings.urls.api_assessment_sample + practices[idx][0].consumption.rank + "/",
-                    {measured: answer}).then(
-                    function success() {
-                    },
-                    function error(resp) {
-                        showErrorMessages(resp);
-                    });
+                $scope.callUpdateAnswer(practices[idx][0].consumption.path, answer);
             }
         }
     }
@@ -1419,7 +1434,7 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( typeof title === 'undefined' ) {
             title = "assessment";
         }
-        $http.put(settings.urls.api_assessment_sample_segment, {is_frozen: true}).then(
+        $http.put(settings.urls.api_assessment_freeze, {is_frozen: true}).then(
             function success(resp) {
                 var msgs = ["You have completed the " + title + ". Thank you!"];
                 if( typeof next !== 'undefined' ) {
@@ -1475,8 +1490,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         var form = angular.element($event.target);
         var modalDialog = form.parents('.modal');
         modalDialog.modal('hide');
-        var path = $scope.activeElement.value[0].path.substr(1); // remove '/'
-        $http.delete(settings.urls.api_assessment_sample + path + '/').then(
+        var path = $scope.activeElement.value[0].path;
+        $http.post(settings.urls.api_assessment_sample + '/reset' + path).then(
             function success(resp) {
                 $scope._resetAssessmentRecursive($scope.entries);
                 $scope.nbAnswers = (resp.data && resp.data.nb_answers) ?
@@ -1496,17 +1511,10 @@ envconnectControllers.controller("EnvconnectCtrl",
     // Call on the API to update an assessment answer
     $scope.updateAssessmentAnswer = function(practice, newValue) {
         var rank = "" + practice.consumption.rank;
-        $http.put(settings.urls.api_assessment_sample + rank + "/", {
-            measured: newValue
-        }).then(
+        $scope.callUpdateAnswer(practice.consumption.path, newValue,
             function success(resp) {
-                if( resp.status == 201 ) {
-                    $scope.nbAnswers++;
-                    if( resp.data.consumption.required ) {
-                        $scope.nbRequiredAnswers++;
-                    }
-                }
-                practice.consumption = resp.data.consumption;
+                // XXX move to `callUpdateAnswer`?
+                practice.consumption = resp.data.question;
                 if( resp.data.first && $("#assess-content").data("trip-content") ) {
                     var trip = new Trip([{
                         sel: $("#assess-content"),
@@ -1524,11 +1532,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                     }]);
                     trip.start();
                 }
-            },
-            function error(resp) {
-                showErrorMessages(resp);
-            }
-        );
+            });
         // XXX We use same definition as `isAtLeastNeedsModerateImprovement`
         // but the practice hasn't been updated at this point.
         if( newValue === $scope.YES
@@ -1620,14 +1624,12 @@ envconnectControllers.controller("EnvconnectCtrl",
             node = $scope.getEntriesRecursive($scope.entries, path);
         }
         if( found ) {
-            $http.post(settings.urls.api_assessment_sample
-                + node.consumption.rank + "/measures/", {measures: data}).then(
+            $scope.callUpdateAnswer(node.consumption.path, data,
             function success(resp) {
                 if( modalDialog ) modalDialog.modal('hide');
             },
             function error(resp) {
                 if( modalDialog ) modalDialog.modal('hide');
-                showErrorMessages(resp);
             });
         }
     };
