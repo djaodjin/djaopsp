@@ -26,8 +26,8 @@
           <v-range-slider
             class="mx-6"
             v-model="practiceValueRange"
-            min="0"
-            max="3"
+            :min="minPracticeValue"
+            :max="maxPracticeValue"
             :tick-size="4"
             :tick-labels="practiceValueLabels"
           ></v-range-slider>
@@ -62,12 +62,15 @@
 </template>
 
 <script>
+import { PRACTICE_VALUES } from '../config'
 import { Fragment } from 'vue-fragment'
 import { getResults } from '../mocks/ip-results'
 import MatchingPractices from '@/components/MatchingPractices'
 import ButtonPrimary from '@/components/ButtonPrimary'
 
 const DELTA = 5
+const MIN_PRACTICE_VALUE = PRACTICE_VALUES[0].value
+const MAX_PRACTICE_VALUE = PRACTICE_VALUES[PRACTICE_VALUES.length - 1].value
 
 export default {
   name: 'FormImprovementPlan',
@@ -96,8 +99,10 @@ export default {
         { text: 'Cost Savings', value: 'financial' },
         { text: 'Operational Benefits', value: 'maintenance' },
       ],
-      practiceValueLabels: ['Low', 'Medium', 'High', 'Gold'],
-      practiceValueRange: [0, 3],
+      practiceValueLabels: PRACTICE_VALUES.map((p) => p.label),
+      minPracticeValue: MIN_PRACTICE_VALUE,
+      maxPracticeValue: MAX_PRACTICE_VALUE,
+      practiceValueRange: [MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE],
       areas: [
         { header: 'Environmental Targets' },
         { text: 'Energy Reduction', value: 'E1' },

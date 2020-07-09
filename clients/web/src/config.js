@@ -144,3 +144,22 @@ export const MAP_QUESTION_FORM_TYPES = {
 }
 
 export const VALID_QUESTION_TYPES = Object.keys(MAP_QUESTION_FORM_TYPES)
+
+export const PRACTICE_VALUES = [
+  {
+    value: 1,
+    label: 'Low',
+  },
+  {
+    value: 2,
+    label: 'Medium',
+  },
+  {
+    value: 3,
+    label: 'High',
+  },
+  {
+    value: 4,
+    label: 'Gold',
+  },
+]
