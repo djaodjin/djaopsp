@@ -11,7 +11,7 @@
             multiple
             chips
             deletable-chips
-            hide-details="true"
+            hide-details="auto"
           ></v-select>
         </v-col>
         <v-col class="py-0" cols="12" sm="6">
@@ -89,7 +89,7 @@ export default {
       searchDone: false,
       selectedAreas: [],
       implementationRange: [0, 100],
-      practiceValue: null,
+      practiceValue: 'average',
       practiceValueOptions: [
         { text: 'Average Value', value: 'average' },
         { text: 'Environmental Value', value: 'environmental' },
