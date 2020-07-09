@@ -162,7 +162,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                 matrix_slug = '/'.join([look.group(1)])
             else:
                 matrix_slug = '/'.join([str(self.object), candidate])
-            url_kwargs.update({self.matrix_url_kwarg: matrix_slug})
+            url_kwargs.update({self.matrix_url_kwarg: "/%s" % matrix_slug})
             api_urls = {'matrix_api': reverse('matrix_api', kwargs=url_kwargs)}
             chart.update({'urls': api_urls})
         context.update({'charts': charts})

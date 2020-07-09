@@ -2,7 +2,7 @@
 # see LICENSE.
 
 from django.conf.urls import url, include
-from pages.settings import PATH_RE, SLUG_RE
+from survey.settings import PATH_RE, SLUG_RE
 
 from ...api.assessments import (AssessmentAPIView, AssessmentAnswersAPIView,
     AssessmentResetAPIView)
