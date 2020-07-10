@@ -1,12 +1,12 @@
 <template>
-  <div class="text-center" v-if="results.length">
-    <h3 class="mb-1 text-h6">Matching Practices: {{ results.length }}</h3>
+  <div class="text-center" v-if="practices.length">
+    <h3 class="mb-1 text-h6">Matching Practices: {{ practices.length }}</h3>
     <p>Select practices to add to your improvement plan</p>
     <v-data-table
-      class="results"
+      class="matching-practices"
       :headers="headers"
-      :items="results"
-      :sort-by="['value', 'implementation']"
+      :items="practices"
+      :sort-by="[valueKey, 'implementationRate']"
       :sort-desc="[true, false]"
       multi-sort
       must-sort
@@ -19,12 +19,12 @@
           <v-row>
             <v-col cols="4">
               <div>
-                <practice-value-chip dark :value="item.value" />
+                <practice-value-chip dark :value="item[valueKey]" />
                 <br />
-                <v-subheader>Practice Value</v-subheader>
+                <v-subheader>{{ practiceValue.text }}</v-subheader>
               </div>
               <div class="mt-2">
-                <implementation-value-chip :value="item.implementation" />
+                <implementation-value-chip :value="item.implementationRate" />
                 <br />
                 <v-subheader>
                   Competitors implementing this practice
@@ -32,14 +32,12 @@
               </div>
             </v-col>
             <v-col class="text-left" cols="8">
-              <template v-if="item.section && item.subcategory">
-                <practice-section-header
-                  :small="true"
-                  :section="item.section.name"
-                  :subcategory="item.subcategory.name"
-                />
-              </template>
-              <p class="description">{{ item.text }}</p>
+              <practice-section-header
+                :small="true"
+                :section="item.question.section.name"
+                :subcategory="item.question.subcategory.name"
+              />
+              <p class="description">{{ item.question.text }}</p>
               <button-secondary @click="addPractice(item.id)">
                 Remove From Plan
               </button-secondary>
@@ -56,6 +54,7 @@
 </template>
 
 <script>
+import { PRACTICE_VALUE_CATEGORIES } from '../config'
 import ButtonSecondary from '@/components/ButtonSecondary'
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 import PracticeValueChip from '@/components/PracticeValueChip'
@@ -64,26 +63,23 @@ import ImplementationValueChip from '@/components/ImplementationValueChip'
 export default {
   name: 'MatchingPractices',
 
-  props: ['results'],
+  props: ['practices', 'valueKey'],
 
-  methods: {
-    addPractice(id) {
-      console.log(`Add practice ${id} to improvement plan`)
+  computed: {
+    practiceValue() {
+      return PRACTICE_VALUE_CATEGORIES.find((c) => c.value === this.valueKey)
     },
-  },
-
-  data() {
-    return {
-      headers: [
+    headers() {
+      return [
         {
-          text: 'Value',
+          text: this.practiceValue.text,
           align: 'start',
-          value: 'value',
+          value: this.practiceValue.value,
           filterable: false,
         },
         {
           text: 'Implementation Rate',
-          value: 'implementation',
+          value: 'implementationRate',
           filterable: false,
         },
         {
@@ -92,8 +88,14 @@ export default {
           sortable: false,
           filterable: false,
         },
-      ],
-    }
+      ]
+    },
+  },
+
+  methods: {
+    addPractice(id) {
+      console.log(`Add practice ${id} to improvement plan`)
+    },
   },
 
   components: {
@@ -108,7 +110,7 @@ export default {
 <style lang="scss" scoped>
 @import '@/styles/variables.scss';
 
-.results {
+.matching-practices {
   & ::v-deep tbody > div:nth-child(even) {
     background-color: #f8f8f8;
   }
@@ -120,15 +122,5 @@ export default {
   .description {
     font-size: 0.9rem;
   }
-  /* .subcategory {
-    display: block;
-    font-weight: 600;
-    margin-top: 2px;
-    margin-bottom: 5px;
-  }
-  .text-caption {
-    display: block;
-    line-height: 1;
-  } */
 }
 </style>

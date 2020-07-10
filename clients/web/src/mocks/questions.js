@@ -21,12 +21,12 @@ const subcategories = [
   new Subcategory('457', 'Material Selection'),
 ]
 
-function getRandomSection() {
+export function getRandomSection() {
   const index = getRandomInt(0, sections.length)
   return sections[index]
 }
 
-function getRandomSubcategory() {
+export function getRandomSubcategory() {
   const index = getRandomInt(0, subcategories.length)
   return subcategories[index]
 }

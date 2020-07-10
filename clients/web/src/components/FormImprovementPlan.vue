@@ -56,13 +56,16 @@
       </v-row>
     </v-container>
     <div v-if="searchDone">
-      <matching-practices :results="matchingResults" />
+      <matching-practices
+        :practices="matchingPractices"
+        :valueKey="practiceValue"
+      />
     </div>
   </fragment>
 </template>
 
 <script>
-import { PRACTICE_VALUES } from '../config'
+import { PRACTICE_VALUES, PRACTICE_VALUE_CATEGORIES } from '../config'
 import { Fragment } from 'vue-fragment'
 import { getResults } from '../mocks/ip-results'
 import MatchingPractices from '@/components/MatchingPractices'
@@ -77,7 +80,7 @@ export default {
 
   methods: {
     async findResults() {
-      this.matchingResults = await getResults({
+      this.matchingPractices = await getResults({
         areas: this.selectedAreas,
         practiceValue: this.practiceValue,
         practiceValueRange: this.practiceValueRange,
@@ -92,13 +95,8 @@ export default {
       searchDone: false,
       selectedAreas: [],
       implementationRange: [0, 100],
-      practiceValue: 'average',
-      practiceValueOptions: [
-        { text: 'Average Value', value: 'average' },
-        { text: 'Environmental Value', value: 'environmental' },
-        { text: 'Cost Savings', value: 'financial' },
-        { text: 'Operational Benefits', value: 'maintenance' },
-      ],
+      practiceValue: PRACTICE_VALUE_CATEGORIES[0].value,
+      practiceValueOptions: PRACTICE_VALUE_CATEGORIES,
       practiceValueLabels: PRACTICE_VALUES.map((p) => p.label),
       minPracticeValue: MIN_PRACTICE_VALUE,
       maxPracticeValue: MAX_PRACTICE_VALUE,
@@ -117,7 +115,7 @@ export default {
         { text: 'Construction', value: 'B4' },
         { text: 'Office/Ground', value: 'B5' },
       ],
-      matchingResults: [],
+      matchingPractices: [],
     }
   },
 
