@@ -15,7 +15,7 @@
       hide-default-footer
     >
       <template v-slot:item="{ item }">
-        <v-container class="pt-0">
+        <v-container class="pt-2">
           <v-row>
             <v-col cols="4">
               <div>
@@ -31,9 +31,14 @@
                 </v-subheader>
               </div>
             </v-col>
-            <v-col cols="8">
-              <v-subheader class="text-left">Practice Description</v-subheader>
-              <p class="description text-left">{{ item.text }}</p>
+            <v-col class="text-left" cols="8">
+              <span v-if="item.section" class="text-caption">
+                {{ item.section.name }}
+              </span>
+              <span class="subcategory" v-if="item.subcategory">
+                {{ item.subcategory.name }}
+              </span>
+              <p class="description">{{ item.text }}</p>
               <button-secondary @click="addPractice(item.id)">
                 Remove From Plan
               </button-secondary>
@@ -109,8 +114,19 @@ export default {
     height: auto;
     display: block;
   }
+  .subcategory,
   .description {
     font-size: 0.9rem;
+  }
+  .subcategory {
+    display: block;
+    font-weight: 600;
+    margin-top: 2px;
+    margin-bottom: 5px;
+  }
+  .text-caption {
+    display: block;
+    line-height: 1;
   }
 }
 </style>
