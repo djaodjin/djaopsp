@@ -6,11 +6,10 @@
 </template>
 
 <script>
-// TODO: Rename category to 'section' and title to 'subcategory'
 export default {
   name: 'PracticeSectionHeader',
 
-  props: ['category', 'title'],
+  props: ['section', 'subcategory'],
 }
 </script>
 

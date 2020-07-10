@@ -1,8 +1,8 @@
 <template v-if="currentQuestion">
   <div>
     <practice-section-header
-      :category="currentQuestion.section.name"
-      :title="currentQuestion.subcategory.name"
+      :section="currentQuestion.section.name"
+      :subcategory="currentQuestion.subcategory.name"
     />
     <p class="mt-3">{{ currentQuestion.text }}</p>
     <span

@@ -33,8 +33,8 @@
               :key="question.id"
             >
               <practice-section-header
-                :category="question.section.name"
-                :title="question.subcategory.name"
+                :section="question.section.name"
+                :subcategory="question.subcategory.name"
               />
               <div class="content pt-3">
                 <p>{{ question.text }}</p>

@@ -1,8 +1,8 @@
 <template>
   <v-card outlined class="py-3 px-4">
     <practice-section-header
-      :category="section.content.name"
-      :title="subcategory.content.name"
+      :section="section.content.name"
+      :subcategory="subcategory.content.name"
     />
     <div class="mt-2 text-right">
       <button-primary

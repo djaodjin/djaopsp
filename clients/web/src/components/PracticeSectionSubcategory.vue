@@ -2,8 +2,8 @@
   <v-fade-transition mode="out-in">
     <div :key="subcategory.id" class="section-subcategory">
       <practice-section-header
-        :category="section.content.name"
-        :title="subcategory.content.name"
+        :section="section.content.name"
+        :subcategory="subcategory.content.name"
       />
       <table class="mt-4 mx-n4">
         <thead>

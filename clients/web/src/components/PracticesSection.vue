@@ -1,8 +1,8 @@
 <template>
   <div class="practice-section">
     <practice-section-header
-      :category="section.content.name"
-      :title="subcategory.content.name"
+      :section="section.content.name"
+      :subcategory="subcategory.content.name"
     />
     <v-container class="pa-0">
       <v-row align="center">
