@@ -167,3 +167,10 @@ export const PRACTICE_VALUES = [
     color: '#ffd802',
   },
 ]
+
+export const PRACTICE_VALUE_CATEGORIES = [
+  { text: 'Average Value', value: 'averageValue' },
+  { text: 'Environmental Value', value: 'environmentalValue' },
+  { text: 'Cost Savings', value: 'financialValue' },
+  { text: 'Operational Benefits', value: 'operationalValue' },
+]
