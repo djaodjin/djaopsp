@@ -32,12 +32,13 @@
               </div>
             </v-col>
             <v-col class="text-left" cols="8">
-              <span v-if="item.section" class="text-caption">
-                {{ item.section.name }}
-              </span>
-              <span class="subcategory" v-if="item.subcategory">
-                {{ item.subcategory.name }}
-              </span>
+              <template v-if="item.section && item.subcategory">
+                <practice-section-header
+                  :small="true"
+                  :section="item.section.name"
+                  :subcategory="item.subcategory.name"
+                />
+              </template>
               <p class="description">{{ item.text }}</p>
               <button-secondary @click="addPractice(item.id)">
                 Remove From Plan
@@ -56,6 +57,7 @@
 
 <script>
 import ButtonSecondary from '@/components/ButtonSecondary'
+import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 import PracticeValueChip from '@/components/PracticeValueChip'
 import ImplementationValueChip from '@/components/ImplementationValueChip'
 
@@ -96,6 +98,7 @@ export default {
 
   components: {
     PracticeValueChip,
+    PracticeSectionHeader,
     ImplementationValueChip,
     ButtonSecondary,
   },
@@ -114,11 +117,10 @@ export default {
     height: auto;
     display: block;
   }
-  .subcategory,
   .description {
     font-size: 0.9rem;
   }
-  .subcategory {
+  /* .subcategory {
     display: block;
     font-weight: 600;
     margin-top: 2px;
@@ -127,6 +129,6 @@ export default {
   .text-caption {
     display: block;
     line-height: 1;
-  }
+  } */
 }
 </style>
