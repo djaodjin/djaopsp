@@ -1,7 +1,7 @@
 <template>
   <div>
-    <span class="text-caption">{{ category }}</span>
-    <h4>{{ title }}</h4>
+    <span class="text-caption">{{ section }}</span>
+    <h4>{{ subcategory }}</h4>
   </div>
 </template>
 
