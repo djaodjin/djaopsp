@@ -2,6 +2,15 @@
   <fragment>
     <section-title :title="$t('improvement-plan.title')" />
     <tab-container :tabs="tabs">
+      <template v-slot:tab2.title>
+        <v-badge
+          color="secondary"
+          :content="planPractices.length"
+          :value="planPractices.length"
+        >
+          {{ $t('improvement-plan.tab2.title') }}
+        </v-badge>
+      </template>
       <template v-slot:tab1>
         <div class="pa-4">
           <p class="mb-2">{{ $t('improvement-plan.tab1.intro') }}</p>
