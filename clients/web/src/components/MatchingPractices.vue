@@ -38,13 +38,17 @@
                 :subcategory="item.question.subcategory.name"
               />
               <p class="description">{{ item.question.text }}</p>
-              <button-secondary
+              <button-primary
                 v-if="planPractices.findIndex((p) => p.id === item.id) === -1"
                 @click="$emit('practice:add', item)"
               >
                 Add To Plan
-              </button-secondary>
-              <button-secondary v-else @click="$emit('practice:remove', item)">
+              </button-primary>
+              <button-secondary
+                color="red"
+                v-else
+                @click="$emit('practice:remove', item)"
+              >
                 Remove From Plan
               </button-secondary>
             </v-col>
@@ -61,6 +65,7 @@
 
 <script>
 import { PRACTICE_VALUE_CATEGORIES } from '../config'
+import ButtonPrimary from '@/components/ButtonPrimary'
 import ButtonSecondary from '@/components/ButtonSecondary'
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 import PracticeValueChip from '@/components/PracticeValueChip'
@@ -99,10 +104,11 @@ export default {
   },
 
   components: {
+    ButtonPrimary,
+    ButtonSecondary,
     PracticeValueChip,
     PracticeSectionHeader,
     ImplementationValueChip,
-    ButtonSecondary,
   },
 }
 </script>
