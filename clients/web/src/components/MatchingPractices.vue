@@ -38,7 +38,13 @@
                 :subcategory="item.question.subcategory.name"
               />
               <p class="description">{{ item.question.text }}</p>
-              <button-secondary @click="addPractice(item.id)">
+              <button-secondary
+                v-if="planPractices.findIndex((p) => p.id === item.id) === -1"
+                @click="$emit('practice:add', item)"
+              >
+                Add To Plan
+              </button-secondary>
+              <button-secondary v-else @click="$emit('practice:remove', item)">
                 Remove From Plan
               </button-secondary>
             </v-col>
@@ -63,7 +69,7 @@ import ImplementationValueChip from '@/components/ImplementationValueChip'
 export default {
   name: 'MatchingPractices',
 
-  props: ['practices', 'valueKey'],
+  props: ['planPractices', 'practices', 'valueKey'],
 
   computed: {
     practiceValue() {
@@ -89,12 +95,6 @@ export default {
           filterable: false,
         },
       ]
-    },
-  },
-
-  methods: {
-    addPractice(id) {
-      console.log(`Add practice ${id} to improvement plan`)
     },
   },
 

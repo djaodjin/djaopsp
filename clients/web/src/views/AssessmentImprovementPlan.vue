@@ -5,7 +5,11 @@
       <template v-slot:tab1>
         <div class="pa-4">
           <p class="mb-2">{{ $t('improvement-plan.tab1.intro') }}</p>
-          <form-improvement-plan />
+          <form-improvement-plan
+            :planPractices="planPractices"
+            @practice:add="addPractice"
+            @practice:remove="removePractice"
+          />
         </div>
       </template>
       <template v-slot:tab2>
@@ -26,8 +30,21 @@ import TabContainer from '@/components/TabContainer'
 export default {
   name: 'AssessmentImprovementPlan',
 
+  methods: {
+    addPractice(practice) {
+      this.planPractices.push(practice)
+    },
+    removePractice(practice) {
+      const removeIdx = this.planPractices.findIndex(
+        (p) => p.id === practice.id
+      )
+      this.planPractices.splice(removeIdx, 1)
+    },
+  },
+
   data() {
     return {
+      planPractices: [],
       tabs: [
         { text: this.$t('improvement-plan.tab1.title'), href: 'tab-1' },
         { text: this.$t('improvement-plan.tab2.title'), href: 'tab-2' },

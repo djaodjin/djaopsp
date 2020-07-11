@@ -57,8 +57,11 @@
     </v-container>
     <div v-if="searchDone">
       <matching-practices
+        :planPractices="planPractices"
         :practices="matchingPractices"
         :valueKey="practiceValue"
+        @practice:add="addPractice"
+        @practice:remove="removePractice"
       />
     </div>
   </fragment>
@@ -78,7 +81,15 @@ const MAX_PRACTICE_VALUE = PRACTICE_VALUES[PRACTICE_VALUES.length - 1].value
 export default {
   name: 'FormImprovementPlan',
 
+  props: ['planPractices'],
+
   methods: {
+    addPractice(...args) {
+      this.$emit('practice:add', ...args)
+    },
+    removePractice(...args) {
+      this.$emit('practice:remove', ...args)
+    },
     async findResults() {
       this.matchingPractices = await getResults({
         areas: this.selectedAreas,
