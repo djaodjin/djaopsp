@@ -23,7 +23,7 @@ export default {
       if (this.value <= 25) {
         bgColor = '#ECEFF1'
       } else if (this.value <= 50) {
-        bgColor = '#B0BEC'
+        bgColor = '#B0BEC5'
       } else if (this.value <= 75) {
         bgColor = '#78909C'
       }
