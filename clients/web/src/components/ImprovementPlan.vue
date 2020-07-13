@@ -45,11 +45,15 @@
         </v-row>
       </v-container>
     </ol>
+    <button-primary class="mb-5" @click="advanceAssessment">
+      Submit Improvement Plan
+    </button-primary>
   </div>
 </template>
 
 <script>
 import { PRACTICE_VALUE_CATEGORY_DEFAULT } from '../config'
+import ButtonPrimary from '@/components/ButtonPrimary'
 import ButtonSecondary from '@/components/ButtonSecondary'
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 import PracticeValueChip from '@/components/PracticeValueChip'
@@ -66,7 +70,19 @@ export default {
     }
   },
 
+  methods: {
+    advanceAssessment() {
+      // TODO: API call to update assessment status; then, redirect to assessment home
+      console.log('Call API to advance assessment')
+      this.$router.push({
+        name: 'assessmentHome',
+        params: { id: this.$route.params.id },
+      })
+    },
+  },
+
   components: {
+    ButtonPrimary,
     ButtonSecondary,
     PracticeValueChip,
     PracticeSectionHeader,
