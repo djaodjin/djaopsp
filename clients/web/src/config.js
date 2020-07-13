@@ -174,3 +174,5 @@ export const PRACTICE_VALUE_CATEGORIES = [
   { text: 'Cost Savings', value: 'financialValue' },
   { text: 'Operational Benefits', value: 'operationalValue' },
 ]
+
+export const PRACTICE_VALUE_CATEGORY_DEFAULT = PRACTICE_VALUE_CATEGORIES[0]

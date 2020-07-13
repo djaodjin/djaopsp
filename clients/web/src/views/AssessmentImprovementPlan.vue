@@ -23,7 +23,10 @@
       </template>
       <template v-slot:tab2>
         <div class="pa-4">
-          <p>TBD</p>
+          <improvement-plan
+            :planPractices="planPractices"
+            @practice:remove="removePractice"
+          />
         </div>
       </template>
     </tab-container>
@@ -33,6 +36,7 @@
 <script>
 import { Fragment } from 'vue-fragment'
 import FormImprovementPlan from '@/components/FormImprovementPlan'
+import ImprovementPlan from '@/components/ImprovementPlan'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
 
@@ -65,6 +69,7 @@ export default {
   components: {
     Fragment,
     FormImprovementPlan,
+    ImprovementPlan,
     SectionTitle,
     TabContainer,
   },
