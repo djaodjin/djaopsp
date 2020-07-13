@@ -1,6 +1,11 @@
 <template>
-  <div v-if="!planPractices.length">
-    <span>No practices in plan yet!</span>
+  <div class="my-6 mx-4" v-if="!planPractices.length">
+    <p class="text-h5 text-center">Your improvement plan is empty!</p>
+    <p class="text-subtitle-1 text-center">
+      Create an improvement plan by searching and selecting opportunities that
+      align with your environmental targets or support specific areas of your
+      business.
+    </p>
   </div>
   <div v-else>
     <h3 class="mb-2">Support your business areas</h3>
@@ -20,34 +25,33 @@
             />
             <p class="mb-2 description">{{ practice.question.text }}</p>
             <div class="mb-2">
-              <v-subheader class="pl-0 pr-2 d-inline">{{
-                defaultCategory.text
-              }}</v-subheader>
+              <v-subheader class="pl-0 pr-2 d-inline">
+                {{ defaultCategory.text }}
+              </v-subheader>
               <practice-value-chip
                 dark
                 :value="practice[defaultCategory.value]"
               />
             </div>
             <div class="mb-2">
-              <v-subheader class="pl-0 pr-2 d-inline">
-                Implementation Rate
-              </v-subheader>
+              <v-subheader class="pl-0 pr-2 d-inline"
+                >Implementation Rate</v-subheader
+              >
               <implementation-value-chip :value="practice.implementationRate" />
             </div>
             <button-secondary
               class="mt-3 mb-2"
               color="red"
               @click="$emit('practice:remove', practice)"
+              >Remove From Plan</button-secondary
             >
-              Remove From Plan
-            </button-secondary>
           </v-col>
         </v-row>
       </v-container>
     </ol>
-    <button-primary class="mb-5" @click="advanceAssessment">
-      Submit Improvement Plan
-    </button-primary>
+    <button-primary class="mb-5" @click="advanceAssessment"
+      >Submit Improvement Plan</button-primary
+    >
   </div>
 </template>
 
