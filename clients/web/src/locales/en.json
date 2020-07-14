@@ -6,6 +6,7 @@
   "nav": {
     "opt-help": "@:app.help",
     "opt-home": "Home",
+    "opt-assessment": "Assessment",
     "opt-projects": "Projects",
     "opt-settings": "Settings",
     "opt-sign-out": "Sign Out"

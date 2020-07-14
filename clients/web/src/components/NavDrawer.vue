@@ -8,6 +8,21 @@
         <v-list-item-title>{{ $t('nav.opt-home') }}</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
+    <v-list-item
+      v-if="
+        this.$route.name !== 'home' && this.$route.name !== 'assessmentHome'
+      "
+      link
+      :to="{ name: 'assessmentHome', params: { id: $route.params.id } }"
+      exact
+    >
+      <v-list-item-action>
+        <v-icon>mdi-map</v-icon>
+      </v-list-item-action>
+      <v-list-item-content>
+        <v-list-item-title>{{ $t('nav.opt-assessment') }}</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
     <v-list-item link>
       <v-list-item-action>
         <v-icon>mdi-compass</v-icon>
