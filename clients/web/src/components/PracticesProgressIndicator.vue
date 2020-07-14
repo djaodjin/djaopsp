@@ -65,6 +65,10 @@ export default {
     0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
   text-align: center;
 
+  @media #{map-get($display-breakpoints, 'sm-and-up')} {
+    bottom: 0;
+  }
+
   & > .action {
     height: inherit;
     display: flex;

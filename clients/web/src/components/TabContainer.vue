@@ -4,12 +4,14 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="6">
-            <h3>{{ tabs[0].text }}</h3>
-            <slot name="tab1"></slot>
+            <v-sheet class="mx-4 mb-3" elevation="3">
+              <slot name="tab1"></slot>
+            </v-sheet>
           </v-col>
           <v-col cols="12" md="6">
-            <h3>{{ tabs[1].text }}</h3>
-            <slot name="tab2"></slot>
+            <v-sheet class="mx-4 mb-3" elevation="3">
+              <slot name="tab2"></slot>
+            </v-sheet>
           </v-col>
         </v-row>
       </v-container>

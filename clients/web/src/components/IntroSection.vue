@@ -28,3 +28,9 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+small {
+  font-size: 1rem;
+}
+</style>

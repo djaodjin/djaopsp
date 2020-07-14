@@ -1,6 +1,6 @@
 <template>
   <v-sheet class="pb-4" elevation="3">
-    <v-stepper v-model.number="currentStep" vertical class="pt-3 pb-3 px-md-5">
+    <v-stepper v-model.number="currentStep" vertical class="py-3 px-md-3">
       <v-stepper-step
         :complete="currentStep > 1 && currentStep < 6"
         :editable="currentStep < 6"

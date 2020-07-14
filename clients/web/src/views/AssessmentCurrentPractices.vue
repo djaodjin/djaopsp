@@ -8,6 +8,7 @@
       <tab-container class="pb-16" :tabs="tabs">
         <template v-slot:tab1>
           <assessment-sections
+            :header="$t('practices.tab1.title')"
             :questions="questions"
             :answers="answers"
             :unanswered="unanswered"
@@ -16,6 +17,7 @@
         </template>
         <template v-slot:tab2>
           <pending-questions
+            :header="$t('practices.tab2.title')"
             :questions="unanswered"
             :answers="answers"
             @saveAnswer="saveAnswer"
