@@ -1,7 +1,7 @@
 <template>
   <v-card class="mx-auto assessment-info">
-    <v-card-text class="pa-md-5">
-      <ul>
+    <v-card-text class="pa-4 pt-md-6 pb-md-5">
+      <ul class="pa-0">
         <li>
           <span>Industry:</span>
           <b>Engineering, Procurement, Construction</b>
@@ -43,19 +43,11 @@ export default {
 
 <style lang="scss" scoped>
 .assessment-info {
-  max-width: 340px;
-
-  @media #{map-get($display-breakpoints, 'md-and-up')} {
-    max-width: 100%;
-  }
+  max-width: 440px;
 
   li {
-    margin-bottom: 3px;
-
-    @media #{map-get($display-breakpoints, 'md-and-up')} {
-      font-size: 1rem;
-      margin-bottom: 5px;
-    }
+    font-size: 1rem;
+    margin-bottom: 5px;
 
     span {
       display: inline-block;
