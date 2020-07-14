@@ -5,15 +5,26 @@
       <v-row justify="center">
         <v-col cols="11" md="8" lg="6">
           <form @submit.prevent="processForm">
-            <label for="industry" class="d-block mb-3">
-              Please choose the industry that best applies to your organization:
-            </label>
+            <label for="industry" class="d-block mb-3"
+              >Please choose the industry that best applies to your
+              organization</label
+            >
             <v-select
               id="industry"
-              :items="allIndustrySegments"
+              :items="selectOptions"
               label="Industry segment"
               v-model="industry"
-            ></v-select>
+              solo
+            >
+              <template v-slot:item="{ item, on, attrs }">
+                <v-list-item-content v-bind="attrs" v-on="on">
+                  <v-list-item-title
+                    :class="[item.isChild ? 'child' : 'single']"
+                    v-text="item.text"
+                  ></v-list-item-title>
+                </v-list-item-content>
+              </template>
+            </v-select>
             <div class="text-right">
               <button-primary type="submit" display="inline"
                 >Next</button-primary
@@ -65,8 +76,27 @@ export default {
     }
   },
 
+  computed: {
+    selectOptions() {
+      return [
+        {
+          header: 'PREVIOUSLY SELECTED',
+        },
+        ...this.previousIndustrySegments.map((i) => ({ ...i, isChild: true })),
+        { divider: true },
+        ...this.allIndustrySegments,
+      ]
+    },
+  },
+
   components: {
     ButtonPrimary,
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.v-list-item__title.child {
+  margin-left: 16px;
+}
+</style>

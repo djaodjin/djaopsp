@@ -41,9 +41,6 @@ export function getIndustrySegments() {
           value: 'ecec',
         },
         {
-          header: 'Facilities Management',
-        },
-        {
           text: 'Full facilities management service',
           value: 'facilities-management-industry',
         },
@@ -55,7 +52,6 @@ export function getIndustrySegments() {
           text: 'Janitorial services',
           value: 'janitorial-services',
         },
-        { divider: true },
         {
           text: 'Freight & shipping',
           value: 'freight-and-shipping',
@@ -77,9 +73,6 @@ export function getIndustrySegments() {
           value: 'lab-services',
         },
         {
-          header: 'Manufacturing',
-        },
-        {
           text: 'Boxes & enclosures',
           value: 'boxes-and-enclosures',
         },
@@ -98,9 +91,6 @@ export function getIndustrySegments() {
         {
           text: 'Wire & cable',
           value: 'wire-and-cable',
-        },
-        {
-          divider: true,
         },
         {
           text: 'Marketing & communications',
@@ -138,7 +128,16 @@ export function getIndustrySegments() {
 export function getPreviousIndustrySegments() {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve([])
+      resolve([
+        {
+          text: 'Energy efficiency contracting',
+          value: 'energy-efficiency-contracting',
+        },
+        {
+          text: 'Engineering',
+          value: 'engineering',
+        },
+      ])
     }, DELAY)
   })
 }
