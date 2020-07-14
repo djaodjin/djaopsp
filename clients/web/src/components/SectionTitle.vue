@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-4 mt-4 mb-6 ml-sm-8 mt-sm-8">
+  <div class="ma-4 ml-sm-8 mt-sm-8">
     <small>Environment Sustainability Assessment</small>
     <h1>{{ title }}</h1>
   </div>
@@ -23,12 +23,24 @@ h1 {
 }
 
 @media #{map-get($display-breakpoints, 'sm-and-up')} {
-  h1 {
-    font-size: 1.8;
-    line-height: 1;
-  }
   small {
     font-size: 1rem;
+  }
+  h1 {
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+}
+
+@media #{map-get($display-breakpoints, 'md-and-up')} {
+  small {
+    display: block;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  h1 {
+    line-height: 1.2;
+    text-align: center;
   }
 }
 </style>

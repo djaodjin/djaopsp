@@ -1,10 +1,10 @@
 <template v-if="currentQuestion">
-  <div>
+  <div class="mx-md-4">
     <practice-section-header
       :section="currentQuestion.section.name"
       :subcategory="currentQuestion.subcategory.name"
     />
-    <p class="mt-3">{{ currentQuestion.text }}</p>
+    <p class="question-text mt-3 mt-md-6">{{ currentQuestion.text }}</p>
     <span
       class="d-block mb-4"
       style="font-size: 0.9rem;"
@@ -105,3 +105,12 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+@media #{map-get($display-breakpoints, 'md-and-up')} {
+  .question-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+}
+</style>

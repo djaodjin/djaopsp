@@ -2,14 +2,15 @@
   <v-fade-transition mode="out-in">
     <div :key="subcategory.id" class="section-subcategory">
       <practice-section-header
+        class="ml-md-4"
         :section="section.content.name"
         :subcategory="subcategory.content.name"
       />
-      <table class="mt-4 mx-n4">
+      <table class="mt-4 mx-n4 mt-md-8">
         <thead>
           <tr>
-            <th class="pl-4">Questions</th>
-            <th class="pr-3">Answers</th>
+            <th class="pl-4 pl-md-8">Questions</th>
+            <th class="pr-3 pr-md-8">Answers</th>
           </tr>
         </thead>
         <tbody>
@@ -54,9 +55,17 @@ export default {
       &:first-child {
         text-align: left;
         width: 72%;
+
+        @media #{map-get($display-breakpoints, 'md-and-up')} {
+          width: 65%;
+        }
       }
       &:last-child {
         width: 28%;
+
+        @media #{map-get($display-breakpoints, 'md-and-up')} {
+          width: 35%;
+        }
       }
     }
     tr:nth-child(even) {

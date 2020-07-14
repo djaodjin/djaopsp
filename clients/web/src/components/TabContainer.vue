@@ -3,12 +3,12 @@
     <div v-if="$vuetify.breakpoint.smAndUp">
       <v-container>
         <v-row>
-          <v-col cols="12" md="6">
+          <v-col cols="12">
             <v-sheet class="mx-4 mb-3" elevation="3">
               <slot name="tab1"></slot>
             </v-sheet>
           </v-col>
-          <v-col cols="12" md="6">
+          <v-col cols="12">
             <v-sheet class="mx-4 mb-3" elevation="3">
               <slot name="tab2"></slot>
             </v-sheet>

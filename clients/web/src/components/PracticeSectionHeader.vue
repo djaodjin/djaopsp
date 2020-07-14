@@ -1,5 +1,5 @@
 <template>
-  <div :class="[small ? 'small' : 'normal', 'text-left']">
+  <div v-bind="$attrs" :class="[small ? 'small' : 'normal', 'text-left']">
     <span class="text-caption">{{ section }}</span>
     <h4>{{ subcategory }}</h4>
   </div>
@@ -31,6 +31,11 @@ export default {
     display: block;
     line-height: 1.8;
     font-weight: 600;
+
+    @media #{map-get($display-breakpoints, 'md-and-up')} {
+      font-size: 0.9rem !important;
+      font-weight: 500;
+    }
   }
   h4 {
     font-size: 1.3rem;

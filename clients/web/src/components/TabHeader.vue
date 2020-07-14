@@ -1,5 +1,5 @@
 <template>
-  <h3 class="pt-5 pl-4" v-if="$vuetify.breakpoint.smAndUp">
+  <h3 class="pt-5 pl-4 pl-md-8" v-if="$vuetify.breakpoint.smAndUp">
     {{ text }}
   </h3>
 </template>

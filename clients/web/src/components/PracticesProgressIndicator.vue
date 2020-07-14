@@ -56,10 +56,11 @@ export default {
 
 .progress-indicator {
   position: fixed;
+  left: 0;
   bottom: #{$bottom-nav-height}px;
   width: 100%;
   background-color: white;
-  z-index: 2;
+  z-index: 5;
   height: calc(#{$bottom-nav-height}px + 8px);
   box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
     0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
@@ -76,6 +77,8 @@ export default {
     align-items: center;
     padding-left: 36px;
     padding-right: 36px;
+    max-width: 580px;
+    margin: 0 auto;
   }
 }
 </style>

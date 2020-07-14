@@ -1,7 +1,14 @@
 <template>
   <fragment>
-    <td class="py-2 px-4">{{ question.text }}</td>
-    <td :class="['py-2', 'pr-3', hasShortAnswer ? 'text-center' : 'text-left']">
+    <td class="py-2 px-4 py-md-4 px-md-8">{{ question.text }}</td>
+    <td
+      :class="[
+        'py-2',
+        'pr-3',
+        'pr-md-8',
+        hasShortAnswer ? 'text-center' : 'text-left',
+      ]"
+    >
       <router-link
         :style="[!answerText ? { 'text-decoration': 'none' } : {}]"
         :to="{

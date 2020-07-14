@@ -1,5 +1,5 @@
 <template>
-  <v-card outlined class="py-3 px-4">
+  <v-card outlined class="py-3 px-4 mx-md-4 pa-md-4">
     <practice-section-header
       :section="section.content.name"
       :subcategory="subcategory.content.name"

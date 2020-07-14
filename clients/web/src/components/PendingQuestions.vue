@@ -1,10 +1,21 @@
 <template>
-  <div>
+  <div
+    v-show="
+      !Object.keys($route.query).length ||
+      ($route.query.question &&
+        !$route.query.section &&
+        !$route.query.subcategory)
+    "
+  >
     <tab-header :text="header" />
     <v-slide-x-transition mode="out-in">
       <div
         class="pt-2 pb-6 px-4"
-        v-if="$route.query.question"
+        v-if="
+          $route.query.question &&
+          !$route.query.section &&
+          !$route.query.subcategory
+        "
         key="viewQuestion"
       >
         <section-back-link
@@ -31,10 +42,10 @@
             </p>
           </div>
           <div v-else>
-            <p class="mx-4 mb-0">{{ $t('practices.tab2.intro') }}</p>
+            <p class="mx-4 mb-0 mx-md-8">{{ $t('practices.tab2.intro') }}</p>
             <v-list class="pa-0">
               <v-list-item
-                class="question d-block py-4"
+                class="question d-block py-4 px-md-8"
                 v-for="question in questions"
                 :key="question.id"
               >

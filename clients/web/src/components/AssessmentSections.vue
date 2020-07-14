@@ -1,5 +1,13 @@
 <template>
-  <div>
+  <div
+    v-show="
+      !Object.keys($route.query).length ||
+      ($route.query.section && $route.query.subcategory) ||
+      ($route.query.question &&
+        $route.query.section &&
+        $route.query.subcategory)
+    "
+  >
     <tab-header :text="header" />
     <v-slide-x-transition mode="out-in">
       <div
@@ -55,7 +63,7 @@
           :subcategory="nextSubcategory"
         />
       </div>
-      <div v-else class="sections pa-4" key="viewSections">
+      <div v-else class="sections pa-4 px-md-8" key="viewSections">
         <p>{{ $t('practices.tab1.intro') }}</p>
         <v-list
           class="mb-4"
