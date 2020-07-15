@@ -134,7 +134,7 @@ assetsUploadUrl = "{% if api_upload_assets %}{{api_upload_assets}}{% else %}{{'/
 
 $(document).ready(function(){
 	$(".editable").editor({
-		baseUrl: "{{urls.api_page_element_base}}/",
+		baseUrl: "{{urls.api_page_element_base}}",
 		preventBlurOnClick: "#media-gallery, .dj-gallery-item"
 	});
 
