@@ -68,7 +68,14 @@ class EnableContentAPIView(ToggleTagContentAPIView):
 
     .. code-block:: http
 
-       POST /api/XXX HTTP/1.1
+       /api/content/editables/enable/boxes-enclosures/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+      {}
+
     """
     added_tag = "enabled"
     removed_tag = "disabled"
@@ -84,7 +91,14 @@ class DisableContentAPIView(ToggleTagContentAPIView):
 
     .. code-block:: http
 
-       POST /api/XXX HTTP/1.1
+       /api/content/editables/disable/boxes-enclosures/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+      {}
+
     """
     added_tag = "disabled"
     removed_tag = "enabled"
@@ -106,7 +120,21 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
 
     .. code-block:: http
 
-       POST /api/content/mirror/boxes-enclosures/energy-efficiency/ HTTP/1.1
+       POST /api/content/editables/mirror/boxes-enclosures/\
+energy-efficiency/ HTTP/1.1
+
+    .. code-block:: json
+
+        {
+          "source": "getting-started"
+        }
+
+    responds
+
+    .. code-block:: json
+
+        {}
+
     """
 
     def create(self, request, *args, **kwargs):
@@ -168,14 +196,21 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
 
     .. code-block:: http
 
-        POST /api/content/attach/content-root/ HTTP/1.1
+        POST /api/content/editables/attach/content-root/ HTTP/1.1
+
+    .. code-block:: json
+
+        {
+          "source": "getting-started"
+        }
 
     responds
 
     .. code-block:: json
 
         {}
-    """
+
+   """
 
     def post(self, request, *args, **kwargs):#pylint: disable=unused-argument
         LOGGER.debug("move %s under %s", request.data, kwargs.get('path'))
@@ -204,14 +239,10 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
 # XXX should not derive from BestPracticeMixin but PageElement instead?
 class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
     """
-    Retrieves a content tree
+    Retrieves details on a content node
 
-    This API end-point manages a content element referenced by a *path*
-    from the root of the content hierarchy.
-
-    It returns the content tree rooted at the content element referenced
-    by *path*. It includes the title, text and, if applicable, the metrics
-    associated to the content elements in the tree.
+    This API returns the text of a single content node identified
+    in the content tree by `path`.
 
     **Tags**: content
 
@@ -219,55 +250,25 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
     .. code-block:: http
 
-        GET /api/content/detail/boxes-enclosures/energy-efficiency/ HTTP/1.1
+        GET /api/content/editables/detail/boxes-enclosures/\
+energy-efficiency/air-flow HTTP/1.1
 
     responds
 
     .. code-block:: json
 
-        [
-          {
-            "slug": "energy-efficiency",
-            "path": "/boxes-enclosures/energy-efficiency",
-            "title": "Energy Efficiency",
-            "tag": "{\"tags\":[\"pagebreak\"]}",
-            "rank": null,
-            "is_empty": true,
-            "consumption": null
-          },
-          [
-            [
-              {
-                "slug": "air-flow",
-                "path": "/boxes-enclosures/energy-efficiency/air-flow",
-                "title": "Adjust air/fuel ratio",
-                "tag": "",
-                "rank": 0,
-                "is_empty": false,
-                "consumption": {
-                   "path": "/boxes-enclosures/energy-efficiency/air-flow",
-                   "text": "Adjust air/fuel ratio",
-                   "avg_energy_saving": "* * * *",
-                   "avg_fuel_saving": "-",
-                   "capital_cost": "$$",
-                   "payback_period": "0-1.8 (0.3)",
-                   "environmental_value": 1,
-                   "business_value": 1,
-                   "profitability": 3,
-                   "implementation_ease": 1,
-                   "avg_value": 2,
-                   "rank": 3,
-                   "nb_respondents": 0,
-                   "rate": 0,
-                   "opportunity": 0,
-                   "implemented": "",
-                   "planned": false
-                 }
-              },
-              []
-            ]
-          ]
-        ]
+        {
+            "slug": "air-flow",
+            "path": "/boxes-enclosures/energy-efficiency/air-flow",
+            "title": "Adjust air/fuel ratio",
+            "text": "Adjust air/fuel ratio",
+            "picture": null,
+            "environmental_value": 1,
+            "business_value": 1,
+            "profitability": 3,
+            "implementation_ease": 1,
+            "avg_value": 2
+        }
     """
     queryset = PageElement.objects.all()
     serializer_class = PageElementSerializer
@@ -296,7 +297,16 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
         .. code-block:: http
 
-            POST /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/ HTTP/1.1
+            POST /api/content/editables/detail/boxes-enclosures/\
+energy-efficiency/air-flow/ HTTP/1.1
+
+        .. code-block:: json
+
+            {
+              "title": "Adjust air/fuel ratio",
+            }
+
+        responds:
 
         .. code-block:: json
 
@@ -324,11 +334,6 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
                }
             }
 
-        responds:
-
-        .. code-block:: json
-
-        XXX
         """
         return self.update(request, *args, **kwargs)
 
@@ -345,7 +350,16 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
         .. code-block:: http
 
-            PUT /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/ HTTP/1.1
+            PUT /api/content/editables/detail/boxes-enclosures/\
+energy-efficiency/air-flow/ HTTP/1.1
+
+        .. code-block:: json
+
+            {
+              "title": "Adjust air/fuel ratio",
+            }
+
+        responds:
 
         .. code-block:: json
 
@@ -373,11 +387,6 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
                }
             }
 
-        responds:
-
-        .. code-block:: json
-
-        XXX
         """
         return super(BestPracticeAPIView, self).put(request, *args, **kwargs)
 
@@ -394,7 +403,8 @@ class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
 
         .. code-block:: http
 
-            DELETE /api/content/detail/boxes-enclosures/energy-efficiency/air-flow/ HTTP/1.1
+            DELETE /api/content/editables/detail/boxes-enclosures/\
+energy-efficiency/air-flow/ HTTP/1.1
         """
         return super(BestPracticeAPIView, self).delete(request, *args, **kwargs)
 

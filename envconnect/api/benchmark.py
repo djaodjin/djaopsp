@@ -886,7 +886,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
 
     .. code-block:: http
 
-         GET /api/content/score/water-use/ HTTP/1.1
+         GET /api/content/editables/score/water-use/ HTTP/1.1
 
     responds
 
