@@ -788,7 +788,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                             $scope.newElement.value = "";
                             modalDialog.modal('hide');
                         },
-                        function error() {
+                        function error(resp) {
                             $scope.newElement.value = "";
                             modalDialog.modal('hide');
                             showErrorMessages(resp);

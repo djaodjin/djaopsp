@@ -7,6 +7,9 @@ node_modules/
 htdocs
 htdocs/media/
 htdocs/static/.webassets-cache/
-clients/web/yarn.lock
+
+clients/web/.vscode
+clients/web/node_modules
+clients/web/yarn-error.log
 clients/web/public/static
 envconnect/templates/cache/

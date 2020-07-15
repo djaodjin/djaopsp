@@ -130,6 +130,8 @@ $(document).ready(function(){
 </script>
 {% if is_content_manager %}
 <script type="text/javascript" charset="utf-8">
+assetsUploadUrl = "{% if api_upload_assets %}{{api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_prefixed}}{% endif %}";
+
 $(document).ready(function(){
 	$(".editable").editor({
 		baseUrl: "{{urls.api_page_elements}}/",

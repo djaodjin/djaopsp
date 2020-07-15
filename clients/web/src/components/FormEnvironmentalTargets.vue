@@ -41,7 +41,7 @@
               hide-details="auto"
               auto-grow
               outlined
-              rows="2"
+              rows="3"
               row-height="16"
             ></v-textarea>
           </v-col>
@@ -115,7 +115,7 @@
               hide-details="auto"
               auto-grow
               outlined
-              rows="2"
+              rows="3"
               row-height="16"
             ></v-textarea>
           </v-col>
@@ -189,7 +189,7 @@
               hide-details="auto"
               auto-grow
               outlined
-              rows="2"
+              rows="3"
               row-height="16"
             ></v-textarea>
           </v-col>
@@ -263,7 +263,7 @@
               hide-details="auto"
               auto-grow
               outlined
-              rows="2"
+              rows="3"
               row-height="16"
             ></v-textarea>
           </v-col>
@@ -297,7 +297,7 @@
       </v-container>
     </v-expand-transition>
 
-    <button-primary class="mt-6" type="submit">{{
+    <button-primary class="my-5" type="submit">{{
       $t('targets.tab2.btn-submit')
     }}</button-primary>
   </form>
