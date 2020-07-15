@@ -3,37 +3,15 @@
     <section-title :title="$t('targets.title')" />
     <tab-container :tabs="tabs">
       <template v-slot:tab1>
-        <div class="pa-4">
+        <tab-header :text="$t('targets.tab1.title')" />
+        <div class="pa-4 pt-sm-2 px-md-8">
           <p>{{ $t('targets.tab1.intro') }}</p>
-          <img
-            class="d-block mx-auto mb-6"
-            alt
-            src="../assets/images/chart-management.png"
-          />
-          <img
-            class="d-block mx-auto mb-6"
-            alt
-            src="../assets/images/chart-construction.png"
-          />
-          <img
-            class="d-block mx-auto mb-6"
-            alt
-            src="../assets/images/chart-eng-and-design.png"
-          />
-          <img
-            class="d-block mx-auto mb-6"
-            alt
-            src="../assets/images/chart-office-grounds.png"
-          />
-          <img
-            class="d-block mx-auto mb-6"
-            alt
-            src="../assets/images/chart-procurement.png"
-          />
+          <business-comparison />
         </div>
       </template>
       <template v-slot:tab2>
-        <div class="pa-4">
+        <tab-header :text="$t('targets.tab2.title')" />
+        <div class="pa-4 pt-sm-2 px-md-8">
           <p>{{ $t('targets.tab2.intro') }}</p>
           <form-environmental-targets />
         </div>
@@ -58,10 +36,12 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import BusinessComparison from '@/components/BusinessComparison'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
+import TabHeader from '@/components/TabHeader'
 
 export default {
   name: 'AssessmentEnvironmentalTargets',
@@ -87,11 +67,13 @@ export default {
   },
 
   components: {
+    BusinessComparison,
     DialogConfirm,
     FormEnvironmentalTargets,
     Fragment,
     SectionTitle,
     TabContainer,
+    TabHeader,
   },
 }
 </script>
