@@ -3,13 +3,13 @@
     <div v-if="$vuetify.breakpoint.smAndUp">
       <v-container>
         <v-row>
-          <v-col cols="12">
-            <v-sheet class="mx-4 mb-3" elevation="3">
+          <v-col cols="12" :lg="lgCol">
+            <v-sheet class="mx-4 mb-3 mx-lg-auto" elevation="3">
               <slot name="tab1"></slot>
             </v-sheet>
           </v-col>
-          <v-col cols="12">
-            <v-sheet class="mx-4 mb-3" elevation="3">
+          <v-col cols="12" :lg="lgCol">
+            <v-sheet class="mx-4 mb-3 mx-lg-auto" elevation="3">
               <slot name="tab2"></slot>
             </v-sheet>
           </v-col>
@@ -57,7 +57,16 @@ import SectionTitle from '@/components/SectionTitle'
 export default {
   name: 'TabContainer',
 
-  props: ['tabs'],
+  props: {
+    tabs: {
+      type: Array,
+      required: true,
+    },
+    lgCol: {
+      type: Number,
+      default: 12,
+    },
+  },
 
   created() {
     this.setTabFromURL()

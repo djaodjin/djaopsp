@@ -1,7 +1,7 @@
 <template>
   <fragment>
     <section-title :title="$t('targets.title')" />
-    <tab-container :tabs="tabs">
+    <tab-container :tabs="tabs" :lgCol="6">
       <template v-slot:tab1>
         <tab-header :text="$t('targets.tab1.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
