@@ -27,7 +27,8 @@ from ..compat import reverse
 from ..helpers import get_segments, as_measured_value
 from ..mixins import ReportMixin, TransparentCut
 from ..models import (_show_query_and_result, get_score_weight,
-    get_scored_answers, get_historical_scores, Consumption)
+    get_scored_answers, get_frozen_scored_answers, get_historical_scores,
+    Consumption)
 from ..serializers import (BenchmarkSerializer, MetricsSerializer,
     ScoreWeightSerializer)
 from ..scores import (populate_account, populate_account_na_answers,
@@ -48,18 +49,6 @@ class BenchmarkMixin(ReportMixin):
                 except ValueError:
                     self._start_at = None
         return self._start_at
-
-    @property
-    def ends_at(self):
-        if not hasattr(self, '_ends_at'):
-            self._ends_at = self.request.GET.get('ends_at', None)
-            if self._ends_at:
-                self._ends_at = self._ends_at.strip('"')
-            try:
-                self._ends_at = datetime_or_now(self._ends_at)
-            except ValueError:
-                self._ends_at = datetime_or_now()
-        return self._ends_at
 
     def get_highlighted_practices(self):
         from_root, trail = self.breadcrumbs
@@ -281,10 +270,11 @@ class BenchmarkMixin(ReportMixin):
                     distribution['organization_rate'] = distribution['x'][3]
         return distribution
 
-    @staticmethod
-    def _get_scored_answers(population, metric_id,
-                            includes=None, questions=None, prefix=None):
-        #pylint:disable=unused-argument
+    def _get_scored_answers(self, population, metric_id,
+                            includes=None, prefix=None):
+        if self.is_frozen:
+            return get_frozen_scored_answers(population,
+                datetime_or_now(self.ends_at), prefix=prefix)
         return get_scored_answers(population, metric_id,
             includes=includes, prefix=prefix)
 

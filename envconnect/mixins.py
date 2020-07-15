@@ -652,6 +652,19 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                     account=self.account).order_by('-created_at').first()
         return self._assessment_sample
 
+    @property
+    def ends_at(self):
+        if not hasattr(self, '_ends_at'):
+            if self.sample.is_frozen:
+                self._ends_at = self.sample.created_at
+            else:
+                self._ends_at = datetime_or_now()
+        return self._ends_at
+
+    @property
+    def is_frozen(self):
+        return self.sample.is_frozen
+
     # `improvement_sample` is defined here because we use it to generate
     # the highlighted practices in
     # `BenchmarkMixin.get_highlighted_practices`
