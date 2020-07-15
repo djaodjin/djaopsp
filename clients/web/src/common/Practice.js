@@ -1,5 +1,5 @@
 import { getUniqueId } from './utils'
-import { PRACTICE_VALUES, PRACTICE_VALUE_CATEGORIES } from '../config'
+import { PRACTICE_VALUES, PRACTICE_VALUE_CATEGORIES } from '@/config/app'
 
 const MIN_PRACTICE_VALUE = PRACTICE_VALUES[0].value
 const values = PRACTICE_VALUE_CATEGORIES.map((c) => c.value)

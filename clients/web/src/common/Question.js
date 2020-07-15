@@ -1,4 +1,4 @@
-import { VALID_QUESTION_TYPES } from '../config'
+import { VALID_QUESTION_TYPES } from '@/config/app'
 import { getUniqueId } from './utils'
 
 export default class Question {

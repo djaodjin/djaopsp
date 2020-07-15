@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { MAP_QUESTION_FORM_TYPES } from '@/config'
+import { MAP_QUESTION_FORM_TYPES } from '@/config/app'
 
 export default {
   name: 'QuestionPreviousAnswers',

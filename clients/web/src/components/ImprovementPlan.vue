@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { PRACTICE_VALUE_CATEGORY_DEFAULT } from '../config'
+import { PRACTICE_VALUE_CATEGORY_DEFAULT } from '@/config/app'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import ButtonSecondary from '@/components/ButtonSecondary'
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'

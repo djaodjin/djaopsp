@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { PRACTICE_VALUES, PRACTICE_VALUE_CATEGORIES } from '../config'
+import { PRACTICE_VALUES, PRACTICE_VALUE_CATEGORIES } from '@/config/app'
 import { Fragment } from 'vue-fragment'
 import { getResults } from '../mocks/ip-results'
 import MatchingPractices from '@/components/MatchingPractices'

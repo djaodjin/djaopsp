@@ -1,4 +1,4 @@
-import FormQuestion from './common/FormQuestion'
+import FormQuestion from '../common/FormQuestion'
 
 function answersWarning(answers) {
   console.warn('Unable to find matching answer in ', answers)

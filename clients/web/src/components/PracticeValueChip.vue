@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { PRACTICE_VALUES } from '../config'
+import { PRACTICE_VALUES } from '@/config/app'
 
 export default {
   name: 'PracticeValueChip',
