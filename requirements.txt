@@ -1,17 +1,17 @@
 cssmin==0.2.0
-Django==2.2.12
+Django==2.2.13
 django-assets==0.12
-django-contrib-comments==1.8.0
-django-extra-views==0.12.0
+django-contrib-comments==1.9.2
+django-extra-views==0.13.0
 django-livereload-server==0.3.2
-djangorestframework==3.10
+djangorestframework==3.11
 djaodjin-answers==0.1.6
-djaodjin-deployutils==0.5.18
-djaodjin-extended-templates==0.2.4
-djaodjin-rules==0.2.4
-djaodjin-pages==0.2.8
-djaodjin-saas==0.8.4
-djaodjin-survey==0.2.6
+djaodjin-deployutils==0.5.21
+djaodjin-extended-templates==0.2.5
+djaodjin-pages==0.3.0
+djaodjin-rules==0.2.5
+djaodjin-saas==0.9.0
+djaodjin-survey==0.2.7
 gunicorn==20.0.4
 jinja2==2.8.1
 html5lib==1.0b10
@@ -20,6 +20,7 @@ monotonic==1.1
 openpyxl==2.5.4
 supervisor==4.2.0
 yuicompressor==2.4.8
+pytz==2020.1
 
 # These have C/C++ components, installed through the native package manager
 # cffi==1.11.2

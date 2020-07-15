@@ -7,7 +7,7 @@ from rest_framework import serializers
 from pages.models import PageElement
 from pages.serializers import PageElementSerializer as BasePageElementSerializer
 from survey.models import Answer, EnumeratedQuestions, Metric, Unit
-from survey.api.serializers import AnswerSerializer
+from survey.api.serializers import AnswerSerializer, QuestionSerializer
 
 from .models import ColumnHeader, Consumption
 
@@ -76,7 +76,7 @@ class MeasureSerializer(serializers.ModelSerializer):
             return obj['text']
         return ""
 
-
+#QuestionSerializer
 class ConsumptionSerializer(serializers.ModelSerializer):
 
     path = serializers.CharField(required=False)
@@ -146,13 +146,15 @@ class ConsumptionSerializer(serializers.ModelSerializer):
         return self.context.get('planned', None)
 
 
-class AnswerUpdateSerializer(NoModelSerializer):
+class AnswerUpdateSerializer(AnswerSerializer):
 
-    consumption = ConsumptionSerializer()
+    question = ConsumptionSerializer()
     first = serializers.BooleanField()
 
     class Meta:
-        fields = ('consumption', 'first')
+        model = AnswerSerializer.Meta.model
+        fields = AnswerSerializer.Meta.fields + ('question', 'first')
+        read_only_fields = AnswerSerializer.Meta.read_only_fields
 
 
 class AccountSerializer(NoModelSerializer):
@@ -246,8 +248,8 @@ class ImprovementSerializer(AnswerSerializer):
 class KeyValueTuple(serializers.ListField):
 
     child = serializers.CharField() # XXX (String, Integer)
-    min_length = 2
-    max_length = 2
+    min_length = 3
+    max_length = 3
 
 
 class TableSerializer(NoModelSerializer):

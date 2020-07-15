@@ -29,7 +29,7 @@ class ImprovementListAPIView(ImprovementQuerySetMixin,
 
     .. code-block:: http
 
-         GET /api/xia/improvement/ HTTP/1.1
+         GET /api/xia/improvement HTTP/1.1
 
     responds
 
@@ -78,7 +78,7 @@ class ImprovementListAPIView(ImprovementQuerySetMixin,
 
         .. code-block:: http
 
-             PUT /api/xia/improvement/ HTTP/1.1
+             PUT /api/xia/improvement HTTP/1.1
 
         responds
 

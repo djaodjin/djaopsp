@@ -592,7 +592,7 @@ class BenchmarkMixin(ReportMixin):
                 self._report_queries("reporting Energy, GHG, Water and Waste targets completed")
 
             if reporting_employee_count:
-                    employee_count_sql = """
+                employee_count_sql = """
             WITH samples AS (
             %(latest_assessments)s
             )
@@ -608,23 +608,23 @@ class BenchmarkMixin(ReportMixin):
                 'metric': 'employee-counted',
                 'accounts': self.requested_accounts_pk_as_sql
             }
-                    _show_query_and_result(employee_count_sql)
-                    with connection.cursor() as cursor:
-                        cursor.execute(employee_count_sql, params=None)
-                        employee_counts = dict(cursor)
+                _show_query_and_result(employee_count_sql)
+                with connection.cursor() as cursor:
+                    cursor.execute(employee_count_sql, params=None)
+                    employee_counts = dict(cursor)
 
-                    # XXX We add `employee_count` no matter whichever segment
-                    # the metric comes from.
-                    for segment in six.itervalues(rollup_tree[1]):
-                        for account_pk, account in six.iteritems(
-                                segment[0].get('accounts')):
-                            if int(account_pk) in employee_counts:
-                                account.update({
-                                    'employee_count': employee_counts[int(account_pk)]})
-                    self._report_queries("reporting employee count completed")
+                # XXX We add `employee_count` no matter whichever segment
+                # the metric comes from.
+                for segment in six.itervalues(rollup_tree[1]):
+                    for account_pk, account in six.iteritems(
+                            segment[0].get('accounts')):
+                        if int(account_pk) in employee_counts:
+                            account.update({
+                                'employee_count': employee_counts[int(account_pk)]})
+                self._report_queries("reporting employee count completed")
 
             if reporting_revenue_generated:
-                    revenue_generated_sql = """
+                revenue_generated_sql = """
             WITH samples AS (
             %(latest_assessments)s
             )
@@ -644,33 +644,33 @@ class BenchmarkMixin(ReportMixin):
                 'metric': 'revenue-generated',
                 'accounts': self.requested_accounts_pk_as_sql
             }
-                    _show_query_and_result(revenue_generated_sql)
-                    revenue_generateds = {}
-                    with connection.cursor() as cursor:
-                        cursor.execute(revenue_generated_sql, params=None)
-                        for row in cursor:
-                            account_id = int(row[0])
-                            measured = row[1]
-                            unit_id = row[2]
-                            unit_system = row[3]
-                            if unit_system not in Unit.NUMERICAL_SYSTEMS:
-                                try:
-                                    choice = Choice.objects.get(
-                                        id=measured, unit_id=unit_id)
-                                    measured = choice.text
-                                except Choice.DoesNotExist:
-                                    pass
-                            revenue_generateds[account_id] = measured
+                _show_query_and_result(revenue_generated_sql)
+                revenue_generateds = {}
+                with connection.cursor() as cursor:
+                    cursor.execute(revenue_generated_sql, params=None)
+                    for row in cursor:
+                        account_id = int(row[0])
+                        measured = row[1]
+                        unit_id = row[2]
+                        unit_system = row[3]
+                        if unit_system not in Unit.NUMERICAL_SYSTEMS:
+                            try:
+                                choice = Choice.objects.get(
+                                    id=measured, unit_id=unit_id)
+                                measured = choice.text
+                            except Choice.DoesNotExist:
+                                pass
+                        revenue_generateds[account_id] = measured
 
-                    # XXX We add `revenue_generated` no matter whichever segment
-                    # the metric comes from.
-                    for segment in six.itervalues(rollup_tree[1]):
-                        for account_pk, account in six.iteritems(
-                                segment[0].get('accounts')):
-                            if int(account_pk) in revenue_generateds:
-                                account.update({
-                                  'revenue_generated': revenue_generateds[int(account_pk)]})
-                    self._report_queries("reporting revenue completed")
+                # XXX We add `revenue_generated` no matter whichever segment
+                # the metric comes from.
+                for segment in six.itervalues(rollup_tree[1]):
+                    for account_pk, account in six.iteritems(
+                            segment[0].get('accounts')):
+                        if int(account_pk) in revenue_generateds:
+                            account.update({
+                              'revenue_generated': revenue_generateds[int(account_pk)]})
+                self._report_queries("reporting revenue completed")
 
         return rollup_tree
 
@@ -694,7 +694,57 @@ class BenchmarkMixin(ReportMixin):
         raise KeyError(root_prefix)
 
 
-class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
+class ScorecardQuerySetMixin(BenchmarkMixin):
+    """
+    Queryset used to create a scorecard
+    """
+    def get_queryset(self):
+        #pylint:disable=too-many-locals
+        from_root, trail = self.breadcrumbs
+        roots = [trail[-1][0]] if trail else None
+        rollup_tree = self.rollup_scores(roots, from_root)
+        # XXX `nb_questions` will not be computed correctly if some sections
+        #     have not been answered, and as a result `populate_leaf` wasn't
+        #     called for that particular section.
+
+        self.create_distributions(rollup_tree,
+            view_account=(self.assessment_sample.account.pk
+                if self.assessment_sample else None))
+        self.decorate_with_breadcrumbs(rollup_tree)
+        charts, complete = self.flatten_distributions(rollup_tree,
+            prefix=from_root)
+
+        # Done in BenchmarkBaseView through `_build_tree` > `decorate_leafs`.
+        # This code is here otherwise the printable scorecard doesn't show
+        # icons.
+        for chart in charts:
+            text = PageElement.objects.filter(
+                slug=chart['slug']).values('text').first()
+            if text and text['text']:
+                chart.update({'icon': text['text']})
+
+        total_score = None
+        parts = from_root.split('/')
+        if parts:
+            slug = parts[-1]
+        # When we remove the following 4 lines ...
+            for chart in charts:
+                if chart['slug'] == slug:
+                    total_score = chart.copy()
+                    break
+        if not total_score:
+            total_score = rollup_tree[0]
+        if not total_score:
+            total_score = OrderedDict({"nb_respondents": "-"})
+        total_score.update({"slug": "totals", "title": "Total Score"})
+        # ... and the following 2 lines together, pylint does not blow up...
+        if not complete and 'normalized_score' in total_score:
+            del total_score['normalized_score']
+        charts += [total_score]
+        return charts
+
+
+class BenchmarkAPIView(ScorecardQuerySetMixin, generics.GenericAPIView):
     """
     Retrieves a scorecard
 
@@ -768,51 +818,6 @@ class BenchmarkAPIView(BenchmarkMixin, generics.GenericAPIView):
     http_method_names = ['get']
     serializer_class = BenchmarkSerializer
 
-    def get_queryset(self):
-        #pylint:disable=too-many-locals
-        from_root, trail = self.breadcrumbs
-        roots = [trail[-1][0]] if trail else None
-        rollup_tree = self.rollup_scores(roots, from_root)
-        # XXX `nb_questions` will not be computed correctly if some sections
-        #     have not been answered, and as a result `populate_leaf` wasn't
-        #     called for that particular section.
-
-        self.create_distributions(rollup_tree,
-            view_account=(self.assessment_sample.account.pk
-                if self.assessment_sample else None))
-        self.decorate_with_breadcrumbs(rollup_tree)
-        charts, complete = self.flatten_distributions(rollup_tree,
-            prefix=from_root)
-
-        # Done in BenchmarkBaseView through `_build_tree` > `decorate_leafs`.
-        # This code is here otherwise the printable scorecard doesn't show
-        # icons.
-        for chart in charts:
-            text = PageElement.objects.filter(
-                slug=chart['slug']).values('text').first()
-            if text and text['text']:
-                chart.update({'icon': text['text']})
-
-        total_score = None
-        parts = from_root.split('/')
-        if parts:
-            slug = parts[-1]
-        # When we remove the following 4 lines ...
-            for chart in charts:
-                if chart['slug'] == slug:
-                    total_score = chart.copy()
-                    break
-        if not total_score:
-            total_score = rollup_tree[0]
-        if not total_score:
-            total_score = OrderedDict({"nb_respondents": "-"})
-        total_score.update({"slug": "totals", "title": "Total Score"})
-        # ... and the following 2 lines together, pylint does not blow up...
-        if not complete and 'normalized_score' in total_score:
-            del total_score['normalized_score']
-        charts += [total_score]
-        return charts
-
     def get(self, request, *args, **kwargs): #pylint:disable=unused-argument
         return HttpResponse(self.get_queryset())
 
@@ -881,7 +886,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
 
     .. code-block:: http
 
-         GET /api/content/score/water-use/ HTTP/1.1
+         GET /api/content/editables/score/water-use/ HTTP/1.1
 
     responds
 
@@ -933,8 +938,9 @@ def _populate_account_historical(accounts, agg_score,
         else getattr(agg_score, agg_key))
     accounts[account_id].update({'sample': agg_score.sample_id})
 
+
 # XXX ReportMixin because we use populate_leaf
-class HistoricalScoreAPIView(ReportMixin, generics.RetrieveAPIView):
+class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
     """
     Retrieves historical scorecards
 

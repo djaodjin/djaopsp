@@ -25,7 +25,15 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
 
     .. code-block:: http
 
-        GET /api/content/column/boxes-enclosures/energy-efficiency/ HTTP/1.1
+        GET /api/content/editables/column/boxes-enclosures/energy-efficiency/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "enabled": true
+        }
 
     """
     lookup_field = 'path'
@@ -48,7 +56,21 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
 
         .. code-block:: http
 
-            PUT /api/content/column/boxes-enclosures/energy-efficiency/ HTTP/1.1
+            PUT /api/content/editables/column/boxes-enclosures/energy-efficiency/ HTTP/1.1
+
+        .. code-block:: json
+
+            {
+                "enabled": true
+            }
+
+        responds
+
+        .. code-block:: json
+
+            {
+                "enabled": true
+            }
 
         """
         return super(ColumnAPIView, self).put(request, *args, **kwargs)

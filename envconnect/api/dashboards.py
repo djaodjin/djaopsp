@@ -826,7 +826,7 @@ class SupplierListAPIView(SupplierSmartListMixin, SupplierListBaseAPIView):
 
     .. code-block:: http
 
-        GET /api/energy-utility/suppliers HTTP/1.1
+        GET /api/energy-utility/suppliers/ HTTP/1.1
 
     responds
 
@@ -868,7 +868,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
 
     .. code-block:: http
 
-        GET /api/matrix/totals HTTP/1.1
+        GET /api/steve-shop/matrix/totals HTTP/1.1
 
     responds
 

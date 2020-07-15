@@ -24,20 +24,59 @@ class ConsumptionListAPIView(BreadcrumbMixin, generics.ListCreateAPIView):
 
     .. code-block:: http
 
-         GET /api/content/consumption/ HTTP/1.1
+         GET /api/content/editables/consumption/ HTTP/1.1
 
     responds
 
     .. code-block:: json
 
         {
-            "created_at": "2020-01-01T00:00:00Z",
-            "measured": 12
+            "count": 1,
+            "previous": null,
+            "next": null,
+            "results": [{
+                "created_at": "2020-01-01T00:00:00Z",
+                "measured": 12
+            }]
         }
     """
 
     queryset = Consumption.objects.all()
     serializer_class = ConsumptionSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Creates a consumption
+
+        XXX It seems only POST is used, and what it is used for is:
+        - to duplicate the content sent to PageElement.
+        - update the environmental_value, business_value, profitability, etc.
+
+        **Tags**: survey
+
+        **Examples**
+
+        .. code-block:: http
+
+             POST /api/content/editables/consumption/ HTTP/1.1
+
+        .. code-block:: json
+
+            {
+                "measured": 12
+            }
+
+        responds
+
+        .. code-block:: json
+
+            {
+                "created_at": "2020-01-01T00:00:00Z",
+                "measured": 12
+            }
+        """
+        return super(ConsumptionListAPIView, self).post(
+            request, *args, **kwargs)
 
     def perform_create(self, serializer):
         # Keep database consistent in case we deleted a best practice
@@ -67,19 +106,20 @@ class ConsumptionDetailAPIView(BreadcrumbMixin,
 
     .. code-block:: http
 
-        GET /api/consumption/boxes-enclosures/energy-efficiency/air-flow/\
- HTTP/1.1
-
-    .. code-block:: json
-
-        {
-        }
+        GET /api/content/editables/consumption/boxes-enclosures\
+energy-efficiency/air-flow/ HTTP/1.1
 
     responds
 
     .. code-block:: json
 
         {
+           "path": "/boxes-enclosures/energy-efficiency/air-flow",
+           "environmental_value": 1,
+           "business_value": 1,
+           "profitability": 3,
+           "implementation_ease": 1,
+           "avg_value": 2
         }
     """
     queryset = Consumption.objects.all()
@@ -96,12 +136,16 @@ class ConsumptionDetailAPIView(BreadcrumbMixin,
 
         .. code-block:: http
 
-            PUT /api/consumption/boxes-enclosures/energy-efficiency/air-flow/\
-     HTTP/1.1
+            PUT /api/content/editables/consumption/boxes-enclosures/\
+energy-efficiency/air-flow/ HTTP/1.1
 
         .. code-block:: json
 
             {
+                "environmental_value": 1,
+                "business_value": 1,
+                "profitability": 3,
+                "implementation_ease": 1
             }
 
         responds
@@ -109,6 +153,12 @@ class ConsumptionDetailAPIView(BreadcrumbMixin,
         .. code-block:: json
 
             {
+                "path": "/boxes-enclosures/energy-efficiency/air-flow",
+                "environmental_value": 1,
+                "business_value": 1,
+                "profitability": 3,
+                "implementation_ease": 1,
+                "avg_value": 2
             }
         """
         return super(ConsumptionDetailAPIView, self).put(
@@ -124,20 +174,9 @@ class ConsumptionDetailAPIView(BreadcrumbMixin,
 
         .. code-block:: http
 
-            DELETE /api/consumption/boxes-enclosures/energy-efficiency/air-flow/\
-     HTTP/1.1
+            DELETE /api/content/editables/consumption/boxes-enclosures/\
+energy-efficiency/air-flow/ HTTP/1.1
 
-        .. code-block:: json
-
-            {
-            }
-
-        responds
-
-        .. code-block:: json
-
-            {
-            }
         """
         return super(ConsumptionDetailAPIView, self).delete(
             request, *args, **kwargs)
