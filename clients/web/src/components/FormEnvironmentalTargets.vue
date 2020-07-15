@@ -41,7 +41,7 @@
               hide-details="auto"
               auto-grow
               outlined
-              rows="2"
+              rows="3"
               row-height="16"
             ></v-textarea>
           </v-col>
@@ -115,7 +115,7 @@
               hide-details="auto"
               auto-grow
               outlined
-              rows="2"
+              rows="3"
               row-height="16"
             ></v-textarea>
           </v-col>
@@ -189,7 +189,7 @@
               hide-details="auto"
               auto-grow
               outlined
-              rows="2"
+              rows="3"
               row-height="16"
             ></v-textarea>
           </v-col>
@@ -263,7 +263,7 @@
               hide-details="auto"
               auto-grow
               outlined
-              rows="2"
+              rows="3"
               row-height="16"
             ></v-textarea>
           </v-col>

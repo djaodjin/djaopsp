@@ -3,13 +3,13 @@
     <div v-if="$vuetify.breakpoint.smAndUp">
       <v-container>
         <v-row>
-          <v-col cols="12" :lg="lgCol">
-            <v-sheet class="mx-4 mb-3 mx-lg-auto" elevation="3">
+          <v-col cols="12" :md="mdCol" :lg="lgCol">
+            <v-sheet class="mx-2 mb-3 mx-lg-auto" elevation="3">
               <slot name="tab1"></slot>
             </v-sheet>
           </v-col>
-          <v-col cols="12" :lg="lgCol">
-            <v-sheet class="mx-4 mb-3 mx-lg-auto" elevation="3">
+          <v-col cols="12" :md="mdCol" :lg="lgCol">
+            <v-sheet class="mx-2 mb-3 mx-lg-auto" elevation="3">
               <slot name="tab2"></slot>
             </v-sheet>
           </v-col>
@@ -61,6 +61,10 @@ export default {
     tabs: {
       type: Array,
       required: true,
+    },
+    mdCol: {
+      type: Number,
+      default: 12,
     },
     lgCol: {
       type: Number,

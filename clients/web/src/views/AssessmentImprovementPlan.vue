@@ -1,7 +1,7 @@
 <template>
   <fragment>
     <section-title :title="$t('improvement-plan.title')" />
-    <tab-container :tabs="tabs">
+    <tab-container :tabs="tabs" :lgCol="6">
       <template v-slot:tab2.title>
         <v-badge
           color="secondary"
@@ -12,7 +12,8 @@
         </v-badge>
       </template>
       <template v-slot:tab1>
-        <div class="pa-4">
+        <tab-header :text="$t('improvement-plan.tab1.title')" />
+        <div class="px-4 pt-sm-2 px-md-8">
           <p class="mb-2">{{ $t('improvement-plan.tab1.intro') }}</p>
           <form-improvement-plan
             :planPractices="planPractices"
@@ -22,12 +23,11 @@
         </div>
       </template>
       <template v-slot:tab2>
-        <div class="pa-4">
-          <improvement-plan
-            :planPractices="planPractices"
-            @practice:remove="removePractice"
-          />
-        </div>
+        <improvement-plan
+          :header="$t('improvement-plan.tab2.title')"
+          :planPractices="planPractices"
+          @practice:remove="removePractice"
+        />
       </template>
     </tab-container>
   </fragment>
@@ -39,6 +39,7 @@ import FormImprovementPlan from '@/components/FormImprovementPlan'
 import ImprovementPlan from '@/components/ImprovementPlan'
 import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
+import TabHeader from '@/components/TabHeader'
 
 export default {
   name: 'AssessmentImprovementPlan',
@@ -72,6 +73,7 @@ export default {
     ImprovementPlan,
     SectionTitle,
     TabContainer,
+    TabHeader,
   },
 }
 </script>

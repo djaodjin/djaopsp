@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center" v-if="practices.length">
+  <div class="text-center pb-6" v-if="practices.length">
     <h3 class="mb-1 text-h6">Matching Practices: {{ practices.length }}</h3>
     <p>Select practices to add to your improvement plan</p>
     <v-data-table
@@ -14,8 +14,8 @@
       disable-filtering
       hide-default-footer
     >
-      <template v-slot:item="{ item }">
-        <v-container class="pt-2">
+      <template v-slot:item="{ item, isMobile }">
+        <v-container v-if="isMobile" class="pt-2">
           <v-row>
             <v-col cols="4">
               <div>
@@ -54,10 +54,39 @@
             </v-col>
           </v-row>
         </v-container>
+        <tr v-else>
+          <td>
+            <practice-value-chip dark :value="item[valueKey]" />
+          </td>
+          <td>
+            <implementation-value-chip :value="item.implementationRate" />
+          </td>
+          <td class="py-4">
+            <practice-section-header
+              :small="true"
+              :section="item.question.section.name"
+              :subcategory="item.question.subcategory.name"
+            />
+            <p class="description text-left">{{ item.question.text }}</p>
+            <button-primary
+              v-if="planPractices.findIndex((p) => p.id === item.id) === -1"
+              @click="$emit('practice:add', item)"
+            >
+              Add To Plan
+            </button-primary>
+            <button-secondary
+              color="red"
+              v-else
+              @click="$emit('practice:remove', item)"
+            >
+              Remove From Plan
+            </button-secondary>
+          </td>
+        </tr>
       </template>
     </v-data-table>
   </div>
-  <div class="text-center" v-else>
+  <div class="text-center pb-4" v-else>
     <h3 class="mb-1 text-h6">No Results Found</h3>
     <p>Change the search filters and try again</p>
   </div>
