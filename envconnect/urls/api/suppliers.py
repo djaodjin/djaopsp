@@ -5,7 +5,7 @@ from django.conf.urls import url, include
 from survey.settings import PATH_RE, SLUG_RE
 
 from ...api.assessments import (AssessmentAPIView, AssessmentAnswersAPIView,
-    AssessmentResetAPIView)
+    AssessmentFreezeAPIView, AssessmentResetAPIView)
 from ...api.benchmark import BenchmarkAPIView, HistoricalScoreAPIView
 from ...api.dashboards import (SupplierListAPIView,
     TotalScoreBySubsectorAPIView, ShareScorecardAPIView)
@@ -49,6 +49,9 @@ urlpatterns = [
     url(r'(?P<interviewee>%s)/sample/(?P<sample>%s)/reset(?P<path>%s)/?' % (
         SLUG_RE, SLUG_RE, PATH_RE),
         AssessmentResetAPIView.as_view(), name='survey_api_sample_reset'),
+    url(r'(?P<interviewee>%s)/sample/(?P<sample>%s)/freeze(?P<path>%s)/?' % (
+        SLUG_RE, SLUG_RE, PATH_RE),
+        AssessmentFreezeAPIView.as_view(), name='survey_api_sample_freeze'),
     url(r'(?P<interviewee>%s)/sample/(?P<sample>%s)/?' % (
         SLUG_RE, SLUG_RE),
         AssessmentAPIView.as_view(), name='survey_api_sample'),

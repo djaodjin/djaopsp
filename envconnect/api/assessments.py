@@ -127,6 +127,10 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
         return http.Response(serializer.data)
 
 
+class AssessmentFreezeAPIView(AssessmentAPIView):
+    pass
+
+
 class AssessmentAnswersAPIView(ReportMixin, SampleAnswersAPIView):
     """
     Retrieves measurements or comment to an answer
