@@ -1,92 +1,65 @@
 <template>
   <v-sheet class="pb-4" elevation="3">
-    <v-stepper v-model.number="currentStep" vertical class="py-3 px-md-3">
-      <v-stepper-step
-        :complete="currentStep > 1 && currentStep < 6"
-        :editable="currentStep < 6"
-        step="1"
-        @click.stop="goToCurrentPractices"
-      >
-        <span>Establish current practices</span>
-        <small v-if="currentStep === 1">Current step</small>
-      </v-stepper-step>
-      <v-stepper-content step="1" />
+    <v-stepper v-model.number="computedIndex" vertical class="py-3 px-md-3">
+      <template v-for="(step, i) in ASSESSMENT_FLOW.steps">
+        <fragment v-if="step.key === STEP_SHARE_KEY" :key="step.key">
+          <v-stepper-step
+            :editable="currentStep.key === STEP_SHARE_KEY"
+            :step="i + 1"
+            @click.stop="step.onClick($router, { samplePath })"
+          >
+            <span>{{ step.text }}</span>
+            <small v-if="step === currentStep">Current step</small>
+          </v-stepper-step>
+        </fragment>
 
-      <v-stepper-step
-        :complete="currentStep > 2 && currentStep < 6"
-        :editable="currentStep >= 2 && currentStep < 6"
-        step="2"
-        @click.stop="goToTargets"
-      >
-        <span>Define environmental targets</span>
-        <small v-if="currentStep === 2">Current step</small>
-      </v-stepper-step>
-      <v-stepper-content step="2" />
+        <fragment v-else-if="step.key === STEP_FREEZE_KEY" :key="step.key">
+          <v-stepper-step
+            :editable="currentStep.key === STEP_FREEZE_KEY"
+            :step="i + 1"
+            @click.stop="isFreezeDialogOpen = true"
+          >
+            <span>{{ step.text }}</span>
+            <small v-if="step === currentStep">Current step</small>
+          </v-stepper-step>
+          <v-stepper-content :step="i + 1" />
+        </fragment>
 
-      <v-stepper-step
-        :complete="currentStep > 3 && currentStep < 6"
-        :editable="currentStep >= 3 && currentStep < 6"
-        step="3"
-        @click.stop="goToImprovementPlan"
-      >
-        <span>Create improvement plan</span>
-        <small v-if="currentStep === 3">Current step</small>
-      </v-stepper-step>
-      <v-stepper-content step="3" />
+        <fragment v-else-if="step.key === STEP_SCORECARD_KEY" :key="step.key">
+          <v-stepper-step
+            :editable="currentStep.key === STEP_SCORECARD_KEY"
+            :step="i + 1"
+            :class="{
+              active: currentStepIndex >= i,
+              'v-stepper__step--complete': currentStepIndex >= i,
+            }"
+            @click.stop="step.onClick($router, { samplePath })"
+          >
+            <span>{{ step.text }}</span>
+            <small v-if="step === currentStep">Current step</small>
+          </v-stepper-step>
+          <v-stepper-content :step="i + 1" />
+        </fragment>
 
-      <v-stepper-step
-        :editable="currentStep >= 4"
-        step="4"
-        :class="{
-          active: currentStep >= 4,
-          'v-stepper__step--complete': currentStep >= 4,
-        }"
-        @click.stop="goToScorecard"
-      >
-        <span>Review scorecard</span>
-        <small v-if="currentStep === 4">Current step</small>
-      </v-stepper-step>
-      <v-stepper-content step="4" />
-
-      <v-stepper-step
-        :editable="currentStep === 5"
-        step="5"
-        @click.stop="isFreezeDialogOpen = true"
-      >
-        <span>Freeze assessment</span>
-        <small v-if="currentStep === 5">Current step</small>
-        <dialog-action
-          title="Freeze Assessment"
-          actionText="Yes, freeze the assessment"
-          :isOpen="isFreezeDialogOpen"
-          @action="freezeAssessment"
-          @cancel="closeFreezeDialog"
-        >
-          <p>Would you like to record and freeze the assessment?</p>
-          <p>
-            By freezing the assessment, you certify that the assessment
-            responses provided for your organization are true and correct to the
-            best of your knowledge. Additionally, you acknowledge that the
-            responses form a statement of record which current or future clients
-            may request to verify.
-          </p>
-          <p>
-            After freezing the assessment, you will still be able to review its
-            scorecard, but the assessment will no longer be editable.
-          </p>
-        </dialog-action>
-      </v-stepper-step>
-      <v-stepper-content step="5" />
-
-      <v-stepper-step
-        :editable="currentStep === 6"
-        step="6"
-        @click.stop="goToShare"
-      >
-        <span>Share assessment</span>
-        <small v-if="currentStep === 6">Current step</small>
-      </v-stepper-step>
+        <fragment v-else :key="step.key">
+          <v-stepper-step
+            :complete="
+              currentStepIndex > i && currentStep.key !== STEP_SHARE_KEY
+            "
+            :editable="
+              currentStepIndex >= i && currentStep.key !== STEP_SHARE_KEY
+            "
+            :step="i + 1"
+            @click.stop="step.onClick($router, { samplePath })"
+          >
+            <span>{{ step.text }}</span>
+            <small v-if="step === currentStep">Current step</small>
+          </v-stepper-step>
+          <v-stepper-content :step="i + 1" />
+        </fragment>
+      </template>
     </v-stepper>
+
     <div class="actions text-right mt-2 mr-2">
       <v-btn text color="primary">
         <v-icon small>mdi-download</v-icon>
@@ -137,21 +110,76 @@
         You will still have access to the assessment from the assessment history
       </p>
     </dialog-action>
+    <dialog-action
+      title="Freeze Assessment"
+      actionText="Yes, freeze the assessment"
+      :isOpen="isFreezeDialogOpen"
+      @action="freezeAssessment"
+      @cancel="closeFreezeDialog"
+    >
+      <p>Would you like to record and freeze the assessment?</p>
+      <p>
+        By freezing the assessment, you certify that the assessment responses
+        provided for your organization are true and correct to the best of your
+        knowledge. Additionally, you acknowledge that the responses form a
+        statement of record which current or future clients may request to
+        verify.
+      </p>
+      <p>
+        After freezing the assessment, you will still be able to review its
+        scorecard, but the assessment will no longer be editable.
+      </p>
+    </dialog-action>
   </v-sheet>
 </template>
 
 <script>
+import { Fragment } from 'vue-fragment'
+import {
+  ASSESSMENT_FLOW,
+  STEP_SHARE_KEY,
+  STEP_FREEZE_KEY,
+  STEP_SCORECARD_KEY,
+} from '@/config/app'
 import DialogAction from '@/components/DialogAction'
 
 export default {
   name: 'AssessmentStepper',
 
-  data: () => ({
-    currentStep: 5,
-    isArchiveDialogOpen: false,
-    isDeleteDialogOpen: false,
-    isFreezeDialogOpen: false,
-  }),
+  props: ['assessment'],
+
+  beforeMount() {
+    ASSESSMENT_FLOW.start(this.assessment.status)
+    this.currentStep = ASSESSMENT_FLOW.getStep()
+    this.currentStepIndex = ASSESSMENT_FLOW.getStepIndex()
+  },
+
+  beforeDestroy() {
+    ASSESSMENT_FLOW.reset()
+  },
+
+  data() {
+    return {
+      currentStep: null,
+      currentStepIndex: 0,
+      ASSESSMENT_FLOW,
+      STEP_SHARE_KEY,
+      STEP_FREEZE_KEY,
+      STEP_SCORECARD_KEY,
+      isArchiveDialogOpen: false,
+      isDeleteDialogOpen: false,
+      isFreezeDialogOpen: false,
+    }
+  },
+
+  computed: {
+    computedIndex() {
+      return this.currentStepIndex + 1
+    },
+    samplePath() {
+      return this.assessment.industryPath
+    },
+  },
 
   methods: {
     closeArchiveDialog() {
@@ -163,34 +191,6 @@ export default {
     closeFreezeDialog() {
       this.isFreezeDialogOpen = false
     },
-    goToCurrentPractices() {
-      if (this.currentStep < 6) {
-        this.$router.push({
-          name: 'introPractices',
-        })
-      }
-    },
-    goToTargets() {
-      if (this.currentStep >= 2 && this.currentStep < 6) {
-        this.$router.push({
-          name: 'introTargets',
-        })
-      }
-    },
-    goToImprovementPlan() {
-      if (this.currentStep >= 3 && this.currentStep < 6) {
-        this.$router.push({
-          name: 'introPlan',
-        })
-      }
-    },
-    goToScorecard() {
-      if (this.currentStep >= 4) {
-        this.$router.push({
-          name: 'assessmentScorecard',
-        })
-      }
-    },
     archiveAssessment() {
       this.isArchiveDialogOpen = false
     },
@@ -200,16 +200,10 @@ export default {
     freezeAssessment() {
       this.isFreezeDialogOpen = false
     },
-    goToShare() {
-      if (this.currentStep === 6) {
-        this.$router.push({
-          name: 'assessmentShare',
-        })
-      }
-    },
   },
 
   components: {
+    Fragment,
     DialogAction,
   },
 }
