@@ -3,10 +3,10 @@
     <h1 class="assessment-title">Environment Sustainability Assessment</h1>
     <v-container>
       <v-row justify="center">
-        <v-col cols="11" sm="8" md="6" lg="5">
+        <v-col cols="12" sm="8" md="6" lg="5">
           <assessment-info />
         </v-col>
-        <v-col cols="11" sm="8" md="5" lg="4">
+        <v-col cols="12" sm="8" md="5">
           <assessment-stepper />
         </v-col>
       </v-row>
