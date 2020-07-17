@@ -3,7 +3,7 @@ import { VALID_ASSESSMENT_STEPS, DEFAULT_ASSESSMENT_STEP } from '../config/app'
 
 export default class Assessment {
   constructor({
-    id,
+    id = getUniqueId(),
     authorName,
     authorEmail,
     industryName,
@@ -15,7 +15,7 @@ export default class Assessment {
     if (!VALID_ASSESSMENT_STEPS.includes(status)) {
       throw new Error('Invalid assessment status')
     }
-    this.id = id || getUniqueId()
+    this.id = id
     this.authorName = authorName
     this.authorEmail = authorEmail
     this.industryName = industryName

@@ -40,3 +40,19 @@ export function getAssessment(id) {
     }, DELAY)
   })
 }
+
+export function postAssessment() {
+  return new Promise((resolve, reject) => {
+    const newAssessment = new Assessment({
+      authorName: 'Vincent Lemassu',
+      authorEmail: 'vincent.lemassu@tamarinsolutions.com',
+      industryName: 'Marketing & communications',
+      industryPath: 'marketing-and-communications',
+    })
+    activeAssessments.push(newAssessment)
+
+    setTimeout(() => {
+      resolve(newAssessment)
+    }, DELAY)
+  })
+}

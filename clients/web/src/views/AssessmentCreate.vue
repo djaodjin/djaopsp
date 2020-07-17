@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import { postAssessment } from '../mocks/assessments'
 import {
   getIndustrySegments,
   getPreviousIndustrySegments,
@@ -59,9 +60,12 @@ export default {
 
     processForm: function () {
       // TODO: Post new assessment; then redirect to the assessment home page
-      this.$router.push({
-        name: 'assessmentHome',
-        params: { id: 123 },
+      // TODO: How to get the author information?
+      postAssessment().then((newAssessment) => {
+        this.$router.push({
+          name: 'assessmentHome',
+          params: { id: newAssessment.id },
+        })
       })
     },
   },
