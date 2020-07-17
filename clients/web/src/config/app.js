@@ -1,4 +1,5 @@
 import FormQuestion from '../common/FormQuestion'
+import { AssessmentStep, AssessmentFlow } from '../common/AssessmentFlow'
 
 function answersWarning(answers) {
   console.warn('Unable to find matching answer in ', answers)
@@ -176,3 +177,60 @@ export const PRACTICE_VALUE_CATEGORIES = [
 ]
 
 export const PRACTICE_VALUE_CATEGORY_DEFAULT = PRACTICE_VALUE_CATEGORIES[0]
+
+/* --- Assessment Steps --- */
+export const STEP_FREEZE_KEY = 'freeze'
+export const STEP_SHARE_KEY = 'share'
+export const STEP_SCORECARD_KEY = 'scorecard'
+
+export const ASSESSMENT_STEPS = {
+  practice: {
+    index: 1,
+    text: 'Establish current practices',
+    path: 'assessmentPractices',
+    introPath: 'introPractices',
+    isEditable: true,
+  },
+  targets: {
+    index: 2,
+    text: 'Define environmental targets',
+    path: 'assessmentTargets',
+    introPath: 'introTargets',
+    isEditable: true,
+  },
+  plan: {
+    index: 3,
+    text: 'Create improvement plan',
+    path: 'assessmentPlan',
+    introPath: 'introPlan',
+    isEditable: true,
+  },
+  [STEP_SCORECARD_KEY]: {
+    index: 4,
+    text: 'Review scorecard',
+    path: 'assessmentScorecard',
+  },
+  [STEP_FREEZE_KEY]: {
+    index: 5,
+    text: 'Freeze assessment',
+  },
+  [STEP_SHARE_KEY]: {
+    index: 6,
+    text: 'Share assessment',
+    path: 'assessmentShare',
+  },
+}
+
+export const ASSESSMENT_FLOW = new AssessmentFlow({
+  steps: Object.entries(ASSESSMENT_STEPS)
+    .map(([key, obj]) => ({
+      ...obj,
+      key,
+    }))
+    .sort((a, b) => a.index - b.index)
+    .map((o) => new AssessmentStep(o)),
+})
+
+export const VALID_ASSESSMENT_STEPS = Object.keys(ASSESSMENT_STEPS)
+
+export const DEFAULT_ASSESSMENT_STEP = VALID_ASSESSMENT_STEPS[0]
