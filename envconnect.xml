@@ -26,6 +26,9 @@
       <dep name="gunicorn" target="python">
         <lib>.*/(gunicorn)/__init__.py</lib>
       </dep>
+      <dep name="django-livereload-server" target="python">
+        <lib>.*/(livereload)/__init__.py</lib>
+      </dep>
       <dep name="django-crispy-forms" target="python">
         <lib>.*/(crispy_forms)/__init__.py</lib>
       </dep>

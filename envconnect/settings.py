@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = os.path.basename(BASE_DIR)
 
 DEBUG = True
-FEATURES_VUEJS = True
+FEATURES_VUEJS = False
 FEATURES_REVERT_TO_DJANGO = True
 
 TESTING_USERNAMES = []
@@ -36,6 +36,7 @@ if DEBUG:
     ENV_INSTALLED_APPS = (
         'debug_toolbar',
         'django_extensions',
+        'livereload',
         )
 else:
     ENV_INSTALLED_APPS = tuple([])
@@ -54,7 +55,6 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'rules',
     'saas',
     'django_comments',
-    'livereload',
     'answers',
     'survey',
     'pages',
