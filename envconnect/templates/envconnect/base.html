@@ -2,6 +2,14 @@
 {% load assets %}
 {% load static from staticfiles %}
 
+{% block localheader %}
+{% if FEATURES_VUEJS %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,400,500,700:100,300,400,500,700,900|Eczar:400:100,300,400,500,700,900&display=swap">
+<%= htmlWebpackPlugin.tags.headTags %>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="backdrop">
   <div ng-app="envconnectApp">
@@ -49,6 +57,11 @@ and/or funding to develop content on this website.
 
 {% block bodyscripts %}
 {{block.super}}
+
+{% if FEATURES_VUEJS %}
+<%= htmlWebpackPlugin.tags.bodyTags %>
+{% endif %}
+
 {% assets "js_angular" %}
 <script type="text/javascript" src="{{ASSET_URL}}"></script>
 {% endassets %}

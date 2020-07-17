@@ -109,6 +109,20 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
     """
     account_url_kwarg = 'interviewee'
 
+    def delete(self, request, *args, **kwargs):
+        """
+        Reset a subset of datapoints for a sample
+
+        Resets all answers whose question's path starts with a specified prefix.
+
+        **Examples
+
+        .. code-block:: http
+
+            DELETE /api/steve-shop/sample/0123456789abcdef/water-use/ HTTP/1.1
+        """
+        return self.destroy(request, *args, **kwargs)
+
     def update(self, request, *args, **kwargs):
         #pylint:disable=unused-argument
         # We donot call super() because the up-to-date assessment should

@@ -1,0 +1,66 @@
+{
+  "app": {
+    "help": "Ayuda",
+    "title": "TSP"
+  },
+  "nav": {
+    "opt-help": "@:app.help",
+    "opt-home": "Inicio",
+    "opt-assessment": "Evaluación",
+    "opt-projects": "Proyectos",
+    "opt-settings": "Configuración",
+    "opt-sign-out": "Desconectar"
+  },
+  "home": {
+    "btn-assessment": "Take Sustainability Assessment",
+    "btn-best-practices": "View Best Practices",
+    "btn-history": "View Assessment History",
+    "desc-assessment": "Record your organization's environmental sustainability practices.",
+    "desc-best-practices": "Learn about the recommended environmental sustainability practices in your industry segment.",
+    "desc-history": "View complete history of all organization assessments in the TSP platform."
+  },
+
+  "practices": {
+    "tab1": {
+      "intro": "View all questionnaire sections.",
+      "title": "Sections"
+    },
+    "tab2": {
+      "intro": "List of all unanswered questions.",
+      "title": "Pending Questions"
+    }
+  },
+
+  "targets": {
+    "tab1": {
+      "intro": "Understand how your business compares to other companies.",
+      "title": "Market Situation"
+    },
+    "tab2": {
+      "btn-submit": "Submit Environmental Targets",
+      "form": {
+        "baseline": "Baseline",
+        "by": "By",
+        "cbx-emissions": "GHG Emissions",
+        "cbx-energy": "Energy Reduction",
+        "cbx-waste": "Waste",
+        "cbx-water": "Water Use",
+        "textarea-label": "Target description"
+      },
+      "intro": "Describe and submit your targets.",
+      "title": "Targets"
+    },
+    "title": "Environmental Targets"
+  },
+
+  "improvement-plan": {
+    "tab1": {
+      "intro": "Prioritize opportunities for improvement based on expert feedback and other competitors.",
+      "title": "Opportunities"
+    },
+    "tab2": {
+      "title": "Improvement Plan"
+    },
+    "title": "Environmental Targets"
+  }
+}

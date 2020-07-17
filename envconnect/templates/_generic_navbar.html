@@ -5,9 +5,6 @@
 <li class="nav-item">
   <a class="nav-link" href="{{'/app/reporting/'|site_prefixed}}">Dashboard</a>
 </li>
-<!--[if !IE]><!-->
- <li class="divider-vertical d-none d-sm-block"><li>
-<!--<![endif]-->
 {% endif %}
 <li class="nav-item dropdown {% if request and '/docs/' in request.path %} active{% endif %}">
  <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help <span class="caret"></span></a>
@@ -21,6 +18,3 @@
 {% endif %}
   </ul>
 </li>
-<!--[if !IE]><!-->
-<li class="divider-vertical d-none d-sm-block"><li>
-<!--<![endif]-->
