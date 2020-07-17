@@ -15,7 +15,7 @@
           class="mt-8"
           :to="{
             name: 'assessmentTargets',
-            params: { id: $route.params.id },
+            params: { id, samplePath },
           }"
           >Continue</button-primary
         >
@@ -31,6 +31,8 @@ import IntroSection from '@/components/IntroSection'
 
 export default {
   name: 'IntroEnvironmentalTargets',
+
+  props: ['id', 'samplePath'],
 
   components: {
     Fragment,

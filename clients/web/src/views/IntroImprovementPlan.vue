@@ -19,7 +19,7 @@
           class="mt-8"
           :to="{
             name: 'assessmentPlan',
-            params: { id: $route.params.id },
+            params: { id, samplePath },
           }"
           >Continue</button-primary
         >
@@ -40,6 +40,8 @@ import IntroSection from '@/components/IntroSection'
 
 export default {
   name: 'IntroCurrentPractices',
+
+  props: ['id', 'samplePath'],
 
   methods: {
     advanceAssessment() {
