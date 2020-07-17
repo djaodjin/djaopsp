@@ -53,13 +53,12 @@ export default {
 
   methods: {
     async fetchData() {
-      this.loading = true
       this.allIndustrySegments = await getIndustrySegments()
       this.previousIndustrySegments = await getPreviousIndustrySegments()
-      this.loading = false
     },
 
     processForm: function () {
+      // TODO: Post new assessment; then redirect to the assessment home page
       this.$router.push({
         name: 'assessmentHome',
         params: { id: 123 },
@@ -69,7 +68,6 @@ export default {
 
   data() {
     return {
-      loading: false,
       allIndustrySegments: [],
       previousIndustrySegments: [],
       industry: null,
