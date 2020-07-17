@@ -97,71 +97,6 @@
   },
   "model" : "survey.metric", "pk" : 4
 },
-{ "fields" : {
-    "slug" : "framework",
-    "title" : "Sustainability Framework",
-    "description" : "Sustainability Framework",
-    "account" : 6,
-    "active": true
-  },
-  "model" : "survey.campaign", "pk" : 2
-},
-{ "fields": {
-    "slug": "framework",
-    "title": "Framework",
-    "system": 3
-  },
-  "model" : "survey.unit", "pk" : 4
-},
-{ "fields": {
-    "unit": 4,
-    "rank": 1,
-    "text": "Initiating"
-  },
-  "model" : "survey.choice", "pk" : 6
-},
-{ "fields": {
-    "unit": 4,
-    "rank": 2,
-    "text": "Progressing"
-  },
-  "model" : "survey.choice", "pk" : 7
-},
-{ "fields": {
-    "unit": 4,
-    "rank": 3,
-    "text": "Optimizing"
-  },
-  "model" : "survey.choice", "pk" : 8
-},
-{ "fields": {
-    "unit": 4,
-    "rank": 4,
-    "text": "Leading"
-  },
-  "model" : "survey.choice", "pk" : 9
-},
-{ "fields": {
-    "unit": 4,
-    "rank": 5,
-    "text": "Transforming"
-  },
-  "model" : "survey.choice", "pk" : 10
-},
-{ "fields": {
-    "unit": 4,
-    "rank": 6,
-    "text": "Do not know"
-  },
-  "model" : "survey.choice", "pk" : 11
-},
-{ "fields": {
-    "slug": "framework",
-    "title": "Framework",
-    "unit": 4
-  },
-  "model" : "survey.metric", "pk" : 5
-},
 {
   "fields": {
     "slug": "usd",
@@ -513,7 +448,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"enabled\"]}",
+    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 1
@@ -538,7 +473,7 @@
   "fields": {
     "title": "Metal structures & equipment",
     "slug": "metal",
-    "tag": "{\"tags\":[\"industry\",\"enabled\",\"heading\"]}",
+    "tag": "{\"tags\":[\"industry\",\"enabled\",\"public\",\"heading\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 3
@@ -994,7 +929,7 @@
   "fields": {
     "title": "Construction",
     "slug": "construction",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"enabled\"]}",
+    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"enabled\"]}",
     "account": 10
   },
   "model": "pages.PageElement", "pk": 28
@@ -1422,8 +1357,8 @@
 {
   "fields": {
     "title": "Professional services",
-    "slug": "office-space-only",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\"]}",
+    "slug": "professional-services",
+    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 52
@@ -2451,45 +2386,9 @@
 },
 {
   "fields": {
-    "title": "Diversified, corporate level",
-    "slug": "diversified-corporate-level",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 70
-},
-{
-  "fields": {
-    "title": "Vehicle equipment & parts",
-    "slug": "vehicle-equipment-and-parts",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 73
-},
-{
-  "fields": {
-    "title": "Distribution transformers",
-    "slug": "distribution-transformers",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 74
-},
-{
-  "fields": {
-    "title": "Fabricated metals",
-    "slug": "fabricated-metals",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 75
-},
-{
-  "fields": {
     "title": "Wire & cable",
     "slug": "wire-and-cable",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"enabled\"]}",
+    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 76
@@ -2565,20 +2464,6 @@
 {
   "fields": {
     "orig_element": 3,
-    "dest_element": 74
-  },
-  "model": "pages.Relationship", "pk": 71
-},
-{
-  "fields": {
-    "orig_element": 3,
-    "dest_element": 75
-  },
-  "model": "pages.Relationship", "pk": 72
-},
-{
-  "fields": {
-    "orig_element": 3,
     "dest_element": 76
   },
   "model": "pages.Relationship", "pk": 73
@@ -2607,184 +2492,5 @@
     "rank": 11
   },
   "model": "survey.EnumeratedQuestions", "pk": 11
-},
-{
-  "fields": {
-    "title": "Sustainability Framework",
-    "slug": "framework",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"enabled\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 80
-},
-{
-  "fields": {
-    "title": "Sustainability Framework",
-    "slug": "sustainability-framework",
-    "tag": "{\"tags\":[\"scorecard\",\"hide-summary\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 81
-},
-{
-  "fields": {
-    "orig_element": 80,
-    "dest_element": 81
-  },
-  "model": "pages.Relationship", "pk": 80
-},
-{
-  "fields": {
-    "title": "Governance & management",
-    "slug": "framework-management-basics",
-    "text": "/envconnect/static/img/management-basics.png",
-    "tag": "{\"tags\":[\"management\",\"scorecard\",\"framework\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 82
-},
-{
-  "fields": {
-    "orig_element": 81,
-    "dest_element": 82
-  },
-  "model": "pages.Relationship", "pk": 82
-},
-{
-  "fields": {
-    "slug": "policy-accountability-and-responsibility",
-    "title": "Policy, Accountability and Responsibility",
-    "account": 6,
-    "text": "There is minimal management support.\nSupport is visible and clearly demonstrated.\nExecutive management reviews environmental performance, risks and opportunities, and endorses/sets goals.\nThe Board of Directors annually reviews environmental performance and sets or endorses goals.\nExecutive management sponsors transformative change in industry sector and beyond."
-  },
-  "model": "pages.PageElement", "pk": 83
-},
-{
-  "fields": {
-    "orig_element": 82,
-    "dest_element": 83
-  },
-  "model": "pages.Relationship", "pk": 83
-},
-{
-  "fields": {
-    "path": "/framework/sustainability-framework/framework-management-basics/policy-accountability-and-responsibility",
-    "text": "Policy, Accountability and Responsibility",
-    "question_type": "radio",
-    "default_metric": 5,
-    "avg_energy_saving": "* * * *",
-    "capital_cost": "$$$",
-    "payback_period": "0-1.8 (0.3)",
-    "business_value": 2,
-    "environmental_value": 2,
-    "implementation_ease": 2,
-    "profitability": 2,
-    "avg_value": 2
-  },
-  "model": "envconnect.Consumption", "pk": 16
-},
-{
-  "fields": {
-    "campaign": 2,
-    "question": 16,
-    "rank": 1
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 16
-},
-{
-  "fields": {
-    "slug": "environmental-assessment",
-    "title": "Environmental Assessment",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 84
-},
-{
-  "fields": {
-    "orig_element": 82,
-    "dest_element": 84
-  },
-  "model": "pages.Relationship", "pk": 84
-},
-{
-  "fields": {
-    "path": "/framework/sustainability-framework/framework-management-basics/environmental-assessment",
-    "text": "Environmental Assessment",
-    "question_type": "radio",
-    "default_metric": 5,
-    "avg_energy_saving": "* * * *",
-    "capital_cost": "$$$",
-    "payback_period": "0-1.8 (0.3)",
-    "business_value": 2,
-    "environmental_value": 2,
-    "implementation_ease": 2,
-    "profitability": 2,
-    "avg_value": 2
-  },
-  "model": "envconnect.Consumption", "pk": 17
-},
-{
-  "fields": {
-    "campaign": 2,
-    "question": 17,
-    "rank": 2
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 17
-},
-
-{
-  "fields": {
-    "title": "Additional questions",
-    "slug": "framework-additional-questions",
-    "tag": "{\"tags\":[\"metrics\",\"scorecard\",\"framework\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 85
-},
-{
-  "fields": {
-    "orig_element": 81,
-    "dest_element": 85
-  },
-  "model": "pages.Relationship", "pk": 85
-},
-{
-  "fields": {
-    "slug": "top-successful-supply-chain-sustainabillity-practice",
-    "title": "What was your top successful supply chain sustainabillity practice?",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 86
-},
-{
-  "fields": {
-    "orig_element": 85,
-    "dest_element": 86
-  },
-  "model": "pages.Relationship", "pk": 86
-},
-{
-  "fields": {
-    "path": "/framework/sustainability-framework/framework-additional-questions/top-successful-supply-chain-sustainabillity-practice",
-    "text": "What was your top successful supply chain sustainabillity practice?",
-    "question_type": "text",
-    "default_metric": 3,
-    "avg_energy_saving": "* * * *",
-    "capital_cost": "$$$",
-    "payback_period": "0-1.8 (0.3)",
-    "business_value": 2,
-    "environmental_value": 2,
-    "implementation_ease": 2,
-    "profitability": 2,
-    "avg_value": 2
-  },
-  "model": "envconnect.Consumption", "pk": 18
-},
-{
-  "fields": {
-    "campaign": 2,
-    "question": 18,
-    "rank": 3
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 18
-}]
+}
+]
