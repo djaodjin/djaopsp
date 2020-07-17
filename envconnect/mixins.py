@@ -914,9 +914,9 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 'measured': measured,
                 'created_at': datapoint.created_at,
                 'metric_title': datapoint.metric.title,
-                'location': reverse('api_measures_delete', args=(
-                    self.sample.account, self.sample,
-                    rank, datapoint.metric.slug))
+#XXX                'location': reverse('api_measures_delete', args=(
+#                    self.sample.account, self.sample,
+#                    rank, datapoint.metric.slug))
             }
             if datapoint.metric.slug == 'target-baseline':
                 measure['text'] = "baseline %s" % str(measured)
