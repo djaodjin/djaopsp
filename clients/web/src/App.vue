@@ -51,11 +51,7 @@
 
         <v-btn
           v-if="
-            this.$route.name === 'introPractices' ||
-            this.$route.name === 'introTargets' ||
-            this.$route.name === 'introPlan' ||
-            this.$route.name === 'assessmentScorecard' ||
-            this.$route.name === 'assessmentShare'
+            this.$route.name !== 'home' && this.$route.name !== 'assessmentHome'
           "
           :to="{ name: 'assessmentHome', params: { id: '123' } }"
         >

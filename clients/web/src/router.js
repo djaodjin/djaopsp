@@ -19,57 +19,57 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/',
+      path: '/app/:org/',
       name: 'home',
       component: Home,
     },
     {
-      path: '/new-assessment',
+      path: '/app/:org/new-assessment',
       name: 'newAssessment',
       component: AssessmentCreate,
     },
     {
-      path: '/assessment/:id',
+      path: '/app/:org/assessment/:id',
       name: 'assessmentHome',
       component: AssessmentHome,
     },
     {
-      path: '/assessment/:id/practices/intro',
+      path: '/app/:org/assessment/:id/practices/intro',
       name: 'introPractices',
       component: IntroCurrentPractices,
     },
     {
-      path: '/assessment/:id/practices',
+      path: '/app/:org/assessment/:id/practices',
       name: 'assessmentPractices',
       component: AssessmentCurrentPractices,
     },
     {
-      path: '/assessment/:id/targets/intro',
+      path: '/app/:org/assessment/:id/targets/intro',
       name: 'introTargets',
       component: IntroEnvironmentalTargets,
     },
     {
-      path: '/assessment/:id/targets',
+      path: '/app/:org/assessment/:id/targets',
       name: 'assessmentTargets',
       component: AssessmentEnvironmentalTargets,
     },
     {
-      path: '/assessment/:id/plan/intro',
+      path: '/app/:org/assessment/:id/plan/intro',
       name: 'introPlan',
       component: IntroImprovementPlan,
     },
     {
-      path: '/assessment/:id/plan',
+      path: '/app/:org/assessment/:id/plan',
       name: 'assessmentPlan',
       component: AssessmentImprovementPlan,
     },
     {
-      path: '/assessment/:id/scorecard',
+      path: '/app/:org/assessment/:id/scorecard',
       name: 'assessmentScorecard',
       component: AssessmentScorecard,
     },
     {
-      path: '/assessment/:id/share',
+      path: '/app/:org/assessment/:id/share',
       name: 'assessmentShare',
       component: AssessmentShare,
     },
