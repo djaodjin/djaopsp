@@ -24,7 +24,7 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/app/:org/new-assessment',
+      path: '/app/:org/assess/new',
       name: 'newAssessment',
       component: AssessmentCreate,
     },
