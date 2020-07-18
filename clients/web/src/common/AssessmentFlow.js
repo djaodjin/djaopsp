@@ -18,12 +18,14 @@ export class AssessmentStep {
     return this.isComplete && this.isEditable
   }
 
-  onClick(router, pathParams) {
-    if (this.introPath || this.path) {
-      router.push({
-        name: this.introPath || this.path,
-        params: pathParams,
-      })
+  onClick(router, pathParams, isActive) {
+    if (typeof isActive === 'boolean' && isActive) {
+      if (this.introPath || this.path) {
+        router.push({
+          name: this.introPath || this.path,
+          params: pathParams,
+        })
+      }
     }
   }
 }

@@ -6,7 +6,13 @@
           <v-stepper-step
             :editable="currentStep.key === STEP_SHARE_KEY"
             :step="i + 1"
-            @click.stop="step.onClick($router, { samplePath })"
+            @click.stop="
+              step.onClick(
+                $router,
+                { samplePath },
+                currentStep.key === STEP_SHARE_KEY
+              )
+            "
           >
             <span>{{ step.text }}</span>
             <small v-if="step === currentStep">Current step</small>
@@ -17,7 +23,7 @@
           <v-stepper-step
             :editable="currentStep.key === STEP_FREEZE_KEY"
             :step="i + 1"
-            @click.stop="isFreezeDialogOpen = true"
+            @click.stop="openFreezeDialog(currentStep.key === STEP_FREEZE_KEY)"
           >
             <span>{{ step.text }}</span>
             <small v-if="step === currentStep">Current step</small>
@@ -27,13 +33,15 @@
 
         <fragment v-else-if="step.key === STEP_SCORECARD_KEY" :key="step.key">
           <v-stepper-step
-            :editable="currentStep.key === STEP_SCORECARD_KEY"
+            :editable="currentStepIndex >= i"
             :step="i + 1"
             :class="{
               active: currentStepIndex >= i,
               'v-stepper__step--complete': currentStepIndex >= i,
             }"
-            @click.stop="step.onClick($router, { samplePath })"
+            @click.stop="
+              step.onClick($router, { samplePath }, currentStepIndex >= i)
+            "
           >
             <span>{{ step.text }}</span>
             <small v-if="step === currentStep">Current step</small>
@@ -50,7 +58,13 @@
               currentStepIndex >= i && currentStep.key !== STEP_SHARE_KEY
             "
             :step="i + 1"
-            @click.stop="step.onClick($router, { samplePath })"
+            @click.stop="
+              step.onClick(
+                $router,
+                { samplePath },
+                currentStepIndex >= i && currentStep.key !== STEP_SHARE_KEY
+              )
+            "
           >
             <span>{{ step.text }}</span>
             <small v-if="step === currentStep">Current step</small>
@@ -199,6 +213,11 @@ export default {
     },
     freezeAssessment() {
       this.isFreezeDialogOpen = false
+    },
+    openFreezeDialog(isActive) {
+      if (isActive) {
+        this.isFreezeDialogOpen = true
+      }
     },
   },
 
