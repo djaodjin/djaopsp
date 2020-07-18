@@ -17,7 +17,7 @@
     "btn-history": "View Assessment History",
     "desc-assessment": "Record your organization's environmental sustainability practices.",
     "desc-best-practices": "Learn about the recommended environmental sustainability practices in your industry segment.",
-    "desc-history": "View complete history of all organization assessments in the TSP platform."
+    "desc-history": "View recorded history of your organization's environmental sustainability practices."
   },
 
   "practices": {
@@ -34,7 +34,7 @@
   "targets": {
     "tab1": {
       "intro": "Understand how your business compares to other companies.",
-      "title": "Market Situation"
+      "title": "Benchmarking"
     },
     "tab2": {
       "btn-submit": "Submit Environmental Targets",
