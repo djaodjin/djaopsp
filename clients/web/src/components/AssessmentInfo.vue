@@ -1,28 +1,30 @@
 <template>
-  <v-card class="mx-auto assessment-info">
+  <v-card v-bind="$attrs" class="mx-auto assessment-info">
     <v-card-text class="pa-4 pt-md-6 pb-md-5">
       <ul class="pa-0">
         <li>
           <span>Industry:</span>
-          <b>Engineering, Procurement, Construction</b>
+          <b>{{ assessment.industryName }}</b>
         </li>
         <li>
           <span>Created:</span>
-          <time datetime="2020-06-15 10:34">June 15, 2020</time>
+          <time :datetime="assessment.created">{{ assessment.created }}</time>
         </li>
         <li>
           <span>Author:</span>
-          <em>scott@tamerinsolutions.com</em>
+          <em>{{ assessment.authorEmail }}</em>
         </li>
         <li v-if="isClickable">
-          <router-link :to="{ name: 'assessmentHome', params: { id: '123' } }">
+          <router-link
+            :to="{ name: 'assessmentHome', params: { id: assessment.id } }"
+          >
             <span>Continue:</span>
-            <b>Establish Current Practices</b>
+            <b>{{ ASSESSMENT_STEPS[assessment.status].text }}</b>
           </router-link>
         </li>
         <li v-else>
           <span>Status:</span>
-          <b>Establish Current Practices</b>
+          <b>{{ ASSESSMENT_STEPS[assessment.status].text }}</b>
         </li>
       </ul>
     </v-card-text>
@@ -30,14 +32,28 @@
 </template>
 
 <script>
+import { ASSESSMENT_STEPS } from '@/config/app'
 import ButtonPrimary from '@/components/ButtonPrimary'
 
 export default {
   name: 'AssessmentInfo',
 
-  data: () => ({
-    isClickable: false,
-  }),
+  props: {
+    assessment: {
+      type: Object,
+      require: true,
+    },
+    isClickable: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  data() {
+    return {
+      ASSESSMENT_STEPS,
+    }
+  },
 }
 </script>
 

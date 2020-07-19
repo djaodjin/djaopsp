@@ -96,7 +96,6 @@
 </template>
 
 <script>
-import { Fragment } from 'vue-fragment'
 import { SectionList } from '../common/SectionList'
 import NextPracticeSection from '@/components/NextPracticeSection'
 import PracticesSection from '@/components/PracticesSection'
