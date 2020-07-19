@@ -329,9 +329,8 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
             'api_assessment_sample': reverse(
                 'survey_api_sample', args=(organization, self.sample)),
             'api_assessment_freeze': reverse(
-                'survey_api_sample', args=(organization, self.sample,
-                # XXX Add `industry_root` here...
-                )),
+                'survey_api_sample_freeze', args=(organization, self.sample,
+                industry_root)),
             'api_assessment_sample_new': reverse(
                 'survey_api_sample_new', args=(organization,)),
             'api_benchmark_share': reverse('api_benchmark_share',

@@ -155,100 +155,21 @@ class DashboardMixin(BenchmarkMixin):
 
     account_model = get_account_model()
 
-    def _get_scored_answers(self, population, metric_id,
-                            includes=None, questions=None, prefix=None):
-        """
-        Returns aggregates for scores (metric_id is ignored; '2' is
-        hard-coded) of assessment samples for a specific `prefix`.
+    @property
+    def ends_at(self):
+        if not hasattr(self, '_ends_at'):
+            self._ends_at = self.request.GET.get('ends_at', None)
+            if self._ends_at:
+                self._ends_at = self._ends_at.strip('"')
+            try:
+                self._ends_at = datetime_or_now(self._ends_at)
+            except ValueError:
+                self._ends_at = datetime_or_now()
+        return self._ends_at
 
-        Returns a list of tuples with the following fields:
-
-        - account_id
-        - sample_id
-        - is_completed
-        - is_planned
-        - numerator
-        - denominator
-        - last_activity_at
-        - answer_id
-        - question_id
-        - path
-        - (dummy) implemented
-        - environmental_value
-        - business_value
-        - profitability
-        - implementation_ease
-        - avg_value
-        - (dummy) nb_respondents
-        - (dummy) rate
-        - opportunity
-        """
-        #pylint:disable=too-many-arguments
-        latest_assessments = Consumption.objects.get_latest_samples_by_prefix(
-            before=self.ends_at, prefix=prefix)
-        scored_answers = """WITH samples AS (
-%(latest_assessments)s
-),
-expected_opportunities AS (
-SELECT
-    survey_question.id AS question_id,
-    survey_question.path AS path,
-    '' AS implemented,
-    survey_question.environmental_value AS environmental_value,
-    survey_question.business_value AS business_value,
-    survey_question.profitability AS profitability,
-    survey_question.implementation_ease AS implementation_ease,
-    survey_question.avg_value AS avg_value,
-    0 AS nb_respondents,
-    0 AS rate,
-    survey_question.default_metric_id AS default_metric_id,
-    survey_question.opportunity AS opportunity,
-    samples.account_id AS account_id,
-    samples.id AS sample_id,
-    samples.slug AS sample_slug,
-    samples.is_frozen AS is_completed,
-    samples.extra AS is_planned
-FROM samples
-INNER JOIN survey_enumeratedquestions
-    ON samples.survey_id = survey_enumeratedquestions.campaign_id
-INNER JOIN survey_question
-    ON survey_question.id = survey_enumeratedquestions.question_id
-WHERE survey_question.path LIKE '%(prefix)s%%'
-)
-SELECT
-    expected_opportunities.question_id AS id,
-    expected_opportunities.account_id AS account_id,
-    expected_opportunities.sample_slug AS sample_id,
-    expected_opportunities.is_completed AS is_completed,
-    expected_opportunities.is_planned AS is_planned,
-    CAST(survey_answer.measured AS FLOAT) AS numerator,
-    CAST(survey_answer.denominator AS FLOAT) AS denominator,
-    survey_answer.created_at AS last_activity_at,
-    survey_answer.id AS answer_id,
-    survey_answer.rank AS rank,
-    expected_opportunities.path AS path,
-    expected_opportunities.implemented AS implemented,
-    expected_opportunities.environmental_value AS environmental_value,
-    expected_opportunities.business_value AS business_value,
-    expected_opportunities.profitability AS profitability,
-    expected_opportunities.implementation_ease AS implementation_ease,
-    expected_opportunities.avg_value AS avg_value,
-    expected_opportunities.nb_respondents AS nb_respondents,
-    expected_opportunities.rate AS rate,
-    expected_opportunities.default_metric_id AS default_metric_id,
-    expected_opportunities.opportunity AS opportunity
-FROM expected_opportunities
-LEFT OUTER JOIN survey_answer
-    ON expected_opportunities.question_id = survey_answer.question_id
-    AND expected_opportunities.sample_id = survey_answer.sample_id
-WHERE survey_answer.metric_id = 2""" % {
-    'latest_assessments': latest_assessments,
-    'prefix': prefix}
-#        scored_answers = super(DashboardMixin, self)._get_scored_answers(
-#            population, metric_id,
-#            includes=includes, questions=questions, prefix=prefix)
-        _show_query_and_result(scored_answers)
-        return scored_answers
+    @property
+    def is_frozen(self):
+        return True
 
     @staticmethod
     def _get_answers(samples, metric_id, prefix=None, choice=None,

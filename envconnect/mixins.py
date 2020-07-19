@@ -652,6 +652,19 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                     account=self.account).order_by('-created_at').first()
         return self._assessment_sample
 
+    @property
+    def ends_at(self):
+        if not hasattr(self, '_ends_at'):
+            if self.sample.is_frozen:
+                self._ends_at = self.sample.created_at
+            else:
+                self._ends_at = datetime_or_now()
+        return self._ends_at
+
+    @property
+    def is_frozen(self):
+        return self.sample.is_frozen
+
     # `improvement_sample` is defined here because we use it to generate
     # the highlighted practices in
     # `BenchmarkMixin.get_highlighted_practices`
@@ -901,9 +914,9 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 'measured': measured,
                 'created_at': datapoint.created_at,
                 'metric_title': datapoint.metric.title,
-                'location': reverse('api_measures_delete', args=(
-                    self.sample.account, self.sample,
-                    rank, datapoint.metric.slug))
+#XXX                'location': reverse('api_measures_delete', args=(
+#                    self.sample.account, self.sample,
+#                    rank, datapoint.metric.slug))
             }
             if datapoint.metric.slug == 'target-baseline':
                 measure['text'] = "baseline %s" % str(measured)

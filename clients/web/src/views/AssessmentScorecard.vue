@@ -12,7 +12,7 @@
         class="mt-8"
         :to="{
           name: 'assessmentHome',
-          params: { id: $route.params.id },
+          params: { id },
         }"
         >Return to assessment</button-primary
       >
@@ -30,6 +30,8 @@ import ScorecardBusinessAreas from '@/components/ScorecardBusinessAreas'
 
 export default {
   name: 'assessmentScorecard',
+
+  props: ['id'],
 
   created() {
     this.fetchData()

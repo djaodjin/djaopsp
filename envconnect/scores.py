@@ -133,6 +133,8 @@ def freeze_scores(sample, includes=None, excludes=None,
     # Create frozen scores for answers we can derive a score from
     # (i.e. assessment).
     assessment_metric_id = Metric.objects.get(slug='assessment').pk
+    if not segment_path:
+        segment_path = '/'
     calculator = get_score_calculator(segment_path)
     scored_answers = calculator.get_scored_answers(
         sample.survey, assessment_metric_id, prefix=segment_path,
