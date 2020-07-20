@@ -39,7 +39,7 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 import IntroSection from '@/components/IntroSection'
 
 export default {
-  name: 'IntroCurrentPractices',
+  name: 'IntroImprovementPlan',
 
   props: ['id', 'samplePath'],
 
@@ -49,7 +49,7 @@ export default {
       console.log('Call API to advance assessment')
       this.$router.push({
         name: 'assessmentHome',
-        params: { id: this.$route.params.id },
+        params: { id: this.id },
       })
     },
   },

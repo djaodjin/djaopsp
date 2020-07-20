@@ -22,6 +22,7 @@ export default new Router({
       path: '/app/:org/',
       name: 'home',
       component: Home,
+      props: true,
     },
     {
       path: '/app/:org/assess/new',
@@ -32,6 +33,7 @@ export default new Router({
       path: '/app/:org/home/:id',
       name: 'assessmentHome',
       component: AssessmentHome,
+      props: true,
     },
     {
       path: '/app/:org/assess/:id/sample/:samplePath/intro',
@@ -43,6 +45,7 @@ export default new Router({
       path: '/app/:org/assess/:id/sample/:samplePath',
       name: 'assessmentPractices',
       component: AssessmentCurrentPractices,
+      props: true,
     },
     {
       path: '/app/:org/targets/:id/sample/:samplePath/intro',
@@ -54,6 +57,7 @@ export default new Router({
       path: '/app/:org/targets/:id/sample/:samplePath',
       name: 'assessmentTargets',
       component: AssessmentEnvironmentalTargets,
+      props: true,
     },
     {
       path: '/app/:org/improve/:id/sample/:samplePath/intro',
@@ -65,6 +69,7 @@ export default new Router({
       path: '/app/:org/improve/:id/sample/:samplePath',
       name: 'assessmentPlan',
       component: AssessmentImprovementPlan,
+      props: true,
     },
     {
       path: '/app/:org/scorecard/:id/sample/:samplePath',

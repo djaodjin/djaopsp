@@ -13,7 +13,7 @@
         <tab-header :text="$t('targets.tab2.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
           <p>{{ $t('targets.tab2.intro') }}</p>
-          <form-environmental-targets />
+          <form-environmental-targets :assessmentId="id" />
         </div>
       </template>
     </tab-container>
@@ -45,6 +45,8 @@ import TabHeader from '@/components/TabHeader'
 
 export default {
   name: 'AssessmentEnvironmentalTargets',
+
+  props: ['id'],
 
   methods: {
     async checkPreviousTargets() {

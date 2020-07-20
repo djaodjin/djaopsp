@@ -309,6 +309,8 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 export default {
   name: 'AssessmentEnvironmentalTargets',
 
+  props: ['assessmentId'],
+
   data() {
     return {
       dateByEnergy: new Date().toISOString().substr(0, 10),
@@ -339,7 +341,7 @@ export default {
       console.log('form submitted: ', this.form)
       this.$router.push({
         name: 'assessmentHome',
-        params: { id: this.$route.params.id },
+        params: { id: this.assessmentId },
       })
     },
   },

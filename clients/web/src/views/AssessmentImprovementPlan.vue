@@ -26,6 +26,7 @@
         <improvement-plan
           :header="$t('improvement-plan.tab2.title')"
           :planPractices="planPractices"
+          :assessmentId="id"
           @practice:remove="removePractice"
         />
       </template>
@@ -43,6 +44,8 @@ import TabHeader from '@/components/TabHeader'
 
 export default {
   name: 'AssessmentImprovementPlan',
+
+  props: ['id'],
 
   methods: {
     addPractice(practice) {

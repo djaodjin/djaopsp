@@ -22,13 +22,15 @@ import AssessmentStepper from '@/components/AssessmentStepper'
 export default {
   name: 'AssessmentHome',
 
+  props: ['id'],
+
   created() {
     this.fetchData()
   },
 
   methods: {
     async fetchData() {
-      this.assessment = await getAssessment(this.$route.params.id)
+      this.assessment = await getAssessment(this.id)
     },
   },
 

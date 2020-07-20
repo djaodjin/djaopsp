@@ -73,7 +73,7 @@ import TabHeader from '@/components/TabHeader'
 export default {
   name: 'ImprovementPlan',
 
-  props: ['header', 'planPractices'],
+  props: ['assessmentId', 'header', 'planPractices'],
 
   data() {
     return {
@@ -87,7 +87,7 @@ export default {
       console.log('Call API to advance assessment')
       this.$router.push({
         name: 'assessmentHome',
-        params: { id: this.$route.params.id },
+        params: { id: this.assessmentId },
       })
     },
   },

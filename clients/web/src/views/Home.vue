@@ -50,13 +50,15 @@ import AssessmentInfo from '@/components/AssessmentInfo'
 export default {
   name: 'Home',
 
+  props: ['org'],
+
   created() {
     this.fetchData()
   },
 
   methods: {
     async fetchData() {
-      this.organization = await getOrganization(this.$route.params.org)
+      this.organization = await getOrganization(this.org)
       this.activeAssessments = await getActiveAssessments()
     },
   },

@@ -24,7 +24,7 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 export default {
   name: 'PracticesProgressIndicator',
 
-  props: ['answers', 'questions'],
+  props: ['answers', 'questions', 'assessmentId'],
 
   methods: {
     advanceAssessment() {
@@ -32,7 +32,7 @@ export default {
       console.log('Call API to advance assessment')
       this.$router.push({
         name: 'assessmentHome',
-        params: { id: this.$route.params.id },
+        params: { id: this.assessmentId },
       })
     },
   },
