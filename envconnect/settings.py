@@ -380,7 +380,7 @@ DEPLOYUTILS = {
             'username': 'steve',
             'last_visited': '2017-01-01T00:00:00.000Z',
             'roles': {
-                'manager': [{'slug': 'steve-shop',
+                'manager': [{'slug': 'supplier-1',
                     'printable_name': 'Steve Shop'}]},
             'site': {'email': 'fixtures@djaodjin.com'}},
         'andy': {
@@ -392,7 +392,7 @@ DEPLOYUTILS = {
         'erin': {
             'username': 'erin',
             'roles': {
-                'viewer': [{'slug': 'steve-shop',
+                'viewer': [{'slug': 'supplier-1',
                     'printable_name': 'Steve Shop'}]},
             'site': {'email': 'fixtures@djaodjin.com'}},
     },

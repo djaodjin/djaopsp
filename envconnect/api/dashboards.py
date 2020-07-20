@@ -789,7 +789,7 @@ class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
 
     .. code-block:: http
 
-        GET /api/steve-shop/matrix/totals HTTP/1.1
+        GET /api/energy-utility/matrix/totals HTTP/1.1
 
     responds
 

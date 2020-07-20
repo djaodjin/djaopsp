@@ -13,11 +13,11 @@ const activeAssessments = [
     status: STEP_FREEZE_KEY,
   }),
   new Assessment({
-    id: '456-beta',
+    id: 'f1e2e916eb494b90f9ff0a36982342',
     authorName: 'Martha Blum',
     authorEmail: 'martha.blum@tamarinsolutions.com',
-    industryName: 'General contracting',
-    industryPath: 'general-contractors',
+    industryName: 'Construction',
+    industryPath: 'construction',
     status: STEP_SCORECARD_KEY,
   }),
 ]
@@ -46,8 +46,8 @@ export function postAssessment() {
     const newAssessment = new Assessment({
       authorName: 'Vincent Lemassu',
       authorEmail: 'vincent.lemassu@tamarinsolutions.com',
-      industryName: 'Marketing & communications',
-      industryPath: 'marketing-and-communications',
+      industryName: 'Construction',
+      industryPath: 'construction',
     })
     activeAssessments.push(newAssessment)
 

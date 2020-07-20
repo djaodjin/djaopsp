@@ -747,7 +747,7 @@ class BenchmarkAPIView(ScorecardQuerySetMixin, generics.GenericAPIView):
 
     .. code-block:: http
 
-        GET /api/steve-shop/benchmark/boxes-and-enclosures/energy-efficiency/\
+        GET /api/supplier-1/benchmark/boxes-and-enclosures/energy-efficiency/\
  HTTP/1.1
 
     responds
@@ -944,7 +944,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
 
     .. code-block:: http
 
-        GET /api/steve-shop/benchmark/historical/metal/boxes-and-enclosures\
+        GET /api/supplier-1/benchmark/historical/metal/boxes-and-enclosures\
 /sustainability-boxes-and-enclosures HTTP/1.1
 
     responds
@@ -966,14 +966,14 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                 "key": "May 2018",
                 "created_at": "2018-05-28T17:39:59.368272Z",
                 "values": [
-                    ["Construction", 80, "/app/steve-shop/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
+                    ["Construction", 80, "/app/supplier-1/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
                 ]
             },
             {
                 "key": "Dec 2017",
                 "created_at": "2017-12-28T17:39:59.368272Z",
                 "values": [
-                    ["Construction", 80, "/app/steve-shop/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
+                    ["Construction", 80, "/app/supplier-1/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
                 ]
             }
             ]
