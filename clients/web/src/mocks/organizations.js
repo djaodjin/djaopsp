@@ -1,6 +1,5 @@
+import { DELAY } from './config'
 import Organization from '../common/Organization'
-
-const DELAY = 100
 
 const organizations = [
   new Organization({

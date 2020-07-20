@@ -1,10 +1,9 @@
+import { DELAY } from './config'
 import { getRandomInt } from '../common/utils'
 import Answer from '../common/Answer'
 import Section from '../common/Section'
 import Subcategory from '../common/Subcategory'
 import Question from '../common/Question'
-
-const DELAY = 100
 
 // Set IDs to null to generate automatic unique IDs
 const sections = [

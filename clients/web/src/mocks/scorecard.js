@@ -1,4 +1,4 @@
-const DELAY = 100
+import { DELAY } from './config'
 
 export function getTopLevelScores() {
   return new Promise((resolve, reject) => {
