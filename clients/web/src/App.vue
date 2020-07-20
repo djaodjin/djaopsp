@@ -1,5 +1,5 @@
 <template>
-  <v-app id="tsp-supplier">
+  <v-app id="tsp-supplier" :class="[STANDALONE ? 'standalone' : 'embedded']">
     <div v-if="this.$route.name === 'home' || $vuetify.breakpoint.smAndUp">
       <v-app-bar app clipped-left v-if="STANDALONE">
         <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
@@ -93,4 +93,31 @@ export default {
 
 <style lang="scss">
 @import '@/styles/app.scss';
+
+#tsp-supplier {
+  &.standalone {
+    background: $background-standalone;
+  }
+  &.embedded {
+    background: transparent;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
+  .theme--light.v-app-bar.v-toolbar.v-sheet {
+    background-color: $background-toolbar;
+  }
+  .theme--dark.v-bottom-navigation {
+    background-color: $primary-color;
+  }
+
+  .theme--light.v-sheet--outlined {
+    border: thin solid rgba(100, 100, 100, 0.14);
+  }
+  .theme--light.v-divider {
+    border-color: rgba(101, 101, 101, 0.16);
+  }
+}
 </style>

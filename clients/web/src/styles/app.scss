@@ -4,18 +4,18 @@
 h1 {
   text-align: center;
   font-weight: 500;
-  margin-top: 24px;
+  padding-top: 24px;
   font-size: calc(
     #{map-deep-get($headings, 'h3', 'size')} * #{$xs-responsive-font-factor}
   );
   @media #{map-get($display-breakpoints, 'md-and-up')} {
-    margin-top: 32px;
-    margin-bottom: 16px;
+    padding-top: 32px;
+    padding-bottom: 16px;
     font-size: map-deep-get($headings, 'h3', 'size');
   }
 
   &.assessment-title {
-    margin-top: 0;
+    padding-top: 0;
     line-height: 2rem;
     font-size: calc(
       #{map-deep-get($headings, 'h4', 'size')} * #{$xs-responsive-font-factor}
@@ -37,23 +37,5 @@ ul {
 
   @media #{map-get($display-breakpoints, 'sm-and-up')} {
     padding: 3rem 1rem;
-  }
-}
-
-#tsp-supplier {
-  background: $background-app;
-
-  .theme--light.v-app-bar.v-toolbar.v-sheet {
-    background-color: $background-toolbar;
-  }
-  .theme--dark.v-bottom-navigation {
-    background-color: $primary-color;
-  }
-
-  .theme--light.v-sheet--outlined {
-    border: thin solid rgba(100, 100, 100, 0.14);
-  }
-  .theme--light.v-divider {
-    border-color: rgba(101, 101, 101, 0.16);
   }
 }
