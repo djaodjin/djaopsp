@@ -3,8 +3,8 @@ import Organization from '../common/Organization'
 
 const organizations = [
   new Organization({
-    id: 'snapper',
-    name: 'Red Snapper',
+    id: 'steve-shop',
+    name: 'Steve Test Shop',
   }),
   new Organization({
     id: 'marlin',
@@ -12,6 +12,10 @@ const organizations = [
   }),
   new Organization({
     id: 'tamarin',
+    name: 'S1 Tamarin',
+  }),
+  new Organization({
+    id: 'supplier-1',
     name: 'S1 Tamarin',
   }),
 ]
