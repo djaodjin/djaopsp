@@ -9,42 +9,42 @@ import Question from '../common/Question'
 const sections = [
   // Construction industry segment
   new Section(
-      '/construction/sustainability-construction/governance-management-49f1ad0',
-      'Governance & Management'
+    '/construction/sustainability-construction/governance-management-49f1ad0',
+    'Governance & Management'
   ),
   new Section(
-      '/construction/sustainability-construction/procurement-5d484d5',
-      'Procurement'
+    '/construction/sustainability-construction/procurement-5d484d5',
+    'Procurement'
   ),
   new Section(
-      '/construction/sustainability-construction/construction-bbec85a',
-      'Construction'
+    '/construction/sustainability-construction/construction-bbec85a',
+    'Construction'
   ),
   new Section(
-      '/construction/sustainability-construction/officegrounds-e661fc0',
-      'Office/grounds'
+    '/construction/sustainability-construction/officegrounds-e661fc0',
+    'Office/grounds'
   ),
 
   // Boxes & enclosures industry segment
   new Section(
-      '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics',
-      'Governance & Management'
+    '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics',
+    'Governance & Management'
   ),
   new Section(
-      '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design',
-      'Design'
+    '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design',
+    'Design'
   ),
   new Section(
-      '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production',
-      'Production'
+    '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production',
+    'Production'
   ),
   new Section(
-      '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/distribution',
-      'Distribution'
+    '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/distribution',
+    'Distribution'
   ),
   new Section(
-      '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/end-of-life',
-      'Endof Life'
+    '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/end-of-life',
+    'End of Life'
   ),
 ]
 
@@ -52,148 +52,148 @@ const sections = [
 const subcategories = [
   // (0) Construction / Management & governance
   new Subcategory(
-      '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy',
-      'Environmental policy'
+    '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy',
+    'Environmental policy'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/governance-management-49f1ad0/responsability-authority',
-      'Responsability & authority'
+    '/construction/sustainability-construction/governance-management-49f1ad0/responsability-authority',
+    'Responsability & authority'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/governance-management-49f1ad0/environmental-assessment',
-      'Environmental assessment'
+    '/construction/sustainability-construction/governance-management-49f1ad0/environmental-assessment',
+    'Environmental assessment'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/governance-management-49f1ad0/leadership-engagement-commitment',
-      'Leadership engagement & commitment'
+    '/construction/sustainability-construction/governance-management-49f1ad0/leadership-engagement-commitment',
+    'Leadership engagement & commitment'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/governance-management-49f1ad0/controls-improvement-plans-measurement',
-      'Controls, improvement plans & measurement'
+    '/construction/sustainability-construction/governance-management-49f1ad0/controls-improvement-plans-measurement',
+    'Controls, improvement plans & measurement'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/governance-management-49f1ad0/management-system-rigor',
-      'Management system rigor'
+    '/construction/sustainability-construction/governance-management-49f1ad0/management-system-rigor',
+    'Management system rigor'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/governance-management-49f1ad0/environmental-reporting',
-      'Environmental reporting'
+    '/construction/sustainability-construction/governance-management-49f1ad0/environmental-reporting',
+    'Environmental reporting'
   ),
 
   // (7) Construction / Procurement
   new Subcategory(
-      '/construction/sustainability-construction/procurement-5d484d5/procure-environmentally-prefereable-version',
-      'Procure environmentally prefereable version of the following:'
+    '/construction/sustainability-construction/procurement-5d484d5/procure-environmentally-prefereable-version',
+    'Procure environmentally prefereable version of the following:'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/construction-bbec85a/',
-      'Measure'
+    '/construction/sustainability-construction/construction-bbec85a/',
+    'Measure'
   ),
 
   // (9) Contruction / Construction
   new Subcategory(
-      '/construction/sustainability-construction/construction-bbec85a/electricity-greenhouse',
-      'Electricity & greenhouse gas emissions'
+    '/construction/sustainability-construction/construction-bbec85a/electricity-greenhouse',
+    'Electricity & greenhouse gas emissions'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/vehicles-equipment',
-      'Vehicles & equipment'
+    '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/vehicles-equipment',
+    'Vehicles & equipment'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/other',
-      'Other'
+    '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/other',
+    'Other'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/general',
-      'General'
+    '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/general',
+    'General'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/construction-bbec85a/air-emissions',
-      'Air emissions (NOX, SOX, particules, CO2)'
+    '/construction/sustainability-construction/construction-bbec85a/air-emissions',
+    'Air emissions (NOX, SOX, particules, CO2)'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/construction-bbec85a/waste',
-      'Waste'
+    '/construction/sustainability-construction/construction-bbec85a/waste',
+    'Waste'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/construction-bbec85a/hazardous',
-      'Hazardous chemical subsctances'
+    '/construction/sustainability-construction/construction-bbec85a/hazardous',
+    'Hazardous chemical subsctances'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/construction-bbec85a/physical-footprint',
-      'Physical footprint'
+    '/construction/sustainability-construction/construction-bbec85a/physical-footprint',
+    'Physical footprint'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/construction-bbec85a/water',
-      'Water'
+    '/construction/sustainability-construction/construction-bbec85a/water',
+    'Water'
   ),
 
   // (18) Construction / Office & grounds / Electricity & gas
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/general',
-      'General'
+    '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/general',
+    'General'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/energy-source',
-      'Energy source'
+    '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/energy-source',
+    'Energy source'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/lighting',
-      'Lighting'
+    '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/lighting',
+    'Lighting'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/hvac',
-      'HVAC'
+    '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/hvac',
+    'HVAC'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/electronics',
-      'Electronics, equipment & appliances'
+    '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/electronics',
+    'Electronics, equipment & appliances'
   ),
 
   // (23) Construction / Office & grounds / Fuel
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/fuel/company-vehicles',
-      'Company vehicles'
+    '/construction/sustainability-construction/officegrounds-e661fc0/fuel/company-vehicles',
+    'Company vehicles'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/fuel/employee-transport',
-      'Employee transport & travel'
+    '/construction/sustainability-construction/officegrounds-e661fc0/fuel/employee-transport',
+    'Employee transport & travel'
   ),
 
   // (25) Construction / Office & grounds / Waste
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/waste/general',
-      'General'
+    '/construction/sustainability-construction/officegrounds-e661fc0/waste/general',
+    'General'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing',
-      'Purchasing practices to avoid pollution/waste'
+    '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing',
+    'Purchasing practices to avoid pollution/waste'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing/procure',
-      'Procure environmentally preferable versions of the following:'
+    '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing/procure',
+    'Procure environmentally preferable versions of the following:'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing/procure/paper',
-      'Paper'
+    '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing/procure/paper',
+    'Paper'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/waste/waste-recycling',
-      'Waste recycling and disposal'
+    '/construction/sustainability-construction/officegrounds-e661fc0/waste/waste-recycling',
+    'Waste recycling and disposal'
   ),
 
   // (30) Construction / Office & grounds / Water
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/water/general',
-      'General'
+    '/construction/sustainability-construction/officegrounds-e661fc0/water/general',
+    'General'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/water/indoors',
-      'Indoors'
+    '/construction/sustainability-construction/officegrounds-e661fc0/water/indoors',
+    'Indoors'
   ),
   new Subcategory(
-      '/construction/sustainability-construction/officegrounds-e661fc0/water/outdoors',
-      'Outdoors'
+    '/construction/sustainability-construction/officegrounds-e661fc0/water/outdoors',
+    'Outdoors'
   ),
 ]
 
@@ -222,7 +222,8 @@ export function getQuestions() {
           false,
           [
             new Answer({
-              questionId: '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy/have-adequate-policy',
+              questionId:
+                '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy/have-adequate-policy',
               questionType: '1',
               author: 'michael@tamarinsolutions.com',
               answers: ['yes'],
@@ -239,7 +240,8 @@ export function getQuestions() {
           false,
           [
             new Answer({
-              questionId: '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy/have-highest-level-leadership',
+              questionId:
+                '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy/have-highest-level-leadership',
               questionType: '2',
               author: 'michael@tamarinsolutions.com',
               answers: ['most-no'],
@@ -256,7 +258,8 @@ export function getQuestions() {
           true,
           [
             new Answer({
-              questionId: '/construction/sustainability-construction/governance-management-49f1ad0/responsability-authority/assign-formal-responsability',
+              questionId:
+                '/construction/sustainability-construction/governance-management-49f1ad0/responsability-authority/assign-formal-responsability',
               questionType: '3',
               author: 'michael@tamarinsolutions.com',
               answers: ['leading'],
@@ -273,7 +276,8 @@ export function getQuestions() {
           true,
           [
             new Answer({
-              questionId: '/construction/sustainability-construction/governance-management-49f1ad0/environmental-assessment/conduct-assessment',
+              questionId:
+                '/construction/sustainability-construction/governance-management-49f1ad0/environmental-assessment/conduct-assessment',
               questionType: '4',
               author: 'michael@tamarinsolutions.com',
               answers: [
@@ -292,7 +296,8 @@ export function getQuestions() {
           true,
           [
             new Answer({
-              questionId: '/construction/sustainability-construction/governance-management-49f1ad0/leadership-engagement-commitment/give-priorities',
+              questionId:
+                '/construction/sustainability-construction/governance-management-49f1ad0/leadership-engagement-commitment/give-priorities',
               questionType: '5',
               author: 'michael@tamarinsolutions.com',
               answers: ['14', 'ghg-emissions-generated'],
@@ -543,7 +548,6 @@ export function getQuestions() {
           '5',
           'Comments'
         ),
-
       ])
     }, DELAY)
   })
