@@ -48,10 +48,10 @@ class Command(BaseCommand):
         # industries = [PageElement(slug='boxes-and-enclosures')]
 
         with transaction.atomic():
-            # Populate all scorecards for organization 'steve-shop'
+            # Populate all scorecards for organization 'supplier-1'
             # We will use this organization to measure performance of loading
             # scorecards.
-            organization = organization_class.objects.get(slug='steve-shop')
+            organization = organization_class.objects.get(slug='supplier-1')
             for industry in industries:
                 self.populate_answers(organization, industry)
 

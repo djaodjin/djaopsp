@@ -130,12 +130,12 @@ export function getPreviousIndustrySegments() {
     setTimeout(() => {
       resolve([
         {
-          text: 'Energy efficiency contracting',
-          value: 'energy-efficiency-contracting',
+          text: 'Construction',
+          value: 'construction',
         },
         {
-          text: 'Engineering',
-          value: 'engineering',
+          text: 'Engineering, Procurement, Construction',
+          value: 'epc',
         },
       ])
     }, DELAY)

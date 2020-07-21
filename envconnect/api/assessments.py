@@ -92,7 +92,7 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 
     .. code-block:: http
 
-         GET /api/steve-shop/sample/0123456789abcdef/ HTTP/1.1
+         GET /api/supplier-1/sample/0123456789abcdef/ HTTP/1.1
 
     responds
 
@@ -100,7 +100,7 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 
         {
             "slug": "0123456789abcdef",
-            "account": "steve-shop",
+            "account": "supplier-1",
             "created_at": "2020-01-01T00:00:00Z",
             "is_frozen": true,
             "campaign": null,
@@ -119,7 +119,7 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
 
         .. code-block:: http
 
-            DELETE /api/steve-shop/sample/0123456789abcdef/water-use/ HTTP/1.1
+            DELETE /api/supplier-1/sample/0123456789abcdef/water-use/ HTTP/1.1
         """
         return self.destroy(request, *args, **kwargs)
 
@@ -267,7 +267,7 @@ class AssessmentResetAPIView(ReportMixin, SampleResetAPIView):
 
         .. code-block:: http
 
-            POST /api/steve-shop/sample/0123456789abcdef/reset/water-use/ HTTP/1.1
+            POST /api/supplier-1/sample/0123456789abcdef/reset/water-use/ HTTP/1.1
         """
         return self.destroy(request, *args, **kwargs)
 
