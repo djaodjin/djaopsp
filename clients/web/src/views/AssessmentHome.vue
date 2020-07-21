@@ -1,17 +1,24 @@
 <template>
-  <div class="assessment-container">
-    <h1 class="assessment-title">Environment Sustainability Assessment</h1>
-    <v-container v-if="assessment">
-      <v-row justify="center">
-        <v-col cols="12" sm="8" md="6" lg="5">
-          <assessment-info :assessment="assessment" />
-        </v-col>
-        <v-col cols="12" sm="8" md="5">
-          <assessment-stepper :assessment="assessment" />
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <v-container
+    :class="[STANDALONE ? 'standalone' : 'embedded']"
+    v-if="assessment"
+  >
+    <v-row>
+      <v-col cols="12">
+        <h1 class="mt-6 mb-3 assessment-title">
+          Environment Sustainability Assessment
+        </h1>
+      </v-col>
+    </v-row>
+    <v-row justify="center">
+      <v-col cols="12" sm="8" md="6" lg="5">
+        <assessment-info :assessment="assessment" />
+      </v-col>
+      <v-col cols="12" sm="8" md="5">
+        <assessment-stepper :assessment="assessment" />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -37,6 +44,7 @@ export default {
   data() {
     return {
       assessment: null,
+      STANDALONE: process.env.VUE_APP_STANDALONE,
     }
   },
 
@@ -46,3 +54,9 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.embedded h1 {
+  color: white;
+}
+</style>

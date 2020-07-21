@@ -7,7 +7,7 @@
           :class="[STANDALONE ? 'standalone' : 'embedded']"
           elevation="3"
         >
-          <h1>{{ organization.name }}</h1>
+          <h1 class="pt-6 pb-3">{{ organization.name }}</h1>
           <v-row justify="center" justify-md="start">
             <v-col cols="12" md="6" xl="4">
               <section class="mb-4 px-md-4">
