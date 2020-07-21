@@ -53,7 +53,9 @@
 
         <v-btn
           v-if="
-            this.$route.name !== 'home' && this.$route.name !== 'assessmentHome'
+            this.$route.name !== 'home' &&
+            this.$route.name !== 'assessmentHome' &&
+            this.$route.name !== 'newAssessment'
           "
           :to="{ name: 'assessmentHome', params: { id: '123' } }"
         >
@@ -100,6 +102,10 @@ export default {
   }
   &.embedded {
     background: transparent;
+  }
+
+  ul {
+    padding: 0;
   }
 
   a:hover {
