@@ -1,10 +1,9 @@
+import { DELAY } from './config'
 import { PRACTICE_VALUES, PRACTICE_VALUE_CATEGORIES } from '@/config/app'
 import { getRandomInt } from '../common/utils'
 import { getRandomSection, getRandomSubcategory } from './questions'
 import Practice from '../common/Practice'
 import Question from '../common/Question'
-
-const DELAY = 100
 
 function getImplementationRate() {
   return getRandomInt(10, 95)

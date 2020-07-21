@@ -27,6 +27,7 @@
       <practices-progress-indicator
         :questions="questions.length"
         :answers="answers.length"
+        :assessmentId="id"
       />
     </div>
     <dialog-confirm
@@ -60,6 +61,8 @@ import TabContainer from '@/components/TabContainer'
 
 export default {
   name: 'AssessmentCurrentPractices',
+
+  props: ['id'],
 
   created() {
     this.fetchData()

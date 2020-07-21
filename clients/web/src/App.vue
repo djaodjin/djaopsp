@@ -1,7 +1,7 @@
 <template>
-  <v-app id="tsp-supplier">
+  <v-app id="tsp-supplier" :class="[STANDALONE ? 'standalone' : 'embedded']">
     <div v-if="this.$route.name === 'home' || $vuetify.breakpoint.smAndUp">
-      <v-app-bar app clipped-left>
+      <v-app-bar app clipped-left v-if="STANDALONE">
         <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
         <v-toolbar-title>
           <v-img
@@ -19,7 +19,7 @@
         <locale-changer />
       </v-app-bar>
 
-      <v-navigation-drawer v-model="drawer" app clipped>
+      <v-navigation-drawer v-model="drawer" app clipped v-if="STANDALONE">
         <nav-drawer />
       </v-navigation-drawer>
     </div>
@@ -28,7 +28,7 @@
       <router-view />
     </v-main>
 
-    <div v-if="this.$route.name === 'home'">
+    <div v-if="this.$route.name === 'home' && STANDALONE">
       <v-footer min-height="4rem">
         <v-col cols="12" class="text-center">
           &copy; {{ new Date().getFullYear() }} All rights reserved.
@@ -42,7 +42,9 @@
       </v-footer>
     </div>
 
-    <div v-if="this.$route.name !== 'home' && $vuetify.breakpoint.xs">
+    <div
+      v-if="this.$route.name !== 'home' && $vuetify.breakpoint.xs && STANDALONE"
+    >
       <v-bottom-navigation app :value="mobileActiveBtn" grow dark>
         <v-btn :to="{ name: 'home' }">
           <span>Home</span>
@@ -51,7 +53,9 @@
 
         <v-btn
           v-if="
-            this.$route.name !== 'home' && this.$route.name !== 'assessmentHome'
+            this.$route.name !== 'home' &&
+            this.$route.name !== 'assessmentHome' &&
+            this.$route.name !== 'newAssessment'
           "
           :to="{ name: 'assessmentHome', params: { id: '123' } }"
         >
@@ -79,6 +83,7 @@ export default {
     drawer: null,
     mobileActiveBtn: null,
     publicPath: process.env.VUE_APP_ASSETS_URL || process.env.BASE_URL,
+    STANDALONE: process.env.VUE_APP_STANDALONE,
   }),
 
   components: {
@@ -90,4 +95,35 @@ export default {
 
 <style lang="scss">
 @import '@/styles/app.scss';
+
+#tsp-supplier {
+  &.standalone {
+    background: $background-standalone;
+  }
+  &.embedded {
+    background: transparent;
+  }
+
+  ul {
+    padding: 0;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
+  .theme--light.v-app-bar.v-toolbar.v-sheet {
+    background-color: $background-toolbar;
+  }
+  .theme--dark.v-bottom-navigation {
+    background-color: $primary-color;
+  }
+
+  .theme--light.v-sheet--outlined {
+    border: thin solid rgba(100, 100, 100, 0.14);
+  }
+  .theme--light.v-divider {
+    border-color: rgba(101, 101, 101, 0.16);
+  }
+}
 </style>

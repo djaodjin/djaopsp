@@ -1,7 +1,6 @@
+import { DELAY } from './config'
 import { STEP_SCORECARD_KEY, STEP_FREEZE_KEY } from '@/config/app'
 import Assessment from '../common/Assessment'
-
-const DELAY = 100
 
 const activeAssessments = [
   new Assessment({

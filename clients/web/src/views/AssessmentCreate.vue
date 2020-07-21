@@ -1,40 +1,52 @@
 <template>
-  <div class="assessment-container">
-    <h1 class="assessment-title">Environment Sustainability Assessment</h1>
-    <v-container>
-      <v-row justify="center">
-        <v-col cols="11" md="8" lg="6">
-          <form @submit.prevent="processForm">
-            <label for="industry" class="d-block mb-3"
-              >Please choose the industry that best applies to your
-              organization</label
-            >
-            <v-select
-              id="industry"
-              :items="selectOptions"
-              label="Industry segment"
-              v-model="industry"
-              solo
-            >
-              <template v-slot:item="{ item, on, attrs }">
-                <v-list-item-content v-bind="attrs" v-on="on">
-                  <v-list-item-title
-                    :class="[item.isChild ? 'child' : 'single']"
-                    v-text="item.text"
-                  ></v-list-item-title>
-                </v-list-item-content>
-              </template>
-            </v-select>
-            <div class="text-right">
-              <button-primary type="submit" display="inline"
-                >Next</button-primary
-              >
-            </div>
-          </form>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <v-container :class="[STANDALONE ? 'standalone' : 'embedded']">
+    <v-row>
+      <v-col>
+        <h1 class="my-2 my-md-6 assessment-title">
+          Environment Sustainability Assessment
+        </h1>
+      </v-col>
+    </v-row>
+    <v-row justify="center">
+      <v-col cols="12" md="8" lg="6">
+        <p class="text-center">
+          Assess, benchmark and plan your organization's environmental
+          sustainability practices.
+        </p>
+        <form class="mx-2 mx-md-6" @submit.prevent="processForm">
+          <label for="industry" class="d-block mb-3"
+            >Please choose the industry that best applies to your
+            organization:</label
+          >
+          <v-select
+            id="industry"
+            :items="selectOptions"
+            label="Industry segment"
+            v-model="industry"
+            solo
+          >
+            <template v-slot:item="{ item, on, attrs }">
+              <v-list-item-content v-bind="attrs" v-on="on">
+                <v-list-item-title
+                  :class="[item.isChild ? 'child' : 'single']"
+                  v-text="item.text"
+                ></v-list-item-title>
+              </v-list-item-content>
+            </template>
+          </v-select>
+          <div v-show="industry" class="text-right mb-8">
+            <button-primary type="submit" display="inline">
+              Next
+            </button-primary>
+          </div>
+          <div class="text-right">
+            <span>Don't know what to select?</span>
+            <a class="ml-2" href="/docs/faq/#general-4">See examples.</a>
+          </div>
+        </form>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -75,6 +87,7 @@ export default {
       allIndustrySegments: [],
       previousIndustrySegments: [],
       industry: null,
+      STANDALONE: process.env.VUE_APP_STANDALONE,
     }
   },
 
@@ -98,6 +111,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.embedded h1 {
+  color: white;
+}
 .v-list-item__title.child {
   margin-left: 16px;
 }

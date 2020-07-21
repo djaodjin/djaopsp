@@ -1,11 +1,10 @@
+import { DELAY } from './config'
 import Organization from '../common/Organization'
-
-const DELAY = 100
 
 const organizations = [
   new Organization({
-    id: 'snapper',
-    name: 'Red Snapper',
+    id: 'steve-shop',
+    name: 'Steve Test Shop',
   }),
   new Organization({
     id: 'marlin',
@@ -14,6 +13,10 @@ const organizations = [
   new Organization({
     id: 'supplier-1',
     name: 'S1 - Tamerin (Demo)',
+  }),
+  new Organization({
+    id: 'supplier-1',
+    name: 'S1 Tamarin',
   }),
 ]
 

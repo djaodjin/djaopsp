@@ -69,7 +69,13 @@ The app uses [vue-i18n](https://www.codeandweb.com/babeledit/tutorials/how-to-tr
 - Update the locales list in `LocaleChanger.vue`
 - Update the imports and the `lang.locales` option in `src/plugins/vuetify.js`
 
-The app's default locale and fallback locale are set via the environment variables `VUE_APP_I18N_LOCALE` and `VUE_APP_I18N_FALLBACK_LOCALE` respectively.
+The app's default locale and fallback locale are set via the environment variables `VUE_APP_I18N_LOCALE` and `VUE_APP_I18N_FALLBACK_LOCALE` respectively in the `.env` file at the client root (`clients/web`)
+
+
+Client Stand-Alone Mode
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The client (Vue app) has its own navigation which can be enabled using the `VUE_APP_STANDALONE` flag in the `.env` file at the client root (`clients/web`).
 
 
 Testing
