@@ -15,8 +15,8 @@ const organizations = [
     name: 'S1 - Tamerin (Demo)',
   }),
   new Organization({
-    id: 'supplier-1',
-    name: 'S1 Tamarin',
+    id: 'tamarin',
+    name: 'Tamarin',
   }),
 ]
 
