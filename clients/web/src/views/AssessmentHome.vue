@@ -5,7 +5,7 @@
   >
     <v-row>
       <v-col cols="12">
-        <h1 class="mt-6 mb-3 assessment-title">
+        <h1 class="my-2 my-md-6 assessment-title">
           Environment Sustainability Assessment
         </h1>
       </v-col>

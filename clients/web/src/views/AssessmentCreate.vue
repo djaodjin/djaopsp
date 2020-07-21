@@ -2,7 +2,7 @@
   <v-container :class="[STANDALONE ? 'standalone' : 'embedded']">
     <v-row>
       <v-col>
-        <h1 class="mt-6 mb-3 assessment-title">
+        <h1 class="my-2 my-md-6 assessment-title">
           Environment Sustainability Assessment
         </h1>
       </v-col>
@@ -13,7 +13,7 @@
           Assess, benchmark and plan your organization's environmental
           sustainability practices.
         </p>
-        <form class="mx-6" @submit.prevent="processForm">
+        <form class="mx-2 mx-md-6" @submit.prevent="processForm">
           <label for="industry" class="d-block mb-3"
             >Please choose the industry that best applies to your
             organization:</label
