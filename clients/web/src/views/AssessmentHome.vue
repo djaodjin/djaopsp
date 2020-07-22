@@ -7,13 +7,11 @@
           :class="[STANDALONE ? 'standalone' : 'embedded']"
           elevation="3"
         >
-          <v-row>
-            <v-col>
-              <h1 class="my-2 my-md-6 assessment-title">
-                Environment Sustainability Assessment
-              </h1>
-            </v-col>
-          </v-row>
+          <header-primary
+            :linkText="organization.name"
+            :linkTo="{ name: 'home' }"
+            text="Environment Sustainability Assessment"
+          />
           <v-row justify="center">
             <v-col cols="12" sm="8" md="6">
               <assessment-info :assessment="assessment" />
@@ -30,14 +28,16 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
+import { getOrganization } from '../mocks/organizations'
 import { getAssessment } from '../mocks/assessments'
 import AssessmentInfo from '@/components/AssessmentInfo'
 import AssessmentStepper from '@/components/AssessmentStepper'
+import HeaderPrimary from '@/components/HeaderPrimary'
 
 export default {
   name: 'AssessmentHome',
 
-  props: ['id'],
+  props: ['org', 'id'],
 
   created() {
     this.fetchData()
@@ -45,12 +45,14 @@ export default {
 
   methods: {
     async fetchData() {
+      this.organization = await getOrganization(this.org)
       this.assessment = await getAssessment(this.id)
     },
   },
 
   data() {
     return {
+      organization: {},
       assessment: null,
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }
@@ -66,6 +68,7 @@ export default {
     VSheet,
     AssessmentInfo,
     AssessmentStepper,
+    HeaderPrimary,
   },
 }
 </script>
