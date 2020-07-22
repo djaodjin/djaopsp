@@ -1,5 +1,5 @@
 <template>
-  <v-sheet elevation="1">
+  <v-sheet elevation="3">
     <v-container class="scores px-0">
       <v-row v-for="(item, index) in sortedScores" :key="index">
         <v-col cols="5" class="py-2">
@@ -13,7 +13,12 @@
           </span>
         </v-col>
         <v-col cols="2" class="pa-2">
-          <span :class="[item.owner ? 'my-score' : 'score', 'text-subtitle-1']">
+          <span
+            :class="[
+              item.owner ? 'my-score' : 'other-score',
+              'text-subtitle-1',
+            ]"
+          >
             {{ item.score }}%
           </span>
         </v-col>
@@ -91,14 +96,14 @@ export default {
   font-weight: 600;
 }
 
-.score,
+.other-score,
 .my-score {
   display: block;
   flex: 1;
   text-align: center;
 }
 
-.score {
+.other-score {
   font-size: 1.2rem !important;
 }
 
