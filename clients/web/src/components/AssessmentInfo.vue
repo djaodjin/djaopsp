@@ -14,10 +14,11 @@
           <span>Created:</span>
           <time :datetime="assessment.created">{{ assessment.created }}</time>
         </li>
+        <!-- TODO: Replace with list of contributors
         <li>
           <span>Author:</span>
           <em>{{ assessment.authorEmail }}</em>
-        </li>
+        </li> -->
         <li v-if="isClickable">
           <router-link
             :to="{ name: 'assessmentHome', params: { id: assessment.id } }"
