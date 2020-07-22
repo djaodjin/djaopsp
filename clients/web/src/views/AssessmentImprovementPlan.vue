@@ -1,6 +1,11 @@
 <template>
   <fragment>
-    <section-title :title="$t('improvement-plan.title')" />
+    <header-secondary
+      class="container"
+      :orgName="organization.name"
+      :industryName="assessment.industryName"
+      :title="$t('improvement-plan.title')"
+    />
     <tab-container :tabs="tabs" :lgCol="6">
       <template v-slot:tab2.title>
         <v-badge
@@ -36,18 +41,31 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import { getOrganization } from '../mocks/organizations'
+import { getAssessment } from '../mocks/assessments'
 import FormImprovementPlan from '@/components/FormImprovementPlan'
+import HeaderSecondary from '@/components/HeaderSecondary'
 import ImprovementPlan from '@/components/ImprovementPlan'
-import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
 import TabHeader from '@/components/TabHeader'
 
 export default {
   name: 'AssessmentImprovementPlan',
 
-  props: ['id'],
+  props: ['org', 'id'],
+
+  created() {
+    this.fetchData()
+  },
 
   methods: {
+    async fetchData() {
+      this.loading = true
+      // TODO: Make calls concurrently
+      this.organization = await getOrganization(this.org)
+      this.assessment = await getAssessment(this.id)
+      this.loading = false
+    },
     addPractice(practice) {
       this.planPractices.push(practice)
     },
@@ -61,6 +79,9 @@ export default {
 
   data() {
     return {
+      loading: false,
+      organization: {},
+      assessment: {},
       planPractices: [],
       tabs: [
         { text: this.$t('improvement-plan.tab1.title'), href: 'tab-1' },
@@ -74,7 +95,7 @@ export default {
     Fragment,
     FormImprovementPlan,
     ImprovementPlan,
-    SectionTitle,
+    HeaderSecondary,
     TabContainer,
     TabHeader,
   },

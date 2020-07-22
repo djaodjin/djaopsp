@@ -1,6 +1,11 @@
 <template>
   <fragment>
-    <section-title title="Current Practices" />
+    <header-secondary
+      class="container"
+      :orgName="organization.name"
+      :industryName="assessment.industryName"
+      title="Current Practices"
+    />
     <div v-if="loading">
       <loading-spinner />
     </div>
@@ -50,19 +55,21 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import { getOrganization } from '../mocks/organizations'
+import { getAssessment } from '../mocks/assessments'
 import { getQuestions, getAnswers } from '../mocks/questions'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
 import DialogConfirm from '@/components/DialogConfirm'
+import HeaderSecondary from '@/components/HeaderSecondary'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import PendingQuestions from '@/components/PendingQuestions'
-import SectionTitle from '@/components/SectionTitle'
 import TabContainer from '@/components/TabContainer'
 
 export default {
   name: 'AssessmentCurrentPractices',
 
-  props: ['id'],
+  props: ['org', 'id'],
 
   created() {
     this.fetchData()
@@ -71,6 +78,9 @@ export default {
   methods: {
     async fetchData() {
       this.loading = true
+      // TODO: Make calls concurrently
+      this.organization = await getOrganization(this.org)
+      this.assessment = await getAssessment(this.id)
       this.questions = await getQuestions()
       this.answers = await getAnswers()
       this.loading = false
@@ -125,6 +135,8 @@ export default {
   data() {
     return {
       loading: false,
+      organization: {},
+      assessment: {},
       questions: [],
       answers: [],
       tabs: [
@@ -139,9 +151,9 @@ export default {
     PracticesProgressIndicator,
     AssessmentSections,
     DialogConfirm,
+    HeaderSecondary,
     LoadingSpinner,
     PendingQuestions,
-    SectionTitle,
     TabContainer,
   },
 }
