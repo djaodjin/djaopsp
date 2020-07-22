@@ -12,7 +12,7 @@
             :linkTo="{ name: 'home' }"
             text="Environment Sustainability Assessment"
           />
-          <v-row justify="center">
+          <v-row v-if="assessmentHasData" justify="center">
             <v-col cols="12" sm="8" md="6">
               <assessment-info :assessment="assessment" />
             </v-col>
@@ -53,7 +53,7 @@ export default {
   data() {
     return {
       organization: {},
-      assessment: null,
+      assessment: {},
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }
   },
@@ -61,6 +61,9 @@ export default {
   computed: {
     container() {
       return this.STANDALONE ? 'div' : 'v-sheet'
+    },
+    assessmentHasData() {
+      return Object.keys(this.assessment).length
     },
   },
 
