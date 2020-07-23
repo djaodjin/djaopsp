@@ -36,8 +36,6 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getOrganization } from '../mocks/organizations'
-import { getAssessment } from '../mocks/assessments'
 import { getTopLevelScores, getScoresByBusinessAreas } from '../mocks/scorecard'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import HeaderSecondary from '@/components/HeaderSecondary'
@@ -57,10 +55,22 @@ export default {
   methods: {
     async fetchData() {
       this.loading = true
-      this.organization = await getOrganization(this.org)
-      this.assessment = await getAssessment(this.id)
-      this.topLevelScores = await getTopLevelScores()
-      this.scoresByBusinessAreas = await getScoresByBusinessAreas()
+      const [
+        organization,
+        assessment,
+        topLevelScores,
+        scoresByBusinessAreas,
+      ] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.id),
+        getTopLevelScores(),
+        getScoresByBusinessAreas(),
+      ])
+
+      this.organization = organization
+      this.assessment = assessment
+      this.topLevelScores = topLevelScores
+      this.scoresByBusinessAreas = scoresByBusinessAreas
       this.loading = false
     },
   },

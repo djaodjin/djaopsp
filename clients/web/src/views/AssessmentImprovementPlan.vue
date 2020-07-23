@@ -41,8 +41,6 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getOrganization } from '../mocks/organizations'
-import { getAssessment } from '../mocks/assessments'
 import FormImprovementPlan from '@/components/FormImprovementPlan'
 import HeaderSecondary from '@/components/HeaderSecondary'
 import ImprovementPlan from '@/components/ImprovementPlan'
@@ -60,11 +58,12 @@ export default {
 
   methods: {
     async fetchData() {
-      this.loading = true
-      // TODO: Make calls concurrently
-      this.organization = await getOrganization(this.org)
-      this.assessment = await getAssessment(this.id)
-      this.loading = false
+      const [organization, assessment] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.id),
+      ])
+      this.organization = organization
+      this.assessment = assessment
     },
     addPractice(practice) {
       this.planPractices.push(practice)
@@ -79,7 +78,6 @@ export default {
 
   data() {
     return {
-      loading: false,
       organization: {},
       assessment: {},
       planPractices: [],

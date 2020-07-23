@@ -65,7 +65,6 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
-import { getOrganization } from '../mocks/organizations'
 import { postAssessment } from '../mocks/assessments'
 import {
   getIndustrySegments,
@@ -85,9 +84,18 @@ export default {
 
   methods: {
     async fetchData() {
-      this.organization = await getOrganization(this.org)
-      this.allIndustrySegments = await getIndustrySegments()
-      this.previousIndustrySegments = await getPreviousIndustrySegments()
+      const [
+        organization,
+        currentSegments,
+        previousSegments,
+      ] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        getIndustrySegments(),
+        getPreviousIndustrySegments(),
+      ])
+      this.organization = organization
+      this.allIndustrySegments = currentSegments
+      this.previousIndustrySegments = previousSegments
     },
 
     processForm: function () {
