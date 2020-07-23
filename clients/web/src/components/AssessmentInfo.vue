@@ -1,5 +1,9 @@
 <template>
-  <v-card v-bind="$attrs" class="mx-auto assessment-info">
+  <v-card
+    v-bind="$attrs"
+    class="mx-auto assessment-info"
+    :outlined="!Boolean(STANDALONE)"
+  >
     <v-card-text class="pa-4 pt-md-6 pb-md-5">
       <ul class="pa-0">
         <li>
@@ -10,10 +14,11 @@
           <span>Created:</span>
           <time :datetime="assessment.created">{{ assessment.created }}</time>
         </li>
+        <!-- TODO: Replace with list of contributors
         <li>
           <span>Author:</span>
           <em>{{ assessment.authorEmail }}</em>
-        </li>
+        </li> -->
         <li v-if="isClickable">
           <router-link
             :to="{ name: 'assessmentHome', params: { id: assessment.id } }"
@@ -52,6 +57,7 @@ export default {
   data() {
     return {
       ASSESSMENT_STEPS,
+      STANDALONE: process.env.VUE_APP_STANDALONE,
     }
   },
 }

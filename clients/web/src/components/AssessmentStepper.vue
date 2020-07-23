@@ -1,5 +1,9 @@
 <template>
-  <v-sheet class="pb-4" elevation="3">
+  <v-sheet
+    class="pb-4"
+    :elevation="STANDALONE ? 3 : 0"
+    :outlined="!Boolean(STANDALONE)"
+  >
     <v-stepper v-model.number="computedIndex" vertical class="py-3 px-md-3">
       <template v-for="(step, i) in ASSESSMENT_FLOW.steps">
         <fragment v-if="step.key === STEP_SHARE_KEY" :key="step.key">
@@ -183,6 +187,7 @@ export default {
       isArchiveDialogOpen: false,
       isDeleteDialogOpen: false,
       isFreezeDialogOpen: false,
+      STANDALONE: process.env.VUE_APP_STANDALONE,
     }
   },
 

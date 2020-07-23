@@ -1,6 +1,11 @@
 <template>
   <fragment>
-    <section-title :title="$t('targets.title')" />
+    <header-secondary
+      class="container"
+      :orgName="organization.name"
+      :industryName="assessment.industryName"
+      :title="$t('targets.title')"
+    />
     <tab-container :tabs="tabs" :mdCol="6" :lgCol="6">
       <template v-slot:tab1>
         <tab-header :text="$t('targets.tab1.title')" />
@@ -36,19 +41,32 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import { getOrganization } from '../mocks/organizations'
+import { getAssessment } from '../mocks/assessments'
 import BusinessComparison from '@/components/BusinessComparison'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
-import SectionTitle from '@/components/SectionTitle'
+import HeaderSecondary from '@/components/HeaderSecondary'
 import TabContainer from '@/components/TabContainer'
 import TabHeader from '@/components/TabHeader'
 
 export default {
   name: 'AssessmentEnvironmentalTargets',
 
-  props: ['id'],
+  props: ['org', 'id'],
+
+  created() {
+    this.fetchData()
+  },
 
   methods: {
+    async fetchData() {
+      this.loading = true
+      // TODO: Make calls concurrently
+      this.organization = await getOrganization(this.org)
+      this.assessment = await getAssessment(this.id)
+      this.loading = false
+    },
     async checkPreviousTargets() {
       // TODO: Send request to check if previous targets have been submitted
       return new Promise((resolve) => {
@@ -60,6 +78,9 @@ export default {
 
   data() {
     return {
+      loading: false,
+      organization: {},
+      assessment: {},
       tabs: [
         { text: this.$t('targets.tab1.title'), href: 'tab-1' },
         { text: this.$t('targets.tab2.title'), href: 'tab-2' },
@@ -73,7 +94,7 @@ export default {
     DialogConfirm,
     FormEnvironmentalTargets,
     Fragment,
-    SectionTitle,
+    HeaderSecondary,
     TabContainer,
     TabHeader,
   },

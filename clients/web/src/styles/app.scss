@@ -6,21 +6,10 @@ h1 {
   text-align: center;
   font-weight: 500;
   font-size: calc(
-    #{map-deep-get($headings, 'h3', 'size')} * #{$xs-responsive-font-factor}
+    #{map-deep-get($headings, 'h4', 'size')} * #{$xs-responsive-font-factor}
   );
   @media #{map-get($display-breakpoints, 'md-and-up')} {
-    font-size: map-deep-get($headings, 'h3', 'size');
-  }
-
-  &.assessment-title {
-    line-height: 2rem;
-    font-size: calc(
-      #{map-deep-get($headings, 'h4', 'size')} * #{$xs-responsive-font-factor}
-    );
-
-    @media #{map-get($display-breakpoints, 'md-and-up')} {
-      font-size: map-deep-get($headings, 'h4', 'size');
-    }
+    font-size: map-deep-get($headings, 'h4', 'size');
   }
 }
 

@@ -29,6 +29,7 @@ export default new Router({
       path: '/app/:org/assess/new/',
       name: 'newAssessment',
       component: AssessmentCreate,
+      props: true,
       pathToRegexpOptions: { strict: true },
     },
     {

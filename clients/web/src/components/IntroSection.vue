@@ -1,14 +1,15 @@
 <template>
   <v-container class="mt-sm-10" tag="section">
     <v-row justify="center">
-      <v-col :cols="cols" md="8" lg="6">
-        <v-sheet class="py-3 pb-4 px-6 pt-md-6 px-md-10 pb-md-8" elevation="2">
-          <v-row>
-            <v-col tag="header" class="text-center">
-              <small>Environment Sustainability Assessment</small>
-              <h1 class="assessment-title">{{ title }}</h1>
-            </v-col>
-          </v-row>
+      <v-col :cols="cols" md="8" xl="6">
+        <v-sheet class="pa-4 pt-md-6 px-md-10 pb-md-8" elevation="2">
+          <header-secondary
+            class="mb-3"
+            :intro="true"
+            :orgName="orgName"
+            :industryName="industryName"
+            :title="title"
+          />
           <v-row>
             <v-col>
               <slot></slot>
@@ -21,10 +22,18 @@
 </template>
 
 <script>
+import HeaderSecondary from '@/components/HeaderSecondary'
+
 export default {
   name: 'IntroSection',
 
   props: {
+    industryName: {
+      type: String,
+    },
+    orgName: {
+      type: String,
+    },
     title: {
       type: String,
       required: true,
@@ -33,6 +42,10 @@ export default {
       type: Number,
       default: 11,
     },
+  },
+
+  components: {
+    HeaderSecondary,
   },
 }
 </script>

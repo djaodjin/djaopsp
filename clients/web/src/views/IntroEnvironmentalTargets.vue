@@ -1,6 +1,10 @@
 <template>
   <fragment>
-    <intro-section title="Environmental Targets">
+    <intro-section
+      :orgName="organization.name"
+      :industryName="assessment.industryName"
+      title="Environmental Targets"
+    >
       <div>
         <p>
           Define environmental targets for your organization and communicate its
@@ -26,13 +30,33 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import { getOrganization } from '../mocks/organizations'
+import { getAssessment } from '../mocks/assessments'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import IntroSection from '@/components/IntroSection'
 
 export default {
   name: 'IntroEnvironmentalTargets',
 
-  props: ['id', 'samplePath'],
+  props: ['org', 'id', 'samplePath'],
+
+  created() {
+    this.fetchData()
+  },
+
+  methods: {
+    async fetchData() {
+      this.organization = await getOrganization(this.org)
+      this.assessment = await getAssessment(this.id)
+    },
+  },
+
+  data() {
+    return {
+      organization: {},
+      assessment: {},
+    }
+  },
 
   components: {
     Fragment,

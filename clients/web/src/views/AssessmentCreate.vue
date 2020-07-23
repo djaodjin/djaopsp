@@ -9,9 +9,11 @@
         >
           <v-row>
             <v-col>
-              <h1 class="my-2 my-md-6 assessment-title">
-                Environment Sustainability Assessment
-              </h1>
+              <header-primary
+                :linkText="organization.name"
+                :linkTo="{ name: 'home' }"
+                text="Environment Sustainability Assessment"
+              />
               <div class="content">
                 <p class="my-6 text-center">
                   Assess, benchmark and plan your organization's environmental
@@ -63,15 +65,19 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
+import { getOrganization } from '../mocks/organizations'
 import { postAssessment } from '../mocks/assessments'
 import {
   getIndustrySegments,
   getPreviousIndustrySegments,
 } from '../mocks/industry-segments'
 import ButtonPrimary from '@/components/ButtonPrimary'
+import HeaderPrimary from '@/components/HeaderPrimary'
 
 export default {
   name: 'AssessmentCreate',
+
+  props: ['org'],
 
   created() {
     this.fetchData()
@@ -79,6 +85,7 @@ export default {
 
   methods: {
     async fetchData() {
+      this.organization = await getOrganization(this.org)
       this.allIndustrySegments = await getIndustrySegments()
       this.previousIndustrySegments = await getPreviousIndustrySegments()
     },
@@ -97,6 +104,7 @@ export default {
 
   data() {
     return {
+      organization: {},
       allIndustrySegments: [],
       previousIndustrySegments: [],
       industry: null,
@@ -123,6 +131,7 @@ export default {
   components: {
     VSheet,
     ButtonPrimary,
+    HeaderPrimary,
   },
 }
 </script>

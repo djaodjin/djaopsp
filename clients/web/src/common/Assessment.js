@@ -4,8 +4,8 @@ import { VALID_ASSESSMENT_STEPS, DEFAULT_ASSESSMENT_STEP } from '../config/app'
 export default class Assessment {
   constructor({
     id = getUniqueId(),
-    authorName,
-    authorEmail,
+    authorName, // TODO: Replace with list of contributors
+    authorEmail, // TODO: Replace with list of contributors
     industryName,
     industryPath,
     modified = new Date(),

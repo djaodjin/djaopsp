@@ -1,6 +1,10 @@
 <template>
   <fragment>
-    <intro-section title="Improvement Plan">
+    <intro-section
+      :orgName="organization.name"
+      :industryName="assessment.industryName"
+      title="Improvement Plan"
+    >
       <div>
         <p>
           Create an improvement plan to help your organization
@@ -35,15 +39,25 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import { getOrganization } from '../mocks/organizations'
+import { getAssessment } from '../mocks/assessments'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import IntroSection from '@/components/IntroSection'
 
 export default {
   name: 'IntroImprovementPlan',
 
-  props: ['id', 'samplePath'],
+  props: ['org', 'id', 'samplePath'],
+
+  created() {
+    this.fetchData()
+  },
 
   methods: {
+    async fetchData() {
+      this.organization = await getOrganization(this.org)
+      this.assessment = await getAssessment(this.id)
+    },
     advanceAssessment() {
       // TODO: API call to update assessment status; then, redirect to assessment home
       console.log('Call API to advance assessment')
@@ -52,6 +66,13 @@ export default {
         params: { id: this.id },
       })
     },
+  },
+
+  data() {
+    return {
+      organization: {},
+      assessment: {},
+    }
   },
 
   components: {

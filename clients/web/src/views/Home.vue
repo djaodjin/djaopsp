@@ -83,7 +83,7 @@ export default {
 
   data() {
     return {
-      organization: { name: '' },
+      organization: {},
       activeAssessments: [],
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }

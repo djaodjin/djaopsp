@@ -57,7 +57,7 @@
             this.$route.name !== 'assessmentHome' &&
             this.$route.name !== 'newAssessment'
           "
-          :to="{ name: 'assessmentHome', params: { id: '123' } }"
+          :to="{ name: 'assessmentHome', params: { id: $route.params.id } }"
         >
           <span>Assessment</span>
           <v-icon>mdi-map</v-icon>
