@@ -1,6 +1,10 @@
 import Vue from 'vue'
 import { getAssessment } from '../mocks/assessments'
 import { getOrganization } from '../mocks/organizations'
+import {
+  getIndustrySegments,
+  getPreviousIndustrySegments,
+} from '../mocks/industry-segments'
 
 Vue.mixin({
   beforeCreate() {
@@ -16,6 +20,77 @@ Vue.mixin({
     }
   },
 })
+
+function previousIndustriesToList(previousIndustries) {
+  const results = []
+
+  for (let i = 0, parent = null; i < previousIndustries.length; i++) {
+    const entry = previousIndustries[i]
+    const { path, title, indent } = entry
+
+    if (path && indent === 0) {
+      // Unset grouping parent
+      if (parent) parent = null
+      results.push({ text: title, value: path })
+    } else if (path && indent === 1) {
+      // Entry with parent
+      if (!parent) {
+        console.warn(`Entry ${path}: ${title} has indent=1 but no parent`)
+      } else {
+        results.push({
+          text: `${parent.title} > ${title}`,
+          value: path,
+        })
+      }
+    } else {
+      parent = entry
+    }
+  }
+  return results
+}
+
+function industriesToList(industries) {
+  const results = []
+
+  for (let i = 0, parent = null; i < industries.length; i++) {
+    const entry = industries[i]
+    const { path, title, indent } = entry
+
+    if (path && indent === 0) {
+      // Unset grouping parent
+      if (parent) parent = null
+      results.push({ text: title, value: path })
+    } else if (path && indent === 1) {
+      // Entry with parent
+      if (!parent) {
+        console.warn(`Entry ${path}: ${title} has indent=1 but no parent`)
+      } else {
+        results.push({
+          text: title,
+          value: path,
+          isChild: true,
+        })
+      }
+    } else {
+      parent = entry
+      results.push({ header: entry.title.toUpperCase() })
+    }
+  }
+  return results
+}
+
+function createIndustryList(previousIndustries, industries) {
+  let industryList = []
+
+  if (previousIndustries.length) {
+    industryList.push({ header: 'PREVIOUSLY SELECTED' })
+    industryList = industryList.concat(
+      previousIndustriesToList(previousIndustries)
+    )
+    industryList.push({ divider: true })
+  }
+  return industryList.concat(industriesToList(industries))
+}
 
 export default class Context {
   constructor() {
@@ -34,7 +109,17 @@ export default class Context {
     }
   }
 
-  getIndustries() {
+  async getIndustries() {
+    if (!this.industries.length) {
+      const [industries, previousIndustries] = await Promise.all([
+        getIndustrySegments(),
+        getPreviousIndustrySegments(),
+      ])
+      this.industries = createIndustryList(
+        previousIndustries.results,
+        industries.results
+      )
+    }
     return this.industries
   }
 
