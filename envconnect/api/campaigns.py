@@ -18,9 +18,6 @@ from ..serializers import NoModelSerializer
 LOGGER = logging.getLogger(__name__)
 
 
-(0, {'path': '/metal', 'slug': 'metal', 'title': 'Metal structures & equipment', 'tag': '{"tags":["industry","enabled","heading"]}', 'score_weight': 1.0}),
-
-
 class CampaignSerializer(NoModelSerializer):
 
     path = serializers.CharField()

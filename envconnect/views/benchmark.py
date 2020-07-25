@@ -24,44 +24,39 @@ from ..mixins import TransparentCut
 LOGGER = logging.getLogger(__name__)
 
 
-class BenchmarkBaseView(BenchmarkMixin, TemplateView):
+class BenchmarkView(BenchmarkMixin, TemplateView):
     """
     Subclasses are meant to define `template_name` and `breadcrumb_url`.
     """
+    template_name = 'envconnect/benchmark.html'
+    breadcrumb_url = 'benchmark'
 
     def get_context_data(self, **kwargs):
         #pylint:disable=too-many-locals
-        context = super(BenchmarkBaseView, self).get_context_data(**kwargs)
-        from_root, trail = self.breadcrumbs
+        context = super(BenchmarkView, self).get_context_data(**kwargs)
+        segment_url, segment_prefix, segment_element = self.segment
         root = None
-        if trail:
-            root = self._build_tree(trail[-1][0], from_root,
+        if segment_element:
+            root = self._build_tree(segment_element, segment_prefix,
                 cut=TransparentCut())
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             self.decorate_with_breadcrumbs(root)
-            excludes = []
-            parts = from_root.split("/")
-            if parts:
-                if not parts[1].startswith('sustainability-'):
-                    excludes = ['sustainability-%s' % parts[1]]
-                else:
-                    excludes = [parts[1]]
-            charts = self.get_charts(root, excludes=excludes)
+            charts = self.get_charts(
+                root, excludes=[segment_prefix.split('/')[-1]])
             organization = kwargs.get('organization')
             if self.assessment_sample:
                 last_updated_at = self.assessment_sample.created_at.strftime(
                     "%b %Y")
                 update_context_urls(context, {
-                    'benchmark_organization_download': reverse(
-                        'benchmark_organization_download',
-                        args=(organization, self.assessment_sample, from_root)),
-                    'api_account_benchmark': reverse('api_benchmark',
-                        args=(organization, self.assessment_sample,
-                              from_root)),
+                    'scorecard_organization_download': reverse(
+                        'scorecard_organization_download', args=(
+                            organization, self.assessment_sample, segment_url)),
+                    'api_account_benchmark': reverse('api_benchmark', args=(
+                        organization, self.assessment_sample, segment_prefix)),
                     'api_historical_scores': reverse(
                         'api_historical_scores', args=(
-                            organization, from_root)),
+                            organization, segment_prefix)),
                 })
                 context.update({'sample': self.assessment_sample})
             else:
@@ -89,24 +84,6 @@ class BenchmarkBaseView(BenchmarkMixin, TemplateView):
                 'last_updated_at': last_updated_at,
             })
         return context
-
-    def get(self, request, *args, **kwargs):
-        path = kwargs.get('path')
-        prefix = path
-        parts = path.split('/')
-        for idx, part in enumerate(parts):
-            if part.startswith('sustainability-'):
-                prefix = '/'.join(parts[:idx + 1])
-        if prefix != path:
-            return HttpResponseRedirect(
-                self.get_breadcrumb_url(prefix))
-        return super(BenchmarkBaseView, self).get(request, *args, **kwargs)
-
-
-class BenchmarkView(BenchmarkBaseView):
-
-    template_name = 'envconnect/benchmark.html'
-    breadcrumb_url = 'benchmark'
 
     def get_assessment_redirect_url(self, *args, **kwargs):
         #pylint:disable=unused-argument
@@ -221,14 +198,8 @@ class BenchmarkDownloadView(PrintableChartsMixin, ScorecardQuerySetMixin,
     def score_charts(self):
         if not hasattr(self, '_score_charts'):
             self._score_charts = self.get_queryset()
-            excludes = []
-            from_root, _ = self.breadcrumbs
-            parts = from_root.split("/")
-            if parts:
-                if not parts[1].startswith('sustainability-'):
-                    excludes = ['sustainability-%s' % parts[1]]
-                else:
-                    excludes = [parts[1]]
+            segment_url, segment_prefix, segment_element = self.segment
+            excludes = [segment_prefix.split('/')[-1]]
             found = -1
             for idx, chart in enumerate(self._score_charts):
                 if chart.get('slug', None) in excludes:

@@ -582,28 +582,18 @@ class SupplierListMixin(DashboardMixin):
                 normalized_score is not None)):
                 continue
 
+            # XXX Builds URL from segment path
+            # XXX `segment` points to the PageElement industry?
+            segment_path = '/sustainability-%s' % str(segment['slug'])
             if segment['slug'].startswith('framework'):
                 score_url = reverse('assess_organization',
-                    args=(account.slug,
-                          '/sustainability-%s' % str(segment['slug'])))
+                    args=(account.slug, segment_path))
             elif 'sample' in score:
-                if segment['slug'].endswith('rfx'):
                     score_url = reverse('scorecard_organization',
-                        args=(account.slug, score['sample'],
-                              '/sustainability-%s' % str(segment['slug'])))
-                else:
-                    score_url = reverse('benchmark_organization',
-                        args=(account.slug, score['sample'],
-                              '/sustainability-%s' % str(segment['slug'])))
+                        args=(account.slug, score['sample'], segment_path))
             else:
-                if segment['slug'].endswith('rfx'):
                     score_url = reverse('scorecard_organization_redirect',
-                        args=(account.slug,
-                            '/sustainability-%s' % str(segment['slug'])))
-                else:
-                    score_url = reverse('benchmark_organization_redirect',
-                        args=(account.slug,
-                          '/sustainability-%s' % str(segment['slug'])))
+                        args=(account.slug, segment_path))
             score.update({
                 'segment': segment['title'],
                 'score_url': score_url,
@@ -865,7 +855,7 @@ portfolio-a/"
             except EditableFilter.DoesNotExist:
                 pass
         if likely_metric is None:
-            likely_metric = reverse('benchmark_organization_redirect',
+            likely_metric = reverse('scorecard_organization_redirect',
                 args=(cohort_slug, "/sustainability-%s" % default))
         if likely_metric:
             likely_metric = self.request.build_absolute_uri(likely_metric)
@@ -942,14 +932,9 @@ portfolio-a/"
                 rollup_tree = node
                 break
             self.decorate_with_scores(rollup_tree, prefix=from_root)
-            excludes = None
-            parts = from_root.split("/")
-            if len(parts) > 1:
-                if not parts[1].startswith('sustainability-'):
-                    excludes = ['sustainability-%s' % parts[1]]
-                else:
-                    excludes = [parts[1]]
-            charts = self.get_charts(rollup_tree, excludes=excludes)
+            segment_url, segment_prefix, segment_element = self.segment
+            charts = self.get_charts(
+                rollup_tree, excludes=[segment_prefix.split('/')[-1]])
             charts += [rollup_tree[0]]
         else:
             self.decorate_with_cohorts(rollup_tree, prefix=from_root)

@@ -34,14 +34,6 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
     template_name = 'envconnect/improve.html'
     breadcrumb_url = 'improve'
 
-    @staticmethod
-    def get_scorecard_path(path):
-        parts = path.split('/')
-        for idx, part in enumerate(parts):
-            if part.startswith('sustainability-'):
-                return '/'.join(parts[:idx + 1])
-        return path
-
     def get_breadcrumb_url(self, path):
         organization = self.kwargs.get('organization', None)
         if organization:
@@ -69,7 +61,8 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
 
     def get_context_data(self, **kwargs):
         context = super(ImprovementView, self).get_context_data(**kwargs)
-        from_root, _ = self.breadcrumbs
+        segment_url, segment_prefix, segment_element = self.segment
+
         organization = context['organization']
         update_context_urls(context, {
             'api_organizations': site_prefixed("/api/profile/"),
@@ -79,17 +72,14 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
         if self.improvement_sample:
             update_context_urls(context, {
                 'print': reverse('improve_organization_sample_print',
-                    args=(organization, self.improvement_sample,
-                          self.get_scorecard_path(self.kwargs.get('path')))),
+                    args=(organization, self.improvement_sample, segment_url)),
                 'download': reverse('improve_organization_sample_download',
-                    args=(organization, self.improvement_sample,
-                          self.get_scorecard_path(self.kwargs.get('path'))))
+                    args=(organization, self.improvement_sample, segment_url))
             })
         if self.assessment_sample:
             update_context_urls(context, {
                 'api_account_benchmark': reverse('api_benchmark',
-                args=(organization, self.assessment_sample,
-                      self.get_scorecard_path(self.kwargs.get('path'))))})
+                args=(organization, self.assessment_sample, segment_prefix))})
         return context
 
 

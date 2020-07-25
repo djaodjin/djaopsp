@@ -154,6 +154,37 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             self._breadcrumbs = self.get_breadcrumbs(self.kwargs.get('path'))
         return self._breadcrumbs
 
+    @property
+    def segment(self):
+        """
+        Returns a tuple (path, fully qualified path, PageElement) where
+        `path` is a URL path for the root of the industry segment and
+        is derived from `kwargs['path']`. The fully qualified path can
+        be used as a prefix to retrieve all questions for the industry
+        segment. PageElement is the content node with slug starting
+        with 'sustainability-' that is root of the segment.
+        """
+        if not hasattr(self, '_segment'):
+            full_path, trail = self.breadcrumbs
+            url_path = '/'
+            prefix = '/'
+            element = None
+            for part in trail:
+                if part[0].slug.startswith('sustainability-'):
+                    url_path = part[2].split('?')[0]
+                    element = part[0]
+            if not element and trail:
+                url_path = trail[-1][1].split('?')[0]
+                element = trail[-1][0]
+            if element:
+                parts = full_path.split('/')
+                for idx, part in enumerate(parts):
+                    if part == element.slug:
+                        prefix = '/'.join(parts[:idx + 1])
+                        break
+            self._segment = (url_path, prefix, element)
+        return self._segment
+
     def _start_time(self):
         if not self.enable_report_queries:
             return
@@ -184,6 +215,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         return None
 
     def get_breadcrumb_url(self, path):
+        if path.endswith('/'):
+            path = path[:-1]
         organization = self.kwargs.get('organization')
         if organization:
             return reverse("%s_organization_redirect" % self.breadcrumb_url,
@@ -443,6 +476,18 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             breadcrumbs.pop()
 
     def get_breadcrumbs(self, path):
+        """
+        Returns breadcrumbs that can be used to navigate up the content
+        tree from `path`.
+
+        The argument `path` can omit nodes as long as there are enough
+        key nodes to reconstruct a fully qualified path.
+
+        Technically this method returns a tuple made of the fully qualified
+        path to the last node specificed in `path` and a list of breadcrumbs.
+        Each breadcrumb is a tuple made of a content node and an URL to access
+        that content node.
+        """
         #pylint:disable=too-many-locals
         trail = self.get_full_element_path(path)
         if not trail:
@@ -525,8 +570,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             active_section += "?active=%s" % self.request.GET.get('active')
         hide_summary = bool(trail and trail[0] and trail[0][0].tag and
             'hide-summary' in trail[0][0].tag)
-        hide_benchmark = bool(trail and trail[0] and trail[0][0].tag and
-            'hide-benchmark' in trail[0][0].tag)
         hide_improve = bool(trail and trail[0] and trail[0][0].tag and
             'hide-improve' in trail[0][0].tag)
         hide_scorecard = bool(trail and trail[0] and trail[0][0].tag and
@@ -536,7 +579,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             sample = kwargs.get('sample')
             urls.update({
                 'share': reverse('share_organization',
-                    args=(organization, path)),
+                    args=(organization, sample, path)),
             })
             if not hide_summary:
                 urls.update({
@@ -555,12 +598,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     'assess': reverse('assess_organization_sample',
                         args=(organization, sample, path))
                 })
-                if not hide_benchmark:
-                    urls.update({
-                    'benchmark': reverse('benchmark_organization',
-                        args=(organization, sample, path)),
-                    })
-                elif not hide_scorecard:
+                if not hide_scorecard:
                     urls.update({
                         'scorecard': reverse('scorecard_organization',
                             args=(organization, sample, path)),
@@ -570,12 +608,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     'assess': reverse('assess_organization',
                         args=(organization, path))
                 })
-                if not hide_benchmark:
-                    urls.update({
-                    'benchmark': reverse('benchmark_organization_redirect',
-                        args=(organization, path)),
-                    })
-                elif not hide_scorecard:
+                if not hide_scorecard:
                     urls.update({
                         'scorecard': reverse('scorecard_organization_redirect',
                             args=(organization, path)),
@@ -588,10 +621,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             if not hide_summary:
                 urls.update({
                     'summary': reverse('summary', args=(path,)),
-                })
-            if not hide_benchmark:
-                urls.update({
-                    'benchmark': reverse('benchmark_redirect', args=(path,)),
                 })
             if not hide_improve:
                 urls.update({
