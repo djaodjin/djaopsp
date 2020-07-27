@@ -18,17 +18,17 @@
         <v-col cols="12" sm="6" lg="8">
           <scorecard-targets :targets="targets" />
           <scorecard-practices :practices="improvementPlanPractices" />
+          <button-primary
+            class="mt-6"
+            :to="{
+              name: 'assessmentHome',
+              params: { id },
+            }"
+          >
+            Return to assessment
+          </button-primary>
         </v-col>
       </v-row>
-      <button-primary
-        class="mt-8"
-        :to="{
-          name: 'assessmentHome',
-          params: { id },
-        }"
-      >
-        Return to assessment
-      </button-primary>
     </v-container>
   </fragment>
 </template>
