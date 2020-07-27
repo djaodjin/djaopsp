@@ -13,12 +13,10 @@
       <v-row>
         <v-col cols="12" sm="6" lg="4">
           <scorecard-scores :scores="topLevelScores"></scorecard-scores>
-          <scorecard-business-areas
-            :data="scoresByBusinessAreas"
-          ></scorecard-business-areas>
+          <scorecard-business-areas :data="scoresByBusinessAreas" />
         </v-col>
-        <v-col>
-          Targets go here!
+        <v-col cols="12" sm="6" lg="8">
+          <scorecard-targets :targets="targets" />
         </v-col>
       </v-row>
       <button-primary
@@ -36,12 +34,17 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getTopLevelScores, getScoresByBusinessAreas } from '../mocks/scorecard'
+import {
+  getTopLevelScores,
+  getScoresByBusinessAreas,
+  getTargets,
+} from '../mocks/scorecard'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import HeaderSecondary from '@/components/HeaderSecondary'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ScorecardScores from '@/components/ScorecardScores'
 import ScorecardBusinessAreas from '@/components/ScorecardBusinessAreas'
+import ScorecardTargets from '@/components/ScorecardTargets'
 
 export default {
   name: 'assessmentScorecard',
@@ -60,17 +63,20 @@ export default {
         assessment,
         topLevelScores,
         scoresByBusinessAreas,
+        targets,
       ] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.id),
         getTopLevelScores(),
         getScoresByBusinessAreas(),
+        getTargets(),
       ])
 
       this.organization = organization
       this.assessment = assessment
       this.topLevelScores = topLevelScores
       this.scoresByBusinessAreas = scoresByBusinessAreas
+      this.targets = targets
       this.loading = false
     },
   },
@@ -82,6 +88,7 @@ export default {
       loading: false,
       topLevelScores: null,
       scoresByBusinessAreas: [],
+      targets: [],
     }
   },
 
@@ -92,6 +99,7 @@ export default {
     LoadingSpinner,
     ScorecardScores,
     ScorecardBusinessAreas,
+    ScorecardTargets,
   },
 }
 </script>
