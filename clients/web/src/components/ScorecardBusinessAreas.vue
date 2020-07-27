@@ -1,5 +1,5 @@
 <template>
-  <v-sheet class="px-2 mt-5" elevation="3">
+  <v-sheet class="px-2 mt-6" elevation="3">
     <v-list>
       <sheet-title>Score by Business Area</sheet-title>
       <v-list-item two-line v-for="(item, i) in data" :key="i" :inactive="true">

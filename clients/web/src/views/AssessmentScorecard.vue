@@ -17,6 +17,7 @@
         </v-col>
         <v-col cols="12" sm="6" lg="8">
           <scorecard-targets :targets="targets" />
+          <scorecard-practices :practices="improvementPlanPractices" />
         </v-col>
       </v-row>
       <button-primary
@@ -34,6 +35,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import { getResults } from '../mocks/ip-results'
 import {
   getTopLevelScores,
   getScoresByBusinessAreas,
@@ -44,6 +46,7 @@ import HeaderSecondary from '@/components/HeaderSecondary'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ScorecardScores from '@/components/ScorecardScores'
 import ScorecardBusinessAreas from '@/components/ScorecardBusinessAreas'
+import ScorecardPractices from '@/components/ScorecardPractices'
 import ScorecardTargets from '@/components/ScorecardTargets'
 
 export default {
@@ -64,12 +67,14 @@ export default {
         topLevelScores,
         scoresByBusinessAreas,
         targets,
+        improvementPlanPractices,
       ] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.id),
         getTopLevelScores(),
         getScoresByBusinessAreas(),
         getTargets(),
+        getResults(),
       ])
 
       this.organization = organization
@@ -77,6 +82,7 @@ export default {
       this.topLevelScores = topLevelScores
       this.scoresByBusinessAreas = scoresByBusinessAreas
       this.targets = targets
+      this.improvementPlanPractices = improvementPlanPractices
       this.loading = false
     },
   },
@@ -85,6 +91,7 @@ export default {
     return {
       organization: {},
       assessment: {},
+      improvementPlanPractices: [],
       loading: false,
       topLevelScores: null,
       scoresByBusinessAreas: [],
@@ -99,6 +106,7 @@ export default {
     LoadingSpinner,
     ScorecardScores,
     ScorecardBusinessAreas,
+    ScorecardPractices,
     ScorecardTargets,
   },
 }
