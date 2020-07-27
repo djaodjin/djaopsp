@@ -228,12 +228,7 @@ class BenchmarkDownloadView(PrintableChartsMixin, ScorecardQuerySetMixin,
 
     def get_context_data(self, **kwargs):
         context = {'base_url': self.get_base_url()}
-        organization = self.kwargs.get('organization', None)
-        if organization:
-            for accessible in self.get_accessibles(self.request):
-                if accessible['slug'] == organization:
-                    context.update({'organization': accessible})
-                    break
+        context.update({'organization': self.account})
         from_root, trail = self.breadcrumbs
         root = None
         if trail:
