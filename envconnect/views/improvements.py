@@ -72,9 +72,11 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
         if self.improvement_sample:
             update_context_urls(context, {
                 'print': reverse('improve_organization_sample_print',
-                    args=(organization, self.improvement_sample, segment_url)),
+                    args=(organization, self.improvement_sample,
+                        '/%s' % segment_prefix.split('/')[-1])),
                 'download': reverse('improve_organization_sample_download',
-                    args=(organization, self.improvement_sample, segment_url))
+                    args=(organization, self.improvement_sample,
+                        '/%s' % segment_prefix.split('/')[-1]))
             })
         if self.assessment_sample:
             update_context_urls(context, {

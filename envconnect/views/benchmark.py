@@ -51,7 +51,8 @@ class BenchmarkView(BenchmarkMixin, TemplateView):
                 update_context_urls(context, {
                     'scorecard_organization_download': reverse(
                         'scorecard_organization_download', args=(
-                            organization, self.assessment_sample, segment_url)),
+                            organization, self.assessment_sample,
+                            '/%s' % segment_prefix.split('/')[-1])),
                     'api_account_benchmark': reverse('api_benchmark', args=(
                         organization, self.assessment_sample, segment_prefix)),
                     'api_historical_scores': reverse(
