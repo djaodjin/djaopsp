@@ -90,7 +90,7 @@ class ImprovementOnlyMixin(ImprovementQuerySetMixin, AssessmentBaseMixin):
         returns a tree where only nodes leading to leafs which are in queryset.
         """
         if not root:
-            # All assessment questions for an industry, regardless
+            # All assessment questions for a segment, regardless
             # of the actual from_path.
             # XXX if we do that, we shouldn't use from_root (i.e. system pages)
             _, trail = self.breadcrumbs

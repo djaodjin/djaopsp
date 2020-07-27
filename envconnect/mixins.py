@@ -2,11 +2,12 @@
 # see LICENSE.
 
 #pylint:disable=too-many-lines
-import logging
+import logging, json
 from collections import OrderedDict, namedtuple
 from datetime import datetime, timedelta
 
 import monotonic
+from deployutils.crypt import JSONEncoder
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db import connection, connections, transaction
@@ -43,17 +44,6 @@ class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 
     redirect_roles = ['manager', 'contributor']
 
-    def get_roots(self):
-        path = self.kwargs.get('path', "")
-        if path:
-            if path.startswith('/sustainability-'):
-                segment = path[17:]
-            else:
-                segment = path[1:]
-            return PageElement.objects.get_roots().filter(
-                Q(tag__contains='industry') | Q(slug=segment))
-        return PageElement.objects.get_roots().filter(tag__contains='industry')
-
 
 class ContentCut(object):
     """
@@ -68,7 +58,7 @@ class ContentCut(object):
     def enter(self, tag):
         depth = self.depth
         self.depth = self.depth + 1
-        return not (depth > 1 and tag and self.match in tag)
+        return not (depth > 1 and tag and self.match and self.match in tag)
 
     def leave(self, attrs, subtrees):
         #pylint:disable=unused-argument
@@ -210,9 +200,15 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         LOGGER.debug("(elapsed: %.2fs) %s: %s for %d SQL queries",
             (end_time - self.start_time), descr, duration, nb_queries)
 
-    @staticmethod
-    def get_prefix():
-        return None
+    def flatten(self, rollup_trees, depth=0):
+        result = []
+        for _, values in six.iteritems(rollup_trees):
+            elem, nodes = values
+            path = None if nodes else (
+                '/sustainability-%s' % elem['path'].split('/')[-1])
+            result += [{'title': elem['title'], 'path': path, 'indent': depth}]
+            result += self.flatten(nodes, depth=depth + 1)
+        return result
 
     def get_breadcrumb_url(self, path):
         if path.endswith('/'):
@@ -222,6 +218,41 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             return reverse("%s_organization_redirect" % self.breadcrumb_url,
                 args=(organization, path,))
         return reverse(self.breadcrumb_url, args=(path,))
+
+    def get_roots(self):
+        path = self.kwargs.get('path', "")
+        if path:
+            if path.startswith('/sustainability-'):
+                segment = path[17:]
+            else:
+                segment = path[1:]
+            return PageElement.objects.get_roots().filter(
+                Q(tag__contains='industry') | Q(slug=segment))
+        return PageElement.objects.get_roots().filter(
+                Q(tag__contains='industry'))
+
+    def get_segments(self, search_query=None):
+        """
+        Returns a list of top-level industry segments
+        """
+        cut = ContentCut(depth=2)
+        menus = []
+        query_filter = Q(tag__contains='industry')
+        if search_query:
+            query_filter = query_filter & Q(tag__contains=search_query)
+        for root in PageElement.objects.get_roots().filter(
+                query_filter).order_by('title'):
+            if not cut.enter(root.tag):
+                menus += [{
+                    'title': root.title,
+                    'path': '/sustainability-%s' % root.slug,
+                    'indent': 0,
+                }]
+            else:
+                rollup_trees = self._cut_tree(self.build_content_tree(
+                    [root], prefix='', cut=cut), cut=cut)
+                menus += self.flatten(rollup_trees)
+        return menus
 
     def build_content_tree(self, roots=None, prefix=None, cut=ContentCut(),
                            load_text=False):
@@ -397,16 +428,22 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             roots = root
             _ = iter(roots)
         except TypeError:
-            roots = [root]
+            if root:
+                roots = [root]
+        content_tree = self.build_content_tree(
+            roots, prefix=prefix, cut=cut, load_text=load_text)
         rollup_trees = self._cut_tree(self.build_content_tree(
             roots, prefix=prefix, cut=cut, load_text=load_text), cut=cut)
-        try:
-            # We only have one root by definition of the function signature.
-            rollup_tree = next(six.itervalues(rollup_trees))
-        except StopIteration:
-            LOGGER.exception("build_tree([%s], path=%s, cut=%s)"\
-                " leaves an empty rollup tree", root, path, cut.__class__)
-            rollup_tree = ({'slug': ""}, {})
+        if len(rollup_trees.values()) == 1:
+            try:
+                # We only have one root by definition of the function signature.
+                rollup_tree = next(six.itervalues(rollup_trees))
+            except StopIteration:
+                LOGGER.exception("build_tree([%s], path=%s, cut=%s)"\
+                    " leaves an empty rollup tree", root, path, cut.__class__)
+                rollup_tree = ({'slug': ""}, {})
+        else:
+            rollup_tree = ({'slug': ""}, rollup_trees)
         leafs = self.get_leafs(rollup_tree)
         self._report_queries("[_build_tree] leafs loaded")
         self.decorate_leafs(leafs)

@@ -52,32 +52,5 @@ class CampaignListAPIView(BreadcrumbMixin, ListAPIView):
     filter_backends = (SearchFilter,)
 
     def get_queryset(self):
-        cut = ContentCut(depth=2)
-        menus = []
-        search_query = self.request.query_params.get('q')
-        query_filter = Q(tag__contains='industry')
-        if search_query:
-            query_filter = query_filter & Q(tag__contains=search_query)
-        for root in PageElement.objects.get_roots().filter(
-                query_filter).order_by('title'):
-            if not cut.enter(root.tag):
-                menus += [{
-                    'title': root.title,
-                    'path': '/%s' % root.slug,
-                    'indent': 0
-                }]
-            else:
-                rollup_trees = self._cut_tree(self.build_content_tree(
-                    [root], prefix='', cut=cut), cut=cut)
-                menus += self.flatten(rollup_trees)
-        return menus
-
-    def flatten(self, rollup_trees, depth=0):
-        result = []
-        for _, values in six.iteritems(rollup_trees):
-            elem, nodes = values
-            path = None if nodes else elem['path']
-            result += [
-                {'title': elem['title'], 'path': path, 'indent': depth}]
-            result += self.flatten(nodes, depth=depth + 1)
-        return result
+        return self.get_segments(
+            search_query=self.request.query_params.get('q'))

@@ -400,13 +400,14 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
 
     def get(self, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals
-        # All assessment questions for an industry, regardless
+        # All assessment questions for a segment, regardless
         # of the actual from_path.
         segment_url, segment_prefix, segment_element = self.segment
 
         # `segment_prefix` is fully qualified path to segment.
         # We use cut=None here so we print out the full assessment
-        root = self._build_tree(segment_element, segment_prefix, cut=None)
+# XXX   root = self._build_tree(segment_element, segment_prefix, cut=None)
+        root = self._build_tree(None, "", cut=None)
 
         self.headings = self.get_headings(self._get_tag(root[0]))
         self.create_writer(self.headings, title=self._get_title(root[0]))

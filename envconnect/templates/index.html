@@ -52,43 +52,20 @@
 	<div class="container">
 		<div class="text-center">
 			<div style="display:inline-block;">
-				<div class="dropdown dropdown-homepage" id="industry_selector">
+				<div class="dropdown dropdown-homepage mt-4" id="assess">
 					<button class="btn btn-lg btn-primary dropdown-toggle industry-select" type="button" data-toggle="dropdown" data-flip="false">
-						<span class="text">Make a selection</span>
+						<div style="display:inline-block;">
+							<span class="text">Assess</span><br />
+							<span class="text-subtitle">Assess maturity, benchmark, get scorecard</span>
+						</div>
 					</button>
-					<ul class="dropdown-menu" role="menu" aria-labelledby="industry_selector">
-<li><div style="font-size:14px;">Don't know what to select? <a href="{{'/docs/faq/#general-3'|site_prefixed}}" target="_blank">Click here</a></div></li>
-{% for industry in industries %}
-						<li class="dropdown-item dropdown-item-indent-{{industry.0}}">
-							<div>
-{% if request|is_broker_manager %}
-<input type="checkbox" name="industry" value="{{industry.1.slug}}"
-{% if industry.1|containsTag:'enabled' %}checked{% endif %} />
-<a id="{{industry.1.slug}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
-{% else %}
-{% if industry.1|containsTag:'enabled' %}
-{% if industry.1|containsTag:'heading' %}
-<button id="{{industry.1.slug}}" disabled>{{industry.1.title}}</button>
-{% else %}
-<a id="{{industry.1.slug}}" href="{{'app/info/'|site_prefixed}}sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
-{% endif %}
-{% else %}
-<span id="{{industry.1.slug}}" class="disabled" role="menuitem" tabindex="-1">{{industry.1.title}} <i class="fa fa-wrench"></i></span>
-{% endif %}
-{% endif %}
-							</div>
-						</li>
-{% endfor %}
-{% if request|is_broker_manager %}
-<!-- <li><button class="btn btn-link" data-toggle="modal" data-target="#add-element-modal"><i class="fa fa-plus"></i> Add industry ...</button></li> -->
-{% endif %}
-					</ul>
+					{% include "_index_industries_assess.html" %}
 				</div>
 			</div>
 		</div>
-					<div class="text-center">
-						{% include "_index_extra.html" %}
-					</div>
+		<div class="text-center">
+			{% include "_index_extra.html" %}
+		</div>
 	</div>
 	<div class="container">
 		<div class="col-12 text-center">
@@ -163,19 +140,6 @@ anonymous, aggregated reports.
 					</div>
 				</div>
 			</section>
-			<section id="products" class="feature-index">
-				<h3>Technology, products, services</h3>
-				<div class="row">
-					<div class="col-md-3 text-center">
-						<i class="home-icon fa fa-tags fa-4x"></i>
-					</div>
-					<div class="col-md-7">
-						<p class="editable">
-Find best practice-linked technologies, products and services.
-						</p>
-					</div>
-				</div>
-			</section>
 			<section id="improvement-planning" class="feature-index">
 				<h3>Planning</h3>
 				<div class="row">
@@ -206,72 +170,8 @@ by business value and peer implementation rate.
 					</div>
 				</div>
 			</section>
-			<section id="performance-scoring" class="feature-index">
-				<h3>Performance scoring</h3>
-				<div class="row">
-					<div class="col-md-3 text-center">
-						<i class="home-icon fa fa-trophy fa-4x"></i>
-					</div>
-					<div class="col-md-7">
-						<p class="editable">
-Get performance scores against best practice in absolute terms. Share
-scorecards with client organizations at your discretion.
-						</p>
-					</div>
-				</div>
-			</section>
-			<section id="supplier-assessment" class="feature-index">
-				<h3>Supplier/facility assessment</h3>
-				<div class="row">
-					<div class="col-md-3 text-center">
-						<i class="home-icon fa fa-share-alt fa-4x"></i>
-					</div>
-					<div class="col-md-7">
-						<p class="editable">
-Find sector-specific RFP/solicitation and annual survey questions and tools.
-						</p>
-					</div>
-				</div>
-			</section>
-			<section id="mytsp" class="feature-index">
-				<h3>MyTSP</h3>
-				<div class="row">
-					<div class="col-md-3 text-center">
-						<i class="home-icon fa fa-clock-o fa-4x"></i>
-					</div>
-					<div class="col-md-7">
-						<p class="editable">
-Create your own list of reporting entities, and dashboards to track performance
-trends and improvement opportunities over time.
-						</p>
-					</div>
-				</div>
-			</section>
 		</div>
 	</div>
-	<section>
-		<div class="text-center" style="margin-bottom: 20px;">
-			<h2>Content development process</h2>
-		</div>
-		<div class="row">
-			<div class="offset-md-2 col-md-8">
-<p id="content-development-process-1" class="editable edit-markdown">
-<strong>Developed by all, for all.</strong>
-Content on this website is made freely available for anyone to access under
-a Creative Commons license. It is created as part of an ongoing collaboration
-of individuals, organizations and groups, across a variety of disciplines
-in the public and private sectors, who have an interest in accelerating
-the uptake of best practices for transformative change in sustainability.
-</p>
-<p id="content-development-process-2" class="editable edit-markdown">
-If you are interested in contributing new or editing existing content,
-or in creating a new industry segment that is not yet represented on TSP,
-<a href="{{'contact/'|site_prefixed}}">contact us</a> for more information
-about the process.
-</p>
-			</div>
-		</div>
-	</section>
 	<section>
 		<div class="text-center" style="margin-bottom: 20px;">
 			<h2>Platform source code</h2>

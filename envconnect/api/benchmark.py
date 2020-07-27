@@ -212,6 +212,7 @@ class BenchmarkMixin(ReportMixin):
         if 'accounts' in rollup_tree[0]:
             del rollup_tree[0]['accounts']
 
+    # BenchmarkMixin.flatten_distributions
     def flatten_distributions(self, distribution_tree, prefix=None):
         """
         Flatten the tree into a list of charts.
@@ -704,7 +705,7 @@ class ScorecardQuerySetMixin(BenchmarkMixin):
         charts, complete = self.flatten_distributions(rollup_tree,
             prefix=from_root)
 
-        # Done in BenchmarkBaseView through `_build_tree` > `decorate_leafs`.
+        # Done in BenchmarkView through `_build_tree` > `decorate_leafs`.
         # This code is here otherwise the printable scorecard doesn't show
         # icons.
         for chart in charts:
@@ -982,6 +983,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
     serializer_class = MetricsSerializer
     force_score = True
 
+    # HistoricalScoreAPIView.flatten_distributions
     def flatten_distributions(self, rollup_tree, accounts, prefix=None):
         """
         A rollup_tree is keyed best practices and we need a structure
@@ -1002,16 +1004,16 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                     'normalized_score': account.get('normalized_score', 0)
                 }
                 if 'sample' in account:
+                    # XXX builds URL to segments.
                     last_part = node_path.split('/')[-1]
                     if last_part.startswith('sustainability-'):
-                        prefix = '/%s' % last_part
+                        url_path = '/%s' % last_part
                     else:
-                        prefix = '/sustainability-%s' % last_part
+                        url_path = '/sustainability-%s' % last_part
                     by_industry.update({
                         'url': self.request.build_absolute_uri(
-                            reverse('assess_organization_sample',
-                            args=(self.account.slug, account['sample'],
-                                prefix)))
+                            reverse('assess_organization_sample', args=(
+                              self.account.slug, account['sample'], url_path)))
                     })
                 accounts[account_key].update({node_key: by_industry})
 

@@ -531,6 +531,14 @@ class SupplierListMixin(DashboardMixin):
               "":
             }
           ]
+
+        segments is a rollup tree derived into a list of items:
+        {
+          'accounts':,
+          'path':
+          'slug':
+          'title':
+        }
         """
         #pylint:disable=too-many-arguments
         account_dict = self._prepare_account(account)
@@ -855,6 +863,8 @@ portfolio-a/"
             except EditableFilter.DoesNotExist:
                 pass
         if likely_metric is None:
+            # XXX default is derived from `prefix` argument
+            # to `decorate_with_scores`.
             likely_metric = reverse('scorecard_organization_redirect',
                 args=(cohort_slug, "/sustainability-%s" % default))
         if likely_metric:
