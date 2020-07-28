@@ -260,7 +260,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AssessmentView, self).get_context_data(**kwargs)
         self.get_or_create_assessment_sample()
-        from_root, trail = self.breadcrumbs
+        segment_url, segment_prefix, segment_element = self.segment
         root = self.get_report_tree(load_text=(self.survey.slug == 'framework'))
         if root:
             context.update({
@@ -283,26 +283,19 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                     args=(self.account, self.sample, self.kwargs.get('path')))
                 context.update({'selected_sample': selected_sample})
 
-        industry_parts = []
-        for part in from_root.split('/'):
-            if part.startswith('sustainability-'):
-                break
-            industry_parts += [part]
-        industry_root = '/'.join(industry_parts)
-
         nb_questions = Consumption.objects.filter(
-            path__startswith=industry_root).count()
+            path__startswith=segment_prefix).count()
         nb_required_questions = Consumption.objects.filter(
-            path__startswith=industry_root,
+            path__startswith=segment_prefix,
             default_metric_id=self.default_metric_id).count()
         nb_answers = Answer.objects.filter(sample=self.sample,
             question__default_metric=F('metric_id'),
 #            question__default_metric_id=self.default_metric_id,
-            question__path__startswith=industry_root).count()
+            question__path__startswith=segment_prefix).count()
         nb_required_answers = Answer.objects.filter(sample=self.sample,
             question__default_metric=F('metric_id'),
             question__default_metric_id=self.default_metric_id,
-            question__path__startswith=industry_root).count()
+            question__path__startswith=segment_prefix).count()
         context.update({
             'nb_answers': nb_answers,
             'nb_required_answers': nb_required_answers,
@@ -325,16 +318,16 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         update_context_urls(context, {
             'download': reverse(
                 'assess_organization_sample_download',
-                args=(organization, self.sample, industry_root)),
+                args=(organization, self.sample, segment_prefix)),
             'api_assessment_sample': reverse(
                 'survey_api_sample', args=(organization, self.sample)),
             'api_assessment_freeze': reverse(
                 'survey_api_sample_freeze', args=(organization, self.sample,
-                industry_root)),
+                segment_prefix)),
             'api_assessment_sample_new': reverse(
                 'survey_api_sample_new', args=(organization,)),
-            'api_benchmark_share': reverse('api_benchmark_share',
-                args=(organization, industry_root)),
+            'api_scorecard_share': reverse('api_scorecard_share',
+                args=(organization, segment_prefix)),
         })
         return context
 
@@ -409,23 +402,11 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
         #pylint: disable=unused-argument,too-many-locals
         # All assessment questions for an industry, regardless
         # of the actual from_path.
-        from_root, trail = self.breadcrumbs
-        head = None
-        industry_parts = []
-        for idx, part in enumerate(from_root.split('/')):
-            if part.startswith('sustainability-'):
-                head = trail[idx][0]
-                break
-            industry_parts += [part]
-        industry_root = '/'.join(industry_parts)
-        if not head:
-            head = trail[-1][0]
+        segment_url, segment_prefix, segment_element = self.segment
 
-        from_trail_head = "/" + "/".join([
-            element.slug.decode('utf-8') if six.PY2 else element.slug
-            for element in self.get_full_element_path(industry_root)])
+        # `segment_prefix` is fully qualified path to segment.
         # We use cut=None here so we print out the full assessment
-        root = self._build_tree(head, from_trail_head, cut=None)
+        root = self._build_tree(segment_element, segment_prefix, cut=None)
 
         self.headings = self.get_headings(self._get_tag(root[0]))
         self.create_writer(self.headings, title=self._get_title(root[0]))

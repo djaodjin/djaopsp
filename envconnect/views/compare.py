@@ -106,15 +106,14 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         context.update({'available_matrices': self.get_available_matrices()})
 
         from_root, trail = self.breadcrumbs
+        segment_url, segment_prefix, segment_element = self.segment
         parts = from_root.split("/")
-        if len(parts) > 1:
-            root = self._build_tree(trail[-1][0], from_root)
+        if segment_element:
+            root = self._build_tree(segment_element, from_root)
             self.decorate_with_breadcrumbs(root)
-            if not parts[1].startswith('sustainability-'):
-                excludes = ['sustainability-%s' % parts[1]]
-            else:
-                excludes = [parts[1]]
-            charts = self.get_charts(root, excludes=excludes)
+            # Remove sgement chart that would otherwise be added.
+            charts = self.get_charts(
+                root, excludes=[segment_prefix.split('/')[-1]])
         else:
             # totals
             charts = []
@@ -549,6 +548,7 @@ class SuppliersImprovementsXLSXView(SupplierListMixin, TemplateView):
         self.wsheet.append(('Best practice',
             'Nb suppliers who have selected the practice for improvement.'))
         for row in rows:
+            # XXX might be better down in `flatten_answers`
             if row[2].slug.startswith('sustainability-'):
                 # Avoids double back-to-back rows with same title
                 continue

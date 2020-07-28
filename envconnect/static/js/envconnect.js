@@ -1006,7 +1006,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                     slug: $scope.supplierManagers[idx].slug,
                     full_name: $scope.supplierManagers[idx].printable_name
                 };
-                $http.post(settings.urls.api_benchmark_share, data).then(
+                $http.post(settings.urls.api_scorecard_share, data).then(
                 function success(resp) {
                     $scope.shareCompleted += 1;
                     if( $scope.shareCompleted >= $scope.shareToComplete ) {

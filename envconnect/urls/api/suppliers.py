@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'(?P<organization>%s)/benchmark/share(?P<path>%s)/?' % (
         SLUG_RE, PATH_RE),
         ShareScorecardAPIView.as_view(),
-        name="api_benchmark_share"),
+        name="api_scorecard_share"),
     url(r'(?P<organization>%s)/benchmark/historical(?P<path>%s)/?' % (
         SLUG_RE, PATH_RE),
         HistoricalScoreAPIView.as_view(),

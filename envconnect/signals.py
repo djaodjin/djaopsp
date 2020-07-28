@@ -66,7 +66,7 @@ def on_assessment_completed(assessment, path, notified, *args, **kwargs):
         # Avoids 500 errors when no managers
         recipients = [settings.DEFAULT_FROM_EMAIL]
     back_url = request.build_absolute_uri(
-        reverse('benchmark_organization',
+        reverse('scorecard_organization',
                 args=(assessment.account, assessment, path)))
     get_email_backend().send(
         recipients=recipients,

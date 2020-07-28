@@ -35,7 +35,7 @@ class ShareView(ReportMixin, TemplateView):
             'supplier_managers': json.dumps(
                 get_supplier_managers(self.account))})
         update_context_urls(context, {
-            'api_benchmark_share': reverse('api_benchmark_share',
+            'api_scorecard_share': reverse('api_scorecard_share',
                 args=(context['organization'], from_root)),
             'api_organizations': site_prefixed("/api/profile/"),
             'api_viewers': site_prefixed(

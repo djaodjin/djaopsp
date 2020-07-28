@@ -32,12 +32,6 @@ urlpatterns = [
             pattern_name='improve_organization',
             new_account_url=site_prefixed('/users/roles/accept/')),
         name='improve_redirect'),
-    url(r'app/benchmark(?P<path>%s)/'
-        % PATH_RE,
-        AccountRedirectView.as_view(
-            pattern_name='benchmark_organization_redirect',
-            new_account_url=site_prefixed('/users/roles/accept/')),
-        name='benchmark_redirect'),
     url(r'app/scorecard(?P<path>%s)/'
         % PATH_RE,
         AccountRedirectView.as_view(
