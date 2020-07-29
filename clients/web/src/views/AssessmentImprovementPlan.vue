@@ -18,7 +18,7 @@
       </template>
       <template v-slot:tab1>
         <tab-header :text="$t('improvement-plan.tab1.title')" />
-        <div class="px-4 pt-sm-2 px-md-8">
+        <div class="px-4 pt-4 pt-sm-2 px-md-8">
           <p class="mb-2">{{ $t('improvement-plan.tab1.intro') }}</p>
           <form-improvement-plan
             :planPractices="planPractices"

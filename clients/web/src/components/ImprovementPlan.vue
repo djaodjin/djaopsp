@@ -34,6 +34,10 @@
           </v-row>
         </v-container>
       </ol>
+      <chart-practice-values-aggregate
+        class="aggregate-chart my-4 mt-md-8 mt-xl-10 mx-xl-12"
+        :practices="planPractices"
+      />
       <button-primary class="mb-5" @click="advanceAssessment"
         >Submit Improvement Plan</button-primary
       >
@@ -45,6 +49,7 @@
 import { PRACTICE_VALUE_CATEGORY_DEFAULT } from '@/config/app'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import ButtonSecondary from '@/components/ButtonSecondary'
+import ChartPracticeValuesAggregate from '@/components/ChartPracticeValuesAggregate'
 import PracticeOverview from '@/components/PracticeOverview'
 import TabHeader from '@/components/TabHeader'
 
@@ -73,6 +78,7 @@ export default {
   components: {
     ButtonPrimary,
     ButtonSecondary,
+    ChartPracticeValuesAggregate,
     PracticeOverview,
     TabHeader,
   },
