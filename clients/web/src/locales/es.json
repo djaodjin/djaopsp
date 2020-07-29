@@ -62,5 +62,17 @@
       "title": "Improvement Plan"
     },
     "title": "Improvement Plan"
+  },
+
+  "share": {
+    "tab1": {
+      "intro": "Select the organizations you wish to share the assessment with.",
+      "title": "Share"
+    },
+    "tab2": {
+      "intro": "The assessment has been shared with the following organizations:",
+      "title": "History"
+    },
+    "title": "Share"
   }
 }

@@ -1,5 +1,5 @@
 import { DELAY } from './config'
-import { STEP_SCORECARD_KEY, STEP_FREEZE_KEY } from '@/config/app'
+import { STEP_SHARE_KEY, STEP_FREEZE_KEY } from '@/config/app'
 import Assessment from '../common/Assessment'
 
 const activeAssessments = [
@@ -17,7 +17,7 @@ const activeAssessments = [
     authorEmail: 'martha.blum@tamarinsolutions.com',
     industryName: 'Construction',
     industryPath: 'construction',
-    status: STEP_SCORECARD_KEY,
+    status: STEP_SHARE_KEY,
   }),
 ]
 
