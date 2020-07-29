@@ -11,12 +11,12 @@
     </div>
     <v-container v-else>
       <v-row>
-        <v-col cols="12" sm="6" lg="4" xl="3">
+        <v-col cols="12" sm="6" lg="4" xl="4">
           <scorecard-scores :scores="topLevelScores"></scorecard-scores>
           <scorecard-business-areas :data="scoresByBusinessAreas" />
-        </v-col>
-        <v-col cols="12" sm="6" lg="8" xl="9">
           <scorecard-targets :targets="targets" />
+        </v-col>
+        <v-col cols="12" sm="6" lg="8" xl="8">
           <scorecard-practices :practices="improvementPlanPractices" />
           <scorecard-practices-chart :practices="improvementPlanPractices" />
           <button-primary

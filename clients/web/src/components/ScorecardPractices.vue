@@ -1,5 +1,5 @@
 <template>
-  <v-sheet class="py-3 px-2 mt-6" elevation="3">
+  <v-sheet class="py-3 px-2" elevation="3">
     <sheet-title>Improvement Plan</sheet-title>
     <ul class="practices-list pl-4 pr-3">
       <li

@@ -1,6 +1,8 @@
 <template>
-  <v-sheet class="py-3 px-2 mt-6" elevation="3">
-    <sheet-title>Practice Value by Domain</sheet-title>
+  <v-sheet class="py-3 px-md-4 px-xl-16 mt-6" elevation="3">
+    <sheet-title class="text-center text-md-left"
+      >Improvement Plan Value by Domain</sheet-title
+    >
     <chart-practice-values-aggregate class="mt-4 mx-4" :practices="practices" />
   </v-sheet>
 </template>

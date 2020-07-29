@@ -1,5 +1,5 @@
 <template>
-  <v-sheet class="py-3 px-2" elevation="3">
+  <v-sheet class="py-3 px-2 mt-6" elevation="3">
     <sheet-title>Environmental Targets</sheet-title>
     <ul class="target-list pl-4">
       <li class="target pt-2 pb-4" v-for="target in targets" :key="target.id">
@@ -33,15 +33,9 @@ export default {
   overflow: hidden;
 }
 .target {
-  @media #{map-get($display-breakpoints, 'lg-and-up')} {
-    padding-right: 3%;
-    width: 50%;
-    float: left;
-  }
-
   @media #{map-get($display-breakpoints, 'xl-only')} {
     padding-right: 3%;
-    width: 25%;
+    width: 50%;
     float: left;
   }
 
