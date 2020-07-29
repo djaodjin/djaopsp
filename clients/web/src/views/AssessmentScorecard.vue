@@ -11,13 +11,14 @@
     </div>
     <v-container v-else>
       <v-row>
-        <v-col cols="12" sm="6" lg="4">
+        <v-col cols="12" sm="6" lg="4" xl="3">
           <scorecard-scores :scores="topLevelScores"></scorecard-scores>
           <scorecard-business-areas :data="scoresByBusinessAreas" />
         </v-col>
-        <v-col cols="12" sm="6" lg="8">
+        <v-col cols="12" sm="6" lg="8" xl="9">
           <scorecard-targets :targets="targets" />
           <scorecard-practices :practices="improvementPlanPractices" />
+          <scorecard-practices-chart :practices="improvementPlanPractices" />
           <button-primary
             class="mt-6"
             :to="{
@@ -47,6 +48,7 @@ import LoadingSpinner from '@/components/LoadingSpinner'
 import ScorecardScores from '@/components/ScorecardScores'
 import ScorecardBusinessAreas from '@/components/ScorecardBusinessAreas'
 import ScorecardPractices from '@/components/ScorecardPractices'
+import ScorecardPracticesChart from '@/components/ScorecardPracticesChart'
 import ScorecardTargets from '@/components/ScorecardTargets'
 
 export default {
@@ -108,6 +110,7 @@ export default {
     ScorecardBusinessAreas,
     ScorecardPractices,
     ScorecardTargets,
+    ScorecardPracticesChart,
   },
 }
 </script>
