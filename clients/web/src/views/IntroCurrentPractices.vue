@@ -7,7 +7,7 @@
     <div>
       <p>
         Please respond to a list of questions related to the current practices
-        of your organization.
+        of your organization. Responses must be accurate and verifiable.
       </p>
       <p>
         Every question answered is automatically saved so you can exit and
