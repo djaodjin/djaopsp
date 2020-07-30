@@ -14,6 +14,7 @@
             </v-sheet>
           </v-col>
           <v-col
+            v-if="!rightColHidden"
             cols="12"
             :md="mdColumnRight"
             :lg="lgColumnRight"
@@ -69,6 +70,10 @@ export default {
     tabs: {
       type: Array,
       required: true,
+    },
+    rightColHidden: {
+      type: Boolean,
+      default: false,
     },
     mdCol: {
       type: Number,

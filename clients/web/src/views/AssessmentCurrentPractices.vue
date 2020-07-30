@@ -10,7 +10,7 @@
       <loading-spinner />
     </div>
     <div v-else>
-      <tab-container class="pb-16" :tabs="tabs">
+      <tab-container class="pb-16" :tabs="tabs" :rightColHidden="true">
         <template v-slot:tab1>
           <assessment-sections
             :header="$t('practices.tab1.title')"
