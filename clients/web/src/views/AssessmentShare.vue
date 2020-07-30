@@ -6,19 +6,29 @@
       :industryName="assessment.industryName"
       :title="$t('share.title')"
     />
-    <tab-container :tabs="tabs" :mdCol="6" :lgCol="6">
+    <tab-container
+      :tabs="tabs"
+      :lgLeftCol="7"
+      :lgRightCol="5"
+      :xlLeftCol="8"
+      :xlRightCol="4"
+    >
       <template v-slot:tab1>
         <tab-header :text="$t('share.tab1.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
-          <p>{{ $t('share.tab1.intro') }}</p>
-          <form-share-assessment />
+          <p class="mb-2">{{ $t('share.tab1.intro') }}</p>
+          <form-share-assessment
+            :organization="organization"
+            :assessment="assessment"
+            :groups="groups"
+            :organizations="organizations"
+          />
         </div>
       </template>
       <template v-slot:tab2>
         <tab-header :text="$t('share.tab2.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
-          <p>{{ $t('share.tab2.intro') }}</p>
-          <share-history />
+          <share-history :history="history" />
         </div>
       </template>
     </tab-container>
@@ -27,6 +37,8 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import { getShareHistory } from '../mocks/history'
+import { getOrganizations, getOrganizationGroups } from '../mocks/organizations'
 import FormShareAssessment from '@/components/FormShareAssessment'
 import HeaderSecondary from '@/components/HeaderSecondary'
 import ShareHistory from '@/components/ShareHistory'
@@ -44,12 +56,25 @@ export default {
 
   methods: {
     async fetchData() {
-      const [organization, assessment] = await Promise.all([
+      const [
+        organization,
+        assessment,
+        history,
+        groups,
+        organizations,
+      ] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.id),
+        getShareHistory(),
+        getOrganizationGroups(),
+        getOrganizations(),
       ])
+
       this.organization = organization
       this.assessment = assessment
+      this.history = history
+      this.groups = groups
+      this.organizations = organizations
     },
   },
 
@@ -57,6 +82,9 @@ export default {
     return {
       organization: {},
       assessment: {},
+      history: [],
+      groups: [],
+      organizations: [],
       tabs: [
         { text: this.$t('share.tab1.title'), href: 'tab-1' },
         { text: this.$t('share.tab2.title'), href: 'tab-2' },

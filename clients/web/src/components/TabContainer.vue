@@ -3,12 +3,22 @@
     <div v-if="$vuetify.breakpoint.smAndUp">
       <v-container>
         <v-row>
-          <v-col cols="12" :md="mdCol" :lg="lgCol">
+          <v-col
+            cols="12"
+            :md="mdColumnLeft"
+            :lg="lgColumnLeft"
+            :xl="xlColumnLeft"
+          >
             <v-sheet class="mx-2 mb-3 mx-lg-auto" elevation="3">
               <slot name="tab1"></slot>
             </v-sheet>
           </v-col>
-          <v-col cols="12" :md="mdCol" :lg="lgCol">
+          <v-col
+            cols="12"
+            :md="mdColumnRight"
+            :lg="lgColumnRight"
+            :xl="xlColumnRight"
+          >
             <v-sheet class="mx-2 mb-3 mx-lg-auto" elevation="3">
               <slot name="tab2"></slot>
             </v-sheet>
@@ -64,9 +74,52 @@ export default {
       type: Number,
       default: 12,
     },
+    mdLeftCol: {
+      type: Number,
+    },
+    mdRightCol: {
+      type: Number,
+    },
     lgCol: {
       type: Number,
       default: 12,
+    },
+    lgLeftCol: {
+      type: Number,
+    },
+    lgRightCol: {
+      type: Number,
+    },
+    xlCol: {
+      type: Number,
+      default: 12,
+    },
+    xlLeftCol: {
+      type: Number,
+    },
+    xlRightCol: {
+      type: Number,
+    },
+  },
+
+  computed: {
+    mdColumnLeft() {
+      return this.mdLeftCol || this.mdCol
+    },
+    mdColumnRight() {
+      return this.mdRightCol || this.mdCol
+    },
+    lgColumnLeft() {
+      return this.lgLeftCol || this.lgCol
+    },
+    lgColumnRight() {
+      return this.lgRightCol || this.lgCol
+    },
+    xlColumnLeft() {
+      return this.xlLeftCol || this.xlCol
+    },
+    xlColumnRight() {
+      return this.xlRightCol || this.xlCol
     },
   },
 

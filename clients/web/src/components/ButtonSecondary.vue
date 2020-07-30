@@ -1,6 +1,7 @@
 <template>
   <v-btn
     v-on="$listeners"
+    v-bind="$attrs"
     :to="to"
     :block="!display || display !== 'inline'"
     :type="!type ? 'button' : type"
