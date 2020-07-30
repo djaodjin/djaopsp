@@ -63,33 +63,35 @@
           :subcategory="nextSubcategory"
         />
       </div>
-      <div v-else class="sections pa-4 px-md-8" key="viewSections">
+      <div v-else class="pa-4 px-md-8" key="viewSections">
         <p>{{ $t('practices.tab1.intro') }}</p>
-        <v-list
-          class="mb-4"
-          outlined
-          v-for="loopSection in sections"
-          :key="loopSection.id"
-        >
-          <v-list-item
-            v-for="loopSubcategory in loopSection.subcategories"
-            :key="loopSubcategory.id"
-            :to="{
-              path: `${$route.path}${$route.hash}`,
-              query: {
-                section: loopSection.id,
-                subcategory: loopSubcategory.id,
-              },
-            }"
-            exact
+        <div class="sections">
+          <v-list
+            class="mb-4"
+            outlined
+            v-for="loopSection in sections"
+            :key="loopSection.id"
           >
-            <practices-section
-              :section="loopSection"
-              :subcategory="loopSubcategory"
-              :unanswered="unanswered"
-            />
-          </v-list-item>
-        </v-list>
+            <v-list-item
+              v-for="loopSubcategory in loopSection.subcategories"
+              :key="loopSubcategory.id"
+              :to="{
+                path: `${$route.path}${$route.hash}`,
+                query: {
+                  section: loopSection.id,
+                  subcategory: loopSubcategory.id,
+                },
+              }"
+              exact
+            >
+              <practices-section
+                :section="loopSection"
+                :subcategory="loopSubcategory"
+                :unanswered="unanswered"
+              />
+            </v-list-item>
+          </v-list>
+        </div>
       </div>
     </v-slide-x-transition>
   </div>
@@ -157,3 +159,13 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.sections {
+  display: grid;
+  column-gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  align-items: start;
+  grid-auto-flow: row dense;
+}
+</style>
