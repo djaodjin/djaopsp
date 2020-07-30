@@ -13,6 +13,7 @@
     "core-js": "^3.6.5",
     "d3-scale": "^3.2.1",
     "d3-scale-chromatic": "^1.5.0",
+    "date-fns": "^2.15.0",
     "vue": "^2.6.11",
     "vue-fragment": "^1.5.1",
     "vue-i18n": "^8.17.3",
