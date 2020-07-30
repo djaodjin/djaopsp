@@ -7,6 +7,7 @@
           <v-autocomplete
             v-model="groupSelection"
             :items="groups"
+            :return-object="true"
             chips
             deletable-chips
             color="primary"
@@ -20,6 +21,7 @@
             class="my-6"
             v-model="orgSelection"
             :items="organizations"
+            :return-object="true"
             chips
             deletable-chips
             color="primary"
@@ -32,13 +34,13 @@
         </v-col>
         <v-col cols="12" xl="6">
           <v-textarea
+            v-model="message"
             label="Message (editable)"
             hide-details="auto"
             auto-grow
             outlined
             rows="12"
             row-height="18"
-            :value="defaultMessage"
           ></v-textarea>
           <v-checkbox v-model="agreement" hide-details>
             <template v-slot:label>
@@ -71,18 +73,19 @@ export default {
       agreement: false,
       groupSelection: [],
       orgSelection: [],
+      message: '',
     }
   },
 
-  computed: {
-    defaultMessage() {
-      return `Hello,\n\nI would like to invite you to view the scorecard information for ${this.organization.name}'s assessment in The Sustainability Project.\n\nThank you,`
+  watch: {
+    organization: function (org) {
+      this.message = `Hello,\n\nI would like to invite you to view the scorecard information for ${org.name}'s assessment in The Sustainability Project.\n\nThank you,`
     },
   },
 
   methods: {
     processForm: function () {
-      console.log('form submitted: ', this.form)
+      console.log('validate form content and submit')
       this.$router.push({
         name: 'assessmentHome',
         params: { id: this.assessment.id },
