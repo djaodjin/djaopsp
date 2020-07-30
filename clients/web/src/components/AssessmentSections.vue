@@ -164,11 +164,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.sections {
-  display: grid;
-  column-gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-  align-items: start;
-  grid-auto-flow: row dense;
+@media #{map-get($display-breakpoints, 'md-and-up')} {
+  .sections {
+    display: grid;
+    column-gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    align-items: start;
+    grid-auto-flow: row dense;
+  }
 }
 </style>

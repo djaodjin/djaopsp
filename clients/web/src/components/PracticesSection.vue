@@ -3,13 +3,13 @@
     <practice-section-header :subcategory="subcategory.content.name" />
     <v-container class="pa-0">
       <v-row align="center">
-        <v-col class="pt-1 pb-2" cols="6" md="8">
+        <v-col class="pt-1 pb-2" cols="7" lg="9">
           <v-progress-linear
             :value="completePercentage"
             color="primary"
           ></v-progress-linear>
         </v-col>
-        <v-col class="pt-1 pb-2" cols="6" md="4">
+        <v-col class="pt-1 pb-2" cols="5" lg="3">
           <span class="progress-label"
             >{{ numAnswered }} / {{ numQuestions }} questions</span
           >
