@@ -412,16 +412,11 @@ class SupplierListMixin(DashboardMixin):
 
     @staticmethod
     def get_nb_questions_per_segment():
-        # XXX This is Postgres-specific code
-        raw_query = "SELECT distinct(substring(survey_question.path"\
-" from '.*/sustainability-[^/]+/')) FROM survey_question;"
         nb_questions_per_segment = {}
-        with connection.cursor() as cursor:
-            cursor.execute(raw_query)
-            for row in cursor.fetchall():
-                nb_questions = Consumption.objects.filter(
-                    path__startswith=row[0]).count()
-                nb_questions_per_segment.update({row[0]: nb_questions})
+        for segment in self.get_segments():
+            nb_questions = Consumption.objects.filter(
+                path__startswith=segment.path).count()
+            nb_questions_per_segment.update({segment.path: nb_questions})
         return nb_questions_per_segment
 
     @property
@@ -592,7 +587,7 @@ class SupplierListMixin(DashboardMixin):
 
             # XXX Builds URL from segment path
             # XXX `segment` points to the PageElement industry?
-            segment_path = '/sustainability-%s' % str(segment['slug'])
+            segment_path = '/%s' % str(segment['slug'])
             if segment['slug'].startswith('framework'):
                 score_url = reverse('assess_organization',
                     args=(account.slug, segment_path))
@@ -866,7 +861,7 @@ portfolio-a/"
             # XXX default is derived from `prefix` argument
             # to `decorate_with_scores`.
             likely_metric = reverse('scorecard_organization_redirect',
-                args=(cohort_slug, "/sustainability-%s" % default))
+                args=(cohort_slug, "/%s" % default))
         if likely_metric:
             likely_metric = self.request.build_absolute_uri(likely_metric)
         return likely_metric

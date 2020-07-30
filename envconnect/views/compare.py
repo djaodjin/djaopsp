@@ -548,10 +548,6 @@ class SuppliersImprovementsXLSXView(SupplierListMixin, TemplateView):
         self.wsheet.append(('Best practice',
             'Nb suppliers who have selected the practice for improvement.'))
         for row in rows:
-            if row[2].slug.startswith('sustainability-'):
-                # Avoids double back-to-back rows with same title
-                # XXX might be better down in `flatten_answers`
-                continue
             indent = row[0]
             title = row[2].title
             nb_suppliers = row[3].get('nb_suppliers', "")

@@ -23,7 +23,8 @@ from survey.models import (Answer, Campaign, EnumeratedQuestions,
 from survey.utils import get_account_model
 
 from .compat import reverse
-from .helpers import as_measured_value, is_sqlite3, get_testing_accounts
+from .helpers import (ContentCut, as_measured_value, is_sqlite3,
+    get_testing_accounts)
 from .models import (Consumption, get_score_weight, _show_query_and_result,
     get_scored_answers)
 from .scores import populate_account, populate_rollup, push_improvement_factors
@@ -43,27 +44,6 @@ class AccountMixin(deployutils_mixins.AccountMixin):
 class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 
     redirect_roles = ['manager', 'contributor']
-
-
-class ContentCut(object):
-    """
-    Visitor that cuts down a content tree whenever TAG_PAGEBREAK is encountered.
-    """
-    TAG_PAGEBREAK = 'pagebreak'
-
-    def __init__(self, tag=TAG_PAGEBREAK, depth=1):
-        self.depth = depth
-        self.match = tag
-
-    def enter(self, tag):
-        depth = self.depth
-        self.depth = self.depth + 1
-        return not (depth > 1 and tag and self.match and self.match in tag)
-
-    def leave(self, attrs, subtrees):
-        #pylint:disable=unused-argument
-        self.depth = self.depth - 1
-        return True
 
 
 class TransparentCut(object):
@@ -109,8 +89,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     def survey(self):
         if not hasattr(self, '_survey'):
             path = self.kwargs.get('path', "")
-            if (path.startswith('/framework')
-                or path.startswith('/sustainability-framework')):
+            if path.startswith('/framework'):
                 slug = 'framework'
             else:
                 slug = 'assessment'
@@ -204,8 +183,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         result = []
         for _, values in six.iteritems(rollup_trees):
             elem, nodes = values
-            path = None if nodes else (
-                '/sustainability-%s' % elem['path'].split('/')[-1])
+            path = None if nodes else elem['path']
             result += [{'title': elem['title'], 'path': path, 'indent': depth}]
             result += self.flatten(nodes, depth=depth + 1)
         return result
@@ -245,7 +223,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             if not cut.enter(root.tag):
                 menus += [{
                     'title': root.title,
-                    'path': '/sustainability-%s' % root.slug,
+                    'path': '/%s' % root.slug,
                     'indent': 0,
                 }]
             else:

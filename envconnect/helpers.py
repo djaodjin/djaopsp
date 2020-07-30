@@ -8,13 +8,42 @@ from deployutils.helpers import datetime_or_now
 from django.db import connection, connections
 from django.db.models import F
 from django.db.utils import DEFAULT_DB_ALIAS
+from pages.models import build_content_tree
 from survey.models import Answer, Choice, Metric, Sample, Unit
 from survey.utils import get_account_model
 
+from .compat import six
 from .models import Consumption
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+class ContentCut(object):
+    """
+    Visitor that cuts down a content tree whenever TAG_PAGEBREAK is encountered.
+    """
+    TAG_PAGEBREAK = 'pagebreak'
+
+    def __init__(self, tag=TAG_PAGEBREAK, depth=1):
+        self.depth = depth
+        self.match = tag
+
+    def enter(self, tag):
+        depth = self.depth
+        self.depth = self.depth + 1
+        if depth <= 1:
+            return True
+        if tag and self.match:
+            if isinstance(tag, dict):
+                return not (self.match in tag.get('tags', []))
+            return not (self.match in tag)
+        return True
+
+    def leave(self, attrs, subtrees):
+        #pylint:disable=unused-argument
+        self.depth = self.depth - 1
+        return True
 
 
 def is_sqlite3(db_key=None):
@@ -47,45 +76,39 @@ def as_valid_sheet_title(title):
     return title.replace('/', '-')
 
 
-def get_segments(sample_ids):
+def flatten(rollup_trees, depth=0):
+    result = []
+    for key, values in six.iteritems(rollup_trees):
+        elem, nodes = values
+        path = None if nodes else elem.get('path', key)
+        result += [{'title': elem['title'], 'path': path, 'indent': depth}]
+        result += flatten(nodes, depth=depth + 1)
+    return result
+
+
+def get_segments():
+    """
+    Returns a list of segment prefixes
+    """
+    content_tree = build_content_tree(cut=ContentCut())
+    segments = flatten(content_tree)
+    return segments
+
+
+def get_segments_from_samples(sample_ids):
     """
     Returns segments which contain at least one answer
     for samples in `sample_ids`.
     """
     results = []
-    if is_sqlite3():
-        paths = Consumption.objects.filter(
+    for segment in get_segments():
+        print("segment=%s" % str(segment))
+        if segment['path'] and Consumption.objects.filter(
+            path__startswith=segment['path'],
             answer__question=F('id'),
-            answer__sample__in=sample_ids).order_by('path').values('path')
-        segments = set([])
-        for path in paths:
-            look = re.match(r'^(\S+/sustainability-[a-zA-Z0-9\-]+)/',
-                path.get('path', ""))
-            if look:
-                segments |= set([look.group(1)])
-        for segment in segments:
-            results += [(segment, "XXX")]
-        LOGGER.warning(
-        "`get_segments` does not support SQLite3 at this time. returning `[]`")
-    else:
-        raw_query = ("""WITH segments AS (
-SELECT distinct(substring(survey_question.path from
-        '.*/sustainability-[^/]+/')) AS path
-    FROM survey_question INNER JOIN survey_answer
-    ON survey_question.id = survey_answer.question_id WHERE sample_id IN (%s))
-SELECT segments.path, pages_pageelement.title
-    FROM pages_pageelement INNER JOIN segments
-    ON pages_pageelement.slug = substring(segments.path from
-        '/(sustainability-[^/]+)/')
-    ORDER BY pages_pageelement.title;
-""" %
-            ", ".join([str(sample_id) for sample_id in sample_ids]))
-        with connection.cursor() as cursor:
-            cursor.execute(raw_query)
-            for segment in cursor:
-                if not segment[0].startswith('/euissca-rfx'):
-                    results += [segment]
-#            results = list(cursor.fetchall())
+            answer__sample__in=sample_ids).exists():
+            results += [segment]
+    print("XXX results=%s" % str(results))
     return results
 
 

@@ -390,7 +390,7 @@
 
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "avg_energy_saving",
         "hidden": true
     },
@@ -398,7 +398,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "capital_cost",
         "hidden": true
     },
@@ -406,7 +406,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "payback_period",
         "hidden": true
     },
@@ -414,7 +414,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "environmental_value",
         "hidden": true
     },
@@ -422,7 +422,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "business_value",
         "hidden": true
     },
@@ -430,7 +430,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "profitability",
         "hidden": true
     },
@@ -438,7 +438,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "implementation_ease",
         "hidden": true
     },
@@ -448,26 +448,10 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"enabled\"]}",
+    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"enabled\",\"scorecard\",\"legend-2\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 1
-},
-{
-  "fields": {
-    "title": "Boxes & enclosures",
-    "slug": "sustainability-boxes-and-enclosures",
-    "tag": "{\"tags\":[\"scorecard\",\"legend-2\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 2
-},
-{
-  "fields": {
-    "orig_element": 1,
-    "dest_element": 2
-  },
-  "model": "pages.Relationship", "pk": 2
 },
 {
   "fields": {
@@ -490,7 +474,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 4
   },
   "model": "pages.relationship", "pk": 3
@@ -507,7 +491,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 5
   },
   "model": "pages.relationship", "pk": 4
@@ -524,7 +508,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 6
   },
   "model": "pages.relationship", "pk": 5
@@ -541,7 +525,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 7
   },
   "model": "pages.relationship", "pk": 6
@@ -558,7 +542,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 8
   },
   "model": "pages.relationship", "pk": 7
@@ -575,7 +559,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 9
   },
   "model": "pages.relationship", "pk": 8
@@ -597,7 +581,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/product-design",
+    "path": "/metal/boxes-and-enclosures/design/product-design",
     "text": "Product Design",
     "question_type": "integer",
     "default_metric": 1,
@@ -630,7 +614,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/packaging-design",
+    "path": "/metal/boxes-and-enclosures/design/packaging-design",
     "text": "Packaging Design",
     "question_type": "radio",
     "default_metric": 1,
@@ -862,7 +846,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
+    "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
     "text": "Adjust air/fuel ratio",
     "question_type": "radio",
     "default_metric": 1,
@@ -902,7 +886,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
+    "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
     "text": "Reduce combustion air flow to optimum",
     "question_type": "radio",
     "default_metric": 1,
@@ -936,21 +920,6 @@
 },
 {
   "fields": {
-    "title": "Construction",
-    "slug": "sustainability-construction",
-    "account": 10
-  },
-  "model": "pages.PageElement", "pk": 29
-},
-{
-  "fields": {
-    "orig_element": 28,
-    "dest_element": 29
-  },
-  "model": "pages.Relationship", "pk": 27
-},
-{
-  "fields": {
     "title": "Management",
     "slug": "management-construction",
     "account": 10
@@ -959,7 +928,7 @@
 },
 {
   "fields": {
-    "orig_element": 29,
+    "orig_element": 28,
     "dest_element": 30
   },
   "model": "pages.Relationship", "pk": 28
@@ -1161,7 +1130,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
+    "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
     "text": "Recover heat from hot waste water",
     "question_type": "radio",
     "default_metric": 1,
@@ -1202,7 +1171,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
+    "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
     "text": "Reduce hot water temperature to minimum required",
     "question_type": "radio",
     "default_metric": 1,
@@ -1566,7 +1535,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
+    "path": "/metal/boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
     "text": "The assessment process is rigorous and thorough*",
     "question_type": "radio",
     "default_metric": 1,
@@ -1607,7 +1576,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/general/report-externally",
+    "path": "/metal/boxes-and-enclosures/management-basics/general/report-externally",
     "text": "The assessment process is rigorous and thorough*",
     "question_type": "radio",
     "default_metric": 1,
@@ -1633,7 +1602,7 @@
 },
 {
   "fields": {
-    "path": "/construction/sustainability-construction/management-construction/process-in-place",
+    "path": "/construction/management-construction/process-in-place",
     "text": "A Process is in place",
     "question_type": "radio",
     "default_metric": 1,
@@ -2137,7 +2106,7 @@
     "rank": 0,
     "editable_filter": 4,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/",
+    "operand": "/metal/boxes-and-enclosures/management-basics/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2156,7 +2125,7 @@
     "rank": 0,
     "editable_filter": 5,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/",
+    "operand": "/metal/boxes-and-enclosures/design/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2175,7 +2144,7 @@
     "rank": 0,
     "editable_filter": 6,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/",
+    "operand": "/metal/boxes-and-enclosures/production/energy-efficiency/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2194,7 +2163,7 @@
     "rank": 0,
     "editable_filter": 7,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/waste-management/",
+    "operand": "/metal/boxes-and-enclosures/production/waste-management/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2213,7 +2182,7 @@
     "rank": 0,
     "editable_filter": 8,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/green-chemistry/",
+    "operand": "/metal/boxes-and-enclosures/production/green-chemistry/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2232,7 +2201,7 @@
     "rank": 0,
     "editable_filter": 9,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/packaging/",
+    "operand": "/metal/boxes-and-enclosures/boxes-distribution/packaging/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2251,7 +2220,7 @@
     "rank": 0,
     "editable_filter": 10,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/fleet/",
+    "operand": "/metal/boxes-and-enclosures/boxes-distribution/fleet/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2270,7 +2239,7 @@
     "rank": 0,
     "editable_filter": 11,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/take-back-program/",
+    "operand": "/metal/boxes-and-enclosures/boxes-distribution/take-back-program/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2289,7 +2258,7 @@
     "rank": 0,
     "editable_filter": 12,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/recycling/",
+    "operand": "/metal/boxes-and-enclosures/boxes-distribution/recycling/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2378,7 +2347,7 @@
     "rank": 0,
     "editable_filter": 15,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/",
+    "operand": "/metal/boxes-and-enclosures/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2388,26 +2357,10 @@
   "fields": {
     "title": "Wire & cable",
     "slug": "wire-and-cable",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"enabled\"]}",
+    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"scorecard\",\"legend-2\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 76
-},
-{
-  "fields": {
-    "title": "Wire & cable",
-    "slug": "sustainability-wire-and-cable",
-    "tag": "{\"tags\":[\"scorecard\",\"legend-2\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 77
-},
-{
-  "fields": {
-    "orig_element": 76,
-    "dest_element": 77
-  },
-  "model": "pages.Relationship", "pk": 65
 },
 {
   "fields": {
@@ -2420,14 +2373,14 @@
 },
 {
   "fields": {
-    "orig_element": 77,
+    "orig_element": 76,
     "dest_element": 78
   },
   "model": "pages.Relationship", "pk": 66
 },
 {
   "fields": {
-    "orig_element": 77,
+    "orig_element": 76,
     "dest_element": 7
   },
   "model": "pages.Relationship", "pk": 67
@@ -2470,7 +2423,7 @@
 },
 {
   "fields": {
-    "path": "/metal/wire-and-cable/sustainability-wire-and-cable/wc-design/design-categories/product-design",
+    "path": "/metal/wire-and-cable/wc-design/design-categories/product-design",
     "text": "Product Design",
     "question_type": "radio",
     "default_metric": 1,

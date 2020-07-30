@@ -24,7 +24,7 @@ from survey.models import  Campaign, Choice, Metric, Sample, Unit
 
 from .best_practices import ToggleTagContentAPIView
 from ..compat import reverse
-from ..helpers import get_segments, as_measured_value
+from ..helpers import get_segments_from_samples, as_measured_value
 from ..mixins import ReportMixin, TransparentCut
 from ..models import (_show_query_and_result, get_score_weight,
     get_scored_answers, get_frozen_scored_answers, get_historical_scores,
@@ -946,7 +946,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
     .. code-block:: http
 
         GET /api/supplier-1/benchmark/historical/metal/boxes-and-enclosures\
-/sustainability-boxes-and-enclosures HTTP/1.1
+ HTTP/1.1
 
     responds
 
@@ -957,7 +957,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                 "assessment": "abc123",
                 "segments": [
                     [
-                     "/construction/sustainability-construction/",
+                     "/construction/",
                      "Construction"
                     ]
                 ]
@@ -967,14 +967,14 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                 "key": "May 2018",
                 "created_at": "2018-05-28T17:39:59.368272Z",
                 "values": [
-                    ["Construction", 80, "/app/supplier-1/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
+                    ["Construction", 80, "/app/supplier-1/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/boxes-and-enclosures/"]
                 ]
             },
             {
                 "key": "Dec 2017",
                 "created_at": "2017-12-28T17:39:59.368272Z",
                 "values": [
-                    ["Construction", 80, "/app/supplier-1/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
+                    ["Construction", 80, "/app/supplier-1/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/boxes-and-enclosures/"]
                 ]
             }
             ]
@@ -1006,10 +1006,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                 if 'sample' in account:
                     # XXX builds URL to segments.
                     last_part = node_path.split('/')[-1]
-                    if last_part.startswith('sustainability-'):
-                        url_path = '/%s' % last_part
-                    else:
-                        url_path = '/sustainability-%s' % last_part
+                    url_path = '/%s' % last_part
                     by_industry.update({
                         'url': self.request.build_absolute_uri(
                             reverse('assess_organization_sample', args=(
@@ -1079,7 +1076,8 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
             resp_data.update({
                 "latest": {
                     "assessment": str(self.assessment_sample),
-                    "segments": get_segments([self.assessment_sample.id])
+                    "segments": get_segments_from_samples(
+                        [self.assessment_sample.id])
                 }
             })
         return HttpResponse(resp_data)
