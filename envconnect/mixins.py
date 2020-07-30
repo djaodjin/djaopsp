@@ -14,6 +14,7 @@ from django.db.models import Max, Q, Sum
 from django.http import Http404
 from django.utils import six
 from deployutils.apps.django import mixins as deployutils_mixins
+from deployutils.helpers import datetime_or_now
 from pages.models import PageElement, RelationShip
 from pages.mixins import TrailMixin
 from rest_framework.generics import get_object_or_404
@@ -577,21 +578,23 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         organization = kwargs.get('organization')
         if organization:
             sample = kwargs.get('sample')
+            summary_url = reverse('summary_organization_redirect',
+                args=(organization, path))
+            improve_url = reverse('improve_organization',
+                args=(organization, path))
             urls.update({
                 'share': reverse('share_organization',
                     args=(organization, sample, path)),
             })
             if not hide_summary:
                 urls.update({
-                    'summary': reverse('summary_organization_redirect',
-                        args=(organization, path)),
+                    'summary': summary_url,
                 })
             if not hide_improve:
                 urls.update({
+                    'improve': improve_url,
                     'api_improvements': reverse('api_improvement_base',
                         args=(organization,)),
-                    'improve': reverse('improve_organization',
-                        args=(organization, path)),
                 })
             if sample:
                 urls.update({
@@ -614,17 +617,19 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                             args=(organization, path)),
                     })
         else:
+            summary_url = reverse('summary', args=(path,))
+            improve_url = reverse('improve_redirect', args=(path,))
             urls.update({
                 'assess': reverse('assess_redirect', args=(path,)),
                 'share': reverse('share_redirect', args=(path,)),
             })
             if not hide_summary:
                 urls.update({
-                    'summary': reverse('summary', args=(path,)),
+                    'summary': summary_url,
                 })
             if not hide_improve:
                 urls.update({
-                    'improve': reverse('improve_redirect', args=(path,)),
+                    'improve': improve_url,
                 })
             if not hide_scorecard:
                 urls.update({
@@ -632,11 +637,11 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 })
 
         if self.__class__.__name__ == 'DetailView':
-            urls.update({'context_base': urls['summary']})
+            urls.update({'context_base': summary_url})
+        elif self.__class__.__name__ == 'ImprovementView':
+            urls.update({'context_base': improve_url})
         elif self.__class__.__name__ == 'AssessmentView':
             urls.update({'context_base': urls['assess']})
-        elif self.__class__.__name__ == 'ImprovementView':
-            urls.update({'context_base': urls['improve']})
         elif self.__class__.__name__ == 'ShareView':
             urls.update({'context_base': urls['share']})
         update_context_urls(context, urls)
