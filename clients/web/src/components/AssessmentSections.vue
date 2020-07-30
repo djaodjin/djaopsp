@@ -52,16 +52,18 @@
           }"
           exact
         />
-        <practice-section-subcategory
-          :section="section"
-          :subcategory="subcategory"
-          :answers="answers"
-        />
-        <next-practice-section
-          class="mt-4"
-          :section="nextSection"
-          :subcategory="nextSubcategory"
-        />
+        <div class="subcategory-container">
+          <practice-section-subcategory
+            :section="section"
+            :subcategory="subcategory"
+            :answers="answers"
+          />
+          <next-practice-section
+            class="mt-4"
+            :section="nextSection"
+            :subcategory="nextSubcategory"
+          />
+        </div>
       </div>
       <div v-else class="pa-4 px-md-8" key="viewSections">
         <p>{{ $t('practices.tab1.intro') }}</p>
@@ -171,6 +173,14 @@ export default {
     grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
     align-items: start;
     grid-auto-flow: row dense;
+  }
+}
+
+@media #{map-get($display-breakpoints, 'xl-only')} {
+  .subcategory-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
   }
 }
 </style>

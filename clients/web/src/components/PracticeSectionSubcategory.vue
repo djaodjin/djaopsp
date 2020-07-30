@@ -6,7 +6,7 @@
         :section="section.content.name"
         :subcategory="subcategory.content.name"
       />
-      <table class="mt-4 mx-n4 mt-md-8">
+      <table class="mt-4 mx-n4 mt-md-8 mx-xl-0 mb-xl-4">
         <thead>
           <tr>
             <th class="pl-4 pl-md-8">Questions</th>
@@ -51,6 +51,10 @@ export default {
   & ::v-deep table {
     border-collapse: collapse;
 
+    @media #{map-get($display-breakpoints, 'sm-and-up')} {
+      width: calc(100% + 32px); // make up for the negative margins
+    }
+
     th {
       &:first-child {
         text-align: left;
@@ -70,6 +74,14 @@ export default {
     }
     tr:nth-child(even) {
       background-color: $background-row-alternate;
+    }
+  }
+
+  @media #{map-get($display-breakpoints, 'xl-only')} {
+    width: 70%;
+
+    & ::v-deep table {
+      width: 100%;
     }
   }
 }
