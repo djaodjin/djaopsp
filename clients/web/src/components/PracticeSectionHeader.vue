@@ -1,6 +1,6 @@
 <template>
   <div v-bind="$attrs" :class="[small ? 'small' : 'normal', 'text-left']">
-    <span class="text-caption">{{ section }}</span>
+    <span v-if="section" class="text-caption">{{ section }}</span>
     <h4>{{ subcategory }}</h4>
   </div>
 </template>

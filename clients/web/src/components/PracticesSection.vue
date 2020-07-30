@@ -1,9 +1,6 @@
 <template>
-  <div class="practice-section">
-    <practice-section-header
-      :section="section.content.name"
-      :subcategory="subcategory.content.name"
-    />
+  <div class="practice-section pt-2">
+    <practice-section-header :subcategory="subcategory.content.name" />
     <v-container class="pa-0">
       <v-row align="center">
         <v-col class="pt-1 pb-2" cols="6" md="8">
@@ -57,6 +54,10 @@ export default {
 <style lang="scss" scoped>
 .practice-section {
   width: 100%;
+
+  ::v-deep h4 {
+    font-size: 1.1rem;
+  }
 }
 .progress-label {
   font-size: 0.85rem;

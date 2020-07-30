@@ -72,6 +72,7 @@
             v-for="loopSection in sections"
             :key="loopSection.id"
           >
+            <practice-group-header :section="loopSection" />
             <v-list-item
               v-for="loopSubcategory in loopSection.subcategories"
               :key="loopSubcategory.id"
@@ -100,6 +101,7 @@
 <script>
 import { SectionList } from '../common/SectionList'
 import NextPracticeSection from '@/components/NextPracticeSection'
+import PracticeGroupHeader from '@/components/PracticeGroupHeader'
 import PracticesSection from '@/components/PracticesSection'
 import PracticeSectionSubcategory from '@/components/PracticeSectionSubcategory'
 import QuestionnaireContainer from '@/components/QuestionnaireContainer'
@@ -152,6 +154,7 @@ export default {
   components: {
     NextPracticeSection,
     SectionBackLink,
+    PracticeGroupHeader,
     PracticesSection,
     PracticeSectionSubcategory,
     QuestionnaireContainer,

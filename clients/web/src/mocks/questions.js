@@ -8,44 +8,59 @@ import Question from '../common/Question'
 // Set IDs to null to generate automatic unique IDs
 const sections = [
   // Construction industry segment
-  new Section(
-    '/construction/sustainability-construction/governance-management-49f1ad0',
-    'Governance & Management'
-  ),
-  new Section(
-    '/construction/sustainability-construction/procurement-5d484d5',
-    'Procurement'
-  ),
-  new Section(
-    '/construction/sustainability-construction/construction-bbec85a',
-    'Construction'
-  ),
-  new Section(
-    '/construction/sustainability-construction/officegrounds-e661fc0',
-    'Office/grounds'
-  ),
+  new Section({
+    id:
+      '/construction/sustainability-construction/governance-management-49f1ad0',
+    name: 'Governance & Management',
+    iconPath: 'https://envconnect.s3.amazonaws.com/media/management-basics.png',
+  }),
+  new Section({
+    id: '/construction/sustainability-construction/procurement-5d484d5',
+    name: 'Procurement',
+    iconPath: 'https://envconnect.s3.amazonaws.com/media/gas-procurement.png',
+  }),
+  new Section({
+    id: '/construction/sustainability-construction/construction-bbec85a',
+    name: 'Construction',
+    iconPath: 'https://envconnect.s3.amazonaws.com/media/construction.png',
+  }),
+  new Section({
+    id: '/construction/sustainability-construction/officegrounds-e661fc0',
+    name: 'Office/grounds',
+    iconPath: 'https://envconnect.s3.amazonaws.com/media/office-space-only.png',
+  }),
 
   // Boxes & enclosures industry segment
-  new Section(
-    '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics',
-    'Governance & Management'
-  ),
-  new Section(
-    '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design',
-    'Design'
-  ),
-  new Section(
-    '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production',
-    'Production'
-  ),
-  new Section(
-    '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/distribution',
-    'Distribution'
-  ),
-  new Section(
-    '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/end-of-life',
-    'End of Life'
-  ),
+  new Section({
+    id:
+      '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics',
+    name: 'Governance & Management',
+    iconPath: 'https://envconnect.s3.amazonaws.com/media/management-basics.png',
+  }),
+  new Section({
+    id:
+      '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design',
+    name: 'Design',
+    iconPath: 'https://envconnect.s3.amazonaws.com/media/design.png',
+  }),
+  new Section({
+    id:
+      '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production',
+    name: 'Production',
+    iconPath: 'https://envconnect.s3.amazonaws.com/media/production.png',
+  }),
+  new Section({
+    id:
+      '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/distribution',
+    name: 'Distribution',
+    iconPath: 'https://envconnect.s3.amazonaws.com/media/distribution.png',
+  }),
+  new Section({
+    id:
+      '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/end-of-life',
+    name: 'End of Life',
+    iconPath: 'https://envconnect.s3.amazonaws.com/media/end-of-life.png',
+  }),
 ]
 
 // Set IDs to null to generate automatic unique IDs
