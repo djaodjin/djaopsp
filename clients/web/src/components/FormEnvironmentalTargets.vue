@@ -3,7 +3,7 @@
   <form @submit.prevent="processForm">
     <v-checkbox v-model="withEnergyReduction" hide-details>
       <template v-slot:label>
-        <b>{{ $t('targets.tab2.form.cbx-energy') }}</b>
+        <b>{{ $t('targets.tab1.form.cbx-energy') }}</b>
       </template>
     </v-checkbox>
     <v-expand-transition>
@@ -37,7 +37,7 @@
         <v-row>
           <v-col cols="12">
             <v-textarea
-              :label="$t('targets.tab2.form.textarea-label')"
+              :label="$t('targets.tab1.form.textarea-label')"
               hide-details="auto"
               auto-grow
               outlined
@@ -77,7 +77,7 @@
 
     <v-checkbox v-model="withGhgEmissions" hide-details>
       <template v-slot:label>
-        <b>{{ $t('targets.tab2.form.cbx-emissions') }}</b>
+        <b>{{ $t('targets.tab1.form.cbx-emissions') }}</b>
       </template>
     </v-checkbox>
     <v-expand-transition>
@@ -111,7 +111,7 @@
         <v-row>
           <v-col cols="12">
             <v-textarea
-              :label="$t('targets.tab2.form.textarea-label')"
+              :label="$t('targets.tab1.form.textarea-label')"
               hide-details="auto"
               auto-grow
               outlined
@@ -151,7 +151,7 @@
 
     <v-checkbox v-model="withWaterUse" hide-details>
       <template v-slot:label>
-        <b>{{ $t('targets.tab2.form.cbx-water') }}</b>
+        <b>{{ $t('targets.tab1.form.cbx-water') }}</b>
       </template>
     </v-checkbox>
     <v-expand-transition>
@@ -185,7 +185,7 @@
         <v-row>
           <v-col cols="12">
             <v-textarea
-              :label="$t('targets.tab2.form.textarea-label')"
+              :label="$t('targets.tab1.form.textarea-label')"
               hide-details="auto"
               auto-grow
               outlined
@@ -225,7 +225,7 @@
 
     <v-checkbox v-model="withWaste" hide-details>
       <template v-slot:label>
-        <b>{{ $t('targets.tab2.form.cbx-waste') }}</b>
+        <b>{{ $t('targets.tab1.form.cbx-waste') }}</b>
       </template>
     </v-checkbox>
     <v-expand-transition>
@@ -259,7 +259,7 @@
         <v-row>
           <v-col cols="12">
             <v-textarea
-              :label="$t('targets.tab2.form.textarea-label')"
+              :label="$t('targets.tab1.form.textarea-label')"
               hide-details="auto"
               auto-grow
               outlined
@@ -298,7 +298,7 @@
     </v-expand-transition>
 
     <button-primary class="my-5" type="submit">{{
-      $t('targets.tab2.btn-submit')
+      $t('targets.tab1.btn-submit')
     }}</button-primary>
   </form>
 </template>

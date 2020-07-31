@@ -33,10 +33,6 @@
 
   "targets": {
     "tab1": {
-      "intro": "Understand how your business compares to other companies.",
-      "title": "Benchmarking"
-    },
-    "tab2": {
       "btn-submit": "Submit Environmental Targets",
       "form": {
         "baseline": "Baseline",
@@ -49,6 +45,10 @@
       },
       "intro": "Describe and submit your targets.",
       "title": "Targets"
+    },
+    "tab2": {
+      "intro": "Understand how your business compares to other companies.",
+      "title": "Benchmarking"
     },
     "title": "Environmental Targets"
   },
