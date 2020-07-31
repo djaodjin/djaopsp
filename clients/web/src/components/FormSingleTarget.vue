@@ -8,30 +8,32 @@
 
     <v-expand-transition>
       <div class="pl-8 py-1" v-show="target.include">
-        <v-menu
-          :close-on-content-click="false"
-          v-model="menuBy"
-          transition="scale-transition"
-          offset-y
-          max-width="290"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              v-bind="attrs"
-              v-on="on"
-              hide-details="auto"
+        <div class="date-picker">
+          <v-menu
+            :close-on-content-click="false"
+            v-model="menuBy"
+            transition="scale-transition"
+            offset-y
+            max-width="290"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-bind="attrs"
+                v-on="on"
+                hide-details="auto"
+                v-model="target.dateBy"
+                label="By"
+                append-icon="mdi-calendar"
+                readonly
+              ></v-text-field>
+            </template>
+            <v-date-picker
               v-model="target.dateBy"
-              label="By"
-              append-icon="mdi-calendar"
-              readonly
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="target.dateBy"
-            :min="new Date().toISOString()"
-            @input="menuBy = false"
-          ></v-date-picker>
-        </v-menu>
+              :min="new Date().toISOString()"
+              @input="menuBy = false"
+            ></v-date-picker>
+          </v-menu>
+        </div>
 
         <v-textarea
           class="mt-4"
@@ -44,30 +46,32 @@
           row-height="16"
         ></v-textarea>
 
-        <v-menu
-          :close-on-content-click="false"
-          v-model="menuBaseline"
-          transition="scale-transition"
-          offset-y
-          max-width="290"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              v-bind="attrs"
-              v-on="on"
-              hide-details="auto"
+        <div class="date-picker">
+          <v-menu
+            :close-on-content-click="false"
+            v-model="menuBaseline"
+            transition="scale-transition"
+            offset-y
+            max-width="290"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-bind="attrs"
+                v-on="on"
+                hide-details="auto"
+                v-model="target.dateBaseline"
+                label="Baseline"
+                append-icon="mdi-calendar"
+                readonly
+              ></v-text-field>
+            </template>
+            <v-date-picker
               v-model="target.dateBaseline"
-              label="Baseline"
-              append-icon="mdi-calendar"
-              readonly
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="target.dateBaseline"
-            :max="new Date().toISOString()"
-            @input="menuBaseline = false"
-          ></v-date-picker>
-        </v-menu>
+              :max="new Date().toISOString()"
+              @input="menuBaseline = false"
+            ></v-date-picker>
+          </v-menu>
+        </div>
 
         <v-textarea
           class="mt-4"
@@ -104,3 +108,9 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.date-picker {
+  max-width: 290px;
+}
+</style>

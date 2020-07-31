@@ -2,25 +2,25 @@
   <form @submit.prevent="processForm">
     <v-container>
       <v-row>
-        <v-col cols="12">
+        <v-col cols="12" xl="6">
           <form-single-target
             :target="energyTarget"
             :label="$t('targets.tab1.form.cbx-energy')"
           />
         </v-col>
-        <v-col cols="12">
+        <v-col cols="12" xl="6">
           <form-single-target
             :target="emissionsTarget"
             :label="$t('targets.tab1.form.cbx-emissions')"
           />
         </v-col>
-        <v-col cols="12">
+        <v-col cols="12" xl="6">
           <form-single-target
             :target="waterTarget"
             :label="$t('targets.tab1.form.cbx-water')"
           />
         </v-col>
-        <v-col cols="12">
+        <v-col cols="12" xl="6">
           <form-single-target
             :target="wasteTarget"
             :label="$t('targets.tab1.form.cbx-waste')"
