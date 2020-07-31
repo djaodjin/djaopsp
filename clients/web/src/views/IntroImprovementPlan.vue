@@ -17,7 +17,7 @@
           <li class="mb-1">&mdash; Your environmental targets</li>
           <li class="mb-1">&mdash; Expert feedback</li>
           <li class="mb-1">&mdash; Relevant business areas</li>
-          <li class="mb-1">&mdash; Other competitors in the industry</li>
+          <li class="mb-1">&mdash; Other organizations in the industry</li>
         </ul>
         <button-primary
           class="mt-8"
