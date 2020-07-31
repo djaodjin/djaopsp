@@ -57,10 +57,10 @@
               <th style="border-top:none;border-bottom:1px solid;" colspan="4">Update assessment, plan improvements and share results</th>
             </tr>
             <tr ng-repeat="segment in segments" ng-show="segments.$resolved && segments.length > 0" ng-cloak>
-              <td style="border:none;">[[ segment[1] ]]</td>
-              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.assess}}', segment[0]) ]]">Update assessment</a></td>
-              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.improve}}', segment[0]) ]]">Plan improvements</a></td>
-              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.share}}', segment[0]) ]]">Share scorecard</a></td>
+              <td style="border:none;">[[ segment.title ]]</td>
+              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.assess}}', segment.path) ]]">Update assessment</a></td>
+              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.improve}}', segment.path) ]]">Plan improvements</a></td>
+              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.share}}', segment.path) ]]">Share scorecard</a></td>
             </tr>
           </tbody>
           <tbody style="border:none;" ng-show="items.$resolved && items.results.length == 0" ng-cloak>

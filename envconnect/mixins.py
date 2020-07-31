@@ -130,8 +130,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         `path` is a URL path for the root of the industry segment and
         is derived from `kwargs['path']`. The fully qualified path can
         be used as a prefix to retrieve all questions for the industry
-        segment. PageElement is the content node with slug starting
-        with 'sustainability-' that is root of the segment.
+        segment. PageElement is the content node that is root of the segment.
         """
         if not hasattr(self, '_segment'):
             full_path, trail = self.breadcrumbs
@@ -184,7 +183,11 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         for _, values in six.iteritems(rollup_trees):
             elem, nodes = values
             path = None if nodes else elem['path']
-            result += [{'title': elem['title'], 'path': path, 'indent': depth}]
+            result += [{
+                'title': elem['title'],
+                'path': path,
+                'indent': depth
+            }]
             result += self.flatten(nodes, depth=depth + 1)
         return result
 
@@ -199,15 +202,20 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     def get_roots(self):
         path = self.kwargs.get('path', "")
-        if path:
-            if path.startswith('/sustainability-'):
-                segment = path[17:]
-            else:
-                segment = path[1:]
-            return PageElement.objects.get_roots().filter(
-                Q(tag__contains='industry') | Q(slug=segment))
+        trail = self.get_full_element_path(path)
+        search_query = None
+        if trail:
+            prefix = '/%s' % '/'.join(trail)
+            segments = self.get_segments()
+            for segment in segments:
+                if segment['path'] == prefix:
+                    search_query = prefix.split('/')[-1]
+                    break
+        query_filter = Q(tag__contains='industry')
+        if search_query:
+            query_filter = query_filter & Q(slug=search_query)
         return PageElement.objects.get_roots().filter(
-                Q(tag__contains='industry'))
+            query_filter).order_by('title')
 
     def get_segments(self, search_query=None):
         """
@@ -224,7 +232,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 menus += [{
                     'title': root.title,
                     'path': '/%s' % root.slug,
-                    'indent': 0,
+                    'indent': 0
                 }]
             else:
                 rollup_trees = self._cut_tree(self.build_content_tree(

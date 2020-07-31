@@ -1315,12 +1315,7 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.getSegmentUrl = function(base, path) {
         var parts = path.split('/');
-        for( var idx = 0; idx < parts.length; ++idx ) {
-            if( parts[idx].indexOf('sustainability-') == 0 ) {
-                return base + parts[idx] + '/';
-            }
-        }
-        return base + path.substring(1);
+        return base + parts[parts.length - 1] + '/';
     };
 
     $scope.toggleMyTSP = function(event, defaultUrl) {
