@@ -28,7 +28,12 @@
           >Continue</button-primary
         >
         <div class="text-center">
-          <v-btn text class="mt-6" color="secondary" @click="advanceAssessment">
+          <v-btn
+            text
+            class="mx-n4 mx-sm-0 mt-6"
+            color="secondary"
+            @click="advanceAssessment"
+          >
             Continue without Improvement Plan
           </v-btn>
         </div>
