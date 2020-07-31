@@ -23,7 +23,13 @@
       <template v-slot:tab2>
         <tab-header :text="$t('targets.tab2.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
-          <p>{{ $t('targets.tab2.intro') }}</p>
+          <p>
+            {{
+              $t('targets.tab2.intro', {
+                industryName: assessment.industryName,
+              })
+            }}
+          </p>
           <business-comparison />
         </div>
       </template>
