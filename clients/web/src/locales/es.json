@@ -41,7 +41,8 @@
         "cbx-energy": "Energy Reduction",
         "cbx-waste": "Waste",
         "cbx-water": "Water Use",
-        "textarea-label": "Target description"
+        "textarea-target": "Target description",
+        "textarea-comments": "Additional information"
       },
       "intro": "Describe and submit your targets.",
       "title": "Targets"
