@@ -1,9 +1,9 @@
 <template>
-  <v-subheader class="mt-2 mb-4">
+  <v-subheader v-bind="$attrs">
     <img
       class="d-inline-block"
-      height="46"
-      width="46"
+      height="48"
+      width="48"
       alt
       :src="section.content.iconPath"
     />
@@ -27,7 +27,8 @@ span {
   font-weight: 500;
 }
 img {
-  padding: 2px;
+  border-radius: 3px;
+  padding: 3px;
   background-color: $background-icon;
 }
 </style>

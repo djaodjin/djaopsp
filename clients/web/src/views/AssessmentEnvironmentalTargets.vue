@@ -30,7 +30,13 @@
               })
             }}
           </p>
-          <business-comparison />
+          <ul v-for="(data, index) in benchmarkData" :key="index">
+            <chart-practices-implementation
+              :section="data.section"
+              :scores="data.scores"
+              :companyScore="data.companyScore"
+            />
+          </ul>
         </div>
       </template>
     </tab-container>
@@ -52,8 +58,9 @@
 </template>
 
 <script>
+import { getBenchmarkData } from '../mocks/benchmarks'
 import { Fragment } from 'vue-fragment'
-import BusinessComparison from '@/components/BusinessComparison'
+import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
 import HeaderSecondary from '@/components/HeaderSecondary'
@@ -69,14 +76,20 @@ export default {
     this.fetchData()
   },
 
+  // updated() {
+  //   console.log(this.benchmarkData)
+  // },
+
   methods: {
     async fetchData() {
-      const [organization, assessment] = await Promise.all([
+      const [organization, assessment, benchmarkData] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.id),
+        getBenchmarkData(),
       ])
       this.organization = organization
       this.assessment = assessment
+      this.benchmarkData = benchmarkData
     },
     async checkPreviousTargets() {
       // TODO: Send request to check if previous targets have been submitted
@@ -91,6 +104,7 @@ export default {
     return {
       organization: {},
       assessment: {},
+      benchmarkData: [],
       tabs: [
         { text: this.$t('targets.tab1.title'), href: 'tab-1' },
         { text: this.$t('targets.tab2.title'), href: 'tab-2' },
@@ -100,7 +114,7 @@ export default {
   },
 
   components: {
-    BusinessComparison,
+    ChartPracticesImplementation,
     DialogConfirm,
     FormEnvironmentalTargets,
     Fragment,

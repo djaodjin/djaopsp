@@ -85,7 +85,12 @@ export default {
   props: {
     height: { default: 260 },
     width: { default: 500 },
-    practices: { default: [] },
+    practices: {
+      type: Array,
+      default: function () {
+        return []
+      },
+    },
     marginLeft: { default: 30 },
     marginBottom: { default: 30 },
     barPadding: { default: 0.4 },
