@@ -61,6 +61,19 @@
             :editable="
               currentStepIndex >= i && currentStep.key !== STEP_SHARE_KEY
             "
+            :rules="[
+              () =>
+                currentStepIndex <= i ||
+                step.key !== STEP_TARGETS_KEY ||
+                (step.key === STEP_TARGETS_KEY &&
+                  assessment.targets.length > 0),
+              () =>
+                currentStepIndex <= i ||
+                step.key !== STEP_PLAN_KEY ||
+                (step.key === STEP_PLAN_KEY &&
+                  assessment.improvementPlan.length > 0),
+            ]"
+            error-icon="mdi-alert-circle"
             :step="i + 1"
             @click.stop="
               step.onClick(
@@ -155,6 +168,8 @@
 import { Fragment } from 'vue-fragment'
 import {
   ASSESSMENT_FLOW,
+  STEP_TARGETS_KEY,
+  STEP_PLAN_KEY,
   STEP_SHARE_KEY,
   STEP_FREEZE_KEY,
   STEP_SCORECARD_KEY,
@@ -181,6 +196,8 @@ export default {
       currentStep: null,
       currentStepIndex: 0,
       ASSESSMENT_FLOW,
+      STEP_TARGETS_KEY,
+      STEP_PLAN_KEY,
       STEP_SHARE_KEY,
       STEP_FREEZE_KEY,
       STEP_SCORECARD_KEY,
@@ -241,6 +258,9 @@ export default {
   }
   & ::v-deep .v-stepper__label {
     font-size: 1.1rem;
+  }
+  & ::v-deep .v-stepper__step--error .v-icon {
+    font-size: 1.7rem;
   }
   .active ::v-deep .v-stepper__step__step {
     background-color: $primary-color !important;
