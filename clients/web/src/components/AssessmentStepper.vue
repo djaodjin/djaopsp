@@ -64,11 +64,13 @@
             :rules="[
               () =>
                 currentStepIndex <= i ||
+                currentStep.key === STEP_SHARE_KEY ||
                 step.key !== STEP_TARGETS_KEY ||
                 (step.key === STEP_TARGETS_KEY &&
                   assessment.targets.length > 0),
               () =>
                 currentStepIndex <= i ||
+                currentStep.key === STEP_SHARE_KEY ||
                 step.key !== STEP_PLAN_KEY ||
                 (step.key === STEP_PLAN_KEY &&
                   assessment.improvementPlan.length > 0),
