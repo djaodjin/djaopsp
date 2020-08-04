@@ -4,7 +4,8 @@
 from pages.settings import PATH_RE, SLUG_RE
 from rules.urldecorators import include, url
 
-from ...views.assessments import AssessmentView, AssessmentXLSXView
+from ...views.assessments import (AssessmentView, AssessmentXLSXView,
+    CompleteView, TargetsView)
 from ...views.benchmark import BenchmarkView, BenchmarkDownloadView
 from ...views.compare import (PortfoliosDetailView, SuppliersView,
     SuppliersSummaryXLSXView, SuppliersAssessmentsXLSXView,
@@ -59,13 +60,13 @@ urlpatterns = [
     url(r'app/(?P<organization>%s)/assess/(?P<sample>%s)/'\
         'content(?P<path>%s)/' % (SLUG_RE,
         SLUG_RE, PATH_RE), AssessmentView.as_view(),
-        name='assess_organization_sample'),
+        name='assess_organization'),
     url(r'app/(?P<organization>%s)/assess/new/' % SLUG_RE,
         AssessmentView.as_view(),
         name='assess_new'),
     url(r'app/(?P<organization>%s)/assess(?P<path>%s)/' % (
         SLUG_RE, PATH_RE), AssessmentView.as_view(),
-        name='assess_organization'), # XXX redirect to most current
+        name='assess_organization_redirect'), # XXX redirect to most current
 
     # Improvement plan
     url(r'app/(?P<organization>%s)/improve/(?P<sample>%s)/'\
@@ -83,10 +84,20 @@ urlpatterns = [
     url(r'app/(?P<organization>%s)/improve/(?P<sample>%s)/'\
         'content(?P<path>%s)/' % (SLUG_RE,
         SLUG_RE, PATH_RE), ImprovementView.as_view(),
-        name='improve_organization_sample'),
+        name='improve_organization'),
     url(r'app/(?P<organization>%s)/improve(?P<path>%s)/' % (
         SLUG_RE, PATH_RE), ImprovementView.as_view(),
-        name='improve_organization'),
+        name='improve_organization_redirect'),
+
+    # Complete
+    url(r'app/(?P<organization>%s)/complete/(?P<sample>%s)/'\
+        'content(?P<path>%s)/' % (SLUG_RE, SLUG_RE, PATH_RE),
+        CompleteView.as_view(),
+        name='complete_organization'),
+    url(r'app/(?P<organization>%s)/complete(?P<path>%s)/' % (
+        SLUG_RE, PATH_RE), LastCompletedRedirectView.as_view(
+            pattern_name='complete_organization'),
+        name='complete_organization_redirect'),  # XXX redirect to most current
 
     # Benchmarks and scorecards
     url(r'app/(?P<organization>%s)/scorecard/(?P<sample>%s)/'\

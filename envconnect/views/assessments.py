@@ -253,7 +253,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
     def get_breadcrumb_url(self, path):
         organization = self.kwargs.get('organization', None)
         if organization:
-            return reverse('assess_organization',
+            return reverse('assess_organization_redirect',
                 args=(organization, path))
         return super(AssessmentView, self).get_breadcrumb_url(path)
 
@@ -268,7 +268,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                 'entries': json.dumps(root, cls=JSONEncoder)
             })
 
-        prev_samples = [(reverse('assess_organization_sample',
+        prev_samples = [(reverse('assess_organization',
             args=(self.account, prev_sample, self.kwargs.get('path'))),
                 prev_sample.created_at)
             for prev_sample in Sample.objects.filter(
@@ -279,7 +279,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         if prev_samples:
             context.update({'prev_samples': prev_samples})
             if self.sample.is_frozen:
-                selected_sample = reverse('assess_organization_sample',
+                selected_sample = reverse('assess_organization',
                     args=(self.account, self.sample, self.kwargs.get('path')))
                 context.update({'selected_sample': selected_sample})
 
@@ -614,3 +614,16 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
 
     def get_filename(self):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
+
+
+class TargetsView(AssessmentView):
+    """
+    View that specifically filters the targets out of the assessment questions
+    """
+    breadcrumb_url = 'targets'
+
+
+class CompleteView(AssessmentView, TemplateView):
+
+    template_name = 'envconnect/complete.html'
+    breadcrumb_url = 'complete'

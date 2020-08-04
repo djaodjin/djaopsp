@@ -101,7 +101,7 @@ class BenchmarkView(BenchmarkMixin, TemplateView):
                 "You need to complete an assessment before"\
                 " moving on to the scorecard.")
             return HttpResponseRedirect(
-                reverse('assess_organization',
+                reverse('assess_organization_redirect',
                     kwargs={'organization': organization, 'path': path}))
         return HttpResponseRedirect(reverse('summary_organization_redirect',
             kwargs={'organization': organization, 'path': path}))

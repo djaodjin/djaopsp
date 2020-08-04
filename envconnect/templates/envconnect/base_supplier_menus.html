@@ -11,18 +11,23 @@
       </li>
       {% endif %}
       {% if urls.assess %}
-      <li{% if request.path == urls.assess or request.path == urls.benchmark or request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+      <li{% if request.path == urls.assess or request.path == urls.improve or request.path == urls.targets or request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
         <a id="submenu-self-assessment" href="{{urls.assess}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><span class="progressbar-step"></span>Assess</a>
       </li>
       {% endif %}
-      {% if urls.benchmark %}
-      <li{% if request.path == urls.benchmark or request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
-        <a id="submenu-benchmark" href="{{urls.benchmark}}"><span class="progressbar-step"></span>Scorecard</a>
+      {% if urls.improve %}
+      <li{% if request.path == urls.improve or request.path == urls.targets or request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-improve" href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><span class="progressbar-step"></span>Improve</a>
       </li>
       {% endif %}
-      {% if urls.improve %}
-      <li{% if request.path == urls.improve or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
-        <a id="submenu-improve" href="{{urls.improve}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><span class="progressbar-step"></span>Improve</a>
+      {% if urls.targets %}
+      <li{% if request.path == urls.targets or request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-targets" href="{{urls.targets}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><span class="progressbar-step"></span>Targets</a>
+      </li>
+      {% endif %}
+      {% if urls.complete %}
+      <li{% if request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-complete" href="{{urls.complete}}[[activeIcon !== null ? '?active=' + activeIcon : '']]"><span class="progressbar-step"></span>Complete</a>
       </li>
       {% endif %}
       {% if urls.scorecard %}

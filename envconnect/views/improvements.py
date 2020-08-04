@@ -38,7 +38,7 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
         organization = self.kwargs.get('organization', None)
         if organization:
             return reverse(
-                'improve_organization', args=(organization, path))
+                'improve_organization_redirect', args=(organization, path))
         return super(ImprovementView, self).get_breadcrumb_url(path)
 
     def get_report_tree(self, node=None, from_root=None, cut=ContentCut(),
@@ -65,6 +65,8 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
 
         organization = context['organization']
         update_context_urls(context, {
+            'api_improvements': reverse('api_improvement_base',
+                args=(organization,)),
             'api_organizations': site_prefixed("/api/profile/"),
             'api_viewers': site_prefixed(
                 "/api/profile/%s/roles/viewers/" % self.account),

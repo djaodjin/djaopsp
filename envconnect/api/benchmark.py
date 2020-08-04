@@ -1009,7 +1009,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                 url_path = '/%s' % last_part
                 by_industry.update({
                     'url': self.request.build_absolute_uri(
-                        reverse('assess_organization_sample', args=(
+                        reverse('assess_organization', args=(
                           self.account.slug, account['sample'], url_path)))
                 })
             accounts[account_key].update({node_key: by_industry})

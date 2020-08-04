@@ -589,7 +589,7 @@ class SupplierListMixin(DashboardMixin):
             # XXX `segment` points to the PageElement industry?
             segment_path = '/%s' % str(segment['slug'])
             if segment['slug'].startswith('framework'):
-                score_url = reverse('assess_organization',
+                score_url = reverse('assess_organization_redirect',
                     args=(account.slug, segment_path))
             elif 'sample' in score:
                     score_url = reverse('scorecard_organization',

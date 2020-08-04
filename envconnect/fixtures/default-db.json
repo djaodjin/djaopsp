@@ -455,6 +455,23 @@
 },
 {
   "fields": {
+    "title": "Targets",
+    "slug": "targets",
+    "tag": "{\"tags\":[\"metrics\",\"management\"]}",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 2
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 2,
+    "rank": 8
+  },
+  "model": "pages.relationship", "pk": 2
+},
+{
+  "fields": {
     "title": "Metal structures & equipment",
     "slug": "metal",
     "tag": "{\"tags\":[\"industry\",\"enabled\",\"public\",\"heading\"]}",
@@ -467,7 +484,7 @@
     "title": "Governance & management",
     "slug": "management-basics",
     "text": "/envconnect/static/img/management-basics.png",
-    "tag": "{\"tags\":[\"management\",\"scorecard\"]}",
+    "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 4
@@ -665,7 +682,7 @@
     "title": "Management",
     "slug": "energy-efficiency-management-basics",
     "text": "/envconnect/static/img/management-basics.png",
-    "tag": "{\"tags\":[\"management\"]}",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 16
@@ -2264,6 +2281,53 @@
     "dest_element": 76
   },
   "model": "pages.Relationship", "pk": 73
+},
+{
+  "fields": {
+    "title": "Energy Improvement Target in Place",
+    "slug": "energy-improvement-target",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 116
+},
+{
+  "fields": {
+    "orig_element": 2,
+    "dest_element": 116
+  },
+  "model": "pages.relationship", "pk": 116
+},
+{
+  "fields": {
+    "title": "Energy Reduction Target",
+    "slug": "energy-target",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 117
+},
+{
+  "fields": {
+    "orig_element": 116,
+    "dest_element": 117
+  },
+  "model": "pages.relationship", "pk": 117
+},
+{
+  "fields": {
+    "path": "/metal/boxes-and-enclosures/targets/energy-improvement-target/energy-target",
+    "text": "",
+    "question_type": "integer",
+    "default_metric": 14
+  },
+  "model": "envconnect.Consumption", "pk": 117
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 117,
+    "rank": 117
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 117
 },
 {
   "fields": {

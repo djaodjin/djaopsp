@@ -137,13 +137,10 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             url_path = '/'
             prefix = '/'
             element = None
-            for part in trail:
-                if part[0].slug.startswith('sustainability-'):
+            for part in reversed(trail):
+                if 'industry' in part[0].tag:
                     url_path = part[2].split('?')[0]
                     element = part[0]
-            if not element and trail:
-                url_path = trail[-1][1].split('?')[0]
-                element = trail[-1][0]
             if element:
                 parts = full_path.split('/')
                 for idx, part in enumerate(parts):
@@ -201,11 +198,10 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         return reverse(self.breadcrumb_url, args=(path,))
 
     def get_roots(self):
-        path = self.kwargs.get('path', "")
-        trail = self.get_full_element_path(path)
+        trail = self.get_full_element_path(self.kwargs.get('path', ""))
         search_query = None
         if trail:
-            prefix = '/%s' % '/'.join(trail)
+            prefix = '/%s' % '/'.join([element.slug for element in trail])
             segments = self.get_segments()
             for segment in segments:
                 if segment['path'] == prefix:
@@ -477,8 +473,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         title = rollup_tree[0].get('title', "")
         if isinstance(breadcrumbs, list) and title:
             breadcrumbs.append(title)
-        elif rollup_tree[0].get('slug', "").startswith('sustainability-'):
-            breadcrumbs = []
         icon_candidate = rollup_tree[0].get('text', "")
         if (icon_candidate and isinstance(icon_candidate, six.string_types)
             and icon_candidate.endswith('.png')):
@@ -591,55 +585,86 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         active_section = ""
         if self.request.GET.get('active', ""):
             active_section += "?active=%s" % self.request.GET.get('active')
-        hide_summary = bool(trail and trail[0] and trail[0][0].tag and
-            'hide-summary' in trail[0][0].tag)
-        hide_improve = bool(trail and trail[0] and trail[0][0].tag and
-            'hide-improve' in trail[0][0].tag)
-        hide_scorecard = bool(trail and trail[0] and trail[0][0].tag and
-            'hide-scorecard' in trail[0][0].tag)
+        hide_summary = True
+        hide_improve = False
+        hide_scorecard = False
+        hide_targets = True
+        if trail and trail[0]:
+            #hide_summary = bool(trail[0][0].tag and
+            #    'hide-summary' in trail[0][0].tag)
+            hide_improve = bool(trail[0][0].tag and
+                'hide-improve' in trail[0][0].tag)
+            hide_scorecard = bool(trail[0][0].tag and
+                'hide-scorecard' in trail[0][0].tag)
+            if RelationShip.objects.filter(
+                    orig_element__slug=trail[0][0].slug,
+                    dest_element__slug='targets').exists():
+                hide_targets = False
         organization = kwargs.get('organization')
+        url_path, prefix, element = self.segment
+        url_path = '/%s' % url_path.split('/')[-2]
         if organization:
             sample = kwargs.get('sample')
-            urls.update({
-                'share': reverse('share_organization',
-                    args=(organization, sample, path)),
-            })
             if not hide_summary:
                 urls.update({
                     'summary': reverse('summary_organization_redirect',
                         args=(organization, path)),
                 })
-            if not hide_improve:
-                urls.update({
-                    'api_improvements': reverse('api_improvement_base',
-                        args=(organization,)),
-                    'improve': reverse('improve_organization',
-                        args=(organization, path)),
-                })
             if sample:
                 urls.update({
-                    'assess': reverse('assess_organization_sample',
-                        args=(organization, sample, path))
+                    'assess': reverse('assess_organization',
+                        args=(organization, sample, path)),
+                    'complete': reverse('complete_organization',
+                        args=(organization, sample, url_path)),
+                    'share': reverse('share_organization',
+                        args=(organization, sample, url_path)),
                 })
+                if not hide_improve:
+                    urls.update({
+                        'improve': reverse('improve_organization',
+                            args=(organization, sample, path)),
+                    })
+                if not hide_targets:
+                    urls.update({
+                        'targets': reverse('assess_organization',
+                            args=(organization, sample,
+                                  '%s/targets' % url_path)),
+                    })
                 if not hide_scorecard:
                     urls.update({
                         'scorecard': reverse('scorecard_organization',
-                            args=(organization, sample, path)),
+                            args=(organization, sample, url_path)),
                     })
             else:
                 urls.update({
-                    'assess': reverse('assess_organization',
-                        args=(organization, path))
+                    'assess': reverse('assess_organization_redirect',
+                        args=(organization, path)),
+                    'complete': reverse('complete_organization_redirect',
+                        args=(organization, url_path)),
+                    'share': reverse('share_organization_redirect',
+                        args=(organization, url_path)),
                 })
+                if not hide_improve:
+                    urls.update({
+                        'improve': reverse('improve_organization_redirect',
+                            args=(organization, path)),
+                    })
+                if not hide_targets:
+                    urls.update({
+                        'targets': reverse('assess_organization_redirect',
+                            args=(organization,
+                                  '%s/targets' % url_path)),
+                    })
                 if not hide_scorecard:
                     urls.update({
                         'scorecard': reverse('scorecard_organization_redirect',
-                            args=(organization, path)),
+                            args=(organization, url_path)),
                     })
         else:
             urls.update({
                 'assess': reverse('assess_redirect', args=(path,)),
-                'share': reverse('share_redirect', args=(path,)),
+                'complete': reverse('complete_redirect', args=(url_path,)),
+                'share': reverse('share_redirect', args=(url_path,)),
             })
             if not hide_summary:
                 urls.update({
@@ -651,7 +676,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 })
             if not hide_scorecard:
                 urls.update({
-                    'scorecard': reverse('scorecard_redirect', args=(path,)),
+                    'scorecard': reverse(
+                        'scorecard_redirect', args=(url_path,)),
                 })
 
         if self.__class__.__name__ == 'DetailView':
@@ -1088,7 +1114,7 @@ class BestPracticeMixin(BreadcrumbMixin):
             active_section = ""
         if organization:
             urls = {
-                'assess': reverse('assess_organization',
+                'assess': reverse('assess_organization_redirect',
                     args=(organization, contextual_path)) + active_section,
                 'improve': reverse('improve_organization',
                     args=(organization, contextual_path)) + active_section
