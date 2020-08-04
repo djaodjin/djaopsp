@@ -16,8 +16,8 @@
       <template v-slot:tab1>
         <tab-header :text="$t('targets.tab1.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
-          <p>{{ $t('targets.tab1.intro') }}</p>
-          <form-environmental-targets :assessmentId="id" />
+          <p class="mb-0">{{ $t('targets.tab1.intro') }}</p>
+          <form-environmental-targets :assessment="assessment" />
         </div>
       </template>
       <template v-slot:tab2>
@@ -75,10 +75,6 @@ export default {
   created() {
     this.fetchData()
   },
-
-  // updated() {
-  //   console.log(this.benchmarkData)
-  // },
 
   methods: {
     async fetchData() {

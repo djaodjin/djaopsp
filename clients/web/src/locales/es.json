@@ -35,14 +35,7 @@
     "tab1": {
       "btn-submit": "Submit Environmental Targets",
       "form": {
-        "baseline": "Baseline",
-        "by": "By",
-        "cbx-emissions": "GHG Emissions",
-        "cbx-energy": "Energy Reduction",
-        "cbx-waste": "Waste",
-        "cbx-water": "Water Use",
-        "textarea-target": "Target description",
-        "textarea-comments": "Additional information"
+        "textarea-target": "Target description"
       },
       "intro": "Describe and submit your targets.",
       "title": "Targets"

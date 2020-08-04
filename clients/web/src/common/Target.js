@@ -1,17 +1,10 @@
-import { getUniqueId } from './utils'
-
 export default class Target {
-  constructor({
-    id = getUniqueId(),
-    category,
-    text,
-    deadlineDate,
-    baselineDate,
-  }) {
-    this.id = id
-    this.category = category
+  constructor({ key, text = '' }) {
+    this.key = key
     this.text = text
-    this.deadlineDate = deadlineDate
-    this.baselineDate = baselineDate
+  }
+
+  clone() {
+    return new Target({ key: this.key, text: this.text })
   }
 }

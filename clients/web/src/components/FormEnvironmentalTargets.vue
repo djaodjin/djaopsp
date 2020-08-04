@@ -1,30 +1,15 @@
-<template>
+<template v-if="targets">
   <form @submit.prevent="processForm">
     <v-container>
       <v-row>
-        <v-col cols="12" xl="6">
-          <form-single-target
-            :target="energyTarget"
-            :label="$t('targets.tab1.form.cbx-energy')"
-          />
-        </v-col>
-        <v-col cols="12" xl="6">
-          <form-single-target
-            :target="emissionsTarget"
-            :label="$t('targets.tab1.form.cbx-emissions')"
-          />
-        </v-col>
-        <v-col cols="12" xl="6">
-          <form-single-target
-            :target="waterTarget"
-            :label="$t('targets.tab1.form.cbx-water')"
-          />
-        </v-col>
-        <v-col cols="12" xl="6">
-          <form-single-target
-            :target="wasteTarget"
-            :label="$t('targets.tab1.form.cbx-waste')"
-          />
+        <v-col
+          class="px-0"
+          cols="12"
+          xl="6"
+          v-for="target in targets"
+          :key="target.key"
+        >
+          <form-single-target :target="target" />
         </v-col>
       </v-row>
     </v-container>
@@ -42,52 +27,26 @@ import FormSingleTarget from '@/components/FormSingleTarget'
 export default {
   name: 'AssessmentEnvironmentalTargets',
 
-  props: ['assessmentId'],
+  props: ['assessment'],
 
-  data() {
-    return {
-      energyTarget: {
-        include: true,
-        dateBy: null,
-        dateBaseline: null,
-        text: '',
-        comments: '',
-      },
-      emissionsTarget: {
-        include: true,
-        dateBy: null,
-        dateBaseline: null,
-        text: '',
-        comments: '',
-      },
-      waterTarget: {
-        include: true,
-        dateBy: null,
-        dateBaseline: null,
-        text: '',
-        comments: '',
-      },
-      wasteTarget: {
-        include: true,
-        dateBy: null,
-        dateBaseline: null,
-        text: '',
-        comments: '',
-      },
-    }
+  computed: {
+    targets() {
+      return (
+        this.assessment.targets &&
+        this.assessment.targets.map((target) => target.clone())
+      )
+    },
   },
 
   methods: {
     processForm: function () {
+      // TODO: form validation & do not submit targets that have been unchecked
       console.log('form submitted:')
-      console.log(this.energyTarget)
-      console.log(this.emissionsTarget)
-      console.log(this.waterTarget)
-      console.log(this.wasteTarget)
+      console.log(this.targets)
 
       this.$router.push({
         name: 'assessmentHome',
-        params: { id: this.assessmentId },
+        params: { id: this.assessment.id },
       })
     },
   },

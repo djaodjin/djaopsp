@@ -1,5 +1,10 @@
+import {
+  VALID_ASSESSMENT_STEPS,
+  VALID_ASSESSMENT_TARGETS,
+  DEFAULT_ASSESSMENT_STEP,
+} from '@/config/app'
 import { getUniqueId } from './utils'
-import { VALID_ASSESSMENT_STEPS, DEFAULT_ASSESSMENT_STEP } from '../config/app'
+import Target from './Target'
 
 export default class Assessment {
   constructor({
@@ -8,7 +13,7 @@ export default class Assessment {
     authorEmail, // TODO: Replace with list of contributors
     industryName,
     industryPath,
-    targets = [],
+    targets = VALID_ASSESSMENT_TARGETS.map((t) => new Target({ key: t.value })),
     improvementPlan = [],
     modified = new Date(),
     created = new Date(),

@@ -1,6 +1,11 @@
 import { DELAY } from './config'
-import { STEP_SHARE_KEY, STEP_FREEZE_KEY } from '@/config/app'
+import {
+  STEP_SHARE_KEY,
+  STEP_FREEZE_KEY,
+  VALID_ASSESSMENT_TARGETS,
+} from '@/config/app'
 import Assessment from '../common/Assessment'
+import Target from '../common/Target'
 
 const activeAssessments = [
   new Assessment({
@@ -9,6 +14,7 @@ const activeAssessments = [
     authorEmail: 'charlie.dickens@tamarinsolutions.com',
     industryName: 'Engineering, Procurement, Construction',
     industryPath: 'epc',
+    targets: getAssessmentTargets(),
     status: STEP_FREEZE_KEY,
   }),
   new Assessment({
@@ -38,6 +44,17 @@ export function getAssessment(id) {
       resolve(assessment)
     }, DELAY)
   })
+}
+
+export function getAssessmentTargets() {
+  return VALID_ASSESSMENT_TARGETS.map(
+    (target) =>
+      new Target({
+        key: target.value,
+        text:
+          'Cras semper aliquet leo, ultricies lacinia ante facilisis eu curabitur porttitor.',
+      })
+  )
 }
 
 export function postAssessment() {
