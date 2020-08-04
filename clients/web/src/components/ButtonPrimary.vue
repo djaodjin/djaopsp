@@ -1,6 +1,7 @@
 <template>
   <v-btn
     v-on="$listeners"
+    v-bind="$attrs"
     :to="to"
     :depressed="$vuetify.breakpoint.xs"
     :block="!display || display !== 'inline'"

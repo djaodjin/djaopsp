@@ -147,7 +147,7 @@ export default {
 
 .matching-practices {
   & ::v-deep tbody > div:nth-child(even) {
-    background-color: #f8f8f8;
+    background-color: $background-row-alternate;
   }
   .v-subheader {
     padding: 4px 0;

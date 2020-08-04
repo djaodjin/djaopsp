@@ -12,7 +12,7 @@
         </p>
         <p>
           Let environmental targets <b>guide and support your business</b> after
-          benchmarking your performance data against other competitors in the
+          benchmarking your performance data against other organizations in the
           industry.
         </p>
         <button-primary
@@ -23,6 +23,16 @@
           }"
           >Continue</button-primary
         >
+        <div class="text-center">
+          <v-btn
+            text
+            class="mx-n4 mx-sm-0 mt-6"
+            color="secondary"
+            @click="advanceAssessment"
+          >
+            Continue without targets
+          </v-btn>
+        </div>
       </div>
     </intro-section>
   </fragment>
@@ -50,6 +60,15 @@ export default {
       ])
       this.organization = organization
       this.assessment = assessment
+    },
+
+    advanceAssessment() {
+      // TODO: API call to update assessment status; then, redirect to assessment home
+      console.log('Call API to advance assessment')
+      this.$router.push({
+        name: 'assessmentHome',
+        params: { id: this.id },
+      })
     },
   },
 

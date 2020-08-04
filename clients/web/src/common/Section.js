@@ -1,8 +1,9 @@
 import { getUniqueId } from './utils'
 
 export default class Section {
-  constructor(id, name) {
-    this.id = id || getUniqueId()
+  constructor({ id = getUniqueId(), name, iconPath }) {
+    this.id = id
     this.name = name
+    this.iconPath = iconPath
   }
 }
