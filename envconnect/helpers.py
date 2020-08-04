@@ -1,7 +1,7 @@
 # Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
-import logging, re
+import logging, re, json
 from collections import namedtuple
 
 from deployutils.helpers import datetime_or_now
@@ -26,14 +26,9 @@ class ContentCut(object):
     TAG_PAGEBREAK = 'pagebreak'
 
     def __init__(self, tag=TAG_PAGEBREAK, depth=1):
-        self.depth = depth
         self.match = tag
 
     def enter(self, tag):
-        depth = self.depth
-        self.depth = self.depth + 1
-        if depth <= 1:
-            return True
         if tag and self.match:
             if isinstance(tag, dict):
                 return not (self.match in tag.get('tags', []))
@@ -42,7 +37,6 @@ class ContentCut(object):
 
     def leave(self, attrs, subtrees):
         #pylint:disable=unused-argument
-        self.depth = self.depth - 1
         return True
 
 
@@ -102,13 +96,11 @@ def get_segments_from_samples(sample_ids):
     """
     results = []
     for segment in get_segments():
-        print("segment=%s" % str(segment))
         if segment['path'] and Consumption.objects.filter(
             path__startswith=segment['path'],
             answer__question=F('id'),
             answer__sample__in=sample_ids).exists():
             results += [segment]
-    print("XXX results=%s" % str(results))
     return results
 
 

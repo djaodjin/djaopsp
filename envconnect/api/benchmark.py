@@ -994,25 +994,25 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
         if not prefix.startswith("/"):
             prefix = "/" + prefix
 
-        for node_path, node in six.iteritems(rollup_tree[1]):
-            node_key = node[0].get('title', node_path)
-            for account_key, account in six.iteritems(node[0].get(
-                    'accounts', OrderedDict({}))):
-                if account_key not in accounts:
-                    accounts[account_key] = OrderedDict({})
-                by_industry = {
-                    'normalized_score': account.get('normalized_score', 0)
-                }
-                if 'sample' in account:
-                    # XXX builds URL to segments.
-                    last_part = node_path.split('/')[-1]
-                    url_path = '/%s' % last_part
-                    by_industry.update({
-                        'url': self.request.build_absolute_uri(
-                            reverse('assess_organization_sample', args=(
-                              self.account.slug, account['sample'], url_path)))
-                    })
-                accounts[account_key].update({node_key: by_industry})
+        node_path = rollup_tree[0].get('path', '')
+        node_key = rollup_tree[0].get('title', node_path)
+        for account_key, account in six.iteritems(rollup_tree[0].get(
+                'accounts', OrderedDict({}))):
+            if account_key not in accounts:
+                accounts[account_key] = OrderedDict({})
+            by_industry = {
+                'normalized_score': account.get('normalized_score', 0)
+            }
+            if 'sample' in account:
+                # XXX builds URL to segments.
+                last_part = node_path.split('/')[-1]
+                url_path = '/%s' % last_part
+                by_industry.update({
+                    'url': self.request.build_absolute_uri(
+                        reverse('assess_organization_sample', args=(
+                          self.account.slug, account['sample'], url_path)))
+                })
+            accounts[account_key].update({node_key: by_industry})
 
     def get(self, request, *args, **kwargs):
         #pylint:disable=unused-argument,too-many-locals
