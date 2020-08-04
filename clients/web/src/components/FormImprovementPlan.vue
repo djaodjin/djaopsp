@@ -102,6 +102,22 @@ export default {
     },
   },
 
+  watch: {
+    // Reset search when any of the search params change
+    selectedAreas: function () {
+      this.searchDone = false
+    },
+    practiceValue: function () {
+      this.searchDone = false
+    },
+    practiceValueRange: function () {
+      this.searchDone = false
+    },
+    implementationRange: function () {
+      this.searchDone = false
+    },
+  },
+
   data() {
     return {
       searchDone: false,

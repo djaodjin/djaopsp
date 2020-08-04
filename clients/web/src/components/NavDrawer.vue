@@ -10,7 +10,9 @@
     </v-list-item>
     <v-list-item
       v-if="
-        this.$route.name !== 'home' && this.$route.name !== 'assessmentHome'
+        this.$route.name !== 'home' &&
+        this.$route.name !== 'assessmentHome' &&
+        this.$route.name !== 'newAssessment'
       "
       link
       :to="{ name: 'assessmentHome', params: { id: $route.params.id } }"

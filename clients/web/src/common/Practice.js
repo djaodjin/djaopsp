@@ -5,8 +5,13 @@ const MIN_PRACTICE_VALUE = PRACTICE_VALUES[0].value
 const values = PRACTICE_VALUE_CATEGORIES.map((c) => c.value)
 
 export default class Practice {
-  constructor({ id, question, implementationRate = 0, ...rest }) {
-    this.id = id || getUniqueId()
+  constructor({
+    id = getUniqueId(),
+    question,
+    implementationRate = 0,
+    ...rest
+  }) {
+    this.id = id
     this.question = question
     this.implementationRate = implementationRate
     values.forEach((v) => {

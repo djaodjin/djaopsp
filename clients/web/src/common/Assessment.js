@@ -8,6 +8,8 @@ export default class Assessment {
     authorEmail, // TODO: Replace with list of contributors
     industryName,
     industryPath,
+    targets = [],
+    improvementPlan = [],
     modified = new Date(),
     created = new Date(),
     status = DEFAULT_ASSESSMENT_STEP,
@@ -20,6 +22,8 @@ export default class Assessment {
     this.authorEmail = authorEmail
     this.industryName = industryName
     this.industryPath = industryPath
+    this.targets = targets
+    this.improvementPlan = improvementPlan
     this.modified = modified
     this.created = created
     this.status = status

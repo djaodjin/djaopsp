@@ -10,7 +10,7 @@
       <loading-spinner />
     </div>
     <div v-else>
-      <tab-container class="pb-16" :tabs="tabs">
+      <tab-container class="pb-16" :tabs="tabs" :rightColHidden="true">
         <template v-slot:tab1>
           <assessment-sections
             :header="$t('practices.tab1.title')"
@@ -55,8 +55,6 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getOrganization } from '../mocks/organizations'
-import { getAssessment } from '../mocks/assessments'
 import { getQuestions, getAnswers } from '../mocks/questions'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
@@ -78,11 +76,17 @@ export default {
   methods: {
     async fetchData() {
       this.loading = true
-      // TODO: Make calls concurrently
-      this.organization = await getOrganization(this.org)
-      this.assessment = await getAssessment(this.id)
-      this.questions = await getQuestions()
-      this.answers = await getAnswers()
+      const [organization, assessment, questions, answers] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.id),
+        getQuestions(),
+        getAnswers(),
+      ])
+
+      this.organization = organization
+      this.assessment = assessment
+      this.questions = questions
+      this.answers = answers
       this.loading = false
     },
     async checkPreviousAnswers() {

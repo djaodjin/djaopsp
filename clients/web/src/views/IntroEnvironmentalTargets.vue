@@ -12,7 +12,7 @@
         </p>
         <p>
           Let environmental targets <b>guide and support your business</b> after
-          benchmarking your performance data against other competitors in the
+          benchmarking your performance data against other organizations in the
           industry.
         </p>
         <button-primary
@@ -23,6 +23,16 @@
           }"
           >Continue</button-primary
         >
+        <div class="text-center">
+          <v-btn
+            text
+            class="mx-n4 mx-sm-0 mt-6"
+            color="secondary"
+            @click="advanceAssessment"
+          >
+            Continue without targets
+          </v-btn>
+        </div>
       </div>
     </intro-section>
   </fragment>
@@ -30,8 +40,6 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getOrganization } from '../mocks/organizations'
-import { getAssessment } from '../mocks/assessments'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import IntroSection from '@/components/IntroSection'
 
@@ -46,8 +54,21 @@ export default {
 
   methods: {
     async fetchData() {
-      this.organization = await getOrganization(this.org)
-      this.assessment = await getAssessment(this.id)
+      const [organization, assessment] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.id),
+      ])
+      this.organization = organization
+      this.assessment = assessment
+    },
+
+    advanceAssessment() {
+      // TODO: API call to update assessment status; then, redirect to assessment home
+      console.log('Call API to advance assessment')
+      this.$router.push({
+        name: 'assessmentHome',
+        params: { id: this.id },
+      })
     },
   },
 

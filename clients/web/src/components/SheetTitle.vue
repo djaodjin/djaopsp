@@ -1,5 +1,5 @@
 <template>
-  <h3 class="ma-4"><slot></slot></h3>
+  <h3 v-bind="$attrs" class="ma-4"><slot></slot></h3>
 </template>
 
 <script>

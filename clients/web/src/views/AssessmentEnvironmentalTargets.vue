@@ -6,19 +6,37 @@
       :industryName="assessment.industryName"
       :title="$t('targets.title')"
     />
-    <tab-container :tabs="tabs" :mdCol="6" :lgCol="6">
+    <tab-container
+      :tabs="tabs"
+      :mdCol="6"
+      :lgCol="6"
+      :xlLeftCol="8"
+      :xlRightCol="4"
+    >
       <template v-slot:tab1>
         <tab-header :text="$t('targets.tab1.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
           <p>{{ $t('targets.tab1.intro') }}</p>
-          <business-comparison />
+          <form-environmental-targets :assessmentId="id" />
         </div>
       </template>
       <template v-slot:tab2>
         <tab-header :text="$t('targets.tab2.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
-          <p>{{ $t('targets.tab2.intro') }}</p>
-          <form-environmental-targets :assessmentId="id" />
+          <p>
+            {{
+              $t('targets.tab2.intro', {
+                industryName: assessment.industryName,
+              })
+            }}
+          </p>
+          <ul v-for="(data, index) in benchmarkData" :key="index">
+            <chart-practices-implementation
+              :section="data.section"
+              :scores="data.scores"
+              :companyScore="data.companyScore"
+            />
+          </ul>
         </div>
       </template>
     </tab-container>
@@ -40,10 +58,9 @@
 </template>
 
 <script>
+import { getBenchmarkData } from '../mocks/benchmarks'
 import { Fragment } from 'vue-fragment'
-import { getOrganization } from '../mocks/organizations'
-import { getAssessment } from '../mocks/assessments'
-import BusinessComparison from '@/components/BusinessComparison'
+import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
 import HeaderSecondary from '@/components/HeaderSecondary'
@@ -59,13 +76,20 @@ export default {
     this.fetchData()
   },
 
+  // updated() {
+  //   console.log(this.benchmarkData)
+  // },
+
   methods: {
     async fetchData() {
-      this.loading = true
-      // TODO: Make calls concurrently
-      this.organization = await getOrganization(this.org)
-      this.assessment = await getAssessment(this.id)
-      this.loading = false
+      const [organization, assessment, benchmarkData] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.id),
+        getBenchmarkData(),
+      ])
+      this.organization = organization
+      this.assessment = assessment
+      this.benchmarkData = benchmarkData
     },
     async checkPreviousTargets() {
       // TODO: Send request to check if previous targets have been submitted
@@ -78,9 +102,9 @@ export default {
 
   data() {
     return {
-      loading: false,
       organization: {},
       assessment: {},
+      benchmarkData: [],
       tabs: [
         { text: this.$t('targets.tab1.title'), href: 'tab-1' },
         { text: this.$t('targets.tab2.title'), href: 'tab-2' },
@@ -90,7 +114,7 @@ export default {
   },
 
   components: {
-    BusinessComparison,
+    ChartPracticesImplementation,
     DialogConfirm,
     FormEnvironmentalTargets,
     Fragment,

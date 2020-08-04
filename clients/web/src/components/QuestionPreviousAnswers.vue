@@ -1,17 +1,18 @@
 <template>
-  <div v-if="previousAnswer">
+  <v-card outlined class="d-inline-block py-3 px-4 mb-6" v-if="previousAnswer">
     <span class="mr-1">Previous Answer:</span>
     <b>{{ answerText }}</b>
-    <p class="text-caption mt-1">
+    <p class="text-caption mt-1 mb-0">
       Submitted by {{ previousAnswer.author }} on
-      {{ previousAnswer.modified.toISOString() }} in previous sustainability
-      assessment.
+      <span v-format-date>{{ previousAnswer.modified.toISOString() }}</span> in
+      previous sustainability assessment.
     </p>
-  </div>
+  </v-card>
 </template>
 
 <script>
 import { MAP_QUESTION_FORM_TYPES } from '@/config/app'
+import { formatDate } from '@/directives'
 
 export default {
   name: 'QuestionPreviousAnswers',
@@ -30,6 +31,10 @@ export default {
         )
       )
     },
+  },
+
+  directives: {
+    formatDate,
   },
 }
 </script>

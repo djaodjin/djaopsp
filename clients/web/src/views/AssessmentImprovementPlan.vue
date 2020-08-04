@@ -18,7 +18,7 @@
       </template>
       <template v-slot:tab1>
         <tab-header :text="$t('improvement-plan.tab1.title')" />
-        <div class="px-4 pt-sm-2 px-md-8">
+        <div class="px-4 pt-4 pt-sm-2 px-md-8">
           <p class="mb-2">{{ $t('improvement-plan.tab1.intro') }}</p>
           <form-improvement-plan
             :planPractices="planPractices"
@@ -41,8 +41,6 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getOrganization } from '../mocks/organizations'
-import { getAssessment } from '../mocks/assessments'
 import FormImprovementPlan from '@/components/FormImprovementPlan'
 import HeaderSecondary from '@/components/HeaderSecondary'
 import ImprovementPlan from '@/components/ImprovementPlan'
@@ -60,11 +58,12 @@ export default {
 
   methods: {
     async fetchData() {
-      this.loading = true
-      // TODO: Make calls concurrently
-      this.organization = await getOrganization(this.org)
-      this.assessment = await getAssessment(this.id)
-      this.loading = false
+      const [organization, assessment] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.id),
+      ])
+      this.organization = organization
+      this.assessment = assessment
     },
     addPractice(practice) {
       this.planPractices.push(practice)
@@ -79,7 +78,6 @@ export default {
 
   data() {
     return {
-      loading: false,
       organization: {},
       assessment: {},
       planPractices: [],

@@ -92,6 +92,7 @@ export default new Router({
       path: '/app/:org/share/:id/content/:samplePath/',
       name: 'assessmentShare',
       component: AssessmentShare,
+      props: true,
       pathToRegexpOptions: { strict: true },
     },
   ],

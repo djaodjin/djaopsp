@@ -7,7 +7,7 @@
     <div>
       <p>
         Please respond to a list of questions related to the current practices
-        of your organization.
+        of your organization. Responses must be accurate and verifiable.
       </p>
       <p>
         Every question answered is automatically saved so you can exit and
@@ -26,8 +26,6 @@
 </template>
 
 <script>
-import { getOrganization } from '../mocks/organizations'
-import { getAssessment } from '../mocks/assessments'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import IntroSection from '@/components/IntroSection'
 
@@ -42,8 +40,12 @@ export default {
 
   methods: {
     async fetchData() {
-      this.organization = await getOrganization(this.org)
-      this.assessment = await getAssessment(this.id)
+      const [organization, assessment] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.id),
+      ])
+      this.organization = organization
+      this.assessment = assessment
     },
   },
 

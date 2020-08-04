@@ -52,44 +52,49 @@
           }"
           exact
         />
-        <practice-section-subcategory
-          :section="section"
-          :subcategory="subcategory"
-          :answers="answers"
-        />
-        <next-practice-section
-          class="mt-4"
-          :section="nextSection"
-          :subcategory="nextSubcategory"
-        />
+        <div class="subcategory-container">
+          <practice-section-subcategory
+            :section="section"
+            :subcategory="subcategory"
+            :answers="answers"
+          />
+          <next-practice-section
+            class="mt-4"
+            :section="nextSection"
+            :subcategory="nextSubcategory"
+          />
+        </div>
       </div>
-      <div v-else class="sections pa-4 px-md-8" key="viewSections">
+      <div v-else class="pa-4 px-md-8" key="viewSections">
         <p>{{ $t('practices.tab1.intro') }}</p>
-        <v-list
-          class="mb-4"
-          outlined
-          v-for="loopSection in sections"
-          :key="loopSection.id"
-        >
-          <v-list-item
-            v-for="loopSubcategory in loopSection.subcategories"
-            :key="loopSubcategory.id"
-            :to="{
-              path: `${$route.path}${$route.hash}`,
-              query: {
-                section: loopSection.id,
-                subcategory: loopSubcategory.id,
-              },
-            }"
-            exact
+        <div class="sections">
+          <v-list
+            class="mb-4"
+            outlined
+            v-for="loopSection in sections"
+            :key="loopSection.id"
           >
-            <practices-section
-              :section="loopSection"
-              :subcategory="loopSubcategory"
-              :unanswered="unanswered"
-            />
-          </v-list-item>
-        </v-list>
+            <practice-group-header class="mt-2 mb-4" :section="loopSection" />
+            <v-list-item
+              v-for="loopSubcategory in loopSection.subcategories"
+              :key="loopSubcategory.id"
+              :to="{
+                path: `${$route.path}${$route.hash}`,
+                query: {
+                  section: loopSection.id,
+                  subcategory: loopSubcategory.id,
+                },
+              }"
+              exact
+            >
+              <practices-section
+                :section="loopSection"
+                :subcategory="loopSubcategory"
+                :unanswered="unanswered"
+              />
+            </v-list-item>
+          </v-list>
+        </div>
       </div>
     </v-slide-x-transition>
   </div>
@@ -98,6 +103,7 @@
 <script>
 import { SectionList } from '../common/SectionList'
 import NextPracticeSection from '@/components/NextPracticeSection'
+import PracticeGroupHeader from '@/components/PracticeGroupHeader'
 import PracticesSection from '@/components/PracticesSection'
 import PracticeSectionSubcategory from '@/components/PracticeSectionSubcategory'
 import QuestionnaireContainer from '@/components/QuestionnaireContainer'
@@ -150,6 +156,7 @@ export default {
   components: {
     NextPracticeSection,
     SectionBackLink,
+    PracticeGroupHeader,
     PracticesSection,
     PracticeSectionSubcategory,
     QuestionnaireContainer,
@@ -157,3 +164,23 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+@media #{map-get($display-breakpoints, 'md-and-up')} {
+  .sections {
+    display: grid;
+    column-gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    align-items: start;
+    grid-auto-flow: row dense;
+  }
+}
+
+@media #{map-get($display-breakpoints, 'xl-only')} {
+  .subcategory-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+</style>

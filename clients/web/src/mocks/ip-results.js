@@ -23,7 +23,6 @@ function getPracticeValues() {
 }
 
 export function getResults(formValues) {
-  console.log('Form values:')
   console.log(formValues)
 
   return new Promise((resolve, reject) => {
