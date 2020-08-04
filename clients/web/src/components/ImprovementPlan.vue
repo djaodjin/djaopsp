@@ -20,30 +20,10 @@
         >
           <v-row>
             <v-col cols="12">
-              <practice-section-header
-                :small="true"
-                :section="practice.question.section.name"
-                :subcategory="practice.question.subcategory.name"
+              <practice-overview
+                :practice="practice"
+                :valueCategory="defaultCategory"
               />
-              <p class="mb-2 description">{{ practice.question.text }}</p>
-              <div class="mb-2 d-sm-inline-block">
-                <v-subheader class="pl-0 pr-2 d-inline">
-                  {{ defaultCategory.text }}
-                </v-subheader>
-                <practice-value-chip
-                  class="mr-6"
-                  dark
-                  :value="practice[defaultCategory.value]"
-                />
-              </div>
-              <div class="mb-2 d-sm-inline-block">
-                <v-subheader class="pl-0 pr-2 d-inline"
-                  >Implementation Rate</v-subheader
-                >
-                <implementation-value-chip
-                  :value="practice.implementationRate"
-                />
-              </div>
               <button-secondary
                 class="mt-3 mb-2"
                 color="red"
@@ -54,6 +34,10 @@
           </v-row>
         </v-container>
       </ol>
+      <chart-practice-values-aggregate
+        class="aggregate-chart my-4 mt-md-8 mt-xl-10 mx-xl-12"
+        :practices="planPractices"
+      />
       <button-primary class="mb-5" @click="advanceAssessment"
         >Submit Improvement Plan</button-primary
       >
@@ -65,9 +49,8 @@
 import { PRACTICE_VALUE_CATEGORY_DEFAULT } from '@/config/app'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import ButtonSecondary from '@/components/ButtonSecondary'
-import PracticeSectionHeader from '@/components/PracticeSectionHeader'
-import PracticeValueChip from '@/components/PracticeValueChip'
-import ImplementationValueChip from '@/components/ImplementationValueChip'
+import ChartPracticeValuesAggregate from '@/components/ChartPracticeValuesAggregate'
+import PracticeOverview from '@/components/PracticeOverview'
 import TabHeader from '@/components/TabHeader'
 
 export default {
@@ -95,9 +78,8 @@ export default {
   components: {
     ButtonPrimary,
     ButtonSecondary,
-    PracticeValueChip,
-    PracticeSectionHeader,
-    ImplementationValueChip,
+    ChartPracticeValuesAggregate,
+    PracticeOverview,
     TabHeader,
   },
 }

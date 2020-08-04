@@ -30,7 +30,7 @@
                     label="Industry segment"
                     v-model="industry"
                     class="mb-6"
-                    :items="selectOptions"
+                    :items="industries"
                     :solo="Boolean(STANDALONE)"
                   >
                     <template v-slot:item="{ item, on, attrs }">
@@ -65,7 +65,6 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
-import { getOrganization } from '../mocks/organizations'
 import { postAssessment } from '../mocks/assessments'
 import {
   getIndustrySegments,
@@ -85,9 +84,12 @@ export default {
 
   methods: {
     async fetchData() {
-      this.organization = await getOrganization(this.org)
-      this.allIndustrySegments = await getIndustrySegments()
-      this.previousIndustrySegments = await getPreviousIndustrySegments()
+      const [organization, industries] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getIndustries(),
+      ])
+      this.organization = organization
+      this.industries = industries
     },
 
     processForm: function () {
@@ -105,8 +107,7 @@ export default {
   data() {
     return {
       organization: {},
-      allIndustrySegments: [],
-      previousIndustrySegments: [],
+      industries: [],
       industry: null,
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }
@@ -115,16 +116,6 @@ export default {
   computed: {
     container() {
       return this.STANDALONE ? 'div' : 'v-sheet'
-    },
-    selectOptions() {
-      return [
-        {
-          header: 'PREVIOUSLY SELECTED',
-        },
-        ...this.previousIndustrySegments.map((i) => ({ ...i, isChild: true })),
-        { divider: true },
-        ...this.allIndustrySegments,
-      ]
     },
   },
 

@@ -41,8 +41,6 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getOrganization } from '../mocks/organizations'
-import { getAssessment } from '../mocks/assessments'
 import BusinessComparison from '@/components/BusinessComparison'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
@@ -61,11 +59,12 @@ export default {
 
   methods: {
     async fetchData() {
-      this.loading = true
-      // TODO: Make calls concurrently
-      this.organization = await getOrganization(this.org)
-      this.assessment = await getAssessment(this.id)
-      this.loading = false
+      const [organization, assessment] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.id),
+      ])
+      this.organization = organization
+      this.assessment = assessment
     },
     async checkPreviousTargets() {
       // TODO: Send request to check if previous targets have been submitted
@@ -78,7 +77,6 @@ export default {
 
   data() {
     return {
-      loading: false,
       organization: {},
       assessment: {},
       tabs: [

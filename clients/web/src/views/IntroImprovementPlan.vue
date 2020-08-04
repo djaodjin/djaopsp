@@ -39,8 +39,6 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getOrganization } from '../mocks/organizations'
-import { getAssessment } from '../mocks/assessments'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import IntroSection from '@/components/IntroSection'
 
@@ -55,8 +53,12 @@ export default {
 
   methods: {
     async fetchData() {
-      this.organization = await getOrganization(this.org)
-      this.assessment = await getAssessment(this.id)
+      const [organization, assessment] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.id),
+      ])
+      this.organization = organization
+      this.assessment = assessment
     },
     advanceAssessment() {
       // TODO: API call to update assessment status; then, redirect to assessment home

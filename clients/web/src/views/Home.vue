@@ -60,7 +60,6 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
-import { getOrganization } from '../mocks/organizations'
 import { getActiveAssessments } from '../mocks/assessments'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import AssessmentInfo from '@/components/AssessmentInfo'
@@ -76,8 +75,12 @@ export default {
 
   methods: {
     async fetchData() {
-      this.organization = await getOrganization(this.org)
-      this.activeAssessments = await getActiveAssessments()
+      const [organization, activeAssessments] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        getActiveAssessments(),
+      ])
+      this.organization = organization
+      this.activeAssessments = activeAssessments
     },
   },
 

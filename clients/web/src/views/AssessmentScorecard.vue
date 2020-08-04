@@ -1,37 +1,60 @@
 <template>
-  <intro-section title="Scorecard" :cols="12">
+  <fragment>
+    <header-secondary
+      class="container"
+      :orgName="organization.name"
+      :industryName="assessment.industryName"
+      title="Scorecard"
+    />
     <div v-if="loading">
       <loading-spinner />
     </div>
-    <div v-else>
-      <scorecard-scores :scores="topLevelScores"></scorecard-scores>
-      <scorecard-business-areas
-        :data="scoresByBusinessAreas"
-      ></scorecard-business-areas>
-      <button-primary
-        class="mt-8"
-        :to="{
-          name: 'assessmentHome',
-          params: { id },
-        }"
-        >Return to assessment</button-primary
-      >
-    </div>
-  </intro-section>
+    <v-container v-else>
+      <v-row>
+        <v-col cols="12" sm="6" lg="4" xl="4">
+          <scorecard-scores :scores="topLevelScores"></scorecard-scores>
+          <scorecard-business-areas :data="scoresByBusinessAreas" />
+          <scorecard-targets :targets="targets" />
+        </v-col>
+        <v-col cols="12" sm="6" lg="8" xl="8">
+          <scorecard-practices :practices="improvementPlanPractices" />
+          <scorecard-practices-chart :practices="improvementPlanPractices" />
+          <button-primary
+            class="mt-6"
+            :to="{
+              name: 'assessmentHome',
+              params: { id },
+            }"
+          >
+            Return to assessment
+          </button-primary>
+        </v-col>
+      </v-row>
+    </v-container>
+  </fragment>
 </template>
 
 <script>
-import { getTopLevelScores, getScoresByBusinessAreas } from '../mocks/scorecard'
+import { Fragment } from 'vue-fragment'
+import { getResults } from '../mocks/ip-results'
+import {
+  getTopLevelScores,
+  getScoresByBusinessAreas,
+  getTargets,
+} from '../mocks/scorecard'
 import ButtonPrimary from '@/components/ButtonPrimary'
-import IntroSection from '@/components/IntroSection'
+import HeaderSecondary from '@/components/HeaderSecondary'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ScorecardScores from '@/components/ScorecardScores'
 import ScorecardBusinessAreas from '@/components/ScorecardBusinessAreas'
+import ScorecardPractices from '@/components/ScorecardPractices'
+import ScorecardPracticesChart from '@/components/ScorecardPracticesChart'
+import ScorecardTargets from '@/components/ScorecardTargets'
 
 export default {
   name: 'assessmentScorecard',
 
-  props: ['id'],
+  props: ['org', 'id'],
 
   created() {
     this.fetchData()
@@ -40,26 +63,54 @@ export default {
   methods: {
     async fetchData() {
       this.loading = true
-      this.topLevelScores = await getTopLevelScores()
-      this.scoresByBusinessAreas = await getScoresByBusinessAreas()
+      const [
+        organization,
+        assessment,
+        topLevelScores,
+        scoresByBusinessAreas,
+        targets,
+        improvementPlanPractices,
+      ] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.id),
+        getTopLevelScores(),
+        getScoresByBusinessAreas(),
+        getTargets(),
+        getResults(),
+      ])
+
+      this.organization = organization
+      this.assessment = assessment
+      this.topLevelScores = topLevelScores
+      this.scoresByBusinessAreas = scoresByBusinessAreas
+      this.targets = targets
+      this.improvementPlanPractices = improvementPlanPractices
       this.loading = false
     },
   },
 
   data() {
     return {
+      organization: {},
+      assessment: {},
+      improvementPlanPractices: [],
       loading: false,
       topLevelScores: null,
       scoresByBusinessAreas: [],
+      targets: [],
     }
   },
 
   components: {
     ButtonPrimary,
-    IntroSection,
+    Fragment,
+    HeaderSecondary,
     LoadingSpinner,
     ScorecardScores,
     ScorecardBusinessAreas,
+    ScorecardPractices,
+    ScorecardTargets,
+    ScorecardPracticesChart,
   },
 }
 </script>
