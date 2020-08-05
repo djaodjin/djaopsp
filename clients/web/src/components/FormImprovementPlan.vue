@@ -71,7 +71,7 @@
 <script>
 import { PRACTICE_VALUES, PRACTICE_VALUE_CATEGORIES } from '@/config/app'
 import { Fragment } from 'vue-fragment'
-import { getResults } from '../mocks/ip-results'
+import { getResults } from '../mocks/improvement-plan'
 import MatchingPractices from '@/components/MatchingPractices'
 import ButtonPrimary from '@/components/ButtonPrimary'
 

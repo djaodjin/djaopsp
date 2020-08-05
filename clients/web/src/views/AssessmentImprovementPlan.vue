@@ -64,6 +64,7 @@ export default {
       ])
       this.organization = organization
       this.assessment = assessment
+      this.planPractices = assessment.improvementPlan.slice()
     },
     addPractice(practice) {
       this.planPractices.push(practice)

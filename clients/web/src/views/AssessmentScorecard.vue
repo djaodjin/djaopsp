@@ -36,7 +36,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getResults } from '../mocks/ip-results'
+import { getResults } from '../mocks/improvement-plan'
 import { getTopLevelScores, getScoresByBusinessAreas } from '../mocks/scorecard'
 import { getAssessmentTargets } from '../mocks/assessments'
 
@@ -74,7 +74,7 @@ export default {
         getTopLevelScores(),
         getScoresByBusinessAreas(),
         getAssessmentTargets(), // TODO: Remove this as this should be part of the assessment
-        getResults(),
+        getResults(), // TODO: Remove this as this should be part of the assessment
       ])
 
       this.organization = organization

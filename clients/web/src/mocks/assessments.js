@@ -1,4 +1,5 @@
 import { DELAY } from './config'
+import { getBestPractices } from './improvement-plan'
 import {
   STEP_SHARE_KEY,
   STEP_FREEZE_KEY,
@@ -15,6 +16,7 @@ const activeAssessments = [
     industryName: 'Engineering, Procurement, Construction',
     industryPath: 'epc',
     targets: getAssessmentTargets(),
+    improvementPlan: getAssessmentImprovementPlan(),
     status: STEP_FREEZE_KEY,
   }),
   new Assessment({
@@ -55,6 +57,10 @@ export function getAssessmentTargets() {
           'Cras semper aliquet leo, ultricies lacinia ante facilisis eu curabitur porttitor.',
       })
   )
+}
+
+export function getAssessmentImprovementPlan() {
+  return getBestPractices(6)
 }
 
 export function postAssessment() {
