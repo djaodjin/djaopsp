@@ -30,11 +30,7 @@ const activeAssessments = [
 ]
 
 export function getActiveAssessments() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(activeAssessments)
-    }, DELAY)
-  })
+  return activeAssessments
 }
 
 export function getAssessment(id) {

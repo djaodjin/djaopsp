@@ -1,4 +1,5 @@
 import { DELAY } from './config'
+import { getActiveAssessments } from './assessments'
 import Organization from '../common/Organization'
 import OrganizationGroup from '../common/OrganizationGroup'
 
@@ -6,14 +7,17 @@ const organizations = [
   new Organization({
     id: 'steve-shop',
     name: 'Steve Test Shop',
+    assessments: getActiveAssessments(),
   }),
   new Organization({
     id: 'marlin',
     name: 'Blue Marlin',
+    assessments: getActiveAssessments(),
   }),
   new Organization({
     id: 'supplier-1',
     name: 'S1 - Tamerin (Demo)',
+    assessments: getActiveAssessments(),
   }),
   new Organization({
     id: 'tamarin',

@@ -13,10 +13,14 @@
               <section class="mb-4 px-md-4">
                 <p>{{ $t('home.desc-assessment') }}</p>
 
-                <div v-if="activeAssessments.length">
+                <div
+                  v-if="
+                    organization.assessments && organization.assessments.length
+                  "
+                >
                   <h3 class="mb-4">Active Sustainability Assessments</h3>
                   <ul
-                    v-for="assessment in activeAssessments"
+                    v-for="assessment in organization.assessments"
                     :key="assessment.key"
                   >
                     <assessment-info
@@ -60,7 +64,6 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
-import { getActiveAssessments } from '../mocks/assessments'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import AssessmentInfo from '@/components/AssessmentInfo'
 
@@ -75,19 +78,16 @@ export default {
 
   methods: {
     async fetchData() {
-      const [organization, activeAssessments] = await Promise.all([
+      const [organization] = await Promise.all([
         this.$context.getOrganization(this.org),
-        getActiveAssessments(),
       ])
       this.organization = organization
-      this.activeAssessments = activeAssessments
     },
   },
 
   data() {
     return {
       organization: {},
-      activeAssessments: [],
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }
   },
