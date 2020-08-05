@@ -6,7 +6,8 @@ from survey.settings import PATH_RE, SLUG_RE
 
 from ...api.assessments import (AssessmentAPIView, AssessmentAnswersAPIView,
     AssessmentFreezeAPIView, AssessmentResetAPIView)
-from ...api.benchmark import BenchmarkAPIView, HistoricalScoreAPIView
+from ...api.benchmark import (BenchmarkAPIView, PracticeBenchmarkAPIView,
+    HistoricalScoreAPIView)
 from ...api.dashboards import (SupplierListAPIView,
     TotalScoreBySubsectorAPIView, ShareScorecardAPIView)
 from ...api.improvements import (ImprovementListAPIView,
@@ -33,7 +34,11 @@ urlpatterns = [
         HistoricalScoreAPIView.as_view(),
         name="api_historical_scores"),
     url(r'(?P<organization>%s)/benchmark/(?P<sample>%s)/'\
-        'sample(?P<path>%s)/?' % (SLUG_RE, SLUG_RE, PATH_RE),
+        'details(?P<path>%s)/?' % (SLUG_RE, SLUG_RE, PATH_RE),
+        PracticeBenchmarkAPIView.as_view(),
+        name="api_benchmark_practices"),
+    url(r'(?P<organization>%s)/benchmark/(?P<sample>%s)/'\
+        'graphs(?P<path>%s)/?' % (SLUG_RE, SLUG_RE, PATH_RE),
         BenchmarkAPIView.as_view(),
         name="api_benchmark"),
     url(r'(?P<organization>%s)/improvement$' % SLUG_RE,

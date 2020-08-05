@@ -76,6 +76,49 @@ class MeasureSerializer(serializers.ModelSerializer):
             return obj['text']
         return ""
 
+class PracticeBenchmarkSerializer(NoModelSerializer):
+
+    path = serializers.CharField()
+    title = serializers.CharField()
+    indent = serializers.IntegerField()
+    nb_respondents = serializers.SerializerMethodField(required=False)
+    rate = serializers.SerializerMethodField(required=False)
+    opportunity = serializers.SerializerMethodField(required=False)
+
+    @staticmethod
+    def get_nb_respondents(obj):
+        try:
+            return obj['nb_respondents']
+        except KeyError:
+            pass
+        if hasattr(obj, 'nb_respondents'):
+            return obj.nb_respondents
+        return None
+
+    @staticmethod
+    def get_rate(obj):
+        try:
+            return obj['rate']
+        except KeyError:
+            pass
+        if hasattr(obj, 'rate'):
+            return obj.rate
+        return None
+
+    def get_opportunity(self, obj):
+        try:
+            return obj['opportunity']
+        except KeyError:
+            pass
+        if hasattr(obj, 'opportunity'):
+            return obj.opportunity
+        # XXX This is used in ``ImprovementListAPIView``.
+        opportunities = self.context.get('opportunities', None)
+        if opportunities is not None:
+            return opportunities.get(obj.pk, 0) * 3
+        return None
+
+
 #QuestionSerializer
 class ConsumptionSerializer(serializers.ModelSerializer):
 

@@ -5,8 +5,6 @@ from __future__ import unicode_literals
 import csv, io, json, logging, re
 from collections import namedtuple
 
-from dateutil.relativedelta import relativedelta
-from django.utils import six
 from django.db import connection
 from django.db.models import F, Count
 from django.http import HttpResponse, HttpResponseRedirect
@@ -20,7 +18,8 @@ from openpyxl.styles.fills import FILL_SOLID
 from pages.models import PageElement
 from survey.models import Answer, Choice, Metric, Sample, Unit
 
-from ..compat import reverse
+from ..api.benchmark import PracticeBenchmarkMixin
+from ..compat import reverse, six
 from ..helpers import as_measured_value, get_testing_accounts
 from ..mixins import ReportMixin, BestPracticeMixin
 from ..models import Consumption, get_scored_answers
@@ -43,206 +42,10 @@ class AssessmentAnswer(object):
         return getattr(self.consumption, name)
 
 
-class AssessmentBaseMixin(ReportMixin, BestPracticeMixin):
+class AssessmentBaseMixin(PracticeBenchmarkMixin, BestPracticeMixin):
     # Implementation Note: uses BestPracticeMixin in order to display
     # bestpractice info through links in assess and improve pages.
-
-    def _framework_results(self, consumptions):
-        if self.survey.slug == 'framework':
-            ends_at = self.sample.created_at + relativedelta(months=1)
-            last_frozen_assessments = \
-                Consumption.objects.get_latest_assessment_by_accounts(
-                    self.survey, before=ends_at,
-                    excludes=get_testing_accounts())
-            results = Answer.objects.filter(
-                metric_id=self.default_metric_id,
-                sample_id__in=last_frozen_assessments
-            ).values('question__path', 'measured').annotate(Count('sample_id'))
-            totals = {}
-            for row in Answer.objects.filter(
-                    metric_id=self.default_metric_id,
-                    sample_id__in=last_frozen_assessments
-                    ).values('question__path').annotate(Count('sample_id')):
-                totals[row['question__path']] = row['sample_id__count']
-            choices = {}
-            for choice in Choice.objects.filter(
-                    unit__metric=self.default_metric_id):
-                choices[choice.pk] = choice.text
-
-            for row in results:
-                path = row['question__path']
-                measured = row['measured']
-                count = row['sample_id__count']
-                consumption = consumptions.get(path, None)
-                if consumption:
-                    if not isinstance(consumption.rate, dict):
-                        if not isinstance(consumption, AssessmentAnswer):
-                            consumptions[path] = AssessmentAnswer(
-                                consumption=consumption, rate={})
-                            consumption = consumptions[path]
-                        else:
-                            consumption.rate = {}
-                    total = totals.get(path, None)
-                    consumption.rate[choices[measured]] = \
-                        int(count * 100 // total)
-
-    def decorate_leafs(self, leafs):
-        """
-        Adds consumptions, implementation rate, number of respondents,
-        assessment and improvement answers and opportunity score.
-
-        For each answer the improvement opportunity in the total score is
-        case NO / NEEDS_SIGNIFICANT_IMPROVEMENT
-          numerator = (3-A) * opportunity + 3 * avg_value / nb_respondents
-          denominator = 3 * avg_value / nb_respondents
-        case YES / NEEDS_MODERATE_IMPROVEMENT
-          numerator = (3-A) * opportunity
-          denominator = 0
-        """
-        #pylint:disable=too-many-locals,too-many-statements
-        consumptions = {}
-        consumptions_planned = {}
-        # The call to `get_expected_opportunities` within `get_scored_answers`
-        # will insure all questions for the assessment are picked up, either
-        # they have an answer or not.
-        # This is done by listing all question in `get_opportunities_sql`
-        # and filtering them out through the `survey_enumeratedquestions`
-        # table in `get_expected_opportunities`.
-        scored_answers = get_scored_answers(
-            Consumption.objects.get_active_by_accounts(
-                self.survey, excludes=self._get_filter_out_testing()),
-            self.default_metric_id,
-            includes=self.get_included_samples())
-
-        # We are running the query a second time because we did not populate
-        # all Consumption fields through the aggregate.
-        with connection.cursor() as cursor:
-            cursor.execute(scored_answers, params=None)
-            col_headers = cursor.description
-            consumption_tuple = namedtuple(
-                'ConsumptionTuple', [col[0] for col in col_headers])
-            for consumption in cursor.fetchall():
-                consumption = consumption_tuple(*consumption)
-                if consumption.is_planned:
-                    if consumption.answer_id:
-                        if self.survey.slug == 'framework':
-                            consumptions_planned.update({
-                                consumption.path: consumption.implemented})
-                        else:
-                            # This is part of the plan, we mark it for
-                            # the planning page but otherwise don't use values
-                            # stored here.
-                            consumptions_planned.update({
-                                consumption.path: True})
-                else:
-                    consumptions[consumption.path] = consumption
-
-        # Get reported measures / comments
-        for datapoint in Answer.objects.filter(sample=self.sample).exclude(
-                    metric__in=Metric.objects.filter(
-                    slug__in=Consumption.NOT_MEASUREMENTS_METRICS)
-                ).select_related('question').order_by('-metric_id'):
-            consumption = consumptions[datapoint.question.path]
-            if not hasattr(consumption, 'measures'):
-                consumptions[datapoint.question.path] = AssessmentAnswer(
-                    consumption=consumption, measures=[])
-                consumption = consumptions[datapoint.question.path]
-            unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
-            measured = as_measured_value(datapoint)
-            measure = {
-                'metric': datapoint.metric,
-                'unit': unit,
-                'measured': measured,
-                'created_at': datapoint.created_at,
-#XXX                'collected_by': datapoint.collected_by,
-            }
-            if datapoint.metric.slug == 'target-baseline':
-                measure['text'] = "baseline %s" % str(measured)
-            elif datapoint.metric.slug == 'target-by':
-                measure['text'] = "by %s" % str(measured)
-            elif unit.system in [Unit.SYSTEM_STANDARD, Unit.SYSTEM_IMPERIAL]:
-                measure['text'] = "%s %s" % (measured, unit.title)
-            consumption.measures += [measure]
-
-        # Find all framework samples / answers for a time period
-        self._framework_results(consumptions)
-
-        # Populate leafs and cut nodes with data.
-        for path, vals in six.iteritems(leafs):
-            # First, let's split the text fields in multiple rows
-            # so we can populate the choices.
-            if 'text' in vals[0]:
-                vals[0]['text'] = vals[0]['text'].splitlines()
-            consumption = consumptions.get(path, None)
-            if consumption:
-                if (path.startswith('/euissca-rfx') and #XXX /rfx hack
-                    not consumption.answer_id):
-                    answer = Answer.objects.filter(sample=self.sample,
-                        metric_id=self.default_metric_id,
-                        question__path__endswith=path.split('/')[-1]).first()
-                    if answer:
-                        answer.pk = None
-                        answer.question = Consumption.objects.get(path=path)
-                        answer.save()
-                        if True:
-                            if not hasattr(consumption, 'measures'):
-                                consumption = AssessmentAnswer(
-                                    consumption=consumption, measures=[])
-                            consumption.answer_id = answer.pk
-                            consumption.implemented = as_measured_value(answer)
-                avg_value = consumption.avg_value
-                opportunity = consumption.opportunity
-                nb_respondents = consumption.nb_respondents
-                if nb_respondents > 0:
-                    added = 3 * avg_value / float(nb_respondents)
-                else:
-                    added = 0
-                if 'accounts' not in vals[0]:
-                    vals[0]['accounts'] = {}
-                if self.account.pk not in vals[0]['accounts']:
-                    vals[0]['accounts'][self.account.pk] = {}
-                populate_account(vals[0]['accounts'], consumption)
-                scores = vals[0]['accounts'][self.account.pk]
-                if (consumption.implemented ==
-                    Consumption.ASSESSMENT_ANSWERS[Consumption.YES]) or (
-                    consumption.implemented ==
-                Consumption.ASSESSMENT_ANSWERS[Consumption.NOT_APPLICABLE]):
-                    scores.update({
-                        'opportunity_numerator': 0,
-                        'opportunity_denominator': 0
-                    })
-                elif (consumption.implemented ==
-                      Consumption.ASSESSMENT_ANSWERS[
-                          Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT]):
-                    scores.update({
-                        'opportunity_numerator': opportunity,
-                        'opportunity_denominator': 0
-                    })
-                elif (consumption.implemented ==
-                      Consumption.ASSESSMENT_ANSWERS[
-                          Consumption.NEEDS_MODERATE_IMPROVEMENT]):
-                    scores.update({
-                        'opportunity_numerator': 2 * opportunity + added,
-                        'opportunity_denominator': added
-                    })
-                else:
-                    # No and not yet answered.
-                    scores.update({
-                        'opportunity_numerator': 3 * opportunity + added,
-                        'opportunity_denominator': added
-                    })
-                vals[0]['consumption'] \
-                    = ConsumptionSerializer(context={
-                        'campaign': self.survey,
-                        'planned': consumptions_planned.get(path, None)
-                    }).to_representation(consumption)
-            else:
-                # Cut node: loads icon url.
-                vals[0]['consumption'] = None
-                text = PageElement.objects.filter(
-                    slug=vals[0]['slug']).values('text').first()
-                if text and text['text']:
-                    vals[0].update(text)
+    pass
 
 
 class AssessmentView(AssessmentBaseMixin, TemplateView):

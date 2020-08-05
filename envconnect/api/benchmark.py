@@ -1,40 +1,254 @@
 # Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
+# pylint:disable=too-many-lines
+
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import json, logging, re
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
+from dateutil.relativedelta import relativedelta
 from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now
 from django.conf import settings
 from django.db import connection
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils import six
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import utc
-from django.utils.translation import ugettext_lazy as _
 from pages.mixins import TrailMixin
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as HttpResponse
-from survey.models import  Campaign, Choice, Metric, Sample, Unit
+from survey.models import  Answer, Campaign, Choice, Metric, Sample, Unit
 
 from .best_practices import ToggleTagContentAPIView
 from ..compat import reverse
-from ..helpers import get_segments, as_measured_value
-from ..mixins import ReportMixin, TransparentCut
+from ..helpers import get_segments, as_measured_value, get_testing_accounts
+from ..mixins import ReportMixin, TransparentCut, ContentCut
 from ..models import (_show_query_and_result, get_score_weight,
     get_scored_answers, get_frozen_scored_answers, get_historical_scores,
     Consumption)
 from ..serializers import (BenchmarkSerializer, MetricsSerializer,
-    ScoreWeightSerializer)
+    ScoreWeightSerializer, PracticeBenchmarkSerializer, ConsumptionSerializer)
 from ..scores import (populate_account, populate_account_na_answers,
     populate_account_planned_improvements, populate_rollup)
 
 LOGGER = logging.getLogger(__name__)
+
+
+class AssessmentAnswer(object):
+
+    def __init__(self, **kwargs):
+        for key, val in six.iteritems(kwargs):
+            setattr(self, key, val)
+
+    def __getattr__(self, name):
+        return getattr(self.consumption, name)
+
+
+class PracticeBenchmarkMixin(ReportMixin):
+    # Implementation Note: uses BestPracticeMixin in order to display
+    # bestpractice info through links in assess and improve pages.
+
+    def _framework_results(self, consumptions):
+        if self.survey.slug == 'framework':
+            ends_at = self.sample.created_at + relativedelta(months=1)
+            last_frozen_assessments = \
+                Consumption.objects.get_latest_assessment_by_accounts(
+                    self.survey, before=ends_at,
+                    excludes=get_testing_accounts())
+            results = Answer.objects.filter(
+                metric_id=self.default_metric_id,
+                sample_id__in=last_frozen_assessments
+            ).values('question__path', 'measured').annotate(Count('sample_id'))
+            totals = {}
+            for row in Answer.objects.filter(
+                    metric_id=self.default_metric_id,
+                    sample_id__in=last_frozen_assessments
+                    ).values('question__path').annotate(Count('sample_id')):
+                totals[row['question__path']] = row['sample_id__count']
+            choices = {}
+            for choice in Choice.objects.filter(
+                    unit__metric=self.default_metric_id):
+                choices[choice.pk] = choice.text
+
+            for row in results:
+                path = row['question__path']
+                measured = row['measured']
+                count = row['sample_id__count']
+                consumption = consumptions.get(path, None)
+                if consumption:
+                    if not isinstance(consumption.rate, dict):
+                        if not isinstance(consumption, AssessmentAnswer):
+                            consumptions[path] = AssessmentAnswer(
+                                consumption=consumption, rate={})
+                            consumption = consumptions[path]
+                        else:
+                            consumption.rate = {}
+                    total = totals.get(path, None)
+                    consumption.rate[choices[measured]] = \
+                        int(count * 100 // total)
+
+    def decorate_leafs(self, leafs):
+        """
+        Adds consumptions, implementation rate, number of respondents,
+        assessment and improvement answers and opportunity score.
+
+        For each answer the improvement opportunity in the total score is
+        case NO / NEEDS_SIGNIFICANT_IMPROVEMENT
+          numerator = (3-A) * opportunity + 3 * avg_value / nb_respondents
+          denominator = 3 * avg_value / nb_respondents
+        case YES / NEEDS_MODERATE_IMPROVEMENT
+          numerator = (3-A) * opportunity
+          denominator = 0
+        """
+        #pylint:disable=too-many-locals,too-many-statements
+        consumptions = {}
+        consumptions_planned = {}
+        # The call to `get_expected_opportunities` within `get_scored_answers`
+        # will insure all questions for the assessment are picked up, either
+        # they have an answer or not.
+        # This is done by listing all question in `get_opportunities_sql`
+        # and filtering them out through the `survey_enumeratedquestions`
+        # table in `get_expected_opportunities`.
+        scored_answers = get_scored_answers(
+            Consumption.objects.get_active_by_accounts(
+                self.survey, excludes=self._get_filter_out_testing()),
+            self.default_metric_id,
+            includes=self.get_included_samples())
+
+        # We are running the query a second time because we did not populate
+        # all Consumption fields through the aggregate.
+        with connection.cursor() as cursor:
+            cursor.execute(scored_answers, params=None)
+            col_headers = cursor.description
+            consumption_tuple = namedtuple(
+                'ConsumptionTuple', [col[0] for col in col_headers])
+            for consumption in cursor.fetchall():
+                consumption = consumption_tuple(*consumption)
+                if consumption.is_planned:
+                    if consumption.answer_id:
+                        if self.survey.slug == 'framework':
+                            consumptions_planned.update({
+                                consumption.path: consumption.implemented})
+                        else:
+                            # This is part of the plan, we mark it for
+                            # the planning page but otherwise don't use values
+                            # stored here.
+                            consumptions_planned.update({
+                                consumption.path: True})
+                else:
+                    consumptions[consumption.path] = consumption
+
+        # Get reported measures / comments
+        for datapoint in Answer.objects.filter(sample=self.sample).exclude(
+                    metric__in=Metric.objects.filter(
+                    slug__in=Consumption.NOT_MEASUREMENTS_METRICS)
+                ).select_related('question').order_by('-metric_id'):
+            consumption = consumptions[datapoint.question.path]
+            if not hasattr(consumption, 'measures'):
+                consumptions[datapoint.question.path] = AssessmentAnswer(
+                    consumption=consumption, measures=[])
+                consumption = consumptions[datapoint.question.path]
+            unit = (datapoint.unit if datapoint.unit else datapoint.metric.unit)
+            measured = as_measured_value(datapoint)
+            measure = {
+                'metric': datapoint.metric,
+                'unit': unit,
+                'measured': measured,
+                'created_at': datapoint.created_at,
+#XXX                'collected_by': datapoint.collected_by,
+            }
+            if datapoint.metric.slug == 'target-baseline':
+                measure['text'] = "baseline %s" % str(measured)
+            elif datapoint.metric.slug == 'target-by':
+                measure['text'] = "by %s" % str(measured)
+            elif unit.system in [Unit.SYSTEM_STANDARD, Unit.SYSTEM_IMPERIAL]:
+                measure['text'] = "%s %s" % (measured, unit.title)
+            consumption.measures += [measure]
+
+        # Find all framework samples / answers for a time period
+        self._framework_results(consumptions)
+
+        # Populate leafs and cut nodes with data.
+        for path, vals in six.iteritems(leafs):
+            # First, let's split the text fields in multiple rows
+            # so we can populate the choices.
+            if 'text' in vals[0]:
+                vals[0]['text'] = vals[0]['text'].splitlines()
+            consumption = consumptions.get(path, None)
+            if consumption:
+                if (path.startswith('/euissca-rfx') and #XXX /rfx hack
+                    not consumption.answer_id):
+                    answer = Answer.objects.filter(sample=self.sample,
+                        metric_id=self.default_metric_id,
+                        question__path__endswith=path.split('/')[-1]).first()
+                    if answer:
+                        answer.pk = None
+                        answer.question = Consumption.objects.get(path=path)
+                        answer.save()
+                        if True:
+                            if not hasattr(consumption, 'measures'):
+                                consumption = AssessmentAnswer(
+                                    consumption=consumption, measures=[])
+                            consumption.answer_id = answer.pk
+                            consumption.implemented = as_measured_value(answer)
+                avg_value = consumption.avg_value
+                opportunity = consumption.opportunity
+                nb_respondents = consumption.nb_respondents
+                if nb_respondents > 0:
+                    added = 3 * avg_value / float(nb_respondents)
+                else:
+                    added = 0
+                if 'accounts' not in vals[0]:
+                    vals[0]['accounts'] = {}
+                if self.account.pk not in vals[0]['accounts']:
+                    vals[0]['accounts'][self.account.pk] = {}
+                populate_account(vals[0]['accounts'], consumption)
+                scores = vals[0]['accounts'][self.account.pk]
+                if (consumption.implemented ==
+                    Consumption.ASSESSMENT_ANSWERS[Consumption.YES]) or (
+                    consumption.implemented ==
+                Consumption.ASSESSMENT_ANSWERS[Consumption.NOT_APPLICABLE]):
+                    scores.update({
+                        'opportunity_numerator': 0,
+                        'opportunity_denominator': 0
+                    })
+                elif (consumption.implemented ==
+                      Consumption.ASSESSMENT_ANSWERS[
+                          Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT]):
+                    scores.update({
+                        'opportunity_numerator': opportunity,
+                        'opportunity_denominator': 0
+                    })
+                elif (consumption.implemented ==
+                      Consumption.ASSESSMENT_ANSWERS[
+                          Consumption.NEEDS_MODERATE_IMPROVEMENT]):
+                    scores.update({
+                        'opportunity_numerator': 2 * opportunity + added,
+                        'opportunity_denominator': added
+                    })
+                else:
+                    # No and not yet answered.
+                    scores.update({
+                        'opportunity_numerator': 3 * opportunity + added,
+                        'opportunity_denominator': added
+                    })
+                vals[0]['consumption'] \
+                    = ConsumptionSerializer(context={
+                        'campaign': self.survey,
+                        'planned': consumptions_planned.get(path, None)
+                    }).to_representation(consumption)
+            else:
+                # Cut node: loads icon url.
+                vals[0]['consumption'] = None
+                text = PageElement.objects.filter(
+                    slug=vals[0]['slug']).values('text').first()
+                if text and text['text']:
+                    vals[0].update(text)
 
 
 class BenchmarkMixin(ReportMixin):
@@ -388,8 +602,10 @@ class BenchmarkMixin(ReportMixin):
 
         # Adds if the supplier is reporting publicly or not.
         if self.requested_accounts_pk:
-            latest_assessments = Consumption.objects.get_latest_samples_by_prefix(
-                before=self.ends_at, prefix="/") # at least one public report.
+            # at least one public report.
+            latest_assessments = \
+                Consumption.objects.get_latest_samples_by_prefix(
+                    before=self.ends_at, prefix="/")
 
             reporting_publicly = True
             reporting_data = False
@@ -477,7 +693,7 @@ class BenchmarkMixin(ReportMixin):
                         unit_id = row[2]
                         metric = row[3]
                         question = row[4]
-                        if not account_pk in reported:
+                        if account_pk not in reported:
                             reported[account_pk] = {}
                         if question.endswith('/energy-consumed'):
                             question = 'Energy'
@@ -508,7 +724,8 @@ class BenchmarkMixin(ReportMixin):
                                 planned = "%s" % str(question)
                                 texts += [planned]
                             account.update({'reported': texts})
-                self._report_queries("reporting Energy, GHG, Water and Waste measurements completed")
+                self._report_queries("reporting Energy, GHG, Water"\
+                    " and Waste measurements completed")
 
             if reporting_targets:
                 reporting_targets_sql = """
@@ -550,11 +767,12 @@ class BenchmarkMixin(ReportMixin):
                         unit_id = row[2]
                         metric = row[3]
                         question = row[4]
-                        if not account_pk in targets:
+                        if account_pk not in targets:
                             targets[account_pk] = {}
                         if question.endswith('/energy-target'):
                             question = 'Energy'
-                        elif question.endswith('/ghg-emissions-scope-1-emissions-target'):
+                        elif question.endswith(
+                                '/ghg-emissions-scope-1-emissions-target'):
                             question = 'GHG Emissions'
                         elif question.endswith('/water-withdrawn-target'):
                             question = 'Water'
@@ -564,7 +782,8 @@ class BenchmarkMixin(ReportMixin):
                             targets[account_pk][question] = {}
                         if unit_id:
                             measured = as_measured_value(
-                                None, Unit.objects.get(pk=unit_id), measured=measured)
+                                None, Unit.objects.get(pk=unit_id),
+                                measured=measured)
                         targets[account_pk][question][metric] = measured
 
                 # XXX We add `employee_count` no matter whichever segment
@@ -575,11 +794,19 @@ class BenchmarkMixin(ReportMixin):
                         account_pk = int(account_pk)
                         if account_pk in targets:
                             texts = []
-                            for question, values in six.iteritems(targets[account_pk]):
-                                planned = "%s: %s by %s on baseline of %s" % (question, targets[account_pk][question].get('target-reduced'), targets[account_pk][question].get('target-by'), targets[account_pk][question].get('target-baseline'))
+                            for question, values in six.iteritems(
+                                    targets[account_pk]):
+                                planned = "%s: %s by %s on baseline of %s" % (
+                                    question, targets[account_pk][question].get(
+                                        'target-reduced'),
+                                    targets[account_pk][question].get(
+                                        'target-by'),
+                                    targets[account_pk][question].get(
+                                        'target-baseline'))
                                 texts += [planned]
                             account.update({'targets': texts})
-                self._report_queries("reporting Energy, GHG, Water and Waste targets completed")
+                self._report_queries("reporting Energy, GHG, Water"\
+                    " and Waste targets completed")
 
             if reporting_employee_count:
                 employee_count_sql = """
@@ -610,7 +837,9 @@ class BenchmarkMixin(ReportMixin):
                             segment[0].get('accounts')):
                         if int(account_pk) in employee_counts:
                             account.update({
-                                'employee_count': employee_counts[int(account_pk)]})
+                                'employee_count':
+                                    employee_counts[int(account_pk)]
+                            })
                 self._report_queries("reporting employee count completed")
 
             if reporting_revenue_generated:
@@ -659,7 +888,9 @@ class BenchmarkMixin(ReportMixin):
                             segment[0].get('accounts')):
                         if int(account_pk) in revenue_generateds:
                             account.update({
-                              'revenue_generated': revenue_generateds[int(account_pk)]})
+                              'revenue_generated':
+                                revenue_generateds[int(account_pk)]
+                            })
                 self._report_queries("reporting revenue completed")
 
         return rollup_tree
@@ -966,14 +1197,16 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                 "key": "May 2018",
                 "created_at": "2018-05-28T17:39:59.368272Z",
                 "values": [
-                    ["Construction", 80, "/app/supplier-1/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
+                    ["Construction", 80, "/app/supplier-1/assess/"\
+"ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
                 ]
             },
             {
                 "key": "Dec 2017",
                 "created_at": "2017-12-28T17:39:59.368272Z",
                 "values": [
-                    ["Construction", 80, "/app/supplier-1/assess/ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
+                    ["Construction", 80, "/app/supplier-1/assess/"\
+"ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
                 ]
             }
             ]
@@ -1081,3 +1314,106 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                 }
             })
         return HttpResponse(resp_data)
+
+
+class PracticeBenchmarkAPIView(PracticeBenchmarkMixin, generics.ListAPIView):
+    """
+    Lists of practices with implementation rate and opportunity score.
+
+    **Tags**: survey
+
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/supplier-1/benchmark/f1e2e916eb494b90f9ff0a36982342/\
+details/boxes-and-enclosures HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 3,
+          "next": null,
+          "previous": null,
+          "results": [
+            {
+              "path": null,
+              "title": "Boxes & enclosures",
+              "indent": 0
+            },
+            {
+              "path": null,
+              "title": "Governance & management",
+              "indent": 1
+            },
+            {
+              "path": "/metal/boxes-and-enclosures/governance-management/"\
+"assessment/the-assessment-process-is-rigorous",
+              "title": "The assessment process is rigorous and thorough*",
+              "indent": 2,
+              "nb_respondents": 15,
+              "rate": 50,
+              "opportunity": 4.5
+            }
+          ]
+        }
+    """
+    serializer_class = PracticeBenchmarkSerializer
+
+    def get_queryset(self):
+        """
+        Returns a list of heading and best practices
+        """
+        search_query = self.request.query_params.get('q')
+        query_filter = Q(tag__contains='industry')
+        if search_query:
+            query_filter = query_filter & Q(tag__contains=search_query)
+        trail = self.get_full_element_path(self.kwargs.get('path'))
+        full_path = '/%s' % '/'.join([element.slug for element in trail])
+        if trail:
+            prefix = '/%s' % '/'.join([element.slug for element in trail[:-1]])
+            roots = [trail[-1]]
+        else:
+            prefix = ''
+            roots = PageElement.objects.get_roots().filter(
+                query_filter).order_by('title')
+
+        menus = []
+        cut = ContentCut(depth=2)
+
+#        rollup_trees
+        for root in roots:
+            if not prefix and not cut.enter(root.tag):
+                menus += [{
+                    'title': root.title,
+                    'path': '%s/%s' % (prefix, root.slug),
+                    'indent': 0
+                }]
+            else:
+                rollup_tree = self._build_tree(root, full_path, cut=cut)
+                menus += self.flatten({prefix: rollup_tree})
+        return menus
+
+    def flatten(self, rollup_trees, depth=0):
+        results = []
+        for _, values in six.iteritems(rollup_trees):
+            elem, nodes = values
+            content = {
+                'title': elem['title'],
+                'path': None if nodes else elem['path'],
+                'indent': depth
+            }
+            if 'consumption' in elem and elem['consumption']:
+                content.update({
+                    'nb_respondents':
+                        elem['consumption'].get('nb_respondents', 0),
+                    'rate':
+                        elem['consumption'].get('rate', 0),
+                    'opportunity':
+                        elem['consumption'].get('opportunity', 0),
+                })
+            results += [content]
+            results += self.flatten(nodes, depth=depth + 1)
+        return results
