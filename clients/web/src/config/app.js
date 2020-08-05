@@ -273,3 +273,11 @@ export const VALID_ASSESSMENT_TARGETS = [
     ],
   },
 ]
+
+export const ASSESSMENT_TARGETS_LABELS = VALID_ASSESSMENT_TARGETS.reduce(
+  (acc, target) => {
+    acc[target.value] = target.text
+    return acc
+  },
+  {}
+)

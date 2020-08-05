@@ -37,11 +37,9 @@
 <script>
 import { Fragment } from 'vue-fragment'
 import { getResults } from '../mocks/ip-results'
-import {
-  getTopLevelScores,
-  getScoresByBusinessAreas,
-  getTargets,
-} from '../mocks/scorecard'
+import { getTopLevelScores, getScoresByBusinessAreas } from '../mocks/scorecard'
+import { getAssessmentTargets } from '../mocks/assessments'
+
 import ButtonPrimary from '@/components/ButtonPrimary'
 import HeaderSecondary from '@/components/HeaderSecondary'
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -75,7 +73,7 @@ export default {
         this.$context.getAssessment(this.id),
         getTopLevelScores(),
         getScoresByBusinessAreas(),
-        getTargets(),
+        getAssessmentTargets(), // TODO: Remove this as this should be part of the assessment
         getResults(),
       ])
 
