@@ -9,9 +9,9 @@ import Target from './Target'
 export default class Assessment {
   constructor({
     id = getUniqueId(),
-    authorName, // TODO: Replace with list of contributors
-    authorEmail, // TODO: Replace with list of contributors
-    industryName,
+    authorName = '', // TODO: Replace with list of contributors
+    authorEmail = '', // TODO: Replace with list of contributors
+    industryName, // TODO: Remove this. It should be possible to get the name from industryPath
     industryPath,
     targets = VALID_ASSESSMENT_TARGETS.map((t) => new Target({ key: t.value })),
     improvementPlan = [],

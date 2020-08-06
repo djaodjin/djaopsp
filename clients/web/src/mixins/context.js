@@ -1,10 +1,11 @@
 import Vue from 'vue'
-import { getAssessment } from '../mocks/assessments'
-import { getOrganization } from '../mocks/organizations'
+import { request } from '@/common/api'
 import {
   getIndustrySegments,
   getPreviousIndustrySegments,
 } from '../mocks/industry-segments'
+import Organization from '@/common/Organization'
+import Assessment from '@/common/Assessment'
 
 Vue.mixin({
   beforeCreate() {
@@ -38,7 +39,7 @@ function previousIndustriesToList(previousIndustries) {
         console.warn(`Entry ${path}: ${title} has indent=1 but no parent`)
       } else {
         results.push({
-          text: `${parent.title} > ${title}`,
+          text: `${title}`,
           value: path,
         })
       }
@@ -99,12 +100,14 @@ export default class Context {
     this.industries = []
   }
 
-  async getAssessment(id) {
-    if (this.assessments.has(id)) {
-      return this.assessments.get(id)
+  async getAssessment(assessmentId) {
+    if (this.assessments.has(assessmentId)) {
+      return this.assessments.get(assessmentId)
     } else {
-      const assessment = await getAssessment(id)
-      this.assessments.set(id, assessment)
+      const response = await request(`assessments/${assessmentId}`)
+      const data = await response.json()
+      const assessment = new Assessment(data.assessment)
+      this.assessments.set(assessmentId, assessment)
       return assessment
     }
   }
@@ -123,12 +126,21 @@ export default class Context {
     return this.industries
   }
 
-  async getOrganization(id) {
-    if (this.organizations.has(id)) {
-      return this.organizations.get(id)
+  async getOrganization(organizationId) {
+    if (this.organizations.has(organizationId)) {
+      return this.organizations.get(organizationId)
     } else {
-      const organization = await getOrganization(id)
-      this.organizations.set(id, organization)
+      const response = await request(`organizations/${organizationId}`)
+      const {
+        organization: { id, name },
+        assessments,
+      } = await response.json()
+      const organization = new Organization({
+        id,
+        name,
+        assessments: assessments.map((a) => new Assessment(a)),
+      })
+      this.organizations.set(organizationId, organization)
       return organization
     }
   }
