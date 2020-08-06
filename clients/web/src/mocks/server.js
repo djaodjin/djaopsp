@@ -5,6 +5,7 @@ import {
   STEP_FREEZE_KEY,
   STEP_SCORECARD_KEY,
   STEP_SHARE_KEY,
+  VALID_ASSESSMENT_TARGETS_KEYS,
 } from '@/config/app'
 import { RestSerializer, Server, Model, Factory, hasMany } from 'miragejs'
 import faker from 'faker'
@@ -19,16 +20,23 @@ export function makeServer({ environment = 'development' }) {
     environment,
 
     models: {
-      assessment: Model,
+      assessment: Model.extend({
+        targets: hasMany(),
+      }),
       organization: Model.extend({
         assessments: hasMany(),
       }),
+      target: Model,
     },
 
     factories: {
       assessment: Factory.extend({
-        targets: [],
         improvementPlan: [],
+      }),
+      target: Factory.extend({
+        text() {
+          return faker.lorem.sentence()
+        },
       }),
     },
 
@@ -37,9 +45,28 @@ export function makeServer({ environment = 'development' }) {
       organization: ApplicationSerializer.extend({
         include: ['assessments'],
       }),
+      assessment: ApplicationSerializer.extend({
+        include: ['targets'],
+      }),
     },
 
     seeds(server) {
+      // Organization with active assessment with environmental targets
+      server.create('organization', {
+        id: 'marlin',
+        name: 'Blue Marlin',
+        assessments: [
+          server.create('assessment', {
+            industryName: 'Freight & Shipping',
+            industryPath: 'sustainability-freight-and-shipping',
+            targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
+              server.create('target', { key })
+            ),
+            status: STEP_PLAN_KEY,
+          }),
+        ],
+      })
+
       // Organization with active assessments at every step in the process
       server.create('organization', {
         id: 'steve-shop',

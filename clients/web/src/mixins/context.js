@@ -6,6 +6,7 @@ import {
 } from '../mocks/industry-segments'
 import Organization from '@/common/Organization'
 import Assessment from '@/common/Assessment'
+import Target from '@/common/Target'
 
 Vue.mixin({
   beforeCreate() {
@@ -106,7 +107,10 @@ export default class Context {
     } else {
       const response = await request(`assessments/${assessmentId}`)
       const data = await response.json()
-      const assessment = new Assessment(data.assessment)
+      const assessment = new Assessment({
+        ...data.assessment,
+        targets: data.targets.map((t) => new Target(t)),
+      })
       this.assessments.set(assessmentId, assessment)
       return assessment
     }

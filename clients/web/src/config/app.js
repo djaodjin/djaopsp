@@ -282,3 +282,7 @@ export const ASSESSMENT_TARGETS_LABELS = VALID_ASSESSMENT_TARGETS.reduce(
   },
   {}
 )
+
+export const VALID_ASSESSMENT_TARGETS_KEYS = VALID_ASSESSMENT_TARGETS.map(
+  (target) => target.value
+)
