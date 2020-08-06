@@ -2,20 +2,22 @@ import { VALID_QUESTION_TYPES } from '@/config/app'
 import { getUniqueId } from './utils'
 
 export default class Question {
-  constructor(
-    id,
+  constructor({
+    id = getUniqueId(),
+    path,
     section,
     subcategory,
     text,
     type,
-    placeholder = '',
+    placeholder = 'Comments (optional)',
     optional = false,
-    previousAnswers = []
-  ) {
-    if (!VALID_QUESTION_TYPES.includes(type)) {
+    previousAnswers = [],
+  }) {
+    if (!VALID_QUESTION_TYPES.includes(type.toString())) {
       throw new Error('Invalid question type')
     }
-    this.id = id || getUniqueId()
+    this.id = id
+    this.path = path
     this.section = section
     this.subcategory = subcategory
     this.text = text

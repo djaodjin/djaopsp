@@ -259,15 +259,15 @@ export function getQuestions() {
     setTimeout(() => {
       resolve([
         // (0) Construction / Management & governance
-        new Question(
-          '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy/have-adequate-policy',
-          sections[0],
-          subcategories[0],
-          'Have adequate policy level commitments, and be internally and externally communicated.',
-          '1',
-          'Comments',
-          false,
-          [
+        new Question({
+          path:
+            '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy/have-adequate-policy',
+          section: sections[0],
+          subcategory: subcategories[0],
+          text:
+            'Have adequate policy level commitments, and be internally and externally communicated.',
+          type: 1,
+          previousAnswers: [
             new Answer({
               questionId:
                 '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy/have-adequate-policy',
@@ -275,17 +275,19 @@ export function getQuestions() {
               author: 'michael@tamarinsolutions.com',
               answers: ['yes'],
             }),
-          ]
-        ),
-        new Question(
-          '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy/have-highest-level-leadership',
-          sections[0],
-          subcategories[0],
-          'Have the highest level of leadership at the organization sign the policy.',
-          '2',
-          'Please explain how you plan to use the results of the assessment.',
-          false,
-          [
+          ],
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy/have-highest-level-leadership',
+          section: sections[0],
+          subcategory: subcategories[0],
+          text:
+            'Have the highest level of leadership at the organization sign the policy.',
+          type: 2,
+          placeholder:
+            'Please explain how you plan to use the results of the assessment.',
+          previousAnswers: [
             new Answer({
               questionId:
                 '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy/have-highest-level-leadership',
@@ -293,17 +295,18 @@ export function getQuestions() {
               author: 'michael@tamarinsolutions.com',
               answers: ['most-no'],
             }),
-          ]
-        ),
-        new Question(
-          '/construction/sustainability-construction/governance-management-49f1ad0/responsability-authority/assign-formal-responsability',
-          sections[0],
-          subcategories[1],
-          'Assign formal responsibility for directing and overseeing environmental performance to top/executive management.',
-          '3',
-          'Comments',
-          true,
-          [
+          ],
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/governance-management-49f1ad0/responsability-authority/assign-formal-responsability',
+          section: sections[0],
+          subcategory: subcategories[1],
+          text:
+            'Assign formal responsibility for directing and overseeing environmental performance to top/executive management.',
+          type: 3,
+          optional: true,
+          previousAnswers: [
             new Answer({
               questionId:
                 '/construction/sustainability-construction/governance-management-49f1ad0/responsability-authority/assign-formal-responsability',
@@ -311,17 +314,18 @@ export function getQuestions() {
               author: 'michael@tamarinsolutions.com',
               answers: ['leading'],
             }),
-          ]
-        ),
-        new Question(
-          '/construction/sustainability-construction/governance-management-49f1ad0/environmental-assessment/conduct-assessment',
-          sections[0],
-          subcategories[2],
-          'Conduct a systematic, rigorous assessment to identify and prioritize material environmental impacts, issues and opportunities.',
-          '4',
-          'Comments',
-          true,
-          [
+          ],
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/governance-management-49f1ad0/environmental-assessment/conduct-assessment',
+          section: sections[0],
+          subcategory: subcategories[2],
+          text:
+            'Conduct a systematic, rigorous assessment to identify and prioritize material environmental impacts, issues and type: pportunities.',
+          type: 4,
+          optional: true,
+          previousAnswers: [
             new Answer({
               questionId:
                 '/construction/sustainability-construction/governance-management-49f1ad0/environmental-assessment/conduct-assessment',
@@ -331,17 +335,18 @@ export function getQuestions() {
                 'Nullam gravida leo vel libero imperdiet rhoncus tincidunt at enim. Sed vel enim ac leo mattis dapibus. Suspendisse ligula nisl, elementum sit amet velit in, tincidunt commodo sapien. In tincidunt at felis ac laoreet. Phasellus blandit velit in sem cursus tincidunt. Sed in tortor eget mauris rutrum eleifend. Sed quis dolor rutrum, ultrices eros ut, blandit turpis.',
               ],
             }),
-          ]
-        ),
-        new Question(
-          '/construction/sustainability-construction/governance-management-49f1ad0/leadership-engagement-commitment/give-priorities',
-          sections[0],
-          subcategories[3],
-          "Give the priorities identified in the materiality assessment meaningful inclusion in the organization's goal setting and tactical planning.",
-          '5',
-          'Comments',
-          true,
-          [
+          ],
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/governance-management-49f1ad0/leadership-engagement-commitment/give-priorities',
+          section: sections[0],
+          subcategory: subcategories[3],
+          text:
+            "Give the priorities identified in the materiality assessment meaningful inclusion in the organization's goal setting and practical planning.",
+          type: 5,
+          optional: true,
+          previousAnswers: [
             new Answer({
               questionId:
                 '/construction/sustainability-construction/governance-management-49f1ad0/leadership-engagement-commitment/give-priorities',
@@ -349,252 +354,269 @@ export function getQuestions() {
               author: 'michael@tamarinsolutions.com',
               answers: ['14', 'ghg-emissions-generated'],
             }),
-          ]
-        ),
-        new Question(
-          '/construction/sustainability-construction/governance-management-49f1ad0/controls-improvement-plans-measurement/implement-controls',
-          sections[0],
-          subcategories[4],
-          'Implement controls, improvement plans and measurement processes to address all priorities identified in the assessment.',
-          '1',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/governance-management-49f1ad0/management-system-rigor/implement-environmental-management',
-          sections[0],
-          subcategories[5],
-          'Implement an environmental management system that conforms with a recognized international (e.g. ISO 14001) or local standard.',
-          '2',
-          'Please explain how you plan to use the results of the assessment.'
-        ),
-        new Question(
-          '/construction/sustainability-construction/governance-management-49f1ad0/environmental-reporting/report-internally',
-          sections[0],
-          subcategories[6],
-          'Report internally, including to top management, on key environmental issues, progress toward goals, and plans/needs to address shortfalls.',
-          '3',
-          'Comments'
-        ),
+          ],
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/governance-management-49f1ad0/controls-improvement-plans-measurement/implement-controls',
+          section: sections[0],
+          subcategory: subcategories[4],
+          text:
+            'Implement controls, improvement plans and measurement processes to address all priorities identified in the assessment.',
+          type: 1,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/governance-management-49f1ad0/management-system-rigor/implement-environmental-management',
+          section: sections[0],
+          subcategory: subcategories[5],
+          text:
+            'Implement an environmental management system that conforms with a recognized international (e.g. ISO 14001) or local standard.',
+          type: 2,
+          placeholder:
+            'Please explain how you plan to use the results of the assessment.',
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/governance-management-49f1ad0/environmental-reporting/report-internally',
+          section: sections[0],
+          subcategory: subcategories[6],
+          text:
+            'Report internally, including to top management, on key environmental issues, progress toward goals, and plans/needs to type: ddress shortfalls.',
+          type: 3,
+        }),
 
         // (7) Construction / Procurement
-        new Question(
-          '/construction/sustainability-construction/procurement-5d484d5/procure-environmentally-prefereable-version/asphalt',
-          sections[1],
-          subcategories[7],
-          'Asphalt',
-          '4',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/procurement-5d484d5/measure/actions',
-          sections[1],
-          subcategories[8],
-          'Measure success of actions and identify opportunities for improvement (Purchasing).',
-          '5',
-          'Comments'
-        ),
+        new Question({
+          path:
+            '/construction/sustainability-construction/procurement-5d484d5/procure-environmentally-prefereable-version/asphalt',
+          section: sections[1],
+          subcategory: subcategories[7],
+          text: 'Asphalt',
+          type: 4,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/procurement-5d484d5/measure/actions',
+          section: sections[1],
+          subcategory: subcategories[8],
+          text:
+            'Measure success of actions and identify opportunities for improvement (Purchasing).',
+          type: 5,
+        }),
 
         // (9) Contruction / Construction
-        new Question(
-          '/construction/sustainability-construction/construction-bbec85a/electricity-greenhouse/use-renewable',
-          sections[2],
-          subcategories[9],
-          'Use renewable energy to power site operations.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/vehicles-equipment/implement-policy',
-          sections[2],
-          subcategories[10],
-          'Implement a policy to procure new vehicles or vehicle leases that optimize carbon efficiency and improve other key environmental performance areas compared to existing assets.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/other/minimize-trucking',
-          sections[2],
-          subcategories[11],
-          'Minimize trucking and travel miles.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/general/measure-success',
-          sections[2],
-          subcategories[12],
-          'Measure success of actions and identify opportunities for improvement.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/construction-bbec85a/air-emissions/fuel-burning',
-          sections[2],
-          subcategories[13],
-          'Ensure that fuel burning vehicles and equipment meet applicable limits for particulates, NOx, SOx and CO2.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/construction-bbec85a/waste/develop',
-          sections[2],
-          subcategories[14],
-          'Develop and implement a waste minimization and management plan for each work site.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/construction-bbec85a/hazardous/store',
-          sections[2],
-          subcategories[15],
-          'Store, handle and transport hazardous materials or equipment containing same to prevent leaks/spills to soil or water, and in compliance with applicable legal requirements.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/construction-bbec85a/physical-footprint/create-site-access',
-          sections[2],
-          subcategories[16],
-          'Create site access plans that minimize impacts on vegetation and impervious surfaces.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/construction-bbec85a/water/minimize',
-          sections[2],
-          subcategories[17],
-          'Minimize water use in water-challenged or restricted areas.',
-          '5',
-          'Comments'
-        ),
+        new Question({
+          path:
+            '/construction/sustainability-construction/construction-bbec85a/electricity-greenhouse/use-renewable',
+          section: sections[2],
+          subcategory: subcategories[9],
+          text: 'Use renewable energy to power site operations.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/vehicles-equipment/implement-policy',
+          section: sections[2],
+          subcategory: subcategories[10],
+          text:
+            'Implement a policy to procure new vehicles or vehicle leases that optimize carbon efficiency and improve other key environmental performance areas compared to existing assets.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/other/minimize-trucking',
+          section: sections[2],
+          subcategory: subcategories[11],
+          text: 'Minimize trucking and travel miles.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/general/measure-success',
+          section: sections[2],
+          subcategory: subcategories[12],
+          text:
+            'Measure success of actions and identify opportunities for improvement.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/construction-bbec85a/air-emissions/fuel-burning',
+          section: sections[2],
+          subcategory: subcategories[13],
+          text:
+            'Ensure that fuel burning vehicles and equipment meet applicable limits for particulates, NOx, SOx and CO2.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/construction-bbec85a/waste/develop',
+          section: sections[2],
+          subcategory: subcategories[14],
+          text:
+            'Develop and implement a waste minimization and management plan for each work site.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/construction-bbec85a/hazardous/store',
+          section: sections[2],
+          subcategory: subcategories[15],
+          text:
+            'Store, handle and transport hazardous materials or equipment containing same to prevent leaks/spills to soil or water, and in compliance with applicable legal requirements.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/construction-bbec85a/physical-footprint/create-site-access',
+          section: sections[2],
+          subcategory: subcategories[16],
+          text:
+            'Create site access plans that minimize impacts on vegetation and impervious surfaces.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/construction-bbec85a/water/minimize',
+          section: sections[2],
+          subcategory: subcategories[17],
+          text: 'Minimize water use in water-challenged or restricted areas.',
+          type: 5,
+        }),
 
         // (18) Construction / Office & grounds / Electricity & gas
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/general',
-          sections[3],
-          subcategories[18],
-          'When sourcing/ selecting new lease space, give meaningful weight to building energy efficiency in the evaluation process.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/energy-source',
-          sections[3],
-          subcategories[19],
-          'Convert to using renewable energy.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/lighting',
-          sections[3],
-          subcategories[20],
-          'Install high efficiency lighting.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/hvac',
-          sections[3],
-          subcategories[21],
-          'Reduce the need for/use of HVAC systems.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/electronics',
-          sections[3],
-          subcategories[22],
-          'Optimize data center energy efficiency.',
-          '5',
-          'Comments'
-        ),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/general',
+          section: sections[3],
+          subcategory: subcategories[18],
+          text:
+            'When sourcing/ selecting new lease space, give meaningful weight to building energy efficiency in the evaluation process.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/energy-source',
+          section: sections[3],
+          subcategory: subcategories[19],
+          text: 'Convert to using renewable energy.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/lighting',
+          section: sections[3],
+          subcategory: subcategories[20],
+          text: 'Install high efficiency lighting.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/hvac',
+          section: sections[3],
+          subcategory: subcategories[21],
+          text: 'Reduce the need for/use of HVAC systems.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/electronics',
+          section: sections[3],
+          subcategory: subcategories[22],
+          text: 'Optimize data center energy efficiency.',
+          type: 5,
+        }),
 
         // (23) Construction / Office & grounds / Fuel
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/fuel/company-vehicles',
-          sections[3],
-          subcategories[23],
-          'Optimize fuel efficiency for existing fleet of conventional fuel vehicles.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/fuel/employee-transport',
-          sections[3],
-          subcategories[24],
-          'Use video/web/tele-conferencing to minimize travel.',
-          '5',
-          'Comments'
-        ),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/fuel/company-vehicles',
+          section: sections[3],
+          subcategory: subcategories[23],
+          text:
+            'Optimize fuel efficiency for existing fleet of conventional fuel vehicles.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/fuel/employee-transport',
+          section: sections[3],
+          subcategory: subcategories[24],
+          text: 'Use video/web/tele-conferencing to minimize travel.',
+          type: 5,
+        }),
 
         // (25) Construction / Office & grounds / Waste
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/waste/general',
-          sections[3],
-          subcategories[25],
-          'When sourcing/ selecting new lease space, give meaningful weight to buildings with strong waste management infrastructure and services in the evaluation process.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing',
-          sections[3],
-          subcategories[26],
-          'Minimize paper use.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing/procure',
-          sections[3],
-          subcategories[27],
-          'Appliances',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing/procure/paper',
-          sections[3],
-          subcategories[28],
-          'Office supplies',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/waste/waste-recycling',
-          sections[3],
-          subcategories[29],
-          'Recycle all paper waste.',
-          '5',
-          'Comments'
-        ),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/waste/general',
+          section: sections[3],
+          subcategory: subcategories[25],
+          text:
+            'When sourcing/selecting new lease space, give meaningful weight to buildings with strong waste management infrastructure and services in the evaluation process.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing',
+          section: sections[3],
+          subcategory: subcategories[26],
+          text: 'Minimize paper use.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing/procure',
+          section: sections[3],
+          subcategory: subcategories[27],
+          text: 'Appliances',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing/procure/paper',
+          section: sections[3],
+          subcategory: subcategories[28],
+          text: 'Office supplies',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/waste/waste-recycling',
+          section: sections[3],
+          subcategory: subcategories[29],
+          text: 'Recycle all paper waste.',
+          type: 5,
+        }),
 
         // (30) Construction / Office & grounds / Water
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/water/general',
-          sections[3],
-          subcategories[30],
-          'When sourcing/ selecting new lease space, give meaningful weight to building water efficiency in the evaluation process.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/water/indoors',
-          sections[3],
-          subcategories[31],
-          'Install high efficiency and water conserving plumbing components.',
-          '5',
-          'Comments'
-        ),
-        new Question(
-          '/construction/sustainability-construction/officegrounds-e661fc0/water/outdoors',
-          sections[3],
-          subcategories[32],
-          'Do not hose off outdoor areas.',
-          '5',
-          'Comments'
-        ),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/water/general',
+          section: sections[3],
+          subcategory: subcategories[30],
+          text:
+            'When sourcing/ selecting new lease space, give meaningful weight to building water efficiency in the evaluation process.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/water/indoors',
+          section: sections[3],
+          subcategory: subcategories[31],
+          text:
+            'Install high efficiency and water conserving plumbing components.',
+          type: 5,
+        }),
+        new Question({
+          path:
+            '/construction/sustainability-construction/officegrounds-e661fc0/water/outdoors',
+          section: sections[3],
+          subcategory: subcategories[32],
+          text: 'Do not hose off outdoor areas.',
+          type: 5,
+        }),
       ])
     }, DELAY)
   })
