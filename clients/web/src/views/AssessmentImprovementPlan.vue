@@ -6,7 +6,7 @@
       :industryName="assessment.industryName"
       :title="$t('improvement-plan.title')"
     />
-    <tab-container :tabs="tabs" :lgCol="6">
+    <tab-container :tabs="tabs" :lgCol="6" :xlCol="6">
       <template v-slot:tab2.title>
         <v-badge
           color="secondary"
