@@ -7,10 +7,9 @@ import { getUniqueId } from './utils'
 import Target from './Target'
 
 export default class Assessment {
+  // TODO: Add list of contributors to the assessment
   constructor({
     id = getUniqueId(),
-    authorName = '', // TODO: Replace with list of contributors
-    authorEmail = '', // TODO: Replace with list of contributors
     industryName, // TODO: Remove this. It should be possible to get the name from industryPath
     industryPath,
     targets = VALID_ASSESSMENT_TARGETS.map((t) => new Target({ key: t.value })),
@@ -23,8 +22,6 @@ export default class Assessment {
       throw new Error('Invalid assessment status')
     }
     this.id = id
-    this.authorName = authorName
-    this.authorEmail = authorEmail
     this.industryName = industryName
     this.industryPath = industryPath
     this.targets = targets
