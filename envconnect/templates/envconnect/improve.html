@@ -182,6 +182,34 @@ See the following for examples of content developed for best practices:
 {% endfor %}
 </div>
 <!-- modals -->
+<div id="practice-info" class="modal fade"
+     tabindex="-1" role="dialog"
+     aria-labelledby="Information about your selected practice"
+     aria-hidden="true"
+     style="color: #000;">
+  <div class="modal-dialog">
+    <form class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Practice information ...</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <p>
+NOTE: Improving in this practice could help to reduce your overall
+<strong>[[activeElement.value.targets]]</strong>.
+        </p>
+        <p>
+Visit the Data &amp; metrics tile to enter your reduction goals related
+to this practice.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary"
+                data-dismiss="modal">OK</button>
+      </div>
+    </form>
+  </div>
+</div>
 <div id="submit-planning" class="modal fade"
      tabindex="-1" role="dialog"
      aria-labelledby="Complete assessment" aria-hidden="true"

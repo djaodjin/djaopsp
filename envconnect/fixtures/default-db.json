@@ -624,6 +624,7 @@
   "fields": {
     "title": "Packaging Design",
     "slug": "packaging-design",
+    "tag": "{\"tags\":[\"Waste\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 11
@@ -732,7 +733,7 @@
     "title": "Compressed air",
     "slug": "energy-efficiency-compressed-air",
     "text": "/envconnect/static/img/compressed-air.png",
-    "tag": "",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 19
@@ -749,7 +750,7 @@
     "title": "Process equipment",
     "slug": "energy-efficiency-process-equipment",
     "text": "/envconnect/static/img/process-equipment.png",
-    "tag": "",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 20
@@ -766,7 +767,7 @@
     "title": "Mechanical drives",
     "slug": "energy-efficiency-mechanical-drives",
     "text": "/envconnect/static/img/mechanical-drives.png",
-    "tag": "",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 21
@@ -783,7 +784,7 @@
     "title": "Process heating",
     "slug": "process-heating",
     "text": "/envconnect/static/img/process-heating.png",
-    "tag": "",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 22
@@ -800,7 +801,7 @@
     "title": "Process cooling",
     "slug": "energy-efficiency-process-cooling",
     "text": "/envconnect/static/img/process-cooling.png",
-    "tag": "",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 23
@@ -849,6 +850,7 @@
     "title": "Adjust air/fuel ratio",
     "slug": "adjust-air-fuel-ratio",
     "text": "<h2>Background</h2><p>Some manufacturing processes may involve heating operations. The basic process heating operations for metal fabrications are summarized in Table 1 below, extracted from process heating system sourcebook of Reference [2].</p><img src=\"/media/envconnect/bf8ee0d402f4e6861171957410b0a016c739f7ba.png\"><p>In addition to the process heating equipment summarized in Table 1, steam and hot water boilers are also used to generate heating for process requirements. Heat generation from the process heating equipment and boilers is achieved by fuel combustion for fuel-based equipment. Figure 1 shows a typical fuel-based process heating system.</p><img src=\"/media/envconnect/40a273422cf7319f205219c98be277ac9a23ad4f.png\"><p>During the combustion process, it is important to maintain a certain amount of excess air in order to maintain safe combustion (prevent the formation of dangerous carbon monoxide). On the other hand, if there is too much excess air (if the air-to-fuel ratio is too high), it can carry away large amounts of heat from the equipment, resulting in reduced heating equipment efficiency.</p><h2>Improvement opportunity</h2><p>Perform air-and-fuel or flue gas analysis and tune the combustion equipment on a regular basis (semi-annually or annually) to ensure that a proper air-to-fuel ratio is maintained. This will reduce the amount of waste heat and increase the heating equipment efficiency, resulting in fuel energy savings. According to the process heating sourcebook of Reference [2], controlling air-to-fuel ratio can result in fuel savings of 5% to 25%.</p><p>According to a Process Heating Tip Sheet (Reference [1]), most high temperature direct-fired furnaces and boilers operate with about 10% to 20% excess combustion air at high fire to prevent the formation of carbon monoxide and soot deposits on heat transfer surfaces. Hence, if the excess combustion air is over 20%, tune the furnaces and boilers need to be tuned. See Table 2 by way of further illustration, which shows the boiler combustion efficiency of natural gas. As an example, adjusting the air-to-fuel ratio of the steam boiler to 4% O2 (about 21% excess air) from 7% O2 (about 50% excess air) will increase combustion efficiency by 1.6% at the 360 oF combustion temperature.</p><p>Other factors that need to be carefully considered when setting the amount of excess air:<ul><li>Type of fuel</li><li>Type of burner</li><li>Process conditions</li><li>Process temperature</li></ul></p><img src=\"/media/envconnect/71d44d2e6f5d7491d4599bc1fa2e6a09d3755110.png\"><p>For information about checking burner air to fuel ratios, refer to Reference [1]. To learn the fundamentals of process heating systems, refer to Reference [2]. Additional information for process heating systems is included in References [3], [4] and [5].</p><h2>References</h2><ol><li><a href=\"http://www.energy.gov/eere/amo/downloads/check-burner-air-fuel-ratios\" target=\"_blank\">Process Heating Tip Sheet #2: Check Burner Air to Fuel Ratios, by Industrial Technologies Program of U.S. Department of Energy (DOE).</a> (accessed on 6/1/2015)</li><li><a href=\"http://www.energy.gov/eere/amo/downloads/improving-process-heating-system-performance-sourcebook-industry-second-edition\" target=\"_blank\">Improving Process Heating System Performance: A Sourcebook for Industry, Second Edition (February 2008), by U.S. Department of Energy’s Office of Energy Efficiency and the Industrial Heating Equipment Association (IHEA).</a> (accessed on 6/1/2015)</li><li>The Process Heating Assessment and Survey Tool (PHAST) is a free software tool developed by U.S. Department of Energy (DOE). PHAST helps industrial users survey process heating equipment that consumes fuel, steam, or electricity, and identifies the most energy-intensive equipment. The tool can be downloaded at:<a href=\"http://www.energy.gov/eere/amo/articles/process-heating-assessment-and-survey-tool\" target=\"_blank\">http://www.energy.gov/eere/amo/articles/process-heating-assessment-and-survey-tool</a> (accessed on 6/1/2015)</li><li>The Industrial Heating Equipment Association (IHEA):<a href=\"http://www.ihea.org\" target=\"_blank\">http://www.ihea.org</a> (accessed on 6/1/2015)</li><li>Industrial Technologies Program – Process Heating Systems:<a href=\"http://www.energy.gov/eere/amo/process-heating-systems\" target=\"_blank\">http://www.energy.gov/eere/amo/process-heating-systems</a> (accessed on 6/1/2015)</li></ol><h2>Financial incentives</h2><p><ul><li>PG&amp;E offers incentive for qualified customized energy efficiency projects. The incentive amounts are based on actual reductions in energy usage. The 2015 incentives rates are $1.00/therm for natural gas savings. Be sure to contact PG&amp;E early in the design process. For more information, please go to:<a href=\"http://www.pge.com/en/mybusiness/save/rebates/ief/index.page\" target=\"_blank\">http://www.pge.com/en/mybusiness/save/rebates/ief/index.page?</a> (accessed on 5/1/2015)</li></ul></p><p><em>[This section will be expanded in future phases for facilities located outside of PG&E territory.]</em></p><h2>Training</h2><p><ul><li>Process Heating Assessment and Survey Tool Trainings are available at:<a href=\"http://www.energy.gov/eere/amo/articles/training-process-heating-systems\" target=\"_blank\">http://www.energy.gov/eere/amo/articles/training-process-heating-systems</a> (accessed on 6/1/2015)</li></ul></p>",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 26

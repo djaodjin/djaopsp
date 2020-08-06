@@ -269,6 +269,9 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.TAG_SCORECARD = 'scorecard';
     $scope.TAG_PAGEBREAK = 'pagebreak';
+    $scope.TAG_ENERGY_EMISSIONS = 'Energy & Emissions';
+    $scope.TAG_WATER = 'Water';
+    $scope.TAG_WASTE = 'Waste';
 
     $scope.containsTag = function(bestpractise, tag) {
         return (bestpractise && bestpractise.tag
@@ -846,7 +849,7 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.activeElement = {
         reload: false,
-        value: {title: "", tag: ""}
+        value: {title: "", tag: "", targets: ""}
     };
 
     // Prepares to edit or delete an element.
@@ -864,7 +867,11 @@ envconnectControllers.controller("EnvconnectCtrl",
         for( var idx = 0; idx < tags.length; ++idx ) {
             if( tags[idx] === $scope.TAG_PAGEBREAK ) {
                 $scope.activeElement.is_pagebreak = true;
-                break;
+            }
+            if( tags[idx] === $scope.TAG_ENERGY_EMISSIONS
+              || tags[idx] === $scope.TAG_WATER
+              || tags[idx] === $scope.TAG_WASTE ) {
+                $scope.activeElement.targets = tags[idx];
             }
         }
         if ( typeof reload !== "undefined" ) {
@@ -1351,10 +1358,16 @@ envconnectControllers.controller("EnvconnectCtrl",
                 if( newValue ) {
                     data['measured'] = newValue;
                 }
+                $scope.setActiveElement(practice[0]);
                 $http.post(
                     settings.urls.api_improvements + practice[0].path, data
                 ).then(function success(resp) {
-                    $("#improvement-dashboard").data('improvementDashboard').load();
+                    $("#improvement-dashboard").data(
+                        'improvementDashboard').load();
+                    if( $scope.activeElement.value.tag ) {
+                        var modalDialog = angular.element('#practice-info');
+                        modalDialog.modal('show');
+                    }
                 }, function(resp) { // error
                     showErrorMessages(resp);
                 });
