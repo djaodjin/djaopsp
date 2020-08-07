@@ -20,35 +20,7 @@ Vue.mixin({
   },
 })
 
-function previousIndustriesToList(previousIndustries) {
-  const results = []
-
-  for (let i = 0, parent = null; i < previousIndustries.length; i++) {
-    const entry = previousIndustries[i]
-    const { path, title, indent } = entry
-
-    if (path && indent === 0) {
-      // Unset grouping parent
-      if (parent) parent = null
-      results.push({ text: title, value: path })
-    } else if (path && indent === 1) {
-      // Entry with parent
-      if (!parent) {
-        console.warn(`Entry ${path}: ${title} has indent=1 but no parent`)
-      } else {
-        results.push({
-          text: `${title}`,
-          value: path,
-        })
-      }
-    } else {
-      parent = entry
-    }
-  }
-  return results
-}
-
-function industriesToList(industries) {
+function industriesToList(industries, groupChildren) {
   const results = []
 
   for (let i = 0, parent = null; i < industries.length; i++) {
@@ -67,12 +39,14 @@ function industriesToList(industries) {
         results.push({
           text: title,
           value: path,
-          isChild: true,
+          isChild: groupChildren,
         })
       }
     } else {
       parent = entry
-      results.push({ header: entry.title.toUpperCase() })
+      if (groupChildren) {
+        results.push({ header: entry.title.toUpperCase() })
+      }
     }
   }
   return results
@@ -83,12 +57,10 @@ function createIndustryList(previousIndustries, industries) {
 
   if (previousIndustries.length) {
     industryList.push({ header: 'PREVIOUSLY SELECTED' })
-    industryList = industryList.concat(
-      previousIndustriesToList(previousIndustries)
-    )
+    industryList = industryList.concat(industriesToList(previousIndustries))
     industryList.push({ divider: true })
   }
-  return industryList.concat(industriesToList(industries))
+  return industryList.concat(industriesToList(industries, true))
 }
 
 export default class Context {
