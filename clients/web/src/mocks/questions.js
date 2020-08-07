@@ -1,247 +1,246 @@
 import { DELAY } from './config'
 import { getRandomInt } from '../common/utils'
 import Answer from '../common/Answer'
-import Section from '../common/Section'
 import Subcategory from '../common/Subcategory'
 import Question from '../common/Question'
 
 // Set IDs to null to generate automatic unique IDs
 const sections = [
   // Construction industry segment
-  new Section({
+  {
     name: 'Governance & Management',
     path:
       '/construction/sustainability-construction/governance-management-49f1ad0',
     iconPath: 'https://envconnect.s3.amazonaws.com/media/management-basics.png',
-  }),
-  new Section({
+  },
+  {
     name: 'Procurement',
     path: '/construction/sustainability-construction/procurement-5d484d5',
     iconPath: 'https://envconnect.s3.amazonaws.com/media/gas-procurement.png',
-  }),
-  new Section({
+  },
+  {
     name: 'Construction',
     path: '/construction/sustainability-construction/construction-bbec85a',
     iconPath: 'https://envconnect.s3.amazonaws.com/media/construction.png',
-  }),
-  new Section({
+  },
+  {
     name: 'Office/grounds',
     path: '/construction/sustainability-construction/officegrounds-e661fc0',
     iconPath: 'https://envconnect.s3.amazonaws.com/media/office-space-only.png',
-  }),
+  },
 
   // Boxes & enclosures industry segment
-  new Section({
+  {
     name: 'Governance & Management',
     path:
       '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics',
     iconPath: 'https://envconnect.s3.amazonaws.com/media/management-basics.png',
-  }),
-  new Section({
+  },
+  {
     name: 'Design',
     path:
       '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design',
     iconPath: 'https://envconnect.s3.amazonaws.com/media/design.png',
-  }),
-  new Section({
+  },
+  {
     name: 'Production',
     path:
       '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production',
     iconPath: 'https://envconnect.s3.amazonaws.com/media/production.png',
-  }),
-  new Section({
+  },
+  {
     name: 'Distribution',
     path:
       '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/distribution',
     iconPath: 'https://envconnect.s3.amazonaws.com/media/distribution.png',
-  }),
-  new Section({
+  },
+  {
     name: 'End of Life',
     path:
       '/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/end-of-life',
     iconPath: 'https://envconnect.s3.amazonaws.com/media/end-of-life.png',
-  }),
+  },
 ]
 
 // Set IDs to null to generate automatic unique IDs
 const subcategories = [
   // (0) Construction / Management & governance
-  new Subcategory({
+  {
     name: 'Environmental policy',
     path:
       '/construction/sustainability-construction/governance-management-49f1ad0/environmental-policy',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Responsability & authority',
     path:
       '/construction/sustainability-construction/governance-management-49f1ad0/responsability-authority',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Environmental assessment',
     path:
       '/construction/sustainability-construction/governance-management-49f1ad0/environmental-assessment',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Leadership engagement & commitment',
     path:
       '/construction/sustainability-construction/governance-management-49f1ad0/leadership-engagement-commitment',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Controls, improvement plans & measurement',
     path:
       '/construction/sustainability-construction/governance-management-49f1ad0/controls-improvement-plans-measurement',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Management system rigor',
     path:
       '/construction/sustainability-construction/governance-management-49f1ad0/management-system-rigor',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Environmental reporting',
     path:
       '/construction/sustainability-construction/governance-management-49f1ad0/environmental-reporting',
-  }),
+  },
 
   // (7) Construction / Procurement
-  new Subcategory({
+  {
     name: 'Procure environmentally prefereable version of the following:',
     path:
       '/construction/sustainability-construction/procurement-5d484d5/procure-environmentally-prefereable-version',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Measure',
     path: '/construction/sustainability-construction/construction-bbec85a/',
-  }),
+  },
 
   // (9) Contruction / Construction
-  new Subcategory({
+  {
     name: 'Electricity & greenhouse gas emissions',
     path:
       '/construction/sustainability-construction/construction-bbec85a/electricity-greenhouse',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Vehicles & equipment',
     path:
       '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/vehicles-equipment',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Other',
     path:
       '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/other',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'General',
     path:
       '/construction/sustainability-construction/construction-bbec85a/fuel-greenhouse/general',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Air emissions (NOX, SOX, particules, CO2)',
     path:
       '/construction/sustainability-construction/construction-bbec85a/air-emissions',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Waste',
     path:
       '/construction/sustainability-construction/construction-bbec85a/waste',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Hazardous chemical subsctances',
     path:
       '/construction/sustainability-construction/construction-bbec85a/hazardous',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Physical footprint',
     path:
       '/construction/sustainability-construction/construction-bbec85a/physical-footprint',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Water',
     path:
       '/construction/sustainability-construction/construction-bbec85a/water',
-  }),
+  },
 
   // (18) Construction / Office & grounds / Electricity & gas
-  new Subcategory({
+  {
     name: 'General',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/general',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Energy source',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/energy-source',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Lighting',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/lighting',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'HVAC',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/hvac',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Electronics, equipment & appliances',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/electricity-gas/electronics',
-  }),
+  },
 
   // (23) Construction / Office & grounds / Fuel
-  new Subcategory({
+  {
     name: 'Company vehicles',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/fuel/company-vehicles',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Employee transport & travel',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/fuel/employee-transport',
-  }),
+  },
 
   // (25) Construction / Office & grounds / Waste
-  new Subcategory({
+  {
     name: 'General',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/waste/general',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Purchasing practices to avoid pollution/waste',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Procure environmentally preferable versions of the following:',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing/procure',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Paper',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/waste/purchasing/procure/paper',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Waste recycling and disposal',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/waste/waste-recycling',
-  }),
+  },
 
   // (30) Construction / Office & grounds / Water
-  new Subcategory({
+  {
     name: 'General',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/water/general',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Indoors',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/water/indoors',
-  }),
-  new Subcategory({
+  },
+  {
     name: 'Outdoors',
     path:
       '/construction/sustainability-construction/officegrounds-e661fc0/water/outdoors',
-  }),
+  },
 ]
 
 export function getRandomSection() {
