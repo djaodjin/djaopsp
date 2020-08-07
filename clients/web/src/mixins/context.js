@@ -105,7 +105,7 @@ export default class Context {
     if (this.assessments.has(assessmentId)) {
       return this.assessments.get(assessmentId)
     } else {
-      const response = await request(`assessments/${assessmentId}`)
+      const response = await request(`/assessments/${assessmentId}`)
       const data = await response.json()
       const assessment = new Assessment({
         ...data.assessment,
@@ -134,7 +134,7 @@ export default class Context {
     if (this.organizations.has(organizationId)) {
       return this.organizations.get(organizationId)
     } else {
-      const response = await request(`organizations/${organizationId}`)
+      const response = await request(`/organizations/${organizationId}`)
       const {
         organization: { id, name },
         assessments,

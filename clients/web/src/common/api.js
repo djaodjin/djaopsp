@@ -1,5 +1,5 @@
 const API_HOST = process.env.VUE_APP_API_HOST || 'http://127.0.0.1:8000'
-const API_BASE_URL = `${API_HOST}/envconnect/api/`
+const API_BASE_URL = `${API_HOST}/envconnect/api`
 
 export function request(endpoint, { body, method, ...customConfig } = {}) {
   const url = `${API_BASE_URL}${endpoint}`
