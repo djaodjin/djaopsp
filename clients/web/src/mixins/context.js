@@ -1,12 +1,9 @@
 import Vue from 'vue'
-import { request } from '@/common/api'
+import { getAssessment, getOrganization } from '@/common/api'
 import {
   getIndustrySegments,
   getPreviousIndustrySegments,
 } from '../mocks/industry-segments'
-import Organization from '@/common/Organization'
-import Assessment from '@/common/Assessment'
-import Target from '@/common/Target'
 
 Vue.mixin({
   beforeCreate() {
@@ -105,12 +102,7 @@ export default class Context {
     if (this.assessments.has(assessmentId)) {
       return this.assessments.get(assessmentId)
     } else {
-      const response = await request(`/assessments/${assessmentId}`)
-      const data = await response.json()
-      const assessment = new Assessment({
-        ...data.assessment,
-        targets: data.targets.map((t) => new Target(t)),
-      })
+      const assessment = await getAssessment(assessmentId)
       this.assessments.set(assessmentId, assessment)
       return assessment
     }
@@ -134,16 +126,7 @@ export default class Context {
     if (this.organizations.has(organizationId)) {
       return this.organizations.get(organizationId)
     } else {
-      const response = await request(`/organizations/${organizationId}`)
-      const {
-        organization: { id, name },
-        assessments,
-      } = await response.json()
-      const organization = new Organization({
-        id,
-        name,
-        assessments: assessments.map((a) => new Assessment(a)),
-      })
+      const organization = await getOrganization(organizationId)
       this.organizations.set(organizationId, organization)
       return organization
     }
