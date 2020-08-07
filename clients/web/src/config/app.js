@@ -7,77 +7,86 @@ function answersWarning(answers) {
   return ''
 }
 
-const FormQuestionRadioDiscrete = new FormQuestion('FormQuestionRadio', [
-  {
-    text: 'Yes',
-    value: 'yes',
-  },
-  {
-    text: 'No',
-    value: 'no',
-  },
-])
+const FormQuestionRadioDiscrete = new FormQuestion({
+  name: 'FormQuestionRadio',
+  options: [
+    {
+      text: 'Yes',
+      value: 'yes',
+    },
+    {
+      text: 'No',
+      value: 'no',
+    },
+  ],
+})
 FormQuestionRadioDiscrete.render = function (answers) {
   const selected = this.options.find((opt) => opt.value === answers[0])
   if (selected) return selected.text
   return answersWarning(answers)
 }
 
-const FormQuestionRadioRange = new FormQuestion('FormQuestionRadio', [
-  {
-    text: 'Yes',
-    value: 'yes',
-  },
-  {
-    text: 'Mostly Yes',
-    value: 'most-yes',
-  },
-  {
-    text: 'Mostly No',
-    value: 'most-no',
-  },
-  {
-    text: 'No',
-    value: 'no',
-  },
-  {
-    text: 'Not Applicable',
-    value: 'not-app',
-  },
-])
+const FormQuestionRadioRange = new FormQuestion({
+  name: 'FormQuestionRadio',
+  options: [
+    {
+      text: 'Yes',
+      value: 'yes',
+    },
+    {
+      text: 'Mostly Yes',
+      value: 'most-yes',
+    },
+    {
+      text: 'Mostly No',
+      value: 'most-no',
+    },
+    {
+      text: 'No',
+      value: 'no',
+    },
+    {
+      text: 'Not Applicable',
+      value: 'not-app',
+    },
+  ],
+})
 FormQuestionRadioRange.render = function (answers) {
   const selected = this.options.find((opt) => opt.value === answers[0])
   if (selected) return selected.text
   return answersWarning(answers)
 }
 
-const FormQuestionRadioLabeled = new FormQuestion('FormQuestionRadio', [
-  {
-    text:
-      "<b>Initiating:</b><span class='ml-1'>There is minimal management support</span>",
-    value: 'initiating',
-  },
-  {
-    text:
-      "<b>Progressing:</b><span class='ml-1'>Support is visible and clearly demonstrated</span>",
-    value: 'progressing',
-  },
-  {
-    text:
-      "<b>Optimizing:</b><span class='ml-1'>Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals</span>",
-    value: 'optimizing',
-  },
-  {
-    text:
-      "<b>Leading:</b><span class='ml-1'>The Board of Directors annually reviews environmental performance and sets or endorses goals</span>",
-    value: 'leading',
-  },
-  {
-    text:
-      "<b>Transforming:</b><span class='ml-1'>Executive management sponsors transformative change in industry sector and beyond</span>",
-    value: 'transforming',
-  },
-])
+const FormQuestionRadioLabeled = new FormQuestion({
+  name: 'FormQuestionRadio',
+  options: [
+    {
+      text:
+        "<b>Initiating:</b><span class='ml-1'>There is minimal management support</span>",
+      value: 'initiating',
+    },
+    {
+      text:
+        "<b>Progressing:</b><span class='ml-1'>Support is visible and clearly demonstrated</span>",
+      value: 'progressing',
+    },
+    {
+      text:
+        "<b>Optimizing:</b><span class='ml-1'>Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals</span>",
+      value: 'optimizing',
+    },
+    {
+      text:
+        "<b>Leading:</b><span class='ml-1'>The Board of Directors annually reviews environmental performance and sets or endorses goals</span>",
+      value: 'leading',
+    },
+    {
+      text:
+        "<b>Transforming:</b><span class='ml-1'>Executive management sponsors transformative change in industry sector and beyond</span>",
+      value: 'transforming',
+    },
+  ],
+})
 FormQuestionRadioLabeled.render = function (answers) {
   const selected = this.options.find((opt) => opt.value === answers[0])
   if (selected) {
@@ -87,49 +96,52 @@ FormQuestionRadioLabeled.render = function (answers) {
   return answersWarning(answers)
 }
 
-const FormQuestionTextarea = new FormQuestion('FormQuestionTextarea')
+const FormQuestionTextarea = new FormQuestion({ name: 'FormQuestionTextarea' })
 FormQuestionTextarea.render = function (answers) {
   return answers[0] || ''
 }
 
-const FormQuestionQuantity = new FormQuestion('FormQuestionQuantity', [
-  {
-    text: 'Kilowatt-hour (kWh) of Electricity  / Year',
-    value: 'kwh-year',
-  },
-  {
-    text: 'Metric Tons / Year',
-    value: 'tons-year',
-  },
-  {
-    text: 'GHG Emissions',
-    value: 'ghg-emissions-generated',
-  },
-  {
-    text: 'US Gallons / Year',
-    value: 'gallons-year',
-  },
-  {
-    text: 'mmBtu / Year',
-    value: 'mmbtu-year',
-  },
-  {
-    text: 'Cubic meters / Year',
-    value: 'm3-year',
-  },
-  {
-    text: 'Kilo liters / Year',
-    value: 'kiloliters-year',
-  },
-  {
-    text: 'Cubic feet / Year',
-    value: 'ft3-year',
-  },
-  {
-    text: 'Cubic feet / Year',
-    value: 'ft3-year',
-  },
-])
+const FormQuestionQuantity = new FormQuestion({
+  name: 'FormQuestionQuantity',
+  options: [
+    {
+      text: 'Kilowatt-hour (kWh) of Electricity  / Year',
+      value: 'kwh-year',
+    },
+    {
+      text: 'Metric Tons / Year',
+      value: 'tons-year',
+    },
+    {
+      text: 'GHG Emissions',
+      value: 'ghg-emissions-generated',
+    },
+    {
+      text: 'US Gallons / Year',
+      value: 'gallons-year',
+    },
+    {
+      text: 'mmBtu / Year',
+      value: 'mmbtu-year',
+    },
+    {
+      text: 'Cubic meters / Year',
+      value: 'm3-year',
+    },
+    {
+      text: 'Kilo liters / Year',
+      value: 'kiloliters-year',
+    },
+    {
+      text: 'Cubic feet / Year',
+      value: 'ft3-year',
+    },
+    {
+      text: 'Cubic feet / Year',
+      value: 'ft3-year',
+    },
+  ],
+})
 FormQuestionQuantity.render = function (answers) {
   const unit = this.options.find((opt) => opt.value === answers[1])
   if (unit) return `${answers[0]} ${unit.text}`
