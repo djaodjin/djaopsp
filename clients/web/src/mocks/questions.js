@@ -1,6 +1,7 @@
 import { DELAY } from './config'
 import { getRandomInt } from '../common/utils'
 import Answer from '../common/Answer'
+import Section from '../common/Section'
 import Subcategory from '../common/Subcategory'
 import Question from '../common/Question'
 
@@ -245,12 +246,12 @@ const subcategories = [
 
 export function getRandomSection() {
   const index = getRandomInt(0, sections.length)
-  return sections[index]
+  return new Section(sections[index])
 }
 
 export function getRandomSubcategory() {
   const index = getRandomInt(0, subcategories.length)
-  return subcategories[index]
+  return new Subcategory(subcategories[index])
 }
 
 export function getQuestions() {
