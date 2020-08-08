@@ -34,13 +34,15 @@ import { Fragment } from 'vue-fragment'
 export default {
   name: 'PracticeSectionSubcategoryRow',
 
-  props: ['section', 'subcategory', 'question', 'answers'],
+  props: ['section', 'subcategory', 'question'],
 
   computed: {
     answerText() {
-      const answer = this.answers.find((a) => a.questionId === this.question.id)
+      const answer = this.question.currentAnswer
       if (!answer) return null
-      return MAP_QUESTION_FORM_TYPES[answer.questionType].render(answer.answers)
+      return MAP_QUESTION_FORM_TYPES[answer.question.type].render(
+        answer.answers
+      )
     },
     hasShortAnswer() {
       return !this.answerText ? true : this.answerText.length <= 50

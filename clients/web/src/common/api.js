@@ -1,6 +1,7 @@
 import Assessment from './Assessment'
 import Organization from './Organization'
 import Target from './Target'
+import Question from './Question'
 
 const API_HOST = process.env.VUE_APP_API_HOST || 'http://127.0.0.1:8000'
 const API_BASE_URL = `${API_HOST}/envconnect/api`
@@ -56,4 +57,15 @@ export async function getOrganization(organizationId) {
   return organization
 }
 
-export function getQuestions(organizationId, assessmentId) {}
+export async function getQuestions(organizationId, assessmentId) {
+  const response = await request(`/questions/${organizationId}/${assessmentId}`)
+  if (!response.ok) throw new APIError(response.status)
+  const { questions, answers } = await response.json()
+
+  return questions.map((question) => {
+    const questionAnswers = question.answers.map((answerId) => {
+      return answers.find((answer) => answer.id === answerId)
+    })
+    return new Question({ ...question, answers: questionAnswers })
+  })
+}
