@@ -14,11 +14,20 @@ export default class Question {
     type,
     placeholder = 'Comments (optional)',
     optional = false,
-    previousAnswers = [],
+    answers = [],
   }) {
     if (!VALID_QUESTION_TYPES.includes(type.toString())) {
       throw new Error('Invalid question type')
     }
+    const currentAnswers = answers
+      .filter((answer) => !answer.frozen)
+      .map((answer) => new Answer({ ...answer, question: this }))
+    if (currentAnswers.length > 1) {
+      throw new Error(
+        `Question at path ${path} has more than one current answer`
+      )
+    }
+
     this.id = id
     this.path = path
     this.section = section instanceof Section ? section : new Section(section)
@@ -30,10 +39,9 @@ export default class Question {
     this.type = type
     this.placeholder = placeholder
     this.optional = optional
-    this.previousAnswers = previousAnswers.map((answer) =>
-      answer instanceof Answer
-        ? answer
-        : new Answer({ ...answer, question: this })
-    )
+    this.previousAnswers = answers
+      .filter((answer) => answer.frozen)
+      .map((answer) => new Answer({ ...answer, question: this }))
+    this.currentAnswer = currentAnswers[0]
   }
 }
