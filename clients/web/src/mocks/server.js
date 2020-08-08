@@ -1,9 +1,11 @@
-import { INDUSTRIES } from './config'
+import { INDUSTRIES, INDUSTRY_SECTIONS } from './config'
 import {
   DEFAULT_ASSESSMENT_STEP,
+  MAP_QUESTION_FORM_TYPES,
   STEP_SCORECARD_KEY,
   VALID_ASSESSMENT_STEPS,
   VALID_ASSESSMENT_TARGETS_KEYS,
+  VALID_QUESTION_TYPES,
 } from '@/config/app'
 import {
   RestSerializer,
@@ -12,6 +14,7 @@ import {
   Factory,
   hasMany,
   belongsTo,
+  trait,
 } from 'miragejs'
 import faker from 'faker'
 
@@ -39,24 +42,87 @@ export function makeServer({ environment = 'development' }) {
         question: belongsTo(),
       }),
       question: Model.extend({
-        previousAnswers: hasMany('answers'),
+        answers: hasMany('answer'),
       }),
       target: Model,
     },
 
     factories: {
       assessment: Factory.extend({
+        $industry() {
+          return faker.random.arrayElement(INDUSTRIES)
+        },
         industryPath() {
-          return faker.random.arrayElement(INDUSTRIES).path
+          return this.$industry.path
         },
         industryName() {
-          const industry = INDUSTRIES.find((i) => i.path === this.industryPath)
-          return industry.name
+          return this.$industry.name
         },
         status() {
           return DEFAULT_ASSESSMENT_STEP
         },
       }),
+
+      answer: Factory.extend({
+        author() {
+          return 'current_user@testmail.com'
+        },
+        answers() {
+          const questionForm = MAP_QUESTION_FORM_TYPES[this.question.type]
+          const options = questionForm.options.map((o) => o.value)
+
+          if (questionForm.name === 'FormQuestionTextarea') {
+            return [faker.lorem.paragraph()]
+          }
+          if (questionForm.name === 'FormQuestionQuantity') {
+            return [faker.random.number(), faker.random.arrayElement(options)]
+          }
+          // Smaller chance of showing a comment
+          const comment = Math.random() > 0.8 ? faker.lorem.sentences(3) : ''
+          return [faker.random.arrayElement(options), comment]
+        },
+
+        // Current answers won't have a frozen date
+        isPrevious: trait({
+          author() {
+            return faker.internet.email()
+          },
+          frozen() {
+            return faker.date.past()
+          },
+        }),
+      }),
+
+      question: Factory.extend({
+        section() {
+          return faker.random.arrayElement(INDUSTRY_SECTIONS)
+        },
+        subcategory() {
+          return faker.random.arrayElement(this.section.subcategories)
+        },
+        path() {
+          return this.subcategory.path
+        },
+        text() {
+          return faker.lorem.sentence()
+        },
+        type() {
+          return faker.random.arrayElement(VALID_QUESTION_TYPES)
+        },
+
+        withPreviousAnswers: trait({
+          afterCreate(question, server) {
+            server.createList('answer', 1, 'isPrevious', { question })
+          },
+        }),
+
+        withCurrentAnswer: trait({
+          afterCreate(question, server) {
+            server.create('answer', { question })
+          },
+        }),
+      }),
+
       target: Factory.extend({
         text() {
           return faker.lorem.sentence()
@@ -71,6 +137,9 @@ export function makeServer({ environment = 'development' }) {
       }),
       assessment: ApplicationSerializer.extend({
         include: ['targets'],
+      }),
+      question: ApplicationSerializer.extend({
+        include: ['answers'],
       }),
     },
 
@@ -105,6 +174,11 @@ export function makeServer({ environment = 'development' }) {
         id: 'supplier-1',
         name: 'S1 - Tamerin (Demo)',
       })
+
+      // Add a list of questions with previous answers
+      // and additionally add a current answer to each one
+      server.createList('question', 10, 'withPreviousAnswers')
+      // .forEach((question) => server.create('answer', { question }))
     },
 
     routes() {
@@ -118,6 +192,10 @@ export function makeServer({ environment = 'development' }) {
       this.get('/assessments/:id', (schema, request) => {
         let id = request.params.id
         return schema.assessments.find(id)
+      })
+
+      this.get('/questions/:organizationId/:assessmentId', (schema) => {
+        return schema.questions.all()
       })
     },
   })

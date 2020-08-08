@@ -2,13 +2,7 @@ import { getUniqueId } from './utils'
 import Question from './Question'
 
 export default class Answer {
-  constructor({
-    id = getUniqueId(),
-    question,
-    author,
-    answers = [],
-    modified = new Date(),
-  }) {
+  constructor({ id = getUniqueId(), question, author, frozen, answers = [] }) {
     if (!question instanceof Question) {
       throw new Error('Expecting question to be a Question instance')
     }
@@ -16,6 +10,6 @@ export default class Answer {
     this.question = question
     this.author = author
     this.answers = answers
-    this.modified = modified
+    this.frozen = frozen
   }
 }
