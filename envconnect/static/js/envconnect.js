@@ -259,6 +259,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.valueSummaryToggle = settings.valueSummaryToggle;
     $scope.scoreToggle = settings.scoreToggle;
     $scope.vsPeersToggle = 0;
+    $scope.freezeAssessmentDisabled = false;
     $scope.supplierManagers =  settings.supplierManagers || [];
     for( var idx = 0; idx < $scope.supplierManagers.length; ++idx ) {
         $scope.supplierManagers[idx].checked = true;
@@ -1322,12 +1323,7 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.getSegmentUrl = function(base, path) {
         var parts = path.split('/');
-        for( var idx = 0; idx < parts.length; ++idx ) {
-            if( parts[idx].indexOf('sustainability-') == 0 ) {
-                return base + parts[idx] + '/';
-            }
-        }
-        return base + path.substring(1);
+        return base + parts[parts.length - 1] + '/';
     };
 
     $scope.toggleMyTSP = function(event, defaultUrl) {
@@ -1447,8 +1443,10 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( typeof title === 'undefined' ) {
             title = "assessment";
         }
+        $scope.freezeAssessmentDisabled = true;
         $http.put(settings.urls.api_assessment_freeze, {is_frozen: true}).then(
             function success(resp) {
+                $scope.freezeAssessmentDisabled = false;
                 var msgs = ["You have completed the " + title + ". Thank you!"];
                 if( typeof next !== 'undefined' ) {
                     msgs.push(next);
@@ -1456,28 +1454,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 showMessages(msgs, "info");
             },
             function error(resp) {
-                showErrorMessages(resp);
-        });
-    };
-
-    $scope.freezeImprovement = function ($event, $title, next) {
-        $event.preventDefault();
-        var form = angular.element($event.target);
-        var modalDialog = form.parents('.modal');
-        modalDialog.modal('hide');
-        var title = $title;
-        if( typeof title === 'undefined' ) {
-            title = "planned actions";
-        }
-        $http.put(settings.urls.api_improvements, {is_frozen: true}).then(
-            function success(resp) {
-                var msgs = ["You have completed the " + title + ". Thank you!"];
-                if( typeof next !== 'undefined' ) {
-                    msgs.push(next);
-                }
-                showMessages(msgs, "info");
-            },
-            function error(resp) {
+                $scope.freezeAssessmentDisabled = false;
                 showErrorMessages(resp);
         });
     };

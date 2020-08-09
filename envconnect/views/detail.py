@@ -7,6 +7,7 @@ from deployutils.helpers import datetime_or_now
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView
 from django.utils import six
+from deployutils.crypt import JSONEncoder
 from lxml import html
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image
@@ -16,7 +17,7 @@ from openpyxl.styles.fills import FILL_SOLID
 
 from ..compat import reverse
 from ..helpers import as_valid_sheet_title
-from ..mixins import BreadcrumbMixin, BestPracticeMixin
+from ..mixins import BreadcrumbMixin, BestPracticeMixin, ContentCut
 from ..models import ColumnHeader
 
 
@@ -37,7 +38,8 @@ class DetailView(BestPracticeMixin, TemplateView):
     def get_breadcrumb_url(self, path):
         organization = self.kwargs.get('organization', None)
         if organization:
-            return reverse('summary_organization_redirect', args=(organization, path))
+            return reverse(
+                'summary_organization_redirect', args=(organization, path))
         return super(DetailView, self).get_breadcrumb_url(path)
 
     def get_context_data(self, **kwargs):
@@ -177,7 +179,8 @@ class DetailSpreadsheetView(BreadcrumbMixin, ListView):
             # We reached a leaf
             if len(local_indent) < self.depth:
                 local_indent = local_indent + ["" for unnamed in range(
-                    len(local_indent), self.depth - 1)] + [root[0]['title']]
+                    len(local_indent), self.depth - 1)] + [root[0].get(
+                        'title', "(no title)")]
             self.writerow(local_indent + [
                 element['environmental_value'],
                 element['business_value'],
@@ -187,13 +190,15 @@ class DetailSpreadsheetView(BreadcrumbMixin, ListView):
             ], leaf=True)
         else:
             for _, nodes in six.iteritems(root[1]):
-                self.write_tree(nodes, indent=local_indent + [root[0]['title']])
+                self.write_tree(nodes, indent=local_indent + [
+                    root[0].get('title', "(no title)")])
 
     def get(self, request, *args, **kwargs): #pylint: disable=unused-argument
         from_root, trail = self.breadcrumbs
         # It is OK here to index by -1 since we would have generated a redirect
         # in the `get` method when the path is "/".
-        root = self._build_tree(trail[-1][0], from_root)
+        heads = trail[-1][0] if trail else None
+        root = self._build_tree(heads, from_root, cut=None)
         self.depth = self.tree_depth(root)
         self.create_writer(self.get_headings(), title="Best practices")
         self.writerow(["Find value assignment at"\
@@ -363,7 +368,7 @@ class ContentDetailXLSXView(DetailSpreadsheetView):
     def write_tree(self, root, indent=[]):
         if not root:
             return
-        title = root[0]['title']
+        title = root[0].get('title', "(no title)")
         text = root[0].get('text', "")
         if text:
             text = html.fromstring(text).text_content()
@@ -378,14 +383,13 @@ class ContentDetailXLSXView(DetailSpreadsheetView):
                 text
             ], leaf=True)
         else:
-            for _, nodes in six.iteritems(root[1]):
+            for prefix, nodes in six.iteritems(root[1]):
                 self.write_tree(nodes, indent=local_indent + [title])
 
     def get(self, request, *args, **kwargs): #pylint: disable=unused-argument
         from_root, trail = self.breadcrumbs
-        # It is OK here to index by -1 since we would have generated a redirect
-        # in the `get` method when the path is "/".
-        root = self._build_tree(trail[-1][0], from_root, load_text=True)
+        heads = trail[-1][0] if trail else None
+        root = self._build_tree(heads, from_root, cut=None, load_text=True)
         self.depth = self.tree_depth(root)
         self.create_writer(self.get_headings(), title="Best practices")
         self.writerow(self.get_headings(), leaf=True)

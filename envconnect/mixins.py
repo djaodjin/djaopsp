@@ -2,11 +2,12 @@
 # see LICENSE.
 
 #pylint:disable=too-many-lines
-import logging
+import logging, json
 from collections import OrderedDict, namedtuple
 from datetime import datetime, timedelta
 
 import monotonic
+from deployutils.crypt import JSONEncoder
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db import connection, connections, transaction
@@ -23,7 +24,8 @@ from survey.models import (Answer, Campaign, EnumeratedQuestions,
 from survey.utils import get_account_model
 
 from .compat import reverse
-from .helpers import as_measured_value, is_sqlite3, get_testing_accounts
+from .helpers import (ContentCut, as_measured_value, is_sqlite3,
+    get_testing_accounts)
 from .models import (Consumption, get_score_weight, _show_query_and_result,
     get_scored_answers)
 from .scores import populate_account, populate_rollup, push_improvement_factors
@@ -43,38 +45,6 @@ class AccountMixin(deployutils_mixins.AccountMixin):
 class PermissionMixin(deployutils_mixins.AccessiblesMixin):
 
     redirect_roles = ['manager', 'contributor']
-
-    def get_roots(self):
-        path = self.kwargs.get('path', "")
-        if path:
-            if path.startswith('/sustainability-'):
-                segment = path[17:]
-            else:
-                segment = path[1:]
-            return PageElement.objects.get_roots().filter(
-                Q(tag__contains='industry') | Q(slug=segment))
-        return PageElement.objects.get_roots().filter(tag__contains='industry')
-
-
-class ContentCut(object):
-    """
-    Visitor that cuts down a content tree whenever TAG_PAGEBREAK is encountered.
-    """
-    TAG_PAGEBREAK = 'pagebreak'
-
-    def __init__(self, tag=TAG_PAGEBREAK, depth=1):
-        self.depth = depth
-        self.match = tag
-
-    def enter(self, tag):
-        depth = self.depth
-        self.depth = self.depth + 1
-        return not (depth > 1 and tag and self.match in tag)
-
-    def leave(self, attrs, subtrees):
-        #pylint:disable=unused-argument
-        self.depth = self.depth - 1
-        return True
 
 
 class TransparentCut(object):
@@ -120,8 +90,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     def survey(self):
         if not hasattr(self, '_survey'):
             path = self.kwargs.get('path', "")
-            if (path.startswith('/framework')
-                or path.startswith('/sustainability-framework')):
+            if path.startswith('/framework'):
                 slug = 'framework'
             else:
                 slug = 'assessment'
@@ -162,21 +131,17 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         `path` is a URL path for the root of the industry segment and
         is derived from `kwargs['path']`. The fully qualified path can
         be used as a prefix to retrieve all questions for the industry
-        segment. PageElement is the content node with slug starting
-        with 'sustainability-' that is root of the segment.
+        segment. PageElement is the content node that is root of the segment.
         """
         if not hasattr(self, '_segment'):
             full_path, trail = self.breadcrumbs
             url_path = '/'
             prefix = '/'
             element = None
-            for part in trail:
-                if part[0].slug.startswith('sustainability-'):
+            for part in reversed(trail):
+                if 'industry' in part[0].tag:
                     url_path = part[2].split('?')[0]
                     element = part[0]
-            if not element and trail:
-                url_path = trail[-1][1].split('?')[0]
-                element = trail[-1][0]
             if element:
                 parts = full_path.split('/')
                 for idx, part in enumerate(parts):
@@ -211,9 +176,18 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         LOGGER.debug("(elapsed: %.2fs) %s: %s for %d SQL queries",
             (end_time - self.start_time), descr, duration, nb_queries)
 
-    @staticmethod
-    def get_prefix():
-        return None
+    def flatten(self, rollup_trees, depth=0):
+        result = []
+        for _, values in six.iteritems(rollup_trees):
+            elem, nodes = values
+            path = None if nodes else elem['path']
+            result += [{
+                'title': elem['title'],
+                'path': path,
+                'indent': depth
+            }]
+            result += self.flatten(nodes, depth=depth + 1)
+        return result
 
     def get_breadcrumb_url(self, path):
         if path.endswith('/'):
@@ -223,6 +197,45 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             return reverse("%s_organization_redirect" % self.breadcrumb_url,
                 args=(organization, path,))
         return reverse(self.breadcrumb_url, args=(path,))
+
+    def get_roots(self):
+        trail = self.get_full_element_path(self.kwargs.get('path', ""))
+        search_query = None
+        if trail:
+            prefix = '/%s' % '/'.join([element.slug for element in trail])
+            segments = self.get_segments()
+            for segment in segments:
+                if segment['path'] == prefix:
+                    search_query = prefix.split('/')[-1]
+                    break
+        query_filter = Q(tag__contains='industry')
+        if search_query:
+            query_filter = query_filter & Q(slug=search_query)
+        return PageElement.objects.get_roots().filter(
+            query_filter).order_by('title')
+
+    def get_segments(self, search_query=None):
+        """
+        Returns a list of top-level industry segments
+        """
+        cut = ContentCut(depth=2)
+        menus = []
+        query_filter = Q(tag__contains='industry')
+        if search_query:
+            query_filter = query_filter & Q(tag__contains=search_query)
+        for root in PageElement.objects.get_roots().filter(
+                query_filter).order_by('title'):
+            if not cut.enter(root.tag):
+                menus += [{
+                    'title': root.title,
+                    'path': '/%s' % root.slug,
+                    'indent': 0
+                }]
+            else:
+                rollup_trees = self._cut_tree(self.build_content_tree(
+                    [root], prefix='', cut=cut), cut=cut)
+                menus += self.flatten(rollup_trees)
+        return menus
 
     def build_content_tree(self, roots=None, prefix=None, cut=ContentCut(),
                            load_text=False):
@@ -398,16 +411,22 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             roots = root
             _ = iter(roots)
         except TypeError:
-            roots = [root]
+            if root:
+                roots = [root]
+        content_tree = self.build_content_tree(
+            roots, prefix=prefix, cut=cut, load_text=load_text)
         rollup_trees = self._cut_tree(self.build_content_tree(
             roots, prefix=prefix, cut=cut, load_text=load_text), cut=cut)
-        try:
-            # We only have one root by definition of the function signature.
-            rollup_tree = next(six.itervalues(rollup_trees))
-        except StopIteration:
-            LOGGER.exception("build_tree([%s], path=%s, cut=%s)"\
-                " leaves an empty rollup tree", root, path, cut.__class__)
-            rollup_tree = ({'slug': ""}, {})
+        if len(rollup_trees.values()) == 1:
+            try:
+                # We only have one root by definition of the function signature.
+                rollup_tree = next(six.itervalues(rollup_trees))
+            except StopIteration:
+                LOGGER.exception("build_tree([%s], path=%s, cut=%s)"\
+                    " leaves an empty rollup tree", root, path, cut.__class__)
+                rollup_tree = ({'slug': ""}, {})
+        else:
+            rollup_tree = ({'slug': ""}, rollup_trees)
         leafs = self.get_leafs(rollup_tree)
         self._report_queries("[_build_tree] leafs loaded")
         self.decorate_leafs(leafs)
@@ -455,8 +474,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         title = rollup_tree[0].get('title', "")
         if isinstance(breadcrumbs, list) and title:
             breadcrumbs.append(title)
-        elif rollup_tree[0].get('slug', "").startswith('sustainability-'):
-            breadcrumbs = []
         icon_candidate = rollup_tree[0].get('text', "")
         if (icon_candidate and isinstance(icon_candidate, six.string_types)
             and icon_candidate.endswith('.png')):
@@ -569,13 +586,28 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         active_section = ""
         if self.request.GET.get('active', ""):
             active_section += "?active=%s" % self.request.GET.get('active')
-        hide_summary = bool(trail and trail[0] and trail[0][0].tag and
-            'hide-summary' in trail[0][0].tag)
-        hide_improve = bool(trail and trail[0] and trail[0][0].tag and
-            'hide-improve' in trail[0][0].tag)
-        hide_scorecard = bool(trail and trail[0] and trail[0][0].tag and
-            'hide-scorecard' in trail[0][0].tag)
+        hide_summary = True
+        hide_improve = False
+        hide_scorecard = False
+        hide_targets = True
+        if trail and trail[0]:
+            #hide_summary = bool(trail[0][0].tag and
+            #    'hide-summary' in trail[0][0].tag)
+            hide_improve = bool(trail[0][0].tag and
+                'hide-improve' in trail[0][0].tag)
+            hide_scorecard = bool(trail[0][0].tag and
+                'hide-scorecard' in trail[0][0].tag)
+            if RelationShip.objects.filter(
+                    orig_element__slug=trail[0][0].slug,
+                    dest_element__slug='targets').exists():
+                hide_targets = False
         organization = kwargs.get('organization')
+        url_path, prefix, element = self.segment
+        if element:
+            # XXX Because this code is called on the app page
+            url_path = '/%s' % url_path.split('/')[-2]
+        else:
+            url_path = ''
         if organization:
             sample = kwargs.get('sample')
             summary_url = reverse('summary_organization_redirect',
@@ -598,30 +630,61 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 })
             if sample:
                 urls.update({
-                    'assess': reverse('assess_organization_sample',
-                        args=(organization, sample, path))
+                    'assess': reverse('assess_organization',
+                        args=(organization, sample, path)),
+                    'complete': reverse('complete_organization',
+                        args=(organization, sample, url_path)),
+                    'share': reverse('share_organization',
+                        args=(organization, sample, url_path)),
                 })
+                if not hide_improve:
+                    urls.update({
+                        'improve': reverse('improve_organization',
+                            args=(organization, sample, path)),
+                    })
+                if not hide_targets:
+                    urls.update({
+                        'targets': reverse('assess_organization',
+                            args=(organization, sample,
+                                  '%s/targets' % url_path)),
+                    })
                 if not hide_scorecard:
                     urls.update({
                         'scorecard': reverse('scorecard_organization',
-                            args=(organization, sample, path)),
+                            args=(organization, sample, url_path)),
                     })
             else:
                 urls.update({
-                    'assess': reverse('assess_organization',
-                        args=(organization, path))
+                    'assess': reverse('assess_organization_redirect',
+                        args=(organization, path)),
+                    'complete': reverse('complete_organization_redirect',
+                        args=(organization, url_path)),
+                    'share': reverse('share_organization_redirect',
+                        args=(organization, url_path)),
                 })
+                if not hide_improve:
+                    urls.update({
+                        'improve': reverse('improve_organization_redirect',
+                            args=(organization, path)),
+                    })
+                if not hide_targets:
+                    urls.update({
+                        'targets': reverse('assess_organization_redirect',
+                            args=(organization,
+                                  '%s/targets' % url_path)),
+                    })
                 if not hide_scorecard:
                     urls.update({
                         'scorecard': reverse('scorecard_organization_redirect',
-                            args=(organization, path)),
+                            args=(organization, url_path)),
                     })
         else:
             summary_url = reverse('summary', args=(path,))
             improve_url = reverse('improve_redirect', args=(path,))
             urls.update({
                 'assess': reverse('assess_redirect', args=(path,)),
-                'share': reverse('share_redirect', args=(path,)),
+                'complete': reverse('complete_redirect', args=(url_path,)),
+                'share': reverse('share_redirect', args=(url_path,)),
             })
             if not hide_summary:
                 urls.update({
@@ -633,7 +696,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 })
             if not hide_scorecard:
                 urls.update({
-                    'scorecard': reverse('scorecard_redirect', args=(path,)),
+                    'scorecard': reverse(
+                        'scorecard_redirect', args=(url_path,)),
                 })
 
         if self.__class__.__name__ == 'DetailView':
@@ -1070,7 +1134,7 @@ class BestPracticeMixin(BreadcrumbMixin):
             active_section = ""
         if organization:
             urls = {
-                'assess': reverse('assess_organization',
+                'assess': reverse('assess_organization_redirect',
                     args=(organization, contextual_path)) + active_section,
                 'improve': reverse('improve_organization',
                     args=(organization, contextual_path)) + active_section

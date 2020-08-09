@@ -26,7 +26,8 @@ from survey.models import  Answer, Campaign, Choice, Metric, Sample, Unit
 
 from .best_practices import ToggleTagContentAPIView
 from ..compat import reverse
-from ..helpers import get_segments, as_measured_value, get_testing_accounts
+from ..helpers import (get_segments_from_samples, as_measured_value,
+    get_testing_accounts)
 from ..mixins import ReportMixin, TransparentCut, ContentCut
 from ..models import (_show_query_and_result, get_score_weight,
     get_scored_answers, get_frozen_scored_answers, get_historical_scores,
@@ -426,6 +427,7 @@ class BenchmarkMixin(ReportMixin):
         if 'accounts' in rollup_tree[0]:
             del rollup_tree[0]['accounts']
 
+    # BenchmarkMixin.flatten_distributions
     def flatten_distributions(self, distribution_tree, prefix=None):
         """
         Flatten the tree into a list of charts.
@@ -935,7 +937,7 @@ class ScorecardQuerySetMixin(BenchmarkMixin):
         charts, complete = self.flatten_distributions(rollup_tree,
             prefix=from_root)
 
-        # Done in BenchmarkBaseView through `_build_tree` > `decorate_leafs`.
+        # Done in BenchmarkView through `_build_tree` > `decorate_leafs`.
         # This code is here otherwise the printable scorecard doesn't show
         # icons.
         for chart in charts:
@@ -1176,7 +1178,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
     .. code-block:: http
 
         GET /api/supplier-1/benchmark/historical/metal/boxes-and-enclosures\
-/sustainability-boxes-and-enclosures HTTP/1.1
+ HTTP/1.1
 
     responds
 
@@ -1187,7 +1189,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                 "assessment": "abc123",
                 "segments": [
                     [
-                     "/construction/sustainability-construction/",
+                     "/construction/",
                      "Construction"
                     ]
                 ]
@@ -1198,7 +1200,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                 "created_at": "2018-05-28T17:39:59.368272Z",
                 "values": [
                     ["Construction", 80, "/app/supplier-1/assess/"\
-"ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
+"ce6dc2c4cf6b40dbacef91fa3e934eed/sample/boxes-and-enclosures/"]
                 ]
             },
             {
@@ -1206,7 +1208,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
                 "created_at": "2017-12-28T17:39:59.368272Z",
                 "values": [
                     ["Construction", 80, "/app/supplier-1/assess/"\
-"ce6dc2c4cf6b40dbacef91fa3e934eed/sample/sustainability-boxes-and-enclosures/"]
+"ce6dc2c4cf6b40dbacef91fa3e934eed/sample/boxes-and-enclosures/"]
                 ]
             }
             ]
@@ -1215,6 +1217,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
     serializer_class = MetricsSerializer
     force_score = True
 
+    # HistoricalScoreAPIView.flatten_distributions
     def flatten_distributions(self, rollup_tree, accounts, prefix=None):
         """
         A rollup_tree is keyed best practices and we need a structure
@@ -1225,28 +1228,25 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
         if not prefix.startswith("/"):
             prefix = "/" + prefix
 
-        for node_path, node in six.iteritems(rollup_tree[1]):
-            node_key = node[0].get('title', node_path)
-            for account_key, account in six.iteritems(node[0].get(
-                    'accounts', OrderedDict({}))):
-                if account_key not in accounts:
-                    accounts[account_key] = OrderedDict({})
-                by_industry = {
-                    'normalized_score': account.get('normalized_score', 0)
-                }
-                if 'sample' in account:
-                    last_part = node_path.split('/')[-1]
-                    if last_part.startswith('sustainability-'):
-                        prefix = '/%s' % last_part
-                    else:
-                        prefix = '/sustainability-%s' % last_part
-                    by_industry.update({
-                        'url': self.request.build_absolute_uri(
-                            reverse('assess_organization_sample',
-                            args=(self.account.slug, account['sample'],
-                                prefix)))
-                    })
-                accounts[account_key].update({node_key: by_industry})
+        node_path = rollup_tree[0].get('path', '')
+        node_key = rollup_tree[0].get('title', node_path)
+        for account_key, account in six.iteritems(rollup_tree[0].get(
+                'accounts', OrderedDict({}))):
+            if account_key not in accounts:
+                accounts[account_key] = OrderedDict({})
+            by_industry = {
+                'normalized_score': account.get('normalized_score', 0)
+            }
+            if 'sample' in account:
+                # XXX builds URL to segments.
+                last_part = node_path.split('/')[-1]
+                url_path = '/%s' % last_part
+                by_industry.update({
+                    'url': self.request.build_absolute_uri(
+                        reverse('assess_organization', args=(
+                          self.account.slug, account['sample'], url_path)))
+                })
+            accounts[account_key].update({node_key: by_industry})
 
     def get(self, request, *args, **kwargs):
         #pylint:disable=unused-argument,too-many-locals
@@ -1310,7 +1310,8 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
             resp_data.update({
                 "latest": {
                     "assessment": str(self.assessment_sample),
-                    "segments": get_segments([self.assessment_sample.id])
+                    "segments": get_segments_from_samples(
+                        [self.assessment_sample.id])
                 }
             })
         return HttpResponse(resp_data)

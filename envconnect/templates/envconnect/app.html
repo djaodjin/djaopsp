@@ -12,19 +12,19 @@
         <button class="btn btn-lg btn-primary dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
           <span class="text">Make a selection</span>
         </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="industry_selector">
+        <ul class="dropdown-menu" role="menu" aria-labelledby="segment-selector">
           <li><div style="font-size:14px;">Don't know what to select? <a href="{{'/docs/faq/#general-3'|site_prefixed}}" target="_blank">Click here</a></div></li>
-          {% for industry in industries %}
-          <li class="dropdown-item dropdown-item-indent-{{industry.0}}">
+          {% for segment in segments %}
+          <li class="dropdown-item dropdown-item-indent-{{segment.indent}}">
             <div>
-              {% if industry.1|containsTag:'enabled' %}
-              {% if industry.1|containsTag:'heading' %}
-              <button id="{{industry.1.slug}}" disabled>{{industry.1.title}}</button>
+              {% if not segment.disabled %}
+              {% if not segment.path %}
+              <button id="{{segment.path}}" disabled>{{segment.title}}</button>
               {% else %}
-              <a id="{{industry.1.slug}}" href="{{'app/'|site_prefixed}}{{organization}}/assess/sustainability-{{industry.1.slug}}/" role="menuitem" tabindex="-1">{{industry.1.title}}</a>
+              <a id="{{segment.path}}" href="{{'app/'|site_prefixed}}{{organization}}/assess{{segment.path}}/" role="menuitem" tabindex="-1">{{segment.title}}</a>
               {% endif %}
               {% else %}
-              <span id="{{industry.1.slug}}" class="disabled" role="menuitem" tabindex="-1">{{industry.1.title}} <i class="fa fa-wrench"></i></span>
+              <span id="{{segment.path}}" class="disabled" role="menuitem" tabindex="-1">{{segment.title}} <i class="fa fa-wrench"></i></span>
               {% endif %}
             </div>
           </li>
@@ -57,10 +57,10 @@
               <th style="border-top:none;border-bottom:1px solid;" colspan="4">Update assessment, plan improvements and share results</th>
             </tr>
             <tr ng-repeat="segment in segments" ng-show="segments.$resolved && segments.length > 0" ng-cloak>
-              <td style="border:none;">[[ segment[1] ]]</td>
-              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.assess}}', segment[0]) ]]">Update assessment</a></td>
-              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.improve}}', segment[0]) ]]">Plan improvements</a></td>
-              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.share}}', segment[0]) ]]">Share scorecard</a></td>
+              <td style="border:none;">[[ segment.title ]]</td>
+              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.assess}}', segment.path) ]]">Update assessment</a></td>
+              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.improve}}', segment.path) ]]">Plan improvements</a></td>
+              <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.share}}', segment.path) ]]">Share scorecard</a></td>
             </tr>
           </tbody>
           <tbody style="border:none;" ng-show="items.$resolved && items.results.length == 0" ng-cloak>
@@ -92,7 +92,7 @@
   <hr />
   <div class="text-left">
     <p>
-Responding to a Sustainability Sourcing Event?&nbsp;&nbsp;&nbsp;<a href="{% url 'assess_organization' organization '/sustainability-euissca-rfx/' %}">Take the RFP and other RFx assessment &raquo;</a>
+Responding to a Sustainability Sourcing Event?&nbsp;&nbsp;&nbsp;<a href="{% url 'assess_organization_redirect' organization '/euissca-rfx' %}">Take the RFP and other RFx assessment &raquo;</a>
     </p>
   </div>
 </div><!-- /.faq-list -->

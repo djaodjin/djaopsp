@@ -81,14 +81,15 @@ class LastCompletedRedirectView(ReportMixin, TemplateResponseMixin,
                 # XXX We need a PageElement with slug/path and title.
                 # XXX The candidates must be derived based on the code
                 # in CampaignList.
-                for element in PageElement.objects.filter(
-                        tag__contains='industry'):
-                    root_prefix = '/%s/sustainability-%s' % (
-                        element.slug, element.slug)
+                for element in self.get_segments():
+                    segment_prefix = element['path'] # XXX element['(url_)path']
+                    # different from element['prefix'].
                     if Consumption.objects.filter(
                             answer__sample=self.sample,
-                            path__contains=root_prefix).exists():
-                        candidates += [element]
+                            path__contains=segment_prefix).exists():
+                        segment_slug = segment_prefix.split('/')[-1]
+                        candidates += [
+                            get_object_or_404(PageElement, slug=segment_slug)]
         if not candidates:
             # On user login, registration and activation,
             # we will end-up here.
@@ -103,8 +104,8 @@ class LastCompletedRedirectView(ReportMixin, TemplateResponseMixin,
         kwargs.update({'sample': self.sample})
         redirects = []
         for element in candidates:
-            # We insured that all candidates are the sustainability- content
-            # node at this point.
+            # We insured that all candidates are the sustainability prefixed
+            # content node at this point.
             kwargs.update({'path': '/%s' % element.slug})
             url = self.get_redirect_url(*args, **kwargs)
             print_name = element.title

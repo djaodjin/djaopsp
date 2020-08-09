@@ -18,8 +18,7 @@ from ..scores import freeze_scores
 from ..serializers import ImprovementSerializer
 
 
-class ImprovementListAPIView(ImprovementQuerySetMixin,
-                             UpdateModelMixin, ListAPIView):
+class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
     """
     List improvements
 
@@ -67,40 +66,6 @@ class ImprovementListAPIView(ImprovementQuerySetMixin,
 #        context.update({'opportunities': Consumption.objects.with_opportunity(
 #            filter_out_testing=self._get_filter_out_testing())})
         return context
-
-    def put(self, request, *args, **kwargs):
-        """
-        Update improvement list
-
-        **Tags**: survey
-
-        **Examples**
-
-        .. code-block:: http
-
-             PUT /api/xia/improvement HTTP/1.1
-
-        responds
-
-        .. code-block:: json
-
-            {}
-        """
-        return self.update(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        #pylint:disable=unused-argument
-        # We donot call super() because the up-to-date assessment should
-        # never be frozen.
-        with transaction.atomic():
-            freeze_scores(self.improvement_sample,
-                includes=self.get_included_samples(),
-                excludes=self._get_filter_out_testing(),
-                collected_by=self.request.user)
-        return http.Response({})
 
 
 class ImprovementAnswerAPIView(ImprovementQuerySetMixin,

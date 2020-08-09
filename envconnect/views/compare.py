@@ -117,7 +117,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         else:
             # totals
             charts = []
-            industries = set([])
+            segments = set([])
             for extra in self.account_queryset.filter(
                     subscription__plan__slug='%s-report' % self.account).values(
                         'extra'):
@@ -125,15 +125,15 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                     extra = extra.get('extra')
                     if extra:
                         extra = json.loads(extra.replace("'", '"'))
-                        industries |= set([extra.get('industry')])
+                        segments |= set([extra.get('industry')])
                 except (IndexError, TypeError, ValueError) as _:
                     pass
             flt = None
-            for industry in industries:
+            for segment in segments:
                 if flt is None:
-                    flt = Q(slug__startswith=industry)
+                    flt = Q(slug__startswith=segment)
                 else:
-                    flt |= Q(slug__startswith=industry)
+                    flt |= Q(slug__startswith=segment)
             if True: #pylint:disable=using-constant-test
                 # XXX `flt is None:` not matching the totals columns
                 queryset = self.object.cohorts.all()
@@ -548,10 +548,6 @@ class SuppliersImprovementsXLSXView(SupplierListMixin, TemplateView):
         self.wsheet.append(('Best practice',
             'Nb suppliers who have selected the practice for improvement.'))
         for row in rows:
-            # XXX might be better down in `flatten_answers`
-            if row[2].slug.startswith('sustainability-'):
-                # Avoids double back-to-back rows with same title
-                continue
             indent = row[0]
             title = row[2].title
             nb_suppliers = row[3].get('nb_suppliers', "")

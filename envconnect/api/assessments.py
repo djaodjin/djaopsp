@@ -138,6 +138,12 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
                 excludes=self._get_filter_out_testing(),
                 collected_by=self.request.user,
                 segment_path=self.kwargs.get('path'))
+            if self.improvement_sample:
+                freeze_scores(self.improvement_sample,
+                    includes=self.get_included_samples(),
+                    excludes=self._get_filter_out_testing(),
+                    collected_by=self.request.user)
+
         return http.Response(serializer.data)
 
 

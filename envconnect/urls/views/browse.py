@@ -24,14 +24,20 @@ urlpatterns = [
         name='reporting_redirect'),
     url(r'app/assess(?P<path>%s)/' % PATH_RE,
         AccountRedirectView.as_view(
-            pattern_name='assess_organization',
+            pattern_name='assess_organization_redirect',
             new_account_url=site_prefixed('/users/roles/accept/')),
                 name='assess_redirect'),
     url(r'app/improve(?P<path>%s)/' % PATH_RE,
         AccountRedirectView.as_view(
-            pattern_name='improve_organization',
+            pattern_name='improve_organization_redirect',
             new_account_url=site_prefixed('/users/roles/accept/')),
         name='improve_redirect'),
+    url(r'app/complete(?P<path>%s)/'
+        % PATH_RE,
+        AccountRedirectView.as_view(
+            pattern_name='complete_organization_redirect',
+            new_account_url=site_prefixed('/users/roles/accept/')),
+        name='complete_redirect'),
     url(r'app/scorecard(?P<path>%s)/'
         % PATH_RE,
         AccountRedirectView.as_view(
@@ -44,7 +50,7 @@ urlpatterns = [
             pattern_name='share_organization',
             new_account_url=site_prefixed('/users/roles/accept/')),
         name='share_redirect'),
-    url(r'app/info(?P<path>%s)/downlaod/content/' % PATH_RE,
+    url(r'app/info(?P<path>%s)/download/content/' % PATH_RE,
       ContentDetailXLSXView.as_view(), name='summary_download_content'),
     url(r'app/info(?P<path>%s)/download/' % PATH_RE,
       DetailXLSXView.as_view(), name='summary_download'),
