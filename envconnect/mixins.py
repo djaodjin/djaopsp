@@ -602,7 +602,11 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 hide_targets = False
         organization = kwargs.get('organization')
         url_path, prefix, element = self.segment
-        url_path = '/%s' % url_path.split('/')[-2]
+        if element:
+            # XXX Because this code is called on the app page
+            url_path = '/%s' % url_path.split('/')[-2]
+        else:
+            url_path = ''
         if organization:
             sample = kwargs.get('sample')
             if not hide_summary:

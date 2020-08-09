@@ -16,43 +16,60 @@ Click the <em>Complete</em> button to freeze your assessment.
 {% block icons_content %}
 <div class="tab-content">
   <div id="complete-content" class="panel-icons">
-  <form ng-submit="freezeAssessment($event)">
-      <div class="row">
-    <div class="offset-sm-3 col-sm-6">
+    <div class="benchmarks-box my-4">
       <h2 class="icon-row-title mt-3">Mark your assessment as complete ...</h2>
-      <p>
+      <div ng-if="nbRequiredAnswers < nbRequiredQuestions" ng-cloak>
+        <p class="text-center">
+          [[nbAnswers]] out of [[nbQuestions]] questions answered.
+        </p>
+        <p class="text-center">
+An response on the following practices is required to complete the assessment.
+Please go back to the <em>ASSESS</em> step and answer those questions:
+        </p>
+        {% with root_prefix|add:"/"|add:root.0.slug as abs_prefix %}
+        <p class="text-center" data-id="[[getPath(practice[0])]]"
+           ng-repeat="practice in getEntries('{{abs_prefix}}')"
+           ng-if="practice[0].consumption && practice[0].consumption.implemented">
+          <span ng-class="indentHeader(practice, '{{abs_prefix}}')">[[practice[0].title]]</span>
+        </p>
+        {% endwith %}
+      </div>
+      <form ng-submit="freezeAssessment($event)"
+            ng-if="nbRequiredAnswers >= nbRequiredQuestions"
+            ng-cloak>
+        <div class="row">
+          <div class="offset-sm-3 col-sm-6">
+            <p>
 By clicking &quot;Complete&quot;:
-      <p>
+            <p>
 <strong>You certify</strong> that the assessment responses provided for your
 organization are true and correct to the best of your knowledge. Additionally,
 you acknowledge that the responses form a statement of record which current
 or future clients may request to verify.
-      </p>
-      <p>
+            </p>
+            <p>
 <strong>You commit</strong> to improve upon the selected best practices.
-      </p>
+            </p>
 {% if urls.scorecard %}
-      <p>
+            <p>
 Then:
-      </p>
-      <ol>
-          <li>Click SCORECARD to view scores and benchmarking.</li>
-          <li>Click SHARE to send your responses to customers, investors, etc.</li>
-      </ol>
+            </p>
+            <ol>
+              <li>Click SCORECARD to view scores and benchmarking.</li>
+              <li>Click SHARE to send your responses to customers, investors, etc.</li>
+            </ol>
 {% endif %}
+          </div>
+        </div>
+        <div class="text-center">
+          {% if not sample.is_frozen %}
+          <button id="submit-button" class="btn btn-primary"
+                  ng-disabled="freezeAssessmentDisabled || nbRequiredAnswers < nbRequiredQuestions"><span ng-show="freezeAssessmentDisabled" class="fa fa-spinner"></span> Complete </button>
+          {% endif %}
+        </div>
+      </form>
     </div>
   </div>
-    <div class="text-center">
-        <p ng-cloak>
-        [[nbAnswers]] out of [[nbQuestions]] questions answered.
-        </p>
-        {% if not sample.is_frozen %}
-        <button id="submit-button" class="btn btn-primary"
-                ng-disabled="freezeAssessmentDisabled || nbRequiredAnswers < nbRequiredQuestions"><span ng-show="freezeAssessmentDisabled" class="fa fa-spinner"></span> Complete </button>
-        {% endif %}
-    </div>
-  </form>
-</div>
 </div>
 {% endblock %}
 {% endblock %}
