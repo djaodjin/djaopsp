@@ -44,7 +44,7 @@ export function makeServer({ environment = 'development' }) {
       }),
       assessment: Model.extend({
         targets: hasMany(),
-        improvementPlan: hasMany('practices'),
+        practices: hasMany(),
       }),
       benchmark: Model,
       organization: Model.extend({
@@ -198,7 +198,7 @@ export function makeServer({ environment = 'development' }) {
         include: ['assessments'],
       }),
       assessment: ApplicationSerializer.extend({
-        include: ['targets'],
+        include: ['targets', 'practices'],
       }),
       question: ApplicationSerializer.extend({
         include: ['answers'],
@@ -218,6 +218,7 @@ export function makeServer({ environment = 'development' }) {
             targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
               server.create('target', { key })
             ),
+            practices: server.createList('practice', 10),
             status: STEP_SCORECARD_KEY,
           }),
         ],

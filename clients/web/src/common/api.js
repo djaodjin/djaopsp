@@ -36,12 +36,18 @@ function request(endpoint, { body, method, ...customConfig } = {}) {
 export async function getAssessment(assessmentId) {
   const response = await request(`/assessments/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
-  const data = await response.json()
-  const assessment = new Assessment({
-    ...data.assessment,
-    targets: data.targets.map((t) => new Target(t)),
+  const {
+    assessment,
+    targets,
+    practices,
+    questions,
+    answers,
+  } = await response.json()
+  return new Assessment({
+    ...assessment,
+    targets: targets.map((t) => new Target(t)),
+    improvementPlan: getPracticeInstances(practices, questions, answers),
   })
-  return assessment
 }
 
 export async function getBenchmarks(organizationId, assessmentId) {
@@ -75,11 +81,7 @@ export async function getPractices(organizationId, assessmentId) {
   const response = await request(`/practices/${organizationId}/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
   const { practices, questions, answers } = await response.json()
-  const questionInstances = getQuestionInstances(questions, answers)
-  return practices.map((practice) => {
-    const question = questionInstances.find((q) => q.id === practice.question)
-    return new Practice({ ...practice, question })
-  })
+  return getPracticeInstances(practices, questions, answers)
 }
 
 export async function getPracticeSearchResults(organizationId, assessmentId) {
@@ -90,8 +92,15 @@ export async function getQuestions(organizationId, assessmentId) {
   const response = await request(`/questions/${organizationId}/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
   const { questions, answers } = await response.json()
-
   return getQuestionInstances(questions, answers)
+}
+
+function getPracticeInstances(practices, questions, answers) {
+  const questionInstances = getQuestionInstances(questions, answers)
+  return practices.map((practice) => {
+    const question = questionInstances.find((q) => q.id === practice.question)
+    return new Practice({ ...practice, question })
+  })
 }
 
 function getQuestionInstances(questions, answers) {
