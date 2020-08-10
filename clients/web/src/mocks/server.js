@@ -6,6 +6,7 @@ import {
   hasMany,
   belongsTo,
   trait,
+  association,
 } from 'miragejs'
 import faker from 'faker'
 
@@ -17,12 +18,16 @@ import {
 import {
   DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
+  PRACTICE_VALUES,
   STEP_SCORECARD_KEY,
   VALID_ASSESSMENT_STEPS,
   VALID_ASSESSMENT_TARGETS_KEYS,
   VALID_QUESTION_TYPES,
 } from '@/config/app'
 import { getRandomInt } from '@/common/utils'
+
+const MIN_PRACTICE_VALUE = PRACTICE_VALUES[0].value
+const MAX_PRACTICE_VALUE = PRACTICE_VALUES[PRACTICE_VALUES.length - 1].value
 
 const ApplicationSerializer = RestSerializer.extend()
 
@@ -49,7 +54,8 @@ export function makeServer({ environment = 'development' }) {
         question: belongsTo(),
       }),
       question: Model.extend({
-        answers: hasMany('answer'),
+        practice: belongsTo(),
+        answers: hasMany(),
       }),
       target: Model,
     },
@@ -129,6 +135,26 @@ export function makeServer({ environment = 'development' }) {
         },
       }),
 
+      practice: Factory.extend({
+        question: association(),
+
+        averageValue() {
+          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
+        },
+        environmentalValue() {
+          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
+        },
+        financialValue() {
+          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
+        },
+        operationalValue() {
+          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
+        },
+        implementationRate() {
+          return getRandomInt(10, 95)
+        },
+      }),
+
       question: Factory.extend({
         section() {
           return faker.random.arrayElement(INDUSTRY_SECTIONS)
@@ -177,6 +203,9 @@ export function makeServer({ environment = 'development' }) {
       question: ApplicationSerializer.extend({
         include: ['answers'],
       }),
+      practice: ApplicationSerializer.extend({
+        include: ['question'],
+      }),
     },
 
     seeds(server) {
@@ -211,9 +240,15 @@ export function makeServer({ environment = 'development' }) {
         name: 'S1 - Tamerin (Demo)',
       })
 
+      server
+        .createList('practice', 20)
+        .forEach((practice) =>
+          server.create('question', 'withPreviousAnswers', { practice })
+        )
+
       // Add a list of questions with previous answers
       // and additionally add a current answer to each one
-      server.createList('question', 10, 'withPreviousAnswers')
+      // server.createList('question', 10, 'withPreviousAnswers')
       // .forEach((question) => server.create('answer', { question }))
 
       server.createList('benchmark', 6)
@@ -238,6 +273,10 @@ export function makeServer({ environment = 'development' }) {
 
       this.get('/benchmarks/:organizationId/:assessmentId', (schema) => {
         return schema.benchmarks.all()
+      })
+
+      this.get('/practices/:organizationId/:assessmentId', (schema) => {
+        return schema.practices.all()
       })
     },
   })

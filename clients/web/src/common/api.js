@@ -1,8 +1,9 @@
 import Assessment from './Assessment'
 import Benchmark from './Benchmark'
 import Organization from './Organization'
-import Target from './Target'
+import Practice from './Practice'
 import Question from './Question'
+import Target from './Target'
 
 const API_HOST = process.env.VUE_APP_API_HOST || 'http://127.0.0.1:8000'
 const API_BASE_URL = `${API_HOST}/envconnect/api`
@@ -43,6 +44,18 @@ export async function getAssessment(assessmentId) {
   return assessment
 }
 
+export async function getBenchmarks(organizationId, assessmentId) {
+  const response = await request(
+    `/benchmarks/${organizationId}/${assessmentId}`
+  )
+  if (!response.ok) throw new APIError(response.status)
+  const { benchmarks } = await response.json()
+
+  return benchmarks.map((benchmark) => {
+    return new Benchmark(benchmark)
+  })
+}
+
 export async function getOrganization(organizationId) {
   const response = await request(`/organizations/${organizationId}`)
   if (!response.ok) throw new APIError(response.status)
@@ -58,27 +71,34 @@ export async function getOrganization(organizationId) {
   return organization
 }
 
+export async function getPractices(organizationId, assessmentId) {
+  const response = await request(`/practices/${organizationId}/${assessmentId}`)
+  if (!response.ok) throw new APIError(response.status)
+  const { practices, questions, answers } = await response.json()
+  const questionInstances = getQuestionInstances(questions, answers)
+  return practices.map((practice) => {
+    const question = questionInstances.find((q) => q.id === practice.question)
+    return new Practice({ ...practice, question })
+  })
+}
+
+export async function getPracticeSearchResults(organizationId, assessmentId) {
+  return getPractices(organizationId, assessmentId)
+}
+
 export async function getQuestions(organizationId, assessmentId) {
   const response = await request(`/questions/${organizationId}/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
   const { questions, answers } = await response.json()
 
+  return getQuestionInstances(questions, answers)
+}
+
+function getQuestionInstances(questions, answers) {
   return questions.map((question) => {
     const questionAnswers = question.answers.map((answerId) => {
       return answers.find((answer) => answer.id === answerId)
     })
     return new Question({ ...question, answers: questionAnswers })
-  })
-}
-
-export async function getBenchmarks(organizationId, assessmentId) {
-  const response = await request(
-    `/benchmarks/${organizationId}/${assessmentId}`
-  )
-  if (!response.ok) throw new APIError(response.status)
-  const { benchmarks } = await response.json()
-
-  return benchmarks.map((benchmark) => {
-    return new Benchmark(benchmark)
   })
 }
