@@ -22,7 +22,7 @@ from ..api.benchmark import PracticeBenchmarkMixin
 from ..compat import reverse, six
 from ..helpers import as_measured_value, get_testing_accounts
 from ..mixins import ReportMixin, BestPracticeMixin
-from ..models import Consumption, get_scored_answers
+from ..models import ColumnHeader, Consumption, get_scored_answers
 from ..scores import populate_account
 from ..serializers import ConsumptionSerializer
 from ..suppliers import get_supplier_managers
@@ -45,7 +45,37 @@ class AssessmentAnswer(object):
 class AssessmentBaseMixin(PracticeBenchmarkMixin, BestPracticeMixin):
     # Implementation Note: uses BestPracticeMixin in order to display
     # bestpractice info through links in assess and improve pages.
-    pass
+
+    def decorate_visible_column_headers(self, root):
+        # attach visible column headers
+        hidden_columns = {}
+        for icon_path, icon_tuple in six.iteritems(root[1]):
+            hidden_columns[icon_path] = {}
+            hidden = set([row['slug']
+                for row in ColumnHeader.objects.filter(
+                hidden=True, path=icon_path).values('slug')])
+            value_headers = []
+            for col_header in [
+                    {"slug": "environmental_value",
+                     "title": "/static/img/green-leaf.png",
+                     "tooltip": "Environmental value"},
+                    {"slug": "business_value",
+                     "title": "/static/img/cogs.png",
+                     "tooltip": "Ops/Maintenance value"},
+                    {"slug": "profitability",
+                     "title": "/static/img/dollar-sign.png",
+                     "tooltip": "Financial value"},
+                    {"slug": "implementation_ease",
+                     "title": "/static/img/shovel.png",
+                     "tooltip": "Implementation ease"},
+                    {"slug": "avg_value",
+                     "title": "Average Value"}]:
+                if not col_header['slug'] in hidden:
+                    value_headers += [col_header]
+            icon_tuple[0]['value_headers'] = value_headers
+            icon_tuple[0]['value_headers_len'] = len(value_headers) + 2
+            icon_tuple[0]['colspan'] = icon_tuple[0]['value_headers_len']
+        self._report_queries("attached visiblity of columns.")
 
 
 class AssessmentView(AssessmentBaseMixin, TemplateView):
@@ -66,6 +96,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         segment_url, segment_prefix, segment_element = self.segment
         root = self.get_report_tree(load_text=(self.survey.slug == 'framework'))
         if root:
+            self.decorate_visible_column_headers(root)
             context.update({
                 'root': root,
                 'entries': json.dumps(root, cls=JSONEncoder)

@@ -140,9 +140,13 @@ See the following for examples of content developed for best practices:
                     </div>
                 </div>
             </div>
-            <div class="row" style="margin-bottom: 5px;">
+            <div class="row  mb-4">
               <div class="col-sm-6 text-left">
-                <a id="download-assessment" class="btn btn-secondary" href="{{urls.download}}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
+                <a id="download-assessment"
+                   class="btn btn-secondary"
+                   href="{{urls.download}}" target="_blank">
+                  <i class="fa fa-download"></i> Download questions
+                </a>
               </div>
               <div class="col-sm-6 text-right">
                 <div class="text-right"
@@ -151,11 +155,13 @@ See the following for examples of content developed for best practices:
                             data-toggle="modal" data-target="#reset-assessment"
                             ng-click="setActiveElement('{{abs_prefix}}')"
                             >Reset</button>
-                    <button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
+                    <button id="saved-button"
+                            class="btn btn-primary"
+                            ng-click="showSaveMessage($event)">Save</button>
+                    {% if not icon.tag or not 'metrics' in icon.tag %}
                     <!-- WORKAROUND: we set data-width and data-height
                          otherwise bootstrap-toggle will crop the size
                          inside a class="tab-content collapse". -->
-                    {% if not icon.tag or not 'metrics' in icon.tag %}
                     <input id="toggle-results-{{icon.slug}}"
                            type="checkbox" toggle-checkbox
                            data-toggle="toggle"

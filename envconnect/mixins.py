@@ -139,7 +139,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             prefix = '/'
             element = None
             for part in reversed(trail):
-                if 'industry' in part[0].tag:
+                if part[0].tag and 'industry' in part[0].tag:
                     url_path = part[2].split('?')[0]
                     element = part[0]
             if element:
@@ -612,21 +612,11 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             sample = kwargs.get('sample')
             summary_url = reverse('summary_organization_redirect',
                 args=(organization, path))
-            improve_url = reverse('improve_organization',
+            improve_url = reverse('improve_organization_redirect',
                 args=(organization, path))
-            urls.update({
-                'share': reverse('share_organization',
-                    args=(organization, sample, path)),
-            })
             if not hide_summary:
                 urls.update({
                     'summary': summary_url,
-                })
-            if not hide_improve:
-                urls.update({
-                    'improve': improve_url,
-                    'api_improvements': reverse('api_improvement_base',
-                        args=(organization,)),
                 })
             if sample:
                 urls.update({
@@ -640,7 +630,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 if not hide_improve:
                     urls.update({
                         'improve': reverse('improve_organization',
-                            args=(organization, sample, path)),
+                            args=(organization, sample, url_path)),
                     })
                 if not hide_targets:
                     urls.update({
@@ -664,8 +654,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 })
                 if not hide_improve:
                     urls.update({
-                        'improve': reverse('improve_organization_redirect',
-                            args=(organization, path)),
+                        'improve': improve_url,
+                        'api_improvements': reverse('api_improvement_base',
+                            args=(organization,)),
                     })
                 if not hide_targets:
                     urls.update({

@@ -43,116 +43,119 @@ Click &quot;Scorecard&quot; to see how the improvements are listed.
   {% with icon_tuple.0 as icon %}
   <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
     <div ng-if="getEntriesByTag('{{abs_prefix}}', TAG_PAGEBREAK).length === 0">
-      {% with icon.tag|assessment_choices as choices %}
-      <table class="table table-striped table-bordered">
-        <thead ng-show="!vsPeersToggle">
+      <div ng-show="valueSummaryToggle">
+        {% with icon.tag|assessment_choices as choices %}
+        <table class="table table-striped table-bordered">
           {% if survey.slug == 'framework' %}
-          <tr>
-            <th style="border-bottom:none;"></th>
-            <th></th>
-            <th class="text-center" colspan="{{choices|length}}">Select maturity level you are targetting</th>
-          </tr>
-          <tr>
-            <th class="sticky-cell">
-              <div class="sticky-cell-content-container">
-                <div class="sticky-cell-content" style="padding-left:0.75rem;">
-                  Practices
-                  {% include "envconnect/_improve_results_toggle.html" %}
+          <thead ng-show="!vsPeersToggle">
+            <tr>
+              <th style="border-bottom:none;"></th>
+              <th></th>
+              <th class="text-center" colspan="{{choices|length}}">Select maturity level you are targetting</th>
+            </tr>
+            <tr>
+              <th class="sticky-cell">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content" style="padding-left:0.75rem;">
+                    Practices
+                    {% include "envconnect/_improve_results_toggle.html" %}
+                  </div>
                 </div>
-              </div>
-            </th>
-            <th class="sticky-cell text-center cell-fix-width-3" style="font-size:10px;">
-              <div class="sticky-cell-content-container">
-                <div class="sticky-cell-content">
-<!--
-                  <button class="btn btn-link btn-sort" ng-click="sortBy('implemented')">
-                    <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
-                  </button>
--->
-                Assessment
+              </th>
+              <th class="sticky-cell text-center cell-fix-width-3" style="font-size:10px;">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content">
+                    <!--
+                        <button class="btn btn-link btn-sort" ng-click="sortBy('implemented')">
+                          <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
+                        </button>
+                        -->
+                        Assessment
+                  </div>
                 </div>
-              </div>
-            </th>
-            {% for choice in choices %}
-            <th class="sticky-cell text-center cell-fix-width-5">
-              <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" title="{{choice.descr}}">
-                <div class="sticky-cell-content">{{choice.text}}</div>
-              </div>
-            </th>
-            {% endfor %}
-          </tr>
+              </th>
+              {% for choice in choices %}
+              <th class="sticky-cell text-center cell-fix-width-5">
+                <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" title="{{choice.descr}}">
+                  <div class="sticky-cell-content">{{choice.text}}</div>
+                </div>
+              </th>
+              {% endfor %}
+            </tr>
+          </thead>
           {% else %}
-          <tr>
-            <th class="sticky-cell">
-              <div class="sticky-cell-content-container">
-                <div class="sticky-cell-content" style="padding-left:0.75rem;">Practices</div>
-              </div>
-            </th>
-            <th class="sticky-cell text-center cell-fix-width-3"
-              data-toggle="tooltip" data-placement="top"
-              title="Percentage of respondents that have implemented a best practice.">
-              <div class="sticky-cell-content-container">
-                <div class="sticky-cell-content">
-                  <button class="btn btn-link btn-sort" ng-click="sortBy('rate')">
-                    <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
-                  </button>
-                Implementation rate
+          <thead>
+            <tr>
+              <th class="sticky-cell">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content" style="padding-left:0.75rem;">Practices</div>
                 </div>
-              </div>
-            </th>
-            <th class="sticky-cell text-center cell-fix-width-3">
-              <div class="sticky-cell-content-container">
-                <div class="sticky-cell-content">
-                  <button class="btn btn-link btn-sort" ng-click="sortBy('implemented')">
-                    <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
-                  </button>
-                Implemented by you?
+              </th>
+              <th class="sticky-cell text-center cell-fix-width-3"
+                  data-toggle="tooltip" data-placement="top"
+                  title="Percentage of respondents that have implemented a best practice.">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content">
+                    <button class="btn btn-link btn-sort" ng-click="sortBy('rate')">
+                      <i class="fa fa-sort[[dir.rate ? ('-' + dir.rate) : '']]"></i>
+                    </button>
+                    Implementation rate
+                  </div>
                 </div>
-              </div>
-            </th>
-            <th class="sticky-cell text-center cell-fix-width-3"
-                data-toggle="tooltip" data-placement="top"
-                title="Higher numbers equate to higher priority opportunities based on the following calculation: Practice green level * (1 + implementation rate / 100). Practice green levels: Dark green = 3; medium green = 2, light green = 1">
-              <div class="sticky-cell-content-container">
-                <div class="sticky-cell-content">
-                  <button class="btn btn-link btn-sort" ng-click="sortBy('opportunity')">
-                    <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
-                  </button>
-                  Opportunity score
+              </th>
+              <th class="sticky-cell text-center cell-fix-width-3">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content">
+                    <button class="btn btn-link btn-sort" ng-click="sortBy('implemented')">
+                      <i class="fa fa-sort[[dir.implemented ? ('-' + dir.implemented) : '']]"></i>
+                    </button>
+                    Implemented by you?
+                  </div>
                 </div>
-              </div>
-            </th>
-            <th class="sticky-cell text-center">
-              <div class="sticky-cell-content-container">
-                <div class="sticky-cell-content">Select for Improvement Plan</div>
-              </div>
-            </th>
-          </tr>
+              </th>
+              <th class="sticky-cell text-center cell-fix-width-3"
+                  data-toggle="tooltip" data-placement="top"
+                  title="Higher numbers equate to higher priority opportunities based on the following calculation: Practice green level * (1 + implementation rate / 100). Practice green levels: Dark green = 3; medium green = 2, light green = 1">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content">
+                    <button class="btn btn-link btn-sort" ng-click="sortBy('opportunity')">
+                      <i class="fa fa-sort[[dir.opportunity ? ('-' + dir.opportunity) : '']]"></i>
+                    </button>
+                    Opportunity score
+                  </div>
+                </div>
+              </th>
+              <th class="sticky-cell text-center">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content">Select for Improvement Plan</div>
+                </div>
+              </th>
+            </tr>
+          </thead>
           {% endif %}
-        </thead>
-        <tbody data-prefix="{{abs_prefix}}" ng-show="!vsPeersToggle">
-          <tr data-id="[[getPath(practice[0])]]"
-              class="best-practice-row"
-              ng-repeat="practice in getEntries('{{abs_prefix}}')"
-              ng-if="sortedOnKeys === 0 && getEntries('{{abs_prefix}}').length > 0">
-            {% if survey.slug == 'framework' %}
+          <tbody data-prefix="{{abs_prefix}}" ng-show="!vsPeersToggle">
+            <tr data-id="[[getPath(practice[0])]]"
+                class="best-practice-row"
+                ng-repeat="practice in getEntries('{{abs_prefix}}')"
+                ng-if="sortedOnKeys === 0 && getEntries('{{abs_prefix}}').length > 0">
+              {% if survey.slug == 'framework' %}
               {% include "envconnect/_improve_framework_row.html" %}
-            {% else %}
+              {% else %}
               {% include "envconnect/_improve_row.html" %}
-            {% endif %}
-          </tr>
-          <tr data-id="[[getPath(practice[0])]]"
-              class="best-practice-row"
-              ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
-              ng-if="sortedOnKeys !== 0 && getEntries('{{abs_prefix}}').length > 0">
-            {% if survey.slug == 'framework' %}
+              {% endif %}
+            </tr>
+            <tr data-id="[[getPath(practice[0])]]"
+                class="best-practice-row"
+                ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
+                ng-if="sortedOnKeys !== 0 && getEntries('{{abs_prefix}}').length > 0">
+              {% if survey.slug == 'framework' %}
               {% include "envconnect/_improve_framework_row.html" %}
-            {% else %}
+              {% else %}
               {% include "envconnect/_improve_row.html" %}
-            {% endif %}
-          </tr>
-          <tr ng-if="getEntries('{{abs_prefix}}').length === 0">
-            <td colspan="{{choices|length|add:2}}">
+              {% endif %}
+            </tr>
+            <tr ng-if="getEntries('{{abs_prefix}}').length === 0">
+              <td colspan="{{choices|length|add:2}}">
 <em>Guidance has not yet been developed for this section. If you would like to
 see guidance, or are interested in authoring content for this section, please
 <a href="{{'contact/'|site_prefixed}}">contact us &raquo;</a>.
@@ -160,21 +163,49 @@ See the following for examples of content developed for best practices:
 <a href="{% url 'summary' '/boxes-and-enclosures/energy/reduce-the-pressure-of-compressed-air-to-the-minim/' %}">Example 1</a>,
 <a href="{% url 'summary' '/office-space-only/computing-and-telecom-hardware-and-service-fc47207/' %}">Example 2</a>,
 <a href="{% url 'summary' '/office-space-only/driver-behavior-that-could-influence-fuel-efficien/' %}">Example 3</a>.</em>
-            </td>
-          </tr>
-        </tbody>
-        {% include "envconnect/_improve_results_table.html" %}
-      </table>
-      <div class="row" style="margin-bottom: 5px;">
-        <div class="offset-sm-6 col-sm-6 text-right">
+              </td>
+            </tr>
+          </tbody>
+          {% include "envconnect/_improve_results_table.html" %}
+        </table>
+        {% endwith %}
+      </div>
+      <div ng-show="!valueSummaryToggle">
+        {% include "envconnect/_value_summary_table.html" %}
+      </div>
+      <div class="row mb-4">
+        <div class="col-sm-6">
+          <a id="download-improvements"
+             class="btn btn-primary"
+             href="{{urls.download}}"
+             target="_blank">Planned actions (.xslx)</a>
+          <a id="print-actions-guidance"
+             class="btn btn-primary"
+             href="{{urls.print}}"
+             target="_blank">Actions guidance (.pdf)</a>
+        </div>
+        <div class="col-sm-6 text-right">
           <button id="saved-button"
                   class="btn btn-primary"
                   ng-click="showSaveMessage($event)">Save</button>
+          {% if not icon.tag or not 'metrics' in icon.tag %}
+          <!-- WORKAROUND: we set data-width and data-height
+               otherwise bootstrap-toggle will crop the size
+               inside a class="tab-content collapse". -->
+          <input id="toggle-results-{{icon.slug}}"
+                 type="checkbox" toggle-checkbox
+                 data-toggle="toggle"
+                 data-on="<span>Value</span>"
+                 data-onstyle="green-level-2"
+                 data-off="<span>Benchmark</span>"
+                 data-offstyle="green-level-2"
+                 data-width="125px" data-height="34px"
+                 ng-model="valueSummaryToggle">
+          {% endif %}
         </div>
       </div>
-      {% endwith %}
     </div>
-  </div>
+  </div><!-- /.tab-pane -->
   {% endwith %}
 {% endfor %}
 </div>
@@ -187,9 +218,7 @@ See the following for examples of content developed for best practices:
 {% block panel_footer %}
 <div class="card-footer">
   <div class="row">
-    <div class="col-sm-4 text-left">
-    </div>
-    <div class="col-sm-4 text-center">
+    <div class="offset-sm-4 col-sm-4 text-center">
         {% if not sample.is_frozen %}
         Once you completed your assessment, improvement plan and set targets,
         please browse to the <strong>COMPLETE</strong> step to freeze

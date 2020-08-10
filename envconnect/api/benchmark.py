@@ -1228,6 +1228,12 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
         if not prefix.startswith("/"):
             prefix = "/" + prefix
 
+        is_pagebreak = ContentCut.TAG_PAGEBREAK in rollup_tree[0].get('tag', "")
+        if not is_pagebreak:
+            for path, node in six.iteritems(rollup_tree[1]):
+                self.flatten_distributions(node, accounts, prefix=prefix)
+            return
+
         node_path = rollup_tree[0].get('path', '')
         node_key = rollup_tree[0].get('title', node_path)
         for account_key, account in six.iteritems(rollup_tree[0].get(
