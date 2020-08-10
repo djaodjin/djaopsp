@@ -1,5 +1,7 @@
 export const DELAY = 100
 
+export const BENCHMARK_MAX_COMPANIES = 30
+
 export const INDUSTRIES = [
   {
     name: 'Architectural Design',

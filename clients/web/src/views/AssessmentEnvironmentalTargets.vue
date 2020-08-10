@@ -30,11 +30,11 @@
               })
             }}
           </p>
-          <ul v-for="(data, index) in benchmarkData" :key="index">
+          <ul v-for="(benchmark, index) in benchmarkData" :key="index">
             <chart-practices-implementation
-              :section="data.section"
-              :scores="data.scores"
-              :companyScore="data.companyScore"
+              :section="benchmark.section"
+              :scores="benchmark.scores"
+              :companyScore="benchmark.ownScore"
             />
           </ul>
         </div>
@@ -58,8 +58,8 @@
 </template>
 
 <script>
-import { getBenchmarkData } from '../mocks/benchmarks'
 import { Fragment } from 'vue-fragment'
+import { getBenchmarks } from '@/common/api'
 import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
@@ -81,7 +81,7 @@ export default {
       const [organization, assessment, benchmarkData] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.id),
-        getBenchmarkData(),
+        getBenchmarks(this.org, this.id),
       ])
       this.organization = organization
       this.assessment = assessment

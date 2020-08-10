@@ -71,7 +71,10 @@
             v-for="loopSection in sections"
             :key="loopSection.id"
           >
-            <practice-group-header class="mt-2 mb-4" :section="loopSection" />
+            <practice-group-header
+              class="mt-2 mb-4"
+              :section="loopSection.content"
+            />
             <v-list-item
               v-for="loopSubcategory in loopSection.subcategories"
               :key="loopSubcategory.id"

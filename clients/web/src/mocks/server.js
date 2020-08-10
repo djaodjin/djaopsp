@@ -1,12 +1,3 @@
-import { INDUSTRIES, INDUSTRY_SECTIONS } from './config'
-import {
-  DEFAULT_ASSESSMENT_STEP,
-  MAP_QUESTION_FORM_TYPES,
-  STEP_SCORECARD_KEY,
-  VALID_ASSESSMENT_STEPS,
-  VALID_ASSESSMENT_TARGETS_KEYS,
-  VALID_QUESTION_TYPES,
-} from '@/config/app'
 import {
   RestSerializer,
   Server,
@@ -17,6 +8,21 @@ import {
   trait,
 } from 'miragejs'
 import faker from 'faker'
+
+import {
+  BENCHMARK_MAX_COMPANIES,
+  INDUSTRIES,
+  INDUSTRY_SECTIONS,
+} from './config'
+import {
+  DEFAULT_ASSESSMENT_STEP,
+  MAP_QUESTION_FORM_TYPES,
+  STEP_SCORECARD_KEY,
+  VALID_ASSESSMENT_STEPS,
+  VALID_ASSESSMENT_TARGETS_KEYS,
+  VALID_QUESTION_TYPES,
+} from '@/config/app'
+import { getRandomInt } from '@/common/utils'
 
 const ApplicationSerializer = RestSerializer.extend()
 
@@ -35,6 +41,7 @@ export function makeServer({ environment = 'development' }) {
         targets: hasMany(),
         improvementPlan: hasMany('practices'),
       }),
+      benchmark: Model,
       organization: Model.extend({
         assessments: hasMany(),
       }),
@@ -91,6 +98,35 @@ export function makeServer({ environment = 'development' }) {
             return faker.date.past()
           },
         }),
+      }),
+
+      benchmark: Factory.extend({
+        section() {
+          return faker.random.arrayElement(INDUSTRY_SECTIONS)
+        },
+        scores() {
+          return [
+            {
+              label: '0 - 25%', // optional
+              value: getRandomInt(0, BENCHMARK_MAX_COMPANIES),
+            },
+            {
+              label: '25% - 50%', // optional
+              value: getRandomInt(0, BENCHMARK_MAX_COMPANIES),
+            },
+            {
+              label: '50% - 75%', // optional
+              value: getRandomInt(0, BENCHMARK_MAX_COMPANIES),
+            },
+            {
+              label: '75% - 100%', // optional
+              value: getRandomInt(0, BENCHMARK_MAX_COMPANIES),
+            },
+          ]
+        },
+        companyScore() {
+          return getRandomInt(10, 100)
+        },
       }),
 
       question: Factory.extend({
@@ -179,6 +215,8 @@ export function makeServer({ environment = 'development' }) {
       // and additionally add a current answer to each one
       server.createList('question', 10, 'withPreviousAnswers')
       // .forEach((question) => server.create('answer', { question }))
+
+      server.createList('benchmark', 6)
     },
 
     routes() {
@@ -196,6 +234,10 @@ export function makeServer({ environment = 'development' }) {
 
       this.get('/questions/:organizationId/:assessmentId', (schema) => {
         return schema.questions.all()
+      })
+
+      this.get('/benchmarks/:organizationId/:assessmentId', (schema) => {
+        return schema.benchmarks.all()
       })
     },
   })

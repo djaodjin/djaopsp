@@ -1,4 +1,5 @@
 import Assessment from './Assessment'
+import Benchmark from './Benchmark'
 import Organization from './Organization'
 import Target from './Target'
 import Question from './Question'
@@ -67,5 +68,17 @@ export async function getQuestions(organizationId, assessmentId) {
       return answers.find((answer) => answer.id === answerId)
     })
     return new Question({ ...question, answers: questionAnswers })
+  })
+}
+
+export async function getBenchmarks(organizationId, assessmentId) {
+  const response = await request(
+    `/benchmarks/${organizationId}/${assessmentId}`
+  )
+  if (!response.ok) throw new APIError(response.status)
+  const { benchmarks } = await response.json()
+
+  return benchmarks.map((benchmark) => {
+    return new Benchmark(benchmark)
   })
 }

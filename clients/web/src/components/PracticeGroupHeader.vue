@@ -5,9 +5,9 @@
       height="48"
       width="48"
       alt
-      :src="section.content.iconPath"
+      :src="section.iconPath"
     />
-    <span class="ml-4">{{ section.content.name }}</span>
+    <span class="ml-4">{{ section.name }}</span>
   </v-subheader>
 </template>
 
