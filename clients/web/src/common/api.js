@@ -5,6 +5,7 @@ import OrganizationGroup from './OrganizationGroup'
 import Score from './Score'
 import { getPracticeList } from './Practice'
 import { getQuestionList } from './Question'
+import { getShareEntryList } from './ShareEntry'
 
 const API_HOST = process.env.VUE_APP_API_HOST || 'http://127.0.0.1:8000'
 const API_BASE_URL = `${API_HOST}/envconnect/api`
@@ -120,4 +121,14 @@ export async function getScore(organizationId, assessmentId) {
   if (!response.ok) throw new APIError(response.status)
   const { score, benchmarks } = await response.json()
   return new Score({ ...score, benchmarks })
+}
+
+export async function getShareHistory(organizationId, assessmentId) {
+  const response = await request(
+    `/share-history/${organizationId}/${assessmentId}`
+  )
+  if (!response.ok) throw new APIError(response.status)
+  const { shareEntries, organizations } = await response.json()
+  const history = getShareEntryList(shareEntries, organizations)
+  return history
 }

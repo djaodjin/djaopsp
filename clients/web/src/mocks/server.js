@@ -65,6 +65,9 @@ export function makeServer({ environment = 'development' }) {
       score: Model.extend({
         benchmarks: hasMany(),
       }),
+      shareEntry: Model.extend({
+        organization: belongsTo(),
+      }),
       target: Model,
     },
 
@@ -223,6 +226,12 @@ export function makeServer({ environment = 'development' }) {
         },
       }),
 
+      shareEntry: Factory.extend({
+        date() {
+          return faker.date.past()
+        },
+      }),
+
       target: Factory.extend({
         text() {
           return faker.lorem.sentence()
@@ -249,6 +258,9 @@ export function makeServer({ environment = 'development' }) {
       }),
       score: ApplicationSerializer.extend({
         include: ['benchmarks'],
+      }),
+      shareEntry: ApplicationSerializer.extend({
+        include: ['organization'],
       }),
     },
 
@@ -304,6 +316,10 @@ export function makeServer({ environment = 'development' }) {
       // and additionally add a current answer to each one
       // server.createList('question', 10, 'withPreviousAnswers')
       // .forEach((question) => server.create('answer', { question }))
+
+      server.createList('shareEntry', 30, {
+        organization: server.create('organization'),
+      })
     },
 
     routes() {
@@ -327,6 +343,10 @@ export function makeServer({ environment = 'development' }) {
 
       this.get('/score/:organizationId/:assessmentId', (schema) => {
         return schema.scores.find('1')
+      })
+
+      this.get('/share-history/:organizationId/:assessmentId', (schema) => {
+        return schema.shareEntries.all()
       })
     },
   })

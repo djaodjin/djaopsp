@@ -37,8 +37,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getOrganizations } from '@/common/api'
-import { getShareHistory } from '../mocks/history'
+import { getOrganizations, getShareHistory } from '@/common/api'
 import FormShareAssessment from '@/components/FormShareAssessment'
 import HeaderSecondary from '@/components/HeaderSecondary'
 import ShareHistory from '@/components/ShareHistory'

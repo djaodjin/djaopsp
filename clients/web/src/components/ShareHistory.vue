@@ -24,11 +24,17 @@
       :items="history"
       :items-per-page="history.length"
       :search="search"
-    ></v-data-table>
+    >
+      <template v-slot:item.date="{item, value}">
+        <span v-format-date>{{ value }}</span>
+      </template>
+    </v-data-table>
   </div>
 </template>
 
 <script>
+import { formatDate } from '@/directives'
+
 export default {
   name: 'ShareHistory',
 
@@ -43,9 +49,13 @@ export default {
           filterable: false,
           value: 'date',
         },
-        { text: 'Organization', value: 'name' },
+        { text: 'Organization', value: 'organization.name' },
       ],
     }
+  },
+
+  directives: {
+    formatDate,
   },
 }
 </script>
