@@ -1,6 +1,6 @@
 import { PRACTICE_VALUES, PRACTICE_VALUE_CATEGORIES } from '@/config/app'
 import { getUniqueId } from './utils'
-import Question from './Question'
+import Question, { getQuestionList } from './Question'
 
 const MIN_PRACTICE_VALUE = PRACTICE_VALUES[0].value
 const values = PRACTICE_VALUE_CATEGORIES.map((c) => c.value)
@@ -20,4 +20,12 @@ export default class Practice {
       this[v] = rest[v] || MIN_PRACTICE_VALUE
     })
   }
+}
+
+export function getPracticeList(practices, questions, answers) {
+  const questionList = getQuestionList(questions, answers)
+  return practices.map((practice) => {
+    const question = questionList.find((q) => q.id === practice.question)
+    return new Practice({ ...practice, question })
+  })
 }

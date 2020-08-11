@@ -1,8 +1,8 @@
 import Assessment from './Assessment'
 import Benchmark from './Benchmark'
 import Organization from './Organization'
-import Practice from './Practice'
-import Question from './Question'
+import { getPracticeList } from './Practice'
+import { getQuestionList } from './Question'
 import Target from './Target'
 
 const API_HOST = process.env.VUE_APP_API_HOST || 'http://127.0.0.1:8000'
@@ -46,7 +46,7 @@ export async function getAssessment(assessmentId) {
   return new Assessment({
     ...assessment,
     targets: targets.map((t) => new Target(t)),
-    improvementPlan: getPracticeInstances(practices, questions, answers),
+    improvementPlan: getPracticeList(practices, questions, answers),
   })
 }
 
@@ -81,7 +81,7 @@ export async function getPractices(organizationId, assessmentId) {
   const response = await request(`/practices/${organizationId}/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
   const { practices, questions, answers } = await response.json()
-  return getPracticeInstances(practices, questions, answers)
+  return getPracticeList(practices, questions, answers)
 }
 
 export async function getPracticeSearchResults(organizationId, assessmentId) {
@@ -92,22 +92,5 @@ export async function getQuestions(organizationId, assessmentId) {
   const response = await request(`/questions/${organizationId}/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
   const { questions, answers } = await response.json()
-  return getQuestionInstances(questions, answers)
-}
-
-function getPracticeInstances(practices, questions, answers) {
-  const questionInstances = getQuestionInstances(questions, answers)
-  return practices.map((practice) => {
-    const question = questionInstances.find((q) => q.id === practice.question)
-    return new Practice({ ...practice, question })
-  })
-}
-
-function getQuestionInstances(questions, answers) {
-  return questions.map((question) => {
-    const questionAnswers = question.answers.map((answerId) => {
-      return answers.find((answer) => answer.id === answerId)
-    })
-    return new Question({ ...question, answers: questionAnswers })
-  })
+  return getQuestionList(questions, answers)
 }

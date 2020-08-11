@@ -45,3 +45,12 @@ export default class Question {
     this.currentAnswer = currentAnswers[0]
   }
 }
+
+export function getQuestionList(questions, answers) {
+  return questions.map((question) => {
+    const questionAnswers = question.answers.map((answerId) => {
+      return answers.find((answer) => answer.id === answerId)
+    })
+    return new Question({ ...question, answers: questionAnswers })
+  })
+}
