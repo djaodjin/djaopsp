@@ -2,7 +2,13 @@ import { getUniqueId } from './utils'
 import Section from './Section'
 
 export default class Benchmark {
-  constructor({ id = getUniqueId(), section, scores, companyScore = 0 }) {
+  constructor({
+    id = getUniqueId(),
+    section,
+    scores,
+    scoreCoefficient,
+    companyScore = 0,
+  }) {
     this.id = id
     this.section = section instanceof Section ? section : new Section(section)
     this.scores = [
@@ -27,6 +33,7 @@ export default class Benchmark {
         number: scores[3].value,
       },
     ]
-    this.ownScore = companyScore
+    this.scoreCoefficient = scoreCoefficient
+    this.companyScore = companyScore
   }
 }

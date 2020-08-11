@@ -1,6 +1,7 @@
 import Assessment from './Assessment'
 import Benchmark from './Benchmark'
 import Organization from './Organization'
+import Score from './Score'
 import { getPracticeList } from './Practice'
 import { getQuestionList } from './Question'
 
@@ -95,4 +96,11 @@ export async function getQuestions(organizationId, assessmentId) {
   if (!response.ok) throw new APIError(response.status)
   const { questions, answers } = await response.json()
   return getQuestionList(questions, answers)
+}
+
+export async function getScore(organizationId, assessmentId) {
+  const response = await request(`/score/${organizationId}/${assessmentId}`)
+  if (!response.ok) throw new APIError(response.status)
+  const { score, benchmarks } = await response.json()
+  return new Score({ ...score, benchmarks })
 }

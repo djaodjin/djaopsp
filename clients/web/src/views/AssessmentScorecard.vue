@@ -12,13 +12,13 @@
     <v-container v-else>
       <v-row>
         <v-col cols="12" sm="6" lg="4" xl="4">
-          <scorecard-scores :scores="topLevelScores"></scorecard-scores>
-          <scorecard-business-areas :data="scoresByBusinessAreas" />
-          <scorecard-targets :targets="targets" />
+          <scorecard-scores :scores="assessmentScore"></scorecard-scores>
+          <scorecard-business-areas :benchmarks="assessmentScore.benchmarks" />
+          <scorecard-targets :targets="assessment.targets" />
         </v-col>
         <v-col cols="12" sm="6" lg="8" xl="8">
-          <scorecard-practices :practices="improvementPlanPractices" />
-          <scorecard-practices-chart :practices="improvementPlanPractices" />
+          <scorecard-practices :practices="assessment.improvementPlan" />
+          <scorecard-practices-chart :practices="assessment.improvementPlan" />
           <button-primary
             class="mt-6"
             :to="{
@@ -36,9 +36,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getResults } from '../mocks/improvement-plan'
-import { getTopLevelScores, getScoresByBusinessAreas } from '../mocks/scorecard'
-import { getAssessmentTargets } from '../mocks/assessments'
+import { getScore } from '@/common/api'
 
 import ButtonPrimary from '@/components/ButtonPrimary'
 import HeaderSecondary from '@/components/HeaderSecondary'
@@ -61,28 +59,15 @@ export default {
   methods: {
     async fetchData() {
       this.loading = true
-      const [
-        organization,
-        assessment,
-        topLevelScores,
-        scoresByBusinessAreas,
-        targets,
-        improvementPlanPractices,
-      ] = await Promise.all([
+      const [organization, assessment, score] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.id),
-        getTopLevelScores(),
-        getScoresByBusinessAreas(),
-        getAssessmentTargets(), // TODO: Remove this as this should be part of the assessment
-        getResults(), // TODO: Remove this as this should be part of the assessment
+        getScore(),
       ])
 
       this.organization = organization
       this.assessment = assessment
-      this.topLevelScores = topLevelScores
-      this.scoresByBusinessAreas = scoresByBusinessAreas
-      this.targets = targets
-      this.improvementPlanPractices = improvementPlanPractices
+      this.assessmentScore = score
       this.loading = false
     },
   },
@@ -91,11 +76,8 @@ export default {
     return {
       organization: {},
       assessment: {},
-      improvementPlanPractices: [],
+      assessmentScore: {},
       loading: false,
-      topLevelScores: null,
-      scoresByBusinessAreas: [],
-      targets: [],
     }
   },
 

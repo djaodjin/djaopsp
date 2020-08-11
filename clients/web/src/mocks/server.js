@@ -11,6 +11,7 @@ import {
 import faker from 'faker'
 
 import {
+  NUM_BENCHMARKS,
   BENCHMARK_MAX_COMPANIES,
   INDUSTRIES,
   INDUSTRY_SECTIONS,
@@ -45,6 +46,7 @@ export function makeServer({ environment = 'development' }) {
       assessment: Model.extend({
         targets: hasMany(),
         practices: hasMany(),
+        score: belongsTo(),
       }),
       benchmark: Model,
       organization: Model.extend({
@@ -56,6 +58,9 @@ export function makeServer({ environment = 'development' }) {
       question: Model.extend({
         practice: belongsTo(),
         answers: hasMany(),
+      }),
+      score: Model.extend({
+        benchmarks: hasMany(),
       }),
       target: Model,
     },
@@ -130,6 +135,9 @@ export function makeServer({ environment = 'development' }) {
             },
           ]
         },
+        coefficient() {
+          return 0.1
+        },
         companyScore() {
           return getRandomInt(10, 100)
         },
@@ -185,6 +193,21 @@ export function makeServer({ environment = 'development' }) {
         }),
       }),
 
+      score: Factory.extend({
+        top() {
+          return getRandomInt(80, 95)
+        },
+        own() {
+          return getRandomInt(60, 80)
+        },
+        average() {
+          return getRandomInt(60, 80)
+        },
+        isValid() {
+          return faker.random.boolean()
+        },
+      }),
+
       target: Factory.extend({
         text() {
           return faker.lorem.sentence()
@@ -206,6 +229,9 @@ export function makeServer({ environment = 'development' }) {
       practice: ApplicationSerializer.extend({
         include: ['question'],
       }),
+      score: ApplicationSerializer.extend({
+        include: ['benchmarks'],
+      }),
     },
 
     seeds(server) {
@@ -219,6 +245,11 @@ export function makeServer({ environment = 'development' }) {
               server.create('target', { key })
             ),
             practices: server.createList('practice', 10),
+            score: server.create('score', {
+              benchmarks: server.createList('benchmark', NUM_BENCHMARKS, {
+                coefficient: (1 / NUM_BENCHMARKS).toFixed(2),
+              }),
+            }),
             status: STEP_SCORECARD_KEY,
           }),
         ],
@@ -251,8 +282,6 @@ export function makeServer({ environment = 'development' }) {
       // and additionally add a current answer to each one
       // server.createList('question', 10, 'withPreviousAnswers')
       // .forEach((question) => server.create('answer', { question }))
-
-      server.createList('benchmark', 6)
     },
 
     routes() {
@@ -272,12 +301,12 @@ export function makeServer({ environment = 'development' }) {
         return schema.questions.all()
       })
 
-      this.get('/benchmarks/:organizationId/:assessmentId', (schema) => {
-        return schema.benchmarks.all()
-      })
-
       this.get('/practices/:organizationId/:assessmentId', (schema) => {
         return schema.practices.all()
+      })
+
+      this.get('/score/:organizationId/:assessmentId', (schema) => {
+        return schema.scores.find('1')
       })
     },
   })

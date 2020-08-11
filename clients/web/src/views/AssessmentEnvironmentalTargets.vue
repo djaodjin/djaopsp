@@ -30,11 +30,11 @@
               })
             }}
           </p>
-          <ul v-for="(benchmark, index) in benchmarkData" :key="index">
+          <ul v-for="(benchmark, index) in score.benchmarks" :key="index">
             <chart-practices-implementation
               :section="benchmark.section"
               :scores="benchmark.scores"
-              :companyScore="benchmark.ownScore"
+              :companyScore="benchmark.companyScore"
             />
           </ul>
         </div>
@@ -59,7 +59,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getBenchmarks } from '@/common/api'
+import { getScore } from '@/common/api'
 import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
@@ -78,14 +78,14 @@ export default {
 
   methods: {
     async fetchData() {
-      const [organization, assessment, benchmarkData] = await Promise.all([
+      const [organization, assessment, score] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.id),
-        getBenchmarks(this.org, this.id),
+        getScore(this.org, this.id),
       ])
       this.organization = organization
       this.assessment = assessment
-      this.benchmarkData = benchmarkData
+      this.score = score
     },
     async checkPreviousTargets() {
       // TODO: Send request to check if previous targets have been submitted
@@ -100,7 +100,7 @@ export default {
     return {
       organization: {},
       assessment: {},
-      benchmarkData: [],
+      score: {},
       tabs: [
         { text: this.$t('targets.tab1.title'), href: 'tab-1' },
         { text: this.$t('targets.tab2.title'), href: 'tab-2' },
