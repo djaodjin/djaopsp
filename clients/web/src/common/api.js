@@ -3,7 +3,6 @@ import Benchmark from './Benchmark'
 import Organization from './Organization'
 import { getPracticeList } from './Practice'
 import { getQuestionList } from './Question'
-import Target from './Target'
 
 const API_HOST = process.env.VUE_APP_API_HOST || 'http://127.0.0.1:8000'
 const API_BASE_URL = `${API_HOST}/envconnect/api`
@@ -45,8 +44,10 @@ export async function getAssessment(assessmentId) {
   } = await response.json()
   return new Assessment({
     ...assessment,
-    targets: targets.map((t) => new Target(t)),
-    improvementPlan: getPracticeList(practices, questions, answers),
+    targets,
+    practices,
+    questions,
+    answers,
   })
 }
 
@@ -68,11 +69,12 @@ export async function getOrganization(organizationId) {
   const {
     organization: { id, name },
     assessments,
+    ...rest
   } = await response.json()
   const organization = new Organization({
     id,
     name,
-    assessments: assessments.map((a) => new Assessment(a)),
+    assessments: assessments.map((a) => new Assessment({ ...a, ...rest })),
   })
   return organization
 }
