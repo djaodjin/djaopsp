@@ -1,6 +1,7 @@
 import Assessment from './Assessment'
 import Benchmark from './Benchmark'
 import Organization from './Organization'
+import OrganizationGroup from './OrganizationGroup'
 import Score from './Score'
 import { getPracticeList } from './Practice'
 import { getQuestionList } from './Question'
@@ -78,6 +79,22 @@ export async function getOrganization(organizationId) {
     assessments: assessments.map((a) => new Assessment({ ...a, ...rest })),
   })
   return organization
+}
+
+export async function getOrganizations() {
+  const response = await request('/organizations')
+  if (!response.ok) throw new APIError(response.status)
+  const { organizationGroups, organizations } = await response.json()
+  const groups = organizationGroups.map(
+    ({ id, name }) => new OrganizationGroup({ id, name })
+  )
+  const individuals = organizations.map(
+    ({ id, name }) => new Organization({ id, name })
+  )
+  return {
+    groups,
+    individuals,
+  }
 }
 
 export async function getPractices(organizationId, assessmentId) {

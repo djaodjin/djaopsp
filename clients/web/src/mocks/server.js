@@ -20,7 +20,7 @@ import {
   DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
   PRACTICE_VALUES,
-  STEP_SCORECARD_KEY,
+  STEP_SHARE_KEY,
   VALID_ASSESSMENT_STEPS,
   VALID_ASSESSMENT_TARGETS_KEYS,
   VALID_QUESTION_TYPES,
@@ -51,6 +51,9 @@ export function makeServer({ environment = 'development' }) {
       benchmark: Model,
       organization: Model.extend({
         assessments: hasMany(),
+      }),
+      organizationGroup: Model.extend({
+        organizations: hasMany(),
       }),
       practice: Model.extend({
         question: belongsTo(),
@@ -143,6 +146,18 @@ export function makeServer({ environment = 'development' }) {
         },
       }),
 
+      organization: Factory.extend({
+        name() {
+          return faker.random.words(2)
+        },
+      }),
+
+      organizationGroup: Factory.extend({
+        name() {
+          return faker.random.word().toUpperCase()
+        },
+      }),
+
       practice: Factory.extend({
         question: association(),
 
@@ -217,11 +232,14 @@ export function makeServer({ environment = 'development' }) {
 
     serializers: {
       application: ApplicationSerializer,
+      assessment: ApplicationSerializer.extend({
+        include: ['targets', 'practices'],
+      }),
       organization: ApplicationSerializer.extend({
         include: ['assessments'],
       }),
-      assessment: ApplicationSerializer.extend({
-        include: ['targets', 'practices'],
+      organizationGroup: ApplicationSerializer.extend({
+        include: ['organizations'],
       }),
       question: ApplicationSerializer.extend({
         include: ['answers'],
@@ -250,7 +268,7 @@ export function makeServer({ environment = 'development' }) {
                 coefficient: (1 / NUM_BENCHMARKS).toFixed(2),
               }),
             }),
-            status: STEP_SCORECARD_KEY,
+            status: STEP_SHARE_KEY,
           }),
         ],
       })
@@ -272,6 +290,10 @@ export function makeServer({ environment = 'development' }) {
         name: 'S1 - Tamerin (Demo)',
       })
 
+      server.createList('organizationGroup', 5, {
+        organizations: server.createList('organization', 10),
+      })
+
       server
         .createList('practice', 20)
         .forEach((practice) =>
@@ -287,22 +309,20 @@ export function makeServer({ environment = 'development' }) {
     routes() {
       this.namespace = '/envconnect/api'
 
-      this.get('/organizations/:id', (schema, request) => {
-        let id = request.params.id
-        return schema.organizations.find(id)
+      this.get('/assessments/:id')
+
+      this.get('/organizations', (schema) => {
+        return schema.organizationGroups.all()
       })
 
-      this.get('/assessments/:id', (schema, request) => {
-        let id = request.params.id
-        return schema.assessments.find(id)
+      this.get('/organizations/:id')
+
+      this.get('/practices/:organizationId/:assessmentId', (schema) => {
+        return schema.practices.all()
       })
 
       this.get('/questions/:organizationId/:assessmentId', (schema) => {
         return schema.questions.all()
-      })
-
-      this.get('/practices/:organizationId/:assessmentId', (schema) => {
-        return schema.practices.all()
       })
 
       this.get('/score/:organizationId/:assessmentId', (schema) => {
