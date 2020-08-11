@@ -8,7 +8,7 @@ from deployutils.helpers import datetime_or_now
 from django.db import connection, connections
 from django.db.models import F
 from django.db.utils import DEFAULT_DB_ALIAS
-from pages.models import build_content_tree
+from pages.models import build_content_tree, PageElement
 from survey.models import Answer, Choice, Metric, Sample, Unit
 from survey.utils import get_account_model
 
@@ -84,7 +84,9 @@ def get_segments():
     """
     Returns a list of segment prefixes
     """
-    content_tree = build_content_tree(cut=ContentCut())
+    content_tree = build_content_tree(
+        roots=PageElement.objects.get_roots().filter(tag__contains='industry'),
+        prefix='/', cut=ContentCut())
     segments = flatten(content_tree)
     return segments
 
