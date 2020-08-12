@@ -138,8 +138,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             url_path = '/'
             prefix = '/'
             element = None
-            for part in reversed(trail):
-                if part[0].tag and 'industry' in part[0].tag:
+            for part in trail:
+                if part[0].tag and 'pagebreak' in part[0].tag:
                     url_path = part[2].split('?')[0]
                     element = part[0]
             if element:
@@ -621,7 +621,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             if sample:
                 urls.update({
                     'assess': reverse('assess_organization',
-                        args=(organization, sample, path)),
+                        args=(organization, sample, url_path)),
                     'complete': reverse('complete_organization',
                         args=(organization, sample, url_path)),
                     'share': reverse('share_organization',
@@ -673,7 +673,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             summary_url = reverse('summary', args=(path,))
             improve_url = reverse('improve_redirect', args=(path,))
             urls.update({
-                'assess': reverse('assess_redirect', args=(path,)),
+                'assess': reverse('assess_redirect', args=(url_path,)),
                 'complete': reverse('complete_redirect', args=(url_path,)),
                 'share': reverse('share_redirect', args=(url_path,)),
             })

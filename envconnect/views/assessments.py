@@ -461,3 +461,21 @@ class CompleteView(AssessmentView, TemplateView):
 
     template_name = 'envconnect/complete.html'
     breadcrumb_url = 'complete'
+
+    def decorate_leafs(self, leafs):
+        for path, vals in six.iteritems(leafs):
+            queryset = Consumption.objects.filter(
+                enumeratedquestions__required=True,
+                enumeratedquestions__campaign=self.survey,
+                path=path).exclude(
+                answer__sample=self.assessment_sample,
+                answer__metric_id=F('default_metric_id'))
+            consumption = queryset.first()
+            if consumption:
+                vals[0]['consumption'] \
+                    = ConsumptionSerializer(context={
+                        'campaign': self.survey,
+                        'required': True,
+                    }).to_representation(consumption)
+            else:
+                vals[0]['consumption'] = None

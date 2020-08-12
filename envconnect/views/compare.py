@@ -180,8 +180,8 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
         'Supplier name', 'Categories',
         'Contact name', 'Contact email', 'Contact phone',
         'Last activity', 'Status', 'Industry segment', 'Score',
-        '# N/A', 'Reporting publicly', 'Reported measurements',
-        'Targets', '# Planned actions',
+        '# N/A', 'Reporting publicly', 'Environmental fines',
+        '# Planned actions', 'Reported measurements', 'Targets',
 #        'Full-time Employee Count', 'Annual Revenue (USD)'
 #        'Responded in 2018', 'Responded in 2019'
     ]
@@ -207,6 +207,7 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
             segment = "Requested"
             nb_na_answers = "Requested"
             reporting_publicly = "Requested"
+            reporting_fines = "Requested"
             nb_planned_improvements = "Requested"
             measurements = "Requested"
             targets = "Requested"
@@ -219,6 +220,9 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
             reporting_publicly = rec.get('reporting_publicly', "N/A")
             if reporting_publicly and str(reporting_publicly) != "N/A":
                 reporting_publicly = "Yes"
+            reporting_fines = rec.get('reporting_fines', "N/A")
+            if reporting_fines and str(reporting_fines) != "N/A":
+                reporting_fines = "Yes"
             nb_planned_improvements = rec.get('nb_planned_improvements', "N/A")
             measurements = '\n'.join(rec.get('reported', []))
             targets = '\n'.join(rec.get('targets', []))
@@ -242,8 +246,9 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
             contact_phone,
             last_activity_at, reporting_status,
             segment, normalized_score,
-            nb_na_answers, reporting_publicly,
-            measurements, targets, nb_planned_improvements])
+            nb_na_answers,
+            reporting_publicly, reporting_fines,
+            nb_planned_improvements, measurements, targets])
             #XXX employee_count, revenue_generated,
             #XXX report_to if report_to else ""])
 #            "Yes" if rec.get('improvement_completed') else "",

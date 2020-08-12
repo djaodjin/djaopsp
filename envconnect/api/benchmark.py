@@ -610,6 +610,7 @@ class BenchmarkMixin(ReportMixin):
                     before=self.ends_at, prefix="/")
 
             reporting_publicly = True
+            reporting_fines = True
             reporting_data = False
             reporting_targets = False
             reporting_employee_count = False
@@ -648,6 +649,39 @@ class BenchmarkMixin(ReportMixin):
                         if int(account_pk) in reporting_publicly:
                             account.update({'reporting_publicly': True})
                 self._report_queries("reporting publicly completed")
+
+            if reporting_fines:
+                reporting_fines_sql = """
+        WITH samples AS (
+        %(latest_assessments)s
+        )
+        SELECT DISTINCT samples.account_id
+        FROM survey_answer
+        INNER JOIN survey_question
+          ON survey_answer.question_id = survey_question.id
+        INNER JOIN samples
+          ON survey_answer.sample_id = samples.id
+        WHERE samples.account_id IN %(accounts)s AND
+          survey_answer.measured = %(yes)s AND
+          (survey_question.path LIKE '%%/environmental-fines')
+        """ % {
+            'latest_assessments': latest_assessments,
+            'yes': "(SELECT id FROM survey_choice WHERE unit_id=(SELECT id FROM survey_unit WHERE slug='yes-no') AND text = 'Yes')",
+            'accounts': self.requested_accounts_pk_as_sql
+        }
+                _show_query_and_result(reporting_fines_sql)
+                with connection.cursor() as cursor:
+                    cursor.execute(reporting_fines_sql, params=None)
+                    reporting_fines = [row[0] for row in cursor]
+
+                # XXX We add `reporting_fines` no matter whichever segment
+                # the boolean comes from.
+                for segment in six.itervalues(rollup_tree[1]):
+                    for account_pk, account in six.iteritems(
+                            segment[0].get('accounts')):
+                        if int(account_pk) in reporting_fines:
+                            account.update({'reporting_fines': True})
+                self._report_queries("reporting fines completed")
 
             if reporting_data:
                 reporting_data_sql = """

@@ -22,14 +22,14 @@ Click the <em>Complete</em> button to freeze your assessment.
         <p class="text-center">
           [[nbAnswers]] out of [[nbQuestions]] questions answered.
         </p>
-        <p class="text-center">
+        <p class="text-center" style="text-decoration:underline;">
 An response on the following practices is required to complete the assessment.
 Please go back to the <em>ASSESS</em> step and answer those questions:
         </p>
         {% with root_prefix|add:"/"|add:root.0.slug as abs_prefix %}
-        <p class="text-center" data-id="[[getPath(practice[0])]]"
+        <p data-id="[[getPath(practice[0])]]"
            ng-repeat="practice in getEntries('{{abs_prefix}}')"
-           ng-if="practice[0].consumption && practice[0].consumption.implemented">
+           ng-if="practice[0].consumption && practice[0].consumption.required">
           <span ng-class="indentHeader(practice, '{{abs_prefix}}')">[[practice[0].title]]</span>
         </p>
         {% endwith %}

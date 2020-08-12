@@ -89,6 +89,7 @@ Completed: A supplier has submitted both a complete assessment and improvement p
               <th>Score<button class="btn btn-link btn-sort" ng-click="sortBy('normalized_score')"><i class="fa fa-sort[[dir.normalized_score ? ('-' + dir.normalized_score) : '']]"></i></button></th>
               <th># N/A<button class="btn btn-link btn-sort" ng-click="sortBy('nb_na_answers')"><i class="fa fa-sort[[dir.nb_na_answers ? ('-' + dir.nb_na_answers) : '']]"></i></button></th>
               <th>Reporting publicly<button class="btn btn-link btn-sort" ng-click="sortBy('reporting_publicly')"><i class="fa fa-sort[[dir.reporting_publicly ? ('-' + dir.reporting_publicly) : '']]"></i></button></th>
+              <th>Environmental Fines<button class="btn btn-link btn-sort" ng-click="sortBy('reporting_fines')"><i class="fa fa-sort[[dir.reporting_fines ? ('-' + dir.reporting_fines) : '']]"></i></button></th>
               <th># Planned actions<button class="btn btn-link btn-sort" ng-click="sortBy('nb_planned_improvements')"><i class="fa fa-sort[[dir.nb_planned_improvements ? ('-' + dir.nb_planned_improvements) : '']]"></i></button></th>
               <th></th>
             </tr>
@@ -121,7 +122,7 @@ Completed: A supplier has submitted both a complete assessment and improvement p
                   </div>
                 </form>
               </td>
-              <td colspan="6">
+              <td colspan="7">
 <em>Note: Enter the name of the supplier/facility organization or<br />
 contact e-mail associated with the organization profile (i.e. not a registered
 user).</em>
@@ -167,6 +168,10 @@ user).</em>
               <!-- reporting publicly -->
               <td style="vertical-align:middle;" ng-if="!entry.requested_at">
                 [[ entry.reporting_publicly ? "Yes" : "" ]]
+              </td>
+              <!-- reporting fines -->
+              <td style="vertical-align:middle;" ng-if="!entry.requested_at">
+                [[ entry.reporting_fines ? "Yes" : "" ]]
               </td>
               <!-- nb planned actions -->
               <td style="vertical-align:middle;" ng-if="!entry.requested_at">

@@ -102,13 +102,16 @@ class CompletionSummaryPagination(PageNumberPagination):
             if not slug in accounts:
                 accounts[slug] = {
                     'reporting_status': reporting_status,
-                    'reporting_publicly': bool(sample.get('reporting_publicly'))
+                   'reporting_publicly': bool(sample.get('reporting_publicly')),
+                    'reporting_fines': bool(sample.get('reporting_fines'))
                 }
                 continue
             if reporting_status > accounts[slug]['reporting_status']:
                 accounts[slug]['reporting_status'] == reporting_status
             if sample.get('reporting_publicly'):
                 accounts[slug]['reporting_publicly'] = True
+            if sample.get('reporting_fines'):
+                accounts[slug]['reporting_fines'] = True
 
         self.nb_organizations = len(accounts)
         for account in six.itervalues(accounts):
@@ -610,6 +613,8 @@ class SupplierListMixin(DashboardMixin):
                 score.update({'last_activity_at': created_at})
             if not 'reporting_publicly' in score:
                 score.update({'reporting_publicly': None})
+            if not 'reporting_fines' in score:
+                score.update({'reporting_fines': None})
             if not 'nb_na_answers' in score:
                 score.update({'nb_na_answers': None})
             if not 'nb_planned_improvements' in score:
@@ -624,7 +629,7 @@ class SupplierListMixin(DashboardMixin):
                 # The supplier has not granted access to the scorecard
                 # so we remove sensistive keys from the result.
                 for key in ('normalized_score', 'nb_na_answers',
-                            'reporting_publicly'):
+                            'reporting_publicly', 'reporting_fines'):
                     score[key] = None
             account_scores += [score]
 
@@ -645,6 +650,7 @@ class SupplierListMixin(DashboardMixin):
             'nb_na_answers': None,
             'nb_planned_improvements': None,
             'reporting_publicly': None,
+            'reporting_fines': None,
             'assessment_completed': (
                 account.pk in complete_assessments),
             'improvement_completed': (

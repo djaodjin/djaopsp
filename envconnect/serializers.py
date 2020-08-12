@@ -243,6 +243,8 @@ class AccountSerializer(NoModelSerializer):
         help_text=_("number of answers marked N/A"))
     reporting_publicly = serializers.BooleanField(
         help_text=_("also reporting publicly"))
+    reporting_fines = serializers.BooleanField(
+        help_text=_("reporting environmental fines"))
 
     nb_planned_improvements = serializers.IntegerField(required=False,
         help_text=_("number of planned improvements"))
