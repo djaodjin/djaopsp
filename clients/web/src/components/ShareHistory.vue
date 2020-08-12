@@ -25,7 +25,7 @@
       :items-per-page="history.length"
       :search="search"
     >
-      <template v-slot:item.date="{item, value}">
+      <template v-slot:item.date="{ item, value }">
         <span v-format-date>{{ value }}</span>
       </template>
     </v-data-table>
