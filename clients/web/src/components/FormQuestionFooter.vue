@@ -13,7 +13,7 @@
     ></v-textarea>
     <div class="mt-4 text-right">
       <button-primary type="submit" display="inline">
-        <span>Answer Next Question</span>
+        <span>Save and Answer Next Question</span>
         <v-icon class="ml-2" small color="white">mdi-arrow-right</v-icon>
       </button-primary>
     </div>
