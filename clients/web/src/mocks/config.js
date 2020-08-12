@@ -1,5 +1,3 @@
-export const DELAY = 100
-
 export const NUM_BENCHMARKS = 6
 
 export const BENCHMARK_MAX_COMPANIES = 30
