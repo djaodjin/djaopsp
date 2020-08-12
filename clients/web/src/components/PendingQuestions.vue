@@ -36,7 +36,7 @@
               Congratulations! You have answered all the questions.
             </p>
             <p class="text-subtitle-1 text-center">
-              Submit the questionnaire by clicking on the button below.
+              Save the questionnaire by clicking on the button below.
             </p>
           </div>
           <div v-else>
