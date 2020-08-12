@@ -1,9 +1,10 @@
 import Vue from 'vue'
-import { getAssessment, getOrganization } from '@/common/api'
 import {
+  getAssessment,
   getIndustrySegments,
   getPreviousIndustrySegments,
-} from '../mocks/industry-segments'
+  getOrganization,
+} from '@/common/api'
 
 Vue.mixin({
   beforeCreate() {
@@ -86,10 +87,7 @@ export default class Context {
         getIndustrySegments(),
         getPreviousIndustrySegments(),
       ])
-      this.industries = createIndustryList(
-        previousIndustries.results,
-        industries.results
-      )
+      this.industries = createIndustryList(previousIndustries, industries)
     }
     return this.industries
   }

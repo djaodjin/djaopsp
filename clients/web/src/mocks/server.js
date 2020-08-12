@@ -16,6 +16,8 @@ import {
   INDUSTRIES,
   INDUSTRY_SECTIONS,
 } from './config'
+import industries from './fixtures/industries'
+import previousIndustries from './fixtures/previousIndustries'
 import {
   DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
@@ -39,6 +41,11 @@ export function makeServer({ environment = 'development' }) {
   return new Server({
     environment,
 
+    fixtures: {
+      industries,
+      previousIndustries,
+    },
+
     models: {
       answer: Model.extend({
         question: belongsTo(),
@@ -49,6 +56,7 @@ export function makeServer({ environment = 'development' }) {
         score: belongsTo(),
       }),
       benchmark: Model,
+      industry: Model,
       organization: Model.extend({
         assessments: hasMany(),
       }),
@@ -58,6 +66,7 @@ export function makeServer({ environment = 'development' }) {
       practice: Model.extend({
         question: belongsTo(),
       }),
+      previousIndustry: Model,
       question: Model.extend({
         practice: belongsTo(),
         answers: hasMany(),
@@ -265,6 +274,8 @@ export function makeServer({ environment = 'development' }) {
     },
 
     seeds(server) {
+      server.loadFixtures()
+
       // Organization with active assessment with existing environmental targets and improvement plan
       server.create('organization', {
         id: 'marlin',
@@ -327,6 +338,10 @@ export function makeServer({ environment = 'development' }) {
 
       this.get('/assessments/:id')
 
+      this.get('/industries', (schema) => {
+        return schema.industries.all()
+      })
+
       this.get('/organizations', (schema) => {
         return schema.organizationGroups.all()
       })
@@ -335,6 +350,10 @@ export function makeServer({ environment = 'development' }) {
 
       this.get('/practices/:organizationId/:assessmentId', (schema) => {
         return schema.practices.all()
+      })
+
+      this.get('/previous-industries', (schema) => {
+        return schema.previousIndustries.all()
       })
 
       this.get('/questions/:organizationId/:assessmentId', (schema) => {
@@ -347,6 +366,12 @@ export function makeServer({ environment = 'development' }) {
 
       this.get('/share-history/:organizationId/:assessmentId', (schema) => {
         return schema.shareEntries.all()
+      })
+
+      this.post('/assessments', (schema, request) => {
+        // let attrs = JSON.parse(request.requestBody)
+        // TODO: Create assessment with attrs
+        return this.create('assessment')
       })
     },
   })

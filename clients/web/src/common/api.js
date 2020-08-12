@@ -66,6 +66,20 @@ export async function getBenchmarks(organizationId, assessmentId) {
   })
 }
 
+export async function getIndustrySegments() {
+  const response = await request('/industries')
+  if (!response.ok) throw new APIError(response.status)
+  const { industries } = await response.json()
+  return industries
+}
+
+export async function getPreviousIndustrySegments() {
+  const response = await request('/previous-industries')
+  if (!response.ok) throw new APIError(response.status)
+  const { previousIndustries } = await response.json()
+  return previousIndustries
+}
+
 export async function getOrganization(organizationId) {
   const response = await request(`/organizations/${organizationId}`)
   if (!response.ok) throw new APIError(response.status)
@@ -131,4 +145,11 @@ export async function getShareHistory(organizationId, assessmentId) {
   const { shareEntries, organizations } = await response.json()
   const history = getShareEntryList(shareEntries, organizations)
   return history
+}
+
+export async function postAssessment(payload) {
+  const response = await request('/assessments', { body: payload })
+  if (!response.ok) throw new APIError(response.status)
+  const { assessment } = await response.json()
+  return new Assessment(assessment)
 }
