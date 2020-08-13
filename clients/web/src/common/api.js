@@ -7,7 +7,7 @@ import { getPracticeList } from './Practice'
 import { getQuestionList } from './Question'
 import { getShareEntryList } from './ShareEntry'
 
-const API_HOST = process.env.VUE_APP_API_HOST || 'http://127.0.0.1:8000'
+const API_HOST = process.env.VUE_APP_API_HOST || ''
 const API_BASE_URL = `${API_HOST}/envconnect/api`
 
 class APIError extends Error {
