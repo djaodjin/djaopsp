@@ -1127,7 +1127,7 @@ class BestPracticeMixin(BreadcrumbMixin):
             urls = {
                 'assess': reverse('assess_organization_redirect',
                     args=(organization, contextual_path)) + active_section,
-                'improve': reverse('improve_organization',
+                'improve': reverse('improve_organization_redirect',
                     args=(organization, contextual_path)) + active_section
             }
         else:
