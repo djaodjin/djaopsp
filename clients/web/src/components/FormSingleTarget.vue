@@ -1,13 +1,18 @@
 <template>
   <div v-bind="$attrs">
-    <v-checkbox class="mt-0" v-model="isEnabled" hide-details>
+    <v-checkbox
+      class="mt-0"
+      hide-details
+      v-model="target.enabled"
+      @click="validate"
+    >
       <template v-slot:label>
         <b>{{ targetConfig.text }}</b>
       </template>
     </v-checkbox>
 
     <v-expand-transition>
-      <div class="pl-8 py-1" v-show="isEnabled">
+      <div class="pl-8 py-1" v-show="target.enabled">
         <v-textarea
           class="mt-4"
           :label="$t('targets.tab1.form.textarea-target')"
@@ -17,6 +22,12 @@
           outlined
           rows="5"
           row-height="16"
+          :rules="[
+            (v) =>
+              !!v ||
+              !target.enabled ||
+              'Please supply a target description or uncheck the target',
+          ]"
         ></v-textarea>
         <div class="mt-3 examples">
           <span>
@@ -52,12 +63,17 @@ export default {
 
   data() {
     return {
-      isEnabled: true,
       areExamplesVisible: false,
       targetConfig: VALID_ASSESSMENT_TARGETS.find(
         (config) => config.value === this.target.key
       ),
     }
+  },
+
+  methods: {
+    validate() {
+      this.$emit('form:validate')
+    },
   },
 }
 </script>

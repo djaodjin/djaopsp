@@ -1,5 +1,10 @@
 <template v-if="targets">
-  <form @submit.prevent="processForm">
+  <v-form
+    ref="form"
+    v-model="isValid"
+    lazy-validation
+    @submit.prevent="processForm"
+  >
     <v-container>
       <v-row>
         <v-col
@@ -12,15 +17,16 @@
           <form-single-target
             :class="[index % 2 ? 'ml-md-6' : 'mr-md-6']"
             :target="target"
+            @form:validate="validateForm"
           />
         </v-col>
       </v-row>
     </v-container>
 
-    <button-primary class="my-5" type="submit">{{
+    <button-primary :disabled="!isValid" class="my-5" type="submit">{{
       $t('targets.tab1.btn-submit')
     }}</button-primary>
-  </form>
+  </v-form>
 </template>
 
 <script>
@@ -35,6 +41,7 @@ export default {
 
   data() {
     return {
+      isValid: true,
       targets: [],
     }
   },
@@ -49,19 +56,26 @@ export default {
 
   methods: {
     processForm: function () {
-      // TODO: form validation & do not submit targets that have been unchecked
-      postTargets(this.organization.id, this.assessment.id, this.targets)
-        .then((assessment) => {
-          this.$context.updateAssessment(assessment)
-          this.$router.push({
-            name: 'assessmentHome',
-            params: { id: assessment.id },
+      this.isValid = this.$refs.form.validate()
+      if (this.isValid) {
+        postTargets(this.organization.id, this.assessment.id, this.targets)
+          .then((assessment) => {
+            this.$context.updateAssessment(assessment)
+            this.$router.push({
+              name: 'assessmentHome',
+              params: { id: assessment.id },
+            })
           })
-        })
-        .catch((error) => {
-          // TODO: Handle error
-          console.log('Ooops ... something broke')
-        })
+          .catch((error) => {
+            // TODO: Handle error
+            console.log('Ooops ... something broke')
+          })
+      }
+    },
+    validateForm: function () {
+      if (!this.isValid) {
+        this.isValid = this.$refs.form.validate()
+      }
     },
   },
 
