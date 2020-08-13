@@ -5,11 +5,14 @@
         <v-col
           class="px-0"
           cols="12"
-          xl="6"
-          v-for="target in targets"
+          md="6"
+          v-for="(target, index) in targets"
           :key="target.key"
         >
-          <form-single-target :target="target" />
+          <form-single-target
+            :class="[index % 2 ? 'ml-md-6' : 'mr-md-6']"
+            :target="target"
+          />
         </v-col>
       </v-row>
     </v-container>

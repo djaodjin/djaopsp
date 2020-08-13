@@ -1,5 +1,5 @@
 <template>
-  <fragment>
+  <div v-bind="$attrs">
     <v-checkbox class="mt-0" v-model="isEnabled" hide-details>
       <template v-slot:label>
         <b>{{ targetConfig.text }}</b>
@@ -15,7 +15,7 @@
           hide-details="auto"
           auto-grow
           outlined
-          rows="4"
+          rows="5"
           row-height="16"
         ></v-textarea>
         <div class="mt-3 examples">
@@ -39,11 +39,10 @@
         </div>
       </div>
     </v-expand-transition>
-  </fragment>
+  </div>
 </template>
 
 <script>
-import { Fragment } from 'vue-fragment'
 import { VALID_ASSESSMENT_TARGETS } from '@/config/app'
 
 export default {
@@ -59,10 +58,6 @@ export default {
         (config) => config.value === this.target.key
       ),
     }
-  },
-
-  components: {
-    Fragment,
   },
 }
 </script>

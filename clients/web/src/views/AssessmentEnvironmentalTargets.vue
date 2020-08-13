@@ -6,13 +6,7 @@
       :industryName="assessment.industryName"
       :title="$t('targets.title')"
     />
-    <tab-container
-      :tabs="tabs"
-      :mdCol="6"
-      :lgCol="6"
-      :xlLeftCol="8"
-      :xlRightCol="4"
-    >
+    <tab-container :tabs="tabs" :xlLeftCol="8" :xlRightCol="4">
       <template v-slot:tab1>
         <tab-header :text="$t('targets.tab1.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
@@ -30,13 +24,24 @@
               })
             }}
           </p>
-          <ul v-for="(benchmark, index) in score.benchmarks" :key="index">
-            <chart-practices-implementation
-              :section="benchmark.section"
-              :scores="benchmark.scores"
-              :companyScore="benchmark.companyScore"
-            />
-          </ul>
+          <v-container>
+            <v-row>
+              <v-col
+                cols="12"
+                sm="6"
+                xl="12"
+                v-for="(benchmark, index) in score.benchmarks"
+                :key="index"
+              >
+                <chart-practices-implementation
+                  :class="[index % 2 ? 'ml-sm-3 ml-md-6' : 'mr-sm-3 mr-md-6']"
+                  :section="benchmark.section"
+                  :scores="benchmark.scores"
+                  :companyScore="benchmark.companyScore"
+                />
+              </v-col>
+            </v-row>
+          </v-container>
         </div>
       </template>
     </tab-container>
