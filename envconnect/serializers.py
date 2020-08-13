@@ -274,22 +274,6 @@ class AssessmentMeasuresSerializer(NoModelSerializer):
     measures = MeasureSerializer(many=True)
 
 
-class ImprovementSerializer(AnswerSerializer):
-
-    measured = serializers.CharField(required=False)
-    consumption = serializers.SerializerMethodField()
-
-    class Meta(object):
-        model = Answer
-        fields = ('created_at', 'measured', 'consumption')
-
-    @staticmethod
-    def get_consumption(obj):
-        if obj and obj.question:
-            return obj.question.path
-        return None
-
-
 class KeyValueTuple(serializers.ListField):
 
     child = serializers.CharField() # XXX (String, Integer)

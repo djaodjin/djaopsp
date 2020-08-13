@@ -10,12 +10,13 @@ from rest_framework.generics import (get_object_or_404, ListAPIView,
 from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
     DestroyModelMixin, UpdateModelMixin)
 from rest_framework.response import Response
+from survey.api.sample import AnswerAPIView
+from survey.api.serializers import AnswerSerializer
 from survey.models import EnumeratedQuestions, get_question_model
 
 from ..mixins import ImprovementQuerySetMixin
 from ..models import Consumption
 from ..scores import freeze_scores
-from ..serializers import ImprovementSerializer
 
 
 class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
@@ -53,7 +54,7 @@ class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
             ]
         }
     """
-    serializer_class = ImprovementSerializer
+    serializer_class = AnswerSerializer
 
     def get_serializer_context(self):
         """
@@ -68,9 +69,7 @@ class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):
         return context
 
 
-class ImprovementAnswerAPIView(ImprovementQuerySetMixin,
-                               CreateModelMixin, RetrieveModelMixin,
-                               DestroyModelMixin, GenericAPIView):
+class ImprovementAnswerAPIView(ImprovementQuerySetMixin, AnswerAPIView):
     """
     Retrieves a single improvement
 
@@ -88,7 +87,11 @@ class ImprovementAnswerAPIView(ImprovementQuerySetMixin,
         GET /api/xia/improvement/1/ HTTP/1.1
 
     """
-    serializer_class = ImprovementSerializer
+    serializer_class = AnswerSerializer
+
+    @property
+    def sample(self):
+        return self.improvement_sample
 
     def get_object(self):
         return get_object_or_404(self.get_queryset(),
@@ -106,29 +109,6 @@ class ImprovementAnswerAPIView(ImprovementQuerySetMixin,
         context = super(ImprovementAnswerAPIView, self).get_serializer_context()
         context.update({'question': self.question})
         return context
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        # Implementation Note: We need to set the `measured` field
-        # otherwise `get_scored_answers` will return a numerator
-        # of zero. We use `NEEDS_SIGNIFICANT_IMPROVEMENT` such
-        # as to be conservative in the calculation.
-        measured = serializer.validated_data.get('measured',
-            Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT)
-        with transaction.atomic():
-            self.get_or_create_improve_sample()
-            with transaction.atomic():
-                rank = EnumeratedQuestions.objects.get(
-                    campaign=self.improvement_sample.survey,
-                    question=self.question).rank
-                _, created = self.model.objects.update_or_create(
-                    sample=self.improvement_sample,
-                    question=self.question,
-                    metric=self.question.default_metric,
-                    defaults={'measured': measured, 'rank': rank})
-        return Response({},
-            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
         # get_queryset() will filter by `account`. We filter by `path`
