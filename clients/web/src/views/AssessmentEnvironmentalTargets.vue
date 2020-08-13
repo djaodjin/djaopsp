@@ -11,7 +11,10 @@
         <tab-header :text="$t('targets.tab1.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
           <p class="mb-0">{{ $t('targets.tab1.intro') }}</p>
-          <form-environmental-targets :assessment="assessment" />
+          <form-environmental-targets
+            :organization="organization"
+            :assessment="assessment"
+          />
         </div>
       </template>
       <template v-slot:tab2>

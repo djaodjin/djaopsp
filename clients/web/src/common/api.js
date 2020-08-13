@@ -153,3 +153,12 @@ export async function postAssessment(payload) {
   const { assessment } = await response.json()
   return new Assessment(assessment)
 }
+
+export async function postTargets(organizationId, assessmentId, payload) {
+  const response = await request(`/targets/${organizationId}/${assessmentId}`, {
+    body: payload,
+  })
+  if (!response.ok) throw new APIError(response.status)
+  const { assessment, targets } = await response.json()
+  return new Assessment({ ...assessment, targets })
+}

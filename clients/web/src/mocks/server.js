@@ -373,6 +373,25 @@ export function makeServer({ environment = 'development' }) {
         // TODO: Create assessment with attrs
         return this.create('assessment')
       })
+
+      this.post('/targets/:organizationId/:assessmentId', (schema, request) => {
+        const { assessmentId } = request.params
+        const targets = JSON.parse(request.requestBody)
+
+        const assessment = schema.assessments.find(assessmentId)
+        targets.forEach((target) => {
+          const { id, ...attrs } = target
+          if (assessment.targetIds.includes(id)) {
+            // update target
+            schema.targets.find(id).update(attrs)
+          } else {
+            // create target
+            const newTarget = this.create('target', attrs)
+            assessment.targets.add(newTarget)
+          }
+        })
+        return assessment
+      })
     },
   })
 }

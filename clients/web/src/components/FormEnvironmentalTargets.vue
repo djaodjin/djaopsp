@@ -24,33 +24,44 @@
 </template>
 
 <script>
+import { postTargets } from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import FormSingleTarget from '@/components/FormSingleTarget'
 
 export default {
   name: 'AssessmentEnvironmentalTargets',
 
-  props: ['assessment'],
+  props: ['organization', 'assessment'],
 
-  computed: {
-    targets() {
-      return (
+  data() {
+    return {
+      targets: [],
+    }
+  },
+
+  watch: {
+    assessment: function () {
+      this.targets =
         this.assessment.targets &&
         this.assessment.targets.map((target) => target.clone())
-      )
     },
   },
 
   methods: {
     processForm: function () {
       // TODO: form validation & do not submit targets that have been unchecked
-      console.log('form submitted:')
-      console.log(this.targets)
-
-      this.$router.push({
-        name: 'assessmentHome',
-        params: { id: this.assessment.id },
-      })
+      postTargets(this.organization.id, this.assessment.id, this.targets)
+        .then((assessment) => {
+          this.$context.updateAssessment(assessment)
+          this.$router.push({
+            name: 'assessmentHome',
+            params: { id: assessment.id },
+          })
+        })
+        .catch((error) => {
+          // TODO: Handle error
+          console.log('Ooops ... something broke')
+        })
     },
   },
 
