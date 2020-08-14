@@ -49,6 +49,7 @@ export function makeServer({ environment = 'development' }) {
     models: {
       answer: Model.extend({
         question: belongsTo(),
+        assessment: belongsTo(),
       }),
       assessment: Model.extend({
         targets: hasMany(),
@@ -113,6 +114,9 @@ export function makeServer({ environment = 'development' }) {
           // Smaller chance of showing a comment
           const comment = Math.random() > 0.8 ? faker.lorem.sentences(3) : ''
           return [faker.random.arrayElement(options), comment]
+        },
+        answered() {
+          return true
         },
 
         // Current answers won't have a frozen date
@@ -276,24 +280,31 @@ export function makeServer({ environment = 'development' }) {
     seeds(server) {
       server.loadFixtures()
 
+      const assessmentWithAnswers = server.create('assessment', {
+        targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
+          server.create('target', { key })
+        ),
+        practices: server.createList('practice', 10),
+        score: server.create('score', {
+          benchmarks: server.createList('benchmark', NUM_BENCHMARKS, {
+            coefficient: (1 / NUM_BENCHMARKS).toFixed(2),
+          }),
+        }),
+        status: STEP_SHARE_KEY,
+      })
+
+      assessmentWithAnswers.practices.models.forEach((practice) => {
+        server.create('answer', {
+          question: practice.question,
+          assessment: assessmentWithAnswers,
+        })
+      })
+
       // Organization with active assessment with existing environmental targets and improvement plan
       server.create('organization', {
         id: 'marlin',
         name: 'Blue Marlin',
-        assessments: [
-          server.create('assessment', {
-            targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
-              server.create('target', { key })
-            ),
-            practices: server.createList('practice', 10),
-            score: server.create('score', {
-              benchmarks: server.createList('benchmark', NUM_BENCHMARKS, {
-                coefficient: (1 / NUM_BENCHMARKS).toFixed(2),
-              }),
-            }),
-            status: STEP_SHARE_KEY,
-          }),
-        ],
+        assessments: [assessmentWithAnswers],
       })
 
       // Organization with active assessments at every step in the process
@@ -316,12 +327,6 @@ export function makeServer({ environment = 'development' }) {
       server.createList('organizationGroup', 5, {
         organizations: server.createList('organization', 10),
       })
-
-      server
-        .createList('practice', 20)
-        .forEach((practice) =>
-          server.create('question', 'withPreviousAnswers', { practice })
-        )
 
       // Add a list of questions with previous answers
       // and additionally add a current answer to each one

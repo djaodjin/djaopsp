@@ -87,7 +87,10 @@ export default {
 
   computed: {
     unanswered() {
-      return this.questions.filter((question) => !question.currentAnswer)
+      return this.questions.filter(
+        (question) =>
+          !question.currentAnswer || !question.currentAnswer.answered
+      )
     },
     hasPreviousAnswers() {
       return this.questions.some((question) => question.previousAnswers.length)
