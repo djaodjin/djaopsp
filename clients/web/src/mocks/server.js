@@ -368,6 +368,14 @@ export function makeServer({ environment = 'development' }) {
         return schema.shareEntries.all()
       })
 
+      this.patch('/assessments/:id', (schema, request) => {
+        const { id } = request.params
+        const properties = JSON.parse(request.requestBody)
+        const assessment = schema.assessments.find(id)
+        assessment.update(properties)
+        return assessment
+      })
+
       this.post('/assessments', (schema, request) => {
         // let attrs = JSON.parse(request.requestBody)
         // TODO: Create assessment with attrs
