@@ -21,7 +21,8 @@ export default {
 
   methods: {
     processForm: function () {
-      this.$emit('submit', [this.textAnswer])
+      const isEmpty = !this.textAnswer
+      this.$emit('submit', [this.textAnswer], isEmpty)
     },
     updateAnswer(value) {
       this.textAnswer = value

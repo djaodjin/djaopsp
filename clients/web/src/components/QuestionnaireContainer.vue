@@ -66,11 +66,7 @@ export default {
   },
 
   methods: {
-    saveAndContinue(answers) {
-      this.currentQuestion.currentAnswer = new Answer({
-        ...this.currentAnswer,
-        ...{ answers: answers },
-      })
+    saveAndContinue(answers, isEmpty) {
       const callback = this.nextQuestion
         ? function () {
             const queryParams = {
@@ -91,11 +87,20 @@ export default {
             })
           }.bind(this)
 
-      // TODO: Post answer to the backend then ...
-      console.log('saving ...')
-      console.log(this.currentQuestion.currentAnswer)
+      if (!isEmpty) {
+        this.currentQuestion.currentAnswer = new Answer({
+          ...this.currentAnswer,
+          ...{ answers: answers },
+        })
 
-      callback()
+        // TODO: Post answer to the backend then ...
+        console.log('saving ...')
+        console.log(this.currentQuestion.currentAnswer)
+        callback()
+      } else {
+        console.log('empty answer ... continue')
+        callback()
+      }
     },
   },
 

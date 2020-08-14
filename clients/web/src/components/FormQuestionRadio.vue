@@ -40,7 +40,8 @@ export default {
 
   methods: {
     processForm: function () {
-      this.$emit('submit', [this.selectedOption, this.comment])
+      const isEmpty = !this.selectedOption
+      this.$emit('submit', [this.selectedOption, this.comment], isEmpty)
     },
     updateComment(value) {
       this.comment = value
