@@ -50,7 +50,7 @@
     </tab-container>
     <dialog-confirm
       storageKey="previousTargets"
-      :checkStateAsync="checkPreviousTargets"
+      :showFunctionAsync="checkPreviousTargets"
       title="Previous Targets"
       actionText="Ok, thanks"
     >

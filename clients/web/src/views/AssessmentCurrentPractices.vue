@@ -33,7 +33,7 @@
     </div>
     <dialog-confirm
       storageKey="previousAnswers"
-      :checkStateAsync="hasPreviousAnswers"
+      :showValue="hasPreviousAnswers"
       title="Previous Answers"
       actionText="Ok, thanks"
     >
