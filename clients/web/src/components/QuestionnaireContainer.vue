@@ -35,7 +35,7 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 export default {
   name: 'QuestionnaireContainer',
 
-  props: ['questionId', 'questions'],
+  props: ['questionId', 'questions', 'answers'],
 
   computed: {
     currentQuestionIdx() {
@@ -45,14 +45,7 @@ export default {
       return this.questions[this.currentQuestionIdx]
     },
     currentAnswer() {
-      let answer = this.currentQuestion.currentAnswer
-      if (!answer) {
-        answer = new Answer({
-          question: this.currentQuestion,
-          author: 'author@email.com', // TODO: Replace with user info
-        })
-      }
-      return answer
+      return this.answers.find((a) => a.question.id === this.questionId)
     },
     nextQuestion() {
       if (this.questions.length <= 1) return null
@@ -87,20 +80,13 @@ export default {
             })
           }.bind(this)
 
-      if (!isEmpty) {
-        this.currentQuestion.currentAnswer = new Answer({
-          ...this.currentAnswer,
-          ...{ answers: answers },
-        })
+      const updatedAnswer = new Answer({
+        ...this.currentAnswer,
+        answers,
+        answered: !isEmpty,
+      })
 
-        // TODO: Post answer to the backend then ...
-        console.log('saving ...')
-        console.log(this.currentQuestion.currentAnswer)
-        callback()
-      } else {
-        console.log('empty answer ... continue')
-        callback()
-      }
+      this.$emit('saveAnswer', updatedAnswer, callback)
     },
   },
 

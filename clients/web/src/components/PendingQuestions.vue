@@ -27,6 +27,8 @@
         <questionnaire-container
           :questionId="$route.query.question"
           :questions="questions"
+          :answers="answers"
+          @saveAnswer="saveAnswer"
         />
       </div>
       <div v-else class="pending-questions py-4" key="pendingQuestions">
@@ -87,7 +89,13 @@ import TabHeader from '@/components/TabHeader'
 export default {
   name: 'PendingQuestions',
 
-  props: ['header', 'questions'],
+  props: ['header', 'questions', 'answers'],
+
+  methods: {
+    saveAnswer(...args) {
+      this.$emit('saveAnswer', ...args)
+    },
+  },
 
   components: {
     PracticeSectionHeader,

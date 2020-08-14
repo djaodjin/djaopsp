@@ -37,6 +37,8 @@
         <questionnaire-container
           :questionId="$route.query.question"
           :questions="questions"
+          :answers="answers"
+          @saveAnswer="saveAnswer"
         />
       </div>
       <div
@@ -54,6 +56,7 @@
           <practice-section-subcategory
             :section="section"
             :subcategory="subcategory"
+            :answers="answers"
           />
           <next-practice-section
             class="mt-4"
@@ -113,7 +116,13 @@ import TabHeader from '@/components/TabHeader'
 export default {
   name: 'AssessmentSections',
 
-  props: ['header', 'questions', 'unanswered'],
+  props: ['header', 'questions', 'answers', 'unanswered'],
+
+  methods: {
+    saveAnswer(...args) {
+      this.$emit('saveAnswer', ...args)
+    },
+  },
 
   computed: {
     sectionList() {

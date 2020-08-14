@@ -1,10 +1,11 @@
+import Answer from './Answer'
 import Assessment from './Assessment'
 import Benchmark from './Benchmark'
 import Organization from './Organization'
 import OrganizationGroup from './OrganizationGroup'
+import Question from './Question'
 import Score from './Score'
 import { getPracticeList } from './Practice'
-import { getQuestionList } from './Question'
 import { getShareEntryList } from './ShareEntry'
 import { VALID_ASSESSMENT_STEPS } from '../config/app'
 
@@ -66,6 +67,13 @@ export async function createAssessment(payload) {
   if (!response.ok) throw new APIError(response.status)
   const { assessment } = await response.json()
   return new Assessment(assessment)
+}
+
+export async function getAnswers(organizationId, assessmentId) {
+  const response = await request(`/answers/${organizationId}/${assessmentId}`)
+  if (!response.ok) throw new APIError(response.status)
+  const { answers } = await response.json()
+  return answers.map((answer) => new Answer(answer))
 }
 
 export async function getAssessment(assessmentId) {
@@ -148,8 +156,8 @@ export async function getOrganizations() {
 export async function getPractices(organizationId, assessmentId) {
   const response = await request(`/practices/${organizationId}/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
-  const { practices, questions, answers } = await response.json()
-  return getPracticeList(practices, questions, answers)
+  const { practices, questions } = await response.json()
+  return getPracticeList(practices, questions)
 }
 
 export async function getPracticeSearchResults(organizationId, assessmentId) {
@@ -159,8 +167,8 @@ export async function getPracticeSearchResults(organizationId, assessmentId) {
 export async function getQuestions(organizationId, assessmentId) {
   const response = await request(`/questions/${organizationId}/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
-  const { questions, answers } = await response.json()
-  return getQuestionList(questions, answers)
+  const { questions } = await response.json()
+  return questions.map((question) => new Question(question))
 }
 
 export async function getScore(organizationId, assessmentId) {
