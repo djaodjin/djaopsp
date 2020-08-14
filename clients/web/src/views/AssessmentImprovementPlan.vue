@@ -6,8 +6,8 @@
       :industryName="assessment.industryName"
       :title="$t('improvement-plan.title')"
     />
-    <tab-container :tabs="tabs" :lgCol="6">
-      <template v-slot:tab2.title>
+    <tab-container :tabs="tabs" :lgCol="6" :xlCol="6">
+      <template v-slot:tab2-title>
         <v-badge
           color="secondary"
           :content="planPractices.length"
@@ -64,6 +64,7 @@ export default {
       ])
       this.organization = organization
       this.assessment = assessment
+      this.planPractices = assessment.improvementPlan.slice()
     },
     addPractice(practice) {
       this.planPractices.push(practice)

@@ -41,32 +41,40 @@
 export default {
   name: 'ScorecardScores',
 
-  props: ['scores'],
+  props: {
+    scores: {
+      type: Object,
+      default: function () {
+        return {}
+      },
+    },
+  },
 
   computed: {
     sortedScores() {
-      if (!this.scores) return []
+      if (Object.keys(this.scores).length === 0) return []
+      const { top, own, average, isValid } = this.scores
       const sorted = [
         {
           owner: false,
           title: 'Top Score',
-          score: this.scores.top,
+          score: top,
         },
       ]
       const unsorted = [
         {
           owner: false,
           title: 'Average Score',
-          score: this.scores.average,
+          score: average,
         },
         {
           owner: true,
           title: 'Your Score',
-          score: this.scores.own.score,
-          isValid: this.scores.own.isValid,
+          score: own,
+          isValid,
         },
       ]
-      if (this.scores.own.score < this.scores.average) {
+      if (own < average) {
         sorted.push(unsorted[0])
         sorted.push(unsorted[1])
       } else {

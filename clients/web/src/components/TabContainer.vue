@@ -40,14 +40,14 @@
           :href="'#' + tabs[0].href"
           @click="refreshURL(tabs[0].href)"
         >
-          <slot name="tab1.title">{{ tabs[0].text }}</slot>
+          <slot name="tab1-title">{{ tabs[0].text }}</slot>
         </v-tab>
         <v-tab
           class="tab"
           :href="'#' + tabs[1].href"
           @click="refreshURL(tabs[1].href)"
         >
-          <slot name="tab2.title">{{ tabs[1].text }}</slot>
+          <slot name="tab2-title">{{ tabs[1].text }}</slot>
         </v-tab>
 
         <v-tab-item :value="tabs[0].href">

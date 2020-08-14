@@ -1,5 +1,5 @@
 export default class FormQuestion {
-  constructor(name, options = []) {
+  constructor({ name, options = [] }) {
     this.name = name
     this.options = options
   }

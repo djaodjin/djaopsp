@@ -66,8 +66,7 @@
                 currentStepIndex <= i ||
                 currentStep.key === STEP_SHARE_KEY ||
                 step.key !== STEP_TARGETS_KEY ||
-                (step.key === STEP_TARGETS_KEY &&
-                  assessment.targets.length > 0),
+                (step.key === STEP_TARGETS_KEY && assessmentHasTargets),
               () =>
                 currentStepIndex <= i ||
                 currentStep.key === STEP_SHARE_KEY ||
@@ -216,6 +215,10 @@ export default {
     },
     samplePath() {
       return this.assessment.industryPath
+    },
+    assessmentHasTargets() {
+      // At least one of the targets has text
+      return this.assessment.targets.some((target) => target.text)
     },
   },
 

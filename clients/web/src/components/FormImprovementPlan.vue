@@ -71,7 +71,7 @@
 <script>
 import { PRACTICE_VALUES, PRACTICE_VALUE_CATEGORIES } from '@/config/app'
 import { Fragment } from 'vue-fragment'
-import { getResults } from '../mocks/ip-results'
+import { getPracticeSearchResults } from '@/common/api'
 import MatchingPractices from '@/components/MatchingPractices'
 import ButtonPrimary from '@/components/ButtonPrimary'
 
@@ -92,7 +92,7 @@ export default {
       this.$emit('practice:remove', ...args)
     },
     async findResults() {
-      this.matchingPractices = await getResults({
+      this.matchingPractices = await getPracticeSearchResults({
         areas: this.selectedAreas,
         practiceValue: this.practiceValue,
         practiceValueRange: this.practiceValueRange,
@@ -136,7 +136,7 @@ export default {
         { text: 'Water Usage', value: 'E3' },
         { text: 'Waste Reduction', value: 'E4' },
         { divider: true },
-        { header: 'Business Areas' },
+        { header: 'Business Areas' }, // TODO: List should come from API call
         { text: 'Governance & Management', value: 'B1' },
         { text: 'Engineering & Design', value: 'B2' },
         { text: 'Procurement', value: 'B3' },

@@ -19,7 +19,6 @@
               :section="section"
               :subcategory="subcategory"
               :question="question"
-              :answers="answers"
             />
           </tr>
         </tbody>
@@ -35,7 +34,7 @@ import PracticeSectionSubcategoryRow from './PracticeSectionSubcategoryRow'
 export default {
   name: 'PracticeSectionSubcategory',
 
-  props: ['section', 'subcategory', 'answers'],
+  props: ['section', 'subcategory'],
 
   components: {
     PracticeSectionHeader,

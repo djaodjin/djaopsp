@@ -16,8 +16,8 @@
       <template v-slot:tab1>
         <tab-header :text="$t('targets.tab1.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
-          <p>{{ $t('targets.tab1.intro') }}</p>
-          <form-environmental-targets :assessmentId="id" />
+          <p class="mb-0">{{ $t('targets.tab1.intro') }}</p>
+          <form-environmental-targets :assessment="assessment" />
         </div>
       </template>
       <template v-slot:tab2>
@@ -30,11 +30,11 @@
               })
             }}
           </p>
-          <ul v-for="(data, index) in benchmarkData" :key="index">
+          <ul v-for="(benchmark, index) in score.benchmarks" :key="index">
             <chart-practices-implementation
-              :section="data.section"
-              :scores="data.scores"
-              :companyScore="data.companyScore"
+              :section="benchmark.section"
+              :scores="benchmark.scores"
+              :companyScore="benchmark.companyScore"
             />
           </ul>
         </div>
@@ -58,8 +58,8 @@
 </template>
 
 <script>
-import { getBenchmarkData } from '../mocks/benchmarks'
 import { Fragment } from 'vue-fragment'
+import { getScore } from '@/common/api'
 import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
@@ -76,20 +76,16 @@ export default {
     this.fetchData()
   },
 
-  // updated() {
-  //   console.log(this.benchmarkData)
-  // },
-
   methods: {
     async fetchData() {
-      const [organization, assessment, benchmarkData] = await Promise.all([
+      const [organization, assessment, score] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.id),
-        getBenchmarkData(),
+        getScore(this.org, this.id),
       ])
       this.organization = organization
       this.assessment = assessment
-      this.benchmarkData = benchmarkData
+      this.score = score
     },
     async checkPreviousTargets() {
       // TODO: Send request to check if previous targets have been submitted
@@ -104,7 +100,7 @@ export default {
     return {
       organization: {},
       assessment: {},
-      benchmarkData: [],
+      score: {},
       tabs: [
         { text: this.$t('targets.tab1.title'), href: 'tab-1' },
         { text: this.$t('targets.tab2.title'), href: 'tab-2' },

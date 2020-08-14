@@ -37,8 +37,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getShareHistory } from '../mocks/history'
-import { getOrganizations, getOrganizationGroups } from '../mocks/organizations'
+import { getOrganizations, getShareHistory } from '@/common/api'
 import FormShareAssessment from '@/components/FormShareAssessment'
 import HeaderSecondary from '@/components/HeaderSecondary'
 import ShareHistory from '@/components/ShareHistory'
@@ -60,21 +59,19 @@ export default {
         organization,
         assessment,
         history,
-        groups,
         organizations,
       ] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.id),
         getShareHistory(),
-        getOrganizationGroups(),
         getOrganizations(),
       ])
 
       this.organization = organization
       this.assessment = assessment
       this.history = history
-      this.groups = groups
-      this.organizations = organizations
+      this.groups = organizations.groups
+      this.organizations = organizations.individuals
     },
   },
 

@@ -4,8 +4,8 @@
     <b>{{ answerText }}</b>
     <p class="text-caption mt-1 mb-0">
       Submitted by {{ previousAnswer.author }} on
-      <span v-format-date>{{ previousAnswer.modified.toISOString() }}</span> in
-      previous sustainability assessment.
+      <span v-format-date>{{ previousAnswer.frozen }}</span> in previous
+      sustainability assessment.
     </p>
   </v-card>
 </template>
@@ -26,7 +26,7 @@ export default {
     answerText() {
       return (
         this.previousAnswer &&
-        MAP_QUESTION_FORM_TYPES[this.previousAnswer.questionType].render(
+        MAP_QUESTION_FORM_TYPES[this.previousAnswer.question.type].render(
           this.previousAnswer.answers
         )
       )
