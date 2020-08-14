@@ -35,6 +35,13 @@ function request(endpoint, { body, method, ...customConfig } = {}) {
   return fetch(url, config)
 }
 
+export async function createAssessment(payload) {
+  const response = await request('/assessments', { body: payload })
+  if (!response.ok) throw new APIError(response.status)
+  const { assessment } = await response.json()
+  return new Assessment(assessment)
+}
+
 export async function getAssessment(assessmentId) {
   const response = await request(`/assessments/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
@@ -145,13 +152,6 @@ export async function getShareHistory(organizationId, assessmentId) {
   const { shareEntries, organizations } = await response.json()
   const history = getShareEntryList(shareEntries, organizations)
   return history
-}
-
-export async function postAssessment(payload) {
-  const response = await request('/assessments', { body: payload })
-  if (!response.ok) throw new APIError(response.status)
-  const { assessment } = await response.json()
-  return new Assessment(assessment)
 }
 
 export async function postTargets(organizationId, assessmentId, payload) {
