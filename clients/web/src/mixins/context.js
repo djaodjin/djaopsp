@@ -1,10 +1,10 @@
 import Vue from 'vue'
-import { getAssessment } from '../mocks/assessments'
-import { getOrganization } from '../mocks/organizations'
 import {
+  getAssessment,
   getIndustrySegments,
   getPreviousIndustrySegments,
-} from '../mocks/industry-segments'
+  getOrganization,
+} from '@/common/api'
 
 Vue.mixin({
   beforeCreate() {
@@ -21,35 +21,7 @@ Vue.mixin({
   },
 })
 
-function previousIndustriesToList(previousIndustries) {
-  const results = []
-
-  for (let i = 0, parent = null; i < previousIndustries.length; i++) {
-    const entry = previousIndustries[i]
-    const { path, title, indent } = entry
-
-    if (path && indent === 0) {
-      // Unset grouping parent
-      if (parent) parent = null
-      results.push({ text: title, value: path })
-    } else if (path && indent === 1) {
-      // Entry with parent
-      if (!parent) {
-        console.warn(`Entry ${path}: ${title} has indent=1 but no parent`)
-      } else {
-        results.push({
-          text: `${parent.title} > ${title}`,
-          value: path,
-        })
-      }
-    } else {
-      parent = entry
-    }
-  }
-  return results
-}
-
-function industriesToList(industries) {
+function industriesToList(industries, groupChildren) {
   const results = []
 
   for (let i = 0, parent = null; i < industries.length; i++) {
@@ -68,12 +40,14 @@ function industriesToList(industries) {
         results.push({
           text: title,
           value: path,
-          isChild: true,
+          isChild: groupChildren,
         })
       }
     } else {
       parent = entry
-      results.push({ header: entry.title.toUpperCase() })
+      if (groupChildren) {
+        results.push({ header: entry.title.toUpperCase() })
+      }
     }
   }
   return results
@@ -84,12 +58,10 @@ function createIndustryList(previousIndustries, industries) {
 
   if (previousIndustries.length) {
     industryList.push({ header: 'PREVIOUSLY SELECTED' })
-    industryList = industryList.concat(
-      previousIndustriesToList(previousIndustries)
-    )
+    industryList = industryList.concat(industriesToList(previousIndustries))
     industryList.push({ divider: true })
   }
-  return industryList.concat(industriesToList(industries))
+  return industryList.concat(industriesToList(industries, true))
 }
 
 export default class Context {
@@ -99,12 +71,12 @@ export default class Context {
     this.industries = []
   }
 
-  async getAssessment(id) {
-    if (this.assessments.has(id)) {
-      return this.assessments.get(id)
+  async getAssessment(assessmentId) {
+    if (this.assessments.has(assessmentId)) {
+      return this.assessments.get(assessmentId)
     } else {
-      const assessment = await getAssessment(id)
-      this.assessments.set(id, assessment)
+      const assessment = await getAssessment(assessmentId)
+      this.assessments.set(assessmentId, assessment)
       return assessment
     }
   }
@@ -115,20 +87,17 @@ export default class Context {
         getIndustrySegments(),
         getPreviousIndustrySegments(),
       ])
-      this.industries = createIndustryList(
-        previousIndustries.results,
-        industries.results
-      )
+      this.industries = createIndustryList(previousIndustries, industries)
     }
     return this.industries
   }
 
-  async getOrganization(id) {
-    if (this.organizations.has(id)) {
-      return this.organizations.get(id)
+  async getOrganization(organizationId) {
+    if (this.organizations.has(organizationId)) {
+      return this.organizations.get(organizationId)
     } else {
-      const organization = await getOrganization(id)
-      this.organizations.set(id, organization)
+      const organization = await getOrganization(organizationId)
+      this.organizations.set(organizationId, organization)
       return organization
     }
   }

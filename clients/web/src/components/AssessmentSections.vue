@@ -37,8 +37,6 @@
         <questionnaire-container
           :questionId="$route.query.question"
           :questions="questions"
-          :answers="answers"
-          @saveAnswer="saveAnswer"
         />
       </div>
       <div
@@ -56,7 +54,6 @@
           <practice-section-subcategory
             :section="section"
             :subcategory="subcategory"
-            :answers="answers"
           />
           <next-practice-section
             class="mt-4"
@@ -74,7 +71,10 @@
             v-for="loopSection in sections"
             :key="loopSection.id"
           >
-            <practice-group-header class="mt-2 mb-4" :section="loopSection" />
+            <practice-group-header
+              class="mt-2 mb-4"
+              :section="loopSection.content"
+            />
             <v-list-item
               v-for="loopSubcategory in loopSection.subcategories"
               :key="loopSubcategory.id"
@@ -113,13 +113,7 @@ import TabHeader from '@/components/TabHeader'
 export default {
   name: 'AssessmentSections',
 
-  props: ['header', 'questions', 'answers', 'unanswered'],
-
-  methods: {
-    saveAnswer(...args) {
-      this.$emit('saveAnswer', ...args)
-    },
-  },
+  props: ['header', 'questions', 'unanswered'],
 
   computed: {
     sectionList() {

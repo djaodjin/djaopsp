@@ -7,77 +7,86 @@ function answersWarning(answers) {
   return ''
 }
 
-const FormQuestionRadioDiscrete = new FormQuestion('FormQuestionRadio', [
-  {
-    text: 'Yes',
-    value: 'yes',
-  },
-  {
-    text: 'No',
-    value: 'no',
-  },
-])
+const FormQuestionRadioDiscrete = new FormQuestion({
+  name: 'FormQuestionRadio',
+  options: [
+    {
+      text: 'Yes',
+      value: 'yes',
+    },
+    {
+      text: 'No',
+      value: 'no',
+    },
+  ],
+})
 FormQuestionRadioDiscrete.render = function (answers) {
   const selected = this.options.find((opt) => opt.value === answers[0])
   if (selected) return selected.text
   return answersWarning(answers)
 }
 
-const FormQuestionRadioRange = new FormQuestion('FormQuestionRadio', [
-  {
-    text: 'Yes',
-    value: 'yes',
-  },
-  {
-    text: 'Mostly Yes',
-    value: 'most-yes',
-  },
-  {
-    text: 'Mostly No',
-    value: 'most-no',
-  },
-  {
-    text: 'No',
-    value: 'no',
-  },
-  {
-    text: 'Not Applicable',
-    value: 'not-app',
-  },
-])
+const FormQuestionRadioRange = new FormQuestion({
+  name: 'FormQuestionRadio',
+  options: [
+    {
+      text: 'Yes',
+      value: 'yes',
+    },
+    {
+      text: 'Mostly Yes',
+      value: 'most-yes',
+    },
+    {
+      text: 'Mostly No',
+      value: 'most-no',
+    },
+    {
+      text: 'No',
+      value: 'no',
+    },
+    {
+      text: 'Not Applicable',
+      value: 'not-app',
+    },
+  ],
+})
 FormQuestionRadioRange.render = function (answers) {
   const selected = this.options.find((opt) => opt.value === answers[0])
   if (selected) return selected.text
   return answersWarning(answers)
 }
 
-const FormQuestionRadioLabeled = new FormQuestion('FormQuestionRadio', [
-  {
-    text:
-      "<b>Initiating:</b><span class='ml-1'>There is minimal management support</span>",
-    value: 'initiating',
-  },
-  {
-    text:
-      "<b>Progressing:</b><span class='ml-1'>Support is visible and clearly demonstrated</span>",
-    value: 'progressing',
-  },
-  {
-    text:
-      "<b>Optimizing:</b><span class='ml-1'>Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals</span>",
-    value: 'optimizing',
-  },
-  {
-    text:
-      "<b>Leading:</b><span class='ml-1'>The Board of Directors annually reviews environmental performance and sets or endorses goals</span>",
-    value: 'leading',
-  },
-  {
-    text:
-      "<b>Transforming:</b><span class='ml-1'>Executive management sponsors transformative change in industry sector and beyond</span>",
-    value: 'transforming',
-  },
-])
+const FormQuestionRadioLabeled = new FormQuestion({
+  name: 'FormQuestionRadio',
+  options: [
+    {
+      text:
+        "<b>Initiating:</b><span class='ml-1'>There is minimal management support</span>",
+      value: 'initiating',
+    },
+    {
+      text:
+        "<b>Progressing:</b><span class='ml-1'>Support is visible and clearly demonstrated</span>",
+      value: 'progressing',
+    },
+    {
+      text:
+        "<b>Optimizing:</b><span class='ml-1'>Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals</span>",
+      value: 'optimizing',
+    },
+    {
+      text:
+        "<b>Leading:</b><span class='ml-1'>The Board of Directors annually reviews environmental performance and sets or endorses goals</span>",
+      value: 'leading',
+    },
+    {
+      text:
+        "<b>Transforming:</b><span class='ml-1'>Executive management sponsors transformative change in industry sector and beyond</span>",
+      value: 'transforming',
+    },
+  ],
+})
 FormQuestionRadioLabeled.render = function (answers) {
   const selected = this.options.find((opt) => opt.value === answers[0])
   if (selected) {
@@ -87,49 +96,52 @@ FormQuestionRadioLabeled.render = function (answers) {
   return answersWarning(answers)
 }
 
-const FormQuestionTextarea = new FormQuestion('FormQuestionTextarea')
+const FormQuestionTextarea = new FormQuestion({ name: 'FormQuestionTextarea' })
 FormQuestionTextarea.render = function (answers) {
   return answers[0] || ''
 }
 
-const FormQuestionQuantity = new FormQuestion('FormQuestionQuantity', [
-  {
-    text: 'Kilowatt-hour (kWh) of Electricity  / Year',
-    value: 'kwh-year',
-  },
-  {
-    text: 'Metric Tons / Year',
-    value: 'tons-year',
-  },
-  {
-    text: 'GHG Emissions',
-    value: 'ghg-emissions-generated',
-  },
-  {
-    text: 'US Gallons / Year',
-    value: 'gallons-year',
-  },
-  {
-    text: 'mmBtu / Year',
-    value: 'mmbtu-year',
-  },
-  {
-    text: 'Cubic meters / Year',
-    value: 'm3-year',
-  },
-  {
-    text: 'Kilo liters / Year',
-    value: 'kiloliters-year',
-  },
-  {
-    text: 'Cubic feet / Year',
-    value: 'ft3-year',
-  },
-  {
-    text: 'Cubic feet / Year',
-    value: 'ft3-year',
-  },
-])
+const FormQuestionQuantity = new FormQuestion({
+  name: 'FormQuestionQuantity',
+  options: [
+    {
+      text: 'Kilowatt-hour (kWh) of Electricity  / Year',
+      value: 'kwh-year',
+    },
+    {
+      text: 'Metric Tons / Year',
+      value: 'tons-year',
+    },
+    {
+      text: 'GHG Emissions',
+      value: 'ghg-emissions-generated',
+    },
+    {
+      text: 'US Gallons / Year',
+      value: 'gallons-year',
+    },
+    {
+      text: 'mmBtu / Year',
+      value: 'mmbtu-year',
+    },
+    {
+      text: 'Cubic meters / Year',
+      value: 'm3-year',
+    },
+    {
+      text: 'Kilo liters / Year',
+      value: 'kiloliters-year',
+    },
+    {
+      text: 'Cubic feet / Year',
+      value: 'ft3-year',
+    },
+    {
+      text: 'Cubic feet / Year',
+      value: 'ft3-year',
+    },
+  ],
+})
 FormQuestionQuantity.render = function (answers) {
   const unit = this.options.find((opt) => opt.value === answers[1])
   if (unit) return `${answers[0]} ${unit.text}`
@@ -179,14 +191,15 @@ export const PRACTICE_VALUE_CATEGORIES = [
 export const PRACTICE_VALUE_CATEGORY_DEFAULT = PRACTICE_VALUE_CATEGORIES[0]
 
 /* --- Assessment Steps --- */
+export const STEP_PRACTICE_KEY = 'practice'
 export const STEP_TARGETS_KEY = 'targets'
 export const STEP_PLAN_KEY = 'plan'
-export const STEP_FREEZE_KEY = 'freeze'
 export const STEP_SCORECARD_KEY = 'scorecard'
+export const STEP_FREEZE_KEY = 'freeze'
 export const STEP_SHARE_KEY = 'share'
 
 export const ASSESSMENT_STEPS = {
-  practice: {
+  [STEP_PRACTICE_KEY]: {
     index: 1,
     text: 'Establish current practices',
     path: 'assessmentPractices',
@@ -236,3 +249,52 @@ export const ASSESSMENT_FLOW = new AssessmentFlow({
 export const VALID_ASSESSMENT_STEPS = Object.keys(ASSESSMENT_STEPS)
 
 export const DEFAULT_ASSESSMENT_STEP = VALID_ASSESSMENT_STEPS[0]
+
+/* --- Assessment Targets --- */
+export const VALID_ASSESSMENT_TARGETS = [
+  {
+    value: 'energy',
+    text: 'Energy Reduction',
+    examples: [
+      'Donec accumsan ipsum ac nibh gravida ornare. Duis eget consequat enim. Sed non lorem sed mauris vestibulum tempus nec nec risus. Mauris vel dolor turpis.',
+      'Vivamus faucibus metus a dui fringilla sodales. Aenean lectus felis, scelerisque sed consectetur eu, elementum quis risus. Ut et pretium nisl. Nam metus elit, ultricies interdum tortor ac, placerat bibendum urna.',
+    ],
+  },
+  {
+    value: 'emissions',
+    text: 'GHG Emissions',
+    examples: [
+      'Praesent ac leo odio. Praesent vel tincidunt risus. In sodales nunc nec lorem vestibulum, eu blandit sapien interdum. Morbi sed auctor lorem. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. In et turpis vel ex venenatis tempus eu in turpis.',
+      'Pellentesque leo nisl, ornare vel sapien a, viverra luctus neque. In hac habitasse platea dictumst. Nullam dictum arcu eget quam tristique, at aliquam ipsum accumsan.',
+      'Duis ultricies orci nec dolor dapibus volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.',
+    ],
+  },
+  {
+    value: 'water',
+    text: 'Water Usage',
+    examples: [
+      'Proin aliquet quam at ante semper aliquam. Nam lacinia ex in nisi tempus, vel iaculis ipsum feugiat. Praesent aliquam libero quis augue posuere tincidunt. Aenean convallis, mi eget tristique suscipit, tortor ipsum aliquet tortor, at scelerisque purus felis sed eros.',
+      'Quisque facilisis semper nulla scelerisque tempus. Vivamus non metus at lectus gravida scelerisque. Interdum et malesuada fames ac ante ipsum primis in faucibus.',
+    ],
+  },
+  {
+    value: 'waste',
+    text: 'Waste Reduction',
+    examples: [
+      'Phasellus congue, erat luctus convallis condimentum, sapien felis fringilla arcu, sed varius libero nisi efficitur lacus. Nam condimentum nisi eget ante faucibus, vel euismod tellus vestibulum. Pellentesque at nulla erat.',
+      'Aliquam dignissim ipsum nec felis pellentesque finibus. Phasellus tristique elementum lobortis. Cras vel ante vitae est iaculis fringilla.',
+    ],
+  },
+]
+
+export const ASSESSMENT_TARGETS_LABELS = VALID_ASSESSMENT_TARGETS.reduce(
+  (acc, target) => {
+    acc[target.value] = target.text
+    return acc
+  },
+  {}
+)
+
+export const VALID_ASSESSMENT_TARGETS_KEYS = VALID_ASSESSMENT_TARGETS.map(
+  (target) => target.value
+)

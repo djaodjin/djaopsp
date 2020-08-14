@@ -1,40 +1,13 @@
 <template>
   <fragment>
-    <v-checkbox class="mt-2" v-model="target.include" hide-details>
+    <v-checkbox class="mt-0" v-model="isEnabled" hide-details>
       <template v-slot:label>
-        <b>{{ label }}</b>
+        <b>{{ targetConfig.text }}</b>
       </template>
     </v-checkbox>
 
     <v-expand-transition>
-      <div class="pl-8 py-1" v-show="target.include">
-        <div class="date-picker">
-          <v-menu
-            :close-on-content-click="false"
-            v-model="menuBy"
-            transition="scale-transition"
-            offset-y
-            max-width="290"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-bind="attrs"
-                v-on="on"
-                hide-details="auto"
-                v-model="target.dateBy"
-                label="By"
-                append-icon="mdi-calendar"
-                readonly
-              ></v-text-field>
-            </template>
-            <v-date-picker
-              v-model="target.dateBy"
-              :min="new Date().toISOString()"
-              @input="menuBy = false"
-            ></v-date-picker>
-          </v-menu>
-        </div>
-
+      <div class="pl-8 py-1" v-show="isEnabled">
         <v-textarea
           class="mt-4"
           :label="$t('targets.tab1.form.textarea-target')"
@@ -45,44 +18,25 @@
           rows="4"
           row-height="16"
         ></v-textarea>
-
-        <div class="date-picker">
-          <v-menu
-            :close-on-content-click="false"
-            v-model="menuBaseline"
-            transition="scale-transition"
-            offset-y
-            max-width="290"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-bind="attrs"
-                v-on="on"
-                hide-details="auto"
-                v-model="target.dateBaseline"
-                label="Baseline"
-                append-icon="mdi-calendar"
-                readonly
-              ></v-text-field>
-            </template>
-            <v-date-picker
-              v-model="target.dateBaseline"
-              :max="new Date().toISOString()"
-              @input="menuBaseline = false"
-            ></v-date-picker>
-          </v-menu>
+        <div class="mt-3 examples">
+          <span>
+            Need help writing your target?
+            <button type="button" @click="areExamplesVisible = true">
+              View some examples.
+            </button>
+          </span>
+          <v-expand-transition>
+            <ul class="ml-4" v-show="areExamplesVisible">
+              <li
+                class="mt-2"
+                v-for="(example, index) in targetConfig.examples"
+                :key="index"
+              >
+                {{ example }}
+              </li>
+            </ul>
+          </v-expand-transition>
         </div>
-
-        <v-textarea
-          class="mt-4"
-          :label="$t('targets.tab1.form.textarea-comments')"
-          v-model="target.comments"
-          hide-details="auto"
-          auto-grow
-          outlined
-          rows="4"
-          row-height="16"
-        ></v-textarea>
       </div>
     </v-expand-transition>
   </fragment>
@@ -90,16 +44,20 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import { VALID_ASSESSMENT_TARGETS } from '@/config/app'
 
 export default {
   name: 'FormSingleTarget',
 
-  props: ['label', 'target'],
+  props: ['target'],
 
   data() {
     return {
-      menuBy: false,
-      menuBaseline: false,
+      isEnabled: true,
+      areExamplesVisible: false,
+      targetConfig: VALID_ASSESSMENT_TARGETS.find(
+        (config) => config.value === this.target.key
+      ),
     }
   },
 
@@ -110,7 +68,22 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.date-picker {
-  max-width: 290px;
+@import '@/styles/variables.scss';
+
+.examples {
+  font-size: 0.9rem;
+
+  button {
+    color: $primary-color;
+
+    &:active,
+    &:focus {
+      outline: 0 none;
+    }
+  }
+
+  ul {
+    list-style: disc;
+  }
 }
 </style>
