@@ -37,9 +37,9 @@
     </div>
     <dialog-confirm
       storageKey="previousAnswers"
-      :showValue="hasPreviousAnswers"
       title="Previous Answers"
       actionText="Ok, thanks"
+      :show="hasPreviousAnswers"
     >
       <p>
         Your organization has submitted a similar questionnaire in the past (per

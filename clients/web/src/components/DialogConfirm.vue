@@ -22,40 +22,30 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 export default {
   name: 'DialogConfirm',
 
-  props: [
-    'storageKey',
-    'showValue',
-    'showFunctionAsync',
-    'actionText',
-    'title',
-  ],
+  props: ['storageKey', 'actionText', 'title', 'show'],
+
+  data() {
+    return {
+      showDialog: this.show,
+    }
+  },
 
   methods: {
     closeAndSaveAsViewed() {
       window.localStorage.setItem(this.storageKey, 'viewed')
       this.showDialog = false
     },
+  },
 
-    async initDialog() {
+  watch: {
+    show() {
       const wasViewed = window.localStorage.getItem(this.storageKey)
       if (!wasViewed) {
-        if (typeof this.showValue === 'undefined') {
-          this.showDialog = await this.showFunctionAsync()
-        } else {
-          this.showDialog = this.showValue
-        }
+        this.showDialog = this.show
+      } else {
+        this.showDialog = false
       }
     },
-  },
-
-  created() {
-    this.initDialog()
-  },
-
-  data() {
-    return {
-      showDialog: false,
-    }
   },
 
   components: {

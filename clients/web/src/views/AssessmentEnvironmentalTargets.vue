@@ -50,9 +50,9 @@
     </tab-container>
     <dialog-confirm
       storageKey="previousTargets"
-      :showFunctionAsync="checkPreviousTargets"
       title="Previous Targets"
       actionText="Ok, thanks"
+      :show="hasPreviousTargets"
     >
       <p>
         Your organization has submitted environmental targets in the past for
@@ -109,6 +109,7 @@ export default {
       organization: {},
       assessment: {},
       score: {},
+      hasPreviousTargets: false, // TODO: compute this value after getting previous targets
       tabs: [
         { text: this.$t('targets.tab1.title'), href: 'tab-1' },
         { text: this.$t('targets.tab2.title'), href: 'tab-2' },
