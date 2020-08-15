@@ -6,11 +6,7 @@
 <div class="offset-sm-2 col-sm-8">
   <p class="text-center">
 <span style="text-decoration: underline;">ACTION:</span>
-Click each tile and provide responses. Click the <em>Complete</em> button
-at the bottom of the page when the assessment is complete.
-{% if urls.benchmark %}
-    Then click <em>Scorecard</em> to view scores and benchmarking.
-{% endif %}
+Click each tile and provide responses.
   </p>
 </div>
 {% endblock %}
@@ -60,8 +56,12 @@ and benchmark positions.
                         <div class="sticky-cell-content-container">
                           <div class="sticky-cell-content" style="padding-left:0.75rem;">
 {% if survey.slug != 'framework' %}
-This section about data, metrics and targets is optional. If you are reporting
-environmental initiatives publicly, please answer the following questions:
+<p>
+Alliance members want to understand the impacts of their supply chain.  Completion of this survey section provides valuable information to support that understanding. While this section is optional to complete (and therefore not scored), the Alliance encourages suppliers to measure, track and improve sustainability performance.
+</p>
+<p>
+Use the improvement planning function of the TSP survey to develop an improvement plan that fits your organization. We thank you for the support in helping us measure our supply chain impacts.
+</p>
 {% endif %}
                           </div>
                         </div>
@@ -126,9 +126,9 @@ environmental initiatives publicly, please answer the following questions:
 see guidance, or are interested in authoring content for this section, please
 <a href="{{'contact/'|site_prefixed}}">contact us &raquo;</a>.
 See the following for examples of content developed for best practices:
-<a href="{% url 'summary' '/sustainability-boxes-and-enclosures/energy/reduce-the-pressure-of-compressed-air-to-the-minim/' %}">Example 1</a>,
-<a href="{% url 'summary' '/sustainability-office-space-only/computing-and-telecom-hardware-and-service-fc47207/' %}">Example 2</a>,
-<a href="{% url 'summary' '/sustainability-office-space-only/driver-behavior-that-could-influence-fuel-efficien/' %}">Example 3</a>.</em>
+<a href="{% url 'summary' '/boxes-and-enclosures/energy/reduce-the-pressure-of-compressed-air-to-the-minim/' %}">Example 1</a>,
+<a href="{% url 'summary' '/office-space-only/computing-and-telecom-hardware-and-service-fc47207/' %}">Example 2</a>,
+<a href="{% url 'summary' '/office-space-only/driver-behavior-that-could-influence-fuel-efficien/' %}">Example 3</a>.</em>
                         </td>
                     </tr>
                 </tbody>
@@ -144,9 +144,13 @@ See the following for examples of content developed for best practices:
                     </div>
                 </div>
             </div>
-            <div class="row" style="margin-bottom: 5px;">
+            <div class="row  mb-4">
               <div class="col-sm-6 text-left">
-                <a id="download-assessment" class="btn btn-secondary" href="{{urls.download}}" target="_blank"><i class="fa fa-download"></i> Download questions</a>
+                <a id="download-assessment"
+                   class="btn btn-secondary"
+                   href="{{urls.download}}" target="_blank">
+                  <i class="fa fa-download"></i> Download questions
+                </a>
               </div>
               <div class="col-sm-6 text-right">
                 <div class="text-right"
@@ -155,11 +159,13 @@ See the following for examples of content developed for best practices:
                             data-toggle="modal" data-target="#reset-assessment"
                             ng-click="setActiveElement('{{abs_prefix}}')"
                             >Reset</button>
-                    <button class="btn btn-primary" id="saved-button" ng-click="showSaveMessage($event)">Save</button>
+                    <button id="saved-button"
+                            class="btn btn-primary"
+                            ng-click="showSaveMessage($event)">Save</button>
+                    {% if not icon.tag or not 'metrics' in icon.tag %}
                     <!-- WORKAROUND: we set data-width and data-height
                          otherwise bootstrap-toggle will crop the size
                          inside a class="tab-content collapse". -->
-                    {% if not icon.tag or not 'metrics' in icon.tag %}
                     <input id="toggle-results-{{icon.slug}}"
                            type="checkbox" toggle-checkbox
                            data-toggle="toggle"
@@ -206,44 +212,6 @@ Do you wish to continue?
         </form>
     </div>
 </div>
-<div id="submit-assessment" class="modal fade"
-     tabindex="-1" role="dialog"
-     aria-labelledby="Complete assessment" aria-hidden="true"
-     style="color: #000;">
-    <div class="modal-dialog">
-        <form class="modal-content" ng-submit="freezeAssessment($event)">
-            <div class="modal-header">
-                <h4 class="modal-title">Mark your assessment as complete ...</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-body">
-                    <p>
-By clicking &quot;Yes&quot;:
-            <p>
-<strong>You certify</strong> that the assessment responses provided for your
-organization are true and correct to the best of your knowledge. Additionally,
-you acknowledge that the responses form a statement of record which current
-or future clients may request to verify.
-            </p>
-{% if urls.benchmark %}
-            <p>
-Then:
-            </p>
-<ol>
-    <li>Click SCORECARD to view scores and benchmarking.</li>
-    <li>Click IMPROVE to create an improvement plan.</li>
-    <li>Click SHARE to send your responses to customers, investors, etc.</li>
-</ol>
-{% endif %}
-            </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary"
-                    data-dismiss="modal">Cancel</button>
-                <button type="submit" value="submit" class="btn btn-primary">Yes</button>
-            </div>
-        </form>
-    </div>
-</div>
 <div id="report-comments" class="modal fade"
      tabindex="-1" role="dialog"
      aria-labelledby="Comments" aria-hidden="true"
@@ -282,9 +250,9 @@ Then:
         [[nbAnswers]] out of [[nbQuestions]] questions answered.
         </p>
         {% if not sample.is_frozen %}
-        <button id="submit-button" class="btn btn-primary"
-            data-toggle="modal" data-target="#submit-assessment"
-            ng-disabled="nbRequiredAnswers < nbRequiredQuestions">Complete</button>
+        Once you completed your assessment, improvement plan and set targets,
+        please browse to the <strong>COMPLETE</strong> step to freeze
+        your answers.
         {% endif %}
     </div>
     <div class="col-sm-4 text-right">

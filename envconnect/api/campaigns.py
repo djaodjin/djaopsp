@@ -62,7 +62,8 @@ class CampaignListAPIView(BreadcrumbMixin, ListAPIView):
         """
         Returns a list of heading and best practices
         """
-        search_query = self.request.query_params.get('q')
+        search_query = (self.request.query_params.get('q')
+            if hasattr(self, 'request') else None)
         query_filter = Q(tag__contains='industry')
         if search_query:
             query_filter = query_filter & Q(tag__contains=search_query)

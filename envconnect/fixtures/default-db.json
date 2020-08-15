@@ -390,7 +390,7 @@
 
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "avg_energy_saving",
         "hidden": true
     },
@@ -398,7 +398,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "capital_cost",
         "hidden": true
     },
@@ -406,7 +406,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "payback_period",
         "hidden": true
     },
@@ -414,7 +414,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "environmental_value",
         "hidden": true
     },
@@ -422,7 +422,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "business_value",
         "hidden": true
     },
@@ -430,7 +430,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "profitability",
         "hidden": true
     },
@@ -438,7 +438,7 @@
 },
 {
     "fields": {
-        "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics",
+        "path": "/metal/boxes-and-enclosures/management-basics",
         "slug": "implementation_ease",
         "hidden": true
     },
@@ -448,16 +448,16 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"enabled\"]}",
+    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"enabled\",\"scorecard\",\"legend-2\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 1
 },
 {
   "fields": {
-    "title": "Boxes & enclosures",
-    "slug": "sustainability-boxes-and-enclosures",
-    "tag": "{\"tags\":[\"scorecard\",\"legend-2\"]}",
+    "title": "Targets",
+    "slug": "targets",
+    "tag": "{\"tags\":[\"metrics\",\"management\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 2
@@ -465,9 +465,10 @@
 {
   "fields": {
     "orig_element": 1,
-    "dest_element": 2
+    "dest_element": 2,
+    "rank": 8
   },
-  "model": "pages.Relationship", "pk": 2
+  "model": "pages.relationship", "pk": 2
 },
 {
   "fields": {
@@ -483,14 +484,14 @@
     "title": "Governance & management",
     "slug": "management-basics",
     "text": "/envconnect/static/img/management-basics.png",
-    "tag": "{\"tags\":[\"management\",\"scorecard\"]}",
+    "tag": "{\"tags\":[\"scorecard\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 4
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 4
   },
   "model": "pages.relationship", "pk": 3
@@ -507,7 +508,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 5
   },
   "model": "pages.relationship", "pk": 4
@@ -524,7 +525,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 6
   },
   "model": "pages.relationship", "pk": 5
@@ -541,7 +542,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 7
   },
   "model": "pages.relationship", "pk": 6
@@ -558,7 +559,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 8
   },
   "model": "pages.relationship", "pk": 7
@@ -575,7 +576,7 @@
 },
 {
   "fields": {
-    "orig_element": 2,
+    "orig_element": 1,
     "dest_element": 9
   },
   "model": "pages.relationship", "pk": 8
@@ -597,7 +598,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/product-design",
+    "path": "/metal/boxes-and-enclosures/design/product-design",
     "text": "Product Design",
     "question_type": "integer",
     "default_metric": 1,
@@ -624,13 +625,14 @@
   "fields": {
     "title": "Packaging Design",
     "slug": "packaging-design",
+    "tag": "{\"tags\":[\"Waste\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 11
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/packaging-design",
+    "path": "/metal/boxes-and-enclosures/design/packaging-design",
     "text": "Packaging Design",
     "question_type": "radio",
     "default_metric": 1,
@@ -681,7 +683,7 @@
     "title": "Management",
     "slug": "energy-efficiency-management-basics",
     "text": "/envconnect/static/img/management-basics.png",
-    "tag": "{\"tags\":[\"management\"]}",
+    "tag": "",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 16
@@ -732,7 +734,7 @@
     "title": "Compressed air",
     "slug": "energy-efficiency-compressed-air",
     "text": "/envconnect/static/img/compressed-air.png",
-    "tag": "",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 19
@@ -749,7 +751,7 @@
     "title": "Process equipment",
     "slug": "energy-efficiency-process-equipment",
     "text": "/envconnect/static/img/process-equipment.png",
-    "tag": "",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 20
@@ -766,7 +768,7 @@
     "title": "Mechanical drives",
     "slug": "energy-efficiency-mechanical-drives",
     "text": "/envconnect/static/img/mechanical-drives.png",
-    "tag": "",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 21
@@ -783,7 +785,7 @@
     "title": "Process heating",
     "slug": "process-heating",
     "text": "/envconnect/static/img/process-heating.png",
-    "tag": "",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 22
@@ -800,7 +802,7 @@
     "title": "Process cooling",
     "slug": "energy-efficiency-process-cooling",
     "text": "/envconnect/static/img/process-cooling.png",
-    "tag": "",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 23
@@ -849,6 +851,7 @@
     "title": "Adjust air/fuel ratio",
     "slug": "adjust-air-fuel-ratio",
     "text": "<h2>Background</h2><p>Some manufacturing processes may involve heating operations. The basic process heating operations for metal fabrications are summarized in Table 1 below, extracted from process heating system sourcebook of Reference [2].</p><img src=\"/media/envconnect/bf8ee0d402f4e6861171957410b0a016c739f7ba.png\"><p>In addition to the process heating equipment summarized in Table 1, steam and hot water boilers are also used to generate heating for process requirements. Heat generation from the process heating equipment and boilers is achieved by fuel combustion for fuel-based equipment. Figure 1 shows a typical fuel-based process heating system.</p><img src=\"/media/envconnect/40a273422cf7319f205219c98be277ac9a23ad4f.png\"><p>During the combustion process, it is important to maintain a certain amount of excess air in order to maintain safe combustion (prevent the formation of dangerous carbon monoxide). On the other hand, if there is too much excess air (if the air-to-fuel ratio is too high), it can carry away large amounts of heat from the equipment, resulting in reduced heating equipment efficiency.</p><h2>Improvement opportunity</h2><p>Perform air-and-fuel or flue gas analysis and tune the combustion equipment on a regular basis (semi-annually or annually) to ensure that a proper air-to-fuel ratio is maintained. This will reduce the amount of waste heat and increase the heating equipment efficiency, resulting in fuel energy savings. According to the process heating sourcebook of Reference [2], controlling air-to-fuel ratio can result in fuel savings of 5% to 25%.</p><p>According to a Process Heating Tip Sheet (Reference [1]), most high temperature direct-fired furnaces and boilers operate with about 10% to 20% excess combustion air at high fire to prevent the formation of carbon monoxide and soot deposits on heat transfer surfaces. Hence, if the excess combustion air is over 20%, tune the furnaces and boilers need to be tuned. See Table 2 by way of further illustration, which shows the boiler combustion efficiency of natural gas. As an example, adjusting the air-to-fuel ratio of the steam boiler to 4% O2 (about 21% excess air) from 7% O2 (about 50% excess air) will increase combustion efficiency by 1.6% at the 360 oF combustion temperature.</p><p>Other factors that need to be carefully considered when setting the amount of excess air:<ul><li>Type of fuel</li><li>Type of burner</li><li>Process conditions</li><li>Process temperature</li></ul></p><img src=\"/media/envconnect/71d44d2e6f5d7491d4599bc1fa2e6a09d3755110.png\"><p>For information about checking burner air to fuel ratios, refer to Reference [1]. To learn the fundamentals of process heating systems, refer to Reference [2]. Additional information for process heating systems is included in References [3], [4] and [5].</p><h2>References</h2><ol><li><a href=\"http://www.energy.gov/eere/amo/downloads/check-burner-air-fuel-ratios\" target=\"_blank\">Process Heating Tip Sheet #2: Check Burner Air to Fuel Ratios, by Industrial Technologies Program of U.S. Department of Energy (DOE).</a> (accessed on 6/1/2015)</li><li><a href=\"http://www.energy.gov/eere/amo/downloads/improving-process-heating-system-performance-sourcebook-industry-second-edition\" target=\"_blank\">Improving Process Heating System Performance: A Sourcebook for Industry, Second Edition (February 2008), by U.S. Department of Energy’s Office of Energy Efficiency and the Industrial Heating Equipment Association (IHEA).</a> (accessed on 6/1/2015)</li><li>The Process Heating Assessment and Survey Tool (PHAST) is a free software tool developed by U.S. Department of Energy (DOE). PHAST helps industrial users survey process heating equipment that consumes fuel, steam, or electricity, and identifies the most energy-intensive equipment. The tool can be downloaded at:<a href=\"http://www.energy.gov/eere/amo/articles/process-heating-assessment-and-survey-tool\" target=\"_blank\">http://www.energy.gov/eere/amo/articles/process-heating-assessment-and-survey-tool</a> (accessed on 6/1/2015)</li><li>The Industrial Heating Equipment Association (IHEA):<a href=\"http://www.ihea.org\" target=\"_blank\">http://www.ihea.org</a> (accessed on 6/1/2015)</li><li>Industrial Technologies Program – Process Heating Systems:<a href=\"http://www.energy.gov/eere/amo/process-heating-systems\" target=\"_blank\">http://www.energy.gov/eere/amo/process-heating-systems</a> (accessed on 6/1/2015)</li></ol><h2>Financial incentives</h2><p><ul><li>PG&amp;E offers incentive for qualified customized energy efficiency projects. The incentive amounts are based on actual reductions in energy usage. The 2015 incentives rates are $1.00/therm for natural gas savings. Be sure to contact PG&amp;E early in the design process. For more information, please go to:<a href=\"http://www.pge.com/en/mybusiness/save/rebates/ief/index.page\" target=\"_blank\">http://www.pge.com/en/mybusiness/save/rebates/ief/index.page?</a> (accessed on 5/1/2015)</li></ul></p><p><em>[This section will be expanded in future phases for facilities located outside of PG&E territory.]</em></p><h2>Training</h2><p><ul><li>Process Heating Assessment and Survey Tool Trainings are available at:<a href=\"http://www.energy.gov/eere/amo/articles/training-process-heating-systems\" target=\"_blank\">http://www.energy.gov/eere/amo/articles/training-process-heating-systems</a> (accessed on 6/1/2015)</li></ul></p>",
+    "tag": "{\"tags\":[\"Energy & Emissions\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 26
@@ -862,7 +865,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
+    "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
     "text": "Adjust air/fuel ratio",
     "question_type": "radio",
     "default_metric": 1,
@@ -902,7 +905,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
+    "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
     "text": "Reduce combustion air flow to optimum",
     "question_type": "radio",
     "default_metric": 1,
@@ -936,21 +939,6 @@
 },
 {
   "fields": {
-    "title": "Construction",
-    "slug": "sustainability-construction",
-    "account": 10
-  },
-  "model": "pages.PageElement", "pk": 29
-},
-{
-  "fields": {
-    "orig_element": 28,
-    "dest_element": 29
-  },
-  "model": "pages.Relationship", "pk": 27
-},
-{
-  "fields": {
     "title": "Management",
     "slug": "management-construction",
     "account": 10
@@ -959,19 +947,10 @@
 },
 {
   "fields": {
-    "orig_element": 29,
+    "orig_element": 28,
     "dest_element": 30
   },
   "model": "pages.Relationship", "pk": 28
-},
-{
-  "fields": {
-    "title": "Boxes & enclosures",
-    "slug": "basic-boxes-and-enclosures",
-    "tag": "{\"tags\":[\"basic\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 31
 },
 {
   "fields": {
@@ -987,74 +966,6 @@
     "dest_element": 32
   },
   "model": "pages.Relationship", "pk": 29
-},
-{
-  "fields": {
-    "orig_element": 1,
-    "dest_element": 31
-  },
-  "model": "pages.Relationship", "pk": 30
-},
-{
-  "fields": {
-    "title": "Management basics",
-    "slug": "boxes-and-enclosures-basic-manage",
-    "tag": "{\"tags\":[\"management\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 34
-},
-{
-  "fields": {
-    "orig_element": 31,
-    "dest_element": 34
-  },
-  "model": "pages.Relationship", "pk": 31
-},
-{
-  "fields": {
-    "title": "Production",
-    "slug": "basic-production",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 35
-},
-{
-  "fields": {
-    "orig_element": 31,
-    "dest_element": 35
-  },
-  "model": "pages.Relationship", "pk": 32
-},
-{
-  "fields": {
-    "title": "Distribution",
-    "slug": "boxes-and-enclosures-basic-distribution",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 36
-},
-{
-  "fields": {
-    "orig_element": 31,
-    "dest_element": 36
-  },
-  "model": "pages.Relationship", "pk": 33
-},
-{
-  "fields": {
-    "title": "End of life",
-    "slug": "boxes-and-enclosures-basic-end-of-life",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 37
-},
-{
-  "fields": {
-    "orig_element": 31,
-    "dest_element": 37
-  },
-  "model": "pages.Relationship", "pk": 34
 },
 {
   "fields": {
@@ -1090,47 +1001,6 @@
 },
 {
   "fields": {
-    "title": "Production BP",
-    "slug": "basic-production-bp",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 40
-},
-{
-  "fields": {
-    "path": "/basic-boxes-and-enclosures/basic-production/basic-production-bp",
-    "text": "Production BP",
-    "question_type": "radio",
-    "default_metric": 1,
-    "avg_fuel_saving": "*",
-    "avg_energy_saving": "* * *",
-    "capital_cost": "$$$",
-    "payback_period": "3-12",
-    "business_value": 1,
-    "environmental_value": 1,
-    "implementation_ease": 1,
-    "profitability": 1,
-    "avg_value": 1
-  },
-  "model": "envconnect.Consumption", "pk": 7
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 7,
-    "rank": 5
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 5
-},
-{
-  "fields": {
-    "orig_element": 35,
-    "dest_element": 40
-  },
-  "model": "pages.Relationship", "pk": 37
-},
-{
-  "fields": {
     "title": "Hot Water System",
     "slug": "hot-water-system",
     "account": 6
@@ -1161,7 +1031,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
+    "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
     "text": "Recover heat from hot waste water",
     "question_type": "radio",
     "default_metric": 1,
@@ -1202,7 +1072,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
+    "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
     "text": "Reduce hot water temperature to minimum required",
     "question_type": "radio",
     "default_metric": 1,
@@ -1566,7 +1436,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
+    "path": "/metal/boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
     "text": "The assessment process is rigorous and thorough*",
     "question_type": "radio",
     "default_metric": 1,
@@ -1607,7 +1477,7 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/general/report-externally",
+    "path": "/metal/boxes-and-enclosures/management-basics/general/report-externally",
     "text": "The assessment process is rigorous and thorough*",
     "question_type": "radio",
     "default_metric": 1,
@@ -1633,7 +1503,7 @@
 },
 {
   "fields": {
-    "path": "/construction/sustainability-construction/management-construction/process-in-place",
+    "path": "/construction/management-construction/process-in-place",
     "text": "A Process is in place",
     "question_type": "radio",
     "default_metric": 1,
@@ -1688,12 +1558,12 @@
 {
   "fields": {
     "created_at": "2016-05-01T00:36:19.448Z",
-    "question": 7,
+    "question": 8,
     "metric": 1,
     "sample": 2,
     "measured": 2,
     "collected_by": 8,
-    "rank": 7
+    "rank": 6
   },
   "model": "survey.answer", "pk": 1
 },
@@ -1708,18 +1578,6 @@
     "is_frozen": false
   },
   "model": "survey.sample", "pk": 3
-},
-{
-  "fields": {
-    "created_at": "2016-07-15T00:35:38.945Z",
-    "question": 8,
-    "metric": 1,
-    "sample": 3,
-    "measured": 1,
-    "collected_by": 8,
-    "rank": 8
-  },
-  "model": "survey.answer", "pk": 2
 },
 {
   "fields": {
@@ -1753,7 +1611,7 @@
     "sample": 3,
     "measured": 1,
     "collected_by": 8,
-    "rank": 3
+    "rank": 2
   },
   "model": "survey.answer", "pk": 6
 },
@@ -1772,12 +1630,12 @@
 {
   "fields": {
     "created_at": "2016-07-15T00:36:19.448Z",
-    "question": 7,
+    "question": 8,
     "metric": 1,
     "sample": 3,
     "measured": 1,
     "collected_by": 8,
-    "rank": 7
+    "rank": 6
   },
   "model": "survey.answer", "pk": 9
 },
@@ -1792,19 +1650,6 @@
     "is_frozen": true
   },
   "model": "survey.sample", "pk": 4
-},
-{
-  "fields": {
-    "created_at": "2016-05-01T00:36:19.448Z",
-    "question": 7,
-    "metric": 2,
-    "sample": 4,
-    "measured": 2,
-    "denominator": 4,
-    "collected_by": 7,
-    "rank": 7
-  },
-  "model": "survey.answer", "pk": 11
 },
 {
   "fields": {
@@ -1854,7 +1699,7 @@
     "measured": 1,
     "denominator": 4,
     "collected_by": 7,
-    "rank": 3
+    "rank": 2
   },
   "model": "survey.answer", "pk": 16
 },
@@ -1918,22 +1763,9 @@
     "measured": 5,
     "denominator": 6,
     "collected_by": 7,
-    "rank": 7
+    "rank": 1
   },
   "model": "survey.answer", "pk": 40
-},
-{
-  "fields": {
-    "created_at": "2017-01-01T00:00:00.000Z",
-    "question": 7,
-    "metric": 2,
-    "sample": 5,
-    "measured": 5,
-    "denominator": 6,
-    "collected_by": 7,
-    "rank": 7
-  },
-  "model": "survey.answer", "pk": 41
 },
 {
   "fields": {
@@ -1983,7 +1815,7 @@
     "measured": 3,
     "denominator": 4,
     "collected_by": 7,
-    "rank": 3
+    "rank": 2
   },
   "model": "survey.answer", "pk": 46
 },
@@ -2042,12 +1874,12 @@
 {
   "fields": {
     "created_at": "2016-05-01T00:36:19.448Z",
-    "question": 7,
+    "question": 8,
     "metric": 1,
     "sample": 6,
     "measured": 2,
     "collected_by": 7,
-    "rank": 7
+    "rank": 6
   },
   "model": "survey.answer", "pk": 60
 },
@@ -2073,7 +1905,7 @@
     "sample": 7,
     "measured": 3,
     "collected_by": 7,
-    "rank": 7
+    "rank": 1
   },
   "model": "survey.answer", "pk": 61
 },
@@ -2137,7 +1969,7 @@
     "rank": 0,
     "editable_filter": 4,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/management-basics/",
+    "operand": "/metal/boxes-and-enclosures/management-basics/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2156,7 +1988,7 @@
     "rank": 0,
     "editable_filter": 5,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/design/",
+    "operand": "/metal/boxes-and-enclosures/design/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2175,7 +2007,7 @@
     "rank": 0,
     "editable_filter": 6,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/energy-efficiency/",
+    "operand": "/metal/boxes-and-enclosures/production/energy-efficiency/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2194,7 +2026,7 @@
     "rank": 0,
     "editable_filter": 7,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/waste-management/",
+    "operand": "/metal/boxes-and-enclosures/production/waste-management/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2213,7 +2045,7 @@
     "rank": 0,
     "editable_filter": 8,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/production/green-chemistry/",
+    "operand": "/metal/boxes-and-enclosures/production/green-chemistry/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2232,7 +2064,7 @@
     "rank": 0,
     "editable_filter": 9,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/packaging/",
+    "operand": "/metal/boxes-and-enclosures/boxes-distribution/packaging/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2251,7 +2083,7 @@
     "rank": 0,
     "editable_filter": 10,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/fleet/",
+    "operand": "/metal/boxes-and-enclosures/boxes-distribution/fleet/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2270,7 +2102,7 @@
     "rank": 0,
     "editable_filter": 11,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/take-back-program/",
+    "operand": "/metal/boxes-and-enclosures/boxes-distribution/take-back-program/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2289,7 +2121,7 @@
     "rank": 0,
     "editable_filter": 12,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/boxes-distribution/recycling/",
+    "operand": "/metal/boxes-and-enclosures/boxes-distribution/recycling/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2378,7 +2210,7 @@
     "rank": 0,
     "editable_filter": 15,
     "operator": "startsWith",
-    "operand": "/metal/boxes-and-enclosures/sustainability-boxes-and-enclosures/",
+    "operand": "/metal/boxes-and-enclosures/",
     "field": "path",
     "selector": "keepmatching"
   },
@@ -2388,26 +2220,10 @@
   "fields": {
     "title": "Wire & cable",
     "slug": "wire-and-cable",
-    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"enabled\"]}",
+    "tag": "{\"tags\":[\"industry\",\"pagebreak\",\"public\",\"scorecard\",\"legend-2\",\"enabled\"]}",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 76
-},
-{
-  "fields": {
-    "title": "Wire & cable",
-    "slug": "sustainability-wire-and-cable",
-    "tag": "{\"tags\":[\"scorecard\",\"legend-2\"]}",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 77
-},
-{
-  "fields": {
-    "orig_element": 76,
-    "dest_element": 77
-  },
-  "model": "pages.Relationship", "pk": 65
 },
 {
   "fields": {
@@ -2420,14 +2236,14 @@
 },
 {
   "fields": {
-    "orig_element": 77,
+    "orig_element": 76,
     "dest_element": 78
   },
   "model": "pages.Relationship", "pk": 66
 },
 {
   "fields": {
-    "orig_element": 77,
+    "orig_element": 76,
     "dest_element": 7
   },
   "model": "pages.Relationship", "pk": 67
@@ -2470,7 +2286,54 @@
 },
 {
   "fields": {
-    "path": "/metal/wire-and-cable/sustainability-wire-and-cable/wc-design/design-categories/product-design",
+    "title": "Energy Improvement Target in Place",
+    "slug": "energy-improvement-target",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 116
+},
+{
+  "fields": {
+    "orig_element": 2,
+    "dest_element": 116
+  },
+  "model": "pages.relationship", "pk": 116
+},
+{
+  "fields": {
+    "title": "Energy Reduction Target",
+    "slug": "energy-target",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 117
+},
+{
+  "fields": {
+    "orig_element": 116,
+    "dest_element": 117
+  },
+  "model": "pages.relationship", "pk": 117
+},
+{
+  "fields": {
+    "path": "/metal/boxes-and-enclosures/targets/energy-improvement-target/energy-target",
+    "text": "",
+    "question_type": "integer",
+    "default_metric": 14
+  },
+  "model": "envconnect.Consumption", "pk": 117
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 117,
+    "rank": 117
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 117
+},
+{
+  "fields": {
+    "path": "/metal/wire-and-cable/wc-design/design-categories/product-design",
     "text": "Product Design",
     "question_type": "radio",
     "default_metric": 1,

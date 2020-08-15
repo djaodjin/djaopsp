@@ -102,13 +102,16 @@ class CompletionSummaryPagination(PageNumberPagination):
             if not slug in accounts:
                 accounts[slug] = {
                     'reporting_status': reporting_status,
-                    'reporting_publicly': bool(sample.get('reporting_publicly'))
+                   'reporting_publicly': bool(sample.get('reporting_publicly')),
+                    'reporting_fines': bool(sample.get('reporting_fines'))
                 }
                 continue
             if reporting_status > accounts[slug]['reporting_status']:
                 accounts[slug]['reporting_status'] == reporting_status
             if sample.get('reporting_publicly'):
                 accounts[slug]['reporting_publicly'] = True
+            if sample.get('reporting_fines'):
+                accounts[slug]['reporting_fines'] = True
 
         self.nb_organizations = len(accounts)
         for account in six.itervalues(accounts):
@@ -412,16 +415,11 @@ class SupplierListMixin(DashboardMixin):
 
     @staticmethod
     def get_nb_questions_per_segment():
-        # XXX This is Postgres-specific code
-        raw_query = "SELECT distinct(substring(survey_question.path"\
-" from '.*/sustainability-[^/]+/')) FROM survey_question;"
         nb_questions_per_segment = {}
-        with connection.cursor() as cursor:
-            cursor.execute(raw_query)
-            for row in cursor.fetchall():
-                nb_questions = Consumption.objects.filter(
-                    path__startswith=row[0]).count()
-                nb_questions_per_segment.update({row[0]: nb_questions})
+        for segment in self.get_segments():
+            nb_questions = Consumption.objects.filter(
+                path__startswith=segment.path).count()
+            nb_questions_per_segment.update({segment.path: nb_questions})
         return nb_questions_per_segment
 
     @property
@@ -531,6 +529,14 @@ class SupplierListMixin(DashboardMixin):
               "":
             }
           ]
+
+        segments is a rollup tree derived into a list of items:
+        {
+          'accounts':,
+          'path':
+          'slug':
+          'title':
+        }
         """
         #pylint:disable=too-many-arguments
         account_dict = self._prepare_account(account)
@@ -584,9 +590,9 @@ class SupplierListMixin(DashboardMixin):
 
             # XXX Builds URL from segment path
             # XXX `segment` points to the PageElement industry?
-            segment_path = '/sustainability-%s' % str(segment['slug'])
+            segment_path = '/%s' % str(segment['slug'])
             if segment['slug'].startswith('framework'):
-                score_url = reverse('assess_organization',
+                score_url = reverse('assess_organization_redirect',
                     args=(account.slug, segment_path))
             elif 'sample' in score:
                     score_url = reverse('scorecard_organization',
@@ -607,6 +613,8 @@ class SupplierListMixin(DashboardMixin):
                 score.update({'last_activity_at': created_at})
             if not 'reporting_publicly' in score:
                 score.update({'reporting_publicly': None})
+            if not 'reporting_fines' in score:
+                score.update({'reporting_fines': None})
             if not 'nb_na_answers' in score:
                 score.update({'nb_na_answers': None})
             if not 'nb_planned_improvements' in score:
@@ -621,7 +629,7 @@ class SupplierListMixin(DashboardMixin):
                 # The supplier has not granted access to the scorecard
                 # so we remove sensistive keys from the result.
                 for key in ('normalized_score', 'nb_na_answers',
-                            'reporting_publicly'):
+                            'reporting_publicly', 'reporting_fines'):
                     score[key] = None
             account_scores += [score]
 
@@ -642,6 +650,7 @@ class SupplierListMixin(DashboardMixin):
             'nb_na_answers': None,
             'nb_planned_improvements': None,
             'reporting_publicly': None,
+            'reporting_fines': None,
             'assessment_completed': (
                 account.pk in complete_assessments),
             'improvement_completed': (
@@ -855,8 +864,10 @@ portfolio-a/"
             except EditableFilter.DoesNotExist:
                 pass
         if likely_metric is None:
+            # XXX default is derived from `prefix` argument
+            # to `decorate_with_scores`.
             likely_metric = reverse('scorecard_organization_redirect',
-                args=(cohort_slug, "/sustainability-%s" % default))
+                args=(cohort_slug, "/%s" % default))
         if likely_metric:
             likely_metric = self.request.build_absolute_uri(likely_metric)
         return likely_metric

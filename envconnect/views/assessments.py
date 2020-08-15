@@ -22,7 +22,7 @@ from ..api.benchmark import PracticeBenchmarkMixin
 from ..compat import reverse, six
 from ..helpers import as_measured_value, get_testing_accounts
 from ..mixins import ReportMixin, BestPracticeMixin
-from ..models import Consumption, get_scored_answers
+from ..models import ColumnHeader, Consumption, get_scored_answers
 from ..scores import populate_account
 from ..serializers import ConsumptionSerializer
 from ..suppliers import get_supplier_managers
@@ -45,7 +45,37 @@ class AssessmentAnswer(object):
 class AssessmentBaseMixin(PracticeBenchmarkMixin, BestPracticeMixin):
     # Implementation Note: uses BestPracticeMixin in order to display
     # bestpractice info through links in assess and improve pages.
-    pass
+
+    def decorate_visible_column_headers(self, root):
+        # attach visible column headers
+        hidden_columns = {}
+        for icon_path, icon_tuple in six.iteritems(root[1]):
+            hidden_columns[icon_path] = {}
+            hidden = set([row['slug']
+                for row in ColumnHeader.objects.filter(
+                hidden=True, path=icon_path).values('slug')])
+            value_headers = []
+            for col_header in [
+                    {"slug": "environmental_value",
+                     "title": "/static/img/green-leaf.png",
+                     "tooltip": "Environmental value"},
+                    {"slug": "business_value",
+                     "title": "/static/img/cogs.png",
+                     "tooltip": "Ops/Maintenance value"},
+                    {"slug": "profitability",
+                     "title": "/static/img/dollar-sign.png",
+                     "tooltip": "Financial value"},
+                    {"slug": "implementation_ease",
+                     "title": "/static/img/shovel.png",
+                     "tooltip": "Implementation ease"},
+                    {"slug": "avg_value",
+                     "title": "Average Value"}]:
+                if not col_header['slug'] in hidden:
+                    value_headers += [col_header]
+            icon_tuple[0]['value_headers'] = value_headers
+            icon_tuple[0]['value_headers_len'] = len(value_headers) + 2
+            icon_tuple[0]['colspan'] = icon_tuple[0]['value_headers_len']
+        self._report_queries("attached visiblity of columns.")
 
 
 class AssessmentView(AssessmentBaseMixin, TemplateView):
@@ -56,7 +86,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
     def get_breadcrumb_url(self, path):
         organization = self.kwargs.get('organization', None)
         if organization:
-            return reverse('assess_organization',
+            return reverse('assess_organization_redirect',
                 args=(organization, path))
         return super(AssessmentView, self).get_breadcrumb_url(path)
 
@@ -66,12 +96,13 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         segment_url, segment_prefix, segment_element = self.segment
         root = self.get_report_tree(load_text=(self.survey.slug == 'framework'))
         if root:
+            self.decorate_visible_column_headers(root)
             context.update({
                 'root': root,
                 'entries': json.dumps(root, cls=JSONEncoder)
             })
 
-        prev_samples = [(reverse('assess_organization_sample',
+        prev_samples = [(reverse('assess_organization',
             args=(self.account, prev_sample, self.kwargs.get('path'))),
                 prev_sample.created_at)
             for prev_sample in Sample.objects.filter(
@@ -82,7 +113,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         if prev_samples:
             context.update({'prev_samples': prev_samples})
             if self.sample.is_frozen:
-                selected_sample = reverse('assess_organization_sample',
+                selected_sample = reverse('assess_organization',
                     args=(self.account, self.sample, self.kwargs.get('path')))
                 context.update({'selected_sample': selected_sample})
 
@@ -203,13 +234,14 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
 
     def get(self, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals
-        # All assessment questions for an industry, regardless
+        # All assessment questions for a segment, regardless
         # of the actual from_path.
         segment_url, segment_prefix, segment_element = self.segment
 
         # `segment_prefix` is fully qualified path to segment.
         # We use cut=None here so we print out the full assessment
-        root = self._build_tree(segment_element, segment_prefix, cut=None)
+# XXX   root = self._build_tree(segment_element, segment_prefix, cut=None)
+        root = self._build_tree(None, "", cut=None)
 
         self.headings = self.get_headings(self._get_tag(root[0]))
         self.create_writer(self.headings, title=self._get_title(root[0]))
@@ -416,3 +448,34 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
 
     def get_filename(self):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
+
+
+class TargetsView(AssessmentView):
+    """
+    View that specifically filters the targets out of the assessment questions
+    """
+    breadcrumb_url = 'targets'
+
+
+class CompleteView(AssessmentView, TemplateView):
+
+    template_name = 'envconnect/complete.html'
+    breadcrumb_url = 'complete'
+
+    def decorate_leafs(self, leafs):
+        for path, vals in six.iteritems(leafs):
+            queryset = Consumption.objects.filter(
+                enumeratedquestions__required=True,
+                enumeratedquestions__campaign=self.survey,
+                path=path).exclude(
+                answer__sample=self.assessment_sample,
+                answer__metric_id=F('default_metric_id'))
+            consumption = queryset.first()
+            if consumption:
+                vals[0]['consumption'] \
+                    = ConsumptionSerializer(context={
+                        'campaign': self.survey,
+                        'required': True,
+                    }).to_representation(consumption)
+            else:
+                vals[0]['consumption'] = None

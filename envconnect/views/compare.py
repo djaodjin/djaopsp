@@ -117,7 +117,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         else:
             # totals
             charts = []
-            industries = set([])
+            segments = set([])
             for extra in self.account_queryset.filter(
                     subscription__plan__slug='%s-report' % self.account).values(
                         'extra'):
@@ -125,15 +125,15 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                     extra = extra.get('extra')
                     if extra:
                         extra = json.loads(extra.replace("'", '"'))
-                        industries |= set([extra.get('industry')])
+                        segments |= set([extra.get('industry')])
                 except (IndexError, TypeError, ValueError) as _:
                     pass
             flt = None
-            for industry in industries:
+            for segment in segments:
                 if flt is None:
-                    flt = Q(slug__startswith=industry)
+                    flt = Q(slug__startswith=segment)
                 else:
-                    flt |= Q(slug__startswith=industry)
+                    flt |= Q(slug__startswith=segment)
             if True: #pylint:disable=using-constant-test
                 # XXX `flt is None:` not matching the totals columns
                 queryset = self.object.cohorts.all()
@@ -180,8 +180,8 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
         'Supplier name', 'Categories',
         'Contact name', 'Contact email', 'Contact phone',
         'Last activity', 'Status', 'Industry segment', 'Score',
-        '# N/A', 'Reporting publicly', 'Reported measurements',
-        'Targets', '# Planned actions',
+        '# N/A', 'Reporting publicly', 'Environmental fines',
+        '# Planned actions', 'Reported measurements', 'Targets',
 #        'Full-time Employee Count', 'Annual Revenue (USD)'
 #        'Responded in 2018', 'Responded in 2019'
     ]
@@ -207,6 +207,7 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
             segment = "Requested"
             nb_na_answers = "Requested"
             reporting_publicly = "Requested"
+            reporting_fines = "Requested"
             nb_planned_improvements = "Requested"
             measurements = "Requested"
             targets = "Requested"
@@ -219,6 +220,9 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
             reporting_publicly = rec.get('reporting_publicly', "N/A")
             if reporting_publicly and str(reporting_publicly) != "N/A":
                 reporting_publicly = "Yes"
+            reporting_fines = rec.get('reporting_fines', "N/A")
+            if reporting_fines and str(reporting_fines) != "N/A":
+                reporting_fines = "Yes"
             nb_planned_improvements = rec.get('nb_planned_improvements', "N/A")
             measurements = '\n'.join(rec.get('reported', []))
             targets = '\n'.join(rec.get('targets', []))
@@ -242,8 +246,9 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
             contact_phone,
             last_activity_at, reporting_status,
             segment, normalized_score,
-            nb_na_answers, reporting_publicly,
-            measurements, targets, nb_planned_improvements])
+            nb_na_answers,
+            reporting_publicly, reporting_fines,
+            nb_planned_improvements, measurements, targets])
             #XXX employee_count, revenue_generated,
             #XXX report_to if report_to else ""])
 #            "Yes" if rec.get('improvement_completed') else "",
@@ -548,10 +553,6 @@ class SuppliersImprovementsXLSXView(SupplierListMixin, TemplateView):
         self.wsheet.append(('Best practice',
             'Nb suppliers who have selected the practice for improvement.'))
         for row in rows:
-            # XXX might be better down in `flatten_answers`
-            if row[2].slug.startswith('sustainability-'):
-                # Avoids double back-to-back rows with same title
-                continue
             indent = row[0]
             title = row[2].title
             nb_suppliers = row[3].get('nb_suppliers', "")

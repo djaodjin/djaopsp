@@ -259,6 +259,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.valueSummaryToggle = settings.valueSummaryToggle;
     $scope.scoreToggle = settings.scoreToggle;
     $scope.vsPeersToggle = 0;
+    $scope.freezeAssessmentDisabled = false;
     $scope.supplierManagers =  settings.supplierManagers || [];
     for( var idx = 0; idx < $scope.supplierManagers.length; ++idx ) {
         $scope.supplierManagers[idx].checked = true;
@@ -269,6 +270,9 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.TAG_SCORECARD = 'scorecard';
     $scope.TAG_PAGEBREAK = 'pagebreak';
+    $scope.TAG_ENERGY_EMISSIONS = 'Energy & Emissions';
+    $scope.TAG_WATER = 'Water';
+    $scope.TAG_WASTE = 'Waste';
 
     $scope.containsTag = function(bestpractise, tag) {
         return (bestpractise && bestpractise.tag
@@ -846,7 +850,7 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.activeElement = {
         reload: false,
-        value: {title: "", tag: ""}
+        value: {title: "", tag: "", targets: ""}
     };
 
     // Prepares to edit or delete an element.
@@ -864,7 +868,11 @@ envconnectControllers.controller("EnvconnectCtrl",
         for( var idx = 0; idx < tags.length; ++idx ) {
             if( tags[idx] === $scope.TAG_PAGEBREAK ) {
                 $scope.activeElement.is_pagebreak = true;
-                break;
+            }
+            if( tags[idx] === $scope.TAG_ENERGY_EMISSIONS
+              || tags[idx] === $scope.TAG_WATER
+              || tags[idx] === $scope.TAG_WASTE ) {
+                $scope.activeElement.targets = tags[idx];
             }
         }
         if ( typeof reload !== "undefined" ) {
@@ -1315,12 +1323,7 @@ envconnectControllers.controller("EnvconnectCtrl",
 
     $scope.getSegmentUrl = function(base, path) {
         var parts = path.split('/');
-        for( var idx = 0; idx < parts.length; ++idx ) {
-            if( parts[idx].indexOf('sustainability-') == 0 ) {
-                return base + parts[idx] + '/';
-            }
-        }
-        return base + path.substring(1);
+        return base + parts[parts.length - 1] + '/';
     };
 
     $scope.toggleMyTSP = function(event, defaultUrl) {
@@ -1351,10 +1354,16 @@ envconnectControllers.controller("EnvconnectCtrl",
                 if( newValue ) {
                     data['measured'] = newValue;
                 }
+                $scope.setActiveElement(practice[0]);
                 $http.post(
                     settings.urls.api_improvements + practice[0].path, data
                 ).then(function success(resp) {
-                    $("#improvement-dashboard").data('improvementDashboard').load();
+                    $("#improvement-dashboard").data(
+                        'improvementDashboard').load();
+                    if( $scope.activeElement.value.tag ) {
+                        var modalDialog = angular.element('#practice-info');
+                        modalDialog.modal('show');
+                    }
                 }, function(resp) { // error
                     showErrorMessages(resp);
                 });
@@ -1434,8 +1443,10 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( typeof title === 'undefined' ) {
             title = "assessment";
         }
+        $scope.freezeAssessmentDisabled = true;
         $http.put(settings.urls.api_assessment_freeze, {is_frozen: true}).then(
             function success(resp) {
+                $scope.freezeAssessmentDisabled = false;
                 var msgs = ["You have completed the " + title + ". Thank you!"];
                 if( typeof next !== 'undefined' ) {
                     msgs.push(next);
@@ -1443,28 +1454,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 showMessages(msgs, "info");
             },
             function error(resp) {
-                showErrorMessages(resp);
-        });
-    };
-
-    $scope.freezeImprovement = function ($event, $title, next) {
-        $event.preventDefault();
-        var form = angular.element($event.target);
-        var modalDialog = form.parents('.modal');
-        modalDialog.modal('hide');
-        var title = $title;
-        if( typeof title === 'undefined' ) {
-            title = "planned actions";
-        }
-        $http.put(settings.urls.api_improvements, {is_frozen: true}).then(
-            function success(resp) {
-                var msgs = ["You have completed the " + title + ". Thank you!"];
-                if( typeof next !== 'undefined' ) {
-                    msgs.push(next);
-                }
-                showMessages(msgs, "info");
-            },
-            function error(resp) {
+                $scope.freezeAssessmentDisabled = false;
                 showErrorMessages(resp);
         });
     };
