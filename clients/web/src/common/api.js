@@ -196,3 +196,17 @@ export async function postTargets(organizationId, assessmentId, payload) {
   const { assessment, targets } = await response.json()
   return new Assessment({ ...assessment, targets })
 }
+
+export async function putAnswer(answer) {
+  const { organization, assessment, question } = answer
+  const response = await request(
+    `/answer/${organization}/${assessment}/${question}`,
+    {
+      method: 'PUT',
+      body: answer,
+    }
+  )
+  if (!response.ok) throw new APIError(response.status)
+  const data = await response.json()
+  return new Answer(data.answer)
+}

@@ -55,7 +55,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getQuestions, getAnswers } from '@/common/api'
+import { getQuestions, getAnswers, putAnswer } from '@/common/api'
 import Answer from '@/common/Answer'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
@@ -112,22 +112,26 @@ export default {
     },
 
     saveAnswer(answer, callback) {
-      // TODO: Post answer to the backend then ...
-      // Update in-memory answers array
-      console.log('saving ...')
-      console.log(answer)
-      const answerIdx = this.answers.findIndex(
-        (a) => a.question === answer.question && !answer.frozen
-      )
-      if (answerIdx >= 0) {
-        // Replace answer instance with a new one
-        this.answers.splice(answerIdx, 1, answer)
-      } else {
-        this.answers.push(answer)
-      }
-      if (typeof callback === 'function') {
-        callback()
-      }
+      putAnswer(answer)
+        .then((answer) => {
+          // Update in-memory answers array
+          const answerIdx = this.answers.findIndex(
+            (a) => a.question === answer.question && !answer.frozen
+          )
+          if (answerIdx >= 0) {
+            // Replace answer instance with a new one
+            this.answers.splice(answerIdx, 1, answer)
+          } else {
+            this.answers.push(answer)
+          }
+          if (typeof callback === 'function') {
+            callback()
+          }
+        })
+        .catch((error) => {
+          // TODO: Handle error
+          console.log('Ooops ... something broke')
+        })
     },
   },
 

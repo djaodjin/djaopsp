@@ -39,7 +39,7 @@ export default {
   computed: {
     answerText() {
       const answer = this.answers.find((a) => a.question === this.question.id)
-      if (!answer) return null
+      if (!answer || !answer.answers.length) return null
       return MAP_QUESTION_FORM_TYPES[this.question.type].render(answer.answers)
     },
     hasShortAnswer() {

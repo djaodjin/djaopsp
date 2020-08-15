@@ -293,13 +293,13 @@ export function makeServer({ environment = 'development' }) {
 
       const practices = server.createList('practice', 10)
 
-      practices.forEach((practice) =>
-        server.create('answer', {
-          organization,
-          assessment: completeAssessment,
-          question: practice.question,
-        })
-      )
+      // practices.forEach((practice) =>
+      //   server.create('answer', {
+      //     organization,
+      //     assessment: completeAssessment,
+      //     question: practice.question,
+      //   })
+      // )
 
       completeAssessment.update('practices', practices)
 
@@ -408,16 +408,23 @@ export function makeServer({ environment = 'development' }) {
       this.put(
         '/answer/:organizationId/:assessmentId/:questionId',
         (schema, request) => {
-          const { assessmentId, questionId } = request.params
+          const { organizationId, assessmentId, questionId } = request.params
           const { id, ...attrs } = JSON.parse(request.requestBody)
 
+          const organization = schema.organizations.find(organizationId)
           const assessment = schema.assessments.find(assessmentId)
           const question = schema.questions.find(questionId)
+
           let answer = schema.answers.find(id)
           if (answer) {
-            answer.update(attrs)
+            answer.update({ ...attrs, organization, assessment, question })
           } else {
-            answer = this.create('answer', { ...attrs, question, assessment })
+            answer = this.create('answer', {
+              ...attrs,
+              organization,
+              assessment,
+              question,
+            })
           }
           return answer
         }
