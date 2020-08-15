@@ -8,6 +8,7 @@
             outlined
             v-model="textAnswer"
             hide-details="auto"
+            :autofocus="true"
           ></v-text-field>
         </v-col>
         <v-col cols="9">

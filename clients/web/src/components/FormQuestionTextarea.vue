@@ -6,6 +6,7 @@
       :textareaPlaceholder="question.placeholder"
       :textareaValue="textAnswer"
       :numRows="8"
+      :focus="true"
       @textareaUpdate="updateAnswer"
     />
   </form>

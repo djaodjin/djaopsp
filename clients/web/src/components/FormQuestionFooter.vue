@@ -12,6 +12,7 @@
       outlined
       :rows="numRows"
       row-height="16"
+      :autofocus="focus"
       @input="$emit('textareaUpdate', textarea)"
     ></v-textarea>
     <div class="mt-4 text-right">
@@ -32,6 +33,10 @@ export default {
   name: 'FormQuestionFooter',
 
   props: {
+    focus: {
+      type: Boolean,
+      default: false,
+    },
     numRows: {
       type: Number,
       default: 2,
