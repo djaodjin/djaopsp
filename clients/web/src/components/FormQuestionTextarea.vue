@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="processForm">
-    <FormQuestionFooter
+    <form-question-footer
       :previousAnswers="question.previousAnswers"
       :questionType="question.type"
       :textareaPlaceholder="question.placeholder"

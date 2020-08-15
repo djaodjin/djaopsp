@@ -20,7 +20,7 @@
         value="dk"
       ></v-radio>
     </v-radio-group>
-    <FormQuestionFooter
+    <form-question-footer
       :previousAnswers="question.previousAnswers"
       :questionType="question.type"
       :textareaPlaceholder="question.placeholder"

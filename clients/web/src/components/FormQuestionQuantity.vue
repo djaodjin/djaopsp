@@ -21,7 +21,7 @@
         </v-col>
       </v-row>
     </v-container>
-    <FormQuestionFooter
+    <form-question-footer
       :previousAnswers="question.previousAnswers"
       :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
