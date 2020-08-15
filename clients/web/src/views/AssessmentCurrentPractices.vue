@@ -138,7 +138,7 @@ export default {
   computed: {
     unanswered() {
       const answered = this.answers.reduce((acc, answer) => {
-        if (answer.answered) {
+        if (answer.answered && !answer.frozen) {
           acc.push(answer.question)
         }
         return acc
