@@ -87,9 +87,9 @@ export default {
       // create placeholder answers for any questions that have not been answered
 
       // Start by creating a list of all the IDs of the questions that have been answered
-      const answeredQuestions = this.answers
+      const answeredQuestions = answers
         .filter((answer) => !answer.frozen)
-        .map((answer) => answer.question.id)
+        .map((answer) => answer.question)
 
       // Create a placeholder answer for each question that hasn't been answered
       const placeholderAnswers = questions
@@ -97,9 +97,9 @@ export default {
         .map(
           (question) =>
             new Answer({
-              organization,
-              assessment,
-              question,
+              organization: organization.id,
+              assessment: assessment.id,
+              question: question.id,
               author: 'author@email.com', // TODO: Replace with user info
             })
         )
@@ -117,7 +117,7 @@ export default {
       console.log('saving ...')
       console.log(answer)
       const answerIdx = this.answers.findIndex(
-        (a) => a.question.id === answer.question.id && !answer.frozen
+        (a) => a.question === answer.question && !answer.frozen
       )
       if (answerIdx >= 0) {
         // Replace answer instance with a new one
@@ -135,7 +135,7 @@ export default {
     unanswered() {
       const answered = this.answers.reduce((acc, answer) => {
         if (answer.answered) {
-          acc.push(answer.question.id)
+          acc.push(answer.question)
         }
         return acc
       }, [])

@@ -45,7 +45,7 @@ export default {
       return this.questions[this.currentQuestionIdx]
     },
     currentAnswer() {
-      return this.answers.find((a) => a.question.id === this.questionId)
+      return this.answers.find((a) => a.question === this.questionId)
     },
     nextQuestion() {
       if (this.questions.length <= 1) return null

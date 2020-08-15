@@ -14,19 +14,10 @@ export default class Answer {
     answers = [],
     answered = false,
   }) {
-    if (!organization instanceof Organization) {
-      throw new Error('Expecting organization to be an Organization instance')
-    }
-    if (!assessment instanceof Assessment) {
-      throw new Error('Expecting assessment to be an Assessment instance')
-    }
-    if (!question instanceof Question) {
-      throw new Error('Expecting question to be a Question instance')
-    }
     this.id = id
-    this.organization = organization
-    this.assessment = assessment
-    this.question = question
+    this.organization = organization // organization ID
+    this.assessment = assessment // assessment ID
+    this.question = question // question ID
     this.author = author
     this.answers = answers
     this.frozen = frozen

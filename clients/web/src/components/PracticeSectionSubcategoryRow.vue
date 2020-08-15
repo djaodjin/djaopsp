@@ -38,13 +38,9 @@ export default {
 
   computed: {
     answerText() {
-      const answer = this.answers.find(
-        (a) => a.question.id === this.question.id
-      )
+      const answer = this.answers.find((a) => a.question === this.question.id)
       if (!answer) return null
-      return MAP_QUESTION_FORM_TYPES[answer.question.type].render(
-        answer.answers
-      )
+      return MAP_QUESTION_FORM_TYPES[this.question.type].render(answer.answers)
     },
     hasShortAnswer() {
       return !this.answerText ? true : this.answerText.length <= 50

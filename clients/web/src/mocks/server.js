@@ -22,7 +22,7 @@ import {
   DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
   PRACTICE_VALUES,
-  STEP_SHARE_KEY,
+  STEP_FREEZE_KEY,
   VALID_ASSESSMENT_STEPS,
   VALID_ASSESSMENT_TARGETS_KEYS,
   VALID_QUESTION_TYPES,
@@ -269,13 +269,12 @@ export function makeServer({ environment = 'development' }) {
         targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
           server.create('target', { key })
         ),
-        practices: server.createList('practice', 10),
         score: server.create('score', {
           benchmarks: server.createList('benchmark', NUM_BENCHMARKS, {
             coefficient: (1 / NUM_BENCHMARKS).toFixed(2),
           }),
         }),
-        status: STEP_SHARE_KEY,
+        status: STEP_FREEZE_KEY,
       })
 
       // completeAssessment.practices.models.forEach((practice) => {
@@ -286,11 +285,23 @@ export function makeServer({ environment = 'development' }) {
       // })
 
       // Organization with active assessment with existing environmental targets and improvement plan
-      server.create('organization', {
+      const organization = server.create('organization', {
         id: 'marlin',
         name: 'Blue Marlin',
         assessments: [completeAssessment],
       })
+
+      const practices = server.createList('practice', 10)
+
+      practices.forEach((practice) =>
+        server.create('answer', {
+          organization,
+          assessment: completeAssessment,
+          question: practice.question,
+        })
+      )
+
+      completeAssessment.update('practices', practices)
 
       // Organization with active assessments at every step in the process
       server.create('organization', {
@@ -324,8 +335,8 @@ export function makeServer({ environment = 'development' }) {
       this.get('/answers/:organizationId/:assessmentId', (schema, request) => {
         const { organizationId, assessmentId } = request.params
         return schema.answers.where({
-          organization: organizationId,
-          assessment: assessmentId,
+          organizationId,
+          assessmentId,
         })
       })
 
