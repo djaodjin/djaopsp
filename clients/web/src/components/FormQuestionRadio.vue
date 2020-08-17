@@ -16,8 +16,8 @@
       </v-radio>
       <v-radio
         v-if="question.optional"
-        label="I don't know"
-        value="dk"
+        label="We're not tracking this information"
+        value="no-information"
       ></v-radio>
     </v-radio-group>
     <form-question-footer
