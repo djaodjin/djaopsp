@@ -21,7 +21,7 @@
       ></v-radio>
     </v-radio-group>
     <form-question-footer
-      :previousAnswers="question.previousAnswers"
+      :previousAnswer="previousAnswer"
       :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
       :textareaValue="comment"
@@ -36,7 +36,7 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionRadio',
 
-  props: ['question', 'answer', 'options'],
+  props: ['question', 'answer', 'previousAnswer', 'options'],
 
   methods: {
     processForm: function () {

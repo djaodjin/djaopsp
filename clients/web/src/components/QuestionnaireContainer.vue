@@ -17,6 +17,7 @@
       :is="questionForm.name"
       :question="currentQuestion"
       :answer="currentAnswer"
+      :previousAnswer="previousAnswer"
       :options="questionForm.options"
       :key="currentQuestion.id"
       @submit="saveAndContinue"
@@ -45,7 +46,15 @@ export default {
       return this.questions[this.currentQuestionIdx]
     },
     currentAnswer() {
-      return this.answers.find((a) => a.question === this.questionId)
+      return this.answers.find(
+        (a) => a.question === this.questionId && !a.frozen
+      )
+    },
+    previousAnswer() {
+      // Get the first previous answer found; there may be more
+      return this.answers.find(
+        (a) => a.question === this.questionId && a.frozen
+      )
     },
     nextQuestion() {
       if (this.questions.length <= 1) return null

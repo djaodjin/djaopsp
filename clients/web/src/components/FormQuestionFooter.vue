@@ -2,7 +2,7 @@
   <fragment>
     <question-previous-answers
       :questionType="questionType"
-      :answers="previousAnswers"
+      :previousAnswer="previousAnswer"
     />
     <v-textarea
       :placeholder="textareaPlaceholder"
@@ -41,11 +41,9 @@ export default {
       type: Number,
       default: 2,
     },
-    previousAnswers: {
-      type: Array,
-      default: function () {
-        return []
-      },
+    previousAnswer: {
+      type: Object, // Answer
+      default: null,
     },
     questionType: {
       type: String,

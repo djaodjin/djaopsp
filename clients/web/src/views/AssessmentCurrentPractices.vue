@@ -116,7 +116,7 @@ export default {
         .then((answer) => {
           // Update in-memory answers array
           const answerIdx = this.answers.findIndex(
-            (a) => a.question === answer.question && !answer.frozen
+            (a) => a.question === answer.question && !a.frozen
           )
           if (answerIdx >= 0) {
             // Replace answer instance with a new one
