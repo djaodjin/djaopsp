@@ -50,10 +50,7 @@ export default {
 .section-subcategory {
   & ::v-deep table {
     border-collapse: collapse;
-
-    @media #{map-get($display-breakpoints, 'sm-and-up')} {
-      width: calc(100% + 32px); // make up for the negative margins
-    }
+    width: calc(100% + 32px);
 
     th {
       &:first-child {
