@@ -199,15 +199,20 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         return reverse(self.breadcrumb_url, args=(path,))
 
     def get_roots(self):
-        trail = self.get_full_element_path(self.kwargs.get('path', ""))
         search_query = None
-        if trail:
-            prefix = '/%s' % '/'.join([element.slug for element in trail])
-            segments = self.get_segments()
-            for segment in segments:
-                if segment['path'] == prefix:
-                    search_query = prefix.split('/')[-1]
-                    break
+        try:
+            # We have to deal with matrix/totals which is a path with no
+            # matching path elements.
+            trail = self.get_full_element_path(self.kwargs.get('path', ""))
+            if trail:
+                prefix = '/%s' % '/'.join([element.slug for element in trail])
+                segments = self.get_segments()
+                for segment in segments:
+                    if segment['path'] == prefix:
+                        search_query = prefix.split('/')[-1]
+                        break
+        except Http404:
+            pass
         query_filter = Q(tag__contains='industry')
         if search_query:
             query_filter = query_filter & Q(slug=search_query)
