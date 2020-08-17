@@ -7,8 +7,8 @@ import { getPracticeList } from './Practice'
 import { getQuestionList } from './Question'
 import { getShareEntryList } from './ShareEntry'
 
-const API_HOST = process.env.VUE_APP_API_HOST || 'http://127.0.0.1:8000'
-const API_BASE_URL = `${API_HOST}/envconnect/api`
+const API_BASE_URL =
+  process.env.VUE_APP_API_BASE_URL || `${process.env.BASE_URL}api`
 
 class APIError extends Error {
   constructor(message) {
@@ -36,6 +36,750 @@ function request(endpoint, { body, method, ...customConfig } = {}) {
 }
 
 export async function getAssessment(assessmentId) {
+  /* The method must call:
+     1. /api/{organizationId}/sample/{assessmentId}/
+     to retrieve some details about the assesment itself like the
+     `is_frozen` status.
+     (See https://www.tspproject.org/docs/api#RetrieveSample)
+
+     2. /api/{organizationId}/sample/{assessmentId}/answers/{path}/
+     to retrieve answered and unanswered questions. The list of questions
+     can be filtered down through a {path} prefix which typically is
+     an industry segment.
+
+     All targets are starting with the `{path}/targets/` prefix.
+
+     Example:
+     GET ${API_BASE_URL}/api/supplier-1/sample/f1e2e916eb494b90f9ff0a36982342/answers/metal/boxes-and-enclosures
+
+{
+  "count": 60,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/additional-information/additional-certifications",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-energy/energy-3rd-party-verified",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-energy/energy-measured-and-trended/energy-consumed",
+        "default_metric": "energy-consumed",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-energy/energy-measured-and-trended/energy-measured-and-trended-comments",
+        "default_metric": "freetext",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-energy/energy-performance-publicly-reported",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-3rd-party-verified",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/business-travel",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/capital-goods",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/downstream-leased-assets",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/downstream-transportation-and-distribution",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/employee-commuting",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/end-of-life-treatment-of-sold-products",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/franchise",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/fuel-and-energy-related-activities",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/investments",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/processing-of-sold-products",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/purchased-good-and-services",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/upstream-leased-assets",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/upstream-transportation-and-distribution",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/use-of-sold-products",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-breakdown-of-scope-3-emissions/waste-generated-in-operations",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-measured-and-trended-comments",
+        "default_metric": "freetext",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-total-scope-1-emissions",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-total-scope-2-emissions",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-measured-and-trended/ghg-emissions-total-scope-3-emissions",
+        "default_metric": "ghg-emissions-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-ghg-emissions/ghg-emissions-performance-publicly-reported",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-waste/waste-3rd-party-verified",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-waste/waste-measured-and-trended/waste-measured-and-trended-comments",
+        "default_metric": "freetext",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-waste/waste-measured-and-trended/waste-total-hazardous-waste",
+        "default_metric": "waste-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-waste/waste-measured-and-trended/waste-total-non-hazardous-waste",
+        "default_metric": "waste-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-waste/waste-measured-and-trended/waste-total-waste-recycled",
+        "default_metric": "waste-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-waste/waste-performance-publicly-reported",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-water/water-3rd-party-verified",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-water/water-measured-and-trended/water-measured-and-trended-comments",
+        "default_metric": "freetext",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-water/water-measured-and-trended/water-total-water-discharged",
+        "default_metric": "water-consumed",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-water/water-measured-and-trended/water-total-water-recycled-and-reused",
+        "default_metric": "water-consumed",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-water/water-measured-and-trended/water-total-water-withdrawn",
+        "default_metric": "water-consumed",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/environmental-metrics-and-targets/additional-water/water-performance-publicly-reported",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/general-information/employee-code-of-conduct",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/general-information/environmental-fines",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/general-information/fte-count",
+        "default_metric": "employee-counted",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/general-information/gross-revenue",
+        "default_metric": "revenue-generated",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/additional-questions/general-information/supplier-code-of-conduct",
+        "default_metric": "yes-no",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/design/packaging-design",
+        "default_metric": "assessment",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/design/product-design",
+        "default_metric": "assessment",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
+        "default_metric": "assessment",
+        "title": "The assessment process is rigorous and thorough*"
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/management-basics/general/hello/new-best-practice",
+        "default_metric": "assessment",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/management-basics/general/report-externally",
+        "default_metric": "assessment",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
+        "default_metric": "assessment",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum",
+        "default_metric": "assessment",
+        "title": ""
+      }
+    },
+    {
+      "metric": "assessment",
+      "unit": null,
+      "measured": "2",
+      "created_at": "2016-05-01T00:36:19.448000Z",
+      "collected_by": "steve",
+      "question": {
+        "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water",
+        "default_metric": "assessment",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required",
+        "default_metric": "assessment",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/targets/energy-improvement-target/energy-improvement-target-comments",
+        "default_metric": "freetext",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/targets/energy-improvement-target/energy-target",
+        "default_metric": "target-reduced",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/targets/ghg-emissions-improvement-target/ghg-emissions-improvement-target-comments",
+        "default_metric": "freetext",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/targets/ghg-emissions-improvement-target/ghg-emissions-scope-1-emissions-target",
+        "default_metric": "target-reduced",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/targets/waste-improvement-target/hazardous-waste-target",
+        "default_metric": "target-reduced",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/targets/waste-improvement-target/waste-improvement-target-comments",
+        "default_metric": "freetext",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/targets/water-improvement-target/water-improvement-target-comments",
+        "default_metric": "freetext",
+        "title": ""
+      }
+    },
+    {
+      "metric": null,
+      "unit": null,
+      "measured": null,
+      "created_at": null,
+      "collected_by": null,
+      "question": {
+        "path": "/metal/boxes-and-enclosures/targets/water-improvement-target/water-withdrawn-target",
+        "default_metric": "target-reduced",
+        "title": ""
+      }
+    }
+  ]
+}
+   */
   const response = await request(`/assessments/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
   const {
@@ -67,6 +811,10 @@ export async function getBenchmarks(organizationId, assessmentId) {
 }
 
 export async function getIndustrySegments() {
+  /* `GET /api/content/?q=public` for supplier organizations
+     and `GET /api/content/?q=energy-procurement` for energy utility
+     organizations.
+   */
   const response = await request('/industries')
   if (!response.ok) throw new APIError(response.status)
   const { industries } = await response.json()
@@ -74,6 +822,9 @@ export async function getIndustrySegments() {
 }
 
 export async function getPreviousIndustrySegments() {
+  /* The information is available (and already retrieved in `getOrganization`)
+     through /api/{organizationId}/benchmark/historical. (See `getOrganization`)
+   */
   const response = await request('/previous-industries')
   if (!response.ok) throw new APIError(response.status)
   const { previousIndustries } = await response.json()
@@ -81,6 +832,69 @@ export async function getPreviousIndustrySegments() {
 }
 
 export async function getOrganization(organizationId) {
+  /* The code will call /api/profile/{organizationId}/ to retrieve information
+     specified at:
+    https://www.djaodjin.com/docs/djaoapp/latest/api/#RetrieveOrganizationDetail
+
+     `id` (as an integer) is a concept internal to the database. All API
+     endpoints always return a `slug` which is a unique identifier that
+     can be used in URLs.
+
+     There are no `name` field in the data returned. Instead there are
+     `full_name` and `printable_name`, which is guarentee to be printable
+     (in case full_name == "", printable_name defaults to the slug).
+     The web client should use `printable_name` unless there is a specific
+     use case for `full_name`.
+
+     The current `assessments` are returned as part of the history API call
+     /api/{organizationId}/benchmark/historical.
+     (See https://www.tspproject.org/docs/api#RetrieveHistoricalScore)
+
+     The "latest" field contains the slug for the "assessment" in progress
+     and "segments" contains the segments the current assessment covers.
+
+     The "results" field contains all previous assessment taken.
+
+     Example:
+     `GET /api/supplier-1/benchmark/historical/`
+
+{
+  "results": [
+    {
+      "key": "Jan 2017",
+      "values": [
+        [
+          "Boxes & enclosures",
+          90,
+          "http://localhost:8000/envconnect/app/supplier-1/assess/f1e2e916eb494b90f9ff0a36982341/content/boxes-and-enclosures/"
+        ]
+      ],
+      "created_at": "2017-01-01T00:00:00Z"
+    },
+    {
+      "key": "Jul 2016",
+      "values": [
+        [
+          "Boxes & enclosures",
+          60,
+          "http://localhost:8000/envconnect/app/supplier-1/assess/f1e2e916eb494b90f9ff0a36982340/content/boxes-and-enclosures/"
+        ]
+      ],
+      "created_at": "2016-07-15T00:35:26.565000Z"
+    }
+  ],
+  "latest": {
+    "assessment": "f1e2e916eb494b90f9ff0a36982342",
+    "segments": [
+      {
+        "title": "Boxes & enclosures",
+        "path": "/metal/boxes-and-enclosures",
+        "indent": 1
+      }
+    ]
+  }
+}
+   */
   const response = await request(`/organizations/${organizationId}`)
   if (!response.ok) throw new APIError(response.status)
   const {
