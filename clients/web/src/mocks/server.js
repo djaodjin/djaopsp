@@ -293,13 +293,13 @@ export function makeServer({ environment = 'development' }) {
 
       const practices = server.createList('practice', 10)
 
-      practices.forEach((practice) =>
-        server.create('answer', {
-          organization,
-          assessment: completeAssessment,
-          question: practice.question,
-        })
-      )
+      // practices.forEach((practice) =>
+      //   server.create('answer', {
+      //     organization,
+      //     assessment: completeAssessment,
+      //     question: practice.question,
+      //   })
+      // )
 
       practices.forEach((practice) =>
         server.create('answer', 'isPrevious', {

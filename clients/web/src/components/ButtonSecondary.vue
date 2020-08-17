@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  name: 'ButtonPrimary',
+  name: 'ButtonSecondary',
   props: ['color', 'to', 'display', 'type'],
 }
 </script>

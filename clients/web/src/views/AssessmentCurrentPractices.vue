@@ -18,6 +18,7 @@
             :answers="answers"
             :unanswered="unanswered"
             @saveAnswer="saveAnswer"
+            @usePreviousAnswers="usePreviousAnswers"
           />
         </template>
         <template v-slot:tab2>
@@ -115,15 +116,7 @@ export default {
       putAnswer(answer)
         .then((answer) => {
           // Update in-memory answers array
-          const answerIdx = this.answers.findIndex(
-            (a) => a.question === answer.question && !a.frozen
-          )
-          if (answerIdx >= 0) {
-            // Replace answer instance with a new one
-            this.answers.splice(answerIdx, 1, answer)
-          } else {
-            this.answers.push(answer)
-          }
+          this.updateAnswersArray(answer)
           if (typeof callback === 'function') {
             callback()
           }
@@ -132,6 +125,42 @@ export default {
           // TODO: Handle error
           console.log('Ooops ... something broke')
         })
+    },
+
+    updateAnswersArray(answer) {
+      const answerIdx = this.answers.findIndex(
+        (a) => a.question === answer.question && !a.frozen
+      )
+      if (answerIdx >= 0) {
+        // Replace answer instance with a new one
+        this.answers.splice(answerIdx, 1, answer)
+      } else {
+        this.answers.push(answer)
+      }
+    },
+
+    usePreviousAnswers(questions, callback) {
+      Promise.allSettled(
+        questions.map((question) => {
+          const previousAnswer = this.answers.find(
+            (a) => a.question === question.id && a.frozen
+          )
+          const { id, frozen, ...attrs } = previousAnswer
+          const author = 'author@email.com' // TODO: Replace with user info
+          const currentAnswer = new Answer({ ...attrs, author })
+          return putAnswer(currentAnswer)
+        })
+      ).then((answerPromises) => {
+        answerPromises.forEach((answerPromise) => {
+          if (answerPromise.status === 'fulfilled') {
+            this.updateAnswersArray(answerPromise.value)
+          }
+          // TODO: Consider case where one or more answers may fail to save
+        })
+        if (typeof callback === 'function') {
+          callback()
+        }
+      })
     },
   },
 

@@ -57,6 +57,8 @@
             :section="section"
             :subcategory="subcategory"
             :answers="answers"
+            :hasPreviousAnswers="hasPreviousAnswers"
+            @usePreviousAnswers="usePreviousAnswers"
           />
           <next-practice-section
             class="mt-4"
@@ -122,9 +124,15 @@ export default {
     saveAnswer(...args) {
       this.$emit('saveAnswer', ...args)
     },
+    usePreviousAnswers(...args) {
+      this.$emit('usePreviousAnswers', ...args)
+    },
   },
 
   computed: {
+    hasPreviousAnswers() {
+      return this.answers.some((answer) => answer.frozen)
+    },
     sectionList() {
       return SectionList.createFromQuestions(this.questions)
     },
