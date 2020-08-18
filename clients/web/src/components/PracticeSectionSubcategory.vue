@@ -1,16 +1,46 @@
 <template>
   <v-fade-transition mode="out-in">
     <div :key="subcategory.id" class="section-subcategory">
-      <practice-section-header
-        class="ml-md-4"
-        :section="section.content.name"
-        :subcategory="subcategory.content.name"
-      />
-      <table class="mt-4 mx-n4 mt-md-8 mx-xl-0 mb-xl-4">
+      <div class="container-header">
+        <practice-section-header
+          class="section-header ml-md-4"
+          :section="section.content.name"
+          :subcategory="subcategory.content.name"
+        />
+        <button
+          class="btn-previous-answers"
+          v-if="$vuetify.breakpoint.xs && hasPreviousAnswers"
+          @click="showPreviousAnswers = !showPreviousAnswers"
+        >
+          <span v-if="showPreviousAnswers">
+            <v-icon color="primary" class="translate-icon" small
+              >mdi-chevron-double-left</v-icon
+            >
+            <span class="ml-1">Hide Previous Answers</span>
+          </span>
+          <span v-else>
+            <span>Show Previous Answers</span>
+            <v-icon color="primary" class="translate-icon ml-1" small
+              >mdi-chevron-double-right</v-icon
+            >
+          </span>
+        </button>
+      </div>
+      <table
+        :class="[
+          $vuetify.breakpoint.xs && showPreviousAnswers ? 'offset' : 'origin',
+          'mt-6 mt-sm-4 mx-n4 mt-md-8 mx-xl-0 mb-xl-4',
+        ]"
+      >
         <thead>
           <tr>
             <th class="pl-4 pl-md-8">Questions</th>
-            <th :class="[hasPreviousAnswers ? '' : 'pr-3 pr-md-8']">
+            <th
+              :class="[
+                hasPreviousAnswers ? '' : 'pr-3 pr-md-8',
+                'answers-column',
+              ]"
+            >
               <span v-if="hasPreviousAnswers">
                 Answers
                 <br />
@@ -78,6 +108,7 @@ export default {
   data() {
     return {
       showAnswersDialog: false,
+      showPreviousAnswers: false,
     }
   },
 
@@ -105,16 +136,71 @@ export default {
 @import '@/styles/variables.scss';
 
 .section-subcategory {
+  overflow: hidden;
+
+  @media #{map-get($display-breakpoints, 'sm-and-up')} {
+    overflow: visible;
+  }
+
+  .container-header {
+    display: flex;
+    align-items: flex-end;
+
+    .section-header {
+      flex: 1;
+    }
+
+    .btn-previous-answers {
+      display: block;
+      color: $primary-color;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.0892857143em;
+      text-transform: uppercase;
+      width: 35%;
+      max-width: 120px;
+      text-align: right;
+
+      &:focus,
+      &:active {
+        outline: 0 none;
+      }
+    }
+  }
+
+  .translate-icon {
+    vertical-align: -2px;
+  }
   & ::v-deep table {
     border-collapse: collapse;
-    width: calc(100% + 32px);
+    width: 144vw;
+    transition: transform 0.3s ease-out;
+
+    &.origin {
+      transform: translateX(0);
+    }
+
+    &.offset {
+      transform: translateX(calc(-48vw + 16px));
+    }
+
+    @media #{map-get($display-breakpoints, 'sm-and-up')} {
+      width: calc(100% + 32px);
+    }
 
     th {
-      width: 27%;
+      width: 48vw;
+
+      @media #{map-get($display-breakpoints, 'sm-and-up')} {
+        width: 27%;
+      }
 
       &:first-child {
         text-align: left;
-        width: 46%;
+
+        @media #{map-get($display-breakpoints, 'sm-and-up')} {
+          width: 46%;
+        }
       }
     }
     tr:nth-child(even) {

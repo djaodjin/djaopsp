@@ -1,6 +1,6 @@
 <template>
   <fragment>
-    <td class="py-2 px-4 py-md-4 px-md-8">{{ question.text }}</td>
+    <td class="py-2 px-6 px-sm-4 py-md-4 px-md-8">{{ question.text }}</td>
     <td
       :class="[
         hasPreviousAnswers ? 'py-2 px-3' : 'py-2 pr-3 pr-md-8',
