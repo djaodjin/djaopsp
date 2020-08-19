@@ -49,8 +49,8 @@ Running the new Vue client by itself
 
 ```
 $ cd clients/web
-$ yarn serve
-# browse http://localhost:8080/envconnect/
+$ VUE_APP_STANDALONE=1 VUE_APP_API_HOST=http://localhost:8080 yarn serve
+# browse http://localhost:8080/envconnect/app/supplier-1/
 ```
 
 Lints and fixes files
