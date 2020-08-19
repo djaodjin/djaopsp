@@ -1,12 +1,6 @@
 import FormQuestion from '../common/FormQuestion'
 import { AssessmentStep, AssessmentFlow } from '../common/AssessmentFlow'
 
-function answersWarning(answers) {
-  console.warn('Unable to find matching answer in ', answers)
-  console.trace()
-  return ''
-}
-
 const FormQuestionRadioDiscrete = new FormQuestion({
   name: 'FormQuestionRadio',
   options: [
@@ -22,8 +16,7 @@ const FormQuestionRadioDiscrete = new FormQuestion({
 })
 FormQuestionRadioDiscrete.render = function (answers) {
   const selected = this.options.find((opt) => opt.value === answers[0])
-  if (selected) return selected.text
-  return answersWarning(answers)
+  return selected ? selected.text : ''
 }
 
 const FormQuestionRadioRange = new FormQuestion({
@@ -53,8 +46,7 @@ const FormQuestionRadioRange = new FormQuestion({
 })
 FormQuestionRadioRange.render = function (answers) {
   const selected = this.options.find((opt) => opt.value === answers[0])
-  if (selected) return selected.text
-  return answersWarning(answers)
+  return selected ? selected.text : ''
 }
 
 const FormQuestionRadioLabeled = new FormQuestion({
@@ -93,7 +85,7 @@ FormQuestionRadioLabeled.render = function (answers) {
     const found = selected.text.match(/<b>(.*):<\/b>/)
     return found && found[1]
   }
-  return answersWarning(answers)
+  return ''
 }
 
 const FormQuestionTextarea = new FormQuestion({ name: 'FormQuestionTextarea' })
@@ -144,8 +136,7 @@ const FormQuestionQuantity = new FormQuestion({
 })
 FormQuestionQuantity.render = function (answers) {
   const unit = this.options.find((opt) => opt.value === answers[1])
-  if (unit) return `${answers[0]} ${unit.text}`
-  return answersWarning(answers)
+  return unit ? `${answers[0]} ${unit.text}` : ''
 }
 
 export const MAP_QUESTION_FORM_TYPES = {

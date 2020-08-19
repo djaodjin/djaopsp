@@ -33,7 +33,7 @@
 
   "targets": {
     "tab1": {
-      "btn-submit": "Submit Environmental Targets",
+      "btn-submit": "Save Environmental Targets",
       "form": {
         "textarea-target": "Target description"
       },

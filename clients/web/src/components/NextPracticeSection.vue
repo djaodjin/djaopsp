@@ -64,6 +64,7 @@ footer {
       width: 30%;
       font-size: 0.9rem;
       line-height: 1.6;
+      align-self: flex-start;
     }
 
     ::v-deep .v-card {

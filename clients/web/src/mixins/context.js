@@ -101,4 +101,9 @@ export default class Context {
       return organization
     }
   }
+
+  updateAssessment(assessment) {
+    this.assessments.set(assessment.id, assessment)
+    return assessment
+  }
 }

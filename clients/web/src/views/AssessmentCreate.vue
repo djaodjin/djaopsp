@@ -65,7 +65,7 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
-import { postAssessment } from '@/common/api'
+import { createAssessment } from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import HeaderPrimary from '@/components/HeaderPrimary'
 
@@ -89,9 +89,8 @@ export default {
     },
 
     processForm: function () {
-      // TODO: Post new assessment; then redirect to the assessment home page
       // TODO: How to get the author information?
-      postAssessment({ industry: this.industry }).then((newAssessment) => {
+      createAssessment({ industry: this.industry }).then((newAssessment) => {
         this.$router.push({
           name: 'assessmentHome',
           params: { id: newAssessment.id },

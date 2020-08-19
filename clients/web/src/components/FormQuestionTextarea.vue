@@ -1,11 +1,12 @@
 <template>
   <form @submit.prevent="processForm">
-    <FormQuestionFooter
-      :previousAnswers="question.previousAnswers"
+    <form-question-footer
+      :previousAnswer="previousAnswer"
       :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
       :textareaValue="textAnswer"
       :numRows="8"
+      :focus="true"
       @textareaUpdate="updateAnswer"
     />
   </form>
@@ -17,11 +18,12 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionTextarea',
 
-  props: ['question', 'answer'],
+  props: ['question', 'answer', 'previousAnswer'],
 
   methods: {
     processForm: function () {
-      this.$emit('submit', [this.textAnswer])
+      const isEmpty = !this.textAnswer
+      this.$emit('submit', [this.textAnswer], isEmpty)
     },
     updateAnswer(value) {
       this.textAnswer = value

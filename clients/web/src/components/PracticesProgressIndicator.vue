@@ -12,7 +12,7 @@
     </div>
     <div class="action" v-else>
       <button-primary @click="advanceAssessment">
-        Submit Questionnaire
+        Save Questionnaire
       </button-primary>
     </div>
   </div>
