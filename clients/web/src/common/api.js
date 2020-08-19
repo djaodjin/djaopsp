@@ -45,6 +45,26 @@ export async function advanceAssessment(assessment) {
     currentStepIndex < VALID_ASSESSMENT_STEPS.length - 1
   ) {
     const nextStep = VALID_ASSESSMENT_STEPS[currentStepIndex + 1]
+    /* Example, updating answer for the default metric:
+
+       POST /api/supplier-1/sample/f1e2e916eb494b90f9ff0a36982342/answers/metal/boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous
+      with body:
+      {
+        "measured": "yes"
+      }
+
+      Example adding a comment:
+
+       POST /api/supplier-1/sample/f1e2e916eb494b90f9ff0a36982342/answers/metal/boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous
+      with body:
+      {
+        "metric": "freetext",
+        "measured": "my comment",
+      }
+
+      See for previous implementation:
+      https://github.com/djaodjin/envconnect/blob/d55b195fc16397712588e0358848b8423f8f32f2/envconnect/static/js/envconnect.js#L1260
+     */
     const response = await request(`/assessments/${id}`, {
       method: 'PATCH',
       body: { status: nextStep },
@@ -63,6 +83,12 @@ export async function advanceAssessment(assessment) {
 }
 
 export async function createAssessment(payload) {
+  /* POST /api/supplier-1/sample/
+     with body:
+     {
+       "campaign": "assessment"
+     }
+   */
   const response = await request('/assessments', { body: payload })
   if (!response.ok) throw new APIError(response.status)
   const { assessment } = await response.json()
