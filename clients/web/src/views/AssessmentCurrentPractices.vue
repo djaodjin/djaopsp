@@ -15,13 +15,18 @@
           <assessment-sections
             :header="$t('practices.tab1.title')"
             :questions="questions"
+            :answers="answers"
             :unanswered="unanswered"
+            @saveAnswer="saveAnswer"
+            @usePreviousAnswers="usePreviousAnswers"
           />
         </template>
         <template v-slot:tab2>
           <pending-questions
             :header="$t('practices.tab2.title')"
             :questions="unanswered"
+            :answers="answers"
+            @saveAnswer="saveAnswer"
           />
         </template>
       </tab-container>
@@ -33,9 +38,9 @@
     </div>
     <dialog-confirm
       storageKey="previousAnswers"
-      :checkStateAsync="hasPreviousAnswers"
       title="Previous Answers"
       actionText="Ok, thanks"
+      :show="hasPreviousAnswers"
     >
       <p>
         Your organization has submitted a similar questionnaire in the past (per
@@ -51,7 +56,8 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getQuestions } from '@/common/api'
+import { getQuestions, getAnswers, putAnswer } from '@/common/api'
+import Answer from '@/common/Answer'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
 import DialogConfirm from '@/components/DialogConfirm'
@@ -72,25 +78,109 @@ export default {
   methods: {
     async fetchData() {
       this.loading = true
-      const [organization, assessment, questions] = await Promise.all([
+      const [organization, assessment, questions, answers] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.id),
         getQuestions(this.org, this.id),
+        getAnswers(this.org, this.id),
       ])
+      // The different question form components expect an answer as one of their props so
+      // create placeholder answers for any questions that have not been answered
+
+      // Start by creating a list of all the IDs of the questions that have been answered
+      const answeredQuestions = answers
+        .filter((answer) => !answer.frozen)
+        .map((answer) => answer.question)
+
+      // Create a placeholder answer for each question that hasn't been answered
+      const placeholderAnswers = questions
+        .filter((question) => !answeredQuestions.includes(question.id))
+        .map(
+          (question) =>
+            new Answer({
+              organization: organization.id,
+              assessment: assessment.id,
+              question: question.id,
+              author: 'author@email.com', // TODO: Replace with user info
+            })
+        )
 
       this.organization = organization
       this.assessment = assessment
       this.questions = questions
+      this.answers = answers.concat(placeholderAnswers)
       this.loading = false
+    },
+
+    saveAnswer(answer, callback) {
+      putAnswer(answer)
+        .then((answer) => {
+          // Update in-memory answers array
+          this.updateAnswersArray(answer)
+          if (typeof callback === 'function') {
+            callback()
+          }
+        })
+        .catch((error) => {
+          // TODO: Handle error
+          console.log('Ooops ... something broke')
+        })
+    },
+
+    updateAnswersArray(answer) {
+      const answerIdx = this.answers.findIndex(
+        (a) => a.question === answer.question && !a.frozen
+      )
+      if (answerIdx >= 0) {
+        // Replace answer instance with a new one
+        this.answers.splice(answerIdx, 1, answer)
+      } else {
+        this.answers.push(answer)
+      }
+    },
+
+    usePreviousAnswers(questions, callback) {
+      Promise.allSettled(
+        questions.map((question) => {
+          const previousAnswer = this.answers.find(
+            (a) => a.question === question.id && a.frozen
+          )
+          const { id, frozen, ...attrs } = previousAnswer
+          const author = 'author@email.com' // TODO: Replace with user info
+          const currentAnswer = new Answer({ ...attrs, author })
+          return putAnswer(currentAnswer)
+        })
+      ).then((answerPromises) => {
+        answerPromises.forEach((answerPromise) => {
+          if (answerPromise.status === 'fulfilled') {
+            this.updateAnswersArray(answerPromise.value)
+          }
+          // TODO: Consider case where one or more answers may fail to save
+        })
+        if (typeof callback === 'function') {
+          callback()
+        }
+      })
     },
   },
 
   computed: {
     unanswered() {
-      return this.questions.filter((question) => !question.currentAnswer)
+      const answered = this.answers.reduce((acc, answer) => {
+        if (answer.answered && !answer.frozen) {
+          acc.push(answer.question)
+        }
+        return acc
+      }, [])
+      return this.questions.reduce((acc, question) => {
+        if (!answered.includes(question.id)) {
+          acc.push(question)
+        }
+        return acc
+      }, [])
     },
     hasPreviousAnswers() {
-      return this.questions.some((question) => question.previousAnswers.length)
+      return this.answers.some((answer) => answer.frozen)
     },
   },
 
@@ -100,6 +190,7 @@ export default {
       organization: {},
       assessment: {},
       questions: [],
+      answers: [],
       tabs: [
         { text: this.$t('practices.tab1.title'), href: 'tab-1' },
         { text: this.$t('practices.tab2.title'), href: 'tab-2' },

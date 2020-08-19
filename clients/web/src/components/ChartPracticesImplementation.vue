@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-6 mb-4 mt-md-8 mb-md-6">
+  <div v-bind="$attrs" class="mt-6 mb-4 mt-md-8 mb-md-6">
     <practice-group-header class="mb-2" :section="section" />
     <svg
       class="chart-practices-implementation"

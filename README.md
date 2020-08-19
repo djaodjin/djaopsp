@@ -49,8 +49,8 @@ Running the new Vue client by itself
 
 ```
 $ cd clients/web
-$ yarn serve
-# browse http://localhost:8080/envconnect/
+$ VUE_APP_STANDALONE=1 VUE_APP_API_HOST=http://localhost:8080 yarn serve
+# browse http://localhost:8080/envconnect/app/supplier-1/
 ```
 
 Lints and fixes files
@@ -76,6 +76,8 @@ Client Stand-Alone Mode
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 The client (Vue app) has its own navigation which can be enabled using the `VUE_APP_STANDALONE` flag in the `.env` file at the client root (`clients/web`).
+
+Additionally, you will need to set the environment variable VUE_APP_API_HOST to your network or loopback address and port 8080 e.g. http://127.0.0.1:8080. This will have the app make calls to a mock server and make changes to an in-memory database.
 
 
 Testing

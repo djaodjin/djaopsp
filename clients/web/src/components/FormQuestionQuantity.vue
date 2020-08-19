@@ -8,6 +8,8 @@
             outlined
             v-model="textAnswer"
             hide-details="auto"
+            type="number"
+            :autofocus="true"
           ></v-text-field>
         </v-col>
         <v-col cols="9">
@@ -21,8 +23,8 @@
         </v-col>
       </v-row>
     </v-container>
-    <FormQuestionFooter
-      :previousAnswers="question.previousAnswers"
+    <form-question-footer
+      :previousAnswer="previousAnswer"
       :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
       :textareaValue="comment"
@@ -37,11 +39,12 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionQuantity',
 
-  props: ['question', 'answer', 'options'],
+  props: ['question', 'answer', 'previousAnswer', 'options'],
 
   methods: {
     processForm: function () {
-      this.$emit('submit', [this.textAnswer, this.unit, this.comment])
+      const isEmpty = !this.textAnswer || !this.unit
+      this.$emit('submit', [this.textAnswer, this.unit, this.comment], isEmpty)
     },
     updateComment(value) {
       this.comment = value
