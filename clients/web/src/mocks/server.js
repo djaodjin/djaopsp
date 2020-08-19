@@ -22,7 +22,7 @@ import {
   DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
   PRACTICE_VALUES,
-  STEP_SHARE_KEY,
+  STEP_FREEZE_KEY,
   VALID_ASSESSMENT_STEPS,
   VALID_ASSESSMENT_TARGETS_KEYS,
   VALID_QUESTION_TYPES,
@@ -48,6 +48,8 @@ export function makeServer({ environment = 'development' }) {
 
     models: {
       answer: Model.extend({
+        organization: belongsTo(),
+        assessment: belongsTo(),
         question: belongsTo(),
       }),
       assessment: Model.extend({
@@ -69,7 +71,6 @@ export function makeServer({ environment = 'development' }) {
       previousIndustry: Model,
       question: Model.extend({
         practice: belongsTo(),
-        answers: hasMany(),
       }),
       score: Model.extend({
         benchmarks: hasMany(),
@@ -113,6 +114,9 @@ export function makeServer({ environment = 'development' }) {
           // Smaller chance of showing a comment
           const comment = Math.random() > 0.8 ? faker.lorem.sentences(3) : ''
           return [faker.random.arrayElement(options), comment]
+        },
+        answered() {
+          return true
         },
 
         // Current answers won't have a frozen date
@@ -206,18 +210,6 @@ export function makeServer({ environment = 'development' }) {
         type() {
           return faker.random.arrayElement(VALID_QUESTION_TYPES)
         },
-
-        withPreviousAnswers: trait({
-          afterCreate(question, server) {
-            server.createList('answer', 1, 'isPrevious', { question })
-          },
-        }),
-
-        withCurrentAnswer: trait({
-          afterCreate(question, server) {
-            server.create('answer', { question })
-          },
-        }),
       }),
 
       score: Factory.extend({
@@ -259,9 +251,6 @@ export function makeServer({ environment = 'development' }) {
       organizationGroup: ApplicationSerializer.extend({
         include: ['organizations'],
       }),
-      question: ApplicationSerializer.extend({
-        include: ['answers'],
-      }),
       practice: ApplicationSerializer.extend({
         include: ['question'],
       }),
@@ -276,25 +265,51 @@ export function makeServer({ environment = 'development' }) {
     seeds(server) {
       server.loadFixtures()
 
+      const completeAssessment = server.create('assessment', {
+        targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
+          server.create('target', { key })
+        ),
+        score: server.create('score', {
+          benchmarks: server.createList('benchmark', NUM_BENCHMARKS, {
+            coefficient: (1 / NUM_BENCHMARKS).toFixed(2),
+          }),
+        }),
+        status: STEP_FREEZE_KEY,
+      })
+
+      // completeAssessment.practices.models.forEach((practice) => {
+      //   server.create('answer', {
+      //     question: practice.question,
+      //     assessment: completeAssessment,
+      //   })
+      // })
+
       // Organization with active assessment with existing environmental targets and improvement plan
-      server.create('organization', {
+      const organization = server.create('organization', {
         id: 'marlin',
         name: 'Blue Marlin',
-        assessments: [
-          server.create('assessment', {
-            targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
-              server.create('target', { key })
-            ),
-            practices: server.createList('practice', 10),
-            score: server.create('score', {
-              benchmarks: server.createList('benchmark', NUM_BENCHMARKS, {
-                coefficient: (1 / NUM_BENCHMARKS).toFixed(2),
-              }),
-            }),
-            status: STEP_SHARE_KEY,
-          }),
-        ],
+        assessments: [completeAssessment],
       })
+
+      const practices = server.createList('practice', 10)
+
+      // practices.forEach((practice) =>
+      //   server.create('answer', {
+      //     organization,
+      //     assessment: completeAssessment,
+      //     question: practice.question,
+      //   })
+      // )
+
+      practices.forEach((practice) =>
+        server.create('answer', 'isPrevious', {
+          organization,
+          assessment: completeAssessment,
+          question: practice.question,
+        })
+      )
+
+      completeAssessment.update('practices', practices)
 
       // Organization with active assessments at every step in the process
       server.create('organization', {
@@ -317,17 +332,6 @@ export function makeServer({ environment = 'development' }) {
         organizations: server.createList('organization', 10),
       })
 
-      server
-        .createList('practice', 20)
-        .forEach((practice) =>
-          server.create('question', 'withPreviousAnswers', { practice })
-        )
-
-      // Add a list of questions with previous answers
-      // and additionally add a current answer to each one
-      // server.createList('question', 10, 'withPreviousAnswers')
-      // .forEach((question) => server.create('answer', { question }))
-
       server.createList('shareEntry', 30, {
         organization: server.create('organization'),
       })
@@ -335,6 +339,14 @@ export function makeServer({ environment = 'development' }) {
 
     routes() {
       this.namespace = '/envconnect/api'
+
+      this.get('/answers/:organizationId/:assessmentId', (schema, request) => {
+        const { organizationId, assessmentId } = request.params
+        return schema.answers.where({
+          organizationId,
+          assessmentId,
+        })
+      })
 
       this.get('/assessments/:id')
 
@@ -368,11 +380,63 @@ export function makeServer({ environment = 'development' }) {
         return schema.shareEntries.all()
       })
 
+      this.patch('/assessments/:id', (schema, request) => {
+        const { id } = request.params
+        const properties = JSON.parse(request.requestBody)
+        const assessment = schema.assessments.find(id)
+        assessment.update(properties)
+        return assessment
+      })
+
       this.post('/assessments', (schema, request) => {
         // let attrs = JSON.parse(request.requestBody)
         // TODO: Create assessment with attrs
         return this.create('assessment')
       })
+
+      this.post('/targets/:organizationId/:assessmentId', (schema, request) => {
+        const { assessmentId } = request.params
+        const targets = JSON.parse(request.requestBody)
+
+        const assessment = schema.assessments.find(assessmentId)
+        targets.forEach((target) => {
+          const { id, ...attrs } = target
+          if (assessment.targetIds.includes(id)) {
+            // update target
+            schema.targets.find(id).update(attrs)
+          } else {
+            // create target
+            const newTarget = this.create('target', attrs)
+            assessment.targets.add(newTarget)
+          }
+        })
+        return assessment
+      })
+
+      this.put(
+        '/answer/:organizationId/:assessmentId/:questionId',
+        (schema, request) => {
+          const { organizationId, assessmentId, questionId } = request.params
+          const { id, ...attrs } = JSON.parse(request.requestBody)
+
+          const organization = schema.organizations.find(organizationId)
+          const assessment = schema.assessments.find(assessmentId)
+          const question = schema.questions.find(questionId)
+
+          let answer = schema.answers.find(id)
+          if (answer) {
+            answer.update({ ...attrs, organization, assessment, question })
+          } else {
+            answer = this.create('answer', {
+              ...attrs,
+              organization,
+              assessment,
+              question,
+            })
+          }
+          return answer
+        }
+      )
     },
   })
 }

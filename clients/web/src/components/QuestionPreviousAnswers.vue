@@ -17,16 +17,13 @@ import { formatDate } from '@/directives'
 export default {
   name: 'QuestionPreviousAnswers',
 
-  props: ['answers'],
+  props: ['questionType', 'previousAnswer'],
 
   computed: {
-    previousAnswer() {
-      return this.answers.length > 0 && this.answers[0]
-    },
     answerText() {
       return (
         this.previousAnswer &&
-        MAP_QUESTION_FORM_TYPES[this.previousAnswer.question.type].render(
+        MAP_QUESTION_FORM_TYPES[this.questionType].render(
           this.previousAnswer.answers
         )
       )

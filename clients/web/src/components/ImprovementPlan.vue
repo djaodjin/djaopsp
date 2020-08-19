@@ -39,7 +39,7 @@
         :practices="planPractices"
       />
       <button-primary class="mb-5" @click="advanceAssessment"
-        >Submit Improvement Plan</button-primary
+        >Save Improvement Plan</button-primary
       >
     </div>
   </div>

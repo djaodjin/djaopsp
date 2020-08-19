@@ -16,12 +16,12 @@
       </v-radio>
       <v-radio
         v-if="question.optional"
-        label="I don't know"
-        value="dk"
+        label="We're not tracking this information"
+        value="no-information"
       ></v-radio>
     </v-radio-group>
-    <FormQuestionFooter
-      :previousAnswers="question.previousAnswers"
+    <form-question-footer
+      :previousAnswer="previousAnswer"
       :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
       :textareaValue="comment"
@@ -36,11 +36,12 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionRadio',
 
-  props: ['question', 'answer', 'options'],
+  props: ['question', 'answer', 'previousAnswer', 'options'],
 
   methods: {
     processForm: function () {
-      this.$emit('submit', [this.selectedOption, this.comment])
+      const isEmpty = !this.selectedOption
+      this.$emit('submit', [this.selectedOption, this.comment], isEmpty)
     },
     updateComment(value) {
       this.comment = value

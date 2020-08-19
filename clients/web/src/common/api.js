@@ -1,13 +1,15 @@
+import Answer from './Answer'
 import Assessment from './Assessment'
 import Benchmark from './Benchmark'
 import Organization from './Organization'
 import OrganizationGroup from './OrganizationGroup'
+import Question from './Question'
 import Score from './Score'
 import { getPracticeList } from './Practice'
-import { getQuestionList } from './Question'
 import { getShareEntryList } from './ShareEntry'
+import { VALID_ASSESSMENT_STEPS } from '../config/app'
 
-const API_HOST = process.env.VUE_APP_API_HOST || 'http://127.0.0.1:8000'
+const API_HOST = process.env.VUE_APP_API_HOST || ''
 const API_BASE_URL = `${API_HOST}/envconnect/api`
 
 class APIError extends Error {
@@ -33,6 +35,45 @@ function request(endpoint, { body, method, ...customConfig } = {}) {
   }
 
   return fetch(url, config)
+}
+
+export async function advanceAssessment(assessment) {
+  const { id, status, targets, practices, questions, answers } = assessment
+  const currentStepIndex = VALID_ASSESSMENT_STEPS.indexOf(status)
+  if (
+    currentStepIndex >= 0 &&
+    currentStepIndex < VALID_ASSESSMENT_STEPS.length - 1
+  ) {
+    const nextStep = VALID_ASSESSMENT_STEPS[currentStepIndex + 1]
+    const response = await request(`/assessments/${id}`, {
+      method: 'PATCH',
+      body: { status: nextStep },
+    })
+    if (!response.ok) throw new APIError(response.status)
+    const data = await response.json()
+    return new Assessment({
+      ...data.assessment,
+      targets,
+      practices,
+      questions,
+      answers,
+    })
+  }
+  return assessment
+}
+
+export async function createAssessment(payload) {
+  const response = await request('/assessments', { body: payload })
+  if (!response.ok) throw new APIError(response.status)
+  const { assessment } = await response.json()
+  return new Assessment(assessment)
+}
+
+export async function getAnswers(organizationId, assessmentId) {
+  const response = await request(`/answers/${organizationId}/${assessmentId}`)
+  if (!response.ok) throw new APIError(response.status)
+  const { answers } = await response.json()
+  return answers.map((answer) => new Answer(answer))
 }
 
 export async function getAssessment(assessmentId) {
@@ -115,8 +156,8 @@ export async function getOrganizations() {
 export async function getPractices(organizationId, assessmentId) {
   const response = await request(`/practices/${organizationId}/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
-  const { practices, questions, answers } = await response.json()
-  return getPracticeList(practices, questions, answers)
+  const { practices, questions } = await response.json()
+  return getPracticeList(practices, questions)
 }
 
 export async function getPracticeSearchResults(organizationId, assessmentId) {
@@ -126,8 +167,8 @@ export async function getPracticeSearchResults(organizationId, assessmentId) {
 export async function getQuestions(organizationId, assessmentId) {
   const response = await request(`/questions/${organizationId}/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
-  const { questions, answers } = await response.json()
-  return getQuestionList(questions, answers)
+  const { questions } = await response.json()
+  return questions.map((question) => new Question(question))
 }
 
 export async function getScore(organizationId, assessmentId) {
@@ -147,9 +188,25 @@ export async function getShareHistory(organizationId, assessmentId) {
   return history
 }
 
-export async function postAssessment(payload) {
-  const response = await request('/assessments', { body: payload })
+export async function postTargets(organizationId, assessmentId, payload) {
+  const response = await request(`/targets/${organizationId}/${assessmentId}`, {
+    body: payload,
+  })
   if (!response.ok) throw new APIError(response.status)
-  const { assessment } = await response.json()
-  return new Assessment(assessment)
+  const { assessment, targets } = await response.json()
+  return new Assessment({ ...assessment, targets })
+}
+
+export async function putAnswer(answer) {
+  const { organization, assessment, question } = answer
+  const response = await request(
+    `/answer/${organization}/${assessment}/${question}`,
+    {
+      method: 'PUT',
+      body: answer,
+    }
+  )
+  if (!response.ok) throw new APIError(response.status)
+  const data = await response.json()
+  return new Answer(data.answer)
 }

@@ -17,6 +17,7 @@
       :is="questionForm.name"
       :question="currentQuestion"
       :answer="currentAnswer"
+      :previousAnswer="previousAnswer"
       :options="questionForm.options"
       :key="currentQuestion.id"
       @submit="saveAndContinue"
@@ -35,7 +36,7 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 export default {
   name: 'QuestionnaireContainer',
 
-  props: ['questionId', 'questions'],
+  props: ['questionId', 'questions', 'answers'],
 
   computed: {
     currentQuestionIdx() {
@@ -45,14 +46,15 @@ export default {
       return this.questions[this.currentQuestionIdx]
     },
     currentAnswer() {
-      let answer = this.currentQuestion.currentAnswer
-      if (!answer) {
-        answer = new Answer({
-          question: this.currentQuestion,
-          author: 'author@email.com', // TODO: Replace with user info
-        })
-      }
-      return answer
+      return this.answers.find(
+        (a) => a.question === this.questionId && !a.frozen
+      )
+    },
+    previousAnswer() {
+      // Get the first previous answer found; there may be more
+      return this.answers.find(
+        (a) => a.question === this.questionId && a.frozen
+      )
     },
     nextQuestion() {
       if (this.questions.length <= 1) return null
@@ -66,11 +68,7 @@ export default {
   },
 
   methods: {
-    saveAndContinue(answers) {
-      this.currentQuestion.currentAnswer = new Answer({
-        ...this.currentAnswer,
-        ...{ answers: answers },
-      })
+    saveAndContinue(answers, isEmpty) {
       const callback = this.nextQuestion
         ? function () {
             const queryParams = {
@@ -91,11 +89,13 @@ export default {
             })
           }.bind(this)
 
-      // TODO: Post answer to the backend then ...
-      console.log('saving ...')
-      console.log(this.currentQuestion.currentAnswer)
+      const updatedAnswer = new Answer({
+        ...this.currentAnswer,
+        answers,
+        answered: !isEmpty,
+      })
 
-      callback()
+      this.$emit('saveAnswer', updatedAnswer, callback)
     },
   },
 
