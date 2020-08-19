@@ -124,16 +124,16 @@ export async function getPreviousIndustrySegments() {
 }
 
 export async function getOrganization(organizationId) {
-  const response = await request(`/organizations/${organizationId}`)
+  const response = await request(`/profile/${organizationId}/`)
   if (!response.ok) throw new APIError(response.status)
   const {
-    organization: { id, name },
+    organization: { slug, printable_name },
     assessments,
     ...rest
   } = await response.json()
   const organization = new Organization({
-    id,
-    name,
+    id: slug,
+    name: printable_name,
     assessments: assessments.map((a) => new Assessment({ ...a, ...rest })),
   })
   return organization

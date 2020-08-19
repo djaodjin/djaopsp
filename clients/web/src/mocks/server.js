@@ -9,6 +9,7 @@ import {
   association,
 } from 'miragejs'
 import faker from 'faker'
+import snakeCase from 'lodash/snakeCase'
 
 import {
   NUM_BENCHMARKS,
@@ -32,7 +33,11 @@ import { getRandomInt } from '@/common/utils'
 const MIN_PRACTICE_VALUE = PRACTICE_VALUES[0].value
 const MAX_PRACTICE_VALUE = PRACTICE_VALUES[PRACTICE_VALUES.length - 1].value
 
-const ApplicationSerializer = RestSerializer.extend()
+const ApplicationSerializer = RestSerializer.extend({
+  keyForAttribute(attr) {
+    return snakeCase(attr)
+  },
+})
 
 // Setting faker seed to get consistent results
 faker.seed(582020)
@@ -163,7 +168,10 @@ export function makeServer({ environment = 'development' }) {
       }),
 
       organization: Factory.extend({
-        name() {
+        slug() {
+          return this.id
+        },
+        printable_name() {
           return faker.random.words(2)
         },
       }),
@@ -287,7 +295,7 @@ export function makeServer({ environment = 'development' }) {
       // Organization with active assessment with existing environmental targets and improvement plan
       const organization = server.create('organization', {
         id: 'marlin',
-        name: 'Blue Marlin',
+        printable_name: 'Blue Marlin',
         assessments: [completeAssessment],
       })
 
@@ -358,7 +366,10 @@ export function makeServer({ environment = 'development' }) {
         return schema.organizationGroups.all()
       })
 
-      this.get('/organizations/:id')
+      this.get('/profile/:organizationId', (schema, request) => {
+        const { organizationId } = request.params
+        return schema.organizations.find(organizationId)
+      })
 
       this.get('/practices/:organizationId/:assessmentId', (schema) => {
         return schema.practices.all()
