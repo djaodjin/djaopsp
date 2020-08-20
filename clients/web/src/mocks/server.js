@@ -19,6 +19,7 @@ import {
 } from './config'
 import industries from './fixtures/industries'
 import previousIndustries from './fixtures/previousIndustries'
+import createEmptyOrganization from './scenarios/emptyOrganization'
 import {
   DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
@@ -27,8 +28,8 @@ import {
   VALID_ASSESSMENT_STEPS,
   VALID_ASSESSMENT_TARGETS_KEYS,
   VALID_QUESTION_TYPES,
-} from '@/config/app'
-import { getRandomInt } from '@/common/utils'
+} from '../config/app'
+import { getRandomInt } from '../common/utils'
 
 const MIN_PRACTICE_VALUE = PRACTICE_VALUES[0].value
 const MAX_PRACTICE_VALUE = PRACTICE_VALUES[PRACTICE_VALUES.length - 1].value
@@ -42,7 +43,7 @@ const ApplicationSerializer = RestSerializer.extend({
 // Setting faker seed to get consistent results
 faker.seed(582020)
 
-export function makeServer({ environment = 'development' }) {
+export function makeServer({ environment = 'development', apiBasePath }) {
   return new Server({
     environment,
 
@@ -273,6 +274,8 @@ export function makeServer({ environment = 'development' }) {
     seeds(server) {
       server.loadFixtures()
 
+      createEmptyOrganization(server, 'empty')
+
       const completeAssessment = server.create('assessment', {
         targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
           server.create('target', { key })
@@ -346,7 +349,7 @@ export function makeServer({ environment = 'development' }) {
     },
 
     routes() {
-      this.namespace = '/envconnect/api'
+      this.namespace = apiBasePath
 
       this.get('/answers/:organizationId/:assessmentId', (schema, request) => {
         const { organizationId, assessmentId } = request.params
@@ -436,7 +439,12 @@ export function makeServer({ environment = 'development' }) {
 
           let answer = schema.answers.find(id)
           if (answer) {
-            answer.update({ ...attrs, organization, assessment, question })
+            answer.update({
+              ...attrs,
+              organization,
+              assessment,
+              question,
+            })
           } else {
             answer = this.create('answer', {
               ...attrs,
