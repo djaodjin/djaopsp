@@ -11,8 +11,8 @@ export default class Assessment {
   // TODO: Add list of contributors to the assessment
   constructor({
     id = getUniqueId(),
-    industryName, // TODO: Remove this. It should be possible to get the name from industryPath
-    industryPath,
+    industry_name, // TODO: Remove this. It should be possible to get the name from industryPath
+    industry_path,
     targets,
     practices = [],
     questions = [],
@@ -25,8 +25,8 @@ export default class Assessment {
       throw new Error('Invalid assessment status')
     }
     this.id = id
-    this.industryName = industryName
-    this.industryPath = industryPath
+    this.industryName = industry_name
+    this.industryPath = industry_path
     this.targets =
       targets && targets.length
         ? targets.map((t) => new Target(t))
