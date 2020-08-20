@@ -28,6 +28,7 @@
       </div>
       <table
         :class="[
+          hasPreviousAnswers ? 'with-previous' : 'no-previous',
           $vuetify.breakpoint.xs && showPreviousAnswers ? 'offset' : 'origin',
           'mt-6 mt-sm-4 mx-n4 mt-md-8 mx-xl-0 mb-xl-4',
         ]"
@@ -37,7 +38,7 @@
             <th class="pl-4 pl-md-8">Questions</th>
             <th
               :class="[
-                hasPreviousAnswers ? '' : 'pr-3 pr-md-8',
+                hasPreviousAnswers ? '' : 'px-3 px-md-4',
                 'answers-column',
               ]"
             >
@@ -57,7 +58,7 @@
               </span>
               <span v-else>Answers</span>
             </th>
-            <th v-if="hasPreviousAnswers" class="pr-3 pr-md-8">
+            <th v-if="hasPreviousAnswers" class="px-3 px-md-4">
               Previous Answers
             </th>
           </tr>
@@ -173,8 +174,15 @@ export default {
   }
   & ::v-deep table {
     border-collapse: collapse;
-    width: 144vw;
     transition: transform 0.3s ease-out;
+
+    &.with-previous {
+      width: 144vw;
+    }
+
+    &.no-previous {
+      width: calc(100% + 16px);
+    }
 
     &.origin {
       transform: translateX(0);
@@ -185,7 +193,10 @@ export default {
     }
 
     @media #{map-get($display-breakpoints, 'sm-and-up')} {
-      width: calc(100% + 32px);
+      &.with-previous,
+      &.no-previous {
+        width: calc(100% + 32px);
+      }
     }
 
     th {

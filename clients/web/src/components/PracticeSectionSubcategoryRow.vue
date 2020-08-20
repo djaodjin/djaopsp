@@ -1,10 +1,10 @@
 <template>
   <fragment>
-    <td class="py-2 px-6 px-sm-4 py-md-4 px-md-8">{{ question.text }}</td>
+    <td class="py-2 pl-6 pr-2 px-sm-4 py-md-4 px-md-8">{{ question.text }}</td>
     <td
       :class="[
-        hasPreviousAnswers ? 'py-2 px-3' : 'py-2 pr-3 pr-md-8',
         hasShortAnswer ? 'text-center' : 'text-left',
+        'py-2 px-3 px-md-4',
       ]"
     >
       <router-link
@@ -25,10 +25,8 @@
     <td
       v-if="hasPreviousAnswers"
       :class="[
-        'py-2',
-        'pr-3',
-        'pr-md-8',
         hasShortAnswer ? 'text-center' : 'text-left',
+        'py-2 px-3 px-md-4',
       ]"
     >
       <span class="answer">{{ previousAnswerText }}</span>
