@@ -361,8 +361,14 @@ export function makeServer({ environment = 'development', apiBasePath }) {
 
       this.get('/assessments/:id')
 
-      this.get('/industries', (schema) => {
-        return schema.industries.all()
+      this.get('/content', (schema) => {
+        const industries = schema.industries.all()
+        return {
+          count: industries.length,
+          next: null,
+          previous: null,
+          results: industries.models,
+        }
       })
 
       this.get('/organizations', (schema) => {

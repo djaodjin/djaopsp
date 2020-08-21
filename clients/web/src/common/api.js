@@ -108,10 +108,10 @@ export async function getBenchmarks(organizationId, assessmentId) {
 }
 
 export async function getIndustrySegments() {
-  const response = await request('/industries')
+  const response = await request('/content')
   if (!response.ok) throw new APIError(response.status)
-  const { industries } = await response.json()
-  return industries
+  const { results } = await response.json()
+  return results
 }
 
 export async function getPreviousIndustrySegments() {
