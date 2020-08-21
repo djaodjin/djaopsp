@@ -8,15 +8,12 @@ describe('Supplier App: Home', () => {
   let server
 
   beforeEach(() => {
+    if (server) server.shutdown()
     server = makeServer({
       environment: 'test',
       apiBasePath: `${Cypress.env('ROOT')}${Cypress.env('API_BASE')}`,
     })
     createEmptyOrganization(server, ORG_SLUG, ORG_NAME)
-  })
-
-  afterEach(() => {
-    server.shutdown()
   })
 
   it('loads the home screen', () => {
