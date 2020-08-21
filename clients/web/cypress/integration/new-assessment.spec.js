@@ -9,15 +9,16 @@ describe('Supplier App: New Assessment', () => {
   let server
 
   beforeEach(() => {
+    if (server) {
+      // Clean before next test runs per:
+      // https://docs.cypress.io/guides/references/best-practices.html#Using-after-or-afterEach-hooks
+      server.shutdown()
+    }
     server = makeServer({
       environment: 'test',
       apiBasePath: `${Cypress.env('ROOT')}${Cypress.env('API_BASE')}`,
     })
     createEmptyOrganization(server, ORG_SLUG, ORG_NAME)
-  })
-
-  afterEach(() => {
-    server.shutdown()
   })
 
   it('opens an industry segment dropdown', () => {
