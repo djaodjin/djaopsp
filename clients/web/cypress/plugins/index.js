@@ -25,7 +25,7 @@ module.exports = (on, config) => {
   require('dotenv').config()
   config.env = config.env || {}
   config.env.ROOT = process.env.VUE_APP_ROOT
-  config.env.CLIENT_BASE = process.env.VUE_APP_CLIENT_BASE
   config.env.API_BASE = process.env.VUE_APP_API_BASE
+  config.baseUrl = `http://127.0.0.1:8080${process.env.VUE_APP_ROOT}${process.env.VUE_APP_CLIENT_BASE}`
   return config
 }

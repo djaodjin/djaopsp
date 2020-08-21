@@ -31,15 +31,19 @@
                   </ul>
                 </div>
 
-                <button-primary :to="{ name: 'newAssessment' }">{{
-                  $t('home.btn-assessment')
-                }}</button-primary>
+                <button-primary
+                  data-cy="create-assessment"
+                  :to="{ name: 'newAssessment' }"
+                  >{{ $t('home.btn-assessment') }}</button-primary
+                >
               </section>
             </v-col>
             <v-col cols="12" md="6" xl="4">
               <section class="mb-4 px-md-4">
                 <p>{{ $t('home.desc-history') }}</p>
-                <button-primary>{{ $t('home.btn-history') }}</button-primary>
+                <button-primary data-cy="view-history">{{
+                  $t('home.btn-history')
+                }}</button-primary>
               </section>
             </v-col>
             <!-- Comment out view best practices section

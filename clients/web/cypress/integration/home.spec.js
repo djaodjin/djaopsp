@@ -3,10 +3,6 @@ import createEmptyOrganization from '../../src/mocks/scenarios/emptyOrganization
 
 const ORG_SLUG = 'test_org'
 const ORG_NAME = 'Test Organization'
-const HOST = 'http://127.0.0.1:8080'
-const HOME_URL = `${HOST}${Cypress.env('ROOT')}${Cypress.env(
-  'CLIENT_BASE'
-)}/${ORG_SLUG}`
 
 describe('Supplier App: Home', () => {
   let server
@@ -24,6 +20,19 @@ describe('Supplier App: Home', () => {
   })
 
   it('loads the home screen', () => {
-    cy.visit(`${HOME_URL}/`).contains(ORG_NAME)
+    cy.visit(`/${ORG_SLUG}/`)
+    cy.contains(ORG_NAME)
+  })
+
+  it('lets users create a new assessment', () => {
+    cy.visit(`/${ORG_SLUG}/`)
+    cy.get('[data-cy=create-assessment]').click()
+    cy.url().should('include', '/assess/new')
+  })
+
+  it('lets users view the assessment history', () => {
+    cy.visit(`/${ORG_SLUG}/`)
+    cy.get('[data-cy=view-history]')
+    // TODO: Route to history view
   })
 })
