@@ -20,7 +20,11 @@
                   sustainability practices.
                 </p>
                 <form class="mx-md-6" @submit.prevent="processForm">
-                  <label for="industry" class="d-block mb-3">
+                  <label
+                    data-cy="industry-label"
+                    for="industry"
+                    class="d-block mb-3"
+                  >
                     Please choose the industry that best applies to your
                     organization:
                   </label>
@@ -49,7 +53,10 @@
                   </div>
                   <div class="text-right mt-8 mb-4">
                     <span>Don't know what to select?</span>
-                    <a class="ml-2" href="/docs/faq/#general-4"
+                    <a
+                      data-cy="examples"
+                      class="ml-2"
+                      href="/docs/faq/#general-4"
                       >See examples.</a
                     >
                   </div>

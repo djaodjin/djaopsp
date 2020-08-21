@@ -117,8 +117,8 @@ export async function getIndustrySegments() {
 export async function getPreviousIndustrySegments() {
   const response = await request('/previous-industries')
   if (!response.ok) throw new APIError(response.status)
-  const { previousIndustries } = await response.json()
-  return previousIndustries
+  const { results } = await response.json()
+  return results
 }
 
 export async function getOrganization(organizationId) {

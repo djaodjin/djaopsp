@@ -24,13 +24,13 @@ describe('Supplier App: Home', () => {
     cy.contains(ORG_NAME)
   })
 
-  it('lets users create a new assessment', () => {
+  it('has access to the new assessment view', () => {
     cy.visit(`/${ORG_SLUG}/`)
     cy.get('[data-cy=create-assessment]').click()
     cy.url().should('include', '/assess/new')
   })
 
-  it('lets users view the assessment history', () => {
+  it('has access to the assessment history view', () => {
     cy.visit(`/${ORG_SLUG}/`)
     cy.get('[data-cy=view-history]')
     // TODO: Route to history view

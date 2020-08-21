@@ -385,7 +385,13 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       })
 
       this.get('/previous-industries', (schema) => {
-        return schema.previousIndustries.all()
+        const previousIndustries = schema.previousIndustries.all()
+        return {
+          count: previousIndustries.length,
+          next: null,
+          previous: null,
+          results: previousIndustries.models,
+        }
       })
 
       this.get('/questions/:organizationId/:assessmentId', (schema) => {
