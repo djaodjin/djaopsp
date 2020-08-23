@@ -9,8 +9,9 @@ import { getPracticeList } from './Practice'
 import { getShareEntryList } from './ShareEntry'
 import { VALID_ASSESSMENT_STEPS } from '../config/app'
 
-const API_HOST = process.env.VUE_APP_API_HOST || ''
-const API_BASE_URL = `${API_HOST}/envconnect/api`
+const API_BASE_URL = process.env.VUE_APP_STANDALONE
+  ? `${window.location.origin}/envconnect/api`
+  : `${process.env.BASE_URL}api`
 
 class APIError extends Error {
   constructor(message) {
