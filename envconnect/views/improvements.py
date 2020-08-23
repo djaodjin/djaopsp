@@ -24,6 +24,8 @@ from .benchmark import PrintableChartsMixin
 from ..compat import reverse
 from ..mixins import ContentCut, ImprovementQuerySetMixin
 from ..helpers import as_valid_sheet_title
+from ..templatetags.navactive import (
+    assessment_choices as assessment_choices_base)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -129,12 +131,23 @@ class ImprovementOnlyMixin(ImprovementQuerySetMixin, AssessmentBaseMixin):
 class ImprovementSpreadsheetView(ImprovementOnlyMixin, ListView):
 
     basename = 'improvements'
-    headings = ['Practice', 'Implementation rate', 'Implemented by you?',
-        'Opportunity score', 'Value']
-    value_headings = ['', '', '', '',
+    fixed_headings = ['Practice', 'Assessment', 'Planned']
+    value_headings = [
         'Environmental', 'Ops/maintenance', 'Financial',
         'Implementation ease', 'AVERAGE VALUE']
     indent_step = '    '
+
+    @property
+    def assessment_choices(self):
+        if not hasattr(self, '_assessment_choices'):
+            segment_url, segment_prefix, segment_element = self.segment
+            if segment_element.slug == 'framework':
+                self._assessment_choices = [str(choice)
+                    for choice in assessment_choices_base(segment_element.slug)]
+            else:
+                self._assessment_choices = [
+                    'Implementation rate', 'Opportunity score']
+        return self._assessment_choices
 
     def write_tree(self, root, indent=''):
         if not root:
@@ -145,18 +158,31 @@ class ImprovementSpreadsheetView(ImprovementOnlyMixin, ListView):
             # in `element['opportunity']`
             opportunity = root[0].get('accounts', {}).get(
                 self.account.pk, {}).get('opportunity_numerator')
+            planned = element.get('planned')
+            if planned == element['implemented']:
+                planned = ""
             # We reached a leaf
-            self.writerow([
-                indent + element['title'],
-                element['rate'] / 100.0,
-                element['implemented'],
-                "%.2f" % opportunity,
-                element['environmental_value'],
-                element['business_value'],
-                element['implementation_ease'],
-                element['profitability'],
-                element['avg_value']
-            ], leaf=True)
+            segment_url, segment_prefix, segment_element = self.segment
+            if segment_element.slug == 'framework':
+                self.writerow([
+                    indent + element['title'],
+                    element['implemented'], planned] + [
+                        element['rate'].get(choice, "")
+                        for choice in self.assessment_choices
+                ], leaf=True)
+            else:
+                self.writerow([
+                    indent + element['title'],
+                    element['implemented'],
+                    "yes" if planned else "",
+                    element['rate'],
+                    "%.2f" % opportunity,
+                    element['environmental_value'],
+                    element['business_value'],
+                    element['implementation_ease'],
+                    element['profitability'],
+                    element['avg_value']
+                ], leaf=True)
         else:
             element = root[0]
             self.writerow([indent + element['title']])
@@ -165,11 +191,13 @@ class ImprovementSpreadsheetView(ImprovementOnlyMixin, ListView):
 
     def get(self, request, *args, **kwargs): #pylint: disable=unused-argument
         root = self._improvements_only()
-        self.create_writer(self.value_headings, title="Improvement Plan")
-        self.writerow(
-            ["Improvement Plan  -  Environmental practices"], leaf=True)
+        segment_url, segment_prefix, segment_element = self.segment
+        segment_title = segment_element.title
+        self.create_writer(title=segment_title)
+        self.writerow(["%s - Environmental practices - Improvement plan" %
+            self.account.printable_name], leaf=True)
+        self.writerow(self.fixed_headings, leaf=True)
         self.writerow(self.get_headings(), leaf=True)
-        self.writerow(self.value_headings, leaf=True)
         self.write_tree(root)
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \
@@ -177,7 +205,12 @@ class ImprovementSpreadsheetView(ImprovementOnlyMixin, ListView):
         return resp
 
     def get_headings(self):
-        return self.headings
+        # Technically should be a default_metric on questions but right now
+        # it is a tag in the icon tag (one level below the segment).
+        segment_url, segment_prefix, segment_element = self.segment
+        if segment_element.slug == 'framework':
+            return self.fixed_headings + self.assessment_choices
+        return self.fixed_headings + self.assessment_choices + self.value_headings
 
     def get_filename(self):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.csv')
@@ -193,7 +226,7 @@ class ImprovementCSVView(ImprovementSpreadsheetView):
             rec.encode('utf-8') if six.PY2 else rec
             for rec in row])
 
-    def create_writer(self, headings, title=None):
+    def create_writer(self, title=None):
         #pylint:disable=unused-argument
         self.content = io.StringIO()
         self.csv_writer = csv.writer(self.content)
@@ -218,7 +251,7 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         PatternFill(fill_type=FILL_SOLID, fgColor='FFFFD700'), # green-level-3
     ]
 
-    def create_writer(self, headings, title=None):
+    def create_writer(self, title=None):
         col_scale = 11.9742857142857
         self.wbook = Workbook()
         self.wsheet = self.wbook.active
@@ -226,9 +259,15 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
             self.wsheet.title = as_valid_sheet_title(title)
         self.wsheet.row_dimensions[1].height = 0.36 * (6 * col_scale)
         self.wsheet.column_dimensions['A'].width = 6.56 * col_scale
-        for col_num in range(0, len(headings)):
-            self.wsheet.column_dimensions[chr(ord('E') + col_num)].width \
-                = 0.99 * col_scale
+        for col_num in range(1,
+                len(self.fixed_headings + self.assessment_choices)):
+            self.wsheet.column_dimensions[chr(ord('A') + col_num)].width = \
+                0.99 * col_scale
+        for col_num in range(
+                len(self.fixed_headings + self.assessment_choices),
+                len(self.get_headings())):
+            self.wsheet.column_dimensions[chr(ord('A') + col_num)].width = \
+                0.99 * col_scale
         self.heading_font = Font(
             name='Calibri', size=12, bold=False, italic=False,
             vertAlign='baseline', underline='none', strike=False,
@@ -248,17 +287,20 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
             vertAlign='baseline', underline='none', strike=False,
             color='FF000000')
         self.wsheet.append([])
-        self.wsheet.append(["Implementation rate"])
-        self.wsheet.row_dimensions[self.wsheet._current_row].font = bold_font
-        self.wsheet.append(["    Percentage of peer"\
-            " respondents that have implemented a best practice."])
-        self.wsheet.append(["Implemented by you?"])
+        self.wsheet.append(["Assessment"])
         self.wsheet.row_dimensions[self.wsheet._current_row].font = bold_font
         self.wsheet.append(["    Extent to which you"\
             " indicated the practice is implemented across"\
             " activities/services/products/offices/facilities to which"\
-            " it could apply. 3 ticks = All, 2 ticks = More than 50%,"\
-            " 1 tick = Less than 50%, X = Not implemented or Not applicable."])
+            " it could apply."])
+        self.wsheet.append(["Planned"])
+        self.wsheet.row_dimensions[self.wsheet._current_row].font = bold_font
+        self.wsheet.append(["    Extent to which you"\
+            " have planned to improve on this practice."])
+        self.wsheet.append(["Implementation rate"])
+        self.wsheet.row_dimensions[self.wsheet._current_row].font = bold_font
+        self.wsheet.append(["    Percentage of peer"\
+            " respondents that have implemented a best practice."])
         self.wsheet.append(["Opportunity score"])
         self.wsheet.row_dimensions[self.wsheet._current_row].font = bold_font
         self.wsheet.append(["    Percentage points by which"\
@@ -291,24 +333,38 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         cell.font = title_font
         cell.border = self.border
         cell.alignment = alignment
-        for col in ['A', 'B', 'C', 'D', 'E']:
-            cell = self.wsheet['%s2' % col]
+        rate_start_col = chr(ord('A') + len(self.fixed_headings))
+        rate_end_col = chr(ord('A') + len(self.get_headings()) - 1)
+        for col in range(ord('A'), ord(rate_end_col) + 1):
+            cell = self.wsheet['%s2' % chr(col)]
             cell.fill = subtitle_fill
             cell.font = subtitle_font
             cell.border = self.border
             cell.alignment = subtitle_alignment
-        for col in ['E', 'F', 'G', 'H', 'I']:
-            cell = self.wsheet['%s3' % col]
+        for col in range(ord(rate_start_col), ord(rate_end_col) + 1):
+            cell = self.wsheet['%s3' % chr(col)]
             cell.fill = subtitle_fill
             cell.font = subtitle_font
             cell.border = self.border
             cell.alignment = subtitle_alignment
-        self.wsheet.merge_cells('A1:I1')
-        self.wsheet.merge_cells('E2:I2')
-        self.wsheet.merge_cells('A2:A3')
-        self.wsheet.merge_cells('B2:B3')
-        self.wsheet.merge_cells('C2:C3')
-        self.wsheet.merge_cells('D2:D3')
+        self.wsheet.merge_cells('A1:%s1' % rate_end_col) # Title
+        self.wsheet.merge_cells('A2:A3')                 # Practice
+        self.wsheet.merge_cells('B2:B3')                 # Assessment
+        self.wsheet.merge_cells('C2:C3')                 # Planned
+        segment_url, segment_prefix, segment_element = self.segment
+        if segment_element.slug == 'framework':
+            # implementation rate
+            self.wsheet['%s2' % rate_start_col].value = 'Implementation rate'
+            self.wsheet.merge_cells(
+                '%s2:%s2' % (rate_start_col,
+                chr(ord(rate_start_col) + len(self.assessment_choices) - 1)))
+        else:
+            self.wsheet['D2'].value = 'Implementation rate'
+            self.wsheet.merge_cells('D2:D3')             # Implementation rate
+            self.wsheet['E2'].value = 'Opportunity score'
+            self.wsheet.merge_cells('E2:E3')             # Opportunity score
+            self.wsheet['F2'].value = 'Value'
+            self.wsheet.merge_cells('F2:J2')             # Values
 
         # Create "Impact of Improvement Plan" worksheet.
         if False: #pylint:disable=using-constant-test
@@ -364,11 +420,24 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         #pylint:disable=protected-access
         self.wsheet.append(row)
         if leaf:
-            if len(row) > 8:
+            if len(row) >= len(self.get_headings()):
                 for row_cells in self.wsheet.iter_rows(
                         min_row=self.wsheet._current_row,
                         max_row=self.wsheet._current_row):
-                    for cell_idx in range(4, 9):
+                    # Implementation rate
+                    for cell_idx in range(
+                            len(self.fixed_headings),
+                            len(self.fixed_headings + self.assessment_choices)):
+                        try:
+                            row_cells[cell_idx].value = (
+                                int(row_cells[cell_idx].value) / 100)
+                            row_cells[cell_idx].style = 'Percent'
+                        except ValueError:
+                            # We might be printing headings.
+                            pass
+                    for cell_idx in range(
+                            len(self.fixed_headings + self.assessment_choices),
+                            len(self.get_headings())):
                         # environmental_value, business_value,
                         # implementation_ease, profitability,
                         # avg_value
@@ -381,8 +450,6 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
                             # might be the header
                             pass
                     row_cells[0].alignment = self.heading_alignment
-                    row_cells[1].style = 'Percent'         # Implementation rate
-                    row_cells[2].alignment = self.text_center # Imp. by you?
         else:
             for row_cells in self.wsheet.iter_rows(
                     min_row=self.wsheet._current_row,
