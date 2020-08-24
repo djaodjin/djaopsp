@@ -8,6 +8,7 @@
       <template v-for="(step, i) in ASSESSMENT_FLOW.steps">
         <fragment v-if="step.key === STEP_SHARE_KEY" :key="step.key">
           <v-stepper-step
+            :data-cy="step.key"
             :editable="currentStep.key === STEP_SHARE_KEY"
             :step="i + 1"
             @click.stop="
@@ -25,6 +26,7 @@
 
         <fragment v-else-if="step.key === STEP_FREEZE_KEY" :key="step.key">
           <v-stepper-step
+            :data-cy="step.key"
             :editable="currentStep.key === STEP_FREEZE_KEY"
             :step="i + 1"
             @click.stop="openFreezeDialog(currentStep.key === STEP_FREEZE_KEY)"
@@ -37,6 +39,7 @@
 
         <fragment v-else-if="step.key === STEP_SCORECARD_KEY" :key="step.key">
           <v-stepper-step
+            :data-cy="step.key"
             :editable="currentStepIndex >= i"
             :step="i + 1"
             :class="{
@@ -55,6 +58,7 @@
 
         <fragment v-else :key="step.key">
           <v-stepper-step
+            :data-cy="step.key"
             :complete="
               currentStepIndex > i && currentStep.key !== STEP_SHARE_KEY
             "

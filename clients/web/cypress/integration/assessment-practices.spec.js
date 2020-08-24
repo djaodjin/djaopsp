@@ -1,11 +1,11 @@
 import { makeServer } from '../../src/mocks/server'
-import createEmptyOrganization from '../../src/mocks/scenarios/emptyOrganization'
+import createOrganizationWithAssessment from '../../src/mocks/scenarios/organizationWithAssessment'
 
 const ORG_SLUG = 'test_org'
 const ORG_NAME = 'Test Organization'
-const NEW_ASSESSMENT_URL = `/${ORG_SLUG}/assess/new/`
+const PRACTICES_INTRO_URL = `/${ORG_SLUG}/assess/1/intro/`
 
-describe('Supplier App: New Assessment', () => {
+describe('Supplier App: Assessment Practices', () => {
   let server
 
   beforeEach(() => {
@@ -16,43 +16,46 @@ describe('Supplier App: New Assessment', () => {
       environment: 'test',
       apiBasePath: `${Cypress.env('ROOT')}${Cypress.env('API_BASE')}`,
     })
-    createEmptyOrganization(server, ORG_SLUG, ORG_NAME)
+    createOrganizationWithAssessment(server, ORG_SLUG, ORG_NAME)
   })
 
-  it('opens an industry segment dropdown', () => {
+  it('displays an intro view', () => {
+    cy.visit(`/${ORG_SLUG}/assess/1/`)
+    cy.contains('Establish current practices')
+    cy.get('[data-cy=practice]').click()
+    cy.url().should('include', '/assess/1/intro/')
+  })
+
+  it('let users select an industry segment', () => {
     server.loadFixtures('industries')
 
-    cy.visit(NEW_ASSESSMENT_URL)
+    cy.visit(PRACTICES_INTRO_URL)
     cy.get('.v-menu__content').should('not.exist')
-    cy.get('[data-cy=industry-label]').click()
-    cy.get('.v-menu__content').should('exist')
-  })
-
-  it('shows a list of industry segments', () => {
-    server.loadFixtures('industries')
-
-    cy.visit(NEW_ASSESSMENT_URL)
     cy.get('[data-cy=industry-label]').click()
     cy.get('.v-menu__content').as('dropdown')
     cy.get('@dropdown').find('.v-subheader').its('length').should('eq', 1)
     cy.get('@dropdown').find('.v-list-item').its('length').should('eq', 4)
     cy.get('@dropdown').find('.child').its('length').should('eq', 2)
+
+    cy.get('@dropdown').find('.v-list-item').first().click() // "construction" per fixture
+    cy.get('button[type=submit]').click()
+    cy.url().should('include', '/assess/1/content/construction/')
   })
 
-  it('shows a list of previous industry segments for the supplier', () => {
+  it('lets users select an industry segment from a list of previously selected industries', () => {
     server.loadFixtures('previousIndustries')
 
-    cy.visit(NEW_ASSESSMENT_URL)
+    cy.visit(PRACTICES_INTRO_URL)
     cy.get('[data-cy=industry-label]').click()
     cy.get('.v-menu__content').as('dropdown')
     cy.get('@dropdown').find('.v-subheader').contains('PREVIOUSLY SELECTED')
     cy.get('@dropdown').find('.v-list-item').its('length').should('eq', 2)
   })
 
-  it('shows a combined list of industry segments where previous industry segments take precedence', () => {
+  it('lets users select an industry segment from a list where previous industry segments take precedence', () => {
     server.loadFixtures('industries', 'previousIndustries')
 
-    cy.visit(NEW_ASSESSMENT_URL)
+    cy.visit(PRACTICES_INTRO_URL)
     cy.get('[data-cy=industry-label]').click()
     cy.get('.v-menu__content').as('dropdown')
     cy.get('@dropdown').find('.v-subheader').its('length').should('eq', 2)
@@ -61,14 +64,8 @@ describe('Supplier App: New Assessment', () => {
     cy.get('@dropdown').find('.child').its('length').should('eq', 1)
   })
 
-  // TODO: Test assessment creation
-  // it('lets users create a new assessment', () => {
-  //   cy.visit(NEW_ASSESSMENT_URL)
-  //   cy.get('[data-cy=industry-dropdown]').click()
-  // })
-
-  it('offers examples to select industry segment', () => {
-    cy.visit(NEW_ASSESSMENT_URL)
+  it('offers examples to select an industry segment', () => {
+    cy.visit(PRACTICES_INTRO_URL)
     cy.get('[data-cy=examples]').click()
     cy.url().should('include', '/docs/faq/#general-4')
   })

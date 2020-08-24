@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import AssessmentCreate from './views/AssessmentCreate'
 import AssessmentCurrentPractices from './views/AssessmentCurrentPractices'
 import AssessmentEnvironmentalTargets from './views/AssessmentEnvironmentalTargets'
 import AssessmentHome from './views/AssessmentHome'
@@ -26,13 +25,6 @@ export default new Router({
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/assess/new/',
-      name: 'newAssessment',
-      component: AssessmentCreate,
-      props: true,
-      pathToRegexpOptions: { strict: true },
-    },
-    {
       path: '/:org/assess/:id/',
       name: 'assessmentHome',
       component: AssessmentHome,
@@ -40,7 +32,7 @@ export default new Router({
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/assess/:id/intro/:samplePath/',
+      path: '/:org/assess/:id/intro/',
       name: 'introPractices',
       component: IntroCurrentPractices,
       props: true,
