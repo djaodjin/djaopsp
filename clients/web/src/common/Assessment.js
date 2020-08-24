@@ -16,7 +16,6 @@ export default class Assessment {
     targets,
     practices = [],
     questions = [],
-    answers = [],
     modified = new Date(),
     created = new Date(),
     status = DEFAULT_ASSESSMENT_STEP,
@@ -31,7 +30,7 @@ export default class Assessment {
       targets && targets.length
         ? targets.map((t) => new Target(t))
         : VALID_ASSESSMENT_TARGETS.map((t) => new Target({ key: t.value }))
-    this.improvementPlan = getPracticeList(practices, questions, answers)
+    this.improvementPlan = getPracticeList(practices, questions)
     this.modified = modified
     this.created = created
     this.status = status

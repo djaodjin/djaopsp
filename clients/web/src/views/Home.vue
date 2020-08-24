@@ -18,7 +18,7 @@
                     organization.assessments && organization.assessments.length
                   "
                 >
-                  <h3 class="mb-4">Active Sustainability Assessments</h3>
+                  <h3 class="mb-4">Active Sustainability Assessment</h3>
                   <ul
                     v-for="assessment in organization.assessments"
                     :key="assessment.key"
@@ -32,9 +32,21 @@
                 </div>
 
                 <button-primary
+                  data-cy="continue-assessment"
+                  :to="{
+                    name: 'assessmentHome',
+                    params: { id: organization.assessments[0].id },
+                  }"
+                  v-if="
+                    organization.assessments && organization.assessments.length
+                  "
+                  >{{ $t('home.btn-continue-assessment') }}</button-primary
+                >
+                <button-primary
                   data-cy="create-assessment"
-                  :to="{ name: 'newAssessment' }"
-                  >{{ $t('home.btn-assessment') }}</button-primary
+                  @click="createAssessment"
+                  v-else
+                  >{{ $t('home.btn-take-assessment') }}</button-primary
                 >
               </section>
             </v-col>
@@ -68,6 +80,7 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
+import { createAssessment } from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import AssessmentInfo from '@/components/AssessmentInfo'
 
@@ -81,6 +94,16 @@ export default {
   },
 
   methods: {
+    createAssessment() {
+      createAssessment(this.org, { campaign: 'assessment' }).then(
+        (newAssessment) => {
+          this.$router.push({
+            name: 'assessmentHome',
+            params: { id: newAssessment.id },
+          })
+        }
+      )
+    },
     async fetchData() {
       const [organization] = await Promise.all([
         this.$context.getOrganization(this.org),

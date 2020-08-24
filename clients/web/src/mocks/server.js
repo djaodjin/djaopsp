@@ -20,6 +20,7 @@ import {
 import industries from './fixtures/industries'
 import previousIndustries from './fixtures/previousIndustries'
 import createEmptyOrganization from './scenarios/emptyOrganization'
+import createOrganizationWithAssessment from './scenarios/organizationWithAssessment'
 import {
   DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
@@ -89,6 +90,9 @@ export function makeServer({ environment = 'development', apiBasePath }) {
 
     factories: {
       assessment: Factory.extend({
+        campaign() {
+          return 'assessment'
+        },
         $industry() {
           return faker.random.arrayElement(INDUSTRIES)
         },
@@ -100,6 +104,9 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         },
         status() {
           return DEFAULT_ASSESSMENT_STEP
+        },
+        afterCreate(assessment) {
+          assessment.update({ slug: assessment.id })
         },
       }),
 
@@ -275,6 +282,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       server.loadFixtures()
 
       createEmptyOrganization(server, 'empty')
+      createOrganizationWithAssessment(server, 'alpha')
 
       const completeAssessment = server.create('assessment', {
         targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
@@ -414,10 +422,13 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         return assessment
       })
 
-      this.post('/assessments', (schema, request) => {
-        // let attrs = JSON.parse(request.requestBody)
-        // TODO: Create assessment with attrs
-        return this.create('assessment')
+      this.post('/:organizationId/sample/', (schema, request) => {
+        const { organizationId } = request.params
+        const attrs = JSON.parse(request.requestBody)
+        const newAssessment = this.create('assessment', attrs)
+        const organization = schema.organizations.find(organizationId)
+        organization.assessments.add(newAssessment)
+        return newAssessment
       })
 
       this.post('/targets/:organizationId/:assessmentId', (schema, request) => {

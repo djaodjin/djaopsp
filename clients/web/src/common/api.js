@@ -62,11 +62,15 @@ export async function advanceAssessment(assessment) {
   return assessment
 }
 
-export async function createAssessment(payload) {
-  const response = await request('/assessments', { body: payload })
+export async function createAssessment(organizationId, payload) {
+  const response = await request(`/${organizationId}/sample/`, {
+    body: payload,
+  })
   if (!response.ok) throw new APIError(response.status)
-  const { assessment } = await response.json()
-  return new Assessment(assessment)
+  const {
+    assessment: { slug },
+  } = await response.json()
+  return new Assessment({ id: slug })
 }
 
 export async function getAnswers(organizationId, assessmentId) {
