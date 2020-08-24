@@ -1090,9 +1090,12 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
 
                     # Update or create dashboard entry
                     ends_at = datetime_or_now() + relativedelta(years=1)
+                    plan = Plan.objects.get(
+                        slug='%s-report' % str(matrix.account),
+                        organization=matrix.account)
                     subscription_query = Subscription.objects.filter(
                         organization=self.account,
-                        plan=Plan.objects.get(organization=matrix.account))
+                        plan=plan)
                     if subscription_query.exists():
                         # The Subscription already exists. The metadata (
                         # either requested by supplier manager or pro-actively
@@ -1105,7 +1108,7 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
                         # a extra tag to keep track of originator.
                         Subscription.objects.create(
                             organization=self.account,
-                            plan=Plan.objects.get(organization=matrix.account),
+                            plan=plan,
                             ends_at=ends_at,
                             extra='{"originator":"supplier"}')
                     # send assessment updated.
