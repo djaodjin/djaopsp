@@ -3,7 +3,7 @@
     <header-secondary
       class="container"
       :orgName="organization.name"
-      :industryName="assessment.industryName"
+      :industryName="assessment.industry.name"
       :title="$t('improvement-plan.title')"
     />
     <tab-container :tabs="tabs" :lgCol="6" :xlCol="6">

@@ -2,7 +2,7 @@
   <fragment>
     <intro-section
       :orgName="organization.name"
-      :industryName="assessment.industryName"
+      :industryName="assessment.industry.name"
       title="Environmental Targets"
     >
       <div>

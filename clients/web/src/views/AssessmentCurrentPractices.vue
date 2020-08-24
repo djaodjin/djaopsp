@@ -3,7 +3,7 @@
     <header-secondary
       class="container"
       :orgName="organization.name"
-      :industryName="assessment.industryName"
+      :industryName="assessment.industry.name"
       title="Current Practices"
     />
     <div v-if="loading">

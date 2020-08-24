@@ -6,9 +6,9 @@
   >
     <v-card-text class="pa-4 pt-md-6 pb-md-5">
       <ul class="pa-0">
-        <li>
+        <li v-if="assessment.industry && assessment.industry.name">
           <span>Industry:</span>
-          <b>{{ assessment.industryName }}</b>
+          <b>{{ assessment.industry.name }}</b>
         </li>
         <li>
           <span>Created:</span>

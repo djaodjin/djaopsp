@@ -69,6 +69,7 @@ export default class Context {
     this.organizations = new Map()
     this.assessments = new Map()
     this.industries = []
+    this.industry = null
   }
 
   async getAssessment(assessmentId) {
@@ -79,6 +80,11 @@ export default class Context {
       this.assessments.set(assessmentId, assessment)
       return assessment
     }
+  }
+
+  getAssessmentIndustry(assessmentId) {
+    const assessment = this.assessments.get(assessmentId)
+    return assessment && assessment.industry
   }
 
   async getIndustries() {
@@ -99,6 +105,13 @@ export default class Context {
       const organization = await getOrganization(organizationId)
       this.organizations.set(organizationId, organization)
       return organization
+    }
+  }
+
+  setAssessmentIndustry(assessmentId, industry) {
+    const assessment = this.assessments.get(assessmentId)
+    if (assessment) {
+      assessment.setIndustry(industry)
     }
   }
 

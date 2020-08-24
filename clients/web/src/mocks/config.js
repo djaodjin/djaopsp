@@ -2,6 +2,7 @@ export const NUM_BENCHMARKS = 6
 
 export const BENCHMARK_MAX_COMPANIES = 30
 
+// TODO: Remove this if there is no relationship between industry and assessment
 export const INDUSTRIES = [
   {
     name: 'Architectural Design',

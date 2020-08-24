@@ -14,7 +14,6 @@ import snakeCase from 'lodash/snakeCase'
 import {
   NUM_BENCHMARKS,
   BENCHMARK_MAX_COMPANIES,
-  INDUSTRIES,
   INDUSTRY_SECTIONS,
 } from './config'
 import industries from './fixtures/industries'
@@ -92,15 +91,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       assessment: Factory.extend({
         campaign() {
           return 'assessment'
-        },
-        $industry() {
-          return faker.random.arrayElement(INDUSTRIES)
-        },
-        industryPath() {
-          return this.$industry.path
-        },
-        industryName() {
-          return this.$industry.name
         },
         status() {
           return DEFAULT_ASSESSMENT_STEP
