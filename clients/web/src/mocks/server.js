@@ -279,77 +279,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
 
       createEmptyOrganization(server, 'empty')
       createOrganizationWithAssessment(server, 'alpha')
-
-      const completeAssessment = server.create('assessment', {
-        targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
-          server.create('target', { key })
-        ),
-        score: server.create('score', {
-          benchmarks: server.createList('benchmark', NUM_BENCHMARKS, {
-            coefficient: (1 / NUM_BENCHMARKS).toFixed(2),
-          }),
-        }),
-        status: STEP_FREEZE_KEY,
-      })
-
-      // completeAssessment.practices.models.forEach((practice) => {
-      //   server.create('answer', {
-      //     question: practice.question,
-      //     assessment: completeAssessment,
-      //   })
-      // })
-
-      // Organization with active assessment with existing environmental targets and improvement plan
-      const organization = server.create('organization', {
-        id: 'marlin',
-        printable_name: 'Blue Marlin',
-        assessments: [completeAssessment],
-      })
-
-      const practices = server.createList('practice', 10)
-
-      // practices.forEach((practice) =>
-      //   server.create('answer', {
-      //     organization,
-      //     assessment: completeAssessment,
-      //     question: practice.question,
-      //   })
-      // )
-
-      practices.forEach((practice) =>
-        server.create('answer', 'isPrevious', {
-          organization,
-          assessment: completeAssessment,
-          question: practice.question,
-        })
-      )
-
-      completeAssessment.update('practices', practices)
-
-      // Organization with active assessments at every step in the process
-      server.create('organization', {
-        id: 'steve-shop',
-        name: 'Steve Test Shop',
-        assessments: VALID_ASSESSMENT_STEPS.map((step) =>
-          server.create('assessment', {
-            status: step,
-          })
-        ),
-      })
-
-      // Organization with no assessments
-      server.create('organization', {
-        id: 'supplier-1',
-        name: 'S1 - Tamerin (Demo)',
-      })
-
-      server.createList('organizationGroup', 5, {
-        organizations: server.createList('organization', 10),
-      })
-
-      server.createList('shareEntry', 30, {
-        organization: server.create('organization'),
-      })
     },
 
     routes() {
@@ -468,7 +397,8 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         const newAssessment = this.create('assessment', attrs)
         const organization = schema.organizations.find(organizationId)
         organization.assessments.add(newAssessment)
-        return newAssessment
+        const { campaign, created_at, slug } = newAssessment
+        return { campaign, created_at, slug }
       })
 
       this.post('/targets/:organizationId/:assessmentId', (schema, request) => {

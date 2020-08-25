@@ -67,10 +67,8 @@ export async function createAssessment(organizationId, payload) {
     body: payload,
   })
   if (!response.ok) throw new APIError(response.status)
-  const {
-    assessment: { slug },
-  } = await response.json()
-  return new Assessment({ id: slug })
+  const { slug, created_at } = await response.json()
+  return new Assessment({ id: slug, created: created_at })
 }
 
 export async function getAnswers(organizationId, assessmentId) {
