@@ -81,6 +81,9 @@ export default {
     },
     setIndustry() {
       this.$context.setAssessmentIndustry(this.id, this.industry)
+      // Slashes (in the sample path) are not encoded when they are included in the path
+      // But they are if they are passed as a param
+      // Per: https://github.com/vuejs/vue-router/issues/787
       this.$router.push(
         `/${this.org}/assess/${this.id}/content/${this.industry.path}/`
       )
