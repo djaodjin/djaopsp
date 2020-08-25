@@ -4,7 +4,6 @@ export default function (
   orgName = 'Organization With Assessment'
 ) {
   const assessment = server.create('assessment', {
-    practices: server.createList('practice', 10),
     targets: [],
   })
 

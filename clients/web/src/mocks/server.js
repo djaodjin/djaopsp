@@ -18,8 +18,8 @@ import {
 } from './config'
 import industries from './fixtures/industries'
 import previousIndustries from './fixtures/previousIndustries'
-import createEmptyOrganization from './scenarios/emptyOrganization'
-import createOrganizationWithAssessment from './scenarios/organizationWithAssessment'
+import createEmptyOrganization from './scenarios/org_empty'
+import createOrgWithEmptyAssessment from './scenarios/org_assessment_empty'
 import {
   DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
@@ -278,7 +278,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       server.loadFixtures()
 
       createEmptyOrganization(server, 'empty')
-      createOrganizationWithAssessment(server, 'alpha')
+      createOrgWithEmptyAssessment(server, 'alpha')
     },
 
     routes() {

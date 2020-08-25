@@ -1,6 +1,6 @@
 import { makeServer } from '../../src/mocks/server'
-import createEmptyOrganization from '../../src/mocks/scenarios/emptyOrganization'
-import createOrganizationWithAssessment from '../../src/mocks/scenarios/organizationWithAssessment'
+import createEmptyOrganization from '../../src/mocks/scenarios/org_empty'
+import createOrgWithEmptyAssessment from '../../src/mocks/scenarios/org_assessment_empty'
 
 const ORG_SLUG = 'test_org'
 const ORG_NAME = 'Test Organization'
@@ -25,7 +25,7 @@ describe('Supplier App: Home', () => {
   })
 
   it('loads the home screen for an organization with an assessment', () => {
-    createOrganizationWithAssessment(server, ORG_SLUG, ORG_NAME)
+    createOrgWithEmptyAssessment(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(`/${ORG_SLUG}/`)
     cy.contains(ORG_NAME)
@@ -42,7 +42,7 @@ describe('Supplier App: Home', () => {
   })
 
   it('lets users continue working on an existing assessment', () => {
-    createOrganizationWithAssessment(server, ORG_SLUG, ORG_NAME)
+    createOrgWithEmptyAssessment(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(`/${ORG_SLUG}/`)
     cy.get('[data-cy=continue-assessment]').click()
