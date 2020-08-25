@@ -35,7 +35,7 @@
       >
         <thead>
           <tr>
-            <th class="pl-4 pl-md-8">Questions</th>
+            <th class="pl-4 pl-md-8">Best Practices</th>
             <th
               :class="[
                 hasPreviousAnswers ? '' : 'px-3 px-md-4',
