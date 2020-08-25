@@ -92,6 +92,12 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         campaign() {
           return 'assessment'
         },
+        created_at() {
+          return faker.date.past()
+        },
+        is_frozen() {
+          return false
+        },
         status() {
           return DEFAULT_ASSESSMENT_STEP
         },
@@ -349,17 +355,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
     routes() {
       this.namespace = apiBasePath
 
-      this.get('/answers/:organizationId/:assessmentId', (schema, request) => {
-        const { organizationId, assessmentId } = request.params
-        return schema.answers.where({
-          organizationId,
-          assessmentId,
-        })
-      })
-
-      this.get('/assessments/:id')
-
-      this.get('/content', (schema) => {
+      this.get('/content?q=public', (schema) => {
         const industries = schema.industries.all()
         return {
           count: industries.length,
@@ -369,14 +365,68 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         }
       })
 
+      /* --- ORGANIZATIONS --- */
       this.get('/organizations', (schema) => {
         return schema.organizationGroups.all()
       })
 
       this.get('/profile/:organizationId', (schema, request) => {
         const { organizationId } = request.params
-        return schema.organizations.find(organizationId)
+        const organization = schema.organizations.find(organizationId)
+        return {
+          slug: organization.slug,
+          printable_name: organization.printable_name,
+        }
       })
+
+      this.get('/:organizationId/sample/', (schema, request) => {
+        const { organizationId } = request.params
+        const organization = schema.organizations.find(organizationId)
+        if (organization.assessments.length) {
+          const {
+            slug,
+            created_at,
+            campaign,
+          } = organization.assessments.models[0]
+          return { campaign, created_at, slug }
+        }
+        return {}
+      })
+
+      /* --- ASSESSMENTS --- */
+      this.get('/:organizationId/sample/:assessmentId/', (schema, request) => {
+        const { organizationId, assessmentId } = request.params
+        const organization = schema.organizations.find(organizationId)
+        if (organization.assessments.length) {
+          const assessment = organization.assessments.models.find(
+            (assessment) => assessment.slug === assessmentId
+          )
+          const { campaign, created_at, is_frozen, slug } = assessment
+          return { campaign, created_at, is_frozen, slug }
+        }
+        return new Response(404, {}, { errors: ['assessment not found'] })
+      })
+
+      this.get(
+        '/:organizationId/sample/:assessmentId/answers/',
+        (schema, request) => {
+          const { organizationId, assessmentId } = request.params
+          return schema.answers.where({
+            organizationId,
+            assessmentId,
+          })
+        }
+      )
+
+      this.get('/answers/:organizationId/:assessmentId', (schema, request) => {
+        const { organizationId, assessmentId } = request.params
+        return schema.answers.where({
+          organizationId,
+          assessmentId,
+        })
+      })
+
+      this.get('/assessments/:id')
 
       this.get('/practices/:organizationId/:assessmentId', (schema) => {
         return schema.practices.all()

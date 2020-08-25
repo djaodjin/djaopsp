@@ -11,12 +11,12 @@ export default class Assessment {
   // TODO: Add list of contributors to the assessment
   constructor({
     id = getUniqueId(),
+    created = new Date(),
+    frozen = false,
     industry = { title: '', path: '' },
     targets,
     practices = [],
     questions = [],
-    modified = new Date(),
-    created = new Date(),
     status = DEFAULT_ASSESSMENT_STEP,
   }) {
     if (!VALID_ASSESSMENT_STEPS.includes(status)) {
@@ -29,8 +29,8 @@ export default class Assessment {
         ? targets.map((t) => new Target(t))
         : VALID_ASSESSMENT_TARGETS.map((t) => new Target({ key: t.value }))
     this.improvementPlan = getPracticeList(practices, questions)
-    this.modified = modified
     this.created = created
+    this.frozen = frozen
     this.status = status
   }
 

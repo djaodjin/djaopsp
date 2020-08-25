@@ -105,10 +105,7 @@ export default {
       )
     },
     async fetchData() {
-      const [organization] = await Promise.all([
-        this.$context.getOrganization(this.org),
-      ])
-      this.organization = organization
+      this.organization = await this.$context.getOrganization(this.org)
     },
   },
 

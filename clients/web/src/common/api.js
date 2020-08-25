@@ -126,19 +126,42 @@ export async function getPreviousIndustrySegments() {
 }
 
 export async function getOrganization(organizationId) {
-  const response = await request(`/profile/${organizationId}/`)
-  if (!response.ok) throw new APIError(response.status)
-  const {
-    organization: { slug, printable_name },
-    assessments,
-    ...rest
-  } = await response.json()
-  const organization = new Organization({
-    id: slug,
-    name: printable_name,
-    assessments: assessments.map((a) => new Assessment({ ...a, ...rest })),
-  })
-  return organization
+  try {
+    let assessments = []
+
+    const [
+      organizationProfileResponse,
+      latestAssessmentResponse,
+    ] = await Promise.all([
+      request(`/profile/${organizationId}/`),
+      request(`/${organizationId}/sample/`),
+    ])
+    const [organizationProfile, latestAssessment] = await Promise.all([
+      organizationProfileResponse.json(),
+      latestAssessmentResponse.json(),
+    ])
+
+    if (latestAssessment.slug) {
+      const sampleResponse = await request(
+        `/${organizationId}/sample/${latestAssessment.slug}/`
+      )
+      const { created_at, is_frozen, slug } = await sampleResponse.json()
+      const assessment = new Assessment({
+        id: slug,
+        created: created_at,
+        frozen: is_frozen,
+      })
+      assessments = [assessment]
+    }
+
+    return new Organization({
+      id: organizationProfile.slug,
+      name: organizationProfile.printable_name,
+      assessments,
+    })
+  } catch (e) {
+    throw new APIError(e)
+  }
 }
 
 export async function getOrganizations() {
