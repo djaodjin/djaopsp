@@ -46,7 +46,7 @@
       v-if="this.$route.name !== 'home' && $vuetify.breakpoint.xs && STANDALONE"
     >
       <v-bottom-navigation app :value="mobileActiveBtn" grow dark>
-        <v-btn :to="{ name: 'home' }">
+        <v-btn :to="{ name: 'home', params: { org: $route.params.org } }">
           <span>Home</span>
           <v-icon>mdi-home</v-icon>
         </v-btn>
@@ -57,7 +57,10 @@
             this.$route.name !== 'assessmentHome' &&
             this.$route.name !== 'newAssessment'
           "
-          :to="{ name: 'assessmentHome', params: { id: $route.params.id } }"
+          :to="{
+            name: 'assessmentHome',
+            params: { org: $route.params.org, id: $route.params.id },
+          }"
         >
           <span>Assessment</span>
           <v-icon>mdi-map</v-icon>

@@ -9,7 +9,7 @@
         >
           <header-primary
             :linkText="organization.name"
-            :linkTo="{ name: 'home' }"
+            :linkTo="{ name: 'home', params: { org: $route.params.org } }"
             text="Environment Sustainability Assessment"
           />
           <v-row v-if="assessmentHasData" justify="center">
