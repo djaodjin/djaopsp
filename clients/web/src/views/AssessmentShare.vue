@@ -3,7 +3,7 @@
     <header-secondary
       class="container"
       :orgName="organization.name"
-      :industryName="assessment.industry.name"
+      :industryName="industryName"
       :title="$t('share.title')"
     />
     <tab-container
@@ -88,6 +88,12 @@ export default {
       ],
       tab: null,
     }
+  },
+
+  computed: {
+    industryName() {
+      return this.assessment.industry?.name
+    },
   },
 
   components: {

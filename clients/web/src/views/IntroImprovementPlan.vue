@@ -2,7 +2,7 @@
   <fragment>
     <intro-section
       :orgName="organization.name"
-      :industryName="assessment.industry.name"
+      :industryName="industryName"
       title="Improvement Plan"
     >
       <div>
@@ -80,6 +80,12 @@ export default {
       organization: {},
       assessment: {},
     }
+  },
+
+  computed: {
+    industryName() {
+      return this.assessment.industry?.name
+    },
   },
 
   components: {
