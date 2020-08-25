@@ -12,7 +12,9 @@
         </li>
         <li>
           <span>Created:</span>
-          <time :datetime="assessment.created">{{ assessment.created }}</time>
+          <time v-format-date :datetime="assessment.created">{{
+            assessment.created
+          }}</time>
         </li>
         <!-- TODO: Replace with list of contributors
         <li>
@@ -23,13 +25,13 @@
           <router-link
             :to="{ name: 'assessmentHome', params: { id: assessment.id } }"
           >
-            <span>Continue:</span>
-            <b>{{ ASSESSMENT_STEPS[assessment.status].text }}</b>
+            <b class="status" v-if="assessment.frozen">Completed</b>
+            <b class="status" v-else>In Progress</b>
           </router-link>
         </li>
         <li v-else>
-          <span>Status:</span>
-          <b>{{ ASSESSMENT_STEPS[assessment.status].text }}</b>
+          <b class="status" v-if="assessment.frozen">Completed</b>
+          <b class="status" v-else>In Progress</b>
         </li>
       </ul>
     </v-card-text>
@@ -38,6 +40,7 @@
 
 <script>
 import { ASSESSMENT_STEPS } from '@/config/app'
+import { formatDate } from '@/directives'
 import ButtonPrimary from '@/components/ButtonPrimary'
 
 export default {
@@ -59,6 +62,10 @@ export default {
       ASSESSMENT_STEPS,
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }
+  },
+
+  directives: {
+    formatDate,
   },
 }
 </script>
@@ -83,6 +90,12 @@ export default {
         width: 78%;
         text-align: left;
       }
+    }
+
+    .status {
+      margin-left: 22%;
+      text-align: left;
+      width: 78%;
     }
   }
   em {
