@@ -71,11 +71,11 @@ export default class Context {
     this.industries = []
   }
 
-  async getAssessment(assessmentId) {
+  async getAssessment(organizationId, assessmentId) {
     if (this.assessments.has(assessmentId)) {
       return this.assessments.get(assessmentId)
     } else {
-      const assessment = await getAssessment(assessmentId)
+      const assessment = await getAssessment(organizationId, assessmentId)
       this.assessments.set(assessmentId, assessment)
       return assessment
     }

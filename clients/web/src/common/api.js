@@ -37,6 +37,7 @@ function request(endpoint, { body, method, ...customConfig } = {}) {
   return fetch(url, config)
 }
 
+// TODO: Remove
 export async function advanceAssessment(assessment) {
   const { id, status, targets, practices, questions, answers } = assessment
   const currentStepIndex = VALID_ASSESSMENT_STEPS.indexOf(status)
@@ -78,22 +79,34 @@ export async function getAnswers(organizationId, assessmentId) {
   return answers.map((answer) => new Answer(answer))
 }
 
-export async function getAssessment(assessmentId) {
-  const response = await request(`/assessments/${assessmentId}`)
-  if (!response.ok) throw new APIError(response.status)
-  const {
-    assessment,
-    targets,
-    practices,
-    questions,
-    answers,
-  } = await response.json()
+export async function getAssessment(organizationId, assessmentId) {
+  let industry
+  const [
+    sampleResponse,
+    answersResponse,
+    industriesResponse,
+  ] = await Promise.all([
+    request(`/${organizationId}/sample/${assessmentId}/`),
+    request(`/${organizationId}/sample/${assessmentId}/answers/`),
+    request('/content?q=public'),
+  ])
+  const [sample, answers, industries] = await Promise.all([
+    sampleResponse.json(),
+    answersResponse.json(),
+    industriesResponse.json(),
+  ])
+  const answered = answers.results.find((answer) => answer.metric)
+  if (answered) {
+    const answerPath = answered.question.path
+    industry = industries.results.find((obj) => answerPath.startsWith(obj.path))
+  }
+  const { created_at, is_frozen, slug } = sample
+  debugger
   return new Assessment({
-    ...assessment,
-    targets,
-    practices,
-    questions,
-    answers,
+    id: slug,
+    created: created_at,
+    frozen: is_frozen,
+    industry,
   })
 }
 
@@ -110,7 +123,7 @@ export async function getBenchmarks(organizationId, assessmentId) {
 }
 
 export async function getIndustrySegments() {
-  const response = await request('/content')
+  const response = await request('/content?q=public')
   if (!response.ok) throw new APIError(response.status)
   const { results } = await response.json()
   return results

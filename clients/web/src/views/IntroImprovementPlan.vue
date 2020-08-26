@@ -60,7 +60,7 @@ export default {
     async fetchData() {
       const [organization, assessment] = await Promise.all([
         this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.id),
+        this.$context.getAssessment(this.org, this.id),
       ])
       this.organization = organization
       this.assessment = assessment
