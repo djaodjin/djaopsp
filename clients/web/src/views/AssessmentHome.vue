@@ -17,7 +17,12 @@
               <assessment-info :assessment="assessment" />
             </v-col>
             <v-col cols="12" sm="8" md="5">
-              <assessment-stepper :assessment="assessment" />
+              <div v-if="assessment.industryName">
+                <assessment-stepper :assessment="assessment" />
+              </div>
+              <div v-else>
+                
+              </div>
             </v-col>
           </v-row>
         </component>

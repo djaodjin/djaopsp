@@ -2,7 +2,7 @@
   <fragment>
     <intro-section
       :orgName="organization.name"
-      :industryName="industryName"
+      :industryName="assessment.industryName"
       title="Environmental Targets"
     >
       <div>
@@ -77,12 +77,6 @@ export default {
       organization: {},
       assessment: {},
     }
-  },
-
-  computed: {
-    industryName() {
-      return this.assessment.industry?.name
-    },
   },
 
   components: {

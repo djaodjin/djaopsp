@@ -3,7 +3,7 @@
     <header-secondary
       class="container"
       :orgName="organization.name"
-      :industryName="industryName"
+      :industryName="asssessment.industryName"
       title="Scorecard"
     />
     <div v-if="loading">
@@ -79,12 +79,6 @@ export default {
       assessmentScore: {},
       loading: false,
     }
-  },
-
-  computed: {
-    industryName() {
-      return this.assessment.industry?.name
-    },
   },
 
   components: {

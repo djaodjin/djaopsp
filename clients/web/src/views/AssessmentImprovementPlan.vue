@@ -3,7 +3,7 @@
     <header-secondary
       class="container"
       :orgName="organization.name"
-      :industryName="industryName"
+      :industryName="assessment.industryName"
       :title="$t('improvement-plan.title')"
     />
     <tab-container :tabs="tabs" :lgCol="6" :xlCol="6">
@@ -88,12 +88,6 @@ export default {
       ],
       tab: null,
     }
-  },
-
-  computed: {
-    industryName() {
-      return this.assessment.industry?.name
-    },
   },
 
   components: {

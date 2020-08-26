@@ -3,7 +3,7 @@
     <header-secondary
       class="container"
       :orgName="organization.name"
-      :industryName="industryName"
+      :industryName="assessment.industryName"
       title="Current Practices"
     />
     <div v-if="loading">
@@ -181,9 +181,6 @@ export default {
     },
     hasPreviousAnswers() {
       return this.answers.some((answer) => answer.frozen)
-    },
-    industryName() {
-      return this.assessment.industry?.name
     },
   },
 

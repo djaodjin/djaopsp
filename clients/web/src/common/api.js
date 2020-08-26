@@ -101,7 +101,6 @@ export async function getAssessment(organizationId, assessmentId) {
     industry = industries.results.find((obj) => answerPath.startsWith(obj.path))
   }
   const { created_at, is_frozen, slug } = sample
-  debugger
   return new Assessment({
     id: slug,
     created: created_at,

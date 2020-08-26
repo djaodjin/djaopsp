@@ -23,7 +23,8 @@ export default class Assessment {
       throw new Error('Invalid assessment status')
     }
     this.id = id
-    this.industry = { name: industry.title, path: industry.path }
+    this.industryName = industry.title
+    this.industryPath = industry.path
     this.targets =
       targets && targets.length
         ? targets.map((t) => new Target(t))
@@ -37,7 +38,8 @@ export default class Assessment {
   setIndustry(industry) {
     if (industry) {
       const { title, path } = industry
-      this.industry = { name: title, path: path }
+      this.industryName = title
+      this.industryPath = path
     }
   }
 }

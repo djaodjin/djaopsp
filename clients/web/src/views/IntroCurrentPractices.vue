@@ -1,7 +1,7 @@
 <template>
   <intro-section
     :orgName="organization.name"
-    :industryName="industryName"
+    :industryName="assessment.industryName"
     title="Current Practices"
   >
     <div>
@@ -97,12 +97,6 @@ export default {
       industries: [],
       industry: null,
     }
-  },
-
-  computed: {
-    industryName() {
-      return this.assessment.industry?.name
-    },
   },
 
   components: {
