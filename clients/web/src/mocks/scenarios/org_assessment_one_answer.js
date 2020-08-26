@@ -1,3 +1,5 @@
+import faker from 'faker'
+
 export default function (
   server,
   orgId,
@@ -17,11 +19,15 @@ export default function (
     path: '/metal/boxes-and-enclosures/design/packaging-design',
   })
 
-  // Assessment made up of one unanswered question
+  // Assessment made up of one answered question
   // Per: https://www.tspproject.org/docs/api#RetrieveSampleAnswers
   server.create('answer', {
     assessment,
     organization,
     question,
+    metric: 'assessment',
+    measured: '2',
+    created_at: faker.date.past(),
+    collected_by: 'current_user@testmail.com',
   })
 }

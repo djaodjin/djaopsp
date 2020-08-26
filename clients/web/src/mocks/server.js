@@ -18,8 +18,7 @@ import {
 } from './config'
 import industries from './fixtures/industries'
 import previousIndustries from './fixtures/previousIndustries'
-import createEmptyOrganization from './scenarios/org_empty'
-import createOrgWithEmptyAssessment from './scenarios/org_assessment_empty'
+import scenarios from './scenarios'
 import {
   DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
@@ -107,26 +106,42 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       }),
 
       answer: Factory.extend({
+        metric() {
+          return null
+        },
+        unit() {
+          return null
+        },
+        measured() {
+          return null
+        },
+        created_at() {
+          return null
+        },
+        collected_by() {
+          return null
+        },
         author() {
           return 'current_user@testmail.com'
         },
-        answers() {
-          const questionForm = MAP_QUESTION_FORM_TYPES[this.question.type]
-          const options = questionForm.options.map((o) => o.value)
+        // TODO: Remove
+        // answers() {
+        //   const questionForm = MAP_QUESTION_FORM_TYPES[this.question.type]
+        //   const options = questionForm.options.map((o) => o.value)
 
-          if (questionForm.name === 'FormQuestionTextarea') {
-            return [faker.lorem.paragraph()]
-          }
-          if (questionForm.name === 'FormQuestionQuantity') {
-            return [faker.random.number(), faker.random.arrayElement(options)]
-          }
-          // Smaller chance of showing a comment
-          const comment = Math.random() > 0.8 ? faker.lorem.sentences(3) : ''
-          return [faker.random.arrayElement(options), comment]
-        },
-        answered() {
-          return true
-        },
+        //   if (questionForm.name === 'FormQuestionTextarea') {
+        //     return [faker.lorem.paragraph()]
+        //   }
+        //   if (questionForm.name === 'FormQuestionQuantity') {
+        //     return [faker.random.number(), faker.random.arrayElement(options)]
+        //   }
+        //   // Smaller chance of showing a comment
+        //   const comment = Math.random() > 0.8 ? faker.lorem.sentences(3) : ''
+        //   return [faker.random.arrayElement(options), comment]
+        // },
+        // answered() {
+        //   return true
+        // },
 
         // Current answers won't have a frozen date
         isPrevious: trait({
@@ -277,14 +292,15 @@ export function makeServer({ environment = 'development', apiBasePath }) {
     seeds(server) {
       server.loadFixtures()
 
-      createEmptyOrganization(server, 'empty')
-      createOrgWithEmptyAssessment(server, 'alpha')
+      scenarios.createOrgEmpty(server, 'empty')
+      scenarios.createOrgAssessmentEmpty(server, 'alpha')
+      scenarios.createOrgAssessmentOneAnswer(server, 'beta')
     },
 
     routes() {
       this.namespace = apiBasePath
 
-      this.get('/content?q=public', (schema) => {
+      this.get('/content', (schema) => {
         const industries = schema.industries.all()
         return {
           count: industries.length,
@@ -340,13 +356,39 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         '/:organizationId/sample/:assessmentId/answers/',
         (schema, request) => {
           const { organizationId, assessmentId } = request.params
-          return schema.answers.where({
+          const answers = schema.answers.where({
             organizationId,
             assessmentId,
           })
+          const results = answers.models.map(
+            ({
+              metric,
+              unit,
+              measured,
+              created_at,
+              collected_by,
+              question: { path },
+            }) => ({
+              metric,
+              unit,
+              measured,
+              created_at,
+              collected_by,
+              question: {
+                path,
+              },
+            })
+          )
+          return {
+            count: results.length,
+            next: null,
+            previous: null,
+            results,
+          }
         }
       )
 
+      // TODO: Remove
       this.get('/answers/:organizationId/:assessmentId', (schema, request) => {
         const { organizationId, assessmentId } = request.params
         return schema.answers.where({

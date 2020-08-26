@@ -1,6 +1,8 @@
 import { makeServer } from '../../src/mocks/server'
-import createEmptyOrganization from '../../src/mocks/scenarios/org_empty'
-import createOrgWithEmptyAssessment from '../../src/mocks/scenarios/org_assessment_empty'
+import {
+  createOrgEmpty,
+  createOrgAssessmentEmpty,
+} from '../../src/mocks/scenarios'
 
 const ORG_SLUG = 'test_org'
 const ORG_NAME = 'Test Organization'
@@ -17,7 +19,7 @@ describe('Supplier App: Home', () => {
   })
 
   it('loads the home screen for an empty organization', () => {
-    createEmptyOrganization(server, ORG_SLUG, ORG_NAME)
+    createOrgEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(`/${ORG_SLUG}/`)
     cy.contains(ORG_NAME)
@@ -25,7 +27,7 @@ describe('Supplier App: Home', () => {
   })
 
   it('loads the home screen for an organization with an assessment', () => {
-    createOrgWithEmptyAssessment(server, ORG_SLUG, ORG_NAME)
+    createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(`/${ORG_SLUG}/`)
     cy.contains(ORG_NAME)
@@ -34,7 +36,7 @@ describe('Supplier App: Home', () => {
   })
 
   it('lets users create a new assessment', () => {
-    createEmptyOrganization(server, ORG_SLUG, ORG_NAME)
+    createOrgEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(`/${ORG_SLUG}/`)
     cy.get('[data-cy=create-assessment]').click()
@@ -42,7 +44,7 @@ describe('Supplier App: Home', () => {
   })
 
   it('lets users continue working on an existing assessment', () => {
-    createOrgWithEmptyAssessment(server, ORG_SLUG, ORG_NAME)
+    createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(`/${ORG_SLUG}/`)
     cy.get('[data-cy=continue-assessment]').click()
@@ -50,7 +52,7 @@ describe('Supplier App: Home', () => {
   })
 
   it('has access to the assessment history view', () => {
-    createEmptyOrganization(server, ORG_SLUG, ORG_NAME)
+    createOrgEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(`/${ORG_SLUG}/`)
     cy.get('[data-cy=view-history]')
