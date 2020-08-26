@@ -21,7 +21,7 @@
                 <assessment-stepper :assessment="assessment" />
               </div>
               <div v-else>
-                
+                <form-select-industry @industry:set="setIndustry" />
               </div>
             </v-col>
           </v-row>
@@ -35,6 +35,7 @@
 import { VSheet } from 'vuetify/lib'
 import AssessmentInfo from '@/components/AssessmentInfo'
 import AssessmentStepper from '@/components/AssessmentStepper'
+import FormSelectIndustry from '@/components/FormSelectIndustry'
 import HeaderPrimary from '@/components/HeaderPrimary'
 
 export default {
@@ -54,6 +55,9 @@ export default {
       ])
       this.organization = organization
       this.assessment = assessment
+    },
+    setIndustry(industry) {
+      this.$context.setAssessmentIndustry(this.id, industry)
     },
   },
 
@@ -78,6 +82,7 @@ export default {
     VSheet,
     AssessmentInfo,
     AssessmentStepper,
+    FormSelectIndustry,
     HeaderPrimary,
   },
 }
