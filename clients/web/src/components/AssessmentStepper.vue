@@ -3,6 +3,7 @@
     class="pb-4"
     :elevation="STANDALONE ? 3 : 0"
     :outlined="!Boolean(STANDALONE)"
+    data-cy="stepper"
   >
     <v-stepper v-model.number="computedIndex" vertical class="py-3 px-md-3">
       <template v-for="(step, i) in ASSESSMENT_FLOW.steps">
