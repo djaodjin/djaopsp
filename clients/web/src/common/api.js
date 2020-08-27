@@ -80,33 +80,38 @@ export async function getAnswers(organizationId, assessmentId) {
 }
 
 export async function getAssessment(organizationId, assessmentId) {
-  let industry
-  const [
-    sampleResponse,
-    answersResponse,
-    industriesResponse,
-  ] = await Promise.all([
-    request(`/${organizationId}/sample/${assessmentId}/`),
-    request(`/${organizationId}/sample/${assessmentId}/answers/`),
-    request('/content?q=public'),
-  ])
-  const [sample, answers, industries] = await Promise.all([
-    sampleResponse.json(),
-    answersResponse.json(),
-    industriesResponse.json(),
-  ])
-  const answered = answers.results.find((answer) => answer.metric)
-  if (answered) {
-    const answerPath = answered.question.path
-    industry = industries.results.find((obj) => answerPath.startsWith(obj.path))
+  try {
+    let industry
+    const responses = await Promise.all([
+      request(`/${organizationId}/sample/${assessmentId}/`),
+      request(`/${organizationId}/sample/${assessmentId}/answers/`),
+      request('/content?q=public'),
+    ])
+    const error = responses.find((response) => !response.ok)
+    if (error) {
+      throw new APIError(`Failed to get assessment: ${error.statusText}`)
+    }
+
+    const [sample, answers, industries] = await Promise.all(
+      responses.map((response) => response.json())
+    )
+    const answered = answers.results.find((answer) => answer.metric)
+    if (answered) {
+      const answerPath = answered.question.path
+      industry = industries.results.find((obj) =>
+        answerPath.startsWith(obj.path)
+      )
+    }
+    const { created_at, is_frozen, slug } = sample
+    return new Assessment({
+      id: slug,
+      created: created_at,
+      frozen: is_frozen,
+      industry,
+    })
+  } catch (e) {
+    throw new APIError(e)
   }
-  const { created_at, is_frozen, slug } = sample
-  return new Assessment({
-    id: slug,
-    created: created_at,
-    frozen: is_frozen,
-    industry,
-  })
 }
 
 export async function getBenchmarks(organizationId, assessmentId) {
@@ -190,6 +195,7 @@ export async function getOrganizations() {
   }
 }
 
+// TODO: Remove
 export async function getPractices(organizationId, assessmentId) {
   const response = await request(`/practices/${organizationId}/${assessmentId}`)
   if (!response.ok) throw new APIError(response.status)
