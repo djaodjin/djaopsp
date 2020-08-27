@@ -18,7 +18,10 @@
             </v-col>
             <v-col cols="12" sm="8" md="5">
               <div v-if="assessment.industryName">
-                <assessment-stepper :assessment="assessment" />
+                <assessment-stepper
+                  :organization="organization"
+                  :assessment="assessment"
+                />
               </div>
               <div v-else>
                 <form-select-industry @industry:set="setIndustry" />

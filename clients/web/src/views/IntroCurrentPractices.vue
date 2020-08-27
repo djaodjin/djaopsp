@@ -15,10 +15,7 @@
       </p>
       <button-primary
         class="mt-8"
-        :to="{
-          name: 'assessmentPractices',
-          params: { id, samplePath },
-        }"
+        :to="`/${this.org}/assess/${this.id}/content/${this.assessment.industryPath}/`"
         >Continue</button-primary
       >
     </div>
@@ -31,7 +28,7 @@ import IntroSection from '@/components/IntroSection'
 export default {
   name: 'IntroCurrentPractices',
 
-  props: ['org', 'id', 'samplePath'],
+  props: ['org', 'id'],
 
   created() {
     this.fetchData()
@@ -41,7 +38,7 @@ export default {
     async fetchData() {
       const [organization, assessment] = await Promise.all([
         this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.id),
+        this.$context.getAssessment(this.org, this.id),
       ])
       this.organization = organization
       this.assessment = assessment

@@ -15,7 +15,7 @@
             @click.stop="
               step.onClick(
                 $router,
-                { samplePath },
+                { organization, assesssment },
                 currentStep.key === STEP_SHARE_KEY
               )
             "
@@ -48,7 +48,11 @@
               'v-stepper__step--complete': currentStepIndex >= i,
             }"
             @click.stop="
-              step.onClick($router, { samplePath }, currentStepIndex >= i)
+              step.onClick(
+                $router,
+                { organization, assessment },
+                currentStepIndex >= i
+              )
             "
           >
             <span>{{ step.text }}</span>
@@ -84,7 +88,7 @@
             @click.stop="
               step.onClick(
                 $router,
-                { samplePath },
+                { organization, assessment },
                 currentStepIndex >= i && currentStep.key !== STEP_SHARE_KEY
               )
             "
@@ -185,7 +189,7 @@ import DialogAction from '@/components/DialogAction'
 export default {
   name: 'AssessmentStepper',
 
-  props: ['assessment'],
+  props: ['organization', 'assessment'],
 
   beforeMount() {
     ASSESSMENT_FLOW.start(this.assessment.status)
@@ -217,9 +221,6 @@ export default {
   computed: {
     computedIndex() {
       return this.currentStepIndex + 1
-    },
-    samplePath() {
-      return this.assessment.industryPath
     },
     assessmentHasTargets() {
       // At least one of the targets has text

@@ -19,7 +19,7 @@
           class="mt-8"
           :to="{
             name: 'assessmentTargets',
-            params: { id, samplePath },
+            params: { id },
           }"
           >Continue</button-primary
         >
@@ -49,7 +49,7 @@ import IntroSection from '@/components/IntroSection'
 export default {
   name: 'IntroEnvironmentalTargets',
 
-  props: ['org', 'id', 'samplePath'],
+  props: ['org', 'id'],
 
   created() {
     this.fetchData()

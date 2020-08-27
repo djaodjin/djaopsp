@@ -193,22 +193,19 @@ export const ASSESSMENT_STEPS = {
   [STEP_PRACTICE_KEY]: {
     index: 1,
     text: 'Establish current practices',
-    path: 'assessmentPractices',
-    introPath: 'introPractices',
+    path: 'introPractices',
     isEditable: true,
   },
   [STEP_TARGETS_KEY]: {
     index: 2,
     text: 'Define environmental targets',
-    path: 'assessmentTargets',
-    introPath: 'introTargets',
+    path: 'introTargets',
     isEditable: true,
   },
   [STEP_PLAN_KEY]: {
     index: 3,
     text: 'Create improvement plan',
-    path: 'assessmentPlan',
-    introPath: 'introPlan',
+    path: 'introPlan',
     isEditable: true,
   },
   [STEP_SCORECARD_KEY]: {
