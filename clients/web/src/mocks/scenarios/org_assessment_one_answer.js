@@ -3,7 +3,7 @@ import faker from 'faker'
 export default function (
   server,
   orgId,
-  orgName = 'Organization With Assessment'
+  orgName = 'Organization With One-Answer Assessment'
 ) {
   const assessment = server.create('assessment', {
     targets: [],
@@ -15,19 +15,18 @@ export default function (
     assessments: [assessment],
   })
 
-  const question = server.create('question', {
-    path: '/metal/boxes-and-enclosures/design/packaging-design',
-  })
-
   // Assessment made up of one answered question
   // Per: https://www.tspproject.org/docs/api#RetrieveSampleAnswers
-  server.create('answer', {
-    assessment,
-    organization,
-    question,
-    metric: 'assessment',
-    measured: '2',
-    created_at: faker.date.past(),
-    collected_by: 'current_user@testmail.com',
+  // Per fixture: /mocks/fixtures/questions.js
+  server.schema.questions.find(['4']).models.forEach((question) => {
+    server.create('answer', {
+      assessment,
+      organization,
+      question,
+      metric: 'assessment',
+      measured: '2',
+      created_at: faker.date.past(),
+      collected_by: 'current_user@testmail.com',
+    })
   })
 }

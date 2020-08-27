@@ -1,7 +1,7 @@
 export default function (
   server,
   orgId,
-  orgName = 'Organization With Assessment'
+  orgName = 'Organization With Empty Assessment'
 ) {
   const assessment = server.create('assessment', {
     targets: [],
@@ -13,15 +13,14 @@ export default function (
     assessments: [assessment],
   })
 
-  const question = server.create('question', {
-    path: '/metal/boxes-and-enclosures/design/packaging-design',
-  })
-
   // Assessment made up of one unanswered question
   // Per: https://www.tspproject.org/docs/api#RetrieveSampleAnswers
-  server.create('answer', {
-    assessment,
-    organization,
-    question,
+  // Per fixture: /mocks/fixtures/questions.js
+  server.schema.questions.find(['4']).models.forEach((question) => {
+    server.create('answer', {
+      assessment,
+      organization,
+      question,
+    })
   })
 }
