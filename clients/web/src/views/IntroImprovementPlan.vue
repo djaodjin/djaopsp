@@ -32,7 +32,10 @@
             text
             class="mx-n4 mx-sm-0 mt-6"
             color="secondary"
-            @click="advanceAssessment"
+            :to="{
+              name: 'assessmentHome',
+              params: { org, id },
+            }"
           >
             Continue without Improvement Plan
           </v-btn>
@@ -64,14 +67,6 @@ export default {
       ])
       this.organization = organization
       this.assessment = assessment
-    },
-    advanceAssessment() {
-      // TODO: API call to update assessment status; then, redirect to assessment home
-      console.log('Call API to advance assessment')
-      this.$router.push({
-        name: 'assessmentHome',
-        params: { id: this.id },
-      })
     },
   },
 

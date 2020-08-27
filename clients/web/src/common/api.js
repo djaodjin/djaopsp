@@ -37,32 +37,6 @@ function request(endpoint, { body, method, ...customConfig } = {}) {
   return fetch(url, config)
 }
 
-// TODO: Remove
-export async function advanceAssessment(assessment) {
-  const { id, status, targets, practices, questions, answers } = assessment
-  const currentStepIndex = VALID_ASSESSMENT_STEPS.indexOf(status)
-  if (
-    currentStepIndex >= 0 &&
-    currentStepIndex < VALID_ASSESSMENT_STEPS.length - 1
-  ) {
-    const nextStep = VALID_ASSESSMENT_STEPS[currentStepIndex + 1]
-    const response = await request(`/assessments/${id}`, {
-      method: 'PATCH',
-      body: { status: nextStep },
-    })
-    if (!response.ok) throw new APIError(response.status)
-    const data = await response.json()
-    return new Assessment({
-      ...data.assessment,
-      targets,
-      practices,
-      questions,
-      answers,
-    })
-  }
-  return assessment
-}
-
 export async function createAssessment(organizationId, payload) {
   const response = await request(`/${organizationId}/sample/`, {
     body: payload,

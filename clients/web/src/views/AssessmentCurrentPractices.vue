@@ -33,6 +33,7 @@
       <practices-progress-indicator
         :numQuestions="questions.length"
         :numAnswers="questions.length - unanswered.length"
+        :organizationId="org"
         :assessmentId="id"
       />
     </div>
