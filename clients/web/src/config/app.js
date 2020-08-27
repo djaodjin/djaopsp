@@ -173,10 +173,11 @@ export const PRACTICE_VALUES = [
 ]
 
 export const PRACTICE_VALUE_CATEGORIES = [
-  { text: 'Average Value', value: 'averageValue' },
-  { text: 'Environmental Value', value: 'environmentalValue' },
-  { text: 'Cost Savings', value: 'financialValue' },
-  { text: 'Operational Benefits', value: 'operationalValue' },
+  { text: 'Average value', value: 'avg_value' },
+  { text: 'Environmental value', value: 'environmental_value' },
+  { text: 'Financial value', value: 'profitability' },
+  { text: 'Implementation ease', value: 'implementation_ease' },
+  { text: 'Ops/Maintenance value', value: 'business_value' },
 ]
 
 export const PRACTICE_VALUE_CATEGORY_DEFAULT = PRACTICE_VALUE_CATEGORIES[0]
