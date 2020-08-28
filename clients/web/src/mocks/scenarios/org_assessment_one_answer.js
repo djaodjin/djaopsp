@@ -15,18 +15,28 @@ export default function (
     assessments: [assessment],
   })
 
-  // Assessment made up of one answered question
-  // Per: https://www.tspproject.org/docs/api#RetrieveSampleAnswers
+  // Assessment with one answered question.
   // Per fixture: /mocks/fixtures/questions.js
   server.schema.questions.find(['4']).models.forEach((question) => {
     server.create('answer', {
       assessment,
       organization,
       question,
-      metric: 'assessment',
+      metric: question.default_metric,
       measured: '2',
       created_at: faker.date.past(),
       collected_by: 'current_user@testmail.com',
     })
   })
+
+  // Create empty answers for unanswered questions
+  server.schema.questions
+    .find(['6', '8', '9', '14', '15', '17', '18', '21'])
+    .models.forEach((question) => {
+      server.create('answer', {
+        assessment,
+        organization,
+        question,
+      })
+    })
 }

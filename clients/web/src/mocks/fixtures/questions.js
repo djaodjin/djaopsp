@@ -9,6 +9,7 @@ export default [
     id: '2',
     path: null,
     title: 'Governance & management',
+    picture: 'https://envconnect.s3.amazonaws.com/media/management-basics.png',
     indent: 1,
   },
   {
@@ -54,6 +55,7 @@ export default [
     id: '7',
     path: null,
     title: 'Design',
+    picture: 'https://envconnect.s3.amazonaws.com/media/design.png',
     indent: 1,
   },
   {
@@ -84,6 +86,7 @@ export default [
     id: '10',
     path: null,
     title: 'Production',
+    picture: 'https://envconnect.s3.amazonaws.com/media/production.png',
     indent: 1,
   },
   {
@@ -166,6 +169,7 @@ export default [
     id: '19',
     path: null,
     title: 'Targets',
+    picture: 'https://envconnect.s3.amazonaws.com/media/distribution.png',
     indent: 1,
   },
   {

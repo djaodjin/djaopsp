@@ -17,6 +17,7 @@ export default class Assessment {
     targets,
     practices = [],
     questions = [],
+    answers = [],
     status = DEFAULT_ASSESSMENT_STEP,
   }) {
     if (!VALID_ASSESSMENT_STEPS.includes(status)) {
@@ -30,6 +31,8 @@ export default class Assessment {
         ? targets.map((t) => new Target(t))
         : VALID_ASSESSMENT_TARGETS.map((t) => new Target({ key: t.value }))
     this.improvementPlan = getPracticeList(practices, questions)
+    this.questions = questions
+    this.answers = answers
     this.created = created
     this.frozen = frozen
     this.status = status

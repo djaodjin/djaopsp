@@ -1,8 +1,9 @@
 import FormQuestion from '../common/FormQuestion'
+import FormQuestionRadio from '../common/FormQuestionRadio'
+import FormQuestionQuantity from '../common/FormQuestionQuantity'
 import { AssessmentStep, AssessmentFlow } from '../common/AssessmentFlow'
 
-const FormQuestionRadioDiscrete = new FormQuestion({
-  name: 'FormQuestionRadio',
+const FormQuestionRadioDiscrete = new FormQuestionRadio({
   options: [
     {
       text: 'Yes',
@@ -14,13 +15,8 @@ const FormQuestionRadioDiscrete = new FormQuestion({
     },
   ],
 })
-FormQuestionRadioDiscrete.render = function (answers) {
-  const selected = this.options.find((opt) => opt.value === answers[0])
-  return selected ? selected.text : ''
-}
 
-const FormQuestionRadioRange = new FormQuestion({
-  name: 'FormQuestionRadio',
+const FormQuestionRadioRange = new FormQuestionRadio({
   options: [
     {
       text: 'Yes',
@@ -44,13 +40,8 @@ const FormQuestionRadioRange = new FormQuestion({
     },
   ],
 })
-FormQuestionRadioRange.render = function (answers) {
-  const selected = this.options.find((opt) => opt.value === answers[0])
-  return selected ? selected.text : ''
-}
 
-const FormQuestionRadioLabeled = new FormQuestion({
-  name: 'FormQuestionRadio',
+const FormQuestionRadioLabeled = new FormQuestionRadio({
   options: [
     {
       text:
@@ -92,59 +83,114 @@ const FormQuestionTextarea = new FormQuestion({ name: 'FormQuestionTextarea' })
 FormQuestionTextarea.render = function (answers) {
   return answers[0] || ''
 }
+FormQuestionTextarea.isEmpty = function (answers) {
+  return !answers[0]
+}
 
-const FormQuestionQuantity = new FormQuestion({
-  name: 'FormQuestionQuantity',
+const FormQuestionEnergyConsumed = new FormQuestionQuantity({
   options: [
     {
-      text: 'Kilowatt-hour (kWh) of Electricity  / Year',
+      value: 'mmbtu-of-natural-gas-year',
+      text: 'mmBtu of Natural gas / Year',
+    },
+    {
+      value: 'mmbtu-of-blast-furnance-gas-year',
+      text: 'mmBtu of Blast furnance gas / Year',
+    },
+    {
+      value: 'mmbtu-of-coke-oven-gas-year',
+      text: 'mmBtu of Coke oven gas / Year',
+    },
+    {
+      value: 'mmbtu-of-fuel-gas-year',
+      text: 'mmBtu of Fuel gas / Year',
+    },
+    {
+      value: 'mmbtu-of-propane-gas-year',
+      text: 'mmBtu of Propane (gas) / Year',
+    },
+    {
+      value: 'gallon-of-aviation-gasoline-year',
+      text: 'Gallon of Aviation gasoline / Year',
+    },
+    {
+      value: 'gallon-of-kerosene-year',
+      text: 'Gallon of Kerosene / Year',
+    },
+    {
+      value: 'gallon-of-liquified-petroleum-gases-lpg-year',
+      text: 'Gallon of Liquified Petroleum Gases (LPG) / Year',
+    },
+    {
+      value: 'gallon-of-motor-gasoline-year',
+      text: 'Gallon of Motor gasoline / Year',
+    },
+    {
+      value: 'gallon-of-propane-liquid-year',
+      text: 'Gallon of Propane (liquid) / Year',
+    },
+    {
+      value: 'gallon-of-crude-oil-year',
+      text: 'Gallon of Crude oil / Year',
+    },
+    {
+      value: 'gallon-of-motor-diesel-fuel-year',
+      text: 'Gallon of Motor diesel fuel / Year',
+    },
+    {
+      value: 'gallon-of-liquified-natural-gas-lng-year',
+      text: 'Gallon of Liquified Natural Gas (LNG) / Year',
+    },
+    {
       value: 'kwh-year',
+      text: 'Kilowatt-hour (kWh) of Electricity / Year',
     },
     {
-      text: 'Metric Tons / Year',
-      value: 'tons-year',
+      value: 'giga-joules-year',
+      text: 'Giga Joules (GJ) / Year',
     },
     {
-      text: 'GHG Emissions',
-      value: 'ghg-emissions-generated',
-    },
-    {
-      text: 'US Gallons / Year',
-      value: 'gallons-year',
-    },
-    {
-      text: 'mmBtu / Year',
-      value: 'mmbtu-year',
-    },
-    {
-      text: 'Cubic meters / Year',
-      value: 'm3-year',
-    },
-    {
-      text: 'Kilo liters / Year',
-      value: 'kiloliters-year',
-    },
-    {
-      text: 'Cubic feet / Year',
-      value: 'ft3-year',
-    },
-    {
-      text: 'Cubic feet / Year',
-      value: 'ft3-year',
+      value: 'giga-joules-fte-year',
+      text: 'Giga Joules (GJ) per full-time employee (FTE) / Year',
     },
   ],
 })
-FormQuestionQuantity.render = function (answers) {
-  const unit = this.options.find((opt) => opt.value === answers[1])
-  return unit ? `${answers[0]} ${unit.text}` : ''
-}
+
+const FormQuestionWaterConsumed = new FormQuestionQuantity({
+  options: [
+    { value: 'm3-year', text: 'Cubic meters (m3) / Year' },
+    { value: 'kiloliters-year', text: 'Kilo liters / Year' },
+    { value: 'ft3-year', text: 'Cubic feet (ft.3) / Year' },
+    { value: 'gallons-year', text: 'US Gallon / Year' },
+  ],
+})
+
+const FormQuestionWasteGenerated = new FormQuestionQuantity({
+  options: [
+    { value: 'tons-year', text: 'Metric tons / year' },
+    { value: 'lbs-year', text: 'Pounds / year' },
+    { value: 'm3-year', text: 'Cubic meters (m3) / Year' },
+    { value: 'kiloliters-year', text: 'Kilo liters / Year' },
+    { value: 'ft3-year', text: 'Cubic feet (ft.3) / Year' },
+    { value: 'gallons-year', text: 'US Gallon / Year' },
+  ],
+})
+
+export const QUESTION_COMMENT_TYPE = 'freetext'
+export const QUESTION_ENERGY_CONSUMED = 'energy-consumed'
+const QUESTION_RANGE_TYPE = 'assessment'
+const QUESTION_YES_NO_TYPE = 'yes-no'
+export const QUESTION_WASTE_GENERATED = 'waste-generated'
+export const QUESTION_WATER_CONSUMED = 'water-consumed'
 
 export const MAP_QUESTION_FORM_TYPES = {
-  1: FormQuestionRadioDiscrete,
-  2: FormQuestionRadioRange,
-  3: FormQuestionRadioLabeled,
-  4: FormQuestionTextarea,
-  5: FormQuestionQuantity,
+  [QUESTION_COMMENT_TYPE]: FormQuestionTextarea,
+  [QUESTION_ENERGY_CONSUMED]: FormQuestionEnergyConsumed,
+  [QUESTION_RANGE_TYPE]: FormQuestionRadioRange,
+  [QUESTION_YES_NO_TYPE]: FormQuestionRadioDiscrete,
+  [QUESTION_WATER_CONSUMED]: FormQuestionWaterConsumed,
+  [QUESTION_WASTE_GENERATED]: FormQuestionWasteGenerated,
+  3: FormQuestionRadioLabeled, // TODO: Remove?
 }
 
 export const VALID_QUESTION_TYPES = Object.keys(MAP_QUESTION_FORM_TYPES)
@@ -186,7 +232,7 @@ export const PRACTICE_VALUE_CATEGORY_DEFAULT = PRACTICE_VALUE_CATEGORIES[0]
 export const STEP_PRACTICE_KEY = 'practice'
 export const STEP_TARGETS_KEY = 'targets'
 export const STEP_PLAN_KEY = 'plan'
-export const STEP_SCORECARD_KEY = 'scorecard'
+export const STEP_REVIEW_KEY = 'scorecard'
 export const STEP_FREEZE_KEY = 'freeze'
 export const STEP_SHARE_KEY = 'share'
 
@@ -209,9 +255,9 @@ export const ASSESSMENT_STEPS = {
     path: 'introPlan',
     isEditable: true,
   },
-  [STEP_SCORECARD_KEY]: {
+  [STEP_REVIEW_KEY]: {
     index: 4,
-    text: 'Review scorecard',
+    text: 'Review assessment',
     path: 'assessmentScorecard',
   },
   [STEP_FREEZE_KEY]: {

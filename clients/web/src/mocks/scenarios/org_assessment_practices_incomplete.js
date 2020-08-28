@@ -16,6 +16,8 @@ export default function (
   })
 
   // Per fixture: /mocks/fixtures/questions.js
+  // Even though all answers for the assessment are present,
+  // empty answers mean unanswered questions.
   server.schema.questions
     .find(['4', '6', '8', '14'])
     .models.forEach((question) => {
@@ -27,6 +29,17 @@ export default function (
         measured: '2',
         created_at: faker.date.past(),
         collected_by: 'current_user@testmail.com',
+      })
+    })
+
+  // Create empty answers for unanswered questions
+  server.schema.questions
+    .find(['9', '15', '17', '18', '21'])
+    .models.forEach((question) => {
+      server.create('answer', {
+        assessment,
+        organization,
+        question,
       })
     })
 }

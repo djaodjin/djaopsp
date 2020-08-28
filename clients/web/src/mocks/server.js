@@ -1,12 +1,11 @@
 import {
   RestSerializer,
   Server,
+  Response,
   Model,
   Factory,
   hasMany,
   belongsTo,
-  trait,
-  association,
 } from 'miragejs'
 import faker from 'faker'
 import snakeCase from 'lodash/snakeCase'
@@ -16,14 +15,13 @@ import {
   BENCHMARK_MAX_COMPANIES,
   INDUSTRY_SECTIONS,
 } from './config'
-import industries from './fixtures/industries'
-import previousIndustries from './fixtures/previousIndustries'
+import fixtures from './fixtures'
 import scenarios from './scenarios'
+import routeHandlers from './handlers'
 import {
   DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
   PRACTICE_VALUES,
-  STEP_FREEZE_KEY,
   VALID_ASSESSMENT_STEPS,
   VALID_ASSESSMENT_TARGETS_KEYS,
   VALID_QUESTION_TYPES,
@@ -46,10 +44,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
   return new Server({
     environment,
 
-    fixtures: {
-      industries,
-      previousIndustries,
-    },
+    fixtures,
 
     models: {
       answer: Model.extend({
@@ -59,7 +54,8 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       }),
       assessment: Model.extend({
         targets: hasMany(),
-        practices: hasMany(),
+        questions: hasMany(), // selected practices for improvement plan
+        answers: hasMany(),
         score: belongsTo(),
       }),
       benchmark: Model,
@@ -70,13 +66,8 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       organizationGroup: Model.extend({
         organizations: hasMany(),
       }),
-      practice: Model.extend({
-        question: belongsTo(),
-      }),
       previousIndustry: Model,
-      question: Model.extend({
-        practice: belongsTo(),
-      }),
+      question: Model,
       score: Model.extend({
         benchmarks: hasMany(),
       }),
@@ -92,7 +83,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
           return 'assessment'
         },
         created_at() {
-          return faker.date.past()
+          return faker.date.past().toISOString()
         },
         is_frozen() {
           return false
@@ -121,37 +112,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         collected_by() {
           return null
         },
-        author() {
-          return 'current_user@testmail.com'
-        },
-        // TODO: Remove
-        // answers() {
-        //   const questionForm = MAP_QUESTION_FORM_TYPES[this.question.type]
-        //   const options = questionForm.options.map((o) => o.value)
-
-        //   if (questionForm.name === 'FormQuestionTextarea') {
-        //     return [faker.lorem.paragraph()]
-        //   }
-        //   if (questionForm.name === 'FormQuestionQuantity') {
-        //     return [faker.random.number(), faker.random.arrayElement(options)]
-        //   }
-        //   // Smaller chance of showing a comment
-        //   const comment = Math.random() > 0.8 ? faker.lorem.sentences(3) : ''
-        //   return [faker.random.arrayElement(options), comment]
-        // },
-        // answered() {
-        //   return true
-        // },
-
-        // Current answers won't have a frozen date
-        isPrevious: trait({
-          author() {
-            return faker.internet.email()
-          },
-          frozen() {
-            return faker.date.past()
-          },
-        }),
       }),
 
       benchmark: Factory.extend({
@@ -201,44 +161,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         },
       }),
 
-      practice: Factory.extend({
-        question: association(),
-
-        averageValue() {
-          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
-        },
-        environmentalValue() {
-          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
-        },
-        financialValue() {
-          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
-        },
-        operationalValue() {
-          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
-        },
-        implementationRate() {
-          return getRandomInt(10, 95)
-        },
-      }),
-
-      question: Factory.extend({
-        section() {
-          return faker.random.arrayElement(INDUSTRY_SECTIONS)
-        },
-        subcategory() {
-          return faker.random.arrayElement(this.section.subcategories)
-        },
-        path() {
-          return this.subcategory.path
-        },
-        text() {
-          return faker.lorem.sentence()
-        },
-        type() {
-          return faker.random.arrayElement(VALID_QUESTION_TYPES)
-        },
-      }),
-
       score: Factory.extend({
         top() {
           return getRandomInt(80, 95)
@@ -270,16 +192,13 @@ export function makeServer({ environment = 'development', apiBasePath }) {
     serializers: {
       application: ApplicationSerializer,
       assessment: ApplicationSerializer.extend({
-        include: ['targets', 'practices'],
+        include: ['targets', 'questions'],
       }),
       organization: ApplicationSerializer.extend({
         include: ['assessments'],
       }),
       organizationGroup: ApplicationSerializer.extend({
         include: ['organizations'],
-      }),
-      practice: ApplicationSerializer.extend({
-        include: ['question'],
       }),
       score: ApplicationSerializer.extend({
         include: ['benchmarks'],
@@ -295,112 +214,44 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       scenarios.createOrgEmpty(server, 'empty')
       scenarios.createOrgAssessmentEmpty(server, 'alpha')
       scenarios.createOrgAssessmentOneAnswer(server, 'beta')
+      scenarios.createOrgAssessmentPracticesIncomplete(server, 'gamma')
     },
 
     routes() {
       this.namespace = apiBasePath
 
-      this.get('/content', (schema) => {
-        const industries = schema.industries.all()
-        return {
-          count: industries.length,
-          next: null,
-          previous: null,
-          results: industries.models,
-        }
-      })
+      this.get('/content', routeHandlers.getIndustryList)
+
+      this.get('/content/*/', routeHandlers.getIndustryQuestions)
 
       /* --- ORGANIZATIONS --- */
       this.get('/organizations', (schema) => {
         return schema.organizationGroups.all()
       })
 
-      this.get('/profile/:organizationId', (schema, request) => {
-        const { organizationId } = request.params
-        const organization = schema.organizations.find(organizationId)
-        return {
-          slug: organization.slug,
-          printable_name: organization.printable_name,
-        }
-      })
+      this.get('/profile/:organizationId', routeHandlers.getOrganizationProfile)
 
-      this.get('/:organizationId/sample/', (schema, request) => {
-        const { organizationId } = request.params
-        const organization = schema.organizations.find(organizationId)
-        if (organization.assessments.length) {
-          const {
-            slug,
-            created_at,
-            campaign,
-          } = organization.assessments.models[0]
-          return { campaign, created_at, slug }
-        }
-        return {}
-      })
+      this.get('/:organizationId/sample/', routeHandlers.getLatestAssessment)
 
       /* --- ASSESSMENTS --- */
-      this.get('/:organizationId/sample/:assessmentId/', (schema, request) => {
-        const { organizationId, assessmentId } = request.params
-        const organization = schema.organizations.find(organizationId)
-        if (organization.assessments.length) {
-          const assessment = organization.assessments.models.find(
-            (assessment) => assessment.slug === assessmentId
-          )
-          const { campaign, created_at, is_frozen, slug } = assessment
-          return { campaign, created_at, is_frozen, slug }
-        }
-        return new Response(404, {}, { errors: ['assessment not found'] })
-      })
+      this.get(
+        '/:organizationId/sample/:assessmentId/',
+        routeHandlers.getAssessmentInformation
+      )
 
       this.get(
         '/:organizationId/sample/:assessmentId/answers/',
-        (schema, request) => {
-          const { organizationId, assessmentId } = request.params
-          const answers = schema.answers.where({
-            organizationId,
-            assessmentId,
-          })
-          const results = answers.models.map(
-            ({
-              metric,
-              unit,
-              measured,
-              created_at,
-              collected_by,
-              question: { path },
-            }) => ({
-              metric,
-              unit,
-              measured,
-              created_at,
-              collected_by,
-              question: {
-                path,
-              },
-            })
-          )
-          return {
-            count: results.length,
-            next: null,
-            previous: null,
-            results,
-          }
-        }
+        routeHandlers.getAnswers
+      )
+
+      this.get(
+        '/:organizationId/sample/:assessmentId/answers/*',
+        routeHandlers.getAnswers
       )
 
       // TODO: Remove
-      this.get('/answers/:organizationId/:assessmentId', (schema, request) => {
-        const { organizationId, assessmentId } = request.params
-        return schema.answers.where({
-          organizationId,
-          assessmentId,
-        })
-      })
-
-      this.get('/assessments/:id')
-
       this.get('/practices/:organizationId/:assessmentId', (schema) => {
-        return schema.practices.all()
+        return schema.questions.all()
       })
 
       this.get('/previous-industries', (schema) => {
@@ -411,10 +262,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
           previous: null,
           results: previousIndustries.models,
         }
-      })
-
-      this.get('/questions/:organizationId/:assessmentId', (schema) => {
-        return schema.questions.all()
       })
 
       this.get('/score/:organizationId/:assessmentId', (schema) => {
@@ -437,8 +284,10 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         const { organizationId } = request.params
         const attrs = JSON.parse(request.requestBody)
         const newAssessment = this.create('assessment', attrs)
+
+        // Create relationship to newly created entity
         const organization = schema.organizations.find(organizationId)
-        organization.assessments.add(newAssessment)
+        organization.assessmentIds.push(newAssessment.id)
         const { campaign, created_at, slug } = newAssessment
         return { campaign, created_at, slug }
       })
