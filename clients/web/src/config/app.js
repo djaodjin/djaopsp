@@ -232,8 +232,7 @@ export const PRACTICE_VALUE_CATEGORY_DEFAULT = PRACTICE_VALUE_CATEGORIES[0]
 export const STEP_PRACTICE_KEY = 'practice'
 export const STEP_TARGETS_KEY = 'targets'
 export const STEP_PLAN_KEY = 'plan'
-export const STEP_REVIEW_KEY = 'scorecard'
-export const STEP_FREEZE_KEY = 'freeze'
+export const STEP_REVIEW_KEY = 'review'
 export const STEP_SHARE_KEY = 'share'
 
 export const ASSESSMENT_STEPS = {
@@ -242,6 +241,7 @@ export const ASSESSMENT_STEPS = {
     text: 'Establish current practices',
     path: 'introPractices',
     isEditable: true,
+    stepIncrease: 3,
   },
   [STEP_TARGETS_KEY]: {
     index: 2,
@@ -259,13 +259,10 @@ export const ASSESSMENT_STEPS = {
     index: 4,
     text: 'Review assessment',
     path: 'assessmentScorecard',
-  },
-  [STEP_FREEZE_KEY]: {
-    index: 5,
-    text: 'Freeze assessment',
+    stepIncrease: 1,
   },
   [STEP_SHARE_KEY]: {
-    index: 6,
+    index: 5,
     text: 'Share assessment',
     path: 'assessmentShare',
   },
@@ -282,8 +279,6 @@ export const ASSESSMENT_FLOW = new AssessmentFlow({
 })
 
 export const VALID_ASSESSMENT_STEPS = Object.keys(ASSESSMENT_STEPS)
-
-export const DEFAULT_ASSESSMENT_STEP = VALID_ASSESSMENT_STEPS[0]
 
 /* --- Assessment Targets --- */
 export const VALID_ASSESSMENT_TARGETS = [

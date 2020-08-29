@@ -1,7 +1,8 @@
 import {
-  VALID_ASSESSMENT_STEPS,
+  STEP_PRACTICE_KEY,
+  STEP_REVIEW_KEY,
+  STEP_SHARE_KEY,
   VALID_ASSESSMENT_TARGETS,
-  DEFAULT_ASSESSMENT_STEP,
 } from '@/config/app'
 import { getUniqueId } from './utils'
 import { getPracticeList } from './Practice'
@@ -18,11 +19,7 @@ export default class Assessment {
     practices = [],
     questions = [],
     answers = [],
-    status = DEFAULT_ASSESSMENT_STEP,
   }) {
-    if (!VALID_ASSESSMENT_STEPS.includes(status)) {
-      throw new Error('Invalid assessment status')
-    }
     this.id = id
     this.industryName = industry.title
     this.industryPath = industry.path
@@ -35,7 +32,19 @@ export default class Assessment {
     this.answers = answers
     this.created = created
     this.frozen = frozen
-    this.status = status
+
+    // Determine assessment status
+    if (
+      this.answers.length === 0 ||
+      this.answers.some((answer) => !answer.answered)
+    ) {
+      // Do not proceed until all questions have been answered
+      this.status = STEP_PRACTICE_KEY
+    } else if (!this.frozen) {
+      this.status = STEP_REVIEW_KEY
+    } else {
+      this.status = STEP_SHARE_KEY
+    }
   }
 
   setIndustry(industry) {

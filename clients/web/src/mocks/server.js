@@ -19,7 +19,6 @@ import fixtures from './fixtures'
 import scenarios from './scenarios'
 import routeHandlers from './handlers'
 import {
-  DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
   PRACTICE_VALUES,
   VALID_ASSESSMENT_STEPS,
@@ -87,9 +86,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         },
         is_frozen() {
           return false
-        },
-        status() {
-          return DEFAULT_ASSESSMENT_STEP
         },
         afterCreate(assessment) {
           assessment.update({ slug: assessment.id })
@@ -215,6 +211,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       scenarios.createOrgAssessmentEmpty(server, 'alpha')
       scenarios.createOrgAssessmentOneAnswer(server, 'beta')
       scenarios.createOrgAssessmentPracticesIncomplete(server, 'gamma')
+      scenarios.createOrgAssessmentPracticesComplete(server, 'delta')
     },
 
     routes() {
