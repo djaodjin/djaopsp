@@ -13,14 +13,14 @@ export default function (
     assessments: [assessment],
   })
 
-  // Assessment made up of one unanswered question
-  // Per: https://www.tspproject.org/docs/api#RetrieveSampleAnswers
   // Per fixture: /mocks/fixtures/questions.js
-  server.schema.questions.find(['4']).models.forEach((question) => {
-    server.create('answer', {
-      assessment,
-      organization,
-      question,
+  server.schema.questions
+    .find(['4', '6', '8', '9', '14', '15', '17', '18', '21'])
+    .models.forEach((question) => {
+      server.create('answer', {
+        assessment,
+        organization,
+        question,
+      })
     })
-  })
 }
