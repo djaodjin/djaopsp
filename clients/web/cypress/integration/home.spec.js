@@ -27,6 +27,7 @@ describe('Supplier App: Home', () => {
   })
 
   it('loads the home screen for an organization with an assessment', () => {
+    server.loadFixtures('questions')
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(`/${ORG_SLUG}/`)
@@ -44,6 +45,7 @@ describe('Supplier App: Home', () => {
   })
 
   it('lets users continue working on an existing assessment', () => {
+    server.loadFixtures('questions')
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(`/${ORG_SLUG}/`)
