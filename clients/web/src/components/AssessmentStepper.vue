@@ -25,20 +25,7 @@
           </v-stepper-step>
         </fragment>
 
-        <fragment v-else-if="step.key === STEP_FREEZE_KEY" :key="step.key">
-          <v-stepper-step
-            :data-cy="step.key"
-            :editable="currentStep.key === STEP_FREEZE_KEY"
-            :step="i + 1"
-            @click.stop="openFreezeDialog(currentStep.key === STEP_FREEZE_KEY)"
-          >
-            <span>{{ step.text }}</span>
-            <small v-if="step === currentStep">Current step</small>
-          </v-stepper-step>
-          <v-stepper-content :step="i + 1" />
-        </fragment>
-
-        <fragment v-else-if="step.key === STEP_SCORECARD_KEY" :key="step.key">
+        <fragment v-else-if="step.key === STEP_REVIEW_KEY" :key="step.key">
           <v-stepper-step
             :data-cy="step.key"
             :editable="currentStepIndex >= i"
@@ -181,8 +168,7 @@ import {
   STEP_TARGETS_KEY,
   STEP_PLAN_KEY,
   STEP_SHARE_KEY,
-  STEP_FREEZE_KEY,
-  STEP_SCORECARD_KEY,
+  STEP_REVIEW_KEY,
 } from '@/config/app'
 import DialogAction from '@/components/DialogAction'
 
@@ -209,8 +195,7 @@ export default {
       STEP_TARGETS_KEY,
       STEP_PLAN_KEY,
       STEP_SHARE_KEY,
-      STEP_FREEZE_KEY,
-      STEP_SCORECARD_KEY,
+      STEP_REVIEW_KEY,
       isArchiveDialogOpen: false,
       isDeleteDialogOpen: false,
       isFreezeDialogOpen: false,
