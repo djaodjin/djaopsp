@@ -6,6 +6,7 @@ import {
 
 const ORG_SLUG = 'test_org'
 const ORG_NAME = 'Test Organization'
+const HOME_URL = `/${ORG_SLUG}/`
 
 describe('Supplier App: Home', () => {
   let server
@@ -21,7 +22,7 @@ describe('Supplier App: Home', () => {
   it('loads the home screen for an empty organization', () => {
     createOrgEmpty(server, ORG_SLUG, ORG_NAME)
 
-    cy.visit(`/${ORG_SLUG}/`)
+    cy.visit(HOME_URL)
     cy.contains(ORG_NAME)
     cy.contains('Take Sustainability Assessment')
   })
@@ -30,7 +31,7 @@ describe('Supplier App: Home', () => {
     server.loadFixtures('questions')
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
-    cy.visit(`/${ORG_SLUG}/`)
+    cy.visit(HOME_URL)
     cy.contains(ORG_NAME)
     cy.get('.assessment-info').its('length').should('eq', 1)
     cy.contains('Continue Sustainability Assessment')
@@ -39,7 +40,7 @@ describe('Supplier App: Home', () => {
   it('lets users create a new assessment', () => {
     createOrgEmpty(server, ORG_SLUG, ORG_NAME)
 
-    cy.visit(`/${ORG_SLUG}/`)
+    cy.visit(HOME_URL)
     cy.get('[data-cy=create-assessment]').click()
     cy.url().should('include', '/assess/1') // first assessment ID = 1
   })
@@ -48,7 +49,7 @@ describe('Supplier App: Home', () => {
     server.loadFixtures('questions')
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
-    cy.visit(`/${ORG_SLUG}/`)
+    cy.visit(HOME_URL)
     cy.get('[data-cy=continue-assessment]').click()
     cy.url().should('include', '/assess/1')
   })
@@ -56,7 +57,7 @@ describe('Supplier App: Home', () => {
   it('has access to the assessment history view', () => {
     createOrgEmpty(server, ORG_SLUG, ORG_NAME)
 
-    cy.visit(`/${ORG_SLUG}/`)
+    cy.visit(HOME_URL)
     cy.get('[data-cy=view-history]')
     // TODO: Route to history view
   })

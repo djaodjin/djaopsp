@@ -145,7 +145,7 @@ describe('Supplier App: Assessment Home', () => {
       .should('have.class', 'v-stepper__step--inactive')
   })
 
-  it.only('sets the stepper to "Share" step after the assessment has been frozen', () => {
+  it('sets the stepper to "Share" step after the assessment has been frozen', () => {
     server.loadFixtures('industries', 'questions')
     createOrgAssessmentFrozenIncomplete(server, ORG_SLUG, ORG_NAME)
 
