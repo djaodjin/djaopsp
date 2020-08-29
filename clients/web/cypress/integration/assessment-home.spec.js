@@ -2,7 +2,15 @@ import { makeServer } from '../../src/mocks/server'
 import {
   createOrgAssessmentEmpty,
   createOrgAssessmentOneAnswer,
+  createOrgAssessmentPracticesComplete,
 } from '../../src/mocks/scenarios'
+import {
+  STEP_PRACTICE_KEY,
+  STEP_TARGETS_KEY,
+  STEP_PLAN_KEY,
+  STEP_REVIEW_KEY,
+  STEP_SHARE_KEY,
+} from '../../src/config/app'
 
 const ORG_SLUG = 'test_org'
 const ORG_NAME = 'Test Organization'
@@ -22,7 +30,7 @@ describe('Supplier App: Assessment Home', () => {
   })
 
   it('requires selection of industry segment if assessment has no answered questions', () => {
-    server.loadFixtures('industries')
+    server.loadFixtures('industries', 'questions')
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
@@ -32,16 +40,37 @@ describe('Supplier App: Assessment Home', () => {
     cy.get('[data-cy=industry-label]').click()
     cy.get('.v-menu__content').should('exist')
 
-    cy.get('.v-menu__content').find('.v-list-item').first().click() // "construction" per fixture
+    cy.get('.v-menu__content')
+      .find('.v-list-item')
+      .contains('Boxes & enclosures')
+      .click()
     cy.get('@industryForm').find('button[type=submit]').click()
 
-    cy.get('[data-cy=industry-name]').contains('Construction')
+    cy.get('[data-cy=industry-name]').contains('Boxes & enclosures')
     cy.get('[data-cy=industry-form]').should('not.exist')
-    cy.get('[data-cy=stepper]').should('exist')
+
+    // Sets the stepper to "Practices" step if none of the practice questions have been answered
+    cy.get('[data-cy=stepper]').as('stepper')
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_PRACTICE_KEY}]`)
+      .should('have.class', 'v-stepper__step--active')
+    cy.get('@stepper')
+      .find('.v-stepper__step--inactive')
+      .its('length')
+      .should('eq', 4)
+  })
+
+  it('offers examples to select an industry segment', () => {
+    server.loadFixtures('industries', 'questions')
+    createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
+
+    cy.visit(ASSESSMENT_HOME_URL)
+    cy.get('[data-cy=examples]').click()
+    cy.url().should('include', '/docs/faq/#general-4')
   })
 
   it('lets users select an industry segment from a list of industries', () => {
-    server.loadFixtures('industries')
+    server.loadFixtures('industries', 'questions')
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
@@ -53,7 +82,7 @@ describe('Supplier App: Assessment Home', () => {
   })
 
   it('lets users select an industry segment from a list of previously selected industries', () => {
-    server.loadFixtures('previousIndustries')
+    server.loadFixtures('previousIndustries', 'questions')
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
@@ -64,7 +93,7 @@ describe('Supplier App: Assessment Home', () => {
   })
 
   it('lets users select an industry segment from a list where previous industry segments take precedence', () => {
-    server.loadFixtures('industries', 'previousIndustries')
+    server.loadFixtures('industries', 'previousIndustries', 'questions')
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
@@ -76,18 +105,44 @@ describe('Supplier App: Assessment Home', () => {
     cy.get('@dropdown').find('.child').its('length').should('eq', 1)
   })
 
-  it('offers examples to select an industry segment', () => {
-    cy.visit(ASSESSMENT_HOME_URL)
-    cy.get('[data-cy=examples]').click()
-    cy.url().should('include', '/docs/faq/#general-4')
-  })
-
-  it.only('displays the industry segment for the assessment if at least one question has already been answered', () => {
-    server.loadFixtures('industries')
+  it('displays stepper and industry segment for the assessment if at least one question has already been answered', () => {
+    server.loadFixtures('industries', 'questions')
     createOrgAssessmentOneAnswer(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
     cy.get('[data-cy=industry-name]').contains('Boxes & enclosures')
-    cy.get('[data-cy=stepper]').should('exist')
+    cy.get('[data-cy=stepper]').as('stepper')
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_PRACTICE_KEY}]`)
+      .should('have.class', 'v-stepper__step--active')
+    cy.get('@stepper')
+      .find('.v-stepper__step--inactive')
+      .its('length')
+      .should('eq', 4)
   })
+
+  it('sets the stepper to "Review" step after all practice questions have been answered', () => {
+    server.loadFixtures('industries', 'questions')
+    createOrgAssessmentPracticesComplete(server, ORG_SLUG, ORG_NAME)
+
+    cy.visit(ASSESSMENT_HOME_URL)
+    cy.get('[data-cy=stepper]').as('stepper')
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_PRACTICE_KEY}]`)
+      .should('have.class', 'v-stepper__step--editable')
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_TARGETS_KEY}]`)
+      .should('have.class', 'v-stepper__step--editable')
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_PLAN_KEY}]`)
+      .should('have.class', 'v-stepper__step--editable')
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_REVIEW_KEY}]`)
+      .should('have.class', 'v-stepper__step--active')
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_SHARE_KEY}]`)
+      .should('have.class', 'v-stepper__step--inactive')
+  })
+
+  it('sets the stepper to "Share" step after the assessment has been frozen', () => {})
 })
