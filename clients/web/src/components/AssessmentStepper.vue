@@ -21,7 +21,6 @@
             "
           >
             <span>{{ step.text }}</span>
-            <small v-if="step === currentStep">Current step</small>
           </v-stepper-step>
         </fragment>
 
@@ -43,7 +42,6 @@
             "
           >
             <span>{{ step.text }}</span>
-            <small v-if="step === currentStep">Current step</small>
           </v-stepper-step>
           <v-stepper-content :step="i + 1" />
         </fragment>
@@ -81,7 +79,10 @@
             "
           >
             <span>{{ step.text }}</span>
-            <small v-if="step === currentStep">Current step</small>
+            <small
+              v-if="step.key === STEP_TARGETS_KEY || step.key === STEP_PLAN_KEY"
+              >Optional step</small
+            >
           </v-stepper-step>
           <v-stepper-content :step="i + 1" />
         </fragment>
@@ -138,26 +139,6 @@
         You will still have access to the assessment from the assessment history
       </p>
     </dialog-action>
-    <dialog-action
-      title="Freeze Assessment"
-      actionText="Yes, freeze the assessment"
-      :isOpen="isFreezeDialogOpen"
-      @action="freezeAssessment"
-      @cancel="closeFreezeDialog"
-    >
-      <p>Would you like to record and freeze the assessment?</p>
-      <p>
-        By freezing the assessment, you certify that the assessment responses
-        provided for your organization are true and correct to the best of your
-        knowledge. Additionally, you acknowledge that the responses form a
-        statement of record which current or future clients may request to
-        verify.
-      </p>
-      <p>
-        After freezing the assessment, you will still be able to review its
-        scorecard, but the assessment will no longer be editable.
-      </p>
-    </dialog-action>
   </v-sheet>
 </template>
 
@@ -198,7 +179,6 @@ export default {
       STEP_REVIEW_KEY,
       isArchiveDialogOpen: false,
       isDeleteDialogOpen: false,
-      isFreezeDialogOpen: false,
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }
   },
@@ -220,22 +200,11 @@ export default {
     closeDeleteDialog() {
       this.isDeleteDialogOpen = false
     },
-    closeFreezeDialog() {
-      this.isFreezeDialogOpen = false
-    },
     archiveAssessment() {
       this.isArchiveDialogOpen = false
     },
     deleteAssessment() {
       this.isDeleteDialogOpen = false
-    },
-    freezeAssessment() {
-      this.isFreezeDialogOpen = false
-    },
-    openFreezeDialog(isActive) {
-      if (isActive) {
-        this.isFreezeDialogOpen = true
-      }
     },
   },
 
