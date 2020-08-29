@@ -3,9 +3,10 @@ import faker from 'faker'
 export default function (
   server,
   orgId,
-  orgName = 'Assessment With Practices Complete'
+  orgName = 'Frozen Assessment Without Targets & Plan'
 ) {
   const assessment = server.create('assessment', {
+    is_frozen: true,
     targets: [],
   })
 

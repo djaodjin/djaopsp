@@ -3,6 +3,7 @@ import {
   createOrgAssessmentEmpty,
   createOrgAssessmentOneAnswer,
   createOrgAssessmentPracticesComplete,
+  createOrgAssessmentFrozenIncomplete,
 } from '../../src/mocks/scenarios'
 import {
   STEP_PRACTICE_KEY,
@@ -144,5 +145,34 @@ describe('Supplier App: Assessment Home', () => {
       .should('have.class', 'v-stepper__step--inactive')
   })
 
-  it('sets the stepper to "Share" step after the assessment has been frozen', () => {})
+  it.only('sets the stepper to "Share" step after the assessment has been frozen', () => {
+    server.loadFixtures('industries', 'questions')
+    createOrgAssessmentFrozenIncomplete(server, ORG_SLUG, ORG_NAME)
+
+    cy.visit(ASSESSMENT_HOME_URL)
+    cy.get('[data-cy=stepper]').as('stepper')
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_PRACTICE_KEY}]`)
+      .should(($div) => {
+        expect($div[0].className).to.eq('v-stepper__step')
+      })
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_TARGETS_KEY}]`)
+      .should(($div) => {
+        expect($div[0].className).to.eq('v-stepper__step')
+      })
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_PLAN_KEY}]`)
+      .should(($div) => {
+        expect($div[0].className).to.eq('v-stepper__step')
+      })
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_REVIEW_KEY}]`)
+      .should('have.class', 'v-stepper__step--editable')
+      .should('have.class', 'active')
+      .should('have.class', 'v-stepper__step--complete')
+    cy.get('@stepper')
+      .get(`[data-cy=${STEP_SHARE_KEY}]`)
+      .should('have.class', 'v-stepper__step--active')
+  })
 })
