@@ -71,6 +71,7 @@
         <p>{{ $t('practices.tab1.intro') }}</p>
         <div class="sections">
           <v-list
+            data-cy="assessment-section"
             class="mb-4"
             outlined
             v-for="loopSection in sections"

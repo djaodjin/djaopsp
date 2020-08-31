@@ -4,6 +4,7 @@ import {
   getIndustrySegments,
   getPreviousIndustrySegments,
   getOrganization,
+  setAssessmentIndustry,
 } from '@/common/api'
 
 Vue.mixin({
@@ -102,10 +103,16 @@ export default class Context {
     }
   }
 
-  setAssessmentIndustry(assessmentId, industry) {
+  async setAssessmentIndustry(organizationId, assessmentId, industry) {
     const assessment = this.assessments.get(assessmentId)
     if (assessment) {
-      assessment.setIndustry(industry)
+      const updated = await setAssessmentIndustry(
+        organizationId,
+        assessment,
+        industry
+      )
+      this.assessments.set(assessment.id, updated)
+      return updated
     }
   }
 

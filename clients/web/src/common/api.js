@@ -56,14 +56,6 @@ export async function createAssessment(organizationId, payload) {
   return new Assessment({ id: slug, created: created_at })
 }
 
-// TODO: Review
-export async function getAnswers(organizationId, assessmentId) {
-  const response = await request(`/answers/${organizationId}/${assessmentId}`)
-  if (!response.ok) throw new APIError(response.status)
-  const { answers } = await response.json()
-  return answers.map((answer) => new Answer(answer))
-}
-
 export async function getAssessment(organizationId, assessmentId) {
   try {
     const responses = await Promise.all([
@@ -82,30 +74,24 @@ export async function getAssessment(organizationId, assessmentId) {
       { results: industries },
     ] = await Promise.all(responses.map((response) => response.json()))
 
+    let assessment = new Assessment({
+      id: slug,
+      created: created_at,
+      frozen: is_frozen,
+    })
+
     // Find an answer with content
     const answered = answers.find((answer) => answer.metric)
     if (answered) {
       const answerPath = answered.question.path
       const industry = industries.find((obj) => answerPath.startsWith(obj.path))
-      const content = await getCurrentPracticesContent(
+      assessment = await setAssessmentIndustry(
         organizationId,
-        assessmentId,
-        industry.path
+        assessment,
+        industry
       )
-      return new Assessment({
-        id: slug,
-        created: created_at,
-        frozen: is_frozen,
-        industry,
-        questions: content.questions,
-        answers: content.answers,
-      })
     }
-    return new Assessment({
-      id: slug,
-      created: created_at,
-      frozen: is_frozen,
-    })
+    return assessment
   } catch (e) {
     throw new APIError(e)
   }
@@ -251,14 +237,6 @@ export async function getPracticeSearchResults(organizationId, assessmentId) {
   return getPractices(organizationId, assessmentId)
 }
 
-// TODO: Remove
-export async function getQuestions(organizationId, assessmentId) {
-  const response = await request(`/questions/${organizationId}/${assessmentId}`)
-  if (!response.ok) throw new APIError(response.status)
-  const { questions } = await response.json()
-  return questions.map((question) => new Question(question))
-}
-
 function getFlatAnswersByPath(answerList) {
   const flatAnswers = answerList.map(({ question, ...attrs }) => ({
     ...attrs,
@@ -378,4 +356,25 @@ export async function putAnswer(answer) {
   if (!response.ok) throw new APIError(response.status)
   const data = await response.json()
   return new Answer(data.answer)
+}
+
+export async function setAssessmentIndustry(
+  organizationId,
+  assessment,
+  industry
+) {
+  const { id, created, frozen } = assessment
+  const { questions, answers } = await getCurrentPracticesContent(
+    organizationId,
+    id,
+    industry.path
+  )
+  return new Assessment({
+    id,
+    created,
+    frozen,
+    industry,
+    questions,
+    answers,
+  })
 }

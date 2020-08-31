@@ -59,8 +59,12 @@ export default {
       this.organization = organization
       this.assessment = assessment
     },
-    setIndustry(industry) {
-      this.$context.setAssessmentIndustry(this.id, industry)
+    async setIndustry(industry) {
+      this.assessment = await this.$context.setAssessmentIndustry(
+        this.org,
+        this.id,
+        industry
+      )
     },
   },
 

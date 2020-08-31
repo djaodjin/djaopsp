@@ -14,6 +14,7 @@
         resume this questionnaire at any time.
       </p>
       <button-primary
+        data-cy="btn-continue"
         class="mt-8"
         :to="`/${this.org}/assess/${this.id}/content/${this.assessment.industryPath}/`"
         >Continue</button-primary

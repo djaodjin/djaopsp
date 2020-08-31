@@ -46,12 +46,4 @@ export default class Assessment {
       this.status = STEP_SHARE_KEY
     }
   }
-
-  setIndustry(industry) {
-    if (industry) {
-      const { title, path } = industry
-      this.industryName = title
-      this.industryPath = path
-    }
-  }
 }
