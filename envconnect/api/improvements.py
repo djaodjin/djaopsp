@@ -1,22 +1,14 @@
 # Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
-from django.db import transaction
-
-from rest_framework import response as http
 from rest_framework import status
-from rest_framework.generics import (get_object_or_404, ListAPIView,
-     GenericAPIView)
-from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
-    DestroyModelMixin, UpdateModelMixin)
+from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.response import Response
 from survey.api.sample import AnswerAPIView
 from survey.api.serializers import AnswerSerializer
-from survey.models import EnumeratedQuestions, get_question_model
+from survey.models import get_question_model
 
 from ..mixins import ImprovementQuerySetMixin
-from ..models import Consumption
-from ..scores import freeze_scores
 
 
 class ImprovementListAPIView(ImprovementQuerySetMixin, ListAPIView):

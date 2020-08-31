@@ -5,7 +5,7 @@ from pages.settings import PATH_RE, SLUG_RE
 from rules.urldecorators import include, url
 
 from ...views.assessments import (AssessmentView, AssessmentXLSXView,
-    CompleteView, TargetsView)
+    CompleteView)
 from ...views.benchmark import BenchmarkView, BenchmarkDownloadView
 from ...views.compare import (PortfoliosDetailView, SuppliersView,
     SuppliersSummaryXLSXView, SuppliersAssessmentsXLSXView,

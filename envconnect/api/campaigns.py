@@ -23,7 +23,7 @@ class CampaignSerializer(NoModelSerializer):
     path = serializers.CharField()
     title = serializers.CharField()
     indent = serializers.IntegerField()
-    tags = serializers.ListField(child=serializers.CharField(),required=False)
+    tags = serializers.ListField(child=serializers.CharField(), required=False)
     text = serializers.CharField(required=False)
     environmental_value = serializers.IntegerField(required=False)
     business_value = serializers.IntegerField(required=False)
@@ -89,7 +89,7 @@ class CampaignListAPIView(BreadcrumbMixin, ListAPIView):
                     'indent': 0
                 }]
             else:
-                rollup_tree = self._build_tree(root, full_path, cut=cut) # cut=ContentCut(), load_text=False)
+                rollup_tree = self._build_tree(root, full_path, cut=cut)
                 menus += self.flatten({prefix: rollup_tree})
         return menus
 

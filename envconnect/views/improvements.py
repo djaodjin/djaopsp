@@ -210,7 +210,8 @@ class ImprovementSpreadsheetView(ImprovementOnlyMixin, ListView):
         segment_url, segment_prefix, segment_element = self.segment
         if segment_element.slug == 'framework':
             return self.fixed_headings + self.assessment_choices
-        return self.fixed_headings + self.assessment_choices + self.value_headings
+        return (self.fixed_headings + self.assessment_choices +
+            self.value_headings)
 
     def get_filename(self):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.csv')
@@ -281,7 +282,7 @@ class ImprovementXLSXView(PrintableChartsMixin, ImprovementSpreadsheetView):
         self.text_center = Alignment(horizontal='center')
 
     def flush_writer(self):
-        #pylint:disable=protected-access,too-many-statements
+        #pylint:disable=protected-access,too-many-statements,too-many-locals
         bold_font = Font(
             name='Calibri', size=11, bold=True, italic=False,
             vertAlign='baseline', underline='none', strike=False,

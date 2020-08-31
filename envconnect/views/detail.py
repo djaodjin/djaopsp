@@ -7,17 +7,15 @@ from deployutils.helpers import datetime_or_now
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView
 from django.utils import six
-from deployutils.crypt import JSONEncoder
 from lxml import html
 from openpyxl import Workbook
-from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 
 from ..compat import reverse
 from ..helpers import as_valid_sheet_title
-from ..mixins import BreadcrumbMixin, BestPracticeMixin, ContentCut
+from ..mixins import BreadcrumbMixin, BestPracticeMixin
 from ..models import ColumnHeader
 
 

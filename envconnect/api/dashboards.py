@@ -5,9 +5,7 @@ import datetime, json, logging, re
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
-from deployutils.crypt import JSONEncoder
 from django.conf import settings
-from django.db import connection, transaction
 from django.db.models import Max, Q
 from django.http import Http404
 from django.utils import six
@@ -32,7 +30,6 @@ from ..compat import reverse
 from ..helpers import get_testing_accounts
 from ..mixins import ReportMixin
 from ..models import _show_query_and_result, Consumption
-from ..scores import freeze_scores
 from ..serializers import AccountSerializer, NoModelSerializer
 from ..suppliers import get_supplier_managers
 
@@ -44,7 +41,7 @@ class AccountType(object):
 
     def __init__(self, pk=None, slug=None, printable_name=None, email=None,
         phone=None, request_key=None, extra=None):
-        #pylint:disable=invalid-name
+        #pylint:disable=invalid-name,too-many-arguments
         self.pk = pk
         self.slug = slug
         self.printable_name = printable_name
@@ -107,7 +104,7 @@ class CompletionSummaryPagination(PageNumberPagination):
                 }
                 continue
             if reporting_status > accounts[slug]['reporting_status']:
-                accounts[slug]['reporting_status'] == reporting_status
+                accounts[slug]['reporting_status'] = reporting_status
             if sample.get('reporting_publicly'):
                 accounts[slug]['reporting_publicly'] = True
             if sample.get('reporting_fines'):
@@ -413,8 +410,7 @@ class SupplierListMixin(DashboardMixin):
                 account.pk for account in self.requested_accounts]
         return self._requested_accounts_pk
 
-    @staticmethod
-    def get_nb_questions_per_segment():
+    def get_nb_questions_per_segment(self):
         nb_questions_per_segment = {}
         for segment in self.get_segments():
             nb_questions = Consumption.objects.filter(
@@ -538,7 +534,7 @@ class SupplierListMixin(DashboardMixin):
           'title':
         }
         """
-        #pylint:disable=too-many-arguments
+        #pylint:disable=too-many-arguments,(too-many-locals
         account_dict = self._prepare_account(account)
         # When `_prepare_account` returns, result contains a dictionnary
         # that looks like:
@@ -595,11 +591,11 @@ class SupplierListMixin(DashboardMixin):
                 score_url = reverse('assess_organization_redirect',
                     args=(account.slug, segment_path))
             elif 'sample' in score:
-                    score_url = reverse('scorecard_organization',
-                        args=(account.slug, score['sample'], segment_path))
+                score_url = reverse('scorecard_organization',
+                    args=(account.slug, score['sample'], segment_path))
             else:
-                    score_url = reverse('scorecard_organization_redirect',
-                        args=(account.slug, segment_path))
+                score_url = reverse('scorecard_organization_redirect',
+                    args=(account.slug, segment_path))
             score.update({
                 'segment': segment['title'],
                 'score_url': score_url,
@@ -671,15 +667,6 @@ class SupplierListMixin(DashboardMixin):
     def get_suppliers(self, rollup_tree):
         root = self.kwargs.get('path')
         results = []
-
-        # XXX currently a subset query of ``get_active_by_accounts`` because
-        # ``get_active_by_accounts`` returns unfrozen samples.
-        actives = Sample.objects.filter(
-            account_id__in=self.requested_accounts_pk, extra=None,
-            created_at__lte=self.ends_at).values('account_id').annotate(
-            Max('created_at'))
-        actives_d = dict([(act['account_id'], act['created_at__max'])
-            for act in list(actives)])
 
         # list of scores
         for account in self.requested_accounts:
@@ -1024,22 +1011,21 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
 
     .. code-block:: http
 
-       POST /api/XXX HTTP/1.1
+       POST /api/supplier-1/sample/46f66f70f5ad41b29c4df08f683a9a7a/\
+benchmark/share/construction/ HTTP/1.1
+
+    .. code-block:: json
+
+       {
+         "slug": "energy-utility"
+       }
+
     """
     serializer_class = ShareScorecardSerializer
 
-    @property
-    def improvement_sample(self):
-        # XXX duplicate from `ImprovementQuerySetMixin.improvement_sample`
-        if not hasattr(self, '_improvement_sample'):
-            self._improvement_sample = Sample.objects.filter(
-                extra='is_planned',
-                survey=self.survey,
-                account=self.account).order_by('-created_at').first()
-        return self._improvement_sample
-
     def create(self, request, *args, **kwargs):
         #pylint:disable=too-many-locals,too-many-statements
+        segment_url, segment_prefix, segment_element = self.segment
         if request.data:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -1047,31 +1033,31 @@ class ShareScorecardAPIView(ReportMixin, generics.CreateAPIView):
         else:
             supplier_managers = get_supplier_managers(self.account)
 
-        last_activity_at = Answer.objects.filter(
-            sample=self.assessment_sample).aggregate(Max('created_at')).get(
-                'created_at__max', None)
-        if not last_activity_at:
-            raise ValidationError({'detail': "You cannot share a scorecard"\
-            " before completing the assessment."})
-        last_scored_assessment = Sample.objects.filter(
-            is_frozen=True,
-            extra__isnull=True,
-            survey=self.survey,
-            account=self.account).order_by('-created_at').first()
-        if (not last_scored_assessment
-            or last_scored_assessment.created_at < last_activity_at):
-            # New activity since last record, let's freeze the assessment
-            # and planning.
-            with transaction.atomic():
-                last_scored_assessment = freeze_scores(self.assessment_sample,
-                    includes=self.get_included_samples(),
-                    excludes=self._get_filter_out_testing(),
-                    collected_by=self.request.user)
-                if self.improvement_sample:
-                    freeze_scores(self.improvement_sample,
-                        includes=self.get_included_samples(),
-                        excludes=self._get_filter_out_testing(),
-                        collected_by=self.request.user)
+        if self.nb_required_answers < self.nb_required_questions:
+            raise ValidationError({'detail':
+                "You can only share an assessment after you assessed"\
+                " all required practices (%d of %d) and mark your assessment"\
+                " as complete." % (
+                self.nb_required_answers, self.nb_required_questions)})
+
+        if not self.assessment_sample.is_frozen:
+            last_activity_at = Answer.objects.filter(
+                sample=self.assessment_sample,#XXX self.get_included_samples() ?
+                question__path__startswith=segment_prefix).aggregate(
+                    last_activity_at=Max('created_at')).get(
+                    'last_activity_at', None)
+            last_scored_assessment = Sample.objects.filter(
+                is_frozen=True,
+                extra__isnull=True,
+                survey=self.survey,
+                account=self.account).order_by('-created_at').first()
+            if (not last_scored_assessment
+                or last_scored_assessment.created_at < last_activity_at):
+                raise ValidationError({'detail':
+                    "This assessment has been updated on %s. "\
+                    "You will have to mark your assessment"\
+                    " as complete before you can share it." % (
+                    last_activity_at.strftime("%d %b %Y"))})
 
         # send assessment updated and invite notifications
         data = supplier_managers

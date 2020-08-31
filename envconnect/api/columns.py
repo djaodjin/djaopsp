@@ -25,7 +25,8 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
 
     .. code-block:: http
 
-        GET /api/content/editables/column/boxes-enclosures/energy-efficiency/ HTTP/1.1
+        GET /api/content/editables/column/boxes-enclosures/energy-efficiency/\
+ HTTP/1.1
 
     responds
 
@@ -56,7 +57,8 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
 
         .. code-block:: http
 
-            PUT /api/content/editables/column/boxes-enclosures/energy-efficiency/ HTTP/1.1
+            PUT /api/content/editables/column/boxes-enclosures/\
+energy-efficiency/ HTTP/1.1
 
         .. code-block:: json
 
@@ -73,6 +75,7 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
             }
 
         """
+        #pylint:disable=useless-super-delegation
         return super(ColumnAPIView, self).put(request, *args, **kwargs)
 
     def get_queryset(self):

@@ -1,6 +1,7 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
+#pylint:disable=unused-import,bad-except-order
 import six
 
 #pylint:disable=no-name-in-module,import-error,unused-import

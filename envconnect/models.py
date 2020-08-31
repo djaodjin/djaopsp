@@ -207,10 +207,12 @@ WHERE survey_sample.extra IS NULL AND
         return Sample.objects.raw(sql_query)
 
 
-    def get_latest_samples_by_accounts(self, survey,
+    def get_latest_samples_by_accounts(self, campaign=None,
                                        before=None, excludes=None):
         """
-        assessment and planning
+        Returns a query that contains the latest assessment and planning samples
+        for each account before a specified date (`before`). The query excludes
+        accounts specified in `excludes`.
         """
         #pylint:disable=no-self-use
         if excludes:
@@ -222,26 +224,27 @@ WHERE survey_sample.extra IS NULL AND
         else:
             filter_out_testing = ""
         sql_query = """SELECT
-        survey_sample.account_id AS account_id,
-        survey_sample.id AS id,
-        survey_sample.created_at AS created_at,
-        survey_sample.survey_id AS survey_id,
-        survey_sample.is_frozen AS is_frozen,
-        survey_sample.extra AS extra
-      FROM survey_sample
-      INNER JOIN (
-        SELECT account_id, extra, MAX(created_at) AS last_updated_at
-        FROM survey_sample
-        WHERE survey_sample.survey_id = %(survey_id)d
-          AND (survey_sample.extra IS NULL
-            OR survey_sample.extra = 'is_planned')
-          %(filter_out_testing)s
-          %(before_clause)s
-        GROUP BY account_id, extra) AS latests
-      ON survey_sample.account_id = latests.account_id
-        AND survey_sample.created_at = latests.last_updated_at""" % {
-          'survey_id': survey.pk,
+    survey_sample.account_id AS account_id,
+    survey_sample.id AS id,
+    survey_sample.created_at AS created_at,
+    survey_sample.survey_id AS survey_id,
+    survey_sample.is_frozen AS is_frozen,
+    survey_sample.extra AS extra
+  FROM survey_sample
+  INNER JOIN (
+    SELECT account_id, survey_id, extra, MAX(created_at) AS last_updated_at
+    FROM survey_sample
+    WHERE (survey_sample.extra IS NULL OR survey_sample.extra = 'is_planned')
+      %(filter_out_testing)s
+      %(campaign_clause)s
+      %(before_clause)s
+    GROUP BY account_id, survey_id, extra) AS latests
+  ON survey_sample.account_id = latests.account_id
+  AND survey_sample.survey_id = latests.survey_id
+  AND survey_sample.created_at = latests.last_updated_at""" % {
           'filter_out_testing': filter_out_testing,
+          'campaign_clause': ("AND survey_sample.survey_id = %d" % campaign.pk
+            if campaign else ""),
           'before_clause': ("AND created_at < '%s'" % before.isoformat()
             if before else "")}
         return Sample.objects.raw(sql_query)

@@ -1,18 +1,16 @@
 # Copyright (c) 2018, DjaoDjin inc.
 # see LICENSE.
 
-import json, markdown, re
+import json, markdown
 
 from django.conf import settings
 from django import template
 from django.utils import six
 from django.utils.safestring import mark_safe
-from pages.models import PageElement
 from survey.models import Choice
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 
-from ..compat import reverse
 from ..mixins import ContentCut
 
 
@@ -53,33 +51,6 @@ def as_icon(breadcrumbs):
             'subtitle': breadcrumbs[-1][0].title
         })
     return icon
-
-
-@register.filter
-def get_industry_charts(organization=None):
-    charts = PageElement.objects.filter(
-        tag__contains='industry').filter(tag__contains='enabled')
-    for chart in charts:
-        chart.breadcrumbs = [chart.title]
-        chart.urls = {'matrix_api': reverse('matrix_api', args=(
-            organization, "/%s" % chart.slug,))}
-    return charts
-
-
-@register.filter
-def category_entry(breadcrumbs, category=None):
-    path = ""
-    for breadcrumb in breadcrumbs:
-        for tag in ['basic', 'sustainability']:
-            if breadcrumb[0].tag and tag in breadcrumb[0].tag:
-                if category:
-                    look = re.match(r'^[^-]+(-\S+)', breadcrumb[0].slug)
-                    path += "/" + category + look.group(1)
-                else:
-                    path += "/" + breadcrumb[0].slug
-                return path
-        path += "/" + breadcrumb[0].slug
-    return path
 
 
 @register.filter(is_safe=True)
