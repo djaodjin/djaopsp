@@ -332,10 +332,11 @@ SELECT
 FROM survey_question
 LEFT OUTER JOIN opportunity_view
   ON survey_question.id = opportunity_view.question_id
+WHERE survey_question.default_metric_id = 1
 %(filter_questions)s
 """ % {
     'yes_opportunity_view': yes_opportunity_view,
-    'filter_questions': "WHERE %s" % filter_questions if prefix else ""}
+    'filter_questions': "AND %s" % filter_questions if prefix else ""}
         _show_query_and_result(questions_with_opportunity)
         return questions_with_opportunity
 
