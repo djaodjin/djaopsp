@@ -672,7 +672,7 @@ class SupplierListMixin(DashboardMixin):
         for account in self.requested_accounts:
             try:
                 scores_by_account = self.get_scores(account, rollup_tree[1],
-                    actives_d, self.complete_assessments,
+                    {}, self.complete_assessments,
                     self.complete_improvements, self.start_at)
                 if scores_by_account:
                     results += scores_by_account
