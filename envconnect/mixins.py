@@ -840,6 +840,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
     COUNT(*) AS nb_questions,
     %(bool_agg)s(is_completed) AS is_completed
 FROM (%(answers)s) AS answers
+WHERE answers.metric IN ('assessment', 'score')
 GROUP BY account_id, sample_id, is_planned;""" % {
     'answers': answers,
     'bool_agg': 'MAX' if is_sqlite3() else 'bool_or',
