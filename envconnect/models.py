@@ -605,12 +605,15 @@ survey_answer.denominator AS denominator,
 survey_sample.created_at AS last_activity_at,
 survey_answer.id AS answer_id,
 survey_answer.question_id AS question_id,
-survey_question.path AS path
+survey_question.path AS path,
+survey_metric.slug AS metric
 FROM survey_answer
 INNER JOIN survey_sample
   ON survey_answer.sample_id = survey_sample.id
 INNER JOIN survey_question
   ON survey_answer.question_id = survey_question.id
+INNER JOIN survey_metric
+  ON survey_question.default_metric_id = survey_metric.id
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
         includes=includes, prefix=prefix,
