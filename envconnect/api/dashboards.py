@@ -179,6 +179,7 @@ class DashboardMixin(BenchmarkMixin):
 expected_opportunities AS (
 SELECT
     survey_question.id AS question_id,
+    survey_question.default_metric_id AS default_metric_id,
     samples.account_id AS account_id,
     samples.id AS sample_id,
     samples.extra AS is_planned,
@@ -199,11 +200,14 @@ SELECT
     CAST(survey_answer.denominator AS FLOAT) AS denominator,
     survey_answer.created_at AS last_activity_at,
     survey_answer.id AS answer_id,
-    expected_opportunities.is_completed AS is_completed
+    expected_opportunities.is_completed AS is_completed,
+    survey_metric.slug AS metric
 FROM expected_opportunities
 LEFT OUTER JOIN survey_answer
     ON expected_opportunities.question_id = survey_answer.question_id
     AND expected_opportunities.sample_id = survey_answer.sample_id
+INNER JOIN survey_metric
+  ON expected_opportunities.default_metric_id = survey_metric.id
 WHERE survey_answer.metric_id = %(metric_id)s AND
     survey_answer.measured = %(choice)s""" % {
     'samples': samples,

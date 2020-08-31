@@ -805,12 +805,14 @@ SELECT
     expected_opportunities.avg_value AS avg_value,
     expected_opportunities.nb_respondents AS nb_respondents,
     expected_opportunities.rate AS rate,
-    expected_opportunities.default_metric_id AS default_metric_id,
+    survey_metric.slug AS metric,
     expected_opportunities.opportunity AS opportunity
 FROM expected_opportunities
 LEFT OUTER JOIN survey_answer
     ON expected_opportunities.question_id = survey_answer.question_id
     AND expected_opportunities.sample_id = survey_answer.sample_id
+INNER JOIN survey_metric
+  ON expected_opportunities.default_metric_id = survey_metric.id
 WHERE survey_answer.metric_id = 2""" % {
     'latest_assessments': latest_assessments,
     'prefix': prefix}
