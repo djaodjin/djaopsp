@@ -81,4 +81,4 @@ When running the client app in [stand-alone mode](#stand-alone-mode), a list of 
 
 `yarn run cy:run` : run the complete test suite in Cypress from the command line
 
-`yarn run cy:open` : launches the [Cypress Test Runner](https://docs.cypress.io/guides/core-concepts/test-runner.html) from where groups of tests or the entire test suite can be run. To run the tests, make sure the local development server is up and running (`yarn serve`).
+`yarn run cy:open` : launches the [Cypress Test Runner](https://docs.cypress.io/guides/core-concepts/test-runner.html), where groups of tests or the entire test suite can be run. To run the tests, make sure the local development server is up and running (`yarn serve`).
