@@ -112,7 +112,7 @@ async function getCurrentPracticesContent(
     const error = responses.find((response) => !response.ok)
     if (error) {
       throw new APIError(
-        `Failed to load questions and answers for assessment: ${error.statusText}`
+        `Failed to load practices content for assessment: ${error.statusText}`
       )
     }
     const [
@@ -160,9 +160,8 @@ export async function getIndustrySegments() {
   return results
 }
 
-// TODO: Review
-export async function getPreviousIndustrySegments() {
-  const response = await request('/previous-industries')
+export async function getPreviousIndustrySegments(organizationId) {
+  const response = await request(`/${organizationId}/benchmark/historical/`)
   if (!response.ok) throw new APIError(response.status)
   const { results } = await response.json()
   return results

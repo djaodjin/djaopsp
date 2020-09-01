@@ -24,7 +24,10 @@
                 />
               </div>
               <div v-else>
-                <form-select-industry @industry:set="setIndustry" />
+                <form-select-industry
+                  :organizationId="org"
+                  @industry:set="setIndustry"
+                />
               </div>
             </v-col>
           </v-row>

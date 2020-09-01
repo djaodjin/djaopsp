@@ -80,6 +80,12 @@ export function makeServer({ environment = 'development', apiBasePath }) {
 
     factories: {
       assessment: Factory.extend({
+        industryName() {
+          return 'Boxes & enclosures'
+        },
+        industryPath() {
+          return '/metal/boxes-and-enclosures/'
+        },
         campaign() {
           return 'assessment'
         },
@@ -252,6 +258,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       scenarios.createOrgAssessmentPracticesIncomplete(server, 'gamma')
       scenarios.createOrgAssessmentPracticesComplete(server, 'delta')
       scenarios.createOrgAssessmentFrozen(server, 'epsilon')
+      scenarios.createOrgAssessmentEmptyMultiple(server, 'zeta')
     },
 
     routes() {
@@ -260,6 +267,16 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       this.get('/content', routeHandlers.getIndustryList)
 
       this.get('/content/*/', routeHandlers.getIndustryQuestions)
+
+      this.get(
+        '/:organizationId/benchmark/historical/',
+        routeHandlers.getAssessmentHistory
+      )
+
+      this.get(
+        '/:organizationId/benchmark/historical/*/',
+        routeHandlers.getAssessmentHistory
+      )
 
       /* --- ORGANIZATIONS --- */
       this.get('/organizations', (schema) => {
@@ -289,16 +306,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       // TODO: Remove
       this.get('/practices/:organizationId/:assessmentId', (schema) => {
         return schema.questions.all()
-      })
-
-      this.get('/previous-industries', (schema) => {
-        const previousIndustries = schema.previousIndustries.all()
-        return {
-          count: previousIndustries.length,
-          next: null,
-          previous: null,
-          results: previousIndustries.models,
-        }
       })
 
       this.get('/score/:organizationId/:assessmentId', (schema) => {

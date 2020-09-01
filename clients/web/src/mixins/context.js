@@ -22,7 +22,7 @@ Vue.mixin({
   },
 })
 
-function industriesToList(industries, groupChildren) {
+function industriesToList(industries) {
   const results = []
 
   for (let i = 0, parent = null; i < industries.length; i++) {
@@ -41,28 +41,38 @@ function industriesToList(industries, groupChildren) {
         results.push({
           text: title,
           value: path,
-          isChild: groupChildren,
+          isChild: true,
         })
       }
     } else {
       parent = entry
-      if (groupChildren) {
-        results.push({ header: entry.title.toUpperCase() })
-      }
+      results.push({ header: entry.title.toUpperCase() })
     }
   }
   return results
 }
 
-function createIndustryList(previousIndustries, industries) {
+function createIndustryList(industries, previousIndustries) {
   let industryList = []
 
   if (previousIndustries.length) {
     industryList.push({ header: 'PREVIOUSLY SELECTED' })
-    industryList = industryList.concat(industriesToList(previousIndustries))
+    const previous = previousIndustries.map(({ values }) => {
+      // TODO: Consider case where assessment belongs to more than one industry segment
+      const segment = values[0]
+      const industryName = segment[0]
+      const industryPath = segment[2] && segment[2].split('/sample')[1]
+      return {
+        text: industryName,
+        value: industryPath,
+      }
+    })
+    industryList = industryList.concat(previous)
     industryList.push({ divider: true })
   }
-  return industryList.concat(industriesToList(industries, true))
+  // If previous industries exist, these entries will appear twice but the select control
+  // will only render the first entries it finds (those for previous industries)
+  return industryList.concat(industriesToList(industries))
 }
 
 export default class Context {
@@ -82,13 +92,13 @@ export default class Context {
     }
   }
 
-  async getIndustries() {
+  async getIndustries(organizationId) {
     if (!this.industries.length) {
       const [industries, previousIndustries] = await Promise.all([
         getIndustrySegments(),
-        getPreviousIndustrySegments(),
+        getPreviousIndustrySegments(organizationId),
       ])
-      this.industries = createIndustryList(previousIndustries, industries)
+      this.industries = createIndustryList(industries, previousIndustries)
     }
     return this.industries
   }

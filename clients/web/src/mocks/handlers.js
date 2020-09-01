@@ -1,3 +1,5 @@
+import { Response } from 'miragejs'
+
 function getAnswers(schema, request) {
   const { organizationId, assessmentId } = request.params
   const answers = schema.answers.where({
@@ -45,6 +47,39 @@ function getAssessmentInformation(schema, request) {
   return new Response(404, {}, { errors: ['assessment not found'] })
 }
 
+function getAssessmentHistory(schema, request) {
+  const { organizationId } = request.params
+  const organization = schema.organizations.find(organizationId)
+  const numAssessments = organization.assessments.length
+  if (numAssessments > 0) {
+    const latest = organization.assessments.models[0]
+    const previous = []
+    for (let i = 1; i < numAssessments; i++) {
+      const assessment = organization.assessments.models[i]
+      const entry = {
+        key: i,
+        created_at: assessment.created_at,
+        values: [
+          [
+            assessment.industryName,
+            i,
+            `/app/${organizationId}/assess/${assessment.slug}/sample${assessment.industryPath}`,
+          ],
+        ],
+      }
+      previous.push(entry)
+    }
+    return {
+      latest: {
+        assessment: latest.slug,
+        segments: [[latest.industryPath, latest.industryName]],
+      },
+      results: previous,
+    }
+  }
+  return new Response(500, {}, { errors: ['organization has no assessments'] })
+}
+
 function getIndustryList(schema) {
   const industries = schema.industries.all()
   return {
@@ -90,6 +125,7 @@ function getOrganizationProfile(schema, request) {
 export default {
   getAnswers,
   getAssessmentInformation,
+  getAssessmentHistory,
   getIndustryList,
   getIndustryQuestions,
   getLatestAssessment,

@@ -1,6 +1,7 @@
 import { makeServer } from '../../src/mocks/server'
 import {
   createOrgAssessmentEmpty,
+  createOrgAssessmentEmptyMultiple,
   createOrgAssessmentOneAnswer,
   createOrgAssessmentPracticesComplete,
   createOrgAssessmentFrozen,
@@ -83,8 +84,8 @@ describe('Supplier App: Assessment Home', () => {
   })
 
   it('lets users select an industry segment from a list of previously selected industries', () => {
-    server.loadFixtures('previousIndustries', 'questions')
-    createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
+    server.loadFixtures('questions')
+    createOrgAssessmentEmptyMultiple(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
     cy.get('[data-cy=industry-label]').click()
@@ -94,8 +95,8 @@ describe('Supplier App: Assessment Home', () => {
   })
 
   it('lets users select an industry segment from a list where previous industry segments take precedence', () => {
-    server.loadFixtures('industries', 'previousIndustries', 'questions')
-    createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
+    server.loadFixtures('industries', 'questions')
+    createOrgAssessmentEmptyMultiple(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
     cy.get('[data-cy=industry-label]').click()
