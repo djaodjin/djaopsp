@@ -44,7 +44,7 @@ describe('Supplier App: Assessment Practices', () => {
     cy.contains('0 / 8 questions')
   })
 
-  it.only('displays the main content correctly for an existing assessment', () => {
+  it('displays the main content correctly for an existing assessment', () => {
     server.loadFixtures('industries', 'questions')
     createOrgAssessmentOneAnswer(server, ORG_SLUG, ORG_NAME)
 

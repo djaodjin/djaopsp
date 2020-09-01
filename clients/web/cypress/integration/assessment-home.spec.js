@@ -3,7 +3,7 @@ import {
   createOrgAssessmentEmpty,
   createOrgAssessmentOneAnswer,
   createOrgAssessmentPracticesComplete,
-  createOrgAssessmentFrozenIncomplete,
+  createOrgAssessmentFrozen,
 } from '../../src/mocks/scenarios'
 import {
   STEP_PRACTICE_KEY,
@@ -147,7 +147,7 @@ describe('Supplier App: Assessment Home', () => {
 
   it('sets the stepper to "Share" step after the assessment has been frozen', () => {
     server.loadFixtures('industries', 'questions')
-    createOrgAssessmentFrozenIncomplete(server, ORG_SLUG, ORG_NAME)
+    createOrgAssessmentFrozen(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
     cy.get('[data-cy=stepper]').as('stepper')

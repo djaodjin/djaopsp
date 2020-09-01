@@ -24,7 +24,6 @@ export default function (
         organization,
         question,
         metric: question.default_metric,
-        measured: '2',
         created_at: faker.date.past(),
         collected_by: 'current_user@testmail.com',
       })

@@ -262,9 +262,9 @@ function getAnswerInstances(answersByPath, questions) {
 
     if (answer) {
       if (
-        question.type === QUESTION_ENERGY_CONSUMED ||
-        question.type === QUESTION_WATER_CONSUMED ||
-        question.type === QUESTION_WASTE_GENERATED
+        answer.default_metric === QUESTION_ENERGY_CONSUMED ||
+        answer.default_metric === QUESTION_WATER_CONSUMED ||
+        answer.default_metric === QUESTION_WASTE_GENERATED
       ) {
         answerValues = [answer.measured, answer.unit]
       } else {

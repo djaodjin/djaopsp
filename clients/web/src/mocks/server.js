@@ -1,7 +1,6 @@
 import {
   RestSerializer,
   Server,
-  Response,
   Model,
   Factory,
   hasMany,
@@ -21,9 +20,12 @@ import routeHandlers from './handlers'
 import {
   MAP_QUESTION_FORM_TYPES,
   PRACTICE_VALUES,
-  VALID_ASSESSMENT_STEPS,
-  VALID_ASSESSMENT_TARGETS_KEYS,
-  VALID_QUESTION_TYPES,
+  QUESTION_COMMENT_TYPE,
+  QUESTION_ENERGY_CONSUMED,
+  QUESTION_RANGE_TYPE,
+  QUESTION_YES_NO_TYPE,
+  QUESTION_WASTE_GENERATED,
+  QUESTION_WATER_CONSUMED,
 } from '../config/app'
 import { getRandomInt } from '../common/utils'
 
@@ -97,10 +99,47 @@ export function makeServer({ environment = 'development', apiBasePath }) {
           return null
         },
         unit() {
-          return null
+          let questionForm, options
+          let value = null
+          if (this.metric) {
+            switch (this.metric) {
+              case QUESTION_ENERGY_CONSUMED:
+              case QUESTION_WATER_CONSUMED:
+              case QUESTION_WASTE_GENERATED:
+                questionForm = MAP_QUESTION_FORM_TYPES[this.metric]
+                options = questionForm.options.map((o) => o.value)
+                value = faker.random.arrayElement(options)
+                break
+            }
+          }
+          return value
         },
         measured() {
-          return null
+          let questionForm, options
+          let value = null
+          if (this.metric) {
+            switch (this.metric) {
+              case QUESTION_COMMENT_TYPE:
+                value = faker.lorem.paragraph()
+                break
+              case QUESTION_ENERGY_CONSUMED:
+                value = faker.random.number()
+                break
+              case QUESTION_WATER_CONSUMED:
+                value = faker.random.number()
+                break
+              case QUESTION_WASTE_GENERATED:
+                value = faker.random.number()
+                break
+              case QUESTION_RANGE_TYPE:
+              case QUESTION_YES_NO_TYPE:
+                questionForm = MAP_QUESTION_FORM_TYPES[this.metric]
+                options = questionForm.options.map((o) => o.value)
+                value = faker.random.arrayElement(options)
+                break
+            }
+          }
+          return value
         },
         created_at() {
           return null
@@ -212,7 +251,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       scenarios.createOrgAssessmentOneAnswer(server, 'beta')
       scenarios.createOrgAssessmentPracticesIncomplete(server, 'gamma')
       scenarios.createOrgAssessmentPracticesComplete(server, 'delta')
-      scenarios.createOrgAssessmentFrozenIncomplete(server, 'epsilon')
+      scenarios.createOrgAssessmentFrozen(server, 'epsilon')
     },
 
     routes() {

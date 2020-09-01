@@ -178,8 +178,8 @@ const FormQuestionWasteGenerated = new FormQuestionQuantity({
 
 export const QUESTION_COMMENT_TYPE = 'freetext'
 export const QUESTION_ENERGY_CONSUMED = 'energy-consumed'
-const QUESTION_RANGE_TYPE = 'assessment'
-const QUESTION_YES_NO_TYPE = 'yes-no'
+export const QUESTION_RANGE_TYPE = 'assessment'
+export const QUESTION_YES_NO_TYPE = 'yes-no'
 export const QUESTION_WASTE_GENERATED = 'waste-generated'
 export const QUESTION_WATER_CONSUMED = 'water-consumed'
 
