@@ -443,27 +443,26 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
 
 
-class TargetsView(AssessmentView):
-    """
-    View that specifically filters the targets out of the assessment questions
-    """
-    breadcrumb_url = 'targets'
-
-
-class CompleteView(AssessmentView, TemplateView):
+class CompleteView(AssessmentView):
 
     template_name = 'envconnect/complete.html'
     breadcrumb_url = 'complete'
 
     def decorate_leafs(self, leafs):
-        for path, vals in six.iteritems(leafs):
-            queryset = Consumption.objects.filter(
-                enumeratedquestions__required=True,
-                enumeratedquestions__campaign=self.survey,
-                path=path).exclude(
+        # Only called once from `BreadcrumbMixin._build_tree` so it is OK
+        # to use the segment instead of each leaf path.
+        segment_url, segment_prefix, segment_element = self.segment
+        required_not_answered = Consumption.objects.filter(
+            enumeratedquestions__required=True,
+            enumeratedquestions__campaign=self.survey,
+            path__startswith=segment_prefix).exclude(
                 answer__sample=self.assessment_sample,
                 answer__metric_id=F('default_metric_id'))
-            consumption = queryset.first()
+        consumptions = {}
+        for consumption in required_not_answered:
+            consumptions[consumption.path] = consumption
+        for path, vals in six.iteritems(leafs):
+            consumption = consumptions.get(path, None)
             if consumption:
                 vals[0]['consumption'] \
                     = ConsumptionSerializer(context={
