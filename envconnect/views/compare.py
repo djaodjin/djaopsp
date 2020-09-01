@@ -202,6 +202,7 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
 
     def _writerecord(self, rec, categories, reporting_status, last_activity_at,
                      report_to=None):
+        #pylint:disable=too-many-arguments,too-many-locals
         if rec.get('requested_at'):
             normalized_score = "Requested"
             segment = "Requested"
@@ -301,7 +302,8 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
         contact_model = get_user_model()
         contact_name = ""
         try:
-            contact = contact_model.objects.get(email__iexact=self.account.email)
+            contact = contact_model.objects.get(
+                email__iexact=self.account.email)
             contact_name = contact.get_full_name()
         except contact_model.DoesNotExist as err:
             LOGGER.warning("member '%s', contact e-mail '%s' not found!",

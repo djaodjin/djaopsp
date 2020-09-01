@@ -1,15 +1,13 @@
 # Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
-import logging, re, json
-from collections import namedtuple
+import logging
 
-from deployutils.helpers import datetime_or_now
-from django.db import connection, connections
-from django.db.models import F
+from django.db import connections
+from django.db.models import Max
 from django.db.utils import DEFAULT_DB_ALIAS
 from pages.models import build_content_tree, PageElement
-from survey.models import Answer, Choice, Metric, Sample, Unit
+from survey.models import Choice, Unit
 from survey.utils import get_account_model
 
 from .compat import six
@@ -31,8 +29,8 @@ class ContentCut(object):
     def enter(self, tag):
         if tag and self.match:
             if isinstance(tag, dict):
-                return not (self.match in tag.get('tags', []))
-            return not (self.match in tag)
+                return self.match not in tag.get('tags', [])
+            return self.match not in tag
         return True
 
     def leave(self, attrs, subtrees):
@@ -74,35 +72,69 @@ def flatten(rollup_trees, depth=0):
     result = []
     for key, values in six.iteritems(rollup_trees):
         elem, nodes = values
-        path = None if nodes else elem.get('path', key)
+        extra = elem.get('extra', elem.get('tag', {}))
+        try:
+            tags = extra.get('tags', [])
+        except AttributeError:
+            tags = extra
+        path = None if 'pagebreak' not in tags else elem.get('path', key)
         result += [{'title': elem['title'], 'path': path, 'indent': depth}]
-        result += flatten(nodes, depth=depth + 1)
+        if 'pagebreak' not in tags:
+            result += flatten(nodes, depth=depth + 1)
     return result
 
 
-def get_segments():
+def get_segments(content_tree=None):
     """
     Returns a list of segment prefixes
     """
-    content_tree = build_content_tree(
-        roots=PageElement.objects.get_roots().filter(tag__contains='industry'),
-        prefix='/', cut=ContentCut())
+    if not content_tree:
+        content_tree = build_content_tree(
+            roots=PageElement.objects.get_roots().filter(
+                tag__contains='industry'),
+            prefix='/', cut=ContentCut())
     segments = flatten(content_tree)
     return segments
 
 
-def get_segments_from_samples(sample_ids):
+def get_segments_from_samples(samples, content_tree=None):
     """
     Returns segments which contain at least one answer
     for samples in `sample_ids`.
+
+    The returned dictionary has the following schema:
+
+    .. code-block::
+
+        {
+          *sample-id*: ["segment-path", *latest_activity_at*), ...],
+          ...
+        }
+
+    For example:
+
+    .. code-block::
+
+        get_segments_from_samples([1])
+
+        {
+          1: [("/construction", ), "/metal/boxes-and-enclosures"]
+        }
+
     """
-    results = []
-    for segment in get_segments():
-        if segment['path'] and Consumption.objects.filter(
-            path__startswith=segment['path'],
-            answer__question=F('id'),
-            answer__sample__in=sample_ids).exists():
-            results += [segment]
+    try:
+        results = {sample.pk: [] for sample in samples}
+    except AttributeError:
+        results = {sample: [] for sample in samples}
+    for segment in get_segments(content_tree=content_tree):
+        if segment['path']:
+            for sample in Consumption.objects.filter(
+                    path__startswith=segment['path'],
+                    answer__sample__in=samples).values(
+                    'answer__sample_id').annotate(
+                        last_activity_at=Max('answer__created_at')):
+                results[sample['answer__sample_id']] += [
+                    (segment, sample['last_activity_at'])]
     return results
 
 

@@ -75,6 +75,7 @@ class ConsumptionListAPIView(BreadcrumbMixin, generics.ListCreateAPIView):
                 "measured": 12
             }
         """
+        #pylint:disable=useless-super-delegation
         return super(ConsumptionListAPIView, self).post(
             request, *args, **kwargs)
 
@@ -161,6 +162,7 @@ energy-efficiency/air-flow/ HTTP/1.1
                 "avg_value": 2
             }
         """
+        #pylint:disable=useless-super-delegation
         return super(ConsumptionDetailAPIView, self).put(
             request, *args, **kwargs)
 
@@ -178,6 +180,7 @@ energy-efficiency/air-flow/ HTTP/1.1
 energy-efficiency/air-flow/ HTTP/1.1
 
         """
+        #pylint:disable=useless-super-delegation
         return super(ConsumptionDetailAPIView, self).delete(
             request, *args, **kwargs)
 

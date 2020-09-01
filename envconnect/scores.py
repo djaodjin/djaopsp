@@ -11,15 +11,12 @@ from collections import namedtuple
 
 from deployutils.helpers import datetime_or_now
 from django.conf import settings
-from django.db import connection, connections
-from django.db.models import F
-from django.db.utils import DEFAULT_DB_ALIAS
+from django.db import connection
 from django.utils import six
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import utc
 from django.utils.module_loading import import_string
 from survey.models import Answer, Metric, Sample
-from survey.utils import get_account_model
 
 from .models import Consumption, get_scored_answers as _get_scored_answers
 
@@ -33,6 +30,7 @@ class ScoreCalculator(object):
     """
     def get_scored_answers(self, campaign, assessment_metric_id,
                            prefix=None, includes=None, excludes=None):
+        #pylint:disable=too-many-arguments
         with connection.cursor() as cursor:
             scored_answers = _get_scored_answers(
                 Consumption.objects.get_active_by_accounts(
@@ -106,7 +104,7 @@ def _normalize(scores, normalize_to_one=False, force_score=False):
 
 def freeze_scores(sample, includes=None, excludes=None,
                   collected_by=None, created_at=None, segment_path=None):
-    #pylint:disable=too-many-locals
+    #pylint:disable=too-many-arguments,disable=too-many-locals
     # This function must be executed in a `transaction.atomic` block.
     LOGGER.info("freeze scores for %s based of sample %s",
         sample.account, sample.slug)

@@ -2,16 +2,15 @@
 # see LICENSE.
 
 #pylint:disable=too-many-lines
-import logging, json
+import logging
 from collections import OrderedDict, namedtuple
 from datetime import datetime, timedelta
 
 import monotonic
-from deployutils.crypt import JSONEncoder
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db import connection, connections, transaction
-from django.db.models import Max, Q, Sum
+from django.db.models import F, Q, Max, Sum
 from django.http import Http404
 from django.utils import six
 from deployutils.apps.django import mixins as deployutils_mixins
@@ -28,7 +27,8 @@ from .helpers import (ContentCut, as_measured_value, is_sqlite3,
     get_testing_accounts)
 from .models import (Consumption, get_score_weight, _show_query_and_result,
     get_scored_answers)
-from .scores import populate_account, populate_rollup, push_improvement_factors
+from .scores import (populate_account as populate_account_base,
+    populate_rollup, push_improvement_factors)
 from .serializers import ConsumptionSerializer
 
 
@@ -418,8 +418,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         except TypeError:
             if root:
                 roots = [root]
-        content_tree = self.build_content_tree(
-            roots, prefix=prefix, cut=cut, load_text=load_text)
         rollup_trees = self._cut_tree(self.build_content_tree(
             roots, prefix=prefix, cut=cut, load_text=load_text), cut=cut)
         if len(rollup_trees.values()) == 1:
@@ -561,6 +559,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         return from_root, results
 
     def get_context_data(self, **kwargs):
+        #pylint:disable=too-many-locals,too-many-statements
         context = super(BreadcrumbMixin, self).get_context_data(**kwargs)
         from_root, trail = self.breadcrumbs
         parts = from_root.split('/')
@@ -782,6 +781,28 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                     account=self.account).order_by('-created_at').first()
         return self._improvement_sample
 
+    @property
+    def nb_required_answers(self):
+        if not hasattr(self, '_nb_required_answers'):
+            segment_url, segment_prefix, segment_element = self.segment
+            self._nb_required_answers = Answer.objects.filter(
+                sample=self.sample,
+                question__default_metric=F('metric_id'),
+                question__path__startswith=segment_prefix,
+                question__enumeratedquestions__required=True,
+                question__enumeratedquestions__campaign=self.survey).count()
+        return self._nb_required_answers
+
+    @property
+    def nb_required_questions(self):
+        if not hasattr(self, '_nb_required_questions'):
+            segment_url, segment_prefix, segment_element = self.segment
+            self._nb_required_questions = Consumption.objects.filter(
+                path__startswith=segment_prefix,
+                enumeratedquestions__required=True,
+                enumeratedquestions__campaign=self.survey).count()
+        return self._nb_required_questions
+
     def get_or_create_assessment_sample(self):
         # We create the sample if it does not exists.
         with transaction.atomic():
@@ -797,7 +818,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
 
     @staticmethod
     def populate_leaf(attrs, answers,
-                      populate_account=populate_account,
+                      populate_account=populate_account_base,
                       agg_key='account_id', force_score=False):
         """
         Populate `attrs['accounts']` with aggregates of `answers`.

@@ -14,7 +14,7 @@ from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now
 from django.conf import settings
 from django.db import connection
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Max
 from django.utils import six
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import utc
@@ -22,7 +22,7 @@ from pages.mixins import TrailMixin
 from pages.models import PageElement
 from rest_framework import generics
 from rest_framework.response import Response as HttpResponse
-from survey.models import  Answer, Campaign, Choice, Metric, Sample, Unit
+from survey.models import  Answer, Choice, Metric, Sample, Unit
 
 from .best_practices import ToggleTagContentAPIView
 from ..compat import reverse
@@ -191,12 +191,11 @@ class PracticeBenchmarkMixin(ReportMixin):
                         answer.pk = None
                         answer.question = Consumption.objects.get(path=path)
                         answer.save()
-                        if True:
-                            if not hasattr(consumption, 'measures'):
-                                consumption = AssessmentAnswer(
-                                    consumption=consumption, measures=[])
-                            consumption.answer_id = answer.pk
-                            consumption.implemented = as_measured_value(answer)
+                        if not hasattr(consumption, 'measures'):
+                            consumption = AssessmentAnswer(
+                                consumption=consumption, measures=[])
+                        consumption.answer_id = answer.pk
+                        consumption.implemented = as_measured_value(answer)
                 avg_value = consumption.avg_value
                 opportunity = consumption.opportunity
                 nb_respondents = consumption.nb_respondents
@@ -521,6 +520,7 @@ class BenchmarkMixin(ReportMixin):
         `force_score` makes sure that we compute an aggregated score when
         a question was added after the sample was frozen.
         """
+        #pylint:disable=too-many-locals,too-many-statements
         self._start_time()
         self._report_queries("at rollup_scores entry point")
         rollup_tree = None
@@ -554,26 +554,17 @@ class BenchmarkMixin(ReportMixin):
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
 
+        # `population` is the most recent (not-frozen) assessment
+        # indexed by account.
         population = list(Consumption.objects.get_active_by_accounts(
             self.survey, excludes=self._get_filter_out_testing()))
 
-        includes = list(
-            Consumption.objects.get_latest_samples_by_accounts(self.survey))
-        framework_metric_id = Metric.objects.get(slug='framework').pk
-        framework_includes = list(
-            Consumption.objects.get_latest_samples_by_accounts(
-                Campaign.objects.get(slug='framework')))
+        # All latest samples per account
+        includes = list(Consumption.objects.get_latest_samples_by_accounts(
+            before=self.ends_at))
 
         for prefix, values_tuple in six.iteritems(leafs):
             metric_id = self.default_metric_id
-            if prefix.startswith('/framework/'):
-                metric_id = framework_metric_id
-                accounts = {}
-                for sample in framework_includes:
-                    accounts.update({sample.account_id: {'nb_questions': 1}})
-                if not 'accounts' in values_tuple[0]:
-                    values_tuple[0]['accounts'] = {}
-                values_tuple[0]['accounts'].update(accounts)
 
             # 1. Populate scores
             self.populate_leaf(values_tuple[0],
@@ -581,6 +572,8 @@ class BenchmarkMixin(ReportMixin):
                 # the frozen scores. `population`, `metric_id`, `includes`
                 # and `questions` are not used in
                 # DashboardMixin._get_scored_answers
+                # calls get_frozen_scored_answers in dashboard which uses
+                # metric_id=2
                 self._get_scored_answers(population, metric_id,
                     includes=includes, prefix=prefix), force_score=force_score)
 
@@ -598,8 +591,34 @@ class BenchmarkMixin(ReportMixin):
 
         self._report_queries("leafs populated")
 
-
         populate_rollup(rollup_tree, True, force_score=force_score)
+
+        # All latest per-segment samples per account. Some segment do not
+        # result in a score, and some assessment might not be complete yet.
+        # In both cases, `populate_rollup` will not had a chance to insert
+        # these samples.
+        includes_per_ids = {sample.pk: sample for sample in includes}
+        for path, node in six.iteritems(rollup_tree[1]):
+            for record in Consumption.objects.filter(
+                    path__startswith=path,
+                    answer__sample__in=includes).values(
+                    'answer__sample_id').annotate(
+                    last_activity_at=Max('answer__created_at')):
+                sample_id = record['answer__sample_id']
+                last_activity_at = record['last_activity_at']
+                sample = includes_per_ids[sample_id]
+                if 'accounts' not in node[0]:
+                    node[0]['accounts'] = {}
+                scores = node[0]['accounts']
+                if sample.account_id not in scores:
+                    scores[sample.account_id] = {}
+                score = scores[sample.account_id]
+                if 'created_at' not in score:
+                    # If we already have an aggregated result, we keep it.
+                    score.update({
+                        'sample': str(sample),
+                        'created_at': last_activity_at
+                    })
         self._report_queries("rollup_tree populated")
 
         # Adds if the supplier is reporting publicly or not.
@@ -666,7 +685,9 @@ class BenchmarkMixin(ReportMixin):
           (survey_question.path LIKE '%%/environmental-fines')
         """ % {
             'latest_assessments': latest_assessments,
-            'yes': "(SELECT id FROM survey_choice WHERE unit_id=(SELECT id FROM survey_unit WHERE slug='yes-no') AND text = 'Yes')",
+            'yes': "(SELECT id FROM survey_choice"\
+" WHERE unit_id=(SELECT id FROM survey_unit WHERE slug='yes-no')"\
+" AND text = 'Yes')",
             'accounts': self.requested_accounts_pk_as_sql
         }
                 _show_query_and_result(reporting_fines_sql)
@@ -1347,11 +1368,13 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
         results.sort(key=lambda sample: sample['created_at'], reverse=True)
         resp_data = {"results": results}
         if self.assessment_sample:
+            active_assessment = get_segments_from_samples(
+                [self.assessment_sample.id])[self.assessment_sample.id]
+            segments = [segment[0] for segment in active_assessment]
             resp_data.update({
                 "latest": {
                     "assessment": str(self.assessment_sample),
-                    "segments": get_segments_from_samples(
-                        [self.assessment_sample.id])
+                    "segments": segments
                 }
             })
         return HttpResponse(resp_data)

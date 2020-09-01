@@ -5,13 +5,12 @@ import logging
 from collections import namedtuple
 
 from django.db import connection, transaction
-from rest_framework import response as http
-from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
+from rest_framework import response as http, status as http_status
+from rest_framework.exceptions import ValidationError
 from survey.api.sample import (AnswerAPIView, SampleAPIView,
     SampleAnswersAPIView, SampleResetAPIView)
 from survey.api.serializers import AnswerSerializer
 from survey.models import Answer, EnumeratedQuestions
-from survey.utils import get_question_model
 
 from ..mixins import ExcludeDemoSample, ReportMixin
 from ..models import Consumption, get_scored_answers
@@ -52,8 +51,8 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
         return super(AssessmentAnswerAPIView, self).get_queryset().filter(
             metric=self.question.default_metric)
 
-    def get_http_response(self, serializer,
-                     status=HTTP_200_OK, headers=None, first_answer=False):
+    def get_http_response(self, serializer, status=http_status.HTTP_200_OK,
+                          headers=None, first_answer=False):
         #pylint:disable=protected-access,arguments-differ
         scored_answers = get_scored_answers(
             Consumption.objects.get_active_by_accounts(
@@ -132,8 +131,14 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
         serializer = self.get_serializer(instance,
             data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
+
+        if self.nb_required_answers < self.nb_required_questions:
+            raise ValidationError({'detail':
+                "You have only answered %d of the %d required practices." % (
+                self.nb_required_answers, self.nb_required_questions)})
+
         with transaction.atomic():
-            freeze_scores(self.sample,
+            score_sample = freeze_scores(self.sample,
                 includes=self.get_included_samples(),
                 excludes=self._get_filter_out_testing(),
                 collected_by=self.request.user,
@@ -142,9 +147,12 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
                 freeze_scores(self.improvement_sample,
                     includes=self.get_included_samples(), # XXX overriden!
                     excludes=self._get_filter_out_testing(),
-                    collected_by=self.request.user)
+                    collected_by=self.request.user,
+                    segment_path=self.kwargs.get('path'))
 
-        return http.Response(serializer.data)
+        serializer = self.get_serializer(instance=score_sample)
+        return http.Response(
+            serializer.data, status=http_status.HTTP_201_CREATED)
 
 
 class AssessmentFreezeAPIView(AssessmentAPIView):
@@ -153,29 +161,68 @@ class AssessmentFreezeAPIView(AssessmentAPIView):
 
 class AssessmentAnswersAPIView(ReportMixin, SampleAnswersAPIView):
     """
-    Retrieves measurements or comment to an answer
+    Retrieves answers from a sample
 
     **Tags**: survey
 
-    **Examples
+    **Examples**
 
     .. code-block:: http
 
-        GET /api/energy-utility/sample/724bf9648af6420ba79c8a37f962e97e/\
-3/measures/ HTTP/1.1
-
-    .. code-block:: json
-
-        {}
+         GET /api/supplier-1/sample/46f66f70f5ad41b29c4df08f683a9a7a/answers\
+ HTTP/1.1
 
     responds
 
     .. code-block:: json
 
-        {}
+    {
+        "count": 4,
+        "results": [
+            {
+                "question": {
+                    "path": "the-assessment-process-is-rigorous",
+                    "default_metric": "weight",
+                    "title": "The assessment process is rigorous"
+                },
+                "metric": "weight",
+                "measured": "1",
+                "unit": "kilograms"
+            },
+            {
+                "question": {
+                    "path": "a-policy-is-in-place",
+                    "default_metric": "weight",
+                    "title": "A policy is in place"
+                },
+                "metric": "weight",
+                "measured": "2"
+                "unit": "kilograms"
+            },
+            {
+                "question": {
+                    "path": "product-design",
+                    "default_metric": "weight",
+                    "title": "Product design"
+                },
+                "metric": "weight",
+                "measured": "2"
+                "unit": "kilograms"
+            },
+            {
+                "question": {
+                    "path": "packaging-design",
+                    "default_metric": "weight",
+                    "title": "Packaging design"
+                },
+                "metric": "weight",
+                "measured": "3"
+                "unit": "kilograms"
+            }
+        ]
+    }
     """
     account_url_kwarg = 'interviewee'
-#    serializer_class = AnswerUpdateSerializer
 
     def post(self, request, *args, **kwargs):
         """
@@ -200,20 +247,20 @@ class AssessmentAnswersAPIView(ReportMixin, SampleAnswersAPIView):
 
             {}
         """
+        #pylint:disable=useless-super-delegation
         return super(AssessmentAnswersAPIView, self).post(
             request, *args, **kwargs)
 
     def get_http_response(self, results,
-                     status=HTTP_200_OK, headers=None, first_answer=False):
-
+            status=http_status.HTTP_200_OK, headers=None, first_answer=False):
+        #pylint:disable=too-many-locals
         result = None
         for answer in results:
             if answer.metric_id == answer.question.default_metric_id:
                 result = answer
                 break
-        default_metric_id = answer.question.default_metric_id
-        question_pk = answer.question.pk
-        questions_pk = (question_pk,)
+        default_metric_id = result.question.default_metric_id
+        questions_pk = (result.question.pk,)
 
         #pylint:disable=protected-access,arguments-differ
         planned = None
@@ -273,7 +320,8 @@ class AssessmentResetAPIView(ReportMixin, SampleResetAPIView):
 
         .. code-block:: http
 
-            POST /api/supplier-1/sample/0123456789abcdef/reset/water-use/ HTTP/1.1
+            POST /api/supplier-1/sample/0123456789abcdef/reset/water-use/\
+ HTTP/1.1
         """
         return self.destroy(request, *args, **kwargs)
 
@@ -292,7 +340,7 @@ class AssessmentResetAPIView(ReportMixin, SampleResetAPIView):
                 nb_answers = Answer.objects.filter(sample=self.sample,
                     question__path__startswith=segment).count()
                 data = {'nb_answers': nb_answers, 'nb_questions': nb_questions}
-                return http.Response(data, status=HTTP_200_OK)
-            return http.Response(data, status=HTTP_204_NO_CONTENT)
+                return http.Response(data, status=http_status.HTTP_200_OK)
+            return http.Response(data, status=http_status.HTTP_204_NO_CONTENT)
         return super(AssessmentResetAPIView, self).destroy(
             request, *args, **kwargs)

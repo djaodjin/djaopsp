@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 
 import logging, json
 
+from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
@@ -21,6 +23,7 @@ LOGGER = logging.getLogger(__name__)
 class ShareView(ReportMixin, TemplateView):
 
     template_name = 'envconnect/share/index.html'
+    breadcrumb_url = 'share'
 
     def get_context_data(self, **kwargs):
         context = super(ShareView, self).get_context_data(**kwargs)
@@ -41,4 +44,17 @@ class ShareView(ReportMixin, TemplateView):
             'api_viewers': site_prefixed(
                 "/api/profile/%s/roles/viewers/" % self.account),
         })
+        breadcrumbs = context.get('breadcrumbs', [])
+        if breadcrumbs:
+            context.update({'segment_title': breadcrumbs[0][0].title})
+        context.update({'sample': self.sample})
         return context
+
+    def get(self, request, *args, **kwargs):
+        if not self.sample.is_frozen:
+            messages.warning(self.request,
+                "You must mark an assessment as complete before"\
+                " you share it with customers, clients and/or investors.")
+            return HttpResponseRedirect(reverse('complete_organization',
+                args=(self.account, self.sample, self.kwargs.get('path'))))
+        return super(ShareView, self).get(request, *args, **kwargs)

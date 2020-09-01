@@ -388,6 +388,7 @@ energy-efficiency/air-flow/ HTTP/1.1
             }
 
         """
+        #pylint:disable=useless-super-delegation
         return super(BestPracticeAPIView, self).put(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):

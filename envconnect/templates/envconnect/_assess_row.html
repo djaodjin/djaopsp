@@ -115,10 +115,10 @@
             ng-model="getMeasures(getPath(practice[0])).water_consumed.unit"
             ng-focus="setActiveElement(practice[0])"
             ng-blur="submitMeasures(getPath(practice[0]), $event)">
-        <option value="m3-year">Cubic meters (m<sup>3</sup>) / Year</value>
-        <option value="kiloliters-year">Kilo liters / Year</value>
-        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>) / Year</value>
-        <option value="gallons-year">US Gallon / Year</value>
+        <option value="m3-year">Cubic meters (m<sup>3</sup>) / Year</option>
+        <option value="kiloliters-year">Kilo liters / Year</option>
+        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>) / Year</option>
+        <option value="gallons-year">US Gallon / Year</option>
     </select>
 </td>
 {# end of water #}
@@ -141,12 +141,12 @@
             ng-model="getMeasures(getPath(practice[0])).waste_generated.unit"
             ng-focus="setActiveElement(practice[0])"
             ng-blur="submitMeasures(getPath(practice[0]), $event)">
-        <option value="tons-year">Metric tons / year</value>
-        <option value="lbs-year">Pounds / year</value>
-        <option value="m3-year">Cubic meters (m<sup>3</sup>) / Year</value>
-        <option value="kiloliters-year">Kilo liters / Year</value>
-        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>) / Year</value>
-        <option value="gallons-year">US Gallon / Year</value>
+        <option value="tons-year">Metric tons / year</option>
+        <option value="lbs-year">Pounds / year</option>
+        <option value="m3-year">Cubic meters (m<sup>3</sup>) / Year</option>
+        <option value="kiloliters-year">Kilo liters / Year</option>
+        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>) / Year</option>
+        <option value="gallons-year">US Gallon / Year</option>
     </select>
 </td>
 {# end of waste #}
@@ -160,11 +160,11 @@
             ng-focus="setActiveElement(practice[0])"
             ng-blur="submitMeasures(getPath(practice[0]), $event)">
         <option value="">Select relevance ...</option>
-        <option value="relevant-and-calculated">Relevant, calculated</value>
-        <option value="relevant-not-yet-calculated">Relevant, not yet calculated</value>
-        <option value="not-relevant-calculated">Not relevant, calculated</value>
-        <option value="not-relevant-explanation-provided">Not relevant, explanation provided</value>
-        <option value="not-evaluated">Not evaluated</value>
+        <option value="relevant-and-calculated">Relevant, calculated</option>
+        <option value="relevant-not-yet-calculated">Relevant, not yet calculated</option>
+        <option value="not-relevant-calculated">Not relevant, calculated</option>
+        <option value="not-relevant-explanation-provided">Not relevant, explanation provided</option>
+        <option value="not-evaluated">Not evaluated</option>
     </select>
 </td>
 <td class="text-center" colspan="{{choices|length|add:'-2'}}"
@@ -194,7 +194,7 @@
             ng-model="getMeasures(getPath(practice[0])).ghg_emissions_generated.unit"
             ng-focus="setActiveElement(practice[0])"
             ng-blur="updateAssessmentAnswer(practice[0], getMeasures(getPath(practice[0])).ghg_emissions_generated.measured)">
-        <option value="tons-year">Metric Tons CO2/Year</value>
+        <option value="tons-year">Metric Tons CO2/Year</<option>
     </select>
 </td>
 {# end of scope ghg_emissions_generated #}

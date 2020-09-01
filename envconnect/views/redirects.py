@@ -13,7 +13,7 @@ from django.views.generic.base import (RedirectView,
 from pages.models import PageElement
 from survey.models import Matrix
 
-from ..compat import reverse, NoReverseMatch
+from ..compat import reverse
 from ..mixins import ReportMixin
 from ..models import Consumption
 
@@ -68,6 +68,7 @@ class LastCompletedRedirectView(ReportMixin, TemplateResponseMixin,
         return self.assessment_sample
 
     def get(self, request, *args, **kwargs):
+        #pylint:disable=too-many-locals
         candidates = []
         organization = kwargs.get('organization')
         if self.sample:

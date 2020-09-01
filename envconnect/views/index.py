@@ -5,11 +5,10 @@ import logging
 
 from deployutils.helpers import update_context_urls
 from django.views.generic import TemplateView
-from django.utils import six
 
 from ..compat import reverse
 from ..helpers import get_testing_accounts
-from ..mixins import AccountMixin, BreadcrumbMixin, ContentCut
+from ..mixins import AccountMixin, BreadcrumbMixin
 
 
 LOGGER = logging.getLogger(__name__)

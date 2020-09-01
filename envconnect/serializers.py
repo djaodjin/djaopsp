@@ -1,13 +1,12 @@
 # Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
-#pylint: no-init
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from pages.models import PageElement
 from pages.serializers import PageElementSerializer as BasePageElementSerializer
 from survey.models import Answer, EnumeratedQuestions, Metric, Unit
-from survey.api.serializers import AnswerSerializer, QuestionSerializer
+from survey.api.serializers import AnswerSerializer
 
 from .models import ColumnHeader, Consumption
 
@@ -119,7 +118,7 @@ class PracticeBenchmarkSerializer(NoModelSerializer):
         return None
 
 
-#QuestionSerializer
+#ConsumptionSerializer is kind of a QuestionSerializer
 class ConsumptionSerializer(serializers.ModelSerializer):
 
     path = serializers.CharField(required=False)
@@ -237,7 +236,7 @@ class AccountSerializer(NoModelSerializer):
         help_text=_("segment that was answered"))
     score_url = serializers.CharField(
         help_text=_("link to the scorecard"))
-    normalized_score = serializers.IntegerField(
+    normalized_score = serializers.IntegerField(required=False,
         help_text=_("score"))
     nb_na_answers = serializers.IntegerField(
         help_text=_("number of answers marked N/A"))

@@ -1451,6 +1451,24 @@ envconnectControllers.controller("EnvconnectCtrl",
                 if( typeof next !== 'undefined' ) {
                     msgs.push(next);
                 }
+                /* Update stepper links to frozen sample
+                var submenus = [
+                    '#submenu-sustainability',
+                    '#submenu-self-assessment',
+                    '#submenu-improve',
+                    '#submenu-targets',
+                    '#submenu-complete',
+                    '#submenu-scorecard',
+                    '#submenu-share'
+                ];
+                for( var idx = 0; idx < submenus.length; ++idx ) {
+                    var submenu = angular.element(submenus[idx]);
+                    var href = angular.element(submenus[idx]).attr('href');
+                    if( href ) {
+                        submenu.attr('href', href.replace(/\/[a-z0-9]+\/content\//gi, '/' + resp.data.slug + '/content/'));
+                    }
+                }
+                */
                 showMessages(msgs, "info");
             },
             function error(resp) {
