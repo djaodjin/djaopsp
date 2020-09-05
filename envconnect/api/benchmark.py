@@ -617,7 +617,7 @@ class BenchmarkMixin(ReportMixin):
                     # If we already have an aggregated result, we keep it.
                     score.update({
                         'sample': str(sample),
-                        'created_at': last_activity_at
+                        'created_at': max(last_activity_at, sample.created_at)
                     })
         self._report_queries("rollup_tree populated")
 
