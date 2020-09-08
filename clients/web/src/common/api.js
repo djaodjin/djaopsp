@@ -1,4 +1,5 @@
 import groupBy from 'lodash/groupBy'
+import kebabCase from 'lodash/kebabCase'
 
 import Answer from './Answer'
 import Assessment from './Assessment'
@@ -327,11 +328,16 @@ function getQuestionInstances(contentList) {
   for (let i = 1; i < len; i++) {
     const node = contentList[i]
     if (node.indent === 1) {
-      section = new Section({ name: node.title, iconPath: node.picture })
+      section = new Section({
+        id: kebabCase(node.title),
+        name: node.title,
+        iconPath: node.picture,
+      })
       subcategory = null
     } else if (node.path && !node.path.includes('/targets/')) {
       // Do not include target questions; they will be processed separately
       const question = new Question({
+        id: kebabCase(node.path),
         path: node.path,
         section,
         subcategory: !subcategory ? section : subcategory,
@@ -341,7 +347,10 @@ function getQuestionInstances(contentList) {
     } else {
       // Override subcategory.
       // In the end, what matters is the parent of the question
-      subcategory = new Subcategory({ name: node.title })
+      subcategory = new Subcategory({
+        id: `${kebabCase(section.name)}-${kebabCase(node.title)}`,
+        name: node.title,
+      })
     }
   }
   return questions

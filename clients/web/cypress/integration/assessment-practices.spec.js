@@ -9,6 +9,7 @@ import { STEP_PRACTICE_KEY } from '../../src/config/app'
 const ORG_SLUG = 'test_org'
 const ORG_NAME = 'Test Organization'
 const ASSESSMENT_HOME_URL = `/${ORG_SLUG}/assess/1/`
+const ASSESSMENT_PRACTICES_URL = `${ASSESSMENT_HOME_URL}content/metal/boxes-and-enclosures/`
 
 describe('Supplier App: Assessment Practices', () => {
   let server
@@ -70,7 +71,7 @@ describe('Supplier App: Assessment Practices', () => {
     server.loadFixtures('industries', 'questions')
     createOrgAssessmentPreviousAnswers(server, ORG_SLUG, ORG_NAME)
 
-    cy.visit(`${ASSESSMENT_HOME_URL}content/metal/boxes-and-enclosures/`)
+    cy.visit(ASSESSMENT_PRACTICES_URL)
     cy.get('.v-dialog--persistent').within(($dialog) => {
       cy.wrap($dialog).should('be.visible')
       cy.get('.headline').contains('Previous Answers')
@@ -83,61 +84,42 @@ describe('Supplier App: Assessment Practices', () => {
     server.loadFixtures('industries', 'questions')
     createOrgAssessmentPreviousAnswers(server, ORG_SLUG, ORG_NAME)
 
-    cy.visit(`${ASSESSMENT_HOME_URL}content/metal/boxes-and-enclosures/`)
-
-    // Close previous assessments dialog
-    cy.get('.v-dialog--persistent button').click()
-
-    // Subcategory 1
-    cy.get('[data-cy=assessment-section]:nth-of-type(1)')
-      .find('.v-list-item:nth-of-type(1)')
-      .click()
+    cy.visit(
+      `${ASSESSMENT_PRACTICES_URL}?section=governance-management&subcategory=governance-management-assessment`
+    )
     cy.get('[data-cy=previous-answers-column]').contains('Previous Answers')
     cy.get('[data-cy=previous-answer]').each(($prevAnswer) => {
       cy.wrap($prevAnswer).should('not.be.empty')
     })
-    cy.get('[data-cy=back-link]').click()
 
-    // Subcategory 2
-    cy.get('[data-cy=assessment-section]:nth-of-type(1)')
-      .find('.v-list-item:nth-of-type(2)')
-      .click()
+    cy.visit(
+      `${ASSESSMENT_PRACTICES_URL}?section=governance-management&subcategory=governance-management-general`
+    )
     cy.get('[data-cy=previous-answers-column]').contains('Previous Answers')
     cy.get('[data-cy=previous-answer]').each(($prevAnswer) => {
       cy.wrap($prevAnswer).should('not.be.empty')
     })
-    cy.get('[data-cy=back-link]').click()
 
-    // Subcategory 3
-    cy.get('[data-cy=assessment-section]:nth-of-type(2)')
-      .find('.v-list-item:nth-of-type(1)')
-      .click()
+    cy.visit(`${ASSESSMENT_PRACTICES_URL}?section=design&subcategory=design`)
     cy.get('[data-cy=previous-answers-column]').contains('Previous Answers')
     cy.get('[data-cy=previous-answer]').each(($prevAnswer) => {
       cy.wrap($prevAnswer).should('not.be.empty')
     })
-    cy.get('[data-cy=back-link]').click()
 
-    // Subcategory 4
-    cy.get('[data-cy=assessment-section]:nth-of-type(3)')
-      .find('.v-list-item:nth-of-type(1)')
-      .click()
+    cy.visit(
+      `${ASSESSMENT_PRACTICES_URL}?section=production&subcategory=production-combustion`
+    )
     cy.get('[data-cy=previous-answers-column]').contains('Previous Answers')
     cy.get('[data-cy=previous-answer]').each(($prevAnswer) => {
       cy.wrap($prevAnswer).should('not.be.empty')
     })
-    cy.get('[data-cy=back-link]').click()
 
-    // Subcategory 5
-    cy.get('[data-cy=assessment-section]:nth-of-type(3)')
-      .find('.v-list-item:nth-of-type(2)')
-      .click()
+    cy.visit(
+      `${ASSESSMENT_PRACTICES_URL}?section=production&subcategory=production-hot-water-system`
+    )
     cy.get('[data-cy=previous-answers-column]').contains('Previous Answers')
     cy.get('[data-cy=previous-answer]').each(($prevAnswer) => {
       cy.wrap($prevAnswer).should('not.be.empty')
     })
-    cy.get('[data-cy=back-link]').click()
-
-    cy.contains('1 / 8 questions')
   })
 })
