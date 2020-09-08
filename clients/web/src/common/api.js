@@ -104,9 +104,9 @@ async function getCurrentPracticesContent(
 ) {
   try {
     const responses = await Promise.all([
-      request(`/content${industryPath}/`),
+      request(`/content${industryPath}`),
       request(
-        `/${organizationId}/sample/${assessmentId}/answers${industryPath}/`
+        `/${organizationId}/sample/${assessmentId}/answers${industryPath}`
       ),
     ])
     const error = responses.find((response) => !response.ok)
@@ -158,6 +158,39 @@ export async function getIndustrySegments() {
   if (!response.ok) throw new APIError(response.status)
   const { results } = await response.json()
   return results
+}
+
+export async function getPreviousAnswers(organizationId, assessment) {
+  try {
+    let previousAnswers = []
+    const response = await request(
+      `/${organizationId}/benchmark/historical${assessment.industryPath}`
+    )
+    if (!response.ok) throw new APIError(response.status)
+    const { results } = await response.json()
+
+    if (results.length) {
+      const path = results[0].values[0][2]
+      // For example: /app/eta/assess/10/sample/metal/boxes-and-enclosures/
+      const str = path.split('/sample/')[0]
+      if (str) {
+        const previousAssessmentId = str.substr(str.lastIndexOf('/') + 1)
+        const response = await request(
+          `/${organizationId}/sample/${previousAssessmentId}/answers${assessment.industryPath}`
+        )
+        if (!response.ok) throw new APIError(response.status)
+        const { results: answerList } = await response.json()
+        const answersByPath = getFlatAnswersByPath(answerList)
+        previousAnswers = getAnswerInstances(
+          answersByPath,
+          assessment.questions
+        )
+      }
+    }
+    return previousAnswers
+  } catch (e) {
+    throw new APIError(e)
+  }
 }
 
 export async function getPreviousIndustrySegments(organizationId) {
@@ -277,6 +310,7 @@ function getAnswerInstances(answersByPath, questions) {
     return new Answer({
       question: question.id,
       author: answer.collected_by,
+      created: answer.created_at,
       answers: answerValues,
       answered: !MAP_QUESTION_FORM_TYPES[answer.default_metric].isEmpty(
         answerValues

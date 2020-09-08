@@ -5,6 +5,7 @@ import createOrgAssessmentOneAnswer from './org_assessment_one_answer'
 import createOrgAssessmentPracticesIncomplete from './org_assessment_practices_incomplete'
 import createOrgAssessmentPracticesComplete from './org_assessment_practices_complete'
 import createOrgAssessmentFrozen from './org_assessment_frozen'
+import createOrgAssessmentPreviousAnswers from './org_assessment_previous_answers'
 
 export default {
   createOrgEmpty,
@@ -14,4 +15,5 @@ export default {
   createOrgAssessmentPracticesIncomplete,
   createOrgAssessmentPracticesComplete,
   createOrgAssessmentFrozen,
+  createOrgAssessmentPreviousAnswers,
 }

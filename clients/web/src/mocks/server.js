@@ -259,6 +259,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       scenarios.createOrgAssessmentPracticesComplete(server, 'delta')
       scenarios.createOrgAssessmentFrozen(server, 'epsilon')
       scenarios.createOrgAssessmentEmptyMultiple(server, 'zeta')
+      scenarios.createOrgAssessmentPreviousAnswers(server, 'eta')
     },
 
     routes() {

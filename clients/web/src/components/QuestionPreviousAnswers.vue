@@ -4,7 +4,7 @@
     <b>{{ answerText }}</b>
     <p class="text-caption mt-1 mb-0">
       Submitted by {{ previousAnswer.author }} on
-      <span v-format-date>{{ previousAnswer.frozen }}</span> in previous
+      <span v-format-date>{{ previousAnswer.created }}</span> in previous
       sustainability assessment.
     </p>
   </v-card>

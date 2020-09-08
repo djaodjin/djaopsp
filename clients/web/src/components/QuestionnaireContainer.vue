@@ -37,7 +37,7 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 export default {
   name: 'QuestionnaireContainer',
 
-  props: ['questionId', 'questions', 'answers'],
+  props: ['questionId', 'questions', 'answers', 'previousAnswers'],
 
   computed: {
     currentQuestionIdx() {
@@ -47,15 +47,10 @@ export default {
       return this.questions[this.currentQuestionIdx]
     },
     currentAnswer() {
-      return this.answers.find(
-        (a) => a.question === this.questionId && !a.frozen
-      )
+      return this.answers.find((a) => a.question === this.questionId)
     },
     previousAnswer() {
-      // Get the first previous answer found; there may be more
-      return this.answers.find(
-        (a) => a.question === this.questionId && a.frozen
-      )
+      return this.previousAnswers.find((a) => a.question === this.questionId)
     },
     nextQuestion() {
       if (this.questions.length <= 1) return null

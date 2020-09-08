@@ -28,6 +28,7 @@
         hasShortAnswer ? 'text-center' : 'text-left',
         'py-2 px-3 px-md-4',
       ]"
+      data-cy="previous-answer"
     >
       <span class="answer">{{ previousAnswerText }}</span>
     </td>
@@ -46,14 +47,13 @@ export default {
     'subcategory',
     'question',
     'answers',
+    'previousAnswers',
     'hasPreviousAnswers',
   ],
 
   computed: {
     answerText() {
-      const answer = this.answers.find(
-        (a) => a.question === this.question.id && !a.frozen
-      )
+      const answer = this.answers.find((a) => a.question === this.question.id)
       if (!answer || !answer.answers.length) return ''
       return MAP_QUESTION_FORM_TYPES[this.question.type].render(answer.answers)
     },
@@ -61,8 +61,8 @@ export default {
       return !this.answerText ? true : this.answerText.length <= 50
     },
     previousAnswerText() {
-      const answer = this.answers.find(
-        (a) => a.question === this.question.id && a.frozen
+      const answer = this.previousAnswers.find(
+        (a) => a.question === this.question.id
       )
       if (!answer || !answer.answers.length) return ''
       return MAP_QUESTION_FORM_TYPES[this.question.type].render(answer.answers)

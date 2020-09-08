@@ -58,7 +58,11 @@
               </span>
               <span v-else>Answers</span>
             </th>
-            <th v-if="hasPreviousAnswers" class="px-3 px-md-4">
+            <th
+              v-if="hasPreviousAnswers"
+              data-cy="previous-answers-column"
+              class="px-3 px-md-4"
+            >
               Previous Answers
             </th>
           </tr>
@@ -70,6 +74,7 @@
               :subcategory="subcategory"
               :question="question"
               :answers="answers"
+              :previousAnswers="previousAnswers"
               :hasPreviousAnswers="hasPreviousAnswers"
             />
           </tr>
@@ -104,7 +109,7 @@ import PracticeSectionSubcategoryRow from './PracticeSectionSubcategoryRow'
 export default {
   name: 'PracticeSectionSubcategory',
 
-  props: ['section', 'subcategory', 'answers', 'hasPreviousAnswers'],
+  props: ['section', 'subcategory', 'answers', 'previousAnswers'],
 
   data() {
     return {
@@ -122,6 +127,12 @@ export default {
           this.showAnswersDialog = false
         }.bind(this)
       )
+    },
+  },
+
+  computed: {
+    hasPreviousAnswers() {
+      return !!this.previousAnswers.length
     },
   },
 

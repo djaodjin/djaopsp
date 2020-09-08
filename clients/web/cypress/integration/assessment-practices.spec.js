@@ -2,6 +2,7 @@ import { makeServer } from '../../src/mocks/server'
 import {
   createOrgAssessmentEmpty,
   createOrgAssessmentOneAnswer,
+  createOrgAssessmentPreviousAnswers,
 } from '../../src/mocks/scenarios'
 import { STEP_PRACTICE_KEY } from '../../src/config/app'
 
@@ -62,6 +63,81 @@ describe('Supplier App: Assessment Practices', () => {
       .contains('Governance & management')
     cy.get('@firstSection').find('h4').contains('Assessment')
     cy.get('@firstSection').find('.progress-label').contains('1 / 1 questions')
+    cy.contains('1 / 8 questions')
+  })
+
+  it('displays a dialog if a previous assessment in the same industry has been submitted', () => {
+    server.loadFixtures('industries', 'questions')
+    createOrgAssessmentPreviousAnswers(server, ORG_SLUG, ORG_NAME)
+
+    cy.visit(`${ASSESSMENT_HOME_URL}content/metal/boxes-and-enclosures/`)
+    cy.get('.v-dialog--persistent').within(($dialog) => {
+      cy.wrap($dialog).should('be.visible')
+      cy.get('.headline').contains('Previous Answers')
+      cy.get('button').click()
+      cy.wrap($dialog).should('not.be.visible')
+    })
+  })
+
+  it('displays answers from a previous assessment in the same industry', () => {
+    server.loadFixtures('industries', 'questions')
+    createOrgAssessmentPreviousAnswers(server, ORG_SLUG, ORG_NAME)
+
+    cy.visit(`${ASSESSMENT_HOME_URL}content/metal/boxes-and-enclosures/`)
+
+    // Close previous assessments dialog
+    cy.get('.v-dialog--persistent button').click()
+
+    // Subcategory 1
+    cy.get('[data-cy=assessment-section]:nth-of-type(1)')
+      .find('.v-list-item:nth-of-type(1)')
+      .click()
+    cy.get('[data-cy=previous-answers-column]').contains('Previous Answers')
+    cy.get('[data-cy=previous-answer]').each(($prevAnswer) => {
+      cy.wrap($prevAnswer).should('not.be.empty')
+    })
+    cy.get('[data-cy=back-link]').click()
+
+    // Subcategory 2
+    cy.get('[data-cy=assessment-section]:nth-of-type(1)')
+      .find('.v-list-item:nth-of-type(2)')
+      .click()
+    cy.get('[data-cy=previous-answers-column]').contains('Previous Answers')
+    cy.get('[data-cy=previous-answer]').each(($prevAnswer) => {
+      cy.wrap($prevAnswer).should('not.be.empty')
+    })
+    cy.get('[data-cy=back-link]').click()
+
+    // Subcategory 3
+    cy.get('[data-cy=assessment-section]:nth-of-type(2)')
+      .find('.v-list-item:nth-of-type(1)')
+      .click()
+    cy.get('[data-cy=previous-answers-column]').contains('Previous Answers')
+    cy.get('[data-cy=previous-answer]').each(($prevAnswer) => {
+      cy.wrap($prevAnswer).should('not.be.empty')
+    })
+    cy.get('[data-cy=back-link]').click()
+
+    // Subcategory 4
+    cy.get('[data-cy=assessment-section]:nth-of-type(3)')
+      .find('.v-list-item:nth-of-type(1)')
+      .click()
+    cy.get('[data-cy=previous-answers-column]').contains('Previous Answers')
+    cy.get('[data-cy=previous-answer]').each(($prevAnswer) => {
+      cy.wrap($prevAnswer).should('not.be.empty')
+    })
+    cy.get('[data-cy=back-link]').click()
+
+    // Subcategory 5
+    cy.get('[data-cy=assessment-section]:nth-of-type(3)')
+      .find('.v-list-item:nth-of-type(2)')
+      .click()
+    cy.get('[data-cy=previous-answers-column]').contains('Previous Answers')
+    cy.get('[data-cy=previous-answer]').each(($prevAnswer) => {
+      cy.wrap($prevAnswer).should('not.be.empty')
+    })
+    cy.get('[data-cy=back-link]').click()
+
     cy.contains('1 / 8 questions')
   })
 })

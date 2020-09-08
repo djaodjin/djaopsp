@@ -17,6 +17,7 @@
             :questions="assessment.questions"
             :answers="assessment.answers"
             :unanswered="unanswered"
+            :previousAnswers="previousAnswers"
             @saveAnswer="saveAnswer"
             @usePreviousAnswers="usePreviousAnswers"
           />
@@ -26,6 +27,7 @@
             :header="$t('practices.tab2.title')"
             :questions="unanswered"
             :answers="assessment.answers"
+            :previousAnswers="previousAnswers"
             @saveAnswer="saveAnswer"
           />
         </template>
@@ -57,7 +59,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { putAnswer } from '@/common/api'
+import { getPreviousAnswers, putAnswer } from '@/common/api'
 import Answer from '@/common/Answer'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
@@ -85,6 +87,7 @@ export default {
       ])
       this.organization = organization
       this.assessment = assessment
+      this.previousAnswers = await getPreviousAnswers(this.org, assessment)
       this.loading = false
     },
 
@@ -156,9 +159,7 @@ export default {
       }, [])
     },
     hasPreviousAnswers() {
-      // TODO: Update
-      return false
-      // return this.answers.some((answer) => answer.frozen)
+      return !!this.previousAnswers.length
     },
   },
 
@@ -170,6 +171,7 @@ export default {
         questions: [],
         answers: [],
       },
+      previousAnswers: [],
       tabs: [
         { text: this.$t('practices.tab1.title'), href: 'tab-1' },
         { text: this.$t('practices.tab2.title'), href: 'tab-2' },
