@@ -1,4 +1,5 @@
 import FormQuestion from '../common/FormQuestion'
+import FormQuestionNumber from '../common/FormQuestionNumber'
 import FormQuestionRadio from '../common/FormQuestionRadio'
 import FormQuestionQuantity from '../common/FormQuestionQuantity'
 import { AssessmentStep, AssessmentFlow } from '../common/AssessmentFlow'
@@ -176,17 +177,29 @@ const FormQuestionWasteGenerated = new FormQuestionQuantity({
   ],
 })
 
+const FormQuestionEmployeeCount = new FormQuestionNumber({
+  options: 'Number of Employees',
+})
+
+const FormQuestionRevenueGenerated = new FormQuestionNumber({
+  options: 'Revenue in USD',
+})
+
 export const QUESTION_COMMENT_TYPE = 'freetext'
+export const QUESTION_EMPLOYEE_COUNT = 'employee-counted'
 export const QUESTION_ENERGY_CONSUMED = 'energy-consumed'
 export const QUESTION_RANGE_TYPE = 'assessment'
+export const QUESTION_REVENUE_GENERATED = 'revenue-generated'
 export const QUESTION_YES_NO_TYPE = 'yes-no'
 export const QUESTION_WASTE_GENERATED = 'waste-generated'
 export const QUESTION_WATER_CONSUMED = 'water-consumed'
 
 export const MAP_QUESTION_FORM_TYPES = {
   [QUESTION_COMMENT_TYPE]: FormQuestionTextarea,
+  [QUESTION_EMPLOYEE_COUNT]: FormQuestionEmployeeCount,
   [QUESTION_ENERGY_CONSUMED]: FormQuestionEnergyConsumed,
   [QUESTION_RANGE_TYPE]: FormQuestionRadioRange,
+  [QUESTION_REVENUE_GENERATED]: FormQuestionRevenueGenerated,
   [QUESTION_YES_NO_TYPE]: FormQuestionRadioDiscrete,
   [QUESTION_WATER_CONSUMED]: FormQuestionWaterConsumed,
   [QUESTION_WASTE_GENERATED]: FormQuestionWasteGenerated,

@@ -29,6 +29,7 @@
 <script>
 import { MAP_QUESTION_FORM_TYPES } from '@/config/app'
 import Answer from '@/common/Answer'
+import FormQuestionNumber from '@/components/FormQuestionNumber'
 import FormQuestionRadio from '@/components/FormQuestionRadio'
 import FormQuestionTextarea from '@/components/FormQuestionTextarea'
 import FormQuestionQuantity from '@/components/FormQuestionQuantity'
@@ -97,9 +98,10 @@ export default {
   },
 
   components: {
+    FormQuestionNumber,
+    FormQuestionQuantity,
     FormQuestionRadio,
     FormQuestionTextarea,
-    FormQuestionQuantity,
     PracticeSectionHeader,
   },
 }

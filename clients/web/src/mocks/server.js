@@ -21,11 +21,13 @@ import {
   MAP_QUESTION_FORM_TYPES,
   PRACTICE_VALUES,
   QUESTION_COMMENT_TYPE,
+  QUESTION_EMPLOYEE_COUNT,
   QUESTION_ENERGY_CONSUMED,
   QUESTION_RANGE_TYPE,
-  QUESTION_YES_NO_TYPE,
+  QUESTION_REVENUE_GENERATED,
   QUESTION_WASTE_GENERATED,
   QUESTION_WATER_CONSUMED,
+  QUESTION_YES_NO_TYPE,
 } from '../config/app'
 import { getRandomInt } from '../common/utils'
 
@@ -128,12 +130,10 @@ export function makeServer({ environment = 'development', apiBasePath }) {
               case QUESTION_COMMENT_TYPE:
                 value = faker.lorem.paragraph()
                 break
+              case QUESTION_EMPLOYEE_COUNT:
               case QUESTION_ENERGY_CONSUMED:
-                value = faker.random.number()
-                break
+              case QUESTION_REVENUE_GENERATED:
               case QUESTION_WATER_CONSUMED:
-                value = faker.random.number()
-                break
               case QUESTION_WASTE_GENERATED:
                 value = faker.random.number()
                 break
