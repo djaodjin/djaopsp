@@ -53,13 +53,39 @@ export default [
   },
   {
     id: '7',
+    path:
+      '/metal/boxes-and-enclosures/management-basics/general/test-question-type-employee-counted',
+    title: 'Sustainability Department Staff',
+    default_metric: 'employee-counted',
+    indent: 3,
+    environmental_value: 3,
+    business_value: 2,
+    profitability: 1,
+    implementation_ease: 1,
+    avg_value: 2,
+  },
+  {
+    id: '8',
+    path:
+      '/metal/boxes-and-enclosures/management-basics/general/test-question-type-revenue-generated',
+    title: 'Company Revenue',
+    default_metric: 'revenue-generated',
+    indent: 3,
+    environmental_value: 1,
+    business_value: 1,
+    profitability: 1,
+    implementation_ease: 1,
+    avg_value: 1,
+  },
+  {
+    id: '9',
     path: null,
     title: 'Design',
     picture: 'https://envconnect.s3.amazonaws.com/media/design.png',
     indent: 1,
   },
   {
-    id: '8',
+    id: '10',
     path: '/metal/boxes-and-enclosures/design/product-design',
     title: 'Product Design',
     default_metric: 'water-consumed',
@@ -71,7 +97,7 @@ export default [
     avg_value: 1,
   },
   {
-    id: '9',
+    id: '11',
     path: '/metal/boxes-and-enclosures/design/packaging-design',
     title: 'Packaging Design',
     default_metric: 'waste-generated',
@@ -83,32 +109,32 @@ export default [
     avg_value: 2,
   },
   {
-    id: '10',
+    id: '12',
     path: null,
     title: 'Production',
     picture: 'https://envconnect.s3.amazonaws.com/media/production.png',
     indent: 1,
   },
   {
-    id: '11',
+    id: '13',
     path: null,
     title: 'Energy Efficiency',
     indent: 2,
   },
   {
-    id: '12',
+    id: '14',
     path: null,
     title: 'Process heating',
     indent: 3,
   },
   {
-    id: '13',
+    id: '15',
     path: null,
     title: 'Combustion',
     indent: 4,
   },
   {
-    id: '14',
+    id: '16',
     path:
       '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio',
     title: 'Adjust air/fuel ratio',
@@ -121,7 +147,7 @@ export default [
     avg_value: 1,
   },
   {
-    id: '15',
+    id: '17',
     path:
       '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum',
     title: 'Reduce combustion air flow to optimum',
@@ -134,13 +160,13 @@ export default [
     avg_value: 1,
   },
   {
-    id: '16',
+    id: '18',
     path: null,
     title: 'Hot Water System',
     indent: 3,
   },
   {
-    id: '17',
+    id: '19',
     path:
       '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water',
     title: 'Recover heat from hot waste water',
@@ -153,7 +179,7 @@ export default [
     avg_value: 1,
   },
   {
-    id: '18',
+    id: '20',
     path:
       '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required',
     title: 'Reduce hot water temperature to minimum required',
@@ -166,20 +192,20 @@ export default [
     avg_value: 1,
   },
   {
-    id: '19',
+    id: '21',
     path: null,
     title: 'Targets',
     picture: 'https://envconnect.s3.amazonaws.com/media/distribution.png',
     indent: 1,
   },
   {
-    id: '20',
+    id: '22',
     path: null,
     title: 'Energy Improvement Target in Place',
     indent: 2,
   },
   {
-    id: '21',
+    id: '23',
     path:
       '/metal/boxes-and-enclosures/targets/energy-improvement-target/energy-target',
     title: 'Energy Reduction Target',

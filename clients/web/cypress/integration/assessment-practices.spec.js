@@ -43,7 +43,7 @@ describe('Supplier App: Assessment Practices', () => {
     cy.get(`[data-cy=btn-continue]`).click()
     cy.url().should('include', `${ASSESSMENT_HOME_URL}content/`)
     cy.get('[data-cy=assessment-section]').its('length').should('eq', 3)
-    cy.contains('0 / 8 questions')
+    cy.contains('0 / 10 questions')
   })
 
   it('displays the main content correctly for an existing assessment', () => {
@@ -64,7 +64,7 @@ describe('Supplier App: Assessment Practices', () => {
       .contains('Governance & management')
     cy.get('@firstSection').find('h4').contains('Assessment')
     cy.get('@firstSection').find('.progress-label').contains('1 / 1 questions')
-    cy.contains('1 / 8 questions')
+    cy.contains('1 / 10 questions')
   })
 
   it('displays a dialog if a previous assessment in the same industry has been submitted', () => {
