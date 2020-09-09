@@ -59,7 +59,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getPreviousAnswers, putAnswer } from '@/common/api'
+import { getPreviousAnswers, postAnswer } from '@/common/api'
 import Answer from '@/common/Answer'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
@@ -92,7 +92,7 @@ export default {
     },
 
     saveAnswer(answer, callback) {
-      putAnswer(answer)
+      postAnswer(this.org, this.assessment, answer)
         .then((answer) => {
           // Update in-memory answers array
           this.updateAnswersArray(answer)
@@ -102,32 +102,32 @@ export default {
         })
         .catch((error) => {
           // TODO: Handle error
-          console.log('Ooops ... something broke')
+          console.log('Ooops ... failed to save answer', error)
         })
     },
 
     updateAnswersArray(answer) {
-      const answerIdx = this.answers.findIndex(
-        (a) => a.question === answer.question && !a.frozen
+      const answerIdx = this.assessment.answers.findIndex(
+        (a) => a.question === answer.question
       )
       if (answerIdx >= 0) {
         // Replace answer instance with a new one
-        this.answers.splice(answerIdx, 1, answer)
+        this.assessment.answers.splice(answerIdx, 1, answer)
       } else {
-        this.answers.push(answer)
+        this.assessment.answers.push(answer)
       }
     },
 
     usePreviousAnswers(questions, callback) {
       Promise.allSettled(
         questions.map((question) => {
-          const previousAnswer = this.answers.find(
-            (a) => a.question === question.id && a.frozen
+          const previousAnswer = this.previousAnswers.find(
+            (a) => a.question === question.id
           )
-          const { id, frozen, ...attrs } = previousAnswer
+          const { id, ...attrs } = previousAnswer
           const author = 'author@email.com' // TODO: Replace with user info
           const currentAnswer = new Answer({ ...attrs, author })
-          return putAnswer(currentAnswer)
+          return postAnswer(this.org, this.assessment, currentAnswer)
         })
       ).then((answerPromises) => {
         answerPromises.forEach((answerPromise) => {

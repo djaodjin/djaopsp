@@ -356,34 +356,9 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         return assessment
       })
 
-      this.put(
-        '/answer/:organizationId/:assessmentId/:questionId',
-        (schema, request) => {
-          const { organizationId, assessmentId, questionId } = request.params
-          const { id, ...attrs } = JSON.parse(request.requestBody)
-
-          const organization = schema.organizations.find(organizationId)
-          const assessment = schema.assessments.find(assessmentId)
-          const question = schema.questions.find(questionId)
-
-          let answer = schema.answers.find(id)
-          if (answer) {
-            answer.update({
-              ...attrs,
-              organization,
-              assessment,
-              question,
-            })
-          } else {
-            answer = this.create('answer', {
-              ...attrs,
-              organization,
-              assessment,
-              question,
-            })
-          }
-          return answer
-        }
+      this.post(
+        '/:organizationId/sample/:assessmentId/answers/*',
+        routeHandlers.postAnswer.bind(this)
       )
     },
   })

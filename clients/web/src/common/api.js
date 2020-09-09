@@ -385,19 +385,67 @@ export async function postTargets(organizationId, assessmentId, payload) {
   return new Assessment({ ...assessment, targets })
 }
 
-// TODO: Review
-export async function putAnswer(answer) {
-  const { organization, assessment, question } = answer
-  const response = await request(
-    `/answer/${organization}/${assessment}/${question}`,
-    {
-      method: 'PUT',
-      body: answer,
-    }
+function parseAnswerValues(answerValues, questionType) {
+  let answers = []
+  let comment
+  switch (questionType) {
+    case QUESTION_ENERGY_CONSUMED:
+    case QUESTION_WATER_CONSUMED:
+    case QUESTION_WASTE_GENERATED:
+      answers.push({
+        metric: questionType,
+        measured: answerValues[0],
+        unit: answerValues[1],
+      })
+      comment = answerValues[2]
+      break
+    case QUESTION_COMMENT_TYPE:
+      answers.push({
+        metric: questionType,
+        measured: answerValues[0],
+      })
+      break
+    default:
+      answers.push({
+        metric: questionType,
+        measured: answerValues[0],
+      })
+      comment = answerValues[1]
+      break
+  }
+  if (comment) {
+    answers.push({
+      metric: QUESTION_COMMENT_TYPE,
+      measured: comment,
+    })
+  }
+  return answers
+}
+
+export async function postAnswer(organizationId, assessment, answer) {
+  const question = assessment.questions.find((q) => q.id === answer.question)
+  const answers = parseAnswerValues(answer.answers, question.type)
+
+  const responses = await Promise.all(
+    answers.map((answerBody) =>
+      request(
+        `/${organizationId}/sample/${assessment.id}/answers${question.path}`,
+        {
+          body: {
+            ...answerBody,
+            created_at: answer.created,
+            collected_by: answer.author,
+          },
+        }
+      )
+    )
   )
-  if (!response.ok) throw new APIError(response.status)
-  const data = await response.json()
-  return new Answer(data.answer)
+
+  const error = responses.find((response) => !response.ok)
+  if (error) {
+    throw new APIError(`Failed to save answer: ${error.statusText}`)
+  }
+  return answer
 }
 
 export async function setAssessmentIndustry(

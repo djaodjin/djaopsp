@@ -87,6 +87,7 @@ export default {
 
       const updatedAnswer = new Answer({
         ...this.currentAnswer,
+        author: 'author@email.com', // TODO: Replace with user info
         answers,
         answered: !isEmpty,
       })

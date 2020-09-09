@@ -122,6 +122,56 @@ function getOrganizationProfile(schema, request) {
   }
 }
 
+function postAnswer(schema, request) {
+  const { organizationId, assessmentId } = request.params
+  const questionPath = `/${request.params['']}`
+  const attrs = JSON.parse(request.requestBody)
+
+  const question = schema.questions.where({
+    path: questionPath,
+  }).models[0]
+  // There may be more than one answer tied to a question (e.g. comments)
+  const answers = schema.answers.where({
+    organizationId,
+    assessmentId,
+    questionId: question.id,
+  }).models
+
+  let answer =
+    answers[0] && answers[0].metric
+      ? answers.find((answer) => answer.metric === attrs.metric)
+      : answers[0]
+
+  if (answer) {
+    answer.update(attrs)
+  } else {
+    const organization = schema.organizations.find(organizationId)
+    const assessment = schema.assessments.find(assessmentId)
+    answer = this.create('answer', {
+      ...attrs,
+      organization,
+      assessment,
+      question,
+    })
+  }
+  const {
+    metric,
+    unit,
+    measured,
+    created_at,
+    collected_by,
+    question: { path, default_metric },
+  } = answer
+  return {
+    metric,
+    unit,
+    measured,
+    created_at,
+    collected_by,
+    question: { path, default_metric },
+  }
+}
+
 export default {
   getAnswers,
   getAssessmentInformation,
@@ -130,4 +180,5 @@ export default {
   getIndustryQuestions,
   getLatestAssessment,
   getOrganizationProfile,
+  postAnswer,
 }
