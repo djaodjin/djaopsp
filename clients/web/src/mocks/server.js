@@ -17,9 +17,9 @@ import {
 import fixtures from './fixtures'
 import scenarios from './scenarios'
 import routeHandlers from './handlers'
+import { PRACTICE_VALUES } from '../config/app'
 import {
   MAP_QUESTION_FORM_TYPES,
-  PRACTICE_VALUES,
   QUESTION_COMMENT_TYPE,
   QUESTION_EMPLOYEE_COUNT,
   QUESTION_ENERGY_CONSUMED,
@@ -28,7 +28,7 @@ import {
   QUESTION_WASTE_GENERATED,
   QUESTION_WATER_CONSUMED,
   QUESTION_YES_NO_TYPE,
-} from '../config/app'
+} from '../config/questionFormTypes'
 import { getRandomInt } from '../common/utils'
 
 const MIN_PRACTICE_VALUE = PRACTICE_VALUES[0].value

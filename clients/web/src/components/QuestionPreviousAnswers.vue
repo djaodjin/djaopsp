@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { MAP_QUESTION_FORM_TYPES } from '@/config/app'
+import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
 import { formatDate } from '@/directives'
 
 export default {

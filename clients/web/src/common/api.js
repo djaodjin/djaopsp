@@ -18,7 +18,7 @@ import {
   QUESTION_ENERGY_CONSUMED,
   QUESTION_WATER_CONSUMED,
   QUESTION_WASTE_GENERATED,
-} from '../config/app'
+} from '../config/questionFormTypes'
 
 const API_HOST = process.env.VUE_APP_STANDALONE ? window.location.origin : ''
 const API_BASE_URL = `${API_HOST}${process.env.VUE_APP_ROOT}${process.env.VUE_APP_API_BASE}`

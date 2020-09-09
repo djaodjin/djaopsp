@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { MAP_QUESTION_FORM_TYPES } from '@/config/app'
+import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
 import Answer from '@/common/Answer'
 import FormQuestionNumber from '@/components/FormQuestionNumber'
 import FormQuestionRadio from '@/components/FormQuestionRadio'
