@@ -37,7 +37,7 @@ export default function (
 
   // Create empty answers for unanswered questions
   server.schema.questions
-    .find(['6', '8', '9', '14', '15', '17', '18', '21'])
+    .where((question) => question.id !== '4' && !!question.path)
     .models.forEach((question) => {
       server.create('answer', {
         assessment: currentAssessment,
@@ -47,7 +47,7 @@ export default function (
     })
 
   server.schema.questions
-    .find(['4', '6', '8', '9', '14', '15', '17', '18', '21'])
+    .where((question) => !!question.path)
     .models.forEach((question) => {
       server.create('answer', {
         assessment: previousAssessment,
