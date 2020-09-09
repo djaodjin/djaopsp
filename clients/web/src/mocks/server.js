@@ -252,6 +252,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
     seeds(server) {
       server.loadFixtures()
 
+      scenarios.createOrgEmpty(server, 'supplier-1', 'S1 - Tamerin (Demo)')
       scenarios.createOrgEmpty(server, 'empty')
       scenarios.createOrgAssessmentEmpty(server, 'alpha')
       scenarios.createOrgAssessmentOneAnswer(server, 'beta')
@@ -325,17 +326,10 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         return assessment
       })
 
-      this.post('/:organizationId/sample/', (schema, request) => {
-        const { organizationId } = request.params
-        const attrs = JSON.parse(request.requestBody)
-        const newAssessment = this.create('assessment', attrs)
-
-        // Create relationship to newly created entity
-        const organization = schema.organizations.find(organizationId)
-        organization.assessmentIds.push(newAssessment.id)
-        const { campaign, created_at, slug } = newAssessment
-        return { campaign, created_at, slug }
-      })
+      this.post(
+        '/:organizationId/sample/',
+        routeHandlers.createAssessment.bind(this)
+      )
 
       this.post('/targets/:organizationId/:assessmentId', (schema, request) => {
         const { assessmentId } = request.params

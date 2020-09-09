@@ -1,5 +1,20 @@
 import { Response } from 'miragejs'
 
+function createAssessment(schema, request) {
+  const { organizationId } = request.params
+  const attrs = JSON.parse(request.requestBody)
+  const newAssessment = this.create('assessment', {
+    ...attrs,
+    created_at: new Date().toISOString(),
+  })
+
+  // Create relationship to newly created entity
+  const organization = schema.organizations.find(organizationId)
+  organization.assessmentIds.push(newAssessment.id)
+  const { campaign, created_at, slug } = newAssessment
+  return { campaign, created_at, slug }
+}
+
 function getAnswers(schema, request) {
   const { organizationId, assessmentId } = request.params
   const answers = schema.answers.where({
@@ -173,6 +188,7 @@ function postAnswer(schema, request) {
 }
 
 export default {
+  createAssessment,
   getAnswers,
   getAssessmentInformation,
   getAssessmentHistory,
