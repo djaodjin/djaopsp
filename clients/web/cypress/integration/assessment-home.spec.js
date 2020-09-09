@@ -2,7 +2,7 @@ import { makeServer } from '../../src/mocks/server'
 import {
   createOrgAssessmentEmpty,
   createOrgAssessmentEmptyMultiple,
-  createOrgAssessmentOneAnswer,
+  createOrgAssessmentPracticesIncomplete,
   createOrgAssessmentPracticesComplete,
   createOrgAssessmentFrozen,
 } from '../../src/mocks/scenarios'
@@ -109,7 +109,7 @@ describe('Supplier App: Assessment Home', () => {
 
   it('displays stepper and industry segment for the assessment if at least one question has already been answered', () => {
     server.loadFixtures('industries', 'questions')
-    createOrgAssessmentOneAnswer(server, ORG_SLUG, ORG_NAME)
+    createOrgAssessmentPracticesIncomplete(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
     cy.get('[data-cy=industry-name]').contains('Boxes & enclosures')

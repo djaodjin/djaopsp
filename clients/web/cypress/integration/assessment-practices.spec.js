@@ -1,7 +1,7 @@
 import { makeServer } from '../../src/mocks/server'
 import {
   createOrgAssessmentEmpty,
-  createOrgAssessmentOneAnswer,
+  createOrgAssessmentPracticesIncomplete,
   createOrgAssessmentPreviousAnswers,
 } from '../../src/mocks/scenarios'
 import { STEP_PRACTICE_KEY } from '../../src/config/app'
@@ -48,7 +48,7 @@ describe('Supplier App: Assessment Practices', () => {
 
   it('displays the main content correctly for an existing assessment', () => {
     server.loadFixtures('industries', 'questions')
-    createOrgAssessmentOneAnswer(server, ORG_SLUG, ORG_NAME)
+    createOrgAssessmentPracticesIncomplete(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
     cy.get(`[data-cy=${STEP_PRACTICE_KEY}]`).click()

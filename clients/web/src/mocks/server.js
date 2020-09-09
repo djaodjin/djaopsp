@@ -255,12 +255,11 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       scenarios.createOrgEmpty(server, 'supplier-1', 'S1 - Tamerin (Demo)')
       scenarios.createOrgEmpty(server, 'empty')
       scenarios.createOrgAssessmentEmpty(server, 'alpha')
-      scenarios.createOrgAssessmentOneAnswer(server, 'beta')
-      scenarios.createOrgAssessmentPracticesIncomplete(server, 'gamma')
-      scenarios.createOrgAssessmentPracticesComplete(server, 'delta')
-      scenarios.createOrgAssessmentFrozen(server, 'epsilon')
-      scenarios.createOrgAssessmentEmptyMultiple(server, 'zeta')
-      scenarios.createOrgAssessmentPreviousAnswers(server, 'eta')
+      scenarios.createOrgAssessmentPracticesIncomplete(server, 'beta')
+      scenarios.createOrgAssessmentPracticesComplete(server, 'gamma')
+      scenarios.createOrgAssessmentFrozen(server, 'delta')
+      scenarios.createOrgAssessmentEmptyMultiple(server, 'epsilon')
+      scenarios.createOrgAssessmentPreviousAnswers(server, 'zeta')
     },
 
     routes() {
