@@ -1,5 +1,8 @@
 <template v-if="currentQuestion">
-  <div class="mx-md-4">
+  <div class="questionnaire-container mx-md-4">
+    <span class="question-text question-index grey--text">
+      Question #{{ currentQuestionIdx + 1 }}
+    </span>
     <practice-section-header
       :section="currentQuestion.section.name"
       :subcategory="currentQuestion.subcategory.name"
@@ -108,7 +111,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.questionnaire-container {
+  position: relative;
+}
+.question-index {
+  font-weight: 400;
+  position: absolute;
+  top: -33px;
+  right: 6px;
+}
+@media #{map-get($display-breakpoints, 'sm-and-up')} {
+  .question-index {
+    top: -78px;
+  }
+}
 @media #{map-get($display-breakpoints, 'md-and-up')} {
+  .question-index {
+    top: -110px;
+  }
   .question-text {
     font-size: 1.1rem;
     line-height: 1.6;
