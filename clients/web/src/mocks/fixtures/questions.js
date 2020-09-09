@@ -1,3 +1,14 @@
+import {
+  QUESTION_COMMENT_TYPE,
+  QUESTION_EMPLOYEE_COUNT,
+  QUESTION_ENERGY_CONSUMED,
+  QUESTION_RANGE_TYPE,
+  QUESTION_REVENUE_GENERATED,
+  QUESTION_WASTE_GENERATED,
+  QUESTION_WATER_CONSUMED,
+  QUESTION_YES_NO_TYPE,
+} from '../../config/questionFormTypes'
+
 export default [
   {
     id: '1',
@@ -23,7 +34,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous',
     title: 'The assessment process is rigorous and thorough*',
-    default_metric: 'freetext',
+    default_metric: QUESTION_COMMENT_TYPE,
     indent: 3,
     environmental_value: 1,
     business_value: 1,
@@ -43,7 +54,7 @@ export default [
       '/metal/boxes-and-enclosures/management-basics/general/report-externally',
     title:
       'Report externally, on an annual basis, on program elements, key environmental issues and goals, challenges, and continual improvement efforts.',
-    default_metric: 'energy-consumed',
+    default_metric: QUESTION_ENERGY_CONSUMED,
     indent: 3,
     environmental_value: 1,
     business_value: 1,
@@ -56,7 +67,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/management-basics/general/test-question-type-employee-counted',
     title: 'Sustainability Department Staff',
-    default_metric: 'employee-counted',
+    default_metric: QUESTION_EMPLOYEE_COUNT,
     indent: 3,
     environmental_value: 3,
     business_value: 2,
@@ -69,7 +80,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/management-basics/general/test-question-type-revenue-generated',
     title: 'Company Revenue',
-    default_metric: 'revenue-generated',
+    default_metric: QUESTION_REVENUE_GENERATED,
     indent: 3,
     environmental_value: 1,
     business_value: 1,
@@ -88,7 +99,7 @@ export default [
     id: '10',
     path: '/metal/boxes-and-enclosures/design/product-design',
     title: 'Product Design',
-    default_metric: 'water-consumed',
+    default_metric: QUESTION_WATER_CONSUMED,
     indent: 2,
     environmental_value: 1,
     business_value: 1,
@@ -100,7 +111,7 @@ export default [
     id: '11',
     path: '/metal/boxes-and-enclosures/design/packaging-design',
     title: 'Packaging Design',
-    default_metric: 'waste-generated',
+    default_metric: QUESTION_WASTE_GENERATED,
     indent: 2,
     environmental_value: 2,
     business_value: 2,
@@ -138,7 +149,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio',
     title: 'Adjust air/fuel ratio',
-    default_metric: 'assessment',
+    default_metric: QUESTION_RANGE_TYPE,
     indent: 5,
     environmental_value: 1,
     business_value: 1,
@@ -151,7 +162,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/reduce-combustion-air-flow-to-optimum',
     title: 'Reduce combustion air flow to optimum',
-    default_metric: 'yes-no',
+    default_metric: QUESTION_YES_NO_TYPE,
     indent: 5,
     environmental_value: 1,
     business_value: 1,
@@ -170,7 +181,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/recover-heat-from-hot-waste-water',
     title: 'Recover heat from hot waste water',
-    default_metric: 'assessment',
+    default_metric: QUESTION_RANGE_TYPE,
     indent: 4,
     environmental_value: 1,
     business_value: 2,
@@ -183,7 +194,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required',
     title: 'Reduce hot water temperature to minimum required',
-    default_metric: 'assessment',
+    default_metric: QUESTION_RANGE_TYPE,
     indent: 4,
     environmental_value: 2,
     business_value: 1,
@@ -209,7 +220,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/targets/energy-improvement-target/energy-target',
     title: 'Energy Reduction Target',
-    default_metric: 'assessment',
+    default_metric: QUESTION_RANGE_TYPE,
     indent: 3,
     environmental_value: 1,
     business_value: 1,

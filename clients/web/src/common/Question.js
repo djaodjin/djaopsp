@@ -1,4 +1,3 @@
-import { VALID_QUESTION_TYPES } from '@/config/questionFormTypes'
 import { getUniqueId } from './utils'
 import Section from './Section'
 import Subcategory from './Subcategory'
