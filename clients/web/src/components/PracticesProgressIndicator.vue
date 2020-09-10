@@ -10,7 +10,7 @@
         {{ numAnswers }} / {{ numQuestions }} questions
       </span>
     </div>
-    <div class="action" v-else>
+    <div class="action" data-cy="btn-complete" v-else>
       <button-primary
         :to="{
           name: 'assessmentHome',

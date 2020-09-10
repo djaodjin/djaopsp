@@ -122,4 +122,76 @@ describe('Supplier App: Assessment Practices', () => {
       cy.wrap($prevAnswer).should('not.be.empty')
     })
   })
+
+  it('lets users complete assessment by filling in and navigating between answers', () => {
+    server.loadFixtures('industries', 'questions')
+    createOrgAssessmentPracticesIncomplete(server, ORG_SLUG, ORG_NAME)
+
+    cy.visit(ASSESSMENT_PRACTICES_URL)
+    cy.contains('1 / 10 questions')
+    cy.get('[data-cy=btn-complete]').should('not.be.visible')
+
+    cy.get('[data-cy=assessment-section] .v-list-item').first().click()
+
+    // Select answer
+    cy.get('[data-cy=answer-link]').first().click()
+
+    // Edit answer
+    cy.get('[data-cy=question-footer-textarea]').type('textarea content')
+    cy.get('button[type=submit]').click()
+    cy.contains('1 / 10 questions') // Doesn't change progress indicator
+
+    // New answer
+    cy.get('[data-cy=quantity]').find('input').type('1234')
+    cy.get('[data-cy=unit]').find('[role=button]').click()
+    cy.get('.v-menu__content .v-list-item').first().click()
+    cy.get('[data-cy=question-footer-textarea]').type('textarea content')
+    cy.get('button[type=submit]').click()
+    cy.contains('2 / 10 questions')
+
+    cy.get('[data-cy=number]').find('input').type('1234')
+    cy.get('[data-cy=question-footer-textarea]').type('textarea content')
+    cy.get('button[type=submit]').click()
+    cy.contains('3 / 10 questions')
+
+    cy.get('[data-cy=number]').find('input').type('1234')
+    cy.get('[data-cy=question-footer-textarea]').type('textarea content')
+    cy.get('button[type=submit]').click()
+    cy.contains('4 / 10 questions')
+
+    cy.get('[data-cy=quantity]').find('input').type('1234')
+    cy.get('[data-cy=unit]').find('[role=button]').click()
+    cy.get('.v-menu__content .v-list-item').first().click()
+    cy.get('[data-cy=question-footer-textarea]').type('textarea content')
+    cy.get('button[type=submit]').click()
+    cy.contains('5 / 10 questions')
+
+    cy.get('[data-cy=quantity]').find('input').type('1234')
+    cy.get('[data-cy=unit]').find('[role=button]').click()
+    cy.get('.v-menu__content .v-list-item').first().click()
+    cy.get('[data-cy=question-footer-textarea]').type('textarea content')
+    cy.get('button[type=submit]').click()
+    cy.contains('6 / 10 questions')
+
+    cy.get('.v-label').first().click()
+    cy.get('[data-cy=question-footer-textarea]').type('textarea content')
+    cy.get('button[type=submit]').click()
+    cy.contains('7 / 10 questions')
+
+    cy.get('.v-label').first().click()
+    cy.get('[data-cy=question-footer-textarea]').type('textarea content')
+    cy.get('button[type=submit]').click()
+    cy.contains('8 / 10 questions')
+
+    cy.get('.v-label').first().click()
+    cy.get('[data-cy=question-footer-textarea]').type('textarea content')
+    cy.get('button[type=submit]').click()
+    cy.contains('9 / 10 questions')
+
+    cy.get('.v-label').first().click()
+    cy.get('[data-cy=question-footer-textarea]').type('textarea content')
+    cy.get('button[type=submit]').click()
+    cy.get('[data-cy=btn-complete]').should('be.visible').click()
+    cy.url().should('match', /\/assess\/1\/$/)
+  })
 })

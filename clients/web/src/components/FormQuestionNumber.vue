@@ -2,7 +2,7 @@
   <form @submit.prevent="processForm">
     <v-container class="px-0 pt-0">
       <v-row>
-        <v-col cols="4">
+        <v-col data-cy="number" cols="4">
           <v-text-field
             :label="options"
             outlined

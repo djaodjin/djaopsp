@@ -8,6 +8,7 @@
       ]"
     >
       <router-link
+        data-cy="answer-link"
         :style="[!answerText ? { 'text-decoration': 'none' } : {}]"
         :to="{
           path: `${$route.path}${$route.hash}`,

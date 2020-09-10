@@ -5,6 +5,7 @@
       :previousAnswer="previousAnswer"
     />
     <v-textarea
+      data-cy="question-footer-textarea"
       :placeholder="textareaPlaceholder"
       v-model="textarea"
       hide-details="auto"
