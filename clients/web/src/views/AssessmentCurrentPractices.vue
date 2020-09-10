@@ -60,7 +60,7 @@
 <script>
 import { Fragment } from 'vue-fragment'
 import { getPreviousAnswers, postAnswer } from '@/common/api'
-import Answer from '@/common/Answer'
+import Answer from '@/common/models/Answer'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
 import DialogConfirm from '@/components/DialogConfirm'

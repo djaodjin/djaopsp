@@ -1,4 +1,4 @@
-import { getUniqueId } from './utils'
+import { getUniqueId } from '../utils'
 import Organization from './Organization'
 
 export default class ShareEntry {

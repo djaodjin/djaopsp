@@ -4,7 +4,7 @@ import {
   STEP_SHARE_KEY,
   VALID_ASSESSMENT_TARGETS,
 } from '@/config/app'
-import { getUniqueId } from './utils'
+import { getUniqueId } from '../utils'
 import { getPracticeList } from './Practice'
 import Target from './Target'
 

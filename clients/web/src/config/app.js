@@ -1,4 +1,4 @@
-import { AssessmentStep, AssessmentFlow } from '../common/AssessmentFlow'
+import { AssessmentStep, AssessmentFlow } from '../common/models/AssessmentFlow'
 
 export const PRACTICE_VALUES = [
   {

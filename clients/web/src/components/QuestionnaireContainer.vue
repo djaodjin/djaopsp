@@ -31,7 +31,7 @@
 
 <script>
 import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
-import Answer from '@/common/Answer'
+import Answer from '@/common/models/Answer'
 import FormQuestionNumber from '@/components/FormQuestionNumber'
 import FormQuestionRadio from '@/components/FormQuestionRadio'
 import FormQuestionTextarea from '@/components/FormQuestionTextarea'

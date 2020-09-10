@@ -108,7 +108,7 @@
 </template>
 
 <script>
-import { SectionList } from '../common/SectionList'
+import { SectionList } from '@/common/models/SectionList'
 import NextPracticeSection from '@/components/NextPracticeSection'
 import PracticeGroupHeader from '@/components/PracticeGroupHeader'
 import PracticesSection from '@/components/PracticesSection'

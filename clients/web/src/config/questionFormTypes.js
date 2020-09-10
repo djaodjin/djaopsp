@@ -1,7 +1,7 @@
-import FormQuestion from '../common/FormQuestion'
-import FormQuestionNumber from '../common/FormQuestionNumber'
-import FormQuestionRadio from '../common/FormQuestionRadio'
-import FormQuestionQuantity from '../common/FormQuestionQuantity'
+import FormQuestion from '../common/models/FormQuestion'
+import FormQuestionNumber from '../common/models/FormQuestionNumber'
+import FormQuestionRadio from '../common/models/FormQuestionRadio'
+import FormQuestionQuantity from '../common/models/FormQuestionQuantity'
 
 const FormQuestionRadioDiscrete = new FormQuestionRadio({
   options: [

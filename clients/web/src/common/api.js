@@ -1,17 +1,17 @@
 import groupBy from 'lodash/groupBy'
 import kebabCase from 'lodash/kebabCase'
 
-import Answer from './Answer'
-import Assessment from './Assessment'
-import Benchmark from './Benchmark'
-import Organization from './Organization'
-import OrganizationGroup from './OrganizationGroup'
-import Question from './Question'
-import Score from './Score'
-import Section from './Section'
-import Subcategory from './Subcategory'
-import { getPracticeList } from './Practice'
-import { getShareEntryList } from './ShareEntry'
+import Answer from './models/Answer'
+import Assessment from './models/Assessment'
+import Benchmark from './models/Benchmark'
+import Organization from './models/Organization'
+import OrganizationGroup from './models/OrganizationGroup'
+import Question from './models/Question'
+import Score from './models/Score'
+import Section from './models/Section'
+import Subcategory from './models/Subcategory'
+import { getPracticeList } from './models/Practice'
+import { getShareEntryList } from './models/ShareEntry'
 import {
   MAP_QUESTION_FORM_TYPES,
   QUESTION_COMMENT_TYPE,
