@@ -8,7 +8,7 @@
     "
   >
     <tab-header :text="header" />
-    <v-slide-x-transition mode="out-in">
+    <tsp-transition name="v-slide-x-transition" mode="out-in">
       <div
         class="pt-2 pb-6 px-4"
         v-if="
@@ -33,7 +33,7 @@
         />
       </div>
       <div v-else class="pending-questions py-4" key="pendingQuestions">
-        <v-fade-transition mode="out-in">
+        <tsp-transition name="v-fade-transition" mode="out-in">
           <div class="my-6 mx-4" v-if="!questions.length">
             <p class="text-h5 text-center">
               Congratulations! You have answered all the questions.
@@ -75,9 +75,9 @@
               </v-list-item>
             </v-list>
           </div>
-        </v-fade-transition>
+        </tsp-transition>
       </div>
-    </v-slide-x-transition>
+    </tsp-transition>
   </div>
 </template>
 
@@ -86,6 +86,7 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 import QuestionnaireContainer from '@/components/QuestionnaireContainer'
 import SectionBackLink from '@/components/SectionBackLink'
 import TabHeader from '@/components/TabHeader'
+import TspTransition from '@/components/TspTransition'
 
 export default {
   name: 'PendingQuestions',
@@ -103,6 +104,7 @@ export default {
     QuestionnaireContainer,
     SectionBackLink,
     TabHeader,
+    TspTransition,
   },
 }
 </script>
