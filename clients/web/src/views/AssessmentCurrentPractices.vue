@@ -9,7 +9,7 @@
     <div v-if="loading">
       <loading-spinner />
     </div>
-    <div v-else>
+    <div data-cy="current-practices" v-else>
       <tab-container class="pb-16" :tabs="tabs" :rightColHidden="true">
         <template v-slot:tab1>
           <assessment-sections
