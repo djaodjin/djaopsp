@@ -21,7 +21,7 @@ from ..mixins import BestPracticeMixin
 from ..models import ColumnHeader, Consumption
 from ..serializers import ConsumptionSerializer
 from ..suppliers import get_supplier_managers
-from ..templatetags.navactive import assessment_choices
+from ..templatetags.envconnect_tags import assessment_choices
 
 
 LOGGER = logging.getLogger(__name__)

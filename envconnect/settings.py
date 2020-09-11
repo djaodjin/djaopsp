@@ -1,4 +1,4 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 import os.path, sys
@@ -311,7 +311,7 @@ TEMPLATES = [
             'loaders': _TEMPLATE_LOADERS,
             'libraries': {},
             'builtins': [
-                'envconnect.templatetags.navactive',
+                'envconnect.templatetags.envconnect_tags',
                 'django_assets.templatetags.assets',
                 'deployutils.apps.django.templatetags.deployutils_prefixtags',
                 'deployutils.apps.django.templatetags.deployutils_extratags']

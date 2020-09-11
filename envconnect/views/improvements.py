@@ -24,7 +24,7 @@ from .benchmark import PrintableChartsMixin
 from ..compat import reverse
 from ..mixins import ContentCut, ImprovementQuerySetMixin
 from ..helpers import as_valid_sheet_title
-from ..templatetags.navactive import (
+from ..templatetags.envconnect_tags import (
     assessment_choices as assessment_choices_base)
 
 
