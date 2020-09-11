@@ -78,6 +78,32 @@
 },
 {
     "fields": {
+      "last_signed": "2017-01-01T00:00:00-00:00",
+      "agreement": 1,
+      "user": 6
+    },
+    "model": "saas.signature", "pk": 6
+},
+{
+    "fields": {
+      "created_at": "2017-01-01T14:16:55-09:00",
+      "role_description": 3,
+      "organization": 7,
+      "user": 6
+    },
+    "model": "saas.Role", "pk": 6
+},
+{
+    "fields": {
+      "created_at": "2017-01-01T14:16:55-09:00",
+      "role_description": 1,
+      "organization": 9,
+      "user": 6
+    },
+    "model": "saas.Role", "pk": 7
+},
+{
+    "fields": {
       "last_signed": "2014-01-01T00:00:00-00:00",
       "agreement": 1,
       "user": 7
@@ -130,15 +156,6 @@
 {
     "fields": {
       "created_at": "2017-01-01T14:16:55-09:00",
-      "role_description": 3,
-      "organization": 7,
-      "user": 9
-    },
-    "model": "saas.Role", "pk": 6
-},
-{
-    "fields": {
-      "created_at": "2017-01-01T14:16:55-09:00",
       "role_description": 1,
       "organization": 9,
       "user": 9
@@ -170,71 +187,8 @@
     },
     "model": "saas.Role", "pk": 10
 },
-{
-    "fields": {
-      "slug": "djaoapp-roles-card1",
-      "full_name": "RolesCard1",
-      "email": "djaoapp-roles-card1@djaoapp-roles-card1.com",
-      "created_at": "2020-01-01T00:00:00+00:00",
-      "processor": 1,
-      "is_provider": 1,
-      "is_active": 1
-    },
-    "model": "saas.Organization", "pk": 30
-},
-{
-    "fields": {
-      "date_joined": "2020-01-01T00:00:00-00:00",
-      "email": "xia+roles-card1@djaoapp-roles-card1.com",
-      "first_name": "Xia",
-      "last_name": "Roles Card1",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
-      "username": "xia-roles-card1"
-    },
-    "model": "auth.User", "pk": 30
-},
-{
-    "fields": {
-      "last_signed": "2020-01-01T00:00:00-00:00",
-      "agreement": 1,
-      "user": 30
-    },
-    "model": "saas.signature", "pk": 30
-},
-{
-    "fields": {
-      "date_joined": "2020-01-01T00:00:00-00:00",
-      "email": "joe+roles-card1@djaoapp-roles-card1.com",
-      "first_name": "Joe",
-      "last_name": "Roles Card1",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
-      "username": "joe-roles-card1"
-    },
-    "model": "auth.User", "pk": 31
-},
-{
-    "fields": {
-      "last_signed": "2020-01-01T00:00:00-00:00",
-      "agreement": 1,
-      "user": 31
-    },
-    "model": "saas.signature", "pk": 31
-},
-{
-    "fields": {
-      "created_at": "2012-09-14T14:16:55-09:00",
-      "role_description": 1,
-      "organization": 30,
-      "user": 30
-    },
-    "model": "saas.Role", "pk": 30
-},
+
+
 { "fields": {
     "slug": "envconnect",
     "account": 6,

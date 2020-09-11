@@ -38,7 +38,7 @@ class ToggleTagContentAPIView(TrailMixin, UpdateAPIView):
     removed_tag = None
 
     def update(self, request, *args, **kwargs):
-        trail = self.get_full_element_path(self.kwargs.get('path'))
+        trail = self.get_full_element_path(self.path)
         element = trail[-1]
         extra = {}
         try:
@@ -140,13 +140,13 @@ energy-efficiency/ HTTP/1.1
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        targets = self.get_full_element_path(self.kwargs.get('path', None))
+        targets = self.get_full_element_path(self.path)
         sources = self.get_full_element_path(serializer.validated_data.get(
             'source'))
         self.valid_against_loop(sources, targets)
         node = self.perform_change(sources, targets,
             rank=serializer.validated_data.get('rank', None))
-        prefix = self.kwargs.get('path', None)
+        prefix = self.path
         root = self._build_tree(node, prefix + '/' + node.slug)
         headers = self.get_success_headers(root)
         return Response(root, status=status.HTTP_201_CREATED, headers=headers)
@@ -213,13 +213,13 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
    """
 
     def post(self, request, *args, **kwargs):#pylint: disable=unused-argument
-        LOGGER.debug("move %s under %s", request.data, kwargs.get('path'))
+        LOGGER.debug("move %s under %s", request.data, self.path)
         return super(BestPracticeMoveAPIView, self).post(
             request, *args, **kwargs)
 
     def perform_change(self, sources, targets, rank=None):
-        moved = "/" + "/".join([source.slug for source in sources])
-        attach = "/" + "/".join([target.slug for target in targets])
+        moved = '/%s' % "/".join([source.slug for source in sources])
+        attach = '/%s' % "/".join([target.slug for target in targets])
         if Consumption.objects.filter(path=attach).exists():
             raise ValidationError({'detail': "Cannot move '%s' under '%s'"
             % (sources[-1].title, targets[-1].title)})
@@ -274,7 +274,7 @@ energy-efficiency/air-flow HTTP/1.1
     serializer_class = PageElementSerializer
 
     def get_object(self):
-        trail = self.get_full_element_path(self.kwargs.get('path'))
+        trail = self.get_full_element_path(self.path)
         return trail[-1]
 
     def get(self, request, *args, **kwargs):
@@ -407,6 +407,7 @@ energy-efficiency/air-flow/ HTTP/1.1
             DELETE /api/content/editables/detail/boxes-enclosures/\
 energy-efficiency/air-flow/ HTTP/1.1
         """
+        #pylint:disable=useless-super-delegation
         return super(BestPracticeAPIView, self).delete(request, *args, **kwargs)
 
 
@@ -427,8 +428,8 @@ energy-efficiency/air-flow/ HTTP/1.1
                 pk__in=[root.pk for root in roots]).delete()
 
     def perform_destroy(self, instance): #pylint:disable=unused-argument
-        trail = self.get_full_element_path(self.kwargs.get('path'))
-        from_root = "/" + "/".join([element.slug for element in trail])
+        trail = self.get_full_element_path(self.path)
+        from_root = '/%s' % "/".join([element.slug for element in trail])
         if len(trail) > 1:
             with transaction.atomic():
                 subtree_root = trail[-1]

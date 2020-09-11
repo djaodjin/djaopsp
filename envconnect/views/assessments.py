@@ -3,10 +3,8 @@
 from __future__ import unicode_literals
 
 import csv, io, json, logging, re
-from collections import namedtuple
 
-from django.db import connection
-from django.db.models import F, Count
+from django.db.models import F
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from deployutils.crypt import JSONEncoder
@@ -15,18 +13,15 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
-from pages.models import PageElement
-from survey.models import Answer, Choice, Metric, Sample, Unit
+from survey.models import Answer, Sample
 
 from ..api.benchmark import PracticeBenchmarkMixin
 from ..compat import reverse, six
-from ..helpers import as_measured_value, get_testing_accounts
-from ..mixins import ReportMixin, BestPracticeMixin
-from ..models import ColumnHeader, Consumption, get_scored_answers
-from ..scores import populate_account
+from ..mixins import BestPracticeMixin
+from ..models import ColumnHeader, Consumption
 from ..serializers import ConsumptionSerializer
 from ..suppliers import get_supplier_managers
-from ..templatetags.navactive import assessment_choices
+from ..templatetags.envconnect_tags import assessment_choices
 
 
 LOGGER = logging.getLogger(__name__)
@@ -83,18 +78,12 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
     template_name = 'envconnect/assess.html'
     breadcrumb_url = 'assess'
 
-    def get_breadcrumb_url(self, path):
-        organization = self.kwargs.get('organization', None)
-        if organization:
-            return reverse('assess_organization_redirect',
-                args=(organization, path))
-        return super(AssessmentView, self).get_breadcrumb_url(path)
-
     def get_context_data(self, **kwargs):
         context = super(AssessmentView, self).get_context_data(**kwargs)
         self.get_or_create_assessment_sample()
         segment_url, segment_prefix, segment_element = self.segment
-        root = self.get_report_tree(load_text=(self.survey.slug == 'framework'))
+        root = self.get_report_tree(
+            load_text=(self.campaign.slug == 'framework'))
         if root:
             self.decorate_visible_column_headers(root)
             context.update({
@@ -108,7 +97,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
             for prev_sample in Sample.objects.filter(
                 is_frozen=True,
                 extra__isnull=True,
-                survey=self.survey,
+                campaign=self.campaign,
                 account=self.account).order_by('-created_at')]
         if prev_samples:
             context.update({'prev_samples': prev_samples})
@@ -130,7 +119,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
             'nb_required_questions': self.nb_required_questions,
             'page_icon': self.icon,
             'sample': self.sample,
-            'survey': self.sample.survey,
+            'campaign': self.sample.campaign,
             'role': "tab",
             'score_toggle': self.request.GET.get('toggle', False)})
 
@@ -145,22 +134,23 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         update_context_urls(context, {
             'download': reverse(
                 'assess_organization_sample_download',
-                args=(organization, self.sample, segment_prefix)),
+                args=(organization, self.sample, segment_url)),
             'api_assessment_sample': reverse(
                 'survey_api_sample', args=(organization, self.sample)),
             'api_assessment_freeze': reverse(
                 'survey_api_sample_freeze', args=(organization, self.sample,
-                segment_prefix)),
+                segment_prefix[1:])),
             'api_assessment_sample_new': reverse(
                 'survey_api_sample_new', args=(organization,)),
             'api_scorecard_share': reverse('api_scorecard_share',
-                args=(organization, segment_prefix)),
+                args=(organization, segment_prefix[1:])),
         })
         return context
 
     def get(self, request, *args, **kwargs):
         from_root, _ = self.breadcrumbs
         if not from_root or from_root == "/":
+            # XXX If there are no paths, we should redirect to candidates...
             return HttpResponseRedirect(reverse('homepage'))
         return super(AssessmentView, self).get(request, *args, **kwargs)
 
@@ -249,7 +239,7 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
             for elements in six.itervalues(nodes[1]):
                 self.write_tree(elements, indent=indent + self.indent_step)
         # Environmental metrics measured/reported
-        measured_metrics = None
+        measured_metrics = []
         # removed duplicate dump in .xslx spreadsheet when
         # `self.get_measured_metrics_context()` is used instead of `None`.
         if measured_metrics:
@@ -443,31 +433,30 @@ class AssessmentXLSXView(AssessmentSpreadsheetView):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
 
 
-class TargetsView(AssessmentView):
-    """
-    View that specifically filters the targets out of the assessment questions
-    """
-    breadcrumb_url = 'targets'
-
-
-class CompleteView(AssessmentView, TemplateView):
+class CompleteView(AssessmentView):
 
     template_name = 'envconnect/complete.html'
     breadcrumb_url = 'complete'
 
     def decorate_leafs(self, leafs):
-        for path, vals in six.iteritems(leafs):
-            queryset = Consumption.objects.filter(
-                enumeratedquestions__required=True,
-                enumeratedquestions__campaign=self.survey,
-                path=path).exclude(
+        # Only called once from `BreadcrumbMixin._build_tree` so it is OK
+        # to use the segment instead of each leaf path.
+        segment_url, segment_prefix, segment_element = self.segment
+        required_not_answered = Consumption.objects.filter(
+            enumeratedquestions__required=True,
+            enumeratedquestions__campaign=self.campaign,
+            path__startswith=segment_prefix).exclude(
                 answer__sample=self.assessment_sample,
                 answer__metric_id=F('default_metric_id'))
-            consumption = queryset.first()
+        consumptions = {}
+        for consumption in required_not_answered:
+            consumptions[consumption.path] = consumption
+        for path, vals in six.iteritems(leafs):
+            consumption = consumptions.get(path, None)
             if consumption:
                 vals[0]['consumption'] \
                     = ConsumptionSerializer(context={
-                        'campaign': self.survey,
+                        'campaign': self.campaign,
                         'required': True,
                     }).to_representation(consumption)
             else:

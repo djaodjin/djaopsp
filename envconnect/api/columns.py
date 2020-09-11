@@ -79,10 +79,10 @@ energy-efficiency/ HTTP/1.1
         return super(ColumnAPIView, self).put(request, *args, **kwargs)
 
     def get_queryset(self):
-        return ColumnHeader.objects.filter(path=self.kwargs.get('path'))
+        return ColumnHeader.objects.filter(path=self.path)
 
     def get_object(self):
-        path = self.kwargs.get('path')
+        path = self.path
         slug = self.request.data.get('slug')
         try:
             obj = self.get_queryset().get(slug=slug)
@@ -91,7 +91,7 @@ energy-efficiency/ HTTP/1.1
         return obj
 
     def perform_update(self, serializer):
-        path = self.kwargs.get('path')
+        path = self.path
         with transaction.atomic():
             serializer.save()
             visible_cols = Consumption.VALUE_SUMMARY_FIELDS - set([

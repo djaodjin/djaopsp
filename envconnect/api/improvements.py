@@ -86,15 +86,13 @@ class ImprovementAnswerAPIView(ImprovementQuerySetMixin, AnswerAPIView):
         return self.improvement_sample
 
     def get_object(self):
-        return get_object_or_404(self.get_queryset(),
-            question__path=self.kwargs.get('path'))
+        return get_object_or_404(self.get_queryset(), question__path=self.path)
 
     @property
     def question(self):
         if not hasattr(self, '_question'):
             self._question = get_object_or_404(
-                get_question_model().objects.all(),
-                path=self.kwargs.get('path'))
+                get_question_model().objects.all(), path=self.path)
         return self._question
 
     def get_serializer_context(self):
@@ -107,8 +105,7 @@ class ImprovementAnswerAPIView(ImprovementQuerySetMixin, AnswerAPIView):
         # as in `get_object`. It should return a single result but
         # in case the db was corrupted, let's just fix it on the fly here.
         # XXX In the future the improvements must relate to a specific year.
-        self.get_queryset().filter(
-            question__path=self.kwargs.get('path')).delete()
+        self.get_queryset().filter(question__path=self.path).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, *args, **kwargs):

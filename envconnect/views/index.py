@@ -24,8 +24,8 @@ class IndexView(BreadcrumbMixin, TemplateView):
             'segments': self.get_segments(search_query='public')
         })
         update_context_urls(context, {
-            'api_enable': reverse('api_enable', args=("",)),
-            'api_disable': reverse('api_disable', args=("",)),
+            'api_enable': reverse('api_enable', args=('',)),
+            'api_disable': reverse('api_disable', args=('',)),
         })
         return context
 

@@ -33,7 +33,7 @@ class Command(BaseCommand):
             default=1000, help="Number of organizations to create.")
 
     def handle(self, *args, **options):
-        self.survey = Campaign.objects.get(title=ReportMixin.report_title)
+        self.campaign = Campaign.objects.get(title=ReportMixin.report_title)
 #        self.create_organizations(
 #            nb_organizations=int(options['nb_organizations']))
         account = options['account']
@@ -68,7 +68,7 @@ class Command(BaseCommand):
 
     def populate_answers(self, organization, industry):
         sample, _ = Sample.objects.get_or_create(
-            survey=self.survey, account=organization)
+            campaign=self.campaign, account=organization)
         for question in Consumption.objects.filter(
                 path__startswith="/%s/" % industry.slug):
             Answer.objects.create(
@@ -79,7 +79,7 @@ class Command(BaseCommand):
         if not isinstance(organization, Organization):
             organization = Organization.objects.get(slug=organization)
         assessment_sample = Sample.objects.filter(
-            extra__isnull=True, survey=self.survey,
+            extra__isnull=True, campaign=self.campaign,
             account=organization).order_by('-created_at').first()
 
         # Backup current answers

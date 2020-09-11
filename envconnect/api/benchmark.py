@@ -55,11 +55,11 @@ class PracticeBenchmarkMixin(ReportMixin):
     # bestpractice info through links in assess and improve pages.
 
     def _framework_results(self, consumptions):
-        if self.survey.slug == 'framework':
+        if self.campaign.slug == 'framework':
             ends_at = self.sample.created_at + relativedelta(months=1)
             last_frozen_assessments = \
                 Consumption.objects.get_latest_assessment_by_accounts(
-                    self.survey, before=ends_at,
+                    self.campaign, before=ends_at,
                     excludes=get_testing_accounts())
             results = Answer.objects.filter(
                 metric_id=self.default_metric_id,
@@ -117,7 +117,7 @@ class PracticeBenchmarkMixin(ReportMixin):
         # table in `get_expected_opportunities`.
         scored_answers = get_scored_answers(
             Consumption.objects.get_active_by_accounts(
-                self.survey, excludes=self._get_filter_out_testing()),
+                self.campaign, excludes=self._get_filter_out_testing()),
             self.default_metric_id,
             includes=self.get_included_samples())
 
@@ -132,7 +132,7 @@ class PracticeBenchmarkMixin(ReportMixin):
                 consumption = consumption_tuple(*consumption)
                 if consumption.is_planned:
                     if consumption.answer_id:
-                        if self.survey.slug == 'framework':
+                        if self.campaign.slug == 'framework':
                             consumptions_planned.update({
                                 consumption.path: consumption.implemented})
                         else:
@@ -239,7 +239,7 @@ class PracticeBenchmarkMixin(ReportMixin):
                     })
                 vals[0]['consumption'] \
                     = ConsumptionSerializer(context={
-                        'campaign': self.survey,
+                        'campaign': self.campaign,
                         'planned': consumptions_planned.get(path, None)
                     }).to_representation(consumption)
             else:
@@ -435,7 +435,7 @@ class BenchmarkMixin(ReportMixin):
         if prefix is None:
             prefix = "/"
         if not prefix.startswith("/"):
-            prefix = "/" + prefix
+            prefix = '/%s' % prefix
         charts = []
         complete = True
         for key, chart in six.iteritems(distribution_tree[1]):
@@ -557,7 +557,7 @@ class BenchmarkMixin(ReportMixin):
         # `population` is the most recent (not-frozen) assessment
         # indexed by account.
         population = list(Consumption.objects.get_active_by_accounts(
-            self.survey, excludes=self._get_filter_out_testing()))
+            self.campaign, excludes=self._get_filter_out_testing()))
 
         # All latest samples per account
         includes = list(Consumption.objects.get_latest_samples_by_accounts(
@@ -617,7 +617,7 @@ class BenchmarkMixin(ReportMixin):
                     # If we already have an aggregated result, we keep it.
                     score.update({
                         'sample': str(sample),
-                        'created_at': last_activity_at
+                        'created_at': max(last_activity_at, sample.created_at)
                     })
         self._report_queries("rollup_tree populated")
 
@@ -1178,7 +1178,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
     serializer_class = ScoreWeightSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        trail = self.get_full_element_path(self.kwargs.get('path'))
+        trail = self.get_full_element_path(self.path)
         return HttpResponse(self.serializer_class().to_representation({
             'weight': get_score_weight(trail[-1].tag)}))
 
@@ -1190,7 +1190,7 @@ class ScoreWeightAPIView(TrailMixin, generics.RetrieveUpdateAPIView):
         return HttpResponse(serializer.data)
 
     def perform_update(self, serializer):
-        trail = self.get_full_element_path(self.kwargs.get('path'))
+        trail = self.get_full_element_path(self.path)
         element = trail[-1]
         extra = {}
         try:
@@ -1281,7 +1281,7 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
         if prefix is None:
             prefix = "/"
         if not prefix.startswith("/"):
-            prefix = "/" + prefix
+            prefix = '/%s' % prefix
 
         is_pagebreak = ContentCut.TAG_PAGEBREAK in rollup_tree[0].get('tag', "")
         if not is_pagebreak:
@@ -1301,11 +1301,11 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
             if 'sample' in account:
                 # XXX builds URL to segments.
                 last_part = node_path.split('/')[-1]
-                url_path = '/%s' % last_part
                 by_industry.update({
                     'url': self.request.build_absolute_uri(
-                        reverse('assess_organization', args=(
-                          self.account.slug, account['sample'], url_path)))
+                        reverse('assess_organization',
+                            args=(self.account.slug, account['sample'],
+                                  '/%s' % last_part)))
                 })
             accounts[account_key].update({node_key: by_industry})
 
@@ -1434,7 +1434,7 @@ details/boxes-and-enclosures HTTP/1.1
         query_filter = Q(tag__contains='industry')
         if search_query:
             query_filter = query_filter & Q(tag__contains=search_query)
-        trail = self.get_full_element_path(self.kwargs.get('path'))
+        trail = self.get_full_element_path(self.path)
         full_path = '/%s' % '/'.join([element.slug for element in trail])
         if trail:
             prefix = '/%s' % '/'.join([element.slug for element in trail[:-1]])

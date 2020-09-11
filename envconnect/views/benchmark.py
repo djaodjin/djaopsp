@@ -42,8 +42,7 @@ class BenchmarkView(BenchmarkMixin, TemplateView):
             # Flatten icons and practices (i.e. Energy Efficiency) to produce
             # the list of charts.
             self.decorate_with_breadcrumbs(root)
-            charts = self.get_charts(
-                root, excludes=[segment_prefix.split('/')[-1]])
+            charts = self.get_charts(root, excludes=[segment_element.slug])
             organization = kwargs.get('organization')
             if self.assessment_sample:
                 last_updated_at = self.assessment_sample.created_at.strftime(
@@ -51,13 +50,13 @@ class BenchmarkView(BenchmarkMixin, TemplateView):
                 update_context_urls(context, {
                     'scorecard_organization_download': reverse(
                         'scorecard_organization_download', args=(
-                            organization, self.assessment_sample,
-                            '/%s' % segment_prefix.split('/')[-1])),
+                            organization, self.assessment_sample, segment_url)),
                     'api_account_benchmark': reverse('api_benchmark', args=(
-                        organization, self.assessment_sample, segment_prefix)),
+                        organization, self.assessment_sample,
+                        segment_prefix[1:])),
                     'api_historical_scores': reverse(
                         'api_historical_scores', args=(
-                            organization, segment_prefix)),
+                            organization, segment_prefix[1:])),
                 })
                 context.update({'sample': self.assessment_sample})
             else:
@@ -88,10 +87,10 @@ class BenchmarkView(BenchmarkMixin, TemplateView):
 
     def get_assessment_redirect_url(self, *args, **kwargs):
         #pylint:disable=unused-argument
-        path = kwargs.get('path')
+        url_path = kwargs.get('path')
         organization = kwargs.get('organization')
-        if not isinstance(path, six.string_types):
-            path = ""
+        if not isinstance(url_path, six.string_types):
+            url_path = ""
         if organization in self.accessibles(
                 roles=['manager', 'contributor']):
             # /app/:organization/scorecard/:path
@@ -103,9 +102,9 @@ class BenchmarkView(BenchmarkMixin, TemplateView):
                 " moving on to the scorecard.")
             return HttpResponseRedirect(
                 reverse('assess_organization_redirect',
-                    kwargs={'organization': organization, 'path': path}))
+                    kwargs={'organization': organization, 'path': url_path}))
         return HttpResponseRedirect(reverse('summary_organization_redirect',
-            kwargs={'organization': organization, 'path': path}))
+            kwargs={'organization': organization, 'path': url_path}))
 
 
 class PrintableChartsMixin(object):
@@ -200,7 +199,7 @@ class BenchmarkDownloadView(PrintableChartsMixin, ScorecardQuerySetMixin,
         if not hasattr(self, '_score_charts'):
             self._score_charts = self.get_queryset()
             segment_url, segment_prefix, segment_element = self.segment
-            excludes = [segment_prefix.split('/')[-1]]
+            excludes = [segment_element.slug]
             found = -1
             for idx, chart in enumerate(self._score_charts):
                 if chart.get('slug', None) in excludes:

@@ -634,8 +634,11 @@ envconnectControllers.controller("EnvconnectCtrl",
                 $scope.hidden[prefix][fieldName] = true;
             }
         }
-        $http.put(settings.urls.api_columns + prefix, {'slug': fieldName,
-            'hidden': $scope.hidden[prefix][fieldName]}).then(
+        // prevents 2 '/' together
+        $http.put(settings.urls.api_columns.replace(/\/+$/, "") + prefix, {
+            'slug': fieldName,
+            'hidden': $scope.hidden[prefix][fieldName]
+        }).then(
             function(resp) { // success
                 // The columns API returns the updated portion of the content
                 // tree used on the page.
@@ -828,8 +831,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         var form = angular.element(event.target);
         var modalDialog = form.parents('.modal');
         var data = {source: $scope.newElement.value.path};
-        var postUrl = settings.urls.api_mirror_node.replace(/\/+$/, "")
-            + prefix + '/';
+        // prevent 2 '/' together.
+        var postUrl = settings.urls.api_mirror_node.replace(/\/+$/, "") + prefix;
         $http.post(postUrl, data).then(
         function success(resp) {
             var node = $scope.getEntriesRecursive($scope.entries, prefix);
@@ -1093,7 +1096,7 @@ envconnectControllers.controller("EnvconnectCtrl",
     $scope.editScoreWeight = function(event) {
         angular.element(event.target).editor({
             uniqueIdentifier: "data-id",
-            baseUrl: settings.urls.api_weights,
+            baseUrl: settings.urls.api_weights.replace(/\/+$/, ""),
             focus: true
         });
     };
@@ -1105,7 +1108,8 @@ envconnectControllers.controller("EnvconnectCtrl",
         var prefix = null;
         if( !url ) {
             prefix = path.substring(0, path.lastIndexOf('/'));
-            url = settings.urls.api_best_practices + path + '/';
+            // prevent 2 '/' together.
+            url = settings.urls.api_best_practices.replace(/\/+$/, "") + path;
         }
         $http.delete(url).then(
             function success(resp) {
@@ -1143,7 +1147,8 @@ envconnectControllers.controller("EnvconnectCtrl",
     };
 
     $scope.moveBestPractice = function(movedPath, attachPath, rank, externalKey) {
-        var postUrl = settings.urls.api_move_node;
+        // prevent 2 '/' together.
+        var postUrl = settings.urls.api_move_node.replace(/\/+$/, "");
         var data = {source: movedPath};
         if( typeof rank !== 'undefined' && rank !== null ) {
             data['rank'] = rank;
@@ -1151,10 +1156,11 @@ envconnectControllers.controller("EnvconnectCtrl",
         if( typeof externalKey !== 'undefined' && externalKey !== null ) {
             data['external_key'] = externalKey;
         }
-        $http.post(postUrl + attachPath + '/', data).then(
+        $http.post(postUrl + attachPath, data).then(
             function success(resp) {
-                $http.get(settings.urls.api_best_practices
-                    + $scope.entries[0].path + '/').then(
+                // prevent 2 '/' together.
+                $http.get(settings.urls.api_best_practices.replace(/\/+$/, "")
+                    + $scope.entries[0].path).then(
                         function success(resp) {
                             $scope.calcSavingsAndCost(resp.data);
                             $scope.entries = resp.data;
@@ -1349,15 +1355,16 @@ envconnectControllers.controller("EnvconnectCtrl",
      */
     $scope.updateImprovement = function(practice, newValue) {
         if( practice && practice[0].consumption ) {
+            // prevent 2 '/' together.
+            var postUrl = settings.urls.api_improvements.replace(/\/+$/, "") + practice[0].path;
             if( $scope.getPlanned(practice[0]) ) {
                 var data = {};
                 if( newValue ) {
                     data['measured'] = newValue;
                 }
                 $scope.setActiveElement(practice[0]);
-                $http.post(
-                    settings.urls.api_improvements + practice[0].path, data
-                ).then(function success(resp) {
+                $http.post(postUrl, data).then(
+                function success(resp) {
                     $("#improvement-dashboard").data(
                         'improvementDashboard').load();
                     if( $scope.activeElement.value.tag ) {
@@ -1368,7 +1375,8 @@ envconnectControllers.controller("EnvconnectCtrl",
                     showErrorMessages(resp);
                 });
             } else {
-                $http.delete(settings.urls.api_improvements + practice[0].path).then(function success(resp) {
+                $http.delete(postUrl).then(
+                function success(resp) {
                     $("#improvement-dashboard").data('improvementDashboard').load();
                 }, function(resp) { // error
                     showErrorMessages(resp);

@@ -1,8 +1,9 @@
-# Copyright (c) 2018, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 from django.db import transaction
 from rest_framework import generics
+from rest_framework.generics import get_object_or_404
 from survey.models import EnumeratedQuestions
 
 from ..serializers import ConsumptionSerializer
@@ -91,7 +92,7 @@ class ConsumptionListAPIView(BreadcrumbMixin, generics.ListCreateAPIView):
         with transaction.atomic():
             consumption = serializer.save()
             EnumeratedQuestions.objects.get_or_create(
-                campaign=self.survey, question=consumption,
+                campaign=self.campaign, question=consumption,
                 defaults={'rank': self.get_next_rank()})
 
 
@@ -125,7 +126,9 @@ energy-efficiency/air-flow/ HTTP/1.1
     """
     queryset = Consumption.objects.all()
     serializer_class = ConsumptionSerializer
-    lookup_field = 'path'
+
+    def get_object(self):
+        return get_object_or_404(self.get_queryset(), path=self.path)
 
     def put(self, request, *args, **kwargs):
         """

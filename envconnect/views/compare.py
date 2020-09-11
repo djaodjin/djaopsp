@@ -38,10 +38,12 @@ class SuppliersView(AccountMixin, BreadcrumbMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SuppliersView, self).get_context_data(**kwargs)
-        root, trail = self.breadcrumbs
+        from_root, trail = self.breadcrumbs
+        section_prefix = '/'.join([
+            part for part in from_root.split('/') if part])
         update_context_urls(context, {
             'api_suppliers': reverse('api_suppliers',
-                args=(self.account, root)),
+                args=(self.account, section_prefix)),
             'api_accessibles': site_prefixed(
                 "/api/profile/%(account)s/plans/%(account)s-report/"\
                 "subscriptions/" % {'account': self.account}),
@@ -49,10 +51,10 @@ class SuppliersView(AccountMixin, BreadcrumbMixin, TemplateView):
             'api_organization_profile': site_prefixed(
                 "/api/profile/%(account)s/" % {'account': self.account}),
             'download': reverse('reporting_organization_download',
-                                args=(self.account, root)),
+                                args=(self.account, from_root)),
             'improvements_download': reverse(
                 'reporting_organization_improvements_download',
-                args=(self.account, root))
+                args=(self.account, from_root))
         })
         try:
             extra = json.loads(self.account.extra)
@@ -94,16 +96,17 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         parts = candidate.split("/")
         if len(parts) > 1:
             candidate = parts[0]
+
+        context = MatrixDetailView.get_context_data(self, **kwargs)
+        context.update({'organization': self.kwargs.get('organization')})
+        context.update({'available_matrices': self.get_available_matrices()})
+
         try:
             PageElement.objects.get(slug=candidate)
         except PageElement.DoesNotExist:
             # It is not a breadcrumb path (ex: totals).
             #pylint:disable=unsubscriptable-object
             del self.kwargs[self.matrix_url_kwarg]
-
-        context = MatrixDetailView.get_context_data(self, **kwargs)
-        context.update({'organization': self.kwargs.get('organization')})
-        context.update({'available_matrices': self.get_available_matrices()})
 
         from_root, trail = self.breadcrumbs
         segment_url, segment_prefix, segment_element = self.segment
@@ -112,8 +115,7 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
             root = self._build_tree(segment_element, from_root)
             self.decorate_with_breadcrumbs(root)
             # Remove sgement chart that would otherwise be added.
-            charts = self.get_charts(
-                root, excludes=[segment_prefix.split('/')[-1]])
+            charts = self.get_charts(root, excludes=[segment_element.slug])
         else:
             # totals
             charts = []
@@ -161,10 +163,15 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
                 matrix_slug = '/'.join([look.group(1)])
             else:
                 matrix_slug = '/'.join([str(self.object), candidate])
-            url_kwargs.update({self.matrix_url_kwarg: "/%s" % matrix_slug})
+            url_kwargs.update({self.matrix_url_kwarg: matrix_slug})
             api_urls = {'matrix_api': reverse('matrix_api', kwargs=url_kwargs)}
             chart.update({'urls': api_urls})
         context.update({'charts': charts})
+
+        update_context_urls(context, {
+            'reporting_organization': reverse('reporting_organization',
+                args=(self.account, ''))
+        })
         return context
 
 

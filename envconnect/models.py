@@ -40,9 +40,9 @@ class ColumnHeaderQuerySet(models.QuerySet):
         if parts:
             if not parts[0]:
                 parts = parts[1:]
-            candidates = Q(path="/%s" % '/'.join(parts[:1]))
+            candidates = Q(path='/%s' % '/'.join(parts[:1]))
             for idx in range(2, len(parts)):
-                candidates |= Q(path="/%s" % '/'.join(parts[:idx]))
+                candidates |= Q(path='/%s' % '/'.join(parts[:idx]))
             return self.filter(candidates).values('slug').annotate(
                 models.Max('path'))
         return self.none()
@@ -97,7 +97,7 @@ class ConsumptionQuerySet(models.QuerySet):
 
     """
 
-    def get_active_by_accounts(self, survey, excludes=None):
+    def get_active_by_accounts(self, campaign, excludes=None):
         """
         Returns the most recent assessment (i.e. "active"/"not frozen")
         indexed by account. All accounts in ``excludes`` are not added
@@ -119,13 +119,13 @@ class ConsumptionQuerySet(models.QuerySet):
   FROM survey_sample
   INNER JOIN (SELECT account_id, MAX(created_at) AS last_updated_at
               FROM survey_sample
-              WHERE survey_sample.survey_id = %(survey_id)d
+              WHERE survey_sample.campaign_id = %(campaign_id)d
                     AND survey_sample.extra IS NULL
                     %(filter_out_testing)s
               GROUP BY account_id) AS last_updates
   ON survey_sample.account_id = last_updates.account_id AND
      survey_sample.created_at = last_updates.last_updated_at
-""" % {'survey_id': survey.pk,
+""" % {'campaign_id': campaign.pk,
        'filter_out_testing': filter_out_testing}
         return Sample.objects.raw(sql_query)
 
@@ -161,7 +161,7 @@ WHERE %(extra)s AND
             'extra': extra,
             'prefix': prefix}
 
-    def get_latest_assessment_by_accounts(self, survey,
+    def get_latest_assessment_by_accounts(self, campaign,
                                           before=None, excludes=None):
         """
         Returns the most recent frozen assessment before an optionally specified
@@ -191,7 +191,7 @@ INNER JOIN (
         account_id,
         MAX(created_at) AS last_updated_at
     FROM survey_sample
-    WHERE survey_sample.survey_id = %(survey_id)d AND
+    WHERE survey_sample.campaign_id = %(campaign_id)d AND
           survey_sample.extra IS NULL AND
           survey_sample.is_frozen
           %(before_clause)s
@@ -201,7 +201,7 @@ ON survey_sample.account_id = last_updates.account_id AND
    survey_sample.created_at = last_updates.last_updated_at
 WHERE survey_sample.extra IS NULL AND
       survey_sample.is_frozen
-""" % {'survey_id': survey.pk,
+""" % {'campaign_id': campaign.pk,
        'before_clause': before_clause,
        'filter_out_testing': filter_out_testing}
         return Sample.objects.raw(sql_query)
@@ -227,23 +227,23 @@ WHERE survey_sample.extra IS NULL AND
     survey_sample.account_id AS account_id,
     survey_sample.id AS id,
     survey_sample.created_at AS created_at,
-    survey_sample.survey_id AS survey_id,
+    survey_sample.campaign_id AS campaign_id,
     survey_sample.is_frozen AS is_frozen,
     survey_sample.extra AS extra
   FROM survey_sample
   INNER JOIN (
-    SELECT account_id, survey_id, extra, MAX(created_at) AS last_updated_at
+    SELECT account_id, campaign_id, extra, MAX(created_at) AS last_updated_at
     FROM survey_sample
     WHERE (survey_sample.extra IS NULL OR survey_sample.extra = 'is_planned')
       %(filter_out_testing)s
       %(campaign_clause)s
       %(before_clause)s
-    GROUP BY account_id, survey_id, extra) AS latests
+    GROUP BY account_id, campaign_id, extra) AS latests
   ON survey_sample.account_id = latests.account_id
-  AND survey_sample.survey_id = latests.survey_id
+  AND survey_sample.campaign_id = latests.campaign_id
   AND survey_sample.created_at = latests.last_updated_at""" % {
           'filter_out_testing': filter_out_testing,
-          'campaign_clause': ("AND survey_sample.survey_id = %d" % campaign.pk
+          'campaign_clause': ("AND survey_sample.campaign_id = %d" % campaign.pk
             if campaign else ""),
           'before_clause': ("AND created_at < '%s'" % before.isoformat()
             if before else "")}
@@ -265,13 +265,13 @@ WHERE survey_sample.extra IS NULL AND
         implementation_rate_view = """WITH
 nb_positive_by_questions AS (
   SELECT
-    question_id AS question_id,
+    survey_answer.question_id AS question_id,
     COUNT(survey_answer.id) AS nb_yes
   FROM survey_answer
   WHERE survey_answer.metric_id = 1
     AND survey_answer.measured IN (%(positive_answers)s)
     AND survey_answer.sample_id IN (%(sample_population)s)
-  GROUP BY question_id),
+  GROUP BY survey_answer.question_id),
 
 nb_valid_by_questions AS (
   SELECT
@@ -540,7 +540,7 @@ INNER JOIN (
            survey_sample.extra AS is_planned
     FROM survey_sample
     INNER JOIN survey_enumeratedquestions
-      ON survey_sample.survey_id = survey_enumeratedquestions.campaign_id
+      ON survey_sample.campaign_id = survey_enumeratedquestions.campaign_id
     %(additional_filters)s
     ) AS samples
 ON questions_with_opportunity.id = samples.question_id
@@ -559,17 +559,20 @@ def get_answer_with_account(includes=None, metric_id=1):
     """
     query = """SELECT
     survey_answer.id AS id,
-    question_id,
-    sample_id,
-    account_id,
+    survey_answer.question_id AS question_id,
+    survey_answer.sample_id AS sample_id,
+    survey_sample.account_id AS account_id,
     survey_answer.created_at AS created_at,
-    measured,
+    survey_answer.measured AS measured,
     survey_sample.is_frozen AS is_completed,
     survey_sample.extra AS is_planned,
-    survey_answer.rank AS rank
+    survey_enumeratedquestions.rank AS rank
 FROM survey_answer
 INNER JOIN survey_sample
   ON survey_answer.sample_id = survey_sample.id
+INNER JOIN survey_enumeratedquestions
+  ON (survey_answer.question_id = survey_enumeratedquestions.question_id
+  AND survey_sample.campaign_id = survey_enumeratedquestions.campaign_id)
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
         includes=includes, extra="survey_answer.metric_id = %d" % metric_id)}
@@ -605,12 +608,15 @@ survey_answer.denominator AS denominator,
 survey_sample.created_at AS last_activity_at,
 survey_answer.id AS answer_id,
 survey_answer.question_id AS question_id,
-survey_question.path AS path
+survey_question.path AS path,
+survey_metric.slug AS metric
 FROM survey_answer
 INNER JOIN survey_sample
   ON survey_answer.sample_id = survey_sample.id
 INNER JOIN survey_question
   ON survey_answer.question_id = survey_question.id
+INNER JOIN survey_metric
+  ON survey_question.default_metric_id = survey_metric.id
 %(additional_filters)s""" % {
     'additional_filters': _additional_filters(
         includes=includes, prefix=prefix,
@@ -777,10 +783,11 @@ SELECT
     samples.id AS sample_id,
     samples.slug AS sample_slug,
     samples.is_frozen AS is_completed,
-    samples.extra AS is_planned
+    samples.extra AS is_planned,
+    survey_enumeratedquestions.rank as rank
 FROM samples
 INNER JOIN survey_enumeratedquestions
-    ON samples.survey_id = survey_enumeratedquestions.campaign_id
+    ON samples.campaign_id = survey_enumeratedquestions.campaign_id
 INNER JOIN survey_question
     ON survey_question.id = survey_enumeratedquestions.question_id
 WHERE survey_question.path LIKE '%(prefix)s%%'
@@ -795,7 +802,7 @@ SELECT
     CAST(survey_answer.denominator AS FLOAT) AS denominator,
     survey_answer.created_at AS last_activity_at,
     survey_answer.id AS answer_id,
-    survey_answer.rank AS rank,
+    expected_opportunities.rank AS rank,
     expected_opportunities.path AS path,
     expected_opportunities.implemented AS implemented,
     expected_opportunities.environmental_value AS environmental_value,
@@ -805,12 +812,14 @@ SELECT
     expected_opportunities.avg_value AS avg_value,
     expected_opportunities.nb_respondents AS nb_respondents,
     expected_opportunities.rate AS rate,
-    expected_opportunities.default_metric_id AS default_metric_id,
+    survey_metric.slug AS metric,
     expected_opportunities.opportunity AS opportunity
 FROM expected_opportunities
 LEFT OUTER JOIN survey_answer
     ON expected_opportunities.question_id = survey_answer.question_id
     AND expected_opportunities.sample_id = survey_answer.sample_id
+INNER JOIN survey_metric
+  ON expected_opportunities.default_metric_id = survey_metric.id
 WHERE survey_answer.metric_id = 2""" % {
     'latest_assessments': latest_assessments,
     'prefix': prefix}
@@ -836,7 +845,7 @@ WITH assessment_answers AS (
   WHERE
     survey_answer.metric_id = %(metric_id)s
     AND survey_sample.extra IS NULL
-    AND survey_sample.survey_id = %(campaign)d
+    AND survey_sample.campaign_id = %(campaign)d
     AND survey_sample.account_id IN (%(population)s)
 ), ranked_questions AS (
   SELECT survey_question.id AS id,

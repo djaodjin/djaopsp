@@ -87,22 +87,22 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
     enable_report_queries = True
 
     @property
-    def survey(self):
-        if not hasattr(self, '_survey'):
-            path = self.kwargs.get('path', "")
-            if path.startswith('/framework'):
+    def campaign(self):
+        if not hasattr(self, '_campaign'):
+            if self.path.startswith('/framework'):
                 slug = 'framework'
             else:
                 slug = 'assessment'
-            self._survey = get_object_or_404(Campaign.objects.all(), slug=slug)
-        return self._survey
+            self._campaign = get_object_or_404(
+                Campaign.objects.all(), slug=slug)
+        return self._campaign
 
     @property
     def default_metric_id(self):
         if not hasattr(self, '_default_metric_id'):
             # XXX relies on Metric.slug == Campaign.slug
             self._default_metric_id = Metric.objects.get(
-                slug=self.survey.slug).pk
+                slug=self.campaign.slug).pk
         return self._default_metric_id
 
     @property
@@ -121,7 +121,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         links (a href).
         """
         if not hasattr(self, '_breadcrumbs'):
-            self._breadcrumbs = self.get_breadcrumbs(self.kwargs.get('path'))
+            self._breadcrumbs = self.get_breadcrumbs(self.path)
         return self._breadcrumbs
 
     @property
@@ -135,19 +135,26 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         """
         if not hasattr(self, '_segment'):
             full_path, trail = self.breadcrumbs
-            url_path = '/'
+            url_path = ''
             prefix = '/'
             element = None
             for part in trail:
-                if part[0].tag and 'pagebreak' in part[0].tag:
-                    url_path = part[2].split('?')[0]
+                tags = []
+                if part[0].tag:
+                    if isinstance(part[0].tag, dict):
+                        tags = part[0].tag.get('tags', [])
+                    else:
+                        tags = part[0].tag
+                if tags and 'pagebreak' in tags:
                     element = part[0]
+                    break
             if element:
                 parts = full_path.split('/')
                 for idx, part in enumerate(parts):
                     if part == element.slug:
                         prefix = '/'.join(parts[:idx + 1])
                         break
+                url_path = '/%s' % str(element)
             self._segment = (url_path, prefix, element)
         return self._segment
 
@@ -190,8 +197,9 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         return result
 
     def get_breadcrumb_url(self, path):
-        if path.endswith('/'):
-            path = path[:-1]
+        if path is None:
+            path = ""
+        path = '/%s' % '/'.join([part for part in path.split('/') if part])
         organization = self.kwargs.get('organization')
         if organization:
             return reverse("%s_organization_redirect" % self.breadcrumb_url,
@@ -203,7 +211,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         try:
             # We have to deal with matrix/totals which is a path with no
             # matching path elements.
-            trail = self.get_full_element_path(self.kwargs.get('path', ""))
+            trail = self.get_full_element_path(self.path)
             if trail:
                 prefix = '/%s' % '/'.join([element.slug for element in trail])
                 segments = self.get_segments()
@@ -271,7 +279,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         if not prefix:
             prefix = ''
         elif not prefix.startswith("/"):
-            prefix = "/" + prefix
+            prefix = '/%s' % prefix
         if roots is None:
             roots = self.get_roots()
 
@@ -288,12 +296,12 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 orig_element_id = root.get('dest_element__pk')
                 title = root.get('dest_element__title')
                 tag = root.get('dest_element__tag')
-            if prefix.endswith("/" + slug):
+            if prefix.endswith('/%s' % slug):
                 # Workaround because we sometimes pass a prefix and sometimes
                 # a path `from_root`.
                 base = prefix
             else:
-                base = prefix + "/" + slug
+                base = '/'.join([prefix, slug])
             result_node = {
                 'path': base,
                 'slug': slug,
@@ -367,8 +375,8 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             rollup_tree = self.build_aggregate_tree()
         if path is None:
             path = ''
-        elif not path.startswith("/"):
-            path = "/" + path
+        elif not path.startswith('/'):
+            path = '/%s' % path
 
         if not rollup_tree[1].keys():
             return {path: rollup_tree}
@@ -385,21 +393,21 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
 
     def get_next_rank(self):
         last_rank = EnumeratedQuestions.objects.filter(
-            campaign=self.survey).aggregate(Max('rank')).get('rank__max', 0)
+            campaign=self.campaign).aggregate(Max('rank')).get('rank__max', 0)
         return 0 if last_rank is None else last_rank + 1
 
     def get_serializer_context(self):
         context = super(BreadcrumbMixin, self).get_serializer_context()
-        context.update({'campaign': self.survey})
+        context.update({'campaign': self.campaign})
         return context
 
     def decorate_leafs(self, leafs):
         for path, vals in six.iteritems(leafs):
             consumption = Consumption.objects.filter(
-                enumeratedquestions__campaign=self.survey, path=path).first()
+                enumeratedquestions__campaign=self.campaign, path=path).first()
             if consumption:
                 vals[0]['consumption'] \
-                    = ConsumptionSerializer(context={'campaign': self.survey
+                    = ConsumptionSerializer(context={'campaign': self.campaign
                     }).to_representation(consumption)
             else:
                 vals[0]['consumption'] = None
@@ -514,7 +522,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         if not trail:
             return "", []
 
-        from_root = "/" + "/".join([element.slug for element in trail])
+        from_root = '/%s' % '/'.join([element.slug for element in trail])
 
         self.icon = None
         for element in trail:
@@ -537,7 +545,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     (part, " > ".join([elm.title for elm in trail])))
             node = trail[trail_idx]
             trail_idx += 1
-            url = "/" + "/".join(parts[:idx + 1])
+            url = '/%s' % '/'.join(parts[:idx + 1])
             if missing and results:
                 results[-1][1] += "#%s" % missing[0]
             results += [[node, url]]
@@ -564,28 +572,26 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         from_root, trail = self.breadcrumbs
         parts = from_root.split('/')
         root_prefix = '/'.join(parts[:-1]) if len(parts) > 1 else ""
-        path = kwargs.get('path', "")
         context.update({
-            'path': path,
+            'path': self.path,
             'root_prefix': root_prefix,
             'breadcrumbs': trail,
             'active': self.request.GET.get('active', "")})
         urls = {
             'api_scorecard_disable': reverse(
-                'api_scorecard_disable', args=("/",)),
+                'api_scorecard_disable', args=('',)),
             'api_scorecard_enable': reverse(
-                'api_scorecard_enable', args=("/",)),
-            'api_best_practices': reverse('api_detail', args=("",)),
-            'api_mirror_node': reverse('api_mirror_node', args=("",)),
-            'api_move_node': reverse('api_move_node', args=("",)),
-            'api_columns': reverse('api_column', args=("",)),
+                'api_scorecard_enable', args=('',)),
+            'api_best_practices': reverse('api_detail', args=('',)),
+            'api_mirror_node': reverse('api_mirror_node', args=('',)),
+            'api_move_node': reverse('api_move_node', args=('',)),
+            'api_columns': reverse('api_column', args=('',)),
             'api_consumptions': reverse('api_consumption_base'),
             'api_weights': reverse('api_score', kwargs={'path': ''}),
             'api_page_element_base': reverse('api_page_element',
-                kwargs={'path':""}),
+                kwargs={'path': ''}),
             'api_page_element_search': reverse('api_page_element_search'),
-            'best_practice_base': self.get_breadcrumb_url(
-                path)
+            'best_practice_base': self.get_breadcrumb_url(self.path)
         }
         active_section = ""
         if self.request.GET.get('active', ""):
@@ -606,55 +612,51 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     dest_element__slug='targets').exists():
                 hide_targets = False
         organization = kwargs.get('organization')
-        url_path, prefix, element = self.segment
-        if element:
+        segment_url, segment_prefix, segment_element = self.segment
+        if segment_url is None:
             # XXX Because this code is called on the app page
-            url_path = '/%s' % url_path.split('/')[-2]
-        else:
-            url_path = ''
+            segment_url = ''
         if organization:
             sample = kwargs.get('sample')
             summary_url = reverse('summary_organization_redirect',
-                args=(organization, path))
+                args=(organization, segment_url))
             improve_url = reverse('improve_organization_redirect',
-                args=(organization, path))
+                args=(organization, segment_url))
             if not hide_summary:
-                urls.update({
-                    'summary': summary_url,
-                })
+                urls.update({'summary': summary_url})
             if sample:
                 urls.update({
                     'assess': reverse('assess_organization',
-                        args=(organization, sample, url_path)),
+                        args=(organization, sample, segment_url)),
                     'complete': reverse('complete_organization',
-                        args=(organization, sample, url_path)),
+                        args=(organization, sample, segment_url)),
                     'share': reverse('share_organization',
-                        args=(organization, sample, url_path)),
+                        args=(organization, sample, segment_url)),
                 })
                 if not hide_improve:
                     urls.update({
                         'improve': reverse('improve_organization',
-                            args=(organization, sample, url_path)),
+                            args=(organization, sample, segment_url)),
                     })
                 if not hide_targets:
                     urls.update({
                         'targets': reverse('assess_organization',
                             args=(organization, sample,
-                                  '%s/targets' % url_path)),
+                                  '%s/targets' % segment_url)),
                     })
                 if not hide_scorecard:
                     urls.update({
                         'scorecard': reverse('scorecard_organization',
-                            args=(organization, sample, url_path)),
+                            args=(organization, sample, segment_url)),
                     })
             else:
                 urls.update({
                     'assess': reverse('assess_organization_redirect',
-                        args=(organization, path)),
+                        args=(organization, segment_url)),
                     'complete': reverse('complete_organization_redirect',
-                        args=(organization, url_path)),
+                        args=(organization, segment_url)),
                     'share': reverse('share_organization_redirect',
-                        args=(organization, url_path)),
+                        args=(organization, segment_url)),
                 })
                 if not hide_improve:
                     urls.update({
@@ -666,33 +668,29 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                     urls.update({
                         'targets': reverse('assess_organization_redirect',
                             args=(organization,
-                                  '%s/targets' % url_path)),
+                                  '%s/targets' % segment_url)),
                     })
                 if not hide_scorecard:
                     urls.update({
                         'scorecard': reverse('scorecard_organization_redirect',
-                            args=(organization, url_path)),
+                            args=(organization, segment_url)),
                     })
         else:
-            summary_url = reverse('summary', args=(path,))
-            improve_url = reverse('improve_redirect', args=(path,))
+            summary_url = reverse('summary', args=(segment_url,))
+            improve_url = reverse('improve_redirect', args=(segment_url,))
             urls.update({
-                'assess': reverse('assess_redirect', args=(url_path,)),
-                'complete': reverse('complete_redirect', args=(url_path,)),
-                'share': reverse('share_redirect', args=(url_path,)),
+                'assess': reverse('assess_redirect', args=(segment_url,)),
+                'complete': reverse('complete_redirect', args=(segment_url,)),
+                'share': reverse('share_redirect', args=(segment_url,)),
             })
             if not hide_summary:
-                urls.update({
-                    'summary': summary_url,
-                })
+                urls.update({'summary': summary_url})
             if not hide_improve:
-                urls.update({
-                    'improve': improve_url,
-                })
+                urls.update({'improve': improve_url})
             if not hide_scorecard:
                 urls.update({
-                    'scorecard': reverse(
-                        'scorecard_redirect', args=(url_path,)),
+                    'scorecard': reverse('scorecard_redirect',
+                        args=(segment_url,)),
                 })
 
         if self.__class__.__name__ == 'DetailView':
@@ -741,7 +739,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
             if not hasattr(self, '_assessment_sample'):
                 self._assessment_sample = Sample.objects.filter(
                     extra__isnull=True,
-                    survey=self.survey,
+                    campaign=self.campaign,
                     account=self.account).order_by('-created_at').first()
         return self._assessment_sample
 
@@ -777,7 +775,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
             if not hasattr(self, '_improvement_sample'):
                 self._improvement_sample = Sample.objects.filter(
                     extra='is_planned',
-                    survey=self.survey,
+                    campaign=self.campaign,
                     account=self.account).order_by('-created_at').first()
         return self._improvement_sample
 
@@ -790,7 +788,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                 question__default_metric=F('metric_id'),
                 question__path__startswith=segment_prefix,
                 question__enumeratedquestions__required=True,
-                question__enumeratedquestions__campaign=self.survey).count()
+                question__enumeratedquestions__campaign=self.campaign).count()
         return self._nb_required_answers
 
     @property
@@ -800,7 +798,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
             self._nb_required_questions = Consumption.objects.filter(
                 path__startswith=segment_prefix,
                 enumeratedquestions__required=True,
-                enumeratedquestions__campaign=self.survey).count()
+                enumeratedquestions__campaign=self.campaign).count()
         return self._nb_required_questions
 
     def get_or_create_assessment_sample(self):
@@ -808,7 +806,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
         with transaction.atomic():
             if self.assessment_sample is None:
                 self._assessment_sample = Sample.objects.create(
-                    survey=self.survey, account=self.account)
+                    campaign=self.campaign, account=self.account)
 
     def get_included_samples(self):
         results = []
@@ -840,6 +838,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
     COUNT(*) AS nb_questions,
     %(bool_agg)s(is_completed) AS is_completed
 FROM (%(answers)s) AS answers
+WHERE answers.metric IN ('assessment', 'score')
 GROUP BY account_id, sample_id, is_planned;""" % {
     'answers': answers,
     'bool_agg': 'MAX' if is_sqlite3() else 'bool_or',
@@ -873,7 +872,7 @@ GROUP BY account_id, sample_id, is_planned;""" % {
         """
         #pylint:disable=too-many-locals
         population = Consumption.objects.get_active_by_accounts(
-            self.survey, excludes=self._get_filter_out_testing())
+            self.campaign, excludes=self._get_filter_out_testing())
         for prefix, values_tuple in six.iteritems(leafs):
             self.populate_leaf(values_tuple[0],
                 get_scored_answers(population, self.default_metric_id,
@@ -1006,10 +1005,6 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                     metric__in=Metric.objects.filter(
                     slug__in=Consumption.NOT_MEASUREMENTS_METRICS)
                 ).select_related('question').order_by('-metric_id'):
-            rank = EnumeratedQuestions.objects.filter(
-                question=datapoint.question,
-                campaign=self.sample.survey).values('rank').get().get(
-                    'rank', None)
             node = self._insert_path(root, datapoint.question.path,
                 depth=depth)
             if 'environmental_metrics' not in node[0]:
@@ -1061,8 +1056,8 @@ class ImprovementQuerySetMixin(ReportMixin):
     def get_or_create_improve_sample(self):
         # We create the sample if it does not exists.
         if not self.improvement_sample:
-            self._improvement_sample = Sample.objects.create(
-                extra='is_planned', survey=self.survey, account=self.account)
+            self._improvement_sample = Sample.objects.create(extra='is_planned',
+                campaign=self.campaign, account=self.account)
         self._sample = self._improvement_sample
 
     def get_included_samples(self):
@@ -1074,15 +1069,8 @@ class ImprovementQuerySetMixin(ReportMixin):
     def get_queryset(self):
         return self.model.objects.filter(
             sample__extra='is_planned',
-            sample__survey=self.survey,
+            sample__campaign=self.campaign,
             sample__account=self.account)
-
-    def get_reverse_kwargs(self):
-        """
-        List of kwargs taken from the url that needs to be passed through
-        to ``get_success_url``.
-        """
-        return ['path', self.interviewee_slug, 'survey']
 
 
 class BestPracticeMixin(BreadcrumbMixin):
@@ -1097,6 +1085,7 @@ class BestPracticeMixin(BreadcrumbMixin):
         return ['envconnect/best_practice.html']
 
     def get_context_data(self, **kwargs):
+        #pylint:disable=too-many-locals
         context = super(
             BestPracticeMixin, self).get_context_data(**kwargs)
         breadcrumbs = context.get('breadcrumbs', [])
@@ -1141,8 +1130,7 @@ class BestPracticeMixin(BreadcrumbMixin):
             })
         # Change defaults contextual URL to move back up one level.
         _, trail = self.breadcrumbs
-        contextual_path = (
-            trail[-2][1] if len(trail) > 1 else self.kwargs.get('path', ""))
+        contextual_path = (trail[-2][1] if len(trail) > 1 else self.path)
         parts = contextual_path.split('#')
         contextual_path = parts[0]
         if len(parts) > 1:
@@ -1164,8 +1152,11 @@ class BestPracticeMixin(BreadcrumbMixin):
                     args=(contextual_path,)) + active_section
             }
         # XXX should `api_detail` be replaced by `api_page_element`?
-        urls.update({'api_page_element_base': reverse('api_detail', args=(
-            context['root_prefix'],)),
+        prefix = context['root_prefix']
+        if prefix.startswith('/'): # XXX should not happen...
+            prefix = prefix[1:]
+        urls.update({
+            'api_page_element_base': reverse('api_detail', args=(prefix,)),
         })
         update_context_urls(context, urls)
         return context
@@ -1174,8 +1165,8 @@ class BestPracticeMixin(BreadcrumbMixin):
     def best_practice(self):
         if not hasattr(self, '_best_practice'):
             try:
-                trail = self.get_full_element_path(self.kwargs.get('path'))
-                Consumption.objects.get(path="/" + "/".join(
+                trail = self.get_full_element_path(self.path)
+                Consumption.objects.get(path='/%s' % '/'.join(
                     [elm.slug for elm in trail]))
                 self._best_practice = trail[-1]
             except Consumption.DoesNotExist:

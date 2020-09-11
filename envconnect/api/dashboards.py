@@ -179,6 +179,7 @@ class DashboardMixin(BenchmarkMixin):
 expected_opportunities AS (
 SELECT
     survey_question.id AS question_id,
+    survey_question.default_metric_id AS default_metric_id,
     samples.account_id AS account_id,
     samples.id AS sample_id,
     samples.extra AS is_planned,
@@ -186,7 +187,7 @@ SELECT
     samples.is_frozen AS is_completed
 FROM samples
 INNER JOIN survey_enumeratedquestions
-    ON samples.survey_id = survey_enumeratedquestions.campaign_id
+    ON samples.campaign_id = survey_enumeratedquestions.campaign_id
 INNER JOIN survey_question
     ON survey_question.id = survey_enumeratedquestions.question_id
 WHERE survey_question.path LIKE '%(prefix)s%%'
@@ -199,11 +200,14 @@ SELECT
     CAST(survey_answer.denominator AS FLOAT) AS denominator,
     survey_answer.created_at AS last_activity_at,
     survey_answer.id AS answer_id,
-    expected_opportunities.is_completed AS is_completed
+    expected_opportunities.is_completed AS is_completed,
+    survey_metric.slug AS metric
 FROM expected_opportunities
 LEFT OUTER JOIN survey_answer
     ON expected_opportunities.question_id = survey_answer.question_id
     AND expected_opportunities.sample_id = survey_answer.sample_id
+INNER JOIN survey_metric
+  ON expected_opportunities.default_metric_id = survey_metric.id
 WHERE survey_answer.metric_id = %(metric_id)s AND
     survey_answer.measured = %(choice)s""" % {
     'samples': samples,
@@ -547,7 +551,7 @@ class SupplierListMixin(DashboardMixin):
         #   "supplier_initiated": *bool*,
         #   "reports_to": [[*slug*, *full_name*]]
         # }
-        path_prefix = self.kwargs.get('path')
+        path_prefix = self.path
         account_scores = []
         last_activity_at = None
         for segment_val in six.itervalues(segments):
@@ -586,16 +590,16 @@ class SupplierListMixin(DashboardMixin):
 
             # XXX Builds URL from segment path
             # XXX `segment` points to the PageElement industry?
-            segment_path = '/%s' % str(segment['slug'])
-            if segment['slug'].startswith('framework'):
+            segment_url = '/%s' % str(segment['slug'])
+            if segment_url.startswith('/framework'):
                 score_url = reverse('assess_organization_redirect',
-                    args=(account.slug, segment_path))
+                    args=(account.slug, segment_url))
             elif 'sample' in score:
                 score_url = reverse('scorecard_organization',
-                    args=(account.slug, score['sample'], segment_path))
+                    args=(account.slug, score['sample'], segment_url))
             else:
                 score_url = reverse('scorecard_organization_redirect',
-                    args=(account.slug, segment_path))
+                    args=(account.slug, segment_url))
             score.update({
                 'segment': segment['title'],
                 'score_url': score_url,
@@ -665,14 +669,14 @@ class SupplierListMixin(DashboardMixin):
             self.rollup_scores(force_score=True)) #SupplierListMixin
 
     def get_suppliers(self, rollup_tree):
-        root = self.kwargs.get('path')
+        root = self.path
         results = []
 
         # list of scores
         for account in self.requested_accounts:
             try:
                 scores_by_account = self.get_scores(account, rollup_tree[1],
-                    actives_d, self.complete_assessments,
+                    {}, self.complete_assessments,
                     self.complete_improvements, self.start_at)
                 if scores_by_account:
                     results += scores_by_account
@@ -854,7 +858,7 @@ portfolio-a/"
             # XXX default is derived from `prefix` argument
             # to `decorate_with_scores`.
             likely_metric = reverse('scorecard_organization_redirect',
-                args=(cohort_slug, "/%s" % default))
+                args=(cohort_slug, '/%s' % default))
         if likely_metric:
             likely_metric = self.request.build_absolute_uri(likely_metric)
         return likely_metric
@@ -1049,7 +1053,7 @@ benchmark/share/construction/ HTTP/1.1
             last_scored_assessment = Sample.objects.filter(
                 is_frozen=True,
                 extra__isnull=True,
-                survey=self.survey,
+                campaign=self.campaign,
                 account=self.account).order_by('-created_at').first()
             if (not last_scored_assessment
                 or last_scored_assessment.created_at < last_activity_at):
@@ -1103,7 +1107,7 @@ benchmark/share/construction/ HTTP/1.1
                         reason = force_text(reason)
                     signals.assessment_completed.send(sender=__name__,
                         assessment=last_scored_assessment,
-                        path=self.kwargs.get('path'),
+                        path=self.path,
                         notified=matrix.account,
                         reason=reason, request=self.request)
                     if status_code is None:

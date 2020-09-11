@@ -46,7 +46,7 @@ Click &quot;Scorecard&quot; to see how the improvements are listed.
       <div ng-show="valueSummaryToggle">
         {% with icon.tag|assessment_choices as choices %}
         <table class="table table-striped table-bordered">
-          {% if survey.slug == 'framework' %}
+          {% if campaign.slug == 'framework' %}
           <thead ng-show="!vsPeersToggle">
             <tr>
               <th style="border-bottom:none;"></th>
@@ -138,7 +138,7 @@ Click &quot;Scorecard&quot; to see how the improvements are listed.
                 class="best-practice-row"
                 ng-repeat="practice in getEntries('{{abs_prefix}}')"
                 ng-if="sortedOnKeys === 0 && getEntries('{{abs_prefix}}').length > 0">
-              {% if survey.slug == 'framework' %}
+              {% if campaign.slug == 'framework' %}
               {% include "envconnect/_improve_framework_row.html" %}
               {% else %}
               {% include "envconnect/_improve_row.html" %}
@@ -148,7 +148,7 @@ Click &quot;Scorecard&quot; to see how the improvements are listed.
                 class="best-practice-row"
                 ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
                 ng-if="sortedOnKeys !== 0 && getEntries('{{abs_prefix}}').length > 0">
-              {% if survey.slug == 'framework' %}
+              {% if campaign.slug == 'framework' %}
               {% include "envconnect/_improve_framework_row.html" %}
               {% else %}
               {% include "envconnect/_improve_row.html" %}
@@ -238,7 +238,7 @@ to this practice.
     </form>
   </div>
 </div>
-{% if survey.slug != 'framework' %}
+{% if campaign.slug != 'framework' %}
 {% include "envconnect/_improvement_planning_dashboard.html" %}
 {% endif %}
 {% endblock %}
@@ -264,7 +264,7 @@ to this practice.
 <script type="text/javascript">
 jQuery(document).ready(function($) {
     var tripElements = [
-{% if survey.slug != 'framework' %}
+{% if campaign.slug != 'framework' %}
 {% if request|is_authenticated and not request.session.last_visited %}
         {
             sel: $("#help-request"),

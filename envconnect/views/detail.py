@@ -1,9 +1,9 @@
-# Copyright (c) 2019, DjaoDjin inc.
+# Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
 import io, json
 
-from deployutils.helpers import datetime_or_now
+from deployutils.helpers import datetime_or_now, update_context_urls
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView
 from django.utils import six
@@ -32,13 +32,6 @@ class DetailView(BestPracticeMixin, TemplateView):
         result = super(DetailView, self).get(request, *args, **kwargs)
         self._report_queries("request ready to send.")
         return result
-
-    def get_breadcrumb_url(self, path):
-        organization = self.kwargs.get('organization', None)
-        if organization:
-            return reverse(
-                'summary_organization_redirect', args=(organization, path))
-        return super(DetailView, self).get_breadcrumb_url(path)
 
     def get_context_data(self, **kwargs):
         #pylint:disable=too-many-locals
@@ -139,6 +132,13 @@ class DetailView(BestPracticeMixin, TemplateView):
             'entries': json.dumps(root),
             'hidden': json.dumps(hidden_columns)
         })
+
+        segment_url, segment_prefix, segment_element = self.segment
+        update_context_urls(context, {
+            'summary_download': reverse('summary_download',
+                args=(segment_url,)),
+        })
+
         return context
 
 
