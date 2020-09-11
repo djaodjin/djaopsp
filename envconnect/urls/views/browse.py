@@ -3,11 +3,12 @@
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
-from pages.settings import PATH_RE
 from rules.urldecorators import include, url
 
 from ...views.redirects import AccountRedirectView, MyTSPRedirectView
 from ...views.detail import ContentDetailXLSXView, DetailView, DetailXLSXView
+
+PATH_RE = r'(/[a-zA-Z0-9\-]+)*'
 
 urlpatterns = [
 
@@ -50,9 +51,9 @@ urlpatterns = [
             pattern_name='share_organization',
             new_account_url=site_prefixed('/users/roles/accept/')),
         name='share_redirect'),
-    url(r'app/info(?P<path>%s)/download/content/' % PATH_RE,
+    url(r'app/info/download/content(?P<path>%s)/' % PATH_RE,
       ContentDetailXLSXView.as_view(), name='summary_download_content'),
-    url(r'app/info(?P<path>%s)/download/' % PATH_RE,
+    url(r'app/info/download(?P<path>%s)/' % PATH_RE,
       DetailXLSXView.as_view(), name='summary_download'),
     url(r'app/info(?P<path>%s)/' % PATH_RE,
       DetailView.as_view(), name='summary'),

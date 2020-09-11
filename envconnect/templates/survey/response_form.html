@@ -2,13 +2,13 @@
 
 {% block content %}
 <div class="container">
-<h1>Welcome to {{survey.name|title}}</h1>
+<h1>Welcome to {{campaign.name|title}}</h1>
 <div>
-        {{survey.description|safe}}
+        {{campaign.description|safe}}
 </div>
 
 <div>
-{% if survey.published %}
+{% if campaign.published %}
 <form method="post" action=".">
         {% csrf_token %}
         <div class="form-actions text-center">
@@ -16,7 +16,7 @@
         </div>
 </form>
 {% else %}
-<em>Sorry, this {% if survey.quizz_mode %}quizz{% else %}survey{% endif %} is no longer available. Thank you.</em>
+<em>Sorry, this {% if campaign.quizz_mode %}quizz{% else %}campaign{% endif %} is no longer available. Thank you.</em>
 {% endif %}
 </div>
 </div>

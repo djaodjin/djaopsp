@@ -187,7 +187,7 @@ SELECT
     samples.is_frozen AS is_completed
 FROM samples
 INNER JOIN survey_enumeratedquestions
-    ON samples.survey_id = survey_enumeratedquestions.campaign_id
+    ON samples.campaign_id = survey_enumeratedquestions.campaign_id
 INNER JOIN survey_question
     ON survey_question.id = survey_enumeratedquestions.question_id
 WHERE survey_question.path LIKE '%(prefix)s%%'
@@ -551,7 +551,7 @@ class SupplierListMixin(DashboardMixin):
         #   "supplier_initiated": *bool*,
         #   "reports_to": [[*slug*, *full_name*]]
         # }
-        path_prefix = self.kwargs.get('path')
+        path_prefix = self.path
         account_scores = []
         last_activity_at = None
         for segment_val in six.itervalues(segments):
@@ -590,16 +590,16 @@ class SupplierListMixin(DashboardMixin):
 
             # XXX Builds URL from segment path
             # XXX `segment` points to the PageElement industry?
-            segment_path = '/%s' % str(segment['slug'])
-            if segment['slug'].startswith('framework'):
+            segment_url = '/%s' % str(segment['slug'])
+            if segment_url.startswith('/framework'):
                 score_url = reverse('assess_organization_redirect',
-                    args=(account.slug, segment_path))
+                    args=(account.slug, segment_url))
             elif 'sample' in score:
                 score_url = reverse('scorecard_organization',
-                    args=(account.slug, score['sample'], segment_path))
+                    args=(account.slug, score['sample'], segment_url))
             else:
                 score_url = reverse('scorecard_organization_redirect',
-                    args=(account.slug, segment_path))
+                    args=(account.slug, segment_url))
             score.update({
                 'segment': segment['title'],
                 'score_url': score_url,
@@ -669,7 +669,7 @@ class SupplierListMixin(DashboardMixin):
             self.rollup_scores(force_score=True)) #SupplierListMixin
 
     def get_suppliers(self, rollup_tree):
-        root = self.kwargs.get('path')
+        root = self.path
         results = []
 
         # list of scores
@@ -858,7 +858,7 @@ portfolio-a/"
             # XXX default is derived from `prefix` argument
             # to `decorate_with_scores`.
             likely_metric = reverse('scorecard_organization_redirect',
-                args=(cohort_slug, "/%s" % default))
+                args=(cohort_slug, '/%s' % default))
         if likely_metric:
             likely_metric = self.request.build_absolute_uri(likely_metric)
         return likely_metric
@@ -1053,7 +1053,7 @@ benchmark/share/construction/ HTTP/1.1
             last_scored_assessment = Sample.objects.filter(
                 is_frozen=True,
                 extra__isnull=True,
-                survey=self.survey,
+                campaign=self.campaign,
                 account=self.account).order_by('-created_at').first()
             if (not last_scored_assessment
                 or last_scored_assessment.created_at < last_activity_at):
@@ -1107,7 +1107,7 @@ benchmark/share/construction/ HTTP/1.1
                         reason = force_text(reason)
                     signals.assessment_completed.send(sender=__name__,
                         assessment=last_scored_assessment,
-                        path=self.kwargs.get('path'),
+                        path=self.path,
                         notified=matrix.account,
                         reason=reason, request=self.request)
                     if status_code is None:

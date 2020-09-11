@@ -41,7 +41,7 @@ class ShareView(ReportMixin, TemplateView):
                 get_supplier_managers(self.account))})
         update_context_urls(context, {
             'api_scorecard_share': reverse('api_scorecard_share',
-                args=(context['organization'], from_root)),
+                args=(context['organization'], from_root[1:])),
             'api_organizations': site_prefixed("/api/profile/"),
             'api_viewers': site_prefixed(
                 "/api/profile/%s/roles/viewers/" % self.account),
@@ -65,7 +65,7 @@ class ShareView(ReportMixin, TemplateView):
             last_scored_assessment = Sample.objects.filter(
                 is_frozen=True,
                 extra__isnull=True,
-                survey=self.survey,
+                campaign=self.campaign,
                 account=self.account).order_by('-created_at').first()
 
             if (self.nb_required_answers < self.nb_required_questions

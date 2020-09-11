@@ -1,7 +1,7 @@
 # Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
-from pages.settings import PATH_RE, SLUG_RE
+from pages.settings import SLUG_RE
 from rules.urldecorators import include, url
 
 from ...views.assessments import (AssessmentView, AssessmentXLSXView,
@@ -17,23 +17,24 @@ from ...views.improvements import (ImprovementView, ImprovementPDFView,
 from ...views.redirects import LastCompletedRedirectView
 from ...views.share import ShareView
 
-NON_EMPTY_PATH_RE = r'(/[a-zA-Z0-9\-]+)+'
+PATH_RE = r'(/[a-zA-Z0-9\-]+)*'
+NON_EMPTY_PATH_RE = r'/[a-zA-Z0-9\-]+(/[a-zA-Z0-9\-]+)*'
 
 urlpatterns = [
     # Dashboard
-    url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/improvements/download/'
-        % (SLUG_RE, PATH_RE),
-        SuppliersImprovementsXLSXView.as_view(),
-        name='reporting_organization_improvements_download'),
-    url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/improve/download/'
+    url(r'app/(?P<organization>%s)/reporting/improve/download(?P<path>%s)/'
         % (SLUG_RE, PATH_RE),
         SuppliersPlanningXLSXView.as_view(),
         name='reporting_organization_improve_download'),
-    url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/assess/download/'
+    url(r'app/(?P<organization>%s)/reporting/improve(?P<path>%s)/'
+        % (SLUG_RE, PATH_RE),
+        SuppliersImprovementsXLSXView.as_view(),
+        name='reporting_organization_improvements_download'),
+    url(r'app/(?P<organization>%s)/reporting/assess/download(?P<path>%s)/'
         % (SLUG_RE, PATH_RE),
         SuppliersAssessmentsXLSXView.as_view(),
         name='reporting_organization_assess_download'),
-    url(r'app/(?P<organization>%s)/reporting(?P<path>%s)/download/'
+    url(r'app/(?P<organization>%s)/reporting/download(?P<path>%s)/'
         % (SLUG_RE, PATH_RE),
         SuppliersSummaryXLSXView.as_view(),
         name='reporting_organization_download'),
@@ -125,7 +126,7 @@ urlpatterns = [
         name='share_organization_redirect'),     # XXX redirect to most current
 
     # Best practices info pages
-    url(r'app/(?P<organization>%s)/info(?P<path>%s)/download/' % (
+    url(r'app/(?P<organization>%s)/info/download(?P<path>%s)/' % (
         SLUG_RE, PATH_RE),
         DetailXLSXView.as_view(), name='summary_organization_download'),
     url(r'app/(?P<organization>%s)/info(?P<path>%s)/' % (

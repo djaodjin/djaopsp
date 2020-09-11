@@ -56,7 +56,7 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
         #pylint:disable=protected-access,arguments-differ
         scored_answers = get_scored_answers(
             Consumption.objects.get_active_by_accounts(
-                self.sample.survey, excludes=self._get_filter_out_testing()),
+                self.sample.campaign, excludes=self._get_filter_out_testing()),
             self.question.default_metric_id,
             includes=(self.sample,),
             questions=(self.question.pk,))
@@ -67,9 +67,9 @@ class AssessmentAnswerAPIView(ExcludeDemoSample, AnswerAPIView):
                 [col[0] for col in col_headers])
             decorated_answer = decorated_answer_tuple(*cursor.fetchone())
         data = AnswerUpdateSerializer(context={
-            'campaign': self.sample.survey,
+            'campaign': self.sample.campaign,
             'required': EnumeratedQuestions.objects.filter(
-                campaign=self.sample.survey,
+                campaign=self.sample.campaign,
                 question_id=self.question.pk).first().required
         }).to_representation({
             'consumption':decorated_answer,
@@ -82,7 +82,7 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
     """
     Retrieve a subset of datapoints for a sample
 
-    Providing {sample} is a set of datapoints for {interviewee}, returns
+    Providing {sample} is a set of datapoints for {organization}, returns
     a subset of datapoints whose question starts with a {path} prefix.
 
     **Tags**: survey
@@ -106,7 +106,6 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
             "time_spent": null,
         }
     """
-    account_url_kwarg = 'interviewee'
 
     def delete(self, request, *args, **kwargs):
         """
@@ -142,13 +141,13 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
                 includes=self.get_included_samples(),
                 excludes=self._get_filter_out_testing(),
                 collected_by=self.request.user,
-                segment_path=self.kwargs.get('path'))
+                segment_path=self.path)
             if self.improvement_sample:
                 freeze_scores(self.improvement_sample,
                     includes=self.get_included_samples(), # XXX overriden!
                     excludes=self._get_filter_out_testing(),
                     collected_by=self.request.user,
-                    segment_path=self.kwargs.get('path'))
+                    segment_path=self.path)
 
         serializer = self.get_serializer(instance=score_sample)
         return http.Response(
@@ -222,7 +221,6 @@ class AssessmentAnswersAPIView(ReportMixin, SampleAnswersAPIView):
         ]
     }
     """
-    account_url_kwarg = 'interviewee'
 
     def post(self, request, *args, **kwargs):
         """
@@ -267,7 +265,7 @@ class AssessmentAnswersAPIView(ReportMixin, SampleAnswersAPIView):
         implemented = None
         scored_answers = get_scored_answers(
             Consumption.objects.get_active_by_accounts(
-                self.sample.survey,
+                self.sample.campaign,
                 excludes=self._get_filter_out_testing()),
             default_metric_id,
             includes=(self.sample,),
@@ -285,7 +283,7 @@ class AssessmentAnswersAPIView(ReportMixin, SampleAnswersAPIView):
 
         required = (result.metric_id == result.question.default_metric_id
             and EnumeratedQuestions.objects.filter(
-                campaign=self.sample.survey,
+                campaign=self.sample.campaign,
                 question_id=result.question).first().required)
 
         setattr(result.question, 'metric',
@@ -303,7 +301,7 @@ class AssessmentAnswersAPIView(ReportMixin, SampleAnswersAPIView):
         self._expand_choices([result])
         result.first = first_answer
         data = AnswerUpdateSerializer(context={
-            'campaign': self.sample.survey,
+            'campaign': self.sample.campaign,
         }).to_representation(result)
         return http.Response(data, status=status, headers=headers)
 
@@ -326,7 +324,7 @@ class AssessmentResetAPIView(ReportMixin, SampleResetAPIView):
         return self.destroy(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        prefix = kwargs.get('path', '')
+        prefix = self.path
         if prefix:
             queryset = Answer.objects.filter(
                 sample=self.sample,

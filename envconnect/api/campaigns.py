@@ -67,7 +67,7 @@ class CampaignListAPIView(BreadcrumbMixin, ListAPIView):
         query_filter = Q(tag__contains='industry')
         if search_query:
             query_filter = query_filter & Q(tag__contains=search_query)
-        trail = self.get_full_element_path(self.kwargs.get('path'))
+        trail = self.get_full_element_path(self.path)
         full_path = '/%s' % '/'.join([element.slug for element in trail])
         if trail:
             prefix = '/%s' % '/'.join([element.slug for element in trail[:-1]])
@@ -126,7 +126,7 @@ class CampaignListAPIView(BreadcrumbMixin, ListAPIView):
     def decorate_leafs(self, leafs):
         for path, vals in six.iteritems(leafs):
             consumption = Consumption.objects.filter(
-                enumeratedquestions__campaign=self.survey, path=path).first()
+                enumeratedquestions__campaign=self.campaign, path=path).first()
             if consumption:
                 vals[0]['consumption'] = consumption
             else:

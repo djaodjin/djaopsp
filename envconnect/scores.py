@@ -111,7 +111,7 @@ def freeze_scores(sample, includes=None, excludes=None,
     created_at = datetime_or_now(created_at)
     score_sample = Sample.objects.create(
         created_at=created_at,
-        survey=sample.survey,
+        campaign=sample.campaign,
         account=sample.account,
         extra=sample.extra,
         is_frozen=True)
@@ -135,7 +135,7 @@ def freeze_scores(sample, includes=None, excludes=None,
         segment_path = '/'
     calculator = get_score_calculator(segment_path)
     scored_answers = calculator.get_scored_answers(
-        sample.survey, assessment_metric_id, prefix=segment_path,
+        sample.campaign, assessment_metric_id, prefix=segment_path,
         includes=includes, excludes=excludes)
     for decorated_answer in scored_answers:
         if (decorated_answer.answer_id and

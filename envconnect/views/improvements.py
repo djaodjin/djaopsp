@@ -36,13 +36,6 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
     template_name = 'envconnect/improve.html'
     breadcrumb_url = 'improve'
 
-    def get_breadcrumb_url(self, path):
-        organization = self.kwargs.get('organization', None)
-        if organization:
-            return reverse(
-                'improve_organization_redirect', args=(organization, path))
-        return super(ImprovementView, self).get_breadcrumb_url(path)
-
     def get_report_tree(self, node=None, from_root=None, cut=ContentCut(),
                         load_text=False):
         self.get_or_create_improve_sample()
@@ -76,16 +69,14 @@ class ImprovementView(ImprovementQuerySetMixin, AssessmentView):
         if self.improvement_sample:
             update_context_urls(context, {
                 'print': reverse('improve_organization_sample_print',
-                    args=(organization, self.improvement_sample,
-                        '/%s' % segment_prefix.split('/')[-1])),
+                    args=(organization, self.improvement_sample, segment_url)),
                 'download': reverse('improve_organization_sample_download',
-                    args=(organization, self.improvement_sample,
-                        '/%s' % segment_prefix.split('/')[-1]))
+                    args=(organization, self.improvement_sample, segment_url))
             })
         if self.assessment_sample:
             update_context_urls(context, {
-                'api_account_benchmark': reverse('api_benchmark',
-                args=(organization, self.assessment_sample, segment_prefix))})
+                'api_account_benchmark': reverse('api_benchmark', args=(
+                    organization, self.assessment_sample, segment_prefix[1:]))})
         return context
 
 
@@ -100,9 +91,9 @@ class ImprovementOnlyMixin(ImprovementQuerySetMixin, AssessmentBaseMixin):
             # of the actual from_path.
             # XXX if we do that, we shouldn't use from_root (i.e. system pages)
             _, trail = self.breadcrumbs
-            trail_head = ("/" + trail[0][0].slug.decode('utf-8')
+            trail_head = ('/%s' % trail[0][0].slug.decode('utf-8')
                 if six.PY2 else trail[0][0].slug)
-            from_trail_head = "/" + "/".join([
+            from_trail_head = '/%s' % "/".join([
                 element.slug.decode('utf-8') if six.PY2 else element.slug
                 for element in self.get_full_element_path(trail_head)])
             # We use cut=None here so we print out the full assessment

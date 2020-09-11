@@ -4,7 +4,7 @@
 <section id="report" class="container">
 <div class="row">
 	<div class="col-md-12" style="text-align:right;">
-		<a id="download-report" class="btn btn-primary btn-sm" target="_blank" href="{% url 'envconnect_report_print' organization=survey.account industry=industry category=category %}">Export to PDF</a>
+		<a id="download-report" class="btn btn-primary btn-sm" target="_blank" href="{% url 'envconnect_report_print' organization=campaign.account industry=industry category=category %}">Export to PDF</a>
 	</div>
 </div>
 {% block response_content %}

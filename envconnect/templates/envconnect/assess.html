@@ -38,7 +38,7 @@ and benchmark positions.
    data-trip data-trip-delay="-1"
    data-trip-index="2"
    data-trip-navigation="0"
-   data-trip-position="screen-center" {% if survey.slug != 'framework' %}data-trip-content="<div class='text-left'><h4>What each response option means</h4><p>The practice is implemented across the following scope of activities/services/products/offices/facilities to which it could apply:</p><ul><li><strong>Yes</strong>: All. <span style='color:#FFF633'>[Click a best practice to see if there is more guidance on what should be in place to respond &quot;Yes&quot;]</span>.</li><li><strong>Mostly yes</strong>: Roughly 50% OR MORE.</li><li><strong>Mostly no</strong>: Roughly 50% OR LESS.</li><li><strong>No</strong>: Negligible to none.</li><li><strong>Not applicable</strong>: The practice is not applicable to the organization, or the organization has no influence or control over its implementation.</li></ul><h4>Why it is critical to respond accurately</h4><ol><li>Each response creates a statement of record, which a customer or client may request evidence for.</li><li>Create a meaningful baseline for benchmarking with peers and for tracking improvements over time.</li></ol></div>"{% endif %} >
+   data-trip-position="screen-center" {% if campaign.slug != 'framework' %}data-trip-content="<div class='text-left'><h4>What each response option means</h4><p>The practice is implemented across the following scope of activities/services/products/offices/facilities to which it could apply:</p><ul><li><strong>Yes</strong>: All. <span style='color:#FFF633'>[Click a best practice to see if there is more guidance on what should be in place to respond &quot;Yes&quot;]</span>.</li><li><strong>Mostly yes</strong>: Roughly 50% OR MORE.</li><li><strong>Mostly no</strong>: Roughly 50% OR LESS.</li><li><strong>No</strong>: Negligible to none.</li><li><strong>Not applicable</strong>: The practice is not applicable to the organization, or the organization has no influence or control over its implementation.</li></ul><h4>Why it is critical to respond accurately</h4><ol><li>Each response creates a statement of record, which a customer or client may request evidence for.</li><li>Create a meaningful baseline for benchmarking with peers and for tracking improvements over time.</li></ol></div>"{% endif %} >
     {% for abs_prefix, icon_tuple in root.1|iteritems %}
         {% with icon_tuple.0 as icon %}
         <div role="tabpanel" class="tab-pane{% if icon.slug == active %} active{% endif %}" id="tab-{{icon.slug}}">
@@ -55,12 +55,12 @@ and benchmark positions.
                       <th class="sticky-cell">
                         <div class="sticky-cell-content-container">
                           <div class="sticky-cell-content" style="padding-left:0.75rem;">
-{% if survey.slug != 'framework' %}
+{% if campaign.slug != 'framework' %}
 <p>
-Alliance members want to understand the impacts of their supply chain.  Completion of this survey section provides valuable information to support that understanding. While this section is optional to complete (and therefore not scored), the Alliance encourages suppliers to measure, track and improve sustainability performance.
+Alliance members want to understand the impacts of their supply chain.  Completion of this assessment section provides valuable information to support that understanding. While this section is optional to complete (and therefore not scored), the Alliance encourages suppliers to measure, track and improve sustainability performance.
 </p>
 <p>
-Use the improvement planning function of the TSP survey to develop an improvement plan that fits your organization. We thank you for the support in helping us measure our supply chain impacts.
+Use the improvement planning function of the TSP assessment to develop an improvement plan that fits your organization. We thank you for the support in helping us measure our supply chain impacts.
 </p>
 {% endif %}
                           </div>
@@ -78,7 +78,7 @@ Use the improvement planning function of the TSP survey to develop an improvemen
                     <tr>
                       <th style="border-bottom:none;"></th>
                       <th class="text-center" colspan="{{choices|length}}">
-                        {% if survey.slug == 'framework' %}
+                        {% if campaign.slug == 'framework' %}
                         Select maturity level for each attribute
                         {% else %}
                         Implemented as standard practice? <a style="cursor:pointer;" href="" data-toggle="tooltip" data-placement="right" title="Read this question to mean, Has the practice been implemented as standard or routine for all activities, projects or services to which the practice could apply, and over which the reporting entity has operational influence or control? If the reporting entity has no influence or control over a practice, then the response to the question should be 'Not applicable'."><i class="fa fa-question-circle"></i></a>
@@ -104,7 +104,7 @@ Use the improvement planning function of the TSP survey to develop an improvemen
                         class="best-practice-row"
                         ng-repeat="practice in getEntries('{{abs_prefix}}')"
                         ng-if="sortedOnKeys === 0 && getEntries('{{abs_prefix}}').length > 0">
-                      {% if survey.slug == 'framework' %}
+                      {% if campaign.slug == 'framework' %}
                       {% include "envconnect/_assess_framework_row.html" %}
                       {% else %}
                       {% include "envconnect/_assess_row.html" %}
@@ -114,7 +114,7 @@ Use the improvement planning function of the TSP survey to develop an improvemen
                         class="best-practice-row"
                         ng-repeat="practice in getEntries('{{abs_prefix}}') | orderBy:sortedOn:reverse"
                         ng-if="sortedOnKeys !== 0 && getEntries('{{abs_prefix}}').length > 0">
-                      {% if survey.slug == 'framework' %}
+                      {% if campaign.slug == 'framework' %}
                       {% include "envconnect/_assess_framework_row.html" %}
                       {% else %}
                       {% include "envconnect/_assess_row.html" %}
@@ -280,7 +280,7 @@ Do you wish to continue?
 <script type="text/javascript">
 jQuery(document).ready(function($) {
     var tripElements = [
-{% if survey.slug != 'framework' %}
+{% if campaign.slug != 'framework' %}
 {% if request|is_authenticated and not request.session.last_visited or request.session.last_visited == 'app' %}
         {
             sel: $("#submenu-self-assessment"),

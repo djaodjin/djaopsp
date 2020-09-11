@@ -6,11 +6,10 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
 from django.conf import settings
 from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as static_serve
-from pages.settings import PATH_RE, SLUG_RE
 from rules.urldecorators import include, url
 
 from ..urlbuilders import url_prefixed, url_authenticated, url_direct
-from ..views.redirects import AccountRedirectView, MyTSPRedirectView
+from ..views.redirects import AccountRedirectView
 from ..views.index import IndexView
 
 

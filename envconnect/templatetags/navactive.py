@@ -57,7 +57,7 @@ def as_icon(breadcrumbs):
 def markdown_filter(value):
     extensions = ("tables", "nl2br")
     html = markdown.markdown(value,
-        extensions,
+        extensions=extensions,
         safe_mode='replace',
         html_replacement_text='<em>RAW HTML NOT ALLOWED</em>',
         enable_attributes=False)
@@ -72,7 +72,7 @@ def markdown_filter_pdf(value, request):
     extensions = ("tables", "nl2br")
     host = "%s://%s" % (request.scheme, request.get_host())
     html = markdown.markdown(value,
-        extensions,
+        extensions=extensions,
         safe_mode='replace',
         html_replacement_text='<em>RAW HTML NOT ALLOWED</em>',
         enable_attributes=False)

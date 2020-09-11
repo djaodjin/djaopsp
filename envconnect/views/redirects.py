@@ -72,8 +72,7 @@ class LastCompletedRedirectView(ReportMixin, TemplateResponseMixin,
         candidates = []
         organization = kwargs.get('organization')
         if self.sample:
-            path = kwargs.get('path')
-            if path:
+            if kwargs.get('path'):
                 segment_url, segment_prefix, segment_element = self.segment
                 candidates += [segment_element]
                 # XXX We need a PageElement for the root here.
