@@ -31,6 +31,7 @@
 <script>
 import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
 import Answer from '@/common/models/Answer'
+import FormQuestionBinary from '@/components/FormQuestionBinary'
 import FormQuestionNumber from '@/components/FormQuestionNumber'
 import FormQuestionRadio from '@/components/FormQuestionRadio'
 import FormQuestionRelevantQuantity from '@/components/FormQuestionRelevantQuantity'
@@ -101,6 +102,7 @@ export default {
   },
 
   components: {
+    FormQuestionBinary,
     FormQuestionNumber,
     FormQuestionQuantity,
     FormQuestionRelevantQuantity,

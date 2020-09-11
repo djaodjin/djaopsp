@@ -5,6 +5,7 @@ import FormQuestionQuantity from '../common/models/FormQuestionQuantity'
 import FormQuestionRelevantQuantity from '../common/models/FormQuestionRelevantQuantity'
 
 const FormQuestionRadioDiscrete = new FormQuestionRadio({
+  componentName: 'FormQuestionBinary',
   options: [
     {
       text: 'Yes',
