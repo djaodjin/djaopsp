@@ -6,6 +6,7 @@ module.exports = {
   assetsDir: assetsDir,
   publicPath: process.env.VUE_APP_ROOT,
   configureWebpack: {
+    devtool: 'source-map',
     plugins: [
       new HtmlWebpackPlugin({
         inject: false,
