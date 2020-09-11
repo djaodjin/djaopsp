@@ -33,6 +33,7 @@ import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
 import Answer from '@/common/models/Answer'
 import FormQuestionNumber from '@/components/FormQuestionNumber'
 import FormQuestionRadio from '@/components/FormQuestionRadio'
+import FormQuestionRelevantQuantity from '@/components/FormQuestionRelevantQuantity'
 import FormQuestionTextarea from '@/components/FormQuestionTextarea'
 import FormQuestionQuantity from '@/components/FormQuestionQuantity'
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'
@@ -102,6 +103,7 @@ export default {
   components: {
     FormQuestionNumber,
     FormQuestionQuantity,
+    FormQuestionRelevantQuantity,
     FormQuestionRadio,
     FormQuestionTextarea,
     PracticeSectionHeader,

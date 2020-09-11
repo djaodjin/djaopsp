@@ -3,6 +3,7 @@ import {
   QUESTION_EMPLOYEE_COUNT,
   QUESTION_ENERGY_CONSUMED,
   QUESTION_RANGE_TYPE,
+  QUESTION_RELEVANT_QUANTITY,
   QUESTION_REVENUE_GENERATED,
   QUESTION_WASTE_GENERATED,
   QUESTION_WATER_CONSUMED,
@@ -192,9 +193,9 @@ export default [
   {
     id: '20',
     path:
-      '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/reduce-hot-water-temperature-to-minimum-required',
-    title: 'Reduce hot water temperature to minimum required',
-    default_metric: QUESTION_RANGE_TYPE,
+      '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/fuel-and-energy-related-activities',
+    title: 'Fuel-and-energy-related activities',
+    default_metric: QUESTION_RELEVANT_QUANTITY,
     indent: 4,
     environmental_value: 2,
     business_value: 1,

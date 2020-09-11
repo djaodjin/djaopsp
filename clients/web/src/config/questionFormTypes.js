@@ -2,6 +2,7 @@ import FormQuestion from '../common/models/FormQuestion'
 import FormQuestionNumber from '../common/models/FormQuestionNumber'
 import FormQuestionRadio from '../common/models/FormQuestionRadio'
 import FormQuestionQuantity from '../common/models/FormQuestionQuantity'
+import FormQuestionRelevantQuantity from '../common/models/FormQuestionRelevantQuantity'
 
 const FormQuestionRadioDiscrete = new FormQuestionRadio({
   options: [
@@ -79,7 +80,9 @@ FormQuestionRadioLabeled.render = function (answers) {
   return ''
 }
 
-const FormQuestionTextarea = new FormQuestion({ name: 'FormQuestionTextarea' })
+const FormQuestionTextarea = new FormQuestion({
+  componentName: 'FormQuestionTextarea',
+})
 FormQuestionTextarea.render = function (answers) {
   return answers[0] || ''
 }
@@ -184,10 +187,27 @@ const FormQuestionRevenueGenerated = new FormQuestionNumber({
   options: 'Revenue in USD',
 })
 
+const FormQuestionEmissionsGenerated = new FormQuestionRelevantQuantity({
+  options: [
+    { value: 'relevant-and-calculated', text: 'Relevant, calculated' },
+    {
+      value: 'relevant-not-yet-calculated',
+      text: 'Relevant, not yet calculated',
+    },
+    { value: 'not-relevant-calculated', text: 'Not relevant, calculated' },
+    {
+      value: 'not-relevant-explanation-provided',
+      text: 'Not relevant, explanation provided',
+    },
+    { value: 'not-evaluated', text: 'Not evaluated' },
+  ],
+})
+
 export const QUESTION_COMMENT_TYPE = 'freetext'
 export const QUESTION_EMPLOYEE_COUNT = 'employee-counted'
 export const QUESTION_ENERGY_CONSUMED = 'energy-consumed'
 export const QUESTION_RANGE_TYPE = 'assessment'
+export const QUESTION_RELEVANT_QUANTITY = 'ghg-emissions-generated'
 export const QUESTION_REVENUE_GENERATED = 'revenue-generated'
 export const QUESTION_YES_NO_TYPE = 'yes-no'
 export const QUESTION_WASTE_GENERATED = 'waste-generated'
@@ -198,6 +218,7 @@ export const MAP_QUESTION_FORM_TYPES = {
   [QUESTION_EMPLOYEE_COUNT]: FormQuestionEmployeeCount,
   [QUESTION_ENERGY_CONSUMED]: FormQuestionEnergyConsumed,
   [QUESTION_RANGE_TYPE]: FormQuestionRadioRange,
+  [QUESTION_RELEVANT_QUANTITY]: FormQuestionEmissionsGenerated,
   [QUESTION_REVENUE_GENERATED]: FormQuestionRevenueGenerated,
   [QUESTION_YES_NO_TYPE]: FormQuestionRadioDiscrete,
   [QUESTION_WATER_CONSUMED]: FormQuestionWaterConsumed,

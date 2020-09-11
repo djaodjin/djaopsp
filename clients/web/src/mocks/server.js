@@ -24,6 +24,7 @@ import {
   QUESTION_EMPLOYEE_COUNT,
   QUESTION_ENERGY_CONSUMED,
   QUESTION_RANGE_TYPE,
+  QUESTION_RELEVANT_QUANTITY,
   QUESTION_REVENUE_GENERATED,
   QUESTION_WASTE_GENERATED,
   QUESTION_WATER_CONSUMED,
@@ -118,6 +119,9 @@ export function makeServer({ environment = 'development', apiBasePath }) {
                 options = questionForm.options.map((o) => o.value)
                 value = faker.random.arrayElement(options)
                 break
+              case QUESTION_RELEVANT_QUANTITY:
+                // Assuming this question type has only one unit value
+                value = MAP_QUESTION_FORM_TYPES[this.metric].unit.value
             }
           }
           return value
@@ -132,6 +136,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
                 break
               case QUESTION_EMPLOYEE_COUNT:
               case QUESTION_ENERGY_CONSUMED:
+              case QUESTION_RELEVANT_QUANTITY:
               case QUESTION_REVENUE_GENERATED:
               case QUESTION_WATER_CONSUMED:
               case QUESTION_WASTE_GENERATED:
