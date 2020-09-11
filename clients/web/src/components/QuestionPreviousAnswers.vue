@@ -11,21 +11,17 @@
 </template>
 
 <script>
-import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
 import { formatDate } from '@/directives'
 
 export default {
   name: 'QuestionPreviousAnswers',
 
-  props: ['questionType', 'previousAnswer'],
+  props: ['model', 'previousAnswer'],
 
   computed: {
     answerText() {
       return (
-        this.previousAnswer &&
-        MAP_QUESTION_FORM_TYPES[this.questionType].render(
-          this.previousAnswer.answers
-        )
+        this.previousAnswer && this.model.render(this.previousAnswer.answers)
       )
     },
   },

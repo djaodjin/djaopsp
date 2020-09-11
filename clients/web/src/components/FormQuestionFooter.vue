@@ -1,7 +1,7 @@
 <template>
   <fragment>
     <question-previous-answers
-      :questionType="questionType"
+      :model="model"
       :previousAnswer="previousAnswer"
     />
     <v-textarea
@@ -35,24 +35,24 @@ export default {
 
   props: {
     focus: {
-      type: Boolean,
       default: false,
+      type: Boolean,
+    },
+    model: {
+      type: Object,
     },
     numRows: {
-      type: Number,
       default: 2,
+      type: Number,
     },
     previousAnswer: {
-      type: Object, // Answer
+      // Answer
       default: null,
-    },
-    questionType: {
-      type: String,
-      required: true,
+      type: Object,
     },
     textareaPlaceholder: {
-      type: String,
       required: true,
+      type: String,
     },
     textareaValue: {
       type: String,

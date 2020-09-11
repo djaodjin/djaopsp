@@ -4,7 +4,7 @@
       <v-row>
         <v-col data-cy="number" cols="4">
           <v-text-field
-            :label="options"
+            :label="model.options"
             outlined
             v-model="textAnswer"
             hide-details="auto"
@@ -15,8 +15,8 @@
       </v-row>
     </v-container>
     <form-question-footer
+      :model="model"
       :previousAnswer="previousAnswer"
-      :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
       :textareaValue="comment"
       @textareaUpdate="updateComment"
@@ -30,12 +30,12 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionNumber',
 
-  props: ['question', 'answer', 'previousAnswer', 'options', 'isEmpty'],
+  props: ['question', 'answer', 'previousAnswer', 'model'],
 
   methods: {
     processForm: function () {
       const answers = [this.textAnswer, this.comment]
-      const isEmpty = this.isEmpty(answers)
+      const isEmpty = this.model.isEmpty(answers)
       this.$emit('submit', answers, isEmpty)
     },
     updateComment(value) {

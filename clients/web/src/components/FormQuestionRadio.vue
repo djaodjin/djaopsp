@@ -6,7 +6,7 @@
       hide-details="auto"
     >
       <v-radio
-        v-for="option in options"
+        v-for="option in model.options"
         :key="option.value"
         :value="option.value"
       >
@@ -21,8 +21,8 @@
       ></v-radio>
     </v-radio-group>
     <form-question-footer
+      :model="model"
       :previousAnswer="previousAnswer"
-      :questionType="question.type"
       :textareaPlaceholder="question.placeholder"
       :textareaValue="comment"
       @textareaUpdate="updateComment"
@@ -36,12 +36,12 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionRadio',
 
-  props: ['question', 'answer', 'previousAnswer', 'options', 'isEmpty'],
+  props: ['question', 'answer', 'previousAnswer', 'model'],
 
   methods: {
     processForm: function () {
       const answers = [this.selectedOption, this.comment]
-      const isEmpty = this.isEmpty(answers)
+      const isEmpty = this.model.isEmpty(answers)
       this.$emit('submit', answers, isEmpty)
     },
     updateComment(value) {

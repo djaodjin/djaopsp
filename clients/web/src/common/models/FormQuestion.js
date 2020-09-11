@@ -1,6 +1,6 @@
 export default class FormQuestion {
-  constructor({ name, options = [] }) {
-    this.name = name
+  constructor({ componentName, options = [] }) {
+    this.componentName = componentName
     this.options = options
   }
   render() {

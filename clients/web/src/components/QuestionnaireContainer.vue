@@ -17,12 +17,11 @@
     </span>
 
     <component
-      :is="questionForm.name"
+      :is="questionForm.componentName"
+      :model="questionForm"
       :question="currentQuestion"
       :answer="currentAnswer"
       :previousAnswer="previousAnswer"
-      :options="questionForm.options"
-      :isEmpty="questionForm.isEmpty"
       :key="currentQuestion.id"
       @submit="saveAndContinue"
     />
