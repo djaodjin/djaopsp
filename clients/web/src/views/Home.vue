@@ -18,7 +18,7 @@
                     organization.assessments && organization.assessments.length
                   "
                 >
-                  <h3 class="mb-4">Active Sustainability Assessments</h3>
+                  <h3 class="mb-4">Active Sustainability Assessment</h3>
                   <ul
                     v-for="assessment in organization.assessments"
                     :key="assessment.key"
@@ -31,15 +31,31 @@
                   </ul>
                 </div>
 
-                <button-primary :to="{ name: 'newAssessment' }">{{
-                  $t('home.btn-assessment')
-                }}</button-primary>
+                <button-primary
+                  data-cy="continue-assessment"
+                  :to="{
+                    name: 'assessmentHome',
+                    params: { id: organization.assessments[0].id },
+                  }"
+                  v-if="
+                    organization.assessments && organization.assessments.length
+                  "
+                  >{{ $t('home.btn-continue-assessment') }}</button-primary
+                >
+                <button-primary
+                  data-cy="create-assessment"
+                  @click="createAssessment"
+                  v-else
+                  >{{ $t('home.btn-take-assessment') }}</button-primary
+                >
               </section>
             </v-col>
             <v-col cols="12" md="6" xl="4">
               <section class="mb-4 px-md-4">
                 <p>{{ $t('home.desc-history') }}</p>
-                <button-primary>{{ $t('home.btn-history') }}</button-primary>
+                <button-primary data-cy="view-history">{{
+                  $t('home.btn-history')
+                }}</button-primary>
               </section>
             </v-col>
             <!-- Comment out view best practices section
@@ -64,6 +80,7 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
+import { createAssessment } from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import AssessmentInfo from '@/components/AssessmentInfo'
 
@@ -77,11 +94,18 @@ export default {
   },
 
   methods: {
+    createAssessment() {
+      createAssessment(this.org, { campaign: 'assessment' }).then(
+        (newAssessment) => {
+          this.$router.push({
+            name: 'assessmentHome',
+            params: { id: newAssessment.id },
+          })
+        }
+      )
+    },
     async fetchData() {
-      const [organization] = await Promise.all([
-        this.$context.getOrganization(this.org),
-      ])
-      this.organization = organization
+      this.organization = await this.$context.getOrganization(this.org)
     },
   },
 

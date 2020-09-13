@@ -1,6 +1,10 @@
 <template>
   <v-list>
-    <v-list-item link :to="{ name: 'home' }" exact>
+    <v-list-item
+      link
+      :to="{ name: 'home', params: { org: $route.params.org } }"
+      exact
+    >
       <v-list-item-action>
         <v-icon>mdi-home</v-icon>
       </v-list-item-action>

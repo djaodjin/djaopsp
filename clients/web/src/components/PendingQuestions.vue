@@ -28,6 +28,7 @@
           :questionId="$route.query.question"
           :questions="questions"
           :answers="answers"
+          :previousAnswers="previousAnswers"
           @saveAnswer="saveAnswer"
         />
       </div>
@@ -89,7 +90,7 @@ import TabHeader from '@/components/TabHeader'
 export default {
   name: 'PendingQuestions',
 
-  props: ['header', 'questions', 'answers'],
+  props: ['header', 'questions', 'answers', 'previousAnswers'],
 
   methods: {
     saveAnswer(...args) {

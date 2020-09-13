@@ -9,7 +9,7 @@
         >
           <header-primary
             :linkText="organization.name"
-            :linkTo="{ name: 'home' }"
+            :linkTo="{ name: 'home', params: { org: $route.params.org } }"
             text="Environment Sustainability Assessment"
           />
           <v-row v-if="assessmentHasData" justify="center">
@@ -17,7 +17,18 @@
               <assessment-info :assessment="assessment" />
             </v-col>
             <v-col cols="12" sm="8" md="5">
-              <assessment-stepper :assessment="assessment" />
+              <div v-if="assessment.industryName">
+                <assessment-stepper
+                  :organization="organization"
+                  :assessment="assessment"
+                />
+              </div>
+              <div v-else>
+                <form-select-industry
+                  :organizationId="org"
+                  @industry:set="setIndustry"
+                />
+              </div>
             </v-col>
           </v-row>
         </component>
@@ -30,6 +41,7 @@
 import { VSheet } from 'vuetify/lib'
 import AssessmentInfo from '@/components/AssessmentInfo'
 import AssessmentStepper from '@/components/AssessmentStepper'
+import FormSelectIndustry from '@/components/FormSelectIndustry'
 import HeaderPrimary from '@/components/HeaderPrimary'
 
 export default {
@@ -45,10 +57,17 @@ export default {
     async fetchData() {
       const [organization, assessment] = await Promise.all([
         this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.id),
+        this.$context.getAssessment(this.org, this.id),
       ])
       this.organization = organization
       this.assessment = assessment
+    },
+    async setIndustry(industry) {
+      this.assessment = await this.$context.setAssessmentIndustry(
+        this.org,
+        this.id,
+        industry
+      )
     },
   },
 
@@ -73,6 +92,7 @@ export default {
     VSheet,
     AssessmentInfo,
     AssessmentStepper,
+    FormSelectIndustry,
     HeaderPrimary,
   },
 }

@@ -18,12 +18,13 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionTextarea',
 
-  props: ['question', 'answer', 'previousAnswer'],
+  props: ['question', 'answer', 'previousAnswer', 'isEmpty'],
 
   methods: {
     processForm: function () {
-      const isEmpty = !this.textAnswer
-      this.$emit('submit', [this.textAnswer], isEmpty)
+      const answers = [this.textAnswer]
+      const isEmpty = this.isEmpty(answers)
+      this.$emit('submit', answers, isEmpty)
     },
     updateAnswer(value) {
       this.textAnswer = value

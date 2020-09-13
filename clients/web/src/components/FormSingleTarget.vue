@@ -13,23 +13,7 @@
 
     <v-expand-transition>
       <div class="pl-8 py-1" v-show="target.enabled">
-        <v-textarea
-          class="mt-4"
-          :label="$t('targets.tab1.form.textarea-target')"
-          v-model="target.text"
-          hide-details="auto"
-          auto-grow
-          outlined
-          rows="5"
-          row-height="16"
-          :rules="[
-            (v) =>
-              !!v ||
-              !target.enabled ||
-              'Please supply a target description or uncheck the target',
-          ]"
-        ></v-textarea>
-        <div class="mt-3 examples">
+        <div class="mt-2 examples">
           <span>
             Need help writing your target?
             <button type="button" @click="areExamplesVisible = true">
@@ -48,6 +32,22 @@
             </ul>
           </v-expand-transition>
         </div>
+        <v-textarea
+          class="mt-4"
+          :label="$t('targets.tab1.form.textarea-target')"
+          v-model="target.text"
+          hide-details="auto"
+          auto-grow
+          outlined
+          rows="5"
+          row-height="16"
+          :rules="[
+            (v) =>
+              !!v ||
+              !target.enabled ||
+              'Please supply a target description or uncheck the target',
+          ]"
+        ></v-textarea>
       </div>
     </v-expand-transition>
   </div>

@@ -3,7 +3,7 @@
     <header-secondary
       class="container"
       :orgName="organization.name"
-      :industryName="assessment.industryName"
+      :industryName="asssessment.industryName"
       :title="$t('share.title')"
     />
     <tab-container
@@ -62,7 +62,7 @@ export default {
         organizations,
       ] = await Promise.all([
         this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.id),
+        this.$context.getAssessment(this.org, this.id),
         getShareHistory(),
         getOrganizations(),
       ])

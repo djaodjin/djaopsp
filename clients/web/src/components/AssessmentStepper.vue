@@ -3,40 +3,30 @@
     class="pb-4"
     :elevation="STANDALONE ? 3 : 0"
     :outlined="!Boolean(STANDALONE)"
+    data-cy="stepper"
   >
     <v-stepper v-model.number="computedIndex" vertical class="py-3 px-md-3">
       <template v-for="(step, i) in ASSESSMENT_FLOW.steps">
         <fragment v-if="step.key === STEP_SHARE_KEY" :key="step.key">
           <v-stepper-step
+            :data-cy="step.key"
             :editable="currentStep.key === STEP_SHARE_KEY"
             :step="i + 1"
             @click.stop="
               step.onClick(
                 $router,
-                { samplePath },
+                { organization, assesssment },
                 currentStep.key === STEP_SHARE_KEY
               )
             "
           >
             <span>{{ step.text }}</span>
-            <small v-if="step === currentStep">Current step</small>
           </v-stepper-step>
         </fragment>
 
-        <fragment v-else-if="step.key === STEP_FREEZE_KEY" :key="step.key">
+        <fragment v-else-if="step.key === STEP_REVIEW_KEY" :key="step.key">
           <v-stepper-step
-            :editable="currentStep.key === STEP_FREEZE_KEY"
-            :step="i + 1"
-            @click.stop="openFreezeDialog(currentStep.key === STEP_FREEZE_KEY)"
-          >
-            <span>{{ step.text }}</span>
-            <small v-if="step === currentStep">Current step</small>
-          </v-stepper-step>
-          <v-stepper-content :step="i + 1" />
-        </fragment>
-
-        <fragment v-else-if="step.key === STEP_SCORECARD_KEY" :key="step.key">
-          <v-stepper-step
+            :data-cy="step.key"
             :editable="currentStepIndex >= i"
             :step="i + 1"
             :class="{
@@ -44,17 +34,21 @@
               'v-stepper__step--complete': currentStepIndex >= i,
             }"
             @click.stop="
-              step.onClick($router, { samplePath }, currentStepIndex >= i)
+              step.onClick(
+                $router,
+                { organization, assessment },
+                currentStepIndex >= i
+              )
             "
           >
             <span>{{ step.text }}</span>
-            <small v-if="step === currentStep">Current step</small>
           </v-stepper-step>
           <v-stepper-content :step="i + 1" />
         </fragment>
 
         <fragment v-else :key="step.key">
           <v-stepper-step
+            :data-cy="step.key"
             :complete="
               currentStepIndex > i && currentStep.key !== STEP_SHARE_KEY
             "
@@ -79,13 +73,16 @@
             @click.stop="
               step.onClick(
                 $router,
-                { samplePath },
+                { organization, assessment },
                 currentStepIndex >= i && currentStep.key !== STEP_SHARE_KEY
               )
             "
           >
             <span>{{ step.text }}</span>
-            <small v-if="step === currentStep">Current step</small>
+            <small
+              v-if="step.key === STEP_TARGETS_KEY || step.key === STEP_PLAN_KEY"
+              >Optional step</small
+            >
           </v-stepper-step>
           <v-stepper-content :step="i + 1" />
         </fragment>
@@ -142,26 +139,6 @@
         You will still have access to the assessment from the assessment history
       </p>
     </dialog-action>
-    <dialog-action
-      title="Freeze Assessment"
-      actionText="Yes, freeze the assessment"
-      :isOpen="isFreezeDialogOpen"
-      @action="freezeAssessment"
-      @cancel="closeFreezeDialog"
-    >
-      <p>Would you like to record and freeze the assessment?</p>
-      <p>
-        By freezing the assessment, you certify that the assessment responses
-        provided for your organization are true and correct to the best of your
-        knowledge. Additionally, you acknowledge that the responses form a
-        statement of record which current or future clients may request to
-        verify.
-      </p>
-      <p>
-        After freezing the assessment, you will still be able to review its
-        scorecard, but the assessment will no longer be editable.
-      </p>
-    </dialog-action>
   </v-sheet>
 </template>
 
@@ -172,15 +149,14 @@ import {
   STEP_TARGETS_KEY,
   STEP_PLAN_KEY,
   STEP_SHARE_KEY,
-  STEP_FREEZE_KEY,
-  STEP_SCORECARD_KEY,
+  STEP_REVIEW_KEY,
 } from '@/config/app'
 import DialogAction from '@/components/DialogAction'
 
 export default {
   name: 'AssessmentStepper',
 
-  props: ['assessment'],
+  props: ['organization', 'assessment'],
 
   beforeMount() {
     ASSESSMENT_FLOW.start(this.assessment.status)
@@ -200,11 +176,9 @@ export default {
       STEP_TARGETS_KEY,
       STEP_PLAN_KEY,
       STEP_SHARE_KEY,
-      STEP_FREEZE_KEY,
-      STEP_SCORECARD_KEY,
+      STEP_REVIEW_KEY,
       isArchiveDialogOpen: false,
       isDeleteDialogOpen: false,
-      isFreezeDialogOpen: false,
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }
   },
@@ -212,9 +186,6 @@ export default {
   computed: {
     computedIndex() {
       return this.currentStepIndex + 1
-    },
-    samplePath() {
-      return this.assessment.industryPath
     },
     assessmentHasTargets() {
       // At least one of the targets has text
@@ -229,22 +200,11 @@ export default {
     closeDeleteDialog() {
       this.isDeleteDialogOpen = false
     },
-    closeFreezeDialog() {
-      this.isFreezeDialogOpen = false
-    },
     archiveAssessment() {
       this.isArchiveDialogOpen = false
     },
     deleteAssessment() {
       this.isDeleteDialogOpen = false
-    },
-    freezeAssessment() {
-      this.isFreezeDialogOpen = false
-    },
-    openFreezeDialog(isActive) {
-      if (isActive) {
-        this.isFreezeDialogOpen = true
-      }
     },
   },
 

@@ -1,153 +1,4 @@
-import FormQuestion from '../common/FormQuestion'
 import { AssessmentStep, AssessmentFlow } from '../common/AssessmentFlow'
-
-const FormQuestionRadioDiscrete = new FormQuestion({
-  name: 'FormQuestionRadio',
-  options: [
-    {
-      text: 'Yes',
-      value: 'yes',
-    },
-    {
-      text: 'No',
-      value: 'no',
-    },
-  ],
-})
-FormQuestionRadioDiscrete.render = function (answers) {
-  const selected = this.options.find((opt) => opt.value === answers[0])
-  return selected ? selected.text : ''
-}
-
-const FormQuestionRadioRange = new FormQuestion({
-  name: 'FormQuestionRadio',
-  options: [
-    {
-      text: 'Yes',
-      value: 'yes',
-    },
-    {
-      text: 'Mostly Yes',
-      value: 'most-yes',
-    },
-    {
-      text: 'Mostly No',
-      value: 'most-no',
-    },
-    {
-      text: 'No',
-      value: 'no',
-    },
-    {
-      text: 'Not Applicable',
-      value: 'not-app',
-    },
-  ],
-})
-FormQuestionRadioRange.render = function (answers) {
-  const selected = this.options.find((opt) => opt.value === answers[0])
-  return selected ? selected.text : ''
-}
-
-const FormQuestionRadioLabeled = new FormQuestion({
-  name: 'FormQuestionRadio',
-  options: [
-    {
-      text:
-        "<b>Initiating:</b><span class='ml-1'>There is minimal management support</span>",
-      value: 'initiating',
-    },
-    {
-      text:
-        "<b>Progressing:</b><span class='ml-1'>Support is visible and clearly demonstrated</span>",
-      value: 'progressing',
-    },
-    {
-      text:
-        "<b>Optimizing:</b><span class='ml-1'>Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals</span>",
-      value: 'optimizing',
-    },
-    {
-      text:
-        "<b>Leading:</b><span class='ml-1'>The Board of Directors annually reviews environmental performance and sets or endorses goals</span>",
-      value: 'leading',
-    },
-    {
-      text:
-        "<b>Transforming:</b><span class='ml-1'>Executive management sponsors transformative change in industry sector and beyond</span>",
-      value: 'transforming',
-    },
-  ],
-})
-FormQuestionRadioLabeled.render = function (answers) {
-  const selected = this.options.find((opt) => opt.value === answers[0])
-  if (selected) {
-    const found = selected.text.match(/<b>(.*):<\/b>/)
-    return found && found[1]
-  }
-  return ''
-}
-
-const FormQuestionTextarea = new FormQuestion({ name: 'FormQuestionTextarea' })
-FormQuestionTextarea.render = function (answers) {
-  return answers[0] || ''
-}
-
-const FormQuestionQuantity = new FormQuestion({
-  name: 'FormQuestionQuantity',
-  options: [
-    {
-      text: 'Kilowatt-hour (kWh) of Electricity  / Year',
-      value: 'kwh-year',
-    },
-    {
-      text: 'Metric Tons / Year',
-      value: 'tons-year',
-    },
-    {
-      text: 'GHG Emissions',
-      value: 'ghg-emissions-generated',
-    },
-    {
-      text: 'US Gallons / Year',
-      value: 'gallons-year',
-    },
-    {
-      text: 'mmBtu / Year',
-      value: 'mmbtu-year',
-    },
-    {
-      text: 'Cubic meters / Year',
-      value: 'm3-year',
-    },
-    {
-      text: 'Kilo liters / Year',
-      value: 'kiloliters-year',
-    },
-    {
-      text: 'Cubic feet / Year',
-      value: 'ft3-year',
-    },
-    {
-      text: 'Cubic feet / Year',
-      value: 'ft3-year',
-    },
-  ],
-})
-FormQuestionQuantity.render = function (answers) {
-  const unit = this.options.find((opt) => opt.value === answers[1])
-  return unit ? `${answers[0]} ${unit.text}` : ''
-}
-
-export const MAP_QUESTION_FORM_TYPES = {
-  1: FormQuestionRadioDiscrete,
-  2: FormQuestionRadioRange,
-  3: FormQuestionRadioLabeled,
-  4: FormQuestionTextarea,
-  5: FormQuestionQuantity,
-}
-
-export const VALID_QUESTION_TYPES = Object.keys(MAP_QUESTION_FORM_TYPES)
 
 export const PRACTICE_VALUES = [
   {
@@ -173,10 +24,11 @@ export const PRACTICE_VALUES = [
 ]
 
 export const PRACTICE_VALUE_CATEGORIES = [
-  { text: 'Average Value', value: 'averageValue' },
-  { text: 'Environmental Value', value: 'environmentalValue' },
-  { text: 'Cost Savings', value: 'financialValue' },
-  { text: 'Operational Benefits', value: 'operationalValue' },
+  { text: 'Average value', value: 'avg_value' },
+  { text: 'Environmental value', value: 'environmental_value' },
+  { text: 'Financial value', value: 'profitability' },
+  { text: 'Implementation ease', value: 'implementation_ease' },
+  { text: 'Ops/Maintenance value', value: 'business_value' },
 ]
 
 export const PRACTICE_VALUE_CATEGORY_DEFAULT = PRACTICE_VALUE_CATEGORIES[0]
@@ -185,43 +37,37 @@ export const PRACTICE_VALUE_CATEGORY_DEFAULT = PRACTICE_VALUE_CATEGORIES[0]
 export const STEP_PRACTICE_KEY = 'practice'
 export const STEP_TARGETS_KEY = 'targets'
 export const STEP_PLAN_KEY = 'plan'
-export const STEP_SCORECARD_KEY = 'scorecard'
-export const STEP_FREEZE_KEY = 'freeze'
+export const STEP_REVIEW_KEY = 'review'
 export const STEP_SHARE_KEY = 'share'
 
 export const ASSESSMENT_STEPS = {
   [STEP_PRACTICE_KEY]: {
     index: 1,
     text: 'Establish current practices',
-    path: 'assessmentPractices',
-    introPath: 'introPractices',
+    path: 'introPractices',
     isEditable: true,
+    stepIncrease: 3,
   },
   [STEP_TARGETS_KEY]: {
     index: 2,
     text: 'Define environmental targets',
-    path: 'assessmentTargets',
-    introPath: 'introTargets',
+    path: 'introTargets',
     isEditable: true,
   },
   [STEP_PLAN_KEY]: {
     index: 3,
     text: 'Create improvement plan',
-    path: 'assessmentPlan',
-    introPath: 'introPlan',
+    path: 'introPlan',
     isEditable: true,
   },
-  [STEP_SCORECARD_KEY]: {
+  [STEP_REVIEW_KEY]: {
     index: 4,
-    text: 'Review scorecard',
+    text: 'Review assessment',
     path: 'assessmentScorecard',
-  },
-  [STEP_FREEZE_KEY]: {
-    index: 5,
-    text: 'Freeze assessment',
+    stepIncrease: 1,
   },
   [STEP_SHARE_KEY]: {
-    index: 6,
+    index: 5,
     text: 'Share assessment',
     path: 'assessmentShare',
   },
@@ -238,8 +84,6 @@ export const ASSESSMENT_FLOW = new AssessmentFlow({
 })
 
 export const VALID_ASSESSMENT_STEPS = Object.keys(ASSESSMENT_STEPS)
-
-export const DEFAULT_ASSESSMENT_STEP = VALID_ASSESSMENT_STEPS[0]
 
 /* --- Assessment Targets --- */
 export const VALID_ASSESSMENT_TARGETS = [

@@ -4,7 +4,7 @@ const assetsDir = 'static/cache'
 module.exports = {
   outputDir: '../../htdocs',
   assetsDir: assetsDir,
-  publicPath: '/envconnect',
+  publicPath: process.env.VUE_APP_ROOT,
   configureWebpack: {
     plugins: [
       new HtmlWebpackPlugin({
