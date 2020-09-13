@@ -3,7 +3,7 @@
     <header-secondary
       class="container"
       :orgName="organization.name"
-      :industryName="assessment.industryName"
+      :industryName="asssessment.industryName"
       title="Scorecard"
     />
     <div v-if="loading">
@@ -61,7 +61,7 @@ export default {
       this.loading = true
       const [organization, assessment, score] = await Promise.all([
         this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.id),
+        this.$context.getAssessment(this.org, this.id),
         getScore(),
       ])
 

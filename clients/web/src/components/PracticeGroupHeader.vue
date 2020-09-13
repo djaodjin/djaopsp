@@ -1,5 +1,5 @@
 <template>
-  <v-subheader v-bind="$attrs">
+  <v-subheader data-cy="practice-group-header" v-bind="$attrs">
     <img
       class="d-inline-block"
       height="48"

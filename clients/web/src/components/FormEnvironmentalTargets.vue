@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { advanceAssessment, postTargets } from '@/common/api'
+import { postTargets } from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import FormSingleTarget from '@/components/FormSingleTarget'
 
@@ -59,7 +59,6 @@ export default {
       this.isValid = this.$refs.form.validate()
       if (this.isValid) {
         postTargets(this.organization.id, this.assessment.id, this.targets)
-          .then(advanceAssessment)
           .then((assessment) => {
             this.$context.updateAssessment(assessment)
             this.$router.push({

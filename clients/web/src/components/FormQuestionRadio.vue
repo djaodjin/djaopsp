@@ -36,12 +36,13 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionRadio',
 
-  props: ['question', 'answer', 'previousAnswer', 'options'],
+  props: ['question', 'answer', 'previousAnswer', 'options', 'isEmpty'],
 
   methods: {
     processForm: function () {
-      const isEmpty = !this.selectedOption
-      this.$emit('submit', [this.selectedOption, this.comment], isEmpty)
+      const answers = [this.selectedOption, this.comment]
+      const isEmpty = this.isEmpty(answers)
+      this.$emit('submit', answers, isEmpty)
     },
     updateComment(value) {
       this.comment = value

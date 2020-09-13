@@ -5,46 +5,49 @@ import {
   Factory,
   hasMany,
   belongsTo,
-  trait,
-  association,
 } from 'miragejs'
 import faker from 'faker'
+import snakeCase from 'lodash/snakeCase'
 
 import {
   NUM_BENCHMARKS,
   BENCHMARK_MAX_COMPANIES,
-  INDUSTRIES,
   INDUSTRY_SECTIONS,
 } from './config'
-import industries from './fixtures/industries'
-import previousIndustries from './fixtures/previousIndustries'
+import fixtures from './fixtures'
+import scenarios from './scenarios'
+import routeHandlers from './handlers'
+import { PRACTICE_VALUES } from '../config/app'
 import {
-  DEFAULT_ASSESSMENT_STEP,
   MAP_QUESTION_FORM_TYPES,
-  PRACTICE_VALUES,
-  STEP_FREEZE_KEY,
-  VALID_ASSESSMENT_STEPS,
-  VALID_ASSESSMENT_TARGETS_KEYS,
-  VALID_QUESTION_TYPES,
-} from '@/config/app'
-import { getRandomInt } from '@/common/utils'
+  QUESTION_COMMENT_TYPE,
+  QUESTION_EMPLOYEE_COUNT,
+  QUESTION_ENERGY_CONSUMED,
+  QUESTION_RANGE_TYPE,
+  QUESTION_REVENUE_GENERATED,
+  QUESTION_WASTE_GENERATED,
+  QUESTION_WATER_CONSUMED,
+  QUESTION_YES_NO_TYPE,
+} from '../config/questionFormTypes'
+import { getRandomInt } from '../common/utils'
 
 const MIN_PRACTICE_VALUE = PRACTICE_VALUES[0].value
 const MAX_PRACTICE_VALUE = PRACTICE_VALUES[PRACTICE_VALUES.length - 1].value
 
-const ApplicationSerializer = RestSerializer.extend()
+const ApplicationSerializer = RestSerializer.extend({
+  keyForAttribute(attr) {
+    return snakeCase(attr)
+  },
+})
 
 // Setting faker seed to get consistent results
 faker.seed(582020)
 
-export function makeServer({ environment = 'development' }) {
+export function makeServer({ environment = 'development', apiBasePath }) {
   return new Server({
     environment,
 
-    fixtures: {
-      industries,
-      previousIndustries,
-    },
+    fixtures,
 
     models: {
       answer: Model.extend({
@@ -54,7 +57,8 @@ export function makeServer({ environment = 'development' }) {
       }),
       assessment: Model.extend({
         targets: hasMany(),
-        practices: hasMany(),
+        questions: hasMany(), // selected practices for improvement plan
+        answers: hasMany(),
         score: belongsTo(),
       }),
       benchmark: Model,
@@ -65,13 +69,8 @@ export function makeServer({ environment = 'development' }) {
       organizationGroup: Model.extend({
         organizations: hasMany(),
       }),
-      practice: Model.extend({
-        question: belongsTo(),
-      }),
       previousIndustry: Model,
-      question: Model.extend({
-        practice: belongsTo(),
-      }),
+      question: Model,
       score: Model.extend({
         benchmarks: hasMany(),
       }),
@@ -83,51 +82,77 @@ export function makeServer({ environment = 'development' }) {
 
     factories: {
       assessment: Factory.extend({
-        $industry() {
-          return faker.random.arrayElement(INDUSTRIES)
+        industryName() {
+          return 'Boxes & enclosures'
         },
         industryPath() {
-          return this.$industry.path
+          return '/metal/boxes-and-enclosures/'
         },
-        industryName() {
-          return this.$industry.name
+        campaign() {
+          return 'assessment'
         },
-        status() {
-          return DEFAULT_ASSESSMENT_STEP
+        created_at() {
+          return faker.date.past().toISOString()
+        },
+        is_frozen() {
+          return false
+        },
+        afterCreate(assessment) {
+          assessment.update({ slug: assessment.id })
         },
       }),
 
       answer: Factory.extend({
-        author() {
-          return 'current_user@testmail.com'
+        metric() {
+          return null
         },
-        answers() {
-          const questionForm = MAP_QUESTION_FORM_TYPES[this.question.type]
-          const options = questionForm.options.map((o) => o.value)
-
-          if (questionForm.name === 'FormQuestionTextarea') {
-            return [faker.lorem.paragraph()]
+        unit() {
+          let questionForm, options
+          let value = null
+          if (this.metric) {
+            switch (this.metric) {
+              case QUESTION_ENERGY_CONSUMED:
+              case QUESTION_WATER_CONSUMED:
+              case QUESTION_WASTE_GENERATED:
+                questionForm = MAP_QUESTION_FORM_TYPES[this.metric]
+                options = questionForm.options.map((o) => o.value)
+                value = faker.random.arrayElement(options)
+                break
+            }
           }
-          if (questionForm.name === 'FormQuestionQuantity') {
-            return [faker.random.number(), faker.random.arrayElement(options)]
+          return value
+        },
+        measured() {
+          let questionForm, options
+          let value = null
+          if (this.metric) {
+            switch (this.metric) {
+              case QUESTION_COMMENT_TYPE:
+                value = faker.lorem.paragraph()
+                break
+              case QUESTION_EMPLOYEE_COUNT:
+              case QUESTION_ENERGY_CONSUMED:
+              case QUESTION_REVENUE_GENERATED:
+              case QUESTION_WATER_CONSUMED:
+              case QUESTION_WASTE_GENERATED:
+                value = faker.random.number()
+                break
+              case QUESTION_RANGE_TYPE:
+              case QUESTION_YES_NO_TYPE:
+                questionForm = MAP_QUESTION_FORM_TYPES[this.metric]
+                options = questionForm.options.map((o) => o.value)
+                value = faker.random.arrayElement(options)
+                break
+            }
           }
-          // Smaller chance of showing a comment
-          const comment = Math.random() > 0.8 ? faker.lorem.sentences(3) : ''
-          return [faker.random.arrayElement(options), comment]
+          return value
         },
-        answered() {
-          return true
+        created_at() {
+          return null
         },
-
-        // Current answers won't have a frozen date
-        isPrevious: trait({
-          author() {
-            return faker.internet.email()
-          },
-          frozen() {
-            return faker.date.past()
-          },
-        }),
+        collected_by() {
+          return null
+        },
       }),
 
       benchmark: Factory.extend({
@@ -163,7 +188,10 @@ export function makeServer({ environment = 'development' }) {
       }),
 
       organization: Factory.extend({
-        name() {
+        slug() {
+          return this.id
+        },
+        printable_name() {
           return faker.random.words(2)
         },
       }),
@@ -171,44 +199,6 @@ export function makeServer({ environment = 'development' }) {
       organizationGroup: Factory.extend({
         name() {
           return faker.random.word().toUpperCase()
-        },
-      }),
-
-      practice: Factory.extend({
-        question: association(),
-
-        averageValue() {
-          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
-        },
-        environmentalValue() {
-          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
-        },
-        financialValue() {
-          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
-        },
-        operationalValue() {
-          return getRandomInt(MIN_PRACTICE_VALUE, MAX_PRACTICE_VALUE + 1)
-        },
-        implementationRate() {
-          return getRandomInt(10, 95)
-        },
-      }),
-
-      question: Factory.extend({
-        section() {
-          return faker.random.arrayElement(INDUSTRY_SECTIONS)
-        },
-        subcategory() {
-          return faker.random.arrayElement(this.section.subcategories)
-        },
-        path() {
-          return this.subcategory.path
-        },
-        text() {
-          return faker.lorem.sentence()
-        },
-        type() {
-          return faker.random.arrayElement(VALID_QUESTION_TYPES)
         },
       }),
 
@@ -243,16 +233,13 @@ export function makeServer({ environment = 'development' }) {
     serializers: {
       application: ApplicationSerializer,
       assessment: ApplicationSerializer.extend({
-        include: ['targets', 'practices'],
+        include: ['targets', 'questions'],
       }),
       organization: ApplicationSerializer.extend({
         include: ['assessments'],
       }),
       organizationGroup: ApplicationSerializer.extend({
         include: ['organizations'],
-      }),
-      practice: ApplicationSerializer.extend({
-        include: ['question'],
       }),
       score: ApplicationSerializer.extend({
         include: ['benchmarks'],
@@ -265,110 +252,60 @@ export function makeServer({ environment = 'development' }) {
     seeds(server) {
       server.loadFixtures()
 
-      const completeAssessment = server.create('assessment', {
-        targets: VALID_ASSESSMENT_TARGETS_KEYS.map((key) =>
-          server.create('target', { key })
-        ),
-        score: server.create('score', {
-          benchmarks: server.createList('benchmark', NUM_BENCHMARKS, {
-            coefficient: (1 / NUM_BENCHMARKS).toFixed(2),
-          }),
-        }),
-        status: STEP_FREEZE_KEY,
-      })
-
-      // completeAssessment.practices.models.forEach((practice) => {
-      //   server.create('answer', {
-      //     question: practice.question,
-      //     assessment: completeAssessment,
-      //   })
-      // })
-
-      // Organization with active assessment with existing environmental targets and improvement plan
-      const organization = server.create('organization', {
-        id: 'marlin',
-        name: 'Blue Marlin',
-        assessments: [completeAssessment],
-      })
-
-      const practices = server.createList('practice', 10)
-
-      // practices.forEach((practice) =>
-      //   server.create('answer', {
-      //     organization,
-      //     assessment: completeAssessment,
-      //     question: practice.question,
-      //   })
-      // )
-
-      practices.forEach((practice) =>
-        server.create('answer', 'isPrevious', {
-          organization,
-          assessment: completeAssessment,
-          question: practice.question,
-        })
-      )
-
-      completeAssessment.update('practices', practices)
-
-      // Organization with active assessments at every step in the process
-      server.create('organization', {
-        id: 'steve-shop',
-        name: 'Steve Test Shop',
-        assessments: VALID_ASSESSMENT_STEPS.map((step) =>
-          server.create('assessment', {
-            status: step,
-          })
-        ),
-      })
-
-      // Organization with no assessments
-      server.create('organization', {
-        id: 'supplier-1',
-        name: 'S1 - Tamerin (Demo)',
-      })
-
-      server.createList('organizationGroup', 5, {
-        organizations: server.createList('organization', 10),
-      })
-
-      server.createList('shareEntry', 30, {
-        organization: server.create('organization'),
-      })
+      scenarios.createOrgEmpty(server, 'supplier-1', 'S1 - Tamerin (Demo)')
+      scenarios.createOrgEmpty(server, 'empty')
+      scenarios.createOrgAssessmentEmpty(server, 'alpha')
+      scenarios.createOrgAssessmentPracticesIncomplete(server, 'beta')
+      scenarios.createOrgAssessmentPracticesComplete(server, 'gamma')
+      scenarios.createOrgAssessmentFrozen(server, 'delta')
+      scenarios.createOrgAssessmentEmptyMultiple(server, 'epsilon')
+      scenarios.createOrgAssessmentPreviousAnswers(server, 'zeta')
     },
 
     routes() {
-      this.namespace = '/envconnect/api'
+      this.namespace = apiBasePath
 
-      this.get('/answers/:organizationId/:assessmentId', (schema, request) => {
-        const { organizationId, assessmentId } = request.params
-        return schema.answers.where({
-          organizationId,
-          assessmentId,
-        })
-      })
+      this.get('/content', routeHandlers.getIndustryList)
 
-      this.get('/assessments/:id')
+      this.get('/content/*/', routeHandlers.getIndustryQuestions)
 
-      this.get('/industries', (schema) => {
-        return schema.industries.all()
-      })
+      this.get(
+        '/:organizationId/benchmark/historical/',
+        routeHandlers.getAssessmentHistory
+      )
 
+      this.get(
+        '/:organizationId/benchmark/historical/*/',
+        routeHandlers.getAssessmentHistory
+      )
+
+      /* --- ORGANIZATIONS --- */
       this.get('/organizations', (schema) => {
         return schema.organizationGroups.all()
       })
 
-      this.get('/organizations/:id')
+      this.get('/profile/:organizationId', routeHandlers.getOrganizationProfile)
 
+      this.get('/:organizationId/sample/', routeHandlers.getLatestAssessment)
+
+      /* --- ASSESSMENTS --- */
+      this.get(
+        '/:organizationId/sample/:assessmentId/',
+        routeHandlers.getAssessmentInformation
+      )
+
+      this.get(
+        '/:organizationId/sample/:assessmentId/answers/',
+        routeHandlers.getAnswers
+      )
+
+      this.get(
+        '/:organizationId/sample/:assessmentId/answers/*',
+        routeHandlers.getAnswers
+      )
+
+      // TODO: Remove
       this.get('/practices/:organizationId/:assessmentId', (schema) => {
-        return schema.practices.all()
-      })
-
-      this.get('/previous-industries', (schema) => {
-        return schema.previousIndustries.all()
-      })
-
-      this.get('/questions/:organizationId/:assessmentId', (schema) => {
         return schema.questions.all()
       })
 
@@ -388,11 +325,10 @@ export function makeServer({ environment = 'development' }) {
         return assessment
       })
 
-      this.post('/assessments', (schema, request) => {
-        // let attrs = JSON.parse(request.requestBody)
-        // TODO: Create assessment with attrs
-        return this.create('assessment')
-      })
+      this.post(
+        '/:organizationId/sample/',
+        routeHandlers.createAssessment.bind(this)
+      )
 
       this.post('/targets/:organizationId/:assessmentId', (schema, request) => {
         const { assessmentId } = request.params
@@ -413,29 +349,9 @@ export function makeServer({ environment = 'development' }) {
         return assessment
       })
 
-      this.put(
-        '/answer/:organizationId/:assessmentId/:questionId',
-        (schema, request) => {
-          const { organizationId, assessmentId, questionId } = request.params
-          const { id, ...attrs } = JSON.parse(request.requestBody)
-
-          const organization = schema.organizations.find(organizationId)
-          const assessment = schema.assessments.find(assessmentId)
-          const question = schema.questions.find(questionId)
-
-          let answer = schema.answers.find(id)
-          if (answer) {
-            answer.update({ ...attrs, organization, assessment, question })
-          } else {
-            answer = this.create('answer', {
-              ...attrs,
-              organization,
-              assessment,
-              question,
-            })
-          }
-          return answer
-        }
+      this.post(
+        '/:organizationId/sample/:assessmentId/answers/*',
+        routeHandlers.postAnswer.bind(this)
       )
     },
   })

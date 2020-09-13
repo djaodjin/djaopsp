@@ -1,13 +1,14 @@
 <template>
   <fragment>
-    <td class="py-2 px-6 px-sm-4 py-md-4 px-md-8">{{ question.text }}</td>
+    <td class="py-2 pl-6 pr-2 px-sm-4 py-md-4 px-md-8">{{ question.text }}</td>
     <td
       :class="[
-        hasPreviousAnswers ? 'py-2 px-3' : 'py-2 pr-3 pr-md-8',
         hasShortAnswer ? 'text-center' : 'text-left',
+        'py-2 px-3 px-md-4',
       ]"
     >
       <router-link
+        data-cy="answer-link"
         :style="[!answerText ? { 'text-decoration': 'none' } : {}]"
         :to="{
           path: `${$route.path}${$route.hash}`,
@@ -25,11 +26,10 @@
     <td
       v-if="hasPreviousAnswers"
       :class="[
-        'py-2',
-        'pr-3',
-        'pr-md-8',
         hasShortAnswer ? 'text-center' : 'text-left',
+        'py-2 px-3 px-md-4',
       ]"
+      data-cy="previous-answer"
     >
       <span class="answer">{{ previousAnswerText }}</span>
     </td>
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { MAP_QUESTION_FORM_TYPES } from '@/config/app'
+import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
 import { Fragment } from 'vue-fragment'
 
 export default {
@@ -48,14 +48,13 @@ export default {
     'subcategory',
     'question',
     'answers',
+    'previousAnswers',
     'hasPreviousAnswers',
   ],
 
   computed: {
     answerText() {
-      const answer = this.answers.find(
-        (a) => a.question === this.question.id && !a.frozen
-      )
+      const answer = this.answers.find((a) => a.question === this.question.id)
       if (!answer || !answer.answers.length) return ''
       return MAP_QUESTION_FORM_TYPES[this.question.type].render(answer.answers)
     },
@@ -63,8 +62,8 @@ export default {
       return !this.answerText ? true : this.answerText.length <= 50
     },
     previousAnswerText() {
-      const answer = this.answers.find(
-        (a) => a.question === this.question.id && a.frozen
+      const answer = this.previousAnswers.find(
+        (a) => a.question === this.question.id
       )
       if (!answer || !answer.answers.length) return ''
       return MAP_QUESTION_FORM_TYPES[this.question.type].render(answer.answers)

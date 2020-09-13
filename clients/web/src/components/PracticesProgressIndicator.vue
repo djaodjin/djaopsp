@@ -10,9 +10,14 @@
         {{ numAnswers }} / {{ numQuestions }} questions
       </span>
     </div>
-    <div class="action" v-else>
-      <button-primary @click="advanceAssessment">
-        Save Questionnaire
+    <div class="action" data-cy="btn-complete" v-else>
+      <button-primary
+        :to="{
+          name: 'assessmentHome',
+          params: { org: organizationId, id: assessmentId },
+        }"
+      >
+        Back to Assessment Home
       </button-primary>
     </div>
   </div>
@@ -24,18 +29,7 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 export default {
   name: 'PracticesProgressIndicator',
 
-  props: ['numAnswers', 'numQuestions', 'assessmentId'],
-
-  methods: {
-    advanceAssessment() {
-      // TODO: API call to update assessment status; then, redirect to assessment home
-      console.log('Call API to advance assessment')
-      this.$router.push({
-        name: 'assessmentHome',
-        params: { id: this.assessmentId },
-      })
-    },
-  },
+  props: ['numAnswers', 'numQuestions', 'organizationId', 'assessmentId'],
 
   computed: {
     completed() {

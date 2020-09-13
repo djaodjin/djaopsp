@@ -23,7 +23,7 @@
           class="mt-8"
           :to="{
             name: 'assessmentPlan',
-            params: { id, samplePath },
+            params: { id },
           }"
           >Continue</button-primary
         >
@@ -32,7 +32,10 @@
             text
             class="mx-n4 mx-sm-0 mt-6"
             color="secondary"
-            @click="advanceAssessment"
+            :to="{
+              name: 'assessmentHome',
+              params: { org, id },
+            }"
           >
             Continue without Improvement Plan
           </v-btn>
@@ -50,7 +53,7 @@ import IntroSection from '@/components/IntroSection'
 export default {
   name: 'IntroImprovementPlan',
 
-  props: ['org', 'id', 'samplePath'],
+  props: ['org', 'id'],
 
   created() {
     this.fetchData()
@@ -60,18 +63,10 @@ export default {
     async fetchData() {
       const [organization, assessment] = await Promise.all([
         this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.id),
+        this.$context.getAssessment(this.org, this.id),
       ])
       this.organization = organization
       this.assessment = assessment
-    },
-    advanceAssessment() {
-      // TODO: API call to update assessment status; then, redirect to assessment home
-      console.log('Call API to advance assessment')
-      this.$router.push({
-        name: 'assessmentHome',
-        params: { id: this.id },
-      })
     },
   },
 

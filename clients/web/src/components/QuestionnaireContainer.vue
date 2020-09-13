@@ -1,5 +1,8 @@
 <template v-if="currentQuestion">
-  <div class="mx-md-4">
+  <div class="questionnaire-container mx-md-4">
+    <span class="question-text question-index grey--text">
+      Question #{{ currentQuestionIdx + 1 }}
+    </span>
     <practice-section-header
       :section="currentQuestion.section.name"
       :subcategory="currentQuestion.subcategory.name"
@@ -19,6 +22,7 @@
       :answer="currentAnswer"
       :previousAnswer="previousAnswer"
       :options="questionForm.options"
+      :isEmpty="questionForm.isEmpty"
       :key="currentQuestion.id"
       @submit="saveAndContinue"
     />
@@ -26,8 +30,9 @@
 </template>
 
 <script>
-import { MAP_QUESTION_FORM_TYPES } from '@/config/app'
+import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
 import Answer from '@/common/Answer'
+import FormQuestionNumber from '@/components/FormQuestionNumber'
 import FormQuestionRadio from '@/components/FormQuestionRadio'
 import FormQuestionTextarea from '@/components/FormQuestionTextarea'
 import FormQuestionQuantity from '@/components/FormQuestionQuantity'
@@ -36,7 +41,7 @@ import PracticeSectionHeader from '@/components/PracticeSectionHeader'
 export default {
   name: 'QuestionnaireContainer',
 
-  props: ['questionId', 'questions', 'answers'],
+  props: ['questionId', 'questions', 'answers', 'previousAnswers'],
 
   computed: {
     currentQuestionIdx() {
@@ -46,15 +51,10 @@ export default {
       return this.questions[this.currentQuestionIdx]
     },
     currentAnswer() {
-      return this.answers.find(
-        (a) => a.question === this.questionId && !a.frozen
-      )
+      return this.answers.find((a) => a.question === this.questionId)
     },
     previousAnswer() {
-      // Get the first previous answer found; there may be more
-      return this.answers.find(
-        (a) => a.question === this.questionId && a.frozen
-      )
+      return this.previousAnswers.find((a) => a.question === this.questionId)
     },
     nextQuestion() {
       if (this.questions.length <= 1) return null
@@ -91,6 +91,7 @@ export default {
 
       const updatedAnswer = new Answer({
         ...this.currentAnswer,
+        author: 'author@email.com', // TODO: Replace with user info
         answers,
         answered: !isEmpty,
       })
@@ -100,16 +101,34 @@ export default {
   },
 
   components: {
+    FormQuestionNumber,
+    FormQuestionQuantity,
     FormQuestionRadio,
     FormQuestionTextarea,
-    FormQuestionQuantity,
     PracticeSectionHeader,
   },
 }
 </script>
 
 <style lang="scss" scoped>
+.questionnaire-container {
+  position: relative;
+}
+.question-index {
+  font-weight: 400;
+  position: absolute;
+  top: -33px;
+  right: 6px;
+}
+@media #{map-get($display-breakpoints, 'sm-and-up')} {
+  .question-index {
+    top: -78px;
+  }
+}
 @media #{map-get($display-breakpoints, 'md-and-up')} {
+  .question-index {
+    top: -110px;
+  }
   .question-text {
     font-size: 1.1rem;
     line-height: 1.6;

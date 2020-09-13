@@ -8,7 +8,7 @@ class SectionNode extends ListNode {
   }
   addSubcategory(question) {
     const subcategory = new SubcategoryNode(
-      question.subcategory.path,
+      question.subcategory.id,
       question.subcategory
     )
     this.subcategories.add(subcategory, question)
@@ -23,7 +23,7 @@ export class SectionList extends LinkedList {
   static createFromQuestions(questions) {
     const list = new SectionList()
     questions.forEach((q) => {
-      const node = new SectionNode(q.section.path, q.section)
+      const node = new SectionNode(q.section.id, q.section)
       list.add(node, q)
     })
     return list

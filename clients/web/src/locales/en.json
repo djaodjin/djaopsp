@@ -12,9 +12,10 @@
     "opt-sign-out": "Sign Out"
   },
   "home": {
-    "btn-assessment": "Take Sustainability Assessment",
+    "btn-continue-assessment": "Continue Sustainability Assessment",
     "btn-best-practices": "View Best Practices",
     "btn-history": "View Assessment History",
+    "btn-take-assessment": "Take Sustainability Assessment",
     "desc-assessment": "Record your organization's environmental sustainability practices.",
     "desc-best-practices": "Learn about the recommended environmental sustainability practices in your industry segment.",
     "desc-history": "View recorded history of your organization's environmental sustainability practices."
@@ -22,7 +23,7 @@
 
   "practices": {
     "tab1": {
-      "intro": "View all questionnaire sections.",
+      "intro": "View all best practice sections.",
       "title": "Sections"
     },
     "tab2": {

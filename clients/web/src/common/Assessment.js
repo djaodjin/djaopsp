@@ -1,7 +1,8 @@
 import {
-  VALID_ASSESSMENT_STEPS,
+  STEP_PRACTICE_KEY,
+  STEP_REVIEW_KEY,
+  STEP_SHARE_KEY,
   VALID_ASSESSMENT_TARGETS,
-  DEFAULT_ASSESSMENT_STEP,
 } from '@/config/app'
 import { getUniqueId } from './utils'
 import { getPracticeList } from './Practice'
@@ -11,29 +12,38 @@ export default class Assessment {
   // TODO: Add list of contributors to the assessment
   constructor({
     id = getUniqueId(),
-    industryName, // TODO: Remove this. It should be possible to get the name from industryPath
-    industryPath,
+    created = new Date(),
+    frozen = false,
+    industry = { title: '', path: '' },
     targets,
     practices = [],
     questions = [],
     answers = [],
-    modified = new Date(),
-    created = new Date(),
-    status = DEFAULT_ASSESSMENT_STEP,
   }) {
-    if (!VALID_ASSESSMENT_STEPS.includes(status)) {
-      throw new Error('Invalid assessment status')
-    }
     this.id = id
-    this.industryName = industryName
-    this.industryPath = industryPath
+    this.industryName = industry.title
+    this.industryPath = industry.path
     this.targets =
       targets && targets.length
         ? targets.map((t) => new Target(t))
         : VALID_ASSESSMENT_TARGETS.map((t) => new Target({ key: t.value }))
-    this.improvementPlan = getPracticeList(practices, questions, answers)
-    this.modified = modified
+    this.improvementPlan = getPracticeList(practices, questions)
+    this.questions = questions
+    this.answers = answers
     this.created = created
-    this.status = status
+    this.frozen = frozen
+
+    // Determine assessment status
+    if (
+      this.answers.length === 0 ||
+      this.answers.some((answer) => !answer.answered)
+    ) {
+      // Do not proceed until all questions have been answered
+      this.status = STEP_PRACTICE_KEY
+    } else if (!this.frozen) {
+      this.status = STEP_REVIEW_KEY
+    } else {
+      this.status = STEP_SHARE_KEY
+    }
   }
 }

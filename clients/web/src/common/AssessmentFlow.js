@@ -1,15 +1,8 @@
 export class AssessmentStep {
-  constructor({
-    key,
-    text,
-    path = null,
-    introPath = null,
-    isEditable = false,
-  }) {
+  constructor({ key, text, path, isEditable = false }) {
     this.key = key
     this.text = text
     this.path = path
-    this.introPath = introPath
     this.isEditable = isEditable
     this.isComplete = false
   }
@@ -18,14 +11,16 @@ export class AssessmentStep {
     return this.isComplete && this.isEditable
   }
 
-  onClick(router, pathParams, isActive) {
+  onClick(router, { organization, assessment }, isActive) {
     if (typeof isActive === 'boolean' && isActive) {
-      if (this.introPath || this.path) {
-        router.push({
-          name: this.introPath || this.path,
-          params: pathParams,
-        })
-      }
+      const route = router.options.routes.find(
+        (route) => route.name === this.path
+      )
+      const routePath = route.path
+        .replace(':org', organization.id)
+        .replace(':id', assessment.id)
+        .replace('*', assessment.industryPath.substr(1))
+      router.push(routePath)
     }
   }
 }

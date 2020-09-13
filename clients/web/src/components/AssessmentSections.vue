@@ -38,6 +38,7 @@
           :questionId="$route.query.question"
           :questions="questions"
           :answers="answers"
+          :previousAnswers="previousAnswers"
           @saveAnswer="saveAnswer"
         />
       </div>
@@ -57,7 +58,7 @@
             :section="section"
             :subcategory="subcategory"
             :answers="answers"
-            :hasPreviousAnswers="hasPreviousAnswers"
+            :previousAnswers="previousAnswers"
             @usePreviousAnswers="usePreviousAnswers"
           />
           <next-practice-section
@@ -71,6 +72,7 @@
         <p>{{ $t('practices.tab1.intro') }}</p>
         <div class="sections">
           <v-list
+            data-cy="assessment-section"
             class="mb-4"
             outlined
             v-for="loopSection in sections"
@@ -118,7 +120,7 @@ import TabHeader from '@/components/TabHeader'
 export default {
   name: 'AssessmentSections',
 
-  props: ['header', 'questions', 'answers', 'unanswered'],
+  props: ['header', 'questions', 'answers', 'unanswered', 'previousAnswers'],
 
   methods: {
     saveAnswer(...args) {
@@ -130,9 +132,6 @@ export default {
   },
 
   computed: {
-    hasPreviousAnswers() {
-      return this.answers.some((answer) => answer.frozen)
-    },
     sectionList() {
       return SectionList.createFromQuestions(this.questions)
     },

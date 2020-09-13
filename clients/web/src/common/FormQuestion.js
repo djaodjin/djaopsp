@@ -6,4 +6,7 @@ export default class FormQuestion {
   render() {
     console.error('This needs to be defined per each instance')
   }
+  isEmpty() {
+    console.error('This needs to be defined per each instance')
+  }
 }

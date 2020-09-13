@@ -14,9 +14,10 @@
         <template v-slot:tab1>
           <assessment-sections
             :header="$t('practices.tab1.title')"
-            :questions="questions"
-            :answers="answers"
+            :questions="assessment.questions"
+            :answers="assessment.answers"
             :unanswered="unanswered"
+            :previousAnswers="previousAnswers"
             @saveAnswer="saveAnswer"
             @usePreviousAnswers="usePreviousAnswers"
           />
@@ -25,14 +26,16 @@
           <pending-questions
             :header="$t('practices.tab2.title')"
             :questions="unanswered"
-            :answers="answers"
+            :answers="assessment.answers"
+            :previousAnswers="previousAnswers"
             @saveAnswer="saveAnswer"
           />
         </template>
       </tab-container>
       <practices-progress-indicator
-        :numQuestions="questions.length"
-        :numAnswers="questions.length - unanswered.length"
+        :numQuestions="assessment.questions.length"
+        :numAnswers="assessment.questions.length - unanswered.length"
+        :organizationId="org"
         :assessmentId="id"
       />
     </div>
@@ -56,7 +59,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getQuestions, getAnswers, putAnswer } from '@/common/api'
+import { getPreviousAnswers, postAnswer } from '@/common/api'
 import Answer from '@/common/Answer'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
@@ -78,42 +81,18 @@ export default {
   methods: {
     async fetchData() {
       this.loading = true
-      const [organization, assessment, questions, answers] = await Promise.all([
+      const [organization, assessment] = await Promise.all([
         this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.id),
-        getQuestions(this.org, this.id),
-        getAnswers(this.org, this.id),
+        this.$context.getAssessment(this.org, this.id),
       ])
-      // The different question form components expect an answer as one of their props so
-      // create placeholder answers for any questions that have not been answered
-
-      // Start by creating a list of all the IDs of the questions that have been answered
-      const answeredQuestions = answers
-        .filter((answer) => !answer.frozen)
-        .map((answer) => answer.question)
-
-      // Create a placeholder answer for each question that hasn't been answered
-      const placeholderAnswers = questions
-        .filter((question) => !answeredQuestions.includes(question.id))
-        .map(
-          (question) =>
-            new Answer({
-              organization: organization.id,
-              assessment: assessment.id,
-              question: question.id,
-              author: 'author@email.com', // TODO: Replace with user info
-            })
-        )
-
       this.organization = organization
       this.assessment = assessment
-      this.questions = questions
-      this.answers = answers.concat(placeholderAnswers)
+      this.previousAnswers = await getPreviousAnswers(this.org, assessment)
       this.loading = false
     },
 
     saveAnswer(answer, callback) {
-      putAnswer(answer)
+      postAnswer(this.org, this.assessment, answer)
         .then((answer) => {
           // Update in-memory answers array
           this.updateAnswersArray(answer)
@@ -123,32 +102,32 @@ export default {
         })
         .catch((error) => {
           // TODO: Handle error
-          console.log('Ooops ... something broke')
+          console.log('Ooops ... failed to save answer', error)
         })
     },
 
     updateAnswersArray(answer) {
-      const answerIdx = this.answers.findIndex(
-        (a) => a.question === answer.question && !a.frozen
+      const answerIdx = this.assessment.answers.findIndex(
+        (a) => a.question === answer.question
       )
       if (answerIdx >= 0) {
         // Replace answer instance with a new one
-        this.answers.splice(answerIdx, 1, answer)
+        this.assessment.answers.splice(answerIdx, 1, answer)
       } else {
-        this.answers.push(answer)
+        this.assessment.answers.push(answer)
       }
     },
 
     usePreviousAnswers(questions, callback) {
       Promise.allSettled(
         questions.map((question) => {
-          const previousAnswer = this.answers.find(
-            (a) => a.question === question.id && a.frozen
+          const previousAnswer = this.previousAnswers.find(
+            (a) => a.question === question.id
           )
-          const { id, frozen, ...attrs } = previousAnswer
+          const { id, ...attrs } = previousAnswer
           const author = 'author@email.com' // TODO: Replace with user info
           const currentAnswer = new Answer({ ...attrs, author })
-          return putAnswer(currentAnswer)
+          return postAnswer(this.org, this.assessment, currentAnswer)
         })
       ).then((answerPromises) => {
         answerPromises.forEach((answerPromise) => {
@@ -166,13 +145,13 @@ export default {
 
   computed: {
     unanswered() {
-      const answered = this.answers.reduce((acc, answer) => {
-        if (answer.answered && !answer.frozen) {
+      const answered = this.assessment.answers.reduce((acc, answer) => {
+        if (answer.answered) {
           acc.push(answer.question)
         }
         return acc
       }, [])
-      return this.questions.reduce((acc, question) => {
+      return this.assessment.questions.reduce((acc, question) => {
         if (!answered.includes(question.id)) {
           acc.push(question)
         }
@@ -180,7 +159,7 @@ export default {
       }, [])
     },
     hasPreviousAnswers() {
-      return this.answers.some((answer) => answer.frozen)
+      return !!this.previousAnswers.length
     },
   },
 
@@ -188,9 +167,11 @@ export default {
     return {
       loading: false,
       organization: {},
-      assessment: {},
-      questions: [],
-      answers: [],
+      assessment: {
+        questions: [],
+        answers: [],
+      },
+      previousAnswers: [],
       tabs: [
         { text: this.$t('practices.tab1.title'), href: 'tab-1' },
         { text: this.$t('practices.tab2.title'), href: 'tab-2' },

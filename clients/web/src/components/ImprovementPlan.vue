@@ -38,7 +38,7 @@
         class="aggregate-chart my-4 mt-md-8 mt-xl-10 mx-xl-12"
         :practices="planPractices"
       />
-      <button-primary class="mb-5" @click="advanceAssessment"
+      <button-primary class="mb-5" @click="saveImprovementPlan"
         >Save Improvement Plan</button-primary
       >
     </div>
@@ -65,7 +65,7 @@ export default {
   },
 
   methods: {
-    advanceAssessment() {
+    saveImprovementPlan() {
       // TODO: API call to update assessment status; then, redirect to assessment home
       console.log('Call API to advance assessment')
       this.$router.push({
