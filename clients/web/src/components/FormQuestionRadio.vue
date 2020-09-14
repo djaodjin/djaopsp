@@ -6,12 +6,14 @@
       hide-details="auto"
     >
       <v-radio
+        class="mb-3"
         v-for="option in model.options"
         :key="option.value"
         :value="option.value"
       >
         <template v-slot:label>
-          <span v-html="option.text"></span>
+          <b class="radio-label mr-2">{{ option.text }}:</b>
+          <small v-html="option.description"></small>
         </template>
       </v-radio>
       <v-radio
@@ -68,6 +70,14 @@ export default {
 
   &::v-deep > .v-label {
     padding-top: 2px;
+  }
+}
+.radio-label {
+  align-self: flex-start;
+  white-space: nowrap;
+
+  & + small {
+    margin-top: 1px;
   }
 }
 </style>

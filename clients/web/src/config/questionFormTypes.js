@@ -23,22 +23,32 @@ const FormQuestionRadioRange = new FormQuestionRadio({
     {
       text: 'Yes',
       value: 'yes',
+      description:
+        'The practice is implemented across all services, products or facilities to which it could apply.',
     },
     {
       text: 'Mostly Yes',
       value: 'most-yes',
+      description:
+        'The practice is implemented around <b>50% or more</b> of the services, products or facilities to which it could apply.',
     },
     {
       text: 'Mostly No',
       value: 'most-no',
+      description:
+        'The practice is implemented around <b>50% or less</b> of the services, products or facilities to which it could apply.',
     },
     {
       text: 'No',
       value: 'no',
+      description:
+        'The practice is hardly implemented across the services, products or facilities to which it could apply.',
     },
     {
       text: 'Not Applicable',
       value: 'not-app',
+      description:
+        'The practice is not applicable to the organization, or the organization has no influence or control over its implementation.',
     },
   ],
 })
@@ -46,29 +56,32 @@ const FormQuestionRadioRange = new FormQuestionRadio({
 const FormQuestionRadioLabeled = new FormQuestionRadio({
   options: [
     {
-      text:
-        "<b>Initiating:</b><span class='ml-1'>There is minimal management support</span>",
+      text: 'Initiating:',
       value: 'initiating',
+      description: 'There is minimal management support',
     },
     {
-      text:
-        "<b>Progressing:</b><span class='ml-1'>Support is visible and clearly demonstrated</span>",
+      text: 'Progressing:',
       value: 'progressing',
+      description: 'Support is visible and clearly demonstrated',
     },
     {
-      text:
-        "<b>Optimizing:</b><span class='ml-1'>Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals</span>",
+      text: 'Optimizing',
       value: 'optimizing',
+      description:
+        'Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals',
     },
     {
-      text:
-        "<b>Leading:</b><span class='ml-1'>The Board of Directors annually reviews environmental performance and sets or endorses goals</span>",
+      text: 'Leading',
       value: 'leading',
+      description:
+        'The Board of Directors annually reviews environmental performance and sets or endorses goals',
     },
     {
-      text:
-        "<b>Transforming:</b><span class='ml-1'>Executive management sponsors transformative change in industry sector and beyond</span>",
+      text: 'Transforming',
       value: 'transforming',
+      description:
+        'Executive management sponsors transformative change in industry sector and beyond',
     },
   ],
 })
