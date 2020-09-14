@@ -2,7 +2,7 @@
   <form @submit.prevent="processForm">
     <v-container class="px-0 pt-0">
       <v-row align="center">
-        <v-col cols="12" sm="4">
+        <v-col cols="12" md="4" xl="12">
           <v-radio-group
             class="mt-0"
             v-model="selectedOption"
@@ -24,7 +24,7 @@
             ></v-radio>
           </v-radio-group>
         </v-col>
-        <v-col cols="12" sm="8">
+        <v-col cols="12" md="8" xl="6">
           <v-text-field
             label="URL/Details"
             outlined
