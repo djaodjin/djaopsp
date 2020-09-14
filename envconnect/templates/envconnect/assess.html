@@ -137,13 +137,6 @@ See the following for examples of content developed for best practices:
                 {% endif %}
                 {% endwith %}
             </table>
-            <div class="row" style="margin-top:-15px;">
-                <div class="offset-md-6 col-md-6 text-right" style="margin-bottom: 10px;">
-                    <div ng-show="valueSummaryToggle">
-                        {% include "envconnect/_value_summary_legend.html" %}
-                    </div>
-                </div>
-            </div>
             <div class="row  mb-4">
               <div class="col-sm-6 text-left">
                 <a id="download-assessment"
@@ -155,27 +148,29 @@ See the following for examples of content developed for best practices:
               <div class="col-sm-6 text-right">
                 <div class="text-right"
                      style="display:inline-block;padding-left:10px;">
-                    <button class="btn btn-primary" id="reset-button"
-                            data-toggle="modal" data-target="#reset-assessment"
-                            ng-click="setActiveElement('{{abs_prefix}}')"
-                            >Reset</button>
-                    <button id="saved-button"
-                            class="btn btn-primary"
-                            ng-click="showSaveMessage($event)">Save</button>
-                    {% if not icon.tag or not 'metrics' in icon.tag %}
-                    <!-- WORKAROUND: we set data-width and data-height
-                         otherwise bootstrap-toggle will crop the size
-                         inside a class="tab-content collapse". -->
-                    <input id="toggle-results-{{icon.slug}}"
-                           type="checkbox" toggle-checkbox
-                           data-toggle="toggle"
-                           data-on="<span>Assessment</span>"
-                           data-onstyle="green-level-2"
-                           data-off="<span>Results</span>"
-                           data-offstyle="green-level-2"
-                           data-width="125px" data-height="34px"
-                           ng-model="scoreToggle">
-                    {% endif %}
+                  {% if not sample.is_frozen %}
+                  <button class="btn btn-primary" id="reset-button"
+                          data-toggle="modal" data-target="#reset-assessment"
+                          ng-click="setActiveElement('{{abs_prefix}}')"
+                          >Reset</button>
+                  <button id="saved-button"
+                          class="btn btn-primary"
+                          ng-click="showSaveMessage($event)">Save</button>
+                  {% endif %}
+                  {% if not icon.tag or not 'metrics' in icon.tag %}
+                  <!-- WORKAROUND: we set data-width and data-height
+                       otherwise bootstrap-toggle will crop the size
+                       inside a class="tab-content collapse". -->
+                  <input id="toggle-results-{{icon.slug}}"
+                         type="checkbox" toggle-checkbox
+                         data-toggle="toggle"
+                         data-on="<span>Assessment</span>"
+                         data-onstyle="green-level-2"
+                         data-off="<span>Results</span>"
+                         data-offstyle="green-level-2"
+                         data-width="125px" data-height="34px"
+                         ng-model="scoreToggle">
+                  {% endif %}
                 </div>
               </div>
             </div>
