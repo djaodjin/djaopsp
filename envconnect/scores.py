@@ -124,10 +124,10 @@ def freeze_scores(sample, includes=None, excludes=None,
         answer.save()
         LOGGER.debug("save(created_at=%s, question_id=%s, metric_id=%s,"\
             " measured=%s, denominator=%s, collected_by=%s,"\
-            " sample=%s, rank=%d)",
+            " sample=%s)",
             answer.created_at, answer.question_id, answer.metric_id,
             answer.measured, answer.denominator, answer.collected_by,
-            answer.sample, answer.rank)
+            answer.sample)
     # Create frozen scores for answers we can derive a score from
     # (i.e. assessment).
     assessment_metric_id = Metric.objects.get(slug='assessment').pk
@@ -144,10 +144,9 @@ def freeze_scores(sample, includes=None, excludes=None,
             denominator = decorated_answer.denominator
             LOGGER.debug("create(created_at=%s, question_id=%s,"\
                 " metric_id=%s, measured=%s, denominator=%s,"\
-                " collected_by=%s, sample=%s, rank=%d)",
+                " collected_by=%s, sample=%s)",
                 created_at, decorated_answer.id, score_metric_id,
-                numerator, denominator, collected_by, score_sample,
-                decorated_answer.rank)
+                numerator, denominator, collected_by, score_sample)
             _ = Answer.objects.create(
                 created_at=created_at,
                 question_id=decorated_answer.id,
@@ -155,8 +154,7 @@ def freeze_scores(sample, includes=None, excludes=None,
                 measured=numerator,
                 denominator=denominator,
                 collected_by=collected_by,
-                sample=score_sample,
-                rank=decorated_answer.rank)
+                sample=score_sample)
     sample.created_at = datetime_or_now()
     sample.save()
     return score_sample

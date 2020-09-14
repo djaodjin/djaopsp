@@ -257,6 +257,10 @@ class AssessmentAnswersAPIView(ReportMixin, SampleAnswersAPIView):
             if answer.metric_id == answer.question.default_metric_id:
                 result = answer
                 break
+        if not result:
+            # We are updating a side metric, like a comment for example.
+            return http.Response({}, status=status, headers=headers)
+
         default_metric_id = result.question.default_metric_id
         questions_pk = (result.question.pk,)
 

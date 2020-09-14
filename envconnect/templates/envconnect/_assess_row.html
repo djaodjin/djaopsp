@@ -18,6 +18,7 @@
     ng-if="!(practice[0].consumption)"
     <button ng-if="!(practice[0].consumption)"
             class="btn btn-select-all" href=""
+            {% if sample.is_frozen %} disabled{% endif %}
             ng-click="selectAll($event, '{{choice.text}}')"><i class="fa fa-circle"></i></button>
 </td>
 {% endfor %}
@@ -333,7 +334,8 @@
            name="implemented-[[practice[0].consumption.rank]]"
            ng-checked="practice[0].consumption.implemented === '{{choice.text}}'"
            ng-change="updateAssessmentAnswer(practice[0], '{{choice.text}}')"
-           ng-model="practice[0].consumption.implemented" />
+           ng-model="practice[0].consumption.implemented"
+           {% if sample.is_frozen %} disabled{% endif %} />
     <span style="font-size:10px;">[[practice[0].text ? practice[0].text[{{forloop.counter0}}] : ""]]</span>
     </label>
 </td>

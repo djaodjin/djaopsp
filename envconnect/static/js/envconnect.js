@@ -1367,7 +1367,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                 function success(resp) {
                     $("#improvement-dashboard").data(
                         'improvementDashboard').load();
-                    if( $scope.activeElement.value.tag ) {
+                    if( $scope.activeElement.targets ) {
                         var modalDialog = angular.element('#practice-info');
                         modalDialog.modal('show');
                     }

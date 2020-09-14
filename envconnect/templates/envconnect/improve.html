@@ -173,6 +173,13 @@ See the following for examples of content developed for best practices:
       <div ng-show="!valueSummaryToggle">
         {% include "envconnect/_value_summary_table.html" %}
       </div>
+      <div class="row" style="margin-top:-15px;">
+        <div class="offset-md-6 col-md-6 text-right" style="margin-bottom: 10px;">
+          <div ng-show="!valueSummaryToggle">
+            {% include "envconnect/_value_summary_legend.html" %}
+          </div>
+        </div>
+      </div>
       <div class="row mb-4">
         <div class="col-sm-6">
           <a id="download-improvements"
@@ -224,10 +231,10 @@ See the following for examples of content developed for best practices:
       <div class="modal-body">
         <p>
 NOTE: Improving in this practice could help to reduce your overall
-<strong>[[activeElement.value.targets]]</strong>.
+<strong>[[activeElement.targets]]</strong>.
         </p>
         <p>
-Visit the Data &amp; metrics tile to enter your reduction goals related
+Visit the <em>Targets</em> tile to enter your reduction goals related
 to this practice.
         </p>
       </div>
