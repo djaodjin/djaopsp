@@ -16,7 +16,7 @@ This Django project contains the web application for the enviro-connect project.
 
 ### Install prerequisites and configurations
 
-    $ python -m venv envconnect
+    $ python3 -m venv envconnect
     $ source envconnect/bin/activate
     $ mkdir -p envconnect/reps
     $ cd envconnect/reps
