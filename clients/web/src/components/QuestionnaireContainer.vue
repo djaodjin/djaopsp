@@ -10,7 +10,7 @@
     <p class="question-text mt-3 mt-md-6">{{ currentQuestion.text }}</p>
     <span
       class="d-block mb-4"
-      style="font-size: 0.9rem;"
+      style="font-size: 0.9rem"
       v-if="currentQuestion.optional"
     >
       <sup>*</sup>This answer will not affect your score
