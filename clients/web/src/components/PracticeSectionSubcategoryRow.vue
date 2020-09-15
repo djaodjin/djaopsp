@@ -38,8 +38,8 @@
 
 <script>
 import {
-  MAP_QUESTION_FORM_TYPES,
-  QUESTION_COMMENT_TYPE,
+  MAP_METRICS_TO_QUESTION_FORMS,
+  METRIC_FREETEXT,
 } from '@/config/questionFormTypes'
 import { Fragment } from 'vue-fragment'
 
@@ -59,10 +59,12 @@ export default {
     answerText() {
       const answer = this.answers.find((a) => a.question === this.question.id)
       if (!answer || !answer.answers.length) return ''
-      return MAP_QUESTION_FORM_TYPES[this.question.type].render(answer.answers)
+      return MAP_METRICS_TO_QUESTION_FORMS[this.question.type].render(
+        answer.answers
+      )
     },
     hasTextAnswer() {
-      return this.question.type === QUESTION_COMMENT_TYPE
+      return this.question.type === METRIC_FREETEXT
     },
     previousAnswerText() {
       const answer = this.previousAnswers.find(
@@ -70,7 +72,9 @@ export default {
       )
       return !answer || !answer.answers.length
         ? ''
-        : MAP_QUESTION_FORM_TYPES[this.question.type].render(answer.answers)
+        : MAP_METRICS_TO_QUESTION_FORMS[this.question.type].render(
+            answer.answers
+          )
     },
   },
 

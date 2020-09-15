@@ -13,11 +13,11 @@ import Subcategory from './models/Subcategory'
 import { getPracticeList } from './models/Practice'
 import { getShareEntryList } from './models/ShareEntry'
 import {
-  MAP_QUESTION_FORM_TYPES,
-  QUESTION_COMMENT_TYPE,
-  QUESTION_ENERGY_CONSUMED,
-  QUESTION_WATER_CONSUMED,
-  QUESTION_WASTE_GENERATED,
+  MAP_METRICS_TO_QUESTION_FORMS,
+  METRIC_FREETEXT,
+  METRIC_ENERGY_CONSUMED,
+  METRIC_WATER_CONSUMED,
+  METRIC_WASTE_GENERATED,
 } from '../config/questionFormTypes'
 
 const API_HOST = process.env.VUE_APP_STANDALONE ? window.location.origin : ''
@@ -288,16 +288,14 @@ function getAnswerInstances(answersByPath, questions) {
       answer = answers[0]
     } else if (answers.length > 1) {
       answer = answers.find((answer) => answer.metric === answer.default_metric)
-      comment = answers.find(
-        (answer) => answer.metric === QUESTION_COMMENT_TYPE
-      )
+      comment = answers.find((answer) => answer.metric === METRIC_FREETEXT)
     }
 
     if (answer) {
       if (
-        answer.default_metric === QUESTION_ENERGY_CONSUMED ||
-        answer.default_metric === QUESTION_WATER_CONSUMED ||
-        answer.default_metric === QUESTION_WASTE_GENERATED
+        answer.default_metric === METRIC_ENERGY_CONSUMED ||
+        answer.default_metric === METRIC_WATER_CONSUMED ||
+        answer.default_metric === METRIC_WASTE_GENERATED
       ) {
         answerValues = [answer.measured, answer.unit]
       } else {
@@ -313,7 +311,7 @@ function getAnswerInstances(answersByPath, questions) {
       author: answer.collected_by,
       created: answer.created_at,
       answers: answerValues,
-      answered: !MAP_QUESTION_FORM_TYPES[answer.default_metric].isEmpty(
+      answered: !MAP_METRICS_TO_QUESTION_FORMS[answer.default_metric].isEmpty(
         answerValues
       ),
     })
@@ -389,9 +387,9 @@ function parseAnswerValues(answerValues, questionType) {
   let answers = []
   let comment
   switch (questionType) {
-    case QUESTION_ENERGY_CONSUMED:
-    case QUESTION_WATER_CONSUMED:
-    case QUESTION_WASTE_GENERATED:
+    case METRIC_ENERGY_CONSUMED:
+    case METRIC_WATER_CONSUMED:
+    case METRIC_WASTE_GENERATED:
       answers.push({
         metric: questionType,
         measured: answerValues[0],
@@ -399,7 +397,7 @@ function parseAnswerValues(answerValues, questionType) {
       })
       comment = answerValues[2]
       break
-    case QUESTION_COMMENT_TYPE:
+    case METRIC_FREETEXT:
       answers.push({
         metric: questionType,
         measured: answerValues[0],
@@ -415,7 +413,7 @@ function parseAnswerValues(answerValues, questionType) {
   }
   if (comment) {
     answers.push({
-      metric: QUESTION_COMMENT_TYPE,
+      metric: METRIC_FREETEXT,
       measured: comment,
     })
   }

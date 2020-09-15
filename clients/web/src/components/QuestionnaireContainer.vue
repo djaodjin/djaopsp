@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
+import { MAP_METRICS_TO_QUESTION_FORMS } from '@/config/questionFormTypes'
 import Answer from '@/common/models/Answer'
 import FormQuestionBinary from '@/components/FormQuestionBinary'
 import FormQuestionNumber from '@/components/FormQuestionNumber'
@@ -64,7 +64,7 @@ export default {
       return this.questions[nextQuestionIndex].id
     },
     questionForm() {
-      return MAP_QUESTION_FORM_TYPES[this.currentQuestion.type]
+      return MAP_METRICS_TO_QUESTION_FORMS[this.currentQuestion.type]
     },
   },
 
