@@ -2,6 +2,7 @@ import {
   QUESTION_COMMENT_TYPE,
   QUESTION_EMPLOYEE_COUNT,
   QUESTION_ENERGY_CONSUMED,
+  QUESTION_FRAMEWORK,
   QUESTION_RANGE_TYPE,
   QUESTION_RELEVANT_QUANTITY,
   QUESTION_REVENUE_GENERATED,
@@ -150,7 +151,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio',
     title: 'Adjust air/fuel ratio',
-    default_metric: QUESTION_RANGE_TYPE,
+    default_metric: QUESTION_FRAMEWORK,
     indent: 5,
     environmental_value: 1,
     business_value: 1,

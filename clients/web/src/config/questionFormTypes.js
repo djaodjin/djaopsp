@@ -56,12 +56,12 @@ const FormQuestionRadioRange = new FormQuestionRadio({
 const FormQuestionRadioLabeled = new FormQuestionRadio({
   options: [
     {
-      text: 'Initiating:',
+      text: 'Initiating',
       value: 'initiating',
       description: 'There is minimal management support',
     },
     {
-      text: 'Progressing:',
+      text: 'Progressing',
       value: 'progressing',
       description: 'Support is visible and clearly demonstrated',
     },
@@ -85,14 +85,6 @@ const FormQuestionRadioLabeled = new FormQuestionRadio({
     },
   ],
 })
-FormQuestionRadioLabeled.render = function (answers) {
-  const selected = this.options.find((opt) => opt.value === answers[0])
-  if (selected) {
-    const found = selected.text.match(/<b>(.*):<\/b>/)
-    return found && found[1]
-  }
-  return ''
-}
 
 const FormQuestionTextarea = new FormQuestion({
   componentName: 'FormQuestionTextarea',
@@ -220,6 +212,7 @@ const FormQuestionEmissionsGenerated = new FormQuestionRelevantQuantity({
 export const QUESTION_COMMENT_TYPE = 'freetext'
 export const QUESTION_EMPLOYEE_COUNT = 'employee-counted'
 export const QUESTION_ENERGY_CONSUMED = 'energy-consumed'
+export const QUESTION_FRAMEWORK = 'framework'
 export const QUESTION_RANGE_TYPE = 'assessment'
 export const QUESTION_RELEVANT_QUANTITY = 'ghg-emissions-generated'
 export const QUESTION_REVENUE_GENERATED = 'revenue-generated'
@@ -231,13 +224,13 @@ export const MAP_QUESTION_FORM_TYPES = {
   [QUESTION_COMMENT_TYPE]: FormQuestionTextarea,
   [QUESTION_EMPLOYEE_COUNT]: FormQuestionEmployeeCount,
   [QUESTION_ENERGY_CONSUMED]: FormQuestionEnergyConsumed,
+  [QUESTION_FRAMEWORK]: FormQuestionRadioLabeled,
   [QUESTION_RANGE_TYPE]: FormQuestionRadioRange,
   [QUESTION_RELEVANT_QUANTITY]: FormQuestionEmissionsGenerated,
   [QUESTION_REVENUE_GENERATED]: FormQuestionRevenueGenerated,
   [QUESTION_YES_NO_TYPE]: FormQuestionRadioDiscrete,
   [QUESTION_WATER_CONSUMED]: FormQuestionWaterConsumed,
   [QUESTION_WASTE_GENERATED]: FormQuestionWasteGenerated,
-  3: FormQuestionRadioLabeled, // TODO: Remove?
 }
 
 export const VALID_QUESTION_TYPES = Object.keys(MAP_QUESTION_FORM_TYPES)
