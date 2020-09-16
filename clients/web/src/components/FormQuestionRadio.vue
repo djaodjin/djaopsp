@@ -2,7 +2,7 @@
   <form @submit.prevent="processForm">
     <v-radio-group
       class="mt-4 pt-0 pb-6"
-      v-model="selectedOption"
+      v-model="answerValue.measured"
       hide-details="auto"
     >
       <v-radio
@@ -25,14 +25,14 @@
     <form-question-footer
       :model="model"
       :previousAnswer="previousAnswer"
-      :textareaPlaceholder="question.placeholder"
-      :textareaValue="comment"
+      :comment="answerComment.measured"
       @textareaUpdate="updateComment"
     />
   </form>
 </template>
 
 <script>
+import Answer from '@/common/models/Answer'
 import FormQuestionFooter from '@/components/FormQuestionFooter'
 
 export default {
@@ -42,19 +42,27 @@ export default {
 
   methods: {
     processForm: function () {
-      const answers = [this.selectedOption, this.comment]
-      const isEmpty = this.model.isEmpty(answers)
-      this.$emit('submit', answers, isEmpty)
+      const answer = new Answer({
+        ...this.answer,
+        author: 'author@email.com', // TODO: Replace with user info
+      })
+      answer.save([this.answerValue, this.answerComment])
+      this.$emit('submit', answer)
     },
+
     updateComment(value) {
-      this.comment = value
+      this.answerComment.measured = value
     },
   },
 
   data() {
+    const { answers } = this.answer
+    const initialAnswer = answers[0] || {}
+    const initialComment = answers[1] || {}
+
     return {
-      selectedOption: this.answer.answers[0],
-      comment: this.answer.answers[1],
+      answerValue: { ...initialAnswer },
+      answerComment: { ...initialComment },
     }
   },
 

@@ -8,7 +8,4 @@ export default class FormQuestionQuantity extends FormQuestion {
     const unit = this.options.find((opt) => opt.value === answers[1])
     return unit ? `${answers[0]} ${unit.text}` : ''
   }
-  isEmpty(answers) {
-    return !answers[0] || !answers[1]
-  }
 }

@@ -280,41 +280,10 @@ function getFlatAnswersByPath(answerList) {
 
 function getAnswerInstances(answersByPath, questions) {
   return questions.map((question) => {
-    let answer, comment
-    let answerValues = []
-
-    const answers = answersByPath[question.path]
-    if (answers.length === 1) {
-      answer = answers[0]
-    } else if (answers.length > 1) {
-      answer = answers.find((answer) => answer.metric === answer.default_metric)
-      comment = answers.find((answer) => answer.metric === METRIC_FREETEXT)
-    }
-
-    if (answer) {
-      if (
-        answer.default_metric === METRIC_ENERGY_CONSUMED ||
-        answer.default_metric === METRIC_WATER_CONSUMED ||
-        answer.default_metric === METRIC_WASTE_GENERATED
-      ) {
-        answerValues = [answer.measured, answer.unit]
-      } else {
-        answerValues = [answer.measured]
-      }
-    }
-    if (comment) {
-      answerValues.push(comment.measured)
-    }
-
-    return new Answer({
-      question: question.id,
-      author: answer.collected_by,
-      created: answer.created_at,
-      answers: answerValues,
-      answered: !MAP_METRICS_TO_QUESTION_FORMS[answer.default_metric].isEmpty(
-        answerValues
-      ),
-    })
+    const answerObjects = answersByPath[question.path]
+    const answer = new Answer({ question: question.id })
+    answer.load(answerObjects)
+    return answer
   })
 }
 

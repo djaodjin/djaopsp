@@ -92,9 +92,6 @@ const FormQuestionTextarea = new FormQuestion({
 FormQuestionTextarea.render = function (answers) {
   return answers[0] || ''
 }
-FormQuestionTextarea.isEmpty = function (answers) {
-  return !answers[0]
-}
 
 const FormQuestionEnergyConsumed = new FormQuestionQuantity({
   options: [
@@ -210,11 +207,13 @@ const FormQuestionEmissionsGenerated = new FormQuestionRelevantQuantity({
 })
 
 export const METRIC_ASSESSMENT = 'assessment'
+export const METRIC_COMMENT = 'comments'
+export const METRIC_EMISSIONS = 'ghg-emissions-generated'
 export const METRIC_EMPLOYEE_COUNT = 'employee-counted'
 export const METRIC_ENERGY_CONSUMED = 'energy-consumed'
 export const METRIC_FRAMEWORK = 'framework'
 export const METRIC_FREETEXT = 'freetext'
-export const METRIC_RELEVANT_QUANTITY = 'ghg-emissions-generated'
+export const METRIC_RELEVANCE = 'relevance'
 export const METRIC_REVENUE_GENERATED = 'revenue-generated'
 export const METRIC_WATER_CONSUMED = 'water-consumed'
 export const METRIC_WASTE_GENERATED = 'waste-generated'
@@ -222,15 +221,20 @@ export const METRIC_YES_NO = 'yes-no'
 
 export const MAP_METRICS_TO_QUESTION_FORMS = {
   [METRIC_ASSESSMENT]: FormQuestionRadioRange,
+  [METRIC_EMISSIONS]: FormQuestionEmissionsGenerated,
   [METRIC_EMPLOYEE_COUNT]: FormQuestionEmployeeCount,
   [METRIC_ENERGY_CONSUMED]: FormQuestionEnergyConsumed,
   [METRIC_FRAMEWORK]: FormQuestionRadioLabeled,
   [METRIC_FREETEXT]: FormQuestionTextarea,
-  [METRIC_RELEVANT_QUANTITY]: FormQuestionEmissionsGenerated,
   [METRIC_REVENUE_GENERATED]: FormQuestionRevenueGenerated,
   [METRIC_WATER_CONSUMED]: FormQuestionWaterConsumed,
   [METRIC_WASTE_GENERATED]: FormQuestionWasteGenerated,
   [METRIC_YES_NO]: FormQuestionRadioDiscrete,
 }
 
-export const VALID_QUESTION_TYPES = Object.keys(MAP_METRICS_TO_QUESTION_FORMS)
+export const METRICS_WITH_UNIT = [
+  METRIC_EMISSIONS,
+  METRIC_ENERGY_CONSUMED,
+  METRIC_WATER_CONSUMED,
+  METRIC_WASTE_GENERATED,
+]

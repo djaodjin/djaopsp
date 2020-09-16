@@ -7,7 +7,4 @@ export default class FormQuestionNumber extends FormQuestion {
   render(answers) {
     return answers[0] || ''
   }
-  isEmpty(answers) {
-    return !answers[0]
-  }
 }

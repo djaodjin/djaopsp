@@ -4,7 +4,7 @@ import {
   METRIC_ENERGY_CONSUMED,
   METRIC_FRAMEWORK,
   METRIC_ASSESSMENT,
-  METRIC_RELEVANT_QUANTITY,
+  METRIC_EMISSIONS,
   METRIC_REVENUE_GENERATED,
   METRIC_WASTE_GENERATED,
   METRIC_WATER_CONSUMED,
@@ -196,7 +196,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/hot-water-system/fuel-and-energy-related-activities',
     title: 'Fuel-and-energy-related activities',
-    default_metric: METRIC_RELEVANT_QUANTITY,
+    default_metric: METRIC_EMISSIONS,
     indent: 4,
     environmental_value: 2,
     business_value: 1,

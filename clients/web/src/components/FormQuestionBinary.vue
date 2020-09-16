@@ -5,7 +5,7 @@
         <v-col cols="12" md="4" xl="12">
           <v-radio-group
             class="mt-0"
-            v-model="selectedOption"
+            v-model="answerValue.measured"
             hide-details="auto"
           >
             <v-radio
@@ -28,7 +28,7 @@
           <v-text-field
             label="URL/Details"
             outlined
-            v-model="textAnswer"
+            v-model="answerText.measured"
             hide-details="auto"
             placeholder="Please enter URL or provide more details"
             :autofocus="true"
@@ -39,14 +39,15 @@
     <form-question-footer
       :model="model"
       :previousAnswer="previousAnswer"
-      :textareaPlaceholder="question.placeholder"
-      :textareaValue="comment"
+      :comment="answerComment.measured"
       @textareaUpdate="updateComment"
     />
   </form>
 </template>
 
 <script>
+import { METRIC_COMMENT, METRIC_FREETEXT } from '@/config/questionFormTypes'
+import Answer from '@/common/models/Answer'
 import FormQuestionFooter from '@/components/FormQuestionFooter'
 
 export default {
@@ -56,21 +57,31 @@ export default {
 
   methods: {
     processForm: function () {
-      const answers = [this.selectedOption, this.textAnswer, this.comment]
-      const isEmpty = this.model.isEmpty(answers)
-      this.$emit('submit', answers, isEmpty)
+      const answer = new Answer({
+        ...this.answer,
+        author: 'author@email.com', // TODO: Replace with user info
+      })
+      answer.save([this.answerValue, this.answerText, this.answerComment])
+      this.$emit('submit', answer)
     },
     updateComment(value) {
-      this.comment = value
+      this.answerComment.measured = value
     },
   },
 
   data() {
-    const [selectedOption, textAnswer = '', comment = ''] = this.answer.answers
+    const { answers } = this.answer
+    const initialAnswer = answers[0] || {}
+    const initialText =
+      answers.find((answer) => answer.metric === METRIC_FREETEXT) || {}
+    const initialComment =
+      answers.find((answer) => answer.metric === METRIC_COMMENT) || {}
+
     return {
-      selectedOption,
-      textAnswer,
-      comment,
+      // Copy all values so form data can safely be edited
+      answerValue: { ...initialAnswer },
+      answerText: { ...initialText },
+      answerComment: { ...initialComment },
     }
   },
 

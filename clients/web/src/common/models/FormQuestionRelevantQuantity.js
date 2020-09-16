@@ -21,7 +21,4 @@ export default class FormQuestionRelevantQuantity extends FormQuestion {
       return ''
     }
   }
-  isEmpty(answers) {
-    return !answers[0] || !answers[1]
-  }
 }

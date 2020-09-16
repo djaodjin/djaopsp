@@ -1,18 +1,28 @@
 <template>
   <form @submit.prevent="processForm">
+    <v-textarea
+      class="pb-3"
+      data-cy="question-footer-textarea"
+      v-model="answerValue.measured"
+      hide-details="auto"
+      auto-grow
+      outlined
+      :rows="8"
+      :focus="true"
+      row-height="18"
+    ></v-textarea>
     <form-question-footer
       :model="model"
       :previousAnswer="previousAnswer"
-      :textareaPlaceholder="question.placeholder"
-      :textareaValue="textAnswer"
-      :numRows="8"
-      :focus="true"
-      @textareaUpdate="updateAnswer"
+      :comment="answerComment.measured"
+      @textareaUpdate="updateComment"
     />
   </form>
 </template>
 
 <script>
+import { METRIC_COMMENT } from '@/config/questionFormTypes'
+import Answer from '@/common/models/Answer'
 import FormQuestionFooter from '@/components/FormQuestionFooter'
 
 export default {
@@ -22,18 +32,28 @@ export default {
 
   methods: {
     processForm: function () {
-      const answers = [this.textAnswer]
-      const isEmpty = this.model.isEmpty(answers)
-      this.$emit('submit', answers, isEmpty)
+      const answer = new Answer({
+        ...this.answer,
+        author: 'author@email.com', // TODO: Replace with user info
+      })
+      answer.save([this.answerValue, this.answerComment])
+      this.$emit('submit', answer)
     },
-    updateAnswer(value) {
-      this.textAnswer = value
+
+    updateComment(value) {
+      this.answerComment.measured = value
     },
   },
 
   data() {
+    const { answers } = this.answer
+    const initialAnswer = answers[0] || {}
+    const initialComment = answers[1] || {}
+
+    debugger
     return {
-      textAnswer: this.answer.answers[0],
+      answerValue: { ...initialAnswer },
+      answerComment: { ...initialComment },
     }
   },
 

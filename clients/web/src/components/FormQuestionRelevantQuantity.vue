@@ -5,7 +5,7 @@
         <v-col data-cy="quantity" cols="12" sm="4">
           <v-text-field
             outlined
-            v-model="textAnswer"
+            v-model="answerValue.measured"
             hide-details="auto"
             type="number"
             :autofocus="true"
@@ -20,7 +20,7 @@
             :items="model.options"
             label="Relevance"
             outlined
-            v-model="relevance"
+            v-model="answerRelevance.measured"
             hide-details="auto"
           ></v-select>
         </v-col>
@@ -29,14 +29,15 @@
     <form-question-footer
       :model="model"
       :previousAnswer="previousAnswer"
-      :textareaPlaceholder="question.placeholder"
-      :textareaValue="comment"
+      :comment="answerComment.measured"
       @textareaUpdate="updateComment"
     />
   </form>
 </template>
 
 <script>
+import { METRIC_COMMENT, METRIC_RELEVANCE } from '@/config/questionFormTypes'
+import Answer from '@/common/models/Answer'
 import FormQuestionFooter from '@/components/FormQuestionFooter'
 
 export default {
@@ -46,26 +47,33 @@ export default {
 
   methods: {
     processForm: function () {
-      const answers = [
-        this.textAnswer,
-        this.model.unit.value,
-        this.relevance,
-        this.comment,
-      ]
-      const isEmpty = this.model.isEmpty(answers)
-      this.$emit('submit', answers, isEmpty)
+      const answer = new Answer({
+        ...this.answer,
+        author: 'author@email.com', // TODO: Replace with user info
+      })
+      answer.save([this.answerValue, this.answerRelevance, this.answerComment])
+      this.$emit('submit', answer)
     },
+
     updateComment(value) {
-      this.comment = value
+      this.answerComment.measured = value
     },
   },
 
   data() {
-    const [textAnswer, _, relevance, comment] = this.answer.answers
+    const { answers } = this.answer
+    const initialAnswer = answers[0] || {}
+    initialAnswer.unit = this.model.unit.value
+    const initialRelevance =
+      answers.find((answer) => answer.metric === METRIC_RELEVANCE) || {}
+    const initialComment =
+      answers.find((answer) => answer.metric === METRIC_COMMENT) || {}
+
     return {
-      textAnswer: textAnswer || 0,
-      relevance,
-      comment,
+      // Copy all values so form data can safely be edited
+      answerValue: { ...initialAnswer },
+      answerRelevance: { ...initialRelevance },
+      answerComment: { ...initialComment },
     }
   },
 

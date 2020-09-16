@@ -69,7 +69,7 @@ export default {
   },
 
   methods: {
-    saveAndContinue(answers, isEmpty) {
+    saveAndContinue(answer) {
       const callback = this.nextQuestion
         ? function () {
             const queryParams = {
@@ -90,14 +90,7 @@ export default {
             })
           }.bind(this)
 
-      const updatedAnswer = new Answer({
-        ...this.currentAnswer,
-        author: 'author@email.com', // TODO: Replace with user info
-        answers,
-        answered: !isEmpty,
-      })
-
-      this.$emit('saveAnswer', updatedAnswer, callback)
+      this.$emit('saveAnswer', answer, callback)
     },
   },
 

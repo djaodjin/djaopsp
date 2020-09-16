@@ -20,11 +20,14 @@ import routeHandlers from './handlers'
 import { PRACTICE_VALUES } from '../config/app'
 import {
   MAP_METRICS_TO_QUESTION_FORMS,
-  METRIC_FREETEXT,
+  METRIC_ASSESSMENT,
+  METRIC_COMMENT,
+  METRIC_EMISSIONS,
   METRIC_EMPLOYEE_COUNT,
   METRIC_ENERGY_CONSUMED,
-  METRIC_ASSESSMENT,
-  METRIC_RELEVANT_QUANTITY,
+  METRIC_FRAMEWORK,
+  METRIC_FREETEXT,
+  METRIC_RELEVANCE,
   METRIC_REVENUE_GENERATED,
   METRIC_WASTE_GENERATED,
   METRIC_WATER_CONSUMED,
@@ -119,7 +122,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
                 options = questionForm.options.map((o) => o.value)
                 value = faker.random.arrayElement(options)
                 break
-              case METRIC_RELEVANT_QUANTITY:
+              case METRIC_EMISSIONS:
                 // Assuming this question type has only one unit value
                 value = MAP_METRICS_TO_QUESTION_FORMS[this.metric].unit.value
             }
@@ -131,20 +134,27 @@ export function makeServer({ environment = 'development', apiBasePath }) {
           let value = null
           if (this.metric) {
             switch (this.metric) {
+              case METRIC_COMMENT:
               case METRIC_FREETEXT:
                 value = faker.lorem.paragraph()
                 break
               case METRIC_EMPLOYEE_COUNT:
               case METRIC_ENERGY_CONSUMED:
-              case METRIC_RELEVANT_QUANTITY:
+              case METRIC_EMISSIONS:
               case METRIC_REVENUE_GENERATED:
               case METRIC_WATER_CONSUMED:
               case METRIC_WASTE_GENERATED:
                 value = faker.random.number()
                 break
+              case METRIC_FRAMEWORK:
               case METRIC_ASSESSMENT:
               case METRIC_YES_NO:
                 questionForm = MAP_METRICS_TO_QUESTION_FORMS[this.metric]
+                options = questionForm.options.map((o) => o.value)
+                value = faker.random.arrayElement(options)
+                break
+              case METRIC_RELEVANCE:
+                questionForm = MAP_METRICS_TO_QUESTION_FORMS[METRIC_EMISSIONS]
                 options = questionForm.options.map((o) => o.value)
                 value = faker.random.arrayElement(options)
                 break

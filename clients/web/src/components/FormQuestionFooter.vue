@@ -55,10 +55,6 @@ export default {
   name: 'FormQuestionFooter',
 
   props: {
-    focus: {
-      default: false,
-      type: Boolean,
-    },
     model: {
       type: Object,
     },
@@ -71,7 +67,7 @@ export default {
       default: null,
       type: Object,
     },
-    textareaValue: {
+    comment: {
       type: String,
     },
   },
@@ -79,7 +75,7 @@ export default {
   data() {
     return {
       isTextAreaVisible: false,
-      textarea: this.textareaValue,
+      textarea: this.comment,
     }
   },
 
