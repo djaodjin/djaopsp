@@ -1263,13 +1263,17 @@ envconnectControllers.controller("EnvconnectCtrl",
         $scope.moveBestPractice(startPath, attachPath, null, "toUpperLevel");
     };
 
-    $scope.callUpdateAnswer = function(path, measured, successCallback, errorCallback) {
-        var data = ( measured.constructor === Array ) ? measured : {measured: measured};
-        $http.post(settings.urls.api_assessment_sample + '/answers' + path, data).then(
+    $scope.callUpdateAnswer = function(path, measured,
+                                       successCallback, errorCallback) {
+        if( typeof measured !== 'undefined' ) {
+            var data = ( measured.constructor === Array ) ?
+                measured : {measured: measured};
+            $http.post(
+                settings.urls.api_assessment_sample + '/answers' + path, data).then(
             function success(resp) {
                 if( resp.status == 201 ) {
                     $scope.nbAnswers++;
-                    if( resp.data.question.required ) {
+                    if( resp.data.question && resp.data.question.required ) {
                         $scope.nbRequiredAnswers++;
                     }
                 }
@@ -1283,6 +1287,7 @@ envconnectControllers.controller("EnvconnectCtrl",
                     errorCallback(resp);
                 }
             });
+        }
     };
 
     // Select all answers
@@ -1530,23 +1535,26 @@ envconnectControllers.controller("EnvconnectCtrl",
         $scope.callUpdateAnswer(practice.consumption.path, newValue,
             function success(resp) {
                 // XXX move to `callUpdateAnswer`?
-                practice.consumption = resp.data.question;
-                if( resp.data.first && $("#assess-content").data("trip-content") ) {
-                    var trip = new Trip([{
-                        sel: $("#assess-content"),
-                        content: $("#assess-content").data("trip-content"),
-                        position: "screen-center",
-                        enableAnimation: false,
-                        delay:-1,
-                        tripTheme: "black",
-                        showNavigation: true,
-                        canGoPrev: false,
-                        prevLabel: " ",
-                        nextLabel: "OK",
-                        skipLabel: " ",
-                        finishLabel: "OK",
-                    }]);
-                    trip.start();
+                if( resp.data.question ) {
+                    practice.consumption = resp.data.question;
+                    if( resp.data.first &&
+                        $("#assess-content").data("trip-content") ) {
+                        var trip = new Trip([{
+                            sel: $("#assess-content"),
+                            content: $("#assess-content").data("trip-content"),
+                            position: "screen-center",
+                            enableAnimation: false,
+                            delay:-1,
+                            tripTheme: "black",
+                            showNavigation: true,
+                            canGoPrev: false,
+                            prevLabel: " ",
+                            nextLabel: "OK",
+                            skipLabel: " ",
+                            finishLabel: "OK",
+                        }]);
+                        trip.start();
+                    }
                 }
             });
         // XXX We use same definition as `isAtLeastNeedsModerateImprovement`

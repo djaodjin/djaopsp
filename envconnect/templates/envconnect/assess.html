@@ -47,6 +47,21 @@ and benchmark positions.
                {% with icon.tag|assessment_choices as choices %}
                 <thead ng-show="!scoreToggle">
                     {% if 'metrics' in icon.tag %}
+                    {% if campaign.slug != 'framework' %}
+                    <tr>
+                      <th>
+<p>
+Alliance members want to understand the impacts of their supply chain.  Completion of this assessment section provides valuable information to support that understanding. While this section is optional to complete (and therefore not scored), the Alliance encourages suppliers to measure, track and improve sustainability performance.
+</p>
+
+                      </th>
+                      <th colspan="{{choices|length}}">
+<p>
+Use the improvement planning function of the TSP assessment to develop an improvement plan that fits your organization. We thank you for the support in helping us measure our supply chain impacts.
+</p>
+                      </th>
+                    </tr>
+                    {% else %}
                     <tr>
                       <th style="border-bottom:none;"></th>
                       <th class="text-center" colspan="{{choices|length}}"></th>
@@ -55,14 +70,6 @@ and benchmark positions.
                       <th class="sticky-cell">
                         <div class="sticky-cell-content-container">
                           <div class="sticky-cell-content" style="padding-left:0.75rem;">
-{% if campaign.slug != 'framework' %}
-<p>
-Alliance members want to understand the impacts of their supply chain.  Completion of this assessment section provides valuable information to support that understanding. While this section is optional to complete (and therefore not scored), the Alliance encourages suppliers to measure, track and improve sustainability performance.
-</p>
-<p>
-Use the improvement planning function of the TSP assessment to develop an improvement plan that fits your organization. We thank you for the support in helping us measure our supply chain impacts.
-</p>
-{% endif %}
                           </div>
                         </div>
                       </th>
@@ -74,6 +81,7 @@ Use the improvement planning function of the TSP assessment to develop an improv
                       </th>
                       {% endfor %}
                     </tr>
+                    {% endif %}
                     {% else %}
                     <tr>
                       <th style="border-bottom:none;"></th>
