@@ -21,7 +21,7 @@
           </button>
           <v-expand-transition>
             <v-textarea
-              class="pb-3"
+              class="comment pb-3"
               v-show="isTextAreaVisible"
               data-cy="question-footer-textarea"
               placeholder="Comments / Feedback"
@@ -89,6 +89,15 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/styles/variables.scss';
+
+.comment {
+  font-size: 0.9rem;
+
+  & ::v-deep textarea {
+    line-height: 1.6;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
 
 button {
   color: $primary-color;
