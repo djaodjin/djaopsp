@@ -50,7 +50,6 @@ export default {
     const initialAnswer = answers[0] || {}
     const initialComment = answers[1] || {}
 
-    debugger
     return {
       answerValue: { ...initialAnswer },
       answerComment: { ...initialComment },
