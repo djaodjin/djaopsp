@@ -46,7 +46,7 @@ export default {
         ...this.answer,
         author: 'author@email.com', // TODO: Replace with user info
       })
-      answer.save([this.answerValue, this.answerComment])
+      answer.update([this.answerValue, this.answerComment])
       this.$emit('submit', answer)
     },
 

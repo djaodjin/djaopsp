@@ -127,7 +127,7 @@ export default class Answer {
     }
     return output
   }
-  save(values) {
+  update(values) {
     this.answers = values
     this.answered = this.isAnswered()
   }
