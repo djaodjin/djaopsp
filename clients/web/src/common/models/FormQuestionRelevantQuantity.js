@@ -8,17 +8,4 @@ export default class FormQuestionRelevantQuantity extends FormQuestion {
       value: 'tons-year',
     }
   }
-  render(answers) {
-    const quantity = answers[0]
-    if (quantity) {
-      const relevance = this.options.find((opt) => opt.value === answers[2])
-      return relevance
-        ? `${answers[0]} <small>${
-            this.unit.text
-          }, ${relevance.text.toLowerCase()}</small>`
-        : `${answers[0]} <small>${this.unit.text}</small>`
-    } else {
-      return ''
-    }
-  }
 }

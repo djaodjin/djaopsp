@@ -58,10 +58,7 @@ export default {
   computed: {
     answerText() {
       const answer = this.answers.find((a) => a.question === this.question.id)
-      if (!answer || !answer.answers.length) return ''
-      return MAP_METRICS_TO_QUESTION_FORMS[this.question.type].render(
-        answer.answers
-      )
+      return !answer ? '' : answer.render()
     },
     hasTextAnswer() {
       return this.question.type === METRIC_FREETEXT
@@ -70,11 +67,7 @@ export default {
       const answer = this.previousAnswers.find(
         (a) => a.question === this.question.id
       )
-      return !answer || !answer.answers.length
-        ? ''
-        : MAP_METRICS_TO_QUESTION_FORMS[this.question.type].render(
-            answer.answers
-          )
+      return !answer ? '' : answer.render()
     },
   },
 

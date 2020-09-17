@@ -89,9 +89,6 @@ const FormQuestionRadioLabeled = new FormQuestionRadio({
 const FormQuestionTextarea = new FormQuestion({
   componentName: 'FormQuestionTextarea',
 })
-FormQuestionTextarea.render = function (answers) {
-  return answers[0] || ''
-}
 
 const FormQuestionEnergyConsumed = new FormQuestionQuantity({
   options: [

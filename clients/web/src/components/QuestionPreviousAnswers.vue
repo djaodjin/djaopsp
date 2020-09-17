@@ -20,9 +20,7 @@ export default {
 
   computed: {
     answerText() {
-      return (
-        this.previousAnswer && this.model.render(this.previousAnswer.answers)
-      )
+      return this.previousAnswer && this.previousAnswer.render()
     },
   },
 
