@@ -2,7 +2,7 @@
   <form @submit.prevent="processForm">
     <v-textarea
       class="pb-3"
-      data-cy="question-footer-textarea"
+      data-cy="question-textarea"
       v-model="answerValue.measured"
       hide-details="auto"
       auto-grow

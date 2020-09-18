@@ -10,6 +10,7 @@
         </v-col>
         <v-col class="pt-md-0 text-right" cols="12" md="6">
           <button
+            data-cy="btn-comment"
             class="text-left mb-1"
             type="button"
             @click="isTextAreaVisible = !isTextAreaVisible"
@@ -23,7 +24,7 @@
             <v-textarea
               class="comment pb-3"
               v-show="isTextAreaVisible"
-              data-cy="question-footer-textarea"
+              data-cy="textarea-comment"
               placeholder="Comments / Feedback"
               v-model="textarea"
               hide-details="auto"
