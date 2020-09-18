@@ -1371,12 +1371,20 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
             active_assessment = get_segments_from_samples(
                 [self.assessment_sample.id])[self.assessment_sample.id]
             segments = [segment[0] for segment in active_assessment]
-            resp_data.update({
-                "latest": {
-                    "assessment": str(self.assessment_sample),
-                    "segments": segments
-                }
-            })
+            updates = []
+            for segment in segments:
+                updates += [{
+                    "slug": str(self.assessment_sample),
+                    "account": str(self.account),
+                    "created_at": self.assessment_sample.created_at,
+                    "campaign": {
+                        "slug": str(self.assessment_sample.campaign),
+                        "title": segment['title'],
+                        "path": segment['path']
+                    },
+                    "is_frozen": self.assessment_sample.is_frozen
+                }]
+            resp_data.update({"updates": updates})
         return HttpResponse(resp_data)
 
 

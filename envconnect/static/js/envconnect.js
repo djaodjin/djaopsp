@@ -234,11 +234,16 @@ envconnectControllers.controller("AppCtrl",
     $scope.items = {};
 
     $scope.refresh = function() {
-        return $http.get(settings.urls.api_historical_scores).then(function(resp) {
+        return $http.get(settings.urls.api_historical_scores).then(
+        function(resp) {
             $scope.items = {results: resp.data.results};
             $scope.items.$resolved = true;
-            if( resp.data.latest ) {
-                $scope.segments = resp.data.latest.segments;
+            if( resp.data.updates ) {
+                for( var idx = 0; idx < resp.data.updates.length; ++idx ) {
+                    $scope.segments.push({
+                        title: resp.data.updates[idx].campaign.title,
+                        path: resp.data.updates[idx].campaign.path});
+                }
             }
             $scope.segments.$resolved = true;
         });
