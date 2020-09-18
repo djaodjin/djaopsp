@@ -1,4 +1,4 @@
-import { getUniqueId } from './utils'
+import { getUniqueId } from '../utils'
 import Benchmark from './Benchmark'
 
 export default class Score {

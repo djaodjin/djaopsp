@@ -3,7 +3,7 @@
     <td class="py-2 pl-6 pr-2 px-sm-4 py-md-4 px-md-8">{{ question.text }}</td>
     <td
       :class="[
-        hasShortAnswer ? 'text-center' : 'text-left',
+        hasTextAnswer ? 'text-left' : 'text-center',
         'py-2 px-3 px-md-4',
       ]"
     >
@@ -19,25 +19,28 @@
           },
         }"
       >
-        <span class="answer" v-if="answerText">{{ answerText }}</span>
+        <span class="answer" v-if="answerText" v-html="answerText" />
         <v-icon v-else color="primary">mdi-help</v-icon>
       </router-link>
     </td>
     <td
       v-if="hasPreviousAnswers"
       :class="[
-        hasShortAnswer ? 'text-center' : 'text-left',
+        hasTextAnswer ? 'text-left' : 'text-center',
         'py-2 px-3 px-md-4',
       ]"
       data-cy="previous-answer"
     >
-      <span class="answer">{{ previousAnswerText }}</span>
+      <span class="answer" v-html="previousAnswerText" />
     </td>
   </fragment>
 </template>
 
 <script>
-import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
+import {
+  MAP_METRICS_TO_QUESTION_FORMS,
+  METRIC_FREETEXT,
+} from '@/config/questionFormTypes'
 import { Fragment } from 'vue-fragment'
 
 export default {
@@ -55,18 +58,16 @@ export default {
   computed: {
     answerText() {
       const answer = this.answers.find((a) => a.question === this.question.id)
-      if (!answer || !answer.answers.length) return ''
-      return MAP_QUESTION_FORM_TYPES[this.question.type].render(answer.answers)
+      return !answer ? '' : answer.render()
     },
-    hasShortAnswer() {
-      return !this.answerText ? true : this.answerText.length <= 50
+    hasTextAnswer() {
+      return this.question.type === METRIC_FREETEXT
     },
     previousAnswerText() {
       const answer = this.previousAnswers.find(
         (a) => a.question === this.question.id
       )
-      if (!answer || !answer.answers.length) return ''
-      return MAP_QUESTION_FORM_TYPES[this.question.type].render(answer.answers)
+      return !answer ? '' : answer.render()
     },
   },
 

@@ -1,9 +1,11 @@
-import FormQuestion from '../common/FormQuestion'
-import FormQuestionNumber from '../common/FormQuestionNumber'
-import FormQuestionRadio from '../common/FormQuestionRadio'
-import FormQuestionQuantity from '../common/FormQuestionQuantity'
+import FormQuestion from '../common/models/FormQuestion'
+import FormQuestionNumber from '../common/models/FormQuestionNumber'
+import FormQuestionRadio from '../common/models/FormQuestionRadio'
+import FormQuestionQuantity from '../common/models/FormQuestionQuantity'
+import FormQuestionRelevantQuantity from '../common/models/FormQuestionRelevantQuantity'
 
 const FormQuestionRadioDiscrete = new FormQuestionRadio({
+  componentName: 'FormQuestionBinary',
   options: [
     {
       text: 'Yes',
@@ -21,22 +23,32 @@ const FormQuestionRadioRange = new FormQuestionRadio({
     {
       text: 'Yes',
       value: 'yes',
+      description:
+        'The practice is implemented across all services, products or facilities to which it could apply.',
     },
     {
       text: 'Mostly Yes',
       value: 'most-yes',
+      description:
+        'The practice is implemented around <b>50% or more</b> of the services, products or facilities to which it could apply.',
     },
     {
       text: 'Mostly No',
       value: 'most-no',
+      description:
+        'The practice is implemented around <b>50% or less</b> of the services, products or facilities to which it could apply.',
     },
     {
       text: 'No',
       value: 'no',
+      description:
+        'The practice is hardly implemented across the services, products or facilities to which it could apply.',
     },
     {
       text: 'Not Applicable',
       value: 'not-app',
+      description:
+        'The practice is not applicable to the organization, or the organization has no influence or control over its implementation.',
     },
   ],
 })
@@ -44,48 +56,39 @@ const FormQuestionRadioRange = new FormQuestionRadio({
 const FormQuestionRadioLabeled = new FormQuestionRadio({
   options: [
     {
-      text:
-        "<b>Initiating:</b><span class='ml-1'>There is minimal management support</span>",
+      text: 'Initiating',
       value: 'initiating',
+      description: 'There is minimal management support',
     },
     {
-      text:
-        "<b>Progressing:</b><span class='ml-1'>Support is visible and clearly demonstrated</span>",
+      text: 'Progressing',
       value: 'progressing',
+      description: 'Support is visible and clearly demonstrated',
     },
     {
-      text:
-        "<b>Optimizing:</b><span class='ml-1'>Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals</span>",
+      text: 'Optimizing',
       value: 'optimizing',
+      description:
+        'Executive management reviews environmental performance, risks and opportunities, and endorses/sets goals',
     },
     {
-      text:
-        "<b>Leading:</b><span class='ml-1'>The Board of Directors annually reviews environmental performance and sets or endorses goals</span>",
+      text: 'Leading',
       value: 'leading',
+      description:
+        'The Board of Directors annually reviews environmental performance and sets or endorses goals',
     },
     {
-      text:
-        "<b>Transforming:</b><span class='ml-1'>Executive management sponsors transformative change in industry sector and beyond</span>",
+      text: 'Transforming',
       value: 'transforming',
+      description:
+        'Executive management sponsors transformative change in industry sector and beyond',
     },
   ],
 })
-FormQuestionRadioLabeled.render = function (answers) {
-  const selected = this.options.find((opt) => opt.value === answers[0])
-  if (selected) {
-    const found = selected.text.match(/<b>(.*):<\/b>/)
-    return found && found[1]
-  }
-  return ''
-}
 
-const FormQuestionTextarea = new FormQuestion({ name: 'FormQuestionTextarea' })
-FormQuestionTextarea.render = function (answers) {
-  return answers[0] || ''
-}
-FormQuestionTextarea.isEmpty = function (answers) {
-  return !answers[0]
-}
+const FormQuestionTextarea = new FormQuestion({
+  componentName: 'FormQuestionTextarea',
+})
 
 const FormQuestionEnergyConsumed = new FormQuestionQuantity({
   options: [
@@ -184,25 +187,51 @@ const FormQuestionRevenueGenerated = new FormQuestionNumber({
   options: 'Revenue in USD',
 })
 
-export const QUESTION_COMMENT_TYPE = 'freetext'
-export const QUESTION_EMPLOYEE_COUNT = 'employee-counted'
-export const QUESTION_ENERGY_CONSUMED = 'energy-consumed'
-export const QUESTION_RANGE_TYPE = 'assessment'
-export const QUESTION_REVENUE_GENERATED = 'revenue-generated'
-export const QUESTION_YES_NO_TYPE = 'yes-no'
-export const QUESTION_WASTE_GENERATED = 'waste-generated'
-export const QUESTION_WATER_CONSUMED = 'water-consumed'
+const FormQuestionEmissionsGenerated = new FormQuestionRelevantQuantity({
+  options: [
+    { value: 'relevant-and-calculated', text: 'Relevant, calculated' },
+    {
+      value: 'relevant-not-yet-calculated',
+      text: 'Relevant, not yet calculated',
+    },
+    { value: 'not-relevant-calculated', text: 'Not relevant, calculated' },
+    {
+      value: 'not-relevant-explanation-provided',
+      text: 'Not relevant, explanation provided',
+    },
+    { value: 'not-evaluated', text: 'Not evaluated' },
+  ],
+})
 
-export const MAP_QUESTION_FORM_TYPES = {
-  [QUESTION_COMMENT_TYPE]: FormQuestionTextarea,
-  [QUESTION_EMPLOYEE_COUNT]: FormQuestionEmployeeCount,
-  [QUESTION_ENERGY_CONSUMED]: FormQuestionEnergyConsumed,
-  [QUESTION_RANGE_TYPE]: FormQuestionRadioRange,
-  [QUESTION_REVENUE_GENERATED]: FormQuestionRevenueGenerated,
-  [QUESTION_YES_NO_TYPE]: FormQuestionRadioDiscrete,
-  [QUESTION_WATER_CONSUMED]: FormQuestionWaterConsumed,
-  [QUESTION_WASTE_GENERATED]: FormQuestionWasteGenerated,
-  3: FormQuestionRadioLabeled, // TODO: Remove?
+export const METRIC_ASSESSMENT = 'assessment'
+export const METRIC_COMMENT = 'comments'
+export const METRIC_EMISSIONS = 'ghg-emissions-generated'
+export const METRIC_EMPLOYEE_COUNT = 'employee-counted'
+export const METRIC_ENERGY_CONSUMED = 'energy-consumed'
+export const METRIC_FRAMEWORK = 'framework'
+export const METRIC_FREETEXT = 'freetext'
+export const METRIC_RELEVANCE = 'relevance'
+export const METRIC_REVENUE_GENERATED = 'revenue-generated'
+export const METRIC_WATER_CONSUMED = 'water-consumed'
+export const METRIC_WASTE_GENERATED = 'waste-generated'
+export const METRIC_YES_NO = 'yes-no'
+
+export const MAP_METRICS_TO_QUESTION_FORMS = {
+  [METRIC_ASSESSMENT]: FormQuestionRadioRange,
+  [METRIC_EMISSIONS]: FormQuestionEmissionsGenerated,
+  [METRIC_EMPLOYEE_COUNT]: FormQuestionEmployeeCount,
+  [METRIC_ENERGY_CONSUMED]: FormQuestionEnergyConsumed,
+  [METRIC_FRAMEWORK]: FormQuestionRadioLabeled,
+  [METRIC_FREETEXT]: FormQuestionTextarea,
+  [METRIC_REVENUE_GENERATED]: FormQuestionRevenueGenerated,
+  [METRIC_WATER_CONSUMED]: FormQuestionWaterConsumed,
+  [METRIC_WASTE_GENERATED]: FormQuestionWasteGenerated,
+  [METRIC_YES_NO]: FormQuestionRadioDiscrete,
 }
 
-export const VALID_QUESTION_TYPES = Object.keys(MAP_QUESTION_FORM_TYPES)
+export const METRICS_WITH_UNIT = [
+  METRIC_EMISSIONS,
+  METRIC_ENERGY_CONSUMED,
+  METRIC_WATER_CONSUMED,
+  METRIC_WASTE_GENERATED,
+]

@@ -14,6 +14,7 @@
       />
       <div class="mt-4 text-right">
         <button-primary
+          data-cy="btn-next-section"
           color="secondary"
           display="inline"
           :to="{

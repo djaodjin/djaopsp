@@ -1,4 +1,4 @@
-import { getUniqueId } from './utils'
+import { getUniqueId } from '../utils'
 
 export default class Organization {
   constructor({ id = getUniqueId(), name, assessments = [] }) {

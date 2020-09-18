@@ -1,27 +1,49 @@
 <template>
   <fragment>
-    <question-previous-answers
-      :questionType="questionType"
-      :previousAnswer="previousAnswer"
-    />
-    <v-textarea
-      data-cy="question-footer-textarea"
-      :placeholder="textareaPlaceholder"
-      v-model="textarea"
-      hide-details="auto"
-      auto-grow
-      outlined
-      :rows="numRows"
-      row-height="16"
-      :autofocus="focus"
-      @input="$emit('textareaUpdate', textarea)"
-    ></v-textarea>
-    <div class="mt-4 text-right">
-      <button-primary type="submit" display="inline">
-        <span>Save and Continue</span>
-        <v-icon class="ml-2" small color="white">mdi-arrow-right</v-icon>
-      </button-primary>
-    </div>
+    <v-container class="pa-0">
+      <v-row align="start">
+        <v-col class="pt-0 pl" cols="12" md="6">
+          <question-previous-answers
+            :model="model"
+            :previousAnswer="previousAnswer"
+          />
+        </v-col>
+        <v-col class="pt-md-0 text-right" cols="12" md="6">
+          <button
+            data-cy="btn-comment"
+            class="text-left mb-1"
+            type="button"
+            @click="isTextAreaVisible = !isTextAreaVisible"
+          >
+            <small
+              >Would you like to comment or provide feedback related to this
+              question?</small
+            >
+          </button>
+          <v-expand-transition>
+            <v-textarea
+              class="comment pb-3"
+              v-show="isTextAreaVisible"
+              data-cy="textarea-comment"
+              placeholder="Comments / Feedback"
+              v-model="textarea"
+              hide-details="auto"
+              auto-grow
+              outlined
+              :rows="3"
+              row-height="18"
+              @input="$emit('textareaUpdate', textarea)"
+            ></v-textarea>
+          </v-expand-transition>
+          <div class="mt-2">
+            <button-primary type="submit" display="inline">
+              <span>Save and Continue</span>
+              <v-icon class="ml-2" small color="white">mdi-arrow-right</v-icon>
+            </button-primary>
+          </div>
+        </v-col>
+      </v-row>
+    </v-container>
   </fragment>
 </template>
 
@@ -34,34 +56,27 @@ export default {
   name: 'FormQuestionFooter',
 
   props: {
-    focus: {
-      type: Boolean,
-      default: false,
+    model: {
+      type: Object,
     },
     numRows: {
-      type: Number,
       default: 2,
+      type: Number,
     },
     previousAnswer: {
-      type: Object, // Answer
+      // Answer
       default: null,
+      type: Object,
     },
-    questionType: {
-      type: String,
-      required: true,
-    },
-    textareaPlaceholder: {
-      type: String,
-      required: true,
-    },
-    textareaValue: {
+    comment: {
       type: String,
     },
   },
 
   data() {
     return {
-      textarea: this.textareaValue,
+      isTextAreaVisible: false,
+      textarea: this.comment,
     }
   },
 
@@ -72,3 +87,25 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+@import '@/styles/variables.scss';
+
+.comment {
+  font-size: 0.9rem;
+
+  & ::v-deep textarea {
+    line-height: 1.6;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+button {
+  color: $primary-color;
+
+  &:active,
+  &:focus {
+    outline: 0 none;
+  }
+}
+</style>

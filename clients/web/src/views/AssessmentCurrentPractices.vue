@@ -9,7 +9,7 @@
     <div v-if="loading">
       <loading-spinner />
     </div>
-    <div v-else>
+    <div data-cy="current-practices" v-else>
       <tab-container class="pb-16" :tabs="tabs" :rightColHidden="true">
         <template v-slot:tab1>
           <assessment-sections
@@ -60,7 +60,7 @@
 <script>
 import { Fragment } from 'vue-fragment'
 import { getPreviousAnswers, postAnswer } from '@/common/api'
-import Answer from '@/common/Answer'
+import Answer from '@/common/models/Answer'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
 import DialogConfirm from '@/components/DialogConfirm'
@@ -124,10 +124,11 @@ export default {
           const previousAnswer = this.previousAnswers.find(
             (a) => a.question === question.id
           )
-          const { id, ...attrs } = previousAnswer
-          const author = 'author@email.com' // TODO: Replace with user info
-          const currentAnswer = new Answer({ ...attrs, author })
-          return postAnswer(this.org, this.assessment, currentAnswer)
+          // TODO: Replace with user info
+          const newAnswer = Answer.createFromPrevious(previousAnswer, {
+            author: 'author@email.com',
+          })
+          return postAnswer(this.org, this.assessment, newAnswer)
         })
       ).then((answerPromises) => {
         answerPromises.forEach((answerPromise) => {

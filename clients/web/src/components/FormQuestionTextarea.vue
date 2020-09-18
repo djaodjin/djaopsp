@@ -1,39 +1,61 @@
 <template>
   <form @submit.prevent="processForm">
-    <form-question-footer
-      :previousAnswer="previousAnswer"
-      :questionType="question.type"
-      :textareaPlaceholder="question.placeholder"
-      :textareaValue="textAnswer"
-      :numRows="8"
+    <v-textarea
+      class="pb-3"
+      data-cy="question-textarea"
+      v-model="answerValue.measured"
+      hide-details="auto"
+      auto-grow
+      outlined
+      :rows="8"
       :focus="true"
-      @textareaUpdate="updateAnswer"
+      row-height="18"
+    ></v-textarea>
+    <form-question-footer
+      :model="model"
+      :previousAnswer="previousAnswer"
+      :comment="answerComment.measured"
+      @textareaUpdate="updateComment"
     />
   </form>
 </template>
 
 <script>
+import { METRIC_COMMENT } from '@/config/questionFormTypes'
+import Answer from '@/common/models/Answer'
 import FormQuestionFooter from '@/components/FormQuestionFooter'
 
 export default {
   name: 'FormQuestionTextarea',
 
-  props: ['question', 'answer', 'previousAnswer', 'isEmpty'],
+  props: ['question', 'answer', 'previousAnswer', 'model'],
 
   methods: {
     processForm: function () {
-      const answers = [this.textAnswer]
-      const isEmpty = this.isEmpty(answers)
-      this.$emit('submit', answers, isEmpty)
+      const answer = new Answer({
+        ...this.answer,
+        author: 'author@email.com', // TODO: Replace with user info
+      })
+      answer.update([this.answerValue, this.answerComment])
+      this.$emit('submit', answer)
     },
-    updateAnswer(value) {
-      this.textAnswer = value
+
+    updateComment(value) {
+      this.answerComment.measured = value
     },
   },
 
   data() {
+    const { answers } = this.answer
+    const initialAnswer = answers[0] || {
+      default: true,
+      metric: this.question.type,
+    }
+    const initialComment = answers[1] || { metric: METRIC_COMMENT }
+
     return {
-      textAnswer: this.answer.answers[0],
+      answerValue: { ...initialAnswer },
+      answerComment: { ...initialComment },
     }
   },
 

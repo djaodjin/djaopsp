@@ -1,23 +1,23 @@
 import groupBy from 'lodash/groupBy'
 import kebabCase from 'lodash/kebabCase'
 
-import Answer from './Answer'
-import Assessment from './Assessment'
-import Benchmark from './Benchmark'
-import Organization from './Organization'
-import OrganizationGroup from './OrganizationGroup'
-import Question from './Question'
-import Score from './Score'
-import Section from './Section'
-import Subcategory from './Subcategory'
-import { getPracticeList } from './Practice'
-import { getShareEntryList } from './ShareEntry'
+import Answer from './models/Answer'
+import Assessment from './models/Assessment'
+import Benchmark from './models/Benchmark'
+import Organization from './models/Organization'
+import OrganizationGroup from './models/OrganizationGroup'
+import Question from './models/Question'
+import Score from './models/Score'
+import Section from './models/Section'
+import Subcategory from './models/Subcategory'
+import { getPracticeList } from './models/Practice'
+import { getShareEntryList } from './models/ShareEntry'
 import {
-  MAP_QUESTION_FORM_TYPES,
-  QUESTION_COMMENT_TYPE,
-  QUESTION_ENERGY_CONSUMED,
-  QUESTION_WATER_CONSUMED,
-  QUESTION_WASTE_GENERATED,
+  MAP_METRICS_TO_QUESTION_FORMS,
+  METRIC_FREETEXT,
+  METRIC_ENERGY_CONSUMED,
+  METRIC_WATER_CONSUMED,
+  METRIC_WASTE_GENERATED,
 } from '../config/questionFormTypes'
 
 const API_HOST = process.env.VUE_APP_STANDALONE ? window.location.origin : ''
@@ -280,43 +280,10 @@ function getFlatAnswersByPath(answerList) {
 
 function getAnswerInstances(answersByPath, questions) {
   return questions.map((question) => {
-    let answer, comment
-    let answerValues = []
-
-    const answers = answersByPath[question.path]
-    if (answers.length === 1) {
-      answer = answers[0]
-    } else if (answers.length > 1) {
-      answer = answers.find((answer) => answer.metric === answer.default_metric)
-      comment = answers.find(
-        (answer) => answer.metric === QUESTION_COMMENT_TYPE
-      )
-    }
-
-    if (answer) {
-      if (
-        answer.default_metric === QUESTION_ENERGY_CONSUMED ||
-        answer.default_metric === QUESTION_WATER_CONSUMED ||
-        answer.default_metric === QUESTION_WASTE_GENERATED
-      ) {
-        answerValues = [answer.measured, answer.unit]
-      } else {
-        answerValues = [answer.measured]
-      }
-    }
-    if (comment) {
-      answerValues.push(comment.measured)
-    }
-
-    return new Answer({
-      question: question.id,
-      author: answer.collected_by,
-      created: answer.created_at,
-      answers: answerValues,
-      answered: !MAP_QUESTION_FORM_TYPES[answer.default_metric].isEmpty(
-        answerValues
-      ),
-    })
+    const answerObjects = answersByPath[question.path]
+    const answer = new Answer({ question: question.id })
+    answer.load(answerObjects)
+    return answer
   })
 }
 
@@ -385,66 +352,16 @@ export async function postTargets(organizationId, assessmentId, payload) {
   return new Assessment({ ...assessment, targets })
 }
 
-function parseAnswerValues(answerValues, questionType) {
-  let answers = []
-  let comment
-  switch (questionType) {
-    case QUESTION_ENERGY_CONSUMED:
-    case QUESTION_WATER_CONSUMED:
-    case QUESTION_WASTE_GENERATED:
-      answers.push({
-        metric: questionType,
-        measured: answerValues[0],
-        unit: answerValues[1],
-      })
-      comment = answerValues[2]
-      break
-    case QUESTION_COMMENT_TYPE:
-      answers.push({
-        metric: questionType,
-        measured: answerValues[0],
-      })
-      break
-    default:
-      answers.push({
-        metric: questionType,
-        measured: answerValues[0],
-      })
-      comment = answerValues[1]
-      break
-  }
-  if (comment) {
-    answers.push({
-      metric: QUESTION_COMMENT_TYPE,
-      measured: comment,
-    })
-  }
-  return answers
-}
-
 export async function postAnswer(organizationId, assessment, answer) {
   const question = assessment.questions.find((q) => q.id === answer.question)
-  const answers = parseAnswerValues(answer.answers, question.type)
-
-  const responses = await Promise.all(
-    answers.map((answerBody) =>
-      request(
-        `/${organizationId}/sample/${assessment.id}/answers${question.path}`,
-        {
-          body: {
-            ...answerBody,
-            created_at: answer.created,
-            collected_by: answer.author,
-          },
-        }
-      )
-    )
+  const response = await request(
+    `/${organizationId}/sample/${assessment.id}/answers${question.path}`,
+    {
+      body: answer.toPayload(),
+    }
   )
 
-  const error = responses.find((response) => !response.ok)
-  if (error) {
-    throw new APIError(`Failed to save answer: ${error.statusText}`)
-  }
+  if (!response.ok) throw new APIError(response.status)
   return answer
 }
 

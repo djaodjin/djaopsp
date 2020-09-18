@@ -140,7 +140,9 @@ function getOrganizationProfile(schema, request) {
 function postAnswer(schema, request) {
   const { organizationId, assessmentId } = request.params
   const questionPath = `/${request.params['']}`
-  const attrs = JSON.parse(request.requestBody)
+  const payload = JSON.parse(request.requestBody)
+  const newAnswers = []
+  let response = []
 
   const question = schema.questions.where({
     path: questionPath,
@@ -152,39 +154,49 @@ function postAnswer(schema, request) {
     questionId: question.id,
   }).models
 
-  let answer =
-    answers[0] && answers[0].metric
-      ? answers.find((answer) => answer.metric === attrs.metric)
-      : answers[0]
+  payload.forEach((answerObject) => {
+    const answerFound = answers.find(
+      (answer) => answer.metric === answerObject.metric
+    )
+    if (answerFound) {
+      answerFound.update(answerObject)
+      response.push(answerFound)
+    } else {
+      newAnswers.push(answerObject)
+    }
+  })
 
-  if (answer) {
-    answer.update(attrs)
-  } else {
+  if (newAnswers.length) {
     const organization = schema.organizations.find(organizationId)
     const assessment = schema.assessments.find(assessmentId)
-    answer = this.create('answer', {
-      ...attrs,
-      organization,
-      assessment,
-      question,
+    newAnswers.forEach((answerObject) => {
+      const newAnswer = this.create('answer', {
+        ...answerObject,
+        organization,
+        assessment,
+        question,
+      })
+      response.push(newAnswer)
     })
   }
-  const {
-    metric,
-    unit,
-    measured,
-    created_at,
-    collected_by,
-    question: { path, default_metric },
-  } = answer
-  return {
-    metric,
-    unit,
-    measured,
-    created_at,
-    collected_by,
-    question: { path, default_metric },
-  }
+
+  return response.map(
+    ({
+      metric,
+      unit,
+      measured,
+      created_at,
+      collected_by,
+      question: { path, default_metric },
+    }) => ({
+      metric,
+      unit,
+      measured,
+      created_at,
+      collected_by,
+      question: { path, default_metric },
+    })
+  )
 }
 
 export default {

@@ -19,15 +19,19 @@ import scenarios from './scenarios'
 import routeHandlers from './handlers'
 import { PRACTICE_VALUES } from '../config/app'
 import {
-  MAP_QUESTION_FORM_TYPES,
-  QUESTION_COMMENT_TYPE,
-  QUESTION_EMPLOYEE_COUNT,
-  QUESTION_ENERGY_CONSUMED,
-  QUESTION_RANGE_TYPE,
-  QUESTION_REVENUE_GENERATED,
-  QUESTION_WASTE_GENERATED,
-  QUESTION_WATER_CONSUMED,
-  QUESTION_YES_NO_TYPE,
+  MAP_METRICS_TO_QUESTION_FORMS,
+  METRIC_ASSESSMENT,
+  METRIC_COMMENT,
+  METRIC_EMISSIONS,
+  METRIC_EMPLOYEE_COUNT,
+  METRIC_ENERGY_CONSUMED,
+  METRIC_FRAMEWORK,
+  METRIC_FREETEXT,
+  METRIC_RELEVANCE,
+  METRIC_REVENUE_GENERATED,
+  METRIC_WASTE_GENERATED,
+  METRIC_WATER_CONSUMED,
+  METRIC_YES_NO,
 } from '../config/questionFormTypes'
 import { getRandomInt } from '../common/utils'
 
@@ -111,13 +115,16 @@ export function makeServer({ environment = 'development', apiBasePath }) {
           let value = null
           if (this.metric) {
             switch (this.metric) {
-              case QUESTION_ENERGY_CONSUMED:
-              case QUESTION_WATER_CONSUMED:
-              case QUESTION_WASTE_GENERATED:
-                questionForm = MAP_QUESTION_FORM_TYPES[this.metric]
+              case METRIC_ENERGY_CONSUMED:
+              case METRIC_WATER_CONSUMED:
+              case METRIC_WASTE_GENERATED:
+                questionForm = MAP_METRICS_TO_QUESTION_FORMS[this.metric]
                 options = questionForm.options.map((o) => o.value)
                 value = faker.random.arrayElement(options)
                 break
+              case METRIC_EMISSIONS:
+                // Assuming this question type has only one unit value
+                value = MAP_METRICS_TO_QUESTION_FORMS[this.metric].unit.value
             }
           }
           return value
@@ -127,19 +134,27 @@ export function makeServer({ environment = 'development', apiBasePath }) {
           let value = null
           if (this.metric) {
             switch (this.metric) {
-              case QUESTION_COMMENT_TYPE:
+              case METRIC_COMMENT:
+              case METRIC_FREETEXT:
                 value = faker.lorem.paragraph()
                 break
-              case QUESTION_EMPLOYEE_COUNT:
-              case QUESTION_ENERGY_CONSUMED:
-              case QUESTION_REVENUE_GENERATED:
-              case QUESTION_WATER_CONSUMED:
-              case QUESTION_WASTE_GENERATED:
+              case METRIC_EMPLOYEE_COUNT:
+              case METRIC_ENERGY_CONSUMED:
+              case METRIC_EMISSIONS:
+              case METRIC_REVENUE_GENERATED:
+              case METRIC_WATER_CONSUMED:
+              case METRIC_WASTE_GENERATED:
                 value = faker.random.number()
                 break
-              case QUESTION_RANGE_TYPE:
-              case QUESTION_YES_NO_TYPE:
-                questionForm = MAP_QUESTION_FORM_TYPES[this.metric]
+              case METRIC_FRAMEWORK:
+              case METRIC_ASSESSMENT:
+              case METRIC_YES_NO:
+                questionForm = MAP_METRICS_TO_QUESTION_FORMS[this.metric]
+                options = questionForm.options.map((o) => o.value)
+                value = faker.random.arrayElement(options)
+                break
+              case METRIC_RELEVANCE:
+                questionForm = MAP_METRICS_TO_QUESTION_FORMS[METRIC_EMISSIONS]
                 options = questionForm.options.map((o) => o.value)
                 value = faker.random.arrayElement(options)
                 break

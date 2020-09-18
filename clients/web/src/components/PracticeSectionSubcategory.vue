@@ -1,5 +1,5 @@
 <template>
-  <v-fade-transition mode="out-in">
+  <tsp-transition name="v-fade-transition" mode="out-in">
     <div :key="subcategory.id" class="section-subcategory">
       <div class="container-header">
         <practice-section-header
@@ -46,6 +46,7 @@
                 Answers
                 <br />
                 <v-btn
+                  data-cy="btn-use-previous"
                   small
                   text
                   color="primary"
@@ -98,13 +99,14 @@
         </p>
       </dialog-action>
     </div>
-  </v-fade-transition>
+  </tsp-transition>
 </template>
 
 <script>
 import DialogAction from '@/components/DialogAction'
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'
-import PracticeSectionSubcategoryRow from './PracticeSectionSubcategoryRow'
+import PracticeSectionSubcategoryRow from '@/components/PracticeSectionSubcategoryRow'
+import TspTransition from '@/components/TspTransition'
 
 export default {
   name: 'PracticeSectionSubcategory',
@@ -140,6 +142,7 @@ export default {
     DialogAction,
     PracticeSectionHeader,
     PracticeSectionSubcategoryRow,
+    TspTransition,
   },
 }
 </script>
