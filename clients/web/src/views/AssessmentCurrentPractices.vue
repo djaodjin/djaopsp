@@ -124,10 +124,11 @@ export default {
           const previousAnswer = this.previousAnswers.find(
             (a) => a.question === question.id
           )
-          const { id, ...attrs } = previousAnswer
-          const author = 'author@email.com' // TODO: Replace with user info
-          const currentAnswer = new Answer({ ...attrs, author })
-          return postAnswer(this.org, this.assessment, currentAnswer)
+          // TODO: Replace with user info
+          const newAnswer = Answer.createFromPrevious(previousAnswer, {
+            author: 'author@email.com',
+          })
+          return postAnswer(this.org, this.assessment, newAnswer)
         })
       ).then((answerPromises) => {
         answerPromises.forEach((answerPromise) => {

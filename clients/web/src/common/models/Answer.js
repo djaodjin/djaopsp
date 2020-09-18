@@ -2,6 +2,7 @@ import { getUniqueId } from '../utils'
 import {
   MAP_METRICS_TO_QUESTION_FORMS,
   METRIC_ASSESSMENT,
+  METRIC_COMMENT,
   METRIC_EMISSIONS,
   METRIC_ENERGY_CONSUMED,
   METRIC_FRAMEWORK,
@@ -17,16 +18,33 @@ export default class Answer {
     id = getUniqueId(),
     question,
     author,
+    metric,
     created = new Date().toISOString(),
   }) {
     this.id = id
     this.question = question // question ID
-    this.metric = null
+    this.metric = metric
     this.author = author
     this.created = created
     this.answers = []
     this.answered = false
   }
+
+  static createFromPrevious(answer, attrs) {
+    const { id, answers, ...rest } = answer
+    const newAnswer = new Answer({
+      ...rest,
+      ...attrs,
+    })
+
+    // Remove any comments that may exist
+    const filtered = answers.filter(
+      (answer) => answer.metric !== METRIC_COMMENT
+    )
+    newAnswer.update(filtered)
+    return newAnswer
+  }
+
   isAnswered() {
     const answer = this.answers.find((answer) => answer.default)
     if (METRICS_WITH_UNIT.includes(answer.metric)) {
@@ -102,12 +120,16 @@ export default class Answer {
       const relevance = this.answers.find(
         (answer) => answer.metric === METRIC_RELEVANCE
       )
-      const selected = questionForm.options.find(
-        (opt) => opt.value === relevance.measured
-      )
-      output = selected
-        ? `${answer.measured} <small>${questionForm.unit.text} | ${selected.text}</small>`
-        : `${answer.measured} <small>${questionForm.unit.text}</small>`
+      if (!answer.measured) {
+        output = ''
+      } else if (relevance && relevance.measured) {
+        const selected = questionForm.options.find(
+          (opt) => opt.value === relevance.measured
+        )
+        output = `${answer.measured} <small>${questionForm.unit.text} | ${selected.text}</small>`
+      } else {
+        output = `${answer.measured} <small>${questionForm.unit.text}</small>`
+      }
     } else if (
       this.metric === METRIC_ENERGY_CONSUMED ||
       this.metric === METRIC_WATER_CONSUMED ||
