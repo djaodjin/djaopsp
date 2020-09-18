@@ -131,5 +131,27 @@ export default class Answer {
     this.answers = values
     this.answered = this.isAnswered()
   }
-  export() {}
+  toPayload() {
+    return this.answers
+      .filter((answer) => answer.metric && answer.measured)
+      .map((answer) => {
+        const payload = {
+          metric: answer.metric,
+          created_at: answer.created,
+          collected_by: answer.author,
+        }
+        switch (answer.metric) {
+          case METRIC_ENERGY_CONSUMED:
+          case METRIC_WATER_CONSUMED:
+          case METRIC_WASTE_GENERATED:
+            payload.measured = answer.measured
+            payload.unit = answer.unit
+            break
+          default:
+            payload.measured = answer.measured
+            break
+        }
+        return payload
+      })
+  }
 }

@@ -352,66 +352,16 @@ export async function postTargets(organizationId, assessmentId, payload) {
   return new Assessment({ ...assessment, targets })
 }
 
-function parseAnswerValues(answerValues, questionType) {
-  let answers = []
-  let comment
-  switch (questionType) {
-    case METRIC_ENERGY_CONSUMED:
-    case METRIC_WATER_CONSUMED:
-    case METRIC_WASTE_GENERATED:
-      answers.push({
-        metric: questionType,
-        measured: answerValues[0],
-        unit: answerValues[1],
-      })
-      comment = answerValues[2]
-      break
-    case METRIC_FREETEXT:
-      answers.push({
-        metric: questionType,
-        measured: answerValues[0],
-      })
-      break
-    default:
-      answers.push({
-        metric: questionType,
-        measured: answerValues[0],
-      })
-      comment = answerValues[1]
-      break
-  }
-  if (comment) {
-    answers.push({
-      metric: METRIC_FREETEXT,
-      measured: comment,
-    })
-  }
-  return answers
-}
-
 export async function postAnswer(organizationId, assessment, answer) {
   const question = assessment.questions.find((q) => q.id === answer.question)
-  const answers = parseAnswerValues(answer.answers, question.type)
-
-  const responses = await Promise.all(
-    answers.map((answerBody) =>
-      request(
-        `/${organizationId}/sample/${assessment.id}/answers${question.path}`,
-        {
-          body: {
-            ...answerBody,
-            created_at: answer.created,
-            collected_by: answer.author,
-          },
-        }
-      )
-    )
+  const response = await request(
+    `/${organizationId}/sample/${assessment.id}/answers${question.path}`,
+    {
+      body: answer.toPayload(),
+    }
   )
 
-  const error = responses.find((response) => !response.ok)
-  if (error) {
-    throw new APIError(`Failed to save answer: ${error.statusText}`)
-  }
+  if (!response.ok) throw new APIError(response.status)
   return answer
 }
 
