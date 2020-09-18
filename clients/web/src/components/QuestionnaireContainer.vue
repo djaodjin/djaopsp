@@ -10,19 +10,18 @@
     <p class="question-text mt-3 mt-md-6">{{ currentQuestion.text }}</p>
     <span
       class="d-block mb-4"
-      style="font-size: 0.9rem;"
+      style="font-size: 0.9rem"
       v-if="currentQuestion.optional"
     >
       <sup>*</sup>This answer will not affect your score
     </span>
 
     <component
-      :is="questionForm.name"
+      :is="questionForm.componentName"
+      :model="questionForm"
       :question="currentQuestion"
       :answer="currentAnswer"
       :previousAnswer="previousAnswer"
-      :options="questionForm.options"
-      :isEmpty="questionForm.isEmpty"
       :key="currentQuestion.id"
       @submit="saveAndContinue"
     />
@@ -30,10 +29,12 @@
 </template>
 
 <script>
-import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
-import Answer from '@/common/Answer'
+import { MAP_METRICS_TO_QUESTION_FORMS } from '@/config/questionFormTypes'
+import Answer from '@/common/models/Answer'
+import FormQuestionBinary from '@/components/FormQuestionBinary'
 import FormQuestionNumber from '@/components/FormQuestionNumber'
 import FormQuestionRadio from '@/components/FormQuestionRadio'
+import FormQuestionRelevantQuantity from '@/components/FormQuestionRelevantQuantity'
 import FormQuestionTextarea from '@/components/FormQuestionTextarea'
 import FormQuestionQuantity from '@/components/FormQuestionQuantity'
 import PracticeSectionHeader from '@/components/PracticeSectionHeader'
@@ -63,12 +64,12 @@ export default {
       return this.questions[nextQuestionIndex].id
     },
     questionForm() {
-      return MAP_QUESTION_FORM_TYPES[this.currentQuestion.type]
+      return MAP_METRICS_TO_QUESTION_FORMS[this.currentQuestion.type]
     },
   },
 
   methods: {
-    saveAndContinue(answers, isEmpty) {
+    saveAndContinue(answer) {
       const callback = this.nextQuestion
         ? function () {
             const queryParams = {
@@ -89,20 +90,15 @@ export default {
             })
           }.bind(this)
 
-      const updatedAnswer = new Answer({
-        ...this.currentAnswer,
-        author: 'author@email.com', // TODO: Replace with user info
-        answers,
-        answered: !isEmpty,
-      })
-
-      this.$emit('saveAnswer', updatedAnswer, callback)
+      this.$emit('saveAnswer', answer, callback)
     },
   },
 
   components: {
+    FormQuestionBinary,
     FormQuestionNumber,
     FormQuestionQuantity,
+    FormQuestionRelevantQuantity,
     FormQuestionRadio,
     FormQuestionTextarea,
     PracticeSectionHeader,

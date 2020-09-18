@@ -1,7 +1,7 @@
 <template>
-  <v-card outlined class="d-inline-block py-3 px-4 mb-6" v-if="previousAnswer">
+  <v-card outlined class="d-inline-block py-3 px-4" v-if="previousAnswer">
     <span class="mr-1">Previous Answer:</span>
-    <b>{{ answerText }}</b>
+    <b v-html="answerText" />
     <p class="text-caption mt-1 mb-0">
       Submitted by {{ previousAnswer.author }} on
       <span v-format-date>{{ previousAnswer.created }}</span> in previous
@@ -11,22 +11,16 @@
 </template>
 
 <script>
-import { MAP_QUESTION_FORM_TYPES } from '@/config/questionFormTypes'
 import { formatDate } from '@/directives'
 
 export default {
   name: 'QuestionPreviousAnswers',
 
-  props: ['questionType', 'previousAnswer'],
+  props: ['model', 'previousAnswer'],
 
   computed: {
     answerText() {
-      return (
-        this.previousAnswer &&
-        MAP_QUESTION_FORM_TYPES[this.questionType].render(
-          this.previousAnswer.answers
-        )
-      )
+      return this.previousAnswer && this.previousAnswer.render()
     },
   },
 

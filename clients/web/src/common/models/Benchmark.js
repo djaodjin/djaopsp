@@ -1,4 +1,4 @@
-import { getUniqueId } from './utils'
+import { getUniqueId } from '../utils'
 import Section from './Section'
 
 export default class Benchmark {

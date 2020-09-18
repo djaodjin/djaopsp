@@ -1,4 +1,4 @@
-import { getUniqueId } from './utils'
+import { getUniqueId } from '../utils'
 
 export default class OrganizationGroup {
   constructor({ id = getUniqueId(), name, organizations = [] }) {

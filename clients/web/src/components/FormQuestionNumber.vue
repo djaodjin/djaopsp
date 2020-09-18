@@ -4,9 +4,9 @@
       <v-row>
         <v-col data-cy="number" cols="4">
           <v-text-field
-            :label="options"
+            :label="model.options"
             outlined
-            v-model="textAnswer"
+            v-model="answerText.measured"
             hide-details="auto"
             type="number"
             :autofocus="true"
@@ -15,38 +15,50 @@
       </v-row>
     </v-container>
     <form-question-footer
+      :model="model"
       :previousAnswer="previousAnswer"
-      :questionType="question.type"
-      :textareaPlaceholder="question.placeholder"
-      :textareaValue="comment"
+      :comment="answerComment.measured"
       @textareaUpdate="updateComment"
     />
   </form>
 </template>
 
 <script>
+import { METRIC_COMMENT } from '@/config/questionFormTypes'
+import Answer from '@/common/models/Answer'
 import FormQuestionFooter from '@/components/FormQuestionFooter'
 
 export default {
   name: 'FormQuestionNumber',
 
-  props: ['question', 'answer', 'previousAnswer', 'options', 'isEmpty'],
+  props: ['question', 'answer', 'previousAnswer', 'model'],
 
   methods: {
     processForm: function () {
-      const answers = [this.textAnswer, this.comment]
-      const isEmpty = this.isEmpty(answers)
-      this.$emit('submit', answers, isEmpty)
+      const answer = new Answer({
+        ...this.answer,
+        author: 'author@email.com', // TODO: Replace with user info
+      })
+      answer.update([this.answerText, this.answerComment])
+      this.$emit('submit', answer)
     },
+
     updateComment(value) {
-      this.comment = value
+      this.answerComment.measured = value
     },
   },
 
   data() {
+    const { answers } = this.answer
+    const initialText = answers[0] || {
+      default: true,
+      metric: this.question.type,
+    }
+    const initialComment = answers[1] || { metric: METRIC_COMMENT }
+
     return {
-      textAnswer: this.answer.answers[0],
-      comment: this.answer.answers[1],
+      answerText: { ...initialText },
+      answerComment: { ...initialComment },
     }
   },
 

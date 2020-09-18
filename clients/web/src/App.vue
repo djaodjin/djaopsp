@@ -10,7 +10,7 @@
             height="24"
             width="44"
             alt
-            style="vertical-align: text-bottom;"
+            style="vertical-align: text-bottom"
             :src="`${publicPath}/static/img/envconnect-logo.png`"
           />
           <span>{{ $t('app.title') }}</span>

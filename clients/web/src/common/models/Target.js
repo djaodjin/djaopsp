@@ -1,4 +1,4 @@
-import { getUniqueId } from './utils'
+import { getUniqueId } from '../utils'
 import { VALID_ASSESSMENT_TARGETS_KEYS } from '@/config/app'
 
 export default class Target {

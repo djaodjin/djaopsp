@@ -2,16 +2,18 @@
   <form @submit.prevent="processForm">
     <v-radio-group
       class="mt-4 pt-0 pb-6"
-      v-model="selectedOption"
+      v-model="answerValue.measured"
       hide-details="auto"
     >
       <v-radio
-        v-for="option in options"
+        class="mb-3"
+        v-for="option in model.options"
         :key="option.value"
         :value="option.value"
       >
         <template v-slot:label>
-          <span v-html="option.text"></span>
+          <b class="radio-label mr-2">{{ option.text }}:</b>
+          <small v-html="option.description"></small>
         </template>
       </v-radio>
       <v-radio
@@ -21,38 +23,50 @@
       ></v-radio>
     </v-radio-group>
     <form-question-footer
+      :model="model"
       :previousAnswer="previousAnswer"
-      :questionType="question.type"
-      :textareaPlaceholder="question.placeholder"
-      :textareaValue="comment"
+      :comment="answerComment.measured"
       @textareaUpdate="updateComment"
     />
   </form>
 </template>
 
 <script>
+import { METRIC_COMMENT } from '@/config/questionFormTypes'
+import Answer from '@/common/models/Answer'
 import FormQuestionFooter from '@/components/FormQuestionFooter'
 
 export default {
   name: 'FormQuestionRadio',
 
-  props: ['question', 'answer', 'previousAnswer', 'options', 'isEmpty'],
+  props: ['question', 'answer', 'previousAnswer', 'model'],
 
   methods: {
     processForm: function () {
-      const answers = [this.selectedOption, this.comment]
-      const isEmpty = this.isEmpty(answers)
-      this.$emit('submit', answers, isEmpty)
+      const answer = new Answer({
+        ...this.answer,
+        author: 'author@email.com', // TODO: Replace with user info
+      })
+      answer.update([this.answerValue, this.answerComment])
+      this.$emit('submit', answer)
     },
+
     updateComment(value) {
-      this.comment = value
+      this.answerComment.measured = value
     },
   },
 
   data() {
+    const { answers } = this.answer
+    const initialAnswer = answers[0] || {
+      default: true,
+      metric: this.question.type,
+    }
+    const initialComment = answers[1] || { metric: METRIC_COMMENT }
+
     return {
-      selectedOption: this.answer.answers[0],
-      comment: this.answer.answers[1],
+      answerValue: { ...initialAnswer },
+      answerComment: { ...initialComment },
     }
   },
 
@@ -68,6 +82,14 @@ export default {
 
   &::v-deep > .v-label {
     padding-top: 2px;
+  }
+}
+.radio-label {
+  align-self: flex-start;
+  white-space: nowrap;
+
+  & + small {
+    margin-top: 1px;
   }
 }
 </style>

@@ -9,7 +9,7 @@
     "
   >
     <tab-header :text="header" />
-    <v-slide-x-transition mode="out-in">
+    <tsp-transition name="v-slide-x-transition" mode="out-in">
       <div
         class="pt-2 pb-6 px-4"
         v-if="$route.query.question"
@@ -103,12 +103,12 @@
           </v-list>
         </div>
       </div>
-    </v-slide-x-transition>
+    </tsp-transition>
   </div>
 </template>
 
 <script>
-import { SectionList } from '../common/SectionList'
+import { SectionList } from '@/common/models/SectionList'
 import NextPracticeSection from '@/components/NextPracticeSection'
 import PracticeGroupHeader from '@/components/PracticeGroupHeader'
 import PracticesSection from '@/components/PracticesSection'
@@ -116,6 +116,7 @@ import PracticeSectionSubcategory from '@/components/PracticeSectionSubcategory'
 import QuestionnaireContainer from '@/components/QuestionnaireContainer'
 import SectionBackLink from '@/components/SectionBackLink'
 import TabHeader from '@/components/TabHeader'
+import TspTransition from '@/components/TspTransition'
 
 export default {
   name: 'AssessmentSections',
@@ -171,6 +172,7 @@ export default {
     PracticeSectionSubcategory,
     QuestionnaireContainer,
     TabHeader,
+    TspTransition,
   },
 }
 </script>
