@@ -47,8 +47,11 @@ export default {
 
   data() {
     const { answers } = this.answer
-    const initialAnswer = answers[0] || {}
-    const initialComment = answers[1] || {}
+    const initialAnswer = answers[0] || {
+      default: true,
+      metric: this.question.type,
+    }
+    const initialComment = answers[1] || { metric: METRIC_COMMENT }
 
     return {
       answerValue: { ...initialAnswer },

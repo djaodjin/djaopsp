@@ -71,11 +71,16 @@ export default {
 
   data() {
     const { answers } = this.answer
-    const initialAnswer = answers[0] || {}
-    const initialText =
-      answers.find((answer) => answer.metric === METRIC_FREETEXT) || {}
-    const initialComment =
-      answers.find((answer) => answer.metric === METRIC_COMMENT) || {}
+    const initialAnswer = answers[0] || {
+      default: true,
+      metric: this.question.type,
+    }
+    const initialText = answers.find(
+      (answer) => answer.metric === METRIC_FREETEXT
+    ) || { metric: METRIC_FREETEXT }
+    const initialComment = answers.find(
+      (answer) => answer.metric === METRIC_COMMENT
+    ) || { metric: METRIC_COMMENT }
 
     return {
       // Copy all values so form data can safely be edited

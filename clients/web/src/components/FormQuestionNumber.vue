@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import { METRIC_COMMENT } from '@/config/questionFormTypes'
 import Answer from '@/common/models/Answer'
 import FormQuestionFooter from '@/components/FormQuestionFooter'
 
@@ -49,8 +50,11 @@ export default {
 
   data() {
     const { answers } = this.answer
-    const initialText = answers[0] || {}
-    const initialComment = answers[1] || {}
+    const initialText = answers[0] || {
+      default: true,
+      metric: this.question.type,
+    }
+    const initialComment = answers[1] || { metric: METRIC_COMMENT }
 
     return {
       answerText: { ...initialText },
