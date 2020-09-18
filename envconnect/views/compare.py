@@ -18,7 +18,7 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
 from deployutils.helpers import datetime_or_now
 from openpyxl import Workbook
 from pages.models import PageElement
-from survey.models import Matrix
+from survey.models import Matrix, Sample
 from survey.views.matrix import MatrixDetailView
 
 from ..compat import reverse
@@ -541,9 +541,15 @@ class SuppliersImprovementsXLSXView(SupplierListMixin, TemplateView):
         wbook = Workbook()
 
         # Populate improvements planned sheet
+        latest_improvements = Sample.objects.raw(
+            Consumption.objects.get_latest_samples_by_prefix(
+            before=self.ends_at, prefix='/%s' % self.path,
+            tag='is_planned').replace('%', '%%'))
+        latest_improvements=[sample.pk for sample in latest_improvements
+            if sample.account_id in self.requested_accounts_pk]
+
         practices = Consumption.objects.filter(
-            answer__sample__extra='is_planned',
-            answer__sample__is_frozen=True,
+            answer__sample__in=latest_improvements,
             answer__metric_id=self.default_metric_id,
             answer__measured=Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT
         ).annotate(nb_suppliers=Count('answer__sample')).values(
