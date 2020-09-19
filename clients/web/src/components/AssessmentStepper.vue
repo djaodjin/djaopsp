@@ -9,6 +9,7 @@
       <template v-for="(step, i) in ASSESSMENT_FLOW.steps">
         <fragment v-if="step.key === STEP_SHARE_KEY" :key="step.key">
           <v-stepper-step
+            color="secondary"
             :data-cy="step.key"
             :editable="currentStep.key === STEP_SHARE_KEY"
             :step="i + 1"
@@ -26,6 +27,7 @@
 
         <fragment v-else-if="step.key === STEP_REVIEW_KEY" :key="step.key">
           <v-stepper-step
+            color="secondary"
             :data-cy="step.key"
             :editable="currentStepIndex >= i"
             :step="i + 1"
@@ -48,6 +50,7 @@
 
         <fragment v-else :key="step.key">
           <v-stepper-step
+            color="secondary"
             :data-cy="step.key"
             :complete="
               currentStepIndex > i && currentStep.key !== STEP_SHARE_KEY
@@ -221,6 +224,9 @@ export default {
   .v-stepper {
     box-shadow: none;
   }
+  .v-stepper__step--active ::v-deep .v-stepper__step__step {
+    animation: attention 0.8s ease-out 1s infinite alternate;
+  }
   & ::v-deep .v-stepper__label {
     font-size: 1.1rem;
   }
@@ -228,14 +234,24 @@ export default {
     font-size: 1.7rem;
   }
   .active ::v-deep .v-stepper__step__step {
-    background-color: $primary-color !important;
-    border-color: $primary-color !important;
+    background-color: $secondary-color !important;
+    border-color: $secondary-color !important;
+    animation: attention 0.8s ease-out 1s infinite alternate;
   }
 
   .actions {
     span {
       font-size: 0.9rem;
     }
+  }
+}
+
+@keyframes attention {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.2);
   }
 }
 </style>
