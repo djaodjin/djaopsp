@@ -37,7 +37,7 @@ To run the dev servers, set the `DEBUG` flag to `True` in your environment's `si
     -DEBUG=False
     +DEBUG=True
 
-You may choose to activate the Vue client by setting `FEATURES_VUEJS = True`; otherwise, the Angular client will be used by default.
+You may choose to load the Vue client by setting `FEATURES_VUEJS = True`. If you do, make sure the client is **not** set to [stand-alone mode](#stand-alone-mode). The Angular client is loaded by default.
 
 #### CAREFUL 
 Make sure the file you're changing is `/env/etc/envconnect/site.conf`, and *not* `/env/reps/envconnect/etc/site.conf`. Otherwise, you might see an error like:
