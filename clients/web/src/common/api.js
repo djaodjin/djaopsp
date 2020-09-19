@@ -301,6 +301,9 @@ function getQuestionInstances(contentList) {
         iconPath: node.picture,
       })
       subcategory = null
+    } else if (node.tags && node.tags.includes('pagebreak')) {
+      // TODO: Pagebreak nodes will need to be processed differently
+      continue
     } else if (node.path && !node.path.includes('/targets/')) {
       // Do not include target questions; they will be processed separately
       const question = new Question({
