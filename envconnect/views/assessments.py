@@ -223,8 +223,7 @@ class AssessmentSpreadsheetView(AssessmentBaseMixin, TemplateView):
 
         # `segment_prefix` is fully qualified path to segment.
         # We use cut=None here so we print out the full assessment
-# XXX   root = self._build_tree(segment_element, segment_prefix, cut=None)
-        root = self._build_tree(None, "", cut=None)
+        root = self._build_tree(segment_element, segment_prefix, cut=None)
 
         self.headings = self.get_headings(self._get_tag(root[0]))
         self.create_writer(self.headings, title=self._get_title(root[0]))
