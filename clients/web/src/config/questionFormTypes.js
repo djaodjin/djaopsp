@@ -212,21 +212,22 @@ export const METRIC_FRAMEWORK = 'framework'
 export const METRIC_FREETEXT = 'freetext'
 export const METRIC_RELEVANCE = 'relevance'
 export const METRIC_REVENUE_GENERATED = 'revenue-generated'
-export const METRIC_SCORE = 'score'
-export const METRIC_WATER_CONSUMED = 'water-consumed'
 export const METRIC_WASTE_GENERATED = 'waste-generated'
+export const METRIC_WATER_CONSUMED = 'water-consumed'
 export const METRIC_YES_NO = 'yes-no'
 
 export const MAP_METRICS_TO_QUESTION_FORMS = {
   [METRIC_ASSESSMENT]: FormQuestionRadioRange,
+  [METRIC_COMMENT]: null,
   [METRIC_EMISSIONS]: FormQuestionEmissionsGenerated,
   [METRIC_EMPLOYEE_COUNT]: FormQuestionEmployeeCount,
   [METRIC_ENERGY_CONSUMED]: FormQuestionEnergyConsumed,
   [METRIC_FRAMEWORK]: FormQuestionRadioLabeled,
   [METRIC_FREETEXT]: FormQuestionTextarea,
+  [METRIC_RELEVANCE]: null,
   [METRIC_REVENUE_GENERATED]: FormQuestionRevenueGenerated,
-  [METRIC_WATER_CONSUMED]: FormQuestionWaterConsumed,
   [METRIC_WASTE_GENERATED]: FormQuestionWasteGenerated,
+  [METRIC_WATER_CONSUMED]: FormQuestionWaterConsumed,
   [METRIC_YES_NO]: FormQuestionRadioDiscrete,
 }
 
@@ -236,3 +237,5 @@ export const METRICS_WITH_UNIT = [
   METRIC_WATER_CONSUMED,
   METRIC_WASTE_GENERATED,
 ]
+
+export const VALID_METRICS = Object.keys(MAP_METRICS_TO_QUESTION_FORMS)
