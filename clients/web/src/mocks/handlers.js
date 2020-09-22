@@ -78,7 +78,7 @@ function getAssessmentHistory(schema, request) {
           [
             assessment.industryName,
             i,
-            `/app/${organizationId}/assess/${assessment.slug}/sample${assessment.industryPath}`,
+            `/app/${organizationId}/assess/${assessment.slug}/content${assessment.industryPath}`,
           ],
         ],
       }
