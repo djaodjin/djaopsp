@@ -99,7 +99,7 @@
       </v-btn>
       |
       <v-btn
-        v-if="currentStep <= 5"
+        v-if="currentStep.key !== STEP_SHARE_KEY"
         text
         color="primary"
         @click.stop="isDeleteDialogOpen = true"
