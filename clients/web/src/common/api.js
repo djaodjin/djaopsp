@@ -12,13 +12,7 @@ import Section from './models/Section'
 import Subcategory from './models/Subcategory'
 import { getPracticeList } from './models/Practice'
 import { getShareEntryList } from './models/ShareEntry'
-import {
-  MAP_METRICS_TO_QUESTION_FORMS,
-  METRIC_FREETEXT,
-  METRIC_ENERGY_CONSUMED,
-  METRIC_WATER_CONSUMED,
-  METRIC_WASTE_GENERATED,
-} from '../config/questionFormTypes'
+import { METRIC_SCORE } from '../config/questionFormTypes'
 
 const API_HOST = process.env.VUE_APP_STANDALONE ? window.location.origin : ''
 const API_BASE_URL = `${API_HOST}${process.env.VUE_APP_ROOT}${process.env.VUE_APP_API_BASE}`
@@ -173,7 +167,7 @@ export async function getPreviousAnswers(organizationId, assessment) {
     if (results.length) {
       const path = results[0].values[0][2]
       // For example: /app/eta/assess/10/sample/metal/boxes-and-enclosures/
-      const str = path.split('/sample/')[0]
+      const str = path.split('/content/')[0]
       if (str) {
         const previousAssessmentId = str.substr(str.lastIndexOf('/') + 1)
         const response = await request(
@@ -271,20 +265,29 @@ export async function getPracticeSearchResults(organizationId, assessmentId) {
 }
 
 function getFlatAnswersByPath(answerList) {
-  const flatAnswers = answerList.map(({ question, ...attrs }) => ({
-    ...attrs,
-    ...question,
-  }))
+  const flatAnswers = answerList
+    .filter(({ metric }) => metric !== METRIC_SCORE) // filter out individual answer scores
+    .map(({ question, ...attrs }) => ({
+      ...attrs,
+      ...question,
+    }))
   return groupBy(flatAnswers, 'path')
 }
 
 function getAnswerInstances(answersByPath, questions) {
-  return questions.map((question) => {
-    const answerObjects = answersByPath[question.path]
-    const answer = new Answer({ question: question.id })
-    answer.load(answerObjects)
-    return answer
+  const answers = []
+  const items = questions.map((question) => ({
+    qid: question.id,
+    answerObjects: answersByPath[question.path],
+  }))
+  items.forEach(({ qid, answerObjects }) => {
+    if (answerObjects) {
+      const answer = new Answer({ question: qid })
+      answer.load(answerObjects)
+      answers.push(answer)
+    }
   })
+  return answers
 }
 
 function getQuestionInstances(contentList) {
