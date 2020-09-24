@@ -16,7 +16,7 @@ urlpatterns = [
     # URLs for authenticated readers (upvote, downvote, etc.)
     url(r'^content/', include('answers.urls.api')),
     # URLs for unauthenticated readers (content tree)
-    url(r'^content/(?P<path>%s)' % PATH_RE,
+    url(r'^content/(?P<path>%s)$' % PATH_RE,
         CampaignListAPIView.as_view(), name='api_campgains'),
     url(r'^content/', include('pages.urls.api.readers')),
     # URLs for assessments
