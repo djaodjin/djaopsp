@@ -24,7 +24,7 @@ class CampaignSerializer(NoModelSerializer):
     title = serializers.CharField()
     indent = serializers.IntegerField()
     tags = serializers.ListField(child=serializers.CharField(), required=False)
-    text = serializers.CharField(required=False)
+    picture = serializers.CharField(required=False)
     environmental_value = serializers.IntegerField(required=False)
     business_value = serializers.IntegerField(required=False)
     profitability = serializers.IntegerField(required=False)
@@ -89,7 +89,8 @@ class CampaignListAPIView(BreadcrumbMixin, ListAPIView):
                     'indent': 0
                 }]
             else:
-                rollup_tree = self._build_tree(root, full_path, cut=cut)
+                rollup_tree = self._build_tree(root, full_path,
+                    cut=cut, load_text=True)
                 menus += self.flatten({prefix: rollup_tree})
         return menus
 
@@ -102,6 +103,11 @@ class CampaignListAPIView(BreadcrumbMixin, ListAPIView):
                 'path': None if nodes else elem['path'],
                 'indent': depth
             }
+            text = elem.get('text', None)
+            if text and text.endswith('.png'):
+                content.update({
+                    'picture': text
+                })
             if 'tags' in elem and elem['tags']:
                 content.update({
                     'tags': elem['tags']
