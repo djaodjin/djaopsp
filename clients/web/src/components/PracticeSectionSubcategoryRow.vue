@@ -37,10 +37,7 @@
 </template>
 
 <script>
-import {
-  MAP_METRICS_TO_QUESTION_FORMS,
-  METRIC_FREETEXT,
-} from '@/config/questionFormTypes'
+import { METRIC_FREETEXT } from '@/config/questionFormTypes'
 import { Fragment } from 'vue-fragment'
 
 export default {

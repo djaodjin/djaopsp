@@ -166,7 +166,7 @@ export async function getPreviousAnswers(organizationId, assessment) {
 
     if (results.length) {
       const path = results[0].values[0][2]
-      // For example: /app/eta/assess/10/sample/metal/boxes-and-enclosures/
+      // For example: /app/eta/assess/10/content/metal/boxes-and-enclosures/
       const str = path.split('/content/')[0]
       if (str) {
         const previousAssessmentId = str.substr(str.lastIndexOf('/') + 1)
