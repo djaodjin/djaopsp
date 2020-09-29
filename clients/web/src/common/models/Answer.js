@@ -20,14 +20,16 @@ export default class Answer {
     author,
     metric,
     created = new Date().toISOString(),
+    answers = [],
+    answered = false,
   }) {
     this.id = id
     this.question = question // question ID
     this.metric = metric
     this.author = author
     this.created = created
-    this.answers = []
-    this.answered = false
+    this.answers = answers
+    this.answered = answered
   }
 
   static createFromPrevious(answer, attrs) {
@@ -45,6 +47,10 @@ export default class Answer {
     return newAnswer
   }
 
+  clone() {
+    const { id, ...rest } = this
+    return new Answer(rest)
+  }
   isAnswered() {
     const answer = this.answers.find((answer) => answer.default)
     if (METRICS_WITH_UNIT.includes(answer.metric)) {
@@ -101,6 +107,15 @@ export default class Answer {
     this.metric = metric
     this.answers = values
     this.answered = this.isAnswered()
+  }
+  reset() {
+    this.answers = this.answers.map((answer) => {
+      return answer.unit
+        ? { ...answer, measured: '', unit: '' }
+        : { ...answer, measured: '' }
+    })
+    this.answered = this.isAnswered()
+    return this
   }
   render() {
     const questionForm = MAP_METRICS_TO_QUESTION_FORMS[this.metric]

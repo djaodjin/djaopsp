@@ -17,7 +17,7 @@
           />
         </div>
       </template>
-      <template v-slot:tab2>
+      <!-- <template v-slot:tab2>
         <tab-header :text="$t('targets.tab2.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
           <p>
@@ -46,7 +46,7 @@
             </v-row>
           </v-container>
         </div>
-      </template>
+      </template> -->
     </tab-container>
     <dialog-confirm
       storageKey="previousTargets"
@@ -67,8 +67,8 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getScore } from '@/common/api'
-import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
+// import { getScore } from '@/common/api'
+// import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
 import HeaderSecondary from '@/components/HeaderSecondary'
@@ -86,14 +86,14 @@ export default {
 
   methods: {
     async fetchData() {
-      const [organization, assessment, score] = await Promise.all([
+      const [organization, assessment] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.org, this.id),
-        getScore(this.org, this.id),
+        // getScore(this.org, this.id),
       ])
       this.organization = organization
       this.assessment = assessment
-      this.score = score
+      // this.score = score
     },
     async checkPreviousTargets() {
       // TODO: Send request to check if previous targets have been submitted
@@ -119,7 +119,7 @@ export default {
   },
 
   components: {
-    ChartPracticesImplementation,
+    // ChartPracticesImplementation,
     DialogConfirm,
     FormEnvironmentalTargets,
     Fragment,

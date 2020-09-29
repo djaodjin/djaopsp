@@ -116,8 +116,10 @@ async function getCurrentPracticesContent(
     ] = await Promise.all(responses.map((response) => response.json()))
 
     const questions = getQuestionInstances(questionList)
+    const targetQuestions = getTargetQuestionInstances(questionList)
     const answersByPath = getFlatAnswersByPath(answerList)
     const answers = getAnswerInstances(answersByPath, questions)
+    const targetAnswers = getAnswerInstances(answersByPath, targetQuestions)
 
     // Complete questions with type and required fields
     questions.forEach((question) => {
@@ -125,10 +127,17 @@ async function getCurrentPracticesContent(
       question.type = answer.default_metric
       question.optional = !answer.required
     })
+    targetQuestions.forEach((targetQuestion) => {
+      const answer = answersByPath[targetQuestion.path][0]
+      targetQuestion.type = answer.default_metric
+      targetQuestion.optional = !answer.required
+    })
 
     return {
-      questions,
       answers,
+      questions,
+      targetAnswers,
+      targetQuestions,
     }
   } catch (e) {
     throw new APIError(e)
@@ -329,6 +338,21 @@ function getQuestionInstances(contentList) {
   return questions
 }
 
+function getTargetQuestionInstances(contentList) {
+  const targetQuestions = []
+  contentList.forEach((node) => {
+    if (node.path && node.path.includes('/targets/')) {
+      const targetQuestion = new Question({
+        id: kebabCase(node.path),
+        path: node.path,
+        text: node.title,
+      })
+      targetQuestions.push(targetQuestion)
+    }
+  })
+  return targetQuestions
+}
+
 // TODO: Review
 export async function getScore(organizationId, assessmentId) {
   const response = await request(`/score/${organizationId}/${assessmentId}`)
@@ -377,17 +401,20 @@ export async function setAssessmentIndustry(
   industry
 ) {
   const { id, created, frozen } = assessment
-  const { questions, answers } = await getCurrentPracticesContent(
-    organizationId,
-    id,
-    industry.path
-  )
+  const {
+    answers,
+    questions,
+    targetAnswers,
+    targetQuestions,
+  } = await getCurrentPracticesContent(organizationId, id, industry.path)
   return new Assessment({
     id,
     created,
     frozen,
     industry,
-    questions,
     answers,
+    questions,
+    targetAnswers,
+    targetQuestions,
   })
 }

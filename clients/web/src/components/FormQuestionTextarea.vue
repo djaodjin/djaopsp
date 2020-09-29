@@ -15,6 +15,7 @@
       :model="model"
       :previousAnswer="previousAnswer"
       :comment="answerComment.measured"
+      :isTarget="isTarget"
       @textareaUpdate="updateComment"
     />
   </form>
@@ -28,7 +29,7 @@ import FormQuestionFooter from '@/components/FormQuestionFooter'
 export default {
   name: 'FormQuestionTextarea',
 
-  props: ['question', 'answer', 'previousAnswer', 'model'],
+  props: ['question', 'answer', 'previousAnswer', 'model', 'isTarget'],
 
   methods: {
     processForm: function () {

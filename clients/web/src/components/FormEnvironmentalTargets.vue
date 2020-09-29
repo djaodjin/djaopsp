@@ -1,31 +1,27 @@
-<template v-if="targets">
-  <v-form
-    ref="form"
-    v-model="isValid"
-    lazy-validation
-    @submit.prevent="processForm"
-  >
+<template v-if="assessment.targetQuestions">
+  <v-form ref="form" lazy-validation @submit.prevent="processForm">
     <v-container>
       <v-row>
         <v-col
           class="px-0"
           cols="12"
           md="6"
-          v-for="(target, index) in targets"
-          :key="target.key"
+          v-for="(answer, index) in assessment.targetAnswers"
+          :key="index"
         >
           <form-single-target
             :class="[index % 2 ? 'ml-md-6' : 'mr-md-6']"
-            :target="target"
+            :answer="answer"
+            :questions="assessment.targetQuestions"
             @form:validate="validateForm"
           />
         </v-col>
       </v-row>
     </v-container>
 
-    <button-primary :disabled="!isValid" class="my-5" type="submit">{{
-      $t('targets.tab1.btn-submit')
-    }}</button-primary>
+    <button-primary :disabled="!isValid" class="my-5" type="submit">
+      {{ $t('targets.tab1.btn-submit') }}
+    </button-primary>
   </v-form>
 </template>
 
@@ -35,23 +31,14 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 import FormSingleTarget from '@/components/FormSingleTarget'
 
 export default {
-  name: 'AssessmentEnvironmentalTargets',
+  name: 'FormEnvironmentalTargets',
 
   props: ['organization', 'assessment'],
 
   data() {
     return {
       isValid: true,
-      targets: [],
     }
-  },
-
-  watch: {
-    assessment: function () {
-      this.targets =
-        this.assessment.targets &&
-        this.assessment.targets.map((target) => target.clone())
-    },
   },
 
   methods: {

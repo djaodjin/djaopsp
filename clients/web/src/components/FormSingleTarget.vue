@@ -1,79 +1,89 @@
 <template>
   <div v-bind="$attrs">
-    <v-checkbox
-      class="mt-0"
-      hide-details
-      v-model="target.enabled"
-      @click="validate"
-    >
+    <v-checkbox class="mt-0" hide-details v-model="isExpanded" @click="refresh">
       <template v-slot:label>
-        <b>{{ targetConfig.text }}</b>
+        <b>{{ question.text }}</b>
       </template>
     </v-checkbox>
 
     <v-expand-transition>
-      <div class="pl-8 py-1" v-show="target.enabled">
-        <div class="mt-2 examples">
+      <div class="pl-8 py-1" v-show="isExpanded">
+        <div class="my-3 examples">
           <span>
             Need help writing your target?
-            <button type="button" @click="areExamplesVisible = true">
+            <button
+              type="button"
+              @click="areExamplesVisible = !areExamplesVisible"
+            >
               View some examples.
             </button>
           </span>
           <v-expand-transition>
             <ul class="ml-4" v-show="areExamplesVisible">
-              <li
-                class="mt-2"
-                v-for="(example, index) in targetConfig.examples"
-                :key="index"
-              >
-                {{ example }}
+              <li class="mt-2">
+                Donec accumsan ipsum ac nibh gravida ornare. Duis eget consequat
+                enim. Sed non lorem sed mauris vestibulum tempus nec nec risus.
+                Mauris vel dolor turpis.
+              </li>
+              <li class="mt-2">
+                Vivamus faucibus metus a dui fringilla sodales. Aenean lectus
+                felis, scelerisque sed consectetur eu, elementum quis risus. Ut
+                et pretium nisl. Nam metus elit, ultricies interdum tortor ac,
+                placerat bibendum urna.
               </li>
             </ul>
           </v-expand-transition>
         </div>
-        <v-textarea
-          class="mt-4"
-          :label="$t('targets.tab1.form.textarea-target')"
-          v-model="target.text"
-          hide-details="auto"
-          auto-grow
-          outlined
-          rows="5"
-          row-height="16"
-          :rules="[
-            (v) =>
-              !!v ||
-              !target.enabled ||
-              'Please supply a target description or uncheck the target',
-          ]"
-        ></v-textarea>
+        <FormQuestionTextarea
+          v-if="isExpanded"
+          :model="questionForm"
+          :question="question"
+          :answer="draftAnswer"
+          :isTarget="true"
+        />
       </div>
     </v-expand-transition>
   </div>
 </template>
 
 <script>
-import { VALID_ASSESSMENT_TARGETS } from '@/config/app'
+import { MAP_METRICS_TO_QUESTION_FORMS } from '@/config/questionFormTypes'
+import FormQuestionTextarea from '@/components/FormQuestionTextarea'
 
 export default {
   name: 'FormSingleTarget',
 
-  props: ['target'],
+  props: ['answer', 'questions'],
 
   data() {
     return {
+      isExpanded: this.answer.answered,
       areExamplesVisible: false,
-      targetConfig: VALID_ASSESSMENT_TARGETS.find(
-        (config) => config.value === this.target.key
-      ),
+      draftAnswer: this.answer.clone(),
     }
   },
 
-  methods: {
-    validate() {
-      this.$emit('form:validate')
+  computed: {
+    question() {
+      return this.questions.find((q) => q.id === this.answer.question)
     },
+    questionForm() {
+      return MAP_METRICS_TO_QUESTION_FORMS[this.question.type]
+    },
+  },
+
+  methods: {
+    refresh() {
+      if (!this.isExpanded) {
+        // Reset answer if it's being hidden (minimized)
+        // TODO: Warn users about data loss
+        this.draftAnswer = this.answer.clone().reset()
+      }
+    },
+  },
+
+  components: {
+    FormQuestionTextarea,
   },
 }
 </script>
