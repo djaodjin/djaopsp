@@ -43,11 +43,22 @@
         />
       </div>
     </v-expand-transition>
+    <dialog-action
+      title="Disable Target"
+      actionText="Yes, clear target information"
+      :isOpen="isDisableDialogOpen"
+      @action="disableTarget"
+      @cancel="closeDisableDialog"
+    >
+      <p>Are you sure you want to disable this target?</p>
+      <p>Any target information and comments provided will be deleted.</p>
+    </dialog-action>
   </div>
 </template>
 
 <script>
 import { MAP_METRICS_TO_QUESTION_FORMS } from '@/config/questionFormTypes'
+import DialogAction from '@/components/DialogAction'
 import FormQuestionTextarea from '@/components/FormQuestionTextarea'
 
 export default {
@@ -58,6 +69,7 @@ export default {
   data() {
     return {
       isExpanded: this.answer.answered,
+      isDisableDialogOpen: false,
       areExamplesVisible: false,
       draftAnswer: this.answer.clone(),
     }
@@ -75,14 +87,22 @@ export default {
   methods: {
     refresh() {
       if (!this.isExpanded) {
-        // Reset answer if it's being hidden (minimized)
-        // TODO: Warn users about data loss
-        this.draftAnswer = this.answer.clone().reset()
+        this.isDisableDialogOpen = true
       }
+    },
+    closeDisableDialog() {
+      this.isExpanded = true
+      this.isDisableDialogOpen = false
+    },
+    disableTarget() {
+      // Reset answer if it's being hidden (minimized)
+      this.draftAnswer = this.answer.clone().reset()
+      this.isDisableDialogOpen = false
     },
   },
 
   components: {
+    DialogAction,
     FormQuestionTextarea,
   },
 }
