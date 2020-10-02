@@ -61,7 +61,7 @@ function createIndustryList(industries, previousIndustries) {
       // TODO: Consider case where assessment belongs to more than one industry segment
       const segment = values[0]
       const industryName = segment[0]
-      const industryPath = segment[2] && segment[2].split('/sample')[1]
+      const industryPath = segment[2] && segment[2].split('/content')[1]
       return {
         text: industryName,
         value: industryPath,

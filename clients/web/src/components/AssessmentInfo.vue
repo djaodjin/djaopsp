@@ -11,7 +11,7 @@
           <b>{{ assessment.industryName }}</b>
         </li>
         <li>
-          <span>Created:</span>
+          <span>Last updated:</span>
           <time v-format-date :datetime="assessment.created">{{
             assessment.created
           }}</time>
@@ -81,19 +81,19 @@ export default {
     span {
       display: inline-block;
       margin-right: 2%;
-      width: 20%;
+      width: 30%;
       text-align: right;
       vertical-align: top;
 
       & + * {
         display: inline-block;
-        width: 78%;
+        width: 68%;
         text-align: left;
       }
     }
 
     .status {
-      margin-left: 22%;
+      margin-left: 32%;
       text-align: left;
       width: 78%;
     }

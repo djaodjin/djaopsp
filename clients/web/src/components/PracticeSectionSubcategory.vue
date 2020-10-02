@@ -134,7 +134,9 @@ export default {
 
   computed: {
     hasPreviousAnswers() {
-      return !!this.previousAnswers.length
+      return this.subcategory.questions.some((question) =>
+        this.previousAnswers.find((a) => a.question === question.id)
+      )
     },
   },
 

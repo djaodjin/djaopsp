@@ -54,7 +54,7 @@ js_editor = Bundle(
     'vendor/jquery.ui.touch-punch.js',
     'vendor/rangy-core.js',
     'vendor/hallo.js',
-    'js/djaoapp-i18n.js',
+    # 'js/djaoapp-i18n.js',
     'js/djaodjin-resources.js',
     'js/djaodjin-editor.js',
     'js/djaodjin-upload.js',
