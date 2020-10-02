@@ -6,34 +6,13 @@
 <div class="offset-sm-2 col-sm-8">
   <p class="text-center">
 <span style="text-decoration: underline;">ACTION:</span>
-Click each tile and select high value improvements.
+Click each tile and select opportunities you plan to address over the next year.
   </p>
 </div>
 {% endblock %}
 
 {% block page_bottom_help %}
-<div class="offset-md-3 col-md-6 content-sponsors">
-  <h3>Tips:</h3>
-  <ol>
-    <li>
-Click the orange “Planning Dashboard” button at the base of the page.
-    </li>
-    <li>
-Click each tile and review the “Opportunity Score” column for highest value
-opportunities.
-    </li>
-    <li>
-Mark the the opportunities you plan to address over the next year or in the
-&quot;Select for Improvement Plan&quot; column.
-    </li>
-    <li>
-Click &quot;Complete&quot; once you’ve selected all actions you plan to address.
-    </li>
-    <li>
-Click &quot;Scorecard&quot; to see how the improvements are listed.
-    </li>
-  </ol>
-</div>
+{% include "envconnect/_improve_help.html" %}
 {% endblock %}
 
 
@@ -175,6 +154,9 @@ See the following for examples of content developed for best practices:
       </div>
       <div class="row" style="margin-top:-15px;">
         <div class="offset-md-6 col-md-6 text-right" style="margin-bottom: 10px;">
+          <div ng-show="valueSummaryToggle">
+            {% include "envconnect/_assessment_legend.html" %}
+          </div>
           <div ng-show="!valueSummaryToggle">
             {% include "envconnect/_value_summary_legend.html" %}
           </div>
