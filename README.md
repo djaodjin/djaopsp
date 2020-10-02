@@ -14,7 +14,7 @@ This Django project contains the web application for the enviro-connect project.
 
 ## Development setup: Step-by-step
 
-### Install prerequisites and configurations
+### Install prerequisites
 
     $ python3 -m venv envconnect
     $ source envconnect/bin/activate
@@ -28,9 +28,38 @@ This Django project contains the web application for the enviro-connect project.
     $ make initdb
     $ make vendor-assets-prerequisites
     $ make build-assets
+
+### Dev Configuration
+
+To run the dev servers, set the `DEBUG` flag to `True` in your environment's `site.conf` file:
+
     $ diff -u ../../etc/envconnect/site.conf
     -DEBUG=False
     +DEBUG=True
+
+You may choose to load the Vue client by setting `FEATURES_VUEJS = True`. If you do, make sure the client is **not** set to [stand-alone mode](#stand-alone-mode). The Angular client is loaded by default.
+
+#### CAREFUL 
+Make sure the file you're changing is `/env/etc/envconnect/site.conf`, and *not* `/env/reps/envconnect/etc/site.conf`. Otherwise, you might see an error like:
+
+```
+2020-09-18 17:18:18,875 INFO exited: livereload (exit status 1; not expected)
+2020-09-18 17:18:19,883 INFO spawned: 'livereload' with pid 32803
+config loaded from '/.../env/etc/envconnect/credentials'
+config loaded from '/.../env/etc/envconnect/site.conf'
+logging app messages in '/.../env/var/log/gunicorn/envconnect-app.log'
+Unknown command: 'livereload'
+```
+
+And `livereload` will cycle through a few of these messages until it errors with:
+
+```
+2020-09-18 17:18:27,761 INFO exited: livereload (exit status 1; not expected)
+2020-09-18 17:18:28,765 INFO gave up: livereload entered FATAL state, too many start retries too quickly
+```
+
+
+
 
 ### Launching and debugging the full webserver
 

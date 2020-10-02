@@ -103,20 +103,22 @@ export default class Answer {
     this.answered = this.isAnswered()
   }
   render() {
+    const questionForm = MAP_METRICS_TO_QUESTION_FORMS[this.metric]
+    if (!questionForm) return ''
+
     let output = ''
     if (
       this.metric === METRIC_ASSESSMENT ||
       this.metric === METRIC_FRAMEWORK ||
       this.metric === METRIC_YES_NO
     ) {
-      const options = MAP_METRICS_TO_QUESTION_FORMS[this.metric].options
+      const options = questionForm.options
       const selected = options.find(
         (opt) => opt.value === this.answers[0].measured
       )
       output = selected ? selected.text : ''
     } else if (this.metric === METRIC_EMISSIONS) {
       const answer = this.answers[0]
-      const questionForm = MAP_METRICS_TO_QUESTION_FORMS[this.metric]
       const relevance = this.answers.find(
         (answer) => answer.metric === METRIC_RELEVANCE
       )
@@ -135,7 +137,6 @@ export default class Answer {
       this.metric === METRIC_WATER_CONSUMED ||
       this.metric === METRIC_WASTE_GENERATED
     ) {
-      const questionForm = MAP_METRICS_TO_QUESTION_FORMS[this.metric]
       const answer = this.answers[0]
       const selected = questionForm.options.find(
         (opt) => opt.value === answer.unit
