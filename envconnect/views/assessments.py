@@ -17,6 +17,7 @@ from survey.models import Answer, Sample
 
 from ..api.benchmark import PracticeBenchmarkMixin
 from ..compat import reverse, six
+from ..helpers import ContentCut
 from ..mixins import BestPracticeMixin
 from ..models import ColumnHeader, Consumption
 from ..serializers import ConsumptionSerializer
@@ -436,6 +437,22 @@ class CompleteView(AssessmentView):
 
     template_name = 'envconnect/complete.html'
     breadcrumb_url = 'complete'
+
+    def prune_tree(self, roots):
+        results = {}
+        for node_path, node in list(six.iteritems(roots[1])):
+            if node[0].get('consumption'):
+                results.update({node_path: node})
+            else:
+                result = self.prune_tree(node)
+                if result[1]:
+                    results.update({node_path: result})
+        return (roots[0], results)
+
+    def _build_tree(self, root, path, cut=ContentCut(), load_text=False):
+        report_tree = super(CompleteView, self)._build_tree(
+            root, path, cut=cut, load_text=load_text)
+        return self.prune_tree(report_tree)
 
     def decorate_leafs(self, leafs):
         # Only called once from `BreadcrumbMixin._build_tree` so it is OK

@@ -561,7 +561,8 @@ envconnectControllers.controller("EnvconnectCtrl",
                         results.push(node);
                     } else {
                         results.push(node);
-                        $scope.getEntriesAsRowsRecursive(node, results, limit, depth+1);
+                        $scope.getEntriesAsRowsRecursive(
+                            node, results, limit, depth + 1);
                     }
                 }
             }
@@ -1203,6 +1204,14 @@ envconnectControllers.controller("EnvconnectCtrl",
 
         $scope.moveBestPractice(startPath, attachPath, rank, "drag-n-drop");
     };
+
+    $scope.getSection = function(practice, prefix) {
+        var parts = practice[0].path.replace(prefix, '').split("/");
+        if( parts.length > 2 ) {
+            return parts[1];
+        }
+        return "";
+    }
 
     $scope.indentHeader = function(practice, prefix) {
         var parts = practice[0].path.replace(prefix, '').split("/");
