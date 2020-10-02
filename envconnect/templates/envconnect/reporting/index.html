@@ -171,7 +171,7 @@ user).</em>
               </td>
               <!-- reporting fines -->
               <td style="vertical-align:middle;" ng-if="!entry.requested_at">
-                [[ entry.reporting_fines ? "Yes" : "" ]]
+                [[ entry.reporting_fines != null ? (entry.reporting_fines ? "Yes" : "No") : "" ]]
               </td>
               <!-- nb planned actions -->
               <td style="vertical-align:middle;" ng-if="!entry.requested_at">

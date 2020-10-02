@@ -229,8 +229,9 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
             if reporting_publicly and str(reporting_publicly) != "N/A":
                 reporting_publicly = "Yes"
             reporting_fines = rec.get('reporting_fines', "N/A")
-            if reporting_fines and str(reporting_fines) != "N/A":
-                reporting_fines = "Yes"
+            if reporting_fines is not None:
+                if not isinstance(reporting_fines, six.string_types):
+                    reporting_fines = "Yes" if reporting_fines else "No"
             nb_planned_improvements = rec.get('nb_planned_improvements', "N/A")
             measurements = '\n'.join(rec.get('reported', []))
             targets = '\n'.join(rec.get('targets', []))
