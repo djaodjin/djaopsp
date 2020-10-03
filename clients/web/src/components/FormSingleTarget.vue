@@ -46,6 +46,8 @@
           :previousAnswer="previousAnswer"
           :model="questionForm"
           :isTarget="true"
+          :isRequired="draftTarget.isEnabled"
+          errorMessage="Please provide a target or unselect it."
           @answer:update="updateAnswer"
           @comment:update="updateComment"
         />

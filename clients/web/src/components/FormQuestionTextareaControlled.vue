@@ -10,7 +10,10 @@
       :rows="8"
       :focus="true"
       row-height="18"
-      @change="$emit('answer:update')"
+      :rules="[
+        () => !isRequired || (isRequired && !!answerText) || errorMessage,
+      ]"
+      @input="(newValue) => $emit('answer:update', newValue)"
     ></v-textarea>
     <form-question-footer
       :model="model"
@@ -35,6 +38,8 @@ export default {
     'previousAnswer',
     'model',
     'isTarget',
+    'isRequired',
+    'errorMessage',
   ],
 
   components: {

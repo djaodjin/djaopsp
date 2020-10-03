@@ -1,5 +1,10 @@
 <template v-if="assessment.targetQuestions">
-  <v-form ref="form" lazy-validation @submit.prevent="processForm">
+  <v-form
+    ref="form"
+    v-model="isValid"
+    lazy-validation
+    @submit.prevent="processForm"
+  >
     <v-container>
       <v-row v-if="draftTargets.length">
         <v-col
@@ -21,9 +26,9 @@
       </v-row>
     </v-container>
 
-    <button-primary :disabled="!isValid" class="my-5" type="submit">
-      {{ $t('targets.tab1.btn-submit') }}
-    </button-primary>
+    <button-primary :disabled="!isValid" class="my-5" type="submit">{{
+      $t('targets.tab1.btn-submit')
+    }}</button-primary>
   </v-form>
 </template>
 
@@ -52,34 +57,39 @@ export default {
 
   methods: {
     processForm: function () {
-      console.log('Submit form ...')
-      // this.isValid = this.$refs.form.validate()
-      // if (this.isValid) {
-      //   postTargets(this.organization.id, this.assessment.id, this.targets)
-      //     .then((assessment) => {
-      //       this.$context.updateAssessment(assessment)
-      //       this.$router.push({
-      //         name: 'assessmentHome',
-      //         params: { id: assessment.id },
-      //       })
-      //     })
-      //     .catch((error) => {
-      //       // TODO: Handle error
-      //       console.log('Ooops ... something broke')
-      //     })
-      // }
+      this.isValid = this.$refs.form.validate()
+      if (this.isValid) {
+        console.log('Yay! valid ...')
+
+        // postTargets(this.organization.id, this.assessment.id, this.targets)
+        //   .then((assessment) => {
+        //     this.$context.updateAssessment(assessment)
+        //     this.$router.push({
+        //       name: 'assessmentHome',
+        //       params: { id: assessment.id },
+        //     })
+        //   })
+        //   .catch((error) => {
+        //     // TODO: Handle error
+        //     console.log('Ooops ... something broke')
+        //   })
+      } else {
+        console.log('Nope! invalid ...')
+      }
     },
-    // validateForm: function () {
-    //   if (!this.isValid) {
-    //     this.isValid = this.$refs.form.validate()
-    //   }
-    // },
+    validateForm: function () {
+      if (!this.isValid) {
+        this.isValid = this.$refs.form.validate()
+      }
+    },
     toggleTarget(targetIndex) {
       const draftTarget = this.draftTargets[targetIndex]
       draftTarget.isEnabled = !draftTarget.isEnabled
+      this.validateForm()
     },
     updateTargetAnswer(targetIndex, answerValues) {
       this.draftTargets[targetIndex].answer.update(answerValues)
+      this.validateForm()
     },
   },
 
