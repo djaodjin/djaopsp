@@ -23,23 +23,12 @@
     <button-primary :disabled="!isValid" class="my-5" type="submit">
       {{ $t('targets.tab1.btn-submit') }}
     </button-primary>
-    <dialog-action
-      title="Disable Target"
-      actionText="Yes, clear target information"
-      :isOpen="isDisableDialogOpen"
-      @action="clearTarget"
-      @cancel="closeDisableDialog"
-    >
-      <p>Are you sure you want to disable this target?</p>
-      <p>Any target information and comments provided will be deleted.</p>
-    </dialog-action>
   </v-form>
 </template>
 
 <script>
 import { postTargets } from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
-import DialogAction from '@/components/DialogAction'
 import FormSingleTarget from '@/components/FormSingleTarget'
 
 export default {
@@ -57,7 +46,6 @@ export default {
           isEnabled: a.answered,
           answer: a.clone(),
         })) || [],
-      draftTargetActive: null,
     }
   },
 
@@ -86,21 +74,8 @@ export default {
     //   }
     // },
     toggleTarget(targetIndex) {
-      this.draftTargetActive = this.draftTargets[targetIndex]
-      this.draftTargetActive.isEnabled = !this.draftTargetActive.isEnabled
-      if (!this.draftTargetActive.isEnabled) {
-        this.isDisableDialogOpen = true
-      }
-    },
-    closeDisableDialog() {
-      this.draftTargetActive.isEnabled = true
-      this.isDisableDialogOpen = false
-      this.draftTargetActive = null
-    },
-    clearTarget() {
-      this.draftTargetActive.answer.reset()
-      this.isDisableDialogOpen = false
-      this.draftTargetActive = null
+      const draftTarget = this.draftTargets[targetIndex]
+      draftTarget.isEnabled = !draftTarget.isEnabled
     },
     updateTargetAnswer(targetIndex, answerValues) {
       this.draftTargets[targetIndex].answer.update(answerValues)
@@ -109,7 +84,6 @@ export default {
 
   components: {
     ButtonPrimary,
-    DialogAction,
     FormSingleTarget,
   },
 }
