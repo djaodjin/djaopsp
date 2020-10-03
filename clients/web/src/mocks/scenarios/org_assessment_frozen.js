@@ -7,7 +7,6 @@ export default function (
 ) {
   const assessment = server.create('assessment', {
     is_frozen: true,
-    targets: [],
   })
 
   const organization = server.create('organization', {

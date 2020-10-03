@@ -164,9 +164,9 @@ export async function getIndustrySegments() {
   return results
 }
 
-export async function getPreviousAnswers(organizationId, assessment) {
+export async function getAllPreviousAnswers(organizationId, assessment) {
   try {
-    let previousAnswers = []
+    let answersByPath = {}
     const response = await request(
       `/${organizationId}/benchmark/historical${assessment.industryPath}`
     )
@@ -184,17 +184,23 @@ export async function getPreviousAnswers(organizationId, assessment) {
         )
         if (!response.ok) throw new APIError(response.status)
         const { results: answerList } = await response.json()
-        const answersByPath = getFlatAnswersByPath(answerList)
-        previousAnswers = getAnswerInstances(
-          answersByPath,
-          assessment.questions
-        )
+        answersByPath = getFlatAnswersByPath(answerList)
       }
     }
-    return previousAnswers
+    return answersByPath
   } catch (e) {
     throw new APIError(e)
   }
+}
+
+export async function getPreviousAnswers(organizationId, assessment) {
+  const answersByPath = await getAllPreviousAnswers(organizationId, assessment)
+  return getAnswerInstances(answersByPath, assessment.questions)
+}
+
+export async function getPreviousTargets(organizationId, assessment) {
+  const answersByPath = await getAllPreviousAnswers(organizationId, assessment)
+  return getAnswerInstances(answersByPath, assessment.targetQuestions)
 }
 
 export async function getPreviousIndustrySegments(organizationId) {

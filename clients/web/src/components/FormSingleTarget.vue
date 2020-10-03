@@ -61,7 +61,7 @@ import FormQuestionTextareaControlled from '@/components/FormQuestionTextareaCon
 export default {
   name: 'FormSingleTarget',
 
-  props: ['draftTarget', 'questions'],
+  props: ['draftTarget', 'questions', 'previousAnswers'],
 
   data() {
     const { answers } = this.draftTarget.answer
@@ -87,6 +87,9 @@ export default {
     },
     questionForm() {
       return MAP_METRICS_TO_QUESTION_FORMS[this.question.type]
+    },
+    previousAnswer() {
+      return this.previousAnswers.find((a) => a.question === this.question.id)
     },
   },
 

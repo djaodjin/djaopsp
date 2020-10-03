@@ -15,6 +15,7 @@
             v-if="Object.keys(assessment).length"
             :organization="organization"
             :assessment="assessment"
+            :previousTargets="previousTargets"
           />
         </div>
       </template>
@@ -68,6 +69,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
+import { getPreviousTargets } from '@/common/api'
 // import { getScore } from '@/common/api'
 // import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
 import DialogConfirm from '@/components/DialogConfirm'
@@ -90,13 +92,19 @@ export default {
       organization: {},
       assessment: {},
       score: {},
-      hasPreviousTargets: false, // TODO: compute this value after getting previous targets
+      previousTargets: [],
       tabs: [
         { text: this.$t('targets.tab1.title'), href: 'tab-1' },
         { text: this.$t('targets.tab2.title'), href: 'tab-2' },
       ],
       tab: null,
     }
+  },
+
+  computed: {
+    hasPreviousTargets() {
+      return !!this.previousTargets.length
+    },
   },
 
   methods: {
@@ -108,14 +116,9 @@ export default {
       ])
       this.organization = organization
       this.assessment = assessment
+      this.previousTargets = await getPreviousTargets(this.org, assessment)
+
       // this.score = score
-    },
-    async checkPreviousTargets() {
-      // TODO: Send request to check if previous targets have been submitted
-      return new Promise((resolve) => {
-        console.log('Check if previous targets have been submitted')
-        resolve(true)
-      })
     },
   },
 

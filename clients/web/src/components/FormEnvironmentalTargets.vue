@@ -13,6 +13,7 @@
             :class="[index % 2 ? 'ml-md-6' : 'mr-md-6']"
             :draftTarget="draftTarget"
             :questions="assessment.targetQuestions"
+            :previousAnswers="previousTargets"
             @answer:update="updateTargetAnswer"
             @target:toggleState="toggleTarget"
           />
@@ -34,7 +35,7 @@ import FormSingleTarget from '@/components/FormSingleTarget'
 export default {
   name: 'FormEnvironmentalTargets',
 
-  props: ['organization', 'assessment'],
+  props: ['organization', 'assessment', 'previousTargets'],
 
   data() {
     return {

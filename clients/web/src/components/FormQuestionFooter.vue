@@ -2,7 +2,12 @@
   <fragment>
     <v-container class="pa-0">
       <v-row align="start">
-        <v-col v-if="previousAnswer" class="pt-0 pl" cols="12" md="6">
+        <v-col
+          v-if="previousAnswer"
+          class="pt-0 pl"
+          cols="12"
+          md="isTarget ? 12 : 6"
+        >
           <question-previous-answers
             :model="model"
             :previousAnswer="previousAnswer"
