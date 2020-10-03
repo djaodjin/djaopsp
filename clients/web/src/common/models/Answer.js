@@ -72,10 +72,7 @@ export default class Answer {
     for (let i = 0; i < answerObjects.length; i++) {
       const item = answerObjects[i]
       metric = item.default_metric
-      if (
-        item.metric === item.default_metric ||
-        (answerObjects.length === 1 && item.metric === null)
-      ) {
+      if (item.metric === item.default_metric || item.metric === null) {
         answer = item
       } else {
         values.push({
