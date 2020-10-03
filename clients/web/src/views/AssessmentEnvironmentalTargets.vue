@@ -12,6 +12,7 @@
         <div class="pa-4 pt-sm-2 px-md-8">
           <p class="mb-0">{{ $t('targets.tab1.intro') }}</p>
           <form-environmental-targets
+            v-if="Object.keys(assessment).length"
             :organization="organization"
             :assessment="assessment"
           />
@@ -46,7 +47,7 @@
             </v-row>
           </v-container>
         </div>
-      </template> -->
+      </template>-->
     </tab-container>
     <dialog-confirm
       storageKey="previousTargets"
@@ -84,6 +85,20 @@ export default {
     this.fetchData()
   },
 
+  data() {
+    return {
+      organization: {},
+      assessment: {},
+      score: {},
+      hasPreviousTargets: false, // TODO: compute this value after getting previous targets
+      tabs: [
+        { text: this.$t('targets.tab1.title'), href: 'tab-1' },
+        { text: this.$t('targets.tab2.title'), href: 'tab-2' },
+      ],
+      tab: null,
+    }
+  },
+
   methods: {
     async fetchData() {
       const [organization, assessment] = await Promise.all([
@@ -102,20 +117,6 @@ export default {
         resolve(true)
       })
     },
-  },
-
-  data() {
-    return {
-      organization: {},
-      assessment: {},
-      score: {},
-      hasPreviousTargets: false, // TODO: compute this value after getting previous targets
-      tabs: [
-        { text: this.$t('targets.tab1.title'), href: 'tab-1' },
-        { text: this.$t('targets.tab2.title'), href: 'tab-2' },
-      ],
-      tab: null,
-    }
   },
 
   components: {

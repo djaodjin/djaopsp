@@ -36,7 +36,7 @@
               outlined
               :rows="3"
               row-height="18"
-              @input="$emit('textareaUpdate', textarea)"
+              @input="$emit('textarea:update', textarea)"
             ></v-textarea>
           </v-expand-transition>
           <div v-if="!isTarget" class="mt-2">

@@ -1,19 +1,20 @@
 <template v-if="assessment.targetQuestions">
   <v-form ref="form" lazy-validation @submit.prevent="processForm">
     <v-container>
-      <v-row>
+      <v-row v-if="draftTargets.length">
         <v-col
           class="px-0"
           cols="12"
           md="6"
-          v-for="(answer, index) in assessment.targetAnswers"
+          v-for="(draftTarget, index) in draftTargets"
           :key="index"
         >
           <form-single-target
             :class="[index % 2 ? 'ml-md-6' : 'mr-md-6']"
-            :answer="answer"
+            :draftTarget="draftTarget"
             :questions="assessment.targetQuestions"
-            @form:validate="validateForm"
+            @answer:update="updateTargetAnswer"
+            @target:toggleState="toggleTarget"
           />
         </v-col>
       </v-row>
@@ -22,12 +23,23 @@
     <button-primary :disabled="!isValid" class="my-5" type="submit">
       {{ $t('targets.tab1.btn-submit') }}
     </button-primary>
+    <dialog-action
+      title="Disable Target"
+      actionText="Yes, clear target information"
+      :isOpen="isDisableDialogOpen"
+      @action="clearTarget"
+      @cancel="closeDisableDialog"
+    >
+      <p>Are you sure you want to disable this target?</p>
+      <p>Any target information and comments provided will be deleted.</p>
+    </dialog-action>
   </v-form>
 </template>
 
 <script>
 import { postTargets } from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
+import DialogAction from '@/components/DialogAction'
 import FormSingleTarget from '@/components/FormSingleTarget'
 
 export default {
@@ -38,36 +50,66 @@ export default {
   data() {
     return {
       isValid: true,
+      isDisableDialogOpen: false,
+      draftTargets:
+        this.assessment.targetAnswers?.map((a, index) => ({
+          index,
+          isEnabled: a.answered,
+          answer: a.clone(),
+        })) || [],
+      draftTargetActive: null,
     }
   },
 
   methods: {
     processForm: function () {
-      this.isValid = this.$refs.form.validate()
-      if (this.isValid) {
-        postTargets(this.organization.id, this.assessment.id, this.targets)
-          .then((assessment) => {
-            this.$context.updateAssessment(assessment)
-            this.$router.push({
-              name: 'assessmentHome',
-              params: { id: assessment.id },
-            })
-          })
-          .catch((error) => {
-            // TODO: Handle error
-            console.log('Ooops ... something broke')
-          })
+      console.log('Submit form ...')
+      // this.isValid = this.$refs.form.validate()
+      // if (this.isValid) {
+      //   postTargets(this.organization.id, this.assessment.id, this.targets)
+      //     .then((assessment) => {
+      //       this.$context.updateAssessment(assessment)
+      //       this.$router.push({
+      //         name: 'assessmentHome',
+      //         params: { id: assessment.id },
+      //       })
+      //     })
+      //     .catch((error) => {
+      //       // TODO: Handle error
+      //       console.log('Ooops ... something broke')
+      //     })
+      // }
+    },
+    // validateForm: function () {
+    //   if (!this.isValid) {
+    //     this.isValid = this.$refs.form.validate()
+    //   }
+    // },
+    toggleTarget(targetIndex) {
+      this.draftTargetActive = this.draftTargets[targetIndex]
+      this.draftTargetActive.isEnabled = !this.draftTargetActive.isEnabled
+      if (!this.draftTargetActive.isEnabled) {
+        this.isDisableDialogOpen = true
       }
     },
-    validateForm: function () {
-      if (!this.isValid) {
-        this.isValid = this.$refs.form.validate()
-      }
+    closeDisableDialog() {
+      this.draftTargetActive.isEnabled = true
+      this.isDisableDialogOpen = false
+      this.draftTargetActive = null
+    },
+    clearTarget() {
+      this.draftTargetActive.answer.reset()
+      this.isDisableDialogOpen = false
+      this.draftTargetActive = null
+    },
+    updateTargetAnswer(targetIndex, answerValues) {
+      this.draftTargets[targetIndex].answer.update(answerValues)
     },
   },
 
   components: {
     ButtonPrimary,
+    DialogAction,
     FormSingleTarget,
   },
 }

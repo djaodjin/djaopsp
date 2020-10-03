@@ -1,13 +1,18 @@
 <template>
   <div v-bind="$attrs">
-    <v-checkbox class="mt-0" hide-details v-model="isExpanded" @click="refresh">
+    <v-checkbox
+      class="mt-0"
+      hide-details
+      :input-value="draftTarget.isEnabled"
+      @click="$emit('target:toggleState', draftTarget.index)"
+    >
       <template v-slot:label>
         <b>{{ question.text }}</b>
       </template>
     </v-checkbox>
 
     <v-expand-transition>
-      <div class="pl-8 py-1" v-show="isExpanded">
+      <div class="pl-8 py-1" v-show="draftTarget.isEnabled">
         <div class="my-3 examples">
           <span>
             Need help writing your target?
@@ -34,50 +39,51 @@
             </ul>
           </v-expand-transition>
         </div>
-        <FormQuestionTextarea
-          v-if="isExpanded"
-          :model="questionForm"
+        <form-question-textarea-controlled
           :question="question"
-          :answer="draftAnswer"
+          :answerText="answerValue.measured"
+          :commentText="answerComment.measured"
+          :previousAnswer="previousAnswer"
+          :model="questionForm"
           :isTarget="true"
+          @answer:update="updateAnswer"
+          @comment:update="updateComment"
         />
       </div>
     </v-expand-transition>
-    <dialog-action
-      title="Disable Target"
-      actionText="Yes, clear target information"
-      :isOpen="isDisableDialogOpen"
-      @action="disableTarget"
-      @cancel="closeDisableDialog"
-    >
-      <p>Are you sure you want to disable this target?</p>
-      <p>Any target information and comments provided will be deleted.</p>
-    </dialog-action>
   </div>
 </template>
 
 <script>
 import { MAP_METRICS_TO_QUESTION_FORMS } from '@/config/questionFormTypes'
-import DialogAction from '@/components/DialogAction'
-import FormQuestionTextarea from '@/components/FormQuestionTextarea'
+import FormQuestionTextareaControlled from '@/components/FormQuestionTextareaControlled'
 
 export default {
   name: 'FormSingleTarget',
 
-  props: ['answer', 'questions'],
+  props: ['draftTarget', 'questions'],
 
   data() {
+    const { answers } = this.draftTarget.answer
+
     return {
-      isExpanded: this.answer.answered,
-      isDisableDialogOpen: false,
       areExamplesVisible: false,
-      draftAnswer: this.answer.clone(),
+      answerValue: { ...answers[0] } || {
+        default: true,
+        metric: this.question.type,
+        mesured: '',
+      },
+      answerComment: { ...answers[1] } || {
+        metric: METRIC_COMMENT,
+        mesured: '',
+      },
     }
   },
 
   computed: {
     question() {
-      return this.questions.find((q) => q.id === this.answer.question)
+      const question = this.draftTarget.answer.question
+      return this.questions.find((q) => q.id === question)
     },
     questionForm() {
       return MAP_METRICS_TO_QUESTION_FORMS[this.question.type]
@@ -85,25 +91,34 @@ export default {
   },
 
   methods: {
-    refresh() {
-      if (!this.isExpanded) {
-        this.isDisableDialogOpen = true
-      }
+    processForm: function () {
+      const answer = new Answer({
+        ...this.answer,
+        author: 'author@email.com', // TODO: Replace with user info
+      })
+      answer.update()
+      this.$emit('submit', answer)
     },
-    closeDisableDialog() {
-      this.isExpanded = true
-      this.isDisableDialogOpen = false
+
+    updateAnswer(value) {
+      this.answerValue.measured = value
+      this.$emit('answer:update', this.draftTarget.index, [
+        this.answerValue,
+        this.answerComment,
+      ])
     },
-    disableTarget() {
-      // Reset answer if it's being hidden (minimized)
-      this.draftAnswer = this.answer.clone().reset()
-      this.isDisableDialogOpen = false
+
+    updateComment(value) {
+      this.answerComment.measured = value
+      this.$emit('answer:update', this.draftTarget.index, [
+        this.answerValue,
+        this.answerComment,
+      ])
     },
   },
 
   components: {
-    DialogAction,
-    FormQuestionTextarea,
+    FormQuestionTextareaControlled,
   },
 }
 </script>

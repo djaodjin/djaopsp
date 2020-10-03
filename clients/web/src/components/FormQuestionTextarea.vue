@@ -1,22 +1,13 @@
 <template>
   <form @submit.prevent="processForm">
-    <v-textarea
-      class="pb-3"
-      data-cy="question-textarea"
-      v-model="answerValue.measured"
-      hide-details="auto"
-      auto-grow
-      outlined
-      :rows="8"
-      :focus="true"
-      row-height="18"
-    ></v-textarea>
-    <form-question-footer
-      :model="model"
+    <form-question-textarea-controlled
+      :question="question"
+      :answerText="answerValue.measured"
+      :commentText="answerComment.measured"
       :previousAnswer="previousAnswer"
-      :comment="answerComment.measured"
-      :isTarget="isTarget"
-      @textareaUpdate="updateComment"
+      :model="model"
+      @answer:update="updateAnswer"
+      @comment:update="updateComment"
     />
   </form>
 </template>
@@ -24,7 +15,7 @@
 <script>
 import { METRIC_COMMENT } from '@/config/questionFormTypes'
 import Answer from '@/common/models/Answer'
-import FormQuestionFooter from '@/components/FormQuestionFooter'
+import FormQuestionTextareaControlled from '@/components/FormQuestionTextareaControlled'
 
 export default {
   name: 'FormQuestionTextarea',
@@ -39,6 +30,10 @@ export default {
       })
       answer.update([this.answerValue, this.answerComment])
       this.$emit('submit', answer)
+    },
+
+    updateAnswer(value) {
+      this.answerValue.measured = value
     },
 
     updateComment(value) {
@@ -61,7 +56,7 @@ export default {
   },
 
   components: {
-    FormQuestionFooter,
+    FormQuestionTextareaControlled,
   },
 }
 </script>
