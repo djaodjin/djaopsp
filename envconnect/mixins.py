@@ -738,6 +738,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                     pass
             if not hasattr(self, '_assessment_sample'):
                 self._assessment_sample = Sample.objects.filter(
+                    is_frozen=False,
                     extra__isnull=True,
                     campaign=self.campaign,
                     account=self.account).order_by('-created_at').first()
@@ -774,6 +775,7 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                     pass
             if not hasattr(self, '_improvement_sample'):
                 self._improvement_sample = Sample.objects.filter(
+                    is_frozen=False,
                     extra='is_planned',
                     campaign=self.campaign,
                     account=self.account).order_by('-created_at').first()
