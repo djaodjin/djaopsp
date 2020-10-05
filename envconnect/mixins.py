@@ -704,6 +704,89 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         update_context_urls(context, urls)
         return context
 
+    def get_scores_tree(self, roots=None, root_prefix=None):
+        """
+        Returns a tree specialized to compute rollup scores.
+
+        Typically `get_leafs` and a function to populate a leaf will be called
+        before an rollup is done.
+        """
+        self._report_queries("[get_scores_tree] entry point")
+        rollup_tree = None
+        rollups = self._cut_tree(self.build_content_tree(
+            roots, prefix=root_prefix, cut=TransparentCut()),
+            cut=TransparentCut())
+
+        # Moves up all industry segments which are under a category
+        # (ex: /facilities/janitorial-services).
+        # If we donot do that, then assessment score will be incomplete
+        # in the dashboard, as the aggregator will wait for other sub-segments
+        # in the top level category.
+        removes = []
+        ups = OrderedDict({})
+        for root_path, root in six.iteritems(rollups):
+            if not 'pagebreak' in root[0].get('tag', ""):
+                removes += [root_path]
+                ups.update(root[1])
+        for root_path in removes:
+            del rollups[root_path]
+        rollups.update(ups)
+
+        rollup_tree = (OrderedDict({}), rollups)
+        if 'title' not in rollup_tree[0]:
+            rollup_tree[0].update({
+                'slug': "totals",
+                'title': "Total Score",
+                'tag': [settings.TAG_SCORECARD]})
+        self._report_queries("[get_scores_tree] generated")
+
+        return rollup_tree
+
+
+
+    @staticmethod
+    def populate_leaf(attrs, answers,
+                      populate_account=populate_account_base,
+                      agg_key='account_id', force_score=False):
+        """
+        Populate `attrs['accounts']` with aggregates of `answers`.
+        `attrs['accounts']` is a dictionnary that will be keyed by
+        the field `agg_key`.
+
+        `attrs` is a dictionnary of attributes on a leaf.
+        `answers` is a queryset of (account_id, sample_id, is_planned,
+        numerator, denominator, last_activity_at, nb_answers, nb_questions,
+        is_frozen).
+        """
+        if answers is None:
+            return
+        agg_scores = """SELECT account_id, sample_id, is_planned,
+    SUM(numerator) AS numerator,
+    SUM(denominator) AS denominator,
+    MAX(last_activity_at) AS last_activity_at,
+    COUNT(answer_id) AS nb_answers,
+    COUNT(*) AS nb_questions,
+    %(bool_agg)s(is_completed) AS is_completed
+FROM (%(answers)s) AS answers
+WHERE answers.metric IN ('assessment', 'score')
+GROUP BY account_id, sample_id, is_planned;""" % {
+    'answers': answers,
+    'bool_agg': 'MAX' if is_sqlite3() else 'bool_or',
+}
+        _show_query_and_result(agg_scores)
+        with connection.cursor() as cursor:
+            cursor.execute(agg_scores, params=None)
+            col_headers = cursor.description
+            agg_score_tuple = namedtuple(
+                'AggScoreTuple', [col[0] for col in col_headers])
+            for agg_score in cursor.fetchall():
+                agg_score = agg_score_tuple(*agg_score)
+                if not 'accounts' in attrs:
+                    attrs['accounts'] = {}
+                populate_account(
+                    attrs['accounts'], agg_score,
+                    agg_key=agg_key, force_score=force_score)
+
 
 class ExcludeDemoSample(object):
 
@@ -815,49 +898,6 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
         if self.assessment_sample:
             results += [self.assessment_sample]
         return results
-
-    @staticmethod
-    def populate_leaf(attrs, answers,
-                      populate_account=populate_account_base,
-                      agg_key='account_id', force_score=False):
-        """
-        Populate `attrs['accounts']` with aggregates of `answers`.
-        `attrs['accounts']` is a dictionnary that will be keyed by
-        the field `agg_key`.
-
-        `attrs` is a dictionnary of attributes on a leaf.
-        `answers` is a queryset of (account_id, sample_id, is_planned,
-        numerator, denominator, last_activity_at, nb_answers, nb_questions,
-        is_frozen).
-        """
-        if answers is None:
-            return
-        agg_scores = """SELECT account_id, sample_id, is_planned,
-    SUM(numerator) AS numerator,
-    SUM(denominator) AS denominator,
-    MAX(last_activity_at) AS last_activity_at,
-    COUNT(answer_id) AS nb_answers,
-    COUNT(*) AS nb_questions,
-    %(bool_agg)s(is_completed) AS is_completed
-FROM (%(answers)s) AS answers
-WHERE answers.metric IN ('assessment', 'score')
-GROUP BY account_id, sample_id, is_planned;""" % {
-    'answers': answers,
-    'bool_agg': 'MAX' if is_sqlite3() else 'bool_or',
-}
-        _show_query_and_result(agg_scores)
-        with connection.cursor() as cursor:
-            cursor.execute(agg_scores, params=None)
-            col_headers = cursor.description
-            agg_score_tuple = namedtuple(
-                'AggScoreTuple', [col[0] for col in col_headers])
-            for agg_score in cursor.fetchall():
-                agg_score = agg_score_tuple(*agg_score)
-                if not 'accounts' in attrs:
-                    attrs['accounts'] = {}
-                populate_account(
-                    attrs['accounts'], agg_score,
-                    agg_key=agg_key, force_score=force_score)
 
     def decorate_leafs(self, leafs):
         """

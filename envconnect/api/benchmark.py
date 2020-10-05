@@ -28,7 +28,7 @@ from .best_practices import ToggleTagContentAPIView
 from ..compat import reverse
 from ..helpers import (get_segments_from_samples, as_measured_value,
     get_testing_accounts)
-from ..mixins import ReportMixin, TransparentCut, ContentCut
+from ..mixins import ReportMixin, ContentCut
 from ..models import (_show_query_and_result, get_score_weight,
     get_scored_answers, get_frozen_scored_answers, get_historical_scores,
     Consumption)
@@ -488,8 +488,10 @@ class BenchmarkMixin(ReportMixin):
     def _get_scored_answers(self, population, metric_id,
                             includes=None, prefix=None):
         if self.is_frozen:
-            return get_frozen_scored_answers(population,
-                datetime_or_now(self.ends_at), prefix=prefix)
+            latest_assessments = \
+                Consumption.objects.get_latest_samples_by_prefix(
+                    before=datetime_or_now(self.ends_at), prefix=prefix)
+            return get_frozen_scored_answers(latest_assessments, prefix=prefix)
         return get_scored_answers(population, metric_id,
             includes=includes, prefix=prefix)
 
@@ -522,34 +524,7 @@ class BenchmarkMixin(ReportMixin):
         """
         #pylint:disable=too-many-locals,too-many-statements
         self._start_time()
-        self._report_queries("at rollup_scores entry point")
-        rollup_tree = None
-        rollups = self._cut_tree(self.build_content_tree(
-            roots, prefix=root_prefix, cut=TransparentCut()),
-            cut=TransparentCut())
-
-        # Moves up all industry segments which are under a category
-        # (ex: /facilities/janitorial-services).
-        # If we donot do that, then assessment score will be incomplete
-        # in the dashboard, as the aggregator will wait for other sub-segments
-        # in the top level category.
-        removes = []
-        ups = OrderedDict({})
-        for root_path, root in six.iteritems(rollups):
-            if not 'pagebreak' in root[0].get('tag', ""):
-                removes += [root_path]
-                ups.update(root[1])
-        for root_path in removes:
-            del rollups[root_path]
-        rollups.update(ups)
-
-        rollup_tree = (OrderedDict({}), rollups)
-        if 'title' not in rollup_tree[0]:
-            rollup_tree[0].update({
-                'slug': "totals",
-                'title': "Total Score",
-                'tag': [settings.TAG_SCORECARD]})
-        self._report_queries("rollup_tree generated")
+        rollup_tree = self.get_scores_tree(roots=roots, root_prefix=root_prefix)
 
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
@@ -568,12 +543,6 @@ class BenchmarkMixin(ReportMixin):
 
             # 1. Populate scores
             self.populate_leaf(values_tuple[0],
-                # `DashboardMixin` overrides _get_scored_answers to get
-                # the frozen scores. `population`, `metric_id`, `includes`
-                # and `questions` are not used in
-                # DashboardMixin._get_scored_answers
-                # calls get_frozen_scored_answers in dashboard which uses
-                # metric_id=2
                 self._get_scored_answers(population, metric_id,
                     includes=includes, prefix=prefix), force_score=force_score)
 
@@ -1321,11 +1290,10 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
         includes = Sample.objects.filter(
             account=self.account, extra__isnull=True, is_frozen=True)
         if includes:
-            self._report_queries("at rollup_scores entry point")
-            rollups = self._cut_tree(self.build_content_tree(
-                roots, prefix=from_root, cut=TransparentCut()),
-                cut=TransparentCut())
-            for rollup_tree in six.itervalues(rollups):
+            scores_tree = self.get_scores_tree(
+                roots=roots, root_prefix=from_root)
+            # XXX Remove for loop?
+            for rollup_tree in six.itervalues(scores_tree[1]):
                 self._report_queries("rollup_tree generated")
                 leafs = self.get_leafs(rollup_tree=rollup_tree)
                 self._report_queries("leafs loaded")
