@@ -20,7 +20,7 @@
       :previousAnswer="previousAnswer"
       :comment="commentText"
       :isTarget="isTarget"
-      @textarea:update="$emit('comment:update')"
+      @textarea:update="(newValue) => $emit('comment:update', newValue)"
     />
   </div>
 </template>

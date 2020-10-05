@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { postTargets } from '@/common/api'
+import { postTarget } from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import FormSingleTarget from '@/components/FormSingleTarget'
 
@@ -56,25 +56,34 @@ export default {
   },
 
   methods: {
-    processForm: function () {
+    processForm: async function () {
       this.isValid = this.$refs.form.validate()
       if (this.isValid) {
-        console.log('Yay! valid ...')
-
-        // postTargets(this.organization.id, this.assessment.id, this.targets)
-        //   .then((assessment) => {
-        //     this.$context.updateAssessment(assessment)
-        //     this.$router.push({
-        //       name: 'assessmentHome',
-        //       params: { id: assessment.id },
-        //     })
-        //   })
-        //   .catch((error) => {
-        //     // TODO: Handle error
-        //     console.log('Ooops ... something broke')
-        //   })
-      } else {
-        console.log('Nope! invalid ...')
+        Promise.allSettled(
+          this.draftTargets.map((draftTarget) => {
+            if (!draftTarget.isEnabled) {
+              // Save empty values in the DB
+              draftTarget.answer.reset()
+            }
+            return postTarget(
+              this.organization.id,
+              this.assessment,
+              draftTarget.answer
+            )
+          })
+        ).then((targetPromises) => {
+          // TODO: Consider case where one or more answers may fail to save
+          const newTargetAnswers = targetPromises
+            .filter(
+              (p) => p.status === 'fulfilled' && typeof p.value !== 'boolean'
+            )
+            .map((p) => p.value)
+          this.assessment.targetAnswers = newTargetAnswers
+          this.$router.push({
+            name: 'assessmentHome',
+            params: { org: this.organization.id, id: this.assessment.id },
+          })
+        })
       }
     },
     validateForm: function () {

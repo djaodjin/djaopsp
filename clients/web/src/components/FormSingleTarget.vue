@@ -57,7 +57,10 @@
 </template>
 
 <script>
-import { MAP_METRICS_TO_QUESTION_FORMS } from '@/config/questionFormTypes'
+import {
+  METRIC_COMMENT,
+  MAP_METRICS_TO_QUESTION_FORMS,
+} from '@/config/questionFormTypes'
 import FormQuestionTextareaControlled from '@/components/FormQuestionTextareaControlled'
 
 export default {
@@ -67,17 +70,19 @@ export default {
 
   data() {
     const { answers } = this.draftTarget.answer
+    const questionId = this.draftTarget.answer.question
+    const question = this.questions.find((q) => q.id === questionId)
 
     return {
       areExamplesVisible: false,
-      answerValue: { ...answers[0] } || {
+      answerValue: (answers[0] && { ...answers[0] }) || {
         default: true,
         metric: this.question.type,
-        mesured: '',
+        measured: '',
       },
-      answerComment: { ...answers[1] } || {
+      answerComment: (answers[1] && { ...answers[1] }) || {
         metric: METRIC_COMMENT,
-        mesured: '',
+        measured: '',
       },
     }
   },
@@ -96,15 +101,6 @@ export default {
   },
 
   methods: {
-    processForm: function () {
-      const answer = new Answer({
-        ...this.answer,
-        author: 'author@email.com', // TODO: Replace with user info
-      })
-      answer.update()
-      this.$emit('submit', answer)
-    },
-
     updateAnswer(value) {
       this.answerValue.measured = value
       this.$emit('answer:update', this.draftTarget.index, [

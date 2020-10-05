@@ -378,14 +378,18 @@ export async function getShareHistory(organizationId, assessmentId) {
   return history
 }
 
-// TODO: Review
-export async function postTargets(organizationId, assessmentId, payload) {
-  const response = await request(`/targets/${organizationId}/${assessmentId}`, {
-    body: payload,
-  })
+export async function postTarget(organizationId, assessment, answer) {
+  const question = assessment.targetQuestions.find(
+    (q) => q.id === answer.question
+  )
+  const response = await request(
+    `/${organizationId}/sample/${assessment.id}/answers${question.path}`,
+    {
+      body: answer.toPayload(),
+    }
+  )
   if (!response.ok) throw new APIError(response.status)
-  const { assessment, targets } = await response.json()
-  return new Assessment({ ...assessment, targets })
+  return answer
 }
 
 export async function postAnswer(organizationId, assessment, answer) {
@@ -396,7 +400,6 @@ export async function postAnswer(organizationId, assessment, answer) {
       body: answer.toPayload(),
     }
   )
-
   if (!response.ok) throw new APIError(response.status)
   return answer
 }
