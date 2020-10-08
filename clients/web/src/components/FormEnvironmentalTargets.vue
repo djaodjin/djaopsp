@@ -1,4 +1,4 @@
-<template v-if="targets">
+<template v-if="assessment.targetQuestions">
   <v-form
     ref="form"
     v-model="isValid"
@@ -6,18 +6,21 @@
     @submit.prevent="processForm"
   >
     <v-container>
-      <v-row>
+      <v-row v-if="draftTargets.length">
         <v-col
           class="px-0"
           cols="12"
           md="6"
-          v-for="(target, index) in targets"
-          :key="target.key"
+          v-for="(draftTarget, index) in draftTargets"
+          :key="index"
         >
           <form-single-target
             :class="[index % 2 ? 'ml-md-6' : 'mr-md-6']"
-            :target="target"
-            @form:validate="validateForm"
+            :draftTarget="draftTarget"
+            :questions="assessment.targetQuestions"
+            :previousAnswers="previousTargets"
+            @answer:update="updateTargetAnswer"
+            @target:toggleState="toggleTarget"
           />
         </v-col>
       </v-row>
@@ -30,52 +33,72 @@
 </template>
 
 <script>
-import { postTargets } from '@/common/api'
+import { postTarget } from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import FormSingleTarget from '@/components/FormSingleTarget'
 
 export default {
-  name: 'AssessmentEnvironmentalTargets',
+  name: 'FormEnvironmentalTargets',
 
-  props: ['organization', 'assessment'],
+  props: ['organization', 'assessment', 'previousTargets'],
 
   data() {
     return {
       isValid: true,
-      targets: [],
+      isDisableDialogOpen: false,
+      draftTargets:
+        this.assessment.targetAnswers?.map((a, index) => ({
+          index,
+          isEnabled: a.answered,
+          answer: a.clone(),
+        })) || [],
     }
   },
 
-  watch: {
-    assessment: function () {
-      this.targets =
-        this.assessment.targets &&
-        this.assessment.targets.map((target) => target.clone())
-    },
-  },
-
   methods: {
-    processForm: function () {
+    processForm: async function () {
       this.isValid = this.$refs.form.validate()
       if (this.isValid) {
-        postTargets(this.organization.id, this.assessment.id, this.targets)
-          .then((assessment) => {
-            this.$context.updateAssessment(assessment)
-            this.$router.push({
-              name: 'assessmentHome',
-              params: { id: assessment.id },
-            })
+        Promise.allSettled(
+          this.draftTargets.map((draftTarget) => {
+            if (!draftTarget.isEnabled) {
+              // Save empty values in the DB
+              draftTarget.answer.reset()
+            }
+            return postTarget(
+              this.organization.id,
+              this.assessment,
+              draftTarget.answer
+            )
           })
-          .catch((error) => {
-            // TODO: Handle error
-            console.log('Ooops ... something broke')
+        ).then((targetPromises) => {
+          // TODO: Consider case where one or more answers may fail to save
+          const newTargetAnswers = targetPromises
+            .filter(
+              (p) => p.status === 'fulfilled' && typeof p.value !== 'boolean'
+            )
+            .map((p) => p.value)
+          this.assessment.targetAnswers = newTargetAnswers
+          this.$router.push({
+            name: 'assessmentHome',
+            params: { org: this.organization.id, id: this.assessment.id },
           })
+        })
       }
     },
     validateForm: function () {
       if (!this.isValid) {
         this.isValid = this.$refs.form.validate()
       }
+    },
+    toggleTarget(targetIndex) {
+      const draftTarget = this.draftTargets[targetIndex]
+      draftTarget.isEnabled = !draftTarget.isEnabled
+      this.validateForm()
+    },
+    updateTargetAnswer(targetIndex, answerValues) {
+      this.draftTargets[targetIndex].answer.update(answerValues)
+      this.validateForm()
     },
   },
 

@@ -2,13 +2,22 @@
   <fragment>
     <v-container class="pa-0">
       <v-row align="start">
-        <v-col class="pt-0 pl" cols="12" md="6">
+        <v-col
+          v-if="previousAnswer"
+          class="pt-0 pl"
+          cols="12"
+          md="isTarget ? 12 : 6"
+        >
           <question-previous-answers
             :model="model"
             :previousAnswer="previousAnswer"
           />
         </v-col>
-        <v-col class="pt-md-0 text-right" cols="12" md="6">
+        <v-col
+          :class="[isTarget ? 'text-left' : 'text-right', 'pt-md-0']"
+          cols="12"
+          :md="isTarget || !previousAnswer ? 12 : 6"
+        >
           <button
             data-cy="btn-comment"
             class="text-left mb-1"
@@ -32,10 +41,10 @@
               outlined
               :rows="3"
               row-height="18"
-              @input="$emit('textareaUpdate', textarea)"
+              @input="$emit('textarea:update', textarea)"
             ></v-textarea>
           </v-expand-transition>
-          <div class="mt-2">
+          <div v-if="!isTarget" class="mt-2">
             <button-primary type="submit" display="inline">
               <span>Save and Continue</span>
               <v-icon class="ml-2" small color="white">mdi-arrow-right</v-icon>
@@ -56,6 +65,13 @@ export default {
   name: 'FormQuestionFooter',
 
   props: {
+    comment: {
+      type: String,
+    },
+    isTarget: {
+      default: false,
+      type: Boolean,
+    },
     model: {
       type: Object,
     },
@@ -67,9 +83,6 @@ export default {
       // Answer
       default: null,
       type: Object,
-    },
-    comment: {
-      type: String,
     },
   },
 

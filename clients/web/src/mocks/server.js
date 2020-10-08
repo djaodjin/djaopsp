@@ -60,7 +60,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         question: belongsTo(),
       }),
       assessment: Model.extend({
-        targets: hasMany(),
         questions: hasMany(), // selected practices for improvement plan
         answers: hasMany(),
         score: belongsTo(),
@@ -81,7 +80,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       shareEntry: Model.extend({
         organization: belongsTo(),
       }),
-      target: Model,
     },
 
     factories: {
@@ -237,18 +235,12 @@ export function makeServer({ environment = 'development', apiBasePath }) {
           return faker.date.past()
         },
       }),
-
-      target: Factory.extend({
-        text() {
-          return faker.lorem.sentence()
-        },
-      }),
     },
 
     serializers: {
       application: ApplicationSerializer,
       assessment: ApplicationSerializer.extend({
-        include: ['targets', 'questions'],
+        include: ['questions'],
       }),
       organization: ApplicationSerializer.extend({
         include: ['assessments'],
@@ -275,6 +267,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       scenarios.createOrgAssessmentFrozen(server, 'delta')
       scenarios.createOrgAssessmentEmptyMultiple(server, 'epsilon')
       scenarios.createOrgAssessmentPreviousAnswers(server, 'zeta')
+      scenarios.createOrgAssessmentPreviousTargets(server, 'eta')
     },
 
     routes() {

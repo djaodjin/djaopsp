@@ -3,77 +3,123 @@
     <v-checkbox
       class="mt-0"
       hide-details
-      v-model="target.enabled"
-      @click="validate"
+      :input-value="draftTarget.isEnabled"
+      @click="$emit('target:toggleState', draftTarget.index)"
     >
       <template v-slot:label>
-        <b>{{ targetConfig.text }}</b>
+        <b>{{ question.text }}</b>
       </template>
     </v-checkbox>
 
     <v-expand-transition>
-      <div class="pl-8 py-1" v-show="target.enabled">
-        <div class="mt-2 examples">
+      <div class="pl-8 py-1" v-show="draftTarget.isEnabled">
+        <div class="my-3 examples">
           <span>
             Need help writing your target?
-            <button type="button" @click="areExamplesVisible = true">
+            <button
+              type="button"
+              @click="areExamplesVisible = !areExamplesVisible"
+            >
               View some examples.
             </button>
           </span>
           <v-expand-transition>
             <ul class="ml-4" v-show="areExamplesVisible">
-              <li
-                class="mt-2"
-                v-for="(example, index) in targetConfig.examples"
-                :key="index"
-              >
-                {{ example }}
+              <li class="mt-2">
+                Donec accumsan ipsum ac nibh gravida ornare. Duis eget consequat
+                enim. Sed non lorem sed mauris vestibulum tempus nec nec risus.
+                Mauris vel dolor turpis.
+              </li>
+              <li class="mt-2">
+                Vivamus faucibus metus a dui fringilla sodales. Aenean lectus
+                felis, scelerisque sed consectetur eu, elementum quis risus. Ut
+                et pretium nisl. Nam metus elit, ultricies interdum tortor ac,
+                placerat bibendum urna.
               </li>
             </ul>
           </v-expand-transition>
         </div>
-        <v-textarea
-          class="mt-4"
-          :label="$t('targets.tab1.form.textarea-target')"
-          v-model="target.text"
-          hide-details="auto"
-          auto-grow
-          outlined
-          rows="5"
-          row-height="16"
-          :rules="[
-            (v) =>
-              !!v ||
-              !target.enabled ||
-              'Please supply a target description or uncheck the target',
-          ]"
-        ></v-textarea>
+        <form-question-textarea-controlled
+          :question="question"
+          :answerText="answerValue.measured"
+          :commentText="answerComment.measured"
+          :previousAnswer="previousAnswer"
+          :model="questionForm"
+          :isTarget="true"
+          :isRequired="draftTarget.isEnabled"
+          errorMessage="Please provide a target or unselect it."
+          @answer:update="updateAnswer"
+          @comment:update="updateComment"
+        />
       </div>
     </v-expand-transition>
   </div>
 </template>
 
 <script>
-import { VALID_ASSESSMENT_TARGETS } from '@/config/app'
+import {
+  METRIC_COMMENT,
+  MAP_METRICS_TO_QUESTION_FORMS,
+} from '@/config/questionFormTypes'
+import FormQuestionTextareaControlled from '@/components/FormQuestionTextareaControlled'
 
 export default {
   name: 'FormSingleTarget',
 
-  props: ['target'],
+  props: ['draftTarget', 'questions', 'previousAnswers'],
 
   data() {
+    const { answers } = this.draftTarget.answer
+    const questionId = this.draftTarget.answer.question
+    const question = this.questions.find((q) => q.id === questionId)
+
     return {
       areExamplesVisible: false,
-      targetConfig: VALID_ASSESSMENT_TARGETS.find(
-        (config) => config.value === this.target.key
-      ),
+      answerValue: (answers[0] && { ...answers[0] }) || {
+        default: true,
+        metric: this.question.type,
+        measured: '',
+      },
+      answerComment: (answers[1] && { ...answers[1] }) || {
+        metric: METRIC_COMMENT,
+        measured: '',
+      },
     }
   },
 
-  methods: {
-    validate() {
-      this.$emit('form:validate')
+  computed: {
+    question() {
+      const question = this.draftTarget.answer.question
+      return this.questions.find((q) => q.id === question)
     },
+    questionForm() {
+      return MAP_METRICS_TO_QUESTION_FORMS[this.question.type]
+    },
+    previousAnswer() {
+      return this.previousAnswers.find((a) => a.question === this.question.id)
+    },
+  },
+
+  methods: {
+    updateAnswer(value) {
+      this.answerValue.measured = value
+      this.$emit('answer:update', this.draftTarget.index, [
+        this.answerValue,
+        this.answerComment,
+      ])
+    },
+
+    updateComment(value) {
+      this.answerComment.measured = value
+      this.$emit('answer:update', this.draftTarget.index, [
+        this.answerValue,
+        this.answerComment,
+      ])
+    },
+  },
+
+  components: {
+    FormQuestionTextareaControlled,
   },
 }
 </script>

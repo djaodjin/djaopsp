@@ -3,9 +3,7 @@ export default function (
   orgId,
   orgName = 'Organization With Empty Assessment'
 ) {
-  const assessment = server.create('assessment', {
-    targets: [],
-  })
+  const assessment = server.create('assessment', {})
 
   const organization = server.create('organization', {
     id: orgId,
