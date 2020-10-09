@@ -26,6 +26,7 @@ export default function (
     assessments: [currentAssessment, previousAssessment],
   })
 
+  // Answer all questions (including target questions)
   // Per fixture: /mocks/fixtures/questions.js
   server.schema.questions
     .where((question) => !!question.path)
@@ -68,6 +69,8 @@ export default function (
       })
     })
 
+  // Populate another assessment with answers to all
+  // questions (including target questions)
   server.schema.questions
     .where((question) => !!question.path)
     .models.forEach((question) => {
