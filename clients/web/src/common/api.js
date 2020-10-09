@@ -7,7 +7,6 @@ import Benchmark from './models/Benchmark'
 import Organization from './models/Organization'
 import OrganizationGroup from './models/OrganizationGroup'
 import Question from './models/Question'
-import Score from './models/Score'
 import Section from './models/Section'
 import Subcategory from './models/Subcategory'
 import { getPracticeList } from './models/Practice'
@@ -142,19 +141,6 @@ async function getCurrentPracticesContent(
   } catch (e) {
     throw new APIError(e)
   }
-}
-
-// TODO: Review
-export async function getBenchmarks(organizationId, assessmentId) {
-  const response = await request(
-    `/benchmarks/${organizationId}/${assessmentId}`
-  )
-  if (!response.ok) throw new APIError(response.status)
-  const { benchmarks } = await response.json()
-
-  return benchmarks.map((benchmark) => {
-    return new Benchmark(benchmark)
-  })
 }
 
 export async function getIndustrySegments() {
@@ -359,12 +345,52 @@ function getTargetQuestionInstances(contentList) {
   return targetQuestions
 }
 
-// TODO: Review
-export async function getScore(organizationId, assessmentId) {
-  const response = await request(`/score/${organizationId}/${assessmentId}`)
+export async function getBenchmarks(
+  organizationId,
+  assessmentId,
+  industryPath
+) {
+  const response = await request(
+    `/${organizationId}/benchmark/${assessmentId}/graphs/${industryPath}`
+  )
   if (!response.ok) throw new APIError(response.status)
-  const { score, benchmarks } = await response.json()
-  return new Score({ ...score, benchmarks })
+  const { results } = await response.json()
+
+  const benchmarks = results.map((benchmark) => {
+    const {
+      slug,
+      title,
+      text,
+      normalized_score,
+      highest_normalized_score,
+      avg_normalized_score,
+      distribution,
+      score_weight,
+    } = benchmark
+
+    const section = new Section({
+      name: title,
+      iconPath: text,
+    })
+
+    return new Benchmark({
+      id: slug,
+      section,
+      distribution,
+      ownScore: normalized_score,
+      averageScore: avg_normalized_score,
+      topScore: highest_normalized_score,
+      scoreCoefficient: score_weight,
+    })
+  })
+
+  const totalsIndex = benchmarks.findIndex((b) => b.id === 'totals')
+  if (totalsIndex === -1) {
+    // No totals benchmark was found
+    return [{}, benchmarks]
+  }
+  const totals = benchmarks.splice(totalsIndex, 1)
+  return [totals, benchmarks]
 }
 
 // TODO: Review

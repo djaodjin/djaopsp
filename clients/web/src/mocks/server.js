@@ -9,15 +9,9 @@ import {
 import faker from 'faker'
 import snakeCase from 'lodash/snakeCase'
 
-import {
-  NUM_BENCHMARKS,
-  BENCHMARK_MAX_COMPANIES,
-  INDUSTRY_SECTIONS,
-} from './config'
 import fixtures from './fixtures'
 import scenarios from './scenarios'
 import routeHandlers from './handlers'
-import { PRACTICE_VALUES } from '../config/app'
 import {
   MAP_METRICS_TO_QUESTION_FORMS,
   METRIC_ASSESSMENT,
@@ -33,10 +27,6 @@ import {
   METRIC_WATER_CONSUMED,
   METRIC_YES_NO,
 } from '../config/questionFormTypes'
-import { getRandomInt } from '../common/utils'
-
-const MIN_PRACTICE_VALUE = PRACTICE_VALUES[0].value
-const MAX_PRACTICE_VALUE = PRACTICE_VALUES[PRACTICE_VALUES.length - 1].value
 
 const ApplicationSerializer = RestSerializer.extend({
   keyForAttribute(attr) {
@@ -62,7 +52,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       assessment: Model.extend({
         questions: hasMany(), // selected practices for improvement plan
         answers: hasMany(),
-        score: belongsTo(),
       }),
       benchmark: Model,
       industry: Model,
@@ -74,9 +63,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       }),
       previousIndustry: Model,
       question: Model,
-      score: Model.extend({
-        benchmarks: hasMany(),
-      }),
       shareEntry: Model.extend({
         organization: belongsTo(),
       }),
@@ -168,38 +154,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         },
       }),
 
-      benchmark: Factory.extend({
-        section() {
-          return faker.random.arrayElement(INDUSTRY_SECTIONS)
-        },
-        scores() {
-          return [
-            {
-              label: '0 - 25%', // optional
-              value: getRandomInt(0, BENCHMARK_MAX_COMPANIES),
-            },
-            {
-              label: '25% - 50%', // optional
-              value: getRandomInt(0, BENCHMARK_MAX_COMPANIES),
-            },
-            {
-              label: '50% - 75%', // optional
-              value: getRandomInt(0, BENCHMARK_MAX_COMPANIES),
-            },
-            {
-              label: '75% - 100%', // optional
-              value: getRandomInt(0, BENCHMARK_MAX_COMPANIES),
-            },
-          ]
-        },
-        coefficient() {
-          return 0.1
-        },
-        companyScore() {
-          return getRandomInt(10, 100)
-        },
-      }),
-
       organization: Factory.extend({
         slug() {
           return this.id
@@ -212,21 +166,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       organizationGroup: Factory.extend({
         name() {
           return faker.random.word().toUpperCase()
-        },
-      }),
-
-      score: Factory.extend({
-        top() {
-          return getRandomInt(80, 95)
-        },
-        own() {
-          return getRandomInt(60, 80)
-        },
-        average() {
-          return getRandomInt(60, 80)
-        },
-        isValid() {
-          return faker.random.boolean()
         },
       }),
 
@@ -247,9 +186,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       }),
       organizationGroup: ApplicationSerializer.extend({
         include: ['organizations'],
-      }),
-      score: ApplicationSerializer.extend({
-        include: ['benchmarks'],
       }),
       shareEntry: ApplicationSerializer.extend({
         include: ['organization'],
@@ -317,10 +253,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         return schema.questions.all()
       })
 
-      this.get('/score/:organizationId/:assessmentId', (schema) => {
-        return schema.scores.find('1')
-      })
-
       this.get('/share-history/:organizationId/:assessmentId', (schema) => {
         return schema.shareEntries.all()
       })
@@ -360,6 +292,12 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       this.post(
         '/:organizationId/sample/:assessmentId/answers/*',
         routeHandlers.postAnswer.bind(this)
+      )
+
+      /* --- BENCHMARKS --- */
+      this.get(
+        '/:organizationId/benchmark/:assessmentId/graphs/*',
+        routeHandlers.getBenchmarks
       )
     },
   })

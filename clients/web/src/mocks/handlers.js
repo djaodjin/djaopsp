@@ -199,6 +199,16 @@ function postAnswer(schema, request) {
   )
 }
 
+function getBenchmarks(schema) {
+  const benchmarks = schema.benchmarks.all()
+  return {
+    count: benchmarks.length,
+    next: null,
+    previous: null,
+    results: benchmarks.models,
+  }
+}
+
 export default {
   createAssessment,
   getAnswers,
@@ -209,4 +219,5 @@ export default {
   getLatestAssessment,
   getOrganizationProfile,
   postAnswer,
+  getBenchmarks,
 }
