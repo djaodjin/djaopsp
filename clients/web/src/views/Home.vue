@@ -80,7 +80,7 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
-import { createAssessment } from '@/common/api'
+import API from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import AssessmentInfo from '@/components/AssessmentInfo'
 
@@ -95,7 +95,7 @@ export default {
 
   methods: {
     createAssessment() {
-      createAssessment(this.org, { campaign: 'assessment' }).then(
+      API.createAssessment(this.org, { campaign: 'assessment' }).then(
         (newAssessment) => {
           this.$router.push({
             name: 'assessmentHome',

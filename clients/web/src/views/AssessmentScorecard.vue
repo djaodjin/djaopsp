@@ -36,7 +36,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getBenchmarks } from '@/common/api'
+import API from '@/common/api'
 
 import ButtonPrimary from '@/components/ButtonPrimary'
 import HeaderSecondary from '@/components/HeaderSecondary'
@@ -62,7 +62,7 @@ export default {
       const [organization, assessment, score] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.org, this.id),
-        getBenchmarks(),
+        API.getBenchmarks(),
       ])
 
       this.organization = organization

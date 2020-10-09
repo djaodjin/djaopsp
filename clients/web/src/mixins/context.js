@@ -1,11 +1,5 @@
 import Vue from 'vue'
-import {
-  getAssessment,
-  getIndustrySegments,
-  getPreviousIndustrySegments,
-  getOrganization,
-  setAssessmentIndustry,
-} from '@/common/api'
+import API from '@/common/api'
 
 Vue.mixin({
   beforeCreate() {
@@ -86,7 +80,7 @@ export default class Context {
     if (this.assessments.has(assessmentId)) {
       return this.assessments.get(assessmentId)
     } else {
-      const assessment = await getAssessment(organizationId, assessmentId)
+      const assessment = await API.getAssessment(organizationId, assessmentId)
       this.assessments.set(assessmentId, assessment)
       return assessment
     }
@@ -95,8 +89,8 @@ export default class Context {
   async getIndustries(organizationId) {
     if (!this.industries.length) {
       const [industries, previousIndustries] = await Promise.all([
-        getIndustrySegments(),
-        getPreviousIndustrySegments(organizationId),
+        API.getIndustrySegments(),
+        API.getPreviousIndustrySegments(organizationId),
       ])
       this.industries = createIndustryList(industries, previousIndustries)
     }
@@ -107,7 +101,7 @@ export default class Context {
     if (this.organizations.has(organizationId)) {
       return this.organizations.get(organizationId)
     } else {
-      const organization = await getOrganization(organizationId)
+      const organization = await API.getOrganization(organizationId)
       this.organizations.set(organizationId, organization)
       return organization
     }
@@ -116,7 +110,7 @@ export default class Context {
   async setAssessmentIndustry(organizationId, assessmentId, industry) {
     const assessment = this.assessments.get(assessmentId)
     if (assessment) {
-      const updated = await setAssessmentIndustry(
+      const updated = await API.setAssessmentIndustry(
         organizationId,
         assessment,
         industry

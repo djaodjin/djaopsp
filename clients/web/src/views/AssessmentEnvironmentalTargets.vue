@@ -68,7 +68,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getBenchmarks, getPreviousTargets } from '@/common/api'
+import API from '@/common/api'
 import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
@@ -112,8 +112,8 @@ export default {
         this.$context.getAssessment(this.org, this.id),
       ])
       const [previousTargets, benchmarks] = await Promise.all([
-        getPreviousTargets(this.org, assessment),
-        getBenchmarks(this.org, this.id, assessment.industryPath),
+        API.getPreviousTargets(this.org, assessment),
+        API.getBenchmarks(this.org, this.id, assessment.industryPath),
       ])
       this.organization = organization
       this.assessment = assessment

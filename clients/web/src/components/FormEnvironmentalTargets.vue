@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { postTarget } from '@/common/api'
+import API from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import FormSingleTarget from '@/components/FormSingleTarget'
 
@@ -65,7 +65,7 @@ export default {
               // Save empty values in the DB
               draftTarget.answer.reset()
             }
-            return postTarget(
+            return API.postTarget(
               this.organization.id,
               this.assessment,
               draftTarget.answer
