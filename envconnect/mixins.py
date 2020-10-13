@@ -158,6 +158,63 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             self._segment = (url_path, prefix, element)
         return self._segment
 
+    def _insert_path(self, root, path, depth=1, values=None):
+        parts = path.split('/')
+        if len(parts) >= depth:
+            prefix = '/'.join(parts[:depth])
+            if not prefix in root[1]:
+                root[1].update({prefix: (OrderedDict({}), OrderedDict({}))})
+            if len(parts) == depth and values:
+                root[1][prefix].update(values)
+                return root
+            return self._insert_path(root[1][prefix], path, depth=depth + 1,
+                values=values)
+        return root
+
+    def _natural_order(self, root):
+        candidate_prefix = ""
+        paths = list(root[1])
+        if paths:
+            paths.sort(key=len)
+            parts = paths[0].split('/')
+            if len(paths) == 1:
+                # If there is only one path/key, we prevent skipping
+                # a level here.
+                candidate_prefix = '/'.join(parts[:-1])
+            else:
+                candidate_prefix = '/'.join(parts)
+                found = False
+                while not found:
+                    found = True
+                    for path in paths:
+                        if not path.startswith(candidate_prefix):
+                            parts = parts[:-1]
+                            candidate_prefix = '/'.join(parts)
+                            found = False
+                            break
+
+        commonprefix = candidate_prefix
+        if commonprefix:
+            if commonprefix.endswith('/'):
+                commonprefix = commonprefix[:-1]
+            orig_element_slug = commonprefix.split('/')[-1]
+            edges = [rec['dest_element__slug']
+                for rec in RelationShip.objects.filter(
+                    orig_element__slug=orig_element_slug).values(
+                        'dest_element__slug').order_by('rank', 'pk')]
+        else:
+            edges = self.get_roots().order_by('title').values_list(
+                'slug', flat=True)
+
+        ordered_root = (root[0], OrderedDict({}))
+        for edge in edges:
+            path = "%s/%s" % (commonprefix, edge)
+            if path in root[1]:
+                ordered_root[1].update({path: root[1][path]})
+        for path, nodes in six.iteritems(ordered_root[1]):
+            ordered_root[1][path] = self._natural_order(nodes)
+        return ordered_root
+
     def _start_time(self):
         if not self.enable_report_queries:
             return
@@ -566,6 +623,32 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 # for assessment to summary and back?
         return from_root, results
 
+    @staticmethod
+    def get_indent_bestpractice(depth=0):
+        return "bestpractice-%d indent-header-%d" % (depth, depth)
+
+    @staticmethod
+    def get_indent_heading(depth=0):
+        return "heading-%d indent-header-%d" % (depth, depth)
+
+    def flatten_answers(self, root, url_prefix, depth=0):
+        """
+        returns a list from the tree passed as an argument.
+        """
+        results = []
+        for prefix, nodes in six.iteritems(root[1]):
+            element = PageElement.objects.get(slug=prefix.split('/')[-1])
+            if nodes[1]:
+                results += [(self.get_indent_heading(depth),
+                    "", element, {})]
+                results += self.flatten_answers(
+                    nodes, url_prefix, depth=depth + 1)
+            else:
+                results += [(self.get_indent_bestpractice(depth),
+                    url_prefix + '/' + element.slug,
+                    element, nodes[0])]
+        return results
+
     def get_context_data(self, **kwargs):
         #pylint:disable=too-many-locals,too-many-statements
         context = super(BreadcrumbMixin, self).get_context_data(**kwargs)
@@ -714,7 +797,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         self._report_queries("[get_scores_tree] entry point")
         rollup_tree = None
         rollups = self._cut_tree(self.build_content_tree(
-            roots, prefix=root_prefix, cut=TransparentCut()),
+            roots, prefix=root_prefix, cut=TransparentCut(), load_text=True),
             cut=TransparentCut())
 
         # Moves up all industry segments which are under a category
@@ -944,89 +1027,6 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
                 self.account.pk, {}).get('denominator', 0)
             push_improvement_factors(root, total_numerator, total_denominator)
         return root
-
-    def _insert_path(self, root, path, depth=1, values=None):
-        parts = path.split('/')
-        if len(parts) >= depth:
-            prefix = '/'.join(parts[:depth])
-            if not prefix in root[1]:
-                root[1].update({prefix: (OrderedDict({}), OrderedDict({}))})
-            if len(parts) == depth and values:
-                root[1][prefix].update(values)
-                return root
-            return self._insert_path(root[1][prefix], path, depth=depth + 1,
-                values=values)
-        return root
-
-    def _natural_order(self, root):
-        candidate_prefix = ""
-        paths = list(root[1])
-        if paths:
-            paths.sort(key=len)
-            parts = paths[0].split('/')
-            if len(paths) == 1:
-                # If there is only one path/key, we prevent skipping
-                # a level here.
-                candidate_prefix = '/'.join(parts[:-1])
-            else:
-                candidate_prefix = '/'.join(parts)
-                found = False
-                while not found:
-                    found = True
-                    for path in paths:
-                        if not path.startswith(candidate_prefix):
-                            parts = parts[:-1]
-                            candidate_prefix = '/'.join(parts)
-                            found = False
-                            break
-
-        commonprefix = candidate_prefix
-        if commonprefix:
-            if commonprefix.endswith('/'):
-                commonprefix = commonprefix[:-1]
-            orig_element_slug = commonprefix.split('/')[-1]
-            edges = [rec['dest_element__slug']
-                for rec in RelationShip.objects.filter(
-                    orig_element__slug=orig_element_slug).values(
-                        'dest_element__slug').order_by('rank', 'pk')]
-        else:
-            edges = self.get_roots().order_by('title').values_list(
-                'slug', flat=True)
-
-        ordered_root = (root[0], OrderedDict({}))
-        for edge in edges:
-            path = "%s/%s" % (commonprefix, edge)
-            if path in root[1]:
-                ordered_root[1].update({path: root[1][path]})
-        for path, nodes in six.iteritems(ordered_root[1]):
-            ordered_root[1][path] = self._natural_order(nodes)
-        return ordered_root
-
-    @staticmethod
-    def get_indent_bestpractice(depth=0):
-        return "bestpractice-%d indent-header-%d" % (depth, depth)
-
-    @staticmethod
-    def get_indent_heading(depth=0):
-        return "heading-%d indent-header-%d" % (depth, depth)
-
-    def flatten_answers(self, root, url_prefix, depth=0):
-        """
-        returns a list from the tree passed as an argument.
-        """
-        results = []
-        for prefix, nodes in six.iteritems(root[1]):
-            element = PageElement.objects.get(slug=prefix.split('/')[-1])
-            if nodes[1]:
-                results += [(self.get_indent_heading(depth),
-                    "", element, {})]
-                results += self.flatten_answers(
-                    nodes, url_prefix, depth=depth + 1)
-            else:
-                results += [(self.get_indent_bestpractice(depth),
-                    url_prefix + '/' + element.slug,
-                    element, nodes[0])]
-        return results
 
     def _get_measured_metrics_context(self, root, prefix):
         depth = len(prefix.split('/')) + 1

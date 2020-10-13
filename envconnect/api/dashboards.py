@@ -519,7 +519,7 @@ ON saas_organization.id = assessments.account_id
             self._requested_accounts = {val.organization_id: val
                 for val in Subscription.objects.filter(
                     ends_at__gt=ends_at, # from `SubscriptionMixin.get_queryset`
-                    plan__organization__in=level)}
+                    plan__organization__in=level).select_related('organization')}
         return self._requested_accounts
 
     @property
@@ -636,11 +636,13 @@ class SupplierListMixin(DashboardMixin):
     Scores for all reporting entities in a format that can be used by the API
     and spreadsheet downloads.
     """
-    def decorate_queryset(self, queryset):
-        """
-        Updates `normalized_score` in rows of the queryset.
-        """
-        rollup_tree = self.get_scores_tree()
+
+    def rollup_scores(self, queryset):
+        try:
+            from_root, unused = self.breadcrumbs
+        except Http404:
+            from_root = None
+        rollup_tree = self.get_scores_tree(root_prefix=from_root)
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
 
@@ -654,6 +656,13 @@ class SupplierListMixin(DashboardMixin):
         self._report_queries("leafs populated")
         populate_rollup(rollup_tree, True, force_score=True)
         self._report_queries("rollup_tree populated")
+        return rollup_tree
+
+    def decorate_queryset(self, queryset):
+        """
+        Updates `normalized_score` in rows of the queryset.
+        """
+        rollup_tree = self.rollup_scores(queryset)
 
         # Populate scores in report summaries
         contacts = {user.email: user
@@ -668,7 +677,7 @@ class SupplierListMixin(DashboardMixin):
             report_summary.requested_at = (
                 account.created_at if account.grant_key else None)
             if report_summary.requested_at:
-                report_summary.nb_na_answers  = None
+                report_summary.nb_na_answers = None
                 report_summary.reporting_publicly = None
                 report_summary.reporting_fines = None
                 report_summary.nb_planned_improvements = None
@@ -711,7 +720,6 @@ class SupplierListMixin(DashboardMixin):
         if page:
             queryset = page
         self.decorate_queryset(queryset)
-        # XXX return SupplierQuerySet(page)
         return page
 
 
@@ -763,7 +771,131 @@ class SupplierListAPIView(SupplierListMixin, generics.ListAPIView):
         return resp
 
 
-class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
+class GraphMixin(object):
+
+    def get_charts(self, rollup_tree, excludes=None):
+        charts = []
+        icon_tag = rollup_tree[0].get('tag', "")
+        if icon_tag and settings.TAG_SCORECARD in icon_tag:
+            if not (excludes and rollup_tree[0].get('slug', "") in excludes):
+                charts += [rollup_tree[0]]
+        for _, icon_tuple in six.iteritems(rollup_tree[1]):
+            sub_charts = self.get_charts(icon_tuple, excludes=excludes)
+            charts += sub_charts
+        return charts
+
+    def create_distributions(self, rollup_tree, view_account=None):
+        #pylint:disable=too-many-statements
+        """
+        Create a tree with distributions of scores from a rollup tree.
+        """
+        #pylint:disable=too-many-locals
+        denominator = None
+        highest_normalized_score = 0
+        sum_normalized_scores = 0
+        nb_normalized_scores = 0
+        nb_respondents = 0
+        nb_implemeted_respondents = 0
+        distribution = None
+        for account_id_str, account_metrics in six.iteritems(rollup_tree[0].get(
+                'accounts', OrderedDict({}))):
+            if account_id_str is None: # XXX why is that?
+                continue
+            account_id = int(account_id_str)
+            is_view_account = (view_account and account_id == view_account)
+
+            if is_view_account:
+                rollup_tree[0].update(account_metrics)
+
+            if account_metrics.get('nb_answers', 0):
+                nb_respondents += 1
+
+            normalized_score = account_metrics.get('normalized_score', None)
+            if normalized_score is None:
+                continue
+
+            nb_normalized_scores += 1
+            numerator = account_metrics.get('numerator')
+            denominator = account_metrics.get('denominator')
+            if numerator == denominator:
+                nb_implemeted_respondents += 1
+            if normalized_score > highest_normalized_score:
+                highest_normalized_score = normalized_score
+            sum_normalized_scores += normalized_score
+            if distribution is None:
+                distribution = {
+                    'x' : ["0-25%", "25-50%", "50-75%", "75-100%"],
+                    'y' : [0 for _ in range(4)],
+                    'organization_rate': ""
+                }
+            if normalized_score < 25:
+                distribution['y'][0] += 1
+                if is_view_account:
+                    distribution['organization_rate'] = distribution['x'][0]
+            elif normalized_score < 50:
+                distribution['y'][1] += 1
+                if is_view_account:
+                    distribution['organization_rate'] = distribution['x'][1]
+            elif normalized_score < 75:
+                distribution['y'][2] += 1
+                if is_view_account:
+                    distribution['organization_rate'] = distribution['x'][2]
+            else:
+                assert normalized_score <= 100
+                distribution['y'][3] += 1
+                if is_view_account:
+                    distribution['organization_rate'] = distribution['x'][3]
+
+        for node_metrics in six.itervalues(rollup_tree[1]):
+            self.create_distributions(node_metrics, view_account=view_account)
+
+        if distribution is not None:
+            if nb_respondents > 0:
+                avg_normalized_score = int(
+                    sum_normalized_scores / nb_normalized_scores)
+                rate = int(100.0
+                    * nb_implemeted_respondents / nb_normalized_scores)
+            else:
+                avg_normalized_score = 0
+                rate = 0
+            rollup_tree[0].update({
+                'nb_respondents': nb_respondents,
+                'rate': rate,
+                'opportunity': denominator,
+                'highest_normalized_score': highest_normalized_score,
+                'avg_normalized_score': avg_normalized_score,
+                'distribution': distribution
+            })
+        if 'accounts' in rollup_tree[0]:
+            del rollup_tree[0]['accounts']
+
+    # BenchmarkMixin.flatten_distributions
+    def flatten_distributions(self, distribution_tree, prefix=None):
+        """
+        Flatten the tree into a list of charts.
+        """
+        # XXX Almost identical to get_charts. Can we abstract differences?
+        if prefix is None:
+            prefix = "/"
+        if not prefix.startswith("/"):
+            prefix = '/%s' % prefix
+        charts = []
+        complete = True
+        for key, chart in six.iteritems(distribution_tree[1]):
+            if key.startswith(prefix) or prefix.startswith(key):
+                leaf_charts, leaf_complete = self.flatten_distributions(
+                    chart, prefix=prefix)
+                charts += leaf_charts
+                complete &= leaf_complete
+                charts += [chart[0]]
+                if 'distribution' in chart[0]:
+                    normalized_score = chart[0].get('normalized_score', None)
+                    complete &= (normalized_score is not None)
+        return charts, complete
+
+
+class TotalScoreBySubsectorAPIView(SupplierListMixin, GraphMixin,
+                                   MatrixDetailAPIView):
     """
     A table of scores for cohorts against a metric.
 
@@ -801,6 +933,7 @@ portfolio-a/"
         ...
         ]
     """
+
     @staticmethod
     def as_metric_candidate(cohort_slug):
         look = re.match(r"(\S+)(-\d+)$", cohort_slug)
@@ -813,7 +946,7 @@ portfolio-a/"
         if accounts is None:
             accounts = get_account_model().objects.all()
         scores = {}
-        rollup_tree = self.rollup_scores(force_score=True)#TotalScoreBySubsector
+        rollup_tree = self.rollup_scores(self.get_queryset())#TotalScoreBySubsector
         rollup_scores = self.get_drilldown(rollup_tree, metric.slug)
         for cohort in cohorts:
             score = 0
@@ -863,20 +996,20 @@ portfolio-a/"
 
     def decorate_with_scores(self, rollup_tree, accounts=None, prefix=""):
         if accounts is None:
-            accounts = dict([(account.pk, account)
-                for account in self.get_accounts()])
+            accounts = self.requested_accounts
 
         for key, values in six.iteritems(rollup_tree[1]):
             self.decorate_with_scores(values, accounts=accounts, prefix=key)
 
         score = {}
         cohorts = []
-        accounts_with_score = rollup_tree[0].get('accounts', {})
-        for account_id, account_score in six.iteritems(accounts_with_score):
-            if account_id in accounts:
+        for account_id, account_score in six.iteritems(
+                rollup_tree[0].get('accounts', {})):
+            account = accounts.get(int(account_id), None)
+            if account:
+                account = account.organization
                 n_score = account_score.get('normalized_score', 0)
                 if n_score > 0:
-                    account = accounts.get(account_id, None)
                     score[account.slug] = n_score
                     parts = prefix.split('/')
                     default = parts[1] if len(parts) > 1 else None
@@ -891,8 +1024,8 @@ portfolio-a/"
     def decorate_with_cohorts(self, rollup_tree, accounts=None, prefix=""):
         #pylint:disable=unused-argument
         if accounts is None:
-            accounts = dict([(account.pk, account)
-                for account in self.get_accounts()])
+            accounts = self.requested_accounts
+
         score = {}
         cohorts = []
         for path, values in six.iteritems(rollup_tree[1]):
@@ -901,7 +1034,8 @@ portfolio-a/"
             normalized_score = 0
             for account_id, account_score in six.iteritems(
                     values[0].get('accounts', {})):
-                if account_id in accounts:
+                account = accounts.get(int(account_id), None)
+                if account:
                     n_score = account_score.get('normalized_score', 0)
                     if n_score > 0:
                         nb_accounts += 1
@@ -920,24 +1054,22 @@ portfolio-a/"
     def get(self, request, *args, **kwargs):
         #pylint:disable=unused-argument,too-many-locals
         try:
-            from_root, trail = self.breadcrumbs
+            from_root, unused = self.breadcrumbs
         except Http404:
             from_root = ''
-            trail = []
-        roots = [trail[-1][0]] if trail else None
         # calls rollup_scores from TotalScoreBySubsectorAPIView
-        rollup_tree = self.rollup_scores(roots, from_root, force_score=True)
-        if roots:
+        rollup_tree = self.rollup_scores(self.get_queryset())
+        if from_root:
             for node in six.itervalues(rollup_tree[1]):
                 rollup_tree = node
                 break
-            self.decorate_with_scores(rollup_tree, prefix=from_root)
             segment_url, segment_prefix, segment_element = self.segment
+            self.decorate_with_scores(rollup_tree, prefix=segment_prefix)
             charts = self.get_charts(
                 rollup_tree, excludes=[segment_prefix.split('/')[-1]])
             charts += [rollup_tree[0]]
         else:
-            self.decorate_with_cohorts(rollup_tree, prefix=from_root)
+            self.decorate_with_cohorts(rollup_tree)
             natural_charts = OrderedDict()
             for cohort in rollup_tree[0]['cohorts']:
                 natural_chart = (rollup_tree[1][cohort['slug']][0], {})
