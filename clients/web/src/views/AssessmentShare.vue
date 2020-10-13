@@ -37,7 +37,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getOrganizations, getShareHistory } from '@/common/api'
+import API from '@/common/api'
 import FormShareAssessment from '@/components/FormShareAssessment'
 import HeaderSecondary from '@/components/HeaderSecondary'
 import ShareHistory from '@/components/ShareHistory'
@@ -63,8 +63,8 @@ export default {
       ] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.org, this.id),
-        getShareHistory(),
-        getOrganizations(),
+        API.getShareHistory(),
+        API.getOrganizations(),
       ])
 
       this.organization = organization

@@ -19,7 +19,7 @@
           />
         </div>
       </template>
-      <!-- <template v-slot:tab2>
+      <template v-slot:tab2>
         <tab-header :text="$t('targets.tab2.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
           <p>
@@ -35,20 +35,19 @@
                 cols="12"
                 sm="6"
                 xl="12"
-                v-for="(benchmark, index) in score.benchmarks"
-                :key="index"
+                v-for="(benchmark, index) in benchmarks"
+                :key="benchmark.id"
               >
                 <chart-practices-implementation
                   :class="[index % 2 ? 'ml-sm-3 ml-md-6' : 'mr-sm-3 mr-md-6']"
                   :section="benchmark.section"
-                  :scores="benchmark.scores"
-                  :companyScore="benchmark.companyScore"
+                  :distribution="benchmark.distribution"
                 />
               </v-col>
             </v-row>
           </v-container>
         </div>
-      </template>-->
+      </template>
     </tab-container>
     <dialog-confirm
       storageKey="previousTargets"
@@ -69,9 +68,8 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getPreviousTargets } from '@/common/api'
-// import { getScore } from '@/common/api'
-// import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
+import API from '@/common/api'
+import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
 import HeaderSecondary from '@/components/HeaderSecondary'
@@ -91,7 +89,7 @@ export default {
     return {
       organization: {},
       assessment: {},
-      score: {},
+      benchmarks: [],
       previousTargets: [],
       tabs: [
         { text: this.$t('targets.tab1.title'), href: 'tab-1' },
@@ -112,18 +110,20 @@ export default {
       const [organization, assessment] = await Promise.all([
         this.$context.getOrganization(this.org),
         this.$context.getAssessment(this.org, this.id),
-        // getScore(this.org, this.id),
+      ])
+      const [previousTargets, benchmarks] = await Promise.all([
+        API.getPreviousTargets(this.org, assessment),
+        API.getBenchmarks(this.org, this.id, assessment.industryPath),
       ])
       this.organization = organization
       this.assessment = assessment
-      this.previousTargets = await getPreviousTargets(this.org, assessment)
-
-      // this.score = score
+      this.previousTargets = previousTargets
+      this.benchmarks = benchmarks[1]
     },
   },
 
   components: {
-    // ChartPracticesImplementation,
+    ChartPracticesImplementation,
     DialogConfirm,
     FormEnvironmentalTargets,
     Fragment,

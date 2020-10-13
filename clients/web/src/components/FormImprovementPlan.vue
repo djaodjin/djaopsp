@@ -43,15 +43,15 @@
             hide-details
             thumb-label="always"
           >
-            <template v-slot:thumb-label="{ value }">{{
-              `${value}%`
-            }}</template>
+            <template v-slot:thumb-label="{ value }">
+              {{ `${value}%` }}
+            </template>
           </v-range-slider>
         </v-col>
         <v-col cols="12">
-          <button-primary class="mb-6" @click="findResults">
-            Find Matching Results
-          </button-primary>
+          <button-primary class="mb-6" @click="findResults"
+            >Find Matching Results</button-primary
+          >
         </v-col>
       </v-row>
     </v-container>
@@ -71,7 +71,7 @@
 <script>
 import { PRACTICE_VALUES, PRACTICE_VALUE_CATEGORIES } from '@/config/app'
 import { Fragment } from 'vue-fragment'
-import { getPracticeSearchResults } from '@/common/api'
+import API from '@/common/api'
 import MatchingPractices from '@/components/MatchingPractices'
 import ButtonPrimary from '@/components/ButtonPrimary'
 
@@ -92,7 +92,7 @@ export default {
       this.$emit('practice:remove', ...args)
     },
     async findResults() {
-      this.matchingPractices = await getPracticeSearchResults({
+      this.matchingPractices = await API.getPracticeSearchResults({
         areas: this.selectedAreas,
         practiceValue: this.practiceValue,
         practiceValueRange: this.practiceValueRange,

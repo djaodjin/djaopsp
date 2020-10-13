@@ -17,7 +17,7 @@
             class="domain"
             stroke="currentColor"
             :d="`M0,1V0.5H${width - marginLeft - 1}.5v8`"
-          ></path>
+          />
           <g
             class="tick"
             opacity="1"
@@ -26,7 +26,7 @@
             :key="index"
             :transform="`translate(${bar.x + bar.width / 2}, 0)`"
           >
-            <line stroke="currentColor" y2="6"></line>
+            <line stroke="currentColor" y2="6" />
             <text font-size="13" fill="currentColor" y="13" dy="0.71em">
               {{ bar.label }}
             </text>
@@ -48,7 +48,7 @@
             stroke="currentColor"
             stroke-width="1"
             :d="`M${marginLeft},${height - marginBottom}V1,h-8`"
-          ></path>
+          />
           <text
             :x="height / 4"
             :y="height - marginBottom + 2"
@@ -74,7 +74,7 @@
             :width="bar.width"
             :x="bar.x"
             :y="bar.y"
-          ></rect>
+          />
           <text
             font-family="sans-serif"
             font-size="14"
@@ -98,7 +98,7 @@
             :d="`M${indicator.x + indicator.width / 2},${
               height - marginBottom
             }V18`"
-          ></path>
+          />
           <text
             :fill="indicator.color"
             :x="indicator.x + indicator.width / 2"
@@ -129,13 +129,12 @@ export default {
         return {}
       },
     },
-    scores: {
+    distribution: {
       type: Array,
       default: function () {
         return []
       },
     },
-    companyScore: { default: 0 },
     height: { default: 260 },
     width: { default: 500 },
     marginLeft: { default: 30 },
@@ -144,17 +143,14 @@ export default {
   },
 
   computed: {
-    sortedScores() {
-      return this.scores.slice().sort((a, b) => a.value < b.value)
-    },
     values() {
       // Add padding to make sure bars won't reach the top;
       // number of companies will go over each bar
-      return this.sortedScores.map((d) => d.number + CHART_TOP_OFFSET)
+      return this.distribution.map((d) => d.value + CHART_TOP_OFFSET)
     },
     x() {
       return scaleBand()
-        .domain(this.sortedScores.map((d) => d.label))
+        .domain(this.distribution.map((d) => d.label))
         .range([0, this.width - this.marginLeft])
         .padding(this.barPadding)
     },
@@ -164,28 +160,27 @@ export default {
         .range([this.height - this.marginBottom, 0])
     },
     color() {
+      // This breaks if PRACTICE_VALUES.length !== this.distribution.length
       return scaleOrdinal(PRACTICE_VALUES.map((p) => p.color))
     },
     bars() {
-      return this.sortedScores.map((d, i) => {
+      return this.distribution.map((d, i) => {
         return {
           label: d.label,
           x: this.x(d.label),
-          y: this.y(d.number),
+          y: this.y(d.value),
           width: this.x.bandwidth(),
-          height: this.height - this.y(d.number),
+          height: this.height - this.y(d.value),
           color: this.color(i),
-          value: d.number,
+          value: d.value,
         }
       })
     },
     indicator() {
-      const scoreIndex = this.sortedScores.findIndex(
-        (d) => this.companyScore < d.value
-      )
-      const bucket = this.sortedScores[scoreIndex]
+      const scoreIndex = this.distribution.findIndex((d) => d.isOrgBucket)
+      const bucket = this.distribution[scoreIndex]
       const color =
-        ((scoreIndex + 1) / this.sortedScores.length) * 10 > 5
+        ((scoreIndex + 1) / this.distribution.length) * 10 > 5
           ? '#2ad22f' // green
           : '#d2412a' // red
       return {

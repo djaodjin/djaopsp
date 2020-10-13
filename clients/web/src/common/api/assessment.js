@@ -1,48 +1,15 @@
 import groupBy from 'lodash/groupBy'
 import kebabCase from 'lodash/kebabCase'
 
-import Answer from './models/Answer'
-import Assessment from './models/Assessment'
-import Benchmark from './models/Benchmark'
-import Organization from './models/Organization'
-import OrganizationGroup from './models/OrganizationGroup'
-import Question from './models/Question'
-import Score from './models/Score'
-import Section from './models/Section'
-import Subcategory from './models/Subcategory'
-import { getPracticeList } from './models/Practice'
-import { getShareEntryList } from './models/ShareEntry'
-import { VALID_METRICS } from '../config/questionFormTypes'
+import { APIError, request } from './base'
+import Answer from '@/common/models/Answer'
+import Assessment from '@/common/models/Assessment'
+import Question from '@/common/models/Question'
+import Section from '@/common/models/Section'
+import Subcategory from '@/common/models/Subcategory'
+import { VALID_METRICS } from '@/config/questionFormTypes'
 
-const API_HOST = process.env.VUE_APP_STANDALONE ? window.location.origin : ''
-const API_BASE_URL = `${API_HOST}${process.env.VUE_APP_ROOT}${process.env.VUE_APP_API_BASE}`
-
-class APIError extends Error {
-  constructor(message) {
-    super(message)
-    this.name = 'APIError'
-  }
-}
-
-function request(endpoint, { body, method, ...customConfig } = {}) {
-  const url = `${API_BASE_URL}${endpoint}`
-  const headers = { 'content-type': 'application/json' }
-  const config = {
-    method: method ? method : body ? 'POST' : 'GET',
-    ...customConfig,
-    headers: {
-      ...headers,
-      ...customConfig.headers,
-    },
-  }
-  if (body) {
-    config.body = JSON.stringify(body)
-  }
-
-  return fetch(url, config)
-}
-
-export async function createAssessment(organizationId, payload) {
+async function createAssessment(organizationId, payload) {
   const response = await request(`/${organizationId}/sample/`, {
     body: payload,
   })
@@ -51,7 +18,7 @@ export async function createAssessment(organizationId, payload) {
   return new Assessment({ id: slug, created: created_at })
 }
 
-export async function getAssessment(organizationId, assessmentId) {
+async function getAssessment(organizationId, assessmentId) {
   try {
     const responses = await Promise.all([
       request(`/${organizationId}/sample/${assessmentId}/`),
@@ -144,27 +111,14 @@ async function getCurrentPracticesContent(
   }
 }
 
-// TODO: Review
-export async function getBenchmarks(organizationId, assessmentId) {
-  const response = await request(
-    `/benchmarks/${organizationId}/${assessmentId}`
-  )
-  if (!response.ok) throw new APIError(response.status)
-  const { benchmarks } = await response.json()
-
-  return benchmarks.map((benchmark) => {
-    return new Benchmark(benchmark)
-  })
-}
-
-export async function getIndustrySegments() {
+async function getIndustrySegments() {
   const response = await request('/content?q=public')
   if (!response.ok) throw new APIError(response.status)
   const { results } = await response.json()
   return results
 }
 
-export async function getAllPreviousAnswers(organizationId, assessment) {
+async function getAllPreviousAnswers(organizationId, assessment) {
   try {
     let answersByPath = {}
     const response = await request(
@@ -193,90 +147,21 @@ export async function getAllPreviousAnswers(organizationId, assessment) {
   }
 }
 
-export async function getPreviousAnswers(organizationId, assessment) {
+async function getPreviousAnswers(organizationId, assessment) {
   const answersByPath = await getAllPreviousAnswers(organizationId, assessment)
   return getAnswerInstances(answersByPath, assessment.questions)
 }
 
-export async function getPreviousTargets(organizationId, assessment) {
+async function getPreviousTargets(organizationId, assessment) {
   const answersByPath = await getAllPreviousAnswers(organizationId, assessment)
   return getAnswerInstances(answersByPath, assessment.targetQuestions)
 }
 
-export async function getPreviousIndustrySegments(organizationId) {
+async function getPreviousIndustrySegments(organizationId) {
   const response = await request(`/${organizationId}/benchmark/historical/`)
   if (!response.ok) throw new APIError(response.status)
   const { results } = await response.json()
   return results
-}
-
-export async function getOrganization(organizationId) {
-  try {
-    let assessments = []
-
-    const [
-      organizationProfileResponse,
-      latestAssessmentResponse,
-    ] = await Promise.all([
-      request(`/profile/${organizationId}/`),
-      request(`/${organizationId}/sample/`),
-    ])
-    const [organizationProfile, latestAssessment] = await Promise.all([
-      organizationProfileResponse.json(),
-      latestAssessmentResponse.json(),
-    ])
-
-    if (latestAssessment.slug) {
-      const sampleResponse = await request(
-        `/${organizationId}/sample/${latestAssessment.slug}/`
-      )
-      const { created_at, is_frozen, slug } = await sampleResponse.json()
-      const assessment = new Assessment({
-        id: slug,
-        created: created_at,
-        frozen: is_frozen,
-      })
-      assessments = [assessment]
-    }
-
-    return new Organization({
-      id: organizationProfile.slug,
-      name: organizationProfile.printable_name,
-      assessments,
-    })
-  } catch (e) {
-    throw new APIError(e)
-  }
-}
-
-// TODO: Review
-export async function getOrganizations() {
-  const response = await request('/organizations')
-  if (!response.ok) throw new APIError(response.status)
-  const { organizationGroups, organizations } = await response.json()
-  const groups = organizationGroups.map(
-    ({ id, name }) => new OrganizationGroup({ id, name })
-  )
-  const individuals = organizations.map(
-    ({ id, name }) => new Organization({ id, name })
-  )
-  return {
-    groups,
-    individuals,
-  }
-}
-
-// TODO: Remove
-export async function getPractices(organizationId, assessmentId) {
-  const response = await request(`/practices/${organizationId}/${assessmentId}`)
-  if (!response.ok) throw new APIError(response.status)
-  const { practices, questions } = await response.json()
-  return getPracticeList(practices, questions)
-}
-
-// TODO: Review
-export async function getPracticeSearchResults(organizationId, assessmentId) {
-  return getPractices(organizationId, assessmentId)
 }
 
 function getFlatAnswersByPath(answerList) {
@@ -359,26 +244,7 @@ function getTargetQuestionInstances(contentList) {
   return targetQuestions
 }
 
-// TODO: Review
-export async function getScore(organizationId, assessmentId) {
-  const response = await request(`/score/${organizationId}/${assessmentId}`)
-  if (!response.ok) throw new APIError(response.status)
-  const { score, benchmarks } = await response.json()
-  return new Score({ ...score, benchmarks })
-}
-
-// TODO: Review
-export async function getShareHistory(organizationId, assessmentId) {
-  const response = await request(
-    `/share-history/${organizationId}/${assessmentId}`
-  )
-  if (!response.ok) throw new APIError(response.status)
-  const { shareEntries, organizations } = await response.json()
-  const history = getShareEntryList(shareEntries, organizations)
-  return history
-}
-
-export async function postTarget(organizationId, assessment, answer) {
+async function postTarget(organizationId, assessment, answer) {
   const question = assessment.targetQuestions.find(
     (q) => q.id === answer.question
   )
@@ -392,7 +258,7 @@ export async function postTarget(organizationId, assessment, answer) {
   return answer
 }
 
-export async function postAnswer(organizationId, assessment, answer) {
+async function postAnswer(organizationId, assessment, answer) {
   const question = assessment.questions.find((q) => q.id === answer.question)
   const response = await request(
     `/${organizationId}/sample/${assessment.id}/answers${question.path}`,
@@ -404,11 +270,7 @@ export async function postAnswer(organizationId, assessment, answer) {
   return answer
 }
 
-export async function setAssessmentIndustry(
-  organizationId,
-  assessment,
-  industry
-) {
+async function setAssessmentIndustry(organizationId, assessment, industry) {
   const { id, created, frozen } = assessment
   const {
     answers,
@@ -426,4 +288,16 @@ export async function setAssessmentIndustry(
     targetAnswers,
     targetQuestions,
   })
+}
+
+export default {
+  createAssessment,
+  getAssessment,
+  getIndustrySegments,
+  getPreviousAnswers,
+  getPreviousIndustrySegments,
+  getPreviousTargets,
+  postAnswer,
+  postTarget,
+  setAssessmentIndustry,
 }

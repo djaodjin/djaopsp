@@ -59,7 +59,7 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getPreviousAnswers, postAnswer } from '@/common/api'
+import API from '@/common/api'
 import Answer from '@/common/models/Answer'
 import PracticesProgressIndicator from '@/components/PracticesProgressIndicator'
 import AssessmentSections from '@/components/AssessmentSections'
@@ -87,12 +87,12 @@ export default {
       ])
       this.organization = organization
       this.assessment = assessment
-      this.previousAnswers = await getPreviousAnswers(this.org, assessment)
+      this.previousAnswers = await API.getPreviousAnswers(this.org, assessment)
       this.loading = false
     },
 
     saveAnswer(answer, callback) {
-      postAnswer(this.org, this.assessment, answer)
+      API.postAnswer(this.org, this.assessment, answer)
         .then((answer) => {
           // Update in-memory answers array
           this.updateAnswersArray(answer)
@@ -128,7 +128,7 @@ export default {
           const newAnswer = Answer.createFromPrevious(previousAnswer, {
             author: 'author@email.com',
           })
-          return postAnswer(this.org, this.assessment, newAnswer)
+          return API.postAnswer(this.org, this.assessment, newAnswer)
         })
       ).then((answerPromises) => {
         answerPromises.forEach((answerPromise) => {
