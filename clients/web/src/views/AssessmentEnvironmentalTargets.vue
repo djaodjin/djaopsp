@@ -12,12 +12,14 @@
         <div class="pa-4 pt-sm-2 px-md-8">
           <p class="mb-0">{{ $t('targets.tab1.intro') }}</p>
           <form-environmental-targets
+            v-if="Object.keys(assessment).length"
             :organization="organization"
             :assessment="assessment"
+            :previousTargets="previousTargets"
           />
         </div>
       </template>
-      <template v-slot:tab2>
+      <!-- <template v-slot:tab2>
         <tab-header :text="$t('targets.tab2.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
           <p>
@@ -46,7 +48,7 @@
             </v-row>
           </v-container>
         </div>
-      </template>
+      </template>-->
     </tab-container>
     <dialog-confirm
       storageKey="previousTargets"
@@ -67,8 +69,9 @@
 
 <script>
 import { Fragment } from 'vue-fragment'
-import { getScore } from '@/common/api'
-import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
+import { getPreviousTargets } from '@/common/api'
+// import { getScore } from '@/common/api'
+// import ChartPracticesImplementation from '@/components/ChartPracticesImplementation'
 import DialogConfirm from '@/components/DialogConfirm'
 import FormEnvironmentalTargets from '@/components/FormEnvironmentalTargets'
 import HeaderSecondary from '@/components/HeaderSecondary'
@@ -84,32 +87,12 @@ export default {
     this.fetchData()
   },
 
-  methods: {
-    async fetchData() {
-      const [organization, assessment, score] = await Promise.all([
-        this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.org, this.id),
-        getScore(this.org, this.id),
-      ])
-      this.organization = organization
-      this.assessment = assessment
-      this.score = score
-    },
-    async checkPreviousTargets() {
-      // TODO: Send request to check if previous targets have been submitted
-      return new Promise((resolve) => {
-        console.log('Check if previous targets have been submitted')
-        resolve(true)
-      })
-    },
-  },
-
   data() {
     return {
       organization: {},
       assessment: {},
       score: {},
-      hasPreviousTargets: false, // TODO: compute this value after getting previous targets
+      previousTargets: [],
       tabs: [
         { text: this.$t('targets.tab1.title'), href: 'tab-1' },
         { text: this.$t('targets.tab2.title'), href: 'tab-2' },
@@ -118,8 +101,29 @@ export default {
     }
   },
 
+  computed: {
+    hasPreviousTargets() {
+      return !!this.previousTargets.length
+    },
+  },
+
+  methods: {
+    async fetchData() {
+      const [organization, assessment] = await Promise.all([
+        this.$context.getOrganization(this.org),
+        this.$context.getAssessment(this.org, this.id),
+        // getScore(this.org, this.id),
+      ])
+      this.organization = organization
+      this.assessment = assessment
+      this.previousTargets = await getPreviousTargets(this.org, assessment)
+
+      // this.score = score
+    },
+  },
+
   components: {
-    ChartPracticesImplementation,
+    // ChartPracticesImplementation,
     DialogConfirm,
     FormEnvironmentalTargets,
     Fragment,

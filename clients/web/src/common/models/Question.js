@@ -10,19 +10,19 @@ export default class Question {
     subcategory,
     text,
     type,
-    placeholder = 'Comments (optional)',
     optional = false,
   }) {
     this.id = id
     this.path = path
-    this.section = section instanceof Section ? section : new Section(section)
+    this.section =
+      section && (section instanceof Section ? section : new Section(section))
     this.subcategory =
-      subcategory instanceof Subcategory
+      subcategory &&
+      (subcategory instanceof Subcategory
         ? subcategory
-        : new Subcategory(subcategory)
+        : new Subcategory(subcategory))
     this.text = text
     this.type = type
-    this.placeholder = placeholder
     this.optional = optional
   }
 }

@@ -18,7 +18,7 @@
       :model="model"
       :previousAnswer="previousAnswer"
       :comment="answerComment.measured"
-      @textareaUpdate="updateComment"
+      @textarea:update="updateComment"
     />
   </form>
 </template>

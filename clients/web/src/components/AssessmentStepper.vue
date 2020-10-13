@@ -191,8 +191,7 @@ export default {
       return this.currentStepIndex + 1
     },
     assessmentHasTargets() {
-      // At least one of the targets has text
-      return this.assessment.targets.some((target) => target.text)
+      return this.assessment.targetAnswers.some((answer) => answer.answered)
     },
   },
 

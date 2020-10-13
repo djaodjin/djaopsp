@@ -16,11 +16,9 @@
           industry.
         </p>
         <button-primary
+          data-cy="btn-continue"
           class="mt-8"
-          :to="{
-            name: 'assessmentTargets',
-            params: { id },
-          }"
+          :to="`/${this.org}/targets/${this.id}/content/${this.assessment.industryPath}/`"
           >Continue</button-primary
         >
         <div class="text-center">

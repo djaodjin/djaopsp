@@ -90,35 +90,18 @@ export const VALID_ASSESSMENT_TARGETS = [
   {
     value: 'energy',
     text: 'Energy Reduction',
-    examples: [
-      'Donec accumsan ipsum ac nibh gravida ornare. Duis eget consequat enim. Sed non lorem sed mauris vestibulum tempus nec nec risus. Mauris vel dolor turpis.',
-      'Vivamus faucibus metus a dui fringilla sodales. Aenean lectus felis, scelerisque sed consectetur eu, elementum quis risus. Ut et pretium nisl. Nam metus elit, ultricies interdum tortor ac, placerat bibendum urna.',
-    ],
   },
   {
     value: 'emissions',
     text: 'GHG Emissions',
-    examples: [
-      'Praesent ac leo odio. Praesent vel tincidunt risus. In sodales nunc nec lorem vestibulum, eu blandit sapien interdum. Morbi sed auctor lorem. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. In et turpis vel ex venenatis tempus eu in turpis.',
-      'Pellentesque leo nisl, ornare vel sapien a, viverra luctus neque. In hac habitasse platea dictumst. Nullam dictum arcu eget quam tristique, at aliquam ipsum accumsan.',
-      'Duis ultricies orci nec dolor dapibus volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.',
-    ],
   },
   {
     value: 'water',
     text: 'Water Usage',
-    examples: [
-      'Proin aliquet quam at ante semper aliquam. Nam lacinia ex in nisi tempus, vel iaculis ipsum feugiat. Praesent aliquam libero quis augue posuere tincidunt. Aenean convallis, mi eget tristique suscipit, tortor ipsum aliquet tortor, at scelerisque purus felis sed eros.',
-      'Quisque facilisis semper nulla scelerisque tempus. Vivamus non metus at lectus gravida scelerisque. Interdum et malesuada fames ac ante ipsum primis in faucibus.',
-    ],
   },
   {
     value: 'waste',
     text: 'Waste Reduction',
-    examples: [
-      'Phasellus congue, erat luctus convallis condimentum, sapien felis fringilla arcu, sed varius libero nisi efficitur lacus. Nam condimentum nisi eget ante faucibus, vel euismod tellus vestibulum. Pellentesque at nulla erat.',
-      'Aliquam dignissim ipsum nec felis pellentesque finibus. Phasellus tristique elementum lobortis. Cras vel ante vitae est iaculis fringilla.',
-    ],
   },
 ]
 
@@ -128,8 +111,4 @@ export const ASSESSMENT_TARGETS_LABELS = VALID_ASSESSMENT_TARGETS.reduce(
     return acc
   },
   {}
-)
-
-export const VALID_ASSESSMENT_TARGETS_KEYS = VALID_ASSESSMENT_TARGETS.map(
-  (target) => target.value
 )

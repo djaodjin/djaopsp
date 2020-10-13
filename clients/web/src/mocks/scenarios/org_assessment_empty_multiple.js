@@ -3,20 +3,16 @@ export default function (
   orgId,
   orgName = 'Organization With Empty Assessment'
 ) {
-  const assessment = server.create('assessment', {
-    targets: [],
-  })
+  const assessment = server.create('assessment', {})
 
   const previous_1 = server.create('assessment', {
     is_frozen: true,
-    targets: [],
     industryName: 'Construction',
     industryPath: '/construction/',
   })
 
   const previous_2 = server.create('assessment', {
     is_frozen: true,
-    targets: [],
     industryName: 'Boxes & enclosures',
     industryPath: '/metal/boxes-and-enclosures/',
   })

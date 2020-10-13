@@ -222,7 +222,7 @@ export default [
     path:
       '/metal/boxes-and-enclosures/targets/energy-improvement-target/energy-target',
     title: 'Energy Reduction Target',
-    default_metric: METRIC_ASSESSMENT,
+    default_metric: METRIC_FREETEXT,
     indent: 3,
     environmental_value: 1,
     business_value: 1,
