@@ -112,7 +112,8 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         segment_url, segment_prefix, segment_element = self.segment
         parts = from_root.split("/")
         if segment_element:
-            root = self.get_scores_tree(root_prefix=segment_prefix)
+            root = self.get_scores_tree(
+                [segment_element], root_prefix=segment_prefix)
             root = root[1].get(segment_prefix)
             self.decorate_with_breadcrumbs(root)
             # Remove sgement chart that would otherwise be added.

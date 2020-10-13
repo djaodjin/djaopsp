@@ -639,10 +639,12 @@ class SupplierListMixin(DashboardMixin):
 
     def rollup_scores(self, queryset):
         try:
-            from_root, unused = self.breadcrumbs
+            from_root, trail = self.breadcrumbs
+            roots = [trail[-1][0]] if trail else None
         except Http404:
             from_root = None
-        rollup_tree = self.get_scores_tree(root_prefix=from_root)
+            roots = None
+        rollup_tree = self.get_scores_tree(roots, root_prefix=from_root)
         leafs = self.get_leafs(rollup_tree=rollup_tree)
         self._report_queries("leafs loaded")
 

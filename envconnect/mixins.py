@@ -274,7 +274,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 segments = self.get_segments()
                 for segment in segments:
                     if segment['path'] == prefix:
-                        search_query = prefix.split('/')[-1]
+                        search_query = prefix.split('/')[-1] # XXX 0?
                         break
         except Http404:
             pass
