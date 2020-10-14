@@ -9,8 +9,21 @@
     <tab-container :tabs="tabs" :xlLeftCol="8" :xlRightCol="4">
       <template v-slot:tab1>
         <tab-header :text="$t('targets.tab1.title')" />
-        <div class="pa-4 pt-sm-2 px-md-8">
-          <p class="mb-0">{{ $t('targets.tab1.intro') }}</p>
+        <div class="targets-container pa-4 pt-sm-2 px-md-8">
+          <div v-if="$vuetify.breakpoint.smAndUp">
+            <p class="mb-0">{{ $t('targets.tab1.intro') }}</p>
+            <button
+              class="section-link"
+              type="button"
+              @click="showBenchmarkingSection"
+            >
+              See what other organizations in your industry are doing.
+            </button>
+          </div>
+          <div v-else>
+            <p class="mb-0" v-html="$t('targets.tab1.intro-xs')" />
+          </div>
+
           <form-environmental-targets
             v-if="Object.keys(assessment).length"
             :organization="organization"
@@ -20,12 +33,14 @@
         </div>
       </template>
       <template v-slot:tab2>
-        <tab-header :text="$t('targets.tab2.title')" />
+        <tab-header ref="benchmarkHeader" :text="$t('targets.tab2.title')" />
         <div class="pa-4 pt-sm-2 px-md-8">
           <p>
             {{
               $t('targets.tab2.intro', {
-                industryName: assessment.industryName,
+                industryName:
+                  assessment.industryName &&
+                  assessment.industryName.toLowerCase(),
               })
             }}
           </p>
@@ -120,6 +135,14 @@ export default {
       this.previousTargets = previousTargets
       this.benchmarks = benchmarks[1]
     },
+    showBenchmarkingSection() {
+      const { top } = this.$refs.benchmarkHeader.$el.getBoundingClientRect()
+      document.documentElement.scrollBy({
+        top: top - 70, // account for top nav
+        left: 0,
+        behavior: 'smooth',
+      })
+    },
   },
 
   components: {
@@ -133,3 +156,26 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+@import '@/styles/variables.scss';
+
+.targets-container {
+  position: relative;
+
+  .section-link {
+    color: $primary-color;
+
+    @media #{map-get($display-breakpoints, 'sm-and-up')} {
+      position: absolute;
+      top: -20px;
+      right: 30px;
+    }
+
+    &:active,
+    &:focus {
+      outline: 0 none;
+    }
+  }
+}
+</style>

@@ -39,10 +39,11 @@
         "textarea-target": "Target description"
       },
       "intro": "Describe and submit your targets.",
+      "intro-xs": "Describe and submit your targets. Or see what other organizations in your industry are doing by selecting the <b>Benchmarking</b> tab",
       "title": "Targets"
     },
     "tab2": {
-      "intro": "Benchmarking is based on responses from companies in the {industryName} industry.",
+      "intro": "The charts presented in this section are based on responses from other organizations in the {industryName} industry and are meant to inform and advise the target-creation process in your organization.",
       "title": "Benchmarking"
     },
     "title": "Environmental Targets"
