@@ -158,6 +158,63 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             self._segment = (url_path, prefix, element)
         return self._segment
 
+    def _insert_path(self, root, path, depth=1, values=None):
+        parts = path.split('/')
+        if len(parts) >= depth:
+            prefix = '/'.join(parts[:depth])
+            if not prefix in root[1]:
+                root[1].update({prefix: (OrderedDict({}), OrderedDict({}))})
+            if len(parts) == depth and values:
+                root[1][prefix].update(values)
+                return root
+            return self._insert_path(root[1][prefix], path, depth=depth + 1,
+                values=values)
+        return root
+
+    def _natural_order(self, root):
+        candidate_prefix = ""
+        paths = list(root[1])
+        if paths:
+            paths.sort(key=len)
+            parts = paths[0].split('/')
+            if len(paths) == 1:
+                # If there is only one path/key, we prevent skipping
+                # a level here.
+                candidate_prefix = '/'.join(parts[:-1])
+            else:
+                candidate_prefix = '/'.join(parts)
+                found = False
+                while not found:
+                    found = True
+                    for path in paths:
+                        if not path.startswith(candidate_prefix):
+                            parts = parts[:-1]
+                            candidate_prefix = '/'.join(parts)
+                            found = False
+                            break
+
+        commonprefix = candidate_prefix
+        if commonprefix:
+            if commonprefix.endswith('/'):
+                commonprefix = commonprefix[:-1]
+            orig_element_slug = commonprefix.split('/')[-1]
+            edges = [rec['dest_element__slug']
+                for rec in RelationShip.objects.filter(
+                    orig_element__slug=orig_element_slug).values(
+                        'dest_element__slug').order_by('rank', 'pk')]
+        else:
+            edges = self.get_roots().order_by('title').values_list(
+                'slug', flat=True)
+
+        ordered_root = (root[0], OrderedDict({}))
+        for edge in edges:
+            path = "%s/%s" % (commonprefix, edge)
+            if path in root[1]:
+                ordered_root[1].update({path: root[1][path]})
+        for path, nodes in six.iteritems(ordered_root[1]):
+            ordered_root[1][path] = self._natural_order(nodes)
+        return ordered_root
+
     def _start_time(self):
         if not self.enable_report_queries:
             return
@@ -217,7 +274,7 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 segments = self.get_segments()
                 for segment in segments:
                     if segment['path'] == prefix:
-                        search_query = prefix.split('/')[-1]
+                        search_query = prefix.split('/')[-1] # XXX 0?
                         break
         except Http404:
             pass
@@ -566,6 +623,32 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
                 # for assessment to summary and back?
         return from_root, results
 
+    @staticmethod
+    def get_indent_bestpractice(depth=0):
+        return "bestpractice-%d indent-header-%d" % (depth, depth)
+
+    @staticmethod
+    def get_indent_heading(depth=0):
+        return "heading-%d indent-header-%d" % (depth, depth)
+
+    def flatten_answers(self, root, url_prefix, depth=0):
+        """
+        returns a list from the tree passed as an argument.
+        """
+        results = []
+        for prefix, nodes in six.iteritems(root[1]):
+            element = PageElement.objects.get(slug=prefix.split('/')[-1])
+            if nodes[1]:
+                results += [(self.get_indent_heading(depth),
+                    "", element, {})]
+                results += self.flatten_answers(
+                    nodes, url_prefix, depth=depth + 1)
+            else:
+                results += [(self.get_indent_bestpractice(depth),
+                    url_prefix + '/' + element.slug,
+                    element, nodes[0])]
+        return results
+
     def get_context_data(self, **kwargs):
         #pylint:disable=too-many-locals,too-many-statements
         context = super(BreadcrumbMixin, self).get_context_data(**kwargs)
@@ -704,115 +787,45 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         update_context_urls(context, urls)
         return context
 
+    def get_scores_tree(self, roots=None, root_prefix=None):
+        """
+        Returns a tree specialized to compute rollup scores.
 
-class ExcludeDemoSample(object):
+        Typically `get_leafs` and a function to populate a leaf will be called
+        before an rollup is done.
+        """
+        self._report_queries("[get_scores_tree] entry point")
+        rollup_tree = None
+        rollups = self._cut_tree(self.build_content_tree(
+            roots, prefix=root_prefix, cut=TransparentCut(), load_text=True),
+            cut=TransparentCut())
 
-    def _get_filter_out_testing(self):
-        # List of response ids that are only used for demo purposes.
-        if self.request.user.username in settings.TESTING_USERNAMES:
-            return []
-        return get_testing_accounts()
+        # Moves up all industry segments which are under a category
+        # (ex: /facilities/janitorial-services).
+        # If we donot do that, then assessment score will be incomplete
+        # in the dashboard, as the aggregator will wait for other sub-segments
+        # in the top level category.
+        removes = []
+        ups = OrderedDict({})
+        for root_path, root in six.iteritems(rollups):
+            if not 'pagebreak' in root[0].get('tag', ""):
+                removes += [root_path]
+                ups.update(root[1])
+        for root_path in removes:
+            del rollups[root_path]
+        rollups.update(ups)
+
+        rollup_tree = (OrderedDict({}), rollups)
+        if 'title' not in rollup_tree[0]:
+            rollup_tree[0].update({
+                'slug': "totals",
+                'title': "Total Score",
+                'tag': [settings.TAG_SCORECARD]})
+        self._report_queries("[get_scores_tree] generated")
+
+        return rollup_tree
 
 
-class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
-    """
-    Loads assessment and improvement for an organization.
-    """
-
-    @property
-    def sample(self):
-        return self.assessment_sample
-
-    @property
-    def assessment_sample(self):
-        if not hasattr(self, '_assessment_sample'):
-            sample_kwarg = self.kwargs.get('sample', None)
-            if sample_kwarg:
-                try:
-                    self._assessment_sample = Sample.objects.get(
-                        slug=sample_kwarg,
-                        extra__isnull=True,
-                        account=self.account)
-                except Sample.DoesNotExist:
-                    # XXX The sample slug might be matching a improvement plan.
-                    pass
-            if not hasattr(self, '_assessment_sample'):
-                self._assessment_sample = Sample.objects.filter(
-                    extra__isnull=True,
-                    campaign=self.campaign,
-                    account=self.account).order_by('-created_at').first()
-        return self._assessment_sample
-
-    @property
-    def ends_at(self):
-        if not hasattr(self, '_ends_at'):
-            if self.sample.is_frozen:
-                self._ends_at = self.sample.created_at
-            else:
-                self._ends_at = datetime_or_now()
-        return self._ends_at
-
-    @property
-    def is_frozen(self):
-        return self.sample.is_frozen
-
-    # `improvement_sample` is defined here because we use it to generate
-    # the highlighted practices in
-    # `BenchmarkMixin.get_highlighted_practices`
-    @property
-    def improvement_sample(self):
-        if not hasattr(self, '_improvement_sample'):
-            sample_kwarg = self.kwargs.get('sample', None)
-            if sample_kwarg:
-                try:
-                    self._improvement_sample = Sample.objects.get(
-                        slug=sample_kwarg,
-                        extra='is_planned',
-                        account=self.account)
-                except Sample.DoesNotExist:
-                    # XXX The sample slug might be matching a improvement plan.
-                    pass
-            if not hasattr(self, '_improvement_sample'):
-                self._improvement_sample = Sample.objects.filter(
-                    extra='is_planned',
-                    campaign=self.campaign,
-                    account=self.account).order_by('-created_at').first()
-        return self._improvement_sample
-
-    @property
-    def nb_required_answers(self):
-        if not hasattr(self, '_nb_required_answers'):
-            segment_url, segment_prefix, segment_element = self.segment
-            self._nb_required_answers = Answer.objects.filter(
-                sample=self.sample,
-                question__default_metric=F('metric_id'),
-                question__path__startswith=segment_prefix,
-                question__enumeratedquestions__required=True,
-                question__enumeratedquestions__campaign=self.campaign).count()
-        return self._nb_required_answers
-
-    @property
-    def nb_required_questions(self):
-        if not hasattr(self, '_nb_required_questions'):
-            segment_url, segment_prefix, segment_element = self.segment
-            self._nb_required_questions = Consumption.objects.filter(
-                path__startswith=segment_prefix,
-                enumeratedquestions__required=True,
-                enumeratedquestions__campaign=self.campaign).count()
-        return self._nb_required_questions
-
-    def get_or_create_assessment_sample(self):
-        # We create the sample if it does not exists.
-        with transaction.atomic():
-            if self.assessment_sample is None:
-                self._assessment_sample = Sample.objects.create(
-                    campaign=self.campaign, account=self.account)
-
-    def get_included_samples(self):
-        results = []
-        if self.assessment_sample:
-            results += [self.assessment_sample]
-        return results
 
     @staticmethod
     def populate_leaf(attrs, answers,
@@ -856,6 +869,118 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 populate_account(
                     attrs['accounts'], agg_score,
                     agg_key=agg_key, force_score=force_score)
+
+
+class ExcludeDemoSample(object):
+
+    def _get_filter_out_testing(self):
+        # List of response ids that are only used for demo purposes.
+        if self.request.user.username in settings.TESTING_USERNAMES:
+            return []
+        return get_testing_accounts()
+
+
+class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
+    """
+    Loads assessment and improvement for an organization.
+    """
+
+    @property
+    def sample(self):
+        return self.assessment_sample
+
+    @property
+    def assessment_sample(self):
+        if not hasattr(self, '_assessment_sample'):
+            sample_kwarg = self.kwargs.get('sample', None)
+            if sample_kwarg:
+                try:
+                    self._assessment_sample = Sample.objects.get(
+                        slug=sample_kwarg,
+                        extra__isnull=True,
+                        account=self.account)
+                except Sample.DoesNotExist:
+                    # XXX The sample slug might be matching a improvement plan.
+                    pass
+            if not hasattr(self, '_assessment_sample'):
+                self._assessment_sample = Sample.objects.filter(
+                    is_frozen=False,
+                    extra__isnull=True,
+                    campaign=self.campaign,
+                    account=self.account).order_by('-created_at').first()
+        return self._assessment_sample
+
+    @property
+    def ends_at(self):
+        if not hasattr(self, '_ends_at'):
+            if self.sample.is_frozen:
+                self._ends_at = self.sample.created_at
+            else:
+                self._ends_at = datetime_or_now()
+        return self._ends_at
+
+    @property
+    def is_frozen(self):
+        return self.sample.is_frozen
+
+    # `improvement_sample` is defined here because we use it to generate
+    # the highlighted practices in
+    # `BenchmarkMixin.get_highlighted_practices`
+    @property
+    def improvement_sample(self):
+        if not hasattr(self, '_improvement_sample'):
+            sample_kwarg = self.kwargs.get('sample', None)
+            if sample_kwarg:
+                try:
+                    self._improvement_sample = Sample.objects.get(
+                        slug=sample_kwarg,
+                        extra='is_planned',
+                        account=self.account)
+                except Sample.DoesNotExist:
+                    # XXX The sample slug might be matching a improvement plan.
+                    pass
+            if not hasattr(self, '_improvement_sample'):
+                self._improvement_sample = Sample.objects.filter(
+                    is_frozen=False,
+                    extra='is_planned',
+                    campaign=self.campaign,
+                    account=self.account).order_by('-created_at').first()
+        return self._improvement_sample
+
+    @property
+    def nb_required_answers(self):
+        if not hasattr(self, '_nb_required_answers'):
+            segment_url, segment_prefix, segment_element = self.segment
+            self._nb_required_answers = Answer.objects.filter(
+                sample=self.sample,
+                question__default_metric=F('metric_id'),
+                question__path__startswith=segment_prefix,
+                question__enumeratedquestions__required=True,
+                question__enumeratedquestions__campaign=self.campaign).count()
+        return self._nb_required_answers
+
+    @property
+    def nb_required_questions(self):
+        if not hasattr(self, '_nb_required_questions'):
+            segment_url, segment_prefix, segment_element = self.segment
+            self._nb_required_questions = Consumption.objects.filter(
+                path__startswith=segment_prefix,
+                enumeratedquestions__required=True,
+                enumeratedquestions__campaign=self.campaign).count()
+        return self._nb_required_questions
+
+    def get_or_create_assessment_sample(self):
+        # We create the sample if it does not exists.
+        with transaction.atomic():
+            if self.assessment_sample is None:
+                self._assessment_sample = Sample.objects.create(
+                    campaign=self.campaign, account=self.account)
+
+    def get_included_samples(self):
+        results = []
+        if self.assessment_sample:
+            results += [self.assessment_sample]
+        return results
 
     def decorate_leafs(self, leafs):
         """
@@ -902,89 +1027,6 @@ GROUP BY account_id, sample_id, is_planned;""" % {
                 self.account.pk, {}).get('denominator', 0)
             push_improvement_factors(root, total_numerator, total_denominator)
         return root
-
-    def _insert_path(self, root, path, depth=1, values=None):
-        parts = path.split('/')
-        if len(parts) >= depth:
-            prefix = '/'.join(parts[:depth])
-            if not prefix in root[1]:
-                root[1].update({prefix: (OrderedDict({}), OrderedDict({}))})
-            if len(parts) == depth and values:
-                root[1][prefix].update(values)
-                return root
-            return self._insert_path(root[1][prefix], path, depth=depth + 1,
-                values=values)
-        return root
-
-    def _natural_order(self, root):
-        candidate_prefix = ""
-        paths = list(root[1])
-        if paths:
-            paths.sort(key=len)
-            parts = paths[0].split('/')
-            if len(paths) == 1:
-                # If there is only one path/key, we prevent skipping
-                # a level here.
-                candidate_prefix = '/'.join(parts[:-1])
-            else:
-                candidate_prefix = '/'.join(parts)
-                found = False
-                while not found:
-                    found = True
-                    for path in paths:
-                        if not path.startswith(candidate_prefix):
-                            parts = parts[:-1]
-                            candidate_prefix = '/'.join(parts)
-                            found = False
-                            break
-
-        commonprefix = candidate_prefix
-        if commonprefix:
-            if commonprefix.endswith('/'):
-                commonprefix = commonprefix[:-1]
-            orig_element_slug = commonprefix.split('/')[-1]
-            edges = [rec['dest_element__slug']
-                for rec in RelationShip.objects.filter(
-                    orig_element__slug=orig_element_slug).values(
-                        'dest_element__slug').order_by('rank', 'pk')]
-        else:
-            edges = self.get_roots().order_by('title').values_list(
-                'slug', flat=True)
-
-        ordered_root = (root[0], OrderedDict({}))
-        for edge in edges:
-            path = "%s/%s" % (commonprefix, edge)
-            if path in root[1]:
-                ordered_root[1].update({path: root[1][path]})
-        for path, nodes in six.iteritems(ordered_root[1]):
-            ordered_root[1][path] = self._natural_order(nodes)
-        return ordered_root
-
-    @staticmethod
-    def get_indent_bestpractice(depth=0):
-        return "bestpractice-%d indent-header-%d" % (depth, depth)
-
-    @staticmethod
-    def get_indent_heading(depth=0):
-        return "heading-%d indent-header-%d" % (depth, depth)
-
-    def flatten_answers(self, root, url_prefix, depth=0):
-        """
-        returns a list from the tree passed as an argument.
-        """
-        results = []
-        for prefix, nodes in six.iteritems(root[1]):
-            element = PageElement.objects.get(slug=prefix.split('/')[-1])
-            if nodes[1]:
-                results += [(self.get_indent_heading(depth),
-                    "", element, {})]
-                results += self.flatten_answers(
-                    nodes, url_prefix, depth=depth + 1)
-            else:
-                results += [(self.get_indent_bestpractice(depth),
-                    url_prefix + '/' + element.slug,
-                    element, nodes[0])]
-        return results
 
     def _get_measured_metrics_context(self, root, prefix):
         depth = len(prefix.split('/')) + 1

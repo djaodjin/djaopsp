@@ -112,7 +112,9 @@ class PortfoliosDetailView(BenchmarkMixin, MatrixDetailView):
         segment_url, segment_prefix, segment_element = self.segment
         parts = from_root.split("/")
         if segment_element:
-            root = self._build_tree(segment_element, from_root)
+            root = self.get_scores_tree(
+                [segment_element], root_prefix=segment_prefix)
+            root = root[1].get(segment_prefix)
             self.decorate_with_breadcrumbs(root)
             # Remove sgement chart that would otherwise be added.
             charts = self.get_charts(root, excludes=[segment_element.slug])
@@ -188,10 +190,7 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
         'Contact name', 'Contact email', 'Contact phone',
         'Last activity', 'Status', 'Industry segment', 'Score',
         '# N/A', 'Reporting publicly', 'Environmental fines',
-        '# Planned actions', 'Reported measurements', 'Targets',
-#        'Full-time Employee Count', 'Annual Revenue (USD)'
-#        'Responded in 2018', 'Responded in 2019'
-    ]
+        '# Planned actions']
 
     def get_headings(self):
         return self.headings
@@ -210,7 +209,7 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
     def _writerecord(self, rec, categories, reporting_status, last_activity_at,
                      report_to=None):
         #pylint:disable=too-many-arguments,too-many-locals
-        if rec.get('requested_at'):
+        if rec.requested_at:
             normalized_score = "Requested"
             segment = "Requested"
             nb_na_answers = "Requested"
@@ -222,58 +221,39 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
             employee_count = "Requested"
             revenue_generated = "Requested"
         else:
-            normalized_score = rec.get('normalized_score', "N/A")
-            segment = rec.get('segment', "N/A")
-            nb_na_answers = rec.get('nb_na_answers', "N/A")
-            reporting_publicly = rec.get('reporting_publicly', "N/A")
-            if reporting_publicly and str(reporting_publicly) != "N/A":
-                reporting_publicly = "Yes"
-            reporting_fines = rec.get('reporting_fines', "N/A")
-            if reporting_fines is not None:
-                if not isinstance(reporting_fines, six.string_types):
-                    reporting_fines = "Yes" if reporting_fines else "No"
-            nb_planned_improvements = rec.get('nb_planned_improvements', "N/A")
-            measurements = '\n'.join(rec.get('reported', []))
-            targets = '\n'.join(rec.get('targets', []))
-            employee_count = rec.get('employee_count', "N/A")
-            revenue_generated = rec.get('revenue_generated', "N/A")
-        contact_name = rec.get('contact_name', "")
-        contact_phone = rec.get('phone', "")
+            normalized_score = rec.normalized_score
+            segment = rec.segment
+            nb_na_answers = rec.nb_na_answers
+            reporting_publicly = rec.reporting_publicly
+            reporting_fines = rec.reporting_fines
+            nb_planned_improvements = rec.nb_planned_improvements
+        contact_name = rec.contact_name
+        contact_phone = rec.phone
         if not contact_name:
-            contact_model = get_user_model()
-            try:
-                contact = contact_model.objects.get(
-                    email__iexact=rec.get('email', ""))
-                contact_name = contact.get_full_name()
-            except contact_model.DoesNotExist as err:
-                LOGGER.warning("supplier '%s', contact e-mail '%s' not found!",
-                    rec['printable_name'], rec.get('email', ""))
+            LOGGER.warning("supplier '%s', contact e-mail '%s' not found!",
+                rec.printable_name, rec.email)
         self.wsheet.append([
-            rec['printable_name'], categories,
+            rec.printable_name, categories,
             contact_name,
-            rec.get('email', ""),
+            rec.email,
             contact_phone,
             last_activity_at, reporting_status,
             segment, normalized_score,
             nb_na_answers,
             reporting_publicly, reporting_fines,
-            nb_planned_improvements, measurements, targets])
-            #XXX employee_count, revenue_generated,
-            #XXX report_to if report_to else ""])
-#            "Yes" if rec.get('improvement_completed') else "",
-#            "Yes" if rec.get('assessment_completed') else ""])
+            nb_planned_improvements])
 
     def writerow(self, rec, headings=None):
-        last_activity_at = rec.get('last_activity_at', "")
+        last_activity_at = rec.last_activity_at
         if last_activity_at:
             last_activity_at = last_activity_at.strftime("%Y-%m-%d")
-        reporting_status = rec.get('reporting_status')
+        reporting_status = rec.reporting_status
         if reporting_status < len(AccountSerializer.REPORTING_STATUS):
             reporting_status = (
                 AccountSerializer.REPORTING_STATUS[reporting_status][1])
         else:
             reporting_status = ""
-        extra = rec['extra']
+        extra = rec.extra if hasattr(rec, 'extra') else None
         if extra and isinstance(extra, six.string_types):
             try:
                 extra = json.loads(extra)
@@ -297,10 +277,8 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
                         [rec['slug']])
 
     def get(self, request, *args, **kwargs):
-        #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks
-        #pylint: disable=too-many-statements
-        rollup_tree = self.rollup_scores(force_score=True)
-        self.suppliers_per_segment = {}
+        #pylint: disable=unused-argument
+        self._start_time()
         wbook = Workbook()
 
         # Populate the Total sheet
@@ -321,28 +299,11 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
         self.wsheet.append(["Utility contact phone", self.account.phone])
         self.wsheet.append([])
         self.wsheet.append(self.get_headings())
-        for account in self.get_suppliers(rollup_tree):
-            self.writerow(account)
 
-        # Populate per-segment sheets
-        if False:
-            for container in six.itervalues(rollup_tree[1]):
-                segment_suppliers = self.suppliers_per_segment.get(
-                    container[0]['slug'], set([]))
-                if not segment_suppliers:
-                    continue
-                for segment in six.itervalues(container[1]):
-                    headings = [val[0]['title']
-                        for val in six.itervalues(segment[1])]
-                    all_headings = self.get_headings()[:-1] + headings
-                    suppliers_per_segment = self.get_suppliers(segment)
-                    if suppliers_per_segment:
-                        self.wsheet = wbook.create_sheet(
-                            title=as_valid_sheet_title(segment[0]['title']))
-                        self.wsheet.append(all_headings)
-                        for account in suppliers_per_segment:
-                            if account['slug'] in segment_suppliers:
-                                self.writerow(account, headings=headings)
+        queryset = self.get_queryset()
+        self.decorate_queryset(queryset)
+        for account in queryset:
+            self.writerow(account)
 
         # Prepares the result file
         content = io.BytesIO()
@@ -352,6 +313,7 @@ class SuppliersSummaryXLSXView(SupplierListMixin, TemplateView):
         resp = HttpResponse(content, content_type=self.content_type)
         resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
             self.get_filename())
+        self._report_queries("http response created")
         return resp
 
 
@@ -464,9 +426,8 @@ WHERE survey_choice.id = survey_answer.measured AND
         wbook = Workbook()
         self.wsheet = wbook.active
         self.wsheet.title = as_valid_sheet_title("Answers")
-        headings = ['']
-        for account in self.requested_accounts:
-            headings += [account.printable_name]
+        headings = [''] + [account.printable_name
+            for account in six.itervalues(self.requested_accounts)]
         self.wsheet.append(headings)
 
         by_accounts = OrderedDict()
@@ -546,7 +507,7 @@ class SuppliersImprovementsXLSXView(SupplierListMixin, TemplateView):
             Consumption.objects.get_latest_samples_by_prefix(
             before=self.ends_at, prefix='/%s' % self.path,
             tag='is_planned').replace('%', '%%'))
-        latest_improvements=[sample.pk for sample in latest_improvements
+        latest_improvements = [sample.pk for sample in latest_improvements
             if sample.account_id in self.requested_accounts_pk]
 
         practices = Consumption.objects.filter(

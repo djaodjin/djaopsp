@@ -6,6 +6,7 @@ from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db.models import Max, Q
 from django.http import Http404
 from django.utils import six
@@ -13,7 +14,6 @@ from django.utils.encoding import force_text
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 from deployutils.helpers import datetime_or_now
-from extra_views.contrib.mixins import SearchableListMixin, SortableListMixin
 from pages.models import PageElement
 from rest_framework import generics, serializers, status
 from rest_framework.exceptions import ValidationError
@@ -24,12 +24,12 @@ from survey.api.matrix import MatrixDetailAPIView
 from survey.models import Answer, EditableFilter, Matrix, Sample
 from survey.utils import get_account_model
 
-from .benchmark import BenchmarkMixin
 from .. import signals
 from ..compat import reverse
-from ..helpers import get_testing_accounts
-from ..mixins import ReportMixin
-from ..models import _show_query_and_result, Consumption
+from ..helpers import get_segments, get_testing_accounts
+from ..mixins import AccountMixin, BreadcrumbMixin, ReportMixin
+from ..models import get_frozen_scored_answers, Consumption
+from ..scores import populate_rollup
 from ..serializers import AccountSerializer, NoModelSerializer
 from ..suppliers import get_supplier_managers
 
@@ -93,21 +93,22 @@ class CompletionSummaryPagination(PageNumberPagination):
         self.completed = 0
         accounts = {}
         for sample in queryset:
-            slug = sample.get('slug')
-            reporting_status = sample.get(
-                'reporting_status', AccountSerializer.REPORTING_NOT_STARTED)
+            slug = sample.account_slug
+            reporting_status = (sample.reporting_status
+                if sample.reporting_status is not None
+                else AccountSerializer.REPORTING_NOT_STARTED)
             if not slug in accounts:
                 accounts[slug] = {
                     'reporting_status': reporting_status,
-                   'reporting_publicly': bool(sample.get('reporting_publicly')),
-                    'reporting_fines': bool(sample.get('reporting_fines'))
+                   'reporting_publicly': bool(sample.reporting_publicly),
+                    'reporting_fines': bool(sample.reporting_fines)
                 }
                 continue
             if reporting_status > accounts[slug]['reporting_status']:
                 accounts[slug]['reporting_status'] = reporting_status
-            if sample.get('reporting_publicly'):
+            if sample.reporting_publicly:
                 accounts[slug]['reporting_publicly'] = True
-            if sample.get('reporting_fines'):
+            if sample.reporting_fines:
                 accounts[slug]['reporting_fines'] = True
 
         self.nb_organizations = len(accounts)
@@ -151,9 +152,81 @@ class CompletionSummaryPagination(PageNumberPagination):
         ]))
 
 
-class DashboardMixin(BenchmarkMixin):
+class DashboardMixin(BreadcrumbMixin, AccountMixin):
+    """
+    The dashboard contains the columns:
+      - Supplier/facility: derived from `sample.account_id`
+      - Last activity: derived from `sample.created_at` as long as
+      (max(survey_answer.created_at) where survey_answer.sample_id = sample.id)
+      < sample.created_at
+      - Status: derived from last_assessment.is_frozen,
+          last_assessment.created_at, last_improvement.created_at
+      - Industry segment: derived from `get_segments(sample)`
+      - Score: derived from answers with metric = score.
+      - # N/A: derived from count(answer) where sample = last_assessment and
+          answer.measured = 'N/A'
+      - Reporting publicly: derived from exists(answer) where
+          sample = last_assessment and answer.measured = 'yes' and
+          answer.question = 'reporting publicly'
+      - Environmental files: derived from exists(answer) where
+          sample = last_assessment and answer.measured = 'yes' and
+          answer.question = 'environmental fines'
+      - Planned actions: derived from count(answer) where
+          sample = last_improvement and answer.measured = 'improve'
 
+    If we sort by "Supplier/facility", "# N/A", "Reporting publicly",
+    or "Environmental files", it is possible to do it in the assessment SQL
+    query.
+    If we sort by "Planned actions", it is possible to do it in the improvement
+    SQL query.
+    If we sort by "Industry segment", it might be possible to do it in the
+    assessment SQL query provided we decorate Samples with the industry.
+
+    XXX If we sort by "Last activity"?
+    XXX If we sort by "Status"?
+
+    XXX If we sort by "Score", we have to re-compute all scores from answers.
+
+    The queryset can be further filtered to a range of dates between
+    ``start_at`` and ``ends_at``.
+
+    The queryset can be further filtered by passing a ``q`` parameter.
+    The value in ``q`` will be matched against:
+
+      - user.username
+      - user.first_name
+      - user.last_name
+      - user.email
+
+    The result queryset can be ordered by passing an ``o`` (field name)
+    and ``ot`` (asc or desc) parameter.
+    The fields the queryset can be ordered by are:
+
+      - user.first_name
+      - user.last_name
+      - created_at
+    """
+    model = Sample
     account_model = get_account_model()
+
+    search_fields = ['printable_name',
+                     'email']
+
+    valid_sort_fields = {
+        'printable_name': 'printable_name',
+        'last_activity_at': 'last_activity_at',
+        'reporting_status': 'reporting_status',
+        'segment': 'segment',
+        'normalized_score': 'normalized_score',
+        'nb_na_answers': 'nb_na_answers',
+        'reporting_publicly': 'reporting_publicly',
+        'reporting_fines': 'reporting_fines',
+        'nb_planned_improvements': 'nb_planned_improvements'}
+
+    valid_sort_dir = {
+        'asc': 'asc',
+        'desc': 'desc'
+    }
 
     @property
     def ends_at(self):
@@ -168,76 +241,263 @@ class DashboardMixin(BenchmarkMixin):
         return self._ends_at
 
     @property
-    def is_frozen(self):
-        return True
+    def expired_at(self):
+        if not hasattr(self, '_expired_at'):
+            self._expired_at = self.request.GET.get('start_at', None)
+            if self._expired_at:
+                try:
+                    self._expired_at = datetime_or_now(
+                        self._expired_at.strip('"'))
+                except ValueError:
+                    self._expired_at = None
+        return self._expired_at
 
-    @staticmethod
-    def _get_answers(samples, metric_id, prefix=None, choice=None,
-                     includes=None):
-        answers = """WITH samples AS (%(samples)s
-),
-expected_opportunities AS (
+    @property
+    def search_param(self):
+        if not hasattr(self, '_search_param'):
+            self._search_param = self.request.GET.get('q', None)
+        return self._search_param
+
+    @property
+    def sort_ordering(self):
+        if not hasattr(self, '_sort_ordering'):
+            sort_field = self.valid_sort_fields.get(
+                self.request.GET.get('o', None))
+            sort_dir = self.valid_sort_dir.get(
+                self.request.GET.get('ot', 'desc'))
+            if sort_field:
+                self._sort_ordering = [(sort_field, sort_dir)]
+            else:
+                # defaults to alphabetical order for suppliers
+                self._sort_ordering = [('printable_name', 'asc')]
+        return self._sort_ordering
+
+    def get_queryset(self):
+        frozen_assessments_query = None
+        frozen_improvements_query = None
+        # XXX requested_accounts
+        for segment in get_segments():
+            prefix = segment['path']
+            if not prefix or prefix.startswith('/euissca-rfx'):
+                continue
+            segment_query = Consumption.objects.get_latest_assessments(
+                prefix, before=self.ends_at, title=segment['title'])
+            if not frozen_assessments_query:
+                frozen_assessments_query = segment_query
+            else:
+                frozen_assessments_query = "(%s) UNION (%s)" % (
+                    frozen_assessments_query, segment_query)
+            segment_query = Consumption.objects.get_latest_improvements(
+                prefix, before=self.ends_at, title=segment['title'])
+            if not frozen_improvements_query:
+                frozen_improvements_query = segment_query
+            else:
+                frozen_improvements_query = "(%s) UNION (%s)" % (
+                    frozen_improvements_query, segment_query)
+
+        if self.expired_at:
+            reporting_clause = \
+"""  CASE WHEN _frozen_assessments.created_at < '%(expired_at)s'
+       THEN %(reporting_expired)d
+       ELSE %(reporting_completed)d END""" % {
+             'expired_at': self.expired_at.isoformat(),
+             'reporting_completed': AccountSerializer.REPORTING_PLANNING_PHASE,
+             'reporting_expired': AccountSerializer.REPORTING_ABANDONED
+            }
+        else:
+            reporting_clause = "%d" % AccountSerializer.REPORTING_PLANNING_PHASE
+        frozen_assessments_query = """SELECT
+  _frozen_assessments.id AS id,
+  _frozen_assessments.slug AS slug,
+  _frozen_assessments.created_at AS created_at,
+  _frozen_assessments.campaign_id AS campaign_id,
+  _frozen_assessments.account_id AS account_id,
+  _frozen_assessments.time_spent AS time_spent,
+  _frozen_assessments.is_frozen AS is_frozen,
+  _frozen_assessments.extra AS extra,
+  _frozen_assessments.segment_path AS segment_path,
+  _frozen_assessments.segment_title AS segment_title,
+  _frozen_assessments.nb_na_answers AS nb_na_answers,
+  _frozen_assessments.reporting_publicly AS reporting_publicly,
+  _frozen_assessments.reporting_fines AS reporting_fines,
+  %(reporting_clause)s AS reporting_status
+FROM (%(query)s) AS _frozen_assessments""" % {
+    'query': frozen_assessments_query.replace('%', '%%'),
+    'reporting_clause': reporting_clause}
+
+        if self.expired_at:
+            reporting_clause = \
+"""  CASE WHEN _frozen_improvements.created_at < '%(expired_at)s'
+       THEN %(reporting_expired)d
+       ELSE %(reporting_completed)d END""" % {
+               'expired_at': self.expired_at.isoformat(),
+               'reporting_completed': AccountSerializer.REPORTING_COMPLETED,
+               'reporting_expired': AccountSerializer.REPORTING_EXPIRED
+       }
+        else:
+            reporting_clause = "%d" % AccountSerializer.REPORTING_COMPLETED
+        frozen_improvements_query = """SELECT
+  _frozen_improvements.id AS id,
+  _frozen_improvements.slug AS slug,
+  _frozen_improvements.created_at AS created_at,
+  _frozen_improvements.campaign_id AS campaign_id,
+  _frozen_improvements.account_id AS account_id,
+  _frozen_improvements.time_spent AS time_spent,
+  _frozen_improvements.is_frozen AS is_frozen,
+  _frozen_improvements.extra AS extra,
+  _frozen_improvements.segment_path AS segment_path,
+  _frozen_improvements.segment_title AS segment_title,
+  _frozen_improvements.nb_planned_improvements AS nb_planned_improvements,
+  %(reporting_clause)s AS reporting_status
+FROM (%(query)s) AS _frozen_improvements""" % {
+    'query': frozen_improvements_query.replace('%', '%%'),
+    'reporting_clause': reporting_clause}
+
+        frozen_query = """
+WITH frozen_assessments AS (%(frozen_assessments_query)s),
+frozen_improvements AS (%(frozen_improvements_query)s)
 SELECT
-    survey_question.id AS question_id,
-    survey_question.default_metric_id AS default_metric_id,
-    samples.account_id AS account_id,
-    samples.id AS sample_id,
-    samples.extra AS is_planned,
-    samples.slug AS sample_slug,
-    samples.is_frozen AS is_completed
-FROM samples
-INNER JOIN survey_enumeratedquestions
-    ON samples.campaign_id = survey_enumeratedquestions.campaign_id
-INNER JOIN survey_question
-    ON survey_question.id = survey_enumeratedquestions.question_id
-WHERE survey_question.path LIKE '%(prefix)s%%'
-)
+  frozen_assessments.id AS id,
+  frozen_assessments.slug AS slug,
+  frozen_assessments.created_at AS created_at,
+  frozen_assessments.campaign_id AS campaign_id,
+  frozen_assessments.account_id AS account_id,
+  frozen_assessments.time_spent AS time_spent,
+  frozen_assessments.is_frozen AS is_frozen,
+  frozen_assessments.extra AS extra,
+  frozen_assessments.segment_path AS segment_path,
+  frozen_assessments.segment_title AS segment_title,
+  frozen_assessments.nb_na_answers AS nb_na_answers,
+  frozen_assessments.reporting_publicly AS reporting_publicly,
+  frozen_assessments.reporting_fines AS reporting_fines,
+  CASE WHEN frozen_assessments.created_at < frozen_improvements.created_at
+       THEN frozen_improvements.nb_planned_improvements
+       ELSE 0 END AS nb_planned_improvements,
+  CASE WHEN frozen_assessments.created_at < frozen_improvements.created_at
+       THEN COALESCE(frozen_improvements.reporting_status,
+                frozen_assessments.reporting_status)
+       ELSE frozen_assessments.reporting_status END AS reporting_status
+FROM frozen_assessments
+LEFT OUTER JOIN frozen_improvements
+ON frozen_assessments.account_id = frozen_improvements.account_id AND
+   frozen_assessments.segment_path = frozen_improvements.segment_path""" % {
+       'frozen_assessments_query': frozen_assessments_query,
+       'frozen_improvements_query': frozen_improvements_query}
+        # Implementation Note: frozen_improvements will always pick the latest
+        # improvement plan which might not be the ones associated with
+        # the latest assessment if in a subsequent year no plan is created.
+
+        if self.expired_at:
+            reporting_clause = \
+"""  CASE WHEN active_assessments.created_at < '%(expired_at)s'
+       THEN %(reporting_expired)d
+       ELSE %(reporting_completed)d END""" % {
+               'expired_at': self.expired_at.isoformat(),
+               'reporting_completed':
+                   AccountSerializer.REPORTING_ASSESSMENT_PHASE,
+               'reporting_expired': AccountSerializer.REPORTING_ABANDONED
+       }
+        else:
+            reporting_clause = \
+                "%d" % AccountSerializer.REPORTING_ASSESSMENT_PHASE
+        assessments_query = """
+WITH frozen AS (%(frozen_query)s)
 SELECT
-    expected_opportunities.account_id AS account_id,
-    expected_opportunities.sample_slug AS sample_id,
-    expected_opportunities.is_planned AS is_planned,
-    CAST(survey_answer.measured AS FLOAT) AS numerator,
-    CAST(survey_answer.denominator AS FLOAT) AS denominator,
-    survey_answer.created_at AS last_activity_at,
-    survey_answer.id AS answer_id,
-    expected_opportunities.is_completed AS is_completed,
-    survey_metric.slug AS metric
-FROM expected_opportunities
-LEFT OUTER JOIN survey_answer
-    ON expected_opportunities.question_id = survey_answer.question_id
-    AND expected_opportunities.sample_id = survey_answer.sample_id
-INNER JOIN survey_metric
-  ON expected_opportunities.default_metric_id = survey_metric.id
-WHERE survey_answer.metric_id = %(metric_id)s AND
-    survey_answer.measured = %(choice)s""" % {
-    'samples': samples,
-    'metric_id': metric_id,
-    'choice': choice,
-    'prefix': prefix}
-        _show_query_and_result(answers)
-        return answers
+  COALESCE(frozen.id, active_assessments.id) AS id,
+  COALESCE(frozen.slug, active_assessments.slug) AS slug,
+  COALESCE(frozen.created_at, active_assessments.created_at) AS created_at,
+  COALESCE(frozen.campaign_id, active_assessments.campaign_id) AS campaign_id,
+  COALESCE(frozen.account_id, active_assessments.account_id) AS account_id,
+  COALESCE(frozen.time_spent, active_assessments.time_spent) AS time_spent,
+  COALESCE(frozen.is_frozen, active_assessments.is_frozen) AS is_frozen,
+  COALESCE(frozen.extra, active_assessments.extra) AS extra,
+  frozen.segment_path AS segment_path,
+  frozen.segment_title AS segment_title,
+  frozen.nb_na_answers AS nb_na_answers,
+  frozen.reporting_publicly AS reporting_publicly,
+  frozen.reporting_fines AS reporting_fines,
+  frozen.nb_planned_improvements AS nb_planned_improvements,
+  COALESCE(frozen.reporting_status, %(reporting_clause)s) AS reporting_status
+FROM (SELECT
+    survey_sample.id AS id,
+    survey_sample.slug AS slug,
+    survey_sample.created_at AS created_at,
+    survey_sample.campaign_id AS campaign_id,
+    survey_sample.account_id AS account_id,
+    survey_sample.time_spent AS time_spent,
+    survey_sample.is_frozen AS is_frozen,
+    survey_sample.extra AS extra
+    FROM survey_sample
+    WHERE survey_sample.extra IS NULL AND
+          NOT survey_sample.is_frozen
+) AS active_assessments
+LEFT OUTER JOIN frozen
+ON active_assessments.account_id = frozen.account_id AND
+   active_assessments.campaign_id = frozen.campaign_id""" % {
+       'frozen_query': frozen_query,
+       'reporting_clause': reporting_clause}
 
-    def _get_na_answers(self, population, metric_id, prefix=None,
-                        includes=None):
-        latest_assessments = Consumption.objects.get_latest_samples_by_prefix(
-            before=self.ends_at, prefix=prefix)
-        return self._get_answers(latest_assessments, metric_id,
-            prefix=prefix, choice=Consumption.NOT_APPLICABLE,
-            includes=includes)
+        accounts_clause = "saas_organization.id IN %s" % str(
+            self.requested_accounts_pk)
+        if self.search_param:
+            if accounts_clause:
+                accounts_clause += "AND "
+            accounts_clause += ("saas_organization.full_name ILIKE '%%%%%s%%%%'"
+                % self.search_param)
+        if accounts_clause:
+            accounts_clause = "WHERE %s" % accounts_clause
+        order_clause = ""
+        if self.sort_ordering:
+            order_clause = "ORDER BY "
+            sep = ""
+            for sort_field, sort_dir in self.sort_ordering:
+                order_clause += "%s%s %s" % (sep, sort_field, sort_dir)
+                if sort_field == 'last_activity_at':
+                    order_clause += " NULLS LAST"
+                sep = ", "
+        query = """
+WITH assessments AS (%(assessments_query)s)
+SELECT
+  assessments.id AS id,
+  assessments.slug AS slug,
+  assessments.created_at AS created_at,
+  assessments.campaign_id AS campaign_id,
+  COALESCE(assessments.account_id, saas_organization.id) AS account_id,
+  assessments.time_spent AS time_spent,
+  assessments.is_frozen AS is_frozen,
+  assessments.extra AS extra,
+  assessments.segment_path AS segment_path,
+  assessments.segment_title AS segment,    -- XXX should be segment_title
+  assessments.nb_na_answers AS nb_na_answers,
+  assessments.reporting_publicly AS reporting_publicly,
+  assessments.reporting_fines AS reporting_fines,
+  assessments.nb_planned_improvements AS nb_planned_improvements,
+  COALESCE(assessments.reporting_status, %(reporting_status)d) AS reporting_status,
+  saas_organization.slug AS account_slug,
+  saas_organization.full_name AS printable_name,
+  saas_organization.email AS email,
+  saas_organization.phone AS phone,
+  assessments.created_at AS last_activity_at,
+  '' AS score_url,                         -- updated later
+  0 AS normalized_score                    -- updated later
+FROM saas_organization
+LEFT OUTER JOIN assessments
+ON saas_organization.id = assessments.account_id
+%(accounts_clause)s
+%(order_clause)s""" % {
+    'assessments_query': assessments_query,
+    'reporting_status': AccountSerializer.REPORTING_NOT_STARTED,
+    'accounts_clause': accounts_clause,
+    'order_clause': order_clause}
 
-    def _get_planned_improvements(self, population, metric_id, prefix=None,
-                                  includes=None):
-        latest_improvements = Consumption.objects.get_latest_samples_by_prefix(
-            before=self.ends_at, prefix=prefix, tag='is_planned')
-        return self._get_answers(latest_improvements, metric_id,
-            prefix=prefix, choice=Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
-            includes=includes)
+        # XXX still need to compute status and score.
+        # XXX still need to add order by clause.
+        return Sample.objects.raw(query)
 
     @property
     def requested_accounts(self):
         if not hasattr(self, '_requested_accounts'):
             ends_at = self.ends_at
-            self._requested_accounts = []
             level = set([self.account.pk])
             next_level = level | set([rec['organization']
                 for rec in Subscription.objects.filter(
@@ -256,51 +516,21 @@ WHERE survey_answer.metric_id = %(metric_id)s AND
                             plan__organization__in=level).exclude(
                             organization__in=get_testing_accounts()).values(
                             'organization').distinct()])
-            prev = None
-            self._requested_accounts = []
-            for val in Subscription.objects.filter(
+            self._requested_accounts = {val.organization_id: val
+                for val in Subscription.objects.filter(
                     ends_at__gt=ends_at, # from `SubscriptionMixin.get_queryset`
-                    plan__organization__in=level).select_related(
-                    'organization').values_list('organization__pk',
-                    'organization__slug', 'organization__full_name',
-                    'organization__email', 'organization__phone',
-                    'grant_key', 'extra',
-                    'created_at',
-                    'plan__organization__slug',
-                    'plan__organization__full_name').order_by(
-                        'organization__full_name', 'organization__pk'):
-                account = AccountType._make(val)
-                created_at = val[7]
-                provider_slug = val[8]
-                provider_full_name = val[9]
-                if not prev:
-                    prev = account
-                elif prev.pk != account.pk:
-                    self._requested_accounts += [prev]
-                    prev = account
-                # aggregate grant_key, extra and reports_to
-                if not account.request_key:
-                    prev.request_key = None
-                try:
-                    extra = json.loads(account.extra)
-                    if not prev.extra:
-                        prev.extra = {}
-                    elif isinstance(prev.extra, six.string_types):
-                        try:
-                            prev.extra = json.loads(prev.extra)
-                        except (TypeError, ValueError):
-                            prev.extra = {}
-                    prev.extra.update(extra)
-                except (TypeError, ValueError):
-                    pass
-                prev.reports_to += [
-                    (provider_slug, provider_full_name, created_at)]
-            if prev:
-                self._requested_accounts += [prev]
+                    plan__organization__in=level).select_related('organization')}
         return self._requested_accounts
 
+    @property
+    def requested_accounts_pk(self):
+        if not hasattr(self, '_requested_accounts_pk'):
+            self._requested_accounts_pk = tuple(self.requested_accounts)
+        return self._requested_accounts_pk
+
     def get_accounts(self):
-        return [val for val in self.requested_accounts if not val.grant_key]
+        return [val for val in six.itervalues(self.requested_accounts)
+            if not val.grant_key]
 
 
 class SupplierQuerySet(object):
@@ -407,12 +637,76 @@ class SupplierListMixin(DashboardMixin):
     and spreadsheet downloads.
     """
 
-    @property
-    def requested_accounts_pk(self):
-        if not hasattr(self, '_requested_accounts_pk'):
-            self._requested_accounts_pk = [
-                account.pk for account in self.requested_accounts]
-        return self._requested_accounts_pk
+    def rollup_scores(self, queryset):
+        try:
+            from_root, trail = self.breadcrumbs
+            roots = [trail[-1][0]] if trail else None
+        except Http404:
+            from_root = None
+            roots = None
+        rollup_tree = self.get_scores_tree(roots, root_prefix=from_root)
+        leafs = self.get_leafs(rollup_tree=rollup_tree)
+        self._report_queries("leafs loaded")
+
+        # Populate scores in rollup_tree
+        samples = tuple([sample.pk for sample in queryset if sample.pk])
+        if samples:
+            for prefix, values_tuple in six.iteritems(leafs):
+                self.populate_leaf(values_tuple[0],
+                    get_frozen_scored_answers(samples, prefix=prefix),
+                    force_score=True)
+        self._report_queries("leafs populated")
+        populate_rollup(rollup_tree, True, force_score=True)
+        self._report_queries("rollup_tree populated")
+        return rollup_tree
+
+    def decorate_queryset(self, queryset):
+        """
+        Updates `normalized_score` in rows of the queryset.
+        """
+        rollup_tree = self.rollup_scores(queryset)
+
+        # Populate scores in report summaries
+        contacts = {user.email: user
+            for user in get_user_model().objects.filter(email__in=[account.email
+                for account in queryset])}
+        for report_summary in queryset:
+            account = self.requested_accounts[report_summary.account_id]
+            report_summary.extra = account.extra
+            contact = contacts.get(report_summary.email)
+            report_summary.contact_name = (
+                contact.get_full_name() if contact else "")
+            report_summary.requested_at = (
+                account.created_at if account.grant_key else None)
+            if report_summary.requested_at:
+                report_summary.nb_na_answers = None
+                report_summary.reporting_publicly = None
+                report_summary.reporting_fines = None
+                report_summary.nb_planned_improvements = None
+            elif report_summary.segment_path:
+                accounts = rollup_tree[1].get(
+                    report_summary.segment_path)[0].get('accounts', {})
+                report_summary.normalized_score = accounts.get(
+                    report_summary.account_id, {}).get('normalized_score')
+                segment_url = report_summary.segment_path
+                if report_summary.normalized_score:
+                    if report_summary.slug:
+                        report_summary.score_url = reverse(
+                            'scorecard_organization', args=(
+                            report_summary.account_slug,
+                            report_summary.slug,
+                            segment_url))
+                    else:
+                        report_summary.score_url = reverse(
+                            'scorecard_organization_redirect', args=(
+                            report_summary.account_slug, segment_url))
+                else:
+                    report_summary.score_url = reverse(
+                        'assess_organization_redirect',
+                        args=(report_summary.account_slug, segment_url))
+
+        self._report_queries("report summaries updated with scores")
+
 
     def get_nb_questions_per_segment(self):
         nb_questions_per_segment = {}
@@ -422,308 +716,16 @@ class SupplierListMixin(DashboardMixin):
             nb_questions_per_segment.update({segment.path: nb_questions})
         return nb_questions_per_segment
 
-    @property
-    def complete_assessments(self):
-        if not hasattr(self, '_complete_assessments'):
-            self._complete_assessments = set([])
-            # We have to get complete assessments separately from complete
-            # improvements the sample is always not frozen by definition.
-            for rec in Sample.objects.filter(
-                    account__in=self.requested_accounts_pk, is_frozen=True,
-                    created_at__lte=self.ends_at,
-                    extra__isnull=True).values(
-                        'account').annotate(Max('created_at')):
-                self._complete_assessments |= set([rec['account']])
 
-            # Using per-segment method, within 10% of completion
-            #for segment_path, segment_nb_questions in six.iteritems(
-            #        self.get_nb_questions_per_segment()):
-            #    assessement_completed = Sample.objects.filter(
-            #        answers__question__path__startswith=segment_path,
-# We don't keep the actual answer, just the score.
-#                    answers__metric_id=self.default_metric_id,
-            #        extra__isnull=True, is_frozen=True,
-            #        account__in=self.requested_accounts_pk).values(
-            #                'account').annotate(
-            #        Max('created_at'), Count('answers__pk'))
-            #    for rec in assessement_completed:
-            #        within_10_percent = int(0.9 * segment_nb_questions)
-            #        if rec['answers__pk__count'] >= within_10_percent:
-            #            self._complete_assessments |= set([rec['account']])
-
-        return self._complete_assessments
-
-    @property
-    def complete_improvements(self):
-        if not hasattr(self, '_complete_improvements'):
-            self._complete_improvements = set([])
-            # We have to get complete assessments separately from complete
-            # improvements the sample is always not frozen by definition.
-            improvements_planned = Sample.objects.filter(
-                account__in=self.requested_accounts_pk, is_frozen=True,
-                created_at__lte=self.ends_at,
-                extra='is_planned').values(
-                    'account').annotate(Max('created_at'))
-            # XXX counts only improvement plans with an actual item selected.
-            #improvements_planned = Sample.objects.filter(
-            #    extra='is_planned', is_frozen=True,
-            #    answers__metric_id=self.default_metric_id,
-            #    answers__measured=Consumption.NEEDS_SIGNIFICANT_IMPROVEMENT,
-            #    account__in=self.requested_accounts_pk).values(
-            #        'account').annotate(
-            #        Max('created_at'), Count('answers__pk'))
-            for rec in improvements_planned:
-                self._complete_improvements |= set([rec['account']])
-        return self._complete_improvements
-
-    def _prepare_account(self, account):
-        """
-        Returns the initial dictionnary used to populate results.
-
-        Overriding this method and setting `request_key` to `None`
-        enables to show scores for all accounts.
-        """
-        requested_at = None
-        if account.request_key:
-            for slug, full_name, created_at in account.reports_to:
-                if self.account.slug == slug:
-                    requested_at = created_at
-                    break
-        result = {
-            'slug': account.slug,
-            'printable_name': account.printable_name,
-            'email': account.email,
-            'phone': account.phone,
-            'requested_at': requested_at,
-            'extra': account.extra,
-            'reports_to': account.reports_to
-        }
-        if account.extra and '"originator"' in account.extra:
-            # XXX Hacky way to detect supplier initiated share of scorecard.
-            # that works for now.
-            result.update({'supplier_initiated': True})
-        return result
-
-    def get_scores(self, account, segments, actives,
-                  complete_assessments, complete_improvements, expired_at):
-        """
-        Returns a list of frozen scores for `account`.
-          [
-            {
-              "supplier": {
-                "slug": "andy-shop",
-                "printable_name": "Andy's Shop"
-              },
-              "segment": {
-                "printable_name": "Boxes & enclosures",
-                "nb_questions": XXX
-              }
-              "last_updated_at": "2017-01-01",
-              "score_url": "/andy-shop/scorecard/boxes-and-enclosures",
-              "normalized_score": 94,
-              "nb_answers":,
-              "nb_na_answers": ,
-              "nb_improvements_planned": ,
-            },
-            {
-              "":
-            }
-          ]
-
-        segments is a rollup tree derived into a list of items:
-        {
-          'accounts':,
-          'path':
-          'slug':
-          'title':
-        }
-        """
-        #pylint:disable=too-many-arguments,(too-many-locals
-        account_dict = self._prepare_account(account)
-        # When `_prepare_account` returns, result contains a dictionnary
-        # that looks like:
-        # {
-        #   "slug": *slug*,
-        #   "printable_name": *string*,
-        #   "email": *email*,
-        #   "requested_at": *** date of request or None ***,
-        #   "extra": ***,
-        #   "supplier_initiated": *bool*,
-        #   "reports_to": [[*slug*, *full_name*]]
-        # }
-        path_prefix = self.path
-        account_scores = []
-        last_activity_at = None
-        for segment_val in six.itervalues(segments):
-            segment = segment_val[0]
-            scores = segment['accounts']
-            score = scores.get(account.pk, None)
-            # `score` contains a dictionnary that looks like:
-            # {
-            #   "nb_answers": 5,
-            #   "nb_questions": 5,
-            #   "sample": "f1e2e916eb494b90f9ff0a36982341",
-            #   "created_at": "2017-01-01T00:00:00+00:00",
-            #   "numerator": 18.0,
-            #   "denominator": 20.0,
-            #   "improvement_numerator": 0.0,
-            #   "normalized_score": 90,
-            #   "improvement_score": 0.0
-            # }
-            if score is None:
-                continue
-
-            # We get the last activity even in case we are returning
-            # an entry with no score.
-            created_at = score.get('created_at', None)
-            if not last_activity_at or (
-                    created_at and last_activity_at < created_at):
-                last_activity_at = created_at
-
-            normalized_score = score.get('normalized_score', None)
-
-            if not ((not path_prefix or
-                 segment['path'].startswith(path_prefix)) and
-                (segment['slug'].startswith('framework') or
-                normalized_score is not None)):
-                continue
-
-            # XXX Builds URL from segment path
-            # XXX `segment` points to the PageElement industry?
-            segment_url = '/%s' % str(segment['slug'])
-            if segment_url.startswith('/framework'):
-                score_url = reverse('assess_organization_redirect',
-                    args=(account.slug, segment_url))
-            elif 'sample' in score:
-                score_url = reverse('scorecard_organization',
-                    args=(account.slug, score['sample'], segment_url))
-            else:
-                score_url = reverse('scorecard_organization_redirect',
-                    args=(account.slug, segment_url))
-            score.update({
-                'segment': segment['title'],
-                'score_url': score_url,
-                'assessment_completed': (
-                    account.pk in complete_assessments),
-                'improvement_completed': (
-                    account.pk in complete_improvements)
-            })
-            score.update(account_dict)
-            if not 'last_activity_at' in score:
-                score.update({'last_activity_at': created_at})
-            if not 'reporting_publicly' in score:
-                score.update({'reporting_publicly': None})
-            if not 'reporting_fines' in score:
-                score.update({'reporting_fines': None})
-            if not 'nb_na_answers' in score:
-                score.update({'nb_na_answers': None})
-            if not 'nb_planned_improvements' in score:
-                score.update({'nb_planned_improvements': None})
-            score.update({
-                # `get_reporting_status` uses fields (last_activity_at,
-                # assessment_completed, improvement_completed)
-                # previously set in `result`.
-                'reporting_status': get_reporting_status(
-                    score, expired_at)})
-            if account_dict.get('requested_at'):
-                # The supplier has not granted access to the scorecard
-                # so we remove sensistive keys from the result.
-                for key in ('normalized_score', 'nb_na_answers',
-                            'reporting_publicly', 'reporting_fines'):
-                    score[key] = None
-            account_scores += [score]
-
-        if account_scores:
-            return account_scores
-
-        if path_prefix:
-            # We are filtering the dashboard by segment.
-            return []
-
-        if not last_activity_at:
-            last_activity_at = actives.get(account.pk, None)
-        account_dict.update({
-            'last_activity_at': last_activity_at,
-            'segment': "",
-            'score_url': "",
-            'normalized_score': None,
-            'nb_na_answers': None,
-            'nb_planned_improvements': None,
-            'reporting_publicly': None,
-            'reporting_fines': None,
-            'assessment_completed': (
-                account.pk in complete_assessments),
-            'improvement_completed': (
-                account.pk in complete_improvements),
-        })
-        account_dict.update({
-            # `get_reporting_status` uses fields (last_activity_at,
-            # assessment_completed, improvement_completed) previously set
-            # in `result`.
-            'reporting_status': get_reporting_status(
-                account_dict, expired_at)})
-        return [account_dict]
-
-    def get_queryset(self):
-        return self.get_suppliers(
-            self.rollup_scores(force_score=True)) #SupplierListMixin
-
-    def get_suppliers(self, rollup_tree):
-        root = self.path
-        results = []
-
-        # list of scores
-        for account in self.requested_accounts:
-            try:
-                scores_by_account = self.get_scores(account, rollup_tree[1],
-                    {}, self.complete_assessments,
-                    self.complete_improvements, self.start_at)
-                if scores_by_account:
-                    results += scores_by_account
-            except self.account_model.DoesNotExist:
-                pass
-
-        return SupplierQuerySet(results)
+    def paginate_queryset(self, queryset):
+        page = super(SupplierListMixin, self).paginate_queryset(queryset)
+        if page:
+            queryset = page
+        self.decorate_queryset(queryset)
+        return page
 
 
-class SupplierListBaseAPIView(SupplierListMixin, generics.ListAPIView):
-
-    serializer_class = AccountSerializer
-    pagination_class = CompletionSummaryPagination
-
-
-class SupplierSmartListMixin(SortableListMixin, SearchableListMixin):
-    """
-    The queryset can be further filtered to a range of dates between
-    ``start_at`` and ``ends_at``.
-
-    The queryset can be further filtered by passing a ``q`` parameter.
-    The value in ``q`` will be matched against:
-
-      - user.username
-      - user.first_name
-      - user.last_name
-      - user.email
-
-    The result queryset can be ordered by passing an ``o`` (field name)
-    and ``ot`` (asc or desc) parameter.
-    The fields the queryset can be ordered by are:
-
-      - user.first_name
-      - user.last_name
-      - created_at
-    """
-    search_fields = ['printable_name',
-                     'email']
-
-    sort_fields_aliases = [('printable_name', 'printable_name'),
-                           ('last_activity_at', 'last_activity_at'),
-                           ('assessment_completed', 'assessment_completed'),
-                           ('scores', 'scores'),
-                           ('improvement_completed', 'improvement_completed')]
-
-
-class SupplierListAPIView(SupplierSmartListMixin, SupplierListBaseAPIView):
+class SupplierListAPIView(SupplierListMixin, generics.ListAPIView):
     """
     Lists of accessible supplier scorecards
 
@@ -761,11 +763,141 @@ class SupplierListAPIView(SupplierSmartListMixin, SupplierListBaseAPIView):
           }]
         }
     """
-    pass
+    serializer_class = AccountSerializer
+    pagination_class = CompletionSummaryPagination
+
+    def get(self, request, *args, **kwargs):
+        self._start_time()
+        resp = self.list(request, *args, **kwargs)
+        self._report_queries("http response created")
+        return resp
 
 
+class GraphMixin(object):
 
-class TotalScoreBySubsectorAPIView(DashboardMixin, MatrixDetailAPIView):
+    def get_charts(self, rollup_tree, excludes=None):
+        charts = []
+        icon_tag = rollup_tree[0].get('tag', "")
+        if icon_tag and settings.TAG_SCORECARD in icon_tag:
+            if not (excludes and rollup_tree[0].get('slug', "") in excludes):
+                charts += [rollup_tree[0]]
+        for _, icon_tuple in six.iteritems(rollup_tree[1]):
+            sub_charts = self.get_charts(icon_tuple, excludes=excludes)
+            charts += sub_charts
+        return charts
+
+    def create_distributions(self, rollup_tree, view_account=None):
+        #pylint:disable=too-many-statements
+        """
+        Create a tree with distributions of scores from a rollup tree.
+        """
+        #pylint:disable=too-many-locals
+        denominator = None
+        highest_normalized_score = 0
+        sum_normalized_scores = 0
+        nb_normalized_scores = 0
+        nb_respondents = 0
+        nb_implemeted_respondents = 0
+        distribution = None
+        for account_id_str, account_metrics in six.iteritems(rollup_tree[0].get(
+                'accounts', OrderedDict({}))):
+            if account_id_str is None: # XXX why is that?
+                continue
+            account_id = int(account_id_str)
+            is_view_account = (view_account and account_id == view_account)
+
+            if is_view_account:
+                rollup_tree[0].update(account_metrics)
+
+            if account_metrics.get('nb_answers', 0):
+                nb_respondents += 1
+
+            normalized_score = account_metrics.get('normalized_score', None)
+            if normalized_score is None:
+                continue
+
+            nb_normalized_scores += 1
+            numerator = account_metrics.get('numerator')
+            denominator = account_metrics.get('denominator')
+            if numerator == denominator:
+                nb_implemeted_respondents += 1
+            if normalized_score > highest_normalized_score:
+                highest_normalized_score = normalized_score
+            sum_normalized_scores += normalized_score
+            if distribution is None:
+                distribution = {
+                    'x' : ["0-25%", "25-50%", "50-75%", "75-100%"],
+                    'y' : [0 for _ in range(4)],
+                    'organization_rate': ""
+                }
+            if normalized_score < 25:
+                distribution['y'][0] += 1
+                if is_view_account:
+                    distribution['organization_rate'] = distribution['x'][0]
+            elif normalized_score < 50:
+                distribution['y'][1] += 1
+                if is_view_account:
+                    distribution['organization_rate'] = distribution['x'][1]
+            elif normalized_score < 75:
+                distribution['y'][2] += 1
+                if is_view_account:
+                    distribution['organization_rate'] = distribution['x'][2]
+            else:
+                assert normalized_score <= 100
+                distribution['y'][3] += 1
+                if is_view_account:
+                    distribution['organization_rate'] = distribution['x'][3]
+
+        for node_metrics in six.itervalues(rollup_tree[1]):
+            self.create_distributions(node_metrics, view_account=view_account)
+
+        if distribution is not None:
+            if nb_respondents > 0:
+                avg_normalized_score = int(
+                    sum_normalized_scores / nb_normalized_scores)
+                rate = int(100.0
+                    * nb_implemeted_respondents / nb_normalized_scores)
+            else:
+                avg_normalized_score = 0
+                rate = 0
+            rollup_tree[0].update({
+                'nb_respondents': nb_respondents,
+                'rate': rate,
+                'opportunity': denominator,
+                'highest_normalized_score': highest_normalized_score,
+                'avg_normalized_score': avg_normalized_score,
+                'distribution': distribution
+            })
+        if 'accounts' in rollup_tree[0]:
+            del rollup_tree[0]['accounts']
+
+    # BenchmarkMixin.flatten_distributions
+    def flatten_distributions(self, distribution_tree, prefix=None):
+        """
+        Flatten the tree into a list of charts.
+        """
+        # XXX Almost identical to get_charts. Can we abstract differences?
+        if prefix is None:
+            prefix = "/"
+        if not prefix.startswith("/"):
+            prefix = '/%s' % prefix
+        charts = []
+        complete = True
+        for key, chart in six.iteritems(distribution_tree[1]):
+            if key.startswith(prefix) or prefix.startswith(key):
+                leaf_charts, leaf_complete = self.flatten_distributions(
+                    chart, prefix=prefix)
+                charts += leaf_charts
+                complete &= leaf_complete
+                charts += [chart[0]]
+                if 'distribution' in chart[0]:
+                    normalized_score = chart[0].get('normalized_score', None)
+                    complete &= (normalized_score is not None)
+        return charts, complete
+
+
+class TotalScoreBySubsectorAPIView(SupplierListMixin, GraphMixin,
+                                   MatrixDetailAPIView):
     """
     A table of scores for cohorts against a metric.
 
@@ -803,6 +935,7 @@ portfolio-a/"
         ...
         ]
     """
+
     @staticmethod
     def as_metric_candidate(cohort_slug):
         look = re.match(r"(\S+)(-\d+)$", cohort_slug)
@@ -815,7 +948,7 @@ portfolio-a/"
         if accounts is None:
             accounts = get_account_model().objects.all()
         scores = {}
-        rollup_tree = self.rollup_scores(force_score=True)#TotalScoreBySubsector
+        rollup_tree = self.rollup_scores(self.get_queryset())#TotalScoreBySubsector
         rollup_scores = self.get_drilldown(rollup_tree, metric.slug)
         for cohort in cohorts:
             score = 0
@@ -865,20 +998,20 @@ portfolio-a/"
 
     def decorate_with_scores(self, rollup_tree, accounts=None, prefix=""):
         if accounts is None:
-            accounts = dict([(account.pk, account)
-                for account in self.get_accounts()])
+            accounts = self.requested_accounts
 
         for key, values in six.iteritems(rollup_tree[1]):
             self.decorate_with_scores(values, accounts=accounts, prefix=key)
 
         score = {}
         cohorts = []
-        accounts_with_score = rollup_tree[0].get('accounts', {})
-        for account_id, account_score in six.iteritems(accounts_with_score):
-            if account_id in accounts:
+        for account_id, account_score in six.iteritems(
+                rollup_tree[0].get('accounts', {})):
+            account = accounts.get(int(account_id), None)
+            if account:
+                account = account.organization
                 n_score = account_score.get('normalized_score', 0)
                 if n_score > 0:
-                    account = accounts.get(account_id, None)
                     score[account.slug] = n_score
                     parts = prefix.split('/')
                     default = parts[1] if len(parts) > 1 else None
@@ -893,8 +1026,8 @@ portfolio-a/"
     def decorate_with_cohorts(self, rollup_tree, accounts=None, prefix=""):
         #pylint:disable=unused-argument
         if accounts is None:
-            accounts = dict([(account.pk, account)
-                for account in self.get_accounts()])
+            accounts = self.requested_accounts
+
         score = {}
         cohorts = []
         for path, values in six.iteritems(rollup_tree[1]):
@@ -903,7 +1036,8 @@ portfolio-a/"
             normalized_score = 0
             for account_id, account_score in six.iteritems(
                     values[0].get('accounts', {})):
-                if account_id in accounts:
+                account = accounts.get(int(account_id), None)
+                if account:
                     n_score = account_score.get('normalized_score', 0)
                     if n_score > 0:
                         nb_accounts += 1
@@ -922,24 +1056,22 @@ portfolio-a/"
     def get(self, request, *args, **kwargs):
         #pylint:disable=unused-argument,too-many-locals
         try:
-            from_root, trail = self.breadcrumbs
+            from_root, unused = self.breadcrumbs
         except Http404:
             from_root = ''
-            trail = []
-        roots = [trail[-1][0]] if trail else None
         # calls rollup_scores from TotalScoreBySubsectorAPIView
-        rollup_tree = self.rollup_scores(roots, from_root, force_score=True)
-        if roots:
+        rollup_tree = self.rollup_scores(self.get_queryset())
+        if from_root:
             for node in six.itervalues(rollup_tree[1]):
                 rollup_tree = node
                 break
-            self.decorate_with_scores(rollup_tree, prefix=from_root)
             segment_url, segment_prefix, segment_element = self.segment
+            self.decorate_with_scores(rollup_tree, prefix=segment_prefix)
             charts = self.get_charts(
                 rollup_tree, excludes=[segment_prefix.split('/')[-1]])
             charts += [rollup_tree[0]]
         else:
-            self.decorate_with_cohorts(rollup_tree, prefix=from_root)
+            self.decorate_with_cohorts(rollup_tree)
             natural_charts = OrderedDict()
             for cohort in rollup_tree[0]['cohorts']:
                 natural_chart = (rollup_tree[1][cohort['slug']][0], {})

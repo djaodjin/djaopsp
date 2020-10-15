@@ -256,15 +256,15 @@ class AccountSerializer(NoModelSerializer):
         help_text=_("extra information tags"))
 
     def get_reporting_status(self, obj):
-        return self.REPORTING_STATUS[obj.get(
-            'reporting_status', self.REPORTING_NOT_STARTED)][1]
+        return self.REPORTING_STATUS[obj.reporting_status][1]
 
     @staticmethod
     def get_tags(obj):
-        extra = obj.get('extra')
+        extra = obj.extra
         if isinstance(extra, dict):
             return extra.keys()
         return []
+
 
 class AssessmentMeasuresSerializer(NoModelSerializer):
     """

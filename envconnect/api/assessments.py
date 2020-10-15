@@ -142,7 +142,8 @@ class AssessmentAPIView(ReportMixin, SampleAPIView):
                 excludes=self._get_filter_out_testing(),
                 collected_by=self.request.user,
                 segment_path=self.path)
-            if self.improvement_sample:
+            if (self.improvement_sample and
+                self.improvement_sample.answers.exists()):
                 freeze_scores(self.improvement_sample,
                     includes=self.get_included_samples(), # XXX overriden!
                     excludes=self._get_filter_out_testing(),

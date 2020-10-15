@@ -109,6 +109,8 @@ def freeze_scores(sample, includes=None, excludes=None,
     LOGGER.info("freeze scores for %s based of sample %s",
         sample.account, sample.slug)
     created_at = datetime_or_now(created_at)
+    if not segment_path:
+        segment_path = '/'
     score_sample = Sample.objects.create(
         created_at=created_at,
         campaign=sample.campaign,
@@ -118,8 +120,11 @@ def freeze_scores(sample, includes=None, excludes=None,
     # Copy the actual answers
     score_metric_id = Metric.objects.get(slug='score').pk
     for answer in Answer.objects.filter(
-            sample=sample).exclude(metric_id=score_metric_id):
+            sample=sample,
+            question__path__startswith=segment_path).exclude(
+            metric_id=score_metric_id):
         answer.pk = None
+        answer.created_at = created_at
         answer.sample = score_sample
         answer.save()
         LOGGER.debug("save(created_at=%s, question_id=%s, metric_id=%s,"\
@@ -131,8 +136,6 @@ def freeze_scores(sample, includes=None, excludes=None,
     # Create frozen scores for answers we can derive a score from
     # (i.e. assessment).
     assessment_metric_id = Metric.objects.get(slug='assessment').pk
-    if not segment_path:
-        segment_path = '/'
     calculator = get_score_calculator(segment_path)
     scored_answers = calculator.get_scored_answers(
         sample.campaign, assessment_metric_id, prefix=segment_path,

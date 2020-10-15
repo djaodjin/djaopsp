@@ -16,6 +16,7 @@ from survey.models import Sample, AbstractQuestion as SurveyQuestion
 # We cannot import signals into __init__.py otherwise it creates an import
 # loop error "make initdb".
 from . import signals #pylint: disable=unused-import
+from .compat import six
 
 
 LOGGER = logging.getLogger(__name__)
@@ -129,6 +130,115 @@ class ConsumptionQuerySet(models.QuerySet):
        'filter_out_testing': filter_out_testing}
         return Sample.objects.raw(sql_query)
 
+    def get_latest_assessments(self, prefix, before=None, title=None):
+        return """
+SELECT
+    survey_sample.id AS id,
+    survey_sample.slug AS slug,
+    survey_sample.created_at AS created_at,
+    survey_sample.campaign_id AS campaign_id,
+    survey_sample.account_id AS account_id,
+    survey_sample.time_spent AS time_spent,
+    survey_sample.is_frozen AS is_frozen,
+    survey_sample.extra AS extra,
+    '%(prefix)s' AS segment_path,
+    '%(title)s' AS segment_title,
+    SUM(CASE WHEN (
+     survey_answer.metric_id = %(assessment_metric_id)s AND
+     survey_answer.measured = %(choice)s) THEN 1 ELSE 0 END) AS nb_na_answers,
+    MAX(CASE WHEN (
+     (survey_question.path LIKE '%%report-extern%%' OR
+      survey_question.path LIKE '%%publicly-reported%%') AND
+     survey_answer.metric_id = %(assessment_metric_id)s AND
+     survey_answer.measured = %(yes)s) THEN 1 ELSE 0 END) AS reporting_publicly,
+    MAX(CASE WHEN (
+     survey_question.path LIKE '%%/environmental-fines' AND
+     survey_answer.metric_id = %(assessment_metric_id)s AND
+     survey_answer.measured = %(yes)s) THEN 1 ELSE 0 END) AS reporting_fines
+FROM survey_sample
+INNER JOIN (
+    SELECT
+        survey_sample.account_id,
+        MAX(survey_sample.created_at) as last_updated_at
+    FROM survey_sample
+    INNER JOIN survey_answer
+    ON survey_answer.sample_id = survey_sample.id
+    INNER JOIN survey_question
+    ON survey_answer.question_id = survey_question.id
+    WHERE survey_question.path LIKE '%(prefix)s%%' AND
+          survey_sample.created_at <= '%(ends_at)s' AND
+          survey_sample.extra IS NULL AND
+          survey_sample.is_frozen
+    GROUP BY survey_sample.account_id) AS last_frozen_assessments
+ON survey_sample.account_id = last_frozen_assessments.account_id AND
+   survey_sample.created_at = last_frozen_assessments.last_updated_at
+INNER JOIN survey_answer
+ON survey_answer.sample_id = survey_sample.id
+INNER JOIN survey_question
+ON survey_answer.question_id = survey_question.id
+WHERE survey_sample.extra IS NULL AND
+      survey_sample.is_frozen AND
+      survey_question.path LIKE '%(prefix)s%%'
+GROUP BY survey_sample.id
+""" % {
+        'ends_at': before,
+        'prefix': prefix,
+        'title': title,
+        'assessment_metric_id': "(SELECT id FROM survey_metric"\
+            " WHERE slug='assessment')",
+        'yes': "(SELECT id FROM survey_choice"\
+            " WHERE unit_id=(SELECT id FROM survey_unit WHERE slug='yes-no')"\
+            " AND text = 'Yes')",
+        'choice': Consumption.NOT_APPLICABLE}
+
+    def get_latest_improvements(self, prefix, before=None, title=None):
+        return """
+SELECT
+    survey_sample.id AS id,
+    survey_sample.slug AS slug,
+    survey_sample.created_at AS created_at,
+    survey_sample.campaign_id AS campaign_id,
+    survey_sample.account_id AS account_id,
+    survey_sample.time_spent AS time_spent,
+    survey_sample.is_frozen AS is_frozen,
+    survey_sample.extra AS extra,
+    '%(prefix)s' AS segment_path,
+    '%(title)s' AS segment_title,
+    SUM(CASE WHEN (
+     survey_answer.metric_id = %(assessment_metric_id)s AND
+     survey_answer.measured > 0) THEN 1 ELSE 0 END)
+       AS nb_planned_improvements
+FROM survey_sample
+INNER JOIN (
+    SELECT
+        survey_sample.account_id,
+        MAX(survey_sample.created_at) as last_updated_at
+    FROM survey_sample
+    INNER JOIN survey_answer
+    ON survey_answer.sample_id = survey_sample.id
+    INNER JOIN survey_question
+    ON survey_answer.question_id = survey_question.id
+    WHERE survey_question.path LIKE '%(prefix)s%%' AND
+          survey_sample.created_at <= '%(ends_at)s' AND
+          survey_sample.extra LIKE '%%is_planned%%' AND
+          survey_sample.is_frozen
+    GROUP BY survey_sample.account_id) AS last_frozen_assessments
+ON survey_sample.account_id = last_frozen_assessments.account_id AND
+   survey_sample.created_at = last_frozen_assessments.last_updated_at
+INNER JOIN survey_answer
+ON survey_answer.sample_id = survey_sample.id
+INNER JOIN survey_question
+ON survey_answer.question_id = survey_question.id
+WHERE survey_sample.extra LIKE '%%is_planned%%' AND
+      survey_sample.is_frozen AND
+      survey_question.path LIKE '%(prefix)s%%'
+GROUP BY survey_sample.id""" % {
+        'ends_at': before,
+        'prefix': prefix,
+        'title': title,
+        'assessment_metric_id': "(SELECT id FROM survey_metric"\
+            " WHERE slug='assessment')"}
+
     def get_latest_samples_by_prefix(self, before=None, prefix=None, tag=None):
         if tag:
             extra = "survey_sample.extra LIKE '%%%(tag)s%%'" % {'tag': tag}
@@ -136,7 +246,15 @@ class ConsumptionQuerySet(models.QuerySet):
             extra = "survey_sample.extra IS NULL"
         return """
 SELECT
-    survey_sample.*
+    survey_sample.id AS id,
+    survey_sample.slug AS slug,
+    survey_sample.created_at AS created_at,
+    survey_sample.campaign_id AS campaign_id,
+    survey_sample.account_id AS account_id,
+    survey_sample.time_spent AS time_spent,
+    survey_sample.is_frozen AS is_frozen,
+    survey_sample.extra AS extra,
+    '%(prefix)s' AS segment_path
 FROM survey_sample
 INNER JOIN (
     SELECT
@@ -160,6 +278,7 @@ WHERE %(extra)s AND
             'ends_at': before,
             'extra': extra,
             'prefix': prefix}
+
 
     def get_latest_assessment_by_accounts(self, campaign,
                                           before=None, excludes=None):
@@ -732,11 +851,10 @@ INNER JOIN survey_metric
     return scored_answers
 
 
-def get_frozen_scored_answers(population, ends_at, prefix=None):
+def get_frozen_scored_answers(samples, prefix=None):
     """
     Returns aggregates for scores (`metric_id = 2` is
-    hard-coded) of assessment samples for a specific `prefix`
-    before `ends_at`.
+    hard-coded) of assessment samples for a specific `prefix`.
 
     Returns a list of tuples with the following fields:
 
@@ -760,10 +878,20 @@ def get_frozen_scored_answers(population, ends_at, prefix=None):
         - (dummy) rate
         - opportunity
     """
-    latest_assessments = Consumption.objects.get_latest_samples_by_prefix(
-        before=ends_at, prefix=prefix)
+    if isinstance(samples, six.string_types):
+        samples_query = samples
+    elif isinstance(samples, (list, tuple)):
+        if samples and isinstance(samples[0], six.integer_types):
+            samples_query = ("SELECT * FROM survey_sample WHERE id IN %s" %
+                "(%s)" % ",".join([str(spk) for spk in samples]))
+        else:
+            samples_query = ("SELECT * FROM survey_sample WHERE id IN %s" %
+                "(%s)" % ",".join([
+                    str(sample.pk) for sample in samples if sample.pk]))
+    if not prefix:
+        prefix = "/"
     scored_answers = """WITH samples AS (
-%(latest_assessments)s
+%(samples_query)s
 ),
 expected_opportunities AS (
 SELECT
@@ -821,7 +949,7 @@ LEFT OUTER JOIN survey_answer
 INNER JOIN survey_metric
   ON expected_opportunities.default_metric_id = survey_metric.id
 WHERE survey_answer.metric_id = 2""" % {
-    'latest_assessments': latest_assessments,
+    'samples_query': samples_query,
     'prefix': prefix}
     _show_query_and_result(scored_answers)
     return scored_answers
