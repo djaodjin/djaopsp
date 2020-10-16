@@ -327,6 +327,10 @@ class SuppliersAssessmentsXLSXView(SupplierListMixin, TemplateView):
 
     indent_step = '    '
 
+    @property
+    def query_supply_chain(self):
+        return False
+
     @staticmethod
     def _get_consumption(element):
         return element.get('consumption', None)
@@ -353,7 +357,7 @@ class SuppliersAssessmentsXLSXView(SupplierListMixin, TemplateView):
             row = [indent + self._get_title(root[0])]
             by_accounts = self.by_paths.get(root[0]['path'])
             if by_accounts:
-                for account_id in self.requested_accounts_pk:
+                for account_id, unused in self.accounts_with_response:
                     answer = by_accounts[account_id]
                     text = answer['measured']
                     if answer['comments']:
@@ -404,6 +408,7 @@ WHERE survey_choice.id = survey_answer.measured AND
         }
         _show_query_and_result(reporting_answers_sql)
         self.by_paths = {}
+        self.accounts_with_response = set([])
         with connection.cursor() as cursor:
             cursor.execute(reporting_answers_sql, params=None)
             for row in cursor:
@@ -417,17 +422,24 @@ WHERE survey_choice.id = survey_answer.measured AND
                     for account in self.requested_accounts_pk:
                         by_accounts[account] = {'measured': "", 'comments': ""}
                     self.by_paths[path] = by_accounts
+                if measured:
+                    self.accounts_with_response |= set([account_id])
                 if metric_id == self.default_metric_id:
                     self.by_paths[path][account_id]['measured'] = measured
                 else:
                     self.by_paths[path][account_id]['comments'] += measured
+        self.accounts_with_response = sorted([
+            (account_id,
+             self.requested_accounts[account_id].organization.printable_name)
+            for account_id in self.accounts_with_response],
+            key=lambda val: val[1])
 
         # Populate the worksheet
         wbook = Workbook()
         self.wsheet = wbook.active
         self.wsheet.title = as_valid_sheet_title("Answers")
-        headings = [''] + [account.printable_name
-            for account in six.itervalues(self.requested_accounts)]
+        headings = [''] + [printable_name
+            for account_id, printable_name in self.accounts_with_response]
         self.wsheet.append(headings)
 
         by_accounts = OrderedDict()
@@ -440,7 +452,7 @@ WHERE survey_choice.id = survey_answer.measured AND
                 account_id = sample[4]
                 by_accounts[account_id] = last_activity_at
         headings = ['Last completed at']
-        for account_id in self.requested_accounts_pk:
+        for account_id, unused in self.accounts_with_response:
             last_activity_at = by_accounts[account_id]
             if last_activity_at:
                 headings += [last_activity_at.strftime("%Y-%m-%d")]

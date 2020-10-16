@@ -535,6 +535,13 @@ ON saas_organization.id = assessments.account_id
             self._requested_accounts_pk = tuple(self.requested_accounts)
         return self._requested_accounts_pk
 
+    @property
+    def requested_accounts_pk_as_sql(self):
+        if not hasattr(self, '_requested_accounts_pk_as_sql'):
+            self._requested_accounts_pk_as_sql = "(%s)" % ','.join(
+                [str(pk) for pk in self.requested_accounts_pk])
+        return self._requested_accounts_pk_as_sql
+
     def get_accounts(self):
         return [val for val in six.itervalues(self.requested_accounts)
             if not val.grant_key]
