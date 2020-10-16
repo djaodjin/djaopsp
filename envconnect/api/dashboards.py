@@ -495,6 +495,17 @@ ON saas_organization.id = assessments.account_id
         return Sample.objects.raw(query)
 
     @property
+    def query_supply_chain(self):
+        if not hasattr(self, '_query_supply_chain'):
+            try:
+                extra = json.loads(self.account.extra)
+            except (TypeError, ValueError):
+                extra = None
+            self._query_supply_chain = bool(
+                extra and extra.get('supply_chain', None))
+        return self._query_supply_chain
+
+    @property
     def requested_accounts(self):
         if not hasattr(self, '_requested_accounts'):
             ends_at = self.ends_at
@@ -504,11 +515,7 @@ ON saas_organization.id = assessments.account_id
                         plan__organization__in=level).exclude(
                         organization__in=get_testing_accounts()).values(
                         'organization').distinct()])
-            try:
-                extra = json.loads(self.account.extra)
-            except (TypeError, ValueError):
-                extra = None
-            if extra and extra.get('supply_chain', None):
+            if self.query_supply_chain:
                 while len(level) < len(next_level):
                     level = next_level
                     next_level = level | set([rec['organization']
