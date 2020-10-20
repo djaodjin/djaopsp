@@ -383,6 +383,13 @@ DEPLOYUTILS = {
                 'manager': [{'slug': 'supplier-1',
                     'printable_name': 'Steve Shop'}]},
             'site': {'email': 'fixtures@djaodjin.com'}},
+        'melissa': {
+            'username': 'melissa',
+            'last_visited': '2020-10-20T00:00:00.000Z',
+            'roles': {
+                'manager': [{'slug': 'supplier-2',
+                    'printable_name': 'Supplier 2'}]},
+            'site': {'email': 'fixtures@djaodjin.com'}},
         'andy': {
             'username': 'andy',
             'roles': {
