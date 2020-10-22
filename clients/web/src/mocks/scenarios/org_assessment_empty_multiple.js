@@ -1,3 +1,5 @@
+import { initEmptyAssessment } from '../utils'
+
 export default function (
   server,
   orgId,
@@ -23,14 +25,5 @@ export default function (
     assessments: [assessment, previous_1, previous_2],
   })
 
-  // Per fixture: /mocks/fixtures/questions.js
-  server.schema.questions
-    .where((question) => !!question.path)
-    .models.forEach((question) => {
-      server.create('answer', {
-        assessment,
-        organization,
-        question,
-      })
-    })
+  initEmptyAssessment(server, organization, assessment)
 }

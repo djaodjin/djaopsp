@@ -1,4 +1,4 @@
-import faker from 'faker'
+import { initIncompleteAssessment } from '../utils'
 
 export default function (
   server,
@@ -13,27 +13,5 @@ export default function (
     assessments: [assessment],
   })
 
-  // Assessment with one answered question.
-  // Per fixture: /mocks/fixtures/questions.js
-  server.schema.questions.find(['4']).models.forEach((question) => {
-    server.create('answer', {
-      assessment,
-      organization,
-      question,
-      metric: question.default_metric,
-      created_at: faker.date.past(),
-      collected_by: 'current_user@testmail.com',
-    })
-  })
-
-  // Create empty answers for unanswered questions
-  server.schema.questions
-    .where((question) => question.id !== '4' && !!question.path)
-    .models.forEach((question) => {
-      server.create('answer', {
-        assessment,
-        organization,
-        question,
-      })
-    })
+  initIncompleteAssessment(server, organization, assessment)
 }

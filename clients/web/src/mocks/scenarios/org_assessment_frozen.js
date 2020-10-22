@@ -1,4 +1,4 @@
-import faker from 'faker'
+import { initCompleteAssessment } from '../utils'
 
 export default function (
   server,
@@ -15,17 +15,5 @@ export default function (
     assessments: [assessment],
   })
 
-  // Per fixture: /mocks/fixtures/questions.js
-  server.schema.questions
-    .where((question) => !!question.path)
-    .models.forEach((question) => {
-      server.create('answer', {
-        assessment,
-        organization,
-        question,
-        metric: question.default_metric,
-        created_at: faker.date.past(),
-        collected_by: 'current_user@testmail.com',
-      })
-    })
+  initCompleteAssessment(server, organization, assessment)
 }
