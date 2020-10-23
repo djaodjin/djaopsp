@@ -5,7 +5,7 @@ import {
   METRIC_FREETEXT,
   METRIC_RELEVANCE,
   METRIC_YES_NO,
-} from '../../config/questionFormTypes'
+} from '../config/questionFormTypes'
 
 /* Initialize an empty assessment i.e. with all questions unanswered
  * Per fixture: /mocks/fixtures/questions.js
@@ -61,7 +61,7 @@ export function initCompleteAssessment(server, organization, assessment) {
     .models.forEach((question) => {
       if (question.default_metric === METRIC_EMISSIONS) {
         server.create('answer', {
-          assessment: previousAssessment,
+          assessment: assessment,
           organization,
           question,
           metric: METRIC_RELEVANCE,
@@ -71,7 +71,7 @@ export function initCompleteAssessment(server, organization, assessment) {
       }
       if (question.default_metric === METRIC_YES_NO) {
         server.create('answer', {
-          assessment: previousAssessment,
+          assessment: assessment,
           organization,
           question,
           metric: METRIC_FREETEXT,
@@ -80,7 +80,7 @@ export function initCompleteAssessment(server, organization, assessment) {
         })
       }
       server.create('answer', {
-        assessment: previousAssessment,
+        assessment: assessment,
         organization,
         question,
         metric: question.default_metric,

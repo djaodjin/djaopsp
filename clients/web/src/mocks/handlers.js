@@ -1,4 +1,5 @@
 import { Response } from 'miragejs'
+import partition from 'lodash/partition'
 
 function createAssessment(schema, request) {
   const { organizationId } = request.params
@@ -49,17 +50,45 @@ function getAnswers(schema, request) {
   }
 }
 
-function getAssessmentInformation(schema, request) {
-  const { organizationId, assessmentId } = request.params
+// TODO: RENAME
+function getAssessmentHistoryUpdated(schema, request) {
+  const { organizationId } = request.params
   const organization = schema.organizations.find(organizationId)
-  if (organization.assessments.length) {
-    const assessment = organization.assessments.models.find(
-      (assessment) => assessment.slug === assessmentId
-    )
-    const { campaign, created_at, is_frozen, slug } = assessment
-    return { campaign, created_at, is_frozen, slug }
+  const assessments = organization.assessments.models.map((m) => m.attrs)
+
+  const [frozenAssessments, editableAssessments] = partition(
+    assessments,
+    'is_frozen'
+  )
+
+  const updates = editableAssessments.map((a) => ({
+    slug: a.slug,
+    account: a.account,
+    created_at: a.created_at,
+    is_frozen: a.is_frozen,
+    campaign: {
+      slug: a.campaign,
+      path: a.industryPath,
+      title: a.industryName,
+    },
+  }))
+
+  const results = frozenAssessments.map((a, index) => ({
+    key: index,
+    created_at: a.created_at,
+    values: [
+      [
+        a.industryName,
+        index,
+        `/app/${a.account}/assess/${a.slug}${a.industryPath}`,
+      ],
+    ],
+  }))
+
+  return {
+    updates,
+    results,
   }
-  return new Response(404, {}, { errors: ['assessment not found'] })
 }
 
 function getAssessmentHistory(schema, request) {
@@ -116,16 +145,6 @@ function getIndustryQuestions(schema) {
     previous: null,
     results,
   }
-}
-
-function getLatestAssessment(schema, request) {
-  const { organizationId } = request.params
-  const organization = schema.organizations.find(organizationId)
-  if (organization.assessments.length) {
-    const { slug, created_at, campaign } = organization.assessments.models[0]
-    return { campaign, created_at, slug }
-  }
-  return {}
 }
 
 function getOrganizationProfile(schema, request) {
@@ -212,11 +231,10 @@ function getBenchmarks(schema) {
 export default {
   createAssessment,
   getAnswers,
-  getAssessmentInformation,
   getAssessmentHistory,
+  getAssessmentHistoryUpdated,
   getIndustryList,
   getIndustryQuestions,
-  getLatestAssessment,
   getOrganizationProfile,
   postAnswer,
   getBenchmarks,

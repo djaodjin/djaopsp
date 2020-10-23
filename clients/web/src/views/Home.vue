@@ -32,20 +32,8 @@
                 </div>
 
                 <button-primary
-                  data-cy="continue-assessment"
-                  :to="{
-                    name: 'assessmentHome',
-                    params: { id: organization.assessments[0].id },
-                  }"
-                  v-if="
-                    organization.assessments && organization.assessments.length
-                  "
-                  >{{ $t('home.btn-continue-assessment') }}</button-primary
-                >
-                <button-primary
                   data-cy="create-assessment"
                   @click="createAssessment"
-                  v-else
                   >{{ $t('home.btn-take-assessment') }}</button-primary
                 >
               </section>
