@@ -66,6 +66,10 @@ export default class Context {
     this.industries = []
   }
 
+  addAssessment(assessment) {
+    this.assessments.set(assessment.id, assessment)
+  }
+
   async getAssessment(organization, assessmentId) {
     if (this.assessments.has(assessmentId)) {
       return this.assessments.get(assessmentId)

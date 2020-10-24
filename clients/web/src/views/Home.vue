@@ -83,9 +83,9 @@ export default {
 
   methods: {
     createAssessment() {
-      API.createAssessment(this.org, { campaign: 'assessment' }).then(
+      API.createAssessment(this.organization, { campaign: 'assessment' }).then(
         (newAssessment) => {
-          this.organization.addAssessment(newAssessment)
+          this.$context.addAssessment(newAssessment)
           this.$router.push({
             name: 'assessmentHome',
             params: { id: newAssessment.id },

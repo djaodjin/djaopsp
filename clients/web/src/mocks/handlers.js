@@ -18,10 +18,40 @@ function createAssessment(schema, request) {
 
 function getAnswers(schema, request) {
   const { organizationId, assessmentId } = request.params
-  const answers = schema.answers.where({
+  let answers = schema.answers.where({
     organizationId,
     assessmentId,
   })
+  if (!answers.models.length) {
+    const organization = schema.organizations.find(organizationId)
+    const assessment = schema.assessments.find(assessmentId)
+    // There are no answers for the assessment => this is a new assessment
+    // Initialize the assessment with all questions unanswered
+    //
+    // It would have been tempting to use the initEmptyAssessment method in
+    // utils; however, it only seems possible to create instances with
+    // server.create during app initialization when calling the seeds()
+    // method.
+    schema.questions
+      .where((question) => !!question.path)
+      .models.forEach((question) => {
+        schema.answers.create({
+          assessment,
+          organization,
+          question,
+          metric: null,
+          unit: null,
+          measured: null,
+          created_at: null,
+          collected_by: null,
+        })
+      })
+
+    answers = schema.answers.where({
+      organizationId,
+      assessmentId,
+    })
+  }
   const results = answers.models.map(
     ({
       metric,

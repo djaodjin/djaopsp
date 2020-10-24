@@ -9,13 +9,15 @@ import Section from '@/common/models/Section'
 import Subcategory from '@/common/models/Subcategory'
 import { VALID_METRICS } from '@/config/questionFormTypes'
 
-async function createAssessment(organizationId, payload) {
-  const response = await request(`/${organizationId}/sample/`, {
+async function createAssessment(organization, payload) {
+  const response = await request(`/${organization.id}/sample/`, {
     body: payload,
   })
   if (!response.ok) throw new APIError(response.status)
   const { slug, created_at } = await response.json()
-  return new Assessment({ id: slug, created: created_at })
+  const assessment = new Assessment({ id: slug, created: created_at })
+  organization.addAssessment(assessment)
+  return assessment
 }
 
 async function getAssessmentWithData(organization, assessment) {
