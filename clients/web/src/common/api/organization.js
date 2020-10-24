@@ -53,14 +53,18 @@ async function getOrganization(organizationId) {
       })
     })
 
-    const previousAssessments = assessmentHistory.results.map((a) => {
+    const previousAssessments = []
+    assessmentHistory.results.forEach((a) => {
       const created = a.created_at
-      const { id, industry } = parseAssessmentResult(a.values[0])
-      return new Assessment({
-        id,
-        created,
-        frozen: true,
-        industry,
+      a.values.forEach((v) => {
+        const { id, industry } = parseAssessmentResult(v)
+        const assessment = new Assessment({
+          id,
+          created,
+          frozen: true,
+          industry,
+        })
+        previousAssessments.push(assessment)
       })
     })
 

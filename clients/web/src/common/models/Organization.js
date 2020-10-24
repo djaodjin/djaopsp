@@ -12,4 +12,12 @@ export default class Organization {
     this.assessments = assessments
     this.previousAssessments = previousAssessments
   }
+
+  addAssessment(assessment) {
+    this.assessments.push(assessment)
+  }
+
+  getAssessment(assessmentId) {
+    return this.assessments.find((a) => a.id === assessmentId)
+  }
 }

@@ -25,7 +25,7 @@
               </div>
               <div v-else>
                 <form-select-industry
-                  :organizationId="org"
+                  :organization="organization"
                   @industry:set="setIndustry"
                 />
               </div>
@@ -55,12 +55,11 @@ export default {
 
   methods: {
     async fetchData() {
-      const [organization, assessment] = await Promise.all([
-        this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.org, this.id),
-      ])
-      this.organization = organization
-      this.assessment = assessment
+      this.organization = await this.$context.getOrganization(this.org)
+      this.assessment = await this.$context.getAssessment(
+        this.organization,
+        this.id
+      )
     },
     async setIndustry(industry) {
       this.assessment = await this.$context.setAssessmentIndustry(

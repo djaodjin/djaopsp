@@ -51,17 +51,7 @@ function createIndustryList(industries, previousIndustries) {
 
   if (previousIndustries.length) {
     industryList.push({ header: 'PREVIOUSLY SELECTED' })
-    const previous = previousIndustries.map(({ values }) => {
-      // TODO: Consider case where assessment belongs to more than one industry segment
-      const segment = values[0]
-      const industryName = segment[0]
-      const industryPath = segment[2] && segment[2].split('/content')[1]
-      return {
-        text: industryName,
-        value: industryPath,
-      }
-    })
-    industryList = industryList.concat(previous)
+    industryList = industryList.concat(previousIndustries)
     industryList.push({ divider: true })
   }
   // If previous industries exist, these entries will appear twice but the select control
@@ -76,22 +66,26 @@ export default class Context {
     this.industries = []
   }
 
-  async getAssessment(organizationId, assessmentId) {
+  async getAssessment(organization, assessmentId) {
     if (this.assessments.has(assessmentId)) {
       return this.assessments.get(assessmentId)
     } else {
-      const assessment = await API.getAssessment(organizationId, assessmentId)
-      this.assessments.set(assessmentId, assessment)
+      let assessment = organization.getAssessment(assessmentId)
+      if (assessment && assessment.industryPath) {
+        assessment = await API.getAssessmentWithData(organization, assessment)
+        this.assessments.set(assessmentId, assessment)
+      }
       return assessment
     }
   }
 
-  async getIndustries(organizationId) {
+  async getIndustries(organization) {
     if (!this.industries.length) {
-      const [industries, previousIndustries] = await Promise.all([
-        API.getIndustrySegments(),
-        API.getPreviousIndustrySegments(organizationId),
-      ])
+      const industries = await API.getIndustrySegments()
+      const previousIndustries = organization.previousAssessments.map((a) => ({
+        text: a.industryName,
+        value: a.industryPath,
+      }))
       this.industries = createIndustryList(industries, previousIndustries)
     }
     return this.industries

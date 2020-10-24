@@ -18,42 +18,28 @@ async function createAssessment(organizationId, payload) {
   return new Assessment({ id: slug, created: created_at })
 }
 
-async function getAssessment(organizationId, assessmentId) {
+async function getAssessmentWithData(organization, assessment) {
   try {
-    const responses = await Promise.all([
-      request(`/${organizationId}/sample/${assessmentId}/`),
-      request(`/${organizationId}/sample/${assessmentId}/answers/`),
-      request('/content?q=public'),
-    ])
-    const error = responses.find((response) => !response.ok)
-    if (error) {
-      throw new APIError(`Failed to get assessment: ${error.statusText}`)
-    }
-
-    const [
-      { created_at, is_frozen, slug },
-      { results: answers },
-      { results: industries },
-    ] = await Promise.all(responses.map((response) => response.json()))
-
-    let assessment = new Assessment({
-      id: slug,
-      created: created_at,
-      frozen: is_frozen,
+    const { id, created, frozen, industryName, industryPath } = assessment
+    const {
+      answers,
+      questions,
+      targetAnswers,
+      targetQuestions,
+    } = await getCurrentPracticesContent(organization.id, id, industryPath)
+    return new Assessment({
+      id,
+      created,
+      frozen,
+      industry: {
+        title: industryName,
+        path: industryPath,
+      },
+      answers,
+      questions,
+      targetAnswers,
+      targetQuestions,
     })
-
-    // Find an answer with content
-    const answered = answers.find((answer) => answer.metric)
-    if (answered) {
-      const answerPath = answered.question.path
-      const industry = industries.find((obj) => answerPath.startsWith(obj.path))
-      assessment = await setAssessmentIndustry(
-        organizationId,
-        assessment,
-        industry
-      )
-    }
-    return assessment
   } catch (e) {
     throw new APIError(e)
   }
@@ -118,6 +104,7 @@ async function getIndustrySegments() {
   return results
 }
 
+// TODO: UPDATE
 async function getAllPreviousAnswers(organizationId, assessment) {
   try {
     let answersByPath = {}
@@ -155,13 +142,6 @@ async function getPreviousAnswers(organizationId, assessment) {
 async function getPreviousTargets(organizationId, assessment) {
   const answersByPath = await getAllPreviousAnswers(organizationId, assessment)
   return getAnswerInstances(answersByPath, assessment.targetQuestions)
-}
-
-async function getPreviousIndustrySegments(organizationId) {
-  const response = await request(`/${organizationId}/benchmark/historical/`)
-  if (!response.ok) throw new APIError(response.status)
-  const { results } = await response.json()
-  return results
 }
 
 function getFlatAnswersByPath(answerList) {
@@ -292,10 +272,9 @@ async function setAssessmentIndustry(organizationId, assessment, industry) {
 
 export default {
   createAssessment,
-  getAssessment,
+  getAssessmentWithData,
   getIndustrySegments,
   getPreviousAnswers,
-  getPreviousIndustrySegments,
   getPreviousTargets,
   postAnswer,
   postTarget,
