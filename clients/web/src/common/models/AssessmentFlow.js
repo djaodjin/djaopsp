@@ -18,7 +18,7 @@ export class AssessmentStep {
       )
       const routePath = route.path
         .replace(':org', organization.id)
-        .replace(':id', assessment.id)
+        .replace(':slug', assessment.slug)
         .replace('*', assessment.industryPath.substr(1))
       router.push(routePath)
     }

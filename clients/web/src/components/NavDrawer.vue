@@ -19,7 +19,10 @@
         this.$route.name !== 'newAssessment'
       "
       link
-      :to="{ name: 'assessmentHome', params: { slug: $route.params.slug } }"
+      :to="{
+        name: 'assessmentHome',
+        params: { org: $route.params.org, slug: $route.params.slug },
+      }"
       exact
     >
       <v-list-item-action>

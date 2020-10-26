@@ -8,7 +8,7 @@
         exact
         :min-height="44"
         :ripple="false"
-        :to="{ name: 'assessmentHome', params: { slug: $route.params.slug } }"
+        :to="`/${$route.params.org}/home/${$route.params.slug}/${$route.params.pathMatch}/`"
       >
         <div class="flex-line">
           <v-icon small>mdi-arrow-up-circle</v-icon>

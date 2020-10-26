@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="assessment">
+  <v-container>
     <v-row>
       <v-col cols="12">
         <component
@@ -12,23 +12,15 @@
             :linkTo="{ name: 'home', params: { org: $route.params.org } }"
             text="Environment Sustainability Assessment"
           />
-          <v-row v-if="assessmentHasData" justify="center">
+          <v-row v-if="assessment" justify="center">
             <v-col cols="12" sm="8" md="6">
               <assessment-info :organizationId="org" :assessment="assessment" />
             </v-col>
             <v-col cols="12" sm="8" md="5">
-              <div v-if="assessment.industryName">
-                <assessment-stepper
-                  :organization="organization"
-                  :assessment="assessment"
-                />
-              </div>
-              <div v-else>
-                <form-select-industry
-                  :organization="organization"
-                  @industry:set="setIndustry"
-                />
-              </div>
+              <assessment-stepper
+                :organization="organization"
+                :assessment="assessment"
+              />
             </v-col>
           </v-row>
         </component>
@@ -68,7 +60,7 @@ export default {
   data() {
     return {
       organization: {},
-      assessment: {},
+      assessment: null,
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }
   },
@@ -76,9 +68,6 @@ export default {
   computed: {
     container() {
       return this.STANDALONE ? 'div' : 'v-sheet'
-    },
-    assessmentHasData() {
-      return Object.keys(this.assessment).length
     },
   },
 
