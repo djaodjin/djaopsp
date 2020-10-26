@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import AssessmentCreate from './views/AssessmentCreate'
 import AssessmentCurrentPractices from './views/AssessmentCurrentPractices'
 import AssessmentEnvironmentalTargets from './views/AssessmentEnvironmentalTargets'
 import AssessmentHome from './views/AssessmentHome'
@@ -25,63 +26,70 @@ export default new Router({
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/assess/:id/',
+      path: '/:org/create/',
+      name: 'assessmentCreate',
+      component: AssessmentCreate,
+      props: true,
+      pathToRegexpOptions: { strict: true },
+    },
+    {
+      path: '/:org/home/:slug/*/',
       name: 'assessmentHome',
       component: AssessmentHome,
       props: true,
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/assess/:id/intro/*/',
+      path: '/:org/assess/:slug/intro/*/',
       name: 'introPractices',
       component: IntroCurrentPractices,
       props: true,
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/assess/:id/content/*/',
+      path: '/:org/assess/:slug/*/',
       name: 'assessmentPractices',
       component: AssessmentCurrentPractices,
       props: true,
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/targets/:id/intro/*/',
+      path: '/:org/targets/:slug/intro/*/',
       name: 'introTargets',
       component: IntroEnvironmentalTargets,
       props: true,
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/targets/:id/content/*/',
+      path: '/:org/targets/:slug/*/',
       name: 'assessmentTargets',
       component: AssessmentEnvironmentalTargets,
       props: true,
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/improve/:id/intro/*/',
+      path: '/:org/improve/:slug/intro/*/',
       name: 'introPlan',
       component: IntroImprovementPlan,
       props: true,
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/improve/:id/content/*/',
+      path: '/:org/improve/:slug/*/',
       name: 'assessmentPlan',
       component: AssessmentImprovementPlan,
       props: true,
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/scorecard/:id/content/*/',
+      path: '/:org/scorecard/:slug/*/',
       name: 'assessmentScorecard',
       component: AssessmentScorecard,
       props: true,
       pathToRegexpOptions: { strict: true },
     },
     {
-      path: '/:org/share/:id/content/*/',
+      path: '/:org/share/:slug/*/',
       name: 'assessmentShare',
       component: AssessmentShare,
       props: true,

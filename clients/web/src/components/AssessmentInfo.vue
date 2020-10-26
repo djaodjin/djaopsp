@@ -23,7 +23,7 @@
         </li> -->
         <li v-if="isClickable">
           <router-link
-            :to="{ name: 'assessmentHome', params: { id: assessment.id } }"
+            :to="`/${organizationId}/home/${assessment.slug}/${assessment.industryPath}/`"
           >
             <b class="status" v-if="assessment.frozen">Completed</b>
             <b class="status" v-else>In Progress</b>
@@ -47,6 +47,10 @@ export default {
   name: 'AssessmentInfo',
 
   props: {
+    organizationId: {
+      type: String,
+      required: true,
+    },
     assessment: {
       type: Object,
       require: true,

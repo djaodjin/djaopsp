@@ -14,7 +14,7 @@
       <button-primary
         :to="{
           name: 'assessmentHome',
-          params: { org: organizationId, id: assessmentId },
+          params: { org: organizationId, slug: assessmentSlug },
         }"
       >
         Back to Assessment Home
@@ -29,7 +29,7 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 export default {
   name: 'PracticesProgressIndicator',
 
-  props: ['numAnswers', 'numQuestions', 'organizationId', 'assessmentId'],
+  props: ['numAnswers', 'numQuestions', 'organizationId', 'assessmentSlug'],
 
   computed: {
     completed() {

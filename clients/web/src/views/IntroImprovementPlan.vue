@@ -34,7 +34,7 @@
             color="secondary"
             :to="{
               name: 'assessmentHome',
-              params: { org, id },
+              params: { org, slug },
             }"
           >
             Continue without Improvement Plan

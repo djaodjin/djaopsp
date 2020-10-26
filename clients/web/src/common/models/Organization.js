@@ -20,4 +20,9 @@ export default class Organization {
   getAssessment(assessmentId) {
     return this.assessments.find((a) => a.id === assessmentId)
   }
+
+  replaceAssessment(assessment) {
+    const index = this.assessments.findIndex((a) => a.id === assessment.id)
+    this.assessments.splice(index, 1, assessment)
+  }
 }

@@ -81,7 +81,7 @@ export default {
           this.assessment.targetAnswers = newTargetAnswers
           this.$router.push({
             name: 'assessmentHome',
-            params: { org: this.organization.id, id: this.assessment.id },
+            params: { org: this.organization.id, slug: this.assessment.slug },
           })
         })
       }

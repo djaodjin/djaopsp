@@ -18,7 +18,7 @@
         <button-primary
           data-cy="btn-continue"
           class="mt-8"
-          :to="`/${this.org}/targets/${this.id}/content/${this.assessment.industryPath}/`"
+          :to="`/${this.org}/targets/${this.id}/${this.assessment.industryPath}/`"
           >Continue</button-primary
         >
         <div class="text-center">
@@ -28,7 +28,7 @@
             color="secondary"
             :to="{
               name: 'assessmentHome',
-              params: { org, id },
+              params: { org, slug },
             }"
           >
             Continue without targets

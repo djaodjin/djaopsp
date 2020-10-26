@@ -70,7 +70,7 @@ export default {
       console.log('Call API to advance assessment')
       this.$router.push({
         name: 'assessmentHome',
-        params: { id: this.assessmentId },
+        params: { slug: this.assessmentId },
       })
     },
   },

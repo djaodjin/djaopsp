@@ -23,7 +23,7 @@
             class="mt-6"
             :to="{
               name: 'assessmentHome',
-              params: { id },
+              params: { slug },
             }"
           >
             Return to assessment

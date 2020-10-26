@@ -131,7 +131,7 @@ export default {
       console.log('validate form content and submit')
       this.$router.push({
         name: 'assessmentHome',
-        params: { id: this.assessment.id },
+        params: { slug: this.assessment.slug },
       })
     },
   },

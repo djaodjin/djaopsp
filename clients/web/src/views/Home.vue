@@ -25,6 +25,7 @@
                   >
                     <assessment-info
                       class="mb-6"
+                      :organizationId="org"
                       :assessment="assessment"
                       :isClickable="true"
                     />
@@ -33,7 +34,7 @@
 
                 <button-primary
                   data-cy="create-assessment"
-                  @click="createAssessment"
+                  :to="{ name: 'assessmentCreate' }"
                   >{{ $t('home.btn-take-assessment') }}</button-primary
                 >
               </section>
@@ -68,7 +69,6 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
-import API from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import AssessmentInfo from '@/components/AssessmentInfo'
 
@@ -82,17 +82,6 @@ export default {
   },
 
   methods: {
-    createAssessment() {
-      API.createAssessment(this.organization, { campaign: 'assessment' }).then(
-        (newAssessment) => {
-          this.$context.addAssessment(newAssessment)
-          this.$router.push({
-            name: 'assessmentHome',
-            params: { id: newAssessment.id },
-          })
-        }
-      )
-    },
     async fetchData() {
       this.organization = await this.$context.getOrganization(this.org)
     },

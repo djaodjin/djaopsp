@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import API from '@/common/api'
+import Assessment from '@/common/models/Assessment'
 
 Vue.mixin({
   beforeCreate() {
@@ -62,25 +63,23 @@ function createIndustryList(industries, previousIndustries) {
 export default class Context {
   constructor() {
     this.organizations = new Map()
-    this.assessments = new Map()
     this.industries = []
   }
 
-  addAssessment(assessment) {
-    this.assessments.set(assessment.id, assessment)
-  }
-
-  async getAssessment(organization, assessmentId) {
-    if (this.assessments.has(assessmentId)) {
-      return this.assessments.get(assessmentId)
-    } else {
-      let assessment = organization.getAssessment(assessmentId)
-      if (assessment && assessment.industryPath) {
-        assessment = await API.getAssessmentWithData(organization, assessment)
-        this.assessments.set(assessmentId, assessment)
-      }
-      return assessment
+  async getAssessment(organization, slug, industryPath) {
+    const assessmentId = Assessment.getId(slug, industryPath)
+    // When the organization first loads, basic information will be loaded
+    // for all its assessments.
+    let assessment = organization.getAssessment(assessmentId)
+    if (assessment && !assessment.questions.length) {
+      // If the assessment doesn't have any questions, it's probably we still have
+      // not called API.getAssessment to fetch all its details.
+      assessment = await API.getAssessmentDetails(organization, assessment)
+      // Replace the assessment instance that had basic information with a new
+      // assessment instance that has more details
+      organization.replaceAssessment(assessment)
     }
+    return assessment
   }
 
   async getIndustries(organization) {
@@ -103,23 +102,5 @@ export default class Context {
       this.organizations.set(organizationId, organization)
       return organization
     }
-  }
-
-  async setAssessmentIndustry(organizationId, assessmentId, industry) {
-    const assessment = this.assessments.get(assessmentId)
-    if (assessment) {
-      const updated = await API.setAssessmentIndustry(
-        organizationId,
-        assessment,
-        industry
-      )
-      this.assessments.set(assessment.id, updated)
-      return updated
-    }
-  }
-
-  updateAssessment(assessment) {
-    this.assessments.set(assessment.id, assessment)
-    return assessment
   }
 }

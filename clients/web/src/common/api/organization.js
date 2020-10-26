@@ -6,18 +6,18 @@ import OrganizationGroup from '@/common/models/OrganizationGroup'
 function parseAssessmentResult(assessmentValues) {
   const industryTitle = assessmentValues[0]
   const path = assessmentValues[2]
-  let id = null
+  let slug = null
   let industryPath = ''
 
   // For example: /app/supplier-1/assess/10/metal/boxes-and-enclosures/
   const str = path.split('/assess/')[1]
   if (str) {
     const delimiterIdx = str.indexOf('/')
-    id = str.substring(0, delimiterIdx)
+    slug = str.substring(0, delimiterIdx)
     industryPath = str.substring(delimiterIdx)
   }
   return {
-    id,
+    slug,
     industry: industryPath
       ? {
           title: industryTitle,
@@ -43,7 +43,7 @@ async function getOrganization(organizationId) {
 
     const assessments = assessmentHistory.updates.map((a) => {
       return new Assessment({
-        id: a.slug,
+        slug: a.slug,
         created: a.created_at,
         frozen: a.is_frozen,
         industry: {
@@ -57,9 +57,9 @@ async function getOrganization(organizationId) {
     assessmentHistory.results.forEach((a) => {
       const created = a.created_at
       a.values.forEach((v) => {
-        const { id, industry } = parseAssessmentResult(v)
+        const { slug, industry } = parseAssessmentResult(v)
         const assessment = new Assessment({
-          id,
+          slug,
           created,
           frozen: true,
           industry,

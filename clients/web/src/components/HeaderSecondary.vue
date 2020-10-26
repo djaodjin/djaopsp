@@ -8,7 +8,7 @@
         exact
         :min-height="44"
         :ripple="false"
-        :to="{ name: 'assessmentHome', params: { id: $route.params.id } }"
+        :to="{ name: 'assessmentHome', params: { slug: $route.params.slug } }"
       >
         <div class="flex-line">
           <v-icon small>mdi-arrow-up-circle</v-icon>

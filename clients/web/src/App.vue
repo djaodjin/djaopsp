@@ -59,7 +59,7 @@
           "
           :to="{
             name: 'assessmentHome',
-            params: { org: $route.params.org, id: $route.params.id },
+            params: { org: $route.params.org, slug: $route.params.slug },
           }"
         >
           <span>Assessment</span>

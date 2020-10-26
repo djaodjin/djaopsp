@@ -15,22 +15,20 @@ async function createAssessment(organization, payload) {
   })
   if (!response.ok) throw new APIError(response.status)
   const { slug, created_at } = await response.json()
-  const assessment = new Assessment({ id: slug, created: created_at })
-  organization.addAssessment(assessment)
-  return assessment
+  return new Assessment({ slug: slug, created: created_at })
 }
 
-async function getAssessmentWithData(organization, assessment) {
+async function getAssessmentDetails(organization, assessment) {
   try {
-    const { id, created, frozen, industryName, industryPath } = assessment
+    const { slug, created, frozen, industryName, industryPath } = assessment
     const {
       answers,
       questions,
       targetAnswers,
       targetQuestions,
-    } = await getCurrentPracticesContent(organization.id, id, industryPath)
+    } = await getCurrentPracticesContent(organization.id, slug, industryPath)
     return new Assessment({
-      id,
+      slug,
       created,
       frozen,
       industry: {
@@ -49,14 +47,14 @@ async function getAssessmentWithData(organization, assessment) {
 
 async function getCurrentPracticesContent(
   organizationId,
-  assessmentId,
+  assessmentSlug,
   industryPath
 ) {
   try {
     const responses = await Promise.all([
       request(`/content${industryPath}`),
       request(
-        `/${organizationId}/sample/${assessmentId}/answers${industryPath}`
+        `/${organizationId}/sample/${assessmentSlug}/answers${industryPath}`
       ),
     ])
     const error = responses.find((response) => !response.ok)
@@ -252,16 +250,16 @@ async function postAnswer(organizationId, assessment, answer) {
   return answer
 }
 
-async function setAssessmentIndustry(organizationId, assessment, industry) {
-  const { id, created, frozen } = assessment
+async function setAssessmentIndustry(organization, assessment, industry) {
+  const { slug, created, frozen } = assessment
   const {
     answers,
     questions,
     targetAnswers,
     targetQuestions,
-  } = await getCurrentPracticesContent(organizationId, id, industry.path)
+  } = await getCurrentPracticesContent(organization.id, slug, industry.path)
   return new Assessment({
-    id,
+    slug,
     created,
     frozen,
     industry,
@@ -274,7 +272,7 @@ async function setAssessmentIndustry(organizationId, assessment, industry) {
 
 export default {
   createAssessment,
-  getAssessmentWithData,
+  getAssessmentDetails,
   getIndustrySegments,
   getPreviousAnswers,
   getPreviousTargets,
