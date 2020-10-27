@@ -47,7 +47,7 @@ export default {
 
   methods: {
     async fetchData() {
-      const industryPath = this.$route.params.pathMatch
+      const industryPath = `/${this.$route.params.pathMatch}/`
       this.organization = await this.$context.getOrganization(this.org)
       this.assessment = await this.$context.getAssessment(
         this.organization,
