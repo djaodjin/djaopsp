@@ -104,46 +104,6 @@ async function getIndustrySegments() {
   return results
 }
 
-// TODO: UPDATE
-async function getAllPreviousAnswers(organizationId, assessment) {
-  try {
-    let answersByPath = {}
-    const response = await request(
-      `/${organizationId}/benchmark/historical${assessment.industryPath}`
-    )
-    if (!response.ok) throw new APIError(response.status)
-    const { results } = await response.json()
-
-    if (results.length) {
-      const path = results[0].values[0][2]
-      // For example: /app/eta/assess/10/content/metal/boxes-and-enclosures/
-      const str = path.split('/content/')[0]
-      if (str) {
-        const previousAssessmentId = str.substr(str.lastIndexOf('/') + 1)
-        const response = await request(
-          `/${organizationId}/sample/${previousAssessmentId}/answers${assessment.industryPath}`
-        )
-        if (!response.ok) throw new APIError(response.status)
-        const { results: answerList } = await response.json()
-        answersByPath = getFlatAnswersByPath(answerList)
-      }
-    }
-    return answersByPath
-  } catch (e) {
-    throw new APIError(e)
-  }
-}
-
-async function getPreviousAnswers(organizationId, assessment) {
-  const answersByPath = await getAllPreviousAnswers(organizationId, assessment)
-  return getAnswerInstances(answersByPath, assessment.questions)
-}
-
-async function getPreviousTargets(organizationId, assessment) {
-  const answersByPath = await getAllPreviousAnswers(organizationId, assessment)
-  return getAnswerInstances(answersByPath, assessment.targetQuestions)
-}
-
 function getFlatAnswersByPath(answerList) {
   const flatAnswers = answerList
     .filter(({ metric }) => metric === null || VALID_METRICS.includes(metric))
@@ -274,8 +234,6 @@ export default {
   createAssessment,
   getAssessmentDetails,
   getIndustrySegments,
-  getPreviousAnswers,
-  getPreviousTargets,
   postAnswer,
   postTarget,
   setAssessmentIndustry,

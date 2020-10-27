@@ -17,8 +17,14 @@ export default class Organization {
     this.assessments.push(assessment)
   }
 
-  getAssessment(assessmentId) {
+  findAssessment(assessmentId) {
     return this.assessments.find((a) => a.id === assessmentId)
+  }
+
+  findPreviousAssessmentByIndustry(industryPath) {
+    // We assume that previous assessments are sorted by date (descending) so
+    // the first one found will be the most recent.
+    return this.previousAssessments.find((a) => a.industryPath === industryPath)
   }
 
   replaceAssessment(assessment) {

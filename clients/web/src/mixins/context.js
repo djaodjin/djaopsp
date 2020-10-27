@@ -70,10 +70,21 @@ export default class Context {
     const assessmentId = Assessment.getId(slug, industryPath)
     // When the organization first loads, basic information will be loaded
     // for all its assessments.
-    let assessment = organization.getAssessment(assessmentId)
+    let assessment = organization.findAssessment(assessmentId)
     if (assessment && !assessment.questions.length) {
       // If the assessment doesn't have any questions, it's probably we still have
       // not called API.getAssessment to fetch all its details.
+      assessment = await API.getAssessmentDetails(organization, assessment)
+      // Replace the assessment instance that had basic information with a new
+      // assessment instance that has more details
+      organization.replaceAssessment(assessment)
+    }
+    return assessment
+  }
+
+  async getPreviousAssessment(organization, industryPath) {
+    let assessment = organization.findPreviousAssessmentByIndustry(industryPath)
+    if (assessment && !assessment.questions.length) {
       assessment = await API.getAssessmentDetails(organization, assessment)
       // Replace the assessment instance that had basic information with a new
       // assessment instance that has more details
