@@ -10,13 +10,13 @@
       <input type="checkbox" name="industry" value="{{segment.path}}"
       {% if not segment.disabled %}checked{% endif %} />
       <a id="{{segment.path}}" href="{{'app/assess'|site_prefixed}}{{segment.path}}/" role="menuitem" tabindex="-1">{{segment.title}}</a>
-      {% else %}
+    {% else %}
       {% if not segment.disabled %}
-      {% if not segment.path %}
-      <button id="{{segment.path}}" disabled>{{segment.title}}</button>
-      {% else %}
-      <a id="{{segment.path}}" href="{{'app/assess'|site_prefixed}}{{segment.path}}/" role="menuitem" tabindex="-1">{{segment.title}}</a>
-      {% endif %}
+        {% if not segment.path %}
+        <button id="{{segment.path}}" disabled>{{segment.title}}</button>
+        {% else %}
+        <a id="{{segment.path}}" href="{{'app/assess'|site_prefixed}}{{segment.path}}/" role="menuitem" tabindex="-1">{{segment.title}}</a>
+        {% endif %}
       {% else %}
       <span id="{{segment.path}}" class="disabled" role="menuitem" tabindex="-1">{{segment.title}} <i class="fa fa-wrench"></i></span>
       {% endif %}

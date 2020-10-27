@@ -462,6 +462,12 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         for path, vals in six.iteritems(leafs):
             consumption = Consumption.objects.filter(
                 enumeratedquestions__campaign=self.campaign, path=path).first()
+            # XXX Find candidate
+            #if not consumption:
+            #    slug = path.split('/')[-1]
+            #    consumption = Consumption.objects.filter(
+            #        enumeratedquestions__campaign=self.campaign,
+            #        path__endswith=slug).first()
             if consumption:
                 vals[0]['consumption'] \
                     = ConsumptionSerializer(context={'campaign': self.campaign
@@ -1122,7 +1128,8 @@ class BestPracticeMixin(BreadcrumbMixin):
     """
 
     def get_template_names(self):
-        if not self.best_practice:
+        if RelationShip.objects.filter(orig_element=self.element).exists():
+            # It is not a leaf, let's return the list view
             return super(BestPracticeMixin, self).get_template_names()
         return ['envconnect/best_practice.html']
 
