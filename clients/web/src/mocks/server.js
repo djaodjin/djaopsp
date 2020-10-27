@@ -222,16 +222,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         routeHandlers.getAssessmentHistory
       )
 
-      this.get(
-        '/:organizationId/benchmark/historical/*/',
-        routeHandlers.getAssessmentHistory
-      )
-
-      this.get(
-        '/:organizationId/benchmark/new-historical/',
-        routeHandlers.getAssessmentHistoryUpdated
-      )
-
       /* --- ORGANIZATIONS --- */
       this.get('/organizations', (schema) => {
         return schema.organizationGroups.all()

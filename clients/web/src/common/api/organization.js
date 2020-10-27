@@ -34,7 +34,7 @@ async function getOrganization(organizationId) {
       assessmentHistoryResponse,
     ] = await Promise.all([
       request(`/profile/${organizationId}/`),
-      request(`/${organizationId}/benchmark/new-historical/`),
+      request(`/${organizationId}/benchmark/historical/`),
     ])
     const [organizationProfile, assessmentHistory] = await Promise.all([
       organizationProfileResponse.json(),
