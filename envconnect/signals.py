@@ -1,8 +1,8 @@
 # Copyright (c) 2020, DjaoDjin inc.
 # see LICENSE.
 
-from answers.models import Follow, get_question_model
-from answers.signals import question_new
+from pages.models import Follow, PageElement
+from pages.signals import question_new
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
@@ -38,7 +38,7 @@ def on_question_new(sender, question, request, *args, **kwargs):
 
 @receiver(comment_was_posted, dispatch_uid="comment_was_posted_notice")
 def on_answer_posted(sender, comment, request, *args, **kwargs):
-    question_ctype = ContentType.objects.get_for_model(get_question_model())
+    question_ctype = ContentType.objects.get_for_model(PageElement)
     if comment.content_type == question_ctype:
         question = comment.content_object
         back_url = request.build_absolute_uri(request.POST.get('next', ""))

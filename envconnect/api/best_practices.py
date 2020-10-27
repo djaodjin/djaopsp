@@ -5,17 +5,18 @@ import json, logging, re
 
 from deployutils.crypt import JSONEncoder
 from django.db import transaction
+from django.db.models import Max
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import (
-    RetrieveUpdateDestroyAPIView, UpdateAPIView)
+from rest_framework.generics import UpdateAPIView
 from rest_framework.response import Response
 from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip
 from pages.api.relationship import (PageElementMirrorAPIView,
     PageElementMoveAPIView)
+from pages.api.edition import PageElementEditableDetail
 from survey.models import EnumeratedQuestions
 
 from ..mixins import BestPracticeMixin, BreadcrumbMixin
@@ -62,8 +63,6 @@ class EnableContentAPIView(ToggleTagContentAPIView):
     """
     Enable a top level segment
 
-    **Tags**: content
-
     **Examples
 
     .. code-block:: http
@@ -84,8 +83,6 @@ class EnableContentAPIView(ToggleTagContentAPIView):
 class DisableContentAPIView(ToggleTagContentAPIView):
     """
     Disable a top level segment
-
-    **Tags**: content
 
     **Examples
 
@@ -114,14 +111,14 @@ class BestPracticeMirrorAPIView(BreadcrumbMixin, PageElementMirrorAPIView):
     instead of the `Column` instance because the user interface will
     want a chance to refresh the display accordingly.
 
-    **Tags**: content
+    **Tags**: editors
 
     **Examples
 
     .. code-block:: http
 
        POST /api/content/editables/mirror/boxes-enclosures/\
-energy-efficiency/ HTTP/1.1
+energy-efficiency HTTP/1.1
 
     .. code-block:: json
 
@@ -171,10 +168,6 @@ energy-efficiency/ HTTP/1.1
                         'profitability': consumption.profitability,
                         'avg_energy_saving': consumption.avg_energy_saving,
                         'avg_fuel_saving': consumption.avg_fuel_saving,
-                        'capital_cost_low': consumption.capital_cost_low,
-                        'capital_cost_high': consumption.capital_cost_high,
-                        'capital_cost': consumption.capital_cost,
-                        'payback_period': consumption.payback_period
                     })
                 if created:
                     EnumeratedQuestions.objects.get_or_create(
@@ -190,13 +183,13 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
 
     Moves a PageElement from one attachement to another.
 
-    **Tags**: content
+    **Tags**: editors
 
     **Examples
 
     .. code-block:: http
 
-        POST /api/content/editables/attach/content-root/ HTTP/1.1
+        POST /api/content/editables/envconnect/attach/boxes-enclosures HTTP/1.1
 
     .. code-block:: json
 
@@ -236,15 +229,14 @@ class BestPracticeMoveAPIView(PageElementMoveAPIView):
                 consumption.save()
 
 
-# XXX should not derive from BestPracticeMixin but PageElement instead?
-class BestPracticeAPIView(BestPracticeMixin, RetrieveUpdateDestroyAPIView):
+class BestPracticeAPIView(BestPracticeMixin, PageElementEditableDetail):
     """
-    Retrieves details on a content node
+    Retrieves editable details on a practice
 
     This API returns the text of a single content node identified
     in the content tree by `path`.
 
-    **Tags**: content
+    **Tags**: editors
 
     **Examples
 
@@ -286,19 +278,19 @@ energy-efficiency/air-flow HTTP/1.1
 
     def post(self, request, *args, **kwargs):
         """
-        Updates a content node
+        Creates a practice
 
         Updates the title, text and, if applicable, the metrics associated
         associated to the content element referenced by *path*.
 
-        **Tags**: content
+        **Tags**: editors
 
         **Examples
 
         .. code-block:: http
 
             POST /api/content/editables/detail/boxes-enclosures/\
-energy-efficiency/air-flow/ HTTP/1.1
+energy-efficiency HTTP/1.1
 
         .. code-block:: json
 
@@ -335,16 +327,16 @@ energy-efficiency/air-flow/ HTTP/1.1
             }
 
         """
-        return self.update(request, *args, **kwargs)
+        return super(BestPracticeAPIView, self).create(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         """
-        Updates a content node
+        Updates a practice
 
         Updates the title, text and, if applicable, the metrics associated
         associated to the content element referenced by *path*.
 
-        **Tags**: content
+        **Tags**: editors
 
         **Examples
 
@@ -398,7 +390,7 @@ energy-efficiency/air-flow/ HTTP/1.1
         removes content element referenced by path from the content
         hierarchy.
 
-        **Tags**: content
+        **Tags**: editors
 
         **Examples
 
@@ -426,6 +418,17 @@ energy-efficiency/air-flow/ HTTP/1.1
         else:
             PageElement.objects.filter(
                 pk__in=[root.pk for root in roots]).delete()
+
+    def perform_create(self, serializer):
+        with transaction.atomic():
+            element = serializer.save(account=self.account)
+            parent = self.element
+            rank = RelationShip.objects.filter(
+                orig_element=parent).aggregate(Max('rank')).get(
+                'rank__max', None)
+            rank = 0 if rank is None else rank + 1
+            RelationShip.objects.create(
+                orig_element=parent, dest_element=element, rank=rank)
 
     def perform_destroy(self, instance): #pylint:disable=unused-argument
         trail = self.get_full_element_path(self.path)

@@ -118,16 +118,6 @@ See the following for examples of content developed for other practices:
 
 {% block supplier_menus_scripts %}
 {{block.super}}
-<script type="text/javascript" charset="utf-8">
-$(document).ready(function(){
-	$(".dj-answers-actions").djForumQuestion({
-		api_follow: "{% url 'answers_api_follow' best_practice %}",
-		api_unfollow: "{% url 'answers_api_unfollow' best_practice %}",
-		api_upvote: "{% url 'answers_api_upvote' best_practice %}",
-		api_downvote: "{% url 'answers_api_downvote' best_practice %}"
-	});
-});
-</script>
 {% if is_content_manager %}
 <script type="text/javascript" charset="utf-8">
 assetsUploadUrl = "{% if api_upload_assets %}{{api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_prefixed}}{% endif %}";

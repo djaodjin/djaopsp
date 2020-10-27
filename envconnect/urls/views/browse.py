@@ -57,6 +57,4 @@ urlpatterns = [
       DetailXLSXView.as_view(), name='summary_download'),
     url(r'app/info(?P<path>%s)/' % PATH_RE,
       DetailView.as_view(), name='summary'),
-
-    url(r'app/comments/', include('django_comments.urls')),
 ]

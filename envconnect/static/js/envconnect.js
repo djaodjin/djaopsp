@@ -629,6 +629,54 @@ envconnectControllers.controller("EnvconnectCtrl",
         return element.path;
     };
 
+    // reactions
+
+    $scope.isFollowing = settings.isFollowing || false;
+    $scope.nbFollowers = settings.nbFollowers || 0;
+    $scope.isUpVote = settings.isUpVote || false;
+    $scope.nbUpVotes = settings.nbUpVotes || 0;
+
+    $scope.submitFollow = function() {
+        $http.post($scope.isFollowing ? settings.urls.api_unfollow : settings.urls.api_follow).then(
+        function success(resp) {
+            $scope.isFollowing = !$scope.isFollowing;
+            $scope.nbFollowers += $scope.isFollowing ? 1 : -1;
+        },
+        function error(resp) {
+            showErrorMessages(resp);
+        });
+        return false;
+    };
+
+    $scope.submitVote = function() {
+        $http.post($scope.isUpVote ? settings.urls.api_downvote : settings.urls.api_upvote).then(
+        function success(resp) {
+            $scope.isUpVote = !$scope.isUpVote;
+            $scope.nbUpVotes += $scope.isUpVote ? 1 : -1;
+        },
+        function error(resp) {
+            showErrorMessages(resp);
+        });
+        return false;
+    };
+
+    $scope.submitComment = function($event) {
+        $event.preventDefault();
+        $http.post(settings.urls.api_comments, {
+            text: angular.element("[name='comment']").val()}).then(
+        function success(resp) {
+            $window.location.reload();
+        },
+        function error(resp) {
+            showErrorMessages(resp);
+        });
+        return 0;
+    };
+
+
+    // Features for editors
+    // --------------------
+
     /* show and hide columns */
     $scope.hidden = settings.hidden;
 
@@ -782,11 +830,11 @@ envconnectControllers.controller("EnvconnectCtrl",
         var title = $scope.newElement.value.title;
         var tag = $scope.newElement.value.tag || $scope.newElement.tag;
         var parent = prefix.substring(prefix.lastIndexOf('/') + 1);
-        var data = {title: title, orig_elements: [parent]};
+        var data = {title: title};
         if( tag ) {
             data.tag = JSON.stringify({"tags": [tag]});
         }
-        $http.post(settings.urls.api_page_element_base, data).then(
+        $http.post(settings.urls.api_page_element_base + '/' + parent, data).then(
             function success(resp) {
                 var path = prefix + '/' + resp.data.slug;
                 if( elementType === $scope.BEST_PRACTICE_ELEMENT ) {

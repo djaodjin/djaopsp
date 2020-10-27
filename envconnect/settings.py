@@ -54,8 +54,6 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'rest_framework',
     'rules',
     'saas',
-    'django_comments',
-    'answers',
     'survey',
     'pages',
     'envconnect',  # project should be the last entry.

@@ -1,16 +1,21 @@
 {% load i18n %}
-{% load comments %}
 {% load staticfiles %}
 
 {% block follow_vote %}
 <div class="dj-answers-actions" style="display: inline-block;">
-	<button type="submit" class="btn btn-danger btn-sm dj-answers-unfollow{% if is_following %} dj-on{% else %} dj-off{% endif %}">{% trans 'Unfollow' %}</button>
-	<button type="submit" class="btn btn-primary btn-sm dj-answers-follow{% if not is_following %} dj-on{% else %} dj-off{% endif %}">{% trans 'Follow' %}</button>
-	<a class="btn btn-primary btn-sm disabled form-btn dj-answers-uservote{% if is_voted %} dj-on{% else %} dj-off{% endif %}" id="rate_bp">My vote: <i class="fa fa-thumbs-o-up "></i></a>
-	<button type="submit" class="btn btn-primary btn-sm dj-answers-upvote{% if not is_voted %} dj-on{% else %} dj-off{% endif %}"><i class="fa fa-thumbs-o-up"></i></button>
-	<div class="info_follow_vote" style="display: inline-block;">
-		<a class="btn btn-primary btn-sm disabled">{{nb_followers}} <i class="fa fa-users fa-lg"></i></a>
-		<a class="btn btn-primary btn-sm disabled">{{votes_score}} <i class="fa fa-thumbs-o-up fa-lg"></i></a>
-	</div>
+  <button type="submit" class="btn btn-danger btn-sm dj-answers-unfollow"
+    ng-click="submitFollow()" ng-if="isFollowing">{% trans 'Unfollow' %}</button>
+  <button type="submit" class="btn btn-primary btn-sm dj-answers-follow"
+    ng-click="submitFollow()" ng-if="!isFollowing">{% trans 'Follow' %}</button>
+  <button id="rate_bp" type="submit"
+          class="btn btn-primary btn-sm dj-answers-upvote"
+          ng-click="submitVote()">
+    <i class="fa fa-thumbs-o-up" ng-if="!isUpVote"></i>
+    <i class="fa fa-thumbs-up" ng-if="isUpVote"></i>
+  </button>
+  <div class="info_follow_vote" style="display: inline-block;" ng-cloack>
+    <a class="btn btn-primary btn-sm disabled">[[nbFollowers]] <i class="fa fa-users fa-lg"></i></a>
+    <a class="btn btn-primary btn-sm disabled">[[nbUpVotes]] <i class="fa fa-thumbs-o-up fa-lg"></i></a>
+  </div>
 </div>
 {% endblock %}

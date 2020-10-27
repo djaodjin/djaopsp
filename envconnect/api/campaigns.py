@@ -4,8 +4,7 @@
 import json, logging
 
 from django.db.models import Q
-from rest_framework import serializers
-from rest_framework.generics import ListAPIView
+from rest_framework import serializers, generics
 from rest_framework.filters import SearchFilter
 
 from pages.models import PageElement
@@ -18,7 +17,7 @@ from ..serializers import NoModelSerializer
 LOGGER = logging.getLogger(__name__)
 
 
-class CampaignSerializer(NoModelSerializer):
+class ContentElementSerializer(NoModelSerializer):
 
     path = serializers.CharField()
     title = serializers.CharField()
@@ -32,30 +31,71 @@ class CampaignSerializer(NoModelSerializer):
     avg_value = serializers.IntegerField(required=False)
 
 
-class CampaignListAPIView(BreadcrumbMixin, ListAPIView):
+class ContentElementListAPIView(BreadcrumbMixin, generics.ListAPIView):
     """
-    Lists of campaigns available
+    Lists a tree of page elements
 
-    **Tags**: survey
+    **Tags**: content
 
     **Examples
 
     .. code-block:: http
 
-        GET /api/content/campaigns/?q=public \
-          HTTP/1.1
-
-    .. code-block:: json
-
-        {}
+        GET /api/content/construction HTTP/1.1
 
     responds
 
     .. code-block:: json
 
-        {}
+        {
+            "count": 5,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "path": null,
+                    "title": "Construction",
+                    "tags": ["public"],
+                    "indent": 0
+                },
+                {
+                    "path": null,
+                    "title": "Governance & management",
+                    "picture": "https://assets.tspproject.org/management.png",
+                    "indent": 1
+                },
+                {
+                    "path": "/construction/governance/the-assessment\
+--process-is-rigorous",
+                    "title": "The assessment process is rigorous",
+                    "indent": 2,
+                    "environmental_value": 1,
+                    "business_value": 1,
+                    "profitability": 1,
+                    "implementation_ease": 1,
+                    "avg_value": 1
+                },
+                {
+                    "path": null,
+                    "title": "Production",
+                    "picture": "https://assets.tspproject.org/production.png",
+                    "indent": 1
+                },
+                {
+                    "path": "/construction/production/adjust-air-fuel\
+--ratio",
+                    "title": "Adjust Air fuel ratio",
+                    "indent": 2,
+                    "environmental_value": 2,
+                    "business_value": 2,
+                    "profitability": 2,
+                    "implementation_ease": 2,
+                    "avg_value": 2
+                }
+            ]
+        }
     """
-    serializer_class = CampaignSerializer
+    serializer_class = ContentElementSerializer
     filter_backends = (SearchFilter,)
 
     def get_queryset(self):

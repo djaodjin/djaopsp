@@ -1,70 +1,57 @@
 {% load i18n %}
-{% load comments %}
 
 {% block comment %}
-	<div>
-		{% get_comment_count for best_practice as answers_count %}
-		<h4>{{answers_count}} Comments</h4>
-		{% get_comment_list for best_practice as answer_list %}
-		<table class="table table-striped">
-		{% for comment in answer_list %}
-			<tr id="comment_from_{{comment.user}}">
-				<td>
-					#{{forloop.counter}}&nbsp;{{comment.user}}<br />
-					<small>{{comment.submit_date|date:"M d, Y"}}</small>
-				</td>
-				<td >{{comment.comment}}</td>
-			</tr>
-		{% endfor %}
-		</table>
-		{% if user.is_authenticated %}
-		{% get_comment_form for best_practice as form %}
-
-		<form action="{% comment_form_target %}" method="POST" id="form_comment">
-			<fieldset>
-
-				{% csrf_token %}
-				{{form.honeypot}}
-				{{form.content_type}}
-				{{form.object_pk}}
-				{{form.timestamp}}
-				{{form.security_hash}}
-				<input type="hidden" name="next" value="{{urls.best_practice_base}}" />
-				<div class="form-group">
-					<label class="control-label">
+<div>
+  <h4>{{comments.count}} Comments</h4>
+  <table class="table table-striped">
+    {% for comment in comments %}
+    <tr id="comment_from_{{comment.user}}">
+      <td>
+        #{{forloop.counter}}&nbsp;{{comment.user}}<br />
+        <small>{{comment.created_at|date:"M d, Y"}}</small>
+      </td>
+      <td >{{comment.text}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% if user.is_authenticated %}
+  <form action="." method="POST" id="form_comment"  ng-submit="submitComment($event)">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+    <fieldset>
+      <div class="form-group">
+        <label class="control-label">
 <strong>Comments/lessons learned to share?</strong> Submit them via the comment
 box below. If you would like to suggest additional best practices, author new
 content or edit existing content, or propose edits to values assigned to best
 practices on this website,
 <a href="{{'contact/'|site_prefixed}}">contact us</a>.
-					</label>
-					<label class="control-label">
+        </label>
+        <label class="control-label">
 ATTENTION! Comments you write here will be made public to all visiting
 this page. They should be meant to help others to implement the best practice
 and/or improve the content of the page.
-					</label>
-					<label class="control-label">
+        </label>
+        <label class="control-label">
 To add comments on the answers to an assessment of your organization, please
 use the <em>sticky note</em> icon between the best practice title and
 the multiple choices (See picture below).
 <div class="text-right">
 <img class="img-fluid" style="float:right;" src="{{'/static/img/tutorials/suppliers-4-6c.png'|asset}}"></img>
 </div>
-					</label>
-					<div>
-						<textarea class="form-control" rows="3" cols="40" id="id_comment" name="comment" rows="10"></textarea>
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="form-actions">
-						<input class="btn btn-primary" type="submit" value="Submit" id="id_submit" />
-					</div>
-				</div>
-			</fieldset>
-		</form>
-
-		{% else %}
-		<p>Please <a href="{% url 'login' %}">log in</a> to leave a comment.</p>
-		{% endif %}
-	</div>
+        </label>
+        <div>
+          <textarea class="form-control" rows="3" cols="40" id="id_comment" name="comment" rows="10"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-actions">
+          <input class="btn btn-primary" type="submit" value="Submit" id="id_submit" />
+        </div>
+      </div>
+    </fieldset>
+  </form>
+  {% else %}
+  <p>Please <a href="{% url 'login' %}">log in</a> to leave a comment.</p>
+  {% endif %}
+</div>
 {% endblock %}

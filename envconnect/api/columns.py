@@ -19,8 +19,6 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
     or hidden. The visible/hidden status of a column will have an effect
     of how average values are computed.
 
-    **Tags**: content
-
     **Examples
 
     .. code-block:: http
@@ -50,8 +48,6 @@ class ColumnAPIView(BreadcrumbMixin, generics.RetrieveUpdateAPIView):
         A a result, on `update` we return the content tree that was updated
         instead of the `Column` instance because the user interface will
         want a chance to refresh the display accordingly.
-
-        **Tags**: content
 
         **Examples
 

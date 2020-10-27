@@ -97,19 +97,19 @@ class ConsumptionListAPIView(BreadcrumbMixin, generics.ListCreateAPIView):
 
 
 # Derives from BreadcrumbMixin for ``get_serializer_context``.
-class ConsumptionDetailAPIView(BreadcrumbMixin,
+class ConsumptionEditableDetailAPIView(BreadcrumbMixin,
                                generics.RetrieveUpdateDestroyAPIView):
     """
-    Retrieves values associated to a best practice.
+    Retrieves editable intrinsic value of a practice
 
-    **Tags**: survey
+    **Tags**: editors
 
     **Examples
 
     .. code-block:: http
 
-        GET /api/content/editables/consumption/boxes-enclosures\
-energy-efficiency/air-flow/ HTTP/1.1
+        GET /api/content/editables/envconnect/values/boxes-enclosures\
+/energy-efficiency/air-flow/ HTTP/1.1
 
     responds
 
@@ -132,16 +132,16 @@ energy-efficiency/air-flow/ HTTP/1.1
 
     def put(self, request, *args, **kwargs):
         """
-        Updates values associated to a best practice.
+         Updates intrinsic value of a practice
 
-        **Tags**: survey
+        **Tags**: editors
 
         **Examples
 
         .. code-block:: http
 
-            PUT /api/content/editables/consumption/boxes-enclosures/\
-energy-efficiency/air-flow/ HTTP/1.1
+            PUT /api/content/editables/envconnect/values/boxes-enclosures\
+/energy-efficiency/air-flow HTTP/1.1
 
         .. code-block:: json
 
@@ -166,25 +166,25 @@ energy-efficiency/air-flow/ HTTP/1.1
             }
         """
         #pylint:disable=useless-super-delegation
-        return super(ConsumptionDetailAPIView, self).put(
+        return super(ConsumptionEditableDetailAPIView, self).put(
             request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
-        Deletes values associated to a best practice.
+        Deletes intrinsic value of a practice
 
-        **Tags**: survey
+        **Tags**: editors
 
         **Examples
 
         .. code-block:: http
 
-            DELETE /api/content/editables/consumption/boxes-enclosures/\
-energy-efficiency/air-flow/ HTTP/1.1
+            DELETE /api/content/editables/envconnect/values/boxes-enclosures/\
+energy-efficiency/air-flow HTTP/1.1
 
         """
         #pylint:disable=useless-super-delegation
-        return super(ConsumptionDetailAPIView, self).delete(
+        return super(ConsumptionEditableDetailAPIView, self).delete(
             request, *args, **kwargs)
 
     def perform_update(self, serializer):
@@ -193,4 +193,5 @@ energy-efficiency/air-flow/ HTTP/1.1
             if (field_name in serializer.validated_data and
                 serializer.validated_data[field_name] == 4):
                 serializer.validated_data[field_name] = 6
-        return super(ConsumptionDetailAPIView, self).perform_update(serializer)
+        return super(ConsumptionEditableDetailAPIView, self).perform_update(
+            serializer)

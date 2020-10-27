@@ -667,18 +667,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
             'breadcrumbs': trail,
             'active': self.request.GET.get('active', "")})
         urls = {
-            'api_scorecard_disable': reverse(
-                'api_scorecard_disable', args=('',)),
-            'api_scorecard_enable': reverse(
-                'api_scorecard_enable', args=('',)),
-            'api_best_practices': reverse('api_detail', args=('',)),
-            'api_mirror_node': reverse('api_mirror_node', args=('',)),
-            'api_move_node': reverse('api_move_node', args=('',)),
-            'api_columns': reverse('api_column', args=('',)),
-            'api_consumptions': reverse('api_consumption_base'),
-            'api_weights': reverse('api_score', kwargs={'path': ''}),
-            'api_page_element_base': reverse('api_page_element',
-                kwargs={'path': ''}),
             'api_page_element_search': reverse('api_page_element_search'),
             'best_practice_base': self.get_breadcrumb_url(self.path)
         }
@@ -1142,41 +1130,10 @@ class BestPracticeMixin(BreadcrumbMixin):
             context.update({
                 'is_content_manager': self.manages(
                     breadcrumbs[-1][0].account.slug)})
-        if not self.best_practice:
-            return context
-        context.update({
-            'icon': self.icon,
-            'best_practice': self.best_practice})
-        aliases = self.best_practice.get_parent_paths()
-        if len(aliases) > 1:
-            alias_breadcrumbs = []
-            for alias in aliases:
-                if alias and len(alias) > 4:
-                    alias_breadcrumbs += [[alias[0], "..."] + alias[-3:-1]]
-                elif alias and len(alias) > 1:
-                    alias_breadcrumbs += [alias[:-1]]
-                else:
-                    # XXX This is probably an error in `get_parent_paths`
-                    alias_breadcrumbs += [[alias]]
-            context.update({'aliases': alias_breadcrumbs})
         organization = self.kwargs.get('organization', None)
         if organization:
             context.update({'organization': organization})
-        votes_score = self.best_practice.votes.all().aggregate(
-            sum_votes=Sum('vote')).get('sum_votes', 0)
-        if votes_score is None:
-            votes_score = 0
-        context.update({
-            'nb_followers': self.best_practice.followers.all().count(),
-            'votes_score': votes_score
-        })
-        if self.request.user.is_authenticated:
-            context.update({
-                'is_following': self.best_practice.followers.filter(
-                    user=self.request.user).exists(),
-                'is_voted': self.best_practice.votes.filter(
-                    user=self.request.user).exists()
-            })
+
         # Change defaults contextual URL to move back up one level.
         _, trail = self.breadcrumbs
         contextual_path = (trail[-2][1] if len(trail) > 1 else self.path)
@@ -1200,14 +1157,73 @@ class BestPracticeMixin(BreadcrumbMixin):
                 'improve': reverse('improve_redirect',
                     args=(contextual_path,)) + active_section
             }
-        # XXX should `api_detail` be replaced by `api_page_element`?
         prefix = context['root_prefix']
         if prefix.startswith('/'): # XXX should not happen...
             prefix = prefix[1:]
         urls.update({
-            'api_page_element_base': reverse('api_detail', args=(prefix,)),
+            'api_best_practices': reverse('pages_api_edit_element',
+                args=(breadcrumbs[-1][0].account.slug, '',)),
+            'api_page_element_base': reverse('pages_api_edit_element',
+                args=(breadcrumbs[-1][0].account.slug, prefix,)),
+            'api_consumptions': reverse('api_consumption_base',
+                args=(breadcrumbs[-1][0].account.slug,)),
+            'api_columns': reverse('api_column',
+                args=('',)),
+            'api_weights': reverse('api_score',
+                args=(breadcrumbs[-1][0].account.slug, '')),
         })
         update_context_urls(context, urls)
+
+        if not self.best_practice:
+            return context
+
+        context.update({
+            'icon': self.icon,
+            'best_practice': self.best_practice})
+        aliases = self.best_practice.get_parent_paths()
+        if len(aliases) > 1:
+            alias_breadcrumbs = []
+            for alias in aliases:
+                if alias and len(alias) > 4:
+                    alias_breadcrumbs += [[alias[0], "..."] + alias[-3:-1]]
+                elif alias and len(alias) > 1:
+                    alias_breadcrumbs += [alias[:-1]]
+                else:
+                    # XXX This is probably an error in `get_parent_paths`
+                    alias_breadcrumbs += [[alias]]
+            context.update({'aliases': alias_breadcrumbs})
+
+        votes_score = self.best_practice.votes.all().aggregate(
+            sum_votes=Sum('vote')).get('sum_votes', 0)
+        if votes_score is None:
+            votes_score = 0
+        context.update({
+            'comments': self.best_practice.comments.all(),
+            'nb_followers': self.best_practice.followers.all().count(),
+            'votes_score': votes_score
+        })
+        if self.request.user.is_authenticated:
+            user_vote = self.best_practice.votes.filter(
+                user=self.request.user).first()
+            is_upvote = user_vote.vote > 0 if user_vote else False
+            context.update({
+                'is_following': self.best_practice.followers.filter(
+                    user=self.request.user).exists(),
+                'is_upvote': is_upvote
+            })
+            update_context_urls(context, {
+                'api_follow': reverse('pages_api_follow',
+                    args=(self.best_practice.slug,)),
+                'api_unfollow': reverse('pages_api_unfollow',
+                    args=(self.best_practice.slug,)),
+                'api_downvote': reverse('pages_api_downvote',
+                    args=(self.best_practice.slug,)),
+                'api_upvote': reverse('pages_api_upvote',
+                    args=(self.best_practice.slug,)),
+                'api_comments': reverse('pages_api_comments',
+                    args=(self.best_practice.slug,)),
+            })
+
         return context
 
     @property

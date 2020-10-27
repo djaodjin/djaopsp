@@ -306,6 +306,7 @@ class MoveRankSerializer(NoModelSerializer):
 
 class PageElementSerializer(BasePageElementSerializer):
 
+    path = serializers.SerializerMethodField()
     consumption = ConsumptionSerializer(required=False)
     is_empty = serializers.SerializerMethodField()
     rank = serializers.SerializerMethodField()

@@ -83,6 +83,10 @@ app.config(['$interpolateProvider', '$httpProvider',
 }]);
 app.constant('settings', {
     urls: {% if urls %}{{urls|to_json}}{% else %}{}{% endif %},
+    isFollowing: {% if is_following %}true{% else %}false{% endif %},
+    isUpVote: {% if is_upvote %}true{% else %}false{% endif %},
+    nbFollowers: {% if nb_followers %}{{nb_followers}}{% else %}0{% endif %},
+    nbUpVotes: {% if nb_upvotes %}{{nb_upvotes}}{% else %}0{% endif %},
     activeIcon: {% if active %}"{{active}}"{% else %}null{% endif %},
     nbAnswers: {% if nb_questions %}{{nb_answers}}{% else %}0{% endif %},
     nbQuestions: {% if nb_questions %}{{nb_questions}}{% else %}0{% endif %},
