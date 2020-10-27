@@ -12,10 +12,7 @@
     </div>
     <div class="action" data-cy="btn-complete" v-else>
       <button-primary
-        :to="{
-          name: 'assessmentHome',
-          params: { org: organizationId, slug: assessmentSlug },
-        }"
+        :to="`/${organizationId}/home/${assessment.slug}/${assessment.industryPath}/`"
       >
         Back to Assessment Home
       </button-primary>
@@ -29,7 +26,7 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 export default {
   name: 'PracticesProgressIndicator',
 
-  props: ['numAnswers', 'numQuestions', 'organizationId', 'assessmentSlug'],
+  props: ['numAnswers', 'numQuestions', 'organizationId', 'assessment'],
 
   computed: {
     completed() {
