@@ -8,8 +8,9 @@ from __future__ import unicode_literals
 
 import json, logging
 
-from django.db import models, connection
+from django.db import models, connection, connections
 from django.db.models import Q
+from django.db.utils import DEFAULT_DB_ALIAS
 from django.utils.encoding import python_2_unicode_compatible
 from survey.models import Sample, AbstractQuestion as SurveyQuestion
 
@@ -31,6 +32,12 @@ def _show_query_and_result(raw_query, show=False):
                 LOGGER.info(str(row))
                 count += 1
             LOGGER.info("%d row(s)", count)
+
+
+def is_sqlite3(db_key=None):
+    if db_key is None:
+        db_key = DEFAULT_DB_ALIAS
+    return connections.databases[db_key]['ENGINE'].endswith('sqlite3')
 
 
 class ColumnHeaderQuerySet(models.QuerySet):
@@ -141,8 +148,8 @@ SELECT
     survey_sample.time_spent AS time_spent,
     survey_sample.is_frozen AS is_frozen,
     survey_sample.extra AS extra,
-    '%(prefix)s' AS segment_path,
-    '%(title)s' AS segment_title,
+    %(segment_prefix)s AS segment_path,
+    %(segment_title)s AS segment_title,
     SUM(CASE WHEN (
      survey_answer.metric_id = %(assessment_metric_id)s AND
      survey_answer.measured = %(choice)s) THEN 1 ELSE 0 END) AS nb_na_answers,
@@ -183,7 +190,8 @@ GROUP BY survey_sample.id
 """ % {
         'ends_at': before,
         'prefix': prefix,
-        'title': title,
+        'segment_prefix': ("'%s'" if is_sqlite3() else "'%s'::text") % prefix,
+        'segment_title': ("'%s'" if is_sqlite3() else "'%s'::text") % title,
         'assessment_metric_id': "(SELECT id FROM survey_metric"\
             " WHERE slug='assessment')",
         'yes': "(SELECT id FROM survey_choice"\
@@ -202,8 +210,8 @@ SELECT
     survey_sample.time_spent AS time_spent,
     survey_sample.is_frozen AS is_frozen,
     survey_sample.extra AS extra,
-    '%(prefix)s' AS segment_path,
-    '%(title)s' AS segment_title,
+    %(segment_prefix)s AS segment_path,
+    %(segment_title)s AS segment_title,
     SUM(CASE WHEN (
      survey_answer.metric_id = %(assessment_metric_id)s AND
      survey_answer.measured > 0) THEN 1 ELSE 0 END)
@@ -235,7 +243,8 @@ WHERE survey_sample.extra LIKE '%%is_planned%%' AND
 GROUP BY survey_sample.id""" % {
         'ends_at': before,
         'prefix': prefix,
-        'title': title,
+        'segment_prefix': ("'%s'" if is_sqlite3() else "'%s'::text") % prefix,
+        'segment_title': ("'%s'" if is_sqlite3() else "'%s'::text") % title,
         'assessment_metric_id': "(SELECT id FROM survey_metric"\
             " WHERE slug='assessment')"}
 
@@ -940,17 +949,17 @@ SELECT
     expected_opportunities.avg_value AS avg_value,
     expected_opportunities.nb_respondents AS nb_respondents,
     expected_opportunities.rate AS rate,
-    survey_metric.slug AS metric,
+    %(metric)s AS metric,
     expected_opportunities.opportunity AS opportunity
 FROM expected_opportunities
 LEFT OUTER JOIN survey_answer
     ON expected_opportunities.question_id = survey_answer.question_id
     AND expected_opportunities.sample_id = survey_answer.sample_id
-INNER JOIN survey_metric
-  ON expected_opportunities.default_metric_id = survey_metric.id
 WHERE survey_answer.metric_id = 2""" % {
-    'samples_query': samples_query,
-    'prefix': prefix}
+        'samples_query': samples_query,
+        'prefix': prefix,
+        'metric': "'score'" if is_sqlite3() else "'score'::text"
+    }
     _show_query_and_result(scored_answers)
     return scored_answers
 

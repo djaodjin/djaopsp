@@ -18,7 +18,7 @@ from django.utils.timezone import utc
 from django.utils.module_loading import import_string
 from survey.models import Answer, Metric, Sample
 
-from .models import Consumption, get_scored_answers as _get_scored_answers
+from .models import Consumption, get_scored_answers
 
 
 LOGGER = logging.getLogger(__name__)
@@ -28,11 +28,11 @@ class ScoreCalculator(object):
     """
     Compute scores on individual answers and rolled up into section.
     """
-    def get_scored_answers(self, campaign, assessment_metric_id,
-                           prefix=None, includes=None, excludes=None):
+    def get_scores(self, campaign, assessment_metric_id,
+                   prefix=None, includes=None, excludes=None):
         #pylint:disable=too-many-arguments
         with connection.cursor() as cursor:
-            scored_answers = _get_scored_answers(
+            scored_answers = get_scored_answers(
                 Consumption.objects.get_active_by_accounts(
                     campaign, excludes=excludes),
                 assessment_metric_id, includes=includes, prefix=prefix)
@@ -137,7 +137,7 @@ def freeze_scores(sample, includes=None, excludes=None,
     # (i.e. assessment).
     assessment_metric_id = Metric.objects.get(slug='assessment').pk
     calculator = get_score_calculator(segment_path)
-    scored_answers = calculator.get_scored_answers(
+    scored_answers = calculator.get_scores(
         sample.campaign, assessment_metric_id, prefix=segment_path,
         includes=includes, excludes=excludes)
     for decorated_answer in scored_answers:

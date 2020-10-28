@@ -23,10 +23,9 @@ from survey.models import (Answer, Campaign, EnumeratedQuestions,
 from survey.utils import get_account_model
 
 from .compat import reverse
-from .helpers import (ContentCut, as_measured_value, is_sqlite3,
-    get_testing_accounts)
+from .helpers import ContentCut, as_measured_value, get_testing_accounts
 from .models import (Consumption, get_score_weight, _show_query_and_result,
-    get_scored_answers)
+    get_scored_answers, is_sqlite3)
 from .scores import (populate_account as populate_account_base,
     populate_rollup, push_improvement_factors)
 from .serializers import ConsumptionSerializer
@@ -818,7 +817,6 @@ class BreadcrumbMixin(PermissionMixin, TrailMixin):
         self._report_queries("[get_scores_tree] generated")
 
         return rollup_tree
-
 
 
     @staticmethod

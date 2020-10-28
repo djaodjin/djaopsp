@@ -276,10 +276,14 @@ class DashboardMixin(BreadcrumbMixin, AccountMixin):
         frozen_assessments_query = None
         frozen_improvements_query = None
         # XXX requested_accounts
-        for segment in get_segments():
+        if self.path:
+            segments = [{'title': self.element.title, 'path': str(self.path),
+                'indent': 0}]
+        else:
+            segments = [segment for segment in get_segments() if segment['path']
+                and not segment['path'].startswith('/euissca-rfx')]
+        for segment in segments:
             prefix = segment['path']
-            if not prefix or prefix.startswith('/euissca-rfx'):
-                continue
             segment_query = Consumption.objects.get_latest_assessments(
                 prefix, before=self.ends_at, title=segment['title'])
             if not frozen_assessments_query:
@@ -400,7 +404,10 @@ ON frozen_assessments.account_id = frozen_improvements.account_id AND
         else:
             reporting_clause = \
                 "%d" % AccountSerializer.REPORTING_ASSESSMENT_PHASE
-        assessments_query = """
+        if self.path:
+            assessments_query = frozen_query
+        else:
+            assessments_query = """
 WITH frozen AS (%(frozen_query)s)
 SELECT
   COALESCE(frozen.id, active_assessments.id) AS id,
@@ -479,13 +486,14 @@ SELECT
   saas_organization.phone AS phone,
   assessments.created_at AS last_activity_at,
   '' AS score_url,                         -- updated later
-  0 AS normalized_score                    -- updated later
+  null AS normalized_score                 -- updated later
 FROM saas_organization
-LEFT OUTER JOIN assessments
+%(join_clause)s JOIN assessments
 ON saas_organization.id = assessments.account_id
 %(accounts_clause)s
 %(order_clause)s""" % {
     'assessments_query': assessments_query,
+    'join_clause': "INNER" if self.path else "LEFT OUTER",
     'reporting_status': AccountSerializer.REPORTING_NOT_STARTED,
     'accounts_clause': accounts_clause,
     'order_clause': order_clause}
@@ -703,7 +711,7 @@ class SupplierListMixin(DashboardMixin):
                 report_summary.normalized_score = accounts.get(
                     report_summary.account_id, {}).get('normalized_score')
                 segment_url = report_summary.segment_path
-                if report_summary.normalized_score:
+                if report_summary.normalized_score is not None:
                     if report_summary.slug:
                         report_summary.score_url = reverse(
                             'scorecard_organization', args=(

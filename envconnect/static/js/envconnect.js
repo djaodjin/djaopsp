@@ -1867,7 +1867,7 @@ envconnectControllers.controller("envconnectMyTSPReporting",
     };
 
     $scope.getScoreDisplay = function(score) {
-        return score ? score.toString() + "%" : "";
+        return (score !== null) ? score.toString() + "%" : "";
     };
 
     $scope.remindSuppliersChanged = function(event) {

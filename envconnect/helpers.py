@@ -3,9 +3,7 @@
 
 import logging
 
-from django.db import connections
 from django.db.models import Max
-from django.db.utils import DEFAULT_DB_ALIAS
 from pages.models import build_content_tree, PageElement
 from survey.models import Choice, Unit
 from survey.utils import get_account_model
@@ -36,12 +34,6 @@ class ContentCut(object):
     def leave(self, attrs, subtrees):
         #pylint:disable=unused-argument
         return True
-
-
-def is_sqlite3(db_key=None):
-    if db_key is None:
-        db_key = DEFAULT_DB_ALIAS
-    return connections.databases[db_key]['ENGINE'].endswith('sqlite3')
 
 
 def as_measured_value(datapoint, unit=None, measured=None):
