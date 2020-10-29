@@ -1,6 +1,5 @@
 import createOrgEmpty from './org_empty'
 import createOrgAssessmentEmpty from './org_assessment_empty'
-// import createOrgAssessmentEmptyMultiple from './org_assessment_empty_multiple'
 import createOrgAssessmentMultiple from './org_assessment_multiple'
 import createOrgAssessmentPracticesIncomplete from './org_assessment_practices_incomplete'
 import createOrgAssessmentPracticesComplete from './org_assessment_practices_complete'
@@ -11,7 +10,6 @@ import createOrgAssessmentPreviousTargets from './org_assessment_previous_target
 export default {
   createOrgEmpty,
   createOrgAssessmentEmpty,
-  // createOrgAssessmentEmptyMultiple,
   createOrgAssessmentMultiple,
   createOrgAssessmentPracticesIncomplete,
   createOrgAssessmentPracticesComplete,

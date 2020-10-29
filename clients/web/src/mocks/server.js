@@ -204,7 +204,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       scenarios.createOrgAssessmentPracticesIncomplete(server, 'beta')
       scenarios.createOrgAssessmentPracticesComplete(server, 'gamma')
       scenarios.createOrgAssessmentFrozen(server, 'delta')
-      // scenarios.createOrgAssessmentEmptyMultiple(server, 'epsilon')
       scenarios.createOrgAssessmentMultiple(server, 'epsilon')
       scenarios.createOrgAssessmentPreviousAnswers(server, 'zeta')
       scenarios.createOrgAssessmentPreviousTargets(server, 'eta')
