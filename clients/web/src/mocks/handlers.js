@@ -89,8 +89,13 @@ function getAssessmentHistory(schema, request) {
     assessments,
     'is_frozen'
   )
+  const industries = editableAssessments.map((a) => a.industryPath)
+  const [pastAssessments, currentAssessments] = partition(
+    frozenAssessments,
+    (a) => industries.includes(a.industryPath)
+  )
 
-  const updates = editableAssessments.map((a) => ({
+  const updates = editableAssessments.concat(currentAssessments).map((a) => ({
     slug: a.slug,
     account: a.account,
     created_at: a.created_at,
@@ -102,7 +107,7 @@ function getAssessmentHistory(schema, request) {
     },
   }))
 
-  const results = frozenAssessments.map((a, index) => ({
+  const results = pastAssessments.map((a, index) => ({
     key: index,
     created_at: a.created_at,
     values: [
