@@ -6,6 +6,9 @@ export default function (
   orgName = 'Frozen Assessment Without Targets & Plan'
 ) {
   const assessment = server.create('assessment', {
+    account: orgId,
+    industryName: 'Boxes & enclosures',
+    industryPath: '/metal/boxes-and-enclosures/',
     is_frozen: true,
   })
 

@@ -5,7 +5,11 @@ export default function (
   orgId,
   orgName = 'Organization With Empty Assessment'
 ) {
-  const assessment = server.create('assessment', {})
+  const assessment = server.create('assessment', {
+    account: orgId,
+    industryName: 'Boxes & enclosures',
+    industryPath: '/metal/boxes-and-enclosures/',
+  })
 
   const organization = server.create('organization', {
     id: orgId,
