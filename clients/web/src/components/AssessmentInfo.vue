@@ -23,7 +23,13 @@
         </li> -->
         <li v-if="isClickable">
           <router-link
-            :to="`/${organizationId}/home/${assessment.slug}/${assessment.industryPath}/`"
+            :to="
+              $routeMap.get('assessmentHome').getPath({
+                org: organizationId,
+                slug: assessment.slug,
+                industryPath: assessment.industryPath,
+              })
+            "
           >
             <b class="status" v-if="assessment.frozen">Completed</b>
             <b class="status" v-else>In Progress</b>

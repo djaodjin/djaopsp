@@ -129,10 +129,13 @@ export default {
   methods: {
     processForm: function () {
       console.log('validate form content and submit')
-      this.$router.push({
-        name: 'assessmentHome',
-        params: { slug: this.assessment.slug },
-      })
+      this.$router.push(
+        this.$routeMap.get('assessmentHome').getPath({
+          org: organization.id,
+          slug: assessment.slug,
+          industryPath: assessment.industryPath,
+        })
+      )
     },
   },
 

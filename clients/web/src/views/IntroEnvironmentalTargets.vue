@@ -18,7 +18,13 @@
         <button-primary
           data-cy="btn-continue"
           class="mt-8"
-          :to="`/${this.org}/targets/${this.id}/${this.assessment.industryPath}/`"
+          :to="
+            $routeMap.get('assessmentTargets').getPath({
+              org,
+              slug: assessment.slug,
+              industryPath: assessment.industryPath,
+            })
+          "
           >Continue</button-primary
         >
         <div class="text-center">
@@ -26,10 +32,13 @@
             text
             class="mx-n4 mx-sm-0 mt-6"
             color="secondary"
-            :to="{
-              name: 'assessmentHome',
-              params: { org, slug },
-            }"
+            :to="
+              $routeMap.get('assessmentHome').getPath({
+                org: organizationId,
+                slug: assessment.slug,
+                industryPath: assessment.industryPath,
+              })
+            "
           >
             Continue without targets
           </v-btn>

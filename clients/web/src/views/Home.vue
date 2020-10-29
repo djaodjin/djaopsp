@@ -34,7 +34,11 @@
 
                 <button-primary
                   data-cy="create-assessment"
-                  :to="{ name: 'assessmentCreate' }"
+                  :to="
+                    $routeMap.get('assessmentCreate').getPath({
+                      org,
+                    })
+                  "
                   >{{ $t('home.btn-take-assessment') }}</button-primary
                 >
               </section>

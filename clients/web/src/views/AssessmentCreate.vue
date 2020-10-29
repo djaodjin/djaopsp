@@ -52,7 +52,11 @@ export default {
           )
           this.organization.addAssessment(newAssessment)
           this.$router.push(
-            `/${this.org}/home/${newAssessment.slug}/${industry.path}/`
+            this.$routeMap.get('assessmentHome').getPath({
+              org: this.org,
+              slug: newAssessment.slug,
+              industryPath: industry.path,
+            })
           )
         }
       )

@@ -12,7 +12,13 @@
     </div>
     <div class="action" data-cy="btn-complete" v-else>
       <button-primary
-        :to="`/${organizationId}/home/${assessment.slug}/${assessment.industryPath}/`"
+        :to="
+          $routeMap.get('assessmentHome').getPath({
+            org: organizationId,
+            slug: assessment.slug,
+            industryPath: assessment.industryPath,
+          })
+        "
       >
         Back to Assessment Home
       </button-primary>

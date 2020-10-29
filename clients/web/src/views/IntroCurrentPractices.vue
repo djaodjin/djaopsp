@@ -16,7 +16,13 @@
       <button-primary
         data-cy="btn-continue"
         class="mt-8"
-        :to="`/${this.org}/assess/${this.slug}${this.assessment.industryPath}`"
+        :to="
+          $routeMap.get('assessmentPractices').getPath({
+            org,
+            slug: assessment.slug,
+            industryPath: assessment.industryPath,
+          })
+        "
         >Continue</button-primary
       >
     </div>

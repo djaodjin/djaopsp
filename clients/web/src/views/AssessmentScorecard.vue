@@ -21,10 +21,13 @@
           <scorecard-practices-chart :practices="assessment.improvementPlan" />
           <button-primary
             class="mt-6"
-            :to="{
-              name: 'assessmentHome',
-              params: { slug },
-            }"
+            :to="
+              $routeMap.get('assessmentHome').getPath({
+                org: organization.id,
+                slug: assessment.slug,
+                industryPath: assessment.industryPath,
+              })
+            "
           >
             Return to assessment
           </button-primary>
