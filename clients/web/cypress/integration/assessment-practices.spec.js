@@ -8,8 +8,9 @@ import { STEP_PRACTICE_KEY } from '../../src/config/app'
 
 const ORG_SLUG = 'test_org'
 const ORG_NAME = 'Test Organization'
-const ASSESSMENT_HOME_URL = `/${ORG_SLUG}/assess/1/`
-const ASSESSMENT_PRACTICES_URL = `${ASSESSMENT_HOME_URL}content/metal/boxes-and-enclosures/`
+const ASSESSMENT_HOME_URL = `/${ORG_SLUG}/assess/1/metal/boxes-and-enclosures/`
+const ASSESSMENT_PRACTICES_INTRO_URL = `/${ORG_SLUG}/assess/1/intro/metal/boxes-and-enclosures/`
+const ASSESSMENT_PRACTICES_URL = `/${ORG_SLUG}/assess/1/content/metal/boxes-and-enclosures/`
 
 describe('Supplier App: Assessment Practices', () => {
   let server
@@ -29,19 +30,12 @@ describe('Supplier App: Assessment Practices', () => {
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(ASSESSMENT_HOME_URL)
-    cy.get('[data-cy=industry-form]').as('industryForm')
-    cy.get('[data-cy=industry-label]').click()
-    cy.get('.v-menu__content')
-      .find('.v-list-item')
-      .contains('Boxes & enclosures')
-      .click()
-    cy.get('@industryForm').find('button[type=submit]').click()
     cy.get(`[data-cy=${STEP_PRACTICE_KEY}]`).click()
 
     // Displays an intro view before the main content
-    cy.url().should('include', `${ASSESSMENT_HOME_URL}intro/`)
+    cy.url().should('include', `${ASSESSMENT_PRACTICES_INTRO_URL}`)
     cy.get(`[data-cy=btn-continue]`).click()
-    cy.url().should('include', `${ASSESSMENT_HOME_URL}content/`)
+    cy.url().should('include', `${ASSESSMENT_PRACTICES_URL}`)
     cy.get('[data-cy=assessment-section]').its('length').should('eq', 3)
     cy.contains('0 / 10 questions')
   })
@@ -54,9 +48,9 @@ describe('Supplier App: Assessment Practices', () => {
     cy.get(`[data-cy=${STEP_PRACTICE_KEY}]`).click()
 
     // Displays an intro view before the main content
-    cy.url().should('include', `${ASSESSMENT_HOME_URL}intro/`)
+    cy.url().should('include', `${ASSESSMENT_PRACTICES_INTRO_URL}`)
     cy.get(`[data-cy=btn-continue]`).click()
-    cy.url().should('include', `${ASSESSMENT_HOME_URL}content/`)
+    cy.url().should('include', `${ASSESSMENT_PRACTICES_URL}`)
     cy.get('[data-cy=assessment-section]').its('length').should('eq', 3)
     cy.get('[data-cy=assessment-section]').first().as('firstSection')
     cy.get('@firstSection')
@@ -225,7 +219,7 @@ describe('Supplier App: Assessment Practices', () => {
       .type('comment content')
     cy.get('button[type=submit]').click()
     cy.get('[data-cy=btn-complete]').should('be.visible').click()
-    cy.url().should('match', /\/assess\/1\/$/)
+    cy.url().should('match', /\/assess\/1\/metal\/boxes-and-enclosures\/$/)
   })
 
   it('lets users complete assessment by using previous answers and navigating between sections', () => {
