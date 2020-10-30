@@ -23,6 +23,7 @@
         </li> -->
         <li v-if="isClickable">
           <router-link
+            data-cy="continue-assessment"
             :to="
               $routeMap.get('assessmentHome').getPath({
                 org: organizationId,

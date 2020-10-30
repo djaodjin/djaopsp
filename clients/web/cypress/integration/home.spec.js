@@ -19,30 +19,28 @@ describe('Supplier App: Home', () => {
     })
   })
 
-  it('loads the home screen for an empty organization', () => {
+  it('loads the home screen for an empty organization and lets users create a new assessment', () => {
     createOrgEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(HOME_URL)
     cy.contains(ORG_NAME)
     cy.contains('Take Sustainability Assessment')
+
+    cy.get('[data-cy=create-assessment]').click()
+    cy.url().should('include', '/assess/')
   })
 
-  it('loads the home screen for an organization with an assessment', () => {
+  it('loads the home screen for an organization with an assessment and lets users create a new assessment', () => {
     server.loadFixtures('questions')
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(HOME_URL)
     cy.contains(ORG_NAME)
     cy.get('.assessment-info').its('length').should('eq', 1)
-    cy.contains('Continue Sustainability Assessment')
-  })
+    cy.contains('Take Sustainability Assessment')
 
-  it('lets users create a new assessment', () => {
-    createOrgEmpty(server, ORG_SLUG, ORG_NAME)
-
-    cy.visit(HOME_URL)
     cy.get('[data-cy=create-assessment]').click()
-    cy.url().should('include', '/assess/1') // first assessment ID = 1
+    cy.url().should('include', '/assess/')
   })
 
   it('lets users continue working on an existing assessment', () => {
@@ -51,7 +49,7 @@ describe('Supplier App: Home', () => {
 
     cy.visit(HOME_URL)
     cy.get('[data-cy=continue-assessment]').click()
-    cy.url().should('include', '/assess/1')
+    cy.url().should('include', '/assess/1/metal/boxes-and-enclosures/')
   })
 
   it('has access to the assessment history view', () => {
