@@ -10,7 +10,7 @@ import monotonic
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db import connection, connections, transaction
-from django.db.models import F, Q, Max, Sum
+from django.db.models import F, Q, Count, Max, Sum
 from django.http import Http404
 from django.utils import six
 from deployutils.apps.django import mixins as deployutils_mixins
@@ -952,14 +952,38 @@ class ReportMixin(ExcludeDemoSample, BreadcrumbMixin, AccountMixin):
         return self._nb_required_answers
 
     @property
+    def nb_questions(self):
+        if not hasattr(self, '_nb_questions'):
+            segment_url, segment_prefix, segment_element = self.segment
+            self._nb_questions, self._nb_required_questions = \
+                self.get_nb_questions(segment_prefix)
+        return self._nb_questions
+
+    @property
     def nb_required_questions(self):
         if not hasattr(self, '_nb_required_questions'):
             segment_url, segment_prefix, segment_element = self.segment
-            self._nb_required_questions = Consumption.objects.filter(
-                path__startswith=segment_prefix,
-                enumeratedquestions__required=True,
-                enumeratedquestions__campaign=self.campaign).count()
+            self._nb_questions, self._nb_required_questions = \
+                self.get_nb_questions(segment_prefix)
         return self._nb_required_questions
+
+
+    def get_nb_questions(self, prefix):
+        required_counts = Consumption.objects.filter(
+                path__startswith=prefix,
+                enumeratedquestions__campaign=self.campaign).values(
+                'enumeratedquestions__required').annotate(
+                    required_count=Count('enumeratedquestions__required'))
+        nb_required_questions = 0
+        nb_optional_questions = 0
+        for required_dict in required_counts:
+            if required_dict['enumeratedquestions__required']:
+                nb_required_questions = required_dict['required_count']
+            else:
+                nb_optional_questions = required_dict['required_count']
+        return ((nb_required_questions + nb_optional_questions),
+                nb_required_questions)
+
 
     def get_or_create_assessment_sample(self):
         # We create the sample if it does not exists.

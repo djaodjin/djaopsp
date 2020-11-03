@@ -107,8 +107,6 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                     args=(self.account, self.sample, self.kwargs.get('path')))
                 context.update({'selected_sample': selected_sample})
 
-        nb_questions = Consumption.objects.filter(
-            path__startswith=segment_prefix).count()
         nb_answers = Answer.objects.filter(sample=self.sample,
             question__default_metric=F('metric_id'),
 #            question__default_metric_id=self.default_metric_id,
@@ -116,7 +114,7 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
         context.update({
             'nb_answers': nb_answers,
             'nb_required_answers': self.nb_required_answers,
-            'nb_questions': nb_questions,
+            'nb_questions': self.nb_questions,
             'nb_required_questions': self.nb_required_questions,
             'page_icon': self.icon,
             'sample': self.sample,
