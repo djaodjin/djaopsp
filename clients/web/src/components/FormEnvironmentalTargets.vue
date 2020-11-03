@@ -79,10 +79,13 @@ export default {
             )
             .map((p) => p.value)
           this.assessment.targetAnswers = newTargetAnswers
-          this.$router.push({
-            name: 'assessmentHome',
-            params: { org: this.organization.id, id: this.assessment.id },
-          })
+          this.$router.push(
+            this.$routeMap.get('assessmentHome').getPath({
+              org: organization.id,
+              slug: assessment.slug,
+              industryPath: assessment.industryPath,
+            })
+          )
         })
       }
     },

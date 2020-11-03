@@ -13,3 +13,14 @@ export function getRandomInt(min, max) {
   max = Math.floor(max)
   return Math.floor(Math.random() * (max - min)) + min //The maximum is exclusive and the minimum is inclusive
 }
+
+export function template(strings, ...keys) {
+  return function (params) {
+    const dict = params || {}
+    const result = [strings[0]]
+    keys.forEach(function (key, i) {
+      result.push(dict[key], strings[i + 1])
+    })
+    return result.join('')
+  }
+}

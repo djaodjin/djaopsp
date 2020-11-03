@@ -36,7 +36,7 @@
         :numQuestions="assessment.questions.length"
         :numAnswers="assessment.questions.length - unanswered.length"
         :organizationId="org"
-        :assessmentId="id"
+        :assessment="assessment"
       />
     </div>
     <dialog-confirm
@@ -72,7 +72,7 @@ import TabContainer from '@/components/TabContainer'
 export default {
   name: 'AssessmentCurrentPractices',
 
-  props: ['org', 'id'],
+  props: ['org', 'slug'],
 
   created() {
     this.fetchData()
@@ -81,13 +81,16 @@ export default {
   methods: {
     async fetchData() {
       this.loading = true
-      const [organization, assessment] = await Promise.all([
-        this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.org, this.id),
+      const industryPath = `/${this.$route.params.pathMatch}/`
+      this.organization = await this.$context.getOrganization(this.org)
+      const [assessment, previousAssessment] = await Promise.all([
+        this.$context.getAssessment(this.organization, this.slug, industryPath),
+        this.$context.getPreviousAssessment(this.organization, industryPath),
       ])
-      this.organization = organization
       this.assessment = assessment
-      this.previousAnswers = await API.getPreviousAnswers(this.org, assessment)
+      this.previousAnswers = previousAssessment
+        ? previousAssessment.answers
+        : []
       this.loading = false
     },
 

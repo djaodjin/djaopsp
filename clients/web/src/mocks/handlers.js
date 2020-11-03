@@ -1,4 +1,5 @@
 import { Response } from 'miragejs'
+import partition from 'lodash/partition'
 
 function createAssessment(schema, request) {
   const { organizationId } = request.params
@@ -17,10 +18,40 @@ function createAssessment(schema, request) {
 
 function getAnswers(schema, request) {
   const { organizationId, assessmentId } = request.params
-  const answers = schema.answers.where({
+  let answers = schema.answers.where({
     organizationId,
     assessmentId,
   })
+  if (!answers.models.length) {
+    const organization = schema.organizations.find(organizationId)
+    const assessment = schema.assessments.find(assessmentId)
+    // There are no answers for the assessment => this is a new assessment
+    // Initialize the assessment with all questions unanswered
+    //
+    // It would have been tempting to use the initEmptyAssessment method in
+    // utils; however, it only seems possible to create instances with
+    // server.create during app initialization when calling the seeds()
+    // method.
+    schema.questions
+      .where((question) => !!question.path)
+      .models.forEach((question) => {
+        schema.answers.create({
+          assessment,
+          organization,
+          question,
+          metric: null,
+          unit: null,
+          measured: null,
+          created_at: null,
+          collected_by: null,
+        })
+      })
+
+    answers = schema.answers.where({
+      organizationId,
+      assessmentId,
+    })
+  }
   const results = answers.models.map(
     ({
       metric,
@@ -49,50 +80,49 @@ function getAnswers(schema, request) {
   }
 }
 
-function getAssessmentInformation(schema, request) {
-  const { organizationId, assessmentId } = request.params
-  const organization = schema.organizations.find(organizationId)
-  if (organization.assessments.length) {
-    const assessment = organization.assessments.models.find(
-      (assessment) => assessment.slug === assessmentId
-    )
-    const { campaign, created_at, is_frozen, slug } = assessment
-    return { campaign, created_at, is_frozen, slug }
-  }
-  return new Response(404, {}, { errors: ['assessment not found'] })
-}
-
 function getAssessmentHistory(schema, request) {
   const { organizationId } = request.params
   const organization = schema.organizations.find(organizationId)
-  const numAssessments = organization.assessments.length
-  if (numAssessments > 0) {
-    const latest = organization.assessments.models[0]
-    const previous = []
-    for (let i = 1; i < numAssessments; i++) {
-      const assessment = organization.assessments.models[i]
-      const entry = {
-        key: i,
-        created_at: assessment.created_at,
-        values: [
-          [
-            assessment.industryName,
-            i,
-            `/app/${organizationId}/assess/${assessment.slug}/content${assessment.industryPath}`,
-          ],
-        ],
-      }
-      previous.push(entry)
-    }
-    return {
-      latest: {
-        assessment: latest.slug,
-        segments: [[latest.industryPath, latest.industryName]],
-      },
-      results: previous,
-    }
+  const assessments = organization.assessments.models.map((m) => m.attrs)
+
+  const [frozenAssessments, editableAssessments] = partition(
+    assessments,
+    'is_frozen'
+  )
+  const industries = editableAssessments.map((a) => a.industryPath)
+  const [pastAssessments, currentAssessments] = partition(
+    frozenAssessments,
+    (a) => industries.includes(a.industryPath)
+  )
+
+  const updates = editableAssessments.concat(currentAssessments).map((a) => ({
+    slug: a.slug,
+    account: a.account,
+    created_at: a.created_at,
+    is_frozen: a.is_frozen,
+    campaign: {
+      slug: a.campaign,
+      path: a.industryPath,
+      title: a.industryName,
+    },
+  }))
+
+  const results = pastAssessments.map((a, index) => ({
+    key: index,
+    created_at: a.created_at,
+    values: [
+      [
+        a.industryName,
+        index,
+        `/app/${a.account}/assess/${a.slug}${a.industryPath}`,
+      ],
+    ],
+  }))
+
+  return {
+    updates,
+    results,
   }
-  return new Response(500, {}, { errors: ['organization has no assessments'] })
 }
 
 function getIndustryList(schema) {
@@ -116,16 +146,6 @@ function getIndustryQuestions(schema) {
     previous: null,
     results,
   }
-}
-
-function getLatestAssessment(schema, request) {
-  const { organizationId } = request.params
-  const organization = schema.organizations.find(organizationId)
-  if (organization.assessments.length) {
-    const { slug, created_at, campaign } = organization.assessments.models[0]
-    return { campaign, created_at, slug }
-  }
-  return {}
 }
 
 function getOrganizationProfile(schema, request) {
@@ -212,11 +232,9 @@ function getBenchmarks(schema) {
 export default {
   createAssessment,
   getAnswers,
-  getAssessmentInformation,
   getAssessmentHistory,
   getIndustryList,
   getIndustryQuestions,
-  getLatestAssessment,
   getOrganizationProfile,
   postAnswer,
   getBenchmarks,

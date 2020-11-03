@@ -16,7 +16,13 @@
       <button-primary
         data-cy="btn-continue"
         class="mt-8"
-        :to="`/${this.org}/assess/${this.id}/content/${this.assessment.industryPath}/`"
+        :to="
+          $routeMap.get('assessmentPractices').getPath({
+            org,
+            slug: assessment.slug,
+            industryPath: assessment.industryPath,
+          })
+        "
         >Continue</button-primary
       >
     </div>
@@ -29,7 +35,7 @@ import IntroSection from '@/components/IntroSection'
 export default {
   name: 'IntroCurrentPractices',
 
-  props: ['org', 'id'],
+  props: ['org', 'slug'],
 
   created() {
     this.fetchData()
@@ -37,12 +43,13 @@ export default {
 
   methods: {
     async fetchData() {
-      const [organization, assessment] = await Promise.all([
-        this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.org, this.id),
-      ])
-      this.organization = organization
-      this.assessment = assessment
+      const industryPath = `/${this.$route.params.pathMatch}/`
+      this.organization = await this.$context.getOrganization(this.org)
+      this.assessment = await this.$context.getAssessment(
+        this.organization,
+        this.slug,
+        industryPath
+      )
     },
   },
 

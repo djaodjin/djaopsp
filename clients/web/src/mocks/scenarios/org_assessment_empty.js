@@ -1,9 +1,15 @@
+import { initEmptyAssessment } from '../utils'
+
 export default function (
   server,
   orgId,
   orgName = 'Organization With Empty Assessment'
 ) {
-  const assessment = server.create('assessment', {})
+  const assessment = server.create('assessment', {
+    account: orgId,
+    industryName: 'Boxes & enclosures',
+    industryPath: '/metal/boxes-and-enclosures/',
+  })
 
   const organization = server.create('organization', {
     id: orgId,
@@ -11,14 +17,5 @@ export default function (
     assessments: [assessment],
   })
 
-  // Per fixture: /mocks/fixtures/questions.js
-  server.schema.questions
-    .where((question) => !!question.path)
-    .models.forEach((question) => {
-      server.create('answer', {
-        assessment,
-        organization,
-        question,
-      })
-    })
+  initEmptyAssessment(server, organization, assessment)
 }

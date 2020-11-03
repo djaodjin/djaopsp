@@ -68,10 +68,13 @@ export default {
     saveImprovementPlan() {
       // TODO: API call to update assessment status; then, redirect to assessment home
       console.log('Call API to advance assessment')
-      this.$router.push({
-        name: 'assessmentHome',
-        params: { id: this.assessmentId },
-      })
+      // this.$router.push(
+      //   this.$routeMap.get('assessmentHome').getPath({
+      //     org: organization.id,
+      //     slug: assessment.slug,
+      //     industryPath: assessment.industryPath,
+      //   })
+      // )
     },
   },
 
