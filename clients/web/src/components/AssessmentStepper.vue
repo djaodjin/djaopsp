@@ -97,7 +97,7 @@
         <v-icon small>mdi-download</v-icon>
         <span class="ml-1">Download</span>
       </v-btn>
-      |
+      <span v-if="currentStep.key !== STEP_SHARE_KEY">|</span>
       <v-btn
         v-if="currentStep.key !== STEP_SHARE_KEY"
         text
@@ -106,15 +106,6 @@
       >
         <v-icon small>mdi-trash-can</v-icon>
         <span class="ml-1">Delete</span>
-      </v-btn>
-      <v-btn
-        v-else
-        text
-        color="primary"
-        @click.stop="isArchiveDialogOpen = true"
-      >
-        <v-icon small>mdi-folder-open</v-icon>
-        <span class="ml-1">Archive</span>
       </v-btn>
     </div>
     <dialog-action
@@ -126,21 +117,6 @@
     >
       <p>Are you sure you want to delete this assessment?</p>
       <p>The assessment will be completely removed from the TSP platform</p>
-    </dialog-action>
-    <dialog-action
-      title="Archive Assessment"
-      actionText="Yes, archive the assessment"
-      :isOpen="isArchiveDialogOpen"
-      @action="archiveAssessment"
-      @cancel="closeArchiveDialog"
-    >
-      <p>
-        Would you like to remove the assessment from your list of active
-        assessments?
-      </p>
-      <p>
-        You will still have access to the assessment from the assessment history
-      </p>
     </dialog-action>
   </v-sheet>
 </template>
@@ -180,7 +156,6 @@ export default {
       STEP_PLAN_KEY,
       STEP_SHARE_KEY,
       STEP_REVIEW_KEY,
-      isArchiveDialogOpen: false,
       isDeleteDialogOpen: false,
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }
@@ -196,14 +171,8 @@ export default {
   },
 
   methods: {
-    closeArchiveDialog() {
-      this.isArchiveDialogOpen = false
-    },
     closeDeleteDialog() {
       this.isDeleteDialogOpen = false
-    },
-    archiveAssessment() {
-      this.isArchiveDialogOpen = false
     },
     deleteAssessment() {
       this.isDeleteDialogOpen = false

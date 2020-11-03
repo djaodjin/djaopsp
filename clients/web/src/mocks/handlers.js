@@ -85,17 +85,12 @@ function getAssessmentHistory(schema, request) {
   const organization = schema.organizations.find(organizationId)
   const assessments = organization.assessments.models.map((m) => m.attrs)
 
-  const [frozenAssessments, editableAssessments] = partition(
+  const [pastAssessments, activeAssessments] = partition(
     assessments,
     'is_frozen'
   )
-  const industries = editableAssessments.map((a) => a.industryPath)
-  const [pastAssessments, currentAssessments] = partition(
-    frozenAssessments,
-    (a) => industries.includes(a.industryPath)
-  )
 
-  const updates = editableAssessments.concat(currentAssessments).map((a) => ({
+  const updates = activeAssessments.map((a) => ({
     slug: a.slug,
     account: a.account,
     created_at: a.created_at,

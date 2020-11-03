@@ -14,6 +14,7 @@ import {
 
 const ORG_SLUG = 'test_org'
 const ORG_NAME = 'Test Organization'
+const HOME_URL = `/${ORG_SLUG}/`
 const ASSESSMENT_HOME_URL = `/${ORG_SLUG}/assess/1/metal/boxes-and-enclosures/`
 
 describe('Supplier App: Assessment Home', () => {
@@ -72,7 +73,9 @@ describe('Supplier App: Assessment Home', () => {
     server.loadFixtures('industries', 'questions')
     createOrgAssessmentFrozen(server, ORG_SLUG, ORG_NAME)
 
-    cy.visit(ASSESSMENT_HOME_URL)
+    cy.visit(HOME_URL)
+    // Select frozen assessment appearing under active assessment list
+    cy.get('.assessment-info').last().contains('Completed').click()
     cy.get('[data-cy=stepper]').as('stepper')
     cy.get('@stepper')
       .get(`[data-cy=${STEP_PRACTICE_KEY}]`)
