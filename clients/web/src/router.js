@@ -7,6 +7,7 @@ import AssessmentHome from '@/views/AssessmentHome'
 import AssessmentImprovementPlan from '@/views/AssessmentImprovementPlan'
 import AssessmentScorecard from '@/views/AssessmentScorecard'
 import AssessmentShare from '@/views/AssessmentShare'
+import History from '@/views/History'
 import Home from '@/views/Home'
 import IntroCurrentPractices from '@/views/IntroCurrentPractices'
 import IntroEnvironmentalTargets from '@/views/IntroEnvironmentalTargets'
@@ -111,6 +112,14 @@ export const routeMap = new Map([
       routeFn: template`/${'org'}/share/${'slug'}/content/${'industryPath'}/`,
       routePlaceholders: { org: ':org', slug: ':slug', industryPath: '*' },
       component: AssessmentShare,
+    }),
+  ],
+  [
+    'history',
+    new AppView({
+      routeFn: template`/${'org'}/history/`,
+      routePlaceholders: { org: ':org' },
+      component: History,
     }),
   ],
 ])

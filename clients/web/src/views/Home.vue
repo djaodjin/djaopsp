@@ -46,9 +46,15 @@
             <v-col cols="12" md="6" xl="4">
               <section class="mb-4 px-md-4">
                 <p>{{ $t('home.desc-history') }}</p>
-                <button-primary data-cy="view-history">{{
-                  $t('home.btn-history')
-                }}</button-primary>
+                <button-primary
+                  data-cy="view-history"
+                  :to="
+                    $routeMap.get('history').getPath({
+                      org,
+                    })
+                  "
+                  >{{ $t('home.btn-history') }}</button-primary
+                >
               </section>
             </v-col>
             <!-- Comment out view best practices section
