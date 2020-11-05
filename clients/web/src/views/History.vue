@@ -8,6 +8,7 @@
           elevation="3"
         >
           <div
+            data-cy="history-table"
             v-if="
               organization.previousAssessments &&
               organization.previousAssessments.length
@@ -28,7 +29,7 @@
               :items-per-page="organization.previousAssessments.length"
             >
               <template v-slot:item.created="{ item, value }">
-                <span v-format-date>{{ value }}</span>
+                <time :datetime="value" v-format-date>{{ value }}</time>
               </template>
               <template v-slot:item.slug="{ item, value }">
                 <router-link
@@ -52,10 +53,10 @@
               !organization.previousAssessments.length
             "
           >
-            <p class="text-subtitle-1 text-center">
+            <p data-cy="empty-placeholder" class="text-subtitle-1 text-center">
               The organization does not have any archived assessments.<br />
-              Any assessments completed over 6 months ago are considered
-              archived assessments and will populate this section.
+              Any assessments completed over 6 months ago will be listed in this
+              section.
             </p>
           </div>
         </component>

@@ -58,16 +58,18 @@ describe('Supplier App: Home', () => {
     createOrgAssessmentFrozen(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(HOME_URL)
+    // This also tests the existence of multiple active assessments
     cy.get('.assessment-info').its('length').should('eq', 2)
     cy.get('.assessment-info').first().contains('In Progress')
     cy.get('.assessment-info').last().contains('Completed')
   })
 
-  it('has access to the assessment history view', () => {
-    createOrgEmpty(server, ORG_SLUG, ORG_NAME)
+  it('lets users access the assessment history', () => {
+    server.loadFixtures('questions')
+    createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(HOME_URL)
-    cy.get('[data-cy=view-history]')
-    // TODO: Route to history view
+    cy.get('[data-cy=view-history]').click()
+    cy.url().should('include', '/history/')
   })
 })
