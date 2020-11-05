@@ -30,7 +30,7 @@ describe('Supplier App: Assessment History', () => {
     cy.get('[data-cy=history-table]').should('not.exist')
   })
 
-  it.only('shows a table with a list of archived assessments sorted by date (descending)', () => {
+  it('shows a table with a list of archived assessments sorted by date (descending)', () => {
     server.loadFixtures('questions')
     createOrgAssessmentFrozen(server, ORG_SLUG, ORG_NAME)
 
@@ -91,5 +91,14 @@ describe('Supplier App: Assessment History', () => {
           /\/scorecard\/\d\/content\/professional-services\/$/
         )
       })
+  })
+
+  it('lets users navigate back to the home view', () => {
+    server.loadFixtures('questions')
+    createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
+
+    cy.visit(HISTORY_URL)
+    cy.get('[data-cy=back-link]').click()
+    cy.url().should('match', new RegExp(`/${ORG_SLUG}/$`))
   })
 })

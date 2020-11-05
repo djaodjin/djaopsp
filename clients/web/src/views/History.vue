@@ -7,6 +7,14 @@
           :class="[STANDALONE ? 'standalone' : 'embedded']"
           elevation="3"
         >
+          <section-back-link
+            :to="
+              $routeMap.get('home').getPath({
+                org,
+              })
+            "
+            exact
+          />
           <div
             data-cy="history-table"
             v-if="
@@ -69,6 +77,7 @@
 import { VSheet } from 'vuetify/lib'
 import { formatDate } from '@/directives'
 import ButtonPrimary from '@/components/ButtonPrimary'
+import SectionBackLink from '@/components/SectionBackLink'
 
 export default {
   name: 'History',
@@ -119,6 +128,7 @@ export default {
 
   components: {
     ButtonPrimary,
+    SectionBackLink,
     VSheet,
   },
 }
