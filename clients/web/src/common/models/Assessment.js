@@ -18,6 +18,7 @@ export default class Assessment {
     questions = [],
     targetAnswers = [],
     targetQuestions = [],
+    score,
   }) {
     // An assessment can be uniquely identified by its sample slug and its industry segment path
     this.id = Assessment.getId(slug, industry.path)
@@ -31,6 +32,7 @@ export default class Assessment {
     this.questions = questions
     this.targetAnswers = targetAnswers
     this.targetQuestions = targetQuestions
+    this.score = score
 
     // Determine assessment status
     if (
