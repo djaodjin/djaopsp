@@ -444,15 +444,20 @@ ON active_assessments.account_id = frozen.account_id AND
        'frozen_query': frozen_query,
        'reporting_clause': reporting_clause}
 
-        accounts_clause = "saas_organization.id IN %s" % str(
-            self.requested_accounts_pk)
-        if self.search_param:
-            if accounts_clause:
-                accounts_clause += "AND "
-            accounts_clause += ("saas_organization.full_name ILIKE '%%%%%s%%%%'"
-                % self.search_param)
+        accounts_clause = ""
+        if self.requested_accounts_pk:
+            accounts_clause = "saas_organization.id IN %s" % str(
+                self.requested_accounts_pk)
+            if self.search_param:
+                if accounts_clause:
+                    accounts_clause += "AND "
+                accounts_clause += ("saas_organization.full_name ILIKE '%%%%%s%%%%'"
+                    % self.search_param)
         if accounts_clause:
             accounts_clause = "WHERE %s" % accounts_clause
+        else:
+            return Sample.objects.none()
+
         order_clause = ""
         if self.sort_ordering:
             order_clause = "ORDER BY "
