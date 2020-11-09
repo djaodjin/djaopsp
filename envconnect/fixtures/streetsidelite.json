@@ -99,7 +99,7 @@
 },
 { "fields": {
     "slug": "water-utility",
-    "full_name": "Water utility",
+    "full_name": "Water utility (Demo)",
     "country": "US",
     "created_at": "2017-01-01T00:00:00+00:00",
     "email": "fixtures@djaoapp.com",
@@ -109,7 +109,8 @@
     "postal_code": 94102,
     "region": "CA",
     "street_address": "588 Sutter St. #237A",
-    "processor": 1
+    "processor": 1,
+    "extra": "{\"testing\":1}"
   },
   "model": "saas.organization", "pk": 11
 },

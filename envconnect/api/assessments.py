@@ -181,7 +181,7 @@ class AssessmentAnswersAPIView(ReportMixin, SampleAnswersAPIView):
         "results": [
             {
                 "question": {
-                    "path": "the-assessment-process-is-rigorous",
+                    "path": "have-a-policy-level-commitment-to",
                     "default_metric": "weight",
                     "title": "The assessment process is rigorous"
                 },

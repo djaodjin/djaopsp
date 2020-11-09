@@ -1338,7 +1338,8 @@ class HistoricalScoreAPIView(ReportMixin, generics.GenericAPIView):
         if self.assessment_sample:
             active_assessment = get_segments_from_samples(
                 [self.assessment_sample.id])[self.assessment_sample.id]
-            segments = [segment[0] for segment in active_assessment]
+            segments = [segment[0] for segment in active_assessment
+                if not segment[0]['path'].startswith('/euissca-rfx')]
             updates = []
             for segment in segments:
                 updates += [{
@@ -1390,7 +1391,7 @@ details/boxes-and-enclosures HTTP/1.1
             },
             {
               "path": "/metal/boxes-and-enclosures/governance-management/"\
-"assessment/the-assessment-process-is-rigorous",
+"assessment/have-a-policy-level-commitment-to",
               "title": "The assessment process is rigorous and thorough*",
               "indent": 2,
               "nb_respondents": 15,

@@ -1566,27 +1566,44 @@ thead{
   background-color: $secondary;
 }
 
-.table thead > tr > th.sticky-cell {
-  background: white;
+.table tr > th.sticky-cell {
+  background: white;  // without a background, the cell border show on scrolling
   padding: 0;
-  border-top: none;
-  border-bottom: none;
   // from bootstrap4 sticky-top
   position: sticky;
-  top: 0;
   z-index: 1020;
 }
 
-.table thead > tr > th.sticky-cell > .sticky-cell-content-container {
-  height:100%;
-  display:block;
+.table tr > th.sticky-cell-top {
+  top: 0;
+  border-top: none;
+  border-bottom: none;
+}
+
+.table tr > th.sticky-cell-left {
+  left: 0;
+  border-left: none;
+  border-right: none;
+}
+
+.table tr > th.sticky-cell > .sticky-cell-content-container {
+  background: white;  // without a background, the cell border show on scrolling
+  display: block;
   overflow:auto;
-  background: white;
+  height:100%;
+}
+
+.table tr > th.sticky-cell-top > .sticky-cell-content-container {
   border-bottom: 1px solid #616363;
   padding: 20px 0;
 }
 
-.table thead > tr > th.sticky-cell > .sticky-cell-content-container > .sticky-cell-content {
+.table tr > th.sticky-cell-left > .sticky-cell-content-container {
+  border-right: 1px solid #616363;
+  padding: 20px;
+}
+
+.table tr > th.sticky-cell > .sticky-cell-content-container > .sticky-cell-content {
   height:100%;
 }
 

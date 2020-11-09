@@ -92,21 +92,6 @@ class AssessmentView(AssessmentBaseMixin, TemplateView):
                 'entries': json.dumps(root, cls=JSONEncoder)
             })
 
-        prev_samples = [(reverse('assess_organization',
-            args=(self.account, prev_sample, self.kwargs.get('path'))),
-                prev_sample.created_at)
-            for prev_sample in Sample.objects.filter(
-                is_frozen=True,
-                extra__isnull=True,
-                campaign=self.campaign,
-                account=self.account).order_by('-created_at')]
-        if prev_samples:
-            context.update({'prev_samples': prev_samples})
-            if self.sample.is_frozen:
-                selected_sample = reverse('assess_organization',
-                    args=(self.account, self.sample, self.kwargs.get('path')))
-                context.update({'selected_sample': selected_sample})
-
         nb_answers = Answer.objects.filter(sample=self.sample,
             question__default_metric=F('metric_id'),
 #            question__default_metric_id=self.default_metric_id,

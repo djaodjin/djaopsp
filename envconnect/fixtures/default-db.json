@@ -1429,14 +1429,14 @@
 {
   "fields": {
     "title": "The assessment process is rigorous and thorough*",
-    "slug": "the-assessment-process-is-rigorous",
+    "slug": "have-a-policy-level-commitment-to",
     "account": 6
   },
   "model": "pages.PageElement", "pk": 67
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/management-basics/assessment/the-assessment-process-is-rigorous",
+    "path": "/metal/boxes-and-enclosures/management-basics/assessment/have-a-policy-level-commitment-to",
     "text": "The assessment process is rigorous and thorough*",
     "question_type": "radio",
     "default_metric": 1,
@@ -2216,17 +2216,8 @@
 },
 {
   "fields": {
-    "title": "Design",
-    "slug": "wc-design",
-    "text": "/envconnect/static/img/design.png",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 78
-},
-{
-  "fields": {
     "orig_element": 76,
-    "dest_element": 78
+    "dest_element": 5
   },
   "model": "pages.Relationship", "pk": 66
 },
@@ -2236,28 +2227,6 @@
     "dest_element": 7
   },
   "model": "pages.Relationship", "pk": 67
-},
-{
-  "fields": {
-    "title": "Design categories",
-    "slug": "design-categories",
-    "account": 6
-  },
-  "model": "pages.PageElement", "pk": 79
-},
-{
-  "fields": {
-    "orig_element": 78,
-    "dest_element": 79
-  },
-  "model": "pages.relationship", "pk": 68
-},
-{
-  "fields": {
-    "orig_element": 79,
-    "dest_element": 10
-  },
-  "model": "pages.Relationship", "pk": 69
 },
 {
   "fields": {
@@ -2322,7 +2291,7 @@
 },
 {
   "fields": {
-    "path": "/metal/wire-and-cable/wc-design/design-categories/product-design",
+    "path": "/metal/wire-and-cable/design/product-design",
     "text": "Product Design",
     "question_type": "radio",
     "default_metric": 1,
@@ -2336,6 +2305,23 @@
     "avg_value": 1
   },
   "model": "envconnect.Consumption", "pk": 15
+},
+{
+  "fields": {
+    "path": "/metal/wire-and-cable/design/packaging-design",
+    "text": "Packaging Design",
+    "question_type": "radio",
+    "default_metric": 1,
+    "avg_energy_saving": "* * *",
+    "capital_cost": "$$$",
+    "payback_period": "3-12",
+    "business_value": 1,
+    "environmental_value": 1,
+    "implementation_ease": 1,
+    "profitability": 1,
+    "avg_value": 1
+  },
+  "model": "envconnect.Consumption", "pk": 16
 },
 {
   "fields": {

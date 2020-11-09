@@ -33,7 +33,7 @@ Click each tile and select opportunities you plan to address over the next year.
               <th class="text-center" colspan="{{choices|length}}">Select maturity level you are targetting</th>
             </tr>
             <tr>
-              <th class="sticky-cell">
+              <th class="sticky-cell sticky-cell-top">
                 <div class="sticky-cell-content-container">
                   <div class="sticky-cell-content" style="padding-left:0.75rem;">
                     Practices
@@ -41,7 +41,7 @@ Click each tile and select opportunities you plan to address over the next year.
                   </div>
                 </div>
               </th>
-              <th class="sticky-cell text-center cell-fix-width-3" style="font-size:10px;">
+              <th class="sticky-cell sticky-cell-top text-center cell-fix-width-3" style="font-size:10px;">
                 <div class="sticky-cell-content-container">
                   <div class="sticky-cell-content">
                     <!--
@@ -54,7 +54,7 @@ Click each tile and select opportunities you plan to address over the next year.
                 </div>
               </th>
               {% for choice in choices %}
-              <th class="sticky-cell text-center cell-fix-width-5">
+              <th class="sticky-cell sticky-cell-top text-center cell-fix-width-5">
                 <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" title="{{choice.descr}}">
                   <div class="sticky-cell-content">{{choice.text}}</div>
                 </div>
@@ -65,12 +65,12 @@ Click each tile and select opportunities you plan to address over the next year.
           {% else %}
           <thead>
             <tr>
-              <th class="sticky-cell">
+              <th class="sticky-cell sticky-cell-top">
                 <div class="sticky-cell-content-container">
                   <div class="sticky-cell-content" style="padding-left:0.75rem;">Practices</div>
                 </div>
               </th>
-              <th class="sticky-cell text-center cell-fix-width-3"
+              <th class="sticky-cell sticky-cell-top text-center cell-fix-width-3"
                   data-toggle="tooltip" data-placement="top"
                   title="Percentage of respondents that have implemented a best practice.">
                 <div class="sticky-cell-content-container">
@@ -82,7 +82,7 @@ Click each tile and select opportunities you plan to address over the next year.
                   </div>
                 </div>
               </th>
-              <th class="sticky-cell text-center cell-fix-width-3">
+              <th class="sticky-cell sticky-cell-top text-center cell-fix-width-3">
                 <div class="sticky-cell-content-container">
                   <div class="sticky-cell-content">
                     <button class="btn btn-link btn-sort" ng-click="sortBy('implemented')">
@@ -92,7 +92,7 @@ Click each tile and select opportunities you plan to address over the next year.
                   </div>
                 </div>
               </th>
-              <th class="sticky-cell text-center cell-fix-width-3"
+              <th class="sticky-cell sticky-cell-top text-center cell-fix-width-3"
                   data-toggle="tooltip" data-placement="top"
                   title="Higher numbers equate to higher priority opportunities based on the following calculation: Practice green level * (1 + implementation rate / 100). Practice green levels: Dark green = 3; medium green = 2, light green = 1">
                 <div class="sticky-cell-content-container">
@@ -104,7 +104,7 @@ Click each tile and select opportunities you plan to address over the next year.
                   </div>
                 </div>
               </th>
-              <th class="sticky-cell text-center">
+              <th class="sticky-cell sticky-cell-top text-center">
                 <div class="sticky-cell-content-container">
                   <div class="sticky-cell-content">Select for Improvement Plan</div>
                 </div>

@@ -3,7 +3,7 @@
 
 import logging
 
-from django.db.models import Max
+from django.db.models import Max, Q
 from pages.models import build_content_tree, PageElement
 from survey.models import Choice, Unit
 from survey.utils import get_account_model
@@ -62,7 +62,8 @@ def as_valid_sheet_title(title):
 
 def flatten(rollup_trees, depth=0):
     result = []
-    for key, values in six.iteritems(rollup_trees):
+    for key, values in sorted(six.iteritems(rollup_trees),
+            key=lambda node: node[1][0]['title']):
         elem, nodes = values
         extra = elem.get('extra', elem.get('tag', {}))
         try:
@@ -76,14 +77,17 @@ def flatten(rollup_trees, depth=0):
     return result
 
 
-def get_segments(content_tree=None):
+def get_segments(content_tree=None, search_query=None):
     """
     Returns a list of segment prefixes
     """
     if not content_tree:
+        query_filter = Q(tag__contains='industry')
+        if search_query:
+            query_filter = query_filter & Q(tag__contains=search_query)
         content_tree = build_content_tree(
             roots=PageElement.objects.get_roots().filter(
-                tag__contains='industry'),
+                query_filter).order_by('title'),
             prefix='/', cut=ContentCut())
     segments = flatten(content_tree)
     return segments
