@@ -57,14 +57,19 @@
                 <td style="border:none;"><a ng-href="[[ getSegmentUrl('{{urls.share}}', segment.path) ]]">Share scorecard</a></td>
               </tr>
             </tbody>
-            <tbody style="border:none;" ng-show="items.$resolved && items.results.length == 0" ng-cloak>
+            <tbody style="border:none;" ng-show="items.$resolved" ng-cloak>
+              <tr>
+                <th style="border-top:none;border-bottom:1px solid;" colspan="4">Previous assessment scores</th>
+              </tr>
+            </tbody>
+            <tbody style="background:#eee;border:none;" ng-show="items.$resolved && items.results.length == 0" ng-cloak>
               <tr>
                 <td colspan="4">No previous assessments</td>
               </tr>
             </tbody>
-            <tbody style="border:none;" ng-repeat="entry in items.results" ng-show="items.$resolved && items.results.length > 0" ng-cloak>
+            <tbody style="background:#eee;border:none;" ng-repeat="entry in items.results" ng-show="items.$resolved && items.results.length > 0" ng-cloak>
               <tr>
-                <td style="border-top:none;border-bottom:1px solid;" colspan="4">
+                <td style="border-top:none;border-bottom:1px #ccc solid;" colspan="4">
                   [[entry.key]]
                 </td>
               </tr>
@@ -72,15 +77,20 @@
                 <td style="border:none;">
                   <a href="[[score[2] ]]">[[score[0] ]]</a>
                 </td>
-                <td style="border:none;">
+                <td style="border:none;" colspan="3">
                   [[score[1] ]]%
-                </td>
-                <td style="border:none;">
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+        {% block extra_menuitems %}
+        <div class="text-left">
+          <p>
+Responding to a Sustainability Sourcing Event?&nbsp;&nbsp;&nbsp;<a href="{% url 'assess_organization_redirect' organization '/euissca-rfx' %}">Take the RFP and other RFx assessment &raquo;</a>
+          </p>
+        </div>
+        {% endblock %}
       </div>
     </div><!-- /.row -->
     <hr />
