@@ -1,4 +1,4 @@
-import { Response } from 'miragejs'
+import { getRandomInt } from '../common/utils'
 import partition from 'lodash/partition'
 
 function createAssessment(schema, request) {
@@ -108,7 +108,7 @@ function getAssessmentHistory(schema, request) {
     values: [
       [
         a.industryName,
-        index,
+        getRandomInt(40, 100),
         `/app/${a.account}/assess/${a.slug}${a.industryPath}`,
       ],
     ],

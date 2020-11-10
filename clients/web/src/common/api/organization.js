@@ -8,8 +8,7 @@ import parseISO from 'date-fns/parseISO'
 const ACTIVE_PAST_FROZEN_TIMEFRAME = 6 // months
 
 function parseAssessmentResult(assessmentValues) {
-  const industryTitle = assessmentValues[0]
-  const path = assessmentValues[2]
+  const [industryTitle, score, path] = assessmentValues
   let slug = null
   let industryPath = ''
 
@@ -22,6 +21,7 @@ function parseAssessmentResult(assessmentValues) {
   }
   return {
     slug,
+    score,
     industry: industryPath
       ? {
           title: industryTitle,
@@ -63,12 +63,13 @@ async function getOrganization(organizationId) {
       let assessment
       const created = a.created_at
       a.values.forEach((v) => {
-        const { slug, industry } = parseAssessmentResult(v)
+        const { slug, score, industry } = parseAssessmentResult(v)
         assessment = new Assessment({
           slug,
           created,
           frozen: true,
           industry,
+          score,
         })
       })
       if (
