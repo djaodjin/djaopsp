@@ -70,17 +70,20 @@ export function makeServer({ environment = 'development', apiBasePath }) {
 
     factories: {
       assessment: Factory.extend({
-        industryName() {
-          return 'Boxes & enclosures'
-        },
-        industryPath() {
-          return '/metal/boxes-and-enclosures/'
+        account() {
+          return null // organization slug (orgId
         },
         campaign() {
           return 'assessment'
         },
         created_at() {
           return faker.date.past().toISOString()
+        },
+        industryName() {
+          return 'Boxes & enclosures'
+        },
+        industryPath() {
+          return '/metal/boxes-and-enclosures/'
         },
         is_frozen() {
           return false
@@ -201,7 +204,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
       scenarios.createOrgAssessmentPracticesIncomplete(server, 'beta')
       scenarios.createOrgAssessmentPracticesComplete(server, 'gamma')
       scenarios.createOrgAssessmentFrozen(server, 'delta')
-      scenarios.createOrgAssessmentEmptyMultiple(server, 'epsilon')
+      scenarios.createOrgAssessmentMultiple(server, 'epsilon')
       scenarios.createOrgAssessmentPreviousAnswers(server, 'zeta')
       scenarios.createOrgAssessmentPreviousTargets(server, 'eta')
     },
@@ -218,11 +221,6 @@ export function makeServer({ environment = 'development', apiBasePath }) {
         routeHandlers.getAssessmentHistory
       )
 
-      this.get(
-        '/:organizationId/benchmark/historical/*/',
-        routeHandlers.getAssessmentHistory
-      )
-
       /* --- ORGANIZATIONS --- */
       this.get('/organizations', (schema) => {
         return schema.organizationGroups.all()
@@ -230,14 +228,7 @@ export function makeServer({ environment = 'development', apiBasePath }) {
 
       this.get('/profile/:organizationId', routeHandlers.getOrganizationProfile)
 
-      this.get('/:organizationId/sample/', routeHandlers.getLatestAssessment)
-
       /* --- ASSESSMENTS --- */
-      this.get(
-        '/:organizationId/sample/:assessmentId/',
-        routeHandlers.getAssessmentInformation
-      )
-
       this.get(
         '/:organizationId/sample/:assessmentId/answers/',
         routeHandlers.getAnswers

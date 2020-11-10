@@ -8,7 +8,13 @@
         exact
         :min-height="44"
         :ripple="false"
-        :to="{ name: 'assessmentHome', params: { id: $route.params.id } }"
+        :to="
+          $routeMap.get('assessmentHome').getPath({
+            org: $route.params.org,
+            slug: $route.params.slug,
+            industryPath: $route.params.pathMatch,
+          })
+        "
       >
         <div class="flex-line">
           <v-icon small>mdi-arrow-up-circle</v-icon>

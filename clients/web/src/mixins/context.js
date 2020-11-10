@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import API from '@/common/api'
+import Assessment from '@/common/models/Assessment'
 
 Vue.mixin({
   beforeCreate() {
@@ -51,17 +52,7 @@ function createIndustryList(industries, previousIndustries) {
 
   if (previousIndustries.length) {
     industryList.push({ header: 'PREVIOUSLY SELECTED' })
-    const previous = previousIndustries.map(({ values }) => {
-      // TODO: Consider case where assessment belongs to more than one industry segment
-      const segment = values[0]
-      const industryName = segment[0]
-      const industryPath = segment[2] && segment[2].split('/content')[1]
-      return {
-        text: industryName,
-        value: industryPath,
-      }
-    })
-    industryList = industryList.concat(previous)
+    industryList = industryList.concat(previousIndustries)
     industryList.push({ divider: true })
   }
   // If previous industries exist, these entries will appear twice but the select control
@@ -72,26 +63,43 @@ function createIndustryList(industries, previousIndustries) {
 export default class Context {
   constructor() {
     this.organizations = new Map()
-    this.assessments = new Map()
     this.industries = []
   }
 
-  async getAssessment(organizationId, assessmentId) {
-    if (this.assessments.has(assessmentId)) {
-      return this.assessments.get(assessmentId)
-    } else {
-      const assessment = await API.getAssessment(organizationId, assessmentId)
-      this.assessments.set(assessmentId, assessment)
-      return assessment
+  async getAssessment(organization, slug, industryPath) {
+    const assessmentId = Assessment.getId(slug, industryPath)
+    // When the organization first loads, basic information will be loaded
+    // for all its assessments.
+    let assessment = organization.findAssessment(assessmentId)
+    if (assessment && !assessment.questions.length) {
+      // If the assessment doesn't have any questions, it's probably we still have
+      // not called API.getAssessment to fetch all its details.
+      assessment = await API.getAssessmentDetails(organization, assessment)
+      // Replace the assessment instance that had basic information with a new
+      // assessment instance that has more details
+      organization.replaceAssessment(assessment)
     }
+    return assessment
   }
 
-  async getIndustries(organizationId) {
+  async getPreviousAssessment(organization, industryPath) {
+    let assessment = organization.findPreviousAssessmentByIndustry(industryPath)
+    if (assessment && !assessment.questions.length) {
+      assessment = await API.getAssessmentDetails(organization, assessment)
+      // Replace the assessment instance that had basic information with a new
+      // assessment instance that has more details
+      organization.replaceAssessment(assessment)
+    }
+    return assessment
+  }
+
+  async getIndustries(organization) {
     if (!this.industries.length) {
-      const [industries, previousIndustries] = await Promise.all([
-        API.getIndustrySegments(),
-        API.getPreviousIndustrySegments(organizationId),
-      ])
+      const industries = await API.getIndustrySegments()
+      const previousIndustries = organization.previousAssessments.map((a) => ({
+        text: a.industryName,
+        value: a.industryPath,
+      }))
       this.industries = createIndustryList(industries, previousIndustries)
     }
     return this.industries
@@ -105,23 +113,5 @@ export default class Context {
       this.organizations.set(organizationId, organization)
       return organization
     }
-  }
-
-  async setAssessmentIndustry(organizationId, assessmentId, industry) {
-    const assessment = this.assessments.get(assessmentId)
-    if (assessment) {
-      const updated = await API.setAssessmentIndustry(
-        organizationId,
-        assessment,
-        industry
-      )
-      this.assessments.set(assessment.id, updated)
-      return updated
-    }
-  }
-
-  updateAssessment(assessment) {
-    this.assessments.set(assessment.id, assessment)
-    return assessment
   }
 }

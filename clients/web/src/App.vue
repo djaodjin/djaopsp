@@ -55,12 +55,16 @@
           v-if="
             this.$route.name !== 'home' &&
             this.$route.name !== 'assessmentHome' &&
-            this.$route.name !== 'newAssessment'
+            this.$route.name !== 'newAssessment' &&
+            this.$route.params.pathMatch
           "
-          :to="{
-            name: 'assessmentHome',
-            params: { org: $route.params.org, id: $route.params.id },
-          }"
+          :to="
+            $routeMap.get('assessmentHome').getPath({
+              org: $route.params.org,
+              slug: $route.params.slug,
+              industryPath: $route.params.pathMatch,
+            })
+          "
         >
           <span>Assessment</span>
           <v-icon>mdi-map</v-icon>

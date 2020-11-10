@@ -25,6 +25,7 @@
                   >
                     <assessment-info
                       class="mb-6"
+                      :organizationId="org"
                       :assessment="assessment"
                       :isClickable="true"
                     />
@@ -32,20 +33,12 @@
                 </div>
 
                 <button-primary
-                  data-cy="continue-assessment"
-                  :to="{
-                    name: 'assessmentHome',
-                    params: { id: organization.assessments[0].id },
-                  }"
-                  v-if="
-                    organization.assessments && organization.assessments.length
-                  "
-                  >{{ $t('home.btn-continue-assessment') }}</button-primary
-                >
-                <button-primary
                   data-cy="create-assessment"
-                  @click="createAssessment"
-                  v-else
+                  :to="
+                    $routeMap.get('assessmentCreate').getPath({
+                      org,
+                    })
+                  "
                   >{{ $t('home.btn-take-assessment') }}</button-primary
                 >
               </section>
@@ -53,9 +46,15 @@
             <v-col cols="12" md="6" xl="4">
               <section class="mb-4 px-md-4">
                 <p>{{ $t('home.desc-history') }}</p>
-                <button-primary data-cy="view-history">{{
-                  $t('home.btn-history')
-                }}</button-primary>
+                <button-primary
+                  data-cy="view-history"
+                  :to="
+                    $routeMap.get('history').getPath({
+                      org,
+                    })
+                  "
+                  >{{ $t('home.btn-history') }}</button-primary
+                >
               </section>
             </v-col>
             <!-- Comment out view best practices section
@@ -80,7 +79,6 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
-import API from '@/common/api'
 import ButtonPrimary from '@/components/ButtonPrimary'
 import AssessmentInfo from '@/components/AssessmentInfo'
 
@@ -94,16 +92,6 @@ export default {
   },
 
   methods: {
-    createAssessment() {
-      API.createAssessment(this.org, { campaign: 'assessment' }).then(
-        (newAssessment) => {
-          this.$router.push({
-            name: 'assessmentHome',
-            params: { id: newAssessment.id },
-          })
-        }
-      )
-    },
     async fetchData() {
       this.organization = await this.$context.getOrganization(this.org)
     },

@@ -44,7 +44,7 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 export default {
   name: 'FormSelectIndustry',
 
-  props: ['organizationId'],
+  props: ['organization'],
 
   created() {
     this.fetchData()
@@ -52,7 +52,7 @@ export default {
 
   methods: {
     async fetchData() {
-      this.industries = await this.$context.getIndustries(this.organizationId)
+      this.industries = await this.$context.getIndustries(this.organization)
     },
     selectIndustry(item) {
       this.industry = {

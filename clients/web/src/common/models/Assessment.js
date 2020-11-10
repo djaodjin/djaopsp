@@ -1,15 +1,15 @@
+import kebabCase from 'lodash/kebabCase'
 import {
   STEP_PRACTICE_KEY,
   STEP_REVIEW_KEY,
   STEP_SHARE_KEY,
 } from '@/config/app'
-import { getUniqueId } from '../utils'
 import { getPracticeList } from './Practice'
 
 export default class Assessment {
   // TODO: Add list of contributors to the assessment
   constructor({
-    id = getUniqueId(),
+    slug,
     created = new Date(),
     frozen = false,
     industry = { title: '', path: '' },
@@ -18,8 +18,11 @@ export default class Assessment {
     questions = [],
     targetAnswers = [],
     targetQuestions = [],
+    score,
   }) {
-    this.id = id
+    // An assessment can be uniquely identified by its sample slug and its industry segment path
+    this.id = Assessment.getId(slug, industry.path)
+    this.slug = slug
     this.created = created
     this.frozen = frozen
     this.industryName = industry.title
@@ -29,6 +32,7 @@ export default class Assessment {
     this.questions = questions
     this.targetAnswers = targetAnswers
     this.targetQuestions = targetQuestions
+    this.score = score
 
     // Determine assessment status
     if (
@@ -42,5 +46,9 @@ export default class Assessment {
     } else {
       this.status = STEP_SHARE_KEY
     }
+  }
+
+  static getId(slug, path) {
+    return `${slug}-${kebabCase(path)}`
   }
 }

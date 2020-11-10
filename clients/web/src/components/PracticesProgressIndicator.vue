@@ -12,10 +12,13 @@
     </div>
     <div class="action" data-cy="btn-complete" v-else>
       <button-primary
-        :to="{
-          name: 'assessmentHome',
-          params: { org: organizationId, id: assessmentId },
-        }"
+        :to="
+          $routeMap.get('assessmentHome').getPath({
+            org: organizationId,
+            slug: assessment.slug,
+            industryPath: assessment.industryPath,
+          })
+        "
       >
         Back to Assessment Home
       </button-primary>
@@ -29,7 +32,7 @@ import ButtonPrimary from '@/components/ButtonPrimary'
 export default {
   name: 'PracticesProgressIndicator',
 
-  props: ['numAnswers', 'numQuestions', 'organizationId', 'assessmentId'],
+  props: ['numAnswers', 'numQuestions', 'organizationId', 'assessment'],
 
   computed: {
     completed() {

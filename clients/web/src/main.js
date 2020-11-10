@@ -3,7 +3,7 @@ import VueCompositionApi from '@vue/composition-api'
 import { Server, Response } from 'miragejs'
 
 import App from './App.vue'
-import router from './router'
+import router, { routeMap } from './router'
 import vuetify from './plugins/vuetify'
 import i18n from './plugins/i18n'
 import Context from './mixins/context'
@@ -46,6 +46,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 new Vue({
   context: new Context(),
+  routeMap,
   router,
   vuetify,
   i18n,

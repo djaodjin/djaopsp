@@ -14,12 +14,19 @@
     </v-list-item>
     <v-list-item
       v-if="
-        this.$route.name !== 'home' &&
-        this.$route.name !== 'assessmentHome' &&
-        this.$route.name !== 'newAssessment'
+        $route.name !== 'home' &&
+        $route.name !== 'assessmentHome' &&
+        $route.name !== 'newAssessment' &&
+        $route.params.pathMatch
       "
       link
-      :to="{ name: 'assessmentHome', params: { id: $route.params.id } }"
+      :to="
+        $routeMap.get('assessmentHome').getPath({
+          org: $route.params.org,
+          slug: $route.params.slug,
+          industryPath: $route.params.pathMatch,
+        })
+      "
       exact
     >
       <v-list-item-action>

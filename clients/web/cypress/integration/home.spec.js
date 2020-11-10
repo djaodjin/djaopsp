@@ -2,6 +2,7 @@ import { makeServer } from '../../src/mocks/server'
 import {
   createOrgEmpty,
   createOrgAssessmentEmpty,
+  createOrgAssessmentFrozen,
 } from '../../src/mocks/scenarios'
 
 const ORG_SLUG = 'test_org'
@@ -19,30 +20,28 @@ describe('Supplier App: Home', () => {
     })
   })
 
-  it('loads the home screen for an empty organization', () => {
+  it('loads the home screen for an empty organization and lets users create a new assessment', () => {
     createOrgEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(HOME_URL)
     cy.contains(ORG_NAME)
     cy.contains('Take Sustainability Assessment')
+
+    cy.get('[data-cy=create-assessment]').click()
+    cy.url().should('include', '/assess/')
   })
 
-  it('loads the home screen for an organization with an assessment', () => {
+  it('loads the home screen for an organization with an assessment and lets users create a new assessment', () => {
     server.loadFixtures('questions')
     createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(HOME_URL)
     cy.contains(ORG_NAME)
     cy.get('.assessment-info').its('length').should('eq', 1)
-    cy.contains('Continue Sustainability Assessment')
-  })
+    cy.contains('Take Sustainability Assessment')
 
-  it('lets users create a new assessment', () => {
-    createOrgEmpty(server, ORG_SLUG, ORG_NAME)
-
-    cy.visit(HOME_URL)
     cy.get('[data-cy=create-assessment]').click()
-    cy.url().should('include', '/assess/1') // first assessment ID = 1
+    cy.url().should('include', '/assess/')
   })
 
   it('lets users continue working on an existing assessment', () => {
@@ -51,14 +50,26 @@ describe('Supplier App: Home', () => {
 
     cy.visit(HOME_URL)
     cy.get('[data-cy=continue-assessment]').click()
-    cy.url().should('include', '/assess/1')
+    cy.url().should('include', '/assess/1/metal/boxes-and-enclosures/')
   })
 
-  it('has access to the assessment history view', () => {
-    createOrgEmpty(server, ORG_SLUG, ORG_NAME)
+  it('displays frozen assessments if their last modified date is no later than 6 months and there are no newer assessments for the same industry segment', () => {
+    server.loadFixtures('questions')
+    createOrgAssessmentFrozen(server, ORG_SLUG, ORG_NAME)
 
     cy.visit(HOME_URL)
-    cy.get('[data-cy=view-history]')
-    // TODO: Route to history view
+    // This also tests the existence of multiple active assessments
+    cy.get('.assessment-info').its('length').should('eq', 2)
+    cy.get('.assessment-info').first().contains('In Progress')
+    cy.get('.assessment-info').last().contains('Completed')
+  })
+
+  it('lets users access the assessment history', () => {
+    server.loadFixtures('questions')
+    createOrgAssessmentEmpty(server, ORG_SLUG, ORG_NAME)
+
+    cy.visit(HOME_URL)
+    cy.get('[data-cy=view-history]').click()
+    cy.url().should('include', '/history/')
   })
 })

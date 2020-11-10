@@ -21,10 +21,13 @@
         </ul>
         <button-primary
           class="mt-8"
-          :to="{
-            name: 'assessmentPlan',
-            params: { id },
-          }"
+          :to="
+            $routeMap.get('assessmentPlan').getPath({
+              org: organizationId,
+              slug: assessment.slug,
+              industryPath: assessment.industryPath,
+            })
+          "
           >Continue</button-primary
         >
         <div class="text-center">
@@ -32,10 +35,13 @@
             text
             class="mx-n4 mx-sm-0 mt-6"
             color="secondary"
-            :to="{
-              name: 'assessmentHome',
-              params: { org, id },
-            }"
+            :to="
+              $routeMap.get('assessmentHome').getPath({
+                org: organizationId,
+                slug: assessment.slug,
+                industryPath: assessment.industryPath,
+              })
+            "
           >
             Continue without Improvement Plan
           </v-btn>

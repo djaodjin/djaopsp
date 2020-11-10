@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="12">
+      <v-col cols="12" v-if="organization">
         <component
           :is="container"
           :class="[STANDALONE ? 'standalone' : 'embedded']"
@@ -12,14 +12,11 @@
             :linkTo="{ name: 'home', params: { org: $route.params.org } }"
             text="Environment Sustainability Assessment"
           />
-          <v-row v-if="assessment" justify="center">
-            <v-col cols="12" sm="8" md="6">
-              <assessment-info :organizationId="org" :assessment="assessment" />
-            </v-col>
+          <v-row justify="center">
             <v-col cols="12" sm="8" md="5">
-              <assessment-stepper
+              <form-select-industry
                 :organization="organization"
-                :assessment="assessment"
+                @industry:set="createAssessment"
               />
             </v-col>
           </v-row>
@@ -31,36 +28,47 @@
 
 <script>
 import { VSheet } from 'vuetify/lib'
-import AssessmentInfo from '@/components/AssessmentInfo'
-import AssessmentStepper from '@/components/AssessmentStepper'
+import API from '@/common/api'
 import FormSelectIndustry from '@/components/FormSelectIndustry'
 import HeaderPrimary from '@/components/HeaderPrimary'
 
 export default {
-  name: 'AssessmentHome',
+  name: 'AssessmentCreate',
 
-  props: ['org', 'slug'],
+  props: ['org'],
 
   created() {
     this.fetchData()
   },
 
   methods: {
-    async fetchData() {
-      const industryPath = `/${this.$route.params.pathMatch}/`
-      this.organization = await this.$context.getOrganization(this.org)
-      this.assessment = await this.$context.getAssessment(
-        this.organization,
-        this.slug,
-        industryPath
+    createAssessment(industry) {
+      API.createAssessment(this.organization, { campaign: 'assessment' }).then(
+        async (assessment) => {
+          const newAssessment = await API.setAssessmentIndustry(
+            this.organization,
+            assessment,
+            industry
+          )
+          this.organization.addAssessment(newAssessment)
+          this.$router.push(
+            this.$routeMap.get('assessmentHome').getPath({
+              org: this.org,
+              slug: newAssessment.slug,
+              industryPath: industry.path,
+            })
+          )
+        }
       )
+    },
+    async fetchData() {
+      this.organization = await this.$context.getOrganization(this.org)
     },
   },
 
   data() {
     return {
-      organization: {},
-      assessment: null,
+      organization: null,
       STANDALONE: process.env.VUE_APP_STANDALONE,
     }
   },
@@ -73,8 +81,6 @@ export default {
 
   components: {
     VSheet,
-    AssessmentInfo,
-    AssessmentStepper,
     FormSelectIndustry,
     HeaderPrimary,
   },
