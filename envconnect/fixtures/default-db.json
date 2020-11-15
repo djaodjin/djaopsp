@@ -2216,8 +2216,18 @@
 },
 {
   "fields": {
+    "title": "Design",
+    "slug": "wc-design",
+    "text": "/envconnect/static/img/design.png",
+    "tag": "{\"tags\":[\"scorecard\"]}",
+    "account": 6
+  },
+  "model": "pages.PageElement", "pk": 77
+},
+{
+  "fields": {
     "orig_element": 76,
-    "dest_element": 5
+    "dest_element": 77
   },
   "model": "pages.Relationship", "pk": 66
 },
@@ -2291,7 +2301,7 @@
 },
 {
   "fields": {
-    "path": "/metal/wire-and-cable/design/product-design",
+    "path": "/metal/wire-and-cable/wc-design/product-design",
     "text": "Product Design",
     "question_type": "radio",
     "default_metric": 1,
@@ -2308,7 +2318,7 @@
 },
 {
   "fields": {
-    "path": "/metal/wire-and-cable/design/packaging-design",
+    "path": "/metal/wire-and-cable/wc-design/packaging-design",
     "text": "Packaging Design",
     "question_type": "radio",
     "default_metric": 1,
@@ -2330,5 +2340,13 @@
     "rank": 11
   },
   "model": "survey.EnumeratedQuestions", "pk": 11
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 16,
+    "rank": 12
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 12
 }
 ]
