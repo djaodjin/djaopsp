@@ -1154,7 +1154,10 @@ class BestPracticeMixin(BreadcrumbMixin):
                     breadcrumbs[-1][0].account.slug)})
         organization = self.kwargs.get('organization', None)
         if organization:
-            context.update({'organization': self.account})
+            if hasattr(self, 'account'):
+                context.update({'organization': self.account})
+            else:
+                context.update({'organization': organization})
 
         # Change defaults contextual URL to move back up one level.
         _, trail = self.breadcrumbs
