@@ -1,11 +1,13 @@
 <template>
   <fragment>
+    <!-- 
     <header-secondary
       class="container"
       :orgName="organization.name"
       :industryName="asssessment.industryName"
       title="Scorecard"
-    />
+    /> 
+    -->
     <div v-if="loading">
       <loading-spinner />
     </div>
@@ -13,12 +15,15 @@
       <v-row>
         <v-col cols="12" sm="6" lg="4" xl="4">
           <scorecard-scores :scores="assessmentScore"></scorecard-scores>
+          <!-- 
           <scorecard-business-areas :benchmarks="assessmentScore.benchmarks" />
-          <scorecard-targets :targets="assessment.targets" />
+          <scorecard-targets :targets="assessment.targets" /> 
+          -->
         </v-col>
         <v-col cols="12" sm="6" lg="8" xl="8">
+          <!-- 
           <scorecard-practices :practices="assessment.improvementPlan" />
-          <scorecard-practices-chart :practices="assessment.improvementPlan" />
+          <scorecard-practices-chart :practices="assessment.improvementPlan" /> 
           <button-primary
             class="mt-6"
             :to="
@@ -31,6 +36,7 @@
           >
             Return to assessment
           </button-primary>
+          -->
         </v-col>
       </v-row>
     </v-container>
@@ -41,59 +47,64 @@
 import { Fragment } from 'vue-fragment'
 import API from '@/common/api'
 
-import ButtonPrimary from '@/components/ButtonPrimary'
-import HeaderSecondary from '@/components/HeaderSecondary'
+// import ButtonPrimary from '@/components/ButtonPrimary'
+// import HeaderSecondary from '@/components/HeaderSecondary'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ScorecardScores from '@/components/ScorecardScores'
-import ScorecardBusinessAreas from '@/components/ScorecardBusinessAreas'
-import ScorecardPractices from '@/components/ScorecardPractices'
-import ScorecardPracticesChart from '@/components/ScorecardPracticesChart'
-import ScorecardTargets from '@/components/ScorecardTargets'
+// import ScorecardBusinessAreas from '@/components/ScorecardBusinessAreas'
+// import ScorecardPractices from '@/components/ScorecardPractices'
+// import ScorecardPracticesChart from '@/components/ScorecardPracticesChart'
+// import ScorecardTargets from '@/components/ScorecardTargets'
 
 export default {
   name: 'assessmentScorecard',
 
   props: ['org', 'id'],
 
-  created() {
-    this.fetchData()
-  },
+  // created() {
+  //   this.fetchData()
+  // },
 
-  methods: {
-    async fetchData() {
-      this.loading = true
-      const [organization, assessment, score] = await Promise.all([
-        this.$context.getOrganization(this.org),
-        this.$context.getAssessment(this.org, this.id),
-        API.getBenchmarks(),
-      ])
+  // methods: {
+  //   async fetchData() {
+  //     this.loading = true
+  //     const [organization, assessment, score] = await Promise.all([
+  //       this.$context.getOrganization(this.org),
+  //       this.$context.getAssessment(this.org, this.id),
+  //       API.getBenchmarks(),
+  //     ])
 
-      this.organization = organization
-      this.assessment = assessment
-      this.assessmentScore = score
-      this.loading = false
-    },
-  },
+  //     this.organization = organization
+  //     this.assessment = assessment
+  //     this.assessmentScore = score
+  //     this.loading = false
+  //   },
+  // },
 
   data() {
     return {
       organization: {},
       assessment: {},
-      assessmentScore: {},
+      assessmentScore: {
+        top: 94,
+        own: 56,
+        average: 76,
+        isValid: true,
+      },
       loading: false,
     }
   },
 
   components: {
-    ButtonPrimary,
+    // ButtonPrimary,
     Fragment,
-    HeaderSecondary,
+    // HeaderSecondary,
     LoadingSpinner,
     ScorecardScores,
-    ScorecardBusinessAreas,
-    ScorecardPractices,
-    ScorecardTargets,
-    ScorecardPracticesChart,
+    // ScorecardBusinessAreas,
+    // ScorecardPractices,
+    // ScorecardPracticesChart,
+    // ScorecardTargets,
   },
 }
 </script>

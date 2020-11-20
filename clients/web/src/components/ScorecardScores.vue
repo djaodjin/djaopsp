@@ -1,6 +1,17 @@
 <template>
   <v-sheet elevation="3">
     <v-container class="scores px-0">
+      <v-row>
+        <v-col cols="12">
+          <chart-scores
+            :width="200"
+            :height="100"
+            :topScore="92"
+            :averageScore="72"
+            :ownScore="58"
+          />
+        </v-col>
+      </v-row>
       <v-row v-for="(item, index) in sortedScores" :key="index">
         <v-col cols="5" class="py-2">
           <span
@@ -38,6 +49,8 @@
 </template>
 
 <script>
+import ChartScores from '@/components/ChartScores'
+
 export default {
   name: 'ScorecardScores',
 
@@ -83,6 +96,10 @@ export default {
       }
       return sorted
     },
+  },
+
+  components: {
+    ChartScores,
   },
 }
 </script>

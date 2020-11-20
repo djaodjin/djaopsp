@@ -2,7 +2,7 @@
   <v-dialog v-model="showDialog" persistent max-width="520">
     <v-card>
       <v-card-title class="headline pb-4 text-center">
-        <span style="flex: 1">{{ title }}</span>
+        <span :style="{ flex: 1 }">{{ title }}</span>
       </v-card-title>
       <v-card-text class="pt-0 pb-2 text-body-2 text-body-2-sm">
         <slot></slot>
