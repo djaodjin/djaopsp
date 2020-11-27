@@ -8,6 +8,8 @@ from rest_framework import serializers, generics
 from rest_framework.filters import SearchFilter
 
 from pages.models import PageElement
+from pages.api.edition import (PageElementDetailAPIView,
+    PageElementSearchAPIView)
 
 from ..compat import six
 from ..mixins import BreadcrumbMixin, ContentCut
@@ -31,7 +33,12 @@ class ContentElementSerializer(NoModelSerializer):
     avg_value = serializers.IntegerField(required=False)
 
 
-class ContentElementListAPIView(BreadcrumbMixin, generics.ListAPIView):
+class ContentDetailAPIView(PageElementDetailAPIView):
+
+    pass
+
+
+class ContentListAPIView(BreadcrumbMixin, generics.ListAPIView):
     """
     Lists a tree of page elements
 
@@ -184,3 +191,8 @@ class ContentElementListAPIView(BreadcrumbMixin, generics.ListAPIView):
                     vals[0]['tags'] = extra.get('tags', [])
                 except (TypeError, ValueError):
                     pass
+
+
+class ContentSearchAPIView(PageElementSearchAPIView):
+
+    serializer_class = ContentElementSerializer
