@@ -2,7 +2,7 @@ cssmin==0.2.0
 Django==2.2.13
 django-assets==0.12
 django-extra-views==0.13.0
-djangorestframework==3.11
+djangorestframework==3.11.2
 djaodjin-deployutils==0.5.23
 djaodjin-extended-templates==0.2.5
 djaodjin-pages==0.3.4
