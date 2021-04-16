@@ -3,7 +3,7 @@
 cssmin==0.2.0
 coverage==4.5.4
 django-debug-panel==0.8.3
-django-debug-toolbar==2.1
+django-debug-toolbar==2.2.1
 django-extensions==3.0.2
 django-livereload-server==0.3.2
 Faker==2.0.0
