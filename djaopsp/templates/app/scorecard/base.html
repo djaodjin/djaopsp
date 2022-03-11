@@ -1,0 +1,23 @@
+{% extends "app/base.html" %}
+
+{% block app_content %}
+{% block scorecard_content %}
+{% endblock %}
+{% endblock %}
+
+{% block bodyscripts %}
+<script type="text/javascript" src="{{'/static/cache/vendor-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/scorecard-vue.js'|asset}}"></script>
+<script type="text/javascript">
+Vue.prototype.$itemsPerPage =
+    {% if items_per_page %}{{items_per_page}}{% else %}25{% endif %};
+Vue.prototype.$urls = {% if urls %}{{urls|to_json}}{% else %}{}{% endif %};
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ["[[","]]"],
+});
+</script>
+{% block scorecard_scripts %}{% endblock %}
+{% endblock %}

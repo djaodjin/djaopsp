@@ -1,0 +1,677 @@
+// CSS specific to the DjaoDjin dashboard
+
+
+// XXX `$navbar-height` used to be defined
+// in Bootstrap3 (it is not in Bootstrap4). We redefine it here use it stick the
+// footer at the bottom of the screen when a page is less that screen height.
+$navbar-height: max($nav-link-height, $navbar-brand-height) + $navbar-padding-y * 2;
+
+$dashboard-sidebar-width:      220px;
+$dashboard-sidebar-toggle:      20px;
+$dashboard-nav-footer-height:   94px;
+$dashboard-sidebar-logo-height: 72px;
+
+$dashboard-content-bg:          white;
+$dashboard-sidebar-bg:          theme-color(secondary);
+$dashboard-sidebar-color:       white;
+$dashboard-icon-color:          $dashboard-sidebar-color;
+$dashboard-icon-color-active:   $dashboard-sidebar-bg;
+
+
+// Icons to show credit card provider
+// ----------------------------------
+.card-icons {
+  min-height: 32px;
+  padding: 9px;
+  margin-top: 10px;
+  margin-bottom: 0px;
+  background-color: #f5f5f5;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.card-icons > img {
+  opacity: 0.1;
+}
+
+#card-exp-month {
+  width: 50px;
+  margin-right: 10px;
+}
+
+#card-exp-year {
+  width: 65px;
+}
+
+@include media-breakpoint-up(sm) {
+  #card-cvc {
+    width: 100px;
+  }
+}
+
+// Workaround: Bootstrap4 has make it a lot more complicated than necessary
+// when doing server-side validation.
+.has-error .invalid-feedback {
+  display: block;
+}
+
+// Manager dashboards (templates/saas/*.html)
+// --------
+
+/* subscriber pipeline */
+.date-chooser {
+  padding-top: 5px;
+  font-size: 0.8em;
+}
+
+.date-chooser .dropdown-menu {
+   left: auto !important;
+   right: 0px;
+}
+
+.dashboard-container {
+    clear: left;
+    float: left;
+    width: 100%;
+// XXX temporary override to see the balances table
+//    overflow: hidden;
+}
+
+.dashboard-inner-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    color: black;
+}
+
+.dashboard-nav {
+  display:block;
+  width: $dashboard-sidebar-width; // .col-md-2 width: 16.66666667%;
+  overflow: hidden;
+  -webkit-transition: right 0.25s ease-in-out;
+  -moz-transition: right 0.25s ease-in-out;
+  -ms-transition: right 0.25s ease-in-out;
+  -o-transition: right 0.25s ease-in-out;
+  transition: right 0.25s ease-in-out;
+  flex-grow: 1;
+  user-select: none;
+  -webkit-box-flex: 1;
+  -ms-flex-positive: 1;
+  overflow: visible;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 5;
+  height: 100%;
+}
+
+.dashboard-nav-main {
+    float: left;
+    min-height: 100%;
+    padding-bottom: $dashboard-nav-footer-height; /* must be equal to .dashboard-nav-footer height in pixel */
+}
+
+.dashboard-nav-main .navbar {
+    width: $dashboard-sidebar-width;
+}
+
+.dashboard-nav-menu {
+  height: calc(100vh - (#{$dashboard-nav-footer-height} + #{$dashboard-sidebar-logo-height}));
+  overflow-y: auto;
+}
+
+.dashboard-nav-footer {
+    position: absolute;
+    clear:both;
+    bottom: 0;
+    padding: 10px 30px 10px;
+    font-size: 11px;
+    width: $dashboard-sidebar-width;
+    border-top: 1px solid;
+}
+
+.dashboard-nav-footer .footer-links {
+    margin-top: 13px;
+}
+
+.dashboard-nav-footer .footer-links a {
+    margin: 0 3px;
+}
+
+.dashboard-nav-footer .footer-links a:first-child {
+    margin-left: 0;
+}
+
+.dashboard-nav-footer .footer-links a:last-child {
+    margin-right: 0;
+}
+
+.dashboard-inner-container .navbar-brand-container {
+   margin-left: 0;
+}
+
+.dashboard-content {
+    vertical-align: top;
+    background-color: $dashboard-content-bg;
+    color: black;
+    width: 100%;
+}
+
+.dashboard-inner-container .dashboard-content-body {
+  padding-left: $dashboard-sidebar-toggle;
+}
+
+.dashboard-nav .dashboard-nav-menu {
+    width: $dashboard-sidebar-width;
+}
+
+.dashboard-nav-menu > hr {
+  margin-left: $dashboard-sidebar-toggle;
+  margin-right: $dashboard-sidebar-toggle;
+}
+
+.dashboard-nav-menu > .nav {
+   margin-left: $dashboard-sidebar-toggle;
+   margin-right: $dashboard-sidebar-toggle;
+}
+
+.dashboard-nav-menu > .nav > li {
+    margin: 5px 0px;
+}
+
+.dashboard-nav-menu > .nav > li > a,
+.dashboard-nav-menu > .nav > li.active > a {
+   height:38px;
+   font-size:13px;
+}
+
+.dashboard-nav-menu > .nav > li > a > i {
+   width:25px;
+   text-align:center;
+}
+
+.no-results {
+    color: #888;
+    text-align: center;
+    padding: 20px 10px;
+    margin: 0;
+    font-size: 14px;
+}
+
+.dashboard-home-title {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.navbar {
+    height: $navbar-height; // See comment about $navbar-height
+}
+
+.navbar .nav-item {
+    margin: 0 10px;
+}
+
+.dashboard-nav {
+    // sidebar not visible on frontend on desktops
+    display: none;
+}
+
+.dashboard-inner-container .dashboard-nav {
+    // sidebar is visible on dashboard on desktops
+    display: block;
+}
+
+.dashboard-inner-container .content-area-container {
+    padding: 20px;
+}
+
+.navbar-nav .dropdown-menu {
+    position: absolute;
+}
+
+.navbar-nav {
+    flex-direction: row;
+}
+
+.sidebar-toggle {
+    vertical-align: middle;
+    line-height: 1;
+    padding: 9px 10px;
+    border-radius: 3px;
+    z-index: 1000;
+    color: $dashboard-sidebar-color;
+    background: $dashboard-sidebar-bg;
+}
+
+.sidebar-toggle > .bar1, .bar2, .bar3  {
+  width: 25px;
+  height: 2px;
+  background-color: white;
+  margin: 3px 0;
+  transition: 0.4s;
+}
+
+.sidebar-toggle > .bar2, .bar3  {
+  width: 20px;
+}
+
+.sidebar-toggle > .bar3  {
+  width: 15px;
+}
+
+
+.sidebar-toggle > .bar1.opened  {
+  //-webkit-transform: translate(10px, 0);
+  //transform: translate(10px, 0);
+}
+
+.sidebar-toggle > .bar2.opened  {
+  -webkit-transform: translate(5px, 0);
+  transform: translate(5px, 0);
+}
+
+.sidebar-toggle > .bar3.opened  {
+  -webkit-transform: translate(10px, 0);
+  transform: translate(10px, 0);
+}
+
+
+.typeahead-dropdown.open>.dropdown-menu {
+    display: block;
+}
+
+.typeahead-dropdown .dropdown-menu > li > a {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+}
+
+
+// colors for sidebar
+// ------------------
+.dashboard-nav-color-theme {
+    background-color: $dashboard-sidebar-bg;
+    color: $dashboard-sidebar-color;
+}
+
+.dashboard-nav-color-theme .navbar-light {
+    background-color: $dashboard-sidebar-bg;
+}
+
+.dashboard-nav a,
+.dashboard-nav a:active,
+.dashboard-nav a:hover,
+.dashboard-nav a:focus,
+.dashboard-nav a:visited {
+    color: $dashboard-sidebar-color;
+}
+
+.dashboard-nav .navbar-light a.navbar-brand,
+.dashboard-nav .navbar-light a.navbar-brand:active,
+.dashboard-nav .navbar-light a.navbar-brand:hover,
+.dashboard-nav .navbar-light a.navbar-brand:focus,
+.dashboard-nav .navbar-light a.navbar-brand:visited {
+    color: $dashboard-sidebar-color;
+}
+
+.opened .dashboard-nav-main {
+    box-shadow: 10px 0 100px #ccc;
+}
+
+.dashboard-nav-footer {
+    border-top-color: $dashboard-sidebar-color;
+}
+
+.dashboard-nav-footer .footer-links a {
+    color: $dashboard-sidebar-color;
+}
+
+.dashboard-nav-menu > hr {
+    border-top: 1px solid $dashboard-sidebar-color;
+}
+
+.dashboard-nav-menu > .nav > li > a {
+    background-color:transparent;
+    color: $dashboard-sidebar-color;
+}
+
+.dashboard-nav-menu > .nav > li.active > a {
+    background-color: $dashboard-sidebar-color;
+    color: $dashboard-sidebar-bg;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.dashboard-nav-menu > .nav > li:not(.active) > a:hover {
+    color: $dashboard-sidebar-color;
+    text-decoration: none;
+}
+
+.dashboard-nav .footer {
+    color: $dashboard-sidebar-color;
+}
+
+.dropdown-menu .dropdown-label {
+    color: $dashboard-sidebar-bg;
+}
+
+.dropdown-menu .dropdown-label .dropdown-label-role {
+    color: $dashboard-sidebar-color;
+    background: $dashboard-sidebar-bg;
+}
+
+.dashboard-inner-container .dashboard-nav-color-theme .sidebar-toggle {
+    border: 1px solid $dashboard-sidebar-color;
+    background: $dashboard-sidebar-bg;
+}
+
+.dashboard-inner-container .dashboard-nav-color-theme .sidebar-toggle,
+.dashboard-inner-container .dashboard-nav-color-theme .sidebar-toggle:hover {
+    color: $dashboard-sidebar-color;
+}
+
+.dashboard-nav-color-theme.navbar-light .navbar-nav .nav-link,
+.dashboard-nav-color-theme .dropdown-toggle {
+    color: $dashboard-sidebar-color;
+}
+
+#subscriptions table td {
+    vertical-align: middle !important;
+}
+
+.pending-users-container {
+    background: #f3f3f3;
+    padding: 10px 20px;
+    border-radius: 3px;
+}
+
+.pending-users-container h4 {
+    color: #333;
+}
+
+.card-inactive {
+    background-color: #ddd;
+}
+
+.card-inactive .list-group-item {
+    background-color: #ddd;
+}
+
+.user-password-modal .invalid-feedback {
+    display: block;
+}
+
+.card-organization .card-img-top {
+    width: 50%;
+    margin: 20px auto 0;
+}
+
+.card-organization .card-title a {
+    color: black;
+}
+
+.card-organization .badge {
+    font-weight: normal;
+}
+
+.card-organization .organization-buttons {
+    min-height: 110px;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#recent-activity-container .item-name {
+    /* TODO need to divide into three columns (a grid or smth similar) */
+    width: 200px;
+    color: #333;
+}
+
+#recent-activity-container a:hover {
+    text-decoration: none;
+}
+
+#recent-activity-container a:hover .item-name {
+    text-decoration: underline;
+}
+
+.coupon-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.coupon-title .card-title {
+    word-break: break-word;
+}
+
+.coupon-title .btn-danger {
+    align-self: flex-start;
+}
+
+// Dashboard Sidebar Icons
+.icon-billing {
+    mask-image: url('/static/img/dash-icons/billing.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/billing.svg');
+    width: 20px;
+    height: 20px;
+}
+
+.icon-connected {
+    mask-image: url('/static/img/dash-icons/connected.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/connected.svg');
+    width: 20px;
+    height: 20px;
+}
+
+.icon-coupons {
+    mask-image: url('/static/img/dash-icons/coupons.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/coupons.svg');
+    width: 20px;
+    height: 20px;
+}
+
+.icon-dashboard {
+    mask-image: url('/static/img/dash-icons/dashboard.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/dashboard.svg');
+    width: 20px;
+    height: 19px;
+}
+
+.icon-funds {
+    mask-image: url('/static/img/dash-icons/funds.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/funds.svg');
+    width: 20px;
+    height: 17px;
+}
+
+.icon-notifications {
+    mask-image: url('/static/img/dash-icons/notifications.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/notifications.svg');
+    width: 20px;
+    height: 23px;
+}
+
+.icon-plans {
+    mask-image: url('/static/img/dash-icons/plans.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/plans.svg');
+    width: 20px;
+    height: 23px;
+}
+
+.icon-revenue {
+    mask-image: url('/static/img/dash-icons/revenue.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/revenue.svg');
+    width: 20px;
+    height: 20px;
+}
+
+.icon-rules {
+    mask-image: url('/static/img/dash-icons/rules.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/rules.svg');
+    width: 20px;
+    height: 23px;
+}
+
+.icon-subscriptions {
+    mask-image: url('/static/img/dash-icons/subscriptions.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/subscriptions.svg');
+    width: 20px;
+    height: 20px;
+}
+
+.icon-subscribers {
+    mask-image: url('/static/img/dash-icons/subscribers.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/subscribers.svg');
+    width: 20px;
+    height: 13px;
+}
+
+.icon-themes {
+    mask-image: url('/static/img/dash-icons/themes.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/themes.svg');
+    width: 20px;
+    height: 22px;
+}
+
+.icon-user {
+    mask-image: url('/static/img/dash-icons/user.svg');
+    -webkit-mask-image: url('/static/img/dash-icons/user.svg');
+    width: 20px;
+    height: 19px;
+}
+
+.icon {
+    display: inline-block;
+    background: $dashboard-icon-color;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+}
+
+.icon-active {
+    background: $dashboard-icon-color-active;
+}
+
+.chart-area {
+    height: 400px !important;
+    width: 100%;
+}
+
+.graph-legend-dot {
+    height: 12px;
+    width: 12px;
+    background: #ccc;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.saas-metrics-chart .nv-legendWrap {
+    display: none;
+}
+
+/* upload themes */
+.dropzone-previews {
+  min-height: 150px;
+  padding: 54px 54px;
+  border: 2px dashed theme-color(primary);
+  border-radius: 5px;
+  background: #ccc;
+  margin-bottom: 10px;
+}
+
+
+@include media-breakpoint-down(xs) {
+
+    .dashboard-content > .fullviewport {
+      padding-top: $navbar-height;
+    }
+
+    .dashboard-content > header,
+    .dashboard-content > .fullviewport > header {
+      position: fixed;
+      height:  $navbar-height;
+      top: 0;
+      z-index: 4;
+      width: 100%;
+      left: 0;
+    }
+
+    .dashboard-content > .fullviewport > header.scrolled {
+      background-color: $primary;
+    }
+
+    .dashboard-nav,
+    .dashboard-inner-container .dashboard-nav {
+        display: none;
+    }
+
+    .navbar-brand-container {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+        z-index: 10;
+    }
+
+    .navbar-brand-container .navbar-brand > img {
+        max-height: 36px;
+    }
+
+    // always display djaoapp name inside sidebar
+    // otherwise need to have two partial brand templates
+    .dashboard-nav .navbar-brand .d-none {
+        display: inline-block !important;
+    }
+
+    .header-menubar .dropdown {
+        position: static;
+    }
+
+    .header-menubar .dropdown-menu {
+        left: auto;
+        right: 5px;
+    }
+
+    .row-header {
+        position: absolute;
+        background: white;
+        width: 115px;
+        height: 36px;
+        left: 0;
+    }
+
+    .row-body:nth-child(2) {
+        padding-left: 115px;
+    }
+
+    .saas-metrics-chart {
+        overflow-x: scroll;
+        width: 100%;
+    }
+
+    .saas-metrics-chart .chart-area {
+        width: 600px;
+    }
+}
+
+@include media-breakpoint-up(sm) {
+  .dashboard-inner-container {
+    position: inherit;
+    left: 0;
+    width: inherit;
+  }
+
+  .dashboard-inner-container .dashboard-content {
+    margin-left: $dashboard-sidebar-width;
+    width: calc(100vw - #{$dashboard-sidebar-width});
+  }
+
+  .dashboard-inner-container .navbar-brand-container {
+    display: none;
+    margin-left: 0;
+  }
+
+}

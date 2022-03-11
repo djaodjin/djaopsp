@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div  id="app" class="backdrop">
+    {% block app_content %}
+    {% endblock %}
+</div>
+{% endblock %}
+
+{% block bodyscripts %}
+{% block app_bodyscripts %}
+{% endblock %}
+{% endblock %}

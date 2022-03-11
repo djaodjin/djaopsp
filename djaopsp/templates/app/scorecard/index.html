@@ -1,0 +1,578 @@
+{% extends "app/scorecard/base.html" %}
+
+{% block scorecard_content %}
+<scorecard inline-template  class="container pt-4">
+<div class="pt-4">
+<div class="bg-white text-dark">
+  <section id="summary" class="">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="row">
+          <div class="col-sm-4">XXX
+            <img class="img-fluid" src="{{'/static/img/logo-djaodjin-light-sm.png'|asset}}" style="width: 128px;display:inline-block;">
+          </div>
+          <div class="col-sm-8">
+            <h2 class="mt-4">{{account.printable_name}}</h2>
+            <div>XXX Nov. 11, 2021</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 text-right">
+            <div style="margin-left:100px;">
+              <ul class="nav nav-tabs squared-tabs">
+                <li class="nav-item squared-tabs-li">
+                  <a class="nav-link icon-inner orange">
+                    <img class="icon-equipment" src="{{'static/img/data-metrics.png'|asset}}">
+                    <div class="icon-caption text-white">XXX Reporting data metrics</div>
+                  </a>
+                </li>
+                <li class="nav-item squared-tabs-li">
+                  <a class="nav-link icon-inner orange">
+                    <img class="icon-equipment" src="{{'static/img/other.png'|asset}}">
+                    <div class="icon-caption text-white">XXX Reporting targets</div>
+                  </a>
+                </li>
+                <li class="nav-item squared-tabs-li">
+                  <a class="nav-link icon-inner orange">
+                    <img class="icon-equipment" src="{{'static/img/design.png'|asset}}">
+                    <div class="icon-caption text-white">XXX Planning improvements</div>
+                  </a>
+                </li>
+                <li class="nav-item squared-tabs-li">
+                  <a class="nav-link icon-inner" style="background-color: #aaa;">
+                    <img  class="icon-equipment" src="{{'static/img/lighting.png'|asset}}">
+                    <div class="icon-caption text-white">XXX Reporting publicly</div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-6" style="margin-top: 65px;">
+            <div class="ml-2">
+              {% trans %}Contact Information{% endtrans %}
+              <ul class="list-unstyled">
+                <li>Steve Duncan</li>
+                <li>steve@djaodjin.com</li>
+                <li>+14156130777</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-sm-6" style="margin-top: 65px;">
+            <div class="text-center" style="padding: 10px;border: 1px solid #ddd;">
+              <h5>Get your assessment audited by an independent 3rd party</h5>
+              <button class="btn btn-secondary">See the list partners</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4 bordered-left">
+        <div style="background-color: #e5e9dd;height:100%;">
+          <div class="text-center pt-4">
+            <strong>Engineering, Procurement, Construction</strong>
+          </div>
+          <div class="text-center my-4">
+            <img class="img-fluid" src="{{'/static/img/example-score.png'|asset}}">
+          </div>
+          <p class="text-center">
+            Benchmarking is based on responses from <span id="nb-respondents">41</span>
+            companies responding on practices in the industry segment.
+          </p>
+          <div class="text-center my-4">
+            <div>EUISSCA RFx</div>
+            <div>56 / 100</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section> {# <!-- /#summary --> #}
+  <hr />
+  <section id="rfx-core">
+    <h2>Core Environmental, Social and Governance Assessment</h2>
+    <div v-show="!itemsLoaded">
+      <i class="fa fa-refresh fa-spin fa-2x"></i>
+    </div>
+    <div v-show="itemsLoaded && !rfxCoreAvailable" v-cloak>
+      <p>
+        {% trans %}No answers yet.{% endtrans %}
+      </p>
+      <div>
+        <a href="{{urls.assess_practices}}" class="btn btn-primary">Start Assessment &raquo;</a>
+      </div>
+    </div>
+    <div v-show="itemsLoaded && rfxCoreAvailable" v-cloak>
+      <p>
+        XXX OK!!!
+      </p>
+    </div>
+  </section> {# <!-- /#rfx-core --> #}
+  <hr />
+  <section>
+    <h2>Metrics</h2>
+    <div v-show="!itemsLoaded">
+      <i class="fa fa-refresh fa-spin fa-2x"></i>
+    </div>
+    <div v-show="itemsLoaded && !metricsAvailable" v-cloak>
+      <p>
+        {% trans %}No metrics available{% endtrans %}
+      </p>
+      <a href="{{urls.assess_practices}}#tab-data-metrics" class="btn btn-primary">Start Assessment &raquo;</a>
+    </div>
+    <div v-show="itemsLoaded && metricsAvailable" v-cloak>
+      <div id="ghg-emissions">
+        <h5>Green House Gas Emissions</h5>
+        <table class="table table-bordered table-striped">
+          <tr class="text-right">
+            <th></th>
+            <th>2019</th>
+            <th>2020</th>
+            <th>2021</th>
+          </tr>
+          <tr>
+            <th>Scope 1</th>
+            <td class="text-right">10</td>
+            <td class="text-right">9</td>
+            <td class="text-right">8</td>
+          </tr>
+          <tr>
+            <th>Scope 2</th>
+            <td class="text-right">22</td>
+            <td class="text-right">20</td>
+            <td class="text-right">18</td>
+          </tr>
+          <tr>
+            <th>Scope 3</th>
+            <td class="text-right">12</td>
+            <td class="text-right">12</td>
+            <td class="text-right">11</td>
+          </tr>
+          <caption class="text-center">tonnes of CO<sub>2</sub>e</caption>
+        </table>
+        <p>
+          <i class="fa fa-check"></i> GHG emissions Performance Publicly Reported
+        </p>
+        <p>
+          <a href="">https://www.example.com/sustainability-report-2021.pdf</a>
+        </p>
+        <p>
+          <i class="fa fa-check"></i> GHG emissions Data Third Party Verified
+        </p>
+        <p>
+          <a href="">https://www.example.com/sustainability-report-2021.pdf</a>
+        </p>
+        <p>
+          We have managed to reduce GHG emissions by 10% over the last 2 years.
+        </p>
+      </div>
+      <div id="energy">
+        <h5>Energy</h5>
+        <table class="table table-bordered table-striped">
+          <tr class="text-right">
+            <th></th>
+            <th>2019</th>
+            <th>2020</th>
+            <th>2021</th>
+          </tr>
+          <tr>
+            <th>Energy consumed</th>
+            <td class="text-right">10</td>
+            <td class="text-right">9</td>
+            <td class="text-right">8</td>
+          </tr>
+          <caption class="text-center">Kilowatt/hour</caption>
+        </table>
+        <p>
+          <i class="fa fa-check"></i> Energy Performance Publicly Reported
+        </p>
+        <p>
+          <a href="">https://www.example.com/sustainability-report-2021.pdf</a>
+        </p>
+        <p>
+          <i class="fa fa-check"></i> Energy Data Third Party Verified
+        </p>
+        <p>
+          <a href="">https://www.example.com/sustainability-report-2021.pdf</a>
+        </p>
+        <p>
+          No Comment.
+        </p>
+      </div>
+      <div id="water">
+        <h5>Water</h5>
+        <table class="table table-bordered table-striped">
+          <tr class="text-right">
+            <th></th>
+            <th>2019</th>
+            <th>2020</th>
+            <th>2021</th>
+          </tr>
+          <tr>
+            <td>Water withdrawn</td>
+            <td class="text-right">10</td>
+            <td class="text-right">9</td>
+            <td class="text-right">8</td>
+          </tr>
+          <tr>
+            <td>Water discharged</td>
+            <td class="text-right">5</td>
+            <td class="text-right">6</td>
+            <td class="text-right">4</td>
+          </tr>
+          <tr>
+            <td>Water recycled and reused</td>
+            <td class="text-right">5</td>
+            <td class="text-right">4</td>
+            <td class="text-right">4</td>
+          </tr>
+          <caption class="text-center">US Gallons</caption>
+        </table>
+        <p>
+          <i class="fa fa-check"></i> Water Performance Publicly Reported
+        </p>
+        <p>
+          <a href="">https://www.example.com/sustainability-report-2021.pdf</a>
+        </p>
+        <p>
+          <i class="fa fa-check"></i> Water Data Third Party Verified
+        </p>
+        <p>
+          <a href="">https://www.example.com/sustainability-report-2021.pdf</a>
+        </p>
+        <p>
+          No Comment.
+        </p>
+      </div>
+      <div id="waste">
+        <h5>Waste</h5>
+        <table class="table table-bordered table-striped">
+          <tr class="text-right">
+            <th></th>
+            <th>2019</th>
+            <th>2020</th>
+            <th>2021</th>
+          </tr>
+          <tr>
+            <td>Hazardous waste</td>
+            <td class="text-right">10</td>
+            <td class="text-right">9</td>
+            <td class="text-right">8</td>
+          </tr>
+          <tr>
+            <td>Non-Hazardous waste</td>
+            <td class="text-right">5</td>
+            <td class="text-right">6</td>
+            <td class="text-right">4</td>
+          </tr>
+          <tr>
+            <td>Waste recycled</td>
+            <td class="text-right">5</td>
+            <td class="text-right">4</td>
+            <td class="text-right">4</td>
+          </tr>
+          <caption class="text-center">Metrics tons</caption>
+        </table>
+        <p>
+          <i class="fa fa-check"></i> Waste Performance Publicly Reported
+        </p>
+        <p>
+          <a href="">https://www.example.com/sustainability-report-2021.pdf</a>
+        </p>
+        <p>
+          <i class="fa fa-check"></i> Waste Data Third Party Verified
+        </p>
+        <p>
+          <a href="">https://www.example.com/sustainability-report-2021.pdf</a>
+        </p>
+        <p>
+          No Comment.
+        </p>
+      </div>
+    </div>
+  </section> {# <!-- /#metrics --> #}
+  <hr />
+  <section id="targets">
+    <h2>Targets</h2>
+    <div v-show="!itemsLoaded">
+      <i class="fa fa-refresh fa-spin fa-2x"></i>
+    </div>
+    <div v-show="itemsLoaded && !targetsAvailable" v-cloak>
+      <p>
+        {% trans %}No targets available{% endtrans %}
+      </p>
+      <a href="{{urls.assess_practices}}#tab-targets" class="btn btn-primary">Start Assessment &raquo;</a>
+    </div>
+    <div v-show="itemsLoaded && targetsAvailable" v-cloak>
+      <div id="ghg-emissions">
+        <h3>Green House Gas Emissions</h3>
+        <p>
+        We expect the improvement plan will reduce the baseline GHG Emissions of 2018 by 10% by 2025.
+        </p>
+      </div>
+      <div id="energy">
+        <h3>Energy</h3>
+        <p>
+          No targets set for energy.
+        </p>
+      </div>
+      <div id="water">
+        <h3>Water</h3>
+        <p>
+          No targets set for water.
+        </p>
+      </div>
+      <div id="waste">
+        <h3>Waste</h3>
+        <p>
+          No targets set for waste.
+        </p>
+      </div>
+    </div>
+  </section> {# <!-- /#targets --> #}
+  <hr />
+  <section id="assessment">
+    <h2>Activity-specific practices assessment</h2>
+    <div v-show="!itemsLoaded">
+      <i class="fa fa-refresh fa-spin fa-2x"></i>
+    </div>
+    <div v-show="itemsLoaded && !activitySpecificAvailable" v-cloak>
+      <p>
+        {% trans %}No activity-specific assessment available{% endtrans %}
+        {% trans %}Don't know what to select?{% endtrans %} <a href="{{'/docs/faq/#general-3'|site_prefixed}}" target="_blank">{% trans %}Click here{% endtrans %}</a>
+      </p>
+      <div>
+        <div class="dropdown dropdown-homepage">
+          <button id="segment-selector" class="btn btn-lg btn-primary dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
+            <span class="text">Select your industry</span>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="segment-selector">
+            {% for segment in segments_available %}
+            <li class="dropdown-item dropdown-item-indent-{{segment.indent}}">
+              <div>
+                {% if not segment.disabled %}
+                {% if not segment.path %}
+                <button disabled>{{segment.title}}</button>
+                {% else %}
+                <a id="{{segment.slug}}" href="{{'app/'|site_prefixed}}{{account}}/assess{{segment.path}}/" role="menuitem" tabindex="-1">{{segment.title}}</a>
+                {% endif %}
+                {% else %}
+                <span id="{{segment.path}}" class="disabled" role="menuitem" tabindex="-1">{{segment.title}} <i class="fa fa-wrench"></i></span>
+                {% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div v-show="itemsLoaded && activitySpecificAvailable" v-cloak>
+      <div class="row mb-4">
+        <div class="col-sm-6 text-center">
+          <img class="img-fluid" src="{{'/static/img/governance-management-graph.png'|asset}}"  style="width:264px;">
+        </div>
+        <div class="col-sm-6 text-center">
+          <span style="font-size:6rem;">74%</span>
+        </div>
+      </div>
+      <div class="heading-0 indent-header-0" style="display: inline-block;">
+        <span class="title">
+          Environmental policy
+        </span>
+      </div>
+      <div class="row">
+        <div class="col-sm-8">
+          <div class="bestpractice indent-header-1" style="display: inline-block;">
+            <a href="/envconnect/app/supplier-1/assess/euissca-rfx/have-a-policy-level-commitment-to/" class="title">
+Have adequate policy level commitments, and be internally and externally communicated.
+            </a>
+            <div class="row">
+              <div class="col-sm-3 text-center">
+                <div style="color: #777;">Implementation rate</div>
+              </div>
+              <div class="col-sm-3 text-center">
+                <img class="img-fluid" src="{{'/static/img/example-implementation-rate.png'|asset}}" style="width:100px;">
+              </div>
+              <div class="col-sm-3 text-center">
+                <div style="color: #777;">Opportunity score</div>
+              </div>
+              <div class="col-sm-3 text-center">
+                <span style="color: #777;">9.4</span>
+              </div>
+            </div>
+            <p class="mt-3">
+The environmental policy is being reviewed by the board of directors.
+            </p>
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <span>No</span>
+        </div>
+        <div class="col-sm-2">
+          <div>1 points</div>
+          <div style="font-size:0.5rem">(EUISSCA RFx)</div>
+        </div>
+      </div>
+    </div>
+  </section> {# <!-- /#assessment --> #}
+<!-- XXX
+  <hr />
+  <section id="improvement">
+    <h2>Improvement plan</h2>
+    <div>
+      <h3>General (policies, tracking, etc.)</h3>
+      <div class="row">
+        <div class="col-sm-8">
+          <div class="bestpractice indent-header-1">
+            <a href="/envconnect/app/supplier-1/assess/euissca-rfx/have-a-policy-level-commitment-to/" class="title">
+              Have adequate policy level commitments, and be internally and externally communicated.
+            </a>
+          </div>
+          <div class="indent-header-1">
+            <div class="row">
+              <div class="col-sm-3 text-center">
+                <div style="color: #777;">Implementation rate</div>
+              </div>
+              <div class="col-sm-3 text-center">
+                <img class="img-fluid" src="{{'/static/img/example-implementation-rate.png'|asset}}" style="width:100px;">
+              </div>
+              <div class="col-sm-3 text-center">
+                <div style="color: #777;">Opportunity score</div>
+              </div>
+              <div class="col-sm-3 text-center">
+                <span style="color: #777;">9.4</span>
+              </div>
+            </div>
+            <p>
+              We expect the policy to be signed by 2022.
+            </p>
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <span>No</span>
+        </div>
+        <div class="col-sm-2">
+          <div>Yes</div>
+          <div style="font-size:0.5rem">(expected in 2022)</div>
+        </div>
+      </div>
+    </div>
+    <div id="ghg-emissions">
+      <h3>Green House Gas Emissions</h3>
+      <div class="row">
+        <div class="col-sm-8">
+          <div class="bestpractice indent-header-1">
+            <a href="/envconnect/app/supplier-1/assess/euissca-rfx/have-a-policy-level-commitment-to/" class="title">
+              Switch campus vehicules to electric scooters
+            </a>
+          </div>
+          <div class="indent-header-1">
+            <div class="row">
+              <div class="col-sm-3 text-center">
+                <div style="color: #777;">Implementation rate</div>
+              </div>
+              <div class="col-sm-3 text-center">
+                <img class="img-fluid" src="{{'/static/img/example-implementation-rate.png'|asset}}" style="width:100px;">
+              </div>
+              <div class="col-sm-3 text-center">
+                <div style="color: #777;">Opportunity score</div>
+              </div>
+              <div class="col-sm-3 text-center">
+                <span style="color: #777;">9.4</span>
+              </div>
+            </div>
+            <p>
+              No Comment.
+            </p>
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <span>No</span>
+        </div>
+        <div class="col-sm-2">
+          <div>Yes</div>
+          <div style="font-size:0.5rem">(expected in 2022)</div>
+        </div>
+      </div>
+    </div>
+    <div id="energy">
+      <h3>Energy</h3>
+      <p>
+        No practices related to energy selected for improvement.
+      </p>
+    </div>
+    <div id="water">
+      <h3>Water</h3>
+      <p>
+        No practices related to water selected for improvement.
+      </p>
+    </div>
+    <div id="waste">
+      <h3>Waste</h3>
+      <p>
+        No practices related to waste selected for improvement.
+      </p>
+    </div>
+  </section>
+-->
+  <hr />
+  <div id="download-actions" class="row mt-4">
+    <div class="col-sm-4 col-md-2">
+      <a id="xlsx-download" class="btn btn-secondary"
+         href="{{urls.scorecard_organization_download}}"
+         target="_blank">
+        <i class="fa fa-file-text"></i>&nbsp;&nbsp;XLSX Download
+      </a>
+    </div>
+    <div class="col-sm-4 col-md-2">
+      <a id="pdf-download" class="btn btn-secondary"
+         href="{{urls.scorecard_organization_download}}"
+         target="_blank">
+        <i class="fa fa-file-text"></i>&nbsp;&nbsp;PDF Download
+      </a>
+    </div>
+    <div class="col-sm-4 col-md-2">
+      <a id="pptx-download" class="btn btn-secondary"
+         href="{{urls.scorecard_organization_download}}"
+         target="_blank">
+        <i class="fa fa-file-text"></i>&nbsp;&nbsp;PPTX Download
+      </a>
+    </div>
+  </div>
+  {# actions only available when a scorecard is active #}
+  <div class="row mt-4">
+    <div class="col-sm-4 col-md-2">
+      <a id="share" class="btn btn-secondary"
+         href="{{urls.scorecard_organization_download}}"
+         target="_blank">
+        <i class="fa fa-file-text"></i>&nbsp;&nbsp;Complete
+      </a>
+    </div>
+    <div class="col-sm-4 col-md-2">
+      <a id="share" class="btn btn-secondary"
+         href="{{urls.scorecard_organization_download}}"
+         target="_blank">
+        <i class="fa fa-file-text"></i>&nbsp;&nbsp;Invite contributor
+      </a>
+    </div>
+  </div>
+  {# actions only available when a scorecard is completed/frozen #}
+  <div class="row mt-4">
+    <div class="col-sm-4 col-md-2">
+      <a id="share" class="btn btn-secondary"
+         href="{{urls.scorecard_organization_download}}"
+         target="_blank">
+        <i class="fa fa-file-text"></i>&nbsp;&nbsp;Share report
+      </a>
+    </div>
+    <div class="col-sm-4 col-md-2">
+      <a id="download" class="btn btn-secondary"
+         href="{{urls.scorecard_organization_download}}"
+         target="_blank">
+        <i class="fa fa-file-text"></i>&nbsp;&nbsp;Embed link
+      </a>
+    </div>
+  </div>
+</div>
+</div>
+</scorecard>
+{% endblock %}

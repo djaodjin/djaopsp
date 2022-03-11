@@ -1,0 +1,465 @@
+[
+{ "fields" : {
+    "slug": "stripe",
+    "full_name": "Stripe"
+  },
+  "model" : "djaopsp.account", "pk" : 1
+},
+{ "fields" : {
+    "slug": "djaodjin",
+    "full_name": "DjaoDjin"
+  },
+  "model" : "djaopsp.account", "pk" : 2
+},
+{ "fields" : {
+    "slug": "supplier-1",
+    "full_name": "S1 - Tamerin (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 3
+},
+{ "fields": {
+    "slug": "assessment",
+    "title": "Assessment",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk" : 1
+},
+{ "fields": {
+    "slug": "points",
+    "title": "Points",
+    "system": 2
+  },
+  "model" : "survey.unit", "pk" : 2
+},
+{ "fields": {
+    "slug": "freetext",
+    "title": "Free text",
+    "system": 4
+  },
+  "model" : "survey.unit", "pk" : 3
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 1,
+    "text": "Yes",
+    "descr": "The practice is implemented across all activities/services/products/offices/ facilities to which it could apply."
+  },
+  "model" : "survey.choice", "pk" : 1
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 2,
+    "text": "Mostly yes",
+    "descr": "The practice is implemented across roughly 50% OR MORE of the activities/services/products/offices/ facilities to which it could apply."
+  },
+  "model" : "survey.choice", "pk" : 2
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 3,
+    "text": "Mostly no",
+    "descr": "The practice is implemented across roughly 50% OR LESS of the activities/services/products/offices/ facilities to which it could apply."
+  },
+  "model" : "survey.choice", "pk" : 3
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 4,
+    "text": "No",
+    "descr": "The practice is implemented across negligible to no activities/services/products/offices/ facilities to which it could apply."
+  },
+  "model" : "survey.choice", "pk" : 4
+},
+{ "fields": {
+    "unit": 1,
+    "rank": 5,
+    "text": "Not applicable",
+    "descr": "The practice is not applicable to the organization, or the organization has no influence or control over its implementation."
+  },
+  "model" : "survey.choice", "pk" : 5
+},
+{ "fields" : {
+    "slug" : "sustainability",
+    "title" : "Sustainability",
+    "created_at": "2022-01-01",
+    "description" : "Assessment of practices around sustainability",
+    "account" : 1,
+    "active": true,
+    "extra": ""
+  },
+  "model" : "survey.campaign", "pk" : 1
+},
+{
+  "fields": {
+    "title": "Core Environmental, Social and Governance Assessment",
+    "slug": "rfx-core",
+    "extra": "{\"tags\":[\"pagebreak\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 1
+},
+{
+  "fields": {
+    "title": "Governance & management",
+    "slug": "governance-management",
+    "picture": "/static/img/management-basics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 2
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 2
+  },
+  "model": "pages.RelationShip", "pk": 1
+},
+{
+  "fields": {
+    "title": "The assessment process is rigorous and thorough*",
+    "slug": "have-a-policy-level-commitment-to",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 3
+},
+{
+  "fields": {
+    "orig_element": 2,
+    "dest_element": 3
+  },
+  "model": "pages.RelationShip", "pk": 2
+},
+{
+  "fields": {
+    "path": "/rfx-core/governance-management/have-a-policy-level-commitment-to",
+    "content": 3,
+    "default_unit": 1
+  },
+  "model": "survey.question", "pk": 1
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 1,
+    "rank": 1,
+    "required": true
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 1
+},
+
+{
+  "fields": {
+    "title": "Data & metrics",
+    "slug": "data-metrics",
+    "picture": "/static/img/data-metrics.png",
+    "extra": "{\"tags\":[\"metrics\",\"tilebreak\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 4
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 4,
+    "rank": 2
+  },
+  "model": "pages.RelationShip", "pk": 3
+},
+{
+  "fields": {
+    "title": "Targets",
+    "slug": "targets",
+    "picture": "/static/img/data-metrics.png",
+    "extra": "{\"tags\":[\"metrics\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 5
+},
+{
+  "fields": {
+    "orig_element": 1,
+    "dest_element": 5,
+    "rank": 2
+  },
+  "model": "pages.RelationShip", "pk": 4
+},
+{
+  "fields": {
+    "title": "Energy",
+    "slug": "energy-target",
+    "picture": "/static/img/data-metrics.png",
+    "extra": "{\"tags\":[\"metrics\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 6
+},
+{
+  "fields": {
+    "orig_element": 5,
+    "dest_element": 6,
+    "rank": 1
+  },
+  "model": "pages.RelationShip", "pk": 5
+},
+{
+  "fields": {
+    "path": "/rfx-core/targets/energy-target",
+    "content": 6,
+    "ui_hint": "textarea",
+    "default_unit": 3
+  },
+  "model": "survey.Question", "pk": 2
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 2,
+    "rank": 2
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 2
+},
+{
+  "fields": {
+    "title": "GHG Emissions",
+    "slug": "ghg-emissions-target",
+    "picture": "/static/img/data-metrics.png",
+    "extra": "{\"tags\":[\"metrics\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 7
+},
+{
+  "fields": {
+    "orig_element": 5,
+    "dest_element": 7,
+    "rank": 2
+  },
+  "model": "pages.RelationShip", "pk": 6
+},
+{
+  "fields": {
+    "path": "/rfx-core/targets/ghg-emissions-target",
+    "content": 7,
+    "ui_hint": "textarea",
+    "default_unit": 3
+  },
+  "model": "survey.Question", "pk": 3
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 3,
+    "rank": 3
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 3
+},
+{
+  "fields": {
+    "title": "Water",
+    "slug": "water-target",
+    "picture": "/static/img/data-metrics.png",
+    "extra": "{\"tags\":[\"metrics\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 8
+},
+{
+  "fields": {
+    "orig_element": 5,
+    "dest_element": 8,
+    "rank": 3
+  },
+  "model": "pages.RelationShip", "pk": 7
+},
+{
+  "fields": {
+    "path": "/rfx-core/targets/water-target",
+    "content": 8,
+    "ui_hint": "textarea",
+    "default_unit": 3
+  },
+  "model": "survey.Question", "pk": 4
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 4,
+    "rank": 4
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 4
+},
+{
+  "fields": {
+    "title": "Waste",
+    "slug": "waste-target",
+    "picture": "/static/img/data-metrics.png",
+    "extra": "{\"tags\":[\"metrics\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 9
+},
+{
+  "fields": {
+    "orig_element": 5,
+    "dest_element": 9,
+    "rank": 4
+  },
+  "model": "pages.RelationShip", "pk": 8
+},
+{
+  "fields": {
+    "path": "/rfx-core/targets/waste-target",
+    "content": 9,
+    "ui_hint": "textarea",
+    "default_unit": 3
+  },
+  "model": "survey.Question", "pk": 5
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 5,
+    "rank": 5
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 5
+},
+
+{
+  "fields": {
+    "title": "Metal structures & equipment",
+    "slug": "metal",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 10
+},
+{
+  "fields": {
+    "title": "Boxes & enclosures",
+    "slug": "boxes-and-enclosures",
+    "extra": "{\"tags\":[\"pagebreak\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 11
+},
+{
+  "fields": {
+    "orig_element": 10,
+    "dest_element": 11
+  },
+  "model": "pages.RelationShip", "pk": 12
+},
+
+{
+  "fields": {
+    "title": "Production",
+    "slug": "production",
+    "picture": "/static/img/production.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 12
+},
+{
+  "fields": {
+    "orig_element": 11,
+    "dest_element": 12,
+    "rank": 4
+  },
+  "model": "pages.RelationShip", "pk": 14
+},
+{
+  "fields": {
+    "title": "Energy Efficiency",
+    "slug": "energy-efficiency",
+    "extra": "{\"tags\":[\"pagebreak\"\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 13
+},
+{
+  "fields": {
+    "orig_element": 12,
+    "dest_element": 13,
+    "rank": 4
+  },
+  "model": "pages.RelationShip", "pk": 15
+},
+{
+  "fields": {
+    "title": "Process heating",
+    "slug": "process-heating",
+    "picture": "/static/img/process-heating.png",
+    "extra": "{\"tags\":[\"Energy & Emissions\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 14
+},
+{
+  "fields": {
+    "orig_element": 13,
+    "dest_element": 14
+  },
+  "model": "pages.RelationShip", "pk": 16
+},
+{
+  "fields": {
+    "title": "Combustion",
+    "slug": "combustion",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 15
+},
+{
+  "fields": {
+    "orig_element": 14,
+    "dest_element": 15
+  },
+  "model": "pages.RelationShip", "pk": 16
+},
+{
+  "fields": {
+    "title": "Adjust air/fuel ratio",
+    "slug": "adjust-air-fuel-ratio",
+    "extra": "{\"tags\":[\"Energy & Emissions\"]}",
+    "account": 2,
+    "text": "<h2>Background</h2><p>Some manufacturing processes may involve heating operations.</p>"
+  },
+  "model": "pages.PageElement", "pk": 16
+},
+{
+  "fields": {
+    "orig_element": 15,
+    "dest_element": 16
+  },
+  "model": "pages.RelationShip", "pk": 17
+},
+{
+  "fields": {
+    "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
+    "content": 16,
+    "default_unit": 1
+  },
+  "model": "survey.Question", "pk": 6
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 6,
+    "rank": 6
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 6
+},
+
+
+
+{
+  "fields": {
+    "slug": "aaaabbbbccccddddeeeeffff00001111",
+    "created_at":  "2021-11-11T00:00:00.000Z",
+    "updated_at":  "2021-11-11T00:00:00.000Z",
+    "campaign": 1,
+    "account": 2,
+    "is_frozen": true
+  },
+  "model": "survey.sample", "pk": 1
+}
+]

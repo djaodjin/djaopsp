@@ -1,0 +1,6 @@
+*.pyc
+*~
+*.xcodeproj
+.DS_Store
+htdocs
+htdocs/media/

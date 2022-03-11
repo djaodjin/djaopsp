@@ -1,0 +1,39 @@
+<div>
+<div>
+  <div class="progressbar-container">
+    <ul class="progressbar">
+      {% if True or urls.assess %}
+      <li class="active" {% if request.path == urls.assess or request.path == urls.improve or request.path == urls.targets or request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-assess" href="{{urls.assess}}"><span class="progressbar-step"></span>Assess</a>
+      </li>
+      {% endif %}
+      {% if True or urls.improve %}
+      <li class="active" {% if request.path == urls.improve or request.path == urls.targets or request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-improve" href="{{urls.improve}}"><span class="progressbar-step"></span>Improve</a>
+      </li>
+      {% endif %}
+      {% if True or urls.targets %}
+      <li class="active" {% if request.path == urls.targets or request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-targets" href="{{urls.targets}}"><span class="progressbar-step"></span>Targets</a>
+      </li>
+      {% endif %}
+      {% if True or urls.complete %}
+      <li class="active" {% if request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-complete" href="{{urls.complete}}"><span class="progressbar-step"></span>Complete</a>
+      </li>
+      {% endif %}
+      {% if True or urls.scorecard %}
+      <li class="active" {% if request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-scorecard" href="{{urls.scorecard}}"><span class="progressbar-step"></span>Scorecard</a>
+      </li>
+      {% endif %}
+      {% if True or urls.share %}
+      <li{% if request.path == urls.share %} class="active"{% endif %}>
+        <a id="submenu-share" href="{{urls.share}}"><span class="progressbar-step"></span>Share</a>
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+<div class="clearfix"></div>
+</div>

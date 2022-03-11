@@ -1,0 +1,509 @@
+# Copyright (c) 2022, DjaoDjin inc.
+# see LICENSE.
+
+import json
+from collections import OrderedDict
+
+from django.db import transaction
+from django.db.models import Max
+from pages.serializers import PageElementSerializer
+from pages.models import PageElement, RelationShip
+from pages.api.edition import PageElementEditableListAPIView
+from rest_framework import status
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
+from survey.models import Campaign, EnumeratedQuestions
+from survey.utils import get_question_model
+from survey.api.campaigns import CampaignAPIView as CampaignBaseAPIView
+
+from .serializers import (ContentElementSerializer,
+    CreateContentElementSerializer)
+from ..compat import reverse
+from ..helpers import flatten
+from ..mixins import AccountMixin, get_segments_available
+
+
+class CampaignContentMixin(AccountMixin):
+    """
+    Queryset to present practices in 2d matrix of segments and tiles.
+    """
+    campaign_url_kwarg = 'campaign'
+
+    @property
+    def campaign(self):
+        if not hasattr(self, '_campaign'):
+            self._campaign = get_object_or_404(Campaign.objects.all(),
+                slug=self.kwargs.get(self.campaign_url_kwarg))
+        return self._campaign
+
+    @property
+    def segments_available(self):
+        if not hasattr(self, '_segments_available'):
+            self._segments_available = get_segments_available(self.campaign)
+        return self._segments_available
+
+    def get_questions(self, prefix):
+        return [{
+            'path': question.get('path'),
+            'rank': question.get('enumeratedquestions__rank'),
+            'title': question.get('content__title'),
+            'picture': question.get('content__picture'),
+            'extra': self._as_extra_dict(question.get('content__extra')),
+        } for question in get_question_model().objects.filter(
+            path__startswith=prefix,
+            enumeratedquestions__campaign=self.campaign
+        ).values('path', 'enumeratedquestions__rank',
+            'content__title', 'content__picture', 'content__extra').order_by(
+            'enumeratedquestions__rank')]
+
+    @staticmethod
+    def _as_extra_dict(extra):
+        try:
+            extra = json.loads(extra)
+        except (TypeError, ValueError):
+            extra = {}
+        return extra
+
+    def get_queryset(self):
+        #pylint:disable=too-many-locals
+        segments = self.segments_available
+        by_tiles = OrderedDict()
+        for segment in segments:
+            segment_prefix = segment['path']
+            if segment_prefix:
+                queryset = self.get_questions(segment_prefix)
+                for question in queryset:
+                    path = question.get('path')[len(segment_prefix):]
+                    parts = path[1:].split('/')
+                    prefix = ''
+                    practices = by_tiles
+                    for part in parts[:-1]:
+                        prefix = '%s/%s' % (prefix, part)
+                        if not prefix in practices:
+                            practices[prefix] = ({
+                                'slug': part,
+                            }, OrderedDict())
+                        segments = practices[prefix][0].get('segments', [])
+                        practices[prefix][0].update({
+                            'segments': list(set(segments + [
+                                segment_prefix]))})
+                        practices = practices[prefix][1]
+                    part = parts[-1]
+                    prefix = '%s/%s' % (prefix, part)
+                    if not prefix in practices:
+                        if not ('title' in question and
+                                'picture' in question and
+                                'extra' in question):
+                            element = PageElement.objects.filter(
+                                slug=part).values(
+                                'title', 'picture', 'extra').first()
+                            # `rank` is aldready set in the `question` dict
+                            # as it is critical it is unique accross radio
+                            # buttons presented to the request.user.
+                            question.update({
+                                'title': element.get('title'),
+                                'picture': element.get('picture'),
+                                'extra': self._as_extra_dict(
+                                    element.get('extra')),
+                            })
+                        question.update({
+                            'slug': part,
+#                            'url': reverse('campaign_practice_detail',
+#                                args=(self.account, self.campaign,
+#                                    prefix[1:] if (prefix and
+#                                    prefix.startswith('/')) else prefix))
+                        })
+                        practices[prefix] = (question, OrderedDict())
+                    segments = practices[prefix][0].get('segments', [])
+                    practices[prefix][0].update({
+                        'segments': list(set(segments + [segment_prefix]))})
+
+        elements = flatten(by_tiles, sort_by_key=False)
+        headings = [element['slug'] for element in elements
+            if 'title' not in element]
+
+        headings_queryset = PageElement.objects.filter(
+            slug__in=headings).values(
+                'slug', 'title', 'picture', 'extra').annotate(
+                    rank=Max('to_element__rank'))
+        headings_by_slug = {
+            element['slug']: {
+                'title': element['title'],
+                'picture': element['picture'],
+                'rank': element['rank'],
+                'extra': self._as_extra_dict(element['extra'])
+            } for element in headings_queryset}
+        for element in elements:
+            slug = element.get('slug')
+            if slug:
+                element.update(headings_by_slug.get(slug, {}))
+
+        elements = flatten(by_tiles)
+        return elements
+
+
+class CampaignAPIView(CampaignBaseAPIView):
+    """
+    Retrieves a campaign
+
+    Retrieves the details of a ``Campaign``.
+
+    **Tags**: assessments
+
+    **Examples**
+
+    .. code-block:: http
+
+        GET /api/envconnect/campaign/construction HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 8,
+          "next": null,
+          "previous": null,
+          "results": [
+          {
+            "slug": "metal",
+            "path": null,
+            "title": "Metal structures & equipment",
+            "indent": 0
+          },
+          {
+            "slug": "boxes-and-enclosures",
+            "path": "/metal/boxes-and-enclosures",
+            "title": "Boxes & enclosures",
+            "indent": 1,
+            "tags": [
+              "industry",
+              "pagebreak",
+              "public",
+              "scorecard"
+            ]
+          }
+          ]
+        }
+    """
+    serializer_class = PageElementSerializer
+
+    def get_serializer_context(self):
+        context = super(CampaignAPIView, self).get_serializer_context()
+        context.update({'prefix': self.path})
+        return context
+
+
+class CampaignEditableSegmentsAPIView(CampaignContentMixin,
+                                      PageElementEditableListAPIView):
+
+    serializer_class = ContentElementSerializer
+
+    def get(self, request, *args, **kwargs):
+        """
+        List segments in a campaign
+
+        **Tags**: editors
+
+        **Examples
+
+        .. code-block:: http
+
+            GET /api/content/editables/alliance/campaigns/assessment/segments\
+     HTTP/1.1
+
+        responds
+
+        .. code-block:: json
+
+            {
+                "count": 5,
+                "next": null,
+                "previous": null,
+                "results": [
+                    {
+                      "path": null,
+                      "title": "Construction",
+                      "tags": ["public"],
+                      "indent": 0
+                    },
+                    {
+                      "path": null,
+                      "title": "Governance & management",
+                      "picture": "https://assets.tspproject.org/management.png",
+                      "indent": 1
+                    },
+                    {
+                        "path": "/construction/governance/the-assessment\
+    -process-is-rigorous",
+                        "title": "The assessment process is rigorous",
+                        "indent": 2,
+                        "environmental_value": 1,
+                        "business_value": 1,
+                        "profitability": 1,
+                        "implementation_ease": 1,
+                        "avg_value": 1
+                    },
+                    {
+                      "path": null,
+                      "title": "Production",
+                      "picture": "https://assets.tspproject.org/production.png",
+                      "indent": 1
+                    },
+                    {
+                        "path": "/construction/production/adjust-air-fuel\
+    -ratio",
+                        "title": "Adjust Air fuel ratio",
+                        "indent": 2,
+                        "environmental_value": 2,
+                        "business_value": 2,
+                        "profitability": 2,
+                        "implementation_ease": 2,
+                        "avg_value": 2
+                    }
+                ]
+            }
+        """
+        segments = self.segments_available
+        serializer = self.get_serializer(segments, many=True)
+        return Response({'results': serializer.data})
+
+    def post(self, request, *args, **kwargs):
+        """
+        Creates a page element
+
+        **Tags: editors
+
+        **Example
+
+        .. code-block:: http
+
+            POST /api/content/editables/alliance/campaigns/sustainability\
+/segments HTTP/1.1
+
+        .. code-block:: json
+
+            {
+                "title": "Boxes enclosures"
+            }
+
+        responds
+
+        .. code-block:: json
+
+            {
+                "slug": "boxes-enclosures",
+                "text": "Hello"
+            }
+
+        """
+        #pylint:disable=useless-super-delegation
+        return super(CampaignEditableSegmentsAPIView, self).post(
+            request, *args, **kwargs)
+
+
+class CampaignEditableContentAPIView(CampaignContentMixin,
+                                     PageElementEditableListAPIView):
+
+    serializer_class = ContentElementSerializer
+
+    def get_serializer_class(self):
+        if self.request.method.lower() == 'post':
+            return CreateContentElementSerializer
+        return super(
+            CampaignEditableContentAPIView, self).get_serializer_class()
+
+    def get(self, request, *args, **kwargs):
+        """
+        List questions in a campaign
+
+        **Tags**: editors
+
+        **Examples
+
+        .. code-block:: http
+
+            GET /api/content/editables/envconnect/campaigns/assessment HTTP/1.1
+
+        responds
+
+        .. code-block:: json
+
+            {
+                "count": 5,
+                "next": null,
+                "previous": null,
+                "results": [
+                    {
+                        "path": null,
+                        "title": "Construction",
+                        "tags": ["public"],
+                        "indent": 0
+                    },
+                    {
+                      "path": null,
+                      "title": "Governance & management",
+                      "picture": "https://assets.tspproject.org/management.png",
+                      "indent": 1
+                    },
+                    {
+                        "path": "/construction/governance/the-assessment\
+    -process-is-rigorous",
+                        "title": "The assessment process is rigorous",
+                        "indent": 2,
+                        "environmental_value": 1,
+                        "business_value": 1,
+                        "profitability": 1,
+                        "implementation_ease": 1,
+                        "avg_value": 1
+                    },
+                    {
+                      "path": null,
+                      "title": "Production",
+                      "picture": "https://assets.tspproject.org/production.png",
+                      "indent": 1
+                    },
+                    {
+                        "path": "/construction/production/adjust-air-fuel\
+    -ratio",
+                        "title": "Adjust Air fuel ratio",
+                        "indent": 2,
+                        "environmental_value": 2,
+                        "business_value": 2,
+                        "profitability": 2,
+                        "implementation_ease": 2,
+                        "avg_value": 2
+                    }
+                ]
+            }
+        """
+        results = self.get_queryset()
+        serializer = self.get_serializer(results, many=True)
+        return Response({'results': serializer.data})
+
+    def post(self, request, *args, **kwargs):
+        """
+        Creates a practice
+
+        Updates the title, text and, if applicable, the metrics associated
+        associated to the content element referenced by *path*.
+
+        **Tags**: editors
+
+        **Examples
+
+        .. code-block:: http
+
+            POST /api/content/editables/alliance/campaigns/boxes-enclosures/\
+energy-efficiency HTTP/1.1
+
+        .. code-block:: json
+
+            {
+              "title": "Adjust air/fuel ratio",
+              "parents": []
+            }
+
+        responds:
+
+        .. code-block:: json
+
+            {
+              "title": "Adjust air/fuel ratio",
+              "tag": "",
+              "consumption": {
+                "path": "/boxes-enclosures/energy-efficiency/air-flow",
+                "text": "Adjust air/fuel ratio",
+                "avg_energy_saving": "* * * *",
+                "avg_fuel_saving": "-",
+                "capital_cost": "$$",
+                "payback_period": "0-1.8 (0.3)",
+                "environmental_value": 1,
+                "business_value": 1,
+                "profitability": 3,
+                "implementation_ease": 1,
+                "avg_value": 2,
+                "rank": 3,
+                "nb_respondents": 0,
+                "rate": 0,
+                "opportunity": 0,
+                "implemented": "",
+                "planned": false
+              },
+              "parents": []
+            }
+
+        """
+        #pylint:disable=useless-super-delegation
+        return super(CampaignEditableContentAPIView, self).post(
+            request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        #pylint:disable=too-many-locals
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        with transaction.atomic():
+            parent = None
+            parents = serializer.validated_data.pop('parents', [])
+            if not self.path:
+                # We don't have a path so let's create one
+                # from the segment and tile.
+                if len(parents) < 2:
+                    raise ValidationError({'parents':
+                        "Requires at least a segment and a tile"})
+                grand_parent = None
+                for part in parents:
+                    grand_parent = parent
+                    slug = part.get('slug')
+                    if slug:
+                        parent = get_object_or_404(PageElement.objects.all(),
+                            account=self.account, slug=slug)
+                    else:
+                        parent = PageElement.objects.create(
+                            account=self.account,
+                            title=part.get('title'),
+                            extra=json.dumps({"tags":["pagebreak"]})
+                              if not grand_parent else None)
+                    if grand_parent:
+                        rank = RelationShip.objects.filter(
+                            orig_element=grand_parent).aggregate(
+                                Max('rank')).get('rank__max', None)
+                        rank = 0 if rank is None else rank + 1
+                        RelationShip.objects.get_or_create(
+                            orig_element=grand_parent, dest_element=parent,
+                            defaults={'rank': rank})
+            else:
+                parent = self.element
+
+            # We are guarenteed to have a valid parent to attach the element
+            # in the content DAG at this point.
+            element = serializer.save(account=self.account)
+            rank = RelationShip.objects.filter(orig_element=parent).aggregate(
+                Max('rank')).get('rank__max', None)
+            rank = 0 if rank is None else rank + 1
+            RelationShip.objects.create(
+                orig_element=parent, dest_element=element, rank=rank)
+
+            # Add the question in each segment that references the tile.
+            campaign = self.campaign
+            rank = EnumeratedQuestions.objects.filter(
+                campaign=campaign).aggregate(
+                Max('rank')).get('rank__max', None)
+            rank = 0 if rank is None else rank + 1
+            for prefix_parts in parent.get_parent_paths():
+                rank = rank + 1
+                path = self.DB_PATH_SEP + self.DB_PATH_SEP.join([
+                    part.slug for part in prefix_parts] + [element.slug])
+                question = get_question_model().objects.create(
+                    path=path, content=element)
+                EnumeratedQuestions.objects.get_or_create(
+                    campaign=campaign, question=question, rank=rank)
+
+        serializer_class = super(
+            CampaignEditableContentAPIView, self).get_serializer_class()
+        serializer = serializer_class(instance=element)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data,
+            status=status.HTTP_201_CREATED, headers=headers)

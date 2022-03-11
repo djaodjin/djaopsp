@@ -1,0 +1,19 @@
+{% extends "app/base.html" %}
+
+{% block app_content %}
+{% block survey_content %}
+<div>
+  <div>
+    <h1 class="text-center">Campaigns</h1>
+  </div>
+  <div id="panel-icons" class="panel-icons panel-icons-no-benchmark">
+  </div>
+</div>
+{% endblock %}
+{% endblock %}
+
+{% block app_bodyscripts %}
+<script type="text/javascript" src="{{'/static/cache/editors.js'|asset}}"></script>
+{% block survey_bodyscripts %}
+{% endblock %}
+{% endblock %}

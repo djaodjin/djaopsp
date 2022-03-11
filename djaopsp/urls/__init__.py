@@ -1,0 +1,62 @@
+# Copyright (c) 2021, DjaoDjin inc.
+
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_prefixed)
+from deployutils.apps.django.urlbuilders import url_prefixed
+
+from django.conf import settings
+from django.contrib.staticfiles.views import serve as django_static_serve
+from django.urls import path, re_path, include
+from django.views.generic import TemplateView
+
+from .. import __version__
+
+if settings.DEBUG: #pylint: disable=no-member
+    from django.contrib import admin
+    from django.views.defaults import page_not_found, server_error
+    import debug_toolbar
+    from ..views.assets import AssetView
+
+    urlpatterns = [
+#XXX cannot import name 'get_safe_settings' from 'django.views.debug'
+#XXX        path(r'__debug__/', include(debug_toolbar.urls)),
+        # You need to run `python manage.py --nostatic` to enable hotreload.
+        url_prefixed(r'static/(?P<path>.*)', AssetView.as_view()),
+        path(r'%s%s<path:path>' % (
+            settings.APP_NAME, settings.MEDIA_URL), django_static_serve, {
+            'document_root': settings.MEDIA_ROOT}),
+        path(r'404/', page_not_found),
+        path(r'500/', server_error),
+# does not support Jinja2 templates
+#XXX        path('admin/', admin.site.urls),
+    ]
+else:
+    urlpatterns = [
+        re_path(r'%s/(?P<path>static/.*)' % settings.APP_NAME,
+            django_static_serve,
+            {'document_root': settings.HTDOCS}),
+        re_path(r'(?P<path>static/.*)', django_static_serve,
+            {'document_root': settings.HTDOCS}),
+        path(r'media/%s/<path:path>' % settings.APP_NAME, django_static_serve,
+            {'document_root': settings.MEDIA_ROOT}),
+    ]
+
+if settings.API_DEBUG:
+    from rest_framework.schemas import get_schema_view
+    from ..views.api_docs import APIDocView
+    urlpatterns += [
+        path(r'docs/api/schema/', get_schema_view(
+            title="DjaoPsp API",
+            version=__version__,
+            description="API for the Practices Sharing Platform",
+        ), name='openapi-schema'),
+        path(r'docs/api/', APIDocView.as_view()),
+    ]
+
+urlpatterns += [
+    url_prefixed(r'', include('deployutils.apps.django.mockup.urls')),
+    # User authenticated
+    url_prefixed(r'api/', include('djaopsp.urls.api')),
+    url_prefixed(r'', include('djaopsp.urls.views')),
+    path('', TemplateView.as_view(template_name='index.html')),
+]

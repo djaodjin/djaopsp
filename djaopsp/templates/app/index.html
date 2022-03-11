@@ -1,0 +1,107 @@
+{% extends "app/base.html" %}
+
+{% block app_content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card bg-white text-dark mt-4">
+        <div class="card-body">
+          <h2>Practices Sharing</h2>
+          <p>
+          </p>
+          <div class="text-center">
+            <a href="{{urls.summary_index}}">Browse</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card bg-white text-dark mt-4">
+        <div class="card-body">
+          <h2>Newsfeed</h2>
+          <p>
+There are no news at this point.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card bg-white text-dark mt-4">
+        <div class="card-body">
+          <h2>Reporting</h2>
+          {% if latest_assessment %}
+          <div>
+            <p>
+Last completed on <date>{{latest_assessment.created_at}}</date> by <author>{{latest_assessment.author}}</author>.
+            </p>
+            <div class="row">
+              <div class="col-4">
+                <a href="{{urls.scorecard_history}}">Historical reports</a>
+              </div>
+              <div class="col-4">
+                <a href="{{urls.scorecard_redirect}}">Update</a>
+              </div>
+              <div class="col-4">
+                <a href="{{urls.share_latest}}">Share latest</a>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div>
+            <p>
+            </p>
+            <div class="row">
+              <div class="offset-4 col-4 text-center">
+                <a class="btn btn-primary" href="{{urls.scorecard_redirect}}">Get started</a>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card bg-white text-dark mt-4">
+        <div class="card-body">
+          <h2>Tracking metrics</h2>
+          <div class="offset-4 col-4 text-center">
+            <a href="{{urls.assess_metrics}}">Enter</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card bg-white text-dark mt-4">
+        <div class="card-body">
+          <h2>Requesting 3rd party reports</h2>
+          <p>
+            This is a paid feature.
+          </p>
+          <div class="offset-4 col-4 text-center">
+            <a href="{{urls.reporting}}">Manage</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card bg-white text-dark mt-4">
+        <div class="card-body">
+          <h2>Assessment campaigns</h2>
+          <p>
+            This is a feature only available to the site owner.
+          </p>
+          <div class="offset-4 col-4 text-center">
+            <a id="edit-campaigns"
+               href="{{urls.survey_campaign_list}}">Edit</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
