@@ -7,8 +7,8 @@ from collections import OrderedDict
 from django.db import transaction
 from django.db.models import Max
 from pages.serializers import PageElementSerializer
-from pages.models import PageElement, RelationShip
-from pages.api.edition import PageElementEditableListAPIView
+from pages.models import PageElement, RelationShip, flatten_content_tree
+from pages.api.elements import PageElementEditableListAPIView
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
@@ -20,7 +20,6 @@ from survey.api.campaigns import CampaignAPIView as CampaignBaseAPIView
 from .serializers import (ContentElementSerializer,
     CreateContentElementSerializer)
 from ..compat import reverse
-from ..helpers import flatten
 from ..mixins import AccountMixin, get_segments_available
 
 
@@ -29,6 +28,15 @@ class CampaignContentMixin(AccountMixin):
     Queryset to present practices in 2d matrix of segments and tiles.
     """
     campaign_url_kwarg = 'campaign'
+
+    @property
+    def db_path(self):
+        if not hasattr(self, '_db_path'):
+            self._db_path = self.kwargs.get(self.path_url_kwarg, '').replace(
+                self.URL_PATH_SEP, self.DB_PATH_SEP)
+            if not self._db_path.startswith(self.DB_PATH_SEP):
+                self._db_path = self.DB_PATH_SEP + self._db_path
+        return self._db_path
 
     @property
     def campaign(self):
@@ -119,7 +127,7 @@ class CampaignContentMixin(AccountMixin):
                     practices[prefix][0].update({
                         'segments': list(set(segments + [segment_prefix]))})
 
-        elements = flatten(by_tiles, sort_by_key=False)
+        elements = flatten_content_tree(by_tiles, sort_by_key=False)
         headings = [element['slug'] for element in elements
             if 'title' not in element]
 
@@ -139,7 +147,7 @@ class CampaignContentMixin(AccountMixin):
             if slug:
                 element.update(headings_by_slug.get(slug, {}))
 
-        elements = flatten(by_tiles)
+        elements = flatten_content_tree(by_tiles)
         return elements
 
 
@@ -177,10 +185,8 @@ class CampaignAPIView(CampaignBaseAPIView):
             "path": "/metal/boxes-and-enclosures",
             "title": "Boxes & enclosures",
             "indent": 1,
+            "pagebreak": true,
             "tags": [
-              "industry",
-              "pagebreak",
-              "public",
               "scorecard"
             ]
           }
@@ -464,7 +470,7 @@ energy-efficiency HTTP/1.1
                         parent = PageElement.objects.create(
                             account=self.account,
                             title=part.get('title'),
-                            extra=json.dumps({"tags":["pagebreak"]})
+                            extra=json.dumps({"pagebreak":True})
                               if not grand_parent else None)
                     if grand_parent:
                         rank = RelationShip.objects.filter(

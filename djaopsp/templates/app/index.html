@@ -2,49 +2,72 @@
 
 {% block app_content %}
 <div class="container">
+  <div class="row text-center">
+    {% if profile.picture %}
+    <div class="col-4 mt-3">
+      <img class="logo" src="{{profile.picture}}">
+    </div>
+    <div class="col-8 text-left mt-3">
+      <h1>{{profile.printable_name}}</h1>
+    </div>
+    {% else %}
+    <div class="col-12 mt-3">
+      <h1>{{profile.printable_name}}</h1>
+    </div>
+    {% endif %}
+  </div>
   <div class="row">
-    <div class="col-md-6">
-      <div class="card bg-white text-dark mt-4">
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>Practices Sharing</h2>
+          <h2>{% trans %}Knowledge Sharing{% endtrans %}</h2>
           <p>
+{% trans %}
+Under this section, you will find industry-specific practices,
+and member-only content.
+{% endtrans %}
           </p>
           <div class="text-center">
-            <a href="{{urls.summary_index}}">Browse</a>
+            <a id="browse-practices" href="{{urls.pages_index}}">{% trans %}Browse{% endtrans %}</a>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card bg-white text-dark mt-4">
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>Newsfeed</h2>
+          <h2>{% trans %}Newsfeed{% endtrans %}</h2>
           <p>
+{% trans %}
 There are no news at this point.
+{% endtrans %}
           </p>
         </div>
       </div>
     </div>
   </div>
   <div class="row">
-    <div class="col-md-6">
-      <div class="card bg-white text-dark mt-4">
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>Reporting</h2>
-          {% if latest_assessment %}
+          <h2>{% trans %}Reporting{% endtrans %}</h2>
+          <p>
+{% trans %}
+If you were prompted to take, or update, an assessment,
+start here.
+{% endtrans %}
+          </p>
+          {% if latest_completed_assessment %}
           <div>
             <p>
-Last completed on <date>{{latest_assessment.created_at}}</date> by <author>{{latest_assessment.author}}</author>.
+Last completed on <date>{{latest_completed_assessment.created_at}}</date>{% if latest_completed_assessment.author %} by <author>{{latest_completed_assessment.author}}</author>{% endif %}.
             </p>
             <div class="row">
-              <div class="col-4">
-                <a href="{{urls.scorecard_history}}">Historical reports</a>
+              <div class="col-sm-6">
+                <a href="{{urls.scorecard_history}}">{% trans %}Historical reports{% endtrans %}</a>
               </div>
-              <div class="col-4">
-                <a href="{{urls.scorecard_redirect}}">Update</a>
-              </div>
-              <div class="col-4">
-                <a href="{{urls.share_latest}}">Share latest</a>
+              <div class="col-sm-6">
+                <a id="scorecard-update" href="{{urls.scorecard_redirect}}">{% trans %}Update{% endtrans %}</a>
               </div>
             </div>
           </div>
@@ -54,7 +77,7 @@ Last completed on <date>{{latest_assessment.created_at}}</date> by <author>{{lat
             </p>
             <div class="row">
               <div class="offset-4 col-4 text-center">
-                <a class="btn btn-primary" href="{{urls.scorecard_redirect}}">Get started</a>
+                <a id="scorecard-create" class="btn btn-primary" href="{{urls.scorecard_redirect}}">Get started</a>
               </div>
             </div>
           </div>
@@ -62,46 +85,76 @@ Last completed on <date>{{latest_assessment.created_at}}</date> by <author>{{lat
         </div>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card bg-white text-dark mt-4">
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>Tracking metrics</h2>
+          <h2>{% trans %}Tracking{% endtrans %}</h2>
+          <p>
+{% trans %}
+Add data metrics all year long so you can report quantifiable improvements.
+{% endtrans %}
+          </p>
           <div class="offset-4 col-4 text-center">
-            <a href="{{urls.assess_metrics}}">Enter</a>
+            <a href="{{urls.track_metrics}}">Enter</a>
           </div>
         </div>
       </div>
     </div>
   </div>
   <div class="row">
-    <div class="col-md-6">
-      <div class="card bg-white text-dark mt-4">
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>Requesting 3rd party reports</h2>
+          <h2>{% trans %}Portfolios{% endtrans %}</h2>
           <p>
-            This is a paid feature.
+{% trans %}
+Manage reporting organizations, invites, progress, and assessments.
+{% endtrans %}
           </p>
-          <div class="offset-4 col-4 text-center">
-            <a href="{{urls.reporting}}">Manage</a>
+          <p>
+This is a <a href="{{'/pricing/'|site_prefixed}}">paid feature</a>.
+          </p>
+          <div class="col-12 text-center">
+            {% if urls.reporting %}
+            <a id="analyze-portfolios" href="{{urls.reporting}}">Analyze</a>
+            {% else %}
+            <span class="fa fa-lock"></span>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card bg-white text-dark mt-4">
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>Assessment campaigns</h2>
+          <h2>{% trans %}Assessments{% endtrans %}</h2>
           <p>
-            This is a feature only available to the site owner.
+{% trans %}
+Create practices and organize them in assessment campaigns.
+{% endtrans %}
           </p>
-          <div class="offset-4 col-4 text-center">
-            <a id="edit-campaigns"
-               href="{{urls.survey_campaign_list}}">Edit</a>
+          <p>
+This is a <a href="{{'/pricing/'|site_prefixed}}">paid feature</a>.
+          </p>
+          <div class="row">
+            {% if urls.survey_campaign_list and urls.pages_editables_index %}
+            <div class="col-6 text-center">
+              <a id="edit-campaigns"
+                 href="{{urls.survey_campaign_list}}">{% trans %}Edit assessments{% endtrans %}</a>
+            </div>
+            <div class="col-6 text-center">
+              <a id="edit-practices"
+                 href="{{urls.pages_editables_index}}">{% trans %}Edit practices{% endtrans %}</a>
+            </div>
+            {% else %}
+            <div class="col-12 text-center">
+              <span class="fa fa-lock"></span>
+            </div>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-</div>
+  </div>{# .row #}
+</div>{# .container #}
 {% endblock %}

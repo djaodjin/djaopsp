@@ -6,16 +6,34 @@
   "model" : "djaopsp.account", "pk" : 1
 },
 { "fields" : {
-    "slug": "djaodjin",
+    "slug": "djaopsp",
     "full_name": "DjaoDjin"
   },
   "model" : "djaopsp.account", "pk" : 2
 },
 { "fields" : {
+    "slug": "alliance",
+    "full_name": "Alliance"
+  },
+  "model" : "djaopsp.account", "pk" : 3
+},
+{ "fields" : {
+    "slug": "energy-utility",
+    "full_name": "Energy Utility"
+  },
+  "model" : "djaopsp.account", "pk" : 4
+},
+{ "fields" : {
+    "slug": "janice-shop",
+    "full_name": "Janice Shop"
+  },
+  "model" : "djaopsp.account", "pk" : 5
+},
+{ "fields" : {
     "slug": "supplier-1",
     "full_name": "S1 - Tamerin (Demo)"
   },
-  "model" : "djaopsp.account", "pk" : 3
+  "model" : "djaopsp.account", "pk" : 6
 },
 { "fields": {
     "slug": "assessment",
@@ -85,15 +103,26 @@
     "description" : "Assessment of practices around sustainability",
     "account" : 1,
     "active": true,
-    "extra": ""
+    "extra": "{\"visibility\":[\"public\"]}"
   },
   "model" : "survey.campaign", "pk" : 1
+},
+{ "fields" : {
+    "slug" : "framework",
+    "title" : "Cybersecurity framework",
+    "created_at": "2022-01-01",
+    "description" : "Assessment of practices around cybersecurity",
+    "account" : 3,
+    "active": true,
+    "extra": "{\"visibility\":[\"tier1-members\"]}"
+  },
+  "model" : "survey.campaign", "pk" : 2
 },
 {
   "fields": {
     "title": "Core Environmental, Social and Governance Assessment",
     "slug": "rfx-core",
-    "extra": "{\"tags\":[\"pagebreak\"]}",
+    "extra": "{\"pagebreak\":true}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 1
@@ -328,6 +357,7 @@
   "fields": {
     "title": "Metal structures & equipment",
     "slug": "metal",
+    "extra": "{\"visibility\":[\"public\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 10
@@ -336,7 +366,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "extra": "{\"tags\":[\"pagebreak\"]}",
+    "extra": "{\"pagebreak\":true,\"searchable\":true,\"visibility\":[\"public\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 11
@@ -370,7 +400,7 @@
   "fields": {
     "title": "Energy Efficiency",
     "slug": "energy-efficiency",
-    "extra": "{\"tags\":[\"pagebreak\"\"]}",
+    "extra": "{\"pagebreak\":true}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 13
@@ -448,8 +478,66 @@
   },
   "model": "survey.EnumeratedQuestions", "pk": 6
 },
-
-
+{
+  "fields": {
+    "title": "Utility procurement",
+    "slug": "procurement",
+    "extra": "{\"pagebreak\":true,\"searchable\":true,\"visibility\":[\"tier1-members\"]}",
+    "account": 3
+  },
+  "model": "pages.PageElement", "pk": 17
+},
+{
+  "fields": {
+    "orig_element": 17,
+    "dest_element": 12,
+    "rank": 4
+  },
+  "model": "pages.RelationShip", "pk": 17
+},
+{
+  "fields": {
+    "path": "/procurement/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
+    "content": 16,
+    "default_unit": 1
+  },
+  "model": "survey.Question", "pk": 7
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 7,
+    "rank": 7
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 7
+},
+{
+  "fields": {
+    "title": "Cybersecurity framework",
+    "slug": "framework",
+    "extra": "{\"pagebreak\":true,\"visibility\":[\"tier1-members\"]}",
+    "account": 3
+  },
+  "model": "pages.PageElement", "pk": 18
+},
+{
+  "fields": {
+    "title": "Alliance Tier1 Member Knowledge Base",
+    "slug": "tier1-members",
+    "extra": "{\"searchable\":true,\"visibility\":[\"tier1-members\"]}",
+    "account": 3
+  },
+  "model": "pages.PageElement", "pk": 19
+},
+{
+  "fields": {
+    "title": "Alliance Tier2 Member Knowledge Base",
+    "slug": "tier2-members",
+    "extra": "{\"searchable\":true,\"visibility\":[\"tier2-members\"]}",
+    "account": 3
+  },
+  "model": "pages.PageElement", "pk": 20
+},
 
 {
   "fields": {

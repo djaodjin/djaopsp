@@ -11,31 +11,23 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 
 from ...views.app import AppView
-from ...views.assess import AssessMetricsView, AssessPracticesView
+from ...views.assess import TrackMetricsView, AssessPracticesView
 from ...views.content import ContentDetailView, ContentIndexView
 from ...views.reporting import ReportsRequestedView
-from ...views.scorecard import (ScorecardView, ScorecardHistoryView,
+from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
     ScorecardRedirectView)
 
 
 urlpatterns = [
-    path('app/<slug:profile>/', include('djaopsp.urls.views.editors')),
     path('app/info/<path:path>/',
-         ContentDetailView.as_view(), name='pages_edit_element'),
+         ContentDetailView.as_view(), name='pages_element'),
     path('app/info/',
-         ContentIndexView.as_view(), name='summary_index'),
-    path(r'app/<slug:profile>/assess/metrics/',
-         AssessMetricsView.as_view(), name='assess_metrics'),
-    path(r'app/<slug:profile>/assess/<slug:sample>/<path:path>/',
-         AssessPracticesView.as_view(), name='assess_practices'),
-    path(r'app/<slug:profile>/scorecard/history/',
-         ScorecardHistoryView.as_view(), name='scorecard_history'),
-    path(r'app/<slug:profile>/scorecard/<slug:sample>/',
-         ScorecardView.as_view(), name='scorecard'),
-    path(r'app/<slug:profile>/scorecard/',
-         ScorecardRedirectView.as_view(), name='scorecard_redirect'),
+         ContentIndexView.as_view(), name='pages_index'),
+    path('app/<slug:profile>/', include('djaopsp.urls.views.reports')),
+    path('app/<slug:profile>/', include('djaopsp.urls.views.editors')),
     path(r'app/<slug:profile>/reporting/',
         ReportsRequestedView.as_view(), name='reporting'),
+
     path(r'app/<slug:profile>/',
          AppView.as_view(), name='app'),
     path(r'app/',

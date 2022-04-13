@@ -17,6 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 APP_NAME = os.path.basename(BASE_DIR)
 
 DEBUG = True
+FEATURES_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ('*',)
 
@@ -59,7 +60,6 @@ INSTALLED_APPS = DEBUG_APPS + (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'deployutils.apps.django',
-    'django_assets',
     'rest_framework',
     'survey',
     'pages',
@@ -230,9 +230,8 @@ ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'django_assets.finders.AssetsFinder'
+    'django.contrib.staticfiles.finders.FileSystemFinder',
 )
 
 ASSETS_MAP = {
@@ -369,37 +368,55 @@ DEPLOYUTILS = {
         'donny': {
             'username': 'donny',   # Profile manager for TSP
             'roles': {
-                'manager': [
-                    {'slug': APP_NAME,
-                     'printable_name': APP_NAME}]},
+                'manager': [{
+                    'slug': APP_NAME,
+                    'printable_name': APP_NAME,
+                }]},
             'site': {'email': 'fixtures@djaodjin.com'}},
         'kathryn': {
             'username': 'kathryn', # Profile manager for alliance
             'roles': {
-                'manager': [
-                    {'slug': 'alliance',
-                     'printable_name': 'Alliance'}]},
+                'manager': [{
+                    'slug': 'alliance',
+                    'printable_name': 'Alliance',
+                    "subscriptions": [{
+                        "plan": "managed",
+                        "ends_at": "2022-12-31T23:59:59Z"
+                    }],
+                }]},
             'site': {'email': 'fixtures@djaodjin.com'}},
         'alice': {
-            'username': 'alice',   # Profile manager for utility member
+            'username': 'alice',   # Profile manager for alliance tier1 member
             'roles': {
-                'manager': [
-                    {'slug': 'energy-utility',
-                     'printable_name': 'Energy utility'}]},
+                'manager': [{
+                    'slug': 'energy-utility',
+                    'printable_name': 'Energy utility',
+                    "subscriptions": [{
+                        "plan": "tier1-members",
+                        "ends_at": "2022-12-31T23:59:59Z"
+                    }],
+                }]},
             'site': {'email': 'fixtures@djaodjin.com'}},
         'janice': {
-            'username': 'janice',  # Profile manager for affiliate member
+            'username': 'janice',  # Profile manager for alliance tier2 member
             'roles': {
-                'manager': [
-                    {'slug': 'janice-shop',
-                     'printable_name': 'Janice Shop'}]},
+                'manager': [{
+                    'slug': 'janice-shop',
+                    'printable_name': 'Janice Shop',
+                    "subscriptions": [{
+                        "plan": "tier2-members",
+                        "ends_at": "2022-12-31T23:59:59Z"
+                    }],
+                }]},
             'site': {'email': 'fixtures@djaodjin.com'}},
         'steve': {
             'username': 'steve',   # Profile manager for registered organization
             'last_visited': '2017-01-01T00:00:00.000Z',
             'roles': {
-                'manager': [{'slug': 'supplier-1',
-                    'printable_name': 'Steve Shop'}]},
+                'manager': [{
+                    'slug': 'supplier-1',
+                    'printable_name': 'Steve Shop'
+                }]},
             'site': {'email': 'fixtures@djaodjin.com'}},
         'andy': {
             'username': 'andy',
@@ -418,7 +435,6 @@ DEPLOYUTILS = {
     'ALLOWED_NO_SESSION': [
         STATIC_URL,
         reverse_lazy('login'),
-        reverse_lazy('registration_register'),
         reverse_lazy('homepage')]
 }
 
@@ -480,3 +496,9 @@ SURVEY = {
     'ACCOUNT_URL_KWARG': 'profile',
     'CONTENT_MODEL': 'pages.PageElement',
 }
+
+# djaopsp
+# -------
+SCORE_CALCULATORS = {}
+UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members'])
+UNLOCK_EDITORS = set(['managed'])

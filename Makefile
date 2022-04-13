@@ -21,6 +21,7 @@ PIP           := $(binDir)/pip
 PYTHON        := $(binDir)/python
 SASSC         := $(binDir)/sassc
 SQLITE        ?= sqlite3
+WEBPACK       ?= $(libDir)/node_modules/.bin/webpack
 
 # Django 1.7,1.8 sync tables without migrations by default while Django 1.9
 # requires a --run-syncdb argument.
@@ -54,9 +55,12 @@ DJAODJIN_SECRET_KEY ?= $(shell $(PYTHON) -c 'import sys ; from random import cho
 all:
 	@echo "Nothing to be done for 'make'."
 
+
 build-assets: $(ASSETS_DIR)/cache/base.css \
-                $(ASSETS_DIR)/cache/email.css
-	cd $(srcDir) && DEBUG=1 $(PYTHON) manage.py assets build
+                $(ASSETS_DIR)/cache/email.css \
+                webpack-conf-paths.json
+	cd $(srcDir) && $(WEBPACK)
+
 
 clean: clean-dbs
 	[ ! -f $(srcDir)/package-lock.json ] || rm $(srcDir)/package-lock.json
@@ -104,30 +108,26 @@ vendor-assets-prerequisites: $(installTop)/.npm/$(APP_NAME)-packages
 
 
 $(installTop)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
-	$(installFiles) $^ $(installTop)
-	$(NPM) install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp --prefix $(installTop)
+	$(installFiles) $^ $(libDir)
+	$(NPM) install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp --prefix $(libDir)
 	install -d $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/bootstrap/dist/js/bootstrap.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/chart.js/dist/chart.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/dropzone/dist/dropzone.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/font-awesome/css/font-awesome.css $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/font-awesome/fonts/* $(ASSETS_DIR)/fonts
-	$(installFiles) $(installTop)/node_modules/jquery/dist/jquery.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/moment/moment.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/moment-timezone/builds/moment-timezone-with-data.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/popper.js/dist/umd/popper.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/popper.js/dist/umd/popper-utils.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/rangy/lib/rangy-core.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/respond.js/src/respond.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/trip.js/dist/trip.css $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/trip.js/dist/trip.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/typeahead.js/dist/typeahead.bundle.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/vue/dist/vue.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/vue-infinite-loading/dist/vue-infinite-loading.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/vue-resource/dist/vue-resource.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(installTop)/node_modules/lodash/lodash.js $(ASSETS_DIR)/vendor
-	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../node_modules/.bin/sass sassc)
+	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/chart.js/dist/chart.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/font-awesome/css/font-awesome.css $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/font-awesome/fonts/* $(ASSETS_DIR)/fonts
+	$(installFiles) $(libDir)/node_modules/jquery/dist/jquery.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/moment/moment.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/moment-timezone/builds/moment-timezone-with-data.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/popper.js/dist/umd/popper.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/popper.js/dist/umd/popper-utils.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/vue/dist/vue.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/vue-infinite-loading/dist/vue-infinite-loading.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/vue-resource/dist/vue-resource.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/lodash/lodash.js $(ASSETS_DIR)/vendor
+	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/sass sassc)
+	[ -f $(binDir)/swagger-cli ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/swagger-cli swagger-cli)
 
 
 schema.yml:
@@ -145,6 +145,14 @@ $(ASSETS_DIR)/cache/base.css: \
 $(ASSETS_DIR)/cache/email.css: \
                 $(wildcard $(srcDir)/assets/scss/email/*.scss)
 	cd $(srcDir) && $(binDir)/sassc assets/scss/email/email.scss $@
+
+
+webpack.config.js: $(srcDir)/webpack.config.js
+	$(installFiles) $< $@
+
+
+webpack-conf-paths.json: webpack.config.js
+	cd $(srcDir) && $(PYTHON) manage.py generate_webpack_paths -o $@
 
 
 $(srcDir)/djaopsp/locale/fr/LC_MESSAGES/django.mo: \
@@ -166,11 +174,10 @@ install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \
 	install -d $(DESTDIR)$(LOCALSTATEDIR)/log/gunicorn
 	[ -d $(DESTDIR)$(LOCALSTATEDIR)/run ] || install -d $(DESTDIR)$(LOCALSTATEDIR)/run
 
-
 # Implementation Note:
 # We use [ -f file ] before install here such that we do not blindly erase
 # already present configuration files with template ones.
-$(DESTDIR)$(SYSCONFDIR)/%/site.conf: $(srcDir)/etc/site.conf
+$(DESTDIR)$(CONFIG_DIR)/site.conf: $(srcDir)/etc/site.conf
 	install -d $(dir $@)
 	[ -f $@ ] || \
 		sed -e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' \
@@ -178,17 +185,16 @@ $(DESTDIR)$(SYSCONFDIR)/%/site.conf: $(srcDir)/etc/site.conf
 			-e 's,%(APP_NAME)s,$(APP_NAME),' \
 			-e "s,%(ADMIN_EMAIL)s,$(MY_EMAIL)," \
 			-e 's,%(installTop)s,$(installTop),' \
-			-e "s,%(DB_NAME)s,djaodjin," \
+			-e "s,%(DB_NAME)s,$(APP_NAME)," \
 			-e "s,%(binDir)s,$(binDir)," $< > $@
 
-$(DESTDIR)$(SYSCONFDIR)/%/credentials: $(srcDir)/etc/credentials
+$(DESTDIR)$(CONFIG_DIR)/credentials: $(srcDir)/etc/credentials
 	install -d $(dir $@)
-	[ -f $@ ] || \
-		sed -e "s,\%(SECRET_KEY)s,$(SECRET_KEY)," \
-			-e "s,\%(DJAODJIN_SECRET_KEY)s,$(DJAODJIN_SECRET_KEY)," \
+	[ -e $@ ] || sed \
+		-e "s,\%(SECRET_KEY)s,`$(PYTHON) -c 'import sys ; from random import choice ; sys.stdout.write("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^*-_=+") for i in range(50)]))'`," \
 			$< > $@
 
-$(DESTDIR)$(SYSCONFDIR)/%/gunicorn.conf: $(srcDir)/etc/gunicorn.conf
+$(DESTDIR)$(CONFIG_DIR)/gunicorn.conf: $(srcDir)/etc/gunicorn.conf
 	install -d $(dir $@)
 	[ -e $@ ] || sed \
 		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' \

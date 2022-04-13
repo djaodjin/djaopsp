@@ -15,7 +15,7 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from openpyxl.utils import get_column_letter
-from pages.views.editables import PageElementEditableView
+from pages.views.elements import PageElementEditableView
 from survey.mixins import CampaignMixin
 
 from ..api.campaigns import CampaignContentMixin
@@ -44,11 +44,9 @@ class CampaignEditView(CampaignMixin, PageElementEditableView):
             # Editor
             urls.update({
                 'api_practice_typeahead': reverse(
-                    'pages_api_edit', args=(self.account,)),
-                'pages': {
-                    'api_content': reverse('api_campaign_editable_content',
+                    'pages_api_editables_index', args=(self.account,)),
+                'api_content': reverse('api_campaign_editable_content',
                         args=(self.account, campaign_slug)),
-                },
                 'campaign_download': reverse('campaign_download',
                     args=(self.account, campaign_slug)),
                 'api_alias_node': reverse('pages_api_alias_node', args=(

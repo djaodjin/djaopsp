@@ -1,0 +1,20 @@
+# Copyright (c) 2022, DjaoDjin inc.
+# see LICENSE.
+
+from django.conf import settings
+from pages.api.elements import (PageElementAPIView as PageElementBaseAPIView,
+PageElementEditableListAPIView as PageElementEditableListBaseAPIView)
+
+from ..mixins import VisibilityMixin
+
+
+class PageElementAPIView(VisibilityMixin,
+                         PageElementBaseAPIView):
+    """
+    """
+
+
+class PageElementEditableListAPIView(VisibilityMixin,
+                         PageElementEditableListBaseAPIView):
+
+    account_url_kwarg = 'profile'

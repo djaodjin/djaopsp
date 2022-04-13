@@ -51,6 +51,7 @@ def environment(**options):
     if settings.DEBUG:
         env.filters['addslashes'] = django.template.defaultfilters.addslashes
         env.globals.update({
+            'DEBUG': settings.DEBUG,
             'FEATURES_DEBUG': settings.FEATURES_DEBUG,
             'url': reverse,
             'cycle': django.template.defaulttags.cycle,

@@ -5,29 +5,32 @@ import logging
 
 from django.views.generic import TemplateView
 
-from ..mixins import AccountMixin
+from ..mixins import AccountMixin, ReportMixin
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-class AssessMetricsView(AccountMixin, TemplateView):
+class TrackMetricsView(AccountMixin, TemplateView):
     """
-    Profile assessment page
+    Profile metrics page
     """
-    template_name = 'app/assess/metrics/ghg-emissions.html'
+    template_name = 'app/track/index.html'
 
     def get_template_names(self):
         candidates = []
-        candidates += super(AssessMetricsView, self).get_template_names()
+        metric = self.kwargs.get('metric')
+        if metric:
+            candidates += ['app/track/%s.html' % str(metric)]
+        candidates += super(TrackMetricsView, self).get_template_names()
         return candidates
 
     def get_context_data(self, **kwargs):
-        context = super(AssessMetricsView, self).get_context_data(**kwargs)
+        context = super(TrackMetricsView, self).get_context_data(**kwargs)
         return context
 
 
-class AssessPracticesView(AccountMixin, TemplateView):
+class AssessPracticesView(ReportMixin, TemplateView):
     """
     Profile assessment page
     """

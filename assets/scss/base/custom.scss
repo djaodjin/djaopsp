@@ -134,28 +134,21 @@ h2.icon-row-title {
   height:120px;
 }
 
-div.improvement-planning {
-  position: fixed;
-  width: 100%;
-  margin: 0;
-  bottom: -34px;
-  left: 0;
-  z-index: 1; // displays under footer otherwise
-}
-
-div.improvement-planning>div {
+.icon-inner {
   text-align: center;
-  position:relative;
-  top:-34px;
-  width: 50%;
-  min-width: 555px;
-  max-width: 600px;
-  margin: auto;
-  pointer-events: none;
+  vertical-align: middle;
+  background-color:transparent;
+  border:none;
+  border-radius: 12px;
+  color: white;
+  height: 90px;
+  width: 90px;
+  padding: 5px 0;
 }
 
-div.improvement-planning>div>button {
-  pointer-events: all;
+.grey{
+  color: white;
+  background-color:#AAAAAA !important;
 }
 
 .improve-link {
@@ -2007,13 +2000,6 @@ color: #000;
 .faq-list ul li
 {
     margin: 15px 0 !important;
-}
-
-a.header-anchor {
-  opacity: 0;
-}
-a.header-anchor:hover{
-  opacity: 1.0;
 }
 
 .important-note {

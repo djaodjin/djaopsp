@@ -2,5 +2,8 @@
 *~
 *.xcodeproj
 .DS_Store
+db.sqlite
+package-lock.json
+webpack-conf-paths.json
 htdocs
 htdocs/media/

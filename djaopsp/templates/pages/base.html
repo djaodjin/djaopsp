@@ -1,8 +1,33 @@
 {% extends "base.html" %}
 
+{% block content %}
+<section  id="app" class="backdrop mb-4">
+  {% include "pages/_breadcrumbs.html" %}
+  {% block pages_content %}
+  {% endblock %}
+</section>
+{% endblock %}
+
 {% block bodyscripts %}
-<script type="text/javascript" src="{{'/static/cache/vendor-vue.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/cache/editors.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/moment.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/moment-timezone-with-data.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/vue-infinite-loading.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/lodash.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/typeahead.bundle.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/dropzone.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/jquery-ui.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/rangy-core.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/hallo.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/vue-typeahead.common.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-editor.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-upload.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-sidebar-gallery.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-pages-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-survey-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/editors-vue.js'|asset}}"></script>
 <script type="text/javascript">
 Vue.prototype.$itemsPerPage =
     {% if items_per_page %}{{items_per_page}}{% else %}25{% endif %};

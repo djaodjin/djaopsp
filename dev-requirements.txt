@@ -1,13 +1,17 @@
 # Dev and Deploy
+pylint==2.5.3
+pylint-django==2.0.15
+
 # To run with DEBUG=1
 coverage==4.5.4
 django-debug-toolbar==3.2.2
 django-extensions==3.0.2
 Faker==2.0.0
-jsmin==2.2.2
-pylint==2.5.3
-pylint-django==2.0.15
+sqlparse==0.4.2 # required by django-debug-toolbar without being a prerequisite
+supervisor==4.2.0
+
+# To generate documentation
+pyyaml
 Sphinx==3.1.2
 sphinxcontrib-httpdomain==1.7.0
-sqlparse==0.3.0 # required by django-debug-toolbar without being a prerequisite
-supervisor==4.2.0
+uritemplate

@@ -1,0 +1,39 @@
+{% extends "app/scorecard/base.html" %}
+
+{% block scorecard_content %}
+<section id="redirects" class="container py-4">
+  <div class="bg-white" style="min-height:30rem;">
+  <div class="row">
+    <div class="col-12 offset-md-3 col-md-6 my-4 py-4">
+      {% for redirect in redirects %}
+      <div class="text-center">
+        <a id="{{redirect.2}}" class="btn btn-primary w-100 mt-2"
+           href="{{redirect.0}}">Update {{redirect.1}} report ...</a>
+      </div>
+      {% endfor %}
+
+      <hr />
+      <div class="text-center mt-4">
+        <div class="dropdown">
+          <button id="campaign-btn" class="btn btn-secondary dropdown-toggle"
+                  type="button" data-toggle="dropdown" data-flip="false">
+            <span class="text">Start a new assessment</span>
+          </button>
+          <ul class="dropdown-menu" role="menu"
+              aria-labelledby="campaign-selector">
+            {% for campaign in campaigns %}
+            <li class="dropdown-item">
+              <form action="." method="post">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                <button type="submit" class="btn" name="campaign" value="{{campaign.slug}}" role="menuitem" tabindex="-1">{{campaign.title}}</button>
+              </form>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+{% endblock %}
