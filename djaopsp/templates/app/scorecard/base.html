@@ -5,23 +5,13 @@
 {% endblock %}
 {% endblock %}
 
-{% block bodyscripts %}
-<script type="text/javascript" src="{{'/static/vendor/jquery.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/vue.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/js/djaodjin-resources.js'|asset}}"></script>
+{% block app_bodyscripts %}
+{% if ASSETS_DEBUG %}
+<script type="text/javascript" src="{{'/static/vendor/chart.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/assess-vue.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/js/scorecard-vue.js'|asset}}"></script>
-
-<script type="text/javascript">
-Vue.prototype.$itemsPerPage =
-    {% if items_per_page %}{{items_per_page}}{% else %}25{% endif %};
-Vue.prototype.$urls = {% if urls %}{{urls|to_json}}{% else %}{}{% endif %};
-
-var app = new Vue({
-  el: '#app',
-  delimiters: ["[[","]]"],
-});
-</script>
+{% else %}
+<script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
+{% endif %}
 {% block scorecard_scripts %}{% endblock %}
 {% endblock %}

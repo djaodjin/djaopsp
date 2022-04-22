@@ -3,8 +3,11 @@
 
 import logging
 
+from deployutils.helpers import update_context_urls
 from django.views.generic import TemplateView
+from pages.mixins import TrailMixin
 
+from ..compat import reverse
 from ..mixins import AccountMixin, ReportMixin
 
 
@@ -30,11 +33,20 @@ class TrackMetricsView(AccountMixin, TemplateView):
         return context
 
 
-class AssessPracticesView(ReportMixin, TemplateView):
+class AssessPracticesView(ReportMixin, TrailMixin, TemplateView):
     """
     Profile assessment page
     """
     template_name = 'app/assess/index.html'
+    breadcrumb_url = 'assess_practices'
+
+    def get_reverse_kwargs(self):
+        """
+        List of kwargs taken from the url that needs to be passed through
+        to ``reverse``.
+        """
+        return [self.account_url_kwarg, self.sample_url_kwarg,
+            self.path_url_kwarg]
 
     def get_template_names(self):
         candidates = ['app/assess/%s.html' % self.sample.campaign]
@@ -43,4 +55,9 @@ class AssessPracticesView(ReportMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AssessPracticesView, self).get_context_data(**kwargs)
+        update_context_urls(context, {
+            'context_base': reverse('pages_index'),
+            'api_content': reverse('api_sample_content',
+                args=(self.account, self.sample, self.full_path.lstrip(self.DB_PATH_SEP)))
+        })
         return context

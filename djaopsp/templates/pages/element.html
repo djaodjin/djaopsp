@@ -150,11 +150,7 @@ The Sustainability Project (TSP). Please use the following attribution:
 {% if edit_perm %}
 <script type="text/javascript" charset="utf-8">
 assetsUploadUrl = "{% if urls.api_upload_assets %}{{urls.api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_prefixed}}{% endif %}";
-</script>
-{% assets "css_editor" %}
-<link rel="stylesheet" media="screen" href="{{ASSET_URL}}" />
-{% endassets %}
-<script type="text/javascript" charset="utf-8">
+
 $(document).ready(function(){
 	$(".editable").editor({
 		baseUrl: "{{urls.api_page_element_base}}",

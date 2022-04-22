@@ -46,7 +46,8 @@ class ScorecardRedirectView(AccountMixin, FormMixin, TemplateResponseMixin,
                     slug=str(self.account))
             # XXX Whenever Sample.campaign_id is null, the survey APIs
             # will not behave properly.
-            sample = Sample.objects.create(account=account, campaign=campaign)
+            sample, created = Sample.objects.get_or_create(
+                account=account, campaign=campaign, is_frozen=False)
         return sample
 
     def form_valid(self, form):

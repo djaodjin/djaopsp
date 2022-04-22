@@ -14,7 +14,7 @@
       </p>
     </div>
   </div>
-  {% if user.is_authenticated %}
+  {% if request|is_authenticated %}
   <form id="form_comment" class="mt-2" action="." method="POST"
         @submit.prevent="submitComment($event)">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">

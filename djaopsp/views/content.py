@@ -24,13 +24,25 @@ class ContentIndexView(PageElementView):
 class ContentDetailView(PageElementView):
 
     account_url_kwarg = 'profile'
-    template_name = 'pages/segment.html'
 
 
 class EditablesIndexView(AccountMixin, PageElementEditableView):
     """
     """
+    def get_reverse_kwargs(self):
+        """
+        List of kwargs taken from the url that needs to be passed through
+        to ``reverse``.
+        """
+        return [self.account_url_kwarg, self.path_url_kwarg]
+
 
 class EditablesDetailView(AccountMixin, PageElementEditableView):
     """
     """
+    def get_reverse_kwargs(self):
+        """
+        List of kwargs taken from the url that needs to be passed through
+        to ``reverse``.
+        """
+        return [self.account_url_kwarg, self.path_url_kwarg]

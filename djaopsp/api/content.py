@@ -14,7 +14,6 @@ class PageElementAPIView(VisibilityMixin,
     """
 
 
-class PageElementEditableListAPIView(VisibilityMixin,
-                         PageElementEditableListBaseAPIView):
+class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
 
     account_url_kwarg = 'profile'

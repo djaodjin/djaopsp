@@ -10,7 +10,7 @@ from survey.mixins import SampleMixin
 from survey.models import Campaign, Sample
 from survey.utils import get_account_model, get_question_model
 
-from .utils import get_account_model
+from .utils import get_account_model, get_segments_available
 
 
 class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
@@ -80,7 +80,6 @@ class ReportMixin(AccountMixin, SampleMixin):
             for segment in get_segments_available(
                     self.sample.campaign, visibility=self.visibility,
                     owners=self.accessible_profiles):
-                print("XXX segment=%s" % str(segment))
                 searchable = segment.get('extra', {}).get('searchable', False)
                 pagebreak = segment.get('extra', {}).get('pagebreak', False)
                 if pagebreak and not searchable:
@@ -92,24 +91,3 @@ class ReportMixin(AccountMixin, SampleMixin):
         context = super(ReportMixin, self).get_context_data(**kwargs)
         context.update({'sample': self.sample})
         return context
-
-
-
-def get_segments_available(campaign, visibility=None, owners=None):
-    """
-    All segments that are candidates based on a campaign.
-    """
-    DB_PATH_SEP = '/'
-    candidates = set([])
-    for path in get_question_model().objects.filter(
-        enumeratedquestions__campaign=campaign).values_list(
-        'path', flat=True):
-        candidates |= set([path.strip(DB_PATH_SEP).split(DB_PATH_SEP)[0]])
-    if candidates:
-        roots = PageElement.objects.get_roots(
-            visibility=visibility, accounts=owners).filter(
-            slug__in=candidates).order_by('title')
-        content_tree = build_content_tree(roots=roots, prefix=DB_PATH_SEP,
-            cut=ContentCut(), visibility=visibility, accounts=owners)
-        return flatten_content_tree(content_tree)
-    return []

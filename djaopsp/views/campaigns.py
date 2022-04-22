@@ -25,6 +25,8 @@ from ..helpers import as_valid_sheet_title
 
 class CampaignEditView(CampaignMixin, PageElementEditableView):
 
+    account_url_kwarg = 'profile'
+
     def get_template_names(self):
         if self.is_prefix:
             # It is not a leaf, let's return the list view

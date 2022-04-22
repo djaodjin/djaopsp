@@ -32,7 +32,8 @@ $green-level-4-color: #FFD700;
 }
 
 .progressbar-container {
-  width: 600px;
+  width: 100%;
+  display: inline-block;
   margin-left: auto;
   margin-right: auto;
 }
@@ -44,7 +45,7 @@ $green-level-4-color: #FFD700;
 }
 .progressbar li {
   list-style-type: none;
-  width: 16%;
+  width: 33%;
   float: left;
   font-size: 12px;
   text-align: center;

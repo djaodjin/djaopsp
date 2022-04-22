@@ -4,7 +4,7 @@ Vue.component('campaign-questions-list', {
     ],
     data: function() {
         return {
-            url: this.$urls.pages.api_content,
+            url: this.$urls.api_content,
             segmentsUrl: this.$urls.api_editable_segments,
             segments: [],
             addBelowIndex: -1,
@@ -19,6 +19,9 @@ Vue.component('campaign-questions-list', {
     },
     methods: {
         includes: function(entry, segment) {
+            if( entry.extra && entry.extra.segments ) {
+                return entry.extra.segments.includes(segment.path);
+            }
             if( entry.segments ) {
                 return entry.segments.includes(segment.path);
             }

@@ -1,4 +1,4 @@
-# Copyright (c) 2021, DjaoDjin inc.
+# Copyright (c) 2022, DjaoDjin inc.
 """
 Django settings for djaopsp project.
 """
@@ -17,6 +17,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 APP_NAME = os.path.basename(BASE_DIR)
 
 DEBUG = True
+API_DEBUG = DEBUG
+ASSETS_DEBUG = DEBUG
 FEATURES_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ('*',)
@@ -31,11 +33,11 @@ DB_PASSWORD = None
 update_settings(sys.modules[__name__],
     load_config(APP_NAME, 'credentials', 'site.conf'))
 
-if os.getenv('DEBUG'):
-    # Enable override on command line.
-    DEBUG = (int(os.getenv('DEBUG')) > 0)
+# Enable override on command line.
+for env_var in ['DEBUG', 'API_DEBUG', 'ASSETS_DEBUG', 'FEATURES_DEBUG']:
+    if os.getenv(env_var):
+        setattr(sys.modules[__name__], env_var, (int(os.getenv(env_var)) > 0))
 
-API_DEBUG = True if int(os.getenv('API_DEBUG', "0")) > 0 else DEBUG
 # Remove extra information used for documentation like examples, etc.
 OPENAPI_SPEC_COMPLIANT = (int(os.getenv('OPENAPI_SPEC_COMPLIANT', "0")) > 0)
 
@@ -63,7 +65,6 @@ INSTALLED_APPS = DEBUG_APPS + (
     'rest_framework',
     'survey',
     'pages',
-    'rules',
     'djaopsp' # project should be the last entry.
 )
 
@@ -267,7 +268,7 @@ ASSETS_MAP = {
     ),
 }
 
-ASSETS_DEBUG = DEBUG
+ASSETS_CDN = {}
 ASSETS_ROOT = HTDOCS
 
 # Templates engines

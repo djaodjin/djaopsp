@@ -251,7 +251,7 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
         #pylint:disable=too-many-locals
         ends_at = self.sample.created_at + relativedelta(months=1)
         last_frozen_assessments = \
-            Sample.objects.get_latest_completed_by_accounts(
+            Sample.objects.get_latest_frozen_by_accounts(
                 self.sample.campaign, before=ends_at)
 
         # total number of answers
@@ -337,7 +337,6 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
             values_by_path,
             self.get_planned(prefix=prefix),
             key='planned')
-
         return list(six.itervalues(values_by_path))
 
     def get_serializer_context(self):

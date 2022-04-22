@@ -16,19 +16,23 @@ ASSETS_DIR    := $(srcDir)/htdocs/static
 
 installDirs   ?= /usr/bin/install -d
 installFiles  ?= /usr/bin/install -p -m 644
+DOCKER        ?= docker
+ESCHECK       ?= es-check
 NPM           ?= npm
-PIP           := $(binDir)/pip
-PYTHON        := $(binDir)/python
-SASSC         := $(binDir)/sassc
+PIP           ?= pip
+PYTHON        ?= python
+SASSC         ?= sassc
 SQLITE        ?= sqlite3
-WEBPACK       ?= $(libDir)/node_modules/.bin/webpack
+WEBPACK       ?= webpack --stats-error-details
+#WEBPACK       ?= webpack --stats verbose
+#WEBPACK       ?= webpack --profile --json > build.json
 
 # Django 1.7,1.8 sync tables without migrations by default while Django 1.9
 # requires a --run-syncdb argument.
 # Implementation Note: We have to wait for the config files to be installed
 # before running the manage.py command (else missing SECRECT_KEY).
-RUNSYNCDB     = $(if $(findstring --run-syncdb,$(shell cd $(srcDir) && SETTINGS_LOCATION=$(CONFIG_DIR) $(PYTHON) manage.py migrate --help 2>/dev/null)),--run-syncdb,)
 MANAGE        := SETTINGS_LOCATION=$(CONFIG_DIR) $(PYTHON) manage.py
+RUNSYNCDB     = $(if $(findstring --run-syncdb,$(shell cd $(srcDir) && $(MANAGE) migrate --help 2>/dev/null)),--run-syncdb,)
 
 
 ifneq ($(wildcard $(CONFIG_DIR)/site.conf),)
@@ -50,16 +54,16 @@ SECRET_KEY ?= $(shell $(PYTHON) -c 'import sys ; from random import choice ; sys
 DJAODJIN_SECRET_KEY ?= $(shell $(PYTHON) -c 'import sys ; from random import choice ; sys.stdout.write("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@\#$%^*-_=+") for i in range(50)]))' )
 
 
-.PHONY: initdb
+.PHONY: build-assets doc generateschema initdb makemessages package-docker vendor-assets-prerequisites
 
 all:
 	@echo "Nothing to be done for 'make'."
 
 
 build-assets: $(ASSETS_DIR)/cache/base.css \
-                $(ASSETS_DIR)/cache/email.css \
-                webpack-conf-paths.json
-	cd $(srcDir) && $(WEBPACK)
+              $(ASSETS_DIR)/cache/email.css \
+              $(ASSETS_DIR)/cache/assess.js
+	cd $(srcDir) && $(ESCHECK) es5 htdocs/static/cache/*.js htdocs/static/vendor/*.js -v
 
 
 clean: clean-dbs
@@ -67,14 +71,13 @@ clean: clean-dbs
 	find $(srcDir) -name '__pycache__' -exec rm -rf {} +
 	find $(srcDir) -name '*~' -exec rm -rf {} +
 
-clean-dbs:
-	[ ! -f $(DB_FILENAME) ] || rm $(DB_FILENAME)
-
-install:: install-conf
 
 doc: schema.yml
 	$(installDirs) build/docs
 	cd $(srcDir) && sphinx-build -b html ./docs $(PWD)/build/docs
+
+
+generateschema: schema.yml
 
 
 # We add a `load_test_transactions` because the command will set the current
@@ -87,9 +90,16 @@ initdb:
 		djaopsp/fixtures/default-db.json
 
 
+install:: install-conf
+
+
 makemessages:
-	cd $(srcDir) && $(PYTHON) manage.py makemessages -l fr -l es -l pt --symlinks --no-wrap
-	cd $(srcDir) && $(PYTHON) manage.py makemessages -d djangojs -l fr -l es -l pt --symlinks --no-wrap
+	cd $(srcDir) && $(MANAGE) makemessages -l fr -l es -l pt --symlinks --no-wrap
+	cd $(srcDir) && $(MANAGE) makemessages -d djangojs -l fr -l es -l pt --symlinks --no-wrap
+
+
+package-docker: build-assets initdb
+	cd $(srcDir) && echo $(DOCKER) build .
 
 
 package-theme: build-assets
@@ -102,17 +112,31 @@ package-theme: build-assets
 	zip -d $(srcDir)/htdocs/themes/$(APP_NAME).zip "$(APP_NAME)/templates/accounts/base.html"
 
 
+# Once tests are completed, run 'coverage report'.
+run-coverage: initdb
+	cd $(srcDir) && coverage run --source='.,deployutils,pages,survey,' \
+		manage.py runserver $(APP_PORT) --noreload
+
+
 # Download prerequisites specified in package.json and install relevant files
 # in the directory assets are served from.
 vendor-assets-prerequisites: $(installTop)/.npm/$(APP_NAME)-packages
 
 
+# --------- intermediate targets
+
+clean-dbs:
+	[ ! -f $(DB_FILENAME) ] || rm $(DB_FILENAME)
+
+# The chart.js in node_modules/chart.js/dist/chart.js does not pass
+# `es-check es5`. The webpack.config.js file rules loader excludes
+# `node_modules` from babel, so we install chart.js in $srcDir here.
 $(installTop)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $^ $(libDir)
 	$(NPM) install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp --prefix $(libDir)
 	install -d $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/chart.js/dist/chart.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/chart.js/dist/chart.js $(srcDir)/djaopsp/static/vendor
 	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/font-awesome/css/font-awesome.css $(ASSETS_DIR)/vendor
@@ -124,43 +148,50 @@ $(installTop)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $(libDir)/node_modules/popper.js/dist/umd/popper-utils.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/vue/dist/vue.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/vue-infinite-loading/dist/vue-infinite-loading.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/vue-resource/dist/vue-resource.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/lodash/lodash.js $(ASSETS_DIR)/vendor
+	[ -f $(binDir)/es-check ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/es-check es-check)
 	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/sass sassc)
 	[ -f $(binDir)/swagger-cli ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/swagger-cli swagger-cli)
+	[ -f $(binDir)/webpack ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/webpack webpack)
 
 
 schema.yml:
-	cd $(srcDir) && $(PYTHON) manage.py generateschema > $@
+	cd $(srcDir) && $(MANAGE) generateschema > $@
 	cd $(srcDir) && swagger-cli validate $@
 
 
+$(ASSETS_DIR)/cache/assess.js: $(srcDir)/webpack.config.js \
+                               $(wildcard $(srcDir)/djaopsp/static/js/*.js) \
+                               webpack-conf-paths.json \
+                               package.json
+	cd $(srcDir) && $(WEBPACK) -c $<
+
+
+package.json: $(srcDir)/package.json
+	$(installFiles) $^ $@
+
+
+webpack-conf-paths.json: $(srcDir)/djaopsp/settings.py
+	cd $(srcDir) && $(MANAGE) generate_webpack_paths -o $@
+
+
 $(ASSETS_DIR)/cache/base.css: \
-                $(wildcard $(srcDir)/assets/scss/vendor/bootstrap/*.scss) \
-                $(wildcard $(srcDir)/assets/scss/vendor/djaodjin/*.scss) \
-                $(wildcard $(srcDir)/assets/scss/vendor/*.scss) \
-                $(wildcard $(srcDir)/assets/scss/base/*.scss)
-	cd $(srcDir) && $(binDir)/sassc assets/scss/base/base.scss $@
+        $(wildcard $(srcDir)/djaopsp/static/scss/vendor/bootstrap/*.scss) \
+        $(wildcard $(srcDir)/djaopsp/static/scss/vendor/djaodjin/*.scss) \
+        $(wildcard $(srcDir)/djaopsp/static/scss/vendor/*.scss) \
+        $(wildcard $(srcDir)/djaopsp/static/scss/base/*.scss)
+	cd $(srcDir) && $(binDir)/sassc --source-map-urls absolute djaopsp/static/scss/base/base.scss $@
 
 $(ASSETS_DIR)/cache/email.css: \
-                $(wildcard $(srcDir)/assets/scss/email/*.scss)
-	cd $(srcDir) && $(binDir)/sassc assets/scss/email/email.scss $@
-
-
-webpack.config.js: $(srcDir)/webpack.config.js
-	$(installFiles) $< $@
-
-
-webpack-conf-paths.json: webpack.config.js
-	cd $(srcDir) && $(PYTHON) manage.py generate_webpack_paths -o $@
+        $(wildcard $(srcDir)/djaopsp/static/scss/email/*.scss)
+	cd $(srcDir) && $(binDir)/sassc djaopsp/static/scss/email/email.scss $@
 
 
 $(srcDir)/djaopsp/locale/fr/LC_MESSAGES/django.mo: \
 				$(wildcard $(srcDir)/djaopsp/locale/es/LC_MESSAGES/*.po) \
 				$(wildcard $(srcDir)/djaopsp/locale/fr/LC_MESSAGES/*.po) \
 				$(wildcard $(srcDir)/djaopsp/locale/pt/LC_MESSAGES/*.po)
-	cd $(srcDir) && \
-		SETTINGS_LOCATION=$(CONFIG_DIR) $(PYTHON) manage.py compilemessages
+	cd $(srcDir) && $(MANAGE) compilemessages
 
 
 install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \
@@ -169,7 +200,8 @@ install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \
 				$(DESTDIR)$(SYSCONFDIR)/sysconfig/$(APP_NAME) \
 				$(DESTDIR)$(SYSCONFDIR)/logrotate.d/$(APP_NAME) \
 				$(DESTDIR)$(SYSCONFDIR)/monit.d/$(APP_NAME) \
-				$(DESTDIR)$(SYSCONFDIR)/systemd/system/$(APP_NAME).service
+				$(DESTDIR)$(SYSCONFDIR)/systemd/system/$(APP_NAME).service \
+				$(DESTDIR)$(SYSCONFDIR)/usr/lib/tmpfiles.d/$(APP_NAME).conf
 	install -d $(DESTDIR)$(LOCALSTATEDIR)/db
 	install -d $(DESTDIR)$(LOCALSTATEDIR)/log/gunicorn
 	[ -d $(DESTDIR)$(LOCALSTATEDIR)/run ] || install -d $(DESTDIR)$(LOCALSTATEDIR)/run
@@ -215,7 +247,7 @@ $(DESTDIR)$(SYSCONFDIR)/systemd/system/%.service: \
 $(DESTDIR)$(SYSCONFDIR)/logrotate.d/%: $(srcDir)/etc/logrotate.conf
 	install -d $(dir $@)
 	[ -e $@ ] || sed \
-		-e 's,%(APP_NAME)s,$(APP_NAME),' \
+		-e 's,%(APP_NAME)s,$(APP_NAME),g' \
 		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' $< > $@
 
 $(DESTDIR)$(SYSCONFDIR)/monit.d/%: $(srcDir)/etc/monit.conf
@@ -227,3 +259,8 @@ $(DESTDIR)$(SYSCONFDIR)/monit.d/%: $(srcDir)/etc/monit.conf
 $(DESTDIR)$(SYSCONFDIR)/sysconfig/%: $(srcDir)/etc/sysconfig.conf
 	install -d $(dir $@)
 	[ -e $@ ] || install -p -m 644 $< $@
+
+$(DESTDIR)$(SYSCONFDIR)/usr/lib/tmpfiles.d/$(APP_NAME).conf: $(srcDir)/etc/tmpfiles.conf
+	install -d $(dir $@)
+	[ -e $@ ] || sed \
+		-e 's,%(APP_NAME)s,$(APP_NAME),g' $< > $@

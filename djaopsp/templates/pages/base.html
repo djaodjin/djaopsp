@@ -24,10 +24,14 @@
 <script type="text/javascript" src="{{'/static/js/djaodjin-editor.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaodjin-upload.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaodjin-sidebar-gallery.js'|asset}}"></script>
+{% if ASSETS_DEBUG %}
 <script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/js/djaodjin-pages-vue.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaodjin-survey-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-pages-vue.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/editors-vue.js'|asset}}"></script>
+{% else %}
+<script type="text/javascript" src="{{'/static/cache/editors.js'|asset}}"></script>
+{% endif %}
 <script type="text/javascript">
 Vue.prototype.$itemsPerPage =
     {% if items_per_page %}{{items_per_page}}{% else %}25{% endif %};

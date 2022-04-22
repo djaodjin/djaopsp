@@ -28,6 +28,7 @@ class CampaignContentMixin(AccountMixin):
     Queryset to present practices in 2d matrix of segments and tiles.
     """
     campaign_url_kwarg = 'campaign'
+    strip_segment_prefix = False
 
     @property
     def db_path(self):
@@ -48,7 +49,15 @@ class CampaignContentMixin(AccountMixin):
     @property
     def segments_available(self):
         if not hasattr(self, '_segments_available'):
-            self._segments_available = get_segments_available(self.campaign)
+            candidates = get_segments_available(self.campaign)
+            if self.db_path and self.db_path != self.DB_PATH_SEP:
+                self._segments_available = []
+                for seg in candidates:
+                    path = seg.get('path')
+                    if path and path.startswith(self.db_path):
+                        self._segments_available += [seg]
+            else:
+                self._segments_available = candidates
         return self._segments_available
 
     def get_questions(self, prefix):
@@ -77,29 +86,38 @@ class CampaignContentMixin(AccountMixin):
         #pylint:disable=too-many-locals
         segments = self.segments_available
         by_tiles = OrderedDict()
+        if self.kwargs.get(self.path_url_kwarg):
+            strip_segment_prefix = True
+        else:
+            strip_segment_prefix = self.strip_segment_prefix
         for segment in segments:
             segment_prefix = segment['path']
-            if segment_prefix:
+            pagebreak = segment.get('extra', {}).get('pagebreak', False)
+            if segment_prefix and pagebreak:
                 queryset = self.get_questions(segment_prefix)
                 for question in queryset:
-                    path = question.get('path')[len(segment_prefix):]
-                    parts = path[1:].split('/')
+                    path = question.get('path')
+                    if strip_segment_prefix:
+                        path = path[len(segment_prefix):]
+                    parts = path.strip(self.DB_PATH_SEP).split(self.DB_PATH_SEP)
                     prefix = ''
                     practices = by_tiles
                     for part in parts[:-1]:
-                        prefix = '%s/%s' % (prefix, part)
-                        if not prefix in practices:
+                        prefix = self.DB_PATH_SEP.join([prefix, part])
+                        if prefix not in practices:
                             practices[prefix] = ({
                                 'slug': part,
                             }, OrderedDict())
-                        segments = practices[prefix][0].get('segments', [])
-                        practices[prefix][0].update({
-                            'segments': list(set(segments + [
-                                segment_prefix]))})
+                        extra = practices[prefix][0].get('extra', {})
+                        segments = extra.get('segments', [])
+                        extra.update({'segments': list(set(segments + [
+                            segment_prefix]))})
+                        if 'extra' not in practices[prefix][0]:
+                            practices[prefix][0].update({'extra': extra})
                         practices = practices[prefix][1]
                     part = parts[-1]
-                    prefix = '%s/%s' % (prefix, part)
-                    if not prefix in practices:
+                    prefix = self.DB_PATH_SEP.join([prefix, part])
+                    if prefix not in practices:
                         if not ('title' in question and
                                 'picture' in question and
                                 'extra' in question):
@@ -123,9 +141,12 @@ class CampaignContentMixin(AccountMixin):
 #                                    prefix.startswith('/')) else prefix))
                         })
                         practices[prefix] = (question, OrderedDict())
-                    segments = practices[prefix][0].get('segments', [])
-                    practices[prefix][0].update({
-                        'segments': list(set(segments + [segment_prefix]))})
+                    extra = practices[prefix][0].get('extra', {})
+                    segments = extra.get('segments', [])
+                    extra.update({'segments': list(set(segments + [
+                        segment_prefix]))})
+                    if 'extra' not in practices[prefix][0]:
+                        practices[prefix][0].update({'extra': extra})
 
         elements = flatten_content_tree(by_tiles, sort_by_key=False)
         headings = [element['slug'] for element in elements
@@ -145,7 +166,10 @@ class CampaignContentMixin(AccountMixin):
         for element in elements:
             slug = element.get('slug')
             if slug:
-                element.update(headings_by_slug.get(slug, {}))
+                merged_fields = headings_by_slug.get(slug, {})
+                if 'extra' in merged_fields:
+                    merged_fields['extra'].update(element.get('extra', {}))
+                element.update(merged_fields)
 
         elements = flatten_content_tree(by_tiles)
         return elements
@@ -313,6 +337,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
                                      PageElementEditableListAPIView):
 
     serializer_class = ContentElementSerializer
+    strip_segment_prefix = True
 
     def get_serializer_class(self):
         if self.request.method.lower() == 'post':

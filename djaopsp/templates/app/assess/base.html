@@ -5,3 +5,14 @@
 {% block assess_content %}
 {% endblock %}
 {% endblock %}
+
+{% block app_bodyscripts %}
+{% if ASSETS_DEBUG %}
+<script type="text/javascript" src="{{'/static/vendor/chart.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/assess-vue.js'|asset}}"></script>
+{% else %}
+<script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
+{% endif %}
+{% block assess_scripts %}{% endblock %}
+{% endblock %}
