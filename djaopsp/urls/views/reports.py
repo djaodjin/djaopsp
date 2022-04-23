@@ -4,11 +4,12 @@
 """
 Views URLs
 """
-from django.urls import path, include
+from django.urls import path
 
 from ...views.assess import TrackMetricsView, AssessPracticesView
 from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
     ScorecardRedirectView)
+from ...views.share import ShareView
 
 
 urlpatterns = [
@@ -24,4 +25,7 @@ urlpatterns = [
          ScorecardIndexView.as_view(), name='scorecard'),
     path('scorecard/',
          ScorecardRedirectView.as_view(), name='scorecard_redirect'),
+    # Share
+    path('share/<slug:sample>/',
+        ShareView.as_view(), name='share'),
 ]

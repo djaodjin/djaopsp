@@ -8,6 +8,8 @@ var practicesListMixin = {
                 count: this.$rows ? this.$rows.length : 0
             },
             params: {},
+            prefix: this.$prefix ? this.$prefix : "",
+            api_assessment_sample: this.$urls.api_assessment_sample,
         }
     },
     methods: {
@@ -160,7 +162,10 @@ var practicesListMixin = {
             if( (typeof practice.answers === 'undefined') ||
                 practice.answers.length < 1 ) {
                 practice['answers'] = [{
-                    measured: null
+                    unit: practice.default_unit.slug,
+                    measured: null,
+                    baseline_at: null,
+                    created_at: null
                 }];
             }
             return practice.answers[0];
@@ -283,6 +288,8 @@ Vue.component('campaign-questions-list', {
     data: function() {
         return {
             url: this.$urls.api_content,
+            api_assessment_freeze: this.$urls.api_assessment_freeze,
+            api_improvement_sample: this.$urls.api_improvement_sample,
             valueSummaryToggle: true,
             vsPeersToggle: 0,
             activeTile: null,
@@ -364,7 +371,7 @@ Vue.component('campaign-questions-list', {
                 if( defaultUnit && defaultUnit.choices ) {
                     if( icon ) {
                         var iconChoices = vm.getChoices(icon);
-                        var isIdentDescr = true;
+                        var isIdentDescr = (iconChoices.length > 0);
                         if( defaultUnit.choices.length ===
                             iconChoices.length ) {
                             for( var idx = 0; idx < defaultUnit.choices.length;
@@ -387,15 +394,32 @@ Vue.component('campaign-questions-list', {
                         }
                     }
                     if( row.choices_headers.length === 0 ) {
+                        if( entries.length > 1 ) {
+                            // We are dealing with an icon so we take
+                            // the generic unit choices instead of the row ones
+                            // to avoid missing `descr` in the first row.
+                            var defaultUnitSlug = (
+                                defaultUnit.slug || defaultUnit);
+                            if( vm.items.units &&
+                                vm.items.units[defaultUnitSlug] ) {
+                                defaultUnit = vm.items.units[defaultUnitSlug];
+                            }
+                        }
                         row.choices_headers = defaultUnit.choices;
                     }
-                }
+                }// if( defaultUnit && defaultUnit.choices )
             }
             return row.choices_headers;
         },
-        getNbInputCols: function(icon) {
-            var colSpan = this.getChoices(icon).length;
-            return colSpan > 0 ? colSpan : 3;
+        getNbInputCols: function(practice) {
+            var vm = this;
+            if( (practice.choices_headers &&
+                 practice.choices_headers.length > 0) ||
+                (practice.default_unit &&
+                 practice.default_unit.system === 'enum') ) {
+                return 6 / vm.getChoices(practice).length;
+            }
+            return 6;
         },
         getPrimaryCandidate: function(practice) {
             if( (typeof practice.candidates === 'undefined') ||
@@ -420,7 +444,7 @@ Vue.component('campaign-questions-list', {
         },
         isEnumHeaderShown: function(icon) {
             var vm = this;
-            return !vm.containsTag(icon, 'metrics');
+            return icon.choices_headers && icon.choices_headers.length > 0;
         },
         isRequiredShown: function(row) {
             var vm = this;
@@ -439,9 +463,7 @@ Vue.component('campaign-questions-list', {
         },
         isTargetByUIHint: function(row) {
             var vm = this;
-            return vm.isPractice(row) &&
-                row.answers && row.answers.length > 0 &&
-                vm.getPrimaryAnswer(row).ui_hint === 'target-by';
+            return vm.isPractice(row) && row.ui_hint === 'target-by';
         },
         isTargetBaselineUIHint: function(row) {
             var vm = this;
@@ -516,7 +538,7 @@ Vue.component('campaign-questions-list', {
         freezeAssessment: function() {
             var vm = this;
             vm.freezeAssessmentDisabled = true;
-            vm.reqPost(vm.$urls.api_assessment_freeze, {is_frozen: true},
+            vm.reqPost(vm.api_assessment_freeze, {is_frozen: true},
             function success(resp) {
                 if( resp.location ) {
                     vm.freezeAssessmentDisabled = false;
@@ -525,7 +547,7 @@ Vue.component('campaign-questions-list', {
             },
             function error(resp) {
                 vm.freezeAssessmentDisabled = false;
-                showErrorMessages(resp);
+                vm.showErrorMessages(resp);
             });
         },
         populateUserProfiles: function() {
@@ -543,7 +565,7 @@ Vue.component('campaign-questions-list', {
             }
             for( var key in profilesBySlug ) {
                 if( profilesBySlug.hasOwnProperty(key) ) {
-                    vm.reqGet(vm.$urls.api_profiles + '/' + key,
+                    vm.reqGet(vm._safeUrl(vm.$urls.api_profiles, key),
                     function(resp) {
                         profilesBySlug[resp.slug] = resp;
                     });
@@ -556,7 +578,7 @@ Vue.component('campaign-questions-list', {
             var modalDialog = form.parents('.modal');
             modalDialog.modal('hide');
             var path = (prefix ? prefix : '') + '/' + vm.activeTile.slug;
-            vm.reqPost(vm.$urls.api_assessment_sample + '/reset' + path,
+            vm.reqPost(vm._safeUrl(vm.api_assessment_sample, '/reset' + path),
             function success(resp) {
               // remove answers under the active tile.
               var idx = 0;
@@ -586,15 +608,13 @@ Vue.component('campaign-questions-list', {
               showMessages([
                   "Reset successful. Please continue with this assessment or an assessment in a different industry segment."],
                   "success");
-            },
-            function error(resp) {
-                showErrorMessages(resp);
             });
         },
         useCandidateAssessment: function($event, prefix) {
             var vm = this;
             var path = (prefix ? prefix : '') + '/' + vm.activeTile.slug;
-            vm.reqPost(vm.$urls.api_assessment_sample + '/candidates' + path,
+            vm.reqPost(
+                vm._safeUrl(vm.api_assessment_sample, '/candidates' + path),
             function success(resp) {
               // update answers as returned by the API.
               for( var idx = 0; idx < resp.results.length; ++idx ) {
@@ -609,9 +629,6 @@ Vue.component('campaign-questions-list', {
               vm.nbAnswers = resp.nb_answers ? resp.nb_answers : 0;
               vm.nbRequiredAnswers = resp.nb_required_answers ?
                   resp.nb_required_answers : 0;
-            },
-            function error(resp) {
-                showErrorMessages(resp);
             });
         },
 
@@ -622,8 +639,8 @@ Vue.component('campaign-questions-list', {
             if( typeof measured !== 'undefined' ) {
                 var data = ( vm._isArray(measured) || vm._isObject(measured) ) ?
                     measured : {measured: measured};
-                vm.reqPost(vm.$urls.api_assessment_sample + '/answers' + path,
-                    data,
+                vm.reqPost(vm._safeUrl(vm.api_assessment_sample,
+                    '/answers' + vm.prefix + path), data,
                 function success(resp, textStatus, jqXHR) {
                     if( jqXHR.status == 201 ) {
                         vm.nbAnswers++;
@@ -636,7 +653,7 @@ Vue.component('campaign-questions-list', {
                     }
                 },
                 function error(resp) {
-                    showErrorMessages(resp);
+                    vm.showErrorMessages(resp);
                     if( errorCallback ) {
                         errorCallback(resp);
                     }
@@ -645,6 +662,9 @@ Vue.component('campaign-questions-list', {
         },
         updateAssessmentAnswer: function(practice, newValue) {
             var vm = this;
+            if( typeof newValue === 'undefined' ) {
+                newValue = vm.getPrimaryAnswer(practice);
+            }
             vm._callUpdateAnswer(practice.path, newValue,
             function success(resp) {
                 if( newValue === vm.NOT_APPLICABLE ) {
@@ -717,9 +737,8 @@ Vue.component('campaign-questions-list', {
         updateImprovement: function(practice, newValue) {
             var vm = this;
             if( vm.isPractice(practice) ) {
-                // prevent 2 '/' together.
-                var improveUrl = vm.$urls.api_improvement_sample.replace(
-                    /\/+$/, "") + '/answers' + practice.path;
+                var improveUrl = vm._safeUrl(vm.api_improvement_sample,
+                    '/answers' + vm.prefix + practice.path);
                 if( practice.planned ) {
                     var data = {
                         measured: newValue
@@ -744,19 +763,15 @@ Vue.component('campaign-questions-list', {
                                 break;
                             }
                         }
-                    }, function(resp) { // error
-                        showErrorMessages(resp);
                     });
                 } else {
-                    var resetUrl = vm.$urls.api_improvement_sample.replace(
-                        /\/+$/, "") + '/reset' + practice.path
+                    var resetUrl = vm._safeUrl(vm.api_improvement_sample,
+                        '/reset' + vm.prefix + practice.path)
                         + '?unit=assessment';
                     vm.reqPost(resetUrl,
                     function success(resp) {
                         $("#improvement-dashboard").data(
                             'improvementDashboard').load();
-                    }, function(resp) { // error
-                        showErrorMessages(resp);
                     });
                 }
             }
@@ -823,7 +838,8 @@ Vue.component('scorecard', {
             chartsLoaded: false,
             chartsAPIResp: null,
             charts: {},
-            activeTile: null
+            activeTile: null,
+            summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
         }
     },
     methods: {
@@ -909,7 +925,7 @@ Vue.component('scorecard', {
                                 'energy', 'ghg-emissions', 'waste', 'water'],
                             datasets: [{
                                 label: "score",
-                                data: [11, 16, 7, 3]
+                                data: vm.summaryPerformance
                             }]
                         },
                         options: {
@@ -972,7 +988,8 @@ Vue.component('scorecard', {
             var modalDialog = form.parents('.modal');
             modalDialog.modal('hide');
             var path = vm.activeTile.path;
-            vm.reqPost(vm.$urls.api_assessment_sample + '/reset' + path,
+            vm.reqPost(vm._safeUrl(vm.api_assessment_sample,
+                '/reset' + vm.prefix + path),
             function success(resp) {
                 vm.items = {results: [], count: 0};
                 vm.itemsLoaded = false;

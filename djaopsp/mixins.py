@@ -2,15 +2,16 @@
 # see LICENSE.
 
 from deployutils.apps.django import mixins as deployutils_mixins
+from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db.models import Q
-from pages.models import PageElement, build_content_tree, flatten_content_tree
-from pages.helpers import ContentCut
 from survey.mixins import SampleMixin
-from survey.models import Campaign, Sample
-from survey.utils import get_account_model, get_question_model
+from survey.models import Campaign
+from survey.utils import get_account_model
 
-from .utils import get_account_model, get_segments_available
+from .compat import reverse
+from .utils import (get_account_model, get_segments_available,
+    get_segments_candidates)
 
 
 class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
@@ -65,10 +66,25 @@ class AccountMixin(deployutils_mixins.AccountMixin):
         return self._campaign_candidates
 
 
-class ReportMixin(AccountMixin, SampleMixin):
+class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin):
     """
     Loads assessment and improvement for a profile
     """
+    @property
+    def segments_available(self):
+        if not hasattr(self, '_segments_available'):
+            candidates = get_segments_available(
+                self.sample, segments_candidates=self.segments_candidates)
+            if self.db_path and self.db_path != self.DB_PATH_SEP:
+                self._segments_available = []
+                for seg in candidates:
+                    path = seg.get('path')
+                    if path and path.startswith(self.db_path):
+                        self._segments_available += [seg]
+            else:
+                self._segments_available = candidates
+        return self._segments_available
+
     @property
     def segments_candidates(self):
         """
@@ -76,18 +92,39 @@ class ReportMixin(AccountMixin, SampleMixin):
         can answer against.
         """
         if not hasattr(self, '_segments_candidates'):
-            self._segments_candidates = []
-            for segment in get_segments_available(
-                    self.sample.campaign, visibility=self.visibility,
-                    owners=self.accessible_profiles):
-                searchable = segment.get('extra', {}).get('searchable', False)
-                pagebreak = segment.get('extra', {}).get('pagebreak', False)
-                if pagebreak and not searchable:
-                    continue
-                self._segments_candidates += [segment]
+            self._segments_candidates = self.get_segments_candidates(
+                searchable_only=True)
         return self._segments_candidates
+
+    def get_segments_candidates(self, searchable_only=False):
+        results = []
+        for seg in get_segments_candidates(self.sample.campaign,
+                visibility=self.visibility, owners=self.owners):
+            searchable = (not searchable_only or
+                seg.get('extra', {}).get('searchable', False))
+            pagebreak = seg.get('extra', {}).get('pagebreak', False)
+            if pagebreak and not searchable:
+                continue
+            results += [seg]
+        return results
 
     def get_context_data(self, **kwargs):
         context = super(ReportMixin, self).get_context_data(**kwargs)
-        context.update({'sample': self.sample})
+        context.update({
+            'sample': self.sample,
+            'segments_available': self.segments_available,
+        })
+        path = self.path.lstrip(self.URL_PATH_SEP)
+        if path:
+            assess_url = reverse('assess_practices',
+                args=(self.account, self.sample, path))
+        else:
+            assess_url = reverse('scorecard',
+                args=(self.account, self.sample,))
+        update_context_urls(context, {
+            'assess': assess_url,
+            'complete': reverse('scorecard',
+                args=(self.account, self.sample,)),
+            'share': reverse('share', args=(self.account, self.sample,)),
+        })
         return context

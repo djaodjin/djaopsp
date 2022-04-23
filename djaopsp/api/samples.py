@@ -1,21 +1,21 @@
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
 
-import logging
+import copy, logging
 
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count, F
 from rest_framework import generics, response as http
 from survey.api.sample import SampleCandidatesMixin, SampleAnswersMixin
-from survey.models import Answer, Sample, Unit, UnitEquivalences
+from survey.models import Answer, Choice, Sample, Unit, UnitEquivalences
 
 from ..compat import six
-from ..mixins import ReportMixin, VisibilityMixin
+from ..mixins import ReportMixin
 from ..scores import get_score_calculator
+from ..utils import get_segments_available
 from .campaigns import CampaignContentMixin
 from .serializers import (AssessmentContentSerializer, AssessmentNodeSerializer,
     UnitSerializer)
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -178,26 +178,68 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
          ]
     }
     """
-    # The order ReportMixin followed by CampaignContentMixin is important
-    # because we want `campaign` and `segments_available` from ReportMixin
-    # to override the definitions in CampaignContentMixin.
     serializer_class = AssessmentContentSerializer
 
+    # We want `campaign` from ReportMixin and `segments_available`
+    # from `CampaignContentMixin` so it is safer to redefine them here.
     @property
     def campaign(self):
         if not hasattr(self, '_campaign'):
             self._campaign = self.sample.campaign
         return self._campaign
 
-    def attach_answers(self, values_by_path, queryset, key='answers'):
+    @property
+    def segments_available(self):
+        """
+        When a {path} is specified, it will returns the segment identified
+        by that {path} regardless of the number of answers already present
+        for it. When no {path} is specified, it is empty of the root of the
+        content tree, the segments which have at least one answer are returned.
+        """
+        if not hasattr(self, '_segments_available'):
+            candidates = self.get_segments_candidates()
+            if self.db_path and self.db_path != self.DB_PATH_SEP:
+                self._segments_available = []
+                for seg in candidates:
+                    path = seg.get('path')
+                    if path and path.startswith(self.db_path):
+                        self._segments_available += [seg]
+            else:
+                self._segments_available = get_segments_available(
+                    self.sample, segments_candidates=candidates)
+        return self._segments_available
+
+    def attach_answers(self, questions_by_key, queryset, key='answers'):
+        #pylint:disable=too-many-locals
+        enum_units = {}
         for resp in queryset:
             # First we gather all information required
             # to display the question properly.
             question = resp.question
             path = question.path
-            value = values_by_path.get(path)
+            question_pk = question.pk
+            value = questions_by_key.get(question_pk)
             if not value:
                 default_unit = question.default_unit
+                self.units.update({default_unit.slug: default_unit})
+                if default_unit.system == Unit.SYSTEM_ENUMERATED:
+                    # Enum units might have a per-question choice description.
+                    # We try to reduce the number of database queries by
+                    # loading the unit choices here and the per-question choices
+                    # in a single pass later on.
+                    default_unit_dict = enum_units.get(default_unit.pk)
+                    if not default_unit_dict:
+                        default_unit_dict = {
+                            'slug': default_unit.slug,
+                            'title': default_unit.title,
+                        'system': Unit.SYSTEMS[default_unit.system][1],
+                            'choices':[{
+                                'pk': choice.pk,
+                                'text': choice.text,
+                        'descr': choice.descr if choice.descr else choice.text
+                            } for choice in default_unit.choices]}
+                        enum_units[default_unit.pk] = default_unit_dict
+                    default_unit = copy.deepcopy(default_unit_dict)
                 value = {
                     'path': path,
                     'rank': resp.rank,
@@ -205,8 +247,7 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
                     'default_unit': default_unit,
                     'ui_hint': question.ui_hint,
                 }
-                values_by_path.update({path: value})
-                self.units.update({default_unit.slug: default_unit})
+                questions_by_key.update({question_pk: value})
             if resp.pk:
                 # We have an actual answer to the question,
                 # so let's populate it.
@@ -222,29 +263,41 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
                     value.update({key: answers})
         # We re-order the answers so the default_unit (i.e. primary)
         # is first.
-        for question in six.itervalues(values_by_path):
-            default_units = [question.get('default_unit')]
-            if (question.get('default_unit').system
-                in Unit.NUMERICAL_SYSTEMS):
-                equiv_qs = UnitEquivalences.objects.filter(
-                    source__slug=default_units[0].slug).values_list(
-                    'target', flat=True)
-                default_units += list(equiv_qs)
-            primary = None
+        for question in six.itervalues(questions_by_key):
+            default_unit = question.get('default_unit')
+            if isinstance(default_unit, Unit):
+                default_units = [default_unit.slug]
+                if default_unit.system in Unit.NUMERICAL_SYSTEMS:
+                    equiv_qs = UnitEquivalences.objects.filter(
+                        source__slug=default_unit.slug).values_list(
+                        'target', flat=True)
+                    default_units += list(equiv_qs)
+            else:
+                default_units = [default_unit.get('slug')]
+            primary = []
             remainders = []
             for answer in question.get(key, []):
                 if answer.get('unit') in default_units:
-                    primary = answer
+                    primary = [answer]
                 else:
                     remainders += [answer]
-            if not primary:
-                primary = {
-                    'measured': None,
-                    'unit': default_units[0],
-                }
-            question.update({key: [primary] + remainders})
+            question.update({key: primary + remainders})
 
-    def attach_results(self, values_by_path, prefix):
+        # Let's populate the per-question choices as necessary.
+        # This is done in a single pass to reduce the number of db queries.
+        for choice in Choice.objects.filter(
+                question__in=questions_by_key,
+                unit=F('question__default_unit')).order_by(
+                    'question', 'unit', 'rank'):
+            default_unit = questions_by_key[choice.question_id].get(
+                'default_unit')
+            for default_unit_choice in default_unit.get('choices'):
+                if choice.text == default_unit_choice.get('text'):
+                    default_unit_choice.update({'descr': choice.descr})
+                    break
+
+
+    def attach_results(self, questions_by_key, prefix):
         """
         Attach aggregated result to practices
         """
@@ -259,13 +312,14 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
                 question__path__startswith=prefix,
                 unit_id=F('question__default_unit_id'),
                 sample_id__in=last_frozen_assessments).values(
-                'question__path').annotate(Count('sample_id')):
-            question_key = row['question__path']
+                'question__id', 'question__path').annotate(Count('sample_id')):
+            path = row['question__path']
+            question_pk = row['question__id']
             count = row['sample_id__count']
-            value = values_by_path.get(question_key, {'path': question_key})
+            value = questions_by_key.get(question_pk, {'path': path})
             value.update({'nb_respondents': count})
-            if question_key not in values_by_path:
-                values_by_path.update({question_key: value})
+            if question_pk not in questions_by_key:
+                questions_by_key.update({question_pk: value})
 
         # per-choice number of answers
         for row in Answer.objects.filter(
@@ -274,20 +328,22 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
                 unit_id=F('question__default_unit_id'),
                 unit__enums__id=F('measured'),
                 sample_id__in=last_frozen_assessments).values(
-                'question__path', 'measured', 'unit__enums__text').annotate(
+                'question__id', 'question__path',
+                'measured', 'unit__enums__text').annotate(
                 Count('sample_id')):
-            question_key = row['question__path']
+            path = row['question__path']
+            question_pk = row['question__id']
             count = row['sample_id__count']
             measured = row['unit__enums__text']
-            value = values_by_path.get(question_key, {'path': question_key})
+            value = questions_by_key.get(question_pk, {'path': path})
             total = value.get('nb_respondents', None)
             rate = value.get('rate', {})
             rate.update({
                 measured: (int(count * 100 // total) if total else 0)})
             if 'rate' not in value:
                 value.update({'rate': rate})
-            if question_key not in values_by_path:
-                values_by_path.update({question_key: value})
+            if question_pk not in questions_by_key:
+                questions_by_key.update({question_pk: value})
 
         # opportunity to improve score
         assessment_units_qs = Unit.objects.filter(
@@ -301,12 +357,12 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
         score_calculator = get_score_calculator(prefix)
         for row in score_calculator.get_opportunity(last_frozen_assessments,
                 prefix=prefix, includes=[self.sample]):
-            question_key = row['question__path']
+            question_pk = row['question__id']
             opportunity = row.get('opportunity', 0)
-            value = values_by_path.get(question_key, {})
+            value = questions_by_key.get(question_pk, {})
             value.update({'opportunity': opportunity})
-            if question_key not in values_by_path:
-                values_by_path.update({question_key: value})
+            if question_pk not in questions_by_key:
+                questions_by_key.update({question_pk: value})
 
     def get_planned(self, prefix):
         return []
@@ -319,25 +375,25 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
         if not prefix.endswith(self.DB_PATH_SEP):
             prefix = prefix + self.DB_PATH_SEP
 
-        values_by_path = {}
+        questions_by_key = {}
         self.attach_answers(
-            values_by_path,
+            questions_by_key,
             self.get_answers(prefix=prefix, sample=self.sample))
 
         if not self.sample.is_frozen:
             self.attach_answers(
-                values_by_path,
+                questions_by_key,
                 self.get_candidates(prefix=prefix),
                 key='candidates')
 
-        self.attach_results(values_by_path, prefix)
+        self.attach_results(questions_by_key, prefix)
 
         # Adds planned improvements
         self.attach_answers(
-            values_by_path,
+            questions_by_key,
             self.get_planned(prefix=prefix),
             key='planned')
-        return list(six.itervalues(values_by_path))
+        return list(six.itervalues(questions_by_key))
 
     def get_serializer_context(self):
         context = super(AssessmentContentAPIView, self).get_serializer_context()

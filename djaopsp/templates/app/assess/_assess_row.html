@@ -1,4 +1,4 @@
-<td :id="practice.slug">
+<td :id="practice.slug" colspan="6">
   <div style="display:inline-block;">
     <div :class="indentHeader(practice)"
          style="display:inline-block;">
@@ -35,11 +35,12 @@
 {# column headers #}
 {#   when enum choices are not shown in table header  #}
 <td class="text-center"
-    :colspan="getNbInputCols(icon)"
+    colspan="6"
     v-if="!isPractice(practice) && !isEnumHeaderShown(icon)">
 </td>
 {#   when enum choices are shown in table header #}
-<td class="text-center cell-fix-width-5"
+<td class="text-center"
+    :colspan="getNbInputCols(practice)"
     v-for="choice in getChoices(practice, icon)"
     v-if="!isPractice(practice) && isEnumHeaderShown(icon)">
     <button class="btn btn-select-all" href=""
@@ -51,201 +52,243 @@
 
 {# Presents questions based on its ui_hint and default unit #}
 <td class="text-center"
-    :colspan="getNbInputCols(icon)"
-    :data-metric="getPrimaryAnswer(practice).unit"
+    colspan="6"
     v-if="isFreetextUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
     <textarea class="form-control"
               type="text" rows="10"
               placeholder=""
               v-model="getPrimaryAnswer(practice).measured"
-              @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+              @blur="updateAssessmentAnswer(practice)"
               {% if sample.is_frozen %} disabled{% endif %}></textarea>
 </td>
 
 {# The unit is fixed. question.ui_hint === 'number' #}
 <td class="text-center"
-    :colspan="getNbInputCols(icon) - (isRevenueUIHint(practice) ? 1 : 0)"
-    :data-metric="getPrimaryAnswer(practice).unit"
+    :colspan="6"
     v-if="isNumberUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
+  <div class="input-group">
     <input class="form-control text-right"
            type="number"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+           @blur="updateAssessmentAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
-</td>
-{# number with revenue #}
-<td class="text-center"
-    :data-metric="getPrimaryAnswer(practice).unit"
-    v-if="isRevenueUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
-    <select class="form-control"
+    <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+            @blur="updateAssessmentAnswer(practice)"
+             v-if="isRevenueUIHint(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
       <option value="usd">US Dollars ($)</option>
       <option value="million-usd">Millions US Dollars ($M)</option>
       <option value="eur">Euros</option>
       <option value="million-eur">Millions Euros</option>
     </select>
+  </div>
 </td>
-{# end revenue #}
 
 {# Energy consumed #}
 {# - The unit is variable (out of an "energy units" drop down list) #}
-{# - question.ui_hint === 'integer' #}
+{# - question.ui_hint === 'energy' #}
 <td class="text-center"
-    :colspan="getNbInputCols(icon) - 1"
-    :data-metric="getPrimaryAnswer(practice).unit"
+    colspan="2"
     v-if="isEnergyUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
-    <input class="form-control text-right"
-           type="text"
-           placeholder=""
-           v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+    <input class="form-control"
+           type="date"
+           v-model="getPrimaryAnswer(practice).baseline_at"
+           @blur="updateAssessmentAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
 </td>
 <td class="text-center"
-    :data-metric="getPrimaryAnswer(practice).unit"
+    colspan="2"
     v-if="isEnergyUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
-    <select class="form-control"
+    <input class="form-control"
+           type="date"
+           v-model="getPrimaryAnswer(practice).created_at"
+           @blur="updateAssessmentAnswer(practice)"
+           {% if sample.is_frozen %} disabled{% endif %}></input>
+</td>
+<td class="text-center"
+    :colspan="2"
+    v-if="isEnergyUIHint(practice)"
+    v-show="!isActiveCommentsShown(practice)">
+  <div class="input-group">
+    <input class="form-control text-right"
+           type="number"
+           placeholder=""
+           v-model="getPrimaryAnswer(practice).measured"
+           @blur="updateAssessmentAnswer(practice)"
+           {% if sample.is_frozen %} disabled{% endif %}></input>
+    <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+            @blur="updateAssessmentAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
-      <option value="mmbtu-of-natural-gas-year">mmBtu of Natural gas / Year</option>
-      <option value="mmbtu-of-blast-furnance-gas-year">mmBtu of Blast furnance gas / Year</option>
-      <option value="mmbtu-of-coke-oven-gas-year">mmBtu of Coke oven gas / Year</option>
-      <option value="mmbtu-of-fuel-gas-year">mmBtu of Fuel gas / Year</option>
-      <option value="mmbtu-of-propane-gas-year">mmBtu of Propane (gas) / Year</option>
-      <option value="gallon-of-aviation-gasoline-year">Gallon of Aviation gasoline / Year</option>
-      <option value="gallon-of-kerosene-year">Gallon of Kerosene / Year</option>
-      <option value="gallon-of-liquified-petroleum-gases-lpg-year">Gallon of Liquified Petroleum Gases (LPG) / Year</option>
-      <option value="gallon-of-motor-gasoline-year">Gallon of Motor gasoline / Year</option>
-      <option value="gallon-of-propane-liquid-year">Gallon of Propane (liquid) / Year</option>
-      <option value="gallon-of-crude-oil-year">Gallon of Crude oil / Year</option>
-      <option value="gallon-of-motor-diesel-fuel-year">Gallon of Motor diesel fuel / Year</option>
-      <option value="gallon-of-liquified-natural-gas-lng-year">Gallon of Liquified Natural Gas (LNG) / Year</option>
-      <option value="kwh-year">Kilowatt-hour (kWh) of Electricity / Year</option>
-      <option value="giga-joules-year">Giga Joules (GJ) / Year</option>
-      <option value="giga-joules-fte-year">Giga Joules (GJ) per full-time employee (FTE) / Year</option>
+      <option value="mmbtu-of-natural-gas">mmBtu of Natural gas</option>
+      <option value="mmbtu-of-blast-furnance-gas">mmBtu of Blast furnance gas</option>
+      <option value="mmbtu-of-coke-oven-gas">mmBtu of Coke oven gas</option>
+      <option value="mmbtu-of-fuel-gas">mmBtu of Fuel gas</option>
+      <option value="mmbtu-of-propane-gas">mmBtu of Propane (gas)</option>
+      <option value="gallon-of-aviation-gasoline">Gallon of Aviation gasoline</option>
+      <option value="gallon-of-kerosene">Gallon of Kerosene</option>
+      <option value="gallon-of-liquified-petroleum-gases-lpg">Gallon of Liquified Petroleum Gases (LPG)</option>
+      <option value="gallon-of-motor-gasoline">Gallon of Motor gasoline</option>
+      <option value="gallon-of-propane-liquid">Gallon of Propane (liquid)</option>
+      <option value="gallon-of-crude-oil">Gallon of Crude oil</option>
+      <option value="gallon-of-motor-diesel-fuel">Gallon of Motor diesel fuel</option>
+      <option value="gallon-of-liquified-natural-gas-lng">Gallon of Liquified Natural Gas (LNG)</option>
+      <option value="kwh">Kilowatt-hour (kWh) of Electricity</option>
+      <option value="giga-joules">Giga Joules (GJ)</option>
+      <option value="giga-joules-fte">Giga Joules (GJ) per full-time employee (FTE)</option>
     </select>
+  </div>
 </td>
 {# end of energy #}
 
 
 {# water #}
 {# - The unit is variable (out of an "water units" drop down list) #}
-{# - question.ui_hint === 'number' #}
+{# - question.ui_hint === 'water' #}
 <td class="text-center"
-    :colspan="getNbInputCols(icon) - 1"
-    :data-metric="getPrimaryAnswer(practice).unit"
+    colspan="2"
     v-if="isWaterUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getPrimaryAnswer(practice).baseline_at"
+           @blur="updateAssessmentAnswer(practice)"
+           {% if sample.is_frozen %} disabled{% endif %}></input>
+</td>
+<td class="text-center"
+    colspan="2"
+    v-if="isWaterUIHint(practice)"
+    v-show="!isActiveCommentsShown(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getPrimaryAnswer(practice).created_at"
+           @blur="updateAssessmentAnswer(practice)"
+           {% if sample.is_frozen %} disabled{% endif %}></input>
+</td>
+<td class="text-center"
+    :colspan="2"
+    v-if="isWaterUIHint(practice)"
+    v-show="!isActiveCommentsShown(practice)">
+  <div class="input-group">
     <input class="form-control text-right"
            type="text"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+           @blur="updateAssessmentAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
-</td>
-<td class="text-center"
-    :data-metric="getPrimaryAnswer(practice).unit"
-    v-if="isWaterUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
-    <select class="form-control"
+    <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+            @blur="updateAssessmentAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
-        <option value="m3-year">Cubic meters (m<sup>3</sup>) / Year</option>
-        <option value="kiloliters-year">Kilo liters / Year</option>
-        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>) / Year</option>
-        <option value="gallons-year">US Gallon / Year</option>
+        <option value="m3">Cubic meters (m<sup>3</sup>)</option>
+        <option value="kiloliters">Kilo liters</option>
+        <option value="ft3">Cubic feet (ft.<sup>3</sup>)</option>
+        <option value="gallons">US Gallon</option>
     </select>
+  </div>
 </td>
 {# end of water #}
 
 {# waste #}
 {# - The unit is variable (out of an "waste units" drop down list) #}
-{# - question.ui_hint === 'integer' #}
+{# - question.ui_hint === 'waste' #}
 <td class="text-center"
-    :colspan="getNbInputCols(icon) - 1"
-    :data-metric="getPrimaryAnswer(practice).unit"
+    colspan="2"
     v-if="isWasteUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getPrimaryAnswer(practice).baseline_at"
+           @blur="updateAssessmentAnswer(practice)"
+           {% if sample.is_frozen %} disabled{% endif %}></input>
+</td>
+<td class="text-center"
+    colspan="2"
+    v-if="isWasteUIHint(practice)"
+    v-show="!isActiveCommentsShown(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getPrimaryAnswer(practice).created_at"
+           @blur="updateAssessmentAnswer(practice)"
+           {% if sample.is_frozen %} disabled{% endif %}></input>
+</td>
+<td class="text-center"
+    :colspan="2"
+    v-if="isWasteUIHint(practice)"
+    v-show="!isActiveCommentsShown(practice)">
+  <div class="input-group">
     <input class="form-control text-right"
            type="text"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+           @blur="updateAssessmentAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
-</td>
-<td class="text-center"
-    :data-metric="getPrimaryAnswer(practice).unit"
-    v-if="isWasteUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
-    <select class="form-control"
+    <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+            @blur="updateAssessmentAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
-        <option value="tons-year">Metric tons / year</option>
-        <option value="lbs-year">Pounds / year</option>
-        <option value="m3-year">Cubic meters (m<sup>3</sup>) / Year</option>
-        <option value="kiloliters-year">Kilo liters / Year</option>
-        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>) / Year</option>
-        <option value="gallons-year">US Gallon / Year</option>
+        <option value="tons">Metric tons</option>
+        <option value="lbs">Pounds</option>
+        <option value="m3">Cubic meters (m<sup>3</sup>)</option>
+        <option value="kiloliters">Kilo liters</option>
+        <option value="ft3">Cubic feet (ft.<sup>3</sup>)</option>
+        <option value="gallons">US Gallon</option>
     </select>
+  </div>
 </td>
 {# end of waste #}
 
 {# GHG Emissions #}
-{# relevance #}
 <td class="text-center"
-    :data-metric="getPrimaryAnswer(practice).unit"
-    v-if="isGHGEmissionsBreakDown(practice)"
-    v-show="!isActiveCommentsShown(practice)">
-    <select class="form-control"
-            v-model="getAnswerByUnit(practice, 'relevance').measured"
-            @blur="updateAssessmentAnswer(practice, {measured: getAnswerByUnit(practice, 'relevance').measured, unit: 'relevance'})"
-            {% if sample.is_frozen %} disabled{% endif %}>
-        <option value="">Select relevance ...</option>
-        <option value="relevant-and-calculated">Relevant, calculated</option>
-        <option value="relevant-not-yet-calculated">Relevant, not yet calculated</option>
-        <option value="not-relevant-calculated">Not relevant, calculated</option>
-        <option value="not-relevant-explanation-provided">Not relevant, explanation provided</option>
-        <option value="not-evaluated">Not evaluated</option>
-    </select>
-</td>
-<td class="text-center"
-    :colspan="isGHGEmissionsBreakDown(practice) ? 1 : 2"
-    :data-metric="getPrimaryAnswer(practice).unit"
+    colspan="2"
     v-if="isGHGEmissions(practice)"
     v-show="!isActiveCommentsShown(practice)">
-    <input class="form-control text-right"
-              type="text"
-              placeholder=""
-              v-model="getPrimaryAnswer(practice).measured"
-              @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+    <input class="form-control"
+           type="date"
+           v-model="getPrimaryAnswer(practice).baseline_at"
+           @blur="updateAssessmentAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
 </td>
 <td class="text-center"
-    :data-metric="getPrimaryAnswer(practice).unit"
+    colspan="2"
     v-if="isGHGEmissions(practice)"
     v-show="!isActiveCommentsShown(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getPrimaryAnswer(practice).created_at"
+           @blur="updateAssessmentAnswer(practice)"
+           {% if sample.is_frozen %} disabled{% endif %}></input>
+</td>
+<td class="text-center"
+    colspan="2"
+    v-if="isGHGEmissions(practice)"
+    v-show="!isActiveCommentsShown(practice)">
+  <div class="input-group">
+    <input class="form-control text-right"
+              type="number"
+              placeholder=""
+              v-model="getPrimaryAnswer(practice).measured"
+              @blur="updateAssessmentAnswer(practice)"
+           {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control"
             v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+            @blur="updateAssessmentAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
-        <option value="tons-year">Metric Tons CO2/Year</<option>
+        <option value="tons">Metric Tons CO2e</<option>
     </select>
+  </div>
 </td>
 {# end of scope ghg emissions #}
 
 {# when question.unit.system is 'enum' #}
-<td :class="'text-center cell-fix-width-5' + (getPrimaryCandidate(practice).measured === choice.text ? ' candidate-answer' : '')"
+<td :class="'text-center' + (getPrimaryCandidate(practice).measured === choice.text ? ' candidate-answer' : '')"
+    :colspan="getNbInputCols(practice)"
     v-for="(choice, idx) in getChoices(practice, icon)"
     v-if="isEnumUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
@@ -271,15 +314,17 @@
 
 {# Targets #}
 <td class="text-center"
-    :colspan="getNbInputCols(icon)"
-    :data-metric="getPrimaryAnswer(practice).unit"
+    colspan="3"
     v-if="isTargetByUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
-  <select class="form-control"
+  <div class="input-group">
+    <label class="form-control input-group-prefix">
+      {% trans %}Achieve by{% endtrans %}
+    </label>
+    <select class="form-control"
           v-model="getPrimaryAnswer(practice).measured"
-          @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
+          @blur="updateAssessmentAnswer(practice)"
           {% if sample.is_frozen %} disabled{% endif %}>
-          <option value="2021">2021</option>
           <option value="2022">2022</option>
           <option value="2023">2023</option>
           <option value="2024">2024</option>
@@ -309,17 +354,22 @@
           <option value="2048">2048</option>
           <option value="2049">2049</option>
           <option value="2050">2050</option>
-  </select>
+    </select>
+  </div>
 </td>
 <td class="text-center"
-    :colspan="getNbInputCols(icon)"
-    :data-metric="getPrimaryAnswer(practice).unit"
-    v-if="isTargetBaselineUIHint(practice)"
+    colspan="6"
+    v-if="isTargetByUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
-  <select class="form-control"
-          v-model="getPrimaryAnswer(practice).measured"
-          @blur="updateAssessmentAnswer(practice, {measured: getPrimaryAnswer(practice).measured, unit: getPrimaryAnswer(practice).unit})"
-          {% if sample.is_frozen %} disabled{% endif %}>
+  <div class="input-group">
+    <label class="form-control input-group-prefix">
+      {% trans %}Baseline{% endtrans %}
+    </label>
+    <select class="form-control"
+            v-model="getPrimaryAnswer(practice).measured"
+            @blur="updateAssessmentAnswer(practice)"
+            {% if sample.is_frozen %} disabled{% endif %}>
+          <option value="2022">2022</option>
           <option value="2021">2021</option>
           <option value="2020">2020</option>
           <option value="2019">2019</option>
@@ -342,12 +392,13 @@
           <option value="2002">2002</option>
           <option value="2001">2001</option>
           <option value="2000">2000</option>
-  </select>
+    </select>
+  </div>
 </td>
 {# end target #}
 
 {# optional comments #}
-<td :colspan="getNbInputCols(icon)"
+<td colspan="6"
     v-if="isPractice(practice)"
     v-show="isActiveCommentsShown(practice)">
   <div class="row" v-if="getPrimaryCandidate(practice).measured">

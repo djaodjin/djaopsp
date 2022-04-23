@@ -55,9 +55,13 @@ class AssessPracticesView(ReportMixin, TrailMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AssessPracticesView, self).get_context_data(**kwargs)
+        context.update({'prefix': self.full_path})
         update_context_urls(context, {
             'context_base': reverse('pages_index'),
             'api_content': reverse('api_sample_content',
-                args=(self.account, self.sample, self.full_path.lstrip(self.DB_PATH_SEP)))
+                args=(self.account, self.sample,
+                      self.full_path.lstrip(self.URL_PATH_SEP))),
+            'api_assessment_sample': reverse(
+                'survey_api_sample', args=(self.account, self.sample))
         })
         return context

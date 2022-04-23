@@ -3,7 +3,7 @@
 
 from django.conf import settings
 
-from .compat import six
+from .compat import import_string, six
 
 
 class ScoreCalculator(object):

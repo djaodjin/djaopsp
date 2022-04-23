@@ -20,7 +20,8 @@ from survey.api.campaigns import CampaignAPIView as CampaignBaseAPIView
 from .serializers import (ContentElementSerializer,
     CreateContentElementSerializer)
 from ..compat import reverse
-from ..mixins import AccountMixin, get_segments_available
+from ..mixins import AccountMixin
+from ..utils import get_segments_candidates
 
 
 class CampaignContentMixin(AccountMixin):
@@ -49,7 +50,7 @@ class CampaignContentMixin(AccountMixin):
     @property
     def segments_available(self):
         if not hasattr(self, '_segments_available'):
-            candidates = get_segments_available(self.campaign)
+            candidates = get_segments_candidates(self.campaign)
             if self.db_path and self.db_path != self.DB_PATH_SEP:
                 self._segments_available = []
                 for seg in candidates:

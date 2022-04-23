@@ -22,7 +22,7 @@
                     <a class="nav-link icon-inner orange"
                        :href="'#tab-' + icon.slug"
                        role="{{role}}" data-toggle="{{role}}"
-                       @click="toggleTile($event, icon)">
+                       @click.prevent="toggleTile($event, icon)">
                        <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
                        <div class="icon-caption">[[icon.title]]</div>
                     </a>
@@ -31,7 +31,7 @@
                         (<span class="rollup-weight"
                                :data-id="icon.path"
                                data-key="weight"
-                               @click="editScoreWeight($event)">[[humanizeScoreWeight(icon.score_weight, icon.score_percentage)]]</span>)
+                               @click.prevent="editScoreWeight($event)">[[humanizeScoreWeight(icon.score_weight, icon.score_percentage)]]</span>)
                       </div>
                     </div>
                   </li>
@@ -51,14 +51,15 @@
        v-show="itemsLoaded && items.results.length"
        v-cloak>
     <div v-show="!showVsPeers">
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
       <table class="table table-striped table-bordered table-assessment">
         <thead v-if="!isEnumHeaderShown(icon)">
           <tr>
-            <th>
+            <th colspan="6">
               <p>
               </p>
             </th>
-            <th :colspan="getNbInputCols(icon)">
+            <th colspan="6">
               <p>
               </p>
             </th>
@@ -66,9 +67,10 @@
         </thead>
         <thead v-if="isEnumHeaderShown(icon)">
           <tr>
-            <th style="border-bottom:none;">
+            <th colspan="6" style="border-bottom:none;">
             </th>
-            <th class="text-center pb-0" :colspan="getNbInputCols(icon)">
+            <th class="text-center pb-0"
+                colspan="6">
 Implemented as standard practice? <a style="cursor:pointer;" href=""><i class="fa fa-question-circle"></i></a>
               <div class="text-right mt-2">
                 <div style="display:inline-block;">
@@ -94,7 +96,7 @@ Implemented as standard practice? <a style="cursor:pointer;" href=""><i class="f
             </th>
           </tr>
           <tr>
-            <th class="sticky-cell sticky-cell-top">
+            <th class="sticky-cell sticky-cell-top" colspan="6">
               <div class="sticky-cell-content-container">
                 <div class="sticky-cell-content" style="padding-left:0.75rem;">
                   Practices
@@ -102,7 +104,8 @@ Implemented as standard practice? <a style="cursor:pointer;" href=""><i class="f
                 </div>
               </div>
             </th>
-            <th class="sticky-cell sticky-cell-top text-center cell-fix-width-5"
+            <th class="sticky-cell sticky-cell-top text-center"
+                :colspan="getNbInputCols(icon)"
                 v-for="choice in getChoices(icon)">
               <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" :title="choice.descr">
                 <div class="sticky-cell-content">[[choice.text]]</div>
@@ -120,10 +123,10 @@ Implemented as standard practice? <a style="cursor:pointer;" href=""><i class="f
         </tbody>
       </table>
     </div>{# /!showVsPeers #}
-    <div v-if="isEnumHeaderShown(icon)" v-show="showVsPeers">
+    <div v-show="showVsPeers">
       <table class="table table-striped table-bordered table-assessment">
         <thead>
-          <th class="sticky-cell sticky-cell-top">
+          <th class="sticky-cell sticky-cell-top" colspan="6">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content" style="padding-left:0.75rem;">
                 Practices
@@ -131,8 +134,12 @@ Implemented as standard practice? <a style="cursor:pointer;" href=""><i class="f
               </div>
             </div>
           </th>
-          <th class="sticky-cell sticky-cell-top text-center cell-fix-width-5"
-              v-for="choice in getChoices(icon)">
+          <th colspan="6" v-if="!isEnumHeaderShown(icon)">
+          </th>
+          <th class="sticky-cell sticky-cell-top text-center"
+              :colspan="getNbInputCols(icon)"
+              v-for="choice in getChoices(icon)"
+              v-if="isEnumHeaderShown(icon)">
             <div class="sticky-cell-content-container"
                  data-toggle="tooltip"
                  data-placement="bottom"

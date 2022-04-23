@@ -6,9 +6,7 @@ from rest_framework import serializers
 from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementSerializer as BasePageElementSerializer)
-from survey.models import Answer, EnumeratedQuestions, Sample, Unit
 from survey.api.serializers import AnswerSerializer, UnitSerializer
-from survey.utils import get_account_serializer
 
 
 class NoModelSerializer(serializers.Serializer):
@@ -171,7 +169,6 @@ class AssessmentContentSerializer(BasePageElementSerializer):
 
     class Meta(object):
         model = BasePageElementSerializer.Meta.model
-        fields = BasePageElementSerializer.Meta.fields + (
-            'units',)
+        fields = BasePageElementSerializer.Meta.fields + ('units',)
         read_only_fields = BasePageElementSerializer.Meta.read_only_fields + (
             'units',)

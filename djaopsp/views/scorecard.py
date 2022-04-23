@@ -10,12 +10,12 @@ from django.http import Http404, HttpResponseRedirect
 from django.views.generic.base import (RedirectView, TemplateResponseMixin,
     TemplateView)
 from django.views.generic.edit import FormMixin
-from survey.models import Sample
+from survey.models import Campaign, Sample
 from survey.utils import get_account_model
 
 from ..compat import reverse
-from ..mixins import AccountMixin, ReportMixin, VisibilityMixin
-from ..utils import get_latest_active_assessments
+from ..mixins import AccountMixin, ReportMixin
+from ..utils import get_highlights, get_latest_active_assessments
 
 
 LOGGER = logging.getLogger(__name__)
@@ -103,11 +103,10 @@ class ScorecardRedirectView(AccountMixin, FormMixin, TemplateResponseMixin,
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+        return self.form_invalid(form)
 
 
-class ScorecardIndexView(VisibilityMixin, ReportMixin, TemplateView):
+class ScorecardIndexView(ReportMixin, TemplateView):
     """
     Profile scorecard page
     """
@@ -123,24 +122,14 @@ class ScorecardIndexView(VisibilityMixin, ReportMixin, TemplateView):
         context = super(ScorecardIndexView, self).get_context_data(**kwargs)
         context.update({
             'segments_candidates': self.segments_candidates,
-            'highlights': [{
-                'reporting': False,
-                'picture': 'static/img/other.png',
-                'text': "reporting targets"
-            }, {
-               'reporting': False,
-                'picture': 'static/img/data-metrics.png',
-                'text': "reporting data metrics"
-            }, {
-               'reporting': False,
-                'picture': 'static/img/lighting.png',
-                'text': "reporting publicly"
-            }, {
-               'reporting': False,
-                'picture': 'static/img/lighting.png',
-                'text': "reporting audited"
-            }]
+            'highlights': get_highlights(self.sample),
+            'summary_performance': [11, 16, 7, 3]
         })
+        if not self.segments_available:
+            update_context_urls(context, {
+                'complete': "#"  # When there are no answers yet, we want
+                                 # to show the assess step on the scorecard.
+            })
         update_context_urls(context, {
             'context_base': reverse('pages_index'),
             'assess_base': reverse('assess_practices',

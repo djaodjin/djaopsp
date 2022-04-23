@@ -1,7 +1,6 @@
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
 
-from django.conf import settings
 from pages.api.elements import (PageElementAPIView as PageElementBaseAPIView,
 PageElementEditableListAPIView as PageElementEditableListBaseAPIView)
 

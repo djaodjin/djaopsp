@@ -1,16 +1,16 @@
 <div class="progressbar-container pt-4">
   <ul class="progressbar">
-    {% if True or urls.assess %}
-    <li class="active" {% if request.path == urls.assess or request.path == urls.improve or request.path == urls.targets or request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+    {% if urls.assess %}
+    <li {% if request.path == urls.assess or request.path == urls.improve or request.path == urls.targets or request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
       <a id="submenu-assess" href="{{urls.assess}}"><span class="progressbar-step"></span>Assess</a>
     </li>
     {% endif %}
-    {% if True or urls.complete %}
-    <li class="active" {% if request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
-      <a id="submenu-complete" href="{{urls.complete}}"><span class="progressbar-step"></span>Complete</a>
+    {% if urls.complete %}
+    <li {% if request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+      <a id="submenu-complete" href="{{urls.complete}}"><span class="progressbar-step"></span>Review</a>
     </li>
     {% endif %}
-    {% if True or urls.share %}
+    {% if urls.share %}
     <li{% if request.path == urls.share %} class="active"{% endif %}>
       <a id="submenu-share" href="{{urls.share}}"><span class="progressbar-step"></span>Share</a>
     </li>

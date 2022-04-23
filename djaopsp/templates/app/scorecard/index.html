@@ -1,20 +1,20 @@
 {% extends "app/scorecard/base.html" %}
 
 {% block scorecard_content %}
-{% if not sample.is_frozen %}
-<div class="alert alert-warning">
-  <button type="button" class="close" data-dismiss="alert">&times;</button>
-  <div>
-    This report is a work in progress. Once you are ready, please click
-    <em>Complete</em> to freeze it, then share it with customers, investors
-    and other interested 3rd parties.
-  </div>
-</div>
-{% endif %}
 <scorecard inline-template  class="container pt-4">
   <div class="pt-4">
     <div class="bg-white text-dark">
       <section id="summary">
+        {% if not sample.is_frozen %}
+        <div class="alert alert-warning">
+          <div>
+<strong>This report is a work in progress.</strong>
+Once you are ready, please click
+the <em>Complete</em> button at the bottom of the page to freeze it;
+then share it with customers, investors and other interested 3rd parties.
+          </div>
+        </div>
+        {% endif %}
         <div class="row">
           <div class="col-sm-8">
             <div class="row">
@@ -22,8 +22,9 @@
                 <img class="mt-4 img-fluid" style="max-height:2rem;" src="{% if profile.picutre %}{{profile.picture}}{% else %}{{'/static/img/logo-djaodjin-orange.png'|asset}}{% endif %}">
               </div>
               <div class="col-sm-8 text-center text-sm-left">
-                <h2 class="mt-4">{{profile.printable_name}}</h2>
-                <div>{{sample.created_at}}</div>
+                <h1 class="mt-4">{{profile.printable_name}}</h2>
+                <h2>{{sample.campaign.title}}</h2>
+                <div>{{sample.created_at|date}}</div>
               </div>
             </div>
             <div class="row">
@@ -144,7 +145,8 @@ companies responding on practices in the industry segment.
                         </div>
                       </div>
                     </div>
-                    <div class="col-sm-6 col-md-4">
+                    <div class="col-sm-6 col-md-4"
+                         v-if="!isYesNoUIHint(practice)">
                       Opportunity score<br />
                       [[getOpportunity(practice)]]
                     </div>
@@ -154,7 +156,7 @@ companies responding on practices in the industry segment.
                   <div class="bestpractice mt-2">
                     <div class="row">
                       <div class="col-6">
-                        <div>
+                        <div v-if="!isYesNoUIHint(practice)">
                           assessed
                         </div>
                         <div>
@@ -355,39 +357,20 @@ companies responding on practices in the industry segment.
               </div>
             </div>{# /.isWaterUIHint(practice) #}
 
-            <div v-if="isYesNoUIHint(practice)">
-              <div class="row">
-                <div class="col-md-8">
-                  <div :class="indentHeader(practice) + ' mt-2'">
-                    <a class="title"
-                       :href="'{{urls.context_base}}' + practice.slug + '/'">
-                      [[practice.title]]
-                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="bestpractice mt-2">
-                    [[getPrimaryAnswer(practice).measured ? getPrimaryAnswer(practice).measured : "-"]]
-                  </div>
-                  <p v-if="getCommentsAnswer(practice).measured">
-                    [[getCommentsAnswer(practice).measured]]
-                  </p>
-                </div>
-              </div>
-            </div>{# /.isYesNoUIHint(practice) #}
-
           </div>{# /.v-for=getEntries() #}
         </div>
         {% if not sample.is_frozen %}
         <div id="add-segments-actions" class="text-center" v-show="itemsLoaded" v-cloak>
-          <hr />
           <div v-if="items.results.length === 0">
+            <hr />
             <p>
               Get started!
             </p>
-            <a href="{{urls.assess_base}}euissca-rfx/" class="btn btn-primary btn-lg">Start Assessment &raquo;</a>
+            <a id="{{sample.campaign.slug}}-btn" href="{{urls.assess_base}}{{sample.campaign.slug}}/" class="btn btn-primary btn-lg">{% trans %}Start Assessment{% endtrans %} &raquo;</a>
           </div>
+          {% if segments_candidates %}
           <div v-if="items.results.length > 0">
+            <hr />
             <div class="dropdown">
               <button id="segment-selector" class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
                 <span class="text">Add industry-specific assessment</span>
@@ -411,6 +394,7 @@ companies responding on practices in the industry segment.
               </ul>
             </div>
           </div>
+          {% endif %}
         </div> {# /#add-segments-actions #}
         {% endif %}
       </section> {# <!-- /# details --> #}

@@ -27,6 +27,11 @@ def capitalize(text):
 
 
 @register.filter()
+def date(at_time):
+    return at_time.strftime('%Y-%m-%d')
+
+
+@register.filter()
 def messages(obj):
     """
     Messages to be displayed to the current session.

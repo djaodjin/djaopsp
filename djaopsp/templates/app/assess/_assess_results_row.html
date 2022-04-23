@@ -1,6 +1,6 @@
 <td :id="practice.slug"
-    :colspan="isPractice(practice) ? 1 : (1 + getNbInputCols(icon))">
-  <div style="display:inline-block;">
+    :colspan="isPractice(practice) ? 6 : (6 + 6)">
+  <div class="d-inline-block">
     <div :class="indentHeader(practice)"
          style="display:inline-block;">
       <span class="title"
@@ -25,6 +25,7 @@
 </td>
 
 <td :class="'text-center' + ((getPrimaryAnswer(practice).measured !== practice.planned) && (practice.planned === choice.text) ? ' green-level-4' : '') + (getPrimaryAnswer(practice).measured === choice.text ? ' choice-selected' : '')"
+    :colspan="getNbInputCols(practice)"
     v-for="choice in getChoices(icon)"
     v-if="isPractice(practice)">
   <div class="progress" style="margin:0">
