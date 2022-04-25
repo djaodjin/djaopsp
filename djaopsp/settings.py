@@ -481,12 +481,22 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+# djaopsp app
+# -----------
+ACCOUNT_MODEL = 'djaopsp.Account'
+SCORE_CALCULATORS = {
+    '/sustainability/': 'djaopsp.scores.ScoreCalculator',
+    '/metal/boxes-and-enclosures/': 'djaopsp.scores.ScoreCalculator',
+}
+UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members'])
+UNLOCK_EDITORS = set(['managed'])
+
 
 # pages app
 # ---------
 PAGES = {
-    'ACCOUNT_MODEL': 'djaopsp.Account',
     'ACCOUNT_LOOKUP_FIELD': 'slug',
+    'ACCOUNT_MODEL': ACCOUNT_MODEL,
 }
 
 
@@ -494,17 +504,7 @@ PAGES = {
 # ----------
 SURVEY = {
     'ACCOUNT_LOOKUP_FIELD': 'slug',
-    'ACCOUNT_MODEL': 'djaopsp.Account',
+    'ACCOUNT_MODEL': ACCOUNT_MODEL,
     'ACCOUNT_URL_KWARG': 'profile',
     'CONTENT_MODEL': 'pages.PageElement',
 }
-
-
-# djaopsp app
-# -----------
-SCORE_CALCULATORS = {
-    '/sustainability/': 'djaopsp.scores.ScoreCalculator',
-    '/metal/boxes-and-enclosures/': 'djaopsp.scores.ScoreCalculator',
-}
-UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members'])
-UNLOCK_EDITORS = set(['managed'])

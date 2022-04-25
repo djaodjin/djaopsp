@@ -9,20 +9,30 @@ see the file helpers.py in the same directory.
 """
 import json
 
+from django.apps import apps as django_apps
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from pages.helpers import ContentCut
 from pages.models import PageElement, build_content_tree, flatten_content_tree
 from survey.models import Answer, Choice, Sample, Unit
 from survey.utils import get_question_model, is_sqlite3
 
-from .models import Account
-
 
 DB_PATH_SEP = '/'
 
-
 def get_account_model():
-    return Account
+    """
+    Returns the ``Account`` model that is active in this project.
+    """
+    try:
+        return django_apps.get_model(settings.ACCOUNT_MODEL)
+    except ValueError:
+        raise ImproperlyConfigured(
+            "ACCOUNT_MODEL must be of the form 'app_label.model_name'")
+    except LookupError:
+        raise ImproperlyConfigured("ACCOUNT_MODEL refers to model '%s'"\
+" that has not been installed" % settings.ACCOUNT_MODEL)
 
 
 def get_highlights(sample):
