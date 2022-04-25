@@ -177,14 +177,10 @@ schema.yml:
 
 
 $(ASSETS_DIR)/cache/assess.js: $(srcDir)/webpack.config.js \
-                               $(wildcard $(srcDir)/djaopsp/static/js/*.js) \
                                webpack-conf-paths.json \
-                               package.json
+                               $(installTop)/.npm/$(APP_NAME)-packages \
+                               $(wildcard $(srcDir)/djaopsp/static/js/*.js)
 	cd $(srcDir) && $(WEBPACK) -c $<
-
-
-package.json: $(srcDir)/package.json
-	$(installFiles) $^ $@
 
 
 webpack-conf-paths.json: $(srcDir)/djaopsp/settings.py

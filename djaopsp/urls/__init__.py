@@ -1,14 +1,16 @@
 # Copyright (c) 2021, DjaoDjin inc.
 
-from deployutils.apps.django.redirects import AccountRedirectView
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_prefixed)
 from deployutils.apps.django.urlbuilders import url_prefixed
 from django.conf import settings
+from django.views.generic import RedirectView
 from django.views.static import serve as django_static_serve
 from django.urls import path, re_path, include
 
 from .. import __version__
+from ..urlbuilders import login_required
+
 
 if settings.DEBUG: #pylint: disable=no-member
     from django.contrib import admin
@@ -57,15 +59,9 @@ urlpatterns += [
     # User authenticated
     url_prefixed(r'api/', include('djaopsp.urls.api')),
     url_prefixed(r'', include('djaopsp.urls.views')),
-    url_prefixed(r'',
-        AccountRedirectView.as_view(
-            pattern_name='app',
-            slug_url_kwarg='profile',
-            new_account_url=site_prefixed('/users/roles/accept/')),
+    url_prefixed(r'', login_required(RedirectView.as_view(
+            pattern_name='app_redirect')),
         name='homepage'),
-    path('',
-        AccountRedirectView.as_view(
-            pattern_name='app',
-            slug_url_kwarg='profile',
-            new_account_url=site_prefixed('/users/roles/accept/'))),
+    path('', login_required(RedirectView.as_view(
+            pattern_name='app_redirect')))
 ]
