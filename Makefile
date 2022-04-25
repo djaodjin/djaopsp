@@ -272,6 +272,7 @@ $(DESTDIR)$(SYSCONFDIR)/monit.d/%: $(srcDir)/etc/monit.conf
 	install -d $(dir $@)
 	[ -e $@ ] || sed \
 		-e 's,%(APP_NAME)s,$(APP_NAME),g' \
+		-e 's,%(APP_PORT)s,$(APP_NAME),g' \
 		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' $< > $@
 
 $(DESTDIR)$(SYSCONFDIR)/sysconfig/%: $(srcDir)/etc/sysconfig.conf
