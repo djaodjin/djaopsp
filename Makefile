@@ -161,8 +161,6 @@ $(installTop)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $(libDir)/node_modules/vue/dist/vue.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/vue-infinite-loading/dist/vue-infinite-loading.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/lodash/lodash.js $(ASSETS_DIR)/vendor
-
-	$(installFiles) $(srcDir)/djaopsp/static/vendor/chart.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-dashboard.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-menubar.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/hallo.js $(ASSETS_DIR)/vendor
