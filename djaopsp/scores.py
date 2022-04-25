@@ -32,4 +32,4 @@ def get_score_calculator(segment_path):
             settings.SCORE_CALCULATORS):
         if segment_path.startswith(root_path):
             return import_string(calculator_class)()
-    return ScoreCalculator()
+    return None

@@ -31,7 +31,7 @@ DB_USER = None
 DB_PASSWORD = None
 
 update_settings(sys.modules[__name__],
-    load_config(APP_NAME, 'credentials', 'site.conf'))
+    load_config(APP_NAME, 'credentials', 'site.conf', verbose=True))
 
 # Enable override on command line.
 for env_var in ['DEBUG', 'API_DEBUG', 'ASSETS_DEBUG', 'FEATURES_DEBUG']:
@@ -68,7 +68,7 @@ INSTALLED_APPS = DEBUG_APPS + (
     'djaopsp' # project should be the last entry.
 )
 
-MIDDLEWARE = [
+MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -76,7 +76,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+)
 
 ROOT_URLCONF = 'djaopsp.urls'
 WSGI_APPLICATION = 'djaopsp.wsgi.application'
@@ -210,17 +210,15 @@ LOGGING = {
     },
 }
 
-# static assets
-# -------------
+# static assets (CSS, JavaScript, Images)
+# ---------------------------------------
 HTDOCS = os.path.join(BASE_DIR, 'htdocs')
 
 APP_STATIC_ROOT = HTDOCS + '/static'
-if DEBUG:
-    STATIC_ROOT = ''
-    # Additional locations of static files
-    STATICFILES_DIRS = (APP_STATIC_ROOT, HTDOCS,)
-else:
-    STATIC_ROOT = APP_STATIC_ROOT
+STATIC_ROOT = APP_STATIC_ROOT
+#XXXif DEBUG:
+#    # Additional locations of static files
+#    STATICFILES_DIRS = (APP_STATIC_ROOT, HTDOCS,)
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -482,12 +480,14 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+
 # pages app
 # ---------
 PAGES = {
     'ACCOUNT_MODEL': 'djaopsp.Account',
     'ACCOUNT_LOOKUP_FIELD': 'slug',
 }
+
 
 # survey app
 # ----------
@@ -498,8 +498,12 @@ SURVEY = {
     'CONTENT_MODEL': 'pages.PageElement',
 }
 
-# djaopsp
-# -------
-SCORE_CALCULATORS = {}
+
+# djaopsp app
+# -----------
+SCORE_CALCULATORS = {
+    '/sustainability/': 'djaopsp.scores.ScoreCalculator',
+    '/metal/boxes-and-enclosures/': 'djaopsp.scores.ScoreCalculator',
+}
 UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members'])
 UNLOCK_EDITORS = set(['managed'])

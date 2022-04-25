@@ -5,7 +5,8 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
 from deployutils.apps.django.urlbuilders import url_prefixed
 
 from django.conf import settings
-from django.contrib.staticfiles.views import serve as django_static_serve
+from django.views.static import serve as django_static_serve
+#from django.contrib.staticfiles.views import serve as django_static_serve
 from django.urls import path, re_path, include
 from django.views.generic import TemplateView
 
@@ -37,7 +38,7 @@ else:
             {'document_root': settings.HTDOCS}),
         re_path(r'(?P<path>static/.*)', django_static_serve,
             {'document_root': settings.HTDOCS}),
-        path(r'media/%s/<path:path>' % settings.APP_NAME, django_static_serve,
+        path(r'%s<path:path>' % settings.MEDIA_URL, django_static_serve,
             {'document_root': settings.MEDIA_ROOT}),
     ]
 

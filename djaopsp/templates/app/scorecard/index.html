@@ -146,7 +146,7 @@ companies responding on practices in the industry segment.
                       </div>
                     </div>
                     <div class="col-sm-6 col-md-4"
-                         v-if="!isYesNoUIHint(practice)">
+                         v-if="isScoredPractice(practice)">
                       Opportunity score<br />
                       [[getOpportunity(practice)]]
                     </div>

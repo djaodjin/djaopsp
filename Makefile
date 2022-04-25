@@ -35,13 +35,14 @@ MANAGE        := SETTINGS_LOCATION=$(CONFIG_DIR) $(PYTHON) manage.py
 RUNSYNCDB     = $(if $(findstring --run-syncdb,$(shell cd $(srcDir) && $(MANAGE) migrate --help 2>/dev/null)),--run-syncdb,)
 
 
+DOCKER_DB_FILENAME := $(abspath $(srcDir)/db.sqlite)
 ifneq ($(wildcard $(CONFIG_DIR)/site.conf),)
 # `make initdb` will install site.conf but only after `grep` is run
 # and DB_FILNAME set to "". We use the default value in the template site.conf
 # here to prevent that issue.
 DB_FILENAME   := $(shell grep ^DB_NAME $(CONFIG_DIR)/site.conf | cut -f 2 -d '"')
 else
-DB_FILENAME   := $(srcDir)/db.sqlite
+DB_FILENAME   := $(DOCKER_DB_FILENAME)
 endif
 
 MY_EMAIL          ?= $(shell cd $(srcDir) && git config user.email)
@@ -60,6 +61,10 @@ all:
 	@echo "Nothing to be done for 'make'."
 
 
+# We are installing the overridden vendor files along with the ones installed
+# from node_modules.
+#	cd $(srcDir) && cp -rf htdocs htdocs-backups
+#	cd $(srcDir) && $(MANAGE) collectstatic --noinput
 build-assets: $(ASSETS_DIR)/cache/base.css \
               $(ASSETS_DIR)/cache/email.css \
               $(ASSETS_DIR)/cache/assess.js
@@ -89,6 +94,13 @@ initdb:
 	cd $(srcDir) && $(MANAGE) loadfixtures $(EMAIL_FIXTURE_OPT) \
 		djaopsp/fixtures/default-db.json
 
+# We build a local sqlite3 database to be packaged with the Docker image
+# such that the container can be started without prior configuration.
+package-docker-initdb:
+	-[ -f $(DOCKER_DB_FILENAME) ] && rm -f $(DOCKER_DB_FILENAME)
+	cd $(srcDir) && DB_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) migrate $(RUNSYNCDB) --noinput
+	cd $(srcDir) && DB_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) loadfixtures djaopsp/fixtures/default-db.json
+
 
 install:: install-conf
 
@@ -98,7 +110,7 @@ makemessages:
 	cd $(srcDir) && $(MANAGE) makemessages -d djangojs -l fr -l es -l pt --symlinks --no-wrap
 
 
-package-docker: build-assets initdb
+package-docker: build-assets package-docker-initdb
 	cd $(srcDir) && echo $(DOCKER) build .
 
 
@@ -149,6 +161,12 @@ $(installTop)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $(libDir)/node_modules/vue/dist/vue.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/vue-infinite-loading/dist/vue-infinite-loading.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/lodash/lodash.js $(ASSETS_DIR)/vendor
+
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/chart.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-dashboard.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-menubar.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/hallo.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/jquery-ui.js $(ASSETS_DIR)/vendor
 	[ -f $(binDir)/es-check ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/es-check es-check)
 	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/sass sassc)
 	[ -f $(binDir)/swagger-cli ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/swagger-cli swagger-cli)

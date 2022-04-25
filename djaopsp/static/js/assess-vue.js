@@ -259,6 +259,10 @@ var practicesListMixin = {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'number';
         },
+        isScoredPractice: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.opportunity !== null;
+        },
         isWasteUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'waste';
@@ -960,9 +964,9 @@ Vue.component('scorecard', {
             var answer = vm.getPrimaryAnswer(practice);  // XXX more than one
             var period = new Date(answer.created_at).getYear();
             if( !isNaN(period) ) {
-                headers.push(answer.measured);
+                vals.push(answer.measured);
             }
-            return headers;
+            return vals;
         },
         getNbRespondents: function(practice) {
             var vm = this;

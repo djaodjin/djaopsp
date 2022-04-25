@@ -126,7 +126,7 @@ class AssessmentNodeSerializer(BaseNodeElementSerializer):
             return obj.opportunity
         if 'opportunity' in obj:
             return obj['opportunity']
-        return 0
+        return None
 
     @staticmethod
     def get_rank(obj):

@@ -355,14 +355,16 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
         assessment_unit_id = assessment_units_qs.values_list(
             'id', flat=True).first()
         score_calculator = get_score_calculator(prefix)
-        for row in score_calculator.get_opportunity(last_frozen_assessments,
-                prefix=prefix, includes=[self.sample]):
-            question_pk = row['question__id']
-            opportunity = row.get('opportunity', 0)
-            value = questions_by_key.get(question_pk, {})
-            value.update({'opportunity': opportunity})
-            if question_pk not in questions_by_key:
-                questions_by_key.update({question_pk: value})
+        if score_calculator:
+            for row in score_calculator.get_opportunity(
+                    last_frozen_assessments,
+                    prefix=prefix, includes=[self.sample]):
+                question_pk = row['question__id']
+                opportunity = row.get('opportunity', 0)
+                value = questions_by_key.get(question_pk, {})
+                value.update({'opportunity': opportunity})
+                if question_pk not in questions_by_key:
+                    questions_by_key.update({question_pk: value})
 
     def get_planned(self, prefix):
         return []
@@ -398,7 +400,7 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
     def get_serializer_context(self):
         context = super(AssessmentContentAPIView, self).get_serializer_context()
         context.update({
-            'prefix': self.db_path if self.db_path else self.DB_PATH_SEP
+            'prefix': self.db_path if self.db_path else self.DB_PATH_SEP,
         })
         return context
 
