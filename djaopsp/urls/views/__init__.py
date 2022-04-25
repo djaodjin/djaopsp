@@ -36,6 +36,4 @@ urlpatterns = [
             slug_url_kwarg='profile',
             new_account_url=site_prefixed('/users/roles/accept/')),
         name='app_redirect'),
-    path(r'', TemplateView.as_view(template_name='index.html'),
-        name='homepage'),
 ]

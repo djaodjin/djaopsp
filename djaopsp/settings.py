@@ -46,9 +46,9 @@ OPENAPI_SPEC_COMPLIANT = (int(os.getenv('OPENAPI_SPEC_COMPLIANT', "0")) > 0)
 if DEBUG:
     DEBUG_APPS = (
         'django_extensions',
-#XXX cannot import name 'get_safe_settings' from 'django.views.debug'
-#XXX        'debug_toolbar',
-# does not support Jinja2 templates
+# XXX We cannot import name 'get_safe_settings' from 'django.views.debug'
+#        'debug_toolbar',
+# XXX django.contrib.admin does not support Jinja2 templates
 #        'django.contrib.admin',
 #        'django.contrib.admindocs',
     )
@@ -213,18 +213,7 @@ LOGGING = {
 # static assets (CSS, JavaScript, Images)
 # ---------------------------------------
 HTDOCS = os.path.join(BASE_DIR, 'htdocs')
-
-APP_STATIC_ROOT = HTDOCS + '/static'
-STATIC_ROOT = APP_STATIC_ROOT
-#XXXif DEBUG:
-#    # Additional locations of static files
-#    STATICFILES_DIRS = (APP_STATIC_ROOT, HTDOCS,)
-
-# URL prefix for static files.
-# Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
-ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+STATIC_ROOT = os.path.join(HTDOCS, 'static')
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -232,6 +221,16 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'django.contrib.staticfiles.finders.FileSystemFinder',
 )
+
+if DEBUG:
+    # Additional locations of static files
+    STATICFILES_DIRS = (HTDOCS,)
+
+# URL prefix for static files.
+# Example: "http://example.com/static/", "http://static.example.com/"
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 ASSETS_MAP = {
     'cache/base.css': (
@@ -360,6 +359,8 @@ REST_FRAMEWORK = {
 # ----------------
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 SESSION_ENGINE = 'deployutils.apps.django.backends.encrypted_cookies'
+
+JWT_ALGORITHM = 'HS256'
 
 DEPLOYUTILS = {
     # Hardcoded mockups here.
