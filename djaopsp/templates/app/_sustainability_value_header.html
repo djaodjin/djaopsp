@@ -1,0 +1,61 @@
+<th class="sticky-cell sticky-cell-top" colspan="7">
+  <div class="sticky-cell-content-container">
+    <div class="sticky-cell-content" style="padding-left:0.75rem;">
+        Practices
+        {% block toggle %}
+        {% endblock %}
+    </div>
+  </div>
+</th>
+{# environmental_value #}
+<th class="text-center"
+    style="vertical-align:middle;border-top:0;">
+  <div class="btn btn-link btn-sort text-center"
+       @click="sortBy('environmental_value')">
+    <img src="{{'/static/img/green-leaf.png'|asset}}"
+         width="32" hegiht="32" data-toggle="tooltip"
+         title="Environmental value" />
+  </div>
+</th>
+{# business_value #}
+<th class="text-center"
+    style="vertical-align:middle;border-top:0;">
+  <div class="btn btn-link btn-sort text-center"
+       @click="sortBy('business_value')">
+    <img src="{{'/static/img/cogs.png'|asset}}"
+         width="32" hegiht="32" data-toggle="tooltip"
+         title="Ops/Maintenance value" />
+  </div>
+</th>
+{# profitability #}
+<th class="text-center"
+    style="vertical-align:middle;border-top:0;">
+  <div class="btn btn-link btn-sort text-center"
+       @click="sortBy('profitability')">
+    <img src="{{'/static/img/dollar-sign.png'|asset}}"
+         width="32" hegiht="32" data-toggle="tooltip"
+         title="Financial value" />
+  </div>
+</th>
+{# profitability #}
+<th class="text-center"
+    style="vertical-align:middle;border-top:0;">
+  <div class="btn btn-link btn-sort text-center"
+       @click="sortBy('implementation_ease')">
+    <img src="{{'/static/img/shovel.png'|asset}}"
+         width="32" hegiht="32" data-toggle="tooltip"
+         title="Implementation ease" />
+  </div>
+</th>
+{# avg_value #}
+<th class="text-center total-sep"
+    style="vertical-align:middle;border-top:0;">
+  <div class="btn btn-link btn-sort text-center"
+       @click="sortBy('avg_value')">
+    <span data-toggle="tooltip"
+          title="Average Value"
+          style="cursor: default;">
+        Average Value
+    </span>
+  </div>
+</th>

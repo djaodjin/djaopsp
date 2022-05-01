@@ -1,0 +1,68 @@
+<td :id="practice.slug" :colspan="isPractice(practice) ? 7 : 12">
+  <div style="display:inline-block;">
+    <div :class="'d-inline ' + indentHeader(practice)">
+      <span class="title"
+            v-if="!isPractice(practice) && !isPagebreak(practice)">
+        [[practice.title]]
+      </span>
+      <a :href="practice.slug + '/'"
+         v-if="!isPractice(practice) && isPagebreak(practice)">
+        [[practice.title]]
+      </a>
+      <a class="title"
+         :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
+         v-if="isPractice(practice)">
+        [[practice.title]]
+      </a>
+    </div>
+  </div>
+</td>
+
+{# environmental_value #}
+<td :class="'green-level-' + practice['environmental_value'] + ' editable-consumption edit-range cell-fix-width'"
+    {% if is_content_manager %}
+    :data-key="environmental_value"
+    data-range-step="1" data-range-min="0" data-range-max="4"
+    :data-range-value="practice['environmental_value']"
+    @click="editConsumption($event, practice)"
+    @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
+    {% endif %}
+    v-if="isPractice(practice)">
+</td>
+{# business_value #}
+<td :class="'green-level-' + practice['business_value'] + ' editable-consumption edit-range cell-fix-width'"
+    {% if is_content_manager %}
+    :data-key="business_value"
+    data-range-step="1" data-range-min="0" data-range-max="4"
+    :data-range-value="practice['business_value']"
+    @click="editConsumption($event, practice)"
+    @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
+    {% endif %}
+    v-if="isPractice(practice)">
+</td>
+{# profitability #}
+<td :class="'green-level-' + practice['profitability'] + ' editable-consumption edit-range cell-fix-width'"
+    {% if is_content_manager %}
+    :data-key="profitability"
+    data-range-step="1" data-range-min="0" data-range-max="4"
+    :data-range-value="practice['profitability']"
+    @click="editConsumption($event, practice)"
+    @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
+    {% endif %}
+    v-if="isPractice(practice)">
+</td>
+{# implementation_ease #}
+<td :class="'green-level-' + practice['implementation_ease'] + ' editable-consumption edit-range cell-fix-width'"
+    {% if is_content_manager %}
+    :data-key="implementation_ease"
+    data-range-step="1" data-range-min="0" data-range-max="4"
+    :data-range-value="practice['implementation_ease']"
+    @click="editConsumption($event, practice)"
+    @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
+    {% endif %}
+    v-if="isPractice(practice)">
+</td>
+{# avg_value #}
+<td :class="'green-level-' + practice.avg_value + ' cell-fix-width-5 total-sep'"
+    v-if="isPractice(practice)">
+</td>

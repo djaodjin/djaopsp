@@ -1,0 +1,58 @@
+<td :id="practice.slug"
+    :colspan="isPractice(practice) ? 6 : (6 + 6)">
+  <div style="display:inline-block;">
+    <div :class="indentHeader(practice)"
+         style="display:inline-block;">
+      <span class="title"
+            v-if="!isPractice(practice) && !isPagebreak(practice)">
+        [[practice.title]]
+      </span>
+      <a :href="practice.slug + '/'"
+         v-if="!isPractice(practice) && isPagebreak(practice)">
+        [[practice.title]]
+      </a>
+      <div v-if="isPractice(practice) && !isEnumHeaderShown(icon)">
+        <span class="title">[[practice.title]]</span>
+        <span v-if="practice.text && practice.text.indexOf('.png', practice.text.length - 4) < 0" v-bind-html="practice.text"></span>
+      </div>
+      <a class="title"
+         :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
+         v-if="isPractice(practice) && isEnumHeaderShown(icon)">
+        [[practice.title]]
+      </a>
+    </div>
+  </div>
+</td>
+
+<td class="text-center"
+    v-if="isEnumUIHint(practice)"
+    v-show="!isActiveCommentsShown(practice)">
+  <span v-if="getPrimaryAnswer(practice).measured">[[getPrimaryAnswer(practice).measured]]</span>
+  <em v-if="!getPrimaryAnswer(practice).measured">&dash;</em>
+</td>
+<td class="text-center cell-fix-width-3"
+    v-if="isPractice(practice)">
+    [[practice.nb_respondents]] respondents
+    <div class="progress" style="margin:0">
+        <div :class="'progress-bar progress-bar-success green-level-' + practice.avg_value"
+             role="progressbar"
+             :aria-valuenow="getRate(practice)"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             :style="implementationRateStyle(getRate(practice))">
+            <span :class="{'text-muted': !getRate(practice) || getRate(practice) < 35}">[[asPercent(getRate(practice))]]</span>
+        </div>
+    </div>
+</td>
+<td class="text-center cell-fix-width-3 opportunity"
+    v-if="isPractice(practice)">
+    [[getOpportunity(practice)]]
+</td>
+<td class="text-center cell-fix-width-3"
+    v-if="isPractice(practice)">
+    <input class="improvement-checkbox"
+           type="checkbox"
+           {% if sample.is_frozen %} disabled{% endif %}
+           @change="updatePlannedAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).measured" />
+</td>

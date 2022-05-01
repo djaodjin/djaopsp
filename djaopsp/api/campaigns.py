@@ -17,8 +17,7 @@ from survey.models import Campaign, EnumeratedQuestions
 from survey.utils import get_question_model
 from survey.api.campaigns import CampaignAPIView as CampaignBaseAPIView
 
-from .serializers import (ContentElementSerializer,
-    CreateContentElementSerializer)
+from .serializers import ContentNodeSerializer, CreateContentElementSerializer
 from ..compat import reverse
 from ..mixins import AccountMixin
 from ..utils import get_segments_candidates
@@ -98,10 +97,16 @@ class CampaignContentMixin(AccountMixin):
                 queryset = self.get_questions(segment_prefix)
                 for question in queryset:
                     path = question.get('path')
-                    if strip_segment_prefix:
-                        path = path[len(segment_prefix):]
+                    path = path[len(segment_prefix):]
                     parts = path.strip(self.DB_PATH_SEP).split(self.DB_PATH_SEP)
-                    prefix = ''
+                    if strip_segment_prefix:
+                        prefix = ''
+                    else:
+                        segment_prefix_parts = segment_prefix.strip(
+                            self.DB_PATH_SEP).split(self.DB_PATH_SEP)
+                        prefix = self.DB_PATH_SEP.join(
+                            segment_prefix_parts[:-1])
+                        parts = [segment_prefix_parts[-1]] + parts
                     practices = by_tiles
                     for part in parts[:-1]:
                         prefix = self.DB_PATH_SEP.join([prefix, part])
@@ -229,7 +234,7 @@ class CampaignAPIView(CampaignBaseAPIView):
 class CampaignEditableSegmentsAPIView(CampaignContentMixin,
                                       PageElementEditableListAPIView):
 
-    serializer_class = ContentElementSerializer
+    serializer_class = ContentNodeSerializer
 
     def get(self, request, *args, **kwargs):
         """
@@ -337,7 +342,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
 class CampaignEditableContentAPIView(CampaignContentMixin,
                                      PageElementEditableListAPIView):
 
-    serializer_class = ContentElementSerializer
+    serializer_class = ContentNodeSerializer
     strip_segment_prefix = True
 
     def get_serializer_class(self):

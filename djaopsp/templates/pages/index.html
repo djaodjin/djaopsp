@@ -62,7 +62,7 @@
                 <div v-show="itemsLoaded && items.results.length > 0">
                   <div class="row" v-for="idx in nbRows">
                     <div class="col-md-6 mt-2" v-for="item in items.results.slice((idx - 1) * nbItemsPerRow, ((idx - 1) * nbItemsPerRow + nbItemsPerRow) > items.results.length ? items.results.length : ((idx - 1) * nbItemsPerRow + nbItemsPerRow))">
-                      <a :id="item.slug" :href="item.path.substr(1) + '/'">
+                      <a :id="item.slug" :href="'{{urls.pages_index}}' + item.path.substr(1) + '/'">
                         <div class="card bg-white text-dark h-100">
                           <div class="card-body">
                             <div class="row">

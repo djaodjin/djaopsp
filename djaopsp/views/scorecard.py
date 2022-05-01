@@ -131,7 +131,7 @@ class ScorecardIndexView(ReportMixin, TemplateView):
                                  # to show the assess step on the scorecard.
             })
         update_context_urls(context, {
-            'context_base': reverse('pages_index'),
+            'pages_index': reverse('pages_index'),
             'assess_base': reverse('assess_practices',
                 args=(self.account, self.sample, '-'))[:-2],
             'survey_api_sample_answers': reverse('api_sample_content',

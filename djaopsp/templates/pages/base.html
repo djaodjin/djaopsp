@@ -1,21 +1,14 @@
-{% extends "base.html" %}
+{% extends "app/base.html" %}
 
-{% block content %}
-<section  id="app" class="backdrop mb-4">
+{% block app_content %}
+<div>
   {% include "pages/_breadcrumbs.html" %}
   {% block pages_content %}
   {% endblock %}
-</section>
+</div>
 {% endblock %}
 
-{% block bodyscripts %}
-<script type="text/javascript" src="{{'/static/vendor/vue.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/vue-infinite-loading.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/lodash.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/dropzone.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/moment.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/moment-timezone-with-data.js'|asset}}"></script>
-
+{% block app_bodyscripts %}
 <script type="text/javascript" src="{{'/static/vendor/jquery-ui.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/rangy-core.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/hallo.js'|asset}}"></script>
@@ -31,15 +24,5 @@
 {% else %}
 <script type="text/javascript" src="{{'/static/cache/editors.js'|asset}}"></script>
 {% endif %}
-<script type="text/javascript">
-Vue.prototype.$itemsPerPage =
-    {% if items_per_page %}{{items_per_page}}{% else %}25{% endif %};
-Vue.prototype.$urls = {% if urls %}{{urls|to_json}}{% else %}{}{% endif %};
-
-var app = new Vue({
-  el: '#app',
-  delimiters: ["[[","]]"],
-});
-</script>
 {% block pages_scripts %}{% endblock %}
 {% endblock %}

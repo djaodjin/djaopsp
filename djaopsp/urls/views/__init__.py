@@ -33,7 +33,7 @@ urlpatterns = [
     path(r'app/',
         AccountRedirectView.as_view(
             pattern_name='app',
-            slug_url_kwarg='profile',
+            account_url_kwarg='profile',
             new_account_url=site_prefixed('/users/roles/accept/')),
         name='app_redirect'),
 ]

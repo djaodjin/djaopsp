@@ -1,0 +1,32 @@
+[
+{ "fields" : {
+    "slug": "djaopsp",
+    "full_name": "DjaoDjin"
+  },
+  "model" : "djaopsp.account", "pk" : 2
+},
+{ "fields" : {
+    "slug": "alliance",
+    "full_name": "Alliance"
+  },
+  "model" : "djaopsp.account", "pk" : 3
+},
+{ "fields" : {
+    "slug": "energy-utility",
+    "full_name": "Energy Utility"
+  },
+  "model" : "djaopsp.account", "pk" : 4
+},
+{ "fields" : {
+    "slug": "janice-shop",
+    "full_name": "Janice Shop"
+  },
+  "model" : "djaopsp.account", "pk" : 5
+},
+{ "fields" : {
+    "slug": "supplier-1",
+    "full_name": "S1 - Tamerin (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 6
+}
+]

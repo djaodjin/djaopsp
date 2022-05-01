@@ -5,7 +5,14 @@
   </div> <!-- .question-mark -->
   <ol class="col-md-9 breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{urls.pages_index}}">Home</a>
+      {% if profile %}
+      <a href="{{'/app/'|site_prefixed}}{{profile}}/">{{profile.printable_name}}</a>
+      {% else %}
+      <a href="{{'/app/'|site_prefixed}}">Home</a>
+      {% endif %}
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{{urls.pages_index}}">Knowledge Sharing</a>
     </li>
     {% for breadcrumb_tuple in breadcrumbs %}
     <li class="breadcrumb-item">

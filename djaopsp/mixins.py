@@ -4,9 +4,9 @@
 from deployutils.apps.django import mixins as deployutils_mixins
 from deployutils.helpers import update_context_urls
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, F
 from survey.mixins import SampleMixin
-from survey.models import Campaign
+from survey.models import Campaign, Sample
 from survey.utils import get_account_model
 
 from .compat import reverse
@@ -70,6 +70,57 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin):
     """
     Loads assessment and improvement for a profile
     """
+
+    @property
+    def improvement_sample(self):
+        """
+        Matching improvement sample for the assessment.
+        """
+        if not hasattr(self, '_improvement_sample'):
+            self._improvement_sample = None
+            assessment_sample = self.sample
+            account = assessment_sample.account
+            campaign = assessment_sample.campaign
+            sample_kwarg = self.kwargs.get('sample', None)
+            if sample_kwarg:
+                try:
+                    self._improvement_sample = Sample.objects.filter(
+                        Q(account=account) |
+                        (Q(account__portfolios__grantee=self.account) &
+                         Q(account__portfolios__ends_at__gte=F('created_at'))),
+                        slug=sample_kwarg,
+                        extra__contains='is_planned').select_related(
+                            'campaign', 'account').get()
+                except Sample.DoesNotExist:
+                    # The sample slug might be matching an improvement sample.
+                    next_assessment = Sample.objects.filter(
+                        campaign=campaign,
+                        account=account,
+                        created_at__gt=assessment_sample.created_at,
+                        is_frozen=assessment_sample.is_frozen).exclude(
+                        extra__contains='is_planned').order_by(
+                        'created_at').first()
+                    # first improvement sample after assessment but no later
+                    # than next assessment.
+                    kwargs = {}
+                    if next_assessment:
+                        kwargs = {
+                            'created_at__lt': next_assessment.created_at
+                        }
+                    self._improvement_sample = Sample.objects.filter(
+                        campaign=campaign,
+                        account=account,
+                        extra__contains='is_planned',
+                        is_frozen=assessment_sample.is_frozen,
+                        created_at__gte=assessment_sample.created_at,
+                        **kwargs).order_by('created_at').first()
+            if not self._improvement_sample and not assessment_sample.is_frozen:
+                self._improvement_sample, created = \
+                    Sample.objects.get_or_create(
+                        account=account, campaign=campaign, is_frozen=False,
+                        extra='is_planned')
+        return self._improvement_sample
+
     @property
     def segments_available(self):
         if not hasattr(self, '_segments_available'):
@@ -118,11 +169,16 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin):
         if path:
             assess_url = reverse('assess_practices',
                 args=(self.account, self.sample, path))
+            improve_url = reverse('improve_practices',
+                args=(self.account, self.sample, path))
         else:
             assess_url = reverse('scorecard',
                 args=(self.account, self.sample,))
+            improve_url = reverse('scorecard',
+                args=(self.account, self.sample,))
         update_context_urls(context, {
             'assess': assess_url,
+            'improve': improve_url,
             'complete': reverse('scorecard',
                 args=(self.account, self.sample,)),
             'share': reverse('share', args=(self.account, self.sample,)),

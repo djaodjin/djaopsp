@@ -60,7 +60,7 @@ start here.
           {% if latest_completed_assessment %}
           <div>
             <p>
-Last completed on <date>{{latest_completed_assessment.created_at}}</date>{% if latest_completed_assessment.author %} by <author>{{latest_completed_assessment.author}}</author>{% endif %}.
+Last completed on <date>{{latest_completed_assessment.created_at|date}}</date>{% if latest_completed_assessment.author %} by <author>{{latest_completed_assessment.author}}</author>{% endif %}.
             </p>
             <div class="row">
               <div class="col-sm-6">

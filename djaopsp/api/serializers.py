@@ -8,6 +8,8 @@ from pages.serializers import (
     PageElementSerializer as BasePageElementSerializer)
 from survey.api.serializers import AnswerSerializer, UnitSerializer
 
+from ..utils import get_practice_serializer
+
 
 class NoModelSerializer(serializers.Serializer):
 
@@ -18,17 +20,45 @@ class NoModelSerializer(serializers.Serializer):
         raise RuntimeError('`update()` should not be called.')
 
 
-class ContentElementSerializer(BaseNodeElementSerializer):
+class PracticeSerializer(BaseNodeElementSerializer):
+
+    avg_value = serializers.SerializerMethodField()
+
+    class Meta(BaseNodeElementSerializer.Meta):
+        model = BaseNodeElementSerializer.Meta.model
+        fields = BaseNodeElementSerializer.Meta.fields + (
+            'avg_value',)
+
+    @staticmethod
+    def get_avg_value(obj):
+        if hasattr(obj, 'avg_value'):
+            return obj.avg_value
+        if 'avg_value' in obj:
+            return obj['avg_value']
+        return None
+
+
+PRACTICE_SERIALIZER = get_practice_serializer()
+
+
+class ContentNodeSerializer(PRACTICE_SERIALIZER):
 
     url = serializers.CharField(required=False)
     nb_referencing_practices = serializers.IntegerField(required=False)
     segments = serializers.ListSerializer(child=serializers.CharField(),
         required=False)
 
-    class Meta(BaseNodeElementSerializer.Meta):
-        model = BaseNodeElementSerializer.Meta.model
-        fields = BaseNodeElementSerializer.Meta.fields + (
-            'slug', 'url', 'nb_referencing_practices', 'segments')
+    class Meta(PRACTICE_SERIALIZER.Meta):
+        fields = PRACTICE_SERIALIZER.Meta.fields + (
+            'url', 'nb_referencing_practices', 'segments')
+
+
+class ContentElementSerializer(BasePageElementSerializer):
+    """
+    Serializes a PageElement extended with intrinsic values
+    """
+    results = serializers.ListField(required=False,
+        child=ContentNodeSerializer())
 
 
 class CreateParentSerializer(NoModelSerializer):
@@ -37,13 +67,13 @@ class CreateParentSerializer(NoModelSerializer):
     title = serializers.CharField(required=False)
 
 
-class CreateContentElementSerializer(ContentElementSerializer):
+class CreateContentElementSerializer(ContentNodeSerializer):
 
     parents = CreateParentSerializer(many=True)
 
-    class Meta(ContentElementSerializer.Meta):
-        model = ContentElementSerializer.Meta.model
-        fields = ContentElementSerializer.Meta.fields + (
+    class Meta(ContentNodeSerializer.Meta):
+        model = ContentNodeSerializer.Meta.model
+        fields = ContentNodeSerializer.Meta.fields + (
             'parents',)
 
 
@@ -73,7 +103,7 @@ class TableSerializer(NoModelSerializer):
         help_text="Datapoints in the serie")
 
 
-class AssessmentNodeSerializer(BaseNodeElementSerializer):
+class AssessmentNodeSerializer(PRACTICE_SERIALIZER):
     """
     One practice retrieved through the assess content API
     """
@@ -90,13 +120,12 @@ class AssessmentNodeSerializer(BaseNodeElementSerializer):
     rate = serializers.SerializerMethodField(required=False)
     opportunity = serializers.SerializerMethodField(required=False)
 
-    class Meta(object):
-        model = BaseNodeElementSerializer.Meta.model
-        fields = BaseNodeElementSerializer.Meta.fields + (
+    class Meta(PRACTICE_SERIALIZER.Meta):
+        fields = PRACTICE_SERIALIZER.Meta.fields + (
             'rank', 'required', 'default_unit', 'ui_hint',
             'answers', 'candidates', 'planned',
             'nb_respondents', 'rate', 'opportunity')
-        read_only_fields = BaseNodeElementSerializer.Meta.read_only_fields + (
+        read_only_fields = PRACTICE_SERIALIZER.Meta.read_only_fields + (
             'rank', 'required', 'default_unit', 'ui_hint',
             'answers', 'candidates', 'planned',
             'nb_respondents', 'rate', 'opportunity')

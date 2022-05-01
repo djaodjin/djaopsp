@@ -8,7 +8,7 @@ from ..mixins import AccountMixin
 
 class ContentIndexView(PageElementView):
 
-    template_name = 'pages/index.html'
+    account_url_kwarg = 'profile'
 
 
 class ContentDetailView(PageElementView):

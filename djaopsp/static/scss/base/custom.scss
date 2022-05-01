@@ -45,7 +45,7 @@ $green-level-4-color: #FFD700;
 }
 .progressbar li {
   list-style-type: none;
-  width: 33%;
+  width: 25%;
   float: left;
   font-size: 12px;
   text-align: center;
@@ -1069,21 +1069,17 @@ a.text-grey{
   color: white;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu {
+.dropdown>.dropdown-menu {
   color: #000;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li {
+.dropdown>.dropdown-menu>li {
     margin-left: 5px;
     font-size: 18px;
     font-weight: 900;
 }
 
-.dropdown.dropdown-homepage .dropdown-item {
-  width: auto;
-}
-
-.dropdown.dropdown-homepage>.dropdown-menu>li>div {
+.dropdown>.dropdown-menu>li>div {
   display: block;
   padding: 3px 20px;
   clear: both;
@@ -1092,12 +1088,12 @@ a.text-grey{
   white-space: nowrap;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li>div:hover {
+.dropdown>.dropdown-menu>li>div:hover {
     background-color: #f5f5f5;
 }
 
 /*disabled are shown as buttons. */
-.dropdown.dropdown-homepage>.dropdown-menu>li button {
+.dropdown>.dropdown-menu>li button {
   background-color: transparent;
   color: #555;
   text-align: left;
@@ -1109,37 +1105,37 @@ a.text-grey{
   cursor: default;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li [type="checkbox"] {
+.dropdown>.dropdown-menu>li [type="checkbox"] {
   margin: 0 6px 0 0;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item a,
-.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item a:hover {
+.dropdown>.dropdown-menu>li.dropdown-item a,
+.dropdown>.dropdown-menu>li.dropdown-item a:hover {
   color: #555;
   text-decoration: none;
   cursor: pointer;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li .disabled,
-.dropdown.dropdown-homepage>.dropdown-menu>li a[disabled] {
+.dropdown>.dropdown-menu>li .disabled,
+.dropdown>.dropdown-menu>li a[disabled] {
   color: gray;
   font-style: italic;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item-indent-1 {
+.dropdown>.dropdown-menu>li.dropdown-item-indent-1 {
   list-style: none;
   margin-left: 25px;
   font-size: 16px;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item-indent-1 a,
-.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item-indent-1 a:hover {
+.dropdown>.dropdown-menu>li.dropdown-item-indent-1 a,
+.dropdown>.dropdown-menu>li.dropdown-item-indent-1 a:hover {
     color: #555;
     text-decoration: none;
     cursor: pointer;
 }
 
-.dropdown.dropdown-homepage>.dropdown-menu>li.dropdown-item-indent-1>div:hover {
+.dropdown>.dropdown-menu>li.dropdown-item-indent-1>div:hover {
     background-color: #f5f5f5;
 }
 

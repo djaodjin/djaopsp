@@ -1,34 +1,4 @@
 [
-{ "fields" : {
-    "slug": "djaopsp",
-    "full_name": "DjaoDjin"
-  },
-  "model" : "djaopsp.account", "pk" : 2
-},
-{ "fields" : {
-    "slug": "alliance",
-    "full_name": "Alliance"
-  },
-  "model" : "djaopsp.account", "pk" : 3
-},
-{ "fields" : {
-    "slug": "energy-utility",
-    "full_name": "Energy Utility"
-  },
-  "model" : "djaopsp.account", "pk" : 4
-},
-{ "fields" : {
-    "slug": "janice-shop",
-    "full_name": "Janice Shop"
-  },
-  "model" : "djaopsp.account", "pk" : 5
-},
-{ "fields" : {
-    "slug": "supplier-1",
-    "full_name": "S1 - Tamerin (Demo)"
-  },
-  "model" : "djaopsp.account", "pk" : 6
-},
 { "fields": {
     "slug": "assessment",
     "title": "Assessment",
@@ -261,23 +231,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/responsability-authority/assign-formal-authority",
-    "content": 4,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 1
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 1,
-    "rank": 1,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 1
-},
-{
-  "fields": {
     "title": "Environmental Policy",
     "slug": "environmental-policy",
     "account": 2
@@ -308,23 +261,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/environmental-policy/formalized-esg-strategy",
-    "content": 6,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 2
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 2,
-    "rank": 2,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 2
-},
-{
-  "fields": {
     "title": "Does your organization have an Employee Code of Conduct in place?",
     "slug": "employee-code-of-conduct",
     "picture": "/static/img/management-basics.png",
@@ -337,23 +273,6 @@
     "orig_element": 5, "dest_element": 7
   },
   "model": "pages.RelationShip", "pk": 6
-},
-{
-  "fields": {
-    "path": "/sustainability/governance-management/environmental-policy/employee-code-of-conduct",
-    "content": 7,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 3
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 3,
-    "rank": 3,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 3
 },
 {
   "fields": {
@@ -372,23 +291,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/environmental-policy/supplier-code-of-conduct",
-    "content": 6,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 4
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 4,
-    "rank": 4,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 4
-},
-{
-  "fields": {
     "title": "Report on the following KPIs related to sustainable procurement...",
     "slug": "report-sustainable-procurement",
     "picture": "/static/img/management-basics.png",
@@ -401,23 +303,6 @@
     "orig_element": 5, "dest_element": 9
   },
   "model": "pages.RelationShip", "pk": 8
-},
-{
-  "fields": {
-    "path": "/sustainability/governance-management/environmental-policy/report-sustainable-procurement",
-    "content": 9,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 5
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 5,
-    "rank": 5,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 5
 },
 
 
@@ -453,23 +338,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/environmental-reporting/report-internally",
-    "content": 11,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 6
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 6,
-    "rank": 6,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 6
-},
-{
-  "fields": {
     "title": "Report externally on strategy: program elements, key ESG issues and goals, challenges, and continual improvement efforts in accordance with a reputable reporting standard (e.g. GRI, SASB).",
     "slug": "report-externally",
     "picture": "/static/img/management-basics.png",
@@ -482,23 +350,6 @@
     "orig_element": 10, "dest_element": 12
   },
   "model": "pages.RelationShip", "pk": 11
-},
-{
-  "fields": {
-    "path": "/sustainability/governance-management/environmental-reporting/report-externally",
-    "content": 12,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 7
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 7,
-    "rank": 7,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 7
 },
 {
   "fields": {
@@ -517,24 +368,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/environmental-reporting/report-3rd-party-verified",
-    "content": 13,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 8
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 8,
-    "rank": 8,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 8
-},
-
-{
-  "fields": {
     "title": "Has your organization had any significant ESG fines/ penalties (e.g. > USD $10,000, class action lawsuits, repeated breaches of Codes of Conduct) in the past five years?",
     "slug": "environmental-fines",
     "picture": "/static/img/management-basics.png",
@@ -550,24 +383,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/environmental-reporting/environmental-fines",
-    "content": 13,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 9
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 9,
-    "rank": 9,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 9
-},
-
-{
-  "fields": {
     "title": "Where is information about these incidents publicly available?",
     "slug": "environmental-fines-publicly-reported",
     "picture": "/static/img/management-basics.png",
@@ -580,23 +395,6 @@
     "orig_element": 10, "dest_element": 15
   },
   "model": "pages.RelationShip", "pk": 14
-},
-{
-  "fields": {
-    "path": "/sustainability/governance-management/environmental-reporting/environmental-fines-publicly-reported",
-    "content": 15,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 10
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 10,
-    "rank": 10,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 10
 },
 {
   "fields": {
@@ -631,23 +429,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/management-system-rigor/systematic-rigorous-assessment",
-    "content": 17,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 11
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 11,
-    "rank": 11,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 11
-},
-{
-  "fields": {
     "title": "Have job-specific responsibilities for implementing controls, etc. actively in place from management to applicable individual contributors.",
     "slug": "job-specific-responsibilities",
     "picture": "/static/img/management-basics.png",
@@ -661,24 +442,6 @@
   },
   "model": "pages.RelationShip", "pk": 17
 },
-{
-  "fields": {
-    "path": "/sustainability/governance-management/management-system-rigor/job-specific-responsibilities",
-    "content": 18,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 12
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 12,
-    "rank": 12,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 12
-},
-
 {
   "fields": {
     "title": "Implement an environmental management system that conforms with a recognized international (e.g. ISO 14001) or local standard and indicate the coverage of the standard in your business and or facilities.",
@@ -696,24 +459,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/management-system-rigor/implement-environmental-management",
-    "content": 19,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 13
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 13,
-    "rank": 13,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 13
-},
-
-{
-  "fields": {
     "title": "Have the system certified to a recognized local or international standard.",
     "slug": "system-certified",
     "picture": "/static/img/management-basics.png",
@@ -729,23 +474,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/management-system-rigor/system-certified",
-    "content": 20,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 14
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 14,
-    "rank": 14,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 14
-},
-{
-  "fields": {
     "title": "Have the system periodically audited internally and by an independent third party.",
     "slug": "system-periodically-audited",
     "picture": "/static/img/management-basics.png",
@@ -758,23 +486,6 @@
     "orig_element": 10, "dest_element": 21
   },
   "model": "pages.RelationShip", "pk": 20
-},
-{
-  "fields": {
-    "path": "/sustainability/governance-management/management-system-rigor/system-periodically-audited",
-    "content": 21,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 15
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 15,
-    "rank": 15,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 15
 },
 {
   "fields": {
@@ -794,24 +505,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/environmental-policy/conflict-minerals",
-    "content": 23,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 17
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 17,
-    "rank": 17,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 17
-},
-
-{
-  "fields": {
     "title": "Is your company sourcing from any high risk regions (e.g. DRC, Xinjiang, etc.)?",
     "slug": "high-risk-regions-sourcing",
     "picture": "/static/img/data-metrics.png",
@@ -828,24 +521,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/environmental-policy/high-risk-regions-sourcing",
-    "content": 24,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 18
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 18,
-    "rank": 18,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 18
-},
-
-{
-  "fields": {
     "title": "Has your company implemented a monitoring and investigation system to ensure conformity with local laws, ILO requirements, and your Codes of Conduct?",
     "slug": "conformity-monitoring",
     "picture": "/static/img/data-metrics.png",
@@ -860,24 +535,6 @@
   },
   "model": "pages.RelationShip", "pk": 23
 },
-{
-  "fields": {
-    "path": "/sustainability/governance-management/environmental-policy/conformity-monitoring",
-    "content": 25,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 19
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 19,
-    "rank": 19,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 19
-},
-
 {
   "fields": {
     "title": "Promotion of worker health",
@@ -913,23 +570,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/worker-health/kpi-employee-health-safety",
-    "content": 25,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 20
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 20,
-    "rank": 20,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 20
-},
-{
-  "fields": {
     "title": "Does your company report Key Performance Indicators (KPIs) on Working Conditions?",
     "slug": "kpi-work-conditions",
     "picture": "/static/img/data-metrics.png",
@@ -943,23 +583,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 26
-},
-{
-  "fields": {
-    "path": "/sustainability/governance-management/worker-health/kpi-work-conditions",
-    "content": 28,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 21
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 21,
-    "rank": 21,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 21
 },
 {
   "fields": {
@@ -979,23 +602,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/worker-health/kpi-career-management-training",
-    "content": 27,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 22
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 22,
-    "rank": 22,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 22
-},
-{
-  "fields": {
     "title": "Does your company report Key Performance Indicators (KPIs) on Diversity, Discrimination & Harassment?",
     "slug": "kpi-diversity-discrimination-harassment",
     "picture": "/static/img/data-metrics.png",
@@ -1009,23 +615,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 28
-},
-{
-  "fields": {
-    "path": "/sustainability/governance-management/worker-health/kpi-diversity-discrimination-harassment",
-    "content": 30,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 23
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 23,
-    "rank": 23,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 23
 },
 {
   "fields": {
@@ -1045,23 +634,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/worker-health/kpi-recordable-incident-rate",
-    "content": 31,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 24
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 24,
-    "rank": 24,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 24
-},
-{
-  "fields": {
     "title": "Does your company report Key Performance Indicators (KPIs) on Lost-time Case Rate?",
     "slug": "kpi-lost-time-case-rate",
     "picture": "/static/img/data-metrics.png",
@@ -1075,23 +647,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 30
-},
-{
-  "fields": {
-    "path": "/sustainability/governance-management/worker-health/kpi-lost-time-case-rate",
-    "content": 32,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 25
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 25,
-    "rank": 25,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 25
 },
 {
   "fields": {
@@ -1111,23 +666,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/worker-health/kpi-dart-rate",
-    "content": 33,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 26
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 26,
-    "rank": 26,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 26
-},
-{
-  "fields": {
     "title": "Does your company report Key Performance Indicators (KPIs) on Work-related Fatalities?",
     "slug": "kpi-work-related-fatalities",
     "picture": "/static/img/data-metrics.png",
@@ -1141,23 +679,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 33
-},
-{
-  "fields": {
-    "path": "/sustainability/governance-management/worker-health/kpi-work-related-fatalities",
-    "content": 34,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 27
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 27,
-    "rank": 27,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 27
 },
 {
   "fields": {
@@ -1211,24 +732,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/energy-measured/energy-consumed",
-    "content": 10,
-    "default_unit": 5,
-    "ui_hint": "energy"
-  },
-  "model": "survey.question", "pk": 28
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 28,
-    "rank": 28,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 28
-},
-{
-  "fields": {
     "title": "Energy Performance Publicly Reported",
     "slug": "energy-publicly-reported",
     "picture": "/static/img/data-metrics.png",
@@ -1242,23 +745,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 37
-},
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/energy-measured/energy-publicly-reported",
-    "content": 11,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 29
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 29,
-    "rank": 29,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 29
 },
 {
   "fields": {
@@ -1276,24 +762,6 @@
   },
   "model": "pages.RelationShip", "pk": 39
 },
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/energy-measured/energy-3rd-party-verified",
-    "content": 12,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 30
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 30,
-    "rank": 30,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 30
-},
-
 {
   "fields": {
     "title": "GHG Emissions",
@@ -1327,24 +795,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope1",
-    "content": 10,
-    "default_unit": 6,
-    "ui_hint": "ghg-emissions"
-  },
-  "model": "survey.question", "pk": 31
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 31,
-    "rank": 31,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 31
-},
-{
-  "fields": {
     "title": "Total scope 2 GHG Emissions",
     "slug": "ghg-emissions-scope2",
     "picture": "/static/img/data-metrics.png",
@@ -1358,24 +808,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 42
-},
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope2",
-    "content": 10,
-    "default_unit": 6,
-    "ui_hint": "ghg-emissions"
-  },
-  "model": "survey.question", "pk": 32
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 32,
-    "rank": 32,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 32
 },
 {
   "fields": {
@@ -1395,24 +827,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3",
-    "content": 10,
-    "default_unit": 6,
-    "ui_hint": "ghg-emissions"
-  },
-  "model": "survey.question", "pk": 33
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 33,
-    "rank": 33,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 33
-},
-{
-  "fields": {
     "title": "GHG Emissions Performance Publicly Reported",
     "slug": "ghg-emissions-publicly-reported",
     "picture": "/static/img/data-metrics.png",
@@ -1426,23 +840,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 44
-},
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-publicly-reported",
-    "content": 11,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 34
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 34,
-    "rank": 34,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 34
 },
 {
   "fields": {
@@ -1460,24 +857,6 @@
   },
   "model": "pages.RelationShip", "pk": 45
 },
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-3rd-party-verified",
-    "content": 12,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 35
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 35,
-    "rank": 35,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 35
-},
-
 
 {
   "fields": {
@@ -1512,24 +891,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/water-measured/water-withdrawn",
-    "content": 10,
-    "default_unit": 7,
-    "ui_hint": "water"
-  },
-  "model": "survey.question", "pk": 36
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 36,
-    "rank": 36,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 36
-},
-{
-  "fields": {
     "title": "Total Water discharged",
     "slug": "water-discharged",
     "picture": "/static/img/data-metrics.png",
@@ -1543,24 +904,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 48
-},
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/water-measured/water-discharged",
-    "content": 10,
-    "default_unit": 7,
-    "ui_hint": "water"
-  },
-  "model": "survey.question", "pk": 37
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 37,
-    "rank": 37,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 37
 },
 {
   "fields": {
@@ -1580,25 +923,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/water-measured/water-recycled",
-    "content": 10,
-    "default_unit": 7,
-    "ui_hint": "water"
-  },
-  "model": "survey.question", "pk": 38
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 38,
-    "rank": 38,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 38
-},
-
-{
-  "fields": {
     "title": "Water Performance Publicly Reported",
     "slug": "water-publicly-reported",
     "picture": "/static/img/data-metrics.png",
@@ -1612,23 +936,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 50
-},
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/water-measured/water-publicly-reported",
-    "content": 11,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 39
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 39,
-    "rank": 39,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 39
 },
 {
   "fields": {
@@ -1646,24 +953,6 @@
   },
   "model": "pages.RelationShip", "pk": 51
 },
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/water-measured/water-3rd-party-verified",
-    "content": 12,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 40
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 40,
-    "rank": 40,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 40
-},
-
 
 {
   "fields": {
@@ -1698,24 +987,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-hazardous",
-    "content": 10,
-    "default_unit": 6,
-    "ui_hint": "waste"
-  },
-  "model": "survey.question", "pk": 41
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 41,
-    "rank": 41,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 41
-},
-{
-  "fields": {
     "title": "Total Non-Hazardous Waste",
     "slug": "waste-non-hazardous",
     "picture": "/static/img/data-metrics.png",
@@ -1729,24 +1000,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 54
-},
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-non-hazardous",
-    "content": 10,
-    "default_unit": 6,
-    "ui_hint": "waste"
-  },
-  "model": "survey.question", "pk": 42
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 42,
-    "rank": 42,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 42
 },
 {
   "fields": {
@@ -1766,24 +1019,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-recycled",
-    "content": 10,
-    "default_unit": 6,
-    "ui_hint": "waste"
-  },
-  "model": "survey.question", "pk": 43
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 43,
-    "rank": 43,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 43
-},
-{
-  "fields": {
     "title": "Waste Performance Publicly Reported",
     "slug": "waste-publicly-reported",
     "picture": "/static/img/data-metrics.png",
@@ -1797,23 +1032,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 56
-},
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-publicly-reported",
-    "content": 11,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 44
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 44,
-    "rank": 44,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 44
 },
 {
   "fields": {
@@ -1831,24 +1049,6 @@
   },
   "model": "pages.RelationShip", "pk": 57
 },
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-3rd-party-verified",
-    "content": 12,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 45
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 45,
-    "rank": 45,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 45
-},
-
 {
   "fields": {
     "title": "General information",
@@ -1882,23 +1082,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/general-information/gross-revenue",
-    "content": 60,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 46
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 46,
-    "rank": 46,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 46
-},
-{
-  "fields": {
     "title": "Full-time employee count",
     "slug": "employee-count",
     "picture": "/static/img/data-metrics.png",
@@ -1913,24 +1096,6 @@
   },
   "model": "pages.RelationShip", "pk": 61
 },
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/general-information/employee-count",
-    "content": 61,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 47
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 47,
-    "rank": 47,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 47
-},
-
 
 {
   "fields": {
@@ -1983,24 +1148,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/energy-target/energy-target-by",
-    "content": 6,
-    "ui_hint": "target-by",
-    "default_unit": 3
-  },
-  "model": "survey.Question", "pk": 48
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 48,
-    "rank": 48,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 48
-},
-{
-  "fields": {
     "title": "Energy Target Comments",
     "slug": "energy-target-comments",
     "picture": "/static/img/data-metrics.png",
@@ -2014,23 +1161,6 @@
     "rank": 1
   },
   "model": "pages.RelationShip", "pk": 65
-},
-{
-  "fields": {
-    "path": "/sustainability/targets/energy-target/energy-target-comments",
-    "content": 6,
-    "ui_hint": "textarea",
-    "default_unit": 3
-  },
-  "model": "survey.Question", "pk": 49
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 49,
-    "rank": 49
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 49
 },
 {
   "fields": {
@@ -2065,24 +1195,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/ghg-emissions-target/ghg-emissions-target-by",
-    "content": 7,
-    "ui_hint": "target-by",
-    "default_unit": 3
-  },
-  "model": "survey.Question", "pk": 50
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 50,
-    "rank": 50,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 50
-},
-{
-  "fields": {
     "title": "GHG Emissions Target Comments",
     "slug": "ghg-emissions-target-comments",
     "picture": "/static/img/data-metrics.png",
@@ -2096,23 +1208,6 @@
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 68
-},
-{
-  "fields": {
-    "path": "/sustainability/targets/ghg-emissions-target/ghg-emissions-target-comments",
-    "content": 7,
-    "ui_hint": "textarea",
-    "default_unit": 3
-  },
-  "model": "survey.Question", "pk": 51
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 51,
-    "rank": 51
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 51
 },
 {
   "fields": {
@@ -2147,24 +1242,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/water-target/water-target-by",
-    "content": 8,
-    "ui_hint": "target-by",
-    "default_unit": 3
-  },
-  "model": "survey.Question", "pk": 53
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 53,
-    "rank": 53,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 53
-},
-{
-  "fields": {
     "title": "Water Target Comments",
     "slug": "water-target-comments",
     "picture": "/static/img/data-metrics.png",
@@ -2178,23 +1255,6 @@
     "rank": 3
   },
   "model": "pages.RelationShip", "pk": 71
-},
-{
-  "fields": {
-    "path": "/sustainability/targets/water-target/water-target-comments",
-    "content": 8,
-    "ui_hint": "textarea",
-    "default_unit": 3
-  },
-  "model": "survey.Question", "pk": 54
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 54,
-    "rank": 54
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 54
 },
 {
   "fields": {
@@ -2229,24 +1289,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/waste-target/waste-target-by",
-    "content": 9,
-    "ui_hint": "target-by",
-    "default_unit": 3
-  },
-  "model": "survey.Question", "pk": 55
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 55,
-    "rank": 55,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 55
-},
-{
-  "fields": {
     "title": "Waste Target Comments",
     "slug": "waste-target-comments",
     "picture": "/static/img/data-metrics.png",
@@ -2261,24 +1303,6 @@
   },
   "model": "pages.RelationShip", "pk": 74
 },
-{
-  "fields": {
-    "path": "/sustainability/targets/waste-target/waste-target-comments",
-    "content": 9,
-    "ui_hint": "textarea",
-    "default_unit": 3
-  },
-  "model": "survey.Question", "pk": 56
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 56,
-    "rank": 56
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 56
-},
-
 
 {
   "fields": {
@@ -2293,7 +1317,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "extra": "{\"pagebreak\":true,\"searchable\":true,\"visibility\":[\"public\"]}",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"pagebreak\":true,\"layouts\":[\"sustainability\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 101
@@ -2310,6 +1334,7 @@
     "title": "Production",
     "slug": "production",
     "picture": "/static/img/production.png",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 102
@@ -2325,7 +1350,7 @@
   "fields": {
     "title": "Energy Efficiency",
     "slug": "energy-efficiency",
-    "extra": "{\"pagebreak\":true}",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"pagebreak\":true}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 103
@@ -2341,6 +1366,7 @@
   "fields": {
     "title": "Process heating",
     "slug": "process-heating",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 104
@@ -2355,6 +1381,7 @@
   "fields": {
     "title": "Combustion",
     "slug": "combustion",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 105
@@ -2369,7 +1396,7 @@
   "fields": {
     "title": "Adjust air/fuel ratio",
     "slug": "adjust-air-fuel-ratio",
-    "extra": "{\"tags\":[\"Energy & Emissions\"]}",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"tags\":[\"Energy & Emissions\"]}",
     "account": 2,
     "text": "<h2>Background</h2><p>Some manufacturing processes may involve heating operations.</p>"
   },
@@ -2383,25 +1410,9 @@
 },
 {
   "fields": {
-    "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
-    "content": 106,
-    "default_unit": 1
-  },
-  "model": "survey.Question", "pk": 106
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 106,
-    "rank": 106
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 106
-},
-{
-  "fields": {
     "title": "Utility procurement",
     "slug": "procurement",
-    "extra": "{\"pagebreak\":true,\"searchable\":true,\"visibility\":[\"tier1-members\"]}",
+    "extra": "{\"searchable\":true,\"visibility\":[\"tier1-members\"],\"pagebreak\":true}",
     "account": 3
   },
   "model": "pages.PageElement", "pk": 200
@@ -2415,25 +1426,9 @@
 },
 {
   "fields": {
-    "path": "/procurement/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
-    "content": 106,
-    "default_unit": 1
-  },
-  "model": "survey.Question", "pk": 200
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 200,
-    "rank": 200
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 200
-},
-{
-  "fields": {
     "title": "Cybersecurity framework",
     "slug": "framework",
-    "extra": "{\"pagebreak\":true,\"visibility\":[\"tier1-members\"]}",
+    "extra": "{\"visibility\":[\"tier1-members\"],\"pagebreak\":true}",
     "account": 3
   },
   "model": "pages.PageElement", "pk": 300
@@ -2449,7 +1444,8 @@
 },
 {
   "fields": {
-    "orig_element": 300, "dest_element": 301
+    "orig_element": 300, "dest_element": 301,
+    "rank": 1
   },
   "model": "pages.RelationShip", "pk": 300
 },
@@ -2485,68 +1481,6 @@
 },
 {
   "fields": {
-    "path": "/framework/framework-governance/framework-responsability-authority/framework-assign-formal-authority",
-    "content": 303,
-    "default_unit": 8
-  },
-  "model": "survey.question", "pk": 303
-},
-{
-  "fields": {
-    "campaign": 2,
-    "question": 303,
-    "rank": 303,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 303
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 1,
-    "question": 303,
-    "text": "Initiating",
-    "descr": "initiating assigned formal responsibility"
-  },
-  "model" : "survey.choice", "pk" : 300
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 2,
-    "question": 303,
-    "text": "Progressing",
-    "descr": "progressing assigned formal responsibility"
-  },
-  "model" : "survey.choice", "pk" : 301
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 3,
-    "question": 303,
-    "text": "Optimizing",
-    "descr": "optimizing assigned formal responsibility"
-  },
-  "model" : "survey.choice", "pk" : 302
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 4,
-    "question": 303,
-    "text": "Leading",
-    "descr": "leading assigned formal responsibility"
-  },
-  "model" : "survey.choice", "pk" : 303
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 5,
-    "question": 303,
-    "text": "Transforming",
-    "descr": "transforming assigned formal responsibility"
-  },
-  "model" : "survey.choice", "pk" : 304
-},
-{
-  "fields": {
     "title": "Report internally, including to top management, on strategy: key ESG issues (revealed by materiality analysis), risk and crisis mitigation, progress toward goals, and plans/needs to address shortfalls.",
     "slug": "framework-report-internally",
     "picture": "/static/img/management-basics.png",
@@ -2562,65 +1496,32 @@
 },
 {
   "fields": {
-    "path": "/framework/framework-governance/framework-responsability-authority/framework-report-internally",
-    "content": 304,
-    "default_unit": 8
+    "title": "Additional information",
+    "slug": "framework-additional",
+    "account": 2
   },
-  "model": "survey.question", "pk": 304
+  "model": "pages.PageElement", "pk": 310
 },
 {
   "fields": {
-    "campaign": 2,
-    "question": 304,
-    "rank": 304,
-    "required": true
+    "orig_element": 300, "dest_element": 310,
+    "rank": 2
   },
-  "model": "survey.EnumeratedQuestions", "pk": 304
+  "model": "pages.RelationShip", "pk": 310
 },
-{ "fields": {
-    "unit": 8,
-    "rank": 1,
-    "question": 304,
-    "text": "Initiating",
-    "descr": "initiating report internally"
+{
+  "fields": {
+    "title": "What are your primary concerns for the next year?",
+    "slug": "framework-concerns",
+    "account": 2
   },
-  "model" : "survey.choice", "pk" : 305
+  "model": "pages.PageElement", "pk": 311
 },
-{ "fields": {
-    "unit": 8,
-    "rank": 2,
-    "question": 304,
-    "text": "Progressing",
-    "descr": "progressing report internally"
+{
+  "fields": {
+    "orig_element": 310, "dest_element": 311
   },
-  "model" : "survey.choice", "pk" : 306
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 3,
-    "question": 304,
-    "text": "Optimizing",
-    "descr": "optimizing report internally"
-  },
-  "model" : "survey.choice", "pk" : 307
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 4,
-    "question": 304,
-    "text": "Leading",
-    "descr": "leading report internally"
-  },
-  "model" : "survey.choice", "pk" : 308
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 5,
-    "question": 304,
-    "text": "Transforming",
-    "descr": "transforming report internally"
-  },
-  "model" : "survey.choice", "pk" : 309
+  "model": "pages.RelationShip", "pk": 311
 },
 
 

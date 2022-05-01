@@ -1,6 +1,6 @@
-{% extends "app/assess/base.html" %}
+{% extends "app/improve/base.html" %}
 
-{% block assess_content %}
+{% block improve_content %}
 <campaign-questions-list class="panel-icons" id="panel-icons" inline-template>
   <div>
     <div class="panel-body panel-icons-no-benchmark">
@@ -42,7 +42,7 @@
       </div> {# .row #}
 
       {# expanded tabs go here #}
-      <div id="assess-tabs"
+      <div id="improve-tabs"
            :class="'tab-content collapse' + (activeTile ? ' show' : '')">
         <div role="tabpanel"
              :class="'tab-pane' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '')"
@@ -65,30 +65,10 @@
                 <tr>
                   <th colspan="6" style="border-bottom:none;">
                   </th>
+                  <th></th>
                   <th class="text-center pb-0"
                       colspan="6">
-                    Implemented as standard practice? <a style="cursor:pointer;" href=""><i class="fa fa-question-circle"></i></a>
-                    <div class="text-right mt-2">
-                      <div style="display:inline-block;">
-                        <div class="text-left m-0 p-0" style="line-height:1;">
-                          <small class="candidate-answer">
-                            <div class="radio-border mr-2">
-                              <div style="background-color:white;line-height:0;padding: 2px;border-radius:50%;">
-                              </div>
-                            </div>
-                            <label style="vertical-align:middle;">
-                              <span>previous completed assessment</span>
-                            </label>
-                          </small>
-                        </div>
-                        <div class="text-left m-0 p-0" style="line-height:1;">
-                          <small>
-                            <span class="practice-required mr-2" style="border-top:1px solid #dee2e6;border-bottom:1px solid #dee2e6;">&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                            required assessment of the practice
-                          </small>
-                        </div>
-                      </div>
-                    </div>
+                    Select your target
                   </th>
                 </tr>
                 <tr>
@@ -96,8 +76,13 @@
                     <div class="sticky-cell-content-container">
                       <div class="sticky-cell-content" style="padding-left:0.75rem;">
                         Practices
-                        {% include "app/assess/_vs_peers_toggle.html" %}
+                        {% include "app/improve/_vs_value_toggle.html" %}
                       </div>
+                    </div>
+                  </th>
+                  <th class="sticky-cell sticky-cell-top text-center">
+                    <div class="sticky-cell-content-container">
+                      {% trans %}Assessed{% endtrans %}
                     </div>
                   </th>
                   <th class="sticky-cell sticky-cell-top text-center"
@@ -114,7 +99,7 @@
                     :class="isRequiredShown(practice) ? 'practice-required' : ''"
                     v-for="practice in getEntries(icon.slug)"
                     v-show="itemsLoaded && items.results.length">
-                  {% include "app/assess/_assess_row.html" %}
+                  {% include "app/improve/_improve_row.html" %}
                 </tr>
               </tbody>
             </table>
@@ -126,11 +111,16 @@
                   <div class="sticky-cell-content-container">
                     <div class="sticky-cell-content" style="padding-left:0.75rem;">
                       Practices
-                      {% include "app/assess/_vs_peers_toggle.html" %}
+                      {% include "app/improve/_vs_value_toggle.html" %}
                     </div>
                   </div>
                 </th>
                 <th colspan="6" v-if="!isEnumHeaderShown(icon)">
+                </th>
+                <th class="sticky-cell sticky-cell-top text-center">
+                  <div class="sticky-cell-content-container">
+                    {% trans %}Planned{% endtrans %}
+                  </div>
                 </th>
                 <th class="sticky-cell sticky-cell-top text-center"
                     :colspan="getNbInputCols(icon)"
@@ -148,7 +138,7 @@
                 <tr :data-id="getPath(practice)"
                     v-for="practice in getEntries(icon.slug)"
                     v-show="itemsLoaded && items.results.length">
-                  {% include "app/assess/_assess_results_row.html" %}
+                  {% include "app/improve/_improve_results_row.html" %}
                 </tr>
               </tbody>
             </table>
@@ -172,12 +162,6 @@
                         v-show="!showVsPeers">
                   Reset
                 </button>
-                <button id="use-candidate-button"
-                        class="btn btn-primary"
-                        @click.prevent="useCandidateAssessment($event, '{{from_root}}')"
-                        v-show="!showVsPeers">
-                  Use previous assessment
-                </button>
                 {% endif %}
               </div>
             </div>
@@ -189,14 +173,10 @@
       <!-- modals -->
       {% include "app/_reset_assessment.html" %}
     </div> {# .panel-body #}
-
     {% block panel_footer %}
     <div class="card-footer">
       <div class="row">
         <div class="offset-sm-3 col-sm-6 text-center">
-          <p v-show="itemsLoaded" v-cloak>
-            [[nbAnswers]] out of [[nbQuestions]] questions answered.
-          </p>
           <p>
 Click on each icon to expand it.
           </p>
@@ -211,18 +191,17 @@ the <strong>REVIEW</strong> step to create a final report.
           <p>
 You will not be able to <strong>share</strong> the report with customers,
 investors and/or other stakeholders before you complete it.
-          </p>
           {% endif %}
         </div>
       </div>
     </div>
     {% endblock %}
   </div>
-</campaign-questions-list>
+</campaign-questions-list> {# .panel-icons #}
 {% endblock %}
 
-{% block assess_scripts %}
+{% block improve_scripts %}
 <script type="text/javascript">
-Vue.prototype.$excludeQuestions = "target";
+Vue.prototype.$excludeQuestions = "assess";
 </script>
 {% endblock %}

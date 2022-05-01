@@ -5,6 +5,11 @@
       <a id="submenu-assess" href="{{urls.assess}}"><span class="progressbar-step"></span>Assess</a>
     </li>
     {% endif %}
+    {% if urls.improve %}
+    <li{% if request.path == urls.improve or request.path == urls.targets or request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
+      <a id="submenu-improve" href="{{urls.improve}}"><span class="progressbar-step"></span>Target</a>
+    </li>
+    {% endif %}
     {% if urls.complete %}
     <li {% if request.path == urls.complete or request.path == urls.scorecard or request.path == urls.share %} class="active"{% endif %}>
       <a id="submenu-complete" href="{{urls.complete}}"><span class="progressbar-step"></span>Review</a>

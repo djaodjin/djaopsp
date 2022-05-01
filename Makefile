@@ -35,14 +35,16 @@ MANAGE        := SETTINGS_LOCATION=$(CONFIG_DIR) $(PYTHON) manage.py
 RUNSYNCDB     = $(if $(findstring --run-syncdb,$(shell cd $(srcDir) && $(MANAGE) migrate --help 2>/dev/null)),--run-syncdb,)
 
 
-DOCKER_DB_FILENAME := $(abspath $(srcDir)/db.sqlite)
 ifneq ($(wildcard $(CONFIG_DIR)/site.conf),)
 # `make initdb` will install site.conf but only after `grep` is run
 # and DB_FILNAME set to "". We use the default value in the template site.conf
 # here to prevent that issue.
 DB_FILENAME   := $(shell grep ^DB_NAME $(CONFIG_DIR)/site.conf | cut -f 2 -d '"')
-else
-DB_FILENAME   := $(DOCKER_DB_FILENAME)
+endif
+
+DOCKER_DB_FILENAME := $(abspath $(srcDir)/db.sqlite)
+ifeq ($(DB_FILENAME),)
+DB_FILENAME        := $(DOCKER_DB_FILENAME)
 endif
 
 MY_EMAIL          ?= $(shell cd $(srcDir) && git config user.email)
@@ -92,7 +94,10 @@ initdb:
 	$(installDirs) $(dir $(DB_FILENAME))
 	cd $(srcDir) && $(MANAGE) migrate $(RUNSYNCDB) --noinput
 	cd $(srcDir) && $(MANAGE) loadfixtures $(EMAIL_FIXTURE_OPT) \
-		djaopsp/fixtures/default-db.json
+		djaopsp/fixtures/accounts.json \
+		djaopsp/fixtures/content.json \
+		djaopsp/fixtures/practices.json \
+		djaopsp/fixtures/practices_custom_choices.json
 
 # We build a local sqlite3 database to be packaged with the Docker image
 # such that the container can be started without prior configuration.

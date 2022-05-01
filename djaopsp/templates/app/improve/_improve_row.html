@@ -15,7 +15,7 @@
         <span v-if="practice.text && practice.text.indexOf('.png', practice.text.length - 4) < 0" v-bind-html="practice.text"></span>
       </div>
       <a class="title"
-         :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
+         :href="isPractice(practice) ? '{{urls.context_base}}' + practice.slug + '/' : ''"
          v-if="isPractice(practice) && isEnumHeaderShown(icon)">
         [[practice.title]]
       </a>
@@ -34,18 +34,18 @@
 
 {# column headers #}
 {#   when enum choices are not shown in table header  #}
-<td class="text-center"
-    colspan="6"
-    v-if="!isPractice(practice) && !isEnumHeaderShown(icon)">
+<td v-if="!isPractice(practice) && !isEnumHeaderShown(icon) && !isPagebreak(practice)">
 </td>
-{#   when enum choices are shown in table header #}
+<td class="text-center"
+    v-if="!isPractice(practice) && isEnumHeaderShown(icon)">
+</td>
 <td class="text-center"
     :colspan="getNbInputCols(practice)"
     v-for="choice in getChoices(practice, icon)"
     v-if="!isPractice(practice) && isEnumHeaderShown(icon)">
     <button class="btn btn-select-all" href=""
             {% if sample.is_frozen %} disabled{% endif %}
-            @click.prevent="updateMultipleAssessmentAnswers(practice, choice.text)">
+            @click.prevent="updateMultiplePlannedAnswers(practice, choice.text)">
       <i class="fa fa-circle"></i>
     </button>
 </td>
@@ -58,8 +58,8 @@
     <textarea class="form-control"
               type="text" rows="10"
               placeholder=""
-              v-model="getPrimaryAnswer(practice).measured"
-              @blur="updateAssessmentAnswer(practice)"
+              v-model="getPrimaryPlanned(practice).measured"
+              @blur="updatePlannedAnswer(practice)"
               {% if sample.is_frozen %} disabled{% endif %}></textarea>
 </td>
 
@@ -72,12 +72,12 @@
     <input class="form-control text-right"
            type="number"
            placeholder=""
-           v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).measured"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control input-group-suffix"
-            v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice)"
+            v-model="getPrimaryPlanned(practice).unit"
+            @blur="updatePlannedAnswer(practice)"
              v-if="isRevenueUIHint(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
       <option value="usd">US Dollars ($)</option>
@@ -97,8 +97,8 @@
     v-show="!isActiveCommentsShown(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).baseline_at"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).baseline_at"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
 </td>
 <td class="text-center"
@@ -107,8 +107,8 @@
     v-show="!isActiveCommentsShown(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).created_at"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).created_at"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
 </td>
 <td class="text-center"
@@ -119,12 +119,12 @@
     <input class="form-control text-right"
            type="number"
            placeholder=""
-           v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).measured"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control input-group-suffix"
-            v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice)"
+            v-model="getPrimaryPlanned(practice).unit"
+            @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
       <option value="mmbtu-of-natural-gas">mmBtu of Natural gas</option>
       <option value="mmbtu-of-blast-furnance-gas">mmBtu of Blast furnance gas</option>
@@ -157,8 +157,8 @@
     v-show="!isActiveCommentsShown(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).baseline_at"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).baseline_at"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
 </td>
 <td class="text-center"
@@ -167,8 +167,8 @@
     v-show="!isActiveCommentsShown(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).created_at"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).created_at"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
 </td>
 <td class="text-center"
@@ -179,12 +179,12 @@
     <input class="form-control text-right"
            type="text"
            placeholder=""
-           v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).measured"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control input-group-suffix"
-            v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice)"
+            v-model="getPrimaryPlanned(practice).unit"
+            @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
         <option value="m3">Cubic meters (m<sup>3</sup>)</option>
         <option value="kiloliters">Kilo liters</option>
@@ -204,8 +204,8 @@
     v-show="!isActiveCommentsShown(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).baseline_at"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).baseline_at"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
 </td>
 <td class="text-center"
@@ -214,8 +214,8 @@
     v-show="!isActiveCommentsShown(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).created_at"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).created_at"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
 </td>
 <td class="text-center"
@@ -226,12 +226,12 @@
     <input class="form-control text-right"
            type="text"
            placeholder=""
-           v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).measured"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control input-group-suffix"
-            v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice)"
+            v-model="getPrimaryPlanned(practice).unit"
+            @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
         <option value="tons">Metric tons</option>
         <option value="lbs">Pounds</option>
@@ -251,8 +251,8 @@
     v-show="!isActiveCommentsShown(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).baseline_at"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).baseline_at"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
 </td>
 <td class="text-center"
@@ -261,8 +261,8 @@
     v-show="!isActiveCommentsShown(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).created_at"
-           @blur="updateAssessmentAnswer(practice)"
+           v-model="getPrimaryPlanned(practice).created_at"
+           @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
 </td>
 <td class="text-center"
@@ -273,12 +273,12 @@
     <input class="form-control text-right"
               type="number"
               placeholder=""
-              v-model="getPrimaryAnswer(practice).measured"
-              @blur="updateAssessmentAnswer(practice)"
+              v-model="getPrimaryPlanned(practice).measured"
+              @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control"
-            v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice)"
+            v-model="getPrimaryPlanned(practice).unit"
+            @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
         <option value="tons">Metric Tons CO2e</<option>
     </select>
@@ -287,7 +287,14 @@
 {# end of scope ghg emissions #}
 
 {# when question.unit.system is 'enum' #}
-<td :class="'text-center' + (getPrimaryCandidate(practice).measured === choice.text ? ' candidate-answer' : '')"
+
+<td class="text-center"
+    v-if="isEnumUIHint(practice)"
+    v-show="!isActiveCommentsShown(practice)">
+  <span v-if="getPrimaryAnswer(practice).measured">[[getPrimaryAnswer(practice).measured]]</span>
+  <em v-if="!getPrimaryAnswer(practice).measured">&dash;</em>
+</td>
+<td :class="'text-center' + ((getPrimaryPlanned(practice).measured !== getPrimaryPlanned(practice).measured) && (getPrimaryPlanned(practice).measured === choice.text) ? ' green-level-4' : '')"
     :colspan="getNbInputCols(practice)"
     v-for="(choice, idx) in getChoices(practice, icon)"
     v-if="isEnumUIHint(practice)"
@@ -298,9 +305,9 @@
            type="radio"
            :value="choice.text"
            :name="'implemented-' + practice.rank"
-           :checked="getPrimaryAnswer(practice).measured === choice.text"
-           @change="updateAssessmentAnswer(practice, choice.text)"
-           v-model="getPrimaryAnswer(practice).measured"
+           :checked="getPrimaryPlanned(practice).measured === choice.text"
+           @change="updatePlannedAnswer(practice, choice.text)"
+           v-model="getPrimaryPlanned(practice).measured"
            {% if sample.is_frozen %} disabled{% endif %} />
     </div>
     <label :for="slugify(choice.text, practice.rank)"
@@ -322,8 +329,8 @@
       {% trans %}Achieve by{% endtrans %}
     </label>
     <select class="form-control"
-          v-model="getPrimaryAnswer(practice).measured"
-          @blur="updateAssessmentAnswer(practice)"
+          v-model="getPrimaryPlanned(practice).measured"
+          @blur="updatePlannedAnswer(practice)"
           {% if sample.is_frozen %} disabled{% endif %}>
           <option value="2022">2022</option>
           <option value="2023">2023</option>
@@ -366,8 +373,8 @@
       {% trans %}Baseline{% endtrans %}
     </label>
     <select class="form-control"
-            v-model="getPrimaryAnswer(practice).measured"
-            @blur="updateAssessmentAnswer(practice)"
+            v-model="getPrimaryPlanned(practice).measured"
+            @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
           <option value="2022">2022</option>
           <option value="2021">2021</option>
@@ -415,21 +422,21 @@
       </p>
     </div>
   </div>
-  <div class="row" v-if="getPrimaryAnswer(practice).measured && getPrimaryAnswer(practice).collected_by">
+  <div class="row" v-if="getPrimaryPlanned(practice).measured && getPrimaryPlanned(practice).collected_by">
     <div class="col-sm-3">
       <div class="mt-2">
-        <img :src="getPicture(getPrimaryAnswer(practice).collected_by)">
-        <span>[[getPrintableName(getPrimaryAnswer(practice).collected_by)]]</span>
+        <img :src="getPicture(getPrimaryPlanned(practice).collected_by)">
+        <span>[[getPrintableName(getPrimaryPlanned(practice).collected_by)]]</span>
       </div>
-      <small>[[humanizeTimeDelta(getPrimaryAnswer(practice).created_at)]]</small>
+      <small>[[humanizeTimeDelta(getPrimaryPlanned(practice).created_at)]]</small>
     </div>
     <div class="border-left col-sm-9">
       <p class="mt-2">
-        current assessment &quot;[[getPrimaryAnswer(practice).measured]]&quot;
+        current assessment &quot;[[getPrimaryPlanned(practice).measured]]&quot;
       </p>
     </div>
   </div>
-  <form class="mt-2" @submit.prevent="updateAssessmentAnswer(practice, getCommentsAnswer(practice))">
+  <form class="mt-2" @submit.prevent="updatePlannedAnswer(practice, getCommentsAnswer(practice))">
     <p class="text-danger" v-if="isNotApplicable(practice)">
       You selected <strong>&quot;Not Applicable&quot;</strong>, please explain.
     </p>

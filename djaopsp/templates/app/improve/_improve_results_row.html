@@ -1,5 +1,5 @@
 <td :id="practice.slug"
-    :colspan="isPractice(practice) ? 6 : (6 + 6)">
+    :colspan="isPractice(practice) ? 6 : (6 + 1 + 6)">
   <div class="d-inline-block">
     <div :class="indentHeader(practice)"
          style="display:inline-block;">
@@ -24,6 +24,12 @@
   </div>
 </td>
 
+<td class="text-center"
+    v-if="isEnumUIHint(practice)"
+    v-show="!isActiveCommentsShown(practice)">
+  <span v-if="getPrimaryPlanned(practice).measured">[[getPrimaryPlanned(practice).measured]]</span>
+  <em v-if="!getPrimaryPlanned(practice).measured">&dash;</em>
+</td>
 <td :class="'text-center' + ((getPrimaryAnswer(practice).measured !== practice.planned) && (practice.planned === choice.text) ? ' green-level-4' : '') + (getPrimaryAnswer(practice).measured === choice.text ? ' choice-selected' : '')"
     :colspan="getNbInputCols(practice)"
     v-for="choice in getChoices(icon)"

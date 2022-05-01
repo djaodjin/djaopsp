@@ -1,4 +1,4 @@
-Vue.component('campaign-questions-list', {
+Vue.component('editable-practices-list', {
     mixins: [
         itemListMixin
     ],

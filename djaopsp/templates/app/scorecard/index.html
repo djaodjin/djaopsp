@@ -126,7 +126,7 @@ companies responding on practices in the industry segment.
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
                     <a class="title"
-                       :href="isPractice(practice) ? '{{urls.context_base}}' + practice.slug + '/' : ''">
+                       :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''">
                       [[practice.title]]
                     </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
@@ -211,7 +211,7 @@ companies responding on practices in the industry segment.
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
                     <a class="title"
-                       :href="'{{urls.context_base}}' + practice.slug + '/'">
+                       :href="'{{urls.pages_index}}' + practice.slug + '/'">
                       [[practice.title]]
                     </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
@@ -283,7 +283,7 @@ companies responding on practices in the industry segment.
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
                     <a class="title"
-                       :href="'{{urls.context_base}}' + practice.slug + '/'">
+                       :href="'{{urls.pages_index}}' + practice.slug + '/'">
                       [[practice.title]]
                     </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>

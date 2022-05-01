@@ -12,7 +12,7 @@ from survey.models import Answer, Choice, Sample, Unit, UnitEquivalences
 from ..compat import six
 from ..mixins import ReportMixin
 from ..scores import get_score_calculator
-from ..utils import get_segments_available
+from ..utils import get_segments_available, get_practice_serializer
 from .campaigns import CampaignContentMixin
 from .serializers import (AssessmentContentSerializer, AssessmentNodeSerializer,
     UnitSerializer)
@@ -178,7 +178,9 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
          ]
     }
     """
+    exclude_param = 'e'
     serializer_class = AssessmentContentSerializer
+    practice_serializer_class = get_practice_serializer()
 
     # We want `campaign` from ReportMixin and `segments_available`
     # from `CampaignContentMixin` so it is safer to redefine them here.
@@ -187,6 +189,13 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
         if not hasattr(self, '_campaign'):
             self._campaign = self.sample.campaign
         return self._campaign
+
+    @property
+    def exclude_questions(self):
+        if not hasattr(self, '_exclude_questions'):
+            self._exclude_questions = self.request.query_params.get(
+                self.exclude_param)
+        return self._exclude_questions
 
     @property
     def segments_available(self):
@@ -247,6 +256,9 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
                     'default_unit': default_unit,
                     'ui_hint': question.ui_hint,
                 }
+                if hasattr(self.practice_serializer_class.Meta, 'extra_fields'):
+                    for field_name in self.practice_serializer_class.Meta.extra_fields:
+                        value.update({field_name: getattr(question, field_name)})
                 questions_by_key.update({question_pk: value})
             if resp.pk:
                 # We have an actual answer to the question,
@@ -367,7 +379,11 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
                     questions_by_key.update({question_pk: value})
 
     def get_planned(self, prefix):
-        return []
+        if not self.improvement_sample:
+            return []
+        return self.get_answers(
+            prefix=prefix, sample=self.improvement_sample,
+            excludes=self.exclude_questions)
 
     def get_questions(self, prefix):
         """
@@ -380,12 +396,14 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
         questions_by_key = {}
         self.attach_answers(
             questions_by_key,
-            self.get_answers(prefix=prefix, sample=self.sample))
+            self.get_answers(prefix=prefix, sample=self.sample,
+                excludes=self.exclude_questions))
 
         if not self.sample.is_frozen:
             self.attach_answers(
                 questions_by_key,
-                self.get_candidates(prefix=prefix),
+                self.get_candidates(prefix=prefix,
+                    excludes=self.exclude_questions),
                 key='candidates')
 
         self.attach_results(questions_by_key, prefix)

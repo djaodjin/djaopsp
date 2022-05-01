@@ -20,6 +20,8 @@ DEBUG = True
 API_DEBUG = DEBUG
 ASSETS_DEBUG = DEBUG
 FEATURES_DEBUG = DEBUG
+FEATURES_USE_PORTFOLIOS = False
+TESTING_USERNAMES = []
 
 ALLOWED_HOSTS = ('*',)
 
@@ -156,21 +158,10 @@ LOGGING = {
         },
     },
     'loggers': {
-        'extended_templates': {
-            'handlers': [],
+        'deployutils.perf': {
+            'handlers': ['log'],
             'level': 'INFO',
-        },
-        'rules': {
-            'handlers': [],
-            'level': 'INFO',
-        },
-        'survey': {
-            'handlers': [],
-            'level': 'INFO',
-        },
-        'pages': {
-            'handlers': [],
-            'level': 'INFO',
+            'propagate': False
         },
         'deployutils': {
             'handlers': ['db_log'],
@@ -183,6 +174,18 @@ LOGGING = {
 #           'propagate': False
 #        },
         'djaopsp': {
+            'handlers': [],
+            'level': 'INFO',
+        },
+        'extended_templates': {
+            'handlers': [],
+            'level': 'INFO',
+        },
+        'pages': {
+            'handlers': [],
+            'level': 'INFO',
+        },
+        'survey': {
             'handlers': [],
             'level': 'INFO',
         },
@@ -224,7 +227,8 @@ STATICFILES_FINDERS = (
 
 if DEBUG:
     # Additional locations of static files
-    STATICFILES_DIRS = (HTDOCS,)
+    STATICFILES_DIRS = (STATIC_ROOT, HTDOCS,)
+    STATIC_ROOT = ''
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -304,11 +308,12 @@ TEMPLATES += [
     {
         'NAME': 'html',
         'BACKEND': 'django.template.backends.jinja2.Jinja2',
-    'DIRS': TEMPLATES_DIRS,
-    'OPTIONS': {
-        'environment': 'djaopsp.jinja2.environment'
+        'DIRS': TEMPLATES_DIRS,
+        'OPTIONS': {
+            'environment': 'djaopsp.jinja2.environment'
+        }
     }
-}]
+]
 
 EXTENDED_TEMPLATES = {
     'ASSETS_MAP': ASSETS_MAP,
@@ -435,7 +440,8 @@ DEPLOYUTILS = {
     'ALLOWED_NO_SESSION': [
         STATIC_URL,
         reverse_lazy('login'),
-        reverse_lazy('homepage')]
+        reverse_lazy('homepage')
+    ]
 }
 
 # User settings
@@ -481,9 +487,11 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+
 # djaopsp app
 # -----------
 ACCOUNT_MODEL = 'djaopsp.Account'
+PRACTICE_SERIALIZER = 'djaopsp.api.serializers.PracticeSerializer'
 SCORE_CALCULATORS = {
     '/sustainability/': 'djaopsp.scores.ScoreCalculator',
     '/metal/boxes-and-enclosures/': 'djaopsp.scores.ScoreCalculator',

@@ -16,8 +16,9 @@ urlpatterns = [
     path('content/editables/<slug:profile>/',
          include('djaopsp.urls.api.editors')),
     path('content/', include('pages.urls.api.readers')),
-    path('content/', PageElementAPIView.as_view(),
-        name="api_content_index"),
+    path('content/<path:path>',
+         PageElementAPIView.as_view(), name="api_content"),
+    path('content/', PageElementAPIView.as_view(), name="api_content_index"),
     path('content/', include('pages.urls.api.noauth')),
 
     path('', include('survey.urls.api.noauth')),

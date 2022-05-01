@@ -7,7 +7,9 @@ var practicesListMixin = {
                 results: this.$rows ? this.$rows : [],
                 count: this.$rows ? this.$rows.length : 0
             },
-            params: {},
+            params: {
+                e: this.$excludeQuestions ? this.$excludeQuestions : null,
+            },
             prefix: this.$prefix ? this.$prefix : "",
             api_assessment_sample: this.$urls.api_assessment_sample,
         }
@@ -16,82 +18,82 @@ var practicesListMixin = {
         getEntries: function(prefix, indent) {
             var vm = this;
             var results = [];
-            if( typeof indent !== 'undefined' ) {
-                // dealing with tiles
-                for( var idx = 0; idx < vm.items.results.length; ++idx ) {
-                    if( vm.items.results[idx].indent == indent ) {
-                        results.push(vm.items.results[idx]);
-                    }
-                }
-            } else {
-                indent = -1;
-                var idx = 0;
-                if( typeof prefix !== 'undefined' ) {
-                    for( ; idx < vm.items.results.length; ++idx ) {
-                        if( vm.items.results[idx].slug == prefix ) {
-                            indent = vm.items.results[idx].indent;
-                            ++idx;
-                            break;
-                        }
-                    }
-                }
+            var absIndent = -1;
+            var idx = 0;
+            if( typeof prefix !== 'undefined' && prefix.length > 0 ) {
                 for( ; idx < vm.items.results.length; ++idx ) {
-                    if( vm.items.results[idx].indent <= indent ) {
+                    if( vm.items.results[idx].slug == prefix ) {
+                        absIndent = vm.items.results[idx].indent;
+                        ++idx;
                         break;
                     }
+                }
+            }
+            for( ; idx < vm.items.results.length; ++idx ) {
+                if( vm.items.results[idx].indent <= absIndent ) {
+                    break;
+                }
+                if( typeof indent !== 'undefined' ) {
+                    // If an offset is defined, we filter in only
+                    // the items at that offset from the root prefix.
+                    if( vm.items.results[idx].indent ==
+                        (absIndent + indent) ) {
+                        results.push(vm.items.results[idx]);
+                    }
+                } else {
                     results.push(vm.items.results[idx]);
                 }
-                var fieldName = vm.params.o;
-                if( fieldName ) {
-                    var headerNum = 0;
-                    for( var idx = 0; idx < results.length; ++idx ) {
-                        if( !vm.isPractice(results[idx]) ) {
-                            ++headerNum;
+            }
+            var fieldName = vm.params.o;
+            if( fieldName ) {
+                var headerNum = 0;
+                for( var idx = 0; idx < results.length; ++idx ) {
+                    if( !vm.isPractice(results[idx]) ) {
+                        ++headerNum;
+                    }
+                    results[idx]['headerNum'] = headerNum;
+                }
+                if( fieldName && fieldName.indexOf('-') === 0 ) {
+                    fieldName = fieldName.substr(1);
+                    results.sort(function(left, right) {
+                        if( left.headerNum < right.headerNum ) {
+                            return -1;
                         }
-                        results[idx]['headerNum'] = headerNum;
-                    }
-                    if( fieldName && fieldName.indexOf('-') === 0 ) {
-                        fieldName = fieldName.substr(1);
-                        results.sort(function(left, right) {
-                            if( left.headerNum < right.headerNum ) {
+                        if( left.headerNum === right.headerNum ) {
+                            if( left[fieldName] > right[fieldName] ) {
                                 return -1;
                             }
-                            if( left.headerNum === right.headerNum ) {
-                                if( left[fieldName] > right[fieldName] ) {
+                            if( left[fieldName] === right[fieldName] ) {
+                                if( left.rank < right.rank ) {
                                     return -1;
                                 }
-                                if( left[fieldName] === right[fieldName] ) {
-                                    if( left.rank < right.rank ) {
-                                        return -1;
-                                    }
-                                    if( left.rank === right.rank ) {
-                                        return 0;
-                                    }
+                                if( left.rank === right.rank ) {
+                                    return 0;
                                 }
                             }
-                            return 1;
-                        });
-                    } else {
-                        results.sort(function(left, right) {
-                            if( left.headerNum < right.headerNum ) {
+                        }
+                        return 1;
+                    });
+                } else {
+                    results.sort(function(left, right) {
+                        if( left.headerNum < right.headerNum ) {
+                            return -1;
+                        }
+                        if( left.headerNum === right.headerNum ) {
+                            if( left[fieldName] < right[fieldName] ) {
                                 return -1;
                             }
-                            if( left.headerNum === right.headerNum ) {
-                                if( left[fieldName] < right[fieldName] ) {
+                            if( left[fieldName] === right[fieldName] ) {
+                                if( left.rank < right.rank ) {
                                     return -1;
                                 }
-                                if( left[fieldName] === right[fieldName] ) {
-                                    if( left.rank < right.rank ) {
-                                        return -1;
-                                    }
-                                    if( left.rank === right.rank ) {
-                                        return 0;
-                                    }
+                                if( left.rank === right.rank ) {
+                                    return 0;
                                 }
                             }
-                            return 1;
-                        });
-                    }
+                        }
+                        return 1;
+                    });
                 }
             }
             return results;
@@ -172,16 +174,16 @@ var practicesListMixin = {
         },
         // returns the planned improvement answer for a practice
         getPrimaryPlanned: function(practice) {
-            if( (typeof practice.planned !== 'undefined') &&
-                practice.planned.length > 0 ) {
-                for( var idx = 0; idx < practice.planned.length; ++idx ) {
-                    if( practice.planned[idx].unit
-                        === practice.default_unit.slug ) {
-                        return practice.planned[idx];
-                    }
-                }
+            if( (typeof practice.planned === 'undefined') ||
+                practice.planned.length < 1 ) {
+                practice['planned'] = [{
+                    unit: practice.default_unit.slug,
+                    measured: null,
+                    baseline_at: null,
+                    created_at: null
+                }];
             }
-            return null;
+            return practice.planned[0];
         },
         getUnit: function(answer) {
             var vm = this;
@@ -228,6 +230,9 @@ var practicesListMixin = {
             var vm = this;
             if( typeof row.default_unit !== "undefined" ) {
                 return row.default_unit !== null;
+            }
+            if( typeof row.avg_value !== "undefined" ) {
+                return row.avg_value !== null;
             }
             return false;
         },
@@ -738,7 +743,7 @@ Vue.component('campaign-questions-list', {
                 }
             }
         },
-        updateImprovement: function(practice, newValue) {
+        updatePlannedAnswer: function(practice, newValue) {
             var vm = this;
             if( vm.isPractice(practice) ) {
                 var improveUrl = vm._safeUrl(vm.api_improvement_sample,
@@ -750,33 +755,77 @@ Vue.component('campaign-questions-list', {
                     vm.setActiveElement(practice);
                     vm.reqPost(improveUrl, data,
                     function success(resp) {
-                        $("#improvement-dashboard").data(
-                            'improvementDashboard').load();
-                        for( var idx = 0;
-                             idx < vm.activeElement.extra.tags.length;
-                             ++idx ) {
-                            if( vm.activeElement.extra.tags[idx] ===
-                              vm.TAG_ENERGY_EMISSIONS ||
-                                vm.activeElement.extra.tags[idx] ===
-                              vm.TAG_WATER ||
-                                vm.activeElement.extra.tags[idx] ===
-                              vm.TAG_WASTE) {
-                                vm.activeTargets = vm.activeElement.extra.tags[idx];
-                                var modalDialog = $('#practice-info');
-                                modalDialog.modal('show');
-                                break;
+                        var improvementDashboard = $("#improvement-dashboard");
+                        if( improvementDashboard.length > 0 )  {
+                                improvementDashboard.data(
+                                    'improvementDashboard').load();
+                        }
+                        if( vm.activeElement &&
+                            vm.activeElement.extra &&
+                            vm.activeElement.extra.tags ) {
+                            for( var idx = 0;
+                                 idx < vm.activeElement.extra.tags.length;
+                                 ++idx ) {
+                                if( vm.activeElement.extra.tags[idx] ===
+                                    vm.TAG_ENERGY_EMISSIONS ||
+                                    vm.activeElement.extra.tags[idx] ===
+                                    vm.TAG_WATER ||
+                                    vm.activeElement.extra.tags[idx] ===
+                                    vm.TAG_WASTE) {
+                                    vm.activeTargets = vm.activeElement.extra.tags[idx];
+                                    var modalDialog = $('#practice-info');
+                                    modalDialog.modal('show');
+                                    break;
+                                }
                             }
                         }
                     });
                 } else {
                     var resetUrl = vm._safeUrl(vm.api_improvement_sample,
                         '/reset' + vm.prefix + practice.path)
-                        + '?unit=assessment';
+                        + '?unit=' + vm.getPrimaryPlanned(practice).unit;
                     vm.reqPost(resetUrl,
                     function success(resp) {
                         $("#improvement-dashboard").data(
                             'improvementDashboard').load();
                     });
+                }
+            }
+        },
+        updateMultiplePlannedAnswers: function (heading, newValue) {
+            var vm = this;
+            if( newValue === vm.NOT_APPLICABLE ) {
+                var trip = new Trip([{
+                    sel: $("#assess-content"),
+                    content: "<p class='text-left'>Did you mean to select <strong>Not applicable</strong> for all responses below.<br />If not, revise your response by selecting a response for each<br />individual row under the heading row.</p>",
+                    position: "screen-center",
+                    enableAnimation: false,
+                    delay:-1,
+                    tripTheme: "black",
+                    showNavigation: true,
+                    canGoPrev: false,
+                    prevLabel: " ",
+                    nextLabel: "OK",
+                    skipLabel: " ",
+                    finishLabel: "OK",
+                }]);
+                trip.start();
+            }
+            // update all answers under the active heading
+              var idx = 0;
+            for( ; idx < vm.items.results.length; ++idx ) {
+                if( vm.items.results[idx].slug === heading.slug ) {
+                    ++idx;
+                    break;
+                }
+            }
+            for( ; idx < vm.items.results.length; ++idx ) {
+                if( vm.items.results[idx].indent <= heading.indent ) {
+                    break;
+                }
+                var row = vm.items.results[idx];
+                if( vm.isPractice(row) ) {
+                    vm.updatePlannedAnswer(row, newValue);
                 }
             }
         },

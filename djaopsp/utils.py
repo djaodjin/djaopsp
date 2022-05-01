@@ -7,6 +7,7 @@ Furthermore this functions rely on the models to be loaded. For pure
 helper functions that do not rely on the order Django loads the modules,
 see the file helpers.py in the same directory.
 """
+from importlib import import_module
 import json
 
 from django.apps import apps as django_apps
@@ -33,6 +34,28 @@ def get_account_model():
     except LookupError:
         raise ImproperlyConfigured("ACCOUNT_MODEL refers to model '%s'"\
 " that has not been installed" % settings.ACCOUNT_MODEL)
+
+
+def get_practice_serializer():
+    """
+    Returns the ``PracticeSerializer`` model that is active
+    in this project.
+    """
+    path = settings.PRACTICE_SERIALIZER
+    dot_pos = path.rfind('.')
+    module, attr = path[:dot_pos], path[dot_pos + 1:]
+    try:
+        mod = import_module(module)
+    except (ImportError, ValueError) as err:
+        raise ImproperlyConfigured(
+         "Error importing class '%s' defined by PRACTICE_SERIALIZER (%s)"
+            % (path, err))
+    try:
+        cls = getattr(mod, attr)
+    except AttributeError:
+        raise ImproperlyConfigured('Module "%s" does not define a "%s"'\
+' check the value of PRACTICE_SERIALIZER' % (module, attr))
+    return cls
 
 
 def get_highlights(sample):
