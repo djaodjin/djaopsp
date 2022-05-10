@@ -1,11 +1,13 @@
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
 
-import copy, logging
+import copy, json, logging
 
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count, F
+from pages.models import PageElement
 from rest_framework import generics, response as http
+from rest_framework.generics import get_object_or_404
 from survey.api.sample import SampleCandidatesMixin, SampleAnswersMixin
 from survey.models import Answer, Choice, Sample, Unit, UnitEquivalences
 
@@ -213,6 +215,22 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
                     path = seg.get('path')
                     if path and path.startswith(self.db_path):
                         self._segments_available += [seg]
+                if not self._segments_available:
+                    # Technically not a segment (i.e. it is a section
+                    # of segment on its own page).
+                    element = get_object_or_404(PageElement.objects.all(),
+                        slug=self.db_path.split(self.DB_PATH_SEP)[-1])
+                    try:
+                        element.extra = json.loads(element.extra)
+                    except (TypeError, ValueError):
+                        pass
+                    self._segments_available = [{
+                        'indent': 0,
+                        'path': self.db_path,
+                        'slug': element.slug,
+                        'title': element.title,
+                        'extra': element.extra,
+                    }]
             else:
                 self._segments_available = get_segments_available(
                     self.sample, segments_candidates=candidates)
@@ -257,8 +275,10 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
                     'ui_hint': question.ui_hint,
                 }
                 if hasattr(self.practice_serializer_class.Meta, 'extra_fields'):
-                    for field_name in self.practice_serializer_class.Meta.extra_fields:
-                        value.update({field_name: getattr(question, field_name)})
+                    for field_name in \
+                        self.practice_serializer_class.Meta.extra_fields:
+                        value.update({
+                            field_name: getattr(question, field_name)})
                 questions_by_key.update({question_pk: value})
             if resp.pk:
                 # We have an actual answer to the question,
@@ -314,6 +334,12 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
         Attach aggregated result to practices
         """
         #pylint:disable=too-many-locals
+
+        # We cannot use the prefix here because some questions might
+        # have been dropped from the assessment. As a result we use
+        # `questions_by_key.keys()` because it will contain all the
+        # relevant questions, whever the sample is frozen or not.
+
         ends_at = self.sample.created_at + relativedelta(months=1)
         last_frozen_assessments = \
             Sample.objects.get_latest_frozen_by_accounts(
@@ -321,7 +347,7 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
 
         # total number of answers
         for row in Answer.objects.filter(
-                question__path__startswith=prefix,
+                question__in=questions_by_key.keys(),
                 unit_id=F('question__default_unit_id'),
                 sample_id__in=last_frozen_assessments).values(
                 'question__id', 'question__path').annotate(Count('sample_id')):
@@ -335,11 +361,11 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
 
         # per-choice number of answers
         for row in Answer.objects.filter(
-                question__path__startswith=prefix,
-                question__default_unit__system=Unit.SYSTEM_ENUMERATED,
+                question__in=questions_by_key.keys(),
                 unit_id=F('question__default_unit_id'),
-                unit__enums__id=F('measured'),
-                sample_id__in=last_frozen_assessments).values(
+                sample_id__in=last_frozen_assessments,
+                question__default_unit__system=Unit.SYSTEM_ENUMERATED,
+                unit__enums__id=F('measured')).values(
                 'question__id', 'question__path',
                 'measured', 'unit__enums__text').annotate(
                 Count('sample_id')):
@@ -357,15 +383,7 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
             if question_pk not in questions_by_key:
                 questions_by_key.update({question_pk: value})
 
-        # opportunity to improve score
-        assessment_units_qs = Unit.objects.filter(
-            system=Unit.SYSTEM_ENUMERATED,
-            question__path__startswith=prefix,
-            question__campaigns=self.sample.campaign).annotate(
-                nb_questions=Count('question__id')).order_by(
-            '-nb_questions')
-        assessment_unit_id = assessment_units_qs.values_list(
-            'id', flat=True).first()
+       # opportunity to improve score
         score_calculator = get_score_calculator(prefix)
         if score_calculator:
             for row in score_calculator.get_opportunity(

@@ -6,9 +6,9 @@
   <ol class="col-md-9 breadcrumb">
     <li class="breadcrumb-item">
       {% if profile %}
-      <a href="{{'/app/'|site_prefixed}}{{profile}}/">{{profile.printable_name}}</a>
+      <a href="{{'/app/'|site_url}}{{profile}}/">{{profile.printable_name}}</a>
       {% else %}
-      <a href="{{'/app/'|site_prefixed}}">Home</a>
+      <a href="{{'/app/'|site_url}}">Home</a>
       {% endif %}
     </li>
     <li class="breadcrumb-item">

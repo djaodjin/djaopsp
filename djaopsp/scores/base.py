@@ -13,6 +13,7 @@ class ScoreCalculator(object):
     """
     def get_scored_answers(self, campaign,
                            prefix=None, includes=None, excludes=None):
+        #pylint:disable=unused-argument,no-self-use
         return []
 
     def get_opportunity(self, last_frozen_assessments,
@@ -20,6 +21,7 @@ class ScoreCalculator(object):
         """
         Lists opportunity (intrisic and peers-based)
         """
+        #pylint:disable=unused-argument,no-self-use
         return []
 
 

@@ -6,7 +6,7 @@ Vue.component('reporting-organizations', {
     ],
     data: function(){
         var data = {
-            url: this.$urls.api_suppliers,
+            url: this.$urls.api_portfolio_responses,
             item: {
                 email: "",
                 full_name: "",
@@ -40,15 +40,46 @@ Vue.component('reporting-organizations', {
         shortDate: function(at_time) {
             return moment(at_time).format("MMM D, YYYY");
         },
-
         populateSummaryChart: function() {
-            var vm = this;
             // populate the completion summary chart
-            var summary = $("#completion-summary-chart .chart");
-            summary.empty();
-            summary.append("<svg></svg>");
-            summaryChart("#completion-summary-chart .chart svg",
-                vm.items.summary);
+            var vm = this;
+            var labels = [];
+            var datasets = [];
+            var colors = [
+                'red', '#ff5555', '#9CD76B', '#69B02B', '#007C3F', '#FFD700'];
+            var summaryData = vm.items.summary;
+            var data = [];
+            for( var idx = 0; idx < summaryData.length; ++idx ) {
+                labels.push(summaryData[idx][0]);
+                data.push(summaryData[idx][1]);
+            }
+            datasets.push({
+                label: "completed",
+                backgroundColor: colors,
+                data: data
+            });
+            if( vm.summaryChart ) {
+                vm.summaryChart.destroy();
+            }
+            vm.summaryChart = new Chart(
+                document.getElementById('summaryChart'),
+                {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'right',
+                            }
+                        }
+                    }
+                }
+            );
         },
         addAccount: function(dataset, newAccount) {
             var vm = this;
@@ -243,7 +274,9 @@ Vue.component('reporting-completion-rate', {
                     vm.itemLoaded = true;
                 }
             }
-            vm.reqGet(url, cb);
+            vm.reqGet(url, cb, function() {
+                document.getElementById('completionRate')
+            });
         },
     },
     mounted: function(){
@@ -452,7 +485,7 @@ Vue.component('reporting-by-segments', {
         },
     },
     mounted: function(){
-        this.get()
+        this.get();
     },
     created: function () {
         // _.debounce is a function provided by lodash to limit how
@@ -540,7 +573,7 @@ Vue.component('reporting-ghg-emissions-rate', {
         },
     },
     mounted: function(){
-        this.get()
+        this.get();
     },
     created: function () {
         // _.debounce is a function provided by lodash to limit how
@@ -652,6 +685,8 @@ Vue.component('active-reporting-entities', {
     data: function(){
         return {
             url: this.$urls.api_active_reporting_entities,
+            messagesElement: '#active-reporting-entities-content',
+            scrollToTopOnMessages: false
         }
     },
     methods: {

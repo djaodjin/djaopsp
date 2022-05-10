@@ -1,6 +1,35 @@
 {% extends "app/base.html" %}
 
 {% block app_content %}
+<nav class="navbar">
+  <ul class="navbar-nav nav-pills ml-auto" style="margin-bottom: 1rem;">
+    {% block help_menus %}
+    <li class="nav-item">
+      <a class="nav-link{% if request.path == urls.portfolio_responses %} active{% endif %}" style="color:white;" href="{{urls.portfolio_responses}}">Reporting entities</a>
+    </li>
+    <li class="divider-vertical"></li>
+    <li class="nav-item">
+      <a class="nav-link{% if request.path == urls.reporting_organization_dashboard %} active{% endif %}" style="color:white;" href="{{urls.reporting_organization_dashboard}}">Activity summary</a>
+    </li>
+    <li class="divider-vertical"></li>
+    <li class="nav-item">
+      <a class="nav-link{% if request.path == urls.matrix_chart %} active{% endif %}" style="color:white;" href="{{urls.matrix_chart}}">Compare scores</a>
+    </li>
+    {% endblock %}
+  </ul>
+</nav>
 {% block reporting_content %}
 {% endblock %}
+{% endblock %}
+
+{% block app_bodyscripts %}
+{% if ASSETS_DEBUG %}
+<script type="text/javascript" src="{{'/static/vendor/chart.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-survey-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/reporting-vue.js'|asset}}"></script>
+{% else %}
+<script type="text/javascript" src="{{'/static/cache/reporting.js'|asset}}"></script>
+{% endif %}
+{% block reporting_scripts %}{% endblock %}
 {% endblock %}

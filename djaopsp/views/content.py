@@ -7,18 +7,24 @@ from ..mixins import AccountMixin
 
 
 class ContentIndexView(PageElementView):
-
+    """
+    View to display a tree of practices rooted at {path}
+    """
     account_url_kwarg = 'profile'
 
 
 class ContentDetailView(PageElementView):
-
+    """
+    View to display a single practice details
+    """
     account_url_kwarg = 'profile'
 
 
 class EditablesIndexView(AccountMixin, PageElementEditableView):
     """
+    View to display a tree of editable practices rooted at {path}
     """
+
     def get_reverse_kwargs(self):
         """
         List of kwargs taken from the url that needs to be passed through
@@ -29,7 +35,9 @@ class EditablesIndexView(AccountMixin, PageElementEditableView):
 
 class EditablesDetailView(AccountMixin, PageElementEditableView):
     """
+    View to display a single editable practice details
     """
+
     def get_reverse_kwargs(self):
         """
         List of kwargs taken from the url that needs to be passed through

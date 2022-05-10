@@ -1,4 +1,4 @@
-# Copyright (c) 2021, DjaoDjin inc.
+# Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE
 
 from __future__ import absolute_import
@@ -38,7 +38,7 @@ def environment(**options):
     env.filters['messages'] = djaopsp_tags.messages
     env.filters['no_cache'] = djaopsp_tags.no_cache
     env.filters['pluralize'] = djaopsp_tags.pluralize
-    env.filters['site_prefixed'] = deployutils_prefixtags.site_prefixed
+    env.filters['site_url'] = deployutils_prefixtags.site_url
     env.filters['to_json'] = deployutils_extratags.to_json
 
     # for form fields in jinja2/_form_fields.html

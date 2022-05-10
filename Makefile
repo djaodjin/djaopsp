@@ -97,7 +97,10 @@ initdb:
 		djaopsp/fixtures/accounts.json \
 		djaopsp/fixtures/content.json \
 		djaopsp/fixtures/practices.json \
-		djaopsp/fixtures/practices_custom_choices.json
+		djaopsp/fixtures/practices_custom_choices.json \
+		djaopsp/fixtures/matrices.json \
+		djaopsp/fixtures/samples.json
+
 
 # We build a local sqlite3 database to be packaged with the Docker image
 # such that the container can be started without prior configuration.

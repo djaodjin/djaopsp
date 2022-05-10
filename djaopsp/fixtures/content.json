@@ -113,50 +113,51 @@
 },
 { "fields": {
     "unit": 8,
+    "rank": 0,
+    "text": "Not addressed",
+    "descr": "Not yet considered"
+  },
+  "model" : "survey.choice", "pk" : 8
+},
+{ "fields": {
+    "unit": 8,
     "rank": 1,
     "text": "Initiating"
   },
-  "model" : "survey.choice", "pk" : 8
+  "model" : "survey.choice", "pk" : 9
 },
 { "fields": {
     "unit": 8,
     "rank": 2,
     "text": "Progressing"
   },
-  "model" : "survey.choice", "pk" : 9
+  "model" : "survey.choice", "pk" : 10
 },
 { "fields": {
     "unit": 8,
     "rank": 3,
     "text": "Optimizing"
   },
-  "model" : "survey.choice", "pk" : 10
+  "model" : "survey.choice", "pk" : 11
 },
 { "fields": {
     "unit": 8,
     "rank": 4,
     "text": "Leading"
   },
-  "model" : "survey.choice", "pk" : 11
+  "model" : "survey.choice", "pk" : 12
 },
 { "fields": {
     "unit": 8,
     "rank": 5,
     "text": "Transforming"
   },
-  "model" : "survey.choice", "pk" : 12
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 6,
-    "text": "Do not know"
-  },
   "model" : "survey.choice", "pk" : 13
 },
 { "fields" : {
     "slug" : "sustainability",
     "title" : "Sustainability",
-    "created_at": "2022-01-01",
+    "created_at": "2022-01-01T00:00:00.000Z",
     "description" : "Assessment of practices around sustainability",
     "account": 2,
     "active": true,
@@ -167,7 +168,7 @@
 { "fields" : {
     "slug" : "framework",
     "title" : "Cybersecurity framework",
-    "created_at": "2022-01-01",
+    "created_at": "2022-01-01T00:00:00.000Z",
     "description" : "Assessment of practices around cybersecurity",
     "account" : 3,
     "active": true,
@@ -1350,7 +1351,7 @@
   "fields": {
     "title": "Energy Efficiency",
     "slug": "energy-efficiency",
-    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"pagebreak\":true}",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"pagebreak\":true,\"layouts\":[\"sustainability\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 103
@@ -1408,6 +1409,42 @@
   },
   "model": "pages.RelationShip", "pk": 105
 },
+
+{
+  "fields": {
+    "title": "Construction",
+    "slug": "construction",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"pagebreak\":true,\"layouts\":[\"sustainability\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 110
+},
+{
+  "fields": {
+    "title": "Production",
+    "slug": "consprod",
+    "picture": "/static/img/production.png",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 111
+},
+{
+  "fields": {
+    "orig_element": 110, "dest_element": 111,
+    "rank": 1
+  },
+  "model": "pages.RelationShip", "pk": 110
+},
+{
+  "fields": {
+    "orig_element": 111, "dest_element": 106,
+    "rank": 1
+  },
+  "model": "pages.RelationShip", "pk": 111
+},
+
+
 {
   "fields": {
     "title": "Utility procurement",
@@ -1447,7 +1484,7 @@
     "orig_element": 300, "dest_element": 301,
     "rank": 1
   },
-  "model": "pages.RelationShip", "pk": 300
+  "model": "pages.RelationShip", "pk": 301
 },
 {
   "fields": {
@@ -1515,13 +1552,13 @@
     "slug": "framework-concerns",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 311
+  "model": "pages.PageElement", "pk": 312
 },
 {
   "fields": {
-    "orig_element": 310, "dest_element": 311
+    "orig_element": 310, "dest_element": 312
   },
-  "model": "pages.RelationShip", "pk": 311
+  "model": "pages.RelationShip", "pk": 312
 },
 
 
@@ -1547,8 +1584,8 @@
 {
   "fields": {
     "slug": "aaaabbbbccccddddeeeeffff00001111",
-    "created_at":  "2021-11-11T00:00:00.000Z",
-    "updated_at":  "2021-11-11T00:00:00.000Z",
+    "created_at":  "2022-01-01T00:00:00.000Z",
+    "updated_at":  "2022-01-01T00:00:00.000Z",
     "campaign": 1,
     "account": 2,
     "is_frozen": true

@@ -13,21 +13,21 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from survey.models import Campaign, EnumeratedQuestions
+from survey.mixins import CampaignMixin
+from survey.models import EnumeratedQuestions
 from survey.utils import get_question_model
 from survey.api.campaigns import CampaignAPIView as CampaignBaseAPIView
 
 from .serializers import ContentNodeSerializer, CreateContentElementSerializer
-from ..compat import reverse
+from ..compat import six
 from ..mixins import AccountMixin
 from ..utils import get_segments_candidates
 
 
-class CampaignContentMixin(AccountMixin):
+class CampaignContentMixin(AccountMixin, CampaignMixin):
     """
     Queryset to present practices in 2d matrix of segments and tiles.
     """
-    campaign_url_kwarg = 'campaign'
     strip_segment_prefix = False
 
     @property
@@ -38,13 +38,6 @@ class CampaignContentMixin(AccountMixin):
             if not self._db_path.startswith(self.DB_PATH_SEP):
                 self._db_path = self.DB_PATH_SEP + self._db_path
         return self._db_path
-
-    @property
-    def campaign(self):
-        if not hasattr(self, '_campaign'):
-            self._campaign = get_object_or_404(Campaign.objects.all(),
-                slug=self.kwargs.get(self.campaign_url_kwarg))
-        return self._campaign
 
     @property
     def segments_available(self):
@@ -83,7 +76,7 @@ class CampaignContentMixin(AccountMixin):
         return extra
 
     def get_queryset(self):
-        #pylint:disable=too-many-locals
+        #pylint:disable=too-many-locals,too-many-statements
         segments = self.segments_available
         by_tiles = OrderedDict()
         if self.kwargs.get(self.path_url_kwarg):
@@ -176,7 +169,11 @@ class CampaignContentMixin(AccountMixin):
                 if 'extra' in merged_fields:
                     merged_fields['extra'].update(element.get('extra', {}))
                 element.update(merged_fields)
-
+        campaign_path = self.DB_PATH_SEP + str(self.campaign)
+        for seg_path, seg_val in six.iteritems(by_tiles):
+            if seg_path == campaign_path:
+                seg_val[0].update({'rank': -1})
+                break
         elements = flatten_content_tree(by_tiles)
         return elements
 
@@ -315,7 +312,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
 
         .. code-block:: http
 
-            POST /api/content/editables/alliance/campaigns/sustainability\
+            POST /api/content/editables/alliance/campaigns/environment\
 /segments HTTP/1.1
 
         .. code-block:: json
@@ -540,6 +537,7 @@ energy-efficiency HTTP/1.1
 
         serializer_class = super(
             CampaignEditableContentAPIView, self).get_serializer_class()
+        #pylint:disable=not-callable
         serializer = serializer_class(instance=element)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data,

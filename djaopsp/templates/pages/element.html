@@ -93,7 +93,7 @@
                         </div>{# /#create-chapter #}
                         <div v-if="item.account == 'envconnect'">
                             <p class="text-center mt-3">
-<a href="{{'/docs/faq/#environmental-practices'|site_prefixed}}">How was this practice identified and selected?</a>
+<a href="{{'/docs/faq/#environmental-practices'|site_url}}">How was this practice identified and selected?</a>
                             </p>
                           <p class="text-center mt-3">
 <img height="32" src="{{'/static/img/cc_icon_black_x2.png'|asset}}" />
@@ -148,7 +148,7 @@ The Sustainability Project (TSP). Please use the following attribution:
 {% block pages_scripts %}
 {% if edit_perm %}
 <script type="text/javascript" charset="utf-8">
-assetsUploadUrl = "{% if urls.api_upload_assets %}{{urls.api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_prefixed}}{% endif %}";
+assetsUploadUrl = "{% if urls.api_upload_assets %}{{urls.api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_url}}{% endif %}";
 
 $(document).ready(function(){
 	$(".editable").editor({

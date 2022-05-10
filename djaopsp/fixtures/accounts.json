@@ -13,7 +13,7 @@
 },
 { "fields" : {
     "slug": "energy-utility",
-    "full_name": "Energy Utility"
+    "full_name": "Energy Utility (Demo)"
   },
   "model" : "djaopsp.account", "pk" : 4
 },
@@ -28,5 +28,30 @@
     "full_name": "S1 - Tamerin (Demo)"
   },
   "model" : "djaopsp.account", "pk" : 6
-}
-]
+},
+{ "fields" : {
+    "slug": "water-utility",
+    "full_name": "Water Utility (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 7
+},
+{ "fields": {
+    "date_joined": "2022-01-01T00:00:00+00:00",
+    "email": "tspproject@localhost.localdomain",
+    "first_name": "Steve",
+    "is_active": true,
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "steve"
+  },
+  "model": "auth.User", "pk": 7
+},
+{ "fields": {
+    "date_joined": "2022-01-01T00:00:00+00:00",
+    "email": "alice@localhost.localdomain",
+    "first_name": "Alice",
+    "is_active": true,
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "alice"
+  },
+  "model": "auth.User", "pk": 10
+}]

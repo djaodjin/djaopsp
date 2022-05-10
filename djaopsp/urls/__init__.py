@@ -1,7 +1,5 @@
-# Copyright (c) 2021, DjaoDjin inc.
+# Copyright (c) 2022, DjaoDjin inc.
 
-from deployutils.apps.django.templatetags.deployutils_prefixtags import (
-    site_prefixed)
 from deployutils.apps.django.urlbuilders import url_prefixed
 from django.conf import settings
 from django.views.generic import RedirectView

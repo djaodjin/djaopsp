@@ -53,7 +53,7 @@ the multiple choices (See picture).
     </fieldset>
   </form>
   {% else %}
-  <p>Please <a href="{{'/login/'|site_prefixed}}?next={{request.path}}">log in</a> to leave a comment.</p>
+  <p>Please <a href="{{'/login/'|site_url}}?next={{request.path}}">log in</a> to leave a comment.</p>
   {% endif %}
 </div>
 {% endblock %}

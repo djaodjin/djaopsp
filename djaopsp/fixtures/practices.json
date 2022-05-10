@@ -957,6 +957,25 @@
 },
 {
   "fields": {
+    "path": "/construction/consprod/adjust-air-fuel-ratio",
+    "content": 106,
+    "default_unit": 1
+  },
+  "model": "survey.Question", "pk": 111
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 111,
+    "rank": 111
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 111
+},
+
+
+
+{
+  "fields": {
     "path": "/procurement/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",
     "content": 106,
     "default_unit": 1
@@ -1008,19 +1027,18 @@
 {
   "fields": {
     "path": "/framework/framework-additional/framework-concerns",
-    "content": 311,
+    "content": 312,
     "default_unit": 3,
     "extra": "{\"layouts\":[\"assess\"]}"
   },
-  "model": "survey.question", "pk": 311
+  "model": "survey.question", "pk": 312
 },
 {
   "fields": {
     "campaign": 2,
-    "question": 311,
-    "rank": 311,
+    "question": 312,
+    "rank": 312,
     "required": false
   },
-  "model": "survey.EnumeratedQuestions", "pk": 311
-}
-]
+  "model": "survey.EnumeratedQuestions", "pk": 312
+}]

@@ -58,6 +58,7 @@ then share it with customers, investors and other interested 3rd parties.
               </div>
             </div>
           </div>
+          {% if summary_performance %}
           <div class="col-sm-4 bordered-left">
             <div class="h-100" style="background-color: #e5e9dd;">
               <div class="text-center">
@@ -65,6 +66,7 @@ then share it with customers, investors and other interested 3rd parties.
               </div>
             </div>
           </div>
+          {% endif %}
         </div>
       </section> {# <!-- /#summary --> #}
       <section id="details">
@@ -131,7 +133,8 @@ companies responding on practices in the industry segment.
                     </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
                   <div class="row">
-                    <div class="col-sm-6 col-md-4">
+                    <div class="col-sm-6 col-md-4"
+                         v-if="isSustainabilityUIHint(practice)">
                       Implementation rate<br />
                       [[practice.nb_respondents]] respondents
                       <div class="progress" style="margin:0">
@@ -178,7 +181,7 @@ companies responding on practices in the industry segment.
                   </p>
                 </div>
               </div>
-            </div>{# /.isEnumUIHint(practice) #}
+            </div>{# /isEnumUIHint(practice) #}
 
             <div v-if="isEnergyUIHint(practice)">
               <div class="row">
@@ -437,7 +440,7 @@ companies responding on practices in the industry segment.
           </div>
           <div class="col-sm-4 col-md-3">
             <a id="invite-contributor-btn" class="mt-2 btn btn-secondary w-100"
-               href="{{'/profile/'|site_prefixed}}{{profile.slug}}/roles/contributor/">
+               href="{{'/profile/'|site_url}}{{profile.slug}}/roles/contributor/">
               Invite contributor
             </a>
           </div>

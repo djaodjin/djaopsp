@@ -1,0 +1,38 @@
+[
+{
+  "fields": {
+    "slug": "totals",
+    "title": "Total score",
+    "tags": "metric"
+  },
+  "model": "survey.editablefilter", "pk": 1
+},
+{
+  "fields": {
+    "slug": "boxes-and-enclosures",
+    "title": "Boxes & enclosures",
+    "tags": "cohort"
+  },
+  "model": "survey.editablefilter", "pk": 13
+},
+{
+  "fields": {
+    "rank": 0,
+    "editable_filter": 13,
+    "operator": "startswith",
+    "operand": "/metal/boxes-and-enclosures",
+    "field": "extra",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 13
+},
+{
+  "fields": {
+    "slug": "totals",
+    "account": 2,
+    "title": "Average scores by industry segments",
+    "metric": 1,
+    "cohorts": [13]
+  },
+  "model": "survey.matrix", "pk": 1
+}]

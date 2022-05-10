@@ -26,6 +26,7 @@ urlpatterns = [
        AssessmentContentAPIView.as_view(), name='api_sample_content'),
     path('<slug:profile>/sample/<slug:sample>/content',
        AssessmentContentAPIView.as_view(), name='api_sample_content_index'),
+    path('<slug:profile>/', include('djaopsp.urls.api.portfolios')),
     path('<slug:profile>/', include('survey.urls.api.campaigns')),
     path('<slug:profile>/', include('survey.urls.api.sample')),
     path('<slug:profile>/', include('survey.urls.api.portfolios')),

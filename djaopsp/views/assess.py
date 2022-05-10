@@ -5,7 +5,6 @@ import logging
 
 from deployutils.helpers import update_context_urls
 from django.views.generic import TemplateView
-from pages.mixins import TrailMixin
 
 from ..compat import reverse
 from ..mixins import AccountMixin, ReportMixin
@@ -14,7 +13,7 @@ from ..mixins import AccountMixin, ReportMixin
 LOGGER = logging.getLogger(__name__)
 
 
-class AssessPracticesView(ReportMixin, TrailMixin, TemplateView):
+class AssessPracticesView(ReportMixin, TemplateView):
     """
     Profile assessment page
     """

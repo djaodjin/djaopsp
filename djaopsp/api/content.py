@@ -12,6 +12,45 @@ from ..utils import get_practice_serializer
 
 class PageElementAPIView(VisibilityMixin, PageElementBaseAPIView):
     """
+    Lists a tree of page elements
+
+    **Tags: content
+
+    **Example
+
+    .. code-block:: http
+
+        GET /api/content/boxes-and-enclosures HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 8,
+          "next": null,
+          "previous": null,
+          "results": [
+          {
+            "slug": "metal",
+            "path": null,
+            "title": "Metal structures & equipment",
+            "indent": 0
+          },
+          {
+            "slug": "boxes-and-enclosures",
+            "path": "/metal/boxes-and-enclosures",
+            "title": "Boxes & enclosures",
+            "indent": 1,
+            "tags": [
+              "industry",
+              "pagebreak",
+              "public",
+              "scorecard"
+            ]
+          }
+          ]
+        }
     """
     serializer_class = ContentElementSerializer
     practice_serializer_class = get_practice_serializer()

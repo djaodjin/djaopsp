@@ -1,0 +1,173 @@
+{% extends "app/reporting/dashboard/base.html" %}
+
+{% block reporting_dashboard_content %}
+<div>
+  <div>
+    <h1 class="text-center">Activity summary</h1>
+  </div>
+  <activity-summary inline-template>
+  <div id="panel-icons" class="panel-icons panel-icons-no-benchmark">
+    <div class="row">
+      <div class="offset-md-4 col-md-4">
+        <div class="input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="from-inp">On</span>
+          </div>
+          <input class="form-control" type="date" v-model="params.ends_at" v-cloak>
+        </div>
+      </div>
+    </div>
+    <hr />
+    <div class="row">
+      <div class="col-sm-8">
+        <reporting-completion-rate :ends_at="params.ends_at" inline-template>
+          <div>
+            <h2 class="text-center mt-2">Completion rate (%)</h2>
+            <div>
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="completionRate"></canvas>
+              </div>
+            </div>
+            <div class="text-center">
+              <a id="download-competion-rate" class="btn btn-secondary mb-2" :href="'{{urls.download_completion_rate}}?ends_at=' + ends_at" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
+          </div>
+        </reporting-completion-rate>
+      </div>
+      <div class="col-md-4 align-self-center">
+        <active-reporting-entities inline-template>
+          <div class="text-black bg-white" style="border: 1px solid #ddd;">
+            <h3 class="text-center mt-4">Active within the last 7 days</h3>
+            <div id="active-reporting-entities-content">
+              <div class="card-body" v-if="!itemsLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-if="itemsLoaded">
+                <div class="p-4 text-center" style="font-size: 32px;">
+                  [[items.count]] users
+                </div>
+              </div>
+              <div class="text-center mb-4">
+                <a href="{{urls.active_reporting_entities}}">see detailed activity &raquo;</a>
+              </div>
+            </div>{# /#active-reporting-entities-content #}
+          </div>
+        </active-reporting-entities>
+      </div>
+    </div><!-- /.row (activity) -->
+    <hr />
+    <div class="row">
+      <div class="col-sm-6">
+        <reporting-goals :ends_at="params.ends_at" inline-template>
+          <div>
+            <h2 class="text-center mt-4">Planned improvements & targets</h2>
+            <h3 class="text-center">(% of suppliers)</h3>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="goals"></canvas>
+              </div>
+            </div>
+            <div class="text-center">
+              <a id="download-goals" class="btn btn-secondary mb-2" :href="'{{urls.download_goals}}?ends_at=' + ends_at" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
+          </div>
+        </reporting-goals>
+      </div>
+      <div class="col-md-6">
+        <reporting-by-segments :ends_at="params.ends_at" inline-template>
+          <div>
+            <h2 class="text-center mt-4">Assessments completed by segments</h2>
+            <h3 class="text-center">(% of suppliers)</h3>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="bySegements"></canvas>
+              </div>
+            </div>
+            <div class="text-center">
+              <a id="download-by-segments" class="btn btn-secondary mb-2" :href="'{{urls.download_by_segments}}?ends_at=' + ends_at" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
+          </div>
+        </reporting-by-segments>
+      </div>
+    </div><!-- /.row (assessments) -->
+    <hr />
+    <div class="row">
+      <div class="col-sm-4">
+        <reporting-ghg-emissions-rate :ends_at="params.ends_at" inline-template>
+          <div>
+            <h2 class="text-center mt-4">GHG emissions reported</h2>
+            <h3 class="text-center">(% of suppliers)</h3>
+            <h3 class="text-center">(outer: {{profile.printable_name}}, inner: EUISSCA)</h3>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="GHGEmissionsRate"></canvas>
+              </div>
+            </div>
+            <div class="text-center">
+              <a id="download-ghg-emissions-rate" class="btn btn-secondary mb-2" :href="'{{urls.download_ghg_emissions_rate}}?ends_at=' + ends_at" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
+          </div>
+        </reporting-ghg-emissions-rate>
+      </div>
+      <div class="col-md-8">
+        <reporting-ghg-emissions-amount :ends_at="params.ends_at" inline-template>
+          <div>
+            <h2 class="text-center mt-4">GHG emissions reported</h2>
+            <h3 class="text-center">(Scope 1 + Scope 2 tons of CO2-equivalent)</h3>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="GHGEmissionsAmount"></canvas>
+              </div>
+            </div>
+            <div class="text-center">
+              <a id="download-ghg-emissions-amount" class="btn btn-secondary mb-2" :href="'{{urls.download_ghg_emissions_amount}}?ends_at=' + ends_at" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
+          </div>
+        </reporting-ghg-emissions-amount>
+      </div>
+    </div><!-- /.row (ghg emissions) -->
+  </div>
+  </activity-summary>
+</div>
+{% endblock %}
+
+{% block reporting_dashboard_scripts %}
+<script type="text/javascript">
+const UTILITY_COLOR = '#f0ad4e';
+const UTILITY_COLOR_LAST = '#facf6f';
+const EUISSCA_COLOR = '#3ca65b';
+const EUISSCA_COLOR_LAST = '#3fa95f';
+Vue.prototype.$dateRange = {
+    start_at: "{% if start_at %}{{start_at}}{% endif %}",
+    ends_at: "{% if ends_at %}{{ends_at}}{% endif %}"
+};
+Vue.prototype.$accountExtra = {% if account_extra %}{{account_extra|safe}}{% else %}{}{% endif %};
+</script>
+{% endblock %}

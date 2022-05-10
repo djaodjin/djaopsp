@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import logging
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
-    site_prefixed)
+    site_url)
 from deployutils.helpers import update_context_urls
 from survey.views.portfolios import PortfoliosView
 
@@ -42,7 +42,7 @@ class ShareView(ReportMixin, PortfoliosView):
             'latest_completed_assessment': latest_completed_assessment,
         })
         update_context_urls(context, {
-            'api_account_candidates': site_prefixed("/api/accounts/profiles/"),
+            'api_account_candidates': site_url("/api/accounts/profiles/"),
         })
         if latest_completed_assessment:
             active_assessment = get_latest_active_assessments(

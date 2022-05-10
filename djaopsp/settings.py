@@ -43,6 +43,15 @@ for env_var in ['DEBUG', 'API_DEBUG', 'ASSETS_DEBUG', 'FEATURES_DEBUG']:
 # Remove extra information used for documentation like examples, etc.
 OPENAPI_SPEC_COMPLIANT = (int(os.getenv('OPENAPI_SPEC_COMPLIANT', "0")) > 0)
 
+if not hasattr(sys.modules[__name__], "SECRET_KEY"):
+    from random import choice
+    SECRET_KEY = "".join([choice(
+        "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^*-_=+") for i in range(50)])
+
+JWT_ALGORITHM = 'HS256'
+if not hasattr(sys.modules[__name__], "JWT_SECRET_KEY"):
+    JWT_SECRET_KEY = SECRET_KEY
+
 # Installed apps
 # --------------
 if DEBUG:
@@ -67,6 +76,7 @@ INSTALLED_APPS = DEBUG_APPS + (
     'rest_framework',
     'survey',
     'pages',
+    'djaopsp.sustainability',
     'djaopsp' # project should be the last entry.
 )
 
@@ -278,6 +288,7 @@ ASSETS_ROOT = HTDOCS
 FILE_CHARSET = 'utf-8'
 
 TEMPLATES_DIRS = (
+    os.path.join(BASE_DIR, 'djaopsp', 'sustainability', 'templates'),
     os.path.join(BASE_DIR, 'djaopsp', 'templates', 'jinja2'),
     os.path.join(BASE_DIR, 'djaopsp', 'templates'),)
 
@@ -492,6 +503,8 @@ USE_TZ = True
 # -----------
 ACCOUNT_MODEL = 'djaopsp.Account'
 PRACTICE_SERIALIZER = 'djaopsp.api.serializers.PracticeSerializer'
+REPORTING_ACCOUNTS_CALLABLE = None
+REQUESTED_ACCOUNTS_CALLABLE = None
 SCORE_CALCULATORS = {
     '/sustainability/': 'djaopsp.scores.ScoreCalculator',
     '/metal/boxes-and-enclosures/': 'djaopsp.scores.ScoreCalculator',

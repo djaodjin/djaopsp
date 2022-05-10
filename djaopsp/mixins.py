@@ -5,6 +5,7 @@ from deployutils.apps.django import mixins as deployutils_mixins
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db.models import Q, F
+from pages.mixins import TrailMixin
 from survey.mixins import SampleMixin
 from survey.models import Campaign, Sample
 from survey.utils import get_account_model
@@ -49,24 +50,25 @@ class AccountMixin(deployutils_mixins.AccountMixin):
         """
         if not hasattr(self, '_campaign_candidates'):
             filtered_in = None
+            #pylint:disable=superfluous-parens
             for visible in (set(['public']) | self.accessible_plans):
                 visibility_q = Q(extra__contains=visible)
                 if filtered_in:
                     filtered_in |= visibility_q
                 else:
                     filtered_in = visibility_q
-                if self.accessible_profiles:
-                    accounts_q = Q(account__slug__in=self.accessible_profiles)
-                    if filtered_in:
-                        filtered_in |= accounts_q
-                    else:
-                        filtered_in = accounts_q
+            if self.accessible_profiles:
+                accounts_q = Q(account__slug__in=self.accessible_profiles)
+                if filtered_in:
+                    filtered_in |= accounts_q
+                else:
+                    filtered_in = accounts_q
             self._campaign_candidates = (Campaign.objects.filter(filtered_in)
                 if filtered_in else Campaign.objects.all())
         return self._campaign_candidates
 
 
-class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin):
+class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):
     """
     Loads assessment and improvement for a profile
     """
@@ -115,7 +117,8 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin):
                         created_at__gte=assessment_sample.created_at,
                         **kwargs).order_by('created_at').first()
             if not self._improvement_sample and not assessment_sample.is_frozen:
-                self._improvement_sample, created = \
+                #pylint:disable=unused-variable
+                self._improvement_sample, unused_created = \
                     Sample.objects.get_or_create(
                         account=account, campaign=campaign, is_frozen=False,
                         extra='is_planned')
@@ -126,12 +129,14 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin):
         if not hasattr(self, '_segments_available'):
             candidates = get_segments_available(
                 self.sample, segments_candidates=self.segments_candidates)
-            if self.db_path and self.db_path != self.DB_PATH_SEP:
+            if self.full_path and self.full_path != self.DB_PATH_SEP:
                 self._segments_available = []
                 for seg in candidates:
-                    path = seg.get('path')
-                    if path and path.startswith(self.db_path):
-                        self._segments_available += [seg]
+                    if seg.get('extra', {}).get('pagebreak', False):
+                        path = seg.get('path')
+                        if path and (path.startswith(self.full_path) or
+                                     self.full_path.startswith(path)):
+                            self._segments_available += [seg]
             else:
                 self._segments_available = candidates
         return self._segments_available
@@ -165,7 +170,18 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin):
             'sample': self.sample,
             'segments_available': self.segments_available,
         })
-        path = self.path.lstrip(self.URL_PATH_SEP)
+        if len(self.segments_available) == 1:
+            path_parts = self.path.lstrip(
+                self.URL_PATH_SEP).split(self.URL_PATH_SEP)
+            seg_parts = self.segments_available[0].get('path').lstrip(
+                self.DB_PATH_SEP).split(self.DB_PATH_SEP)
+            visible_parts = []
+            for seg_part in seg_parts:
+                if seg_part in path_parts:
+                    visible_parts += [seg_part]
+            path = self.URL_PATH_SEP.join(visible_parts)
+        else:
+            path = self.path.lstrip(self.URL_PATH_SEP)
         if path:
             assess_url = reverse('assess_practices',
                 args=(self.account, self.sample, path))

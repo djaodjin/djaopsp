@@ -15,7 +15,8 @@ from survey.utils import get_account_model
 
 from ..compat import reverse
 from ..mixins import AccountMixin, ReportMixin
-from ..utils import get_highlights, get_latest_active_assessments
+from ..utils import (get_highlights, get_summary_performance,
+    get_latest_active_assessments)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -72,7 +73,7 @@ class ScorecardRedirectView(AccountMixin, FormMixin, TemplateResponseMixin,
 
         redirects = []
         for sample in candidates:
-            # We insured that all candidates are the sustainability prefixed
+            # We insured that all candidates are the prefixed
             # content node at this point.
             kwargs.update({'sample': sample})
             url = self.get_redirect_url(*args, **kwargs)
@@ -96,7 +97,6 @@ class ScorecardRedirectView(AccountMixin, FormMixin, TemplateResponseMixin,
             url = self.get_redirect_url(*args, **kwargs)
             print_name = sample.campaign.title
             redirects += [(url, print_name)]
-
         return super(ScorecardRedirectView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -123,7 +123,7 @@ class ScorecardIndexView(ReportMixin, TemplateView):
         context.update({
             'segments_candidates': self.segments_candidates,
             'highlights': get_highlights(self.sample),
-            'summary_performance': [11, 16, 7, 3]
+            'summary_performance': get_summary_performance(self.sample)
         })
         if not self.segments_available:
             update_context_urls(context, {

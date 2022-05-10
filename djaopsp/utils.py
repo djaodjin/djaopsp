@@ -19,6 +19,7 @@ from pages.models import PageElement, build_content_tree, flatten_content_tree
 from survey.models import Answer, Choice, Sample, Unit
 from survey.utils import get_question_model, is_sqlite3
 
+from .compat import import_string
 
 DB_PATH_SEP = '/'
 
@@ -34,6 +35,27 @@ def get_account_model():
     except LookupError:
         raise ImproperlyConfigured("ACCOUNT_MODEL refers to model '%s'"\
 " that has not been installed" % settings.ACCOUNT_MODEL)
+
+
+def get_reporting_accounts(account, ends_at=None, query_supply_chain=True):
+    """
+    All accounts which have elected to share their scorecard
+    with ``account``.
+    """
+    if settings.REPORTING_ACCOUNTS_CALLABLE:
+        return import_string(settings.REPORTING_ACCOUNTS_CALLABLE)(
+            account, ends_at=ends_at, query_supply_chain=query_supply_chain)
+    return settings.APP_NAME
+
+
+def get_requested_accounts(account, ends_at=None, query_supply_chain=True):
+    """
+    All accounts which ``account`` has requested a scorecard from.
+    """
+    if settings.REQUESTED_ACCOUNTS_CALLABLE:
+        return import_string(settings.REQUESTED_ACCOUNTS_CALLABLE)(
+            account, ends_at=ends_at, query_supply_chain=query_supply_chain)
+    return settings.APP_NAME
 
 
 def get_practice_serializer():
@@ -99,7 +121,8 @@ def get_latest_active_assessments(account, campaign=None):
     else:
         kwargs.update({'account__slug': str(account)})
     return Sample.objects.filter(
-        is_frozen=False, **kwargs).order_by('-created_at').select_related(
+        is_frozen=False, extra__isnull=True,
+        **kwargs).order_by('-created_at').select_related(
             'campaign', 'account')
 
 
@@ -115,6 +138,12 @@ def get_latest_completed_assessment(account, campaign=None):
         is_frozen=True, extra__isnull=True,
         **kwargs).order_by('-created_at').select_related(
             'campaign', 'account').first()
+
+
+def get_summary_performance(sample):
+    if sample.campaign.slug == 'sustainability':
+        return [11, 16, 7, 3]
+    return []
 
 
 def _get_segments_query(segments):

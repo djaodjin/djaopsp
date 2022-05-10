@@ -22,7 +22,7 @@
                        :href="'#tab-' + icon.slug"
                        role="{{role}}" data-toggle="{{role}}"
                        @click.prevent="toggleTile($event, icon)">
-                      <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
+                      <img class="icon-equipment" :src="icon.picture" v-if="icon.picture">
                       <div class="icon-caption">[[icon.title]]</div>
                     </a>
                     <div :id="icon.slug + '-score'" class="icon-score">

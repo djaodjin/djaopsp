@@ -201,3 +201,90 @@ class AssessmentContentSerializer(BasePageElementSerializer):
         fields = BasePageElementSerializer.Meta.fields + ('units',)
         read_only_fields = BasePageElementSerializer.Meta.read_only_fields + (
             'units',)
+
+
+class AccountSerializer(NoModelSerializer):
+    """
+    Used to list accessible suppliers
+    """
+    REPORTING_NOT_STARTED = 0
+    REPORTING_ABANDONED = 1
+    REPORTING_EXPIRED = 2
+    REPORTING_ASSESSMENT_PHASE = 3
+    REPORTING_PLANNING_PHASE = 4
+    REPORTING_COMPLETED = 5
+
+    REPORTING_STATUS = (
+        (REPORTING_NOT_STARTED, 'Not started'),
+        (REPORTING_ABANDONED, 'Abandoned'),
+        (REPORTING_EXPIRED, 'Expired'),
+        (REPORTING_ASSESSMENT_PHASE, 'Assessment phase'),
+        (REPORTING_PLANNING_PHASE, 'Planning phase'),
+        (REPORTING_COMPLETED, 'Completed'),
+    )
+
+    slug = serializers.CharField(
+        help_text=_("Unique identifier that can be used in a URL"))
+    printable_name = serializers.CharField(
+        help_text=_("Printable name"))
+    email = serializers.EmailField(
+        help_text=_("Primary contact e-mail"))
+    last_activity_at = serializers.DateTimeField(required=False,
+        help_text=_("Most recent time an assessment was updated"))
+    requested_at = serializers.DateTimeField(required=False, allow_null=True,
+        help_text=_("Datetime at which the scorecard was requested"))
+    reporting_status = serializers.SerializerMethodField(required=False,
+        help_text=_("current reporting status"))
+
+    last_completed_at = serializers.DateTimeField(required=False,
+        help_text=_("Most recent time an assessment was completed"))
+    segment = serializers.CharField(allow_blank=True,
+        help_text=_("segment that was answered"))
+    score_url = serializers.CharField(allow_blank=True,
+        help_text=_("link to the scorecard"))
+    normalized_score = serializers.IntegerField(required=False, allow_null=True,
+        help_text=_("score"))
+    nb_na_answers = serializers.IntegerField(allow_null=True,
+        help_text=_("number of answers marked N/A"))
+    reporting_publicly = serializers.BooleanField(allow_null=True,
+        help_text=_("also reporting publicly"))
+    reporting_fines = serializers.BooleanField(allow_null=True,
+        help_text=_("reporting environmental fines"))
+
+    reporting_energy_consumption = serializers.BooleanField(required=False,
+        allow_null=True,
+        help_text=_("energy measured and trended"))
+    reporting_ghg_generated = serializers.BooleanField(required=False,
+        allow_null=True,
+        help_text=_("ghg emissions measured and trended"))
+    reporting_water_consumption = serializers.BooleanField(required=False,
+        allow_null=True,
+        help_text=_("water measured and trended"))
+    reporting_waste_generated = serializers.BooleanField(required=False,
+        allow_null=True,
+        help_text=_("waste measured and trended"))
+
+    nb_planned_improvements = serializers.IntegerField(required=False,
+        allow_null=True,
+        help_text=_("number of planned improvements"))
+    targets = serializers.ListField(required=False,
+        child=serializers.CharField(),
+        help_text=_("improvement targets"))
+    supplier_initiated = serializers.BooleanField(required=False,
+        help_text=_("share was supplier initiated"))
+    tags = serializers.SerializerMethodField(required=False,
+        help_text=_("extra information tags"))
+
+    def get_reporting_status(self, obj):
+        if obj.reporting_status < len(self.REPORTING_STATUS):
+            reporting_status_tuple = self.REPORTING_STATUS[obj.reporting_status]
+            if reporting_status_tuple:
+                return reporting_status_tuple[1]
+        return self.REPORTING_STATUS[0][1] # REPORTING_NOT_STARTED
+
+    @staticmethod
+    def get_tags(obj):
+        extra = obj.extra
+        if isinstance(extra, dict):
+            return extra.keys()
+        return []

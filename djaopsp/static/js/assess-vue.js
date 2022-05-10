@@ -276,6 +276,13 @@ var practicesListMixin = {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'water';
         },
+        isSustainabilityUIHint: function(row) {
+            // XXX until we find a better way to display implementation
+            //     rate and opportunity score on the scorecard.
+            var vm = this;
+            return vm.isEnumUIHint(row) &&
+                row.default_unit && row.default_unit.slug === 'assessment';
+        },
         isYesNoUIHint: function(row) {
             var vm = this;
             return vm.isEnumUIHint(row) &&

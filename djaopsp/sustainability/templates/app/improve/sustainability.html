@@ -161,7 +161,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr :data-id="getPath(practice)"
+                <tr :id="practice.slug"
                     :class="isRequiredShown(practice) ? 'practice-required' : ''"
                     v-for="practice in getEntries(icon.slug)"
                     v-show="itemsLoaded && items.results.length">
