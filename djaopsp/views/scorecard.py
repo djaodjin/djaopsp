@@ -153,7 +153,9 @@ class ScorecardHistoryView(AccountMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ScorecardHistoryView, self).get_context_data(**kwargs)
         update_context_urls(context, {
-            'api_historical_scores': reverse('api_historical_scores',
-                    args=(self.account, '')),
+            'api_historical_assessments': reverse('api_historical_assessments',
+                    args=(self.account,)),
+            'scorecard_base': reverse('scorecard_redirect',
+                    args=(self.account,)),
         })
         return context

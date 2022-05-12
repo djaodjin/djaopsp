@@ -6,7 +6,8 @@ from rest_framework import serializers
 from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementSerializer as BasePageElementSerializer)
-from survey.api.serializers import AnswerSerializer, UnitSerializer
+from survey.api.serializers import (AnswerSerializer, CampaignSerializer,
+    UnitSerializer)
 
 from ..utils import get_practice_serializer
 
@@ -288,3 +289,16 @@ class AccountSerializer(NoModelSerializer):
         if isinstance(extra, dict):
             return extra.keys()
         return []
+
+
+class HistoricalAssessmentSerializer(NoModelSerializer):
+
+    slug = serializers.SlugField()
+    last_completed_at = serializers.DateTimeField(source='created_at',
+        read_only=True,
+        help_text=_("Date/time an assessment was completed"))
+    campaign = CampaignSerializer()
+#    path = serializers.CharField(source='scorecardcache__path', read_only=True, required=False, allow_blank=True,
+#        help_text=_("segment that was answered"))
+#    normalized_score = serializers.IntegerField(source='scorecardcache__path', read_only=True, required=False, allow_null=True,
+#        help_text=_("score"))

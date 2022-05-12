@@ -17,6 +17,7 @@ from pages.helpers import ContentCut
 from pages.models import PageElement, build_content_tree
 from survey.api.matrix import MatrixDetailAPIView
 from survey.api.serializers import MetricsSerializer
+from survey.helpers import get_extra
 from survey.mixins import CampaignMixin, DateRangeContextMixin, TimersMixin
 from survey.models import EditableFilter, Sample
 from survey.utils import get_account_model, get_question_model, is_sqlite3
@@ -622,12 +623,8 @@ ON saas_organization.id = assessments.account_id
     @property
     def query_supply_chain(self):
         if not hasattr(self, '_query_supply_chain'):
-            try:
-                extra = json.loads(self.account.extra)
-            except (TypeError, ValueError):
-                extra = None
             self._query_supply_chain = bool(
-                extra and extra.get('supply_chain', None))
+                get_extra(self.account, 'supply_chain', False))
         return self._query_supply_chain
 
     @property

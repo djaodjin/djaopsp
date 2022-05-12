@@ -23,6 +23,7 @@ from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.shapes.autoshape import Shape
 from pptx.shapes.graphfrm import GraphicFrame
+from survey.helpers import get_extra
 from survey.models import Campaign, Matrix
 from survey.mixins import CampaignMixin
 from survey.utils import get_question_model
@@ -54,7 +55,7 @@ class DashboardRedirectView(AccountMixin, TemplateResponseMixin, ContextMixin,
         """
         if not hasattr(self, '_dashboards_available'):
             filtered_in = None
-            if not self.manages(settings.APP_NAME):
+            if self.account.slug != settings.APP_NAME: # not is_broker
                 for visible in set(['public']):
                     visibility_q = Q(extra__contains=visible)
                     if filtered_in:
@@ -164,11 +165,7 @@ class PortfolioResponsesView(DashboardMixin, TemplateView):
             'download_raw': reverse('portfolio_responses_download_raw',
                 args=(self.account, self.campaign)),
         })
-        try:
-            extra = json.loads(self.account.extra)
-        except (IndexError, TypeError, ValueError):
-            extra = {}
-        start_at = extra.get('start_at', None)
+        start_at = get_extra(self.account, 'start_at', None)
         context.update({
             'account_extra': self.account.extra,
             'start_at': start_at,

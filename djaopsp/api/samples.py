@@ -12,176 +12,19 @@ from survey.api.sample import SampleCandidatesMixin, SampleAnswersMixin
 from survey.models import Answer, Choice, Sample, Unit, UnitEquivalences
 
 from ..compat import six
-from ..mixins import ReportMixin
+from ..mixins import AccountMixin, ReportMixin
+from ..models import ScorecardCache
 from ..scores import get_score_calculator
 from ..utils import get_segments_available, get_practice_serializer
 from .campaigns import CampaignContentMixin
 from .serializers import (AssessmentContentSerializer, AssessmentNodeSerializer,
-    UnitSerializer)
+    HistoricalAssessmentSerializer, UnitSerializer)
 
 LOGGER = logging.getLogger(__name__)
 
+class AssessmentContentMixin(ReportMixin, CampaignContentMixin,
+                             SampleCandidatesMixin, SampleAnswersMixin):
 
-class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
-                               SampleCandidatesMixin, SampleAnswersMixin,
-                               generics.ListAPIView):
-    """
-    Lists measurements from a sample
-
-    The list returned contains at least one measurement for each question
-    in the campaign. If there are no measurement yet on a question, ``measured``
-    will be null.
-
-    There might be more than one measurement per question as long as there are
-    no duplicated ``unit`` per question. For example, to the question
-    ``adjust-air-fuel-ratio``, there could be a measurement with unit
-    ``assessment`` (Mostly Yes/ Yes / No / Mostly No) and a measurement with
-    unit ``freetext`` (i.e. a comment).
-
-    The {sample} must belong to {organization}.
-
-    {path} can be used to filter the tree of questions by a prefix.
-
-    **Tags**: assessments
-
-    **Examples**
-
-    .. code-block:: http
-
-         GET /api/supplier-1/sample/46f66f70f5ad41b29c4df08f683a9a7a/answers\
-/construction HTTP/1.1
-
-    responds
-
-    .. code-block:: json
-
-    {
-        "count": 3,
-        "previous": null,
-        "next": null,
-        "results": [
-            {
-                "question": {
-                    "path": "/construction/governance/the-assessment\
--process-is-rigorous",
-                    "title": "The assessment process is rigorous",
-                    "default_unit": {
-                        "slug": "assessments",
-                        "title": "assessments",
-                        "system": "enum",
-                        "choices": [
-                        {
-                            "rank": 1,
-                            "text": "mostly-yes",
-                            "descr": "Mostly yes"
-                        },
-                        {
-                            "rank": 2,
-                            "text": "yes",
-                            "descr": "Yes"
-                        },
-                        {
-                            "rank": 3,
-                            "text": "no",
-                            "descr": "No"
-                        },
-                        {
-                            "rank": 4,
-                            "text": "mostly-no",
-                            "descr": "Mostly no"
-                        }
-                        ]
-                    },
-                    "ui_hint": "radio"
-                },
-                "required": true,
-                "measured": "yes",
-                "unit": "assessment",
-                "created_at": "2020-09-28T00:00:00.000000Z",
-                "collected_by": "steve"
-            },
-            {
-                "question": {
-                    "path": "/construction/governance/the-assessment\
--process-is-rigorous",
-                    "title": "The assessment process is rigorous",
-                    "default_unit": {
-                        "slug": "assessments",
-                        "title": "assessments",
-                        "system": "enum",
-                        "choices": [
-                        {
-                            "rank": 1,
-                            "text": "mostly-yes",
-                            "descr": "Mostly yes"
-                        },
-                        {
-                            "rank": 2,
-                            "text": "yes",
-                            "descr": "Yes"
-                        },
-                        {
-                            "rank": 3,
-                            "text": "no",
-                            "descr": "No"
-                        },
-                        {
-                            "rank": 4,
-                            "text": "mostly-no",
-                            "descr": "Mostly no"
-                        }
-                        ]
-                    },
-                    "ui_hint": "radio"
-                },
-                "measured": "Policy document on the public website",
-                "unit": "freetext",
-                "created_at": "2020-09-28T00:00:00.000000Z",
-                "collected_by": "steve"
-            },
-            {
-                "question": {
-                    "path": "/construction/production/adjust-air-fuel\
--ratio",
-                    "title": "Adjust Air fuel ratio",
-                    "default_unit": {
-                        "slug": "assessments",
-                        "title": "assessments",
-                        "system": "enum",
-                        "choices": [
-                        {
-                            "rank": 1,
-                            "text": "mostly-yes",
-                            "descr": "Mostly yes"
-                        },
-                        {
-                            "rank": 2,
-                            "text": "yes",
-                            "descr": "Yes"
-                        },
-                        {
-                            "rank": 3,
-                            "text": "no",
-                            "descr": "No"
-                        },
-                        {
-                            "rank": 4,
-                            "text": "mostly-no",
-                            "descr": "Mostly no"
-                        }
-                        ]
-                    },
-                    "ui_hint": "radio"
-                },
-                "required": true,
-                "measured": null,
-                "unit": null
-            }
-         ]
-    }
-    """
-    exclude_param = 'e'
-    serializer_class = AssessmentContentSerializer
     practice_serializer_class = get_practice_serializer()
 
     # We want `campaign` from ReportMixin and `segments_available`
@@ -191,13 +34,6 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
         if not hasattr(self, '_campaign'):
             self._campaign = self.sample.campaign
         return self._campaign
-
-    @property
-    def exclude_questions(self):
-        if not hasattr(self, '_exclude_questions'):
-            self._exclude_questions = self.request.query_params.get(
-                self.exclude_param)
-        return self._exclude_questions
 
     @property
     def segments_available(self):
@@ -408,6 +244,7 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
         Overrides CampaignContentMixin.get_questions to return a list
         of questions based on the answers available in the sample.
         """
+        self.units = {}
         if not prefix.endswith(self.DB_PATH_SEP):
             prefix = prefix + self.DB_PATH_SEP
 
@@ -433,6 +270,173 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
             key='planned')
         return list(six.itervalues(questions_by_key))
 
+
+class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
+    """
+    Lists measurements from a sample
+
+    The list returned contains at least one measurement for each question
+    in the campaign. If there are no measurement yet on a question, ``measured``
+    will be null.
+
+    There might be more than one measurement per question as long as there are
+    no duplicated ``unit`` per question. For example, to the question
+    ``adjust-air-fuel-ratio``, there could be a measurement with unit
+    ``assessment`` (Mostly Yes/ Yes / No / Mostly No) and a measurement with
+    unit ``freetext`` (i.e. a comment).
+
+    The {sample} must belong to {organization}.
+
+    {path} can be used to filter the tree of questions by a prefix.
+
+    **Tags**: assessments
+
+    **Examples**
+
+    .. code-block:: http
+
+         GET /api/supplier-1/sample/46f66f70f5ad41b29c4df08f683a9a7a/answers\
+/construction HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+    {
+        "count": 3,
+        "previous": null,
+        "next": null,
+        "results": [
+            {
+                "question": {
+                    "path": "/construction/governance/the-assessment\
+-process-is-rigorous",
+                    "title": "The assessment process is rigorous",
+                    "default_unit": {
+                        "slug": "assessments",
+                        "title": "assessments",
+                        "system": "enum",
+                        "choices": [
+                        {
+                            "rank": 1,
+                            "text": "mostly-yes",
+                            "descr": "Mostly yes"
+                        },
+                        {
+                            "rank": 2,
+                            "text": "yes",
+                            "descr": "Yes"
+                        },
+                        {
+                            "rank": 3,
+                            "text": "no",
+                            "descr": "No"
+                        },
+                        {
+                            "rank": 4,
+                            "text": "mostly-no",
+                            "descr": "Mostly no"
+                        }
+                        ]
+                    },
+                    "ui_hint": "radio"
+                },
+                "required": true,
+                "measured": "yes",
+                "unit": "assessment",
+                "created_at": "2020-09-28T00:00:00.000000Z",
+                "collected_by": "steve"
+            },
+            {
+                "question": {
+                    "path": "/construction/governance/the-assessment\
+-process-is-rigorous",
+                    "title": "The assessment process is rigorous",
+                    "default_unit": {
+                        "slug": "assessments",
+                        "title": "assessments",
+                        "system": "enum",
+                        "choices": [
+                        {
+                            "rank": 1,
+                            "text": "mostly-yes",
+                            "descr": "Mostly yes"
+                        },
+                        {
+                            "rank": 2,
+                            "text": "yes",
+                            "descr": "Yes"
+                        },
+                        {
+                            "rank": 3,
+                            "text": "no",
+                            "descr": "No"
+                        },
+                        {
+                            "rank": 4,
+                            "text": "mostly-no",
+                            "descr": "Mostly no"
+                        }
+                        ]
+                    },
+                    "ui_hint": "radio"
+                },
+                "measured": "Policy document on the public website",
+                "unit": "freetext",
+                "created_at": "2020-09-28T00:00:00.000000Z",
+                "collected_by": "steve"
+            },
+            {
+                "question": {
+                    "path": "/construction/production/adjust-air-fuel\
+-ratio",
+                    "title": "Adjust Air fuel ratio",
+                    "default_unit": {
+                        "slug": "assessments",
+                        "title": "assessments",
+                        "system": "enum",
+                        "choices": [
+                        {
+                            "rank": 1,
+                            "text": "mostly-yes",
+                            "descr": "Mostly yes"
+                        },
+                        {
+                            "rank": 2,
+                            "text": "yes",
+                            "descr": "Yes"
+                        },
+                        {
+                            "rank": 3,
+                            "text": "no",
+                            "descr": "No"
+                        },
+                        {
+                            "rank": 4,
+                            "text": "mostly-no",
+                            "descr": "Mostly no"
+                        }
+                        ]
+                    },
+                    "ui_hint": "radio"
+                },
+                "required": true,
+                "measured": null,
+                "unit": null
+            }
+         ]
+    }
+    """
+    exclude_param = 'e'
+    serializer_class = AssessmentContentSerializer
+
+    @property
+    def exclude_questions(self):
+        if not hasattr(self, '_exclude_questions'):
+            self._exclude_questions = self.request.query_params.get(
+                self.exclude_param)
+        return self._exclude_questions
+
     def get_serializer_context(self):
         context = super(AssessmentContentAPIView, self).get_serializer_context()
         context.update({
@@ -441,7 +445,6 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
         return context
 
     def list(self, request, *args, **kwargs):
-        self.units = {}
         queryset = self.filter_queryset(self.get_queryset())
 
         serializer = AssessmentNodeSerializer(
@@ -453,3 +456,14 @@ class AssessmentContentAPIView(ReportMixin, CampaignContentMixin,
                 'units': {key: UnitSerializer().to_representation(val)
                     for key, val in six.iteritems(self.units)}
             }))
+
+
+class HistoricalAssessmentsAPIView(AccountMixin, generics.ListAPIView):
+
+    serializer_class = HistoricalAssessmentSerializer
+
+    def get_queryset(self):
+        return Sample.objects.filter(
+            account=self.account,
+            extra__isnull=True,
+            is_frozen=True).order_by('-created_at').select_related('campaign')

@@ -5,7 +5,8 @@
 API URLs
 """
 from django.urls import path, include
-from ...api.samples import AssessmentContentAPIView
+from ...api.samples import (AssessmentContentAPIView,
+    HistoricalAssessmentsAPIView)
 from ...api.content import PageElementAPIView, PageElementEditableListAPIView
 
 
@@ -14,18 +15,21 @@ urlpatterns = [
         PageElementEditableListAPIView.as_view(),
         name="pages_api_editables_index"),
     path('content/editables/<slug:profile>/',
-         include('djaopsp.urls.api.editors')),
+        include('djaopsp.urls.api.editors')),
     path('content/', include('pages.urls.api.readers')),
     path('content/<path:path>',
-         PageElementAPIView.as_view(), name="api_content"),
+        PageElementAPIView.as_view(), name="api_content"),
     path('content/', PageElementAPIView.as_view(), name="api_content_index"),
     path('content/', include('pages.urls.api.noauth')),
 
     path('', include('survey.urls.api.noauth')),
     path('<slug:profile>/sample/<slug:sample>/content/<path:path>',
-       AssessmentContentAPIView.as_view(), name='api_sample_content'),
+        AssessmentContentAPIView.as_view(), name='api_sample_content'),
     path('<slug:profile>/sample/<slug:sample>/content',
-       AssessmentContentAPIView.as_view(), name='api_sample_content_index'),
+        AssessmentContentAPIView.as_view(), name='api_sample_content_index'),
+    path('<slug:profile>/samples/',
+        HistoricalAssessmentsAPIView.as_view(),
+        name='api_historical_assessments'),
     path('<slug:profile>/', include('djaopsp.urls.api.portfolios')),
     path('<slug:profile>/', include('survey.urls.api.campaigns')),
     path('<slug:profile>/', include('survey.urls.api.sample')),

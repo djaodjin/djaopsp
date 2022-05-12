@@ -15,7 +15,7 @@
         <span v-if="practice.text && practice.text.indexOf('.png', practice.text.length - 4) < 0" v-bind-html="practice.text"></span>
       </div>
       <a class="title"
-         :href="isPractice(practice) ? '{{urls.context_base}}' + practice.slug + '/' : ''"
+         :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
          v-if="isPractice(practice) && isEnumHeaderShown(icon)">
         [[practice.title]]
       </a>

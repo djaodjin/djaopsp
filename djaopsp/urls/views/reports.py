@@ -6,8 +6,8 @@ Views URLs
 """
 from django.urls import path
 
-from ...views.assess import (AssessPracticesView, ImprovePracticesView,
-    TrackMetricsView)
+from ...views.assess import (AssessPracticesXLSXView, AssessPracticesView,
+    ImprovePracticesView, TrackMetricsView)
 from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
     ScorecardRedirectView)
 from ...views.share import ShareView
@@ -18,6 +18,8 @@ urlpatterns = [
          TrackMetricsView.as_view(), name='track_metrics'),
     path('track/',
          TrackMetricsView.as_view(), name='track_metrics_index'),
+    path('assess/<slug:sample>/download/',
+         AssessPracticesXLSXView.as_view(), name='assess_download'),
     path('assess/<slug:sample>/<path:path>/',
          AssessPracticesView.as_view(), name='assess_practices'),
     path('improve/<slug:sample>/<path:path>/',

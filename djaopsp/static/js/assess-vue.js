@@ -1103,7 +1103,7 @@ Vue.component('scorecard-history', {
     ],
     data: function() {
         return {
-            url: this.$urls.api_historical_scores,
+            url: this.$urls.api_historical_assessments,
         }
     },
     mounted: function(){

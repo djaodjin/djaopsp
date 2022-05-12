@@ -17,6 +17,7 @@ from django.db import models
 from pages.helpers import ContentCut
 from pages.models import PageElement, build_content_tree, flatten_content_tree
 from survey.models import Answer, Choice, Sample, Unit
+from survey.helpers import get_extra
 from survey.utils import get_question_model, is_sqlite3
 
 from .compat import import_string
@@ -81,13 +82,7 @@ def get_practice_serializer():
 
 
 def get_highlights(sample):
-    campaign_extra = sample.campaign.extra
-    if not isinstance(campaign_extra, dict):
-        try:
-            campaign_extra = json.loads(campaign_extra)
-        except (TypeError, ValueError):
-            campaign_extra = {}
-    highlights = campaign_extra.get('highlights', [])
+    highlights = get_extra(sample.campaign, 'highlights', [])
     for highlight in highlights:
         reporting = False
         filter_q = None

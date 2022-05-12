@@ -1,11 +1,14 @@
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
+from __future__ import unicode_literals
 
 import logging
 
-from deployutils.helpers import update_context_urls
+from deployutils.helpers import datetime_or_now, update_context_urls
 from django.views.generic import TemplateView
 
+from .downloads import PracticesSpreadsheetView
+from ..api.samples import AssessmentContentMixin
 from ..compat import reverse
 from ..mixins import AccountMixin, ReportMixin
 
@@ -38,6 +41,8 @@ class AssessPracticesView(ReportMixin, TemplateView):
         context.update({'prefix': self.full_path})
         update_context_urls(context, {
             'pages_index': reverse('pages_index'),
+            'download': reverse('assess_download', args=(
+                self.account, self.sample)),
             'api_content': reverse('api_sample_content',
                 args=(self.account, self.sample,
                       self.full_path.lstrip(self.URL_PATH_SEP))),
@@ -85,3 +90,49 @@ class TrackMetricsView(AccountMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(TrackMetricsView, self).get_context_data(**kwargs)
         return context
+
+
+class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
+
+    def get_headings(self):
+        return ['', 'Assessed', 'Planned', 'Comments',
+                'Environmental', 'Ops/maintenance', 'Financial',
+                'Implementation ease', 'AVERAGE VALUE']
+
+    def format_row(self, entry):
+        primary_assessed = None
+        primary_planned = None
+        comments = ""
+        answers = entry.get('answers')
+        if answers:
+            for answer in answers:
+                unit = answer.get('unit')
+                if unit and unit.slug == entry.get(
+                        'default_unit', {}).get('slug'):
+                    primary_assessed =  answer.get('measured')
+                    continue
+                if unit and unit.slug == 'freetext': #XXX
+                    comments = answer.get('measured')
+        planned = entry.get('planned')
+        if planned:
+            for answer in planned:
+                unit = answer.get('unit')
+                if unit and unit.slug == entry.get(
+                        'default_unit', {}).get('slug'):
+                    primary_planned =  answer.get('measured')
+        row = [
+            entry['title'],
+            primary_assessed,
+            primary_planned,
+            comments,
+            entry.get('environmental_value'),
+            entry.get('business_value'),
+            entry.get('profitability'),
+            entry.get('implementation_ease'),
+            entry.get('avg_value')
+        ]
+        return row
+
+    def get_filename(self):
+        return datetime_or_now().strftime("%s-%s-%%Y%%m%%d.xlsx" % (
+            self.account.slug, self.campaign.slug))
