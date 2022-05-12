@@ -445,6 +445,7 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
         return context
 
     def list(self, request, *args, **kwargs):
+        self.units = {}
         queryset = self.filter_queryset(self.get_queryset())
 
         serializer = AssessmentNodeSerializer(
