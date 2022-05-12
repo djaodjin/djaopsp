@@ -16,6 +16,11 @@ module.exports = {
           'js/djaodjin-pages-vue.js',
           'js/editors-vue.js',
       ],
+      reporting: [
+          'vendor/chart.js',
+          'js/djaodjin-survey-vue.js',
+          'js/reporting-vue.js',
+      ],
   },
   module: {
     rules:[{

@@ -70,6 +70,11 @@ all:
 build-assets: $(ASSETS_DIR)/cache/base.css \
               $(ASSETS_DIR)/cache/email.css \
               $(ASSETS_DIR)/cache/assess.js
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-dashboard.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-menubar.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/hallo.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/jquery-ui.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-i18n.js $(ASSETS_DIR)/vendor
 	cd $(srcDir) && $(ESCHECK) es5 htdocs/static/cache/*.js htdocs/static/vendor/*.js -v
 
 
@@ -169,11 +174,6 @@ $(installTop)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $(libDir)/node_modules/vue/dist/vue.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/vue-infinite-loading/dist/vue-infinite-loading.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/lodash/lodash.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-dashboard.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-menubar.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(srcDir)/djaopsp/static/vendor/hallo.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(srcDir)/djaopsp/static/vendor/jquery-ui.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-i18n.js $(ASSETS_DIR)/vendor
 	[ -f $(binDir)/es-check ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/es-check es-check)
 	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/sass sassc)
 	[ -f $(binDir)/swagger-cli ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/swagger-cli swagger-cli)
