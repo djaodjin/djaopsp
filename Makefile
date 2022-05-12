@@ -173,6 +173,7 @@ $(installTop)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-menubar.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/hallo.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/jquery-ui.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-i18n.js $(ASSETS_DIR)/vendor
 	[ -f $(binDir)/es-check ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/es-check es-check)
 	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/sass sassc)
 	[ -f $(binDir)/swagger-cli ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/swagger-cli swagger-cli)
