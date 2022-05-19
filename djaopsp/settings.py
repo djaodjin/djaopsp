@@ -388,7 +388,12 @@ DEPLOYUTILS = {
                     'slug': APP_NAME,
                     'printable_name': APP_NAME,
                 }]},
-            'site': {'email': 'fixtures@djaodjin.com'}},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
         'kathryn': {
             'username': 'kathryn', # Profile manager for alliance
             'roles': {
@@ -400,7 +405,12 @@ DEPLOYUTILS = {
                         "ends_at": "2022-12-31T23:59:59Z"
                     }],
                 }]},
-            'site': {'email': 'fixtures@djaodjin.com'}},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
         'alice': {
             'username': 'alice',   # Profile manager for alliance tier1 member
             'roles': {
@@ -412,7 +422,12 @@ DEPLOYUTILS = {
                         "ends_at": "2022-12-31T23:59:59Z"
                     }],
                 }]},
-            'site': {'email': 'fixtures@djaodjin.com'}},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
         'janice': {
             'username': 'janice',  # Profile manager for alliance tier2 member
             'roles': {
@@ -424,7 +439,12 @@ DEPLOYUTILS = {
                         "ends_at": "2022-12-31T23:59:59Z"
                     }],
                 }]},
-            'site': {'email': 'fixtures@djaodjin.com'}},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
         'steve': {
             'username': 'steve',   # Profile manager for registered organization
             'last_visited': '2017-01-01T00:00:00.000Z',
@@ -433,20 +453,34 @@ DEPLOYUTILS = {
                     'slug': 'supplier-1',
                     'printable_name': 'Steve Shop'
                 }]},
-            'site': {'email': 'fixtures@djaodjin.com'}},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
         'andy': {
             'username': 'andy',
             'roles': {
                 'manager': [{'slug': 'andy-shop',
                     'printable_name': 'Andy Shop'}]},
-            'site': {'email': 'fixtures@djaodjin.com'}},
-        # XXX billy
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
         'erin': {
             'username': 'erin',
             'roles': {
                 'viewer': [{'slug': 'supplier-1',
                     'printable_name': 'Steve Shop'}]},
-            'site': {'email': 'fixtures@djaodjin.com'}},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
     },
     'ALLOWED_NO_SESSION': [
         STATIC_URL,
@@ -511,6 +545,7 @@ SCORE_CALCULATORS = {
 }
 UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members'])
 UNLOCK_EDITORS = set(['managed'])
+UNLOCK_BROKERS = set([APP_NAME])
 
 
 # pages app

@@ -298,7 +298,3 @@ class HistoricalAssessmentSerializer(NoModelSerializer):
         read_only=True,
         help_text=_("Date/time an assessment was completed"))
     campaign = CampaignSerializer()
-#    path = serializers.CharField(source='scorecardcache__path', read_only=True, required=False, allow_blank=True,
-#        help_text=_("segment that was answered"))
-#    normalized_score = serializers.IntegerField(source='scorecardcache__path', read_only=True, required=False, allow_null=True,
-#        help_text=_("score"))

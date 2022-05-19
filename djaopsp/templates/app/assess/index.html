@@ -3,7 +3,7 @@
 {% block assess_content %}
 <campaign-questions-list class="panel-icons" id="panel-icons" inline-template>
   <div>
-    <div class="panel-body panel-icons-no-benchmark">
+    <div class="panel-body">
       <div class="row">
         <div class="col-md-12 text-center" style="display:table-row;">
           <div class="row-icons">
@@ -194,7 +194,7 @@
     <div class="card-footer">
       <div class="row">
         <div class="offset-sm-3 col-sm-6 text-center">
-          <p v-show="itemsLoaded" v-cloak>
+           <p v-show="itemsLoaded" v-cloak>
             [[nbAnswers]] out of [[nbQuestions]] questions answered.
           </p>
           <p>

@@ -1,14 +1,17 @@
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
+import json
 
 from deployutils.apps.django import mixins as deployutils_mixins
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db.models import Q, F
 from pages.mixins import TrailMixin
+from pages.models import PageElement
+from rest_framework.generics import get_object_or_404
 from survey.mixins import SampleMixin
-from survey.models import Campaign, Sample
-from survey.utils import get_account_model
+from survey.models import Answer, Campaign, Sample
+from survey.utils import get_account_model, get_question_model
 
 from .compat import reverse
 from .utils import (get_account_model, get_segments_available,
@@ -18,9 +21,17 @@ from .utils import (get_account_model, get_segments_available,
 class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
 
     @property
+    def manages_broker(self):
+        if True:
+            # XXX Temporary override while `site.slug` is being introduced.
+            return self.accessible_profiles & settings.UNLOCK_BROKERS
+        broker = self.request.session.get('site', {}).get('slug')
+        return broker and broker in self.accessible_profiles
+
+    @property
     def visibility(self):
         if not hasattr(self, '_visibility'):
-            if self.manages(settings.APP_NAME):
+            if self.manages_broker:
                 self._visibility = None
             else:
                 self._visibility = set(['public']) | self.accessible_plans
@@ -29,7 +40,7 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
     @property
     def owners(self):
         if not hasattr(self, '_owners'):
-            if self.manages(settings.APP_NAME):
+            if self.manages_broker:
                 self._owners = None
             else:
                 self._owners = self.accessible_profiles
@@ -200,3 +211,128 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):
             'share': reverse('share', args=(self.account, self.sample,)),
         })
         return context
+
+
+class SegmentReportMixin(ReportMixin):
+    # We want `campaign` from ReportMixin and `segments_available`
+    # from `CampaignContentMixin` so it is safer to redefine them here.
+    @property
+    def campaign(self):
+        if not hasattr(self, '_campaign'):
+            self._campaign = self.sample.campaign
+        return self._campaign
+
+    @property
+    def segments_available(self):
+        """
+        When a {path} is specified, it will returns the segment identified
+        by that {path} regardless of the number of answers already present
+        for it. When no {path} is specified, it is empty of the root of the
+        content tree, the segments which have at least one answer are returned.
+        """
+        if not hasattr(self, '_segments_available'):
+            candidates = self.get_segments_candidates()
+            if self.db_path and self.db_path != self.DB_PATH_SEP:
+                self._segments_available = []
+                for seg in candidates:
+                    path = seg.get('path')
+                    if path and path.startswith(self.db_path):
+                        self._segments_available += [seg]
+                if not self._segments_available:
+                    # Technically not a segment (i.e. it is a section
+                    # of segment on its own page).
+                    element = get_object_or_404(PageElement.objects.all(),
+                        slug=self.db_path.split(self.DB_PATH_SEP)[-1])
+                    try:
+                        element.extra = json.loads(element.extra)
+                    except (TypeError, ValueError):
+                        pass
+                    self._segments_available = [{
+                        'indent': 0,
+                        'path': self.db_path,
+                        'slug': element.slug,
+                        'title': element.title,
+                        'extra': element.extra,
+                    }]
+            else:
+                self._segments_available = get_segments_available(
+                    self.sample, segments_candidates=candidates)
+        return self._segments_available
+
+    @property
+    def nb_answers(self):
+        if not hasattr(self, '_nb_answers'):
+            self._nb_answers = 0
+            for seg in self.segments_available:
+                path = seg.get('path')
+                if not path:
+                    continue
+                queryset = Answer.objects.filter(
+                    Q(unit_id=F('question__default_unit_id')) |
+        Q(unit_id=F('question__default_unit__source_equivalences__target_id')),
+                    sample=self.sample,
+                    question__path__startswith=path)
+                self._nb_answers += queryset.count()
+        return self._nb_answers
+
+    @property
+    def nb_questions(self):
+        if not hasattr(self, '_nb_questions'):
+            self._nb_questions = 0
+            if self.sample.is_frozen:
+                for seg in self.segments_available:
+                    path = seg.get('path')
+                    if not path:
+                        continue
+                    queryset = get_question_model().objects.filter(
+                        answer__sample=self.sample
+                    ).distinct()
+                    self._nb_questions += queryset.count()
+            else:
+                for seg in self.segments_available:
+                    path = seg.get('path')
+                    if not path:
+                        continue
+                    queryset = get_question_model().objects.filter(
+                        enumeratedquestions__campaign=self.sample.campaign
+                    ).distinct()
+                    self._nb_questions += queryset.count()
+        return self._nb_questions
+
+    @property
+    def nb_required_answers(self):
+        if not hasattr(self, '_nb_required_answers'):
+            self._nb_required_answers = 0
+            if not self.sample.is_frozen:
+                # completed assessments cannot use `EnumeratedQuestions`.
+                for seg in self.segments_available:
+                    path = seg.get('path')
+                    if not path:
+                        continue
+                    queryset = Answer.objects.filter(
+                    Q(unit_id=F('question__default_unit_id')) |
+        Q(unit_id=F('question__default_unit__source_equivalences__target_id')),
+                    sample=self.sample,
+                    question__enumeratedquestions__required=True,
+                    question__path__startswith=path,
+        question__enumeratedquestions__campaign=self.sample.campaign)
+                    self._nb_required_answers += queryset.count()
+        return self._nb_required_answers
+
+    @property
+    def nb_required_questions(self):
+        if not hasattr(self, '_nb_required_questions'):
+            self._nb_required_questions = 0
+            if not self.sample.is_frozen:
+                # completed assessments cannot use `EnumeratedQuestions`.
+                for seg in self.segments_available:
+                    path = seg.get('path')
+                    if not path:
+                        continue
+                    queryset = get_question_model().objects.filter(
+                        path__startswith=path,
+                        enumeratedquestions__campaign=self.sample.campaign,
+                        enumeratedquestions__required=True
+                    ).distinct()
+                    self._nb_required_questions += queryset.count()
+        return self._nb_required_questions

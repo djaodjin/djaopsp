@@ -1,5 +1,6 @@
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
+#pylint:disable=too-many-lines
 
 import datetime, json, re
 from collections import OrderedDict
@@ -13,8 +14,7 @@ import pytz
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from pages.helpers import ContentCut
-from pages.models import PageElement, build_content_tree
+from pages.models import PageElement
 from survey.api.matrix import MatrixDetailAPIView
 from survey.api.serializers import MetricsSerializer
 from survey.helpers import get_extra
@@ -26,8 +26,8 @@ from ..compat import reverse, six
 from ..api.serializers import AccountSerializer
 from ..mixins import AccountMixin
 from ..models import ScorecardCache
-from ..utils import (get_reporting_accounts, get_requested_accounts,
-    get_segments_candidates)
+from ..utils import (TransparentCut, get_reporting_accounts,
+    get_requested_accounts, get_scores_tree, get_segments_candidates)
 
 
 class CompletionSummaryPagination(PageNumberPagination):
@@ -1043,46 +1043,6 @@ class GraphMixin(object):
         return charts, complete
 
 
-class TransparentCut(object):
-
-    TAG_SCORECARD = 'scorecard'
-
-    def __init__(self, depth=1):
-        self.depth = depth
-
-    def enter(self, tag):
-        #pylint:disable=unused-argument
-        self.depth = self.depth + 1
-        return True
-
-    def leave(self, attrs, subtrees):
-        self.depth = self.depth - 1
-        # `transparent_to_rollover` is meant to speed up computations
-        # when the resulting calculations won't matter to the display.
-        # We used to compute decide `transparent_to_rollover` before
-        # the recursive call (see commit c421ca5) but it would not
-        # catch the elements tagged deep in the tree with no chained
-        # presentation.
-        try:
-            tags = attrs.get('extra', {}).get('tags', [])
-        except AttributeError:
-            tags = []
-        attrs['transparent_to_rollover'] = not (
-            tags and self.TAG_SCORECARD in tags)
-        for subtree in six.itervalues(subtrees):
-            try:
-                tags = attrs.get('extra', {}).get('tags', [])
-            except AttributeError:
-                tags = []
-            if tags and self.TAG_SCORECARD in tags:
-                attrs['transparent_to_rollover'] = False
-                break
-            if not subtree[0].get('transparent_to_rollover', True):
-                attrs['transparent_to_rollover'] = False
-                break
-        return not attrs['transparent_to_rollover']
-
-
 class TotalScoreBySubsectorAPIView(SupplierListMixin, GraphMixin,
                                    MatrixDetailAPIView):
     """
@@ -1159,72 +1119,6 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, GraphMixin,
 
         return accounts
 
-    def _cut_tree(self, roots, cut=None):
-        """
-        Cuts subtrees out of *roots* when they match the *cut* parameter.
-        *roots* has a format compatible with the data structure returned
-        by `build_content_tree`.
-
-        code::
-            {
-              "/boxes-and-enclosures": [
-                { ... data for node ... },
-                {
-                  "boxes-and-enclosures/management": [
-                  { ... data for node ... },
-                  {}],
-                  "boxes-and-enclosures/design": [
-                  { ... data for node ... },
-                  {}],
-                }]
-            }
-        """
-        for node_path, node in list(six.iteritems(roots)):
-            self._cut_tree(node[1], cut=cut)
-            if cut and not cut.leave(node[0], node[1]):
-                del roots[node_path]
-        return roots
-
-    def get_scores_tree(self, roots=None, prefix=None):
-        """
-        Returns a tree specialized to compute rollup scores.
-
-        Typically `get_leafs` and a function to populate a leaf will be called
-        before an rollup is done.
-        """
-        self._report_queries("[get_scores_tree] entry point")
-        rollup_tree = None
-        rollups = self._cut_tree(build_content_tree(roots, prefix=prefix),
-            cut=TransparentCut())
-
-        # Moves up all industry segments which are under a category
-        # (ex: /facilities/janitorial-services).
-        # If we donot do that, then assessment score will be incomplete
-        # in the dashboard, as the aggregator will wait for other sub-segments
-        # in the top level category.
-        removes = []
-        ups = OrderedDict({})
-        for root_path, root in six.iteritems(rollups):
-            try:
-                tags = root[0].get('extra', {}).get('tags', [])
-            except AttributeError:
-                tags = []
-            if ContentCut.TAG_PAGEBREAK not in tags:
-                removes += [root_path]
-                ups.update(root[1])
-        for root_path in removes:
-            del rollups[root_path]
-        rollups.update(ups)
-
-        rollup_tree = (OrderedDict({}), rollups)
-        if 'title' not in rollup_tree[0]:
-            rollup_tree[0].update({
-                'slug': "totals",
-                'title': "Total Score",
-                'tag': [TransparentCut.TAG_SCORECARD]})
-        self._report_queries("[get_scores_tree] generated")
-        return rollup_tree
-
     def get_score_weight(self, path):
         if not hasattr(self, '_weights'):
             try:
@@ -1256,7 +1150,8 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, GraphMixin,
                     slug=prefix.split(self.DB_PATH_SEP)[-1])]
             except PageElement.DoesNotExist:
                 roots = None
-        rollup_tree = self.get_scores_tree(roots, prefix=prefix)
+        self._report_queries("[get_scores_tree] entry point")
+        rollup_tree = get_scores_tree(roots, prefix=prefix)
         self._report_queries("%d score tree loaded" % len(rollup_tree))
         for score in queryset:
             self._insert_in_tree(rollup_tree, score.segment_path, score)
@@ -1432,8 +1327,8 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, GraphMixin,
                             nb_accounts += 1
                             normalized_score += n_score
                 if normalized_score > 0 and nb_accounts > 0:
-                    if path in set([supplier['slug']
-                            for supplier in us_suppliers['cohorts']]):
+                    if path in {supplier['slug']
+                                for supplier in us_suppliers['cohorts']}:
                         score[path] = normalized_score / nb_accounts
             us_suppliers['values'] = score
             charts += [us_suppliers]

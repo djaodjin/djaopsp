@@ -22,7 +22,7 @@ then share it with customers, investors and other interested 3rd parties.
                 <img class="mt-4 img-fluid" style="max-height:2rem;" src="{% if profile.picutre %}{{profile.picture}}{% else %}{{'/static/img/logo-djaodjin-orange.png'|asset}}{% endif %}">
               </div>
               <div class="col-sm-8 text-center text-sm-left">
-                <h1 class="mt-4">{{profile.printable_name}}</h2>
+                <h1 class="mt-4">{{profile.printable_name}}</h1>
                 <h2>{{sample.campaign.title}}</h2>
                 <div>{{sample.created_at|date}}</div>
               </div>
@@ -43,10 +43,10 @@ then share it with customers, investors and other interested 3rd parties.
               </div>
             </div>
             <div class="row">
-              <div class="col-sm-6" style="margin-top: 65px;">
-                <div class="ml-2">
+              <div class="col-sm-6">
+                <div class="mt-2 ml-2">
                   Contact Information
-                  <ul class="list-unstyled">
+                  <ul class="list-unstyled mb-0">
                     {% if profile.email %}
                     <li>{{profile.email}}</li>
                     {% endif %}
@@ -429,14 +429,18 @@ companies responding on practices in the industry segment.
           {% else %}
           {# actions only available when a scorecard is active #}
           <div class="col-sm-4 col-md-3 offset-md-3">
-            <a id="complete-assessment-btn"
-               class="mt-2 btn btn-primary w-100"
-               href=""
-               data-toggle="modal"
-               data-target="#complete-assessment"
-               v-show="itemsLoaded && items.results > 0">
-              Complete
-            </a>
+            <form method="post" action="." @submit.prevent="freezeAssessment">
+              <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+              <button id="complete-assessment-btn"
+                      class="mt-2 btn btn-primary w-100"
+                      href=""
+                      data-toggle="modal"
+                      data-target="#complete-assessment"
+                      :disabled="freezeAssessmentDisabled"
+                      v-show="itemsLoaded && items.results.length > 0">
+                Complete
+              </button>
+            </form>
           </div>
           <div class="col-sm-4 col-md-3">
             <a id="invite-contributor-btn" class="mt-2 btn btn-secondary w-100"

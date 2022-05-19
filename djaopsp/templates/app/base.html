@@ -27,6 +27,19 @@ Vue.prototype.$itemsPerPage =
 Vue.prototype.$urls = {% if urls %}{{urls|to_json}}{% else %}{}{% endif %};
 Vue.prototype.$prefix = {% if prefix %}"{{prefix}}"{% else %}""{% endif %};
 Vue.prototype.$summary_performance = {% if summary_performance %}{{summary_performance|to_json}}{% else %}[]{% endif %};
+{% if sample %}
+Vue.prototype.$sample = {
+ nbAnswers:{% if nb_answers %}{{nb_answers}}{% else %}0{% endif %},
+ nbQuestions:{% if nb_questions %}{{nb_questions}}{% else %}0{% endif %},
+{% if nb_required_answers %}
+    nbRequiredAnswers:  {{nb_required_answers}},
+{% endif %}
+{% if nb_required_questions %}
+    nbRequiredQuestions: {{nb_required_questions}},
+{% endif %}
+};
+{% endif %}
+
 var app = new Vue({
   el: '#app',
   delimiters: ["[[","]]"],

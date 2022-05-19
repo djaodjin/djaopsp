@@ -10,13 +10,13 @@ from django.views.generic import TemplateView
 from .downloads import PracticesSpreadsheetView
 from ..api.samples import AssessmentContentMixin
 from ..compat import reverse
-from ..mixins import AccountMixin, ReportMixin
+from ..mixins import AccountMixin, SegmentReportMixin
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-class AssessPracticesView(ReportMixin, TemplateView):
+class AssessPracticesView(SegmentReportMixin, TemplateView):
     """
     Profile assessment page
     """
@@ -38,7 +38,16 @@ class AssessPracticesView(ReportMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AssessPracticesView, self).get_context_data(**kwargs)
-        context.update({'prefix': self.full_path})
+        context.update({
+            'prefix': self.full_path,
+            'nb_answers': self.nb_answers,
+            'nb_questions': self.nb_questions,
+        })
+        if not self.sample.is_frozen:
+            context.update({
+                'nb_required_answers': self.nb_required_answers,
+                'nb_required_questions': self.nb_required_questions,
+            })
         update_context_urls(context, {
             'pages_index': reverse('pages_index'),
             'download': reverse('assess_download', args=(
@@ -109,7 +118,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
                 unit = answer.get('unit')
                 if unit and unit.slug == entry.get(
                         'default_unit', {}).get('slug'):
-                    primary_assessed =  answer.get('measured')
+                    primary_assessed = answer.get('measured')
                     continue
                 if unit and unit.slug == 'freetext': #XXX
                     comments = answer.get('measured')
@@ -119,7 +128,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
                 unit = answer.get('unit')
                 if unit and unit.slug == entry.get(
                         'default_unit', {}).get('slug'):
-                    primary_planned =  answer.get('measured')
+                    primary_planned = answer.get('measured')
         row = [
             entry['title'],
             primary_assessed,

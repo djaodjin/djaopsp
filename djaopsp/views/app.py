@@ -40,18 +40,24 @@ class AppView(AccountMixin, TemplateView):
             'scorecard_redirect': reverse('scorecard_redirect',
                 args=(self.account,)),
         })
+        is_broker = (self.account.slug == self.request.session.get(
+            'site', {}).get('slug'))
+        if True:
+            # XXX Temporary override while `site.slug` is being introduced.
+            is_broker = (self.account.slug in settings.UNLOCK_BROKERS)
+        accessible_plans = {plan['slug']
+            for plan in self.get_accessible_plans(
+                    self.request, profile=self.account)}
         unlock_portfolios = getattr(settings, 'UNLOCK_PORTFOLIOS', [])
-        if (self.manages(settings.APP_NAME) or
-            not unlock_portfolios or
-            self.accessible_plans & unlock_portfolios):
+        if (is_broker or not unlock_portfolios or
+            accessible_plans & unlock_portfolios):
             update_context_urls(context, {
                 'reporting': reverse(
                     'reporting', args=(self.account,)),
             })
         unlock_editors = getattr(settings, 'UNLOCK_EDITORS', [])
-        if (self.manages(settings.APP_NAME) or
-            not unlock_editors or
-            self.accessible_plans & unlock_editors):
+        if (is_broker or not unlock_editors or
+            accessible_plans & unlock_editors):
             update_context_urls(context, {
                 'pages_editables_index': reverse(
                     'pages_editables_index', args=(self.account,)),

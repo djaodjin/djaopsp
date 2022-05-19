@@ -1,3 +1,9 @@
-from .base import ScoreCalculator, get_score_calculator
+from .base import (ScoreCalculator, freeze_scores, get_score_calculator,
+    populate_rollup)
 
-__all__ = ['ScoreCalculator', 'get_score_calculator']
+__all__ = [
+    'ScoreCalculator',
+    'freeze_scores',
+    'get_score_calculator',
+    'populate_rollup'
+]

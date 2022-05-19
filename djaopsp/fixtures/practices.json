@@ -761,7 +761,7 @@
   "fields": {
     "path": "/sustainability/data-metrics/general-information/gross-revenue",
     "content": 60,
-    "default_unit": 4
+    "default_unit": 10
   },
   "model": "survey.question", "pk": 46
 },
@@ -778,7 +778,7 @@
   "fields": {
     "path": "/sustainability/data-metrics/general-information/employee-count",
     "content": 61,
-    "default_unit": 4
+    "default_unit": 9
   },
   "model": "survey.question", "pk": 47
 },
@@ -824,7 +824,8 @@
   "fields": {
     "campaign": 1,
     "question": 49,
-    "rank": 49
+    "rank": 49,
+    "required": false
   },
   "model": "survey.EnumeratedQuestions", "pk": 49
 },
@@ -861,7 +862,8 @@
   "fields": {
     "campaign": 1,
     "question": 51,
-    "rank": 51
+    "rank": 51,
+    "required": false
   },
   "model": "survey.EnumeratedQuestions", "pk": 51
 },
@@ -898,7 +900,8 @@
   "fields": {
     "campaign": 1,
     "question": 54,
-    "rank": 54
+    "rank": 54,
+    "required": false
   },
   "model": "survey.EnumeratedQuestions", "pk": 54
 },
@@ -935,7 +938,8 @@
   "fields": {
     "campaign": 1,
     "question": 56,
-    "rank": 56
+    "rank": 56,
+    "required": false
   },
   "model": "survey.EnumeratedQuestions", "pk": 56
 },

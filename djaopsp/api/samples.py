@@ -1,76 +1,219 @@
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
 
-import copy, json, logging
+import copy, logging
 
 from dateutil.relativedelta import relativedelta
+from deployutils.helpers import datetime_or_now
+from django.db import transaction
 from django.db.models import Count, F
 from pages.models import PageElement
-from rest_framework import generics, response as http
-from rest_framework.generics import get_object_or_404
-from survey.api.sample import SampleCandidatesMixin, SampleAnswersMixin
+from rest_framework import generics, response as http, status as http_status
+from rest_framework.exceptions import ValidationError
+from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
+    SampleFreezeAPIView)
+from survey.mixins import TimersMixin
 from survey.models import Answer, Choice, Sample, Unit, UnitEquivalences
 
-from ..compat import six
-from ..mixins import AccountMixin, ReportMixin
+from ..compat import reverse, six
+from ..mixins import AccountMixin, SegmentReportMixin
 from ..models import ScorecardCache
-from ..scores import get_score_calculator
-from ..utils import get_segments_available, get_practice_serializer
+from ..scores import freeze_scores, get_score_calculator, populate_rollup
+from ..utils import get_leafs, get_practice_serializer, get_scores_tree
 from .campaigns import CampaignContentMixin
 from .serializers import (AssessmentContentSerializer, AssessmentNodeSerializer,
     HistoricalAssessmentSerializer, UnitSerializer)
 
 LOGGER = logging.getLogger(__name__)
 
-class AssessmentContentMixin(ReportMixin, CampaignContentMixin,
+
+class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
+                                SampleFreezeAPIView):
+
+    def post(self, request, *args, **kwargs):
+        """
+        Freezes a sample of measurements
+
+        **Tags**: assessments
+
+        **Examples
+
+        .. code-block:: http
+
+            POST /api/supplier-1/sample/0123456789abcdef/freeze/construction\
+ HTTP/1.1
+
+        .. code-block:: json
+
+            {}
+
+        responds
+
+        .. code-block:: json
+
+            {
+              "slug": "0123456789abcdef",
+              "account": "supplier-1",
+              "created_at": "2020-01-01T00:00:00Z",
+              "is_frozen": true,
+              "campaign": null,
+              "updated_at": "2020-01-01T00:00:00Z"
+            }
+        """
+        #pylint:disable=useless-super-delegation
+        return super(AssessmentCompleteAPIView, self).post(
+            request, *args, **kwargs)
+
+    def _populate_scorecard_cache(self, rollup_tree, improvement_sample=None):
+        scorecard_cache = []
+        for node in six.itervalues(rollup_tree[1]):
+            scorecard_cache += self._populate_scorecard_cache(  # recursive call
+                node, improvement_sample=improvement_sample)
+        path = rollup_tree[0].get('path')
+        if path:
+            # We do not need the "totals" node here.
+            for account in six.itervalues(rollup_tree[0].get('accounts')):
+                sample = Sample.objects.get(slug=account.get('sample'))
+                nb_planned_improvements = account.get('nb_planned_improvements')
+                if nb_planned_improvements is None:
+                    if improvement_sample:
+                        nb_planned_improvements = \
+                            Answer.objects.filter(
+                                sample=improvement_sample,
+                                question__path__startswith=path,
+                                unit_id=self.default_unit_id).count()
+                    else:
+                        nb_planned_improvements = 0
+                scorecard_cache += [
+                    ScorecardCache(
+                        path=path,
+                        sample=sample,
+                        normalized_score=account.get(
+                            'normalized_score', None),
+                        nb_na_answers=account.get(
+                            'nb_na_answers', None),
+                        nb_planned_improvements=nb_planned_improvements
+                    )]
+        return scorecard_cache
+
+    def populate_scorecard_cache(self, frozen_assessment_sample,
+                                 improvement_sample=None):
+        #pylint:disable=too-many-locals
+        rollup_tree = [{
+            "slug": "totals",
+            "title": "Total Score",
+            "tag": [
+                "scorecard"
+            ],
+            "score_weight": 1.0,
+            "accounts": {}
+        }, {}]
+        for segment in self.segments_available:
+            segment_path = segment.get('path')
+            if segment_path:
+                slug = segment_path.split('/')[-1]
+                prefix = '/'.join(segment_path.split('/')[:-1])
+                rollup_tree[1].update(get_scores_tree(
+                    roots=[PageElement.objects.get(slug=slug)],
+                    prefix=prefix)[1])
+
+        leafs = get_leafs(rollup_tree, frozen_assessment_sample.campaign)
+        self._report_queries("freezing assessment: leafs loaded")
+
+        for prefix, values_tuple in six.iteritems(leafs):
+            score_calculator = get_score_calculator(prefix)
+            if score_calculator:
+                title = values_tuple[0].get('title')
+                scorecard_cache = score_calculator.get_scorecache(
+                    frozen_assessment_sample.campaign,
+                    prefix, title=title, includes=[frozen_assessment_sample])
+                accounts = values_tuple[0].get('accounts', {})
+                account = accounts.get(scorecard_cache.account_id, {})
+                account.update({
+                    'sample_id': scorecard_cache.id,
+                    'slug': scorecard_cache.slug,
+                    'created_at': scorecard_cache.created_at,
+                    'campaign_id': scorecard_cache.campaign_id,
+                    'updated_at': scorecard_cache.updated_at,
+                    'is_frozen': scorecard_cache.is_frozen,
+                    'extra': scorecard_cache.extra,
+                    'segment_path': scorecard_cache.segment_path,
+                    'segment_title': scorecard_cache.segment_title,
+                    'numerator': scorecard_cache.numerator,
+                    'denominator': scorecard_cache.denominator,
+                    'nb_answers': scorecard_cache.nb_answers,
+                    'nb_questions': scorecard_cache.nb_questions,
+                    'nb_na_answers': scorecard_cache.nb_na_answers,
+                    'reporting_publicly': scorecard_cache.reporting_publicly,
+                    'reporting_fines': scorecard_cache.reporting_fines,
+'reporting_energy_consumption': scorecard_cache.reporting_energy_consumption,
+'reporting_ghg_generated': scorecard_cache.reporting_ghg_generated,
+'reporting_water_consumption': scorecard_cache.reporting_water_consumption,
+'reporting_waste_generated': scorecard_cache.reporting_waste_generated,
+'reporting_energy_target': scorecard_cache.reporting_energy_target,
+'reporting_ghg_target': scorecard_cache.reporting_ghg_target,
+'reporting_water_target': scorecard_cache.reporting_water_target,
+'reporting_waste_target': scorecard_cache.reporting_waste_target,
+                })
+                if scorecard_cache.account_id not in accounts:
+                    accounts.update({scorecard_cache.account_id: account})
+                if 'accounts' not in values_tuple[0]:
+                    values_tuple[0].update({'accounts': accounts})
+        self._report_queries("freezing assessment: leafs populated")
+        populate_rollup(rollup_tree, True, force_score=True)
+        self._report_queries("freezing assessment: rollup populated")
+
+        scorecard_caches = self._populate_scorecard_cache(
+            rollup_tree, improvement_sample=improvement_sample)
+
+        ScorecardCache.objects.bulk_create(scorecard_caches)
+
+
+    def create(self, request, *args, **kwargs):
+        self._start_time()
+        created_at = datetime_or_now()
+
+        if self.nb_required_answers < self.nb_required_questions:
+            raise ValidationError({'detail':
+                "You have only answered %d of the %d required practices." % (
+                self.nb_required_answers, self.nb_required_questions)})
+
+        with transaction.atomic():
+            frozen_assessment_sample = freeze_scores(
+                self.sample,
+                created_at=created_at,
+                collected_by=self.request.user,
+                segment_path=self.path)
+
+            frozen_improvement_sample = None
+            if (self.improvement_sample and
+                self.improvement_sample.answers.exists()):
+                frozen_improvement_sample = freeze_scores(
+                    self.improvement_sample,
+                    created_at=created_at,
+                    collected_by=self.request.user,
+                    segment_path=self.path)
+            self._report_queries("freezing assessment: completed")
+
+            self.populate_scorecard_cache(frozen_assessment_sample,
+                improvement_sample=frozen_improvement_sample)
+            self._report_queries("freezing assessment: scorecard cache created")
+
+        # Next step in the assessment. After complete, scorecard is optional.
+        next_url = reverse('share', args=(
+            frozen_assessment_sample.account, frozen_assessment_sample))
+        frozen_assessment_sample.location = self.request.build_absolute_uri(
+            next_url)
+
+        serializer = self.get_serializer(instance=frozen_assessment_sample)
+        return http.Response(
+            serializer.data, status=http_status.HTTP_201_CREATED)
+
+
+class AssessmentContentMixin(SegmentReportMixin, CampaignContentMixin,
                              SampleCandidatesMixin, SampleAnswersMixin):
 
     practice_serializer_class = get_practice_serializer()
-
-    # We want `campaign` from ReportMixin and `segments_available`
-    # from `CampaignContentMixin` so it is safer to redefine them here.
-    @property
-    def campaign(self):
-        if not hasattr(self, '_campaign'):
-            self._campaign = self.sample.campaign
-        return self._campaign
-
-    @property
-    def segments_available(self):
-        """
-        When a {path} is specified, it will returns the segment identified
-        by that {path} regardless of the number of answers already present
-        for it. When no {path} is specified, it is empty of the root of the
-        content tree, the segments which have at least one answer are returned.
-        """
-        if not hasattr(self, '_segments_available'):
-            candidates = self.get_segments_candidates()
-            if self.db_path and self.db_path != self.DB_PATH_SEP:
-                self._segments_available = []
-                for seg in candidates:
-                    path = seg.get('path')
-                    if path and path.startswith(self.db_path):
-                        self._segments_available += [seg]
-                if not self._segments_available:
-                    # Technically not a segment (i.e. it is a section
-                    # of segment on its own page).
-                    element = get_object_or_404(PageElement.objects.all(),
-                        slug=self.db_path.split(self.DB_PATH_SEP)[-1])
-                    try:
-                        element.extra = json.loads(element.extra)
-                    except (TypeError, ValueError):
-                        pass
-                    self._segments_available = [{
-                        'indent': 0,
-                        'path': self.db_path,
-                        'slug': element.slug,
-                        'title': element.title,
-                        'extra': element.extra,
-                    }]
-            else:
-                self._segments_available = get_segments_available(
-                    self.sample, segments_candidates=candidates)
-        return self._segments_available
 
     def attach_answers(self, questions_by_key, queryset, key='answers'):
         #pylint:disable=too-many-locals

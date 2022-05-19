@@ -54,22 +54,10 @@ class DashboardRedirectView(AccountMixin, TemplateResponseMixin, ContextMixin,
         Returns a list of campaign dashboards available to the request user.
         """
         if not hasattr(self, '_dashboards_available'):
-            filtered_in = None
-            if self.account.slug != settings.APP_NAME: # not is_broker
-                for visible in set(['public']):
-                    visibility_q = Q(extra__contains=visible)
-                    if filtered_in:
-                        filtered_in |= visibility_q
-                    else:
-                        filtered_in = visibility_q
-                if self.accessible_profiles:
-                    accounts_q = Q(account__slug__in=self.accessible_profiles)
-                    if filtered_in:
-                        filtered_in |= accounts_q
-                    else:
-                        filtered_in = accounts_q
-            self._dashboards_available = (Campaign.objects.filter(filtered_in)
-                if filtered_in else Campaign.objects.all())
+            filtered_in = Q(account__slug=self.account)
+            for visible in set(['public']):
+                filtered_in |= Q(extra__contains=visible)
+            self._dashboards_available = Campaign.objects.filter(filtered_in)
         return self._dashboards_available
 
     def get_redirect_url(self, *args, **kwargs):

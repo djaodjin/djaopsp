@@ -136,6 +136,8 @@ class ScorecardIndexView(ReportMixin, TemplateView):
                 args=(self.account, self.sample, '-'))[:-2],
             'survey_api_sample_answers': reverse('api_sample_content',
                 args=(self.account, self.sample, '-'))[:-2],
+            'api_assessment_freeze': reverse('survey_api_sample_freeze_index',
+                args=(self.account, self.sample)),
             'api_account_benchmark': reverse('api_sample_content',
                 args=(self.account, self.sample, '-'))[:-2],
 #XXX            'api_account_benchmark': reverse('api_benchmark',

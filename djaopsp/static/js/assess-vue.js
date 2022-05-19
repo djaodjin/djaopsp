@@ -304,14 +304,12 @@ Vue.component('campaign-questions-list', {
     data: function() {
         return {
             url: this.$urls.api_content,
-            api_assessment_freeze: this.$urls.api_assessment_freeze,
             api_improvement_sample: this.$urls.api_improvement_sample,
             valueSummaryToggle: true,
             vsPeersToggle: 0,
             activeTile: null,
             activeElement: null,
             activeTargets: "",
-            freezeAssessmentDisabled: false,
             isOpenComments: false,
             nbAnswers: this.$sample ? this.$sample.nbAnswers : 0,
             nbQuestions: this.$sample ? this.$sample.nbQuestions  : 0,
@@ -550,21 +548,6 @@ Vue.component('campaign-questions-list', {
                     vm.vsPeersToggle = 0;
                 }
             }
-        },
-        freezeAssessment: function() {
-            var vm = this;
-            vm.freezeAssessmentDisabled = true;
-            vm.reqPost(vm.api_assessment_freeze, {is_frozen: true},
-            function success(resp) {
-                if( resp.location ) {
-                    vm.freezeAssessmentDisabled = false;
-                    window.location = resp.location;
-                }
-            },
-            function error(resp) {
-                vm.freezeAssessmentDisabled = false;
-                vm.showErrorMessages(resp);
-            });
         },
         populateUserProfiles: function() {
             var profilesBySlug = {};
@@ -893,13 +876,15 @@ Vue.component('scorecard', {
     data: function() {
         return {
             url: this.$urls.survey_api_sample_answers,
-            params: {o: ""},
+            api_assessment_freeze: this.$urls.api_assessment_freeze,
             account_benchmark_url: this.$urls.api_account_benchmark,
+            params: {o: ""},
             chartsLoaded: false,
             chartsAPIResp: null,
             charts: {},
             activeTile: null,
             summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
+            freezeAssessmentDisabled: false,
         }
     },
     methods: {
@@ -1041,6 +1026,27 @@ Vue.component('scorecard', {
             }
             var indentSpace = practice.indent - 1;
             return "heading-" + indentSpace;
+        },
+        freezeAssessment: function($event) {
+            var vm = this;
+            vm.freezeAssessmentDisabled = true;
+            vm.reqPost(vm.api_assessment_freeze, {is_frozen: true},
+            function success(resp) {
+                vm.freezeAssessmentDisabled = false;
+                var modalDialog = jQuery('#complete-assessment.modal');
+                console.log("XXX found ", modalDialog);
+                modalDialog.modal('hide');
+                if( resp.location ) {
+                    window.location = resp.location;
+                }
+            },
+            function error(resp) {
+                vm.freezeAssessmentDisabled = false;
+                var modalDialog = jQuery('#complete-assessment.modal');
+                console.log("XXX found ", modalDialog);
+                modalDialog.modal('hide');
+                vm.showErrorMessages(resp);
+            });
         },
         resetAssessment: function($event, prefix) {
             var vm = this;

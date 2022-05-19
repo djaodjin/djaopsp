@@ -6,7 +6,7 @@ API URLs
 """
 from django.urls import path, include
 from ...api.samples import (AssessmentContentAPIView,
-    HistoricalAssessmentsAPIView)
+    AssessmentCompleteAPIView, HistoricalAssessmentsAPIView)
 from ...api.content import PageElementAPIView, PageElementEditableListAPIView
 
 
@@ -27,6 +27,12 @@ urlpatterns = [
         AssessmentContentAPIView.as_view(), name='api_sample_content'),
     path('<slug:profile>/sample/<slug:sample>/content',
         AssessmentContentAPIView.as_view(), name='api_sample_content_index'),
+    path('<slug:profile>/sample/<slug:sample>/freeze/<path:path>',
+        AssessmentCompleteAPIView.as_view(), name='survey_api_sample_freeze'),
+    path('<slug:profile>/sample/<slug:sample>/freeze',
+        AssessmentCompleteAPIView.as_view(),
+        name='survey_api_sample_freeze_index'),
+
     path('<slug:profile>/samples/',
         HistoricalAssessmentsAPIView.as_view(),
         name='api_historical_assessments'),
