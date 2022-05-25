@@ -1,0 +1,1672 @@
+{% extends "app/track/base.html" %}
+
+{% block app_content %}
+<div class="container">
+  <h1 class="text-center pt-4">GHG Emissions Calculation Tool</h1>
+  <ghg-emissions-calculator inline-template
+    id="panel-icons" class="panel-icons">
+    <div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12 text-center" style="display:table-row;">
+            <div class="row-icons">
+              <div style="display:inline-block;float:left;flex:auto;">
+                <div class="header-tuple">
+                  <ul class="nav nav-tabs squared-tabs">
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('stationary-combustion') ? ' active': '')"
+                        v-cloak>
+                      <a class="nav-link icon-inner orange"
+                         href="#tab-stationary-combustion"
+                         @click="toggleTile($event, 'stationary-combustion')">
+                        <img class="icon-equipment" src="stationary-combustion.png">
+                        <div class="icon-caption">{% trans %}S1 - Stationary Combustion{% endtrans %}</div>
+                      </a>
+                    </li>
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('mobile-combustion') ? ' active': '')"
+                        v-cloak>
+                      <a class="nav-link icon-inner orange"
+                         href="#tab-mobile-combustion"
+                         @click="toggleTile($event, 'mobile-combustion')">
+                        <img class="icon-equipment" src="mobile-combustion.png">
+                        <div class="icon-caption">{% trans %}S1 - Mobile Combustion{% endtrans %}</div>
+                      </a>
+                    </li>
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('refrigerants') ? ' active': '')"
+                        v-cloak>
+                      <a class="nav-link icon-inner orange"
+                         href="#tab-refrigerants"
+                         @click="toggleTile($event, 'refrigerants')">
+                        <img class="icon-equipment" src="refrigerants.png">
+                        <div class="icon-caption">{% trans %}S1 - Refrigerants{% endtrans %}</div>
+                      </a>
+                    </li>
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('purchased-electricity') ? ' active': '')"
+                        v-cloak>
+                      <a class="nav-link icon-inner orange"
+                         href="#tab-purchased-electricity"
+                         @click="toggleTile($event, 'purchased-electricity')">
+                        <img class="icon-equipment" src="purchased-electricity.png">
+                        <div class="icon-caption">{% trans %}S2 - Purchased Electricity{% endtrans %}</div>
+                      </a>
+                    </li>
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('transportation') ? ' active': '')"
+                        v-cloak>
+                      <a class="nav-link icon-inner orange"
+                         href="#tab-transportation"
+                         @click="toggleTile($event, 'transportation')">
+                        <img class="icon-equipment" src="transportation.png">
+                        <div class="icon-caption">{% trans %}S3 - Transportation{% endtrans %}</div>
+                      </a>
+                    </li>
+                  </ul>
+                </div> {# .header-tuple #}
+              </div>
+            </div> {# .row-icons #}
+          </div> {# .col-md-12 #}
+        </div> {# .row #}
+
+        {% block icons_content %}
+        {# expanded tabs go here #}
+        <div :class="'tab-content collapse' + (activeTile ? ' show' : '')">
+          <div role="tabpanel"
+               :class="'tab-pane' + (isActiveTile('stationary-combustion') ? ' active': '')"
+               id="tab-stationary-combustion"
+               v-cloak>
+            <scope1-stationary-combustion inline-template>
+              <div>
+                <p>
+Includes fuel consumption at a facility to produce electricity, steam, heat, or power. The combustion of fossil fuels by natural gas boilers, diesel generators and other equipment emits carbon dioxide, methane, and nitrous oxide into the atmosphere.
+                </p>
+                <div v-show="!showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th colspan="6">
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Fuel type</th>
+                        <th>Allocation</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Fuel amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                        <td>[[item.extra.facility]]</td>
+                        <td>[[humanizeFuelType(item.extra.fuel_type)]]</td>
+                        <td>[[item.extra.allocation]]</td>
+                        <td>
+                          <input class="form-control" type="date"
+                                 v-model="item.created_at">
+                        </td>
+                        <td>
+                          <input class="form-control" type="date"
+                                 v-model="item.ends_at">
+                        </td>
+                        <td>
+                          <div class="input-group">
+                            <input class="form-control" type="integer"
+                                   v-model="item.amount">
+                            <div class="input-group-append">
+                              <select class="form-control"
+                                   v-model="item.unit">
+                                <option value="btu">Btu</option>
+                                <option value="mmbtu">mmBtu</option>
+                                <option value="therm">therm</option>
+                                <option value="kwh">kWh</option>
+                                <option value="mwh">MWh</option>
+                                <option value="mj">MJ</option>
+                                <option value="gj">GJ</option>
+                              </select>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <input class="form-control" type="text" v-model="newItem.facility" />
+                        </td>
+                        <td>
+                          <select class="form-control" name="fuel-type"
+                                  v-model="newItem.fuel_type">
+                            <option value="anthracite-coal">Anthracite Coal</option>
+                            <option value="bituminous-coal">Bituminous Coal</option>
+                            <option value="sub-bituminous-coal">Sub-bituminous Coal</option>
+                            <option value="lignite-coal">Lignite Coal</option>
+                            <option value="mixed-Commercial-Sector">Mixed (Commercial Sector)</option>
+                            <option value="mixed-electric-power-sector">Mixed (Electric Power Sector)</option>
+                            <option value="mixed-industrial-coking">Mixed (Industrial Coking)</option>
+                            <option value="mixed-industrial-sector">Mixed (Industrial Sector)</option>
+                            <option value="coal-coke">Coal Coke</option>
+                            <option value="municipal-solid-waste">Municipal Solid Waste</option>
+                            <option value="petroleum-coke-solid">Petroleum Coke (Solid)</option>
+                            <option value="plastics">Plastics</option>
+                            <option value="tires">Tires</option>
+                            <option value="agricultural-byproducts">Agricultural Byproducts</option>
+                            <option value="peat">Peat</option>
+                            <option value="solid-byproducts">Solid Byproducts</option>
+                            <option value="wood-and-wood-residuals">Wood and Wood Residuals</option>
+                            <option value="natural-gas">Natural Gas</option>
+                            <option value="blast-furnace-gas">Blast Furnace Gas</option>
+                            <option value="coke-oven-gas">Coke Oven Gas</option>
+                            <option value="fuel-gas">Fuel Gas</option>
+                            <option value="propane-gas">Propane Gas</option>
+                            <option value="landfill-gas">Landfill Gas</option>
+                            <option value="other-biomass-gases">Other Biomass Gases</option>
+                            <option value="asphalt-and-road-oil">Asphalt and Road Oil</option>
+                            <option value="aviation-gasoline">Aviation Gasoline</option>
+                            <option value="butane">Butane</option>
+                            <option value="butylene">Butylene</option>
+                            <option value="crude-oil">Crude Oil</option>
+                            <option value="distillate-fuel-oil-no-1">Distillate Fuel Oil No. 1</option>
+                            <option value="distillate-fuel-oil-no-2">Distillate Fuel Oil No. 2</option>
+                            <option value="distillate-fuel-oil-no-4">Distillate Fuel Oil No. 4</option>
+                            <option value="ethane">Ethane</option>
+                            <option value="ethylene">Ethylene</option>
+                            <option value="heavy-gas-oils">Heavy Gas Oils</option>
+                            <option value="isobutane">Isobutane</option>
+                            <option value="isobutylene">Isobutylene</option>
+                            <option value="kerosene">Kerosene</option>
+                            <option value="kerosene-type-jet-fuel">Kerosene-Type Jet Fuel</option>
+                            <option value="liquefied-petroleum-gases-lpg">Liquefied Petroleum Gases (LPG)</option>
+                            <option value="lubricants">Lubricants</option>
+                            <option value="motor-gasoline">Motor Gasoline</option>
+                            <option value="naphtha-401-deg-f">Naphtha (&lt;401 deg F)</option>
+                            <option value="natural-gasoline">Natural Gasoline</option>
+                            <option value="other-oil-401-deg-f">Other Oil (&gt;401 deg F)</option>
+                            <option value="pentanes-plus">Pentanes Plus</option>
+                            <option value="petrochemical-feedstocks">Petrochemical Feedstocks</option>
+                            <option value="petroleum-coke">Petroleum Coke</option>
+                            <option value="propane">Propane</option>
+                            <option value="propylene">Propylene</option>
+                            <option value="residual-fuel-oil-no-5">Residual Fuel Oil No. 5</option>
+                            <option value="residual-fuel-oil-no-6">Residual Fuel Oil No. 6</option>
+                            <option value="special-naphtha">Special Naphtha</option>
+                            <option value="unfinished-oils">Unfinished Oils</option>
+                            <option value="used-oil">Used Oil</option>
+                            <option value="biodiesel-100">Biodiesel (100%)</option>
+                            <option value="ethanol-100">Ethanol (100%)</option>
+                            <option value="rendered-animal-fat">Rendered Animal Fat</option>
+                            <option value="vegetable-oil">Vegetable Oil</option>
+                          </select>
+                        </td>
+                        <td>
+                          <input class="form-control" type="text" v-model="newItem.allocation" />
+                        </td>
+                        <td>
+                          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                          <button class="btn btn-secondary"
+                              @click.prevent="addItem">Add row</button>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="text-center">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
+                </div>{# /!showEmissionsEstimate #}
+                <div v-show="showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th colspan="3">
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th colspan="5">
+                          GHG Emissions (tonnes CO<sub>2</sub>e)
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Fuel type</th>
+                        <th>Allocation</th>
+                        <th>
+                          CO<sub>2</sub> (tonnes)
+                        </th>
+                        <th>
+                          CH<sub>4</sub> (tonnes)
+                        </th>
+                        <th>
+                          N<sub>2</sub>O (tonnes)
+                        </th>
+                        <th>
+                          CO<sub>2</sub>e (tonnes)
+                        </th>
+                        <th>
+                          Biofuel CO<sub>2</sub> (tonnes)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                        <td>[[item.extra.facility]]</td>
+                        <td>[[humanizeFuelType(item.extra.fuel_type)]]</td>
+                        <td>[[item.extra.allocation]]</td>
+                        <td>[[estimateCO2(item)]]</td>
+                        <td>[[estimateCH4(item)]]</td>
+                        <td>[[estimateN2O(item)]]</td>
+                        <td>[[estimateCO2e(item)]]</td>
+                        <td>[[estimateBiogenicCO2(item)]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>{# /showEmissionsEstimate #}
+              </div>
+            </scope1-stationary-combustion>
+          </div>{# /#tab-stationary-combustion #}
+
+          <div role="tabpanel"
+               :class="'tab-pane' + (isActiveTile('mobile-combustion') ? ' active': '')"
+               id="tab-mobile-combustion"
+               v-cloak>
+            <scope1-mobile-combustion inline-template>
+              <div>
+                <p>
+Includes fuel consumption by vehicles that are owned or leased by the company. Combustion of fossil fuels in vehicles (including cars, trucks, planes, and boats) emits carbon dioxide, methane, and nitrous oxide into the atmosphere.
+                </p>
+                <div v-show="!showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Activity type</th>
+                        <th>Fuel source</th>
+                        <th>Vehicle type</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Activity amount</th>
+                      </tr>
+                      <tbody>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td>
+                            <input class="form-control" type="date">
+                          </td>
+                          <td>
+                            <input class="form-control" type="date">
+                          </td>
+                          <td>
+                            <div class="input-group">
+                            <input class="form-control" type="integer">
+                            <div class="input-group-append">
+                              <select class="form-control" name="amount"
+                                      v-if="newItem.activityType == 'distance-activity'">
+                                <option value="">nautical mile</option>
+                                <option value="">mile</option>
+                                <option value="">km</option>
+                              </select>
+                              <select class="form-control" name="amount"
+                                      v-if="newItem.activityType != 'distance-activity'">
+                                <option value="">gal (US)</option>
+                                <option value="">L</option>
+                                <option value="">bbl</option>
+                                <option value="">scf</option>
+                                <option value="">ccf</option>
+                                <option value="">m3</option>
+                              </select>
+                            </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                          </td>
+                          <td>
+                            <select class="form-control" name="activity-type">
+                              <option value="fuel-use">Fuel Use</option>
+                              <option value="distance-activity">Distance Activity</option>
+                              <option value="custom-emission-factor">Custom emission factor</option>
+                            </select>
+                          </td>
+                          <td>
+                            <select class="form-control" name="fuel-type"
+                                    v-model="newItem.fuelType">
+                              <option value="motor-gasoline">Motor Gasoline</option>
+                              <option value="diesel-fuel">Diesel Fuel</option>
+                              <option value="biodiesel">Biodiesel (100%)</option>
+                              <option value="compressed-natural-gas">Compressed Natural Gas</option>
+                              <option value="ethanol">Ethanol (100%)</option>
+                              <option value="jet-fuel">Jet Fuel</option>
+                              <option value="aviation-gasoline">Aviation Gasoline</option>
+                            </select>
+                          </td>
+                          <td>
+                            <select class="form-control" name="vehicle-type"
+                                    v-if="newItem.fuelType == 'motor-gasoline'">
+                              <option value="">Gasoline Passenger Cars</option>
+                              <option value="">Gasoline Light-duty Trucks (Vans, Pickup Trucks, SUVs)</option>
+                              <option value="">Gasoline Heavy-duty Vehicles</option>
+                              <option value="">Hybrid (Gasoline) Passenger Cars</option>
+                              <option value="">Gasoline Agricultural Equipment</option>
+                              <option value="">Gasoline Ships and Boats</option>
+                              <option value="">Gasoline Motorcycles</option>
+                              <option value="">Other Gasoline Non-Road Vehicles</option>
+                            </select>
+                            <select class="form-control" name="vehicle-type"
+                                    v-if="newItem.fuelType == 'diesel-fuel'">
+                              <option value="">Diesel Passenger Cars</option>
+                              <option value="">Diesel Light-duty Trucks</option>
+                              <option value="">Diesel Medium- and Heavy-duty Vehicles</option>
+                              <option value="">Diesel Agricultural Equipment</option>
+                              <option value="">Diesel Ships and Boats</option>
+                              <option value="">Diesel Medium- and Heavy-duty Vehicles</option>
+                              <option value="">Other Diesel Non-Road Vehicles</option>
+                            </select>
+                            <select class="form-control" name="vehicle-type"
+                                    v-if="newItem.fuelType == 'biodiesel'">
+                              <option value="">Biodiesel Passenger Cars</option>
+                              <option value="">Biodiesel Light-duty Vehicles</option>
+                              <option value="">Biodiesel Medium- and Heavy-duty Vehicles</option>
+                              <option value="">Biodiesel Medium- and Heavy-duty Vehicles</option>
+                            </select>
+                            <select class="form-control" name="vehicle-type"
+                                    v-if="newItem.fuelType == 'compressed-natural-gas'">
+                              <option value="">CNG Light-duty Vehicles</option>
+                              <option value="">CNG Medium- and Heavy-duty Vehicles</option>
+                            </select>
+                            <select class="form-control" name="vehicle-type"
+                                    v-if="newItem.fuelType == 'ethanol'">
+                              <option value="">Ethanol Light-duty Vehicles</option>
+                              <option value="">Ethanol Medium- and Heavy-duty Vehicles</option>
+                            </select>
+                            <select class="form-control" name="vehicle-type"
+                                    v-if="newItem.fuelType == 'jet-fuel'">
+                              <option value="">Jet Fuel Aircraft</option>
+                            </select>
+                            <select class="form-control" name="vehicle-type"
+                                    v-if="newItem.fuelType == 'aviation-gasoline'">
+                              <option value="">Aviation Gasoline Aircraft</option>
+                            </select>
+                          </td>
+                          <td colspan="3">
+                            <button class="btn btn-secondary">Add reporting axis</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                  </table>
+                </div>{# /!showEmissionsEstimate #}
+                <div v-show="showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th colspan="4">
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th colspan="5">
+                          GHG Emissions (tonnes CO<sub>2</sub>e)
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Fuel type</th>
+                        <th>Allocation</th>
+                        <th>Source of Emission Factor</th>
+                        <th>
+                          CO<sub>2</sub> (tonnes)
+                        </th>
+                        <th>
+                          CH<sub>4</sub> (tonnes)
+                        </th>
+                        <th>
+                          N<sub>2</sub>O (tonnes)
+                        </th>
+                        <th>
+                          Biofuel CO<sub>2</sub> (tonnes)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>{# /showEmissionsEstimate #}
+              </div>
+            </scope1-mobile-combustion>
+          </div>{# /#tab-mobile-combustion #}
+
+          <div role="tabpanel"
+               :class="'tab-pane' + (isActiveTile('refrigerants') ? ' active': '')"
+               id="tab-refrigerants"
+               v-cloak>
+            <scope1-refrigerants inline-template>
+              <div>
+                <p>
+Includes leaks in your company's HVAC system, chillers, refrigerators, etc., through which refrigerant gas escapes. Most refrigerant gases contribute to global warming when leaked into the atmosphere. The quantity of leaked gas is assumed to equal the amount of gas replaced in these systems by your HVAC or chiller maintenance company.  Records or invoices from your maintenance company show the amount and type of refrigerant gas (e.g., freon, R-22, HFC-134a , CFC-12) replaced in your building's systems.
+                </p>
+                <div v-show="!showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Type of Air Conditioning and Refrigeration Equipment</th>
+                        <th>Refrigerant Used</th>
+                        <th>Refrigerant inventory (in storage, not equipment) at the beginning of the year</th>
+                        <th>Refrigerant inventory (in storage, not equipment) at the end of the year</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Activity amount</th>
+                      </tr>
+                      <tbody>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                      </tbody>
+                  </table>
+                </div>{# /!showEmissionsEstimate #}
+                <div v-show="showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th colspan="4">
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th colspan="5">
+                          GHG Emissions (tonnes CO<sub>2</sub>e)
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Fuel type</th>
+                        <th>Allocation</th>
+                        <th>Source of Emission Factor</th>
+                        <th>
+                          CO<sub>2</sub> (tonnes)
+                        </th>
+                        <th>
+                          CH<sub>4</sub> (tonnes)
+                        </th>
+                        <th>
+                          N<sub>2</sub>O (tonnes)
+                        </th>
+                        <th>
+                          Biofuel CO<sub>2</sub> (tonnes)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>{# /showEmissionsEstimate #}
+              </div>
+            </scope1-refrigerants>
+          </div>{# /#tab-refrigerants #}
+
+         <div role="tabpanel"
+               :class="'tab-pane' + (isActiveTile('purchased-electricity') ? ' active': '')"
+               id="tab-purchased-electricity"
+               v-cloak>
+           <scope2-purchased-electricity inline-template>
+             <div>
+               <p>
+Electricity and other sources of energy purchased from your local utility (that is not combusted on-site). Examples include electricity, steam, and chilled or hot water. To generate this energy, utilities combust coal, natural gas, and other fossil fuels, emitting carbon dioxide, methane, and nitrous oxide in the process.
+               </p>
+               <div v-show="!showEmissionsEstimate">
+                 <table class="table table-striped table-bordered">
+                   <thead>
+                     <tr>
+                       <th>Facility</th>
+                       <th>Allocation</th>
+                       <th>Calculation Approach</th>
+                       <th>Type of Emission Factor</th>
+                       <th>From</th>
+                       <th>To</th>
+                       <th>Amount of Electricity Consumption</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <tr>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td>
+                         <input class="form-control" type="date">
+                       </td>
+                       <td>
+                         <input class="form-control" type="date">
+                       </td>
+                       <td>
+                         <div class="input-group">
+                           <input class="form-control" type="integer">
+                           <div class="input-group-append">
+                             <select class="form-control">
+                                <option value="btu">Btu</option>
+                                <option value="mmbtu">mmBtu</option>
+                                <option value="therm">therm</option>
+                                <option value="kwh">kWh</option>
+                                <option value="mwh">MWh</option>
+                                <option value="mj">MJ</option>
+                                <option value="gj">GJ</option>
+                             </select>
+                           </div>
+                         </div>
+                       </td>
+                     </tr>
+                     <tr>
+                       <td>
+                         <a href="">Add facility ...</a>
+                       </td>
+                       <td>
+                         <a href="">Add customer and/or project ...</a>
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                 v-model="newItem.type_of_emission_factor">
+                           <option value="purchased-electricity-location-based">Purchased Electricity - Location Based</option>
+                           <option value="purchased-electricity-market-based">Purchased Electricity - Market Based</option>
+                           <option value="heat-steam">Heat/Steam</option>
+                         </select>
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                 v-if="newItem.type_of_emission_factor == 'purchased-electricity-market-based'">
+                           <option value="">Custom emission factor</option>
+                           <option value="">Residual Mix</option>
+                           <option value="">Grid Average/Location Based</option>
+                         </select>
+                         <select class="form-control"
+                                 v-if="newItem.type_of_emission_factor == 'purchased-electricity-location-based'">
+                           <option value="">Custom emission factor</option>
+                           <option value="">Grid Average/Location Based</option>
+                         </select>
+                         <select class="form-control"
+                                 v-if="newItem.type_of_emission_factor == 'heat-steam'">
+                           <option value="">Custom emission factor</option>
+                           <option value="">Grid Average/Location Based</option>
+                         </select>
+                       </td>
+                       <td>
+                         <button class="btn btn-secondary">Add reporting axis</button>
+                       </td>
+                     </tr>
+                   </tbody>
+                 </table>
+               </div>{# /!showEmissionsEstimate #}
+               <div v-show="showEmissionsEstimate">
+                 <table class="table table-striped table-bordered">
+                   <thead>
+                     <tr>
+                       <th colspan="4">
+                         {% include "app/track/_ghg-emissions-toggle.html" %}
+                       </th>
+                       <th colspan="5">
+                         GHG Emissions (tonnes CO<sub>2</sub>e)
+                       </th>
+                     </tr>
+                     <tr>
+                       <th>Facility</th>
+                       <th>Allocation</th>
+                       <th>Calculation Approach</th>
+                       <th>Type of Emission Factor</th>
+                       <th>From</th>
+                       <th>To</th>
+                       <th>Amount of Electricity Consumption</th>
+                       <th>
+                         CO<sub>2</sub> (tonnes)
+                       </th>
+                       <th>
+                         CH<sub>4</sub> (tonnes)
+                       </th>
+                       <th>
+                         N<sub>2</sub>O (tonnes)
+                       </th>
+                       <th>
+                         Biofuel CO<sub>2</sub> (tonnes)
+                       </th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <tr>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                     </tr>
+                   </tbody>
+                 </table>
+               </div>{# /showEmissionsEstimate #}
+             </div>
+           </scope2-purchased-electricity>
+         </div>{# /#tab-purchased-electricity #}
+
+         <div role="tabpanel"
+              :class="'tab-pane' + (isActiveTile('transportation') ? ' active': '')"
+              id="tab-transportation"
+              v-cloak>
+           <scope3-transportation inline-template>
+             <div>
+               <p>
+Fuel consumption by vehicles used to conduct company-financed travel. Examples include commercial air travel and use of rented vehicles during business trips (travel using company-owned/leased vehicles are included in Scope 1).
+               </p>
+               <div v-show="!showEmissionsEstimate">
+                 <table class="table table-striped table-bordered">
+                   <thead>
+                     <tr>
+                       <th colspan="9">
+                         {% include "app/track/_ghg-emissions-toggle.html" %}
+                       </th>
+                     </tr>
+                     <tr>
+                       <th>Description</th>
+                       <th>Category</th>
+                       <th>Emission Factor Dataset
+                       <th>Mode of Transport</th>
+                       <th>Activity Type</th>
+                       <th>Vehicle Type</th>
+                       <th>From</th>
+                       <th>To</th>
+                       <th>Amount of Activity Type</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <tr>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td>
+                         <input class="form-control" type="date">
+                       </td>
+                       <td>
+                         <input class="form-control" type="date">
+                       </td>
+                       <td>
+                         <div class="input-group">
+                           <input class="form-control" type="integer">
+                           <div class="input-group-append">
+                             <select class="form-control"
+                                     v-if="newItem.activity_type == 'distance'">
+                               <option value="nautical-mile">nautical mile</option>
+                               <option value="mile">mile</option>
+                               <option value="km">km</option>
+                             </select>
+                             <select class="form-control"
+                                     v-if="newItem.activity_type == 'passenger-distance'">
+                               <option value="passenger-mile">passenger-mile</option>
+                               <option value="passenger-mile">passenger-km</option>
+                             </select>
+                             <select class="form-control"
+                                     v-if="newItem.activity_type == 'vehicle-distance'">
+                               <option value="vehicle-mile">vehicle-mile</option>
+                               <option value="vehicle-km">vehicle-km</option>
+                             </select>
+                             <select class="form-control"
+                                     v-if="newItem.activity_type == 'weight-distance'">
+                               <option value="ton-mile">ton-mile</option>
+                               <option value="tonne-km">tonne-km</option>
+                             </select>
+                             <select class="form-control"
+                                     v-if="newItem.activity_type == 'custom-emission-factor'">
+                             </select>
+                           </div>
+                         </div>
+                       </td>
+                     </tr>
+                     <tr>
+                       <td>
+                         <a href="">Add description ...</a>
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                 v-model="newItem.category">
+                           <option value="">Upstream T&amp;D</option>
+                           <option value="">Business Travel</option>
+                           <option value="">Employee Commute</option>
+                         </select>
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                 v-model="newItem.emission_factor_dataset">
+                           <option value="">US EPA</option>
+                           <option value="">UK DEFRA</option>
+                           <option value="">Custom emission factor</option>
+                         </select>
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                v-model="newItem.mode_of_transport">
+                           <option value="">Car</option>
+                           <option value="">Air</option>
+                           <option value="">Bus</option>
+                           <option value="">Rail</option>
+                           <option value="">Ferry</option>
+                         </select>
+                       </td>
+                        <td>
+                         <select class="form-control"
+                                v-model="newItem.activity_type">
+                           <option value="distance">Distance</option>
+                           <option value="passenger-distance">Passenger Distance</option>
+                           <option value="vehicle-distance">Vehicle Distance</option>
+                           <option value="weight-distance">Weight Distance</option>
+                           <option value="custom-emission-factor">Custom emission factor</option>
+                         </select>
+                       </td>
+                        <td>
+                         <select class="form-control">
+                           <option></option>
+                         </select>
+                       </td>
+                       <td colspan="3">
+                         <button class="btn btn-secondary">Add reporting axis</button>
+                       </td>
+                     </tr>
+                   </tbody>
+                 </table>
+               </div>{# /!showEmissionsEstimate #}
+               <div v-show="showEmissionsEstimate">
+                 <table class="table table-striped table-bordered">
+                   <thead>
+                     <tr>
+                       <th colspan="4">
+                         {% include "app/track/_ghg-emissions-toggle.html" %}
+                       </th>
+                       <th colspan="5">GHG Emissions (tonnes CO<sub>2</sub>e)</th>
+                     </tr>
+                     <tr>
+                       <th>Facility</th>
+                       <th>Allocation</th>
+                       <th>Calculation Approach</th>
+                       <th>Type of Emission Factor</th>
+                       <th>From</th>
+                       <th>To</th>
+                       <th>Amount of Electricity Consumption</th>
+                       <th>
+                         CO<sub>2</sub> (tonnes)
+                       </th>
+                       <th>
+                         CH<sub>4</sub> (tonnes)
+                       </th>
+                       <th>
+                         N<sub>2</sub>O (tonnes)
+                       </th>
+                       <th>
+                         Biofuel CO<sub>2</sub> (tonnes)
+                       </th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <tr>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                     </tr>
+                   </tbody>
+                 </table>
+               </div>{# /showEmissionsEstimate #}
+             </div>
+          </scope3-transportation>
+         </div>{# /#tab-transportation #}
+
+        </div>
+        {% endblock %}
+      </div> {# .panel-body #}
+      {% block panel_footer %}
+      <div class="card-footer" style="padding:0;">
+      </div>
+      {% endblock %}
+    </div>
+  </ghg-emissions-calculator> {# .panel-icons #}
+  <p class="text-center mt-4">
+    This Web tool is based on the
+    <a href="https://ghgprotocol.org/ghg-emissions-calculation-tool"
+       target="_blank">GHG Emissions Calculation Tool</a>
+    provided by:
+  </p>
+  <div class="row text-center mb-4">
+    <div class="col-sm-4">
+      <img class="img-fluid" src="{{'/static/img/greenhouse-gas-protocol.jpg'|asset}}" style="height:64px;">
+    </div>
+    <div class="col-sm-4">
+      <img class="img-fluid" src="{{'/static/img/world-resources-institute.png'|asset}}" style="height:64px;">
+    </div>
+    <div class="col-sm-4">
+      <img class="img-fluid" src="{{'/static/img/logo-anthesis-dark.png'|asset}}" style="height:64px;">
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block track_scripts %}
+<script type="text/javascript">
+// CO2 Factor (kg CO2 per mmBtu)
+// CH4 Factor (g CH4 per mmBtu)
+// N2O Factor (g N2O per mmBtu)
+// Biogenic CO2 Factor (kg Biogenic CO2 per mmBtu)
+// AR4 (kgCO2e)
+// AR5 (kgCO2e)
+Vue.prototype.$ef_stationary_combustion = {
+// Coal and Coke Heat Content (HHV) in mmBtu per short ton
+  "anthracite-coal": {
+    title: "Anthracite Coal",
+    heat_content: 25.090000,
+    co2_factor: 103.690000,
+    ch4_factor: 11.000000,
+    n2o_factor: 1.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 104.441800,
+    ar5_factor: 104.422000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "bituminous-coal": {
+    title: "Bituminous Coal",
+    heat_content: 24.930000,
+    co2_factor: 93.280000,
+    ch4_factor: 11.000000,
+    n2o_factor: 1.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 94.031800,
+    ar5_factor: 94.012000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "sub-bituminous-coal": {
+    title: "Sub-bituminous Coal",
+    heat_content: 17.250000,
+    co2_factor: 97.170000,
+    ch4_factor: 11.000000,
+    n2o_factor: 1.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 97.921800,
+    ar5_factor: 97.902000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "lignite-coal": {
+    title: "Lignite Coal",
+    heat_content: 14.210000,
+    co2_factor: 97.720000,
+    ch4_factor: 11.000000,
+    n2o_factor: 1.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 98.471800,
+    ar5_factor: 98.452000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "mixed-commercial-sector": {
+    title: "Mixed (Commercial Sector)",
+    heat_content: 21.390000,
+    co2_factor: 94.270000,
+    ch4_factor: 11.000000,
+    n2o_factor: 1.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 95.021800,
+    ar5_factor: 95.002000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "mixed-electric-power-sector": {
+    title: "Mixed (Electric Power Sector)",
+    heat_content: 19.730000,
+    co2_factor: 95.520000,
+    ch4_factor: 11.000000,
+    n2o_factor: 1.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 96.271800,
+    ar5_factor: 96.252000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "mixed-industrial-coking": {
+    title: "Mixed (Industrial Coking)",
+    heat_content: 26.280000,
+    co2_factor: 93.900000,
+    ch4_factor: 11.000000,
+    n2o_factor: 1.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 94.651800,
+    ar5_factor: 94.632000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "mixed-industrial-sector": {
+    title: "Mixed (Industrial Sector)",
+    heat_content: 22.350000,
+    co2_factor: 94.670000,
+    ch4_factor: 11.000000,
+    n2o_factor: 1.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 95.421800,
+    ar5_factor: 95.402000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "coal-coke": {
+    title: "Coal Coke",
+    heat_content: 24.800000,
+    co2_factor: 113.670000,
+    ch4_factor: 11.000000,
+    n2o_factor: 1.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 114.421800,
+    ar5_factor: 114.402000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  // Other Fuels - Solid Heat Content (HHV)
+  "municipal-solid-waste": {
+    title: "Municipal Solid Waste",
+    heat_content: 9.950000,
+    co2_factor: 90.700000,
+    ch4_factor: 32.000000,
+    n2o_factor: 4.200000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 92.751600,
+    ar5_factor: 92.709000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "petroleum-coke-solid": {
+    title: "Petroleum Coke (Solid)",
+    heat_content: 30.000000,
+    co2_factor: 102.410000,
+    ch4_factor: 32.000000,
+    n2o_factor: 4.200000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 104.461600,
+    ar5_factor: 104.419000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "plastics": {
+    title: "Plastics",
+    heat_content: 38.000000,
+    co2_factor: 75.000000,
+    ch4_factor: 32.000000,
+    n2o_factor: 4.200000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 77.051600,
+    ar5_factor: 77.009000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "tires": {
+    title: "Tires",
+    heat_content: 28.000000,
+    co2_factor: 85.970000,
+    ch4_factor: 32.000000,
+    n2o_factor: 4.200000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 88.021600,
+    ar5_factor: 87.979000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  // Biomass Fuels - Solid Heat Content (HHV)
+  "agricultural-byproducts": {
+    title: "Agricultural Byproducts",
+    heat_content: 8.250000,
+    co2_factor: 0.000000,
+    ch4_factor: 32.000000,
+    n2o_factor: 4.200000,
+    biogenic_co2_factor: 118.170000,
+    ar4_factor: 120.221600,
+    ar5_factor: 120.179000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "peat": {
+    title: "Peat",
+    heat_content: 8.000000,
+    co2_factor: 0.000000,
+    ch4_factor: 32.000000,
+    n2o_factor: 4.200000,
+    biogenic_co2_factor: 111.840000,
+    ar4_factor: 113.891600,
+    ar5_factor: 113.849000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "solid-byproducts": {
+    title: "Solid Byproducts",
+    heat_content: 10.390000,
+    co2_factor: 0.000000,
+    ch4_factor: 32.000000,
+    n2o_factor: 4.200000,
+    biogenic_co2_factor: 105.510000,
+    ar4_factor: 107.561600,
+    ar5_factor: 107.519000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "wood-and-wood-residuals": {
+    title: "Wood and Wood Residuals",
+    heat_content: 17.480000,
+    co2_factor: 0.000000,
+    ch4_factor: 7.200000,
+    n2o_factor: 3.600000,
+    biogenic_co2_factor: 93.800000,
+    ar4_factor: 95.052800,
+    ar5_factor: 94.955600,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  // Natural Gas - Heat Content (HHV) in mmBtu per scf
+  "natural-gas": {
+    title: "Natural Gas",
+    heat_content: 0.001026,
+    co2_factor: 53.060000,
+    ch4_factor: 1.000000,
+    n2o_factor: 0.100000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 53.114800,
+    ar5_factor: 53.114500,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  // Other Fuels - Gaseous Heat Content (HHV)
+  "blast-furnace-gas": {
+    title: "Blast Furnace Gas",
+    heat_content: 0.000092,
+    co2_factor: 274.320000,
+    ch4_factor: 0.022000,
+    n2o_factor: 0.100000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 274.350350,
+    ar5_factor: 274.347116,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "coke-oven-gas": {
+    title: "Coke Oven Gas",
+    heat_content: 0.000599,
+    co2_factor: 46.850000,
+    ch4_factor: 0.480000,
+    n2o_factor: 0.100000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 46.891800,
+    ar5_factor: 46.889940,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "fuel-gas": {
+    title: "Fuel Gas",
+    heat_content: 0.001388,
+    co2_factor: 59.000000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 59.253800,
+    ar5_factor: 59.243000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "propane-gas": {
+    title: "Propane Gas",
+    heat_content: 0.002516,
+    co2_factor: 61.460000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 61.713800,
+    ar5_factor: 61.703000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  // Biomass Fuels - Gaseous Heat Content (HHV)
+  "landfill-gas": {
+    title: "Landfill Gas",
+    heat_content: 0.000485,
+    co2_factor: 0.000000,
+    ch4_factor: 3.200000,
+    n2o_factor: 0.630000,
+    biogenic_co2_factor: 52.070000,
+    ar4_factor: 52.337740,
+    ar5_factor: 52.326550,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "other-biomass-gases": {
+    title: "Other Biomass Gases",
+    heat_content: 0.000655,
+    co2_factor: 0.000000,
+    ch4_factor: 3.200000,
+    n2o_factor: 0.630000,
+    biogenic_co2_factor: 52.070000,
+    ar4_factor: 52.337740,
+    ar5_factor: 52.326550,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  // Petroleum Products Heat Content (HHV) in mmBtu per gallon
+  "asphalt-and-road-oil": {
+    title: "Asphalt and Road Oil",
+    heat_content: 0.158000,
+    co2_factor: 75.360000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 75.613800,
+    ar5_factor: 75.603000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "aviation-gasoline": {
+    title: "Aviation Gasoline",
+    heat_content: 0.120000,
+    co2_factor: 69.250000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 69.503800,
+    ar5_factor: 69.493000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "butane": {
+    title: "Butane",
+    heat_content: 0.103000,
+    co2_factor: 64.770000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 65.023800,
+    ar5_factor: 65.013000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "butylene": {
+    title: "Butylene",
+    heat_content: 0.105000,
+    co2_factor: 68.720000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 68.973800,
+    ar5_factor: 68.963000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "crude-oil": {
+    title: "Crude Oil",
+    heat_content: 0.138000,
+    co2_factor: 74.540000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 74.793800,
+    ar5_factor: 74.783000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "distillate-fuel-oil-no-1": {
+    title: "Distillate Fuel Oil No. 1",
+    heat_content: 0.139000,
+    co2_factor: 73.250000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 73.503800,
+    ar5_factor: 73.493000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "distillate-fuel-oil-no-2": {
+    title: "Distillate Fuel Oil No. 2",
+    heat_content: 0.138000,
+    co2_factor: 73.960000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 74.213800,
+    ar5_factor: 74.203000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "distillate-fuel-oil-no-4": {
+    title: "Distillate Fuel Oil No. 4",
+    heat_content: 0.146000,
+    co2_factor: 75.040000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 75.293800,
+    ar5_factor: 75.283000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "ethane": {
+    title: "Ethane",
+    heat_content: 0.068000,
+    co2_factor: 59.600000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 59.853800,
+    ar5_factor: 59.843000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "ethylene": {
+    title: "Ethylene",
+    heat_content: 0.058000,
+    co2_factor: 65.960000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 66.213800,
+    ar5_factor: 66.203000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "heavy-gas-oils": {
+    title: "Heavy Gas Oils",
+    heat_content: 0.148000,
+    co2_factor: 74.920000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 75.173800,
+    ar5_factor: 75.163000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "isobutane": {
+    title: "Isobutane",
+    heat_content: 0.099000,
+    co2_factor: 64.940000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 65.193800,
+    ar5_factor: 65.183000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "isobutylene": {
+    title: "Isobutylene",
+    heat_content: 0.103000,
+    co2_factor: 68.860000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 69.113800,
+    ar5_factor: 69.103000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "kerosene": {
+    title: "Kerosene",
+    heat_content: 0.135000,
+    co2_factor: 75.200000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 75.453800,
+    ar5_factor: 75.443000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "kerosene-type-jet-fuel": {
+    title: "Kerosene-Type Jet Fuel",
+    heat_content: 0.135000,
+    co2_factor: 72.220000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 72.473800,
+    ar5_factor: 72.463000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "liquefied-petroleum-gases-lpg": {
+    title: "Liquefied Petroleum Gases (LPG)",
+    heat_content: 0.092000,
+    co2_factor: 61.710000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 61.963800,
+    ar5_factor: 61.953000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "lubricants": {
+    title: "Lubricants",
+    heat_content: 0.144000,
+    co2_factor: 74.270000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 74.523800,
+    ar5_factor: 74.513000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "motor-gasoline": {
+    title: "Motor Gasoline",
+    heat_content: 0.125000,
+    co2_factor: 70.220000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 70.473800,
+    ar5_factor: 70.463000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "naphtha-401-deg-f": {
+    title: "Naphtha (<401 deg F)",
+    heat_content: 0.125000,
+    co2_factor: 68.020000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 68.273800,
+    ar5_factor: 68.263000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "natural-gasoline": {
+    title: "Natural Gasoline",
+    heat_content: 0.110000,
+    co2_factor: 66.880000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 67.133800,
+    ar5_factor: 67.123000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "other-oil-401-deg-f": {
+    title: "Other Oil (>401 deg F)",
+    heat_content: 0.139000,
+    co2_factor: 76.220000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 76.473800,
+    ar5_factor: 76.463000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "pentanes-plus": {
+    title: "Pentanes Plus",
+    heat_content: 0.110000,
+    co2_factor: 70.020000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 70.273800,
+    ar5_factor: 70.263000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "petrochemical-feedstocks": {
+    title: "Petrochemical Feedstocks",
+    heat_content: 0.125000,
+    co2_factor: 71.020000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 71.273800,
+    ar5_factor: 71.263000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "petroleum-coke": {
+    title: "Petroleum Coke",
+    heat_content: 0.143000,
+    co2_factor: 102.410000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 102.663800,
+    ar5_factor: 102.653000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "propane": {
+    title: "Propane",
+    heat_content: 0.091000,
+    co2_factor: 62.870000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 63.123800,
+    ar5_factor: 63.113000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "propylene": {
+    title: "Propylene",
+    heat_content: 0.091000,
+    co2_factor: 67.770000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 68.023800,
+    ar5_factor: 68.013000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "residual-fuel-oil-no-5": {
+    title: "Residual Fuel Oil No. 5",
+    heat_content: 0.140000,
+    co2_factor: 72.930000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 73.183800,
+    ar5_factor: 73.173000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "residual-fuel-oil-no-6": {
+    title: "Residual Fuel Oil No. 6",
+    heat_content: 0.150000,
+    co2_factor: 75.100000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 75.353800,
+    ar5_factor: 75.343000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "special-naphtha": {
+    title: "Special Naphtha",
+    heat_content: 0.125000,
+    co2_factor: 72.340000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 72.593800,
+    ar5_factor: 72.583000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "unfinished-oils": {
+    title: "Unfinished Oils",
+    heat_content: 0.139000,
+    co2_factor: 74.540000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 74.793800,
+    ar5_factor: 74.783000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "used-oil": {
+    title: "Used Oil",
+    heat_content: 0.138000,
+    co2_factor: 74.000000,
+    ch4_factor: 3.000000,
+    n2o_factor: 0.600000,
+    biogenic_co2_factor: 0.000000,
+    ar4_factor: 74.253800,
+    ar5_factor: 74.243000,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  // Biomass Fuels - Liquid Heat Content (HHV)
+  "biodiesel-100": {
+    title: "Biodiesel (100%)",
+    heat_content: 0.128000,
+    co2_factor: 0.000000,
+    ch4_factor: 1.100000,
+    n2o_factor: 0.110000,
+    biogenic_co2_factor: 73.840000,
+    ar4_factor: 73.900280,
+    ar5_factor: 73.899950,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "ethanol-100": {
+    title: "Ethanol (100%)",
+    heat_content: 0.084000,
+    co2_factor: 0.000000,
+    ch4_factor: 1.100000,
+    n2o_factor: 0.110000,
+    biogenic_co2_factor: 68.440000,
+    ar4_factor: 68.500280,
+    ar5_factor: 68.499950,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "rendered-animal-fat": {
+    title: "Rendered Animal Fat",
+    heat_content: 0.125000,
+    co2_factor: 0.000000,
+    ch4_factor: 1.100000,
+    n2o_factor: 0.110000,
+    biogenic_co2_factor: 71.060000,
+    ar4_factor: 71.120280,
+    ar5_factor: 71.119950,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "vegetable-oil": {
+    title: "Vegetable Oil",
+    heat_content: 0.120000,
+    co2_factor: 0.000000,
+    ch4_factor: 1.100000,
+    n2o_factor: 0.110000,
+    biogenic_co2_factor: 81.550000,
+    ar4_factor: 81.610280,
+    ar5_factor: 81.609950,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  // Biomass Fuels - Kraft Pulping Liquor, by Wood Furnish Heat Content (HHV)
+  "north-american-softwood": {
+    title: "North American Softwood",
+    heat_content: 0.000000,
+    co2_factor: 0.000000,
+    ch4_factor: 1.900000,
+    n2o_factor: 0.420000,
+    biogenic_co2_factor: 94.400000,
+    ar4_factor: 94.572660,
+    ar5_factor: 94.564500,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "north-american-hardwood": {
+    title: "North American Hardwood",
+    heat_content: 0.000000,
+    co2_factor: 0.000000,
+    ch4_factor: 1.900000,
+    n2o_factor: 0.420000,
+    biogenic_co2_factor: 93.700000,
+    ar4_factor: 93.872660,
+    ar5_factor: 93.864500,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "bagasse": {
+    title: "Bagasse",
+    heat_content: 0.000000,
+    co2_factor: 0.000000,
+    ch4_factor: 1.900000,
+    n2o_factor: 0.420000,
+    biogenic_co2_factor: 95.500000,
+    ar4_factor: 95.672660,
+    ar5_factor: 95.664500,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "bamboo": {
+    title: "Bamboo",
+    heat_content: 0.000000,
+    co2_factor: 0.000000,
+    ch4_factor: 1.900000,
+    n2o_factor: 0.420000,
+    biogenic_co2_factor: 93.700000,
+    ar4_factor: 93.872660,
+    ar5_factor: 93.864500,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  },
+  "straw": {
+    title: "Straw",
+    heat_content: 0.000000,
+    co2_factor: 0.000000,
+    ch4_factor: 1.900000,
+    n2o_factor: 0.420000,
+    biogenic_co2_factor: 95.100000,
+    ar4_factor: 95.272660,
+    ar5_factor: 95.264500,
+    unit: "mmbtu",
+    source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  }
+};
+</script>
+{% endblock %}

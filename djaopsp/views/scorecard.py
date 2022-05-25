@@ -132,6 +132,10 @@ class ScorecardIndexView(ReportMixin, TemplateView):
             })
         update_context_urls(context, {
             'pages_index': reverse('pages_index'),
+            'scorecard_download': reverse('assess_download',
+                args=(self.account, self.sample)),
+            'scorecard_share': reverse('share',
+                args=(self.account, self.sample)),
             'assess_base': reverse('assess_practices',
                 args=(self.account, self.sample, '-'))[:-2],
             'survey_api_sample_answers': reverse('api_sample_content',

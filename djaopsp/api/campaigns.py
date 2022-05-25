@@ -85,7 +85,8 @@ class CampaignContentMixin(AccountMixin, CampaignMixin):
             strip_segment_prefix = self.strip_segment_prefix
         for segment in segments:
             segment_prefix = segment['path']
-            pagebreak = segment.get('extra', {}).get('pagebreak', False)
+            extra = segment.get('extra', {})
+            pagebreak = extra.get('pagebreak', False) if extra else False
             if segment_prefix and pagebreak:
                 queryset = self.get_questions(segment_prefix)
                 for question in queryset:

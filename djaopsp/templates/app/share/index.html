@@ -10,7 +10,7 @@
         {% if latest_completed_assessment %}
         <p class="text-left">
 The {{campaign.title}} was last
-<strong>completed on {{latest_completed_assessment.created_at}}</strong>
+<strong>completed on {{latest_completed_assessment.created_at|date}}</strong>.
 Please make sure you have an up-to-date assessment before sharing it. In order
 to do so, <a href="{{urls.update_assessment}}">review and update</a>
 the answers, then click complete.

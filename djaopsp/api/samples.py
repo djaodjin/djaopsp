@@ -288,7 +288,7 @@ class AssessmentContentMixin(SegmentReportMixin, CampaignContentMixin,
             primary = []
             remainders = []
             for answer in question.get(key, []):
-                if answer.get('unit') in default_units:
+                if str(answer.get('unit')) in default_units:
                     primary = [answer]
                 else:
                     remainders += [answer]

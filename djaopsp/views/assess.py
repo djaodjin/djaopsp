@@ -2,10 +2,12 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import logging
+import json, logging
 
 from deployutils.helpers import datetime_or_now, update_context_urls
 from django.views.generic import TemplateView
+from django.template.defaultfilters import slugify
+from survey.models import EditableFilter
 
 from .downloads import PracticesSpreadsheetView
 from ..api.samples import AssessmentContentMixin
@@ -98,6 +100,21 @@ class TrackMetricsView(AccountMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TrackMetricsView, self).get_context_data(**kwargs)
+        title = 'GHG Emissions Scope 1'
+        tag = slugify(title)
+        try:
+            editable_filter = EditableFilter.objects.get(
+                account=self.account, extra__contains=tag)
+        except EditableFilter.DoesNotExist:
+            editable_filter = EditableFilter.objects.create(
+                account=self.account,
+                title=title,
+                extra=json.dumps({'tags': [tag]}))
+        update_context_urls(context, {
+            'api_track_ghg_emissions_scope1': reverse(
+                'survey_api_accounts_filter',
+                args=(self.account, editable_filter.slug,))
+        })
         return context
 
 

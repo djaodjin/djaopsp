@@ -318,7 +318,7 @@
   "fields": {
     "title": "Governance & management",
     "slug": "governance-management",
-    "picture": "/tspproject/static/img/management-basics.png",
+    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 2
@@ -814,7 +814,7 @@
   "fields": {
     "title": "Data & metrics",
     "slug": "data-metrics",
-    "picture": "/tspproject/static/img/data-metrics.png",
+    "picture": "/static/img/data-metrics.png",
     "extra": "{\"tags\":[\"metrics\",\"tilebreak\"]}",
     "account": 2
   },

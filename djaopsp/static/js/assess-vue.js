@@ -188,7 +188,10 @@ var practicesListMixin = {
         getUnit: function(answer) {
             var vm = this;
             if( vm.items.units && answer.unit ) {
-                return vm.items.units[answer.unit];
+                var unit = vm.items.units[answer.unit];
+                if( typeof unit !== 'undefined' ) {
+                    return vm.items.units[answer.unit];
+                }
             }
             return {title: "Not found"};
         },
@@ -1034,7 +1037,6 @@ Vue.component('scorecard', {
             function success(resp) {
                 vm.freezeAssessmentDisabled = false;
                 var modalDialog = jQuery('#complete-assessment.modal');
-                console.log("XXX found ", modalDialog);
                 modalDialog.modal('hide');
                 if( resp.location ) {
                     window.location = resp.location;
@@ -1043,7 +1045,6 @@ Vue.component('scorecard', {
             function error(resp) {
                 vm.freezeAssessmentDisabled = false;
                 var modalDialog = jQuery('#complete-assessment.modal');
-                console.log("XXX found ", modalDialog);
                 modalDialog.modal('hide');
                 vm.showErrorMessages(resp);
             });
@@ -1149,7 +1150,7 @@ Vue.component('scope1-stationary-combustion', {
     ],
     data: function() {
         return {
-            url: null,
+            url: this.$urls.api_track_ghg_emissions_scope1,
             emissionsEstimate: 0,
             newItem: {
                 facility: "",
@@ -1161,14 +1162,21 @@ Vue.component('scope1-stationary-combustion', {
     methods: {
         addItem: function() {
             var vm = this;
-            vm.items.results.push(vm.newItem);
-            vm.newItem = {
-                facility: "",
-                fuel_type: "",
-                allocation: "",
-            }
+            vm.reqPost(vm.url, {extra: JSON.stringify(vm.newItem)},
+            function() {
+                vm.items.results.push({extra: vm.newItem});
+                vm.newItem = {
+                    facility: "",
+                    fuel_type: "",
+                    allocation: "",
+                }
+            });
         },
         humanizeFuelType: function(fuelType) {
+            var result = this.$ef_stationary_combustion[fuelType]
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
             return fuelType;
         },
         asUnit: function(amount, destUnit, srcUnit) {
@@ -1250,18 +1258,7 @@ Vue.component('scope1-stationary-combustion', {
     },
     mounted: function() {
         var vm = this;
-        vm.items.count = 1;
-        vm.items.results = [{
-            facility: "Main factory",
-            fuel_type: "natural-gas",
-            allocation: "PG&E",
-            created_at: null,
-            ends_at: null,
-            amount: 100,
-            unit: "mmbtu"
-        }
-        ];
-        vm.itemsLoaded = true;
+        vm.get();
     }
 });
 

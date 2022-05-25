@@ -3,7 +3,7 @@
   "fields": {
     "slug": "totals",
     "title": "Total score",
-    "tags": "metric"
+    "extra": "{\"tags\": [\"metric\"]}"
   },
   "model": "survey.editablefilter", "pk": 1
 },
@@ -11,7 +11,7 @@
   "fields": {
     "slug": "boxes-and-enclosures",
     "title": "Boxes & enclosures",
-    "tags": "cohort"
+    "extra": "{\"tags\": [\"cohort\"]}"
   },
   "model": "survey.editablefilter", "pk": 13
 },

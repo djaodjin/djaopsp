@@ -17,6 +17,5 @@ urlpatterns = [
         PortfolioResponsesAPIView.as_view(), name="api_portfolio_responses"),
     path('reporting/<slug:campaign>/matrix/<path:path>',
         TotalScoreBySubsectorAPIView.as_view()),
-    path('reporting/<slug:campaign>/', include('survey.urls.api.filters')),
     path('reporting/<slug:campaign>/', include('survey.urls.api.matrix')),
 ]
