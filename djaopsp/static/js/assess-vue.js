@@ -263,6 +263,12 @@ var practicesListMixin = {
             return vm.isPractice(row) && (
                 row.ui_hint === 'ghg-emissions-scope3');
         },
+        isDataMetricsHeader: function(row) {
+            var vm = this;
+            return !vm.isPractice(row) && (
+                row.extra && row.extra.tags &&
+                (row.extra.tags.includes('data-metrics-header')));
+        },
         isNumberUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'number';
@@ -474,9 +480,13 @@ Vue.component('campaign-questions-list', {
         },
         isRevenueUIHint: function(row) {
             var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'number'
+            return vm.isPractice(row) && row.ui_hint === 'revenue'
                 && (row.default_unit && (row.default_unit.slug === 'usd' ||
                     row.default_unit.slug === 'million-usd'));
+        },
+        isEmployeeCountUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'employee-count';
         },
         isTargetByUIHint: function(row) {
             var vm = this;
@@ -995,22 +1005,47 @@ Vue.component('scorecard', {
         getColHeaders: function(practice) {
             var vm = this;
             var headers = [];
-            var answer = vm.getPrimaryAnswer(practice);  // XXX more than one
-            var period = new Date(answer.created_at).getYear();
-            if( !isNaN(period) ) {
-                headers.push(period);
+            if( vm.isPractice(practice) ) {
+                for( var idx = 0; idx < practice.answers.length; ++idx ) {
+                    // `getColHeaders` is only called when we are dealing
+                    // with Data metrics.
+                    var period = Date.parse(practice.answers[idx].created_at);
+                    if( !isNaN(period) ) {
+                        period = new Date(period);
+                        headers.push(period.getYear());
+                    }
+                }
+            }
+            if( headers.length < 1 ) {
+                headers.push("N/A");
             }
             return headers;
         },
         getColValue: function(practice, colHeader) {
             var vm = this;
             var vals = [];
-            var answer = vm.getPrimaryAnswer(practice);  // XXX more than one
-            var period = new Date(answer.created_at).getYear();
-            if( !isNaN(period) ) {
-                vals.push(answer.measured);
+            for( var idx = 0; idx < practice.answers.length; ++idx ) {
+                // `getColValue` is only called when we are dealing
+                // with Data metrics.
+                var period = new Date(
+                    practice.answers[idx].created_at).getYear();
+                if( !isNaN(period) && period === colHeader ) {
+                    if( !isNaN(practice.answers[idx]) ) {
+                        return practice.answers[idx].measured;
+                    } else {
+                        break;
+                    }
+                }
             }
-            return vals;
+            return "-";
+        },
+        getCaptionTitle: function(row) {
+            var vm = this;
+            var practices = vm.getEntries(row.slug);
+            for( var idx = 0; idx < practices.length; ++idx ) {
+                return vm.getPrimaryUnit(practices[idx]).title;
+            }
+            return "";
         },
         getNbRespondents: function(practice) {
             var vm = this;
@@ -1090,12 +1125,16 @@ Vue.component('scorecard', {
     mounted: function(){
         var vm = this;
         vm.get();
-        vm.reqGet(vm.account_benchmark_url,
-        function(resp) {
-            vm.chartsAPIResp = resp;
+        if( vm.account_benchmark_url ) {
+            vm.reqGet(vm.account_benchmark_url,
+            function(resp) {
+                vm.chartsAPIResp = resp;
+                vm.chartsLoaded = true;
+            });
+            vm.buildSummaryChart();
+        } else {
             vm.chartsLoaded = true;
-        });
-        vm.buildSummaryChart();
+        }
     }
 });
 

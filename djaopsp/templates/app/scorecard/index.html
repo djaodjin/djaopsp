@@ -121,6 +121,26 @@ companies responding on practices in the industry segment.
                   <div :class="indentHeader(practice)">[[asPercent(practice.normalized_score)]]</div>
                 </div>
               </div>
+              <div v-if="isDataMetricsHeader(practice)">
+                <table class="table table-bordered table-striped">
+                  <tr class="text-right">
+                    <th></th>
+                    <th v-for="year in getColHeaders(practice)">
+                      [[year]]
+                    </th>
+                  </tr>
+                  <tr v-for="total in getEntries(practice.slug)">
+                    <th>[[total.title]]</th>
+                    <td class="text-right"
+                        v-for="year in getColHeaders(practice)">
+                      [[getColValue(total, year)]]
+                    </td>
+                  </tr>
+                  <caption class="text-center">
+                    [[getCaptionTitle(practice)]]
+                  </caption>
+                </table>
+              </div>
             </div>{# /.!isPractice - i.e. heading #}
 
             <div v-if="isEnumUIHint(practice)">
@@ -183,32 +203,6 @@ companies responding on practices in the industry segment.
               </div>
             </div>{# /isEnumUIHint(practice) #}
 
-            <div v-if="isEnergyUIHint(practice)">
-              <div class="row">
-                <div class="col-12">
-                  <div :class="indentHeader(practice) + ' mt-2'">
-                    <table class="table table-bordered table-striped">
-                      <tr class="text-right">
-                        <th></th>
-                        <th v-for="year in getColHeaders(practice)">
-                          [[year]]
-                        </th>
-                      </tr>
-                      <tr>
-                        <th>[[practice.title]]</th>
-                        <td class="text-right" v-for="year in getColHeaders(practice)">
-                          [[getColValue(practice, year)]]
-                        </td>
-                      </tr>
-                      <caption class="text-center">
-                        [[getPrimaryUnit(practice).title]]
-                      </caption>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>{# /.isEnergyUIHint(practice) #}
-
             <div v-if="isFreetextUIHint(practice)">
               <div class="row">
                 <div class="col-md-8">
@@ -255,32 +249,6 @@ companies responding on practices in the industry segment.
               </div>
             </div>{# /isGHGEmissionsBreakDown(practice) #}
 
-            <div v-if="isGHGEmissions(practice)">
-              <div class="row">
-                <div class="col-12">
-                  <div :class="indentHeader(practice) + ' mt-2'">
-                    <table class="table table-bordered table-striped">
-                      <tr class="text-right">
-                        <th></th>
-                        <th v-for="year in getColHeaders(practice)">
-                          [[year]]
-                        </th>
-                      </tr>
-                      <tr>
-                        <th>[[practice.title]]</th>
-                        <td class="text-right" v-for="year in getColHeaders(practice)">
-                          [[getColValue(practice, year)]]
-                        </td>
-                      </tr>
-                      <caption class="text-center">
-                        [[getPrimaryUnit(practice).title]]
-                      </caption>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>{# /isGHGEmissions(practice) #}
-
             <div v-if="isNumberUIHint(practice)">
               <div class="row">
                 <div class="col-md-8">
@@ -308,58 +276,6 @@ companies responding on practices in the industry segment.
               </div>
             </div>{# /isNumberUIHint(practice) #}
 
-            <div v-if="isWasteUIHint(practice)">
-              <div class="row">
-                <div class="col-12">
-                  <div :class="indentHeader(practice) + ' mt-2'">
-                    <table class="table table-bordered table-striped">
-                      <tr class="text-right">
-                        <th></th>
-                        <th v-for="year in getColHeaders(practice)">
-                          [[year]]
-                        </th>
-                      </tr>
-                      <tr>
-                        <th>[[practice.title]]</th>
-                        <td class="text-right" v-for="year in getColHeaders(practice)">
-                          [[getColValue(practice, year)]]
-                        </td>
-                      </tr>
-                      <caption class="text-center">
-                        [[getPrimaryUnit(practice).title]]
-                      </caption>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>{# /.isWasteUIHint(practice) #}
-
-            <div v-if="isWaterUIHint(practice)">
-              <div class="row">
-                <div class="col-12">
-                  <div :class="indentHeader(practice) + ' mt-2'">
-                    <table class="table table-bordered table-striped">
-                      <tr class="text-right">
-                        <th></th>
-                        <th v-for="year in getColHeaders(practice)">
-                          [[year]]
-                        </th>
-                      </tr>
-                      <tr>
-                        <th>[[practice.title]]</th>
-                        <td class="text-right" v-for="year in getColHeaders(practice)">
-                          [[getColValue(practice, year)]]
-                        </td>
-                      </tr>
-                      <caption class="text-center">
-                        [[getPrimaryUnit(practice).title]]
-                      </caption>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>{# /.isWaterUIHint(practice) #}
-
           </div>{# /.v-for=getEntries() #}
         </div>
         {% if not sample.is_frozen %}
@@ -369,10 +285,10 @@ companies responding on practices in the industry segment.
             <p>
               Get started!
             </p>
-            <a id="{{sample.campaign.slug}}-btn" href="{{urls.assess_base}}{{sample.campaign.slug}}/" class="btn btn-primary btn-lg">{% trans %}Start Assessment{% endtrans %} &raquo;</a>
+            <a id="get-started-btn" href="{{urls.assess_base}}{{sample.campaign.slug}}/" class="btn btn-primary btn-lg">{% trans %}Start Assessment{% endtrans %} &raquo;</a>
           </div>
           {% if segments_candidates %}
-          <div v-if="items.results.length > 0">
+          <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
             <hr />
             <div class="dropdown">
               <button id="segment-selector" class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">

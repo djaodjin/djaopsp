@@ -46,8 +46,10 @@ class AppView(AccountMixin, TemplateView):
             # XXX Temporary override while `site.slug` is being introduced.
             is_broker = (self.account.slug in settings.UNLOCK_BROKERS)
         accessible_plans = {plan['slug']
-            for plan in self.get_accessible_plans(
-                    self.request, profile=self.account)}
+            for plan in self.get_accessible_plans(self.request,
+                    profile=str(self.account) # if we don't convert to `str`,
+                                              # the equality will be `False`.
+            )}
         unlock_portfolios = getattr(settings, 'UNLOCK_PORTFOLIOS', [])
         if (is_broker or not unlock_portfolios or
             accessible_plans & unlock_portfolios):

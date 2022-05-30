@@ -154,23 +154,6 @@
 },
 {
   "fields": {
-    "path": "/sustainability/governance-management/environmental-reporting/environmental-fines-publicly-reported",
-    "content": 15,
-    "default_unit": 4
-  },
-  "model": "survey.question", "pk": 10
-},
-{
-  "fields": {
-    "campaign": 1,
-    "question": 10,
-    "rank": 10,
-    "required": true
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 10
-},
-{
-  "fields": {
     "path": "/sustainability/governance-management/management-system-rigor/systematic-rigorous-assessment",
     "content": 17,
     "default_unit": 4
@@ -461,7 +444,7 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/energy-measured/energy-publicly-reported",
+    "path": "/sustainability/governance-management/environmental-reporting/energy-publicly-reported",
     "content": 11,
     "default_unit": 4
   },
@@ -478,7 +461,7 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/energy-measured/energy-3rd-party-verified",
+    "path": "/sustainability/governance-management/environmental-reporting/energy-3rd-party-verified",
     "content": 12,
     "default_unit": 4
   },
@@ -495,8 +478,8 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope1",
-    "content": 10,
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1",
+    "content": 42,
     "default_unit": 6,
     "ui_hint": "ghg-emissions"
   },
@@ -513,10 +496,9 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope2",
-    "content": 10,
-    "default_unit": 6,
-    "ui_hint": "ghg-emissions"
+    "path": "/sustainability/governance-management/environmental-reporting/ghg-emissions-scope1-publicly-reported",
+    "content": 43,
+    "default_unit": 4
   },
   "model": "survey.question", "pk": 32
 },
@@ -531,10 +513,9 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3",
-    "content": 10,
-    "default_unit": 6,
-    "ui_hint": "ghg-emissions"
+    "path": "/sustainability/governance-management/environmental-reporting/ghg-emissions-scope1-3rd-party-verified",
+    "content": 44,
+    "default_unit": 4
   },
   "model": "survey.question", "pk": 33
 },
@@ -549,9 +530,10 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-publicly-reported",
-    "content": 11,
-    "default_unit": 4
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope2",
+    "content": 45,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
   "model": "survey.question", "pk": 34
 },
@@ -566,8 +548,8 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-3rd-party-verified",
-    "content": 12,
+    "path": "/sustainability/governance-management/environmental-reporting/ghg-emissions-scope2-publicly-reported",
+    "content": 46,
     "default_unit": 4
   },
   "model": "survey.question", "pk": 35
@@ -583,10 +565,9 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/water-measured/water-withdrawn",
-    "content": 10,
-    "default_unit": 7,
-    "ui_hint": "water"
+    "path": "/sustainability/governance-management/environmental-reporting/ghg-emissions-scope2-3rd-party-verified",
+    "content": 47,
+    "default_unit": 4
   },
   "model": "survey.question", "pk": 36
 },
@@ -601,10 +582,10 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/water-measured/water-discharged",
-    "content": 10,
-    "default_unit": 7,
-    "ui_hint": "water"
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope3",
+    "content": 48,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
   "model": "survey.question", "pk": 37
 },
@@ -619,10 +600,9 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/water-measured/water-recycled",
-    "content": 10,
-    "default_unit": 7,
-    "ui_hint": "water"
+    "path": "/sustainability/governance-management/environmental-reporting/ghg-emissions-scope3-publicly-reported",
+    "content": 49,
+    "default_unit": 4
   },
   "model": "survey.question", "pk": 38
 },
@@ -637,26 +617,19 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/water-measured/water-publicly-reported",
-    "content": 11,
+    "path": "/sustainability/governance-management/environmental-reporting/ghg-emissions-scope3-3rd-party-verified",
+    "content": 50,
     "default_unit": 4
   },
   "model": "survey.question", "pk": 39
 },
+
 {
   "fields": {
-    "campaign": 1,
-    "question": 39,
-    "rank": 39,
-    "required": false
-  },
-  "model": "survey.EnumeratedQuestions", "pk": 39
-},
-{
-  "fields": {
-    "path": "/sustainability/data-metrics/water-measured/water-3rd-party-verified",
-    "content": 12,
-    "default_unit": 4
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/purchased-good-and-services",
+    "content": 52,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
   "model": "survey.question", "pk": 40
 },
@@ -671,10 +644,10 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-hazardous",
-    "content": 10,
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/capital-goods",
+    "content": 53,
     "default_unit": 6,
-    "ui_hint": "waste"
+    "ui_hint": "ghg-emissions"
   },
   "model": "survey.question", "pk": 41
 },
@@ -689,10 +662,10 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-non-hazardous",
-    "content": 10,
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/fuel-and-energy-related-activities",
+    "content": 54,
     "default_unit": 6,
-    "ui_hint": "waste"
+    "ui_hint": "ghg-emissions"
   },
   "model": "survey.question", "pk": 42
 },
@@ -707,10 +680,10 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-recycled",
-    "content": 10,
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/upstream-transportation-and-distribution",
+    "content": 55,
     "default_unit": 6,
-    "ui_hint": "waste"
+    "ui_hint": "ghg-emissions"
   },
   "model": "survey.question", "pk": 43
 },
@@ -725,9 +698,10 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-publicly-reported",
-    "content": 11,
-    "default_unit": 4
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/waste-generated-in-operations",
+    "content": 56,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
   "model": "survey.question", "pk": 44
 },
@@ -742,9 +716,10 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-3rd-party-verified",
-    "content": 12,
-    "default_unit": 4
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/business-travel",
+    "content": 57,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
   "model": "survey.question", "pk": 45
 },
@@ -759,9 +734,10 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/general-information/gross-revenue",
-    "content": 60,
-    "default_unit": 10
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/employee-commuting",
+    "content": 58,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
   "model": "survey.question", "pk": 46
 },
@@ -776,9 +752,10 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/general-information/employee-count",
-    "content": 61,
-    "default_unit": 9
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/upstream-leased-assets",
+    "content": 59,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
   "model": "survey.question", "pk": 47
 },
@@ -793,13 +770,12 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/energy-target/energy-target-by",
-    "content": 6,
-    "ui_hint": "target-by",
-    "default_unit": 3,
-    "extra": "{\"layouts\":[\"target\"]}"
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/investments",
+    "content": 60,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
-  "model": "survey.Question", "pk": 48
+  "model": "survey.question", "pk": 48
 },
 {
   "fields": {
@@ -812,13 +788,12 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/energy-target/energy-target-comments",
-    "content": 6,
-    "ui_hint": "textarea",
-    "default_unit": 3,
-    "extra": "{\"layouts\":[\"target\"]}"
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/downstream-transportation-and-distribution",
+    "content": 61,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
-  "model": "survey.Question", "pk": 49
+  "model": "survey.question", "pk": 49
 },
 {
   "fields": {
@@ -831,13 +806,12 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/ghg-emissions-target/ghg-emissions-target-by",
-    "content": 7,
-    "ui_hint": "target-by",
-    "default_unit": 3,
-    "extra": "{\"layouts\":[\"target\"]}"
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/processing-of-sold-products",
+    "content": 62,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
-  "model": "survey.Question", "pk": 50
+  "model": "survey.question", "pk": 50
 },
 {
   "fields": {
@@ -850,13 +824,12 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/ghg-emissions-target/ghg-emissions-target-comments",
-    "content": 7,
-    "ui_hint": "textarea",
-    "default_unit": 3,
-    "extra": "{\"layouts\":[\"target\"]}"
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/use-of-sold-products",
+    "content": 63,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
-  "model": "survey.Question", "pk": 51
+  "model": "survey.question", "pk": 51
 },
 {
   "fields": {
@@ -869,13 +842,30 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/water-target/water-target-by",
-    "content": 8,
-    "ui_hint": "target-by",
-    "default_unit": 3,
-    "extra": "{\"layouts\":[\"target\"]}"
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/end-of-life-treatment-of-sold-products",
+    "content": 64,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
-  "model": "survey.Question", "pk": 53
+  "model": "survey.question", "pk": 52
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 52,
+    "rank": 52,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 52
+},
+{
+  "fields": {
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/downstream-leased-assets",
+    "content": 65,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
+  },
+  "model": "survey.question", "pk": 53
 },
 {
   "fields": {
@@ -888,13 +878,12 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/water-target/water-target-comments",
-    "content": 8,
-    "ui_hint": "textarea",
-    "default_unit": 3,
-    "extra": "{\"layouts\":[\"target\"]}"
+    "path": "/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-scope3-details/franchise",
+    "content": 66,
+    "default_unit": 6,
+    "ui_hint": "ghg-emissions"
   },
-  "model": "survey.Question", "pk": 54
+  "model": "survey.question", "pk": 54
 },
 {
   "fields": {
@@ -905,15 +894,16 @@
   },
   "model": "survey.EnumeratedQuestions", "pk": 54
 },
+
+
 {
   "fields": {
-    "path": "/sustainability/targets/waste-target/waste-target-by",
-    "content": 9,
-    "ui_hint": "target-by",
-    "default_unit": 3,
-    "extra": "{\"layouts\":[\"target\"]}"
+    "path": "/sustainability/data-metrics/water-measured/water-withdrawn",
+    "content": 68,
+    "default_unit": 7,
+    "ui_hint": "water"
   },
-  "model": "survey.Question", "pk": 55
+  "model": "survey.question", "pk": 55
 },
 {
   "fields": {
@@ -926,13 +916,12 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/waste-target/waste-target-comments",
-    "content": 9,
-    "ui_hint": "textarea",
-    "default_unit": 3,
-    "extra": "{\"layouts\":[\"target\"]}"
+    "path": "/sustainability/data-metrics/water-measured/water-discharged",
+    "content": 69,
+    "default_unit": 7,
+    "ui_hint": "water"
   },
-  "model": "survey.Question", "pk": 56
+  "model": "survey.question", "pk": 56
 },
 {
   "fields": {
@@ -943,6 +932,335 @@
   },
   "model": "survey.EnumeratedQuestions", "pk": 56
 },
+{
+  "fields": {
+    "path": "/sustainability/data-metrics/water-measured/water-recycled",
+    "content": 70,
+    "default_unit": 7,
+    "ui_hint": "water"
+  },
+  "model": "survey.question", "pk": 57
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 57,
+    "rank": 57,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 57
+},
+{
+  "fields": {
+    "path": "/sustainability/governance-management/environmental-reporting/water-publicly-reported",
+    "content": 71,
+    "default_unit": 4
+  },
+  "model": "survey.question", "pk": 58
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 58,
+    "rank": 58,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 58
+},
+{
+  "fields": {
+    "path": "/sustainability/governance-management/environmental-reporting/water-3rd-party-verified",
+    "content": 72,
+    "default_unit": 4
+  },
+  "model": "survey.question", "pk": 59
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 59,
+    "rank": 59,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 59
+},
+{
+  "fields": {
+    "path": "/sustainability/data-metrics/waste-measured/waste-hazardous",
+    "content": 74,
+    "default_unit": 6,
+    "ui_hint": "waste"
+  },
+  "model": "survey.question", "pk": 60
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 60,
+    "rank": 60,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 60
+},
+{
+  "fields": {
+    "path": "/sustainability/data-metrics/waste-measured/waste-non-hazardous",
+    "content": 75,
+    "default_unit": 6,
+    "ui_hint": "waste"
+  },
+  "model": "survey.question", "pk": 61
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 61,
+    "rank": 61,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 61
+},
+{
+  "fields": {
+    "path": "/sustainability/data-metrics/waste-measured/waste-recycled",
+    "content": 76,
+    "default_unit": 6,
+    "ui_hint": "waste"
+  },
+  "model": "survey.question", "pk": 62
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 62,
+    "rank": 62,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 62
+},
+{
+  "fields": {
+    "path": "/sustainability/governance-management/environmental-reporting/waste-publicly-reported",
+    "content": 77,
+    "default_unit": 4
+  },
+  "model": "survey.question", "pk": 63
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 63,
+    "rank": 63,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 63
+},
+{
+  "fields": {
+    "path": "/sustainability/governance-management/environmental-reporting/waste-3rd-party-verified",
+    "content": 78,
+    "default_unit": 4
+  },
+  "model": "survey.question", "pk": 64
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 64,
+    "rank": 64,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 64
+},
+{
+  "fields": {
+    "path": "/sustainability/data-metrics/general-information/gross-revenue",
+    "content": 80,
+    "default_unit": 10,
+    "ui_hint": "revenue"
+  },
+  "model": "survey.question", "pk": 65
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 65,
+    "rank": 65,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 65
+},
+{
+  "fields": {
+    "path": "/sustainability/data-metrics/general-information/employee-count",
+    "content": 81,
+    "default_unit": 9,
+    "ui_hint": "employee-count"
+  },
+  "model": "survey.question", "pk": 66
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 66,
+    "rank": 66,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 66
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/energy-target/energy-target-by",
+    "content": 84,
+    "ui_hint": "target-by",
+    "default_unit": 3,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.Question", "pk": 67
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 67,
+    "rank": 67,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 67
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/energy-target/energy-target-comments",
+    "content": 85,
+    "ui_hint": "textarea",
+    "default_unit": 3,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.Question", "pk": 68
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 68,
+    "rank": 68,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 68
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/ghg-emissions-target/ghg-emissions-target-by",
+    "content": 87,
+    "ui_hint": "target-by",
+    "default_unit": 3,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.Question", "pk": 69
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 69,
+    "rank": 69,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 69
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/ghg-emissions-target/ghg-emissions-target-comments",
+    "content": 88,
+    "ui_hint": "textarea",
+    "default_unit": 3,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.Question", "pk": 70
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 70,
+    "rank": 70,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 70
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/water-target/water-target-by",
+    "content": 90,
+    "ui_hint": "target-by",
+    "default_unit": 3,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.Question", "pk": 71
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 71,
+    "rank": 71,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 71
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/water-target/water-target-comments",
+    "content": 91,
+    "ui_hint": "textarea",
+    "default_unit": 3,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.Question", "pk": 72
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 72,
+    "rank": 72,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 72
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/waste-target/waste-target-by",
+    "content": 93,
+    "ui_hint": "target-by",
+    "default_unit": 3,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.Question", "pk": 73
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 73,
+    "rank": 73,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 73
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/waste-target/waste-target-comments",
+    "content": 94,
+    "ui_hint": "textarea",
+    "default_unit": 3,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.Question", "pk": 74
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 74,
+    "rank": 74,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 74
+},
+
 {
   "fields": {
     "path": "/metal/boxes-and-enclosures/production/energy-efficiency/process-heating/combustion/adjust-air-fuel-ratio",

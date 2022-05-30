@@ -1,4 +1,3 @@
-
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
 
@@ -8,7 +7,7 @@ API URLs for portfolios engagement & analytics dashboards
 from django.urls import include, path
 
 from ...api.samples import (AssessmentContentAPIView,
-    AssessmentCompleteAPIView, HistoricalAssessmentsAPIView)
+    AssessmentCompleteAPIView, BenchmarkAPIView, HistoricalAssessmentsAPIView)
 
 
 urlpatterns = [
@@ -22,10 +21,15 @@ urlpatterns = [
     path('<slug:profile>/sample/<slug:sample>/freeze',
         AssessmentCompleteAPIView.as_view(),
         name='survey_api_sample_freeze_index'),
+    path('<slug:profile>/<slug:sample>/benchmarks/<path:path>',
+        BenchmarkAPIView.as_view(),
+        name='api_benchmark'),
+    path('<slug:profile>/<slug:sample>/benchmarks',
+        BenchmarkAPIView.as_view(),
+        name='api_benchmark_index'),
     path('<slug:profile>/samples/',
         HistoricalAssessmentsAPIView.as_view(),
         name='api_historical_assessments'),
     path('<slug:profile>/', include('survey.urls.api.sample')),
     path('<slug:profile>/', include('survey.urls.api.filters')),
 ]
-

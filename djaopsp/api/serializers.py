@@ -21,6 +21,32 @@ class NoModelSerializer(serializers.Serializer):
         raise RuntimeError('`update()` should not be called.')
 
 
+class DistributionSerializer(NoModelSerializer):
+
+    x = serializers.ListField(serializers.CharField())
+    y = serializers.ListField(child=serializers.IntegerField())
+    organization_rate = serializers.CharField()
+
+
+class BenchmarkSerializer(NoModelSerializer):
+
+    slug = serializers.CharField()
+    title = serializers.CharField()
+    nb_answers = serializers.IntegerField(required=False)
+    nb_questions = serializers.IntegerField(required=False)
+    nb_respondents = serializers.IntegerField(required=False)
+    numerator = serializers.FloatField(required=False)
+    improvement_numerator = serializers.FloatField(required=False)
+    denominator = serializers.FloatField(required=False)
+    normalized_score = serializers.IntegerField(required=False)
+    improvement_score = serializers.IntegerField(required=False)
+    score_weight = serializers.FloatField()
+    highest_normalized_score = serializers.IntegerField(required=False)
+    avg_normalized_score = serializers.IntegerField(required=False)
+    created_at = serializers.DateTimeField(required=False)
+    distribution = DistributionSerializer(required=False)
+
+
 class PracticeSerializer(BaseNodeElementSerializer):
 
     avg_value = serializers.SerializerMethodField()

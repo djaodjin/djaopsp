@@ -1,5 +1,6 @@
 # Copyright (c) 2022, DjaoDjin inc.
 
+from deployutils.apps.django.mockup.views import SigninView
 from deployutils.apps.django.urlbuilders import url_prefixed
 from django.conf import settings
 from django.views.generic import RedirectView
@@ -53,13 +54,11 @@ if settings.API_DEBUG:
     ]
 
 urlpatterns += [
-    url_prefixed(r'', include('deployutils.apps.django.mockup.urls')),
     # User authenticated
     url_prefixed(r'api/', include('djaopsp.urls.api')),
     url_prefixed(r'', include('djaopsp.urls.views')),
-    url_prefixed(r'', login_required(RedirectView.as_view(
-            pattern_name='app_redirect')),
-        name='homepage'),
-    path('', login_required(RedirectView.as_view(
-            pattern_name='app_redirect')))
+
+    # Theses views will be intercepted by the proxy.
+    url_prefixed(r'', include('deployutils.apps.django.mockup.urls')),
+    url_prefixed(r'$', SigninView.as_view(), name='homepage'),
 ]

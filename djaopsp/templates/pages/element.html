@@ -54,6 +54,7 @@
                         </div>
                         {% endif %}
                         <hr />
+                        {% if profile %}
                         <div id="create-chapter">
                           <div class="text-right">
                             <a id="new-page" class="btn btn-primary btn-block" href="#new-pageelement" data-toggle="modal" data-target="#new-pageelement">New practice</a>
@@ -91,6 +92,7 @@
                             </div>
                           </div>
                         </div>{# /#create-chapter #}
+                        {% endif %}
                         <div v-if="item.account == 'envconnect'">
                             <p class="text-center mt-3">
 <a href="{{'/docs/faq/#environmental-practices'|site_url}}">How was this practice identified and selected?</a>

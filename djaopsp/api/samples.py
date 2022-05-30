@@ -1,9 +1,11 @@
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
 
-import copy, logging
+import copy, json, logging
+from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
+from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now
 from django.db import transaction
 from django.db.models import Count, F
@@ -19,10 +21,13 @@ from ..compat import reverse, six
 from ..mixins import AccountMixin, SegmentReportMixin
 from ..models import ScorecardCache
 from ..scores import freeze_scores, get_score_calculator, populate_rollup
-from ..utils import get_leafs, get_practice_serializer, get_scores_tree
+from ..utils import (get_account_model, get_leafs, get_practice_serializer,
+    get_scores_tree, get_segments_candidates)
 from .campaigns import CampaignContentMixin
+from .rollups import GraphMixin, RollupMixin, ScoresMixin
 from .serializers import (AssessmentContentSerializer, AssessmentNodeSerializer,
-    HistoricalAssessmentSerializer, UnitSerializer)
+    BenchmarkSerializer, HistoricalAssessmentSerializer, UnitSerializer)
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -611,3 +616,116 @@ class HistoricalAssessmentsAPIView(AccountMixin, generics.ListAPIView):
             account=self.account,
             extra__isnull=True,
             is_frozen=True).order_by('-created_at').select_related('campaign')
+
+
+class BenchmarkAPIView(SegmentReportMixin, GraphMixin, RollupMixin,
+                       ScoresMixin, generics.ListAPIView):
+    """
+    Retrieves benchmark graphs
+
+    Returns a list of graphs with anonymized performance of peers
+    for paths marked as visible (see ::ref::`api_score`).
+
+    **Tags**: scorecard
+
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/supplier-1/benchmark/ce6dc2c4cf6b40dbacef91fa3e934eed\
+/graphs/boxes-and-enclosures HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        [{
+            "slug":"totals",
+            "title":"Total Score",
+            "nb_answers": 4,
+            "nb_questions": 4,
+            "nb_respondents": 2,
+            "numerator": 12.0,
+            "improvement_numerator": 8.0,
+            "denominator": 26.0,
+            "normalized_score": 46,
+            "improvement_score": 30,
+            "score_weight": 1.0,
+            "highest_normalized_score": 88,
+            "avg_normalized_score": 67,
+            "created_at":"2017-08-02T20:18:19.089",
+            "distribution": {
+                "y": [0, 1, 0, 1],
+                "x": ["0-25%", "25-50%", "50-75%", "75-100%"],
+                "organization_rate":"25-50%"
+            }
+         },
+         {
+            "slug":"energy-efficiency-management-basics",
+            "title":"Management",
+            "text":"/media/envconnect/management-basics.png",
+            "tag":"management",
+            "score_weight":1.0
+         },
+         {
+            "slug":"process-heating",
+            "title":"Process heating",
+            "text":"/media/envconnect/process-heating.png",
+            "nb_questions": 4,
+            "nb_answers": 4,
+            "nb_respondents": 2,
+            "numerator": 12.0,
+            "improvement_numerator": 8.0,
+            "denominator": 26.0,
+            "normalized_score": 46,
+            "improvement_score": 12,
+            "highest_normalized_score": 88,
+            "avg_normalized_score": 67,
+            "created_at": "2017-08-02T20:18:19.089",
+            "distribution": {
+                "y": [0, 1, 0, 1],
+                "x": [ "0-25%", "25-50%", "50-75%", "75-100%"],
+                "organization_rate": "25-50%"
+            },
+            "score_weight": 1.0
+         }]
+    """
+    serializer_class = BenchmarkSerializer
+    pagination_class = None
+    DB_PATH_SEP = '/'
+
+    @property
+    def requested_accounts_pk(self):
+        if not hasattr(self, '_requested_accounts_pk'):
+            self._requested_accounts_pk = self.account_model.objects.all().values_list('pk', flat=True)
+        return self._requested_accounts_pk
+
+
+    def decorate_with_scores(self, rollup_tree, accounts=None, prefix=""):
+        #if accounts is None:
+        #    accounts = self.requested_accounts
+
+        for key, values in six.iteritems(rollup_tree[1]):
+            self.decorate_with_scores(values, accounts=accounts, prefix=key)
+
+
+    def list(self, request, *args, **kwargs): #pylint:disable=unused-argument
+        self._start_time()
+        charts = []
+        segments = self.segments_available
+        queryset = self.get_queryset()
+        for segment in segments:
+            path = segment.get('path')
+            rollup_tree = self.rollup_scores(queryset, prefix=path)
+            self._report_queries("rollup_scores(prefix='%s') completed" % path)
+            self.create_distributions(
+                rollup_tree, view_account_id=self.account.pk)
+            self._report_queries(
+                "create_distributions(prefix='%s') completed" % path)
+            segment_charts, segment_complete = self.flatten_distributions(
+                rollup_tree, prefix=path)
+            self._report_queries(
+                "flatten_distributions(prefix='%s') completed" % path)
+            charts += segment_charts
+
+        return http.Response(charts)

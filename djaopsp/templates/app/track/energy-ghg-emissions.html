@@ -18,7 +18,7 @@
                       <a class="nav-link icon-inner orange"
                          href="#tab-stationary-combustion"
                          @click="toggleTile($event, 'stationary-combustion')">
-                        <img class="icon-equipment" src="stationary-combustion.png">
+                        <img class="icon-equipment" src="{{'/static/img/icons/production.png'|asset}}">
                         <div class="icon-caption">{% trans %}S1 - Stationary Combustion{% endtrans %}</div>
                       </a>
                     </li>
@@ -27,7 +27,7 @@
                       <a class="nav-link icon-inner orange"
                          href="#tab-mobile-combustion"
                          @click="toggleTile($event, 'mobile-combustion')">
-                        <img class="icon-equipment" src="mobile-combustion.png">
+                        <img class="icon-equipment" src="{{'/static/img/icons/truck.png'|asset}}">
                         <div class="icon-caption">{% trans %}S1 - Mobile Combustion{% endtrans %}</div>
                       </a>
                     </li>
@@ -36,7 +36,7 @@
                       <a class="nav-link icon-inner orange"
                          href="#tab-refrigerants"
                          @click="toggleTile($event, 'refrigerants')">
-                        <img class="icon-equipment" src="refrigerants.png">
+                        <img class="icon-equipment" src="{{'/static/img/icons/hvac.png'|asset}}">
                         <div class="icon-caption">{% trans %}S1 - Refrigerants{% endtrans %}</div>
                       </a>
                     </li>
@@ -45,7 +45,7 @@
                       <a class="nav-link icon-inner orange"
                          href="#tab-purchased-electricity"
                          @click="toggleTile($event, 'purchased-electricity')">
-                        <img class="icon-equipment" src="purchased-electricity.png">
+                        <img class="icon-equipment" src="{{'/static/img/icons/lightning.png'|asset}}">
                         <div class="icon-caption">{% trans %}S2 - Purchased Electricity{% endtrans %}</div>
                       </a>
                     </li>
@@ -54,7 +54,7 @@
                       <a class="nav-link icon-inner orange"
                          href="#tab-transportation"
                          @click="toggleTile($event, 'transportation')">
-                        <img class="icon-equipment" src="transportation.png">
+                        <img class="icon-equipment" src="{{'/static/img/icons/fuel-supply.png'|asset}}">
                         <div class="icon-caption">{% trans %}S3 - Transportation{% endtrans %}</div>
                       </a>
                     </li>
@@ -861,7 +861,7 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
       {% endblock %}
     </div>
   </ghg-emissions-calculator> {# .panel-icons #}
-  <p class="text-center mt-4">
+  <p class="text-dark text-center mt-4">
     This Web tool is based on the
     <a href="https://ghgprotocol.org/ghg-emissions-calculation-tool"
        target="_blank">GHG Emissions Calculation Tool</a>
