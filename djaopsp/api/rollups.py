@@ -3,7 +3,6 @@
 import logging
 from collections import OrderedDict
 
-from django.http import Http404
 from pages.models import PageElement
 from survey.mixins import CampaignMixin, DateRangeContextMixin, TimersMixin
 from survey.models import Sample
@@ -11,7 +10,7 @@ from survey.utils import get_account_model, is_sqlite3
 
 from ..compat import six
 from ..models import ScorecardCache
-from ..utils import TransparentCut, get_scores_tree, get_segments_candidates
+from ..utils import TransparentCut, get_scores_tree
 from .serializers import AccountSerializer
 
 
@@ -384,23 +383,21 @@ WHERE survey_sample.created_at < '%(ends_at)s'
 }
         return scorecard_cache_query
 
-    def get_queryset(self):
-        # XXX requested_accounts
-        segments = []
-        prefix = None
-        if self.db_path:
-            try:
-                segments = [{
-                    #XXX 'title': trail[-1].title,
-                    'title': "",
-                    'path': self.db_path,
-                    'indent': len(self.db_path.split(self.DB_PATH_SEP)) - 1}]
-            except Http404:
-                prefix = None
-        if not prefix:
-            segments = get_segments_candidates(self.campaign)
+    @property
+    def scores_of_interest(self):
+        """
+        Returns the segments/tiles we are interested in for this query.
+        """
+        if not hasattr(self, '_scores_of_interest'):
+            self._scores_of_interest = self.segments_available
+        return self._scores_of_interest
 
-        frozen_query = self._get_scorecard_cache_query(segments)
+    def get_queryset(self):
+        if not self.scores_of_interest:
+            # We don't have any scorecard/chart to compute.
+            return Sample.objects.none()
+
+        frozen_query = self._get_scorecard_cache_query(self.scores_of_interest)
 
         if self.expired_at:
             reporting_clause = \
@@ -550,7 +547,7 @@ ON %(account_table)s.id = assessments.account_id
 class RollupMixin(object):
 
     def _insert_in_tree(self, rollup_tree, prefix, value):
-        for path, node in six.iteritems(rollup_tree[1]):
+        for path, node in six.iteritems(rollup_tree):
             if path == prefix:
                 accounts = node[0].get('accounts', {})
                 account = accounts.get(value.account_id, {})
@@ -560,7 +557,7 @@ class RollupMixin(object):
                 if 'accounts' not in node[0]:
                     node[0].update({'accounts': accounts})
                 return True
-            if self._insert_in_tree(node, prefix, value):
+            if self._insert_in_tree(node[1], prefix, value):
                 return True
         return False
 
@@ -609,77 +606,78 @@ class GraphMixin(object):
         nb_respondents = 0
         nb_implemeted_respondents = 0
         distribution = None
-        for account_id_str, account_metrics in six.iteritems(rollup_tree[0].get(
-                'accounts', OrderedDict({}))):
-            if account_id_str is None: # XXX why is that?
-                continue
-            account_id = int(account_id_str)
-            is_view_account = (view_account_id and account_id == view_account_id)
+        for node in six.itervalues(rollup_tree):
+            for account_id_str, account_metrics in six.iteritems(node[0].get(
+                    'accounts', OrderedDict({}))):
+                if account_id_str is None: # XXX why is that?
+                    continue
+                account_id = int(account_id_str)
+                is_view_account = (view_account_id and
+                    account_id == view_account_id)
 
-            if is_view_account:
-                rollup_tree[0].update(account_metrics)
-
-            if account_metrics.get('nb_answers', 0):
-                nb_respondents += 1
-
-            normalized_score = account_metrics.get('normalized_score', None)
-            if normalized_score is None:
-                continue
-
-            nb_normalized_scores += 1
-            numerator = account_metrics.get('numerator')
-            denominator = account_metrics.get('denominator')
-            if numerator == denominator:
-                nb_implemeted_respondents += 1
-            if normalized_score > highest_normalized_score:
-                highest_normalized_score = normalized_score
-            sum_normalized_scores += normalized_score
-            if distribution is None:
-                distribution = {
-                    'x' : ["0-25%", "25-50%", "50-75%", "75-100%"],
-                    'y' : [0 for _ in range(4)],
-                    'organization_rate': ""
-                }
-            if normalized_score < 25:
-                distribution['y'][0] += 1
                 if is_view_account:
-                    distribution['organization_rate'] = distribution['x'][0]
-            elif normalized_score < 50:
-                distribution['y'][1] += 1
-                if is_view_account:
-                    distribution['organization_rate'] = distribution['x'][1]
-            elif normalized_score < 75:
-                distribution['y'][2] += 1
-                if is_view_account:
-                    distribution['organization_rate'] = distribution['x'][2]
-            else:
-                assert normalized_score <= 100
-                distribution['y'][3] += 1
-                if is_view_account:
-                    distribution['organization_rate'] = distribution['x'][3]
+                    node[0].update(account_metrics)
 
-        for node_metrics in six.itervalues(rollup_tree[1]):
-            self.create_distributions(node_metrics, view_account_id=view_account_id)
+                if account_metrics.get('nb_answers', 0):
+                    nb_respondents += 1
 
-        if distribution is not None:
-            if nb_respondents > 0:
-                avg_normalized_score = int(
-                    sum_normalized_scores / nb_normalized_scores)
-                rate = int(100.0
-                    * nb_implemeted_respondents / nb_normalized_scores)
-            else:
-                avg_normalized_score = 0
-                rate = 0
-            rollup_tree[0].update({
-                'nb_respondents': nb_respondents,
-                'rate': rate,
-                'opportunity': denominator,
-                'highest_normalized_score': highest_normalized_score,
-                'avg_normalized_score': avg_normalized_score,
-                'distribution': distribution
-            })
-        if 'accounts' in rollup_tree[0]:
-            del rollup_tree[0]['accounts']
+                normalized_score = account_metrics.get('normalized_score', None)
+                if normalized_score is None:
+                    continue
+
+                nb_normalized_scores += 1
+                numerator = account_metrics.get('numerator')
+                denominator = account_metrics.get('denominator')
+                if numerator == denominator:
+                    nb_implemeted_respondents += 1
+                if normalized_score > highest_normalized_score:
+                    highest_normalized_score = normalized_score
+                sum_normalized_scores += normalized_score
+                if distribution is None:
+                    distribution = {
+                        'x' : ["0-25%", "25-50%", "50-75%", "75-100%"],
+                        'y' : [0 for _ in range(4)],
+                        'organization_rate': ""
+                    }
+                if normalized_score < 25:
+                    distribution['y'][0] += 1
+                    if is_view_account:
+                        distribution['organization_rate'] = distribution['x'][0]
+                elif normalized_score < 50:
+                    distribution['y'][1] += 1
+                    if is_view_account:
+                        distribution['organization_rate'] = distribution['x'][1]
+                elif normalized_score < 75:
+                    distribution['y'][2] += 1
+                    if is_view_account:
+                        distribution['organization_rate'] = distribution['x'][2]
+                else:
+                    assert normalized_score <= 100
+                    distribution['y'][3] += 1
+                    if is_view_account:
+                        distribution['organization_rate'] = distribution['x'][3]
+
+            self.create_distributions(node[1], view_account_id=view_account_id)
+
+            if distribution is not None:
+                if nb_respondents > 0:
+                    avg_normalized_score = int(
+                        sum_normalized_scores / nb_normalized_scores)
+                    rate = int(100.0
+                        * nb_implemeted_respondents / nb_normalized_scores)
+                else:
+                    avg_normalized_score = 0
+                    rate = 0
+                node[0].update({
+                    'nb_respondents': nb_respondents,
+                    'rate': rate,
+                    'opportunity': denominator,
+                    'highest_normalized_score': highest_normalized_score,
+                    'avg_normalized_score': avg_normalized_score,
+                    'distribution': distribution
+                })
+            if 'accounts' in node[0]:
+                del node[0]['accounts']
 
     def flatten_distributions(self, distribution_tree, prefix=None):
         """
@@ -692,10 +690,10 @@ class GraphMixin(object):
             prefix = '/%s' % prefix
         charts = []
         complete = True
-        for key, chart in six.iteritems(distribution_tree[1]):
+        for key, chart in six.iteritems(distribution_tree):
             if key.startswith(prefix) or prefix.startswith(key):
                 leaf_charts, leaf_complete = self.flatten_distributions(
-                    chart, prefix=prefix)
+                    chart[1], prefix=prefix)
                 charts += leaf_charts
                 complete &= leaf_complete
                 charts += [chart[0]]

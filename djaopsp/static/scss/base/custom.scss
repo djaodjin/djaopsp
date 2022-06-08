@@ -15,6 +15,12 @@ $green-level-4-color: #FFD700;
   border-bottom: 1px solid #ACAFAF;
 }
 
+.table-assessment {
+  tbody:nth-of-type(#{$table-striped-order}) {
+    background-color: $table-accent-bg;
+  }
+}
+
 .practice-required {
   border-right: 1px solid #FF2020 !important;
 }
@@ -1815,6 +1821,17 @@ html[data-useragent*='rv:11.0'] .toggle-off>span {
     fill: #FFFFFF;
     fill-opacity: 0.01;
 }
+
+.arc-score {
+    transform-origin: top center;
+    transition: transform 0.8s ease-in-out;
+}
+
+.score-label {
+    font-size: 0.8rem;
+    font-family: 'Roboto', sans-serif !important;
+}
+
 
 .arcs .label {
     font-family: "myriad-light",Helvetica,Arial,sans-serif;

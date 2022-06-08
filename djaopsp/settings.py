@@ -76,6 +76,7 @@ INSTALLED_APPS = DEBUG_APPS + (
     'rest_framework',
     'survey',
     'pages',
+    'extended_templates',
     'djaopsp.sustainability',
     'djaopsp' # project should be the last entry.
 )

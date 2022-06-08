@@ -19,8 +19,9 @@ urlpatterns = [
         PageElementAPIView.as_view(), name="api_content"),
     path('content/', PageElementAPIView.as_view(), name="api_content_index"),
     path('content/', include('pages.urls.api.noauth')),
+    path('', include('survey.urls.api.noauth')),
 
-    path('', include('djaopsp.urls.api.assess')),
+    path('<slug:profile>/', include('djaopsp.urls.api.assess')),
     path('<slug:profile>/', include('djaopsp.urls.api.portfolios')),
     path('<slug:profile>/', include('survey.urls.api.campaigns')),
     path('<slug:profile>/', include('survey.urls.api.portfolios')),

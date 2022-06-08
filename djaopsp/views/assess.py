@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 
 import json, logging
 
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_url)
 from deployutils.helpers import datetime_or_now, update_context_urls
 from django.views.generic import TemplateView
 from django.template.defaultfilters import slugify
@@ -52,6 +54,8 @@ class AssessPracticesView(SegmentReportMixin, TemplateView):
             })
         update_context_urls(context, {
             'pages_index': reverse('pages_index'),
+            'track_metrics_index': reverse(
+                'track_metrics_index', args=(self.account,)),
             'download': reverse('assess_download', args=(
                 self.account, self.sample)),
             'api_content': reverse('api_sample_content',
@@ -59,6 +63,15 @@ class AssessPracticesView(SegmentReportMixin, TemplateView):
                       self.full_path.lstrip(self.URL_PATH_SEP))),
             'api_assessment_sample': reverse(
                 'survey_api_sample', args=(self.account, self.sample))
+        })
+        # Upload supporting documents
+        update_context_urls(context, {
+# XXX       'asset_upload_start': site_url("api/auth/tokens/realms/%s" % self.account),
+            'api_asset_upload_start': reverse('pages_api_upload_asset',
+                args=(self.account,)),
+            'api_asset_upload_complete': reverse('pages_api_upload_asset',
+                args=(self.account,)),
+# XXX       'api_aggregate_metric_base': reverse('survey_api_aggregate_metric_base', args=(self.account,)),
         })
         return context
 

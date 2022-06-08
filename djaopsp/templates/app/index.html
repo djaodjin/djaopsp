@@ -37,11 +37,7 @@ and member-only content.
       <div class="card bg-white text-dark h-100">
         <div class="card-body">
           <h2>{% trans %}Newsfeed{% endtrans %}</h2>
-          <p>
-{% trans %}
-There are no news at this point.
-{% endtrans %}
-          </p>
+          {% include "app/_newsfeed.html" %}
         </div>
       </div>
     </div>
@@ -60,7 +56,7 @@ start here.
           {% if latest_completed_assessment %}
           <div>
             <p>
-Last completed on <date>{{latest_completed_assessment.created_at|date}}</date>{% if latest_completed_assessment.author %} by <author>{{latest_completed_assessment.author}}</author>{% endif %}.
+Last completed on <span class="date">{{latest_completed_assessment.created_at|date}}</span>{% if latest_completed_assessment.author %} by <span class="author">{{latest_completed_assessment.author}}</span>{% endif %}.
             </p>
             <div class="row">
               <div class="col-sm-6">

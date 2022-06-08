@@ -1,3 +1,4 @@
+<tr :class="isRequiredShown(practice) ? 'practice-required' : ''">
 <td :id="practice.slug" colspan="6">
   <div style="display:inline-block;">
     <div :class="indentHeader(practice)"
@@ -53,21 +54,20 @@
 {# Presents questions based on its ui_hint and default unit #}
 <td class="text-center"
     colspan="6"
-    v-if="isFreetextUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
-    <textarea class="form-control"
-              type="text" rows="10"
-              placeholder=""
-              v-model="getPrimaryAnswer(practice).measured"
-              @blur="updateAssessmentAnswer(practice)"
-              {% if sample.is_frozen %} disabled{% endif %}></textarea>
+    v-if="isFreetextUIHint(practice)">
+    <textarea
+      class="form-control"
+      type="text" rows="10"
+      placeholder=""
+      v-model="getPrimaryAnswer(practice).measured"
+      @blur="updateAssessmentAnswer(practice)"
+      {% if sample.is_frozen %} disabled{% endif %}></textarea>
 </td>
 
 {# The unit is fixed. question.ui_hint === 'revenue' #}
 <td class="text-center"
     :colspan="6"
-    v-if="isRevenueUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isRevenueUIHint(practice)">
   <div class="input-group">
     <input class="form-control text-right"
            type="number"
@@ -93,8 +93,7 @@
 
 <td class="text-center"
     :colspan="6"
-    v-if="isEmployeeCountUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isEmployeeCountUIHint(practice)">
   <div class="input-group">
     <select class="form-control"
             v-model="getPrimaryAnswer(practice).unit"
@@ -117,28 +116,31 @@
 {# - question.ui_hint === 'energy' #}
 <td class="text-center"
     colspan="2"
-    v-if="isEnergyUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isEnergyUIHint(practice)">
     <input class="form-control"
            type="date"
            v-model="getPrimaryAnswer(practice).baseline_at"
-           @blur="updateAssessmentAnswer(practice)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           {% if sample.is_frozen %}
+           disabled
+           {% else %}
+           @blur="updateBaseLineAt(practice)"
+           {% endif %}></input>
 </td>
 <td class="text-center"
     colspan="2"
-    v-if="isEnergyUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isEnergyUIHint(practice)">
     <input class="form-control"
            type="date"
            v-model="getPrimaryAnswer(practice).created_at"
-           @blur="updateAssessmentAnswer(practice)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           {% if sample.is_frozen %}
+           disabled
+           {% else %}
+           @blur="updateEndsAt(practice)"
+           {% endif %}></input>
 </td>
 <td class="text-center"
     :colspan="2"
-    v-if="isEnergyUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isEnergyUIHint(practice)">
   <div class="input-group">
     <input class="form-control text-right"
            type="number"
@@ -169,8 +171,9 @@
     </select>
   </div>
   <div class="text-left mt-1">
-    <button class="btn btn-sm btn-secondary">import from tracking tool</button>
-    <a class="btn-sm ml-2"href="{{'/app/track/energy-ghg-emissions/'|site_url}}">enter data in tracking tool &raquo;</a>
+    <button class="btn btn-sm btn-secondary"
+            @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
+    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of energy #}
@@ -181,28 +184,31 @@
 {# - question.ui_hint === 'water' #}
 <td class="text-center"
     colspan="2"
-    v-if="isWaterUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isWaterUIHint(practice)">
     <input class="form-control"
            type="date"
            v-model="getPrimaryAnswer(practice).baseline_at"
-           @blur="updateAssessmentAnswer(practice)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           {% if sample.is_frozen %}
+           disabled
+           {% else %}
+           @blur="updateBaseLineAt(practice)"
+           {% endif %}></input>
 </td>
 <td class="text-center"
     colspan="2"
-    v-if="isWaterUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isWaterUIHint(practice)">
     <input class="form-control"
            type="date"
            v-model="getPrimaryAnswer(practice).created_at"
-           @blur="updateAssessmentAnswer(practice)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           {% if sample.is_frozen %}
+           disabled
+           {% else %}
+           @blur="updateEndsAt(practice)"
+           {% endif %}></input>
 </td>
 <td class="text-center"
     :colspan="2"
-    v-if="isWaterUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isWaterUIHint(practice)">
   <div class="input-group">
     <input class="form-control text-right"
            type="text"
@@ -221,8 +227,9 @@
     </select>
   </div>
   <div class="text-left mt-1">
-    <button class="btn btn-sm btn-secondary">import from tracking tool</button>
-    <a class="btn-sm ml-2"href="{{'/app/track/water/'|site_url}}">enter data in tracking tool &raquo;</a>
+    <button class="btn btn-sm btn-secondary"
+            @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
+    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}water/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of water #}
@@ -232,28 +239,31 @@
 {# - question.ui_hint === 'waste' #}
 <td class="text-center"
     colspan="2"
-    v-if="isWasteUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isWasteUIHint(practice)">
     <input class="form-control"
            type="date"
            v-model="getPrimaryAnswer(practice).baseline_at"
-           @blur="updateAssessmentAnswer(practice)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           {% if sample.is_frozen %}
+           disabled
+           {% else %}
+           @blur="updateBaseLineAt(practice)"
+           {% endif %}></input>
 </td>
 <td class="text-center"
     colspan="2"
-    v-if="isWasteUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isWasteUIHint(practice)">
     <input class="form-control"
            type="date"
            v-model="getPrimaryAnswer(practice).created_at"
-           @blur="updateAssessmentAnswer(practice)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           {% if sample.is_frozen %}
+           disabled
+           {% else %}
+           @blur="updateEndsAt(practice)"
+           {% endif %}></input>
 </td>
 <td class="text-center"
     :colspan="2"
-    v-if="isWasteUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isWasteUIHint(practice)">
   <div class="input-group">
     <input class="form-control text-right"
            type="text"
@@ -274,8 +284,9 @@
     </select>
   </div>
   <div class="text-left mt-1">
-    <button class="btn btn-sm btn-secondary">import from tracking tool</button>
-    <a class="btn-sm ml-2"href="{{'/app/track/waste/'|site_url}}">enter data in tracking tool &raquo;</a>
+    <button class="btn btn-sm btn-secondary"
+            @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
+    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}waste/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of waste #}
@@ -283,28 +294,31 @@
 {# GHG Emissions #}
 <td class="text-center"
     colspan="2"
-    v-if="isGHGEmissions(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isGHGEmissions(practice)">
     <input class="form-control"
            type="date"
            v-model="getPrimaryAnswer(practice).baseline_at"
-           @blur="updateAssessmentAnswer(practice)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           {% if sample.is_frozen %}
+           disabled
+           {% else %}
+           @blur="updateBaseLineAt(practice)"
+           {% endif %}></input>
 </td>
 <td class="text-center"
     colspan="2"
-    v-if="isGHGEmissions(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isGHGEmissions(practice)">
     <input class="form-control"
            type="date"
            v-model="getPrimaryAnswer(practice).created_at"
-           @blur="updateAssessmentAnswer(practice)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           {% if sample.is_frozen %}
+           disabled
+           {% else %}
+           @blur="updateEndsAt(practice)"
+           {% endif %}></input>
 </td>
 <td class="text-center"
     colspan="2"
-    v-if="isGHGEmissions(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isGHGEmissions(practice)">
   <div class="input-group">
     <input class="form-control text-right"
               type="number"
@@ -320,8 +334,9 @@
     </select>
   </div>
   <div class="text-left mt-1">
-    <button class="btn btn-sm btn-secondary">import from tracking tool</button>
-    <a class="btn-sm ml-2"href="{{'/app/track/energy-ghg-emissions/'|site_url}}">enter data in tracking tool &raquo;</a>
+    <button class="btn btn-sm btn-secondary"
+            @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
+    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of scope ghg emissions #}
@@ -330,8 +345,7 @@
 <td :class="'text-center' + (getPrimaryCandidate(practice).measured === choice.text ? ' candidate-answer' : '')"
     :colspan="getNbInputCols(practice)"
     v-for="(choice, idx) in getChoices(practice, icon)"
-    v-if="isEnumUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isEnumUIHint(practice)">
   <div>{# form-check #}
     <div class="radio-border">
       <input :id="slugify(choice.text, practice.rank)"
@@ -355,8 +369,7 @@
 {# Targets #}
 <td class="text-center"
     colspan="3"
-    v-if="isTargetByUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isTargetByUIHint(practice)">
   <div class="input-group">
     <label class="form-control input-group-prefix">
       {% trans %}Achieve by{% endtrans %}
@@ -399,8 +412,7 @@
 </td>
 <td class="text-center"
     colspan="6"
-    v-if="isTargetByUIHint(practice)"
-    v-show="!isActiveCommentsShown(practice)">
+    v-if="isTargetByUIHint(practice)">
   <div class="input-group">
     <label class="form-control input-group-prefix">
       {% trans %}Baseline{% endtrans %}
@@ -436,53 +448,77 @@
   </div>
 </td>
 {# end target #}
+</tr>
 
 {# optional comments #}
-<td colspan="6"
+<tr :class="isRequiredShown(practice) ? 'practice-required' : ''"
     v-if="isPractice(practice)"
     v-show="isActiveCommentsShown(practice)">
-  <div class="row" v-if="getPrimaryCandidate(practice).measured">
-    <div class="col-sm-3">
-      <div class="mt-2">
-        <img :src="getPicture(getPrimaryCandidate(practice).collected_by)">
-        <span>[[getPrintableName(getPrimaryCandidate(practice).collected_by)]]</span>
-      </div>
-      <small>[[humanizeTimeDelta(getPrimaryCandidate(practice).created_at)]]</small>
-    </div>
-    <div class="border-left col-sm-9">
-      <p class="mt-2">
-        recorded &quot;[[getPrimaryCandidate(practice).measured]]&quot;
-      </p>
-    </div>
-  </div>
-  <div class="row" v-if="getPrimaryAnswer(practice).measured && getPrimaryAnswer(practice).collected_by">
-    <div class="col-sm-3">
-      <div class="mt-2">
-        <img :src="getPicture(getPrimaryAnswer(practice).collected_by)">
-        <span>[[getPrintableName(getPrimaryAnswer(practice).collected_by)]]</span>
-      </div>
-      <small>[[humanizeTimeDelta(getPrimaryAnswer(practice).created_at)]]</small>
-    </div>
-    <div class="border-left col-sm-9">
-      <p class="mt-2">
-        current assessment &quot;[[getPrimaryAnswer(practice).measured]]&quot;
-      </p>
-    </div>
-  </div>
-  <form class="mt-2" @submit.prevent="updateAssessmentAnswer(practice, getCommentsAnswer(practice))">
+<td colspan="6">
+</td>
+<td colspan="6">
+  {# comments #}
+  <div class="mt-2">
+    <h5 class="my-0">Comments</h5>
     <p class="text-danger" v-if="isNotApplicable(practice)">
       You selected <strong>&quot;Not Applicable&quot;</strong>, please explain.
     </p>
-    <textarea class="form-control"
+    <explainer inline-template
+               v-bind:callback-arg="practice"
+               v-bind:collected-by-picture="getPicture(getCommentsAnswer(practice).collected_by)"
+               v-bind:collected-by-printable-name="getPrintableName(getCommentsAnswer(practice).collected_by)"
+               v-bind:collected-at-time="getCommentsAnswer(practice).created_at"
+               v-bind:init-text="getCommentsAnswer(practice).measured"
+               v-on:update-text="updateComment">
+      <div>
+        <div v-show="!editMode">
+          <button class="btn btn-link" style="padding:0;margin:0;" @click.prevent="toggleEditMode">update</button>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="mt-2">
+                <img :src="collectedByPicture">
+                <span>[[collectedByPrintableName]]</span>
+              </div>
+              <small>[[humanizeDate(collectedAtTime)]]</small><br />
+              <small>([[humanizeTimeDelta(collectedAtTime)]])</small>
+            </div>
+            <div class="border-left col-md-9">
+              <p class="mt-2" style="word-wrap:break-word;"
+                 v-html="textAsHtml"
+                 @click.prevent="openLink($event)">
+              </p>
+            </div>
+          </div>
+        </div>
+        <form @submit.prevent="saveText" v-show="editMode">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+          <textarea class="form-control"
               name="other-measures"
               maxlength="255" type="text" rows="10"
               placeholder="Some comments about implementation of the best practice at your organization. If you think the best practice does not apply to your organization, please explain why. Thank you."
-              v-model="getCommentsAnswer(practice).measured"
-              {% if sample.is_frozen %} disabled{% endif %}></textarea>
-    <div class="mt-2 text-right">
-      <button class="btn btn-primary" type="submit" value="submit">
-        Submit
-      </button>
-    </div>
-  </form>
+              v-model="text"
+              {% if sample.is_frozen %}
+              disabled
+              {% else %}
+              @keydown="fitToText"
+              @drop.prevent="dropFile" @dragenter.prevent @dragover.prevent
+              {% endif %}
+              ></textarea>
+          <div class="progress upload-progress" v-show="uploadInProgress">
+            <div class="progress-bar" role="progressbar"
+                 aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                 style="width: 60%;">
+              <span class="progress-bar-info"></span>
+            </div>
+          </div>
+          <div class="mt-2 text-right">
+            <button class="btn btn-primary" type="submit" value="submit">
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </explainer>
+  </div>
 </td>
+</tr>

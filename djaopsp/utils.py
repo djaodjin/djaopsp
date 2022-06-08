@@ -302,7 +302,7 @@ def _cut_tree(roots, cut=None):
     return roots
 
 
-def get_scores_tree(roots=None, prefix=None):
+def get_scores_tree(roots=None, prefix=""):
     """
     Returns a tree specialized to compute rollup scores.
 
@@ -310,8 +310,8 @@ def get_scores_tree(roots=None, prefix=None):
     before an rollup is done.
     """
     rollup_tree = None
-    rollups = _cut_tree(build_content_tree(roots, prefix=prefix),
-        cut=TransparentCut())
+    content_tree = build_content_tree(roots, prefix=prefix)
+    rollups = _cut_tree(content_tree, cut=TransparentCut())
 
     # Moves up all industry segments which are under a category
     # (ex: /facilities/janitorial-services).
@@ -332,12 +332,15 @@ def get_scores_tree(roots=None, prefix=None):
         del rollups[root_path]
     rollups.update(ups)
 
-    rollup_tree = (OrderedDict({}), rollups)
-    if 'title' not in rollup_tree[0]:
-        rollup_tree[0].update({
-            'slug': "totals",
-            'title': "Total Score",
-            'tag': [TransparentCut.TAG_SCORECARD]})
+    if len(rollups) <= 1:
+        return rollups
+
+    # We have more than one industry segment, so let's create a parent node.
+    rollup_tree = {"/": (OrderedDict({
+        'slug': "totals",
+        'title': "Total Score",
+        'extra': {'tags': [TransparentCut.TAG_SCORECARD]}
+    }), rollups)}
     return rollup_tree
 
 

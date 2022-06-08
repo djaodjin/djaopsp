@@ -1,15 +1,13 @@
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
 
-import copy, json, logging
-from collections import OrderedDict
+import copy, logging
 
 from dateutil.relativedelta import relativedelta
-from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now
 from django.db import transaction
 from django.db.models import Count, F
-from pages.models import PageElement
+from pages.models import PageElement, flatten_content_tree
 from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
 from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
@@ -21,8 +19,7 @@ from ..compat import reverse, six
 from ..mixins import AccountMixin, SegmentReportMixin
 from ..models import ScorecardCache
 from ..scores import freeze_scores, get_score_calculator, populate_rollup
-from ..utils import (get_account_model, get_leafs, get_practice_serializer,
-    get_scores_tree, get_segments_candidates)
+from ..utils import get_leafs, get_practice_serializer, get_scores_tree
 from .campaigns import CampaignContentMixin
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
 from .serializers import (AssessmentContentSerializer, AssessmentNodeSerializer,
@@ -697,35 +694,41 @@ class BenchmarkAPIView(SegmentReportMixin, GraphMixin, RollupMixin,
     @property
     def requested_accounts_pk(self):
         if not hasattr(self, '_requested_accounts_pk'):
-            self._requested_accounts_pk = self.account_model.objects.all().values_list('pk', flat=True)
+            self._requested_accounts_pk = \
+                self.account_model.objects.all().values_list('pk', flat=True)
         return self._requested_accounts_pk
 
+    @property
+    def scores_tree(self):
+        if not hasattr(self, '_scores_tree'):
+            segments = self.segments_available
+            self._scores_tree = get_scores_tree([PageElement.objects.get(
+                slug=seg['slug']) for seg in segments])
+        return self._scores_tree
 
-    def decorate_with_scores(self, rollup_tree, accounts=None, prefix=""):
-        #if accounts is None:
-        #    accounts = self.requested_accounts
-
-        for key, values in six.iteritems(rollup_tree[1]):
-            self.decorate_with_scores(values, accounts=accounts, prefix=key)
+    @property
+    def scores_of_interest(self):
+        """
+        Returns the segments/tiles we are interested in for this query.
+        """
+        if not hasattr(self, '_scores_of_interest'):
+            self._scores_of_interest = flatten_content_tree(self.scores_tree)
+        return self._scores_of_interest
 
 
     def list(self, request, *args, **kwargs): #pylint:disable=unused-argument
         self._start_time()
         charts = []
-        segments = self.segments_available
         queryset = self.get_queryset()
-        for segment in segments:
-            path = segment.get('path')
-            rollup_tree = self.rollup_scores(queryset, prefix=path)
-            self._report_queries("rollup_scores(prefix='%s') completed" % path)
-            self.create_distributions(
-                rollup_tree, view_account_id=self.account.pk)
-            self._report_queries(
-                "create_distributions(prefix='%s') completed" % path)
-            segment_charts, segment_complete = self.flatten_distributions(
-                rollup_tree, prefix=path)
-            self._report_queries(
-                "flatten_distributions(prefix='%s') completed" % path)
-            charts += segment_charts
+        for score in queryset:
+            self._insert_in_tree(self.scores_tree, score.segment_path, score)
+        self._report_queries("rollup_scores completed")
+        self.create_distributions(
+            self.scores_tree, view_account_id=self.account.pk)
+        self._report_queries("create_distributions completed")
+        segment_charts, segment_complete = self.flatten_distributions(
+            self.scores_tree)
+        self._report_queries("flatten_distributions completed")
+        charts += segment_charts
 
         return http.Response(charts)

@@ -1833,7 +1833,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"pagebreak\":true,\"layouts\":[\"sustainability\"]}",
+    "extra": "{\"layouts\":[\"sustainability\"],\"pagebreak\":true,\"searchable\":true,\"tags\":[\"scorecard\"],\"visibility\":[\"public\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 101
@@ -1930,7 +1930,7 @@
   "fields": {
     "title": "Construction",
     "slug": "construction",
-    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"pagebreak\":true,\"layouts\":[\"sustainability\"]}",
+    "extra": "{\"layouts\":[\"sustainability\"],\"pagebreak\":true,\"searchable\":true,\"tags\":[\"scorecard\"],\"visibility\":[\"public\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 110

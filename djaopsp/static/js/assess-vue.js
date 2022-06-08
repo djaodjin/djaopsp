@@ -141,7 +141,8 @@ var practicesListMixin = {
             }
             practice.answers.push({
                 unit: unit,
-                measured: (defaultValue ? defaultValue : null)
+                measured: (typeof defaultValue !== 'undefined' ?
+                    defaultValue : null)
             });
             return practice.answers[practice.answers.length - 1];
         },
@@ -161,14 +162,18 @@ var practicesListMixin = {
             return opportunityNumerator.toFixed(2);
         },
         getPrimaryAnswer: function(practice) {
-            if( (typeof practice.answers === 'undefined') ||
-                practice.answers.length < 1 ) {
+            if( !practice ) return {};
+            if( typeof practice.answers === 'undefined' ) {
+                practice['answers'] = [];
+            }
+            if( practice.answers.length < 1 ||
+                practice.answers[0].unit != practice.default_unit.slug ) {
                 practice['answers'] = [{
                     unit: practice.default_unit.slug,
                     measured: null,
                     baseline_at: null,
                     created_at: null
-                }];
+                }].concat(practice['answers']);
             }
             return practice.answers[0];
         },
@@ -314,6 +319,7 @@ Vue.component('campaign-questions-list', {
         return {
             url: this.$urls.api_content,
             api_improvement_sample: this.$urls.api_improvement_sample,
+            api_aggregate_metric_base: this.$urls.api_aggregate_metric_base,
             valueSummaryToggle: true,
             vsPeersToggle: 0,
             activeTile: null,
@@ -454,16 +460,28 @@ Vue.component('campaign-questions-list', {
             return practice.candidates[0];
         },
         getPicture: function(user) {
-            if( user.picture ) {
+            if( user && user.picture ) {
                 return user.picture;
             }
             return "";
         },
         getPrintableName: function(user) {
-            if( user.printable_name ) {
+            if( user && user.printable_name ) {
                 return user.printable_name;
             }
             return user;
+        },
+        importFromTrackingTool: function(practice) {
+            var vm = this;
+            var primaryAnswer = vm.getPrimaryAnswer(practice);
+            var startsAt = primaryAnswer.baseline_at;
+            var endsAt = primaryAnswer.created_at;
+            vm.reqGet(vm._safeUrl(vm.api_aggregate_metric_base, vm.prefix + practice.path) + '?created_at=' + startsAt + "&ends_at=" + endsAt,
+            function(resp) {
+                primaryAnswer.measured = resp.measured;
+                primaryAnswer.unit = resp.unit;
+                vm.$forceUpdate();
+            });
         },
         isEnumHeaderShown: function(icon) {
             var vm = this;
@@ -672,6 +690,7 @@ Vue.component('campaign-questions-list', {
                 });
             }
         },
+
         updateAssessmentAnswer: function(practice, newValue) {
             var vm = this;
             if( typeof newValue === 'undefined' ) {
@@ -679,11 +698,14 @@ Vue.component('campaign-questions-list', {
             }
             vm._callUpdateAnswer(practice.path, newValue,
             function success(resp) {
-                if( newValue === vm.NOT_APPLICABLE ) {
-                    vm.setActiveElement(practice);
-                    vm.isOpenComments = true;
-                } else {
-                    vm.isOpenComments = false;
+                if( vm.activeElement &&
+                    vm.activeElement.slug !== practice.slug) {
+                    if( newValue === vm.NOT_APPLICABLE ) {
+                        vm.setActiveElement(practice);
+                        vm.isOpenComments = true;
+                    } else {
+                        vm.isOpenComments = false;
+                    }
                 }
                 if( resp.question ) {
                     practice.opportunity = resp.question.opportunity;
@@ -707,6 +729,48 @@ Vue.component('campaign-questions-list', {
                     }
                 }
             });
+        },
+        updateBaseLineAt: function(practice) {
+            var vm = this;
+            vm.setActiveElement(practice);
+            vm.updateAssessmentAnswer(practice);
+            this.$nextTick(function() {
+                jQuery('#syncBaselineAt').modal("show");
+            });
+        },
+        updateAllBaseLineAt: function(practice) {
+            this.updateDataMetricsDate(practice, 'baseline_at');
+        },
+        updateComment: function(text, practice) {
+            var vm = this;
+            vm.getCommentsAnswer(practice).measured = text;
+            vm.updateAssessmentAnswer(practice, vm.getCommentsAnswer(practice))
+        },
+        updateEndsAt: function(practice) {
+            var vm = this;
+            vm.setActiveElement(practice);
+            vm.updateAssessmentAnswer(practice);
+            this.$nextTick(function() {
+                jQuery('#syncEndsAt').modal("show");
+            });
+        },
+        updateAllEndsAt: function(practice) {
+            this.updateDataMetricsDate(practice, 'created_at');
+        },
+        updateDataMetricsDate: function(practice, dateFieldName) {
+            var vm = this;
+            if( !dateFieldName ) {
+                dateFieldName = 'created_at';
+            }
+            var atTime = vm.getPrimaryAnswer(practice ? practice : vm.activeElement)[dateFieldName];
+            var practices = vm.getEntries();
+            for( var idx = 0; idx < practices.length; ++idx ) {
+                var row = practices[idx];
+                if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
+                    vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ) {
+                    vm.getPrimaryAnswer(row)[dateFieldName] = atTime;
+                }
+            }
         },
         updateMultipleAssessmentAnswers: function (heading, newValue) {
             var vm = this;
@@ -893,6 +957,7 @@ Vue.component('scorecard', {
             account_benchmark_url: this.$urls.api_account_benchmark,
             params: {o: ""},
             chartsLoaded: false,
+            chartsAvailable: false,
             chartsAPIResp: null,
             charts: {},
             activeTile: null,
@@ -962,6 +1027,7 @@ Vue.component('scorecard', {
                     vm.buildChart(resp[idx]);
                 }
             }
+            vm.chartsAvailable = true;
             vm.$forceUpdate();
         },
         buildSummaryChart: function() {
@@ -1101,8 +1167,74 @@ Vue.component('scorecard', {
         setActiveElement: function(practice) {
             this.activeTile = practice;
         },
+        scoreToRotation: function(score) {
+            return '' + ((score / 100) * 180 + 180) + 'deg';
+        },
     },
     computed: {
+        arcWidth: function() {
+            return 290;
+        },
+        arcHeight: function() {
+            return 156;
+        },
+        baseWidth: function() {
+            return this.arcWidth / 12;
+        },
+        radiusOuterAngle: function() {
+            return this.arcWidth / 2;
+        },
+        innerRadius: function() {
+            return this.radiusOuterAngle * 0.5;
+        },
+        topScoreTopPath: function() {
+            return 'm ' + this.baseWidth + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 1 ' +
+                (this.arcWidth -  this.baseWidth * 2) + ' 0';
+        },
+        avgScoreTopPath: function() {
+            return 'm ' + (this.baseWidth * 2) + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 1 ' +
+                (this.arcWidth -  this.baseWidth * 2 * 2) + ' 0';
+        },
+        lowScoreTopPath: function() {
+            return 'm ' + (this.baseWidth * 3) + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 1 ' +
+                (this.arcWidth -  this.baseWidth * 2 * 3) + ' 0';
+        },
+        topScoreBottomPath: function() {
+            return 'm 0 0 a '+
+                this.radiusOuterAngle + ' ' +
+                this.radiusOuterAngle + ' 0 0 1 ' +
+                this.arcWidth + ' 0 l ' +
+                (-this.baseWidth) + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 0 ' +
+                (- (this.arcWidth - this.baseWidth * 2)) + ' 0 z';
+        },
+        avgScoreBottomPath: function() {
+            return 'm ' + this.baseWidth + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 1 ' +
+                (this.arcWidth - this.baseWidth * 2) + ' 0 l ' +
+                (-this.baseWidth) + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 0 ' +
+                (-(this.arcWidth - this.baseWidth * 2 * 2)) + ' 0  z';
+        },
+        lowScoreBottomPath: function() {
+            return 'm ' + (this.baseWidth * 2) + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 1 ' +
+                (this.arcWidth - this.baseWidth * 2 * 2) + ' 0 l ' +
+                (-this.baseWidth) + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 0 ' +
+                (-(this.arcWidth - this.baseWidth * 2 * 3)) + ' 0 z';
+        },
     },
     watch: {
         itemsLoaded: function (val) {
@@ -1158,8 +1290,7 @@ Vue.component('scorecard-history', {
 });
 
 
-
-Vue.component('ghg-emissions-calculator', {
+Vue.component('data-tracker', {
     data: function() {
         return {
             activeTile: null,
@@ -1180,6 +1311,52 @@ Vue.component('ghg-emissions-calculator', {
             }
         },
     },
+});
+
+
+Vue.component('data-metric-tracker', {
+    mixins: [
+        itemListMixin,
+    ],
+    data: function() {
+        return {
+            url: null, //XXX this.$urls.api_track,
+            newItem: {
+                facility: "",
+                allocation: "",
+            },
+        }
+    },
+    methods: {
+        addItem: function() {
+            var vm = this;
+            vm.reqPost(vm.url, {extra: JSON.stringify(vm.newItem)},
+            function() {
+                vm.items.results.push({extra: vm.newItem});
+                vm.newItem = {
+                    facility: "",
+                    allocation: "",
+                }
+            });
+        },
+        asUnit: function(amount, destUnit, srcUnit) {
+            // Energy
+            if( destUnit == 'mmbtu' ) {
+                if( srcUnit == 'mmbtu' ) {
+                    return amount;
+                }
+            }
+            return NaN;
+        },
+        save: function() {
+        }
+    },
+    mounted: function() {
+        var vm = this;
+        if( vm.url ) {
+            vm.get();
+        }
+    }
 });
 
 

@@ -53,7 +53,7 @@ class ScoreCalculator(ScoreCalculatorBase):
         """
         Lists opportunity (intrisic and peers-based)
         """
-        #pylint:disable=too-many-arguments
+        #pylint:disable=too-many-arguments,too-many-locals
         # The call to `get_expected_opportunities` within `get_scored_answers`
         # will insure all questions for the assessment are picked up, either
         # they have an answer or not.
