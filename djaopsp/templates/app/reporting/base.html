@@ -31,5 +31,12 @@
 {% else %}
 <script type="text/javascript" src="{{'/static/cache/reporting.js'|asset}}"></script>
 {% endif %}
+<script type="text/javascript">
+Vue.prototype.$dateRange = {
+    start_at: "{% if start_at %}{{start_at}}{% endif %}",
+    ends_at: "{% if ends_at %}{{ends_at}}{% endif %}"
+};
+Vue.prototype.$accountExtra = {% if account_extra %}{{account_extra|safe}}{% else %}{}{% endif %};
+</script>
 {% block reporting_scripts %}{% endblock %}
 {% endblock %}

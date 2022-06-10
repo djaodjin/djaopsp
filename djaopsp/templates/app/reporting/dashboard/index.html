@@ -164,10 +164,5 @@ const UTILITY_COLOR = '#f0ad4e';
 const UTILITY_COLOR_LAST = '#facf6f';
 const EUISSCA_COLOR = '#3ca65b';
 const EUISSCA_COLOR_LAST = '#3fa95f';
-Vue.prototype.$dateRange = {
-    start_at: "{% if start_at %}{{start_at}}{% endif %}",
-    ends_at: "{% if ends_at %}{{ends_at}}{% endif %}"
-};
-Vue.prototype.$accountExtra = {% if account_extra %}{{account_extra|safe}}{% else %}{}{% endif %};
 </script>
 {% endblock %}

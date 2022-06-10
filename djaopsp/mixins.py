@@ -9,7 +9,7 @@ from django.db.models import Q, F
 from pages.mixins import TrailMixin
 from pages.models import PageElement
 from rest_framework.generics import get_object_or_404
-from survey.mixins import SampleMixin
+from survey.mixins import CampaignMixin as CampaignMixinBase, SampleMixin
 from survey.models import Answer, Campaign, Sample
 from survey.utils import get_account_model, get_question_model
 
@@ -77,6 +77,32 @@ class AccountMixin(deployutils_mixins.AccountMixin):
             self._campaign_candidates = (Campaign.objects.filter(filtered_in)
                 if filtered_in else Campaign.objects.all())
         return self._campaign_candidates
+
+
+class CampaignMixin(CampaignMixinBase):
+
+    @property
+    def db_path(self):
+        if not hasattr(self, '_db_path'):
+            self._db_path = self.kwargs.get(self.path_url_kwarg, '').replace(
+                self.URL_PATH_SEP, self.DB_PATH_SEP)
+            if not self._db_path.startswith(self.DB_PATH_SEP):
+                self._db_path = self.DB_PATH_SEP + self._db_path
+        return self._db_path
+
+    @property
+    def segments_available(self):
+        if not hasattr(self, '_segments_available'):
+            candidates = get_segments_candidates(self.campaign)
+            if self.db_path and self.db_path != self.DB_PATH_SEP:
+                self._segments_available = []
+                for seg in candidates:
+                    path = seg.get('path')
+                    if path and path.startswith(self.db_path):
+                        self._segments_available += [seg]
+            else:
+                self._segments_available = candidates
+        return self._segments_available
 
 
 class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):

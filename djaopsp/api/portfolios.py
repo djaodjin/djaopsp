@@ -603,57 +603,58 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
         if accounts is None:
             accounts = self.requested_accounts
 
-        for key, values in six.iteritems(rollup_tree[1]):
+        for key, values in six.iteritems(rollup_tree):
             self.decorate_with_scores(values, accounts=accounts, prefix=key)
-
-        score = {}
-        cohorts = []
-        for account_id, account_score in six.iteritems(
-                rollup_tree[0].get('accounts', {})):
-            account = accounts.get(account_id, None)
-            if account:
-                n_score = account_score.get('normalized_score', 0)
-                if n_score > 0:
-                    score[account.slug] = n_score
-                    parts = prefix.split('/')
-                    default = parts[1] if len(parts) > 1 else None
-                    cohorts += [{
-                        'slug': account.slug,
-                        'title': account.printable_name,
-                        'likely_metric': self.get_likely_metric(
-                            account.slug, default=default)}]
-        rollup_tree[0]['values'] = score
-        rollup_tree[0]['cohorts'] = cohorts
-
-    def decorate_with_cohorts(self, rollup_tree, accounts=None, prefix=""):
-        #pylint:disable=unused-argument
-        if accounts is None:
-            accounts = self.requested_accounts
-
-        score = {}
-        cohorts = []
-        for path, values in six.iteritems(rollup_tree[1]):
-            self.decorate_with_scores(values, accounts=accounts, prefix=path)
-            nb_accounts = 0
-            normalized_score = 0
+            score = {}
+            cohorts = []
             for account_id, account_score in six.iteritems(
                     values[0].get('accounts', {})):
                 account = accounts.get(account_id, None)
                 if account:
                     n_score = account_score.get('normalized_score', 0)
                     if n_score > 0:
-                        nb_accounts += 1
-                        normalized_score += n_score
-            if normalized_score > 0 and nb_accounts > 0:
-                score[path] = normalized_score / nb_accounts
-                cohorts += [{
-                    'slug': path,
-                    'title': values[0]['title'],
-                    'likely_metric': self.get_likely_metric(
-                        values[0]['slug'] + '-1')}]
-            values[0]['tag'] = [TransparentCut.TAG_SCORECARD]
-        rollup_tree[0]['values'] = score
-        rollup_tree[0]['cohorts'] = cohorts
+                        score[account.slug] = n_score
+                        parts = prefix.split('/')
+                        default = parts[1] if len(parts) > 1 else None
+                        cohorts += [{
+                            'slug': account.slug,
+                            'title': account.printable_name,
+                            'likely_metric': self.get_likely_metric(
+                                account.slug, default=default)}]
+            values[0]['values'] = score
+            values[0]['cohorts'] = cohorts
+
+    def decorate_with_cohorts(self, rollup_tree, accounts=None, prefix=""):
+        #pylint:disable=unused-argument
+        if accounts is None:
+            accounts = self.requested_accounts
+
+        for path, values in six.iteritems(rollup_tree):
+            self.decorate_with_scores(values[1], accounts=accounts, prefix=path)
+            score = {}
+            cohorts = []
+            for node_path, node in six.iteritems(values[1]):
+                nb_accounts = 0
+                normalized_score = 0
+                for account_id, account_score in six.iteritems(
+                        values[0].get('accounts', {})):
+                    account = accounts.get(account_id, None)
+                    if account:
+                        n_score = account_score.get('normalized_score', 0)
+                        if n_score > 0:
+                            nb_accounts += 1
+                            normalized_score += n_score
+                if normalized_score > 0 and nb_accounts > 0:
+                    score[node_path] = normalized_score / nb_accounts
+                    cohorts += [{
+                        'slug': node_path,
+                        'title': node[0]['title'],
+                        'likely_metric': self.get_likely_metric(
+                            node[0]['slug'] + '-1')}]
+                node[0]['tag'] = [TransparentCut.TAG_SCORECARD]
+            values[0]['values'] = score
+            values[0]['cohorts'] = cohorts
+
 
     def get(self, request, *args, **kwargs):
         #pylint:disable=unused-argument,too-many-locals,too-many-statements
@@ -681,10 +682,11 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
             self.decorate_with_cohorts(rollup_tree)
             self._report_queries("decorate_with_cohorts completed")
             natural_charts = OrderedDict()
-            for cohort in rollup_tree[0]['cohorts']:
-                natural_chart = (rollup_tree[1][cohort['slug']][0], {})
-                natural_charts.update({cohort['slug']: natural_chart})
-            rollup_tree = (rollup_tree[0], natural_charts)
+            for key, values in six.iteritems(rollup_tree):
+                for cohort in values[0]['cohorts']:
+                    natural_chart = (values[1][cohort['slug']][0], {})
+                    natural_charts.update({cohort['slug']: natural_chart})
+                rollup_tree.update({key: (values[0], natural_charts)})
             charts = self.get_charts(rollup_tree)
             self._report_queries("get_charts completed")
             for chart in charts:

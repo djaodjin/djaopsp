@@ -7,11 +7,11 @@ Views used to edit assessment campaigns
 
 from deployutils.helpers import update_context_urls
 from pages.views.elements import PageElementEditableView
-from survey.mixins import CampaignMixin
 
 from .downloads import PracticesSpreadsheetView
 from ..api.campaigns import CampaignContentMixin
 from ..compat import reverse
+from ..mixins import CampaignMixin
 
 
 class CampaignEditView(CampaignMixin, PageElementEditableView):

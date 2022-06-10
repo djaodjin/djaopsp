@@ -50,7 +50,7 @@ Vue.component('reporting-organizations', {
             var summaryData = vm.items.summary;
             var data = [];
             for( var idx = 0; idx < summaryData.length; ++idx ) {
-                labels.push(summaryData[idx][0]);
+                labels.push(summaryData[idx][0] + " (" + summaryData[idx][1] + ")");
                 data.push(summaryData[idx][1]);
             }
             datasets.push({
@@ -65,16 +65,23 @@ Vue.component('reporting-organizations', {
                 document.getElementById('summaryChart'),
                 {
                     type: 'doughnut',
+                    borderWidth: 0,
                     data: {
                         labels: labels,
                         datasets: datasets
                     },
                     options: {
-                        responsive: true,
+                        borderWidth: 1,
+                        responsive: false,
                         plugins: {
                             legend: {
                                 display: true,
                                 position: 'right',
+                                labels: {
+                                    boxWidth: 20,
+                                    padding: 2,
+                                    fontSize: 8,
+                                }
                             }
                         }
                     }

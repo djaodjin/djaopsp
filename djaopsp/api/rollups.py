@@ -4,11 +4,12 @@ import logging
 from collections import OrderedDict
 
 from pages.models import PageElement
-from survey.mixins import CampaignMixin, DateRangeContextMixin, TimersMixin
+from survey.mixins import DateRangeContextMixin, TimersMixin
 from survey.models import Sample
 from survey.utils import get_account_model, is_sqlite3
 
 from ..compat import six
+from ..mixins import CampaignMixin
 from ..models import ScorecardCache
 from ..utils import TransparentCut, get_scores_tree
 from .serializers import AccountSerializer
@@ -583,13 +584,13 @@ class GraphMixin(object):
 
     def get_charts(self, rollup_tree, excludes=None):
         charts = []
-        extra = rollup_tree[0].get('extra', {})
-        tags = extra.get('tags', []) if extra else []
-        if tags and TransparentCut.TAG_SCORECARD in tags:
-            if not excludes or rollup_tree[0].get('slug', "") in excludes:
-                charts += [rollup_tree[0]]
-        for _, icon_tuple in six.iteritems(rollup_tree[1]):
-            sub_charts = self.get_charts(icon_tuple, excludes=excludes)
+        for key, values in six.iteritems(rollup_tree):
+            extra = values[0].get('extra', {})
+            tags = extra.get('tags', []) if extra else []
+            if tags and TransparentCut.TAG_SCORECARD in tags:
+                if not excludes or values[0].get('slug', "") in excludes:
+                    charts += [values[0]]
+            sub_charts = self.get_charts(values[1], excludes=excludes)
             charts += sub_charts
         return charts
 

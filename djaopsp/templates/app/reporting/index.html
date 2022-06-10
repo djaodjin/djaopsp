@@ -27,11 +27,11 @@ Assessment phase: Assessment is in progress. Once a supplier clicks the &quot;Co
 Planning phase: A supplier has submitted a complete assessment and is now creating an improvement plan. Once a supplier clicks the &quot;Complete&quot; button to submit their definitive improvement plan for the year, their status moves from the planning phase to completed.
 
 Completed: A supplier has submitted both a complete assessment and improvement plan for the year.">
-          <div style="position:relative;height:200px;width:200px;margin:auto;" v-if="!itemsLoaded">
+          <div style="position:relative;height:200px;width:300px;margin:auto;" v-if="!itemsLoaded">
             <i class="fa fa-spinner fa-spin fa-2x"></i>
           </div>
-            <div style="position:relative;height:200px;width:200px;margin:auto;" v-show="itemsLoaded" v-cloak>
-            <canvas id="summaryChart"></canvas>
+          <div class="d-inline-block" style="position:relative;height:200px;margin:auto;" v-show="itemsLoaded" v-cloak>
+            <canvas id="summaryChart" height="200"></canvas>
           </div>
         </div>
       </div>

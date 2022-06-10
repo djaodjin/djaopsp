@@ -25,7 +25,6 @@ from pptx.shapes.autoshape import Shape
 from pptx.shapes.graphfrm import GraphicFrame
 from survey.helpers import get_extra
 from survey.models import Campaign, Matrix
-from survey.mixins import CampaignMixin
 from survey.utils import get_question_model
 from survey.views.matrix import MatrixDetailView
 
@@ -33,7 +32,7 @@ from ..compat import reverse, six
 from ..helpers import as_valid_sheet_title
 from ..api.portfolios import SupplierListMixin
 from ..api.serializers import AccountSerializer
-from ..mixins import AccountMixin
+from ..mixins import AccountMixin, CampaignMixin
 from ..utils import get_segments_candidates
 
 

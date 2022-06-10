@@ -35,6 +35,12 @@
   },
   "model" : "djaopsp.account", "pk" : 7
 },
+{ "fields" : {
+    "slug": "andy-shop",
+    "full_name": "Andy's shop"
+  },
+  "model" : "djaopsp.account", "pk" : 8
+},
 { "fields": {
     "date_joined": "2022-01-01T00:00:00+00:00",
     "email": "tspproject@localhost.localdomain",

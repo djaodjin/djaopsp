@@ -69,6 +69,7 @@ then share it with customers, investors and other interested 3rd parties.
           {% endif %}
         </div>
       </section> {# <!-- /#summary --> #}
+      {% if is_mandatory_segment_present %}
       <section id="details">
         <div class="text-center mt-4" v-show="!itemsLoaded">
           <i class="fa fa-refresh fa-spin fa-2x"></i>
@@ -385,7 +386,7 @@ companies responding on practices in the industry segment.
             <a id="xlsx-download-btn" class="mt-2 btn btn-secondary w-100"
                href="{{urls.scorecard_download}}"
                target="_blank"
-               v-show="itemsLoaded && items.results > 0">
+               v-show="itemsLoaded && items.results.length > 0">
               <i class="fa fa-file-text"></i>&nbsp;&nbsp;Download
             </a>
           </div>
@@ -428,6 +429,15 @@ companies responding on practices in the industry segment.
           {% endif %}
         </div>
       </section> {# /#next-actions #}
+      {% else %}{# not is_mandatory_segment_present #}
+      <section id="next-actions" class="text-center">
+        <hr />
+        <p>
+          Get started!
+        </p>
+        <a id="get-started-btn" href="{{urls.assess_base}}{{sample.campaign.slug}}/" class="btn btn-primary btn-lg">{% trans %}Start Assessment{% endtrans %} &raquo;</a>
+      </section>
+      {% endif %}{# /is_mandatory_segment_present #}
     </div>
     <!-- modals -->
     {% include "app/_reset_assessment.html" %}

@@ -10,7 +10,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.views.generic.base import (RedirectView, TemplateResponseMixin,
     TemplateView)
 from django.views.generic.edit import FormMixin
-from survey.models import Campaign, Sample
+from survey.models import Answer, Campaign, Sample
 from survey.utils import get_account_model
 
 from ..compat import reverse
@@ -120,9 +120,14 @@ class ScorecardIndexView(ReportMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ScorecardIndexView, self).get_context_data(**kwargs)
+        is_mandatory_segment_present = Answer.objects.filter(
+            sample=self.sample,
+            question__path__startswith="%s%s%s" % (self.DB_PATH_SEP,
+                self.sample.campaign.slug, self.DB_PATH_SEP)).exists()
         context.update({
-            'segments_candidates': self.segments_candidates,
             'highlights': get_highlights(self.sample),
+            'is_mandatory_segment_present': is_mandatory_segment_present,
+            'segments_candidates': self.segments_candidates,
             'summary_performance': get_summary_performance(self.sample)
         })
         if not self.segments_available:

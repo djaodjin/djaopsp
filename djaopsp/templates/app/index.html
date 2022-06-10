@@ -20,32 +20,6 @@
     <div class="col-md-6 mt-4">
       <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>{% trans %}Knowledge Sharing{% endtrans %}</h2>
-          <p>
-{% trans %}
-Under this section, you will find industry-specific practices,
-and member-only content.
-{% endtrans %}
-          </p>
-          <div class="text-center">
-            <a id="browse-practices" href="{{urls.pages_index}}">{% trans %}Browse{% endtrans %}</a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6 mt-4">
-      <div class="card bg-white text-dark h-100">
-        <div class="card-body">
-          <h2>{% trans %}Newsfeed{% endtrans %}</h2>
-          {% include "app/_newsfeed.html" %}
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6 mt-4">
-      <div class="card bg-white text-dark h-100">
-        <div class="card-body">
           <h2>{% trans %}Reporting{% endtrans %}</h2>
           <p>
 {% trans %}
@@ -73,7 +47,7 @@ Last completed on <span class="date">{{latest_completed_assessment.created_at|da
             </p>
             <div class="row">
               <div class="offset-4 col-4 text-center">
-                <a id="scorecard-create" class="btn btn-primary" href="{{urls.scorecard_redirect}}">Get started</a>
+                <a id="scorecard-create" class="btn btn-primary" href="{{urls.scorecard_redirect}}">{% if active_assessment_in_progress %}{% trans %}Continue{% endtrans %}{% else %}{% trans %}Get started{% endtrans %}{% endif %}</a>
               </div>
             </div>
           </div>
@@ -84,10 +58,36 @@ Last completed on <span class="date">{{latest_completed_assessment.created_at|da
     <div class="col-md-6 mt-4">
       <div class="card bg-white text-dark h-100">
         <div class="card-body">
+          <h2>{% trans %}Newsfeed{% endtrans %}</h2>
+          {% include "app/_newsfeed.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
+        <div class="card-body">
+          <h2>{% trans %}Knowledge Sharing{% endtrans %}</h2>
+          <p>
+{% trans %}
+Under this section, you will find industry-specific practices,
+and member-only content.
+{% endtrans %}
+          </p>
+          <div class="text-center">
+            <a id="browse-practices" href="{{urls.pages_index}}">{% trans %}Browse{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
+        <div class="card-body">
           <h2>{% trans %}Tracking{% endtrans %}</h2>
           <p>
 {% trans %}
-Add data metrics all year long so you can report quantifiable improvements.
+Record data metrics all year long so you can report quantifiable improvements.
 {% endtrans %}
           </p>
           <div class="offset-4 col-4 text-center">
@@ -101,10 +101,10 @@ Add data metrics all year long so you can report quantifiable improvements.
     <div class="col-md-6 mt-4">
       <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>{% trans %}Portfolios{% endtrans %}</h2>
+          <h2>{% trans %}Comparative Dashboards{% endtrans %}</h2>
           <p>
 {% trans %}
-Manage reporting organizations, invites, progress, and assessments.
+Manage invites send to reporting organizations and their reporting status.
 {% endtrans %}
           </p>
           <p>
@@ -123,7 +123,7 @@ This is a <a href="{{'/pricing/'|site_url}}">paid feature</a>.
     <div class="col-md-6 mt-4">
       <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>{% trans %}Editors{% endtrans %}</h2>
+          <h2>{% trans %}Questionnaires{% endtrans %}</h2>
           <p>
 {% trans %}
 Create practices and organize them in assessment campaigns.

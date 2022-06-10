@@ -307,19 +307,11 @@
 },
 {
   "fields": {
-    "slug": "kwh",
-    "title": "kWh",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 40
-},
-{
-  "fields": {
     "slug": "mwh",
     "title": "MWh",
     "system": 0
   },
-  "model": "survey.unit", "pk": 41
+  "model": "survey.unit", "pk": 40
 },
 {
   "fields": {
@@ -327,7 +319,7 @@
     "title": "MJ",
     "system": 0
   },
-  "model": "survey.unit", "pk": 42
+  "model": "survey.unit", "pk": 41
 },
 {
   "fields": {
@@ -335,7 +327,7 @@
     "title": "GJ",
     "system": 0
   },
-  "model": "survey.unit", "pk": 43
+  "model": "survey.unit", "pk": 42
 },
 
 { "fields" : {

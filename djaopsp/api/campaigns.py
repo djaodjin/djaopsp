@@ -13,14 +13,13 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from survey.mixins import CampaignMixin
 from survey.models import EnumeratedQuestions
 from survey.utils import get_question_model
 from survey.api.campaigns import CampaignAPIView as CampaignBaseAPIView
 
 from .serializers import ContentNodeSerializer, CreateContentElementSerializer
 from ..compat import six
-from ..mixins import AccountMixin
+from ..mixins import AccountMixin, CampaignMixin
 from ..utils import get_segments_candidates
 
 
@@ -29,29 +28,6 @@ class CampaignContentMixin(AccountMixin, CampaignMixin):
     Queryset to present practices in 2d matrix of segments and tiles.
     """
     strip_segment_prefix = False
-
-    @property
-    def db_path(self):
-        if not hasattr(self, '_db_path'):
-            self._db_path = self.kwargs.get(self.path_url_kwarg, '').replace(
-                self.URL_PATH_SEP, self.DB_PATH_SEP)
-            if not self._db_path.startswith(self.DB_PATH_SEP):
-                self._db_path = self.DB_PATH_SEP + self._db_path
-        return self._db_path
-
-    @property
-    def segments_available(self):
-        if not hasattr(self, '_segments_available'):
-            candidates = get_segments_candidates(self.campaign)
-            if self.db_path and self.db_path != self.DB_PATH_SEP:
-                self._segments_available = []
-                for seg in candidates:
-                    path = seg.get('path')
-                    if path and path.startswith(self.db_path):
-                        self._segments_available += [seg]
-            else:
-                self._segments_available = candidates
-        return self._segments_available
 
     def get_questions(self, prefix):
         return [{

@@ -6,10 +6,11 @@ import logging
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.views.generic import TemplateView
+from survey.models import Answer
 
 from ..compat import reverse
 from ..mixins import AccountMixin
-from ..utils import get_latest_completed_assessment
+from ..utils import get_latest_active_assessments, get_latest_completed_assessment
 
 LOGGER = logging.getLogger(__name__)
 
@@ -30,6 +31,8 @@ class AppView(AccountMixin, TemplateView):
         context.update({
             'latest_completed_assessment': get_latest_completed_assessment(
                 self.account),
+            'active_assessment_in_progress': Answer.objects.filter(
+                sample__in=get_latest_active_assessments(self.account)).exists()
         })
         update_context_urls(context, {
             'pages_index': reverse('pages_index'),
