@@ -163,3 +163,18 @@ class ScorecardHistoryView(AccountMixin, TemplateView):
                     args=(self.account,)),
         })
         return context
+
+
+class DataValuesView(AccountMixin, TemplateView):
+    """
+    Data points tracked so far
+    """
+    template_name = 'app/track/values.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DataValuesView, self).get_context_data(**kwargs)
+        update_context_urls(context, {
+            'api_data_values': reverse('survey_api_accounts_values',
+                    args=(self.account,)),
+        })
+        return context

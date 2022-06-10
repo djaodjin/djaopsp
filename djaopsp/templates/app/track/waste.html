@@ -13,20 +13,20 @@
               <div style="display:inline-block;float:left;flex:auto;">
                 <div class="header-tuple">
                   <ul class="nav nav-tabs squared-tabs">
-                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('waste-hazardous') ? ' active': '')"
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('hazardous-waste') ? ' active': '')"
                         v-cloak>
                       <a class="nav-link icon-inner orange"
-                         href="#tab-waste-hazardous"
-                         @click="toggleTile($event, 'waste-hazardous')">
+                         href="#tab-hazardous-waste"
+                         @click="toggleTile($event, 'hazardous-waste')">
                         <img class="icon-equipment" src="{{'/static/img/icons/production.png'|asset}}">
                         <div class="icon-caption">{% trans %}Hazardous Waste{% endtrans %}</div>
                       </a>
                     </li>
-                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('waste-non-hazardous') ? ' active': '')"
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('non-hazardous-waste') ? ' active': '')"
                         v-cloak>
                       <a class="nav-link icon-inner orange"
-                         href="#tab-waste-non-hazardous"
-                         @click="toggleTile($event, 'waste-non-hazardous')">
+                         href="#tab-non-hazardous-waste"
+                         @click="toggleTile($event, 'non-hazardous-waste')">
                         <img class="icon-equipment" src="{{'/static/img/icons/truck.png'|asset}}">
                         <div class="icon-caption">{% trans %}Non-Hazardous Waste{% endtrans %}</div>
                       </a>
@@ -51,24 +51,40 @@
         {# expanded tabs go here #}
         <div :class="'tab-content collapse' + (activeTile ? ' show' : '')">
           <div role="tabpanel"
-               :class="'tab-pane' + (isActiveTile('waste-hazardous') ? ' active': '')"
-               id="tab-waste-hazardous"
+               :class="'tab-pane' + (isActiveTile('hazardous-waste') ? ' active': '')"
+               id="tab-hazardous-waste"
                v-cloak>
-            <data-metric-tracker inline-template>
+            <waste-tracker inline-template :init-url="'{{urls.api_track_hazardous_waste}}'">
               <div>
                 <div>
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="6">
+                        <th colspan="2">
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
                         </th>
                       </tr>
                       <tr>
                         <th>Facility</th>
                         <th>Waste type</th>
                         <th>Allocation</th>
-                        <th>From</th>
-                        <th>To</th>
                         <th>Waste amount</th>
                       </tr>
                     </thead>
@@ -78,17 +94,9 @@
                         <td>[[humanizeWasteType(item.extra.waste_type)]]</td>
                         <td>[[item.extra.allocation]]</td>
                         <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.created_at">
-                        </td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.ends_at">
-                        </td>
-                        <td>
                           <div class="input-group">
-                            <input class="form-control" type="integer"
-                                   v-model="item.amount">
+                            <input class="form-control" type="number"
+                                   v-model="item.measured">
                             <div class="input-group-append">
                               <select class="form-control"
                                    v-model="item.unit">
@@ -110,6 +118,7 @@
                         <td>
                           <select class="form-control" name="waste-type"
                                   v-model="newItem.waste_type">
+                            <option value="">Select ...</option>
                             <option value="unspecified">Unspecified</option>
                           </select>
                         </td>
@@ -121,41 +130,54 @@
                           <button class="btn btn-secondary"
                               @click.prevent="addItem">Add row</button>
                         </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
                       </tr>
                     </tbody>
                   </table>
-                  <div class="text-center">
+                  <div class="text-center my-4">
                     <button class="btn btn-primary"
                             @click.prevent="save">Record</button>
                   </div>
                 </div>
               </div>
-            </data-metric-tracker>
-          </div>{# /#tab-waste-hazardous #}
+            </waste-tracker>
+          </div>{# /#tab-hazardous-waste #}
 
           <div role="tabpanel"
-               :class="'tab-pane' + (isActiveTile('waste-non-hazardous') ? ' active': '')"
-               id="tab-waste-non-hazardous"
+               :class="'tab-pane' + (isActiveTile('non-hazardous-waste') ? ' active': '')"
+               id="tab-non-hazardous-waste"
                v-cloak>
-            <data-metric-tracker inline-template>
+            <waste-tracker inline-template
+                :init-url="'{{urls.api_track_non_hazardous_waste}}'">
               <div>
                 <div>
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="6">
+                        <th colspan="2">
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
                         </th>
                       </tr>
                       <tr>
                         <th>Facility</th>
                         <th>Waste type</th>
                         <th>Allocation</th>
-                        <th>From</th>
-                        <th>To</th>
                         <th>Waste amount</th>
                       </tr>
                     </thead>
@@ -165,17 +187,9 @@
                         <td>[[humanizeWasteType(item.extra.waste_type)]]</td>
                         <td>[[item.extra.allocation]]</td>
                         <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.created_at">
-                        </td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.ends_at">
-                        </td>
-                        <td>
                           <div class="input-group">
-                            <input class="form-control" type="integer"
-                                   v-model="item.amount">
+                            <input class="form-control" type="number"
+                                   v-model="item.measured">
                             <div class="input-group-append">
                               <select class="form-control"
                                    v-model="item.unit">
@@ -221,29 +235,46 @@
                   </div>
                 </div>
               </div>
-            </data-metric-tracker>
-          </div>{# /#tab-waste-non-hazardous #}
+            </waste-tracker>
+          </div>{# /#tab-non-hazardous-waste #}
 
 
           <div role="tabpanel"
                :class="'tab-pane' + (isActiveTile('waste-recycled') ? ' active': '')"
                id="tab-waste-recycled"
                v-cloak>
-            <data-metric-tracker inline-template>
+            <waste-tracker inline-template
+                :init-url="'{{urls.api_track_waste_recycled}}'">
               <div>
                 <div>
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="6">
+                        <th colspan="2">
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
                         </th>
                       </tr>
                       <tr>
                         <th>Facility</th>
                         <th>Waste type</th>
                         <th>Allocation</th>
-                        <th>From</th>
-                        <th>To</th>
                         <th>Waste amount</th>
                       </tr>
                     </thead>
@@ -253,17 +284,9 @@
                         <td>[[humanizeWasteType(item.extra.waste_type)]]</td>
                         <td>[[item.extra.allocation]]</td>
                         <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.created_at">
-                        </td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.ends_at">
-                        </td>
-                        <td>
                           <div class="input-group">
-                            <input class="form-control" type="integer"
-                                   v-model="item.amount">
+                            <input class="form-control" type="number"
+                                   v-model="item.measured">
                             <div class="input-group-append">
                               <select class="form-control"
                                    v-model="item.unit">
@@ -309,7 +332,7 @@
                   </div>
                 </div>
               </div>
-            </data-metric-tracker>
+            </waste-tracker>
           </div>{# /#tab-waste-recycled #}
         </div>
         {% endblock %}
@@ -321,4 +344,14 @@
     </div>
   </data-tracker> {# .panel-icons #}
 </div>
+{% endblock %}
+
+{% block track_scripts %}
+<script type="text/javascript">
+Vue.prototype.$waste_type = {
+    "unspecified": {
+        "title": "Unspecified"
+    },
+};
+</script>
 {% endblock %}

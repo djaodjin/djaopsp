@@ -30,7 +30,7 @@ urlpatterns = [
         HistoricalAssessmentsAPIView.as_view(),
         name='api_historical_assessments'),
     path('', include('survey.urls.api.sample')),
-#XXX    path('', include('survey.urls.api.metrics')),
+    path('', include('survey.urls.api.metrics')),
     path('', include('survey.urls.api.filters')),
     path('', include('pages.urls.api.assets')),
 ]

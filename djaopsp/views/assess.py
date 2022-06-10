@@ -7,9 +7,13 @@ import json, logging
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import datetime_or_now, update_context_urls
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from django.template.defaultfilters import slugify
 from survey.models import EditableFilter
+from survey.utils import get_question_model
+from survey.helpers import get_extra
 
 from .downloads import PracticesSpreadsheetView
 from ..api.samples import AssessmentContentMixin
@@ -71,7 +75,7 @@ class AssessPracticesView(SegmentReportMixin, TemplateView):
                 args=(self.account,)),
             'api_asset_upload_complete': reverse('pages_api_upload_asset',
                 args=(self.account,)),
-# XXX       'api_aggregate_metric_base': reverse('survey_api_aggregate_metric_base', args=(self.account,)),
+            'api_aggregate_metric_base': reverse('survey_api_aggregate_metric_base', args=(self.account,)),
         })
         return context
 
@@ -101,6 +105,7 @@ class TrackMetricsView(AccountMixin, TemplateView):
     """
     Profile metrics page
     """
+    DB_PATH_SEP = '/'
     template_name = 'app/track/index.html'
 
     def get_template_names(self):
@@ -111,23 +116,72 @@ class TrackMetricsView(AccountMixin, TemplateView):
         candidates += super(TrackMetricsView, self).get_template_names()
         return candidates
 
-    def get_context_data(self, **kwargs):
-        context = super(TrackMetricsView, self).get_context_data(**kwargs)
-        title = 'GHG Emissions Scope 1'
-        tag = slugify(title)
+    def get_editable_filter_context(self, context, path, title=None):
+        question = get_object_or_404(get_question_model(), path=path)
+        filter_args = Q(extra__contains=path)
+        tag = None
+        if not title:
+            title = question.title
+        else:
+            tag = slugify(title)
+            filter_args &= Q(extra__contains=tag)
         try:
-            editable_filter = EditableFilter.objects.get(
-                account=self.account, extra__contains=tag)
+            editable_filter = None
+            for row in EditableFilter.objects.filter(
+                filter_args, account=self.account):
+                # Sometimes titles are prefixes/suffixes of each other.
+                # ex: 'Hazardous Waste' and 'Non-Hazardous Waste'
+                extra_path = get_extra(row, 'path', "")
+                if path == extra_path:
+                    if not tag:
+                        editable_filter = row
+                        break
+                    extra_tags = get_extra(row, 'tags', [])
+                    if tag in extra_tags:
+                        editable_filter = row
+                        break
+            if not editable_filter:
+                raise EditableFilter.DoesNotExist()
         except EditableFilter.DoesNotExist:
+            extra = {'path': path}
+            if tag:
+                extra.update({'tags': [tag]})
             editable_filter = EditableFilter.objects.create(
                 account=self.account,
                 title=title,
-                extra=json.dumps({'tags': [tag]}))
+                extra=json.dumps(extra))
+        if tag:
+            slug_part = tag
+        else:
+            slug_part = path.split(self.DB_PATH_SEP)[-1]
+        api_endpoint = "api_track_%s" % slug_part.replace('-', '_')
         update_context_urls(context, {
-            'api_track_ghg_emissions_scope1': reverse(
+            api_endpoint: reverse(
                 'survey_api_accounts_filter',
                 args=(self.account, editable_filter.slug,))
         })
+        return context
+
+    def get_context_data(self, **kwargs):
+        context = super(TrackMetricsView, self).get_context_data(**kwargs)
+        metric = self.kwargs.get('metric')
+        if metric == 'energy-ghg-emissions':
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1',
+                    title='Scope1 Stationary Combustion')
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1',
+                    title='Scope1 Mobile Combustion')
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1',
+                    title='Scope1 Refrigerants')
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope2')
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope3')
+        elif metric == 'waste':
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/waste-measured/hazardous-waste')
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/waste-measured/non-hazardous-waste')
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/waste-measured/waste-recycled')
+        elif metric == 'water':
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/water-measured/water-withdrawn')
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/water-measured/water-discharged')
+            self.get_editable_filter_context(context, '/sustainability/data-metrics/water-measured/water-recycled')
         return context
 
 

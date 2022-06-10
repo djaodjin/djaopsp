@@ -1314,13 +1314,18 @@ Vue.component('data-tracker', {
 });
 
 
-Vue.component('data-metric-tracker', {
+var dataMetricTracker = Vue.component('data-metric-tracker', {
     mixins: [
         itemListMixin,
     ],
+    props: [
+        'initUrl'
+    ],
     data: function() {
         return {
-            url: null, //XXX this.$urls.api_track,
+            url: this.initUrl ? this.initUrl : null, //XXX this.$urls.api_track,
+            starts_at: null,
+            ends_at: null,
             newItem: {
                 facility: "",
                 allocation: "",
@@ -1348,7 +1353,26 @@ Vue.component('data-metric-tracker', {
             }
             return NaN;
         },
+        _save: function() {
+            var vm = this;
+            if( !vm.url ) {
+                console.warning("url is undefined. data cannot be saved.");
+                return;
+            }
+            vm.reqPost(vm._safeUrl(vm.url, 'values'), {
+                baseline_at: vm.starts_at,
+                created_at: vm.ends_at,
+                items: vm.items.results
+            },
+            function(resp) {
+                for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                    vm.items.results[idx].measured = null;
+                }
+                vm.showMessages(["datapoints have been recorded."], 'success');
+            });
+        },
         save: function() {
+            this._save();
         }
     },
     mounted: function() {
@@ -1360,13 +1384,72 @@ Vue.component('data-metric-tracker', {
 });
 
 
-Vue.component('scope1-stationary-combustion', {
-    mixins: [
-        itemListMixin,
-    ],
+Vue.component('waste-tracker', dataMetricTracker.extend({
     data: function() {
         return {
-            url: this.$urls.api_track_ghg_emissions_scope1,
+            newItem: {
+                facility: "",
+                allocation: "",
+                waste_type: "",
+            },
+        }
+    },
+    methods: {
+        humanizeWasteType: function(wasteType) {
+            var result = this.$waste_type[wasteType]
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
+            return wasteType;
+        },
+    }
+}));
+
+
+Vue.component('water-tracker', dataMetricTracker.extend({
+    data: function() {
+        return {
+            newItem: {
+                facility: "",
+                allocation: "",
+                water_type: "",
+            },
+        }
+    },
+    methods: {
+        humanizeWaterType: function(waterType) {
+            var result = this.$waste_type[waterType]
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
+            return waterType;
+        },
+    }
+}));
+
+
+var ghgEmissionsEstimator = Vue.component('ghg-emissions-estimator', dataMetricTracker.extend({
+    data: function() {
+        return {
+            emissionsEstimate: 0,
+        }
+    },
+    computed: {
+        showEmissionsEstimate: function() {
+            return parseInt(this.emissionsEstimate) > 0;
+        },
+    },
+    mounted: function() {
+        var vm = this;
+        vm.get();
+    }
+}));
+
+
+
+Vue.component('scope1-stationary-combustion', ghgEmissionsEstimator.extend({
+    data: function() {
+        return {
             emissionsEstimate: 0,
             newItem: {
                 facility: "",
@@ -1465,28 +1548,16 @@ Vue.component('scope1-stationary-combustion', {
                 * vm.asUnit(row.amount, ef_factors.unit, row.unit) / 1000;
         },
         save: function() {
+            // XXX Save energy inputs and GHG Emissions estimates;
+            this._save();
         }
     },
-    computed: {
-        showEmissionsEstimate: function() {
-            return parseInt(this.emissionsEstimate) > 0;
-        },
-    },
-    mounted: function() {
-        var vm = this;
-        vm.get();
-    }
-});
+}));
 
 
-Vue.component('scope1-mobile-combustion', {
-    mixins: [
-        itemListMixin,
-    ],
+Vue.component('scope1-mobile-combustion', ghgEmissionsEstimator.extend({
     data: function() {
         return {
-            url: null,
-            emissionsEstimate: 0,
             newItem: {
                 fuel_type: "",
                 activity_type: ""
@@ -1494,75 +1565,104 @@ Vue.component('scope1-mobile-combustion', {
         }
     },
     methods: {
-    },
-    computed: {
-        showEmissionsEstimate: function() {
-            return parseInt(this.emissionsEstimate) > 0;
+        humanizeActivityType: function(activityType) {
+            return activityType; // XXX
+        },
+        humanizeFuelSource: function(fuelSource) {
+            return fuelSource; // XXX
+        },
+        humanizeVehicleType: function(vehicleType) {
+            return vehicleType; // XXX
         },
     },
-});
+}));
 
 
-Vue.component('scope1-refrigerants', {
-    mixins: [
-        itemListMixin,
-    ],
+Vue.component('scope1-refrigerants', ghgEmissionsEstimator.extend({
     data: function() {
         return {
-            url: null,
-            emissionsEstimate: 0,
             newItem: {}
         }
     },
     methods: {
-    },
-    computed: {
-        showEmissionsEstimate: function() {
-            return parseInt(this.emissionsEstimate) > 0;
+        humanizeRefrigerantUsed: function(refrigerantUsed) {
+            return refrigerantUsed; // XXX
         },
     },
-});
+}));
 
 
-Vue.component('scope2-purchased-electricity', {
-    mixins: [
-        itemListMixin,
-    ],
+Vue.component('scope2-purchased-electricity', ghgEmissionsEstimator.extend({
     data: function() {
         return {
-            url: null,
-            emissionsEstimate: 0,
             newItem: {
+                calculationApproach: "",
                 type_of_emission_factor: ""
             },
         }
     },
     methods: {
-    },
-    computed: {
-        showEmissionsEstimate: function() {
-            return parseInt(this.emissionsEstimate) > 0;
+        humanizeCalculationApproach: function(calculationApproach) {
+            return calculationApproach; // XXX
+        },
+        humanizeTypeOfEmissionFactor: function(typeOfEmissionFactor) {
+            return typeOfEmissionFactor; // XXX
         },
     },
-});
+}));
 
 
-Vue.component('scope3-transportation', {
+Vue.component('scope3-transportation', ghgEmissionsEstimator.extend({
+    data: function() {
+        return {
+            newItem: {}
+        }
+    },
+    methods: {
+        humanizeCategory: function(category) {
+            return category;
+        },
+        humanizeModeOfTransport: function(modeOfTransport) {
+            return modeOfTransport;
+        },
+        humanizeActivityType: function(activityType) {
+            return activityType;
+        },
+        humanizeVehicleType: function(vehicleType) {
+            return vehicleType;
+        },
+    },
+}));
+
+
+Vue.component('data-values', {
     mixins: [
         itemListMixin,
     ],
     data: function() {
         return {
-            url: null,
-            emissionsEstimate: 0,
-            newItem: {}
+            url: this.$urls.api_data_values,
         }
     },
     methods: {
-    },
-    computed: {
-        showEmissionsEstimate: function() {
-            return parseInt(this.emissionsEstimate) > 0;
+        humanizeMeasured: function(item) {
+            return item.measured + " " + item.unit;
+        },
+        humanizeDescription: function(item) {
+            var result = "";
+            var sep = "";
+            var extra = item.account.extra;
+            for( var fieldName in extra ) {
+                if( extra.hasOwnProperty(fieldName) && extra[fieldName] ) {
+                    result += sep + extra[fieldName];
+                    sep = ", ";
+                }
+            }
+            return result;
         },
     },
+    mounted: function() {
+        var vm = this;
+        vm.get();
+    }
 });

@@ -54,21 +54,37 @@
                :class="'tab-pane' + (isActiveTile('water-withdrawn') ? ' active': '')"
                id="tab-water-withdrawn"
                v-cloak>
-            <data-metric-tracker inline-template>
+            <water-tracker inline-template :init-url="'{{urls.api_track_water_withdrawn}}'">
               <div>
                 <div>
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="6">
+                        <th colspan="2">
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
                         </th>
                       </tr>
                       <tr>
                         <th>Facility</th>
                         <th>Water type</th>
                         <th>Allocation</th>
-                        <th>From</th>
-                        <th>To</th>
                         <th>Water amount</th>
                       </tr>
                     </thead>
@@ -77,14 +93,6 @@
                         <td>[[item.extra.facility]]</td>
                         <td>[[humanizeWaterType(item.extra.water_type)]]</td>
                         <td>[[item.extra.allocation]]</td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.created_at">
-                        </td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.ends_at">
-                        </td>
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="integer"
@@ -134,28 +142,44 @@
                   </div>
                 </div>
               </div>
-            </data-metric-tracker>
+            </water-tracker>
           </div>{# /#tab-water-withdrawn #}
 
           <div role="tabpanel"
                :class="'tab-pane' + (isActiveTile('water-discharged') ? ' active': '')"
                id="tab-water-discharged"
                v-cloak>
-            <data-metric-tracker inline-template>
+            <water-tracker inline-template :init-url="'{{urls.api_track_water_discharged}}'">
               <div>
                 <div>
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="6">
+                        <th colspan="2">
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
                         </th>
                       </tr>
                       <tr>
                         <th>Facility</th>
                         <th>Water type</th>
                         <th>Allocation</th>
-                        <th>From</th>
-                        <th>To</th>
                         <th>Water amount</th>
                       </tr>
                     </thead>
@@ -164,14 +188,6 @@
                         <td>[[item.extra.facility]]</td>
                         <td>[[humanizeWaterType(item.extra.water_type)]]</td>
                         <td>[[item.extra.allocation]]</td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.created_at">
-                        </td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.ends_at">
-                        </td>
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="integer"
@@ -221,7 +237,7 @@
                   </div>
                 </div>
               </div>
-            </data-metric-tracker>
+            </water-tracker>
           </div>{# /#tab-water-discharged #}
 
 
@@ -229,21 +245,37 @@
                :class="'tab-pane' + (isActiveTile('water-recycled') ? ' active': '')"
                id="tab-water-recycled"
                v-cloak>
-            <data-metric-tracker inline-template>
+            <water-tracker inline-template :init-url="'{{urls.api_track_water_recycled}}'">
               <div>
                 <div>
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="6">
+                        <th colspan="2">
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
                         </th>
                       </tr>
                       <tr>
                         <th>Facility</th>
                         <th>Water type</th>
                         <th>Allocation</th>
-                        <th>From</th>
-                        <th>To</th>
                         <th>Water amount</th>
                       </tr>
                     </thead>
@@ -252,14 +284,6 @@
                         <td>[[item.extra.facility]]</td>
                         <td>[[humanizeWaterType(item.extra.water_type)]]</td>
                         <td>[[item.extra.allocation]]</td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.created_at">
-                        </td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.ends_at">
-                        </td>
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="integer"
@@ -309,7 +333,7 @@
                   </div>
                 </div>
               </div>
-            </data-metric-tracker>
+            </water-tracker>
           </div>{# /#tab-water-recycled #}
         </div>
         {% endblock %}

@@ -72,7 +72,7 @@
                :class="'tab-pane' + (isActiveTile('stationary-combustion') ? ' active': '')"
                id="tab-stationary-combustion"
                v-cloak>
-            <scope1-stationary-combustion inline-template>
+            <scope1-stationary-combustion inline-template :init-url="'{{urls.api_track_scope1_stationary_combustion}}'">
               <div>
                 <p>
 Includes fuel consumption at a facility to produce electricity, steam, heat, or power. The combustion of fossil fuels by natural gas boilers, diesel generators and other equipment emits carbon dioxide, methane, and nitrous oxide into the atmosphere.
@@ -81,36 +81,44 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="6">
+                        <th colspan="2">
                           {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
                         </th>
                       </tr>
                       <tr>
                         <th>Facility</th>
-                        <th>Fuel type</th>
                         <th>Allocation</th>
-                        <th>From</th>
-                        <th>To</th>
+                        <th>Fuel type</th>
                         <th>Fuel amount</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
                         <td>[[item.extra.facility]]</td>
-                        <td>[[humanizeFuelType(item.extra.fuel_type)]]</td>
                         <td>[[item.extra.allocation]]</td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.created_at">
-                        </td>
-                        <td>
-                          <input class="form-control" type="date"
-                                 v-model="item.ends_at">
-                        </td>
+                        <td>[[humanizeFuelType(item.extra.fuel_type)]]</td>
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="integer"
-                                   v-model="item.amount">
+                                   v-model="item.measured">
                             <div class="input-group-append">
                               <select class="form-control"
                                    v-model="item.unit">
@@ -129,6 +137,9 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                       <tr>
                         <td>
                           <input class="form-control" type="text" v-model="newItem.facility" />
+                        </td>
+                        <td>
+                          <input class="form-control" type="text" v-model="newItem.allocation" />
                         </td>
                         <td>
                           <select class="form-control" name="fuel-type"
@@ -195,21 +206,14 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                           </select>
                         </td>
                         <td>
-                          <input class="form-control" type="text" v-model="newItem.allocation" />
-                        </td>
-                        <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
                           <button class="btn btn-secondary"
                               @click.prevent="addItem">Add row</button>
                         </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
                       </tr>
                     </tbody>
                   </table>
-                  <div class="text-center">
+                  <div class="text-center my-4">
                     <button class="btn btn-primary"
                             @click.prevent="save">Record</button>
                   </div>
@@ -227,8 +231,8 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                       </tr>
                       <tr>
                         <th>Facility</th>
-                        <th>Fuel type</th>
                         <th>Allocation</th>
+                        <th>Fuel type</th>
                         <th>
                           CO<sub>2</sub> (tonnes)
                         </th>
@@ -249,8 +253,8 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                     <tbody>
                       <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
                         <td>[[item.extra.facility]]</td>
-                        <td>[[humanizeFuelType(item.extra.fuel_type)]]</td>
                         <td>[[item.extra.allocation]]</td>
+                        <td>[[humanizeFuelType(item.extra.fuel_type)]]</td>
                         <td>[[estimateCO2(item)]]</td>
                         <td>[[estimateCH4(item)]]</td>
                         <td>[[estimateN2O(item)]]</td>
@@ -259,6 +263,10 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                       </tr>
                     </tbody>
                   </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
                 </div>{# /showEmissionsEstimate #}
               </div>
             </scope1-stationary-combustion>
@@ -268,7 +276,7 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                :class="'tab-pane' + (isActiveTile('mobile-combustion') ? ' active': '')"
                id="tab-mobile-combustion"
                v-cloak>
-            <scope1-mobile-combustion inline-template>
+            <scope1-mobile-combustion inline-template :init-url="'{{urls.api_track_scope1_mobile_combustion}}'">
               <div>
                 <p>
 Includes fuel consumption by vehicles that are owned or leased by the company. Combustion of fossil fuels in vehicles (including cars, trucks, planes, and boats) emits carbon dioxide, methane, and nitrous oxide into the atmosphere.
@@ -277,31 +285,43 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th>
+                        <th colspan="4">
                           {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
                         </th>
                       </tr>
                       <tr>
                         <th>Facility</th>
+                        <th>Allocation</th>
                         <th>Activity type</th>
                         <th>Fuel source</th>
                         <th>Vehicle type</th>
-                        <th>From</th>
-                        <th>To</th>
                         <th>Activity amount</th>
                       </tr>
                       <tbody>
-                        <tr>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td>
-                            <input class="form-control" type="date">
-                          </td>
-                          <td>
-                            <input class="form-control" type="date">
-                          </td>
+                        <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                          <td>[[item.extra.facility]]</td>
+                          <td>[[item.extra.allocation]]</td>
+                          <td>[[humanizeActivityType(item.extra.activity_type)]]</td>
+                          <td>[[humanizeFuelSource(item.extra.fuel_source)]]</td>
+                          <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
                           <td>
                             <div class="input-group">
                             <input class="form-control" type="integer">
@@ -327,6 +347,10 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                         </tr>
                         <tr>
                           <td>
+                            <input class="form-control" type="text" v-model="newItem.facility" />
+                          </td>
+                          <td>
+                            <input class="form-control" type="text" v-model="newItem.allocation" />
                           </td>
                           <td>
                             <select class="form-control" name="activity-type">
@@ -395,18 +419,24 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                               <option value="">Aviation Gasoline Aircraft</option>
                             </select>
                           </td>
-                          <td colspan="3">
-                            <button class="btn btn-secondary">Add reporting axis</button>
+                          <td>
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                            <button class="btn btn-secondary"
+                                    @click.prevent="addItem">Add row</button>
                           </td>
                         </tr>
                       </tbody>
                   </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
                 </div>{# /!showEmissionsEstimate #}
                 <div v-show="showEmissionsEstimate">
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="4">
+                        <th colspan="5">
                           {% include "app/track/_ghg-emissions-toggle.html" %}
                         </th>
                         <th colspan="5">
@@ -415,9 +445,10 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                       </tr>
                       <tr>
                         <th>Facility</th>
-                        <th>Fuel type</th>
                         <th>Allocation</th>
-                        <th>Source of Emission Factor</th>
+                        <th>Activity type</th>
+                        <th>Fuel source</th>
+                        <th>Vehicle type</th>
                         <th>
                           CO<sub>2</sub> (tonnes)
                         </th>
@@ -433,11 +464,12 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                        <td>[[item.extra.facility]]</td>
+                        <td>[[item.extra.allocation]]</td>
+                        <td>[[humanizeActivityType(item.extra.activity_type)]]</td>
+                        <td>[[humanizeFuelSource(item.extra.fuel_source)]]</td>
+                        <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -445,6 +477,10 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                       </tr>
                     </tbody>
                   </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
                 </div>{# /showEmissionsEstimate #}
               </div>
             </scope1-mobile-combustion>
@@ -454,7 +490,7 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                :class="'tab-pane' + (isActiveTile('refrigerants') ? ' active': '')"
                id="tab-refrigerants"
                v-cloak>
-            <scope1-refrigerants inline-template>
+            <scope1-refrigerants inline-template :init-url="'{{urls.api_track_scope1_refrigerants}}'">
               <div>
                 <p>
 Includes leaks in your company's HVAC system, chillers, refrigerators, etc., through which refrigerant gas escapes. Most refrigerant gases contribute to global warming when leaked into the atmosphere. The quantity of leaked gas is assumed to equal the amount of gas replaced in these systems by your HVAC or chiller maintenance company.  Records or invoices from your maintenance company show the amount and type of refrigerant gas (e.g., freon, R-22, HFC-134a , CFC-12) replaced in your building's systems.
@@ -463,28 +499,134 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
+                        <th colspan="4">
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
+                        </th>
+                        <th colspan="8">
+                        </th>
+                      </tr>
+                      <tr>
+                        <th colspan="4">
+                        </th>
+                        <th colspan="2">
+                          Decrease in Inventory (kilograms)
+                        </th>
+                        <th colspan="3">
+                          Purchases/Acquisitions of Refrigerant (kilograms)
+                        </th>
+                        <th colspan="5">
+                          Sales/Disbursements of Refrigerant (kilograms)
+                        </th>
+                      </tr>
+                      <tr>
                         <th>Facility</th>
+                        <th>Allocation</th>
                         <th>Type of Air Conditioning and Refrigeration Equipment</th>
                         <th>Refrigerant Used</th>
                         <th>Refrigerant inventory (in storage, not equipment) at the beginning of the year</th>
                         <th>Refrigerant inventory (in storage, not equipment) at the end of the year</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>Activity amount</th>
+                        <th>Refrigerant purchased from producers/ distributors</th>
+                        <th>Refrigerant returned by equipment users</th>
+                        <th>Refrigerant returned after off-site recycling or reclamation</th>
+                        <th>Refrigerant charged into equipment*<br />If not known, see steps A1 to A4 for a default value</th>
+                        <th>Refrigerant delivered to equipment users in containers</th>
+                        <th>Refrigerant returned to refrigerant producers</th>
+                        <th>Refrigerant sent off-site for recycling or reclamation</th>
+                        <th>Refrigerant sent off-site for destruction</th>
                       </tr>
                       <tbody>
+                        <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                          <td>[[item.extra.facility]]</td>
+                          <td>[[item.extra.allocation]]</td>
+                          <td>[[item.extra.equipment_type]]</td>
+                          <td>[[humanizeRefrigerantUsed(item.extra.refrigerant_used)]]</td>
+                          <td>
+                            <input class="form-control" type="integer"
+                                   v-model="item.begin_inventory_measured">
+                          </td>
+                          <td>
+                            <input class="form-control" type="integer"
+                                   v-model="item.end_inventory_measured">
+                          </td>
+                          <td>
+                            <input class="form-control" type="integer"
+                                   v-model="item.purchased_measured">
+                          </td>
+                          <td>
+                            <input class="form-control" type="integer"
+                                   v-model="item.returned_by_users_measured">
+                          </td>
+                          <td>
+                            <input class="form-control" type="integer"
+                                   v-model="item.returned_after_recycling_measured">
+                          </td>
+                          <td>
+                            <input class="form-control" type="integer"
+                                   v-model="item.charged_into_equipment_measured">
+                          </td>
+                          <td>
+                            <input class="form-control" type="integer"
+                                   v-model="item.delivered_to_users_measured">
+                          </td>
+                          <td>
+                            <input class="form-control" type="integer"
+                                   v-model="item.returned_to_producers_measured">
+                          </td>
+                          <td>
+                            <input class="form-control" type="integer"
+                                   v-model="item.sent_offsite_for_recycling_measured">
+                          </td>
+                          <td>
+                            <input class="form-control" type="integer"
+                                   v-model="item.sent_offsite_for_destruction_measured">
+                          </td>
+                        </tr>
                         <tr>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
+                          <td>
+                            <input class="form-control" type="text" v-model="newItem.facility" />
+                          </td>
+                          <td>
+                            <input class="form-control" type="text" v-model="newItem.allocation" />
+                          </td>
+                          <td>
+                            <input class="form-control" type="text" v-model="newItem.equipmentType" />
+                          </td>
+                          <td>
+                            <select class="form-control" name="refrigerant-used"
+                                    v-model="newItem.refrigerantUsed">
+                              <option :value="key" v-for="(option, key) in $refrigerant_used_type">[[option.title]]</option>
+                            </select>
+                          </td>
+                          <td colspan="10">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                            <button class="btn btn-secondary"
+                                    @click.prevent="addItem">Add row</button>
+                          </td>
                         </tr>
                       </tbody>
                   </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
                 </div>{# /!showEmissionsEstimate #}
                 <div v-show="showEmissionsEstimate">
                   <table class="table table-striped table-bordered">
@@ -499,9 +641,9 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                       </tr>
                       <tr>
                         <th>Facility</th>
-                        <th>Fuel type</th>
                         <th>Allocation</th>
-                        <th>Source of Emission Factor</th>
+                        <th>Type of Air Conditioning and Refrigeration Equipment</th>
+                        <th>Refrigerant Used</th>
                         <th>
                           CO<sub>2</sub> (tonnes)
                         </th>
@@ -517,7 +659,7 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
+                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
                         <td></td>
                         <td></td>
                         <td></td>
@@ -529,6 +671,10 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                       </tr>
                     </tbody>
                   </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
                 </div>{# /showEmissionsEstimate #}
               </div>
             </scope1-refrigerants>
@@ -538,7 +684,7 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                :class="'tab-pane' + (isActiveTile('purchased-electricity') ? ' active': '')"
                id="tab-purchased-electricity"
                v-cloak>
-           <scope2-purchased-electricity inline-template>
+           <scope2-purchased-electricity inline-template :init-url="'{{urls.api_track_ghg_emissions_scope2}}'">
              <div>
                <p>
 Electricity and other sources of energy purchased from your local utility (that is not combusted on-site). Examples include electricity, steam, and chilled or hot water. To generate this energy, utilities combust coal, natural gas, and other fossil fuels, emitting carbon dioxide, methane, and nitrous oxide in the process.
@@ -547,32 +693,50 @@ Electricity and other sources of energy purchased from your local utility (that 
                  <table class="table table-striped table-bordered">
                    <thead>
                      <tr>
+                       <th>
+                         {% include "app/track/_ghg-emissions-toggle.html" %}
+                       </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
+                        </th>
+                        <th colspan="2">
+                        </th>
+                     </tr>
+                     <tr>
                        <th>Facility</th>
                        <th>Allocation</th>
                        <th>Calculation Approach</th>
                        <th>Type of Emission Factor</th>
-                       <th>From</th>
-                       <th>To</th>
                        <th>Amount of Electricity Consumption</th>
                      </tr>
                    </thead>
                    <tbody>
-                     <tr>
-                       <td></td>
-                       <td></td>
-                       <td></td>
-                       <td></td>
-                       <td>
-                         <input class="form-control" type="date">
-                       </td>
-                       <td>
-                         <input class="form-control" type="date">
-                       </td>
+                     <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                       <td>[[item.extra.facility]]</td>
+                       <td>[[item.extra.allocation]]</td>
+                       <td>[[humanizeCalculationApproach(item.extra.calculation_approach)]]</td>
+                       <td>[[humanizeTypeOfEmissionFactor(item.extra.type_of_emission_factor)]]</td>
                        <td>
                          <div class="input-group">
-                           <input class="form-control" type="integer">
+                           <input class="form-control" type="integer"
+                                  v-model="item.measured">
                            <div class="input-group-append">
-                             <select class="form-control">
+                             <select class="form-control" v-model="item.unit">
                                 <option value="btu">Btu</option>
                                 <option value="mmbtu">mmBtu</option>
                                 <option value="therm">therm</option>
@@ -587,14 +751,14 @@ Electricity and other sources of energy purchased from your local utility (that 
                      </tr>
                      <tr>
                        <td>
-                         <a href="">Add facility ...</a>
+                         <input class="form-control" type="text" v-model="newItem.facility" />
                        </td>
                        <td>
-                         <a href="">Add customer and/or project ...</a>
+                         <input class="form-control" type="text" v-model="newItem.allocation" />
                        </td>
                        <td>
                          <select class="form-control"
-                                 v-model="newItem.type_of_emission_factor">
+                                 v-model="newItem.calculation_approach">
                            <option value="purchased-electricity-location-based">Purchased Electricity - Location Based</option>
                            <option value="purchased-electricity-market-based">Purchased Electricity - Market Based</option>
                            <option value="heat-steam">Heat/Steam</option>
@@ -602,28 +766,37 @@ Electricity and other sources of energy purchased from your local utility (that 
                        </td>
                        <td>
                          <select class="form-control"
-                                 v-if="newItem.type_of_emission_factor == 'purchased-electricity-market-based'">
-                           <option value="">Custom emission factor</option>
-                           <option value="">Residual Mix</option>
-                           <option value="">Grid Average/Location Based</option>
+                                 v-model="item.type_of_emission_factor"
+                                 v-if="newItem.calculation_approach == 'purchased-electricity-market-based'">
+                           <option value="custom-emission-factor">Custom emission factor</option>
+                           <option value="residual-mix">Residual Mix</option>
+                           <option value="grid-average-location-based">Grid Average/Location Based</option>
                          </select>
                          <select class="form-control"
-                                 v-if="newItem.type_of_emission_factor == 'purchased-electricity-location-based'">
-                           <option value="">Custom emission factor</option>
-                           <option value="">Grid Average/Location Based</option>
+                                 v-model="item.type_of_emission_factor"
+                                 v-if="newItem.calculation_approach == 'purchased-electricity-location-based'">
+                           <option value="custom-emission-factor">Custom emission factor</option>
+                           <option value="grid-average-location-based">Grid Average/Location Based</option>
                          </select>
                          <select class="form-control"
-                                 v-if="newItem.type_of_emission_factor == 'heat-steam'">
-                           <option value="">Custom emission factor</option>
-                           <option value="">Grid Average/Location Based</option>
+                                 v-model="item.type_of_emission_factor"
+                                 v-if="newItem.calculation_approach == 'heat-steam'">
+                           <option value="custom-emission-factor">Custom emission factor</option>
+                           <option value="grid-average-location-based">Grid Average/Location Based</option>
                          </select>
                        </td>
                        <td>
-                         <button class="btn btn-secondary">Add reporting axis</button>
+                         <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                         <button class="btn btn-secondary"
+                                 @click.prevent="addItem">Add row</button>
                        </td>
                      </tr>
                    </tbody>
                  </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
                </div>{# /!showEmissionsEstimate #}
                <div v-show="showEmissionsEstimate">
                  <table class="table table-striped table-bordered">
@@ -632,7 +805,7 @@ Electricity and other sources of energy purchased from your local utility (that 
                        <th colspan="4">
                          {% include "app/track/_ghg-emissions-toggle.html" %}
                        </th>
-                       <th colspan="5">
+                       <th colspan="4">
                          GHG Emissions (tonnes CO<sub>2</sub>e)
                        </th>
                      </tr>
@@ -641,9 +814,6 @@ Electricity and other sources of energy purchased from your local utility (that 
                        <th>Allocation</th>
                        <th>Calculation Approach</th>
                        <th>Type of Emission Factor</th>
-                       <th>From</th>
-                       <th>To</th>
-                       <th>Amount of Electricity Consumption</th>
                        <th>
                          CO<sub>2</sub> (tonnes)
                        </th>
@@ -659,11 +829,11 @@ Electricity and other sources of energy purchased from your local utility (that 
                      </tr>
                    </thead>
                    <tbody>
-                     <tr>
-                       <td></td>
-                       <td></td>
-                       <td></td>
-                       <td></td>
+                     <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                       <td>[[item.extra.facility]]</td>
+                       <td>[[item.extra.allocation]]</td>
+                       <td>[[humanizeCalculationApproach(item.extra.calculation_approach)]]</td>
+                       <td>[[humanizeTypeOfEmissionFactor(item.extra.type_of_emission_factor)]]</td>
                        <td></td>
                        <td></td>
                        <td></td>
@@ -671,6 +841,10 @@ Electricity and other sources of energy purchased from your local utility (that 
                      </tr>
                    </tbody>
                  </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
                </div>{# /showEmissionsEstimate #}
              </div>
            </scope2-purchased-electricity>
@@ -680,7 +854,7 @@ Electricity and other sources of energy purchased from your local utility (that 
               :class="'tab-pane' + (isActiveTile('transportation') ? ' active': '')"
               id="tab-transportation"
               v-cloak>
-           <scope3-transportation inline-template>
+           <scope3-transportation inline-template :init-url="'{{urls.api_track_ghg_emissions_scope3}}'">
              <div>
                <p>
 Fuel consumption by vehicles used to conduct company-financed travel. Examples include commercial air travel and use of rented vehicles during business trips (travel using company-owned/leased vehicles are included in Scope 1).
@@ -689,36 +863,48 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                  <table class="table table-striped table-bordered">
                    <thead>
                      <tr>
-                       <th colspan="9">
+                       <th>
                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                       </th>
+                       <th>
+                         <div class="input-group mr-2">
+                           <div class="input-group-prepend">
+                             <label class="input-group-text">From</label>
+                           </div>
+                           <input class="form-control" type="date"
+                                  v-model="starts_at">
+                         </div>
+                       </th>
+                       <th>
+                         <div class="input-group mr-2">
+                           <div class="input-group-prepend">
+                             <label class="input-group-text">To</label>
+                           </div>
+                           <input class="form-control" type="date"
+                                  v-model="ends_at">
+                         </div>
+                       </th>
+                       <th colspan="7">
                        </th>
                      </tr>
                      <tr>
                        <th>Description</th>
                        <th>Category</th>
-                       <th>Emission Factor Dataset
+                       <th>Emission Factor Dataset</th>
                        <th>Mode of Transport</th>
                        <th>Activity Type</th>
                        <th>Vehicle Type</th>
-                       <th>From</th>
-                       <th>To</th>
                        <th>Amount of Activity Type</th>
                      </tr>
                    </thead>
                    <tbody>
-                     <tr>
-                       <td></td>
-                       <td></td>
-                       <td></td>
-                       <td></td>
-                       <td></td>
-                       <td></td>
-                       <td>
-                         <input class="form-control" type="date">
-                       </td>
-                       <td>
-                         <input class="form-control" type="date">
-                       </td>
+                     <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                       <td>[[item.extra.description]]</td>
+                       <td>[[humanizeCategory(item.extra.category)]]</td>
+                       <td>[[item.extra.emission_factor_dataset]]</td>
+                       <td>[[humanizeModeOfTransport(item.extra.mode_of_transport)]]</td>
+                       <td>[[humanizeActivityType(item.extra.activity_type)]]</td>
+                       <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
                        <td>
                          <div class="input-group">
                            <input class="form-control" type="integer">
@@ -753,7 +939,7 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                      </tr>
                      <tr>
                        <td>
-                         <a href="">Add description ...</a>
+                         <input class="form-control" type="text" v-model="newItem.description" />
                        </td>
                        <td>
                          <select class="form-control"
@@ -796,30 +982,35 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                            <option></option>
                          </select>
                        </td>
-                       <td colspan="3">
-                         <button class="btn btn-secondary">Add reporting axis</button>
+                       <td>
+                         <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                         <button class="btn btn-secondary"
+                                 @click.prevent="addItem">Add row</button>
                        </td>
                      </tr>
                    </tbody>
                  </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
                </div>{# /!showEmissionsEstimate #}
                <div v-show="showEmissionsEstimate">
                  <table class="table table-striped table-bordered">
                    <thead>
                      <tr>
-                       <th colspan="4">
+                       <th colspan="6">
                          {% include "app/track/_ghg-emissions-toggle.html" %}
                        </th>
-                       <th colspan="5">GHG Emissions (tonnes CO<sub>2</sub>e)</th>
+                       <th colspan="4">GHG Emissions (tonnes CO<sub>2</sub>e)</th>
                      </tr>
                      <tr>
-                       <th>Facility</th>
-                       <th>Allocation</th>
-                       <th>Calculation Approach</th>
-                       <th>Type of Emission Factor</th>
-                       <th>From</th>
-                       <th>To</th>
-                       <th>Amount of Electricity Consumption</th>
+                       <th>Description</th>
+                       <th>Category</th>
+                       <th>Emission Factor Dataset</th>
+                       <th>Mode of Transport</th>
+                       <th>Activity Type</th>
+                       <th>Vehicle Type</th>
                        <th>
                          CO<sub>2</sub> (tonnes)
                        </th>
@@ -835,11 +1026,13 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                      </tr>
                    </thead>
                    <tbody>
-                     <tr>
-                       <td></td>
-                       <td></td>
-                       <td></td>
-                       <td></td>
+                     <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                       <td>[[item.extra.description]]</td>
+                       <td>[[humanizeCategory(item.extra.category)]]</td>
+                       <td>[[item.extra.emission_factor_dataset]]</td>
+                       <td>[[humanizeModeOfTransport(item.extra.mode_of_transport)]]</td>
+                       <td>[[humanizeActivityType(item.extra.activity_type)]]</td>
+                       <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
                        <td></td>
                        <td></td>
                        <td></td>
@@ -847,6 +1040,10 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                      </tr>
                    </tbody>
                  </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
                </div>{# /showEmissionsEstimate #}
              </div>
           </scope3-transportation>
@@ -1666,6 +1863,354 @@ Vue.prototype.$ef_stationary_combustion = {
     ar5_factor: 95.264500,
     unit: "mmbtu",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 1 Stationary Combustion Emission Factors, March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub)."
+  }
+};
+
+Vue.prototype.$refrigerant_used_type = {
+  "hfc-134a-r-134a": {
+    title: "HFC-134a (R-134a)",
+  },
+  "hfc-23-r-23": {
+    title: "HFC-23 (R-23)",
+  },
+  "hfc-32-r-32": {
+    title: "HFC-32 (R-32)",
+  },
+  "hfc-41-r-41": {
+    title: "HFC-41 (R-41)",
+  },
+  "hfc-125-r-125": {
+    title: "HFC-125 (R-125)",
+  },
+  "hfc-134-r-134": {
+    title: "HFC-134 (R-134)",
+  },
+  "hfc-143-r-143": {
+    title: "HFC-143 (R-143)",
+  },
+  "hfc-143a-r-143a": {
+    title: "HFC-143a (R-143a)",
+  },
+  "hfc-152-r-152": {
+    title: "HFC-152 (R-152)",
+  },
+  "hfc-152a-r-152a": {
+    title: "HFC-152a (R-152a)",
+  },
+  "hfc-161-r-161": {
+    title: "HFC-161 (R-161)",
+  },
+  "hfc-227ea-r-227ea": {
+    title: "HFC-227ea (R-227ea)",
+  },
+  "hfc-236cb-r-236cb": {
+    title: "HFC-236cb (R-236cb)",
+  },
+  "hfc-236ea-r-236ea": {
+    title: "HFC-236ea (R-236ea)",
+  },
+  "hfc-236fa-r-236fa": {
+    title: "HFC-236fa (R-236fa)",
+  },
+  "hfc-245ca-r-245ca": {
+    title: "HFC-245ca (R-245ca)",
+  },
+  "hfc-245fa-r-245fa": {
+    title: "HFC-245fa (R-245fa)",
+  },
+  "hfc-365mfc": {
+    title: "HFC-365mfc",
+  },
+  "hfc-43-10mee-r-4310": {
+    title: "HFC-43-10mee (R-4310)",
+  },
+  "pfc-14-perfluoromethane": {
+    title: "PFC-14 (Perfluoromethane)",
+  },
+  "pfc-116-perfluoroethane": {
+    title: "PFC-116 (Perfluoroethane)",
+  },
+  "pfc-218-perfluoropropane": {
+    title: "PFC-218 (Perfluoropropane)",
+  },
+  "pfc-318-perfluorocyclobutane": {
+    title: "PFC-318 (Perfluorocyclobutane)",
+  },
+  "pfc-3-1-10-perfluorobutane": {
+    title: "PFC-3-1-10 (Perfluorobutane)",
+  },
+  "pfc-4-1-12-perfluoropentane": {
+    title: "PFC-4-1-12 (Perfluoropentane)",
+  },
+  "pfc-5-1-14-perfluorohexane": {
+    title: "PFC-5-1-14 (Perfluorohexane)",
+  },
+  "pfc-9-1-18-perfluorodecalin": {
+    title: "PFC-9-1-18 (Perfluorodecalin)",
+  },
+  "r-401a": {
+    title: "R-401A",
+  },
+  "r-401b": {
+    title: "R-401B",
+  },
+  "r-401c": {
+    title: "R-401C",
+  },
+  "r-402a": {
+    title: "R-402A",
+  },
+  "r-402b": {
+    title: "R-402B",
+  },
+  "r-403a": {
+    title: "R-403A",
+  },
+  "r-403b": {
+    title: "R-403B",
+  },
+  "r-404a": {
+    title: "R-404A",
+  },
+  "r-407a": {
+    title: "R-407A",
+  },
+  "r-407b": {
+    title: "R-407B",
+  },
+  "r-407c": {
+    title: "R-407C",
+  },
+  "r-407d": {
+    title: "R-407D",
+  },
+  "r-407e": {
+    title: "R-407E",
+  },
+  "r-407f": {
+    title: "R-407F",
+  },
+  "r-408a": {
+    title: "R-408A",
+  },
+  "r-410a": {
+    title: "R-410A",
+  },
+  "r-410b": {
+    title: "R-410B",
+  },
+  "r-411a": {
+    title: "R-411A",
+  },
+  "r-411b": {
+    title: "R-411B",
+  },
+  "r-412a": {
+    title: "R-412A",
+  },
+  "r-415a": {
+    title: "R-415A",
+  },
+  "r-415b": {
+    title: "R-415B",
+  },
+  "r-416a": {
+    title: "R-416A",
+  },
+  "r-417a": {
+    title: "R-417A",
+  },
+  "r-417b": {
+    title: "R-417B",
+  },
+  "r-417c": {
+    title: "R-417C",
+  },
+  "r-418a": {
+    title: "R-418A",
+  },
+  "r-419a": {
+    title: "R-419A",
+  },
+  "r-419b": {
+    title: "R-419B",
+  },
+  "r-420a": {
+    title: "R-420A",
+  },
+  "r-421a": {
+    title: "R-421A",
+  },
+  "r-421b": {
+    title: "R-421B",
+  },
+  "r-422a": {
+    title: "R-422A",
+  },
+  "r-422b": {
+    title: "R-422B",
+  },
+  "r-422c": {
+    title: "R-422C",
+  },
+  "r-422d": {
+    title: "R-422D",
+  },
+  "r-422e": {
+    title: "R-422E",
+  },
+  "r-423a": {
+    title: "R-423A",
+  },
+  "r-424a": {
+    title: "R-424A",
+  },
+  "r-425a": {
+    title: "R-425A",
+  },
+  "r-426a": {
+    title: "R-426A",
+  },
+  "r-427a": {
+    title: "R-427A",
+  },
+  "r-428a": {
+    title: "R-428A",
+  },
+  "r-429a": {
+    title: "R-429A",
+  },
+  "r-430a": {
+    title: "R-430A",
+  },
+  "r-431a": {
+    title: "R-431A",
+  },
+  "r-434a": {
+    title: "R-434A",
+  },
+  "r-435a": {
+    title: "R-435A",
+  },
+  "r-437a": {
+    title: "R-437A",
+  },
+  "r-438a": {
+    title: "R-438A",
+  },
+  "r-439a": {
+    title: "R-439A",
+  },
+  "r-439a": {
+    title: "R-439A",
+  },
+  "r-439a": {
+    title: "R-439A",
+  },
+  "r-444a": {
+    title: "R-444A",
+  },
+  "r-445a": {
+    title: "R-445A",
+  },
+  "r-500": {
+    title: "R-500",
+  },
+  "r-503": {
+    title: "R-503",
+  },
+  "r-504": {
+    title: "R-504",
+  },
+  "r-507": {
+    title: "R-507",
+  },
+  "r-507a": {
+    title: "R-507A",
+  },
+  "r-509": {
+    title: "R-509",
+  },
+  "r-509a": {
+    title: "R-509A",
+  },
+  "r-512a": {
+    title: "R-512A",
+  },
+  "cfc-11": {
+    title: "CFC-11",
+  },
+  "cfc-12": {
+    title: "CFC-12",
+  },
+  "cfc-13": {
+    title: "CFC-13",
+  },
+  "cfc-113": {
+    title: "CFC-113",
+  },
+  "cfc-114": {
+    title: "CFC-114",
+  },
+  "cfc-115": {
+    title: "CFC-115",
+  },
+  "halon-1301": {
+    title: "Halon-1301",
+  },
+  "halon-1211": {
+    title: "Halon-1211",
+  },
+  "halon-2402": {
+    title: "Halon-2402",
+  },
+  "carbon-tetrachloride": {
+    title: "Carbon tetrachloride",
+  },
+  "methyl-bromide": {
+    title: "Methyl bromide",
+  },
+  "methyl-chloroform": {
+    title: "Methyl chloroform",
+  },
+  "hcfc-21": {
+    title: "HCFC-21",
+  },
+  "r-22-hcfc-22": {
+    title: "R-22 (HCFC-22)",
+  },
+  "hcfc-123": {
+    title: "HCFC-123",
+  },
+  "hcfc-124": {
+    title: "HCFC-124",
+  },
+  "hcfc-141b": {
+    title: "HCFC-141b",
+  },
+  "hcfc-142b": {
+    title: "HCFC-142b",
+  },
+  "hcfc-225ca": {
+    title: "HCFC-225ca",
+  },
+  "hcfc-225cb": {
+    title: "HCFC-225cb",
+  },
+  "carbon-dioxide": {
+    title: "Carbon dioxide",
+  },
+  "methane": {
+    title: "Methane",
+  },
+  "nitrous-oxide": {
+    title: "Nitrous oxide",
+  },
+  "nitrogen-trifluoride": {
+    title: "Nitrogen trifluoride",
+  },
+  "sulfur-hexafluoride": {
+    title: "Sulfur hexafluoride",
   }
 };
 </script>

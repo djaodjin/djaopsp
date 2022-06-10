@@ -9,11 +9,13 @@ from django.urls import path
 from ...views.assess import (AssessPracticesXLSXView, AssessPracticesView,
     ImprovePracticesView, TrackMetricsView)
 from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
-    ScorecardRedirectView)
+    ScorecardRedirectView, DataValuesView)
 from ...views.share import ShareView
 
 
 urlpatterns = [
+    path('track/values/',
+         DataValuesView.as_view(), name='data_values'),
     path('track/<slug:metric>/',
          TrackMetricsView.as_view(), name='track_metrics'),
     path('track/',

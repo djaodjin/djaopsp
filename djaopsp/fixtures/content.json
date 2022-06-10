@@ -281,7 +281,62 @@
   },
   "model": "survey.unitequivalences", "pk": 12
 },
-
+{
+  "fields": {
+    "slug": "btu",
+    "title": "Btu",
+    "system": 0
+  },
+  "model": "survey.unit", "pk": 36
+},
+{
+  "fields": {
+    "slug": "mmbtu",
+    "title": "mmBtu",
+    "system": 0
+  },
+  "model": "survey.unit", "pk": 37
+},
+{
+  "fields": {
+    "slug": "therm",
+    "title": "therm",
+    "system": 0
+  },
+  "model": "survey.unit", "pk": 38
+},
+{
+  "fields": {
+    "slug": "kwh",
+    "title": "kWh",
+    "system": 0
+  },
+  "model": "survey.unit", "pk": 40
+},
+{
+  "fields": {
+    "slug": "mwh",
+    "title": "MWh",
+    "system": 0
+  },
+  "model": "survey.unit", "pk": 41
+},
+{
+  "fields": {
+    "slug": "mj",
+    "title": "MJ",
+    "system": 0
+  },
+  "model": "survey.unit", "pk": 42
+},
+{
+  "fields": {
+    "slug": "gj",
+    "title": "GJ",
+    "system": 0
+  },
+  "model": "survey.unit", "pk": 43
+},
 
 { "fields" : {
     "slug" : "sustainability",
@@ -1432,7 +1487,7 @@
 {
   "fields": {
     "title": "(18) Total Hazardous Waste Generated for Disposal",
-    "slug": "waste-hazardous",
+    "slug": "hazardous-waste",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1448,7 +1503,7 @@
 {
   "fields": {
     "title": "(19) Total Non-Hazardous Waste Generated for Disposal",
-    "slug": "waste-non-hazardous",
+    "slug": "non-hazardous-waste",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },

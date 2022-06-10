@@ -986,7 +986,7 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-hazardous",
+    "path": "/sustainability/data-metrics/waste-measured/hazardous-waste",
     "content": 74,
     "default_unit": 6,
     "ui_hint": "waste"
@@ -1004,7 +1004,7 @@
 },
 {
   "fields": {
-    "path": "/sustainability/data-metrics/waste-measured/waste-non-hazardous",
+    "path": "/sustainability/data-metrics/waste-measured/non-hazardous-waste",
     "content": 75,
     "default_unit": 6,
     "ui_hint": "waste"
