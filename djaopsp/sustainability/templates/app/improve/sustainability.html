@@ -71,7 +71,7 @@
                :class="'tab-pane' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '')"
                :id="'tab-' + icon.slug"
                v-for="icon in getEntries('targets', 1)"
-               v-show="itemsLoaded && items.results.length"
+               v-show="itemsLoaded && items.results.length > 0"
                v-cloak>
             <div v-show="!showVsPeers">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
@@ -84,12 +84,8 @@
                     </th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr :data-id="getPath(practice)"
-                      :class="isRequiredShown(practice) ? 'practice-required' : ''"
-                      v-for="practice in getEntries(icon.slug)">
-                    {% include "app/assess/_assess_row.html" %}
-                  </tr>
+                <tbody v-for="practice in getEntries(icon.slug)">
+                  {% include "app/assess/_assess_row.html" %}
                 </tbody>
               </table>
             </div>{# /!showVsPeers #}

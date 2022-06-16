@@ -104,19 +104,24 @@ Record data metrics all year long so you can report quantifiable improvements.
           <h2>{% trans %}Comparative Dashboards{% endtrans %}</h2>
           <p>
 {% trans %}
-Manage invites send to reporting organizations and their reporting status.
+Manage invites sent to reporting organizations, and their reporting status.
 {% endtrans %}
           </p>
-          <p>
-This is a <a href="{{'/pricing/'|site_url}}">paid feature</a>.
-          </p>
+          {% if urls.reporting %}
           <div class="col-12 text-center">
-            {% if urls.reporting %}
             <a id="analyze-portfolios" href="{{urls.reporting}}">Analyze</a>
-            {% else %}
-            <span class="fa fa-lock"></span>
-            {% endif %}
           </div>
+          {% else %}
+          <div class="col-12 text-center">
+            <span class="fa fa-lock"></span>
+          </div>
+          <p>
+This website is supported by organizations actively improving the transparency
+of their supply chain with regards to environmental sustainability.
+If you would like to access comparative dashboards for your own suppliers,
+please <a href="{{'/contact/'|site_url}}">contact us</a>.
+          </p>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -128,9 +133,6 @@ This is a <a href="{{'/pricing/'|site_url}}">paid feature</a>.
 {% trans %}
 Create practices and organize them in assessment campaigns.
 {% endtrans %}
-          </p>
-          <p>
-This is a <a href="{{'/pricing/'|site_url}}">paid feature</a>.
           </p>
           <div class="row">
             {% if urls.survey_campaign_list and urls.pages_editables_index %}
@@ -146,6 +148,12 @@ This is a <a href="{{'/pricing/'|site_url}}">paid feature</a>.
             <div class="col-12 text-center">
               <span class="fa fa-lock"></span>
             </div>
+            <p>
+This website is supported by professional trade organizations actively
+promoting key environmental sustainability initiatives.
+If you would like to create questionnaires for your own industry,
+please <a href="{{'/contact/'|site_url}}">contact us</a>.
+            </p>
             {% endif %}
           </div>
         </div>

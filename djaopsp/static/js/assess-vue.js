@@ -244,6 +244,10 @@ var practicesListMixin = {
             }
             return false;
         },
+        isDiverseDefinitionUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'diverse-definition';
+        },
         isEnergyUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'energy';
@@ -277,6 +281,14 @@ var practicesListMixin = {
         isNumberUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'number';
+        },
+        isPercentageUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'percentage';
+        },
+        isScienceTargetUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'science-target';
         },
         isScoredPractice: function(row) {
             var vm = this;
@@ -1492,60 +1504,60 @@ Vue.component('scope1-stationary-combustion', ghgEmissionsEstimator.extend({
             // Go to Data > Define range ...
             // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
             // Custom_EF: $Parameters.$C$65:$N$94
-            const ef_factors = vm.$ef_stationary_combustion[row.fuel_type];
+            const ef_factors = vm.$ef_stationary_combustion[row.extra.fuel_type];
             if( typeof ef_factors == 'undefined' ) {
                 return NaN;
             }
             return ef_factors.co2_factor
-                * vm.asUnit(row.amount, ef_factors.unit, row.unit) / 1000;
+                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
         },
         estimateCH4: function(row) {
             var vm = this;
             // Go to Data > Define range ...
             // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
             // Custom_EF: $Parameters.$C$65:$N$94
-            const ef_factors = vm.$ef_stationary_combustion[row.fuel_type];
+            const ef_factors = vm.$ef_stationary_combustion[row.extra.fuel_type];
             if( typeof ef_factors == 'undefined' ) {
                 return NaN;
             }
             return ef_factors.ch4_factor
-                * vm.asUnit(row.amount, ef_factors.unit, row.unit) / 1000;
+                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
         },
         estimateN2O: function(row) {
             var vm = this;
             // Go to Data > Define range ...
             // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
             // Custom_EF: $Parameters.$C$65:$N$94
-            const ef_factors = vm.$ef_stationary_combustion[row.fuel_type];
+            const ef_factors = vm.$ef_stationary_combustion[row.extra.fuel_type];
             if( typeof ef_factors == 'undefined' ) {
                 return NaN;
             }
             return ef_factors.n2o_factor
-                * vm.asUnit(row.amount, ef_factors.unit, row.unit) / 1000;
+                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
         },
         estimateCO2e: function(row) {
             var vm = this;
             // Go to Data > Define range ...
             // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
             // Custom_EF: $Parameters.$C$65:$N$94
-            const ef_factors = vm.$ef_stationary_combustion[row.fuel_type];
+            const ef_factors = vm.$ef_stationary_combustion[row.extra.fuel_type];
             if( typeof ef_factors == 'undefined' ) {
                 return NaN;
             }
             return ef_factors.co2_factor
-                * vm.asUnit(row.amount, ef_factors.unit, row.unit) / 1000;
+                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
         },
         estimateBiogenicCO2: function(row) {
             var vm = this;
             // Go to Data > Define range ...
             // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
             // Custom_EF: $Parameters.$C$65:$N$94
-            const ef_factors = vm.$ef_stationary_combustion[row.fuel_type];
+            const ef_factors = vm.$ef_stationary_combustion[row.extra.fuel_type];
             if( typeof ef_factors == 'undefined' ) {
                 return NaN;
             }
             return ef_factors.biogenic_co2_factor // XXX
-                * vm.asUnit(row.amount, ef_factors.unit, row.unit) / 1000;
+                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
         },
         save: function() {
             // XXX Save energy inputs and GHG Emissions estimates;

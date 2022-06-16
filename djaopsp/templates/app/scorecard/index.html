@@ -69,7 +69,7 @@ then share it with customers, investors and other interested 3rd parties.
           {% endif %}
         </div>
       </section> {# <!-- /#summary --> #}
-      {% if is_mandatory_segment_present %}
+      {% if sample.is_frozen or is_mandatory_segment_present %}
       <section id="details">
         <div class="text-center mt-4" v-show="!itemsLoaded">
           <i class="fa fa-refresh fa-spin fa-2x"></i>

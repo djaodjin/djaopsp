@@ -240,7 +240,7 @@ class AssessmentContentMixin(SegmentReportMixin, CampaignContentMixin,
                         default_unit_dict = {
                             'slug': default_unit.slug,
                             'title': default_unit.title,
-                        'system': Unit.SYSTEMS[default_unit.system][1],
+                        'system': default_unit.system,
                             'choices':[{
                                 'pk': choice.pk,
                                 'text': choice.text,
