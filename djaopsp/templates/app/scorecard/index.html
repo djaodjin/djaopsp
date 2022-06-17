@@ -76,7 +76,8 @@ then share it with customers, investors and other interested 3rd parties.
         </div>
         <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
           <div :name="practice.slug" v-for="practice in getEntries()">
-            <div class="mt-4" v-if="!isPractice(practice)">
+
+            <div class="mt-4" v-if="isChartHeading(practice)">
               <hr v-if="practice.picture" />
               <div class="row">
                 <div class="col-md-8">
@@ -95,7 +96,8 @@ then share it with customers, investors and other interested 3rd parties.
                        class="ml-4" href=""
                        data-toggle="modal"
                        data-target="#reset-assessment"
-                       @click="setActiveElement(practice)">Remove</a>
+                       @click="setActiveElement(practice)"
+                       v-if="practice.slug !== '{{sample.campaign.slug}}'">Remove</a>
                   </div>
                   {% endif %}
                   <div class="mt-2" v-if="containsTag(practice, 'scorecard')">
@@ -117,9 +119,10 @@ companies responding on practices in the industry segment.
                     </div>
                     <canvas :id="practice.slug" v-show="charts[practice.slug]"></canvas>
                   </div>
-                </div>
+                </div>{# /.col-md-8 #}
                 <div class="col-md-4">
-                  <div :class="indentHeader(practice)" v-if="practice.indent == 0">
+                  <div :class="indentHeader(practice)"
+                       v-if="practice.indent == 0">
                     <svg class="chart-scores" :viewBox="'0 0 ' + arcWidth + ' ' + arcHeight">
                       <!-- top score arc -->
                       <g :transform="'translate(0, ' + arcHeight + ')'">
@@ -179,10 +182,43 @@ companies responding on practices in the industry segment.
                         <text dx="-1.6rem" dy="-5">[[practice.normalized_score]]%</text>
                       </g>
                     </svg>
+                  </div>{# /practice.indent == 0 #}
+                  <div :class="indentHeader(practice)" v-if="practice.indent > 0">
+                    [[asPercent(practice.normalized_score)]]
                   </div>
-                  <div :class="indentHeader(practice)" v-if="practice.indent > 0">[[asPercent(practice.normalized_score)]]</div>
+                </div>{# /.col-md-4 #}
+              </div>{# /.row #}
+            </div>{# /.isChartHeading - i.e. heading with charts and score #}
+
+            <div>
+              XXX [[practice.slug]] - !isChartHeading:[[!isChartHeading(practice)]], !isPractice:[[!isPractice(practice)]], isDataMetricsHeader: [[isDataMetricsHeader(practice)]]
+            </div>
+
+            <div v-if="!isChartHeading(practice) && !isPractice(practice)">
+              <hr v-if="practice.picture" />
+              <div class="row">
+                <div class="col-12">
+                  <div :class="indentHeader(practice)">
+                    <div class="orange icon-inner d-inline-block"
+                         v-if="practice.picture">
+                      <img class="icon-equipment" style="margin-top: 15px;"
+                           :src="practice.picture" />
+                    </div>
+                    <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  </div>
+                  {% if not sample.is_frozen %}
+                  <div v-if="practice.indent == 0">
+                    <a :href="'{{urls.assess_base}}' + practice.slug + '/'">Update</a>
+                    <a id="reset-assessment-btn"
+                       class="ml-4" href=""
+                       data-toggle="modal"
+                       data-target="#reset-assessment"
+                       @click="setActiveElement(practice)"
+                       v-if="practice.slug !== '{{sample.campaign.slug}}'">Remove</a>
+                  </div>
+                  {% endif %}
                 </div>
-              </div>
+              </div>{# /.row #}
               <div v-if="isDataMetricsHeader(practice)">
                 <table class="table table-bordered table-striped">
                   <tr class="text-right">
@@ -202,8 +238,8 @@ companies responding on practices in the industry segment.
                     [[getCaptionTitle(practice)]]
                   </caption>
                 </table>
-              </div>
-            </div>{# /.!isPractice - i.e. heading #}
+              </div>{# /.isDataMetricsHeader #}
+            </div>{# /!isChartHeading(practice) && !isPractice(practice) - i.e. regular heading #}
 
             <div v-if="isEnumUIHint(practice)">
               <div class="row">
@@ -265,7 +301,7 @@ companies responding on practices in the industry segment.
               </div>
             </div>{# /isEnumUIHint(practice) #}
 
-            <div v-if="isFreetextUIHint(practice)">
+            <div v-if="isFreetextUnit(practice)">
               <div class="row">
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
@@ -276,14 +312,21 @@ companies responding on practices in the industry segment.
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div v-for="answer in practice.answers">
+                  <div v-if="practice.answers.length === 0">
+                    &dash;
+                  </div>
+                  <div v-for="answer in practice.answers"
+                       v-if="practice.answers.length > 0">
                     <div v-if="answer.measured">
                       [[answer.measured]]
+                    </div>
+                    <div v-if="!answer.measured">
+                      &dash;
                     </div>
                   </div>
                 </div>
               </div>
-            </div>{# /.isFreetextUIHint(practice) #}
+            </div>{# /isFreetextUnit(practice) #}
 
             <div v-if="isGHGEmissionsBreakDown(practice)">
               <div class="row">
@@ -337,6 +380,33 @@ companies responding on practices in the industry segment.
                 </div>
               </div>
             </div>{# /isNumberUIHint(practice) #}
+
+            <div v-if="isTargetByUIHint(practice)">
+              <div class="row">
+                <div class="col-md-8">
+                  <div :class="indentHeader(practice) + ' mt-2'">
+                    <a class="title"
+                       :href="'{{urls.pages_index}}' + practice.slug + '/'">
+                      [[practice.title]]
+                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div v-if="practice.answers.length === 0">
+                    &dash;
+                  </div>
+                  <div v-for="answer in practice.answers"
+                       v-if="practice.answers.length > 0">
+                    <div v-if="answer.measured">
+                      [[answer.measured]]
+                    </div>
+                    <div v-if="!answer.measured">
+                      &dash;
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>{# /isTargetByUIHint(practice) #}
 
           </div>{# /.v-for=getEntries() #}
         </div>

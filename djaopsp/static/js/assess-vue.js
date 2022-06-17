@@ -286,9 +286,9 @@ var practicesListMixin = {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'percentage';
         },
-        isScienceTargetUIHint: function(row) {
+        isTargetByUIHint: function(row) {
             var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'science-target';
+            return vm.isPractice(row) && row.ui_hint === 'target-by';
         },
         isScoredPractice: function(row) {
             var vm = this;
@@ -517,10 +517,6 @@ Vue.component('campaign-questions-list', {
         isEmployeeCountUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'employee-count';
-        },
-        isTargetByUIHint: function(row) {
-            var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'target-by';
         },
         isTargetBaselineUIHint: function(row) {
             var vm = this;
@@ -1142,6 +1138,15 @@ Vue.component('scorecard', {
             }
             var indentSpace = practice.indent - 1;
             return "heading-" + indentSpace;
+        },
+        isChartHeading: function(row) {
+            var vm = this;
+            return vm.containsTag(row, vm.TAG_SCORECARD);
+        },
+        isFreetextUnit: function(row) {
+            var vm = this;
+            return vm.isPractice(row) &&
+                row.default_unit && row.default_unit.slug === 'freetext';
         },
         freezeAssessment: function($event) {
             var vm = this;

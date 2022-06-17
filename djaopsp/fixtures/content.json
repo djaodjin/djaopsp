@@ -172,6 +172,34 @@
   },
   "model": "survey.unit", "pk": 10
 },
+{ "fields": {
+    "slug": "target-type",
+    "title": "Target type",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk": 11
+},
+{ "fields": {
+    "unit": 11,
+    "rank": 1,
+    "text": "Science-based"
+  },
+  "model" : "survey.choice", "pk": 16
+},
+{ "fields": {
+    "unit": 11,
+    "rank": 2,
+    "text": "Net Zero"
+  },
+  "model" : "survey.choice", "pk": 17
+},
+{ "fields": {
+    "unit": 11,
+    "rank": 3,
+    "text": "Other"
+  },
+  "model" : "survey.choice", "pk": 18
+},
 
 {
   "fields": {
@@ -388,7 +416,6 @@
   "fields": {
     "title": "Environment, Social & Governance (ESG) Strategy",
     "slug": "esg-strategy-heading",
-    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 3
@@ -479,7 +506,6 @@
   "fields": {
     "title": "Environment, Social & Governance (ESG) Materiality Assessment",
     "slug": "esg-assessment",
-    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 9
@@ -526,7 +552,6 @@
   "fields": {
     "title": "Material ESG Impacts, Issues and Opportunities",
     "slug": "systematic-rigorous-assessment-follow",
-    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 12
@@ -588,7 +613,6 @@
   "fields": {
     "title": "Code of conducts and policies",
     "slug": "governance-policies",
-    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 16
@@ -621,7 +645,6 @@
   "fields": {
     "title": "Does your company’s Employee Code of Conduct contain sections pertinent to ...",
     "slug": "employee-code-of-conduct-follow",
-    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 18
@@ -821,7 +844,6 @@
   "fields": {
     "title": "Management System Rigor",
     "slug": "management-system-rigor",
-    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 31
@@ -869,7 +891,6 @@
   "fields": {
     "title": "Does your company’s Supplier Code of Conduct and/or Human Rights Policy contain sections pertinent to ...",
     "slug": "supplier-code-of-conduct-follow",
-    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 34
@@ -1269,7 +1290,6 @@
   "fields": {
     "title": "Environmental Management System Rigor",
     "slug": "environmental-management-rigor",
-    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 60
@@ -1347,7 +1367,6 @@
   "fields": {
     "title": "Environmental reporting",
     "slug": "environmental-reporting",
-    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 65
@@ -1363,7 +1382,6 @@
   "fields": {
     "title": "GHG Emissions reporting",
     "slug": "ghg-emissions-reporting",
-    "picture": "/static/img/management-basics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 66
@@ -1474,7 +1492,6 @@
   "fields": {
     "title": "Waste reporting",
     "slug": "waste-reporting",
-    "picture": "/static/img/data-metrics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 73
@@ -1520,7 +1537,6 @@
   "fields": {
     "title": "Water reporting",
     "slug": "water-reporting",
-    "picture": "/static/img/data-metrics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 76
@@ -1748,7 +1764,7 @@
 
 {
   "fields": {
-    "title": "GHG Emissions",
+    "title": "GHG Emissions measured and trended",
     "slug": "ghg-emissions-measured",
     "account": 2
   },
@@ -2085,7 +2101,7 @@
 },
 {
   "fields": {
-    "title": "Waste",
+    "title": "Waste measured and trended",
     "slug": "waste-measured",
     "account": 2,
     "extra": "{\"tags\":[\"data-metrics-header\"]}"
@@ -2148,7 +2164,7 @@
 },
 {
   "fields": {
-    "title": "Water",
+    "title": "Water measured and trended",
     "slug": "water-measured",
     "account": 2,
     "extra": "{\"tags\":[\"data-metrics-header\"]}"
@@ -2342,7 +2358,6 @@
   "fields": {
     "title": "(17) Scope 1 GHG Emissions Target",
     "slug": "ghg-emissions-scope1-target",
-    "picture": "/static/img/fuel-pump.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 155
@@ -2407,7 +2422,6 @@
   "fields": {
     "title": "(18) Scope 2 GHG Emissions Target",
     "slug": "ghg-emissions-scope2-target",
-    "picture": "/static/img/fuel-pump.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 159
@@ -2472,7 +2486,6 @@
   "fields": {
     "title": "(18) Scope 3 GHG Emissions Target",
     "slug": "ghg-emissions-scope3-target",
-    "picture": "/static/img/fuel-pump.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 163

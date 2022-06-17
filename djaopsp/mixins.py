@@ -6,9 +6,10 @@ from deployutils.apps.django import mixins as deployutils_mixins
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db.models import Q, F
+from django.http import Http404
+from django.utils.translation import ugettext_lazy as _
 from pages.mixins import TrailMixin
 from pages.models import PageElement
-from rest_framework.generics import get_object_or_404
 from survey.mixins import CampaignMixin as CampaignMixinBase, SampleMixin
 from survey.models import Answer, Campaign, Sample
 from survey.utils import get_account_model, get_question_model
@@ -193,9 +194,11 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):
         results = []
         for seg in get_segments_candidates(self.sample.campaign,
                 visibility=self.visibility, owners=self.owners):
-            searchable = (not searchable_only or
-                seg.get('extra', {}).get('searchable', False))
-            pagebreak = seg.get('extra', {}).get('pagebreak', False)
+            extra = seg.get('extra')
+            if not extra:
+                extra = {}
+            searchable = (not searchable_only or extra.get('searchable', False))
+            pagebreak = extra.get('pagebreak', False)
             if pagebreak and not searchable:
                 continue
             results += [seg]
@@ -256,19 +259,50 @@ class SegmentReportMixin(ReportMixin):
         for it. When no {path} is specified, it is empty of the root of the
         content tree, the segments which have at least one answer are returned.
         """
+        #pylint:disable=too-many-nested-blocks
         if not hasattr(self, '_segments_available'):
-            candidates = self.get_segments_candidates()
+            # We get all segments that have at least one answer, regardless
+            # of their visibility or ownership status.
+            self._segments_available = get_segments_available(self.sample)
             if self.db_path and self.db_path != self.DB_PATH_SEP:
+                candidates = self._segments_available
                 self._segments_available = []
                 for seg in candidates:
                     path = seg.get('path')
                     if path and path.startswith(self.db_path):
                         self._segments_available += [seg]
                 if not self._segments_available:
-                    # Technically not a segment (i.e. it is a section
-                    # of segment on its own page).
-                    element = get_object_or_404(PageElement.objects.all(),
-                        slug=self.db_path.split(self.DB_PATH_SEP)[-1])
+                    # Either the segment does not have an answer yet,
+                    # or we are dealing with a section of a segment
+                    # displayed on its own page.
+                    visibility = [] # XXX We do not use `self.visibility`
+                                    #     because "sustainability" is not
+                                    #     currently set as "public". (v1 to v2)
+                    owners = self.owners
+                    slug = self.db_path.split(self.DB_PATH_SEP)[-1]
+                    try:
+                        queryset = PageElement.objects.filter(slug=slug)
+                        element = queryset.get()
+                        if not (owners and element.account in owners):
+                            filtered_in = None
+                            if visibility:
+                                for visible in visibility:
+                                    visibility_q = Q(extra__contains=visible)
+                                    if filtered_in:
+                                        filtered_in |= visibility_q
+                                    else:
+                                        filtered_in = visibility_q
+                            if filtered_in:
+                                queryset = queryset.filter(filtered_in)
+                            element = queryset.get()
+                    except PageElement.DoesNotExist:
+                        raise Http404(_("Cannot find page '%(slug)s' "\
+                            "with visibility %(visibility)s and "\
+                            "ownership %(owners)s") % {
+                            'slug': slug,
+                            'visibility': visibility,
+                            'owners': owners
+                        })
                     try:
                         element.extra = json.loads(element.extra)
                     except (TypeError, ValueError):
@@ -280,9 +314,6 @@ class SegmentReportMixin(ReportMixin):
                         'title': element.title,
                         'extra': element.extra,
                     }]
-            else:
-                self._segments_available = get_segments_available(
-                    self.sample, segments_candidates=candidates)
         return self._segments_available
 
     @property
@@ -311,6 +342,7 @@ class SegmentReportMixin(ReportMixin):
                     if not path:
                         continue
                     queryset = get_question_model().objects.filter(
+                        path__startswith=path,
                         answer__sample=self.sample
                     ).distinct()
                     self._nb_questions += queryset.count()
@@ -320,6 +352,7 @@ class SegmentReportMixin(ReportMixin):
                     if not path:
                         continue
                     queryset = get_question_model().objects.filter(
+                        path__startswith=path,
                         enumeratedquestions__campaign=self.sample.campaign
                     ).distinct()
                     self._nb_questions += queryset.count()

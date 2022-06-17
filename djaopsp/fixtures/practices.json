@@ -1369,8 +1369,8 @@
   "fields": {
     "path": "/sustainability/targets/ghg-emissions-target/ghg-emissions-scope1-target/ghg-emissions-scope1-science-based-target",
     "content": 157,
-    "default_unit": 3,
-    "ui_hint": "science-target",
+    "default_unit": 11,
+    "ui_hint": "radio",
     "extra": "{\"layouts\":[\"target\"]}"
   },
   "model": "survey.question", "pk": 85
@@ -1427,8 +1427,8 @@
   "fields": {
     "path": "/sustainability/targets/ghg-emissions-target/ghg-emissions-scope2-target/ghg-emissions-scope2-science-based-target",
     "content": 161,
-    "default_unit": 3,
-    "ui_hint": "science-target",
+    "default_unit": 11,
+    "ui_hint": "radio",
     "extra": "{\"layouts\":[\"target\"]}"
   },
   "model": "survey.question", "pk": 88
@@ -1484,8 +1484,8 @@
   "fields": {
     "path": "/sustainability/targets/ghg-emissions-target/ghg-emissions-scope3-target/ghg-emissions-scope3-science-based-target",
     "content": 165,
-    "default_unit": 3,
-    "ui_hint": "science-target",
+    "default_unit": 11,
+    "ui_hint": "radio",
     "extra": "{\"layouts\":[\"target\"]}"
   },
   "model": "survey.question", "pk": 91
