@@ -186,7 +186,11 @@
               <a id="download-assessment"
                  class="btn btn-secondary"
                  href="{{urls.download}}" target="_blank">
-                <i class="fa fa-download"></i> Download
+                <i class="fa fa-download"></i> Planned actions (.xslx)
+              </a>
+              <a id="print-actions-guidance"
+                 class="btn btn-primary"
+                 href="{{urls.print}}" target="_blank">Actions guidance (.pdf)
               </a>
             </div>
             <div class="col-sm-6 text-right">
@@ -235,6 +239,7 @@ investors and/or other stakeholders before you complete it.
     </div>
     {% endblock %}
 
+  {% include "app/improve/_improvement_planning_dashboard.html" %}
   </div>
 </campaign-questions-list>
 {% endblock %}

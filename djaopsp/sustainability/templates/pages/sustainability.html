@@ -68,6 +68,18 @@
         {% endblock %}
       </div>
     </div>{# /content-tabs #}
+
+    {% block panel_footer %}
+    <div class="card-footer">
+      <div class="row">
+        <div class="offset-sm-3 col-sm-6 text-center">
+          <p>
+{% trans %}Click on each icon tile to expand it.{% endtrans %}
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endblock %}
   </div>
 </campaign-questions-list>
 {% endblock %}

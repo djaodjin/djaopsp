@@ -162,7 +162,31 @@ h2.icon-row-title {
   pointer-events: all;
 }
 
-div.improvement-planning .inner {
+.improvement-planning {
+  position: fixed;
+  width: 100%;
+  margin: 0;
+  bottom: -34px;
+  left: 0;
+  z-index: 1; // displays under footer otherwise
+}
+
+.improvement-planning>div {
+  text-align: center;
+  position:relative;
+  top:-34px;
+  width: 50%;
+  min-width: 555px;
+  max-width: 600px;
+  margin: auto;
+  pointer-events: none;
+}
+
+.improvement-planning button {
+  pointer-events: all;
+}
+
+.improvement-planning .inner {
   background: #eafcd4;
   border: 1px theme-color(primary) solid;
 }
@@ -902,7 +926,7 @@ a.text-grey{
 }
 
 .heading-0 {
-   font-size: 18px;
+   font-size: 24px;
    font-family: inherit;
    font-weight: 500;
    line-height: 1.1;
@@ -945,7 +969,7 @@ a.text-grey{
 .bestpractice-5>a.title,
 .bestpractice-6>a.title,
 .bestpractice-7>a.title {
-   color: #777;
+   color: $gray-900;
 }
 
 .divider-horizontal{

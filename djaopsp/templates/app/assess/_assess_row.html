@@ -86,7 +86,10 @@
     </select>
   </div>
   <div class="text-right mt-1">
-    <input class="form-check-input" type="checkbox">
+    <input class="form-check-input"
+           type="checkbox"
+           :checked="getAnswerByUnit(practice, 'yes-no').measured === 'Yes'"
+           @click="toggleNotDisclosedPublicly(practice)">
     <label class="form-check-label">not publicly disclosed</label>
   </div>
 </td>
@@ -96,7 +99,7 @@
     v-if="isEmployeeCountUIHint(practice)">
   <div class="input-group">
     <select class="form-control"
-            v-model="getPrimaryAnswer(practice).unit"
+            v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
       <option value="0">0-10 employees</option>
@@ -112,39 +115,36 @@
 </td>
 
 <td class="text-center"
-    :colspan="6"
-    v-if="isPercentageUIHint(practice)">
+    colspan="3"
+     v-if="isPercentageUIHint(practice)">
   <div class="input-group">
     <label class="form-control input-group-prefix">
       At
     </label>
-    <select class="form-control"
-          v-model="getPrimaryAnswer(practice).measured"
-          @blur="updateAssessmentAnswer(practice)"
-          {% if sample.is_frozen %} disabled{% endif %}>
-      <option value="no-target">No target</option>
-      <option value="2022">2022</option>
-      <option value="2021">2021</option>
-      <option value="2020">2020</option>
-      <option value="2019">2019</option>
-      <option value="2018">2018</option>
-      <option value="2017">2017</option>
-      <option value="2016">2016</option>
-      <option value="2015">2015</option>
-      <option value="2014">2014</option>
-      <option value="2013">2013</option>
-      <option value="2012">2012</option>
-      <option value="2011">2011</option>
-      <option value="2010">2010</option>
-    </select>
+    <input class="form-control"
+           type="date"
+           v-model="getAnswerEndsAt(practice).measured"
+           {% if sample.is_frozen %}
+           disabled
+           {% else %}
+           @blur="updateAssessmentAnswer(practice, getAnswerEndsAt(practice))"
+           {% endif %}></input>
   </div>
+</td>
+<td class="text-center"
+    :colspan="3"
+    v-if="isPercentageUIHint(practice)">
   <div class="input-group">
     <input class="form-control text-right"
            type="number"
-           placeholder=""
+           min="0"
+           max="100"
            v-model="getPrimaryAnswer(practice).measured"
+           {% if sample.is_frozen %}
+           disabled
+           {% else %}
            @blur="updateAssessmentAnswer(practice)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           {% endif %}></input>
     <label class="form-control input-group-suffix">
       %
     </label>
@@ -159,11 +159,11 @@
     v-if="isEnergyUIHint(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).baseline_at"
+           v-model="getAnswerStartsAt(practice).measured"
            {% if sample.is_frozen %}
            disabled
            {% else %}
-           @blur="updateBaseLineAt(practice)"
+           @blur="updateStartsAt(practice)"
            {% endif %}></input>
 </td>
 <td class="text-center"
@@ -171,7 +171,7 @@
     v-if="isEnergyUIHint(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).created_at"
+           v-model="getAnswerEndsAt(practice).measured"
            {% if sample.is_frozen %}
            disabled
            {% else %}
@@ -186,11 +186,11 @@
            type="number"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice)"
+           @blur="updateAssessmentAnswer(practice, practice.answers)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice)"
+            @blur="updateAssessmentAnswer(practice, practice.answers)"
             {% if sample.is_frozen %} disabled{% endif %}>
       <option value="mmbtu-of-natural-gas">mmBtu of Natural gas</option>
       <option value="mmbtu-of-blast-furnance-gas">mmBtu of Blast furnance gas</option>
@@ -227,11 +227,11 @@
     v-if="isWaterUIHint(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).baseline_at"
+           v-model="getAnswerStartsAt(practice).measured"
            {% if sample.is_frozen %}
            disabled
            {% else %}
-           @blur="updateBaseLineAt(practice)"
+           @blur="updateStartsAt(practice)"
            {% endif %}></input>
 </td>
 <td class="text-center"
@@ -239,7 +239,7 @@
     v-if="isWaterUIHint(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).created_at"
+           v-model="getAnswerEndsAt(practice).measured"
            {% if sample.is_frozen %}
            disabled
            {% else %}
@@ -254,11 +254,11 @@
            type="text"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice)"
+           @blur="updateAssessmentAnswer(practice, practice.answers)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice)"
+            @blur="updateAssessmentAnswer(practice, practice.answers)"
             {% if sample.is_frozen %} disabled{% endif %}>
         <option value="m3">Cubic meters (m<sup>3</sup>)</option>
         <option value="kiloliters">Kilo liters</option>
@@ -282,11 +282,11 @@
     v-if="isWasteUIHint(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).baseline_at"
+           v-model="getAnswerStartsAt(practice).measured"
            {% if sample.is_frozen %}
            disabled
            {% else %}
-           @blur="updateBaseLineAt(practice)"
+           @blur="updateStartsAt(practice)"
            {% endif %}></input>
 </td>
 <td class="text-center"
@@ -294,7 +294,7 @@
     v-if="isWasteUIHint(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).created_at"
+           v-model="getAnswerEndsAt(practice).measured"
            {% if sample.is_frozen %}
            disabled
            {% else %}
@@ -309,11 +309,11 @@
            type="text"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
-           @blur="updateAssessmentAnswer(practice)"
+           @blur="updateAssessmentAnswer(practice, practice.answers)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice)"
+            @blur="updateAssessmentAnswer(practice, practice.answers)"
             {% if sample.is_frozen %} disabled{% endif %}>
         <option value="tons">Metric tons</option>
         <option value="lbs">Pounds</option>
@@ -337,11 +337,11 @@
     v-if="isGHGEmissions(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).baseline_at"
+           v-model="getAnswerStartsAt(practice).measured"
            {% if sample.is_frozen %}
            disabled
            {% else %}
-           @blur="updateBaseLineAt(practice)"
+           @blur="updateStartsAt(practice)"
            {% endif %}></input>
 </td>
 <td class="text-center"
@@ -349,7 +349,7 @@
     v-if="isGHGEmissions(practice)">
     <input class="form-control"
            type="date"
-           v-model="getPrimaryAnswer(practice).created_at"
+           v-model="getAnswerEndsAt(practice).measured"
            {% if sample.is_frozen %}
            disabled
            {% else %}
@@ -364,11 +364,11 @@
               type="number"
               placeholder=""
               v-model="getPrimaryAnswer(practice).measured"
-              @blur="updateAssessmentAnswer(practice)"
+              @blur="updateAssessmentAnswer(practice, practice.answers)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control"
             v-model="getPrimaryAnswer(practice).unit"
-            @blur="updateAssessmentAnswer(practice)"
+            @blur="updateAssessmentAnswer(practice, practice.answers)"
             {% if sample.is_frozen %} disabled{% endif %}>
         <option value="tons">Metric Tons CO2e</<option>
     </select>
@@ -412,9 +412,12 @@
     v-if="isTargetByUIHint(practice)">
   <div class="input-group">
     <select class="form-control"
-          v-model="getPrimaryAnswer(practice).measured"
-          @blur="updateAssessmentAnswer(practice)"
-          {% if sample.is_frozen %} disabled{% endif %}>
+            v-model="getPrimaryAnswer(practice).measured"
+            {% if sample.is_frozen %}
+            disabled
+            {% else %}
+            @blur="updateAssessmentAnswer(practice)"
+            {% endif %}>
       <option value="no-target">No target</option>
       <option value="2022">2022</option>
       <option value="2023">2023</option>
@@ -518,7 +521,7 @@
           <textarea class="form-control"
               name="other-measures"
               maxlength="255" type="text" rows="10"
-              placeholder="Some comments about implementation of the best practice at your organization. If you think the best practice does not apply to your organization, please explain why. Thank you."
+              placeholder="Please comment about the current and planned implementation of the practice at your organization; when available, include supporting links to CSR/Sustainability report, Annual report, etc. (You can also upload these reports by drag/drop to this box if necessary). If you think the practice does not apply to your organization, please explain why. Thank you."
               v-model="text"
               {% if sample.is_frozen %}
               disabled

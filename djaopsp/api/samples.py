@@ -389,7 +389,8 @@ class AssessmentContentMixin(SegmentReportMixin, CampaignContentMixin,
         Overrides CampaignContentMixin.get_questions to return a list
         of questions based on the answers available in the sample.
         """
-        self.units = {}
+        if not hasattr(self, 'units'):
+            self.units = {}
         if not prefix.endswith(self.DB_PATH_SEP):
             prefix = prefix + self.DB_PATH_SEP
 
@@ -590,7 +591,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
         return context
 
     def list(self, request, *args, **kwargs):
-        self.units = {}
         queryset = self.filter_queryset(self.get_queryset())
 
         serializer = AssessmentNodeSerializer(

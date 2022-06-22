@@ -198,7 +198,7 @@
             </div>
             <div class="modal-body">
               <p>
-                {% trans %}Before going further, would you like to update all reporting baseline to [[getPrimaryAnswer(activeElement).baseline_at]]?{% endtrans %}
+                {% trans %}Before going further, would you like to update all reporting start date to [[getAnswerStartsAt(activeElement).measured]]?{% endtrans %}
               </p>
               <div class="modal-footer">
                 <button class="btn btn-secondary"
@@ -206,7 +206,7 @@
                 <button type="submit"
                         class="btn btn-primary"
                         data-dismiss="modal"
-                        @click.prevent="updateAllBaseLineAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
+                        @click.prevent="updateAllStartsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
               </div>
             </div>
           </div>
@@ -225,7 +225,7 @@
             </div>
             <div class="modal-body">
               <p>
-                {% trans %}Before going further, would you like to update all reporting end date to [[getPrimaryAnswer(activeElement).created_at]]?{% endtrans %}
+                {% trans %}Before going further, would you like to update all reporting end date to [[getAnswerEndsAt(activeElement).measured]]?{% endtrans %}
               </p>
               <div class="modal-footer">
                 <button class="btn btn-secondary"
@@ -250,7 +250,7 @@
             [[nbAnswers]] out of [[nbQuestions]] questions answered.
           </p>
           <p>
-Click on each icon to expand it.
+{% trans %}Click on each icon tile to expand it.{% endtrans %}
           </p>
           {% if sample.is_frozen %}
           Completed on {{sample.created_at|date}}

@@ -619,7 +619,9 @@ class GraphMixin(object):
                 if is_view_account:
                     node[0].update(account_metrics)
 
-                if account_metrics.get('nb_answers', 0):
+                if account_metrics.get('normalized_score', 0):
+                    # XXX assumes that normalized_score == 0 is an incomplete
+                    # answer.
                     nb_respondents += 1
 
                 normalized_score = account_metrics.get('normalized_score', None)

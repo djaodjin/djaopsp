@@ -11,7 +11,7 @@ from django.views.generic.base import (RedirectView, TemplateResponseMixin,
     TemplateView)
 from django.views.generic.edit import FormMixin
 from survey.models import Answer, Campaign, Sample
-from survey.utils import get_account_model
+from survey.utils import get_account_model, get_question_model
 
 from ..compat import reverse
 from ..mixins import AccountMixin, ReportMixin
@@ -120,10 +120,14 @@ class ScorecardIndexView(ReportMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ScorecardIndexView, self).get_context_data(**kwargs)
-        is_mandatory_segment_present = Answer.objects.filter(
-            sample=self.sample,
-            question__path__startswith="%s%s%s" % (self.DB_PATH_SEP,
-                self.sample.campaign.slug, self.DB_PATH_SEP)).exists()
+        campaign_prefix = "%s%s%s" % (self.DB_PATH_SEP,
+            self.sample.campaign.slug, self.DB_PATH_SEP)
+        is_mandatory_segment_present = (
+            not get_question_model().objects.filter(
+                path__startswith=campaign_prefix).exists() or
+            Answer.objects.filter(
+                sample=self.sample,
+                question__path__startswith=campaign_prefix).exists())
         context.update({
             'highlights': get_highlights(self.sample),
             'is_mandatory_segment_present': is_mandatory_segment_present,
@@ -149,6 +153,10 @@ class ScorecardIndexView(ReportMixin, TemplateView):
                 args=(self.account, self.sample)),
             'api_account_benchmark': reverse('api_benchmark_index',
                 args=(self.account, self.sample)),
+            # The Vue component will use the fully resolved URL to show
+            # if it is an external link or an uploaded document.
+            'api_asset_upload_complete': self.request.build_absolute_uri(
+                reverse('pages_api_upload_asset', args=(self.account,))),
         })
         return context
 

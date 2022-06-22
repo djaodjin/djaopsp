@@ -200,6 +200,20 @@
   },
   "model" : "survey.choice", "pk": 18
 },
+{ "fields": {
+    "slug": "starts-at",
+    "title": "Starts at",
+    "system": 5
+  },
+  "model" : "survey.unit", "pk": 12
+},
+{ "fields": {
+    "slug": "ends-at",
+    "title": "Ends at",
+    "system": 5
+  },
+  "model" : "survey.unit", "pk": 13
+},
 
 {
   "fields": {

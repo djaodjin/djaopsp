@@ -76,7 +76,6 @@ then share it with customers, investors and other interested 3rd parties.
         </div>
         <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
           <div :name="practice.slug" v-for="practice in getEntries()">
-
             <div class="mt-4" v-if="isChartHeading(practice)">
               <hr v-if="practice.picture" />
               <div class="row">
@@ -121,7 +120,7 @@ companies responding on practices in the industry segment.
                   </div>
                 </div>{# /.col-md-8 #}
                 <div class="col-md-4">
-                  <div :class="indentHeader(practice)"
+                  <div :class="indentHeader(practice) + ' py-2'"
                        v-if="practice.indent == 0">
                     <svg class="chart-scores" :viewBox="'0 0 ' + arcWidth + ' ' + arcHeight">
                       <!-- top score arc -->
@@ -165,13 +164,13 @@ companies responding on practices in the industry segment.
                         <path
                           id="ownScorePath"
                           fill="none"
-                          :d="lowScoreTopPath"
+                          :d="ownScoreTopPath"
                           />
                         <path
                           class="arc-score"
                           :style="'transform: rotate(' + scoreToRotation(practice.normalized_score) + ');'"
                           fill="#9cd868"
-                          :d="lowScoreBottomPath"
+                          :d="ownScoreBottomPath"
                           />
                         <text class="score-label" x="4" dy="-5" fill="white">
                           <textPath href="#ownScorePath">you ([[practice.normalized_score]]%)</textPath>
@@ -179,7 +178,7 @@ companies responding on practices in the industry segment.
                       </g>
                       <g class="counter"
                          :transform="'translate(' + (arcWidth / 2) + ', ' + arcHeight + ')'">
-                        <text dx="-1.6rem" dy="-5">[[practice.normalized_score]]%</text>
+                        <text dx="-1.6rem" dy="-25">[[practice.normalized_score]]%</text>
                       </g>
                     </svg>
                   </div>{# /practice.indent == 0 #}
@@ -190,17 +189,13 @@ companies responding on practices in the industry segment.
               </div>{# /.row #}
             </div>{# /.isChartHeading - i.e. heading with charts and score #}
 
-            <div>
-              XXX [[practice.slug]] - !isChartHeading:[[!isChartHeading(practice)]], !isPractice:[[!isPractice(practice)]], isDataMetricsHeader: [[isDataMetricsHeader(practice)]]
-            </div>
-
             <div v-if="!isChartHeading(practice) && !isPractice(practice)">
-              <hr v-if="practice.picture" />
+              <hr v-if="isTilePicture(practice)" />
               <div class="row">
                 <div class="col-12">
-                  <div :class="indentHeader(practice)">
+                  <div :class="indentHeader(practice) + ' mt-2'">
                     <div class="orange icon-inner d-inline-block"
-                         v-if="practice.picture">
+                         v-if="isTilePicture(practice)">
                       <img class="icon-equipment" style="margin-top: 15px;"
                            :src="practice.picture" />
                     </div>
@@ -241,7 +236,7 @@ companies responding on practices in the industry segment.
               </div>{# /.isDataMetricsHeader #}
             </div>{# /!isChartHeading(practice) && !isPractice(practice) - i.e. regular heading #}
 
-            <div v-if="isEnumUIHint(practice)">
+            <div v-if="isEnumUnit(practice)">
               <div class="row">
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
@@ -252,7 +247,7 @@ companies responding on practices in the industry segment.
                   </div>
                   <div class="row">
                     <div class="col-sm-6 col-md-4"
-                         v-if="isSustainabilityUIHint(practice)">
+                         v-if="isAssessmentUnit(practice)">
                       Implementation rate<br />
                       [[practice.nb_respondents]] respondents
                       <div class="progress" style="margin:0">
@@ -274,32 +269,27 @@ companies responding on practices in the industry segment.
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="bestpractice mt-2">
+                  <div :class="'bestpractice mt-2' + (isRequiredShown(practice) ? ' practice-required' : '')">
                     <div class="row">
                       <div class="col-6">
-                        <div v-if="!isYesNoUIHint(practice)">
-                          assessed
-                        </div>
                         <div>
                           <strong>[[getPrimaryAnswer(practice).measured ? getPrimaryAnswer(practice).measured : "-"]]</strong>
                         </div>
                       </div>
                       <div class="col-6" v-if="getPrimaryPlanned(practice) && getPrimaryPlanned(practice).measured">
                         <div>
-                          planned
-                        </div>
-                        <div>
-                          <strong>[[getPrimaryPlanned(practice).measured]]</strong>
+                          (planned: <strong>[[getPrimaryPlanned(practice).measured]]</strong>)
                         </div>
                       </div>
                     </div>
                   </div>
-                  <p v-if="getCommentsAnswer(practice).measured">
-                    [[getCommentsAnswer(practice).measured]]
+                  <p @click.prevent="openLink($event)"
+                     v-html="textAsHtml(getCommentsAnswer(practice).measured)"
+                     v-if="getCommentsAnswer(practice).measured">
                   </p>
                 </div>
               </div>
-            </div>{# /isEnumUIHint(practice) #}
+            </div>{# /isEnumUnit(practice) #}
 
             <div v-if="isFreetextUnit(practice)">
               <div class="row">
@@ -312,7 +302,9 @@ companies responding on practices in the industry segment.
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div v-if="practice.answers.length === 0">
+                  <div
+                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                    v-if="practice.answers.length === 0">
                     &dash;
                   </div>
                   <div v-for="answer in practice.answers"
@@ -328,33 +320,7 @@ companies responding on practices in the industry segment.
               </div>
             </div>{# /isFreetextUnit(practice) #}
 
-            <div v-if="isGHGEmissionsBreakDown(practice)">
-              <div class="row">
-                <div class="col-12">
-                  <div :class="indentHeader(practice) + ' mt-2'">
-                    <table class="table table-bordered table-striped">
-                      <tr class="text-right">
-                        <th></th>
-                        <th v-for="year in getColHeaders(practice)">
-                          [[year]]
-                        </th>
-                      </tr>
-                      <tr>
-                        <th>[[practice.title]]</th>
-                        <td class="text-right" v-for="year in getColHeaders(practice)">
-                          [[getColValue(practice, year)]]
-                        </td>
-                      </tr>
-                      <caption class="text-center">
-                        [[getPrimaryUnit(practice).title]]
-                      </caption>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>{# /isGHGEmissionsBreakDown(practice) #}
-
-            <div v-if="isNumberUIHint(practice)">
+            <div v-if="isEmployeeCountUIHint(practice)">
               <div class="row">
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
@@ -365,48 +331,66 @@ companies responding on practices in the industry segment.
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div v-if="practice.answers.length === 0">
+                  <div
+                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                    v-if="practice.answers.length === 0">
+                    &dash;
+                  </div>
+                  <div v-if="practice.answers.length > 0">
+                    <span v-if="getPrimaryAnswer(practice).measured === '0'">0-10 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '11'">11-50 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '51'">51-200 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '201'">201-500 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '501'">501-1,000 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '1001'">1,001-5,000 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '5001'">5,001-10,000 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '10001'">10,001+ employees</span>
+                  </div>
+                </div>
+              </div>
+            </div>{# /isEmployeeCountUIHint(practice) #}
+
+            <div v-if="isNumberUnit(practice)">
+              <div class="row">
+                <div class="col-md-8">
+                  <div :class="indentHeader(practice) + ' mt-2'">
+                    <a class="title"
+                       :href="'{{urls.pages_index}}' + practice.slug + '/'">
+                      [[practice.title]]
+                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div
+                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                    v-if="practice.answers.length === 0">
                     &dash;
                   </div>
                   <div v-for="answer in practice.answers"
                        v-if="practice.answers.length > 0">
                     <div v-if="answer.measured">
+                      <span v-if="answer.unit === 'percentage'">
+                      [[answer.measured]]%
+                      </span>
+                      <span v-if="answer.unit === 'ends-at'">
+                        On [[answer.measured]]
+                      </span>
+                      <span v-if="answer.unit === 'yes-no' && answer.measured === 'Yes'">
+                        (not publicly disclosed)
+                      </span>
+                      <span v-if="!(answer.unit === 'percentage' || answer.unit === 'ends-at' || answer.unit === 'yes-no')">
                       [[answer.measured]] [[getUnit(answer).title]]
+                      </span>
                     </div>
-                    <div v-if="!answer.measured">
+                    <div
+                      :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                      v-if="!answer.measured">
                       &dash;
                     </div>
                   </div>
                 </div>
               </div>
-            </div>{# /isNumberUIHint(practice) #}
-
-            <div v-if="isTargetByUIHint(practice)">
-              <div class="row">
-                <div class="col-md-8">
-                  <div :class="indentHeader(practice) + ' mt-2'">
-                    <a class="title"
-                       :href="'{{urls.pages_index}}' + practice.slug + '/'">
-                      [[practice.title]]
-                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div v-if="practice.answers.length === 0">
-                    &dash;
-                  </div>
-                  <div v-for="answer in practice.answers"
-                       v-if="practice.answers.length > 0">
-                    <div v-if="answer.measured">
-                      [[answer.measured]]
-                    </div>
-                    <div v-if="!answer.measured">
-                      &dash;
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>{# /isTargetByUIHint(practice) #}
+            </div>{# /isNumberUnit(practice) #}
 
           </div>{# /.v-for=getEntries() #}
         </div>

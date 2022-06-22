@@ -130,6 +130,7 @@ var practicesListMixin = {
             }
             return result;
         },
+
         getAnswerByUnit: function(practice, unit, defaultValue) {
             if( typeof practice.answers === 'undefined' ) {
                  practice['answers'] = [];
@@ -146,9 +147,44 @@ var practicesListMixin = {
             });
             return practice.answers[practice.answers.length - 1];
         },
+        getAnswerStartsAt: function(practice) {
+            // We need to get the dates in a "YYY-MM-DD" format
+            // for the <input> tag to behave properly.
+            const lastYear = new Date(Date.now()).getFullYear() - 1;
+            const startsAt = (
+                new Date(lastYear, 0)).toISOString().substr(0, 10);
+            if( !practice ) return startsAt;
+            return this.getAnswerByUnit(practice, 'starts-at', startsAt);
+        },
+        getAnswerEndsAt: function(practice) {
+            // We need to get the dates in a "YYY-MM-DD" format
+            // for the <input> tag to behave properly.
+            const lastYear = new Date(Date.now()).getFullYear() - 1;
+            const endsAt = (
+                new Date(lastYear, 11, 31)).toISOString().substr(0, 10);
+            if( !practice ) return endsAt;
+            return this.getAnswerByUnit(practice, 'ends-at', endsAt);
+        },
         getCommentsAnswer: function(practice) {
             return this.getAnswerByUnit(practice, 'freetext', "");
         },
+        getPrimaryAnswer: function(practice) {
+            if( !practice ) return {};
+            if( typeof practice.answers === 'undefined' ) {
+                practice['answers'] = [];
+            }
+            if( practice.answers.length < 1 ||
+                !this.isUnitEquivalent(
+                    practice.answers[0].unit, practice.default_unit.slug) ) {
+                practice['answers'] = [{
+                    unit: practice.default_unit.slug,
+                    measured: null,
+                    created_at: null
+                }].concat(practice['answers']);
+            }
+            return practice.answers[0];
+        },
+
         getOpportunity: function(practice) {
             var vm = this;
             if( vm.isNotApplicable(practice) ) {
@@ -161,22 +197,6 @@ var practicesListMixin = {
                 practice, 'opportunity_numerator');
             return opportunityNumerator.toFixed(2);
         },
-        getPrimaryAnswer: function(practice) {
-            if( !practice ) return {};
-            if( typeof practice.answers === 'undefined' ) {
-                practice['answers'] = [];
-            }
-            if( practice.answers.length < 1 ||
-                practice.answers[0].unit != practice.default_unit.slug ) {
-                practice['answers'] = [{
-                    unit: practice.default_unit.slug,
-                    measured: null,
-                    baseline_at: null,
-                    created_at: null
-                }].concat(practice['answers']);
-            }
-            return practice.answers[0];
-        },
         // returns the planned improvement answer for a practice
         getPrimaryPlanned: function(practice) {
             if( (typeof practice.planned === 'undefined') ||
@@ -184,7 +204,6 @@ var practicesListMixin = {
                 practice['planned'] = [{
                     unit: practice.default_unit.slug,
                     measured: null,
-                    baseline_at: null,
                     created_at: null
                 }];
             }
@@ -229,20 +248,11 @@ var practicesListMixin = {
         implementationRateStyle: function(rate) {
             return {width: this.asPercent(rate)};
         },
-        isPagebreak: function(row) {
+        isDataMetricsHeader: function(row) {
             var vm = this;
-            return (row.extra && row.extra.pagebreak) ||
-                vm.containsTag(row, vm.TAG_PAGEBREAK);
-        },
-        isPractice: function(row) {
-            var vm = this;
-            if( typeof row.default_unit !== "undefined" ) {
-                return row.default_unit !== null;
-            }
-            if( typeof row.avg_value !== "undefined" ) {
-                return row.avg_value !== null;
-            }
-            return false;
+            return !vm.isPractice(row) && (
+                row.extra && row.extra.tags &&
+                (row.extra.tags.includes('data-metrics-header')));
         },
         isDiverseDefinitionUIHint: function(row) {
             var vm = this;
@@ -266,25 +276,32 @@ var practicesListMixin = {
             return vm.isPractice(row) && (row.ui_hint === 'ghg-emissions' ||
                 row.ui_hint === 'ghg-emissions-scope3');
         },
-        // GHG Emissions - Scope 3
-        isGHGEmissionsBreakDown: function(row) {
+        isEmployeeCountUIHint: function(row) {
             var vm = this;
-            return vm.isPractice(row) && (
-                row.ui_hint === 'ghg-emissions-scope3');
+            return vm.isPractice(row) && row.ui_hint === 'employee-count';
         },
-        isDataMetricsHeader: function(row) {
+        isPagebreak: function(row) {
             var vm = this;
-            return !vm.isPractice(row) && (
-                row.extra && row.extra.tags &&
-                (row.extra.tags.includes('data-metrics-header')));
-        },
-        isNumberUIHint: function(row) {
-            var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'number';
+            return (row.extra && row.extra.pagebreak) ||
+                vm.containsTag(row, vm.TAG_PAGEBREAK);
         },
         isPercentageUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'percentage';
+        },
+        isPractice: function(row) {
+            var vm = this;
+            if( typeof row.default_unit !== "undefined" ) {
+                return row.default_unit !== null;
+            }
+            if( typeof row.avg_value !== "undefined" ) {
+                return row.avg_value !== null;
+            }
+            return false;
+        },
+        isRequiredShown: function(row) {
+            var vm = this;
+            return row.required && !vm.getPrimaryAnswer(row).measured;
         },
         isTargetByUIHint: function(row) {
             var vm = this;
@@ -293,6 +310,18 @@ var practicesListMixin = {
         isScoredPractice: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.opportunity !== null;
+        },
+        isUnitEquivalent: function(unit, default_unit) {
+            if( default_unit === 'usd' ||
+                default_unit === 'million-usd' ||
+                default_unit === 'eur' ||
+                default_unit === 'million-eur' ) {
+                return unit === 'usd' ||
+                    unit === 'million-usd' ||
+                    unit === 'eur' ||
+                    unit === 'million-eur';
+            }
+            return unit === default_unit;
         },
         isWasteUIHint: function(row) {
             var vm = this;
@@ -317,6 +346,7 @@ var practicesListMixin = {
     },
     computed: {
         TAG_PAGEBREAK: function() { return 'pagebreak'; },
+        TAG_SCORECARD: function() { return 'scorecard'; },
         NOT_APPLICABLE: function() { return 'Not applicable'; },
     },
 };
@@ -486,8 +516,8 @@ Vue.component('campaign-questions-list', {
         importFromTrackingTool: function(practice) {
             var vm = this;
             var primaryAnswer = vm.getPrimaryAnswer(practice);
-            var startsAt = primaryAnswer.baseline_at;
-            var endsAt = primaryAnswer.created_at;
+            var startsAt = vm.getAnswerStartsAt(practice).measured;
+            var endsAt = vm.getAnswerEndsAt(practice).measured;
             vm.reqGet(vm._safeUrl(vm.api_aggregate_metric_base, vm.prefix + practice.path) + '?created_at=' + startsAt + "&ends_at=" + endsAt,
             function(resp) {
                 primaryAnswer.measured = resp.measured;
@@ -499,10 +529,6 @@ Vue.component('campaign-questions-list', {
             var vm = this;
             return icon.choices_headers && icon.choices_headers.length > 0;
         },
-        isRequiredShown: function(row) {
-            var vm = this;
-            return row.required && !vm.getPrimaryAnswer(row).measured;
-        },
         isActiveCommentsShown: function(practice) {
             var vm = this;
             return vm.isOpenComments && (vm.activeElement &&
@@ -513,10 +539,6 @@ Vue.component('campaign-questions-list', {
             return vm.isPractice(row) && row.ui_hint === 'revenue'
                 && (row.default_unit && (row.default_unit.slug === 'usd' ||
                     row.default_unit.slug === 'million-usd'));
-        },
-        isEmployeeCountUIHint: function(row) {
-            var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'employee-count';
         },
         isTargetBaselineUIHint: function(row) {
             var vm = this;
@@ -556,7 +578,10 @@ Vue.component('campaign-questions-list', {
             return !(vm.isAtLeastNeedsSignificantImprovement(practice)
                 || vm.isNo(practice) || vm.isNotApplicable(practice));
         },
-
+        isNumberUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'number';
+        },
         isIcon: function(colHeader) {
             var search = ".png";
             var colTitle = colHeader.title;
@@ -674,31 +699,43 @@ Vue.component('campaign-questions-list', {
         _callUpdateAnswer: function(path, measured,
                                      successCallback, errorCallback) {
             var vm = this;
-            if( typeof measured !== 'undefined' ) {
-                var data = ( vm._isArray(measured) || vm._isObject(measured) ) ?
-                    measured : {measured: measured};
-                vm.reqPost(vm._safeUrl(vm.api_assessment_sample,
-                    '/answers' + vm.prefix + path), data,
-                function success(resp, textStatus, jqXHR) {
-                    if( jqXHR.status == 201 ) {
-                        vm.nbAnswers++;
-                        if( resp.question && resp.question.required ) {
-                            vm.nbRequiredAnswers++;
-                        }
-                    }
-                    if( successCallback ) {
-                        successCallback(resp);
-                    }
-                },
-                function error(resp) {
-                    vm.showErrorMessages(resp);
-                    if( errorCallback ) {
-                        errorCallback(resp);
-                    }
-                });
+            var data = null;
+            if( typeof measured === 'undefined' || measured === null ) return;
+            if( vm._isArray(measured) ) {
+                data = measured;
+            } else if( vm._isObject(measured) ) {
+                data = measured;
+                if( typeof data.measured === 'undefined' ||
+                    data.measured === null ) return;
+            } else {
+                data = {measured: measured};
             }
+            vm.reqPost(vm._safeUrl(vm.api_assessment_sample, '/answers' +
+                vm.prefix + path), data,
+            function success(resp, textStatus, jqXHR) {
+                if( jqXHR.status == 201 ) {
+                    vm.nbAnswers++;
+                    if( resp.question && resp.question.required ) {
+                        vm.nbRequiredAnswers++;
+                    }
+                }
+                if( successCallback ) {
+                    successCallback(resp);
+                }
+            },
+            function error(resp) {
+                vm.showErrorMessages(resp);
+                if( errorCallback ) {
+                    errorCallback(resp);
+                }
+            });
         },
-
+        openCommentsAutomatically: function(practice, newValue) {
+            return (practice.default_unit.slug == 'assessment' &&
+                    newValue === this.NOT_APPLICABLE) ||
+                (practice.required && !(this.isRevenueUIHint(practice) ||
+                    this.isEmployeeCountUIHint(practice)));
+        },
         updateAssessmentAnswer: function(practice, newValue) {
             var vm = this;
             if( typeof newValue === 'undefined' ) {
@@ -706,14 +743,8 @@ Vue.component('campaign-questions-list', {
             }
             vm._callUpdateAnswer(practice.path, newValue,
             function success(resp) {
-                if( vm.activeElement &&
-                    vm.activeElement.slug !== practice.slug) {
-                    if( newValue === vm.NOT_APPLICABLE ) {
-                        vm.setActiveElement(practice);
-                        vm.isOpenComments = true;
-                    } else {
-                        vm.isOpenComments = false;
-                    }
+                if( vm.openCommentsAutomatically(practice, newValue) ) {
+                    vm.openComments(practice, true);
                 }
                 if( resp.question ) {
                     practice.opportunity = resp.question.opportunity;
@@ -738,47 +769,61 @@ Vue.component('campaign-questions-list', {
                 }
             });
         },
-        updateBaseLineAt: function(practice) {
+        toggleNotDisclosedPublicly: function(row) {
+            this.updateAssessmentAnswer(row, {
+                measured: this.getAnswerByUnit(row, 'yes-no').measured === 'Yes' ?
+                    'No' : 'Yes', unit: 'yes-no'})
+        },
+        updateStartsAt: function(practice) {
             var vm = this;
             vm.setActiveElement(practice);
             vm.updateAssessmentAnswer(practice);
             this.$nextTick(function() {
-                jQuery('#syncBaselineAt').modal("show");
+                if( !jQuery('#syncEndsAt').is(':visible') ) {
+                    jQuery('#syncBaselineAt').modal("show");
+                }
             });
-        },
-        updateAllBaseLineAt: function(practice) {
-            this.updateDataMetricsDate(practice, 'baseline_at');
-        },
-        updateComment: function(text, practice) {
-            var vm = this;
-            vm.getCommentsAnswer(practice).measured = text;
-            vm.updateAssessmentAnswer(practice, vm.getCommentsAnswer(practice))
         },
         updateEndsAt: function(practice) {
             var vm = this;
             vm.setActiveElement(practice);
             vm.updateAssessmentAnswer(practice);
             this.$nextTick(function() {
-                jQuery('#syncEndsAt').modal("show");
+                if( !jQuery('#syncBaselineAt').is(':visible') ) {
+                    jQuery('#syncEndsAt').modal("show");
+                }
             });
         },
-        updateAllEndsAt: function(practice) {
-            this.updateDataMetricsDate(practice, 'created_at');
-        },
-        updateDataMetricsDate: function(practice, dateFieldName) {
+        updateAllStartsAt: function(practice) {
             var vm = this;
-            if( !dateFieldName ) {
-                dateFieldName = 'created_at';
-            }
-            var atTime = vm.getPrimaryAnswer(practice ? practice : vm.activeElement)[dateFieldName];
+            var atTime = vm.getAnswerStartsAt(
+                practice ? practice : vm.activeElement).measured;
             var practices = vm.getEntries();
             for( var idx = 0; idx < practices.length; ++idx ) {
                 var row = practices[idx];
                 if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
                     vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ) {
-                    vm.getPrimaryAnswer(row)[dateFieldName] = atTime;
+                    vm.getAnswerStartsAt(row).measured = atTime;
                 }
             }
+        },
+        updateAllEndsAt: function(practice) {
+            var vm = this;
+            var atTime = vm.getAnswerEndsAt(
+                practice ? practice : vm.activeElement).measured;
+            var practices = vm.getEntries();
+            for( var idx = 0; idx < practices.length; ++idx ) {
+                var row = practices[idx];
+                if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
+                    vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ) {
+                    vm.getAnswerEndsAt(row).measured = atTime;
+                }
+            }
+        },
+        updateComment: function(text, practice) {
+            var vm = this;
+            vm.getCommentsAnswer(practice).measured = text;
+            vm.updateAssessmentAnswer(practice, vm.getCommentsAnswer(practice))
         },
         updateMultipleAssessmentAnswers: function (heading, newValue) {
             var vm = this;
@@ -907,11 +952,15 @@ Vue.component('campaign-questions-list', {
         setActiveElement: function(practice) {
             this.activeElement = practice;
         },
-        openComments: function(practice) {
+        openComments: function(practice, opened) {
             var vm = this;
             if( vm.activeElement &&
                 vm.activeElement.slug === practice.slug) {
-                vm.isOpenComments = !vm.isOpenComments;
+                if( typeof opened == 'undefined' ) {
+                    vm.isOpenComments = !vm.isOpenComments;
+                } else {
+                    vm.isOpenComments = opened;
+                }
             } else {
                 vm.setActiveElement(practice);
                 vm.isOpenComments = true;
@@ -921,7 +970,6 @@ Vue.component('campaign-questions-list', {
     computed: {
         BEST_PRACTICE_ELEMENT: function() { return 'best-practice'; },
         HEADING_ELEMENT: function() { return 'heading'; },
-        TAG_SCORECARD: function() { return 'scorecard'; },
         TAG_ENERGY_EMISSIONS: function() { return 'Energy & Emissions'; },
         TAG_WATER: function() { return 'Water'; },
         TAG_WASTE: function() { return 'Waste'; },
@@ -963,6 +1011,7 @@ Vue.component('scorecard', {
             url: this.$urls.survey_api_sample_answers,
             api_assessment_freeze: this.$urls.api_assessment_freeze,
             account_benchmark_url: this.$urls.api_account_benchmark,
+            upload_complete_url: this.$urls.api_asset_upload_complete,
             params: {o: ""},
             chartsLoaded: false,
             chartsAvailable: false,
@@ -1024,15 +1073,23 @@ Vue.component('scorecard', {
         buildCharts: function(resp) {
             var vm = this;
             for( var idx = 0; idx < resp.length; ++idx ) {
-                if( resp[idx].normalized_score ) {
-                    for( var jdx = 0; jdx < vm.items.results.length; ++jdx ) {
-                        if( vm.items.results[jdx].slug === resp[idx].slug ) {
+                for( var jdx = 0; jdx < vm.items.results.length; ++jdx ) {
+                    if( vm.items.results[jdx].slug === resp[idx].slug ) {
+                        if( resp[idx].normalized_score ) {
                             vm.items.results[jdx].normalized_score =
                                 resp[idx].normalized_score;
-                            break;
                         }
+                        if( resp[idx].highest_normalized_score ) {
+                            vm.items.results[jdx].highest_normalized_score =
+                                resp[idx].highest_normalized_score;
+                        }
+                        if( resp[idx].avg_normalized_score ) {
+                            vm.items.results[jdx].avg_normalized_score =
+                                resp[idx].avg_normalized_score;
+                        }
+                        vm.buildChart(resp[idx]);
+                        break;
                     }
-                    vm.buildChart(resp[idx]);
                 }
             }
             vm.chartsAvailable = true;
@@ -1080,13 +1137,19 @@ Vue.component('scorecard', {
             var vm = this;
             var headers = [];
             if( vm.isPractice(practice) ) {
-                for( var idx = 0; idx < practice.answers.length; ++idx ) {
-                    // `getColHeaders` is only called when we are dealing
-                    // with Data metrics.
-                    var period = Date.parse(practice.answers[idx].created_at);
-                    if( !isNaN(period) ) {
-                        period = new Date(period);
-                        headers.push(period.getYear());
+                // `getColHeaders` is only called when we are dealing
+                // with Data metrics.
+                var period = Date.parse(vm.getAnswerEndsAt(practice).measured);
+                if( !isNaN(period) ) {
+                    period = new Date(period);
+                    headers.push(period.getFullYear());
+                }
+            } else {
+                var totals = vm.getEntries(practice.slug);
+                for( var idx = 0; idx < totals.length; ++idx ) {
+                    var candidateHeaders = vm.getColHeaders(totals[idx]);
+                    if( candidateHeaders.length > headers.length ) {
+                        headers = candidateHeaders;
                     }
                 }
             }
@@ -1098,17 +1161,14 @@ Vue.component('scorecard', {
         getColValue: function(practice, colHeader) {
             var vm = this;
             var vals = [];
-            for( var idx = 0; idx < practice.answers.length; ++idx ) {
-                // `getColValue` is only called when we are dealing
-                // with Data metrics.
-                var period = new Date(
-                    practice.answers[idx].created_at).getYear();
-                if( !isNaN(period) && period === colHeader ) {
-                    if( !isNaN(practice.answers[idx]) ) {
-                        return practice.answers[idx].measured;
-                    } else {
-                        break;
-                    }
+            // `getColValue` is only called when we are dealing
+            // with Data metrics.
+            var period = (new Date(vm.getAnswerEndsAt(practice).measured)).getFullYear();
+            if( !isNaN(period) && period === colHeader ) {
+                var measured = vm.getPrimaryAnswer(practice).measured;
+                if( typeof measured !== 'undefined' && measured !== null &&
+                    !isNaN(measured) ) {
+                    return measured;
                 }
             }
             return "-";
@@ -1143,10 +1203,31 @@ Vue.component('scorecard', {
             var vm = this;
             return vm.containsTag(row, vm.TAG_SCORECARD);
         },
+        isTilePicture: function(row) {
+            return row.picture && row.indent < 2;
+        },
+        isAssessmentUnit: function(row) {
+            return this.isEnumUnit(row) && row.default_unit.slug === 'assessment';
+        },
+        isEnumUnit: function(row) {
+            var vm = this;
+            return vm.isPractice(row) &&
+                row.default_unit && row.default_unit.system === 'enum';
+        },
         isFreetextUnit: function(row) {
             var vm = this;
             return vm.isPractice(row) &&
                 row.default_unit && row.default_unit.slug === 'freetext';
+        },
+        isNumberUnit: function(row) {
+            var vm = this;
+            return !(vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
+                    vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ||
+                    vm.isEmployeeCountUIHint(row)) &&
+                vm.isPractice(row) &&
+                (row.default_unit.system === 'standard' ||
+                row.default_unit.system === 'imperial' ||
+                row.default_unit.system === 'rank');
         },
         freezeAssessment: function($event) {
             var vm = this;
@@ -1154,18 +1235,37 @@ Vue.component('scorecard', {
             vm.reqPost(vm.api_assessment_freeze, {is_frozen: true},
             function success(resp) {
                 vm.freezeAssessmentDisabled = false;
-                var modalDialog = jQuery('#complete-assessment.modal');
-                modalDialog.modal('hide');
-                if( resp.location ) {
-                    window.location = resp.location;
-                }
+                vm.$nextTick(function() {
+                    var modalDialog = jQuery('#complete-assessment.modal');
+                    if( modalDialog ) modalDialog.modal('hide');
+                    if( resp.location ) {
+                        window.location = resp.location;
+                    }
+                });
             },
             function error(resp) {
                 vm.freezeAssessmentDisabled = false;
-                var modalDialog = jQuery('#complete-assessment.modal');
-                modalDialog.modal('hide');
-                vm.showErrorMessages(resp);
+                vm.$nextTick(function() {
+                    var modalDialog = jQuery('#complete-assessment.modal');
+                    if( modalDialog ) modalDialog.modal('hide');
+                    vm.showErrorMessages(resp);
+                });
             });
+        },
+        openLink: function(event) {
+            var vm = this;
+            var href = event.target.getAttribute('href');
+            var pathname = event.target.pathname;
+            if( href ) {
+                if( pathname.startsWith(vm.upload_complete_url) ) {
+                    vm.reqGet(pathname,
+                    function(resp) {
+                        window.open(resp.location, '_blank');
+                    });
+                } else {
+                    window.open(href, '_blank');
+                }
+            }
         },
         resetAssessment: function($event, prefix) {
             var vm = this;
@@ -1187,6 +1287,24 @@ Vue.component('scorecard', {
         scoreToRotation: function(score) {
             return '' + ((score / 100) * 180 + 180) + 'deg';
         },
+        // display with active links
+        textAsHtml: function(text) {
+            var vm = this;
+            if( !text ) {
+                return "";
+            }
+            var activeLinks = text.replace(
+                /(https?:\/\/\S+)/gi,
+                '<a href="$1" target="_blank">external link</a>');
+            if( vm.upload_complete_url ) {
+                var reg = new RegExp(
+                    '<a href="(' + vm.upload_complete_url +
+                    '\/\\S+)" target="_blank">(external link)<\/a>', 'gi');
+                activeLinks = activeLinks.replace(reg,
+                    '<a href="$1">uploaded document</a>');
+            }
+            return activeLinks;
+        }
     },
     computed: {
         arcWidth: function() {
@@ -1216,14 +1334,14 @@ Vue.component('scorecard', {
                 this.innerRadius + ' 0 0 1 ' +
                 (this.arcWidth -  this.baseWidth * 2 * 2) + ' 0';
         },
-        lowScoreTopPath: function() {
+        ownScoreTopPath: function() {
             return 'm ' + (this.baseWidth * 3) + ' 0 a ' +
                 this.innerRadius + ' ' +
                 this.innerRadius + ' 0 0 1 ' +
                 (this.arcWidth -  this.baseWidth * 2 * 3) + ' 0';
         },
         topScoreBottomPath: function() {
-            return 'm 0 0 a '+
+            return 'm 0 0 a ' +
                 this.radiusOuterAngle + ' ' +
                 this.radiusOuterAngle + ' 0 0 1 ' +
                 this.arcWidth + ' 0 l ' +
@@ -1242,7 +1360,7 @@ Vue.component('scorecard', {
                 this.innerRadius + ' 0 0 0 ' +
                 (-(this.arcWidth - this.baseWidth * 2 * 2)) + ' 0  z';
         },
-        lowScoreBottomPath: function() {
+        ownScoreBottomPath: function() {
             return 'm ' + (this.baseWidth * 2) + ' 0 a ' +
                 this.innerRadius + ' ' +
                 this.innerRadius + ' 0 0 1 ' +

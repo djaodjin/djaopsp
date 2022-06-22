@@ -62,6 +62,9 @@ class AssessPracticesView(SegmentReportMixin, TemplateView):
                 'track_metrics_index', args=(self.account,)),
             'download': reverse('assess_download', args=(
                 self.account, self.sample)),
+            # XXX should download PDF with actions guidance.
+            'print': reverse('assess_download', args=(
+                self.account, self.sample)),
             'api_content': reverse('api_sample_content',
                 args=(self.account, self.sample,
                       self.full_path.lstrip(self.URL_PATH_SEP))),
@@ -77,6 +80,7 @@ class AssessPracticesView(SegmentReportMixin, TemplateView):
                 args=(self.account,)),
             'api_aggregate_metric_base': reverse('survey_api_aggregate_metric_base', args=(self.account,)),
         })
+        print("XXX context=%s" % str(context))
         return context
 
 
