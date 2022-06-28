@@ -9,6 +9,8 @@ module.exports = {
   target: ['web', 'es5'],
   entry: {
       assess: [
+          'vendor/chart.js',
+          'js/djaodjin-pages-vue.js',
           'js/assess-vue.js',
       ],
       editors: [
@@ -55,6 +57,7 @@ module.exports = {
       }),
       new webpack.ProvidePlugin({
           Chart: ['vendor/chart.js', 'Chart'],
+          httpRequestMixin: ['js/djaodjin-resources-vue.js', 'httpRequestMixin'],
           itemMixin: ['js/djaodjin-resources-vue.js', 'itemMixin'],
           itemListMixin: ['js/djaodjin-resources-vue.js', 'itemListMixin'],
           TypeAhead: ['js/djaodjin-resources-vue.js', 'TypeAhead'],

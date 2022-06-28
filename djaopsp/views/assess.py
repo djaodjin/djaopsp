@@ -7,6 +7,7 @@ import json, logging
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import datetime_or_now, update_context_urls
+from django.core.files.storage import get_storage_class
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -74,13 +75,22 @@ class AssessPracticesView(SegmentReportMixin, TemplateView):
                 'survey_api_sample', args=(self.account, self.sample))
         })
         # Upload supporting documents
-        update_context_urls(context, {
-# XXX       'asset_upload_start': site_url("api/auth/tokens/realms/%s" % self.account),
+        storage_class = get_storage_class()
+        if 's3boto' in storage_class.__name__.lower():
+            update_context_urls(context, {
+                'api_asset_upload_start': site_url(
+                    "api/auth/tokens/realms/%s" % self.account),
+            })
+        else:
+            update_context_urls(context, {
             'api_asset_upload_start': reverse('pages_api_upload_asset',
                 args=(self.account,)),
+            })
+        update_context_urls(context, {
             'api_asset_upload_complete': reverse('pages_api_upload_asset',
                 args=(self.account,)),
-            'api_aggregate_metric_base': reverse('survey_api_aggregate_metric_base', args=(self.account,)),
+            'api_aggregate_metric_base': reverse(
+                'survey_api_aggregate_metric_base', args=(self.account,)),
         })
         return context
 
