@@ -8,8 +8,10 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import datetime_or_now, update_context_urls
 from django.db.models import Q
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.views.generic import TemplateView
+from django.views.generic.base import (ContextMixin, RedirectView,
+    TemplateResponseMixin, TemplateView)
 from django.template.defaultfilters import slugify
 from survey.models import EditableFilter
 from survey.utils import get_question_model
@@ -18,7 +20,7 @@ from survey.helpers import get_extra
 from .downloads import PracticesSpreadsheetView
 from ..api.samples import AssessmentContentMixin
 from ..compat import reverse
-from ..mixins import AccountMixin, SegmentReportMixin
+from ..mixins import AccountMixin, ReportMixin, SegmentReportMixin
 
 
 LOGGER = logging.getLogger(__name__)
@@ -80,7 +82,6 @@ class AssessPracticesView(SegmentReportMixin, TemplateView):
                 args=(self.account,)),
             'api_aggregate_metric_base': reverse('survey_api_aggregate_metric_base', args=(self.account,)),
         })
-        print("XXX context=%s" % str(context))
         return context
 
 
@@ -92,7 +93,10 @@ class ImprovePracticesView(AssessPracticesView):
     breadcrumb_url = 'improve_practices'
 
     def get_template_names(self):
-        candidates = ['app/improve/%s.html' % self.sample.campaign]
+        campaign_slug = ('sustainability'
+            if self.sample.campaign.slug == 'assessment'
+            else self.sample.campaign.slug)
+        candidates = ['app/improve/%s.html' %  campaign_slug]
         candidates += super(ImprovePracticesView, self).get_template_names()
         return candidates
 
@@ -103,6 +107,51 @@ class ImprovePracticesView(AssessPracticesView):
                 self.account, self.improvement_sample))
         })
         return context
+
+
+class AssessRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
+                         RedirectView):
+    """
+    Redirects to an assess page for a segment
+    """
+    template_name = 'app/assess/redirects.html'
+    breadcrumb_url = 'assess_practices'
+
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse(self.breadcrumb_url, kwargs=kwargs)
+
+    def get(self, request, *args, **kwargs):
+        candidates = self.segments_available
+        if not candidates:
+            return HttpResponseRedirect(
+                reverse('scorecard', args=(self.account, self.sample)))
+
+        redirects = []
+        for seg in candidates:
+            # We insured that all candidates are the prefixed
+            # content node at this point.
+            path =  seg.get('path')
+            if path:
+                kwargs.update({'path': path.strip('/')})
+                url = self.get_redirect_url(*args, **kwargs)
+                print_name = seg.get('title')
+                redirects += [(url, print_name)]
+
+        if len(redirects) > 1:
+            context = self.get_context_data(**kwargs)
+            context.update({
+                'redirects': redirects,
+            })
+            return self.render_to_response(context)
+
+        return super(AssessRedirectView, self).get(request, *args, **kwargs)
+
+
+class ImproveRedirectView(AssessRedirectView):
+    """
+    Redirects to a targets/improve page for a segment
+    """
+    breadcrumb_url = 'improve_practices'
 
 
 class TrackMetricsView(AccountMixin, TemplateView):
@@ -197,15 +246,20 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
                 'Implementation ease', 'AVERAGE VALUE']
 
     def format_row(self, entry):
+        default_unit = entry.get('default_unit', {})
+        if default_unit:
+            try:
+                default_unit = default_unit.slug
+            except AttributeError:
+                default_unit = default_unit.get('slug', "")
+        answers = entry.get('answers')
         primary_assessed = None
         primary_planned = None
         comments = ""
-        answers = entry.get('answers')
         if answers:
             for answer in answers:
                 unit = answer.get('unit')
-                if unit and unit.slug == entry.get(
-                        'default_unit', {}).get('slug'):
+                if unit and default_unit and unit.slug == default_unit:
                     primary_assessed = answer.get('measured')
                     continue
                 if unit and unit.slug == 'freetext': #XXX
@@ -214,8 +268,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
         if planned:
             for answer in planned:
                 unit = answer.get('unit')
-                if unit and unit.slug == entry.get(
-                        'default_unit', {}).get('slug'):
+                if unit and default_unit and unit.slug == default_unit:
                     primary_planned = answer.get('measured')
         row = [
             entry['title'],

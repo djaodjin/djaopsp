@@ -120,12 +120,14 @@ class ScorecardIndexView(ReportMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ScorecardIndexView, self).get_context_data(**kwargs)
-        campaign_prefix = "%s%s%s" % (self.DB_PATH_SEP,
-            self.sample.campaign.slug, self.DB_PATH_SEP)
+        campaign_slug = ('sustainability' if self.sample.campaign.slug == 'assessment'
+             else self.sample.campaign.slug)
+        campaign_prefix = "%s%s%s" % (
+            self.DB_PATH_SEP, campaign_slug, self.DB_PATH_SEP)
+        has_mandatory_segment = get_question_model().objects.filter(
+            path__startswith=campaign_prefix).exists()
         is_mandatory_segment_present = (
-            not get_question_model().objects.filter(
-                path__startswith=campaign_prefix).exists() or
-            Answer.objects.filter(
+            not has_mandatory_segment or Answer.objects.filter(
                 sample=self.sample,
                 question__path__startswith=campaign_prefix).exists())
         context.update({
@@ -138,6 +140,11 @@ class ScorecardIndexView(ReportMixin, TemplateView):
             update_context_urls(context, {
                 'complete': "#"  # When there are no answers yet, we want
                                  # to show the assess step on the scorecard.
+            })
+        if has_mandatory_segment:
+            update_context_urls(context, {
+                'assess_mandatory_segment': reverse('assess_practices',
+                    args=(self.account, self.sample, campaign_slug)),
             })
         update_context_urls(context, {
             'pages_index': reverse('pages_index'),

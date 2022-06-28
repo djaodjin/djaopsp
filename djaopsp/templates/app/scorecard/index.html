@@ -11,7 +11,7 @@
 <strong>This report is a work in progress.</strong>
 Once you are ready, please click
 the <em>Complete</em> button at the bottom of the page to freeze it;
-then share it with customers, investors and other interested 3rd parties.
+then share it with customers, investors and other third parties.
           </div>
         </div>
         {% endif %}
@@ -96,7 +96,7 @@ then share it with customers, investors and other interested 3rd parties.
                        data-toggle="modal"
                        data-target="#reset-assessment"
                        @click="setActiveElement(practice)"
-                       v-if="practice.slug !== '{{sample.campaign.slug}}'">Remove</a>
+                       v-if="practice.slug !== '{% if sample.campaign.slug == 'assessment' %}sustainability{% else %}{{sample.campaign.slug}}{% endif %}'">Remove</a>
                   </div>
                   {% endif %}
                   <div class="mt-2" v-if="containsTag(practice, 'scorecard')">
@@ -209,7 +209,7 @@ companies responding on practices in the industry segment.
                        data-toggle="modal"
                        data-target="#reset-assessment"
                        @click="setActiveElement(practice)"
-                       v-if="practice.slug !== '{{sample.campaign.slug}}'">Remove</a>
+                       v-if="practice.slug !== '{% if sample.campaign.slug == 'assessment' %}sustainability{% else %}{{sample.campaign.slug}}{% endif %}'">Remove</a>
                   </div>
                   {% endif %}
                 </div>
@@ -392,6 +392,33 @@ companies responding on practices in the industry segment.
               </div>
             </div>{# /isNumberUnit(practice) #}
 
+            <div v-if="isDatetimeUnit(practice)">
+              <div class="row">
+                <div class="col-md-8">
+                  <div :class="indentHeader(practice) + ' mt-2'">
+                    <a class="title"
+                       :href="'{{urls.pages_index}}' + practice.slug + '/'">
+                      [[practice.title]]
+                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div
+                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                    v-if="practice.answers.length === 0">
+                    &dash;
+                  </div>
+                  <div v-if="practice.answers.length > 0">
+                    <strong>[[getPrimaryAnswer(practice).measured ? getPrimaryAnswer(practice).measured : "-"]]</strong>
+                  </div>
+                  <p @click.prevent="openLink($event)"
+                     v-html="textAsHtml(getCommentsAnswer(practice).measured)"
+                     v-if="getCommentsAnswer(practice).measured">
+                  </p>
+                </div>
+              </div>
+            </div>{# /isDatetimeUnit(practice) #}
+
           </div>{# /.v-for=getEntries() #}
         </div>
         {% if not sample.is_frozen %}
@@ -399,9 +426,13 @@ companies responding on practices in the industry segment.
           <div v-if="items.results.length === 0">
             <hr />
             <p>
-              Get started!
+            {% if sample.campaign.description %}
+              {{sample.campaign.description}}
+            {% else %}
+              {% trans %}Get started!{% endtrans %}
+            {% endif %}
             </p>
-            <a id="get-started-btn" href="{{urls.assess_base}}{{sample.campaign.slug}}/" class="btn btn-primary btn-lg">{% trans %}Start Assessment{% endtrans %} &raquo;</a>
+            <a id="get-started-btn" href="{{urls.assess_mandatory_segment}}" class="btn btn-primary btn-lg">{% trans %}Start Assessment{% endtrans %} &raquo;</a>
           </div>
           {% if segments_candidates %}
           <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
@@ -487,9 +518,13 @@ companies responding on practices in the industry segment.
       <section id="next-actions" class="text-center">
         <hr />
         <p>
-          Get started!
+          {% if sample.campaign.description %}
+          {{sample.campaign.description}}
+          {% else %}
+          {% trans %}Get started!{% endtrans %}
+          {% endif %}
         </p>
-        <a id="get-started-btn" href="{{urls.assess_base}}{{sample.campaign.slug}}/" class="btn btn-primary btn-lg">{% trans %}Start Assessment{% endtrans %} &raquo;</a>
+        <a id="get-started-btn" href="{{urls.assess_mandatory_segment}}" class="btn btn-primary btn-lg">{% trans %}Start Assessment{% endtrans %} &raquo;</a>
       </section>
       {% endif %}{# /is_mandatory_segment_present #}
     </div>

@@ -26,7 +26,7 @@
                       <div class="icon-caption">[[icon.title]]</div>
                     </a>
                     <div :id="icon.slug + '-score'" class="icon-score">
-                      <div>
+                      <div v-show="icon.score_weight > 0">
                         (<span class="rollup-weight"
                                :data-id="icon.path"
                                data-key="weight"
@@ -55,7 +55,7 @@
             <table class="table table-bordered table-assessment">
               <thead v-if="!isEnumHeaderShown(icon)">
                 <tr>
-                  <th colspan="6">
+                  <th colspan="6" style="width:50%;">
                   </th>
                   <th colspan="6">
                   </th>
@@ -247,7 +247,7 @@
       <div class="row">
         <div class="offset-sm-3 col-sm-6 text-center">
            <p v-show="itemsLoaded" v-cloak>
-            [[nbAnswers]] out of [[nbQuestions]] questions answered.
+            {# [[nbAnswers]] out of [[nbQuestions]] questions answered. #}
           </p>
           <p>
 {% trans %}Click on each icon tile to expand it.{% endtrans %}

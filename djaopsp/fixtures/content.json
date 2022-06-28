@@ -382,9 +382,9 @@
 
 { "fields" : {
     "slug" : "sustainability",
-    "title" : "Sustainability",
+    "title" : "ESG/Environmental practices",
     "created_at": "2022-01-01T00:00:00.000Z",
-    "description" : "Assessment of practices around sustainability",
+    "description" : "Please answer the core Environmental, Social and Governance (ESG) questions, then pick an industry segment and assess your organization against environmental practices in your organization's industry of choice.",
     "account": 2,
     "active": true,
     "extra": "{\"visibility\":[\"public\"],\"highlights\":[{\"includes\":[\"formalized-esg-strategy\"],\"picture\":\"static/img/other.png\",\"text\":\"formalized targets\"}, {\"includes\":[\"report-internally\",\"report-externally\"],\"picture\":\"static/img/data-metrics.png\",\"text\":\"tracking sustainability metrics\"}, {\"includes\":[\"energy-publicly-reported\",\"ghg-emissions-publicly-reported\",\"water-publicly-reported\",\"waste-publicly-reported\"],\"picture\":\"static/img/lighting.png\",\"text\":\"reporting data publicly\"}, {\"includes\":[\"energy-3rd-party-verified\",\"ghg-emissions-3rd-party-verified\",\"water-3rd-party-verified\",\"waste-3rd-party-verified\"],\"picture\":\"static/img/lighting.png\",\"text\":\"data metrics third-party verified\"}]}"
@@ -2723,7 +2723,7 @@
 },
 {
   "fields": {
-    "title": "(25f) If yes - How does your company define a diverse supplier?",
+    "title": "If yes - Does your company define as a diverse supplier ...?",
     "slug": "diverse-target-definition",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2732,15 +2732,14 @@
 },
 {
   "fields": {
-    "orig_element": 174, "dest_element": 177,
-    "rank": 4
+    "orig_element": 174, "dest_element": 177, "rank": 117
   },
   "model": "pages.RelationShip", "pk": 177
 },
 {
   "fields": {
-    "title": "(25g) If yes - Do you require third-party certification to verify a supplier diverse status?",
-    "slug": "diverse-target-verification",
+    "title": "(25f) ... disability-owned bussinesses",
+    "slug": "diverse-definition-disability-owned",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2748,11 +2747,162 @@
 },
 {
   "fields": {
-    "orig_element": 174, "dest_element": 178,
-    "rank": 4
+    "orig_element": 177, "dest_element": 178, "rank": 1
   },
   "model": "pages.RelationShip", "pk": 178
 },
+{
+  "fields": {
+    "title": "(25g) ... HUBZone businesses",
+    "slug": "diverse-definition-hubzone",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 179
+},
+{
+  "fields": {
+    "orig_element": 177, "dest_element": 179, "rank": 2
+  },
+  "model": "pages.RelationShip", "pk": 179
+},
+{
+  "fields": {
+    "title": "(25h) ... LGBT-owned businesses",
+    "slug": "diverse-definition-lgbt-owned",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 180
+},
+{
+  "fields": {
+    "orig_element": 177, "dest_element": 180, "rank": 3
+  },
+  "model": "pages.RelationShip", "pk": 180
+},
+{
+  "fields": {
+    "title": "(25i) ... minority-owned businesses",
+    "slug": "diverse-definition-minority-owned",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 181
+},
+{
+  "fields": {
+    "orig_element": 177, "dest_element": 181, "rank": 4
+  },
+  "model": "pages.RelationShip", "pk": 181
+},
+{
+  "fields": {
+    "title": "(25j) ... service-disable veteran businesses",
+    "slug": "diverse-definition-service-disable-owned",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 182
+},
+{
+  "fields": {
+    "orig_element": 177, "dest_element": 182, "rank": 5
+  },
+  "model": "pages.RelationShip", "pk": 182
+},
+{
+  "fields": {
+    "title": "(25k) ... small businesses (by revenue)",
+    "slug": "diverse-definition-small-revenue",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 183
+},
+{
+  "fields": {
+    "orig_element": 177, "dest_element": 183, "rank": 6
+  },
+  "model": "pages.RelationShip", "pk": 183
+},
+{
+  "fields": {
+    "title": "(25l) ... small businesses (by employees)",
+    "slug": "diverse-definition-small-employees",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 184
+},
+{
+  "fields": {
+    "orig_element": 177, "dest_element": 184, "rank": 7
+  },
+  "model": "pages.RelationShip", "pk": 184
+},
+{
+  "fields": {
+    "title": "(25m) ... small disadvantaged businesses",
+    "slug": "diverse-definition-small-disadvantaged",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 185
+},
+{
+  "fields": {
+    "orig_element": 177, "dest_element": 185, "rank": 8
+  },
+  "model": "pages.RelationShip", "pk": 185
+},
+{
+  "fields": {
+    "title": "(25n) ...  veteran-owned businesses",
+    "slug": "diverse-definition-veteran-owned",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 186
+},
+{
+  "fields": {
+    "orig_element": 177, "dest_element": 186, "rank": 9
+  },
+  "model": "pages.RelationShip", "pk": 186
+},
+{
+  "fields": {
+    "title": "(25o) ... woman-owned businesses",
+    "slug": "diverse-definition-woman-owned",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 187
+},
+{
+  "fields": {
+    "orig_element": 177, "dest_element": 187, "rank": 10
+  },
+  "model": "pages.RelationShip", "pk": 187
+},
+
+{
+  "fields": {
+    "title": "(25p) If yes - Do you require third-party certification to verify a supplier diverse status?",
+    "slug": "diverse-target-verification",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 188
+},
+{
+  "fields": {
+    "orig_element": 174, "dest_element": 188
+  },
+  "model": "pages.RelationShip", "pk": 188
+},
+
 
 
 {

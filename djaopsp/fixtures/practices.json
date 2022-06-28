@@ -37,7 +37,8 @@
   "fields": {
     "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
     "content": 4,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-no-comments"
   },
   "model": "survey.question", "pk": 4
 },
@@ -122,7 +123,8 @@
   "fields": {
     "path": "/sustainability/governance/esg-assessment/systematic-rigorous-assessment",
     "content": 10,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-no-comments"
   },
   "model": "survey.question", "pk": 9
 },
@@ -194,7 +196,8 @@
   "fields": {
     "path": "/sustainability/governance/governance-policies/employee-code-of-conduct",
     "content": 17,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-no-comments"
   },
   "model": "survey.question", "pk": 13
 },
@@ -453,7 +456,8 @@
   "fields": {
     "path": "/sustainability/governance/governance-policies/supplier-code-of-conduct",
     "content": 33,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-no-comments"
   },
   "model": "survey.question", "pk": 32
 },
@@ -746,7 +750,8 @@
   "fields": {
     "path": "/sustainability/governance/governance-policies/sourcing-practices/conflict-minerals-in-products-report",
     "content": 52,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-comments"
   },
   "model": "survey.question", "pk": 49
 },
@@ -837,7 +842,8 @@
   "fields": {
     "path": "/sustainability/governance/social-reporting/governance-fines",
     "content": 58,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-comments"
   },
   "model": "survey.question", "pk": 54
 },
@@ -854,7 +860,8 @@
   "fields": {
     "path": "/sustainability/governance/environmental-reporting/environmental-fines",
     "content": 59,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-comments"
   },
   "model": "survey.question", "pk": 55
 },
@@ -941,7 +948,8 @@
   "fields": {
     "path": "/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported",
     "content": 67,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-comments"
   },
   "model": "survey.question", "pk": 61
 },
@@ -993,7 +1001,8 @@
   "fields": {
     "path": "/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported",
     "content": 69,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-comments"
   },
   "model": "survey.question", "pk": 64
 },
@@ -1045,7 +1054,8 @@
   "fields": {
     "path": "/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-publicly-reported",
     "content": 71,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-comments"
   },
   "model": "survey.question", "pk": 67
 },
@@ -1576,7 +1586,8 @@
   "fields": {
     "path": "/sustainability/governance/environmental-reporting/waste-reporting/waste-publicly-reported",
     "content": 74,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-comments"
   },
   "model": "survey.question", "pk": 96
 },
@@ -1702,7 +1713,8 @@
   "fields": {
     "path": "/sustainability/governance/environmental-reporting/water-reporting/water-publicly-reported",
     "content": 77,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-comments"
   },
   "model": "survey.question", "pk": 103
 },
@@ -1775,7 +1787,8 @@
   "fields": {
     "path": "/sustainability/governance/social-reporting/diverse-spend",
     "content": 173,
-    "default_unit": 4
+    "default_unit": 4,
+    "ui_hint": "yes-comments"
   },
   "model": "survey.question", "pk": 107
 },
@@ -1949,10 +1962,9 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/diverse-target/diverse-target-definition",
-    "content": 177,
-    "ui_hint": "diverse-definition",
-    "default_unit": 3,
+    "path": "/sustainability/targets/diverse-target/diverse-target-definition/diverse-definition-disability-owned",
+    "content": 178,
+    "default_unit": 4,
     "extra": "{\"layouts\":[\"target\"]}"
   },
   "model": "survey.question", "pk": 121
@@ -1968,9 +1980,8 @@
 },
 {
   "fields": {
-    "path": "/sustainability/targets/diverse-target/diverse-target-verification",
-    "content": 178,
-    "ui_hint": "radio",
+    "path": "/sustainability/targets/diverse-target/diverse-target-definition/diverse-definition-hubzone",
+    "content": 179,
     "default_unit": 4,
     "extra": "{\"layouts\":[\"target\"]}"
   },
@@ -1984,6 +1995,170 @@
     "required": false
   },
   "model": "survey.EnumeratedQuestions", "pk": 122
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/diverse-target/diverse-target-definition/diverse-definition-lgbt-owned",
+    "content": 180,
+    "default_unit": 4,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.question", "pk": 123
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 123,
+    "rank": 123,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 123
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/diverse-target/diverse-target-definition/diverse-definition-minority-owned",
+    "content": 181,
+    "default_unit": 4,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.question", "pk": 124
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 124,
+    "rank": 124,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 124
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/diverse-target/diverse-target-definition/diverse-definition-service-disable-owned",
+    "content": 182,
+    "default_unit": 4,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.question", "pk": 125
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 125,
+    "rank": 125,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 125
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/diverse-target/diverse-target-definition/diverse-definition-small-revenue",
+    "content": 183,
+    "default_unit": 4,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.question", "pk": 126
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 126,
+    "rank": 126,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 126
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/diverse-target/diverse-target-definition/diverse-definition-small-employees",
+    "content": 184,
+    "default_unit": 4,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.question", "pk": 127
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 127,
+    "rank": 127,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 127
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/diverse-target/diverse-target-definition/diverse-definition-small-disadvantaged",
+    "content": 185,
+    "default_unit": 4,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.question", "pk": 128
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 128,
+    "rank": 128,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 128
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/diverse-target/diverse-target-definition/diverse-definition-veteran-owned",
+    "content": 186,
+    "default_unit": 4,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.question", "pk": 129
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 129,
+    "rank": 129,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 129
+},
+{
+  "fields": {
+    "path": "/sustainability/targets/diverse-target/diverse-target-definition/diverse-definition-woman-owned",
+    "content": 187,
+    "default_unit": 4,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.question", "pk": 130
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 130,
+    "rank": 130,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 130
+},
+
+{
+  "fields": {
+    "path": "/sustainability/targets/diverse-target/diverse-target-verification",
+    "content": 188,
+    "ui_hint": "radio",
+    "default_unit": 4,
+    "extra": "{\"layouts\":[\"target\"]}"
+  },
+  "model": "survey.question", "pk": 131
+},
+{
+  "fields": {
+    "campaign": 1,
+    "question": 131,
+    "rank": 131,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 131
 },
 
 

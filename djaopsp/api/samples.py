@@ -115,9 +115,11 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
             if segment_path:
                 slug = segment_path.split('/')[-1]
                 prefix = '/'.join(segment_path.split('/')[:-1])
-                rollup_tree[1].update(get_scores_tree(
+                scores_tree = get_scores_tree(
                     roots=[PageElement.objects.get(slug=slug)],
-                    prefix=prefix)[1])
+                    prefix=prefix)
+                if scores_tree:
+                    rollup_tree[1].update(scores_tree.get(segment_path))
 
         leafs = get_leafs(rollup_tree, frozen_assessment_sample.campaign)
         self._report_queries("freezing assessment: leafs loaded")
@@ -595,6 +597,8 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
 
         serializer = AssessmentNodeSerializer(
             queryset, many=True, context=self.get_serializer_context())
+        if not hasattr(self, 'units'):
+            self.units = {}
         return http.Response(self.get_serializer_class()(
             context=self.get_serializer_context()).to_representation({
                 'count': len(serializer.data),

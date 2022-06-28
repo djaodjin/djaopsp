@@ -4,7 +4,7 @@ Django==3.2.13
 djangorestframework==3.12.4
 djaodjin-deployutils==0.9.1
 djaodjin-extended-templates==0.3.0
-djaodjin-pages==0.6.0
+djaodjin-pages==0.6.1
 djaodjin-survey==0.6.0
 gunicorn==19.9.0
 jinja2==3.1.1

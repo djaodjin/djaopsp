@@ -165,18 +165,7 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):
     @property
     def segments_available(self):
         if not hasattr(self, '_segments_available'):
-            candidates = get_segments_available(
-                self.sample, segments_candidates=self.segments_candidates)
-            if self.full_path and self.full_path != self.DB_PATH_SEP:
-                self._segments_available = []
-                for seg in candidates:
-                    if seg.get('extra', {}).get('pagebreak', False):
-                        path = seg.get('path')
-                        if path and (path.startswith(self.full_path) or
-                                     self.full_path.startswith(path)):
-                            self._segments_available += [seg]
-            else:
-                self._segments_available = candidates
+            self._segments_available = get_segments_available(self.sample)
         return self._segments_available
 
     @property
@@ -228,9 +217,9 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):
             improve_url = reverse('improve_practices',
                 args=(self.account, self.sample, path))
         else:
-            assess_url = reverse('scorecard',
+            assess_url = reverse('assess_redirect',
                 args=(self.account, self.sample,))
-            improve_url = reverse('scorecard',
+            improve_url = reverse('improve_redirect',
                 args=(self.account, self.sample,))
         update_context_urls(context, {
             'assess': assess_url,

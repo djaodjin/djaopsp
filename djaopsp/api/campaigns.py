@@ -146,7 +146,9 @@ class CampaignContentMixin(AccountMixin, CampaignMixin):
                 if 'extra' in merged_fields:
                     merged_fields['extra'].update(element.get('extra', {}))
                 element.update(merged_fields)
-        campaign_path = self.DB_PATH_SEP + str(self.campaign)
+        campaign_slug = ('sustainability' if self.campaign.slug == 'assessment'
+             else self.campaign.slug)
+        campaign_path = "%s%s" % (self.DB_PATH_SEP, campaign_slug)
         for seg_path, seg_val in six.iteritems(by_tiles):
             if seg_path == campaign_path:
                 seg_val[0].update({'rank': -1})

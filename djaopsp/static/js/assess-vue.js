@@ -254,17 +254,15 @@ var practicesListMixin = {
                 row.extra && row.extra.tags &&
                 (row.extra.tags.includes('data-metrics-header')));
         },
-        isDiverseDefinitionUIHint: function(row) {
-            var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'diverse-definition';
-        },
         isEnergyUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'energy';
         },
         isEnumUIHint: function(row) {
             var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'radio';
+            return vm.isPractice(row) && (row.ui_hint === 'radio' ||
+                row.ui_hint === 'yes-no-comments' ||
+                row.ui_hint === 'yes-comments');
         },
         isFreetextUIHint: function(row) {
             var vm = this;
@@ -733,8 +731,9 @@ Vue.component('campaign-questions-list', {
         openCommentsAutomatically: function(practice, newValue) {
             return (practice.default_unit.slug == 'assessment' &&
                     newValue === this.NOT_APPLICABLE) ||
-                (practice.required && !(this.isRevenueUIHint(practice) ||
-                    this.isEmployeeCountUIHint(practice)));
+                (practice.ui_hint === 'yes-comments' &&
+                 newValue === this.YES) ||
+                practice.ui_hint === 'yes-no-comments';
         },
         updateAssessmentAnswer: function(practice, newValue) {
             var vm = this;
@@ -743,29 +742,17 @@ Vue.component('campaign-questions-list', {
             }
             vm._callUpdateAnswer(practice.path, newValue,
             function success(resp) {
+                if( resp.length ) {
+                    for( var idx = 0; idx < resp.length; ++resp ) {
+                        var answer = vm.getAnswerByUnit(practice, resp[idx].unit);
+                        answer.collected_by = resp[idx].collected_by;
+                    }
+                }
                 if( vm.openCommentsAutomatically(practice, newValue) ) {
                     vm.openComments(practice, true);
                 }
                 if( resp.question ) {
                     practice.opportunity = resp.question.opportunity;
-                    if( resp.first &&
-                        $("#assess-content").data("trip-content") ) {
-                        var trip = new Trip([{
-                            sel: $("#assess-content"),
-                            content: $("#assess-content").data("trip-content"),
-                            position: "screen-center",
-                            enableAnimation: false,
-                            delay:-1,
-                            tripTheme: "black",
-                            showNavigation: true,
-                            canGoPrev: false,
-                            prevLabel: " ",
-                            nextLabel: "OK",
-                            skipLabel: " ",
-                            finishLabel: "OK",
-                        }]);
-                        trip.start();
-                    }
                 }
             });
         },
@@ -1218,6 +1205,10 @@ Vue.component('scorecard', {
             var vm = this;
             return vm.isPractice(row) &&
                 row.default_unit && row.default_unit.slug === 'freetext';
+        },
+        isDatetimeUnit: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && (row.default_unit.system === 'datetime');
         },
         isNumberUnit: function(row) {
             var vm = this;

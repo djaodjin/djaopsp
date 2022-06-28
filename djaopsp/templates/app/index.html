@@ -20,7 +20,7 @@
     <div class="col-md-6 mt-4">
       <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>{% trans %}Reporting{% endtrans %}</h2>
+          <h2>{% trans %}Assess{% endtrans %}</h2>
           <p>
 {% trans %}
 If you were prompted to take, or update, an assessment,
@@ -58,33 +58,7 @@ Last completed on <span class="date">{{latest_completed_assessment.created_at|da
     <div class="col-md-6 mt-4">
       <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>{% trans %}Newsfeed{% endtrans %}</h2>
-          {% include "app/_newsfeed.html" %}
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6 mt-4">
-      <div class="card bg-white text-dark h-100">
-        <div class="card-body">
-          <h2>{% trans %}Knowledge Sharing{% endtrans %}</h2>
-          <p>
-{% trans %}
-Under this section, you will find industry-specific practices,
-and member-only content.
-{% endtrans %}
-          </p>
-          <div class="text-center">
-            <a id="browse-practices" href="{{urls.pages_index}}">{% trans %}Browse{% endtrans %}</a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6 mt-4">
-      <div class="card bg-white text-dark h-100">
-        <div class="card-body">
-          <h2>{% trans %}Tracking{% endtrans %}</h2>
+          <h2>{% trans %}Data Reporting{% endtrans %}</h2>
           <p>
 {% trans %}
 Record data metrics all year long so you can report quantifiable improvements.
@@ -101,7 +75,33 @@ Record data metrics all year long so you can report quantifiable improvements.
     <div class="col-md-6 mt-4">
       <div class="card bg-white text-dark h-100">
         <div class="card-body">
-          <h2>{% trans %}Comparative Dashboards{% endtrans %}</h2>
+          <h2>{% trans %}Learn{% endtrans %}</h2>
+          <p>
+{% trans %}
+Under this section, you will find industry-specific practices,
+and member-only content.
+{% endtrans %}
+          </p>
+          <div class="text-center">
+            <a id="browse-practices" href="{{urls.pages_index}}">{% trans %}Browse{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
+        <div class="card-body">
+          <h2>{% trans %}Newsfeed{% endtrans %}</h2>
+          {% include "app/_newsfeed.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
+        <div class="card-body">
+          <h2>{% trans %}Dashboards{% endtrans %}</h2>
           <p>
 {% trans %}
 Manage invites sent to reporting organizations, and their reporting status.
@@ -113,12 +113,12 @@ Manage invites sent to reporting organizations, and their reporting status.
           </div>
           {% else %}
           <div class="col-12 text-center">
-            <span class="fa fa-lock"></span>
+            <strong><span class="fa fa-lock"></span> Premium content</strong>
           </div>
-          <p>
-This website is supported by organizations actively improving the transparency
-of their supply chain with regards to environmental sustainability.
-If you would like to access comparative dashboards for your own suppliers,
+          <p class="mt-2">
+This website is supported by organizations actively promoting best practices
+through their supply chain.
+If you would like to invite, manage responses, and compare your own suppliers,
 please <a href="{{'/contact/'|site_url}}">contact us</a>.
           </p>
           {% endif %}
@@ -146,11 +146,11 @@ Create practices and organize them in assessment campaigns.
             </div>
             {% else %}
             <div class="col-12 text-center">
-              <span class="fa fa-lock"></span>
+              <strong><span class="fa fa-lock"></span> Premium content</strong>
             </div>
-            <p>
+            <p class="mt-2">
 This website is supported by professional trade organizations actively
-promoting key environmental sustainability initiatives.
+promoting best practices in line with their charter.
 If you would like to create questionnaires for your own industry,
 please <a href="{{'/contact/'|site_url}}">contact us</a>.
             </p>
