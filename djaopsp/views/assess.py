@@ -87,8 +87,8 @@ class AssessPracticesView(SegmentReportMixin, TemplateView):
                 args=(self.account,)),
             })
         update_context_urls(context, {
-            'api_asset_upload_complete': reverse('pages_api_upload_asset',
-                args=(self.account,)),
+            'api_asset_upload_complete': self.request.build_absolute_uri(
+                reverse('pages_api_upload_asset', args=(self.account,))),
             'api_aggregate_metric_base': reverse(
                 'survey_api_aggregate_metric_base', args=(self.account,)),
         })
