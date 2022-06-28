@@ -6,6 +6,7 @@ import datetime, json, re
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
+from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now, parse_tz
 from django.contrib.auth import get_user_model
 from django.db import connection
@@ -500,6 +501,22 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
           }
         ]
     """
+    @property
+    def db_path(self):
+        if not hasattr(self, '_db_path'):
+            self._db_path = ""
+            prefix_candidate = self.kwargs.get(self.path_url_kwarg, '').replace(
+                self.URL_PATH_SEP, self.DB_PATH_SEP)
+            if prefix_candidate:
+                # If the path is not a segment prefix, we just forget about it.
+                last_part = prefix_candidate.split(self.URL_PATH_SEP)[-1]
+                for seg in get_segments_candidates(self.campaign):
+                    if seg.get('path', "").endswith(last_part):
+                        self._db_path = seg.get('path')
+                        break
+            if self._db_path and not self._db_path.startswith(self.DB_PATH_SEP):
+                self._db_path = self.DB_PATH_SEP + self._db_path
+        return self._db_path
 
     def get_accounts(self):
         # overrides `MatrixDetailAPIView.get_accounts()`
@@ -604,7 +621,7 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
             accounts = self.requested_accounts
 
         for key, values in six.iteritems(rollup_tree):
-            self.decorate_with_scores(values, accounts=accounts, prefix=key)
+            self.decorate_with_scores(values[1], accounts=accounts, prefix=key)
             score = {}
             cohorts = []
             for account_id, account_score in six.iteritems(
@@ -659,34 +676,24 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
     def get(self, request, *args, **kwargs):
         #pylint:disable=unused-argument,too-many-locals,too-many-statements
         self._start_time()
-        segment_prefix = None
-        path = self.kwargs.get('path')
-        if path:
-            last_part = path.split(self.URL_PATH_SEP)[-1]
-            for seg in get_segments_candidates(self.campaign):
-                if seg.get('path', "").endswith(last_part):
-                    segment_prefix = seg.get('path')
-                    break
-        # calls rollup_scores from TotalScoreBySubsectorAPIView
+        segment_prefix = self.db_path
         rollup_tree = self.rollup_scores(self.get_queryset())
         self._report_queries("rollup_scores completed")
         if segment_prefix:
-            for node in six.itervalues(rollup_tree[1]):
-                rollup_tree = node
-                break
             self.decorate_with_scores(rollup_tree, prefix=segment_prefix)
-            charts = self.get_charts(
-                rollup_tree, excludes=[segment_prefix.split('/')[-1]])
-            charts += [rollup_tree[0]]
+            charts = self.get_charts(rollup_tree)
         else:
             self.decorate_with_cohorts(rollup_tree)
             self._report_queries("decorate_with_cohorts completed")
-            natural_charts = OrderedDict()
-            for key, values in six.iteritems(rollup_tree):
-                for cohort in values[0]['cohorts']:
-                    natural_chart = (values[1][cohort['slug']][0], {})
-                    natural_charts.update({cohort['slug']: natural_chart})
-                rollup_tree.update({key: (values[0], natural_charts)})
+            if False:
+                natural_charts = OrderedDict()
+                segments = rollup_tree.get(self.DB_PATH_SEP)[1]
+                for key, values in six.iteritems(segments):
+                    for cohort in values[0]['cohorts']:
+                        natural_chart = (values[1][cohort['slug']][0], {})
+                        natural_charts.update({cohort['slug']: natural_chart})
+                    rollup_tree.update({key: (values[0], natural_charts)})
+
             charts = self.get_charts(rollup_tree)
             self._report_queries("get_charts completed")
             for chart in charts:
@@ -694,8 +701,7 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
                     slug=chart['slug']).first()
                 chart.update({
                     'breadcrumbs': [chart['title']],
-                    'picture': element.text if element is not None else "",
-                    'icon_css': 'orange'
+                    'picture': element.picture if element is not None else None,
                 })
 
         # XXX Shows average value in encompassing supply chain.
@@ -704,7 +710,7 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
             us_suppliers['slug'] = "aggregates-%s" % us_suppliers['slug']
             us_suppliers['title'] = "US suppliers"
             score = {}
-            for path, values in six.iteritems(rollup_tree[1]):
+            for path, values in six.iteritems(rollup_tree):
                 nb_accounts = 0
                 normalized_score = 0
                 for account_id, account_score in six.iteritems(

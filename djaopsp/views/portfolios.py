@@ -711,12 +711,10 @@ class PortfoliosDetailView(DashboardMixin, MatrixDetailView):
                     candidate = look.group(1)
                 element = PageElement.objects.filter(slug=candidate).first()
                 charts += [{
-                    'slug': cohort.slug,
+                    'slug': element.slug,
                     'breadcrumbs': [cohort.title],
-                    'picture': element.text if element is not None else "",
-                    'icon_css': 'orange'
+                    'picture': element.picture if element is not None else None,
                 }]
-            charts = []
         url_kwargs = self.get_url_kwargs()
         url_kwargs.update({self.matrix_url_kwarg: self.object})
         for chart in charts:
