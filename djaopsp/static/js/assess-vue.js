@@ -12,6 +12,11 @@ var practicesListMixin = {
             },
             prefix: this.$prefix ? this.$prefix : "",
             api_assessment_sample: this.$urls.api_assessment_sample,
+            // benchmark charts
+            chartsLoaded: false,
+            chartsAvailable: false,
+            chartsAPIResp: null,
+            charts: {},
         }
     },
     methods: {
@@ -341,12 +346,193 @@ var practicesListMixin = {
             return vm.isEnumUIHint(row) &&
                 row.default_unit && row.default_unit.slug === 'yes-no';
         },
+
+        // benchmark charts
+        buildChart: function(data) {
+            var vm = this;
+            var labels = data.distribution.x;
+            var datasets = [];
+            var colors = [
+                '#f0ad4e', '#f0ad4e',
+                '#f0ad4e', '#f0ad4e'];
+            datasets.push({
+                label: "peers",
+                backgroundColor: '#f0ad4e',
+                borderColor: '#f0ad4e',
+                data: data.distribution.y
+            });
+            var chartKey = data.slug;
+            var chart = vm.charts[chartKey];
+            if( chart ) {
+                chart.destroy();
+            }
+            var element = document.getElementById(chartKey);
+            if( element ) {
+                vm.charts[chartKey] = new Chart(
+                    element,
+                    {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: datasets
+                        },
+                        options: {
+                            responsive: false,
+                            plugins: {
+                                legend: {
+                                    display: false,
+                                    // position: 'top',
+                                },
+                                title: {
+                                    display: false
+                                }
+                            }
+                        },
+                    }
+                );
+                if( data.nb_respondents ) {
+                    vm.charts[chartKey].nb_respondents = data.nb_respondents;
+                }
+            }
+        },
+        buildCharts: function(resp) {
+            var vm = this;
+            if( resp ) {
+                for( var idx = 0; idx < resp.length; ++idx ) {
+                    for( var jdx = 0; jdx < vm.items.results.length; ++jdx ) {
+                        if( vm.items.results[jdx].slug === resp[idx].slug ) {
+                            if( resp[idx].normalized_score ) {
+                                vm.items.results[jdx].normalized_score =
+                                    resp[idx].normalized_score;
+                            }
+                            if( resp[idx].highest_normalized_score ) {
+                                vm.items.results[jdx].highest_normalized_score =
+                                    resp[idx].highest_normalized_score;
+                            }
+                            if( resp[idx].avg_normalized_score ) {
+                                vm.items.results[jdx].avg_normalized_score =
+                                    resp[idx].avg_normalized_score;
+                            }
+                            vm.buildChart(resp[idx]);
+                            break;
+                        }
+                    }
+                }
+            }
+            vm.chartsAvailable = true;
+            vm.$forceUpdate();
+        },
+        describeArc: function(x, y, radius, startAngle, endAngle) {
+            var innerRadius = radius - this.baseWidth;
+            var outerStart = this.polarToCartesian(x, y, radius, startAngle);
+            var outerEnd = this.polarToCartesian(x, y, radius, endAngle);
+            var innerStart = this.polarToCartesian(x, y, innerRadius, startAngle);
+            var innerEnd = this.polarToCartesian(x, y, innerRadius, endAngle);
+            var d = [
+                "M", outerStart.x, outerStart.y,
+                "A", radius, radius, 0, 0, 1, outerEnd.x, outerEnd.y,
+                "L", innerEnd.x, innerEnd.y,
+                "A", innerRadius, innerRadius, 0, 0, 0, innerStart.x, innerStart.y,
+                "Z"
+            ].join(" ");
+            return d;
+        },
+        polarToCartesian: function (centerX, centerY, radius, angleInDegrees) {
+            var angleInRadians = (angleInDegrees - 180) * Math.PI / 180.0;
+            return {
+                x: centerX + (radius * Math.cos(angleInRadians)),
+                y: centerY + (radius * Math.sin(angleInRadians))
+            };
+        },
+        topScoreBottomPath: function(percentage) {
+            // path drawing percentage
+            return this.describeArc(this.arcWidth / 2, 0,
+                this.radiusOuterAngle, 0, (percentage / 100) * 180);
+        },
+        avgScoreBottomPath: function(percentage) {
+            return this.describeArc(this.arcWidth / 2, 0,
+                this.radiusOuterAngle - this.baseWidth,
+                0, (percentage / 100) * 180);
+        },
+        ownScoreBottomPath: function(percentage) {
+            return this.describeArc(this.arcWidth / 2, 0,
+                this.radiusOuterAngle - 2 * this.baseWidth,
+                0, (percentage / 100) * 180);
+        },
     },
     computed: {
         TAG_PAGEBREAK: function() { return 'pagebreak'; },
         TAG_SCORECARD: function() { return 'scorecard'; },
         NOT_APPLICABLE: function() { return 'Not applicable'; },
+
+        arcWidth: function() {
+            return 290;
+        },
+        arcHeight: function() {
+            return 156;
+        },
+        baseWidth: function() {
+            return this.arcWidth / 12;
+        },
+        radiusOuterAngle: function() {
+            return this.arcWidth / 2;
+        },
+        innerRadius: function() {
+            return this.radiusOuterAngle * 0.5;
+        },
+        topScoreTopPath: function() {
+            // path to write text
+//            return this.describeArc(this.arcWidth / 2, this.arcHeight, this.radiusOuterAngle, 0, 180);
+            return 'm ' + this.baseWidth + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 1 ' +
+                (this.arcWidth -  this.baseWidth * 2) + ' 0';
+        },
+        avgScoreTopPath: function() {
+            return 'm ' + (this.baseWidth * 2) + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 1 ' +
+                (this.arcWidth -  this.baseWidth * 2 * 2) + ' 0';
+        },
+        ownScoreTopPath: function() {
+            return 'm ' + (this.baseWidth * 3) + ' 0 a ' +
+                this.innerRadius + ' ' +
+                this.innerRadius + ' 0 0 1 ' +
+                (this.arcWidth -  this.baseWidth * 2 * 3) + ' 0';
+        },
     },
+    watch: {
+        itemsLoaded: function (val) {
+            var vm = this;
+            if( vm.chartsLoaded ) {
+                setTimeout(function() {
+                    vm.buildCharts(vm.chartsAPIResp);
+                }, 5000);
+            }
+        },
+        chartsLoaded: function (val) {
+            var vm = this;
+            if( vm.itemsLoaded ) {
+                setTimeout(function() {
+                    vm.buildCharts(vm.chartsAPIResp);
+                }, 5000);
+            }
+        },
+    },
+    mounted: function(){
+        var vm = this;
+        vm.get();
+        if( vm.account_benchmark_url ) {
+            vm.reqGet(vm.account_benchmark_url,
+            function(resp) {
+                vm.chartsAPIResp = resp;
+                vm.chartsLoaded = true;
+            });
+            vm.buildSummaryChart();
+        } else {
+            vm.chartsLoaded = true;
+        }
+    }
 };
 
 
@@ -1000,88 +1186,12 @@ Vue.component('scorecard', {
             account_benchmark_url: this.$urls.api_account_benchmark,
             upload_complete_url: this.$urls.api_asset_upload_complete,
             params: {o: ""},
-            chartsLoaded: false,
-            chartsAvailable: false,
-            chartsAPIResp: null,
-            charts: {},
             activeTile: null,
             summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
             freezeAssessmentDisabled: false,
         }
     },
     methods: {
-        buildChart: function(data) {
-            var vm = this;
-            var labels = data.distribution.x;
-            var datasets = [];
-            var colors = [
-                '#f0ad4e', '#f0ad4e',
-                '#f0ad4e', '#f0ad4e'];
-            datasets.push({
-                label: "peers",
-                backgroundColor: '#f0ad4e',
-                borderColor: '#f0ad4e',
-                data: data.distribution.y
-            });
-            var chartKey = data.slug;
-            var chart = vm.charts[chartKey];
-            if( chart ) {
-                chart.destroy();
-            }
-            var element = document.getElementById(chartKey);
-            if( element ) {
-                vm.charts[chartKey] = new Chart(
-                    element,
-                    {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: datasets
-                        },
-                        options: {
-                            responsive: false,
-                            plugins: {
-                                legend: {
-                                    display: false,
-                                    // position: 'top',
-                                },
-                                title: {
-                                    display: false
-                                }
-                            }
-                        },
-                    }
-                );
-                if( data.nb_respondents ) {
-                    vm.charts[chartKey].nb_respondents = data.nb_respondents;
-                }
-            }
-        },
-        buildCharts: function(resp) {
-            var vm = this;
-            for( var idx = 0; idx < resp.length; ++idx ) {
-                for( var jdx = 0; jdx < vm.items.results.length; ++jdx ) {
-                    if( vm.items.results[jdx].slug === resp[idx].slug ) {
-                        if( resp[idx].normalized_score ) {
-                            vm.items.results[jdx].normalized_score =
-                                resp[idx].normalized_score;
-                        }
-                        if( resp[idx].highest_normalized_score ) {
-                            vm.items.results[jdx].highest_normalized_score =
-                                resp[idx].highest_normalized_score;
-                        }
-                        if( resp[idx].avg_normalized_score ) {
-                            vm.items.results[jdx].avg_normalized_score =
-                                resp[idx].avg_normalized_score;
-                        }
-                        vm.buildChart(resp[idx]);
-                        break;
-                    }
-                }
-            }
-            vm.chartsAvailable = true;
-            vm.$forceUpdate();
-        },
         buildSummaryChart: function() {
             // Creates the top level summary polar chart
             var vm = this;
@@ -1278,9 +1388,6 @@ Vue.component('scorecard', {
         setActiveElement: function(practice) {
             this.activeTile = practice;
         },
-        scoreToRotation: function(score) {
-            return '' + ((score / 100) * 180 + 180) + 'deg';
-        },
         // display with active links
         textAsHtml: function(text) {
             var vm = this;
@@ -1300,103 +1407,6 @@ Vue.component('scorecard', {
             return activeLinks;
         }
     },
-    computed: {
-        arcWidth: function() {
-            return 290;
-        },
-        arcHeight: function() {
-            return 156;
-        },
-        baseWidth: function() {
-            return this.arcWidth / 12;
-        },
-        radiusOuterAngle: function() {
-            return this.arcWidth / 2;
-        },
-        innerRadius: function() {
-            return this.radiusOuterAngle * 0.5;
-        },
-        topScoreTopPath: function() {
-            return 'm ' + this.baseWidth + ' 0 a ' +
-                this.innerRadius + ' ' +
-                this.innerRadius + ' 0 0 1 ' +
-                (this.arcWidth -  this.baseWidth * 2) + ' 0';
-        },
-        avgScoreTopPath: function() {
-            return 'm ' + (this.baseWidth * 2) + ' 0 a ' +
-                this.innerRadius + ' ' +
-                this.innerRadius + ' 0 0 1 ' +
-                (this.arcWidth -  this.baseWidth * 2 * 2) + ' 0';
-        },
-        ownScoreTopPath: function() {
-            return 'm ' + (this.baseWidth * 3) + ' 0 a ' +
-                this.innerRadius + ' ' +
-                this.innerRadius + ' 0 0 1 ' +
-                (this.arcWidth -  this.baseWidth * 2 * 3) + ' 0';
-        },
-        topScoreBottomPath: function() {
-            return 'm 0 0 a ' +
-                this.radiusOuterAngle + ' ' +
-                this.radiusOuterAngle + ' 0 0 1 ' +
-                this.arcWidth + ' 0 l ' +
-                (-this.baseWidth) + ' 0 a ' +
-                this.innerRadius + ' ' +
-                this.innerRadius + ' 0 0 0 ' +
-                (- (this.arcWidth - this.baseWidth * 2)) + ' 0 z';
-        },
-        avgScoreBottomPath: function() {
-            return 'm ' + this.baseWidth + ' 0 a ' +
-                this.innerRadius + ' ' +
-                this.innerRadius + ' 0 0 1 ' +
-                (this.arcWidth - this.baseWidth * 2) + ' 0 l ' +
-                (-this.baseWidth) + ' 0 a ' +
-                this.innerRadius + ' ' +
-                this.innerRadius + ' 0 0 0 ' +
-                (-(this.arcWidth - this.baseWidth * 2 * 2)) + ' 0  z';
-        },
-        ownScoreBottomPath: function() {
-            return 'm ' + (this.baseWidth * 2) + ' 0 a ' +
-                this.innerRadius + ' ' +
-                this.innerRadius + ' 0 0 1 ' +
-                (this.arcWidth - this.baseWidth * 2 * 2) + ' 0 l ' +
-                (-this.baseWidth) + ' 0 a ' +
-                this.innerRadius + ' ' +
-                this.innerRadius + ' 0 0 0 ' +
-                (-(this.arcWidth - this.baseWidth * 2 * 3)) + ' 0 z';
-        },
-    },
-    watch: {
-        itemsLoaded: function (val) {
-            var vm = this;
-            if( vm.chartsLoaded ) {
-                setTimeout(function() {
-                    vm.buildCharts(vm.chartsAPIResp);
-                }, 5000);
-            }
-        },
-        chartsLoaded: function (val) {
-            var vm = this;
-            if( vm.itemsLoaded ) {
-                setTimeout(function() {
-                    vm.buildCharts(vm.chartsAPIResp);
-                }, 5000);
-            }
-        },
-    },
-    mounted: function(){
-        var vm = this;
-        vm.get();
-        if( vm.account_benchmark_url ) {
-            vm.reqGet(vm.account_benchmark_url,
-            function(resp) {
-                vm.chartsAPIResp = resp;
-                vm.chartsLoaded = true;
-            });
-            vm.buildSummaryChart();
-        } else {
-            vm.chartsLoaded = true;
-        }
-    }
 });
 
 
@@ -1452,7 +1462,7 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
     ],
     data: function() {
         return {
-            url: this.initUrl ? this.initUrl : null, //XXX this.$urls.api_track,
+            url: this.initUrl ? this.initUrl : null,
             starts_at: null,
             ends_at: null,
             newItem: {
@@ -1462,30 +1472,155 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
         }
     },
     methods: {
+        clearNewItem: function() {
+            this.newItem = {
+                facility: "",
+                allocation: "",
+            };
+        },
         addItem: function() {
             var vm = this;
             vm.reqPost(vm.url, {extra: JSON.stringify(vm.newItem)},
             function() {
                 vm.items.results.push({extra: vm.newItem});
-                vm.newItem = {
-                    facility: "",
-                    allocation: "",
-                }
+                vm.clearNewItem();
             });
         },
         asUnit: function(amount, destUnit, srcUnit) {
-            // Energy
-            if( destUnit == 'mmbtu' ) {
-                if( srcUnit == 'mmbtu' ) {
-                    return amount;
-                }
+            if( srcUnit === destUnit ) {
+                return amount;
             }
+            const lookup = srcUnit + '_to_' + destUnit;
+
+            // conversion of Mass units
+            const unitEquivMass = {
+                'kg_to_lb': 2.20462262,
+                'kg_to_tons': 0.001,
+
+                'lb_to_g': 453.59237,
+                'lb_to_kg': 0.45359237,
+                'lb_to_tons': 0.00045359237,
+
+                'short-tons_to_lb': 2000,
+                'short-tons_to_kg': 907.18474,
+
+                'tons_to_lb': 2204.62262,
+                'tons_to_kg': 1000,
+                'tons_to_short-tons': 1.10231131,
+            };
+            const massRatio = unitEquivMass[lookup];
+            if( massRatio ) {
+                return amount * massRatio;
+            }
+
+            // conversion of Volume units
+            const unitEquivVolume = {
+                'bbl_to_gal-us': 42,
+                'bbl_to_L': 158.987295,
+                'bbl_to_m3': 0.158987295,
+
+                'ccf_to_bbl': 100,
+
+                'gal-us_to_bbl': 0.0238,
+                'gal-us_to_ccf': 0.00133680555564839,
+                'gal-us_to_L': 3.78541178,
+                'gal-us_to_m3': 0.00378541178,
+                'gal-us_to_scf': 0.133680555564839,
+
+                'L_to_gal-us': 0.264172052,
+                'L_to_m3': 0.001,
+                'L_to_scf': 0.0353146667115116,
+
+                'm3_to_bbl': 6.28981077,
+                'm3_to_gal-us': 264.172052,
+                'm3_to_L': 1000,
+                'm3_to_scf': 35.3146667115116,
+
+                'scf_to_bbl': 0.178107607,
+                'scf_to_ccf': 0.01,
+                'scf_to_gal-us': 7.48051948,
+                'scf_to_L': 28.3168466,
+                'scf_to_m3': 0.0283168466,
+            };
+            const volumeRatio = unitEquivVolume[lookup];
+            if( volumeRatio ) {
+                return amount * volumeRatio;
+            }
+
+            // conversion of Energy units
+            const unitEquivEnergy = {
+                'btu_to_kwh': 0.00029307107,
+                'btu_to_mmbtu': 0.000001,
+                'btu_to_mwh': 0.00000029307107,
+                'btu_to_therm': 0.00001,
+
+                'gj_to_kwh': 277.777778,
+                'gj_to_mmbtu': 0.94781712,
+                'gj_to_mwh': 0.277777778,
+                'gj_to_therm': 9.4781712,
+
+                'kwh_to_btu': 3412.14163,
+                'kwh_to_gj': 0.0036,
+                'kwh_to_kj': 3600,
+                'kwh_to_mj': 3.6,
+                'kwh_to_mmbtu': 0.00341214163,
+                'kwh_to_mwh': 0.001,
+                'kwh_to_therm': 0.0341214163513308,
+
+                'mj_to_gj': 0.001,
+                'mj_to_kwh': 0.277777778,
+                'mj_to_mmbtu': 0.00094781712,
+                'mj_to_therm': 0.0094781712,
+
+                'mmbtu_to_btu': 1000000,
+                'mmbtu_to_gj': 1.05505585,
+                'mmbtu_to_kwh': 293.07107,
+                'mmbtu_to_mj': 1000,
+                'mmbtu_to_mwh': 0.29307107,
+                'mmbtu_to_therm': 10,
+
+                'mwh_to_mmbtu': 3.41214163,
+                'mwh_to_kwh': 1000,
+                'mwh_to_therm': 34.1214163513308,
+
+                'therm_to_btu': 100000,
+                'therm_to_gj': 0.105505585,
+                'therm_to_kwh': 29.307107,
+                'therm_to_mmbtu': 0.1,
+                'therm_to_mwh': 0.029307107,
+            };
+            const energyRatio = unitEquivEnergy[lookup];
+            if( energyRatio ) {
+                return amount * energyRatio;
+            }
+
+            // conversion of Distance units
+            const unitEquivDistance = {
+                'km_to_mile': 0.621371192,
+                'mile_to_km': 1.609344,
+                'mile_to_passenger-mile': 1,
+                'mile_to_vehicle-mile': 1,
+                'nautical-mile_to_mile': 1.150779,
+                'passenger-mile_to_mile': 1,
+                'vehicle-mile_to_mile': 1,
+            };
+            const distanceRatio = unitEquivDistance[lookup];
+            if( distanceRatio ) {
+                return amount * distanceRatio;
+            }
+
+            // XXX
+            // ton-mile_to_tonne-km 1.459972
+            // tonne-km_to_ton-mile 0.684944642773971
             return NaN;
+        },
+        openComments: function(row) {
+            console.warn("openComments to be implemented");
         },
         _save: function() {
             var vm = this;
             if( !vm.url ) {
-                console.warning("url is undefined. data cannot be saved.");
+                console.warn("url is undefined. data cannot be saved.");
                 return;
             }
             vm.reqPost(vm._safeUrl(vm.url, 'values'), {
@@ -1557,10 +1692,69 @@ Vue.component('water-tracker', dataMetricTracker.extend({
 }));
 
 
-var ghgEmissionsEstimator = Vue.component('ghg-emissions-estimator', dataMetricTracker.extend({
+var ghgEmissionsEstimator = Vue.component(
+    'ghg-emissions-estimator', dataMetricTracker.extend({
     data: function() {
         return {
             emissionsEstimate: 0,
+        }
+    },
+    methods: {
+        getEmissionFactors: function(row) {
+            return {
+                co2_factor: 0,
+                ch4_factor: 0,
+                n2o_factor: 0,
+                biogenic_co2_factor: 0
+            };
+        },
+        estimateCO2: function(row) {
+            var vm = this;
+            const ef_factors = vm.getEmissionFactors(row);
+            if( typeof ef_factors == 'undefined' ) {
+                return NaN;
+            }
+            return ef_factors.co2_factor
+                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
+        },
+        estimateCH4: function(row) {
+            var vm = this;
+            const ef_factors = vm.getEmissionFactors(row);
+            if( typeof ef_factors == 'undefined' ) {
+                return NaN;
+            }
+            return ef_factors.ch4_factor
+                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
+        },
+        estimateN2O: function(row) {
+            var vm = this;
+            const ef_factors = vm.getEmissionFactors(row);
+            if( typeof ef_factors == 'undefined' ) {
+                return NaN;
+            }
+            return ef_factors.n2o_factor
+                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
+        },
+        estimateBiogenicCO2: function(row) {
+            var vm = this;
+            const ef_factors = vm.getEmissionFactors(row);
+            if( typeof ef_factors == 'undefined' ) {
+                return NaN;
+            }
+            return ef_factors.biogenic_co2_factor
+                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
+        },
+        estimateCO2e: function(row) {
+            var vm = this;
+            // GWP dataset (IPCC assessment): 2014 IPCC Fifth Assessment
+            // https://ghgprotocol.org/sites/default/files/standards_supporting/Required%20gases%20and%20GWP%20values_0.pdf
+            return vm.estimateCO2(row) +
+                vm.estimateCH4(row) * 28 +
+                vm.estimateN2O(row) * 265;
+        },
+       save: function() {
+            // XXX Save energy inputs and GHG Emissions estimates;
+            this._save();
         }
     },
     computed: {
@@ -1579,7 +1773,6 @@ var ghgEmissionsEstimator = Vue.component('ghg-emissions-estimator', dataMetricT
 Vue.component('scope1-stationary-combustion', ghgEmissionsEstimator.extend({
     data: function() {
         return {
-            emissionsEstimate: 0,
             newItem: {
                 facility: "",
                 fuel_type: "",
@@ -1588,17 +1781,15 @@ Vue.component('scope1-stationary-combustion', ghgEmissionsEstimator.extend({
         }
     },
     methods: {
-        addItem: function() {
-            var vm = this;
-            vm.reqPost(vm.url, {extra: JSON.stringify(vm.newItem)},
-            function() {
-                vm.items.results.push({extra: vm.newItem});
-                vm.newItem = {
-                    facility: "",
-                    fuel_type: "",
-                    allocation: "",
-                }
-            });
+        getEmissionFactors: function(row) {
+            return this.$ef_stationary_combustion[row.extra.fuel_type];
+        },
+        clearNewItem: function() {
+            this.newItem = {
+                facility: "",
+                fuel_type: "",
+                allocation: "",
+            };
         },
         humanizeFuelType: function(fuelType) {
             var result = this.$ef_stationary_combustion[fuelType]
@@ -1607,79 +1798,6 @@ Vue.component('scope1-stationary-combustion', ghgEmissionsEstimator.extend({
             }
             return fuelType;
         },
-        asUnit: function(amount, destUnit, srcUnit) {
-            // Energy
-            if( destUnit == 'mmbtu' ) {
-                if( srcUnit == 'mmbtu' ) {
-                    return amount;
-                }
-            }
-            return NaN;
-        },
-        estimateCO2: function(row) {
-            var vm = this;
-            // Go to Data > Define range ...
-            // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
-            // Custom_EF: $Parameters.$C$65:$N$94
-            const ef_factors = vm.$ef_stationary_combustion[row.extra.fuel_type];
-            if( typeof ef_factors == 'undefined' ) {
-                return NaN;
-            }
-            return ef_factors.co2_factor
-                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
-        },
-        estimateCH4: function(row) {
-            var vm = this;
-            // Go to Data > Define range ...
-            // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
-            // Custom_EF: $Parameters.$C$65:$N$94
-            const ef_factors = vm.$ef_stationary_combustion[row.extra.fuel_type];
-            if( typeof ef_factors == 'undefined' ) {
-                return NaN;
-            }
-            return ef_factors.ch4_factor
-                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
-        },
-        estimateN2O: function(row) {
-            var vm = this;
-            // Go to Data > Define range ...
-            // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
-            // Custom_EF: $Parameters.$C$65:$N$94
-            const ef_factors = vm.$ef_stationary_combustion[row.extra.fuel_type];
-            if( typeof ef_factors == 'undefined' ) {
-                return NaN;
-            }
-            return ef_factors.n2o_factor
-                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
-        },
-        estimateCO2e: function(row) {
-            var vm = this;
-            // Go to Data > Define range ...
-            // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
-            // Custom_EF: $Parameters.$C$65:$N$94
-            const ef_factors = vm.$ef_stationary_combustion[row.extra.fuel_type];
-            if( typeof ef_factors == 'undefined' ) {
-                return NaN;
-            }
-            return ef_factors.co2_factor
-                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
-        },
-        estimateBiogenicCO2: function(row) {
-            var vm = this;
-            // Go to Data > Define range ...
-            // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
-            // Custom_EF: $Parameters.$C$65:$N$94
-            const ef_factors = vm.$ef_stationary_combustion[row.extra.fuel_type];
-            if( typeof ef_factors == 'undefined' ) {
-                return NaN;
-            }
-            return ef_factors.biogenic_co2_factor // XXX
-                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
-        },
-        save: function() {
-            // XXX Save energy inputs and GHG Emissions estimates;
-            this._save();
-        }
     },
 }));
 
@@ -1688,20 +1806,108 @@ Vue.component('scope1-mobile-combustion', ghgEmissionsEstimator.extend({
     data: function() {
         return {
             newItem: {
+                activity_type: "",
                 fuel_type: "",
-                activity_type: ""
+                vehicle_type: "",
             },
         }
     },
     methods: {
-        humanizeActivityType: function(activityType) {
-            return activityType; // XXX
+        clearNewItem: function() {
+            this.newItem = {
+                facility: "",
+                allocation: "",
+                activity_type: "",
+                fuel_type: "",
+                vehicle_type: "",
+            };
         },
-        humanizeFuelSource: function(fuelSource) {
-            return fuelSource; // XXX
+        getEmissionFactors: function(row) {
+            const lookup = row.extra.fuel_type + '-' + row.extra.vehicle_type;
+            return this.$ef_mobile_combustion[lookup];
+        },
+        asFuelUse: function(row) {
+            var vm = this;
+            const lookup = row.extra.fuel_type + '-' + row.extra.vehicle_type;
+            const ef_factors = vm.$ef_default_average_fuel_efficiency[lookup];
+            if( typeof ef_factors == 'undefined' ) {
+                return {measured: NaN};
+            }
+            const measured = (
+                vm.asUnit(row.measured, ef_factors.numerator_unit, row.unit)
+                / ef_factors.fuel_efficiency);
+            return {measured: measured, unit: ef_factors.denominator_unit};
+        },
+        estimateCO2: function(row) {
+            var vm = this;
+            const ef_factors = vm.getEmissionFactors(row);
+            if( typeof ef_factors == 'undefined' ) {
+                return NaN;
+            }
+            const fuelUse = vm.asFuelUse(row);
+            return ef_factors.co2_factor
+                * vm.asUnit(fuelUse.measured, ef_factors.unit, fuelUse.unit) / 1000;
+        },
+        estimateCH4: function(row) {
+            var vm = this;
+            // Go to Data > Define range ...
+            // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
+            // Custom_EF: $Parameters.$C$65:$N$94
+            const ef_factors = vm.getEmissionFactors(row);
+            if( typeof ef_factors == 'undefined' ) {
+                return NaN;
+            }
+            const fuelUse = vm.asFuelUse(row);
+            return ef_factors.ch4_factor
+                * vm.asUnit(fuelUse.measured, ef_factors.unit, fuelUse.unit) / 1000;
+        },
+        estimateN2O: function(row) {
+            var vm = this;
+            // Go to Data > Define range ...
+            // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
+            // Custom_EF: $Parameters.$C$65:$N$94
+            const ef_factors = vm.getEmissionFactors(row);
+            if( typeof ef_factors == 'undefined' ) {
+                return NaN;
+            }
+            const fuelUse = vm.asFuelUse(row);
+            return ef_factors.n2o_factor
+                * vm.asUnit(fuelUse.measured, ef_factors.unit, fuelUse.unit) / 1000;
+        },
+        estimateBiogenicCO2: function(row) {
+            var vm = this;
+            // Go to Data > Define range ...
+            // EF_Stationary_Combustion: $'Emission Factors'.$B$10:$K$83
+            // Custom_EF: $Parameters.$C$65:$N$94
+            const ef_factors = vm.getEmissionFactors(row);
+            if( typeof ef_factors == 'undefined' ) {
+                return NaN;
+            }
+            const fuelUse = vm.asFuelUse(row);
+            return ef_factors.biogenic_co2_factor
+                * vm.asUnit(fuelUse.measured, ef_factors.unit, fuelUse.unit) / 1000;
+        },
+
+        humanizeActivityType: function(activityType) {
+            var result = this.$activity_types[activityType];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
+            return activityType;
+        },
+        humanizeFuelSource: function(fuelType) {
+            var result = this.$fuel_types[fuelType];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
+            return fuelType;
         },
         humanizeVehicleType: function(vehicleType) {
-            return vehicleType; // XXX
+            var result = this.$vehicle_types[vehicleType];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
+            return vehicleType;
         },
     },
 }));
@@ -1714,8 +1920,47 @@ Vue.component('scope1-refrigerants', ghgEmissionsEstimator.extend({
         }
     },
     methods: {
+        getEmissionFactors: function(row) {
+            return this.$ef_refrigerants[row.extra.refrigerant_used];
+        },
         humanizeRefrigerantUsed: function(refrigerantUsed) {
-            return refrigerantUsed; // XXX
+            var result = this.$ef_refrigerants[refrigerantUsed];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
+            return refrigerantUsed;
+        },
+        estimateCO2e: function(row) {
+            var vm = this;
+
+            // Decrease in Refrigerant Inventory E = C - D
+            const decreaseInRefrigerantInventory = (
+                row.begin_inventory_measured - row.end_inventory_measured);
+            // Total Refrigerant Purchases/ Acquisitions I = E + F + G
+            const totalRefrigerantPurchases = (
+                parseFloat(row.purchased_measured) +
+                parseFloat(row.returned_by_users_measured) +
+                parseFloat(row.returned_after_recycling_measured));
+            // Total Refrigerant Sales/Disbursements O = H + I + J + K + L
+            const totalRefrigerantSales = (
+                parseFloat(row.charged_into_equipment_measured) +
+                (parseFloat(row.delivered_to_users_measured) || 0) +
+                (parseFloat(row.returned_to_producers_measured) || 0) +
+                (parseFloat(row.sent_offsite_for_recycling_measured) || 0) +
+                (parseFloat(row.sent_offsite_for_destruction_measured) || 0));
+            // Refrigerant Emissions (kilograms) P = E + I - O
+            const refrigerantEmissions = (
+                decreaseInRefrigerantInventory +
+                    totalRefrigerantPurchases -
+                    totalRefrigerantSales);
+
+            const ef_factors = vm.getEmissionFactors(row);
+            if( typeof ef_factors == 'undefined' ) {
+                return NaN;
+            }
+            const rowUnit = 'tons';
+            return ef_factors.ar5_factor
+                * vm.asUnit(refrigerantEmissions, ef_factors.unit, rowUnit) / 1000;
         },
     },
 }));
@@ -1725,17 +1970,53 @@ Vue.component('scope2-purchased-electricity', ghgEmissionsEstimator.extend({
     data: function() {
         return {
             newItem: {
-                calculationApproach: "",
+                facility: "",
+                allocation: "",
+                grid: "",
+                calculation_approach: "",
                 type_of_emission_factor: ""
             },
         }
     },
     methods: {
+        clearNewItem: function() {
+            this.newItem = {
+                facility: "",
+                allocation: "",
+                grid: "",
+                calculation_approach: "",
+                type_of_emission_factor: ""
+            };
+        },
+        getEmissionFactors: function(row) {
+            if( row.extra.calculation_approach == 'heat-steam' ) {
+                return this.$ef_heat_steam[row.extra.calculation_approach];
+            }
+            if( row.extra.type_of_emission_factor == 'residual-mix' ) {
+                return this.$ef_residual_mix_market_based[row.extra.grid];
+            }
+            return this.$ef_grid_region_location_based[row.extra.grid];
+        },
+        humanizeGrid: function(grid) {
+            var result = this.$ef_grid_region_location_based[grid];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
+            return grid;
+        },
         humanizeCalculationApproach: function(calculationApproach) {
-            return calculationApproach; // XXX
+            var result = this.$calculation_approach_types[calculationApproach];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
+            return calculationApproach;
         },
         humanizeTypeOfEmissionFactor: function(typeOfEmissionFactor) {
-            return typeOfEmissionFactor; // XXX
+            var result = this.$type_of_emission_factor_types[typeOfEmissionFactor];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
+            return typeOfEmissionFactor;
         },
     },
 }));
@@ -1744,22 +2025,78 @@ Vue.component('scope2-purchased-electricity', ghgEmissionsEstimator.extend({
 Vue.component('scope3-transportation', ghgEmissionsEstimator.extend({
     data: function() {
         return {
-            newItem: {}
+            newItem: {
+                facility: "",
+                allocation: "",
+                category: "",
+                emission_factor_dataset: "",
+                mode_of_transport: "",
+                activity_type: "",
+                vehicle_type: ""
+            }
         }
     },
     methods: {
+        clearNewItem: function() {
+            this.newItem = {
+                facility: "",
+                allocation: "",
+                category: "",
+                emission_factor_dataset: "",
+                mode_of_transport: "",
+                activity_type: "",
+                vehicle_type: ""
+            };
+        },
+        getEmissionFactors: function(row) {
+            return this.$ef_scope3_transport[row.extra.vehicle_type];
+        },
         humanizeCategory: function(category) {
+            var result = this.$scope3_category_types[category];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
             return category;
         },
+        humanizeEmissionFactorDataset: function(emissionFactorDataset) {
+             var result = this.$emission_factor_dataset_types[emissionFactorDataset];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
+            return emissionFactorDataset;
+        },
         humanizeModeOfTransport: function(modeOfTransport) {
+            var result = this.$mode_of_transport_types[modeOfTransport];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
             return modeOfTransport;
         },
         humanizeActivityType: function(activityType) {
+            var result = this.$activity_types[activityType];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
             return activityType;
         },
         humanizeVehicleType: function(vehicleType) {
+            var result = this.$ef_scope3_transport[vehicleType];
+            if( typeof result !== 'undefined' ) {
+                return result.title;
+            }
             return vehicleType;
         },
+
+        estimateCO2: function(row) {
+            var vm = this;
+            const ef_factors = vm.getEmissionFactors(row);
+            if( typeof ef_factors == 'undefined' ) {
+                return NaN;
+            }
+            return ef_factors.co2_factor
+                * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
+        },
+
     },
 }));
 
