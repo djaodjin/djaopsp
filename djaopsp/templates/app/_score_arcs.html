@@ -1,0 +1,59 @@
+<div class="heading-tile">
+<!-- XXX  <div class="fa fa-spinner fa-spin" v-if="!chartsAvailable"></div> -->
+  <svg class="chart-scores" :viewBox="'0 0 ' + arcWidth + ' ' + arcHeight">
+    <!-- top score arc -->
+    <g :transform="'translate(0, ' + arcHeight + ')'">
+        <path
+            id="topScorePath"
+            fill="none"
+            :d="topScoreTopPath"
+            />
+        <path
+            class="arc-score"
+            fill="#007040"
+            :d="topScoreBottomPath(practice.highest_normalized_score)"
+            />
+        <text class="score-label" :x="4" :dy="-10" fill="white">
+            <textPath href="#topScorePath">top score ([[practice.highest_normalized_score]]%)</textPath>
+        </text>
+    </g>
+    <!-- average score arc -->
+    <g :transform="'translate(0, ' + arcHeight + ')'">
+        <path
+            id="averageScorePath"
+            fill="none"
+            :d="avgScoreTopPath"
+            />
+        <path
+            class="arc-score"
+            fill="#69b12b"
+            :d="avgScoreBottomPath(practice.avg_normalized_score)"
+            />
+        <text class="score-label" :x="4" :dy="-10" fill="white">
+            <textPath href="#averageScorePath">
+                average ([[practice.avg_normalized_score]]%)
+            </textPath>
+        </text>
+    </g>
+    <!-- own score arc -->
+    <g :transform="'translate(0, ' + arcHeight + ')'">
+        <path
+            id="ownScorePath"
+            fill="none"
+            :d="ownScoreTopPath"
+            />
+        <path
+            class="arc-score"
+            fill="#9cd868"
+            :d="ownScoreBottomPath(practice.normalized_score)"
+            />
+        <text class="score-label" x="4" dy="-10" fill="white">
+            <textPath href="#ownScorePath">you ([[practice.normalized_score]]%)</textPath>
+        </text>
+    </g>
+    <g class="counter"
+       :transform="'translate(' + (arcWidth / 2) + ', ' + arcHeight + ')'">
+        <text dx="-2.2rem" dy="-15">[[practice.normalized_score]]%</text>
+    </g>
+  </svg>
+</div>

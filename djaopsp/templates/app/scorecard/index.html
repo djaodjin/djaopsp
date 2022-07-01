@@ -122,65 +122,7 @@ companies responding on practices in the industry segment.
                 <div class="col-md-4">
                   <div :class="indentHeader(practice) + ' py-2'"
                        v-if="practice.indent == 0">
-                    <svg class="chart-scores" :viewBox="'0 0 ' + arcWidth + ' ' + arcHeight">
-                      <!-- top score arc -->
-                      <g :transform="'translate(0, ' + arcHeight + ')'">
-                        <path
-                          id="topScorePath"
-                          fill="none"
-                          :d="topScoreTopPath"
-                          />
-                        <path
-                          class="arc-score"
-                          :style="'transform: rotate(' + scoreToRotation(practice.highest_normalized_score) + ');'"
-                          fill="#007040"
-                          :d="topScoreBottomPath"
-                          />
-                        <text class="score-label" :x="4" :dy="-5" fill="white">
-                          <textPath href="#topScorePath">top score ([[practice.highest_normalized_score]]%)</textPath>
-                        </text>
-                      </g>
-                      <!-- average score arc -->
-                      <g :transform="'translate(0, ' + arcHeight + ')'">
-                        <path
-                          id="averageScorePath"
-                          fill="none"
-                          :d="avgScoreTopPath"
-                          />
-                        <path
-                          class="arc-score"
-                          :style="'transform: rotate(' + scoreToRotation(practice.avg_normalized_score) + ');'"
-                          fill="#69b12b"
-                          :d="avgScoreBottomPath"
-                          />
-                        <text class="score-label" :x="4" :dy="-5" fill="white">
-                          <textPath href="#averageScorePath">
-                            average ([[practice.avg_normalized_score]]%)
-                          </textPath>
-                        </text>
-                      </g>
-                      <!-- own score arc -->
-                      <g :transform="'translate(0, ' + arcHeight + ')'">
-                        <path
-                          id="ownScorePath"
-                          fill="none"
-                          :d="ownScoreTopPath"
-                          />
-                        <path
-                          class="arc-score"
-                          :style="'transform: rotate(' + scoreToRotation(practice.normalized_score) + ');'"
-                          fill="#9cd868"
-                          :d="ownScoreBottomPath"
-                          />
-                        <text class="score-label" x="4" dy="-5" fill="white">
-                          <textPath href="#ownScorePath">you ([[practice.normalized_score]]%)</textPath>
-                        </text>
-                      </g>
-                      <g class="counter"
-                         :transform="'translate(' + (arcWidth / 2) + ', ' + arcHeight + ')'">
-                        <text dx="-1.6rem" dy="-25">[[practice.normalized_score]]%</text>
-                      </g>
-                    </svg>
+                    {% include "app/_score_arcs.html" %}
                   </div>{# /practice.indent == 0 #}
                   <div :class="indentHeader(practice)" v-if="practice.indent > 0">
                     [[asPercent(practice.normalized_score)]]

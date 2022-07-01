@@ -238,6 +238,11 @@ investors and/or other stakeholders before you complete it.
       </div>
     </div>
     {% endblock %}
+
+    <div v-if="itemsLoaded && items.path !== '/sustainability'">
+      {% include "app/improve/_improve_charts.html" %}
+    </div>
+
   </div>
 </campaign-questions-list>
 {% endblock %}
