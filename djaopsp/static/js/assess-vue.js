@@ -279,6 +279,10 @@ var practicesListMixin = {
             return vm.isPractice(row) && (row.ui_hint === 'ghg-emissions' ||
                 row.ui_hint === 'ghg-emissions-scope3');
         },
+        isGHGEmissionsScope3: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && (row.ui_hint === 'ghg-emissions-scope3');
+        },
         isEmployeeCountUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'employee-count';
@@ -702,7 +706,16 @@ Vue.component('campaign-questions-list', {
             var primaryAnswer = vm.getPrimaryAnswer(practice);
             var startsAt = vm.getAnswerStartsAt(practice).measured;
             var endsAt = vm.getAnswerEndsAt(practice).measured;
-            vm.reqGet(vm._safeUrl(vm.api_aggregate_metric_base, vm.prefix + practice.path) + '?created_at=' + startsAt + "&ends_at=" + endsAt,
+            var queryParams = "created_at=" + startsAt + "&ends_at=" + endsAt;
+            if( primaryAnswer.unit ) {
+                const rindex = primaryAnswer.unit.lastIndexOf('-');
+                const unit = rindex ? primaryAnswer.unit.substr(0, rindex)
+                      : primaryAnswer.unit;
+                queryParams += "&unit=" + unit;
+            }
+            vm.reqGet(vm._safeUrl(vm.api_aggregate_metric_base,
+                vm.prefix + practice.path) + (
+                queryParams ? ("?" + queryParams) : ""),
             function(resp) {
                 primaryAnswer.measured = resp.measured;
                 primaryAnswer.unit = resp.unit;
@@ -1463,27 +1476,33 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
     data: function() {
         return {
             url: this.initUrl ? this.initUrl : null,
-            starts_at: null,
-            ends_at: null,
-            newItem: {
-                facility: "",
-                allocation: "",
-            },
+            starts_at: (this.$dateRange && this.$dateRange.starts_at) ? this.$dateRange.starts_at : null,
+            ends_at: (this.$dateRange && this.$dateRange.ends_at) ? this.$dateRange.ends_at : null,
+            newItem: this.clearNewItem(),
         }
     },
     methods: {
         clearNewItem: function() {
-            this.newItem = {
-                facility: "",
-                allocation: "",
+            return {
+                full_name: "",
+                extra: {}
             };
         },
         addItem: function() {
             var vm = this;
-            vm.reqPost(vm.url, {extra: JSON.stringify(vm.newItem)},
-            function() {
-                vm.items.results.push({extra: vm.newItem});
-                vm.clearNewItem();
+            if( vm.isInvalidNewItem ) {
+                vm.showErrorMessages({"detail": "Please enter all information that defines the new row."});
+                return
+            }
+            var data = {extra: JSON.stringify(vm.newItem.extra)};
+            if( vm.newItem.full_name ) {
+                data.full_name = vm.newItem.full_name;
+            }
+            vm.reqPost(vm.url, data,
+            function(resp) {
+                vm.newItem.printable_name = vm.newItem.full_name;
+                vm.items.results.push(vm.newItem);
+                vm.newItem = vm.clearNewItem();
             });
         },
         asUnit: function(amount, destUnit, srcUnit) {
@@ -1617,10 +1636,21 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
         openComments: function(row) {
             console.warn("openComments to be implemented");
         },
-        _save: function() {
+        remove: function(row) {
+            var vm = this;
+            vm.reqDelete(vm._safeUrl(vm.url, row.rank.toString()),
+            function() {
+                vm.get();
+            });
+        },
+        _save: function(callback) {
             var vm = this;
             if( !vm.url ) {
                 console.warn("url is undefined. data cannot be saved.");
+                return;
+            }
+            if( vm.isInvalidStartsAt || vm.isInvalidEndsAt ) {
+                vm.showErrorMessages({"detail": "Please specify a valid reporting period."});
                 return;
             }
             vm.reqPost(vm._safeUrl(vm.url, 'values'), {
@@ -1629,14 +1659,29 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
                 items: vm.items.results
             },
             function(resp) {
-                for( var idx = 0; idx < vm.items.results.length; ++idx ) {
-                    vm.items.results[idx].measured = null;
+                if( callback ) {
+                    callback(resp);
+                } else {
+                    for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                        vm.items.results[idx].measured = null;
+                    }
+                    vm.showMessages(["datapoints have been recorded."], 'success');
                 }
-                vm.showMessages(["datapoints have been recorded."], 'success');
             });
         },
         save: function() {
             this._save();
+        }
+    },
+    computed: {
+        isInvalidStartsAt: function() {
+            return isNaN(Date.parse(this.starts_at));
+        },
+        isInvalidEndsAt: function() {
+            return isNaN(Date.parse(this.ends_at));
+        },
+        isInvalidNewItem: function() {
+            return !this.newItem.full_name;
         }
     },
     mounted: function() {
@@ -1652,9 +1697,9 @@ Vue.component('waste-tracker', dataMetricTracker.extend({
     data: function() {
         return {
             newItem: {
-                facility: "",
-                allocation: "",
+                full_name: "",
                 waste_type: "",
+                unit: "tons",
             },
         }
     },
@@ -1666,6 +1711,11 @@ Vue.component('waste-tracker', dataMetricTracker.extend({
             }
             return wasteType;
         },
+    },
+    computed: {
+        isInvalidNewItem: function() {
+            return !this.newItem.full_name || !this.newItem.waste_type;
+        }
     }
 }));
 
@@ -1674,8 +1724,7 @@ Vue.component('water-tracker', dataMetricTracker.extend({
     data: function() {
         return {
             newItem: {
-                facility: "",
-                allocation: "",
+                full_name: "",
                 water_type: "",
             },
         }
@@ -1688,6 +1737,11 @@ Vue.component('water-tracker', dataMetricTracker.extend({
             }
             return waterType;
         },
+    },
+    computed: {
+        isInvalidNewItem: function() {
+            return !this.newItem.full_name || !this.newItem.water_type;
+        }
     }
 }));
 
@@ -1753,8 +1807,30 @@ var ghgEmissionsEstimator = Vue.component(
                 vm.estimateN2O(row) * 265;
         },
        save: function() {
-            // XXX Save energy inputs and GHG Emissions estimates;
-            this._save();
+           // We saved the energy data points, so now let's save
+           // the GHG Emissions estimates.
+           var vm = this;
+           vm._save(function(resp) {
+               var estimates = [];
+               for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                   estimates.push({
+                       slug: vm.items.results[idx].slug,
+                       measured: vm.estimateCO2e(vm.items.results[idx]),
+                       unit: 'tons'
+                   })
+               }
+               vm.reqPost(vm._safeUrl(vm.url, 'values'), {
+                    baseline_at: vm.starts_at,
+                    created_at: vm.ends_at,
+                    items: estimates
+                },
+                function(resp) {
+                    for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                        vm.items.results[idx].measured = null;
+                    }
+                    vm.showMessages(["datapoints have been recorded."], 'success');
+                });
+            });
         }
     },
     computed: {
@@ -1773,23 +1849,20 @@ var ghgEmissionsEstimator = Vue.component(
 Vue.component('scope1-stationary-combustion', ghgEmissionsEstimator.extend({
     data: function() {
         return {
-            newItem: {
-                facility: "",
-                fuel_type: "",
-                allocation: "",
-            },
+            newItem: this.clearNewItem(),
         }
     },
     methods: {
+        clearNewItem: function() {
+            return {
+                full_name: "",
+                extra: {
+                    fuel_type: "",
+                },
+            };
+        },
         getEmissionFactors: function(row) {
             return this.$ef_stationary_combustion[row.extra.fuel_type];
-        },
-        clearNewItem: function() {
-            this.newItem = {
-                facility: "",
-                fuel_type: "",
-                allocation: "",
-            };
         },
         humanizeFuelType: function(fuelType) {
             var result = this.$ef_stationary_combustion[fuelType]
@@ -1799,27 +1872,29 @@ Vue.component('scope1-stationary-combustion', ghgEmissionsEstimator.extend({
             return fuelType;
         },
     },
+    computed: {
+        isInvalidNewItem: function() {
+            return !this.newItem.full_name || !this.newItem.extra.fuel_type;
+        }
+    }
 }));
 
 
 Vue.component('scope1-mobile-combustion', ghgEmissionsEstimator.extend({
     data: function() {
         return {
-            newItem: {
-                activity_type: "",
-                fuel_type: "",
-                vehicle_type: "",
-            },
+            newItem: this.clearNewItem(),
         }
     },
     methods: {
         clearNewItem: function() {
-            this.newItem = {
-                facility: "",
-                allocation: "",
-                activity_type: "",
-                fuel_type: "",
-                vehicle_type: "",
+            return {
+                full_name: "",
+                extra: {
+                    activity_type: "",
+                    fuel_type: "",
+                    vehicle_type: "",
+                },
             };
         },
         getEmissionFactors: function(row) {
@@ -1910,13 +1985,21 @@ Vue.component('scope1-mobile-combustion', ghgEmissionsEstimator.extend({
             return vehicleType;
         },
     },
+    computed: {
+        isInvalidNewItem: function() {
+            return !this.newItem.full_name ||
+                !this.newItem.extra.activity_type ||
+                !this.newItem.extra.fuel_type ||
+                !this.newItem.extra.vehicle_type;
+        }
+    }
 }));
 
 
 Vue.component('scope1-refrigerants', ghgEmissionsEstimator.extend({
     data: function() {
         return {
-            newItem: {}
+            newItem: this.clearNewItem()
         }
     },
     methods: {
@@ -1969,23 +2052,18 @@ Vue.component('scope1-refrigerants', ghgEmissionsEstimator.extend({
 Vue.component('scope2-purchased-electricity', ghgEmissionsEstimator.extend({
     data: function() {
         return {
-            newItem: {
-                facility: "",
-                allocation: "",
-                grid: "",
-                calculation_approach: "",
-                type_of_emission_factor: ""
-            },
+            newItem: this.clearNewItem()
         }
     },
     methods: {
         clearNewItem: function() {
-            this.newItem = {
-                facility: "",
-                allocation: "",
-                grid: "",
-                calculation_approach: "",
-                type_of_emission_factor: ""
+            return {
+                full_name: "",
+                extra: {
+                    grid: "",
+                    calculation_approach: "",
+                    type_of_emission_factor: ""
+                },
             };
         },
         getEmissionFactors: function(row) {
@@ -2019,33 +2097,34 @@ Vue.component('scope2-purchased-electricity', ghgEmissionsEstimator.extend({
             return typeOfEmissionFactor;
         },
     },
+    computed: {
+        isInvalidNewItem: function() {
+            return !this.newItem.full_name ||
+                !this.newItem.extra.grid ||
+                !this.newItem.extra.calculation_approach ||
+                !this.newItem.extra.type_of_emission_factor;
+        }
+    }
 }));
 
 
 Vue.component('scope3-transportation', ghgEmissionsEstimator.extend({
     data: function() {
         return {
-            newItem: {
-                facility: "",
-                allocation: "",
-                category: "",
-                emission_factor_dataset: "",
-                mode_of_transport: "",
-                activity_type: "",
-                vehicle_type: ""
-            }
+            newItem: this.clearNewItem(),
         }
     },
     methods: {
         clearNewItem: function() {
-            this.newItem = {
-                facility: "",
-                allocation: "",
-                category: "",
-                emission_factor_dataset: "",
-                mode_of_transport: "",
-                activity_type: "",
-                vehicle_type: ""
+            return {
+                full_name: "",
+                extra: {
+                    category: "",
+                    emission_factor_dataset: "",
+                    mode_of_transport: "",
+                    activity_type: "",
+                    vehicle_type: ""
+                }
             };
         },
         getEmissionFactors: function(row) {
@@ -2096,8 +2175,17 @@ Vue.component('scope3-transportation', ghgEmissionsEstimator.extend({
             return ef_factors.co2_factor
                 * vm.asUnit(row.measured, ef_factors.unit, row.unit) / 1000;
         },
-
     },
+    computed: {
+        isInvalidNewItem: function() {
+            return !this.newItem.full_name ||
+                !this.newItem.extra.category ||
+                !this.newItem.extra.emission_factor_dataset ||
+                !this.newItem.extra.mode_of_transport ||
+                !this.newItem.extra.activity_type ||
+                !this.newItem.extra.vehicle_type;
+        }
+    }
 }));
 
 
@@ -2115,8 +2203,9 @@ Vue.component('data-values', {
             return item.measured + " " + item.unit;
         },
         humanizeDescription: function(item) {
-            var result = "";
-            var sep = "";
+            var result = (
+                item.account.printable_name ? item.account.printable_name : "");
+            var sep = item.account.printable_name ? ", " : "";
             var extra = item.account.extra;
             for( var fieldName in extra ) {
                 if( extra.hasOwnProperty(fieldName) && extra[fieldName] ) {

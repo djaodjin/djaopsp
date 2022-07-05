@@ -2,7 +2,7 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import json, logging
+import datetime, json, logging
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
@@ -227,6 +227,11 @@ class TrackMetricsView(AccountMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TrackMetricsView, self).get_context_data(**kwargs)
+        ends_at = datetime.date(datetime_or_now().year - 1, 12, 31)
+        context.update({
+            'starts_at': datetime.date(ends_at.year, 1, 1).isoformat(),
+            'ends_at': ends_at.isoformat()
+        })
         metric = self.kwargs.get('metric')
         if metric == 'energy-ghg-emissions':
             self.get_editable_filter_context(context, '/sustainability/data-measured/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1',

@@ -26,14 +26,6 @@ display: none;
                 <canvas id="{{object.slug}}" v-show="itemLoaded" v-cloak></canvas>
               </div>
             </div>
-            <div class="col-md-2 text-left">
-              <div class="mt-5" style="font-size:0.8em;">
-                <span style="text-decoration: line-through;color:#1f66a9;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> All organizations on TSP
-              </div>
-              <div style="font-size:0.8em;">
-                <span style="text-decoration: line-through;color:#f7a036;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Your Reporting Entities
-              </div>
-            </div>
           </div>
         </div>{# /#featured #}
 
@@ -83,43 +75,6 @@ display: none;
         </div>{# /#by-suppliers #}
         {% endif %}
 
-        {% if charts %}
-        <div id="by-scores" class="benchmarks-box" style="margin-top: 25px;">
-          <h2 style="margin-top:20px;">Sub-segments suppliers by scores</h2>
-          <div class="row row-flex">
-            {% for chart in charts %}
-            {% if chart.is_line_break %}
-          </div>
-          <div class="row row-flex">
-            {% endif %}
-            <div class="col-md-4">
-              <div id="{{chart.slug}}-distribution" class="chart-container">
-                <div class="row chart-title" style="margin-left:15px;margin-right:15px;">
-                  <div class="col-4 icon-benchmark orange">
-                    {% if chart.picture %}
-                    <img class="icon-equipment" src="{{chart.picture}}">
-                    {% else %}
-                    <span class="icon-equipment">{{chart.title}}</span>
-                    {% endif %}
-                  </div>
-                  <div class="col-8 title" style="min-height:60px;">
-                    <div style="position:absolute;">
-                      <h3>{{chart.breadcrumbs.0}}</h3>
-                      <h4>{% if chart.breadcrumbs|length > 1 %}{{chart.breadcrumbs.1}}{% endif %}</h4>
-                      <h5>{% if chart.breadcrumbs|length > 2 %}{{chart.breadcrumbs|last}}{% endif %}</h5>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div class="chart-content c3 benchmark-chart-small">
-                  </div>
-                </div>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>{# /#by-scores #}
-        {% endif %}
         {% endblock %}
       </div>
     </compare-dashboard>

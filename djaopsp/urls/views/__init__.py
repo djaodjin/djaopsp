@@ -18,21 +18,9 @@ from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
 
 
 urlpatterns = [
-    path('app/info/<path:path>/',
-         ContentDetailView.as_view(), name='pages_element'),
-    path('app/info/',
-         ContentIndexView.as_view(), name='pages_index'),
-
+    path('app/info/', include('djaopsp.urls.views.content')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.reports')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.portfolios')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.editors')),
-
-    path(r'app/<slug:profile>/',
-         AppView.as_view(), name='app'),
-    path(r'app/',
-        AccountRedirectView.as_view(
-            pattern_name='app',
-            account_url_kwarg='profile',
-            new_account_url=site_url('/users/roles/accept/')),
-        name='app_redirect'),
+    path('app/', include('djaopsp.urls.views.app')),
 ]

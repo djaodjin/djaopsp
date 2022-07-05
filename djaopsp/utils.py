@@ -178,16 +178,25 @@ def get_highlights(sample):
             else:
                 filter_q = models.Q(
                     path__endswith=DB_PATH_SEP + include)
-        includes = get_question_model().objects.filter(filter_q).values(
-            'id', 'default_unit_id')
+        includes = get_question_model().objects.filter(
+            filter_q).select_related('default_unit')
         if includes:
-            positive = Choice.objects.filter(
-                unit=includes[0].get('default_unit_id')).order_by(
-                'rank').first()
-            reporting = Answer.objects.filter(
-                question__in=[incl.get('id') for incl in includes],
-                sample=sample, unit__system=Unit.SYSTEM_ENUMERATED,
-                measured=positive.pk).exists()
+            default_unit = includes[0].default_unit
+            if default_unit.system == Unit.SYSTEM_ENUMERATED:
+                positive = Choice.objects.filter(unit=default_unit).order_by(
+                        'rank').first()
+                reporting = Answer.objects.filter(
+                    question__in=includes,
+                    sample=sample, unit__system=Unit.SYSTEM_ENUMERATED,
+                    measured=positive.pk).exists()
+            elif default_unit.system == Unit.SYSTEM_DATETIME:
+                reporting = Choice.objects.filter(pk__in=Answer.objects.filter(
+                    question__in=includes,sample=sample,
+                    unit=default_unit).values_list('measured',
+                    flat=True)).exclude(text='no-target').exists()#XXX
+            else:
+                reporting = Answer.objects.filter(
+                    question__in=includes, sample=sample).exists()
         highlight.update({'reporting': reporting})
     return highlights
 

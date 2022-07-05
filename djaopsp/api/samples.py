@@ -443,7 +443,7 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
 
     .. code-block:: http
 
-         GET /api/supplier-1/sample/46f66f70f5ad41b29c4df08f683a9a7a/answers\
+         GET /api/supplier-1/sample/46f66f70f5ad41b29c4df08f683a9a7a/content\
 /construction HTTP/1.1
 
     responds
@@ -633,8 +633,8 @@ class BenchmarkAPIView(SegmentReportMixin, GraphMixin, RollupMixin,
 
     .. code-block:: http
 
-        GET /api/supplier-1/benchmark/ce6dc2c4cf6b40dbacef91fa3e934eed\
-/graphs/boxes-and-enclosures HTTP/1.1
+        GET /api/supplier-1/sample/ce6dc2c4cf6b40dbacef91fa3e934eed\
+/benchmarks/boxes-and-enclosures HTTP/1.1
 
     responds
 

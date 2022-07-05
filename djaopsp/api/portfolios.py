@@ -404,7 +404,7 @@ class PortfolioResponsesAPIView(SupplierListMixin, generics.ListAPIView):
 
     .. code-block:: http
 
-        GET /api/energy-utility/suppliers/ HTTP/1.1
+        GET /api/energy-utility/reporting/sustainability/ HTTP/1.1
 
     responds
 
@@ -654,7 +654,7 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
                 nb_accounts = 0
                 normalized_score = 0
                 for account_id, account_score in six.iteritems(
-                        values[0].get('accounts', {})):
+                        node[0].get('accounts', {})):
                     account = accounts.get(account_id, None)
                     if account:
                         n_score = account_score.get('normalized_score', 0)
@@ -703,30 +703,6 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
                     'breadcrumbs': [chart['title']],
                     'picture': element.picture if element is not None else None,
                 })
-
-        # XXX Shows average value in encompassing supply chain.
-        if charts[0].get('slug') == 'totals':
-            us_suppliers = charts[0].copy()
-            us_suppliers['slug'] = "aggregates-%s" % us_suppliers['slug']
-            us_suppliers['title'] = "US suppliers"
-            score = {}
-            for path, values in six.iteritems(rollup_tree):
-                nb_accounts = 0
-                normalized_score = 0
-                for account_id, account_score in six.iteritems(
-                        values[0].get('accounts', {})):
-                    if True: # XXX account_id in ``accounts from alliance``
-                        n_score = account_score.get('normalized_score', 0)
-                        if n_score > 0:
-                            nb_accounts += 1
-                            normalized_score += n_score
-                if normalized_score > 0 and nb_accounts > 0:
-                    if path in {supplier['slug']
-                                for supplier in us_suppliers['cohorts']}:
-                        score[path] = normalized_score / nb_accounts
-            us_suppliers['values'] = score
-            charts += [us_suppliers]
-            self._report_queries("aggregates completed")
 
         self.create_distributions(rollup_tree)
         self._report_queries("create_distributions completed")

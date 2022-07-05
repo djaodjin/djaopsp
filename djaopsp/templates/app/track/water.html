@@ -84,15 +84,26 @@
                       <tr>
                         <th>Facility</th>
                         <th>Water type</th>
-                        <th>Notes</th>
                         <th>Water amount</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
-                        <td>[[item.extra.facility]]</td>
+                      <tr v-for="item in items.results"
+                          v-show="itemsLoaded && items.results.length > 0">
+                        <td>
+                          <button class="btn btn-lnk btn-sm text-danger"
+                                  @click.prevent="remove(item)">
+                            <i class="fa fa-times"></i>
+                            </button>
+                          [[item.printable_name]]
+                          <button class="btn btn-lnk title"
+                                  style="float:right;"
+                                  title="Add a comment? Click here."
+                                  @click.prevent="openComments(item)">
+                            <i class="fa fa-sticky-note-o"></i>
+                          </button>
+                        </td>
                         <td>[[humanizeWaterType(item.extra.water_type)]]</td>
-                        <td>[[item.extra.allocation]]</td>
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="integer"
@@ -113,16 +124,13 @@
                       </tr>
                       <tr>
                         <td>
-                          <input class="form-control" type="text" v-model="newItem.facility" />
+                          <input class="form-control" type="text" v-model="newItem.full_name" />
                         </td>
                         <td>
                           <select class="form-control" name="water-type"
-                                  v-model="newItem.water_type">
+                                  v-model="newItem.extra.water_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
-                        </td>
-                        <td>
-                          <input class="form-control" type="text" v-model="newItem.allocation" />
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
@@ -179,15 +187,26 @@
                       <tr>
                         <th>Facility</th>
                         <th>Water type</th>
-                        <th>Notes</th>
                         <th>Water amount</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
-                        <td>[[item.extra.facility]]</td>
+                      <tr v-for="item in items.results"
+                          v-show="itemsLoaded && items.results.length > 0">
+                        <td>
+                          <button class="btn btn-lnk btn-sm text-danger"
+                                  @click.prevent="remove(item)">
+                            <i class="fa fa-times"></i>
+                            </button>
+                          [[item.printable_name]]
+                          <button class="btn btn-lnk title"
+                                  style="float:right;"
+                                  title="Add a comment? Click here."
+                                  @click.prevent="openComments(item)">
+                            <i class="fa fa-sticky-note-o"></i>
+                          </button>
+                        </td>
                         <td>[[humanizeWaterType(item.extra.water_type)]]</td>
-                        <td>[[item.extra.allocation]]</td>
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="integer"
@@ -208,16 +227,13 @@
                       </tr>
                       <tr>
                         <td>
-                          <input class="form-control" type="text" v-model="newItem.facility" />
+                          <input class="form-control" type="text" v-model="newItem.full_name" />
                         </td>
                         <td>
                           <select class="form-control" name="water-type"
-                                  v-model="newItem.water_type">
+                                  v-model="newItem.extra.water_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
-                        </td>
-                        <td>
-                          <input class="form-control" type="text" v-model="newItem.allocation" />
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
@@ -275,15 +291,26 @@
                       <tr>
                         <th>Facility</th>
                         <th>Water type</th>
-                        <th>Notes</th>
                         <th>Water amount</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
-                        <td>[[item.extra.facility]]</td>
+                      <tr v-for="item in items.results"
+                          v-show="itemsLoaded && items.results.length > 0">
+                        <td>
+                          <button class="btn btn-lnk btn-sm text-danger"
+                                  @click.prevent="remove(item)">
+                            <i class="fa fa-times"></i>
+                            </button>
+                          [[item.printable_name]]
+                          <button class="btn btn-lnk title"
+                                  style="float:right;"
+                                  title="Add a comment? Click here."
+                                  @click.prevent="openComments(item)">
+                            <i class="fa fa-sticky-note-o"></i>
+                          </button>
+                        </td>
                         <td>[[humanizeWaterType(item.extra.water_type)]]</td>
-                        <td>[[item.extra.allocation]]</td>
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="integer"
@@ -304,16 +331,14 @@
                       </tr>
                       <tr>
                         <td>
-                          <input class="form-control" type="text" v-model="newItem.facility" />
+                          <input class="form-control" type="text"
+                                 v-model="newItem.full_name" />
                         </td>
                         <td>
                           <select class="form-control" name="water-type"
-                                  v-model="newItem.water_type">
+                                  v-model="newItem.extra.water_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
-                        </td>
-                        <td>
-                          <input class="form-control" type="text" v-model="newItem.allocation" />
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">

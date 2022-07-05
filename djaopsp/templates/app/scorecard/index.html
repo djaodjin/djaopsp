@@ -419,18 +419,19 @@ companies responding on practices in the industry segment.
           </div>
           {% if sample.is_frozen %}
           {# actions only available when a scorecard is frozen #}
-          <div class="col-sm-4 col-md-3 offset-md-3">
+          <div class="col-sm-4 col-md-3 offset-md-6">
             <a id="share-btn" class="mt-2 btn btn-secondary w-100"
                href="{{urls.scorecard_share}}">
               Share report
             </a>
           </div>
-          <div class="col-sm-4 col-md-3">
-            <a id="embed-btn" class="mt-2 btn btn-secondary w-100"
-               href="">
-              Embed link
-            </a>
-          </div>
+          {# XXX disabled until functionality is implemented          #}
+          {# <div class="col-sm-4 col-md-3">                          #}
+          {#   <a id="embed-btn" class="mt-2 btn btn-secondary w-100" #}
+          {#      href="">                                            #}
+          {#     Embed link                                           #}
+          {#   </a>                                                   #}
+          {# </div>                                                   #}
           {% else %}
           {# actions only available when a scorecard is active #}
           <div class="col-sm-4 col-md-3 offset-md-3">

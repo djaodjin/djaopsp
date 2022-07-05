@@ -21,6 +21,30 @@ class AppView(AccountMixin, TemplateView):
     """
     template_name = 'app/index.html'
 
+    @property
+    def unlock_editors(self):
+        is_broker = bool(self.accessible_profiles & settings.UNLOCK_BROKERS)
+        accessible_plans = {plan['slug']
+            for plan in self.get_accessible_plans(self.request,
+                    profile=str(self.account) # if we don't convert to `str`,
+                                              # the equality will be `False`.
+            )}
+        unlock_editors = getattr(settings, 'UNLOCK_EDITORS', [])
+        return (is_broker or not unlock_editors or
+            accessible_plans & unlock_editors)
+
+    @property
+    def unlock_portfolios(self):
+        is_broker = bool(self.accessible_profiles & settings.UNLOCK_BROKERS)
+        accessible_plans = {plan['slug']
+            for plan in self.get_accessible_plans(self.request,
+                    profile=str(self.account) # if we don't convert to `str`,
+                                              # the equality will be `False`.
+            )}
+        unlock_portfolios = getattr(settings, 'UNLOCK_PORTFOLIOS', [])
+        return (is_broker or not unlock_portfolios or
+            accessible_plans & unlock_portfolios)
+
     def get_template_names(self):
         candidates = ['app/%s.html' % self.account.slug]
         candidates += super(AppView, self).get_template_names()
@@ -43,26 +67,12 @@ class AppView(AccountMixin, TemplateView):
             'scorecard_redirect': reverse('scorecard_redirect',
                 args=(self.account,)),
         })
-        is_broker = (self.account.slug == self.request.session.get(
-            'site', {}).get('slug'))
-        if True:
-            # XXX Temporary override while `site.slug` is being introduced.
-            is_broker = (self.account.slug in settings.UNLOCK_BROKERS)
-        accessible_plans = {plan['slug']
-            for plan in self.get_accessible_plans(self.request,
-                    profile=str(self.account) # if we don't convert to `str`,
-                                              # the equality will be `False`.
-            )}
-        unlock_portfolios = getattr(settings, 'UNLOCK_PORTFOLIOS', [])
-        if (is_broker or not unlock_portfolios or
-            accessible_plans & unlock_portfolios):
+        if self.unlock_portfolios:
             update_context_urls(context, {
                 'reporting': reverse(
                     'reporting', args=(self.account,)),
             })
-        unlock_editors = getattr(settings, 'UNLOCK_EDITORS', [])
-        if (is_broker or not unlock_editors or
-            accessible_plans & unlock_editors):
+        if self.unlock_editors:
             update_context_urls(context, {
                 'pages_editables_index': reverse(
                     'pages_editables_index', args=(self.account,)),

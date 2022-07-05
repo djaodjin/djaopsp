@@ -192,22 +192,15 @@
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             {% if sample.is_frozen %} disabled{% endif %}>
-      <option value="mmbtu-of-natural-gas">mmBtu of Natural gas</option>
-      <option value="mmbtu-of-blast-furnance-gas">mmBtu of Blast furnance gas</option>
-      <option value="mmbtu-of-coke-oven-gas">mmBtu of Coke oven gas</option>
-      <option value="mmbtu-of-fuel-gas">mmBtu of Fuel gas</option>
-      <option value="mmbtu-of-propane-gas">mmBtu of Propane (gas)</option>
-      <option value="gallon-of-aviation-gasoline">Gallon of Aviation gasoline</option>
-      <option value="gallon-of-kerosene">Gallon of Kerosene</option>
-      <option value="gallon-of-liquified-petroleum-gases-lpg">Gallon of Liquified Petroleum Gases (LPG)</option>
-      <option value="gallon-of-motor-gasoline">Gallon of Motor gasoline</option>
-      <option value="gallon-of-propane-liquid">Gallon of Propane (liquid)</option>
-      <option value="gallon-of-crude-oil">Gallon of Crude oil</option>
-      <option value="gallon-of-motor-diesel-fuel">Gallon of Motor diesel fuel</option>
-      <option value="gallon-of-liquified-natural-gas-lng">Gallon of Liquified Natural Gas (LNG)</option>
-      <option value="kwh">Kilowatt-hour (kWh) of Electricity</option>
-      <option value="giga-joules">Giga Joules (GJ)</option>
-      <option value="giga-joules-fte">Giga Joules (GJ) per full-time employee (FTE)</option>
+      <option value="btu-year">Btu</option>
+      <option value="mmbtu-year">mmBtu</option>
+      <option value="kwh-year">Kilowatt-hour (kWh)</option>
+      <option value="mwh-year">Megawatt-hour (MWh)</option>
+      <option value="kilo-joules-year">Kilo Joules (KJ)</option>
+      <option value="mega-joules-year">Mega Joules (MJ)</option>
+      <option value="giga-joules-year">Giga Joules (GJ)</option>
+
+SELECT id, slug, title FROM survey_unit WHERE slug IN ('btu-year', 'mmbtu-year', 'kwh-year', 'mwh-year', 'kilo-joules-year', 'mega-joules-year', 'giga-joules-year');
     </select>
   </div>
   <div class="text-left mt-1">
@@ -260,10 +253,10 @@
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             {% if sample.is_frozen %} disabled{% endif %}>
-        <option value="m3">Cubic meters (m<sup>3</sup>)</option>
-        <option value="kiloliters">Kilo liters</option>
-        <option value="ft3">Cubic feet (ft.<sup>3</sup>)</option>
-        <option value="gallons">US Gallon</option>
+        <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
+        <option value="kiloliters-year">Kilo liters</option>
+        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>)</option>
+        <option value="gallons-year">US Gallon</option>
     </select>
   </div>
   <div class="text-left mt-1">
@@ -315,12 +308,12 @@
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             {% if sample.is_frozen %} disabled{% endif %}>
-        <option value="tons">Metric tons</option>
-        <option value="lbs">Pounds</option>
-        <option value="m3">Cubic meters (m<sup>3</sup>)</option>
-        <option value="kiloliters">Kilo liters</option>
-        <option value="ft3">Cubic feet (ft.<sup>3</sup>)</option>
-        <option value="gallons">US Gallon</option>
+        <option value="tons-year">Metric tons</option>
+        <option value="lbs-year">Pounds</option>
+        <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
+        <option value="kiloliters-year">Kilo liters</option>
+        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>)</option>
+        <option value="gallons-year">US Gallon</option>
     </select>
   </div>
   <div class="text-left mt-1">
@@ -370,10 +363,10 @@
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             {% if sample.is_frozen %} disabled{% endif %}>
-        <option value="tons">Metric Tons CO2e</<option>
+        <option value="tons-year">Metric Tons CO2e</<option>
     </select>
   </div>
-  <div class="text-left mt-1">
+  <div class="text-left mt-1" v-if="!isGHGEmissionsScope3(practice)">
     <button class="btn btn-sm btn-secondary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
     <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
@@ -448,6 +441,21 @@
       <option value="2048">2048</option>
       <option value="2049">2049</option>
       <option value="2050">2050</option>
+      <option value="2051">2051</option>
+      <option value="2052">2052</option>
+      <option value="2053">2053</option>
+      <option value="2054">2054</option>
+      <option value="2055">2055</option>
+      <option value="2056">2056</option>
+      <option value="2057">2057</option>
+      <option value="2058">2058</option>
+      <option value="2059">2059</option>
+      <option value="2060">2060</option>
+      <option value="2061">2061</option>
+      <option value="2062">2062</option>
+      <option value="2063">2063</option>
+      <option value="2064">2064</option>
+      <option value="2065">2065</option>
     </select>
   </div>
 </td>
@@ -463,7 +471,7 @@
 <td colspan="6">
   {# comments #}
   <div class="mt-2">
-    <h5 class="my-0">Comments</h5>
+    <h5 class="my-0">Notes, Public URL Links, and/or Uploaded Documents</h5>
     <p class="text-danger" v-if="isNotApplicable(practice)">
       You selected <strong>&quot;Not Applicable&quot;</strong>, please explain.
     </p>

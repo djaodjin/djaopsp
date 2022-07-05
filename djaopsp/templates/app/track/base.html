@@ -12,5 +12,11 @@
 {% else %}
 <script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
 {% endif %}
+<script type="text/javascript">
+Vue.prototype.$dateRange = {
+    starts_at: "{% if starts_at %}{{starts_at}}{% endif %}",
+    ends_at: "{% if ends_at %}{{ends_at}}{% endif %}"
+};
+</script>
 {% block track_scripts %}{% endblock %}
 {% endblock %}
