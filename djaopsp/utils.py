@@ -78,10 +78,12 @@ def get_account_model():
 " that has not been installed" % settings.ACCOUNT_MODEL)
 
 
-def get_completed_assessments_at_by(campaign, before=None, excludes=None):
+def get_completed_assessments_at_by(campaign, before=None, extra=None,
+                                    prefix=None, title="", excludes=None):
     """
     Returns the most recent frozen assessment before an optionally specified
-    date, indexed by account.
+    date, indexed by account. Furthermore the query can be restricted to answers
+    on a specific segment using `prefix` and matching text in the `extra` field.
 
     All accounts in ``excludes`` are not added to the index. This is
     typically used to filter out 'testing' accounts
@@ -95,30 +97,58 @@ def get_completed_assessments_at_by(campaign, before=None, excludes=None):
             "AND survey_sample.account_id NOT IN (%s)" % str(excludes))
     else:
         filter_out_testing = ""
-    before_clause = ("AND created_at < '%s'" % before.isoformat()
+    before_clause = ("AND survey_sample.created_at < '%s'" % before.isoformat()
         if before else "")
+    extra_clause = ("survey_sample.extra IS NULL" if not extra
+        else "survey_sample.extra like '%%%s%%'" % extra)
+    if prefix:
+        prefix_fields = """,
+    '%(segment_prefix)s'%(convert_to_text)s AS segment_path,
+    '%(segment_title)s'%(convert_to_text)s AS segment_title""" % {
+        'segment_prefix': prefix,
+        'segment_title': title,
+        'convert_to_text': ("" if is_sqlite3() else "::text")
+    }
+        prefix_join = (
+"""INNER JOIN survey_answer ON survey_answer.sample_id = survey_sample.id
+INNER JOIN survey_question ON survey_answer.question_id = survey_question.id""")
+        prefix_clause = "AND survey_question.path LIKE '%s%%'" % prefix
+    else:
+        prefix_fields = ""
+        prefix_join = ""
+        prefix_clause = ""
     sql_query = """SELECT
-    survey_sample.account_id AS account_id,
     survey_sample.id AS id,
-    survey_sample.created_at AS created_at
+    survey_sample.slug AS slug,
+    survey_sample.created_at AS created_at,
+    survey_sample.campaign_id AS campaign_id,
+    survey_sample.account_id AS account_id,
+    survey_sample.updated_at AS updated_at,
+    survey_sample.is_frozen AS is_frozen,
+    survey_sample.extra AS extra%(prefix_fields)s
 FROM survey_sample
 INNER JOIN (
     SELECT
         account_id,
-        MAX(created_at) AS last_updated_at
+        MAX(survey_sample.created_at) AS last_updated_at
     FROM survey_sample
+    %(prefix_join)s
     WHERE survey_sample.campaign_id = %(campaign_id)d AND
-          survey_sample.extra IS NULL AND
-          survey_sample.is_frozen
+          survey_sample.is_frozen AND %(extra_clause)s
           %(before_clause)s
+          %(prefix_clause)s
           %(filter_out_testing)s
     GROUP BY account_id) AS last_updates
 ON survey_sample.account_id = last_updates.account_id AND
    survey_sample.created_at = last_updates.last_updated_at
-WHERE survey_sample.extra IS NULL AND
-      survey_sample.is_frozen
+WHERE survey_sample.is_frozen AND
+      %(extra_clause)s
 """ % {'campaign_id': campaign.pk,
        'before_clause': before_clause,
+       'extra_clause': extra_clause,
+       'prefix_fields': prefix_fields,
+       'prefix_join': prefix_join,
+       'prefix_clause': prefix_clause,
        'filter_out_testing': filter_out_testing}
     return Sample.objects.raw(sql_query)
 

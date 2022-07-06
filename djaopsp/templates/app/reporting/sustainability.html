@@ -74,7 +74,7 @@ Completed: A supplier has submitted both a complete assessment and improvement p
           <thead>
             <tr>
               <th></th>
-              <th>Organization/profile<button class="btn btn-link btn-sort"
+              <th>Supplier/facility<button class="btn btn-link btn-sort"
                   @click.prevent="sortBy('printable_name')">
                   <i :class="sortIcon('printable_name')"></i>
                 </button>
@@ -99,13 +99,38 @@ Completed: A supplier has submitted both a complete assessment and improvement p
                   <i :class="sortIcon('segment')"></i>
                 </button>
               </th>
+              <th>Score<button class="btn btn-link btn-sort"
+                  @click.prevent="sortBy('normalized_score')">
+                  <i :class="sortIcon('normalized_score')"></i>
+                </button>
+              </th>
+              <th># N/A<button class="btn btn-link btn-sort"
+                  @click.prevent="sortBy('nb_na_answers')">
+                  <i :class="sortIcon('nb_na_answers')"></i>
+                </button>
+              </th>
+              <th>Reporting publicly<button class="btn btn-link btn-sort"
+                  @click.prevent="sortBy('reporting_publicly')">
+                  <i :class="sortIcon('reporting_publicly')"></i>
+                </button>
+              </th>
+              <th>Environmental Fines<button class="btn btn-link btn-sort"
+                  @click.prevent="sortBy('reporting_fines')">
+                  <i :class="sortIcon('reporting_fines')"></i>
+                </button>
+              </th>
+              <th># Planned actions<button class="btn btn-link btn-sort"
+                  @click.prevent="sortBy('nb_planned_improvements')">
+                  <i class="sortIcon('nb_planned_improvements')"></i>
+                </button>
+              </th>
               <th></th>
             </tr>
           </thead>
           <tbody style="color:black;">
             <tr>
               <td></td>
-              <td colspan="7">
+              <td colspan="5">
                 <account-typeahead inline-template ref="account"
                     v-bind:dataset="items.results"
                     v-on:selectitem="addAccount">
@@ -147,17 +172,20 @@ Completed: A supplier has submitted both a complete assessment and improvement p
                     </div>
                   </form>
                 </account-typeahead>
-<em>Note: Enter the name of the organization/profile, or the e-mail of the primary
-contact for the organization/profile.</em>
+              </td>
+              <td colspan="6">
+<em>Note: Enter the name of the supplier/facility organization or<br />
+contact e-mail associated with the organization profile (i.e. not a registered
+user).</em>
               </td>
             </tr>
             <tr v-show="!itemsLoaded">
-              <td colspan="7">
+              <td colspan="12">
                 <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
               </td>
             </tr>
             <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
-              <td colspan="7">No organization accessible for {{organization}}</td>
+              <td colspan="12">No organization accessible for {{organization}}</td>
             </tr>
             <tr :id="entry.slug" :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
                 v-for="(entry, index) in items.results"
@@ -188,6 +216,28 @@ contact for the organization/profile.</em>
               <!-- Segment -->
               <td style="vertical-align:middle;" v-if="!entry.requested_at">
                 <a :href="entry.score_url">[[ entry.segment ]]</a>
+              </td>
+              <!-- Score -->
+              <td style="vertical-align:middle;" v-if="!entry.requested_at">
+                [[ getScoreDisplay(entry.normalized_score) ]]
+              </td>
+              <!-- # N/A -->
+              <td style="vertical-align:middle;" v-if="!entry.requested_at">
+                [[ entry.nb_na_answers ]]
+              </td>
+              <!-- reporting publicly -->
+              <td style="vertical-align:middle;" v-if="!entry.requested_at">
+                [[ entry.reporting_publicly ? "Yes" : "" ]]
+              </td>
+              <!-- reporting fines -->
+              <td style="vertical-align:middle;" v-if="!entry.requested_at">
+                [[ entry.reporting_fines != null ? (entry.reporting_fines ? "Yes" : "No") : "" ]]
+              </td>
+              <!-- nb planned actions -->
+              <td style="vertical-align:middle;" v-if="!entry.requested_at">
+                <div v-if="entry.nb_planned_improvements">
+                  [[ entry.nb_planned_improvements ]]{# best practices #}
+                </div>
               </td>
               <td style="vertical-align:middle;text-align:right;">
                 <button class="btn btn-danger btn-sm" @click.prevent="remove($event, index)" data-trip data-trip-index="3" data-trip-content="<p>Click here to cancel access request.</p>" data-trip-position="s">

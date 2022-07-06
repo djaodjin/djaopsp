@@ -11,9 +11,9 @@ from survey.utils import get_account_model, is_sqlite3
 from ..compat import six
 from ..mixins import CampaignMixin
 from ..models import ScorecardCache
-from ..utils import TransparentCut, get_scores_tree
+from ..scores import get_score_calculator
+from ..utils import TransparentCut, get_completed_assessments_at_by, get_scores_tree
 from .serializers import AccountSerializer
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -146,15 +146,18 @@ class ScoresMixin(TimersMixin, DateRangeContextMixin, CampaignMixin):
 
         for segment in segments:
             prefix = segment['path']
-            segment_query = self.sample_queryset.get_latest_assessments(
-                prefix, before=self.ends_at, title=segment['title'])
+            segment_query = get_completed_assessments_at_by(
+                self.campaign, before=self.ends_at,
+                prefix=prefix, title=segment['title']).query.sql
             if not frozen_assessments_query:
                 frozen_assessments_query = segment_query
             else:
                 frozen_assessments_query = "(%s) UNION (%s)" % (
                     frozen_assessments_query, segment_query)
-            segment_query = self.sample_queryset.get_latest_improvements(
-                prefix, before=self.ends_at, title=segment['title'])
+            segment_query = get_completed_assessments_at_by(
+                self.campaign, before=self.ends_at,
+                prefix=prefix, title=segment['title'],
+                extra='is_planned').query.sql
             if not frozen_improvements_query:
                 frozen_improvements_query = segment_query
             else:
@@ -183,17 +186,6 @@ class ScoresMixin(TimersMixin, DateRangeContextMixin, CampaignMixin):
   _frozen_assessments.extra AS extra,
   _frozen_assessments.segment_path AS segment_path,
   _frozen_assessments.segment_title AS segment_title,
-  _frozen_assessments.nb_na_answers AS nb_na_answers,
-  _frozen_assessments.reporting_publicly AS reporting_publicly,
-  _frozen_assessments.reporting_fines AS reporting_fines,
-  _frozen_assessments.reporting_energy_consumption AS reporting_energy_consumption,
-  _frozen_assessments.reporting_ghg_generated AS reporting_ghg_generated,
-  _frozen_assessments.reporting_water_consumption AS reporting_water_consumption,
-  _frozen_assessments.reporting_waste_generated AS reporting_waste_generated,
-  _frozen_assessments.reporting_energy_target AS reporting_energy_target,
-  _frozen_assessments.reporting_ghg_target AS reporting_ghg_target,
-  _frozen_assessments.reporting_water_target AS reporting_water_target,
-  _frozen_assessments.reporting_waste_target AS reporting_waste_target,
   %(reporting_clause)s AS reporting_status
 FROM (%(query)s) AS _frozen_assessments""" % {
     'query': frozen_assessments_query.replace('%', '%%'),
@@ -209,8 +201,7 @@ FROM (%(query)s) AS _frozen_assessments""" % {
   _frozen_improvements.is_frozen AS is_frozen,
   _frozen_improvements.extra AS extra,
   _frozen_improvements.segment_path AS segment_path,
-  _frozen_improvements.segment_title AS segment_title,
-  _frozen_improvements.nb_planned_improvements AS nb_planned_improvements
+  _frozen_improvements.segment_title AS segment_title
 FROM (%(query)s) AS _frozen_improvements""" % {
     'query': frozen_improvements_query.replace('%', '%%')}
 
@@ -239,21 +230,19 @@ SELECT
   frozen_assessments.extra AS extra,
   frozen_assessments.segment_path AS segment_path,
   frozen_assessments.segment_title AS segment_title,
-  frozen_assessments.nb_na_answers AS nb_na_answers,
-  frozen_assessments.reporting_publicly AS reporting_publicly,
-  frozen_assessments.reporting_fines AS reporting_fines,
-  frozen_assessments.reporting_energy_consumption AS reporting_energy_consumption,
-  frozen_assessments.reporting_ghg_generated AS reporting_ghg_generated,
-  frozen_assessments.reporting_water_consumption AS reporting_water_consumption,
-  frozen_assessments.reporting_waste_generated AS reporting_waste_generated,
-  frozen_assessments.reporting_energy_target AS reporting_energy_target,
-  frozen_assessments.reporting_ghg_target AS reporting_ghg_target,
-  frozen_assessments.reporting_water_target AS reporting_water_target,
-  frozen_assessments.reporting_waste_target AS reporting_waste_target,
-  CASE WHEN frozen_assessments.created_at < frozen_improvements.created_at
-       THEN frozen_improvements.nb_planned_improvements
-       ELSE 0 END AS nb_planned_improvements,
-  null AS normalized_score,                     -- updated later
+  0 AS nb_na_answers,
+  0 AS reporting_publicly,
+  0 AS reporting_fines,
+  0 AS reporting_energy_consumption,
+  0 AS reporting_ghg_generated,
+  0 AS reporting_water_consumption,
+  0 AS reporting_waste_generated,
+  0 AS nb_planned_improvements,
+  0 AS reporting_energy_target,
+  0 AS reporting_ghg_target,
+  0 AS reporting_water_target,
+  0 AS reporting_waste_target,
+  0 AS normalized_score,
   CASE WHEN frozen_assessments.created_at < frozen_improvements.created_at
        THEN (%(reporting_clause)s)
        ELSE frozen_assessments.reporting_status END AS reporting_status
@@ -398,7 +387,19 @@ WHERE survey_sample.created_at < '%(ends_at)s'
             # We don't have any scorecard/chart to compute.
             return Sample.objects.none()
 
-        frozen_query = self._get_scorecard_cache_query(self.scores_of_interest)
+        use_scorecard_cache = False
+        for seg in self.scores_of_interest:
+            prefix = seg.get('path')
+            if prefix:
+                score_calculator = get_score_calculator(prefix)
+                if score_calculator:
+                    use_scorecard_cache = True
+                    break
+        if use_scorecard_cache:
+            frozen_query = self._get_scorecard_cache_query(
+                self.scores_of_interest)
+        else:
+            frozen_query = self._get_frozen_query(self.scores_of_interest)
 
         if self.expired_at:
             reporting_clause = \
@@ -414,7 +415,7 @@ WHERE survey_sample.created_at < '%(ends_at)s'
             reporting_clause = \
                 "%d" % AccountSerializer.REPORTING_ASSESSMENT_PHASE
 
-        if self.db_path:
+        if self.db_path and self.db_path != self.DB_PATH_SEP:
             assessments_query = frozen_query
         else:
             assessments_query = """
@@ -490,7 +491,7 @@ ON active_assessments.account_id = frozen.account_id AND
             sep = ""
             for sort_field, sort_dir in self.sort_ordering:
                 order_clause += "%s%s %s" % (sep, sort_field, sort_dir)
-                if sort_field == 'last_activity_at':
+                if sort_field in ('last_activity_at', 'last_completed_at'):
                     order_clause += " NULLS LAST"
                 sep = ", "
         query = """

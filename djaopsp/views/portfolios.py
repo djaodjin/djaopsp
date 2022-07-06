@@ -129,7 +129,9 @@ class PortfolioResponsesView(DashboardMixin, TemplateView):
     template_name = 'app/reporting/index.html'
 
     def get_template_names(self):
-        candidates = ['app/reporting/%s.html' % self.campaign]
+        campaign_slug = ('sustainability' if self.campaign.slug == 'assessment'
+            else self.campaign.slug)
+        candidates = ['app/reporting/%s.html' % campaign_slug]
         candidates += list(super(
             PortfolioResponsesView, self).get_template_names())
         return candidates
@@ -154,7 +156,7 @@ class PortfolioResponsesView(DashboardMixin, TemplateView):
         })
         start_at = get_extra(self.account, 'start_at', None)
         context.update({
-            'account_extra': self.account.extra,
+            'account_extra': json.dumps(self.account.extra),
             'start_at': start_at,
             'ends_at': (datetime_or_now() + relativedelta(days=1)).isoformat(),
         })
