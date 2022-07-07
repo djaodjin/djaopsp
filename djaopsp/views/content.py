@@ -44,3 +44,9 @@ class EditablesDetailView(AccountMixin, PageElementEditableView):
         to ``reverse``.
         """
         return [self.account_url_kwarg, self.path_url_kwarg]
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            EditablesDetailView, self).get_context_data(**kwargs)
+        context.update({'practice': self.element})
+        return context

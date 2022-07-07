@@ -1,5 +1,11 @@
 {% extends "app/base.html" %}
 
+{% block localheader %}
+{% if csrf_token %}
+<meta name="csrf-token" content="{{csrf_token}}">
+{% endif %}
+{% endblock %}
+
 {% block app_content %}
 <div>
   {% include "pages/_breadcrumbs.html" %}

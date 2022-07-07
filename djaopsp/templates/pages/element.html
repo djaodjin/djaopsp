@@ -154,7 +154,7 @@ assetsUploadUrl = "{% if urls.api_upload_assets %}{{urls.api_upload_assets}}{% e
 
 $(document).ready(function(){
 	$(".editable").editor({
-		baseUrl: "{{urls.api_page_element_base}}",
+		baseUrl: "{{urls.api_content}}",
 		preventBlurOnClick: "#media-gallery, .dj-gallery-item"
 	});
 });
