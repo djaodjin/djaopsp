@@ -18,7 +18,7 @@ from django.views.generic.base import (ContextMixin, RedirectView,
     TemplateResponseMixin, TemplateView)
 from openpyxl import Workbook
 from pages.mixins import TrailMixin
-from pages.models import PageElement
+from pages.models import PageElement, build_content_tree
 from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.shapes.autoshape import Shape
@@ -33,8 +33,7 @@ from ..helpers import as_valid_sheet_title
 from ..api.portfolios import SupplierListMixin
 from ..api.serializers import AccountSerializer
 from ..mixins import AccountMixin, CampaignMixin
-from ..utils import get_segments_candidates
-
+from ..utils import get_completed_assessments_at_by, get_segments_candidates
 
 LOGGER = logging.getLogger(__name__)
 
@@ -374,8 +373,8 @@ class PortfolioResponsesRawXLSXView(SupplierListMixin, TemplateView):
         if not root[1]:
             # We reached a leaf
             row = [indent + self._get_title(root[0])]
-            path = root[0]['path'].split('/')[-1] # XXX slug
-            by_accounts = self.by_paths.get(path)
+            slug = root[0]['slug']
+            by_accounts = self.by_paths.get(slug)
             if by_accounts:
                 for account_id, reporting in self.accounts_with_response:
                     if reporting.grant_key:
@@ -397,7 +396,7 @@ class PortfolioResponsesRawXLSXView(SupplierListMixin, TemplateView):
                 self.write_tree(element, indent=indent + self.indent_step)
 
     def get_latest_samples(self, from_root):
-        return get_question_model().objects.get_latest_samples_by_prefix(
+        return get_completed_assessments_at_by(self.campaign,
             before=self.ends_at, prefix=from_root)
 
     def get_tiles(self):
@@ -405,14 +404,8 @@ class PortfolioResponsesRawXLSXView(SupplierListMixin, TemplateView):
         Returns a list of tiles that will be used as roots for the rows
         in the spreadsheet.
         """
-        from_root, trail = self.breadcrumbs
-        if from_root:
-            segments = [{
-                'title': trail[-1][0].title, 'path': from_root, 'indent': 0}]
-        else:
-            segments = get_segments_candidates(self.campaign)
         tiles = []
-        for segment in segments:
+        for segment in self.segments_available:
             path = segment['path']
             if path:
                 slug = path.split('/')[-1]
@@ -472,7 +465,7 @@ LEFT OUTER JOIN survey_choice
   ON survey_choice.unit_id = answers.unit_id AND
      survey_choice.id = answers.measured
 """ % {
-            'latest_assessments': latest_assessments,
+            'latest_assessments': latest_assessments.query.sql,
             'accounts': self.requested_accounts_pk_as_sql
         }
         self.by_paths = {}
@@ -526,12 +519,10 @@ LEFT OUTER JOIN survey_choice
         by_accounts = OrderedDict()
         for account in self.requested_accounts_pk:
             by_accounts[account] = ""
-        with connection.cursor() as cursor:
-            cursor.execute(latest_assessments, params=None)
-            for sample in cursor:
-                last_activity_at = sample[2]
-                account_id = sample[4]
-                by_accounts[account_id] = last_activity_at
+        for sample in latest_assessments:
+            last_activity_at = sample.created_at
+            account_id = sample.account_id
+            by_accounts[account_id] = last_activity_at
         headings = ['Last completed at']
         for account_id, reporting in self.accounts_with_response:
             last_activity_at = by_accounts.get(account_id)
@@ -546,10 +537,11 @@ LEFT OUTER JOIN survey_choice
         self.wsheet.append(headings)
 
         # We use cut=None here so we print out the full assessment
-        root = self._build_tree(self.get_tiles(), self.db_path, cut=None)
+        root = build_content_tree(roots=self.get_tiles(),
+            prefix=self.db_path, cut=None)
 
         indent = ''
-        for nodes in six.itervalues(root[1]):
+        for nodes in six.itervalues(root):
             self.writerow([self._get_title(nodes[0])])
             for elements in six.itervalues(nodes[1]):
                 self.write_tree(elements, indent=indent + self.indent_step)

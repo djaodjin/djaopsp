@@ -112,7 +112,7 @@ def get_completed_assessments_at_by(campaign, before=None, extra=None,
         prefix_join = (
 """INNER JOIN survey_answer ON survey_answer.sample_id = survey_sample.id
 INNER JOIN survey_question ON survey_answer.question_id = survey_question.id""")
-        prefix_clause = "AND survey_question.path LIKE '%s%%'" % prefix
+        prefix_clause = "AND survey_question.path LIKE '%s%%%%'" % prefix
     else:
         prefix_fields = ""
         prefix_join = ""
