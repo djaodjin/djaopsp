@@ -119,50 +119,57 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
                     roots=[PageElement.objects.get(slug=slug)],
                     prefix=prefix)
                 if scores_tree:
-                    rollup_tree[1].update(scores_tree.get(segment_path))
+                    rollup_tree[1].update({
+                        segment_path: scores_tree.get(segment_path)})
 
         leafs = get_leafs(rollup_tree, frozen_assessment_sample.campaign)
         self._report_queries("freezing assessment: leafs loaded")
 
-        for prefix, values_tuple in six.iteritems(leafs):
-            score_calculator = get_score_calculator(prefix)
+        for segment in self.segments_available:
+            segment_path = segment.get('path')
+            score_calculator = get_score_calculator(segment_path)
             if score_calculator:
-                title = values_tuple[0].get('title')
-                scorecard_cache = score_calculator.get_scorecache(
-                    frozen_assessment_sample.campaign,
-                    prefix, title=title, includes=[frozen_assessment_sample])
-                accounts = values_tuple[0].get('accounts', {})
-                account = accounts.get(scorecard_cache.account_id, {})
-                account.update({
-                    'sample_id': scorecard_cache.id,
-                    'slug': scorecard_cache.slug,
-                    'created_at': scorecard_cache.created_at,
-                    'campaign_id': scorecard_cache.campaign_id,
-                    'updated_at': scorecard_cache.updated_at,
-                    'is_frozen': scorecard_cache.is_frozen,
-                    'extra': scorecard_cache.extra,
-                    'segment_path': scorecard_cache.segment_path,
-                    'segment_title': scorecard_cache.segment_title,
-                    'numerator': scorecard_cache.numerator,
-                    'denominator': scorecard_cache.denominator,
-                    'nb_answers': scorecard_cache.nb_answers,
-                    'nb_questions': scorecard_cache.nb_questions,
-                    'nb_na_answers': scorecard_cache.nb_na_answers,
+                LOGGER.info(
+                    "populate %s scorecard cache for segment %s based"\
+                    " of sample %s", frozen_assessment_sample.account,
+                    segment_path, frozen_assessment_sample.slug)
+                for prefix, values_tuple in six.iteritems(leafs):
+                    title = values_tuple[0].get('title')
+                    scorecard_cache = score_calculator.get_scorecache(
+                        frozen_assessment_sample.campaign, prefix, title=title,
+                        includes=[frozen_assessment_sample])
+                    accounts = values_tuple[0].get('accounts', {})
+                    account = accounts.get(scorecard_cache.account_id, {})
+                    account.update({
+                        'sample_id': scorecard_cache.id,
+                        'slug': scorecard_cache.slug,
+                        'created_at': scorecard_cache.created_at,
+                        'campaign_id': scorecard_cache.campaign_id,
+                        'updated_at': scorecard_cache.updated_at,
+                        'is_frozen': scorecard_cache.is_frozen,
+                        'extra': scorecard_cache.extra,
+                        'segment_path': scorecard_cache.segment_path,
+                        'segment_title': scorecard_cache.segment_title,
+                        'numerator': scorecard_cache.numerator,
+                        'denominator': scorecard_cache.denominator,
+                        'nb_answers': scorecard_cache.nb_answers,
+                        'nb_questions': scorecard_cache.nb_questions,
+                        'nb_na_answers': scorecard_cache.nb_na_answers,
                     'reporting_publicly': scorecard_cache.reporting_publicly,
                     'reporting_fines': scorecard_cache.reporting_fines,
-'reporting_energy_consumption': scorecard_cache.reporting_energy_consumption,
-'reporting_ghg_generated': scorecard_cache.reporting_ghg_generated,
-'reporting_water_consumption': scorecard_cache.reporting_water_consumption,
-'reporting_waste_generated': scorecard_cache.reporting_waste_generated,
-'reporting_energy_target': scorecard_cache.reporting_energy_target,
-'reporting_ghg_target': scorecard_cache.reporting_ghg_target,
-'reporting_water_target': scorecard_cache.reporting_water_target,
-'reporting_waste_target': scorecard_cache.reporting_waste_target,
-                })
-                if scorecard_cache.account_id not in accounts:
-                    accounts.update({scorecard_cache.account_id: account})
-                if 'accounts' not in values_tuple[0]:
-                    values_tuple[0].update({'accounts': accounts})
+   'reporting_energy_consumption': scorecard_cache.reporting_energy_consumption,
+    'reporting_ghg_generated': scorecard_cache.reporting_ghg_generated,
+    'reporting_water_consumption': scorecard_cache.reporting_water_consumption,
+    'reporting_waste_generated': scorecard_cache.reporting_waste_generated,
+    'reporting_energy_target': scorecard_cache.reporting_energy_target,
+    'reporting_ghg_target': scorecard_cache.reporting_ghg_target,
+    'reporting_water_target': scorecard_cache.reporting_water_target,
+    'reporting_waste_target': scorecard_cache.reporting_waste_target,
+                    })
+                    if scorecard_cache.account_id not in accounts:
+                        accounts.update({scorecard_cache.account_id: account})
+                    if 'accounts' not in values_tuple[0]:
+                        values_tuple[0].update({'accounts': accounts})
         self._report_queries("freezing assessment: leafs populated")
         populate_rollup(rollup_tree, True, force_score=True)
         self._report_queries("freezing assessment: rollup populated")
@@ -182,22 +189,28 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
                 "You have only answered %d of the %d required practices." % (
                 self.nb_required_answers, self.nb_required_questions)})
 
+        frozen_assessment_sample = None
+        frozen_improvement_sample = None
         with transaction.atomic():
-            frozen_assessment_sample = freeze_scores(
-                self.sample,
-                created_at=created_at,
-                collected_by=self.request.user,
-                segment_path=self.path)
-
-            frozen_improvement_sample = None
-            if (self.improvement_sample and
-                self.improvement_sample.answers.exists()):
-                frozen_improvement_sample = freeze_scores(
-                    self.improvement_sample,
+            for seg in self.segments_available:
+                segment_path = seg.get('path')
+                frozen_assessment_sample = freeze_scores(
+                    self.sample,
                     created_at=created_at,
                     collected_by=self.request.user,
-                    segment_path=self.path)
-            self._report_queries("freezing assessment: completed")
+                    segment_path=segment_path,
+                    score_sample=frozen_assessment_sample)
+
+                if (self.improvement_sample and
+                    self.improvement_sample.answers.exists()):
+                    frozen_improvement_sample = freeze_scores(
+                        self.improvement_sample,
+                        created_at=created_at,
+                        collected_by=self.request.user,
+                        segment_path=segment_path,
+                        score_sample=frozen_improvement_sample)
+            self._report_queries("freezing assessment: %s completed" %
+                str(frozen_assessment_sample))
 
             self.populate_scorecard_cache(frozen_assessment_sample,
                 improvement_sample=frozen_improvement_sample)
@@ -366,13 +379,14 @@ class AssessmentContentMixin(SegmentReportMixin, CampaignContentMixin,
             if question_pk not in questions_by_key:
                 questions_by_key.update({question_pk: value})
 
-       # opportunity to improve score
+        # opportunity to improve score
         score_calculator = get_score_calculator(prefix)
         if score_calculator:
             for row in score_calculator.get_opportunity(
-                    last_frozen_assessments,
-                    prefix=prefix, includes=[self.sample]):
-                question_pk = row['question__id']
+                    self.campaign,
+                    includes=[self.sample], prefix=prefix,
+                    last_frozen_assessments=last_frozen_assessments):
+                question_pk = row['question_id']
                 opportunity = row.get('opportunity', 0)
                 value = questions_by_key.get(question_pk, {})
                 value.update({'opportunity': opportunity})
@@ -730,7 +744,7 @@ class BenchmarkAPIView(SegmentReportMixin, GraphMixin, RollupMixin,
         self.create_distributions(
             self.scores_tree, view_account_id=self.account.pk)
         self._report_queries("create_distributions completed")
-        segment_charts, segment_complete = self.flatten_distributions(
+        segment_charts, unused_segment_complete = self.flatten_distributions(
             self.scores_tree)
         self._report_queries("flatten_distributions completed")
         charts += segment_charts

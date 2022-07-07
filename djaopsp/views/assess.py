@@ -140,7 +140,7 @@ class AssessRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
         for seg in candidates:
             # We insured that all candidates are the prefixed
             # content node at this point.
-            path =  seg.get('path')
+            path = seg.get('path')
             if path:
                 kwargs.update({'path': path.strip('/')})
                 url = self.get_redirect_url(*args, **kwargs)

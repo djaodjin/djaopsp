@@ -10,7 +10,8 @@ from survey.models import Answer
 
 from ..compat import reverse
 from ..mixins import AccountMixin
-from ..utils import get_latest_active_assessments, get_latest_completed_assessment
+from ..utils import (get_latest_active_assessments,
+    get_latest_completed_assessment)
 
 LOGGER = logging.getLogger(__name__)
 

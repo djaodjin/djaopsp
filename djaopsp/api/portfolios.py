@@ -6,7 +6,6 @@ import datetime, json, re
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
-from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now, parse_tz
 from django.contrib.auth import get_user_model
 from django.db import connection

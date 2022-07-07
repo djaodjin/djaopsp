@@ -221,7 +221,7 @@ def get_highlights(sample):
                     measured=positive.pk).exists()
             elif default_unit.system == Unit.SYSTEM_DATETIME:
                 reporting = Choice.objects.filter(pk__in=Answer.objects.filter(
-                    question__in=includes,sample=sample,
+                    question__in=includes, sample=sample,
                     unit=default_unit).values_list('measured',
                     flat=True)).exclude(text='no-target').exists()#XXX
             else:

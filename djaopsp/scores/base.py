@@ -51,8 +51,8 @@ class ScoreCalculator(object):
         return None
 
 
-def freeze_scores(sample, excludes=None,
-                  collected_by=None, created_at=None, segment_path=None):
+def freeze_scores(sample, excludes=None, collected_by=None, created_at=None,
+                  segment_path=None, score_sample=None):
     """
     This function creates a copy of all, or a subset if *segment_path* is
     present, the user-inputted answers in *sample* and derives a score
@@ -64,28 +64,30 @@ def freeze_scores(sample, excludes=None,
     """
     #pylint:disable=too-many-arguments,disable=too-many-locals
     # This function must be executed in a `transaction.atomic` block.
-    LOGGER.info("freeze scores for %s based of sample %s",
-        sample.account, sample.slug)
     # XXX check sample is not already frozen???
     created_at = datetime_or_now(created_at)
     if not segment_path:
         segment_path = '/'
     # creates a new frozen sample
-    score_sample = Sample.objects.create(
-        created_at=created_at,
-        updated_at=created_at,
-        campaign=sample.campaign,
-        account=sample.account,
-        extra=sample.extra,
-        is_frozen=True)
+    if not score_sample:
+        score_sample = Sample.objects.create(
+            created_at=created_at,
+            updated_at=created_at,
+            campaign=sample.campaign,
+            account=sample.account,
+            extra=sample.extra,
+            is_frozen=True)
+    LOGGER.info("freeze %s scores for segment %s based of sample %s:"\
+        " frozen as %s", sample.account, segment_path, sample.slug,
+        score_sample)
     # Copy the actual answers inputted by users
-    score_unit_id = Unit.objects.get(slug=SCORE_UNIT).pk
+    points_unit_id = Unit.objects.get(slug=SCORE_UNIT).pk
     user_answers = []
     for answer in Answer.objects.filter(
             sample=sample,
             question__enumeratedquestions__campaign=sample.campaign,
             question__path__startswith=segment_path).exclude(
-                unit_id=score_unit_id):
+                unit_id=points_unit_id):
         answer.pk = None
         answer.created_at = created_at
         answer.sample = score_sample
@@ -113,12 +115,12 @@ def freeze_scores(sample, excludes=None,
                 LOGGER.debug("create(created_at=%s, question_id=%s,"\
                     " unit_id=%s, measured=%s, denominator=%s,"\
                     " collected_by=%s, sample=%s)",
-                    created_at, decorated_answer.id, score_unit_id,
+                    created_at, decorated_answer.id, points_unit_id,
                     numerator, denominator, collected_by, score_sample)
                 score_answers += [Answer(
                     created_at=created_at,
                     question_id=decorated_answer.id,
-                    unit_id=score_unit_id,
+                    unit_id=points_unit_id,
                     measured=numerator,
                     denominator=denominator,
                     collected_by=collected_by,

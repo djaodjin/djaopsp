@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import logging
 from collections import namedtuple
 
+from deployutils.helpers import datetime_or_now
 from django.db import connection
 from survey.models import Unit
 from survey.utils import is_sqlite3
@@ -44,8 +45,8 @@ class ScoreCalculator(ScoreCalculatorBase):
     for an assessment
     """
     def __init__(self):
-        self.assessment_unit_id = Unit.objects.get(slug=ASSESSMENT_UNIT)
-        self.score_unit_id = Unit.objects.get(slug=SCORE_UNIT)
+        self.assessment_unit_id = Unit.objects.get(slug=ASSESSMENT_UNIT).pk
+        self.points_unit_id = Unit.objects.get(slug=SCORE_UNIT).pk
 
     def get_opportunity(self, campaign,
                         includes=None, excludes=None, prefix=None,
@@ -100,6 +101,7 @@ class ScoreCalculator(ScoreCalculatorBase):
                     # No and not yet answered.
                     opportunity_numerator = 3 * opportunity + added
                 results += [{
+                    'question_id': scored_answer.id,  # question_id
                     'question__path': scored_answer.path,
                     'rate': scored_answer.rate,
                     'opportunity': opportunity_numerator
@@ -127,9 +129,10 @@ class ScoreCalculator(ScoreCalculatorBase):
         Returns an aggregate of answers' scores and relevant metrics
         to be cached.
         """
-        return ScorecardCache.objects.raw(_get_scorecardcache_sql(
+        query = _get_scorecardcache_sql(
             prefix, self.points_unit_id, self.assessment_unit_id,
-            title=title, includes=includes))
+            title=title, includes=includes)
+        return ScorecardCache.objects.raw(query.replace('%', '%%'))[0]
 
 
 def _get_scored_answers(population, unit_id,
@@ -422,6 +425,7 @@ WHERE survey_answer.unit_id = %(unit_id)d
 def _get_scorecardcache_sql(prefix, points_unit_id, assessment_unit_id,
                            before=None, title=None, includes=None):
     #pylint:disable=too-many-arguments
+    before = datetime_or_now(before)
     return """SELECT
     survey_sample.id AS id,
     survey_sample.slug AS slug,
@@ -524,7 +528,8 @@ GROUP BY survey_sample.id
             " WHERE unit_id=(SELECT id FROM survey_unit WHERE slug='yes-no')"\
             " AND text = 'Yes')",
         'choice': NOT_APPLICABLE,
-        'samples_clause': _additional_filters_sql(includes=includes)}
+        'samples_clause': _additional_filters_sql(
+            includes=includes, intro_keyword="AND")}
 
 
 def _additional_filters_sql(includes=None, questions=None, prefix=None,
@@ -533,14 +538,15 @@ def _additional_filters_sql(includes=None, questions=None, prefix=None,
     additional_filters = ""
     if includes:
         if isinstance(includes, six.string_types):
-            additional_filters += "%ssurvey_sample.id IN (%s)" % str(includes)
+            additional_filters += "%ssurvey_sample.id IN (%s)" % (sep, includes)
         elif isinstance(includes, (list, tuple)):
             if isinstance(includes[0], six.integer_types):
-                additional_filters += "%ssurvey_sample.id IN (%s)" % ",".join(
-                    [str(spk) for spk in includes])
+                additional_filters += "%ssurvey_sample.id IN (%s)" % (
+                    sep, ",".join([str(spk) for spk in includes]))
             else:
-                additional_filters += "%ssurvey_sample.id IN (%s)" % ",".join(
-                    [str(sample.pk) for sample in includes if sample.pk])
+                additional_filters += "%ssurvey_sample.id IN (%s)" % (
+                    sep, ",".join(
+                        [str(sample.pk) for sample in includes if sample.pk]))
         sep = "AND "
     if questions:
         additional_filters += \

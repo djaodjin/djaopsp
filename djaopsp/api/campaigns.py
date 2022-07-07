@@ -20,7 +20,6 @@ from survey.api.campaigns import CampaignAPIView as CampaignBaseAPIView
 from .serializers import ContentNodeSerializer, CreateContentElementSerializer
 from ..compat import six
 from ..mixins import AccountMixin, CampaignMixin
-from ..utils import get_segments_candidates
 
 
 class CampaignContentMixin(AccountMixin, CampaignMixin):

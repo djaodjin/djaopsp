@@ -120,7 +120,8 @@ class ScorecardIndexView(ReportMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ScorecardIndexView, self).get_context_data(**kwargs)
-        campaign_slug = ('sustainability' if self.sample.campaign.slug == 'assessment'
+        campaign_slug = (
+            'sustainability' if self.sample.campaign.slug == 'assessment'
              else self.sample.campaign.slug)
         campaign_prefix = "%s%s%s" % (
             self.DB_PATH_SEP, campaign_slug, self.DB_PATH_SEP)
