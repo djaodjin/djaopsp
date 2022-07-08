@@ -18,6 +18,11 @@ from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
 
 
 urlpatterns = [
+    path('app/reporting/',
+        AccountRedirectView.as_view(
+            pattern_name='reporting',
+            new_account_url=site_url('/users/roles/accept/')),
+        name='reporting_redirect'),
     path('app/info/', include('djaopsp.urls.views.content')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.reports')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.portfolios')),
