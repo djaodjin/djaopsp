@@ -419,10 +419,14 @@ class AssessmentContentMixin(SegmentReportMixin, CampaignContentMixin,
                     last_frozen_assessments=last_frozen_assessments):
                 question_pk = row['question_id']
                 opportunity = row.get('opportunity', 0)
-                value = questions_by_key.get(question_pk, {})
-                value.update({'opportunity': opportunity})
-                if question_pk not in questions_by_key:
-                    questions_by_key.update({question_pk: value})
+                if question_pk in questions_by_key:
+                    # If through other samples we find an opportunity value
+                    # to a question which was not answered, or is not
+                    # in the current campaign, then we discard it because
+                    # we do not have an associated path for that question
+                    # later on.
+                    value = questions_by_key.get(question_pk)
+                    value.update({'opportunity': opportunity})
 
     def get_planned(self, prefix):
         if not self.improvement_sample:
