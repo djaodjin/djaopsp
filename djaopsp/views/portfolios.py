@@ -25,7 +25,6 @@ from pptx.shapes.autoshape import Shape
 from pptx.shapes.graphfrm import GraphicFrame
 from survey.helpers import get_extra
 from survey.models import Campaign, Matrix
-from survey.utils import get_question_model
 from survey.views.matrix import MatrixDetailView
 
 from ..compat import reverse, six
@@ -33,7 +32,7 @@ from ..helpers import as_valid_sheet_title
 from ..api.portfolios import SupplierListMixin
 from ..api.serializers import AccountSerializer
 from ..mixins import AccountMixin, CampaignMixin
-from ..utils import get_completed_assessments_at_by, get_segments_candidates
+from ..utils import get_completed_assessments_at_by
 
 LOGGER = logging.getLogger(__name__)
 
@@ -667,12 +666,12 @@ class PortfoliosDetailView(DashboardMixin, MatrixDetailView):
         try:
             segment_prefix = self.full_path
             segment_element = self.element
-            root = self.get_scores_tree(
+            scores_tree = self.get_scores_tree(
                 [segment_element], root_prefix=segment_prefix)
-            root = root[1].get(segment_prefix)
-            self.decorate_with_breadcrumbs(root)
+            self.decorate_with_breadcrumbs(scores_tree)
             # Remove sgement chart that would otherwise be added.
-            charts = self.get_charts(root, excludes=[segment_element.slug])
+            charts = self.get_charts(
+                scores_tree, excludes=[segment_element.slug])
         except Http404:
             # With have a matrix but not corresponding PageElement (ex: totals).
             charts = []

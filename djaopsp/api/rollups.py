@@ -12,7 +12,8 @@ from ..compat import six
 from ..mixins import CampaignMixin
 from ..models import ScorecardCache
 from ..scores import get_score_calculator
-from ..utils import TransparentCut, get_completed_assessments_at_by, get_scores_tree
+from ..utils import (TransparentCut, get_completed_assessments_at_by,
+    get_scores_tree)
 from .serializers import AccountSerializer
 
 LOGGER = logging.getLogger(__name__)
@@ -383,6 +384,7 @@ WHERE survey_sample.created_at < '%(ends_at)s'
         return self._scores_of_interest
 
     def get_queryset(self):
+        #pylint:disable=protected-access
         if not self.scores_of_interest:
             # We don't have any scorecard/chart to compute.
             return Sample.objects.none()
@@ -585,7 +587,7 @@ class GraphMixin(object):
 
     def get_charts(self, rollup_tree, excludes=None):
         charts = []
-        for key, values in six.iteritems(rollup_tree):
+        for values in six.itervalues(rollup_tree):
             extra = values[0].get('extra', {})
             tags = extra.get('tags', []) if extra else []
             if tags and TransparentCut.TAG_SCORECARD in tags:
@@ -601,15 +603,15 @@ class GraphMixin(object):
         Create a tree with distributions of scores from a rollup tree.
         """
         #pylint:disable=too-many-locals
-        denominator = None
-        highest_normalized_score = 0
-        sum_normalized_scores = 0
-        nb_normalized_scores = 0
-        nb_respondents = 0
-        nb_implemeted_respondents = 0
-        distribution = None
         for node in six.itervalues(rollup_tree):
-            for account_id_str, account_metrics in six.iteritems(node[0].get(
+            denominator = None
+            highest_normalized_score = 0
+            sum_normalized_scores = 0
+            nb_normalized_scores = 0
+            nb_respondents = 0
+            nb_implemeted_respondents = 0
+            distribution = None
+            for account_id_str, scores in six.iteritems(node[0].get(
                     'accounts', OrderedDict({}))):
                 if account_id_str is None: # XXX why is that?
                     continue
@@ -618,20 +620,20 @@ class GraphMixin(object):
                     account_id == view_account_id)
 
                 if is_view_account:
-                    node[0].update(account_metrics)
+                    node[0].update(scores)
 
-                if account_metrics.get('normalized_score', 0):
+                if scores.get('normalized_score', 0):
                     # XXX assumes that normalized_score == 0 is an incomplete
                     # answer.
                     nb_respondents += 1
 
-                normalized_score = account_metrics.get('normalized_score', None)
+                normalized_score = scores.get('normalized_score', None)
                 if normalized_score is None:
                     continue
 
                 nb_normalized_scores += 1
-                numerator = account_metrics.get('numerator')
-                denominator = account_metrics.get('denominator')
+                numerator = scores.get('numerator')
+                denominator = scores.get('denominator')
                 if numerator == denominator:
                     nb_implemeted_respondents += 1
                 if normalized_score > highest_normalized_score:
@@ -679,6 +681,12 @@ class GraphMixin(object):
                     'highest_normalized_score': highest_normalized_score,
                     'avg_normalized_score': avg_normalized_score,
                     'distribution': distribution
+                })
+            elif TransparentCut.TAG_SCORECARD in node[0].get(
+                    'extra', {}).get('tags', []):
+                node[0].update({
+                    'nb_respondents': nb_respondents,
+                    'distribution': []
                 })
             if 'accounts' in node[0]:
                 del node[0]['accounts']

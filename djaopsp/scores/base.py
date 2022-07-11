@@ -46,9 +46,9 @@ class ScoreCalculator(object):
         #pylint:disable=unused-argument,no-self-use
         return []
 
-    def get_scorecache(self, campaign, prefix, title=None, includes=None):
+    def get_scorecards(self, campaign, prefix, title=None, includes=None):
         #pylint:disable=unused-argument,no-self-use
-        return None
+        return []
 
 
 def freeze_scores(sample, excludes=None, collected_by=None, created_at=None,
@@ -333,8 +333,8 @@ def populate_rollup(rollup_tree, normalize_to_one, force_score=False):
             if not account_id in accounts:
                 accounts[account_id] = {}
             agg_scores = accounts[account_id]
-            if 'sample' in scores:
-                agg_scores['sample'] = scores['sample']
+            if 'sample_id' in scores:
+                agg_scores['sample_id'] = scores['sample_id']
             if 'created_at' in scores:
                 if not ('created_at' in agg_scores and isinstance(
                         agg_scores['created_at'], datetime.datetime)):

@@ -88,7 +88,7 @@ def get_completed_assessments_at_by(campaign, before=None, extra=None,
     All accounts in ``excludes`` are not added to the index. This is
     typically used to filter out 'testing' accounts
     """
-    #pylint:disable=no-self-use
+    #pylint:disable=too-many-arguments
     if excludes:
         if isinstance(excludes, list):
             excludes = ','.join([
@@ -259,8 +259,8 @@ def get_latest_completed_assessment(account, campaign=None):
             'campaign', 'account').first()
 
 
-def get_score_weight(campaign, path):
-    return get_extra(campaign, path, 1.0)
+def get_score_weight(campaign, path, default_value=1.0):
+    return get_extra(campaign, path, default_value)
 
 
 def get_leafs(rollup_tree, campaign, path=None):
@@ -348,9 +348,8 @@ def get_scores_tree(roots=None, prefix=""):
     Typically `get_leafs` and a function to populate a leaf will be called
     before an rollup is done.
     """
-    rollup_tree = None
     content_tree = build_content_tree(roots, prefix=prefix)
-    rollups = _cut_tree(content_tree, cut=TransparentCut())
+    scores_tree = _cut_tree(content_tree, cut=TransparentCut())
 
     # Moves up all industry segments which are under a category
     # (ex: /facilities/janitorial-services).
@@ -359,28 +358,19 @@ def get_scores_tree(roots=None, prefix=""):
     # in the top level category.
     removes = []
     ups = OrderedDict({})
-    for root_path, root in six.iteritems(rollups):
+    for root_path, root in six.iteritems(scores_tree):
         try:
-            tags = root[0].get('extra', {}).get('tags', [])
+            is_pagebreak = root[0].get('extra', {}).get(
+                ContentCut.TAG_PAGEBREAK, False)
         except AttributeError:
-            tags = []
-        if ContentCut.TAG_PAGEBREAK not in tags:
+            is_pagebreak = False
+        if not is_pagebreak:
             removes += [root_path]
             ups.update(root[1])
     for root_path in removes:
-        del rollups[root_path]
-    rollups.update(ups)
-
-    if len(rollups) <= 1:
-        return rollups
-
-    # We have more than one industry segment, so let's create a parent node.
-    rollup_tree = {"/": (OrderedDict({
-        'slug': "totals",
-        'title': "Total Score",
-        'extra': {'tags': [TransparentCut.TAG_SCORECARD]}
-    }), rollups)}
-    return rollup_tree
+        del scores_tree[root_path]
+    scores_tree.update(ups)
+    return scores_tree
 
 
 def _get_segments_query(segments):

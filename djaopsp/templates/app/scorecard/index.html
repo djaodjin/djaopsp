@@ -350,7 +350,9 @@ companies responding on practices in the industry segment.
                     v-if="practice.answers.length === 0">
                     &dash;
                   </div>
-                  <div v-if="practice.answers.length > 0">
+                  <div
+                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                    v-if="practice.answers.length > 0">
                     <strong>[[getPrimaryAnswer(practice).measured ? getPrimaryAnswer(practice).measured : "-"]]</strong>
                   </div>
                   <p @click.prevent="openLink($event)"
@@ -364,7 +366,8 @@ companies responding on practices in the industry segment.
           </div>{# /.v-for=getEntries() #}
         </div>
         {% if not sample.is_frozen %}
-        <div id="add-segments-actions" class="text-center" v-show="itemsLoaded" v-cloak>
+        <div id="add-segments-actions" class="text-center"
+             v-show="itemsLoaded" v-cloak>
           <div v-if="items.results.length === 0">
             <hr />
             <p>

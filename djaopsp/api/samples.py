@@ -1,8 +1,9 @@
 # Copyright (c) 2022, DjaoDjin inc.
 # see LICENSE.
 
-import copy, logging
+import copy, logging, json
 
+from deployutils.crypt import JSONEncoder
 from dateutil.relativedelta import relativedelta
 from deployutils.helpers import datetime_or_now
 from django.db import transaction
@@ -66,16 +67,13 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
         return super(AssessmentCompleteAPIView, self).post(
             request, *args, **kwargs)
 
-    def _populate_scorecard_cache(self, rollup_tree, improvement_sample=None):
-        scorecard_cache = []
-        for node in six.itervalues(rollup_tree[1]):
-            scorecard_cache += self._populate_scorecard_cache(  # recursive call
-                node, improvement_sample=improvement_sample)
-        path = rollup_tree[0].get('path')
-        if path:
-            # We do not need the "totals" node here.
-            for account in six.itervalues(rollup_tree[0].get('accounts')):
-                sample = Sample.objects.get(slug=account.get('sample'))
+    def _populate_scorecard_cache(self, scores_tree, improvement_sample=None):
+        scorecard_caches = []
+        for path, node in six.iteritems(scores_tree):
+            scorecard_caches += self._populate_scorecard_cache( # recursive call
+                node[1], improvement_sample=improvement_sample)
+            for account in six.itervalues(node[0].get('accounts')):
+                sample_id = account.get('sample_id')
                 nb_planned_improvements = account.get('nb_planned_improvements')
                 if nb_planned_improvements is None:
                     if improvement_sample:
@@ -86,17 +84,45 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
                                 unit_id=self.default_unit_id).count()
                     else:
                         nb_planned_improvements = 0
-                scorecard_cache += [
+                normalized_score = account.get('normalized_score', None)
+                if normalized_score is None:
+                    denominator = account.get('denominator', 1)
+                    if not denominator:
+                        denominator = 1
+                    normalized_score = (
+                        account.get('numerator', 0) / denominator)
+                scorecard_caches += [
                     ScorecardCache(
                         path=path,
-                        sample=sample,
-                        normalized_score=account.get(
-                            'normalized_score', None),
+                        sample_id=sample_id,
+                        normalized_score=normalized_score,
                         nb_na_answers=account.get(
                             'nb_na_answers', None),
-                        nb_planned_improvements=nb_planned_improvements
+                        nb_planned_improvements=nb_planned_improvements,
+                        reporting_publicly=account.get(
+                            'reporting_publicly', False),
+                        reporting_fines=account.get(
+                            'reporting_fines', False),
+                        reporting_environmental_fines=account.get(
+                            'reporting_environmental_fines', False),
+                        reporting_energy_consumption=account.get(
+                            'reporting_energy_consumption', False),
+                        reporting_water_consumption=account.get(
+                            'reporting_water_consumption', False),
+                        reporting_ghg_generated=account.get(
+                            'reporting_ghg_generated', False),
+                        reporting_waste_generated=account.get(
+                            'reporting_waste_generated', False),
+                        reporting_energy_target=account.get(
+                            'reporting_energy_target', False),
+                        reporting_water_target=account.get(
+                            'reporting_water_target', False),
+                        reporting_ghg_target=account.get(
+                            'reporting_ghg_target', False),
+                        reporting_waste_target=account.get(
+                            'reporting_waste_target', False)
                     )]
-        return scorecard_cache
+        return scorecard_caches
 
     def populate_scorecard_cache(self, frozen_assessment_sample,
                                  improvement_sample=None):
@@ -125,38 +151,37 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
         leafs = get_leafs(rollup_tree, frozen_assessment_sample.campaign)
         self._report_queries("freezing assessment: leafs loaded")
 
-        for segment in self.segments_available:
-            segment_path = segment.get('path')
-            score_calculator = get_score_calculator(segment_path)
+        for prefix, values_tuple in six.iteritems(leafs):
+            score_calculator = get_score_calculator(prefix)
             if score_calculator:
                 LOGGER.info(
-                    "populate %s scorecard cache for segment %s based"\
+                    "populate %s scorecard cache for %s based"\
                     " of sample %s", frozen_assessment_sample.account,
-                    segment_path, frozen_assessment_sample.slug)
-                for prefix, values_tuple in six.iteritems(leafs):
-                    title = values_tuple[0].get('title')
-                    scorecard_cache = score_calculator.get_scorecache(
-                        frozen_assessment_sample.campaign, prefix, title=title,
-                        includes=[frozen_assessment_sample])
+                    prefix, frozen_assessment_sample.slug)
+
+                title = values_tuple[0].get('title')
+                for scorecard_cache in score_calculator.get_scorecards(
+                    frozen_assessment_sample.campaign, prefix, title=title,
+                    includes=[frozen_assessment_sample]):
                     accounts = values_tuple[0].get('accounts', {})
                     account = accounts.get(scorecard_cache.account_id, {})
                     account.update({
-                        'sample_id': scorecard_cache.id,
+                        'sample_id': scorecard_cache.sample_id,
                         'slug': scorecard_cache.slug,
-                        'created_at': scorecard_cache.created_at,
                         'campaign_id': scorecard_cache.campaign_id,
+                        'created_at': scorecard_cache.created_at,
                         'updated_at': scorecard_cache.updated_at,
                         'is_frozen': scorecard_cache.is_frozen,
                         'extra': scorecard_cache.extra,
-                        'segment_path': scorecard_cache.segment_path,
+                        'segment_path': scorecard_cache.path,
                         'segment_title': scorecard_cache.segment_title,
                         'numerator': scorecard_cache.numerator,
                         'denominator': scorecard_cache.denominator,
                         'nb_answers': scorecard_cache.nb_answers,
                         'nb_questions': scorecard_cache.nb_questions,
                         'nb_na_answers': scorecard_cache.nb_na_answers,
-                    'reporting_publicly': scorecard_cache.reporting_publicly,
-                    'reporting_fines': scorecard_cache.reporting_fines,
+    'reporting_publicly': scorecard_cache.reporting_publicly,
+    'reporting_fines': scorecard_cache.reporting_fines,
    'reporting_energy_consumption': scorecard_cache.reporting_energy_consumption,
     'reporting_ghg_generated': scorecard_cache.reporting_ghg_generated,
     'reporting_water_consumption': scorecard_cache.reporting_water_consumption,
@@ -166,8 +191,15 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
     'reporting_water_target': scorecard_cache.reporting_water_target,
     'reporting_waste_target': scorecard_cache.reporting_waste_target,
                     })
+                    try:
+                        account.update({
+                            'normalized_score': scorecard_cache.normalized_score
+                        })
+                    except AttributeError:
+                        pass
                     if scorecard_cache.account_id not in accounts:
-                        accounts.update({scorecard_cache.account_id: account})
+                        accounts.update({
+                            scorecard_cache.account_id: account})
                     if 'accounts' not in values_tuple[0]:
                         values_tuple[0].update({'accounts': accounts})
         self._report_queries("freezing assessment: leafs populated")
@@ -175,8 +207,7 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
         self._report_queries("freezing assessment: rollup populated")
 
         scorecard_caches = self._populate_scorecard_cache(
-            rollup_tree, improvement_sample=improvement_sample)
-
+            rollup_tree[1], improvement_sample=improvement_sample)
         ScorecardCache.objects.bulk_create(scorecard_caches)
 
 
@@ -720,8 +751,9 @@ class BenchmarkAPIView(SegmentReportMixin, GraphMixin, RollupMixin,
     def scores_tree(self):
         if not hasattr(self, '_scores_tree'):
             segments = self.segments_available
-            self._scores_tree = get_scores_tree([PageElement.objects.get(
-                slug=seg['slug']) for seg in segments])
+            elements = [PageElement.objects.get(slug=seg['slug'])
+                for seg in segments]
+            self._scores_tree = get_scores_tree(elements)
         return self._scores_tree
 
     @property
@@ -734,19 +766,36 @@ class BenchmarkAPIView(SegmentReportMixin, GraphMixin, RollupMixin,
         return self._scores_of_interest
 
 
-    def list(self, request, *args, **kwargs): #pylint:disable=unused-argument
+    def list(self, request, *args, **kwargs):
+        #pylint:disable=unused-argument,too-many-nested-blocks
         self._start_time()
-        charts = []
         queryset = self.get_queryset()
         for score in queryset:
-            self._insert_in_tree(self.scores_tree, score.segment_path, score)
+            if score.segment_path:
+                self._insert_in_tree(
+                    self.scores_tree, score.segment_path, score)
         self._report_queries("rollup_scores completed")
         self.create_distributions(
             self.scores_tree, view_account_id=self.account.pk)
         self._report_queries("create_distributions completed")
-        segment_charts, unused_segment_complete = self.flatten_distributions(
+        charts, unused_segment_complete = self.flatten_distributions(
             self.scores_tree)
         self._report_queries("flatten_distributions completed")
-        charts += segment_charts
+
+        if not self.sample.is_frozen:
+            for segment_path, segment_values in six.iteritems(self.scores_tree):
+                title = segment_values[0].get('title')
+                score_calculator = get_score_calculator(segment_path)
+                if score_calculator:
+                    for scorecard_cache in score_calculator.get_scorecards(
+                            self.campaign, segment_path, title=title,
+                            includes=[self.sample]):
+                        for chart in charts:
+                            path = chart.get('path')
+                            if scorecard_cache.path == path:
+                                chart.update({'normalized_score':
+                                    scorecard_cache.normalized_score})
+                                break
+        self._report_queries("sample scorecard_cache computed")
 
         return http.Response(charts)

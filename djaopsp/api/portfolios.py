@@ -363,7 +363,6 @@ class SupplierListMixin(DashboardMixin):
                 report_summary.nb_planned_improvements = None
             elif report_summary.segment_path:
                 parts = report_summary.segment_path.strip('/').split('/')
-                segment_url = parts[-1] if parts else ""
                 if report_summary.normalized_score is not None:
                     if report_summary.slug:
                         report_summary.score_url = reverse(
@@ -641,7 +640,7 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
             values[0]['cohorts'] = cohorts
 
     def decorate_with_cohorts(self, rollup_tree, accounts=None, prefix=""):
-        #pylint:disable=unused-argument
+        #pylint:disable=unused-argument,too-many-locals
         if accounts is None:
             accounts = self.requested_accounts
 

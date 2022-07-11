@@ -307,8 +307,10 @@ var practicesListMixin = {
             return false;
         },
         isRequiredShown: function(row) {
-            var vm = this;
-            return row.required && !vm.getPrimaryAnswer(row).measured;
+            return row.required && !this.isRequiredAnswered(row);
+        },
+        isRequiredAnswered: function(row) {
+            return row.required && this.getPrimaryAnswer(row).measured;
         },
         isTargetByUIHint: function(row) {
             var vm = this;
@@ -405,15 +407,18 @@ var practicesListMixin = {
                 for( var idx = 0; idx < resp.length; ++idx ) {
                     for( var jdx = 0; jdx < vm.items.results.length; ++jdx ) {
                         if( vm.items.results[jdx].slug === resp[idx].slug ) {
-                            if( resp[idx].normalized_score ) {
+                            if( !(isNaN(resp[idx].normalized_score) ||
+                                  resp[idx].normalized_score == null) ) {
                                 vm.items.results[jdx].normalized_score =
                                     resp[idx].normalized_score;
                             }
-                            if( resp[idx].highest_normalized_score ) {
+                            if( !(isNaN(resp[idx].highest_normalized_score) ||
+                                 resp[idx].highest_normalized_score == null) ) {
                                 vm.items.results[jdx].highest_normalized_score =
                                     resp[idx].highest_normalized_score;
                             }
-                            if( resp[idx].avg_normalized_score ) {
+                            if( !(isNaN(resp[idx].avg_normalized_score) ||
+                                 resp[idx].avg_normalized_score == null) ) {
                                 vm.items.results[jdx].avg_normalized_score =
                                     resp[idx].avg_normalized_score;
                             }

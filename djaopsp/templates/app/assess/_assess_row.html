@@ -1,5 +1,6 @@
-<tr :class="isRequiredShown(practice) ? 'practice-required' : ''">
-<td :id="practice.slug" colspan="6" :class="isRequiredShown(practice) ? 'practice-required' : ''">
+<tr>
+<td :id="practice.slug" colspan="6"
+    :class="isRequiredShown(practice) ? 'practice-required' : (isRequiredAnswered(practice) ? 'practice-required-answered' : '')">
   <div style="display:inline-block;">
     <div :class="indentHeader(practice)"
          style="display:inline-block;">
@@ -463,10 +464,10 @@ SELECT id, slug, title FROM survey_unit WHERE slug IN ('btu-year', 'mmbtu-year',
 </tr>
 
 {# optional comments #}
-<tr :class="isRequiredShown(practice) ? 'practice-required' : ''"
-    v-if="isPractice(practice)"
+<tr v-if="isPractice(practice)"
     v-show="isActiveCommentsShown(practice)">
-<td colspan="6">
+<td colspan="6"
+    :class="isRequiredShown(practice) ? 'practice-required' : (isRequiredAnswered(practice) ? 'practice-required-answered' : '')">
 </td>
 <td colspan="6">
   {# comments #}
