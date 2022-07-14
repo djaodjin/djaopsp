@@ -530,7 +530,11 @@ var practicesListMixin = {
     },
     mounted: function(){
         var vm = this;
-        vm.get();
+        if( vm.items.results.length === 0 ) {
+            vm.get();
+        } else {
+            vm.itemsLoaded = true;
+        }
         if( vm.account_benchmark_url ) {
             vm.reqGet(vm.account_benchmark_url,
             function(resp) {
@@ -1179,11 +1183,6 @@ Vue.component('campaign-questions-list', {
         $("[id^='toggle-value-summary-']").change(function() {
             vm.valueSummaryToggle = $(this).prop('checked');
         });
-        if( vm.items.results.length === 0 ) {
-            vm.get();
-        } else {
-            vm.itemsLoaded = true;
-        }
     }
 });
 
