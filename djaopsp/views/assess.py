@@ -114,6 +114,8 @@ class ImprovePracticesView(AssessPracticesView):
         context = super(ImprovePracticesView, self).get_context_data(**kwargs)
         update_context_urls(context, {
             'api_improvement_sample': reverse('survey_api_sample', args=(
+                self.account, self.improvement_sample)),
+            'print': reverse('improve_print', args=(
                 self.account, self.improvement_sample))
         })
         return context

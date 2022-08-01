@@ -9,6 +9,7 @@ from django.urls import path
 from ...views.assess import (AssessPracticesXLSXView, AssessPracticesView,
     AssessRedirectView, ImprovePracticesView, ImproveRedirectView,
     TrackMetricsView)
+from ...views.downloads import ImproveContentPDFView
 from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
     ScorecardRedirectView, DataValuesView)
 from ...views.share import ShareView
@@ -29,6 +30,8 @@ urlpatterns = [
     path('assess/<slug:sample>/',
          AssessRedirectView.as_view(), name='assess_redirect'),
     # Target and improvement plan
+    path('improve/<slug:sample>/print/',
+         ImproveContentPDFView.as_view(), name='improve_print'),
     path('improve/<slug:sample>/<path:path>/',
          ImprovePracticesView.as_view(), name='improve_practices'),
     path('improve/<slug:sample>/',

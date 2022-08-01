@@ -7,12 +7,15 @@ import io, math
 from deployutils.helpers import datetime_or_now
 from django.http import HttpResponse
 from django.views.generic import ListView
+from extended_templates.backends.pdf import PdfTemplateResponse
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from openpyxl.utils import get_column_letter
+from pages.models import PageElement
 
+from ..api.samples import AssessmentContentMixin
 from ..helpers import as_valid_sheet_title
 
 
@@ -22,12 +25,6 @@ class PracticesSpreadsheetView(ListView):
     basename = 'practices'
     content_type = \
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-
-    @property
-    def exclude_questions(self):
-        if not hasattr(self, '_exclude_questions'):
-            self._exclude_questions = []
-        return self._exclude_questions
 
     # Methods to be redefined in subclasses
     def get_headings(self):
@@ -177,3 +174,29 @@ class PracticesSpreadsheetView(ListView):
 
     def get_filename(self):
         return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
+
+
+class ImproveContentPDFView(AssessmentContentMixin, ListView):
+
+    http_method_names = ['get']
+    template_name = 'app/prints/improve.html'
+    content_type = 'application/pdf'
+    indent_step = '    '
+
+    def __init__(self, **kwargs):
+        super(ImproveContentPDFView, self).__init__(**kwargs)
+        self.table_of_content = []
+
+    def get(self, request, *args, **kwargs):
+        self.object_list = []
+        for item in self.get_queryset():
+            if 'default_unit' in item:
+                element_text_qs = PageElement.objects.filter(
+                    slug=item['slug']).values_list('text', flat=True)
+                element_text = element_text_qs[0] if element_text_qs else ""
+                item.update({'text': element_text})
+                self.object_list += [item]
+            self.table_of_content += [item]
+        context = self.get_context_data(**kwargs)
+        context.update({'table_of_content': self.table_of_content})
+        return PdfTemplateResponse(request, self.template_name, context)
