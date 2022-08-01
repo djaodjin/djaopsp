@@ -2934,7 +2934,7 @@
     "title": "Production",
     "slug": "production",
     "picture": "/static/img/production.png",
-    "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
+    "extra": "{\"searchable\":true,\"tags\":[\"scorecard\"],\"visibility\":[\"public\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 202

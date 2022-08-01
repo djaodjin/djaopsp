@@ -129,25 +129,28 @@ class ScoreCalculator(ScoreCalculatorBase):
         return results
 
 
-    def get_scorecards(self, campaign, prefix, title=None, includes=None):
+    def get_scorecards(self, campaign, prefix, title=None, includes=None,
+                       bypass_cache=False):
         """
         Returns an aggregate of answers' scores and relevant metrics
         to be cached.
         """
         #pylint:disable=too-many-locals,too-many-nested-blocks
-        scorecard_caches = []
-        if includes and includes[0].is_frozen:
-            sql = _get_scorecardcache_sql(
-                prefix, self.points_unit_id, self.assessment_unit_id,
-                title=title, includes=includes)
-            with connection.cursor() as cursor:
-                cursor.execute(sql, params=None)
-                col_headers = cursor.description
-                scorecard_cache_tuple = namedtuple(
-                    'ScorecardCacheTuple', [col[0] for col in col_headers])
-                scorecard_caches = [
-                    scorecard_cache_tuple(*row) for row in cursor.fetchall()]
+        active_samples = []
+        frozen_samples = []
+        if bypass_cache:
+            active_samples = includes
         else:
+            for sample in includes:
+                if sample.is_frozen:
+                    frozen_samples += [sample]
+                else:
+                    active_samples += [sample]
+        scorecard_caches = []
+        for sample in frozen_samples:
+            scorecard_caches += ScorecardCache.objects.filter(
+                sample=sample, path__startswith=prefix)
+        if active_samples:
             parts = prefix.split('/')
             slug = parts[-1]
             slug_prefix = '/'.join(parts[:-1])
@@ -158,7 +161,7 @@ class ScoreCalculator(ScoreCalculatorBase):
                 rollup_tree = scores_tree.get(prefix)
                 leafs = get_leafs(rollup_tree, campaign)
                 for scored_answer in self.get_scored_answers(
-                        campaign, includes=includes, prefix=prefix):
+                        campaign, includes=active_samples, prefix=prefix):
                     if scored_answer.is_planned:
                         continue
                     account_id = scored_answer.account_id
@@ -185,31 +188,30 @@ class ScoreCalculator(ScoreCalculatorBase):
                             if 'accounts' not in leaf_values[0]:
                                 leaf_values[0].update({'accounts': accounts})
                             break
-
                 populate_rollup(rollup_tree, True, force_score=True)
                 for node in flatten_content_tree(scores_tree):
                     path = node.get('path')
                     scores = node.get('accounts', {}).get(
-                        includes[0].account_id, {})
+                        active_samples[0].account_id, {})
                     normalized_score = scores.get('normalized_score')
                     scorecard_caches += [ScorecardCache(
                         path=path,
-                        sample=includes[0],
+                        sample=active_samples[0],
                         normalized_score=normalized_score)]
             else:
                 scorecard_caches += [ScorecardCache(
-                        path=prefix, sample=includes[0])]
+                        path=prefix, sample=active_samples[0])]
 
-        for sample in includes:
-            highlights = get_highlights(sample)
-            for scorecard in scorecard_caches:
-                if scorecard.sample_id == sample.id:
-                    for highlight in highlights:
-                        reporting_field = highlight.get('slug')
-                        if reporting_field:
-                            pass
-                            #XXX setattr(scorecard, reporting_field,
-                            #    highlight.get('reporting'))
+            for sample in active_samples:
+                highlights = get_highlights(sample)
+                for scorecard in scorecard_caches:
+                    if scorecard.sample_id == sample.id:
+                        for highlight in highlights:
+                            reporting_field = highlight.get('slug')
+                            if reporting_field:
+                                pass
+                                setattr(scorecard, reporting_field,
+                                    highlight.get('reporting'))
 
         return scorecard_caches
 
@@ -499,116 +501,6 @@ WHERE survey_answer.unit_id = %(unit_id)d
       'additional_filters': _additional_filters_sql(
           includes=includes, intro_keyword="AND")}
     return query
-
-
-def _get_scorecardcache_sql(prefix, points_unit_id, assessment_unit_id,
-                           before=None, title=None, includes=None):
-    #pylint:disable=too-many-arguments
-    before = datetime_or_now(before)
-    return """SELECT
-    survey_sample.id AS sample_id,
-    survey_sample.slug AS slug,
-    survey_sample.created_at AS created_at,
-    survey_sample.campaign_id AS campaign_id,
-    survey_sample.account_id AS account_id,
-    survey_sample.updated_at AS updated_at,
-    survey_sample.is_frozen AS is_frozen,
-    survey_sample.extra AS extra,
-    %(segment_prefix)s AS path,
-    %(segment_title)s AS segment_title,
-    CAST(SUM(CASE WHEN survey_answer.unit_id = %(points_unit_id)s
-        THEN survey_answer.measured ELSE 0 END) AS FLOAT) AS numerator,
-    CAST(SUM(CASE WHEN survey_answer.unit_id = %(points_unit_id)s
-        THEN survey_answer.denominator ELSE 0 END) AS FLOAT) AS denominator,
-    COUNT(CASE WHEN survey_answer.unit_id = %(points_unit_id)s
-        THEN 1 ELSE 0 END) AS nb_answers,
-    COUNT(CASE WHEN survey_answer.unit_id = %(points_unit_id)s
-        THEN 1 ELSE 0 END) AS nb_questions,
-    SUM(CASE WHEN (
-     survey_answer.unit_id = %(assessment_unit_id)s AND
-     survey_answer.measured = %(choice)s) THEN 1 ELSE 0 END) AS nb_na_answers,
-    MAX(CASE WHEN (
-     survey_question.path LIKE '%%/environmental-reporting/%%-publicly-reported' AND
-     survey_answer.unit_id = %(yesno_unit_id)s AND
-    survey_answer.measured = %(yes)s) THEN 1 ELSE 0 END) AS reporting_publicly,
-    MAX(CASE WHEN (
-     survey_question.path LIKE '%%/environmental-fines' AND
-     survey_answer.unit_id = %(yesno_unit_id)s AND
-     survey_answer.measured = %(yes)s) THEN 1 ELSE 0 END) AS reporting_fines,
--- Answers on data metrics per category (Energy, GHG, Water, Waste)
-    SUM(CASE WHEN (
-     survey_question.path LIKE '%%/energy-measured/%%' AND
-     survey_answer.measured IS NOT NULL)
-     THEN 1 ELSE 0 END) AS reporting_energy_consumption,
-    SUM(CASE WHEN (
-     survey_question.path LIKE '%%/ghg-emissions-measured/%%'  AND
-     survey_answer.measured IS NOT NULL)
-     THEN 1 ELSE 0 END) AS reporting_ghg_generated,
-    SUM(CASE WHEN (
-     survey_question.path LIKE '%%/water-measured/%%' AND
-     survey_answer.measured IS NOT NULL)
-     THEN 1 ELSE 0 END) AS reporting_water_consumption,
-    SUM(CASE WHEN (
-     survey_question.path LIKE '%%/waste-measured/%%' AND
-     survey_answer.measured IS NOT NULL)
-     THEN 1 ELSE 0 END) AS reporting_waste_generated,
-    SUM(CASE WHEN (
-     survey_question.path LIKE '%%/energy-target/%%-target-by' AND
-     survey_answer.measured IS NOT NULL)
-     THEN 1 ELSE 0 END) AS reporting_energy_target,
-    SUM(CASE WHEN (
-     survey_question.path LIKE '%%/ghg-emissions-target/%%-target-by' AND
-     survey_answer.measured IS NOT NULL)
-     THEN 1 ELSE 0 END) AS reporting_ghg_target,
-    SUM(CASE WHEN (
-     survey_question.path LIKE '%%/water-target/%%-target-by' AND
-     survey_answer.measured IS NOT NULL)
-     THEN 1 ELSE 0 END) AS reporting_water_target,
-    SUM(CASE WHEN (
-     survey_question.path LIKE '%%/waste-target/%%-target-by' AND
-     survey_answer.measured IS NOT NULL)
-     THEN 1 ELSE 0 END) AS reporting_waste_target
-FROM survey_sample
-INNER JOIN (
-    SELECT
-        survey_sample.account_id,
-        MAX(survey_sample.created_at) as last_updated_at
-    FROM survey_sample
-    INNER JOIN survey_answer
-    ON survey_answer.sample_id = survey_sample.id
-    INNER JOIN survey_question
-    ON survey_answer.question_id = survey_question.id
-    WHERE survey_question.path LIKE '%(prefix)s%%' AND
-          survey_sample.created_at <= '%(ends_at)s' AND
-          survey_sample.extra IS NULL AND
-          survey_sample.is_frozen
-    GROUP BY survey_sample.account_id) AS last_frozen_assessments
-ON survey_sample.account_id = last_frozen_assessments.account_id AND
-   survey_sample.created_at = last_frozen_assessments.last_updated_at
-INNER JOIN survey_answer
-ON survey_answer.sample_id = survey_sample.id
-INNER JOIN survey_question
-ON survey_answer.question_id = survey_question.id
-WHERE survey_sample.extra IS NULL
-      AND survey_sample.is_frozen
-      AND survey_question.path LIKE '%(prefix)s%%'
-      %(samples_clause)s
-GROUP BY survey_sample.id
-""" % {
-        'ends_at': before,
-        'prefix': prefix,
-        'segment_prefix': ("'%s'" if is_sqlite3() else "'%s'::text") % prefix,
-        'segment_title': ("'%s'" if is_sqlite3() else "'%s'::text") % title,
-        'points_unit_id': points_unit_id,
-        'assessment_unit_id': assessment_unit_id,
-        'yesno_unit_id': "(SELECT id FROM survey_unit"\
-            " WHERE slug='yes-no')",
-        'yes': "(SELECT id FROM survey_choice"\
-            " WHERE unit_id=(SELECT id FROM survey_unit WHERE slug='yes-no')"\
-            " AND text = 'Yes')",
-        'choice': NOT_APPLICABLE,
-        'samples_clause': _additional_filters_sql(
-            includes=includes, intro_keyword="AND")}
 
 
 def _additional_filters_sql(includes=None, questions=None, prefix=None,

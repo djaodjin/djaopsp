@@ -35,7 +35,7 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
 
     def post(self, request, *args, **kwargs):
         """
-        Freezes a sample of measurements
+        Freezes a sample of measurements under a path
 
         **Tags**: assessments
 
@@ -67,148 +67,44 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
         return super(AssessmentCompleteAPIView, self).post(
             request, *args, **kwargs)
 
-    def _populate_scorecard_cache(self, scores_tree, improvement_sample=None):
-        scorecard_caches = []
-        for path, node in six.iteritems(scores_tree):
-            scorecard_caches += self._populate_scorecard_cache( # recursive call
-                node[1], improvement_sample=improvement_sample)
-            for account in six.itervalues(node[0].get('accounts')):
-                sample_id = account.get('sample_id')
-                nb_planned_improvements = account.get('nb_planned_improvements')
-                if nb_planned_improvements is None:
-                    if improvement_sample:
-                        nb_planned_improvements = \
-                            Answer.objects.filter(
-                                sample=improvement_sample,
-                                question__path__startswith=path,
-                                unit_id=self.default_unit_id).count()
-                    else:
-                        nb_planned_improvements = 0
-                normalized_score = account.get('normalized_score', None)
-                if normalized_score is None:
-                    denominator = account.get('denominator', 1)
-                    if not denominator:
-                        denominator = 1
-                    normalized_score = (
-                        account.get('numerator', 0) / denominator)
-                scorecard_caches += [
-                    ScorecardCache(
-                        path=path,
-                        sample_id=sample_id,
-                        normalized_score=normalized_score,
-                        nb_na_answers=account.get(
-                            'nb_na_answers', None),
-                        nb_planned_improvements=nb_planned_improvements,
-                        reporting_publicly=account.get(
-                            'reporting_publicly', False),
-                        reporting_fines=account.get(
-                            'reporting_fines', False),
-                        reporting_environmental_fines=account.get(
-                            'reporting_environmental_fines', False),
-                        reporting_energy_consumption=account.get(
-                            'reporting_energy_consumption', False),
-                        reporting_water_consumption=account.get(
-                            'reporting_water_consumption', False),
-                        reporting_ghg_generated=account.get(
-                            'reporting_ghg_generated', False),
-                        reporting_waste_generated=account.get(
-                            'reporting_waste_generated', False),
-                        reporting_energy_target=account.get(
-                            'reporting_energy_target', False),
-                        reporting_water_target=account.get(
-                            'reporting_water_target', False),
-                        reporting_ghg_target=account.get(
-                            'reporting_ghg_target', False),
-                        reporting_waste_target=account.get(
-                            'reporting_waste_target', False)
-                    )]
-        return scorecard_caches
 
-    def populate_scorecard_cache(self, frozen_assessment_sample,
-                                 improvement_sample=None):
-        #pylint:disable=too-many-locals
-        rollup_tree = [{
-            "slug": "totals",
-            "title": "Total Score",
-            "tag": [
-                "scorecard"
-            ],
-            "score_weight": 1.0,
-            "accounts": {}
-        }, {}]
-        for segment in self.segments_available:
-            segment_path = segment.get('path')
-            if segment_path:
-                slug = segment_path.split('/')[-1]
-                prefix = '/'.join(segment_path.split('/')[:-1])
-                scores_tree = get_scores_tree(
-                    roots=[PageElement.objects.get(slug=slug)],
-                    prefix=prefix)
-                if scores_tree:
-                    rollup_tree[1].update({
-                        segment_path: scores_tree.get(segment_path)})
+    def populate_scorecard_cache(self, sample, calculator,
+                                 segment_path, segment_title):
+        LOGGER.info("populate %s scorecard cache for %s based of sample %s",
+            sample.account, segment_path, str(sample))
+        scorecards = calculator.get_scorecards(
+                sample.campaign, segment_path, title=segment_title,
+                includes=[sample], bypass_cache=True)
+        # XXX fixes highlights that were not set.
+        for scorecard in scorecards:
+            if scorecard.reporting_publicly is None:
+                scorecard.reporting_publicly = False
+            if scorecard.reporting_fines is None:
+                scorecard.reporting_fines = False
+            if scorecard.reporting_environmental_fines is None:
+                scorecard.reporting_environmental_fines = False
+            if scorecard.reporting_energy_consumption is None:
+                scorecard.reporting_energy_consumption = False
+            if scorecard.reporting_water_consumption is None:
+                scorecard.reporting_water_consumption = False
+            if scorecard.reporting_ghg_generated is None:
+                scorecard.reporting_ghg_generated = False
+            if scorecard.reporting_waste_generated is None:
+                scorecard.reporting_waste_generated = False
+            if scorecard.reporting_energy_target is None:
+                scorecard.reporting_energy_target = False
+            if scorecard.reporting_water_target is None:
+                scorecard.reporting_water_target = False
+            if scorecard.reporting_ghg_target is None:
+                scorecard.reporting_ghg_target = False
+            if scorecard.reporting_waste_target is None:
+                scorecard.reporting_waste_target = False
+            if scorecard.nb_planned_improvements is None:
+                scorecard.nb_planned_improvements = 0
+            if scorecard.nb_na_answers is None:
+                scorecard.nb_na_answers = 0
 
-        leafs = get_leafs(rollup_tree, frozen_assessment_sample.campaign)
-        self._report_queries("freezing assessment: leafs loaded")
-
-        for prefix, values_tuple in six.iteritems(leafs):
-            score_calculator = get_score_calculator(prefix)
-            if score_calculator:
-                LOGGER.info(
-                    "populate %s scorecard cache for %s based"\
-                    " of sample %s", frozen_assessment_sample.account,
-                    prefix, frozen_assessment_sample.slug)
-
-                title = values_tuple[0].get('title')
-                for scorecard_cache in score_calculator.get_scorecards(
-                    frozen_assessment_sample.campaign, prefix, title=title,
-                    includes=[frozen_assessment_sample]):
-                    accounts = values_tuple[0].get('accounts', {})
-                    account = accounts.get(scorecard_cache.account_id, {})
-                    account.update({
-                        'sample_id': scorecard_cache.sample_id,
-                        'slug': scorecard_cache.slug,
-                        'campaign_id': scorecard_cache.campaign_id,
-                        'created_at': scorecard_cache.created_at,
-                        'updated_at': scorecard_cache.updated_at,
-                        'is_frozen': scorecard_cache.is_frozen,
-                        'extra': scorecard_cache.extra,
-                        'segment_path': scorecard_cache.path,
-                        'segment_title': scorecard_cache.segment_title,
-                        'numerator': scorecard_cache.numerator,
-                        'denominator': scorecard_cache.denominator,
-                        'nb_answers': scorecard_cache.nb_answers,
-                        'nb_questions': scorecard_cache.nb_questions,
-                        'nb_na_answers': scorecard_cache.nb_na_answers,
-    'reporting_publicly': scorecard_cache.reporting_publicly,
-    'reporting_fines': scorecard_cache.reporting_fines,
-   'reporting_energy_consumption': scorecard_cache.reporting_energy_consumption,
-    'reporting_ghg_generated': scorecard_cache.reporting_ghg_generated,
-    'reporting_water_consumption': scorecard_cache.reporting_water_consumption,
-    'reporting_waste_generated': scorecard_cache.reporting_waste_generated,
-    'reporting_energy_target': scorecard_cache.reporting_energy_target,
-    'reporting_ghg_target': scorecard_cache.reporting_ghg_target,
-    'reporting_water_target': scorecard_cache.reporting_water_target,
-    'reporting_waste_target': scorecard_cache.reporting_waste_target,
-                    })
-                    try:
-                        account.update({
-                            'normalized_score': scorecard_cache.normalized_score
-                        })
-                    except AttributeError:
-                        pass
-                    if scorecard_cache.account_id not in accounts:
-                        accounts.update({
-                            scorecard_cache.account_id: account})
-                    if 'accounts' not in values_tuple[0]:
-                        values_tuple[0].update({'accounts': accounts})
-        self._report_queries("freezing assessment: leafs populated")
-        populate_rollup(rollup_tree, True, force_score=True)
-        self._report_queries("freezing assessment: rollup populated")
-
-        scorecard_caches = self._populate_scorecard_cache(
-            rollup_tree[1], improvement_sample=improvement_sample)
-        ScorecardCache.objects.bulk_create(scorecard_caches)
+        ScorecardCache.objects.bulk_create(scorecards)
 
 
     def create(self, request, *args, **kwargs):
@@ -243,8 +139,20 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
             self._report_queries("freezing assessment: %s completed" %
                 str(frozen_assessment_sample))
 
-            self.populate_scorecard_cache(frozen_assessment_sample,
-                improvement_sample=frozen_improvement_sample)
+            # Populate the scorecard caches
+            for segment in self.segments_available:
+                segment_path = segment.get('path')
+                if segment_path:
+                    calculator = get_score_calculator(segment_path)
+                    if calculator:
+                        segment_title = segment.get('title')
+                        self.populate_scorecard_cache(
+                            frozen_assessment_sample, calculator,
+                            segment_path, segment_title)
+                        if frozen_improvement_sample:
+                            self.populate_scorecard_cache(
+                                frozen_improvement_sample, calculator,
+                                segment_path, segment_title)
             self._report_queries("freezing assessment: scorecard cache created")
 
         # Next step in the assessment. After complete, scorecard is optional.
@@ -258,10 +166,47 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
             serializer.data, status=http_status.HTTP_201_CREATED)
 
 
+class AssessmentCompleteIndexAPIView(AssessmentCompleteAPIView):
+    """
+    Freezes a sample of measurements
+
+    **Tags**: assessments
+
+    **Examples
+
+    .. code-block:: http
+
+        POST /api/supplier-1/sample/0123456789abcdef/freeze HTTP/1.1
+
+    .. code-block:: json
+
+        {}
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "slug": "0123456789abcdef",
+          "account": "supplier-1",
+          "created_at": "2020-01-01T00:00:00Z",
+          "is_frozen": true,
+          "campaign": null,
+          "updated_at": "2020-01-01T00:00:00Z"
+        }
+    """
+
+
 class AssessmentContentMixin(SegmentReportMixin, CampaignContentMixin,
                              SampleCandidatesMixin, SampleAnswersMixin):
 
     practice_serializer_class = get_practice_serializer()
+
+    @property
+    def exclude_questions(self):
+        if not hasattr(self, '_exclude_questions'):
+            self._exclude_questions = []
+        return self._exclude_questions
 
     def attach_answers(self, questions_by_key, queryset, key='answers'):
         #pylint:disable=too-many-locals
@@ -492,137 +437,148 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
 
     .. code-block:: http
 
-         GET /api/supplier-1/sample/46f66f70f5ad41b29c4df08f683a9a7a/content\
-/construction HTTP/1.1
+         GET /api/andy-shop/sample/f1e2e916eb494b90f9ff0a36982342/content/sustainability HTTP/1.1
 
     responds
 
     .. code-block:: json
 
-    {
-        "count": 3,
-        "previous": null,
-        "next": null,
-        "results": [
+        {
+          "path": "/",
+          "picture": null,
+          "reading_time": null,
+          "extra": {},
+          "upvote": null,
+          "follow": null,
+          "count": 4,
+          "results": [
             {
-                "question": {
-                    "path": "/construction/governance/the-assessment\
--process-is-rigorous",
-                    "title": "The assessment process is rigorous",
-                    "default_unit": {
-                        "slug": "assessments",
-                        "title": "assessments",
-                        "system": "enum",
-                        "choices": [
-                        {
-                            "rank": 1,
-                            "text": "mostly-yes",
-                            "descr": "Mostly yes"
-                        },
-                        {
-                            "rank": 2,
-                            "text": "yes",
-                            "descr": "Yes"
-                        },
-                        {
-                            "rank": 3,
-                            "text": "no",
-                            "descr": "No"
-                        },
-                        {
-                            "rank": 4,
-                            "text": "mostly-no",
-                            "descr": "Mostly no"
-                        }
-                        ]
-                    },
-                    "ui_hint": "radio"
-                },
-                "required": true,
-                "measured": "yes",
-                "unit": "assessment",
-                "created_at": "2020-09-28T00:00:00.000000Z",
-                "collected_by": "steve"
+              "count": 1,
+              "slug": "sustainability",
+              "path": "/sustainability",
+              "indent": 0,
+              "title": "Core Environment, Social and Governance (ESG) Assessment",
+              "picture": null,
+              "extra": {
+                "pagebreak": true,
+                "tags": [
+                  "scorecard"
+                ],
+                "visibility": [
+                  "public"
+                ],
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "avg_value": null,
+              "environmental_value": null,
+              "business_value": null,
+              "profitability": null,
+              "implementation_ease": null,
+              "rank": -1,
+              "required": false,
+              "default_unit": null,
+              "ui_hint": null,
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
             },
             {
-                "question": {
-                    "path": "/construction/governance/the-assessment\
--process-is-rigorous",
-                    "title": "The assessment process is rigorous",
-                    "default_unit": {
-                        "slug": "assessments",
-                        "title": "assessments",
-                        "system": "enum",
-                        "choices": [
-                        {
-                            "rank": 1,
-                            "text": "mostly-yes",
-                            "descr": "Mostly yes"
-                        },
-                        {
-                            "rank": 2,
-                            "text": "yes",
-                            "descr": "Yes"
-                        },
-                        {
-                            "rank": 3,
-                            "text": "no",
-                            "descr": "No"
-                        },
-                        {
-                            "rank": 4,
-                            "text": "mostly-no",
-                            "descr": "Mostly no"
-                        }
-                        ]
-                    },
-                    "ui_hint": "radio"
-                },
-                "measured": "Policy document on the public website",
-                "unit": "freetext",
-                "created_at": "2020-09-28T00:00:00.000000Z",
-                "collected_by": "steve"
+              "count": 1,
+              "slug": "governance",
+              "path": "/sustainability/governance",
+              "indent": 1,
+              "title": "Strategy & Governance",
+              "picture": "/tspproject/static/img/management-basics.png",
+              "extra": {
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "count": 1,
+              "avg_value": null,
+              "environmental_value": null,
+              "business_value": null,
+              "profitability": null,
+              "implementation_ease": null,
+              "rank": 1,
+              "required": false,
+              "default_unit": null,
+              "ui_hint": null,
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
             },
             {
-                "question": {
-                    "path": "/construction/production/adjust-air-fuel\
--ratio",
-                    "title": "Adjust Air fuel ratio",
-                    "default_unit": {
-                        "slug": "assessments",
-                        "title": "assessments",
-                        "system": "enum",
-                        "choices": [
-                        {
-                            "rank": 1,
-                            "text": "mostly-yes",
-                            "descr": "Mostly yes"
-                        },
-                        {
-                            "rank": 2,
-                            "text": "yes",
-                            "descr": "Yes"
-                        },
-                        {
-                            "rank": 3,
-                            "text": "no",
-                            "descr": "No"
-                        },
-                        {
-                            "rank": 4,
-                            "text": "mostly-no",
-                            "descr": "Mostly no"
-                        }
-                        ]
-                    },
-                    "ui_hint": "radio"
-                },
-                "required": true,
-                "measured": null,
-                "unit": null
+              "count": 1,
+              "slug": "esg-strategy-heading",
+              "path": "/sustainability/governance/esg-strategy-heading",
+              "indent": 2,
+              "title": "Environment, Social & Governance (ESG) Strategy",
+              "picture": null,
+              "extra": {
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "avg_value": null,
+              "environmental_value": null,
+              "business_value": null,
+              "profitability": null,
+              "implementation_ease": null,
+              "rank": 1,
+              "required": false,
+              "default_unit": null,
+              "ui_hint": null,
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
+            },
+            {
+              "count": 1,
+              "slug": "formalized-esg-strategy",
+              "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
+              "indent": 3,
+              "title": "(3) Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
+              "picture": "/tspproject/static/img/management-basics.png",
+              "extra": {
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "avg_value": 0,
+              "environmental_value": 1,
+              "business_value": 1,
+              "profitability": 1,
+              "implementation_ease": 1,
+              "rank": 4,
+              "required": true,
+              "default_unit": {
+                "slug": "yes-no",
+                "title": "Yes/No",
+                "system": "enum",
+                "choices": [
+                  {
+                    "text": "Yes",
+                    "descr": "Yes"
+                  },
+                  {
+                    "text": "No",
+                    "descr": "No"
+                  }
+                ]
+              },
+              "ui_hint": "yes-no-comments",
+              "answers": [],
+              "candidates": [],
+              "planned": [],
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
             }
-         ]
-    }
+          ]
+        }
     """
     exclude_param = 'e'
     serializer_class = AssessmentContentSerializer
@@ -644,6 +600,26 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
+        # We will add the normalized_score here
+        scores_by_path = {}
+        for seg in self.segments_available:
+            segment_path =seg.get('path')
+            title = seg.get('title')
+            score_calculator = get_score_calculator(segment_path)
+            if score_calculator:
+                for scorecard_cache in score_calculator.get_scorecards(
+                        self.campaign, segment_path, title=title,
+                        includes=[self.sample]):
+                    scores_by_path[scorecard_cache.path] = scorecard_cache
+
+        for row in queryset:
+            path = row.get('path')
+            scorecard_cache = scores_by_path.get(path)
+            if scorecard_cache:
+                row.update({
+                    'normalized_score': scorecard_cache.normalized_score})
+
+        # Ready to serialize
         serializer = AssessmentNodeSerializer(
             queryset, many=True, context=self.get_serializer_context())
         if not hasattr(self, 'units'):
@@ -657,8 +633,209 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
             }))
 
 
-class HistoricalAssessmentsAPIView(AccountMixin, generics.ListAPIView):
+class AssessmentContentIndexAPIView(AssessmentContentAPIView):
+    """
+    Lists measurements from a sample
 
+    The list returned contains at least one measurement for each question
+    in the campaign. If there are no measurement yet on a question, ``measured``
+    will be null.
+
+    There might be more than one measurement per question as long as there are
+    no duplicated ``unit`` per question. For example, to the question
+    ``adjust-air-fuel-ratio``, there could be a measurement with unit
+    ``assessment`` (Mostly Yes/ Yes / No / Mostly No) and a measurement with
+    unit ``freetext`` (i.e. a comment).
+
+    The {sample} must belong to {organization}.
+
+    {path} can be used to filter the tree of questions by a prefix.
+
+    **Tags**: assessments
+
+    **Examples**
+
+    .. code-block:: http
+
+         GET /api/andy-shop/sample/f1e2e916eb494b90f9ff0a36982342/content HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "path": "/",
+          "picture": null,
+          "reading_time": null,
+          "extra": {},
+          "upvote": null,
+          "follow": null,
+          "count": 4,
+          "results": [
+            {
+              "count": 1,
+              "slug": "sustainability",
+              "path": "/sustainability",
+              "indent": 0,
+              "title": "Core Environment, Social and Governance (ESG) Assessment",
+              "picture": null,
+              "extra": {
+                "pagebreak": true,
+                "tags": [
+                  "scorecard"
+                ],
+                "visibility": [
+                  "public"
+                ],
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "avg_value": null,
+              "environmental_value": null,
+              "business_value": null,
+              "profitability": null,
+              "implementation_ease": null,
+              "rank": -1,
+              "required": false,
+              "default_unit": null,
+              "ui_hint": null,
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
+            },
+            {
+              "count": 1,
+              "slug": "governance",
+              "path": "/sustainability/governance",
+              "indent": 1,
+              "title": "Strategy & Governance",
+              "picture": "/tspproject/static/img/management-basics.png",
+              "extra": {
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "avg_value": null,
+              "environmental_value": null,
+              "business_value": null,
+              "profitability": null,
+              "implementation_ease": null,
+              "rank": 1,
+              "required": false,
+              "default_unit": null,
+              "ui_hint": null,
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
+            },
+            {
+              "count": 1,
+              "slug": "esg-strategy-heading",
+              "path": "/sustainability/governance/esg-strategy-heading",
+              "indent": 2,
+              "title": "Environment, Social & Governance (ESG) Strategy",
+              "picture": null,
+              "extra": {
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "avg_value": null,
+              "environmental_value": null,
+              "business_value": null,
+              "profitability": null,
+              "implementation_ease": null,
+              "rank": 1,
+              "required": false,
+              "default_unit": null,
+              "ui_hint": null,
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
+            },
+            {
+              "count": 1,
+              "slug": "formalized-esg-strategy",
+              "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
+              "indent": 3,
+              "title": "(3) Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
+              "picture": "/tspproject/static/img/management-basics.png",
+              "extra": {
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "avg_value": 0,
+              "environmental_value": 1,
+              "business_value": 1,
+              "profitability": 1,
+              "implementation_ease": 1,
+              "rank": 4,
+              "required": true,
+              "default_unit": {
+                "slug": "yes-no",
+                "title": "Yes/No",
+                "system": "enum",
+                "choices": [
+                  {
+                    "text": "Yes",
+                    "descr": "Yes"
+                  },
+                  {
+                    "text": "No",
+                    "descr": "No"
+                  }
+                ]
+              },
+              "ui_hint": "yes-no-comments",
+              "answers": [],
+              "candidates": [],
+              "planned": [],
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
+            }
+          ]
+        }
+    """
+
+
+class HistoricalAssessmentsAPIView(AccountMixin, generics.ListAPIView):
+    """
+    Lists historical assessments
+
+    The list returned contains historical assessments
+
+    **Tags**: assessments
+
+    **Examples**
+
+    .. code-block:: http
+
+         GET /api/andy-shop/samples HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 1,
+          "prev": null,
+          "next": null,
+          "results": [{
+            "slug": "f1e2e916eb494b90f9ff0a36982340",
+            "last_completed_at": "2016-07-15T00:35:26.565000Z",
+            "campaign": {
+              "slug": "sustainability",
+              "account": "tspproject",
+              "title": "ESG/Environmental practices",
+              "description": "ESG/Environmental practices assessment",
+              "active": true
+            }
+          }]
+        }
+    """
     serializer_class = HistoricalAssessmentSerializer
 
     def get_queryset(self):
@@ -672,6 +849,8 @@ class BenchmarkAPIView(SegmentReportMixin, GraphMixin, RollupMixin,
                        ScoresMixin, generics.ListAPIView):
     """
     Retrieves benchmark graphs
+
+    XXX change `resp` to a {count:, results:} format.
 
     Returns a list of graphs with anonymized performance of peers
     for paths marked as visible (see ::ref::`api_score`).

@@ -104,6 +104,20 @@ var practicesListMixin = {
             return results;
         },
 
+        chunkBy: function(rows, nbRowsPerBlock) {
+            var results = [];
+            var block = [];
+            for( var idx = 0; idx < rows.length; ++idx ) {
+                if( idx % nbRowsPerBlock == 0) {
+                    if( block.length > 0 ) results.push(block);
+                    block = [];
+                }
+                block.push(rows[idx]);
+            }
+            if( block.length > 0 ) results.push(block);
+            return results;
+        },
+
         // Rendering helpers
         _getValForActiveAccount: function(practice, fieldName) {
             if( typeof practice.accounts !== 'undefined' ) {
@@ -367,37 +381,41 @@ var practicesListMixin = {
                 borderColor: '#f0ad4e',
                 data: data.distribution.y
             });
-            var chartKey = data.slug;
-            var chart = vm.charts[chartKey];
-            if( chart ) {
-                chart.destroy();
-            }
-            var element = document.getElementById(chartKey);
-            if( element ) {
-                vm.charts[chartKey] = new Chart(
-                    element,
-                    {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: datasets
-                        },
-                        options: {
-                            responsive: false,
-                            plugins: {
-                                legend: {
-                                    display: false,
-                                    // position: 'top',
-                                },
-                                title: {
-                                    display: false
+            var chartKeys = [data.slug, 'summary-' + data.slug];
+            for( var idx = 0; idx < chartKeys.length; ++idx ) {
+                var chartKey = chartKeys[idx];
+                var chart = vm.charts[chartKey];
+                if( chart ) {
+                    chart.destroy();
+                }
+                var element = document.getElementById(chartKey);
+                if( element ) {
+                    vm.charts[chartKey] = new Chart(
+                        element,
+                        {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: datasets
+                            },
+                            options: {
+                                responsive: false,
+                                plugins: {
+                                    legend: {
+                                        display: false,
+                                        // position: 'top',
+                                    },
+                                    title: {
+                                        display: false
+                                    }
                                 }
-                            }
-                        },
+                            },
+                        }
+                    );
+                    if( data.nb_respondents ) {
+                        vm.charts[chartKey].nb_respondents =
+                            data.nb_respondents;
                     }
-                );
-                if( data.nb_respondents ) {
-                    vm.charts[chartKey].nb_respondents = data.nb_respondents;
                 }
             }
         },
@@ -1072,8 +1090,8 @@ Vue.component('campaign-questions-list', {
                     function success(resp) {
                         var improvementDashboard = $("#improvement-dashboard");
                         if( improvementDashboard.length > 0 )  {
-                                improvementDashboard.data(
-                                    'improvementDashboard').load();
+                        // XXX currently not working
+                        // XXXimprovementDashboard.data('improvementDashboard').load();
                         }
                         if( vm.activeElement &&
                             vm.activeElement.extra &&

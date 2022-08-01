@@ -143,6 +143,7 @@ class AssessmentNodeSerializer(PRACTICE_SERIALIZER):
     planned = serializers.ListField(child=AnswerSerializer(), required=False)
 
     # assessment results
+    normalized_score = serializers.SerializerMethodField(required=False)
     nb_respondents = serializers.SerializerMethodField(required=False)
     rate = serializers.SerializerMethodField(required=False)
     opportunity = serializers.SerializerMethodField(required=False)
@@ -151,11 +152,11 @@ class AssessmentNodeSerializer(PRACTICE_SERIALIZER):
         fields = PRACTICE_SERIALIZER.Meta.fields + (
             'rank', 'required', 'default_unit', 'ui_hint',
             'answers', 'candidates', 'planned',
-            'nb_respondents', 'rate', 'opportunity')
+            'normalized_score', 'nb_respondents', 'rate', 'opportunity')
         read_only_fields = PRACTICE_SERIALIZER.Meta.read_only_fields + (
             'rank', 'required', 'default_unit', 'ui_hint',
             'answers', 'candidates', 'planned',
-            'nb_respondents', 'rate', 'opportunity')
+            'normalized_score', 'nb_respondents', 'rate', 'opportunity')
 
     def get_default_unit(self, obj):
         default_unit = None
@@ -166,6 +167,14 @@ class AssessmentNodeSerializer(PRACTICE_SERIALIZER):
         if default_unit:
             return UnitSerializer(context=self._context).to_representation(
                 default_unit)
+        return None
+
+    @staticmethod
+    def get_normalized_score(obj):
+        if hasattr(obj, 'normalized_score'):
+            return obj.normalized_score
+        if 'normalized_score' in obj:
+            return obj['normalized_score']
         return None
 
     @staticmethod

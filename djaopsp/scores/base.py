@@ -46,7 +46,8 @@ class ScoreCalculator(object):
         #pylint:disable=unused-argument,no-self-use
         return []
 
-    def get_scorecards(self, campaign, prefix, title=None, includes=None):
+    def get_scorecards(self, campaign, prefix, title=None, includes=None,
+                       bypass_cache=False):
         #pylint:disable=unused-argument,no-self-use
         return []
 
