@@ -474,7 +474,7 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
 
     .. code-block:: http
 
-        GET /api/energy-utility/matrix/totals HTTP/1.1
+        GET /api/energy-utility/reporting/sustainability/matrix/totals HTTP/1.1
 
     responds
 

@@ -6,19 +6,22 @@ API URLs for portfolios engagement & analytics dashboards
 """
 from django.urls import include, path
 
-from ...api.samples import (AssessmentContentAPIView,
-    AssessmentCompleteAPIView, BenchmarkAPIView, HistoricalAssessmentsAPIView)
+from ...api.samples import (
+    AssessmentContentAPIView, AssessmentContentIndexAPIView,
+    AssessmentCompleteAPIView, AssessmentCompleteIndexAPIView,
+    BenchmarkAPIView, HistoricalAssessmentsAPIView)
 
 
 urlpatterns = [
     path('sample/<slug:sample>/content/<path:path>',
         AssessmentContentAPIView.as_view(), name='api_sample_content'),
     path('sample/<slug:sample>/content',
-        AssessmentContentAPIView.as_view(), name='api_sample_content_index'),
+        AssessmentContentIndexAPIView.as_view(),
+        name='api_sample_content_index'),
     path('sample/<slug:sample>/freeze/<path:path>',
         AssessmentCompleteAPIView.as_view(), name='survey_api_sample_freeze'),
     path('sample/<slug:sample>/freeze',
-        AssessmentCompleteAPIView.as_view(),
+        AssessmentCompleteIndexAPIView.as_view(),
         name='survey_api_sample_freeze_index'),
     path('sample/<slug:sample>/benchmarks/<path:path>',
         BenchmarkAPIView.as_view(),

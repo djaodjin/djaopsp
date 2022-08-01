@@ -12,7 +12,7 @@ from ..utils import get_practice_serializer
 
 class PageElementAPIView(VisibilityMixin, PageElementBaseAPIView):
     """
-    Lists a tree of page elements
+    Lists a tree of page elements under a path
 
     **Tags: content
 
@@ -76,6 +76,115 @@ class PageElementAPIView(VisibilityMixin, PageElementBaseAPIView):
         return elements
 
 
-class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
+class PageElementIndexAPIView(PageElementAPIView):
+    """
+    Lists the tree of page elements under the root
 
+    **Tags: content
+
+    **Example
+
+    .. code-block:: http
+
+        GET /api/content/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 8,
+          "next": null,
+          "previous": null,
+          "results": [
+          {
+            "slug": "metal",
+            "path": null,
+            "title": "Metal structures & equipment",
+            "indent": 0
+          },
+          {
+            "slug": "boxes-and-enclosures",
+            "path": "/metal/boxes-and-enclosures",
+            "title": "Boxes & enclosures",
+            "indent": 1,
+            "tags": [
+              "industry",
+              "pagebreak",
+              "public",
+              "scorecard"
+            ]
+          }
+          ]
+        }
+    """
+
+
+class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
+    """
+    List editable page elements
+
+    This API endpoint lists page elements that are owned and thus editable
+    by an account.
+
+    **Tags**: editors
+
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/content/editables/energy-utility/ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "count": 5,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "path": null,
+                    "title": "Construction",
+                    "tags": ["public"],
+                    "indent": 0
+                },
+                {
+                    "path": null,
+                    "title": "Governance & management",
+                    "picture": "https://assets.tspproject.org/management.png",
+                    "indent": 1
+                },
+                {
+                    "path": "/construction/governance/the-assessment\
+-process-is-rigorous",
+                    "title": "The assessment process is rigorous",
+                    "indent": 2,
+                    "environmental_value": 1,
+                    "business_value": 1,
+                    "profitability": 1,
+                    "implementation_ease": 1,
+                    "avg_value": 1
+                },
+                {
+                    "path": null,
+                    "title": "Production",
+                    "picture": "https://assets.tspproject.org/production.png",
+                    "indent": 1
+                },
+                {
+                    "path": "/construction/production/adjust-air-fuel\
+-ratio",
+                    "title": "Adjust Air fuel ratio",
+                    "indent": 2,
+                    "environmental_value": 2,
+                    "business_value": 2,
+                    "profitability": 2,
+                    "implementation_ease": 2,
+                    "avg_value": 2
+                }
+            ]
+        }
+    """
     account_url_kwarg = 'profile'

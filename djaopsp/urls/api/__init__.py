@@ -5,7 +5,8 @@
 API URLs
 """
 from django.urls import path, include
-from ...api.content import PageElementAPIView, PageElementEditableListAPIView
+from ...api.content import (PageElementAPIView, PageElementIndexAPIView,
+    PageElementEditableListAPIView)
 
 
 urlpatterns = [
@@ -17,7 +18,8 @@ urlpatterns = [
     path('content/', include('pages.urls.api.readers')),
     path('content/<path:path>',
         PageElementAPIView.as_view(), name="api_content"),
-    path('content/', PageElementAPIView.as_view(), name="api_content_index"),
+    path('content/',
+         PageElementIndexAPIView.as_view(), name="api_content_index"),
     path('content/', include('pages.urls.api.noauth')),
     path('', include('survey.urls.api.noauth')),
 

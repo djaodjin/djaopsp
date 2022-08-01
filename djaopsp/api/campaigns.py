@@ -75,6 +75,8 @@ class CampaignContentMixin(AccountMixin, CampaignMixin):
                             self.DB_PATH_SEP).split(self.DB_PATH_SEP)
                         prefix = self.DB_PATH_SEP.join(
                             segment_prefix_parts[:-1])
+                        if prefix:
+                            prefix = self.DB_PATH_SEP + prefix
                         parts = [segment_prefix_parts[-1]] + parts
                     practices = by_tiles
                     for part in parts[:-1]:

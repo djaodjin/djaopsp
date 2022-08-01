@@ -124,6 +124,7 @@ You sent a copy of @[[request.account]] [[request.campaign]] to @[[request.grant
                 </div>
               </div>
               <form class="form" @submit.prevent="submitGrants">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
                 <fieldset>
                   <grantee-typeahead inline-template
                       v-bind:dataset="grant.grantee"
