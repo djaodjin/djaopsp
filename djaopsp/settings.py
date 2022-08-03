@@ -50,7 +50,8 @@ if not hasattr(sys.modules[__name__], "SECRET_KEY"):
 
 JWT_ALGORITHM = 'HS256'
 if not hasattr(sys.modules[__name__], "JWT_SECRET_KEY"):
-    JWT_SECRET_KEY = SECRET_KEY
+    JWT_SECRET_KEY = getattr(sys.modules[__name__], "DJAODJIN_SECRET_KEY",
+        SECRET_KEY)
 
 # Installed apps
 # --------------
@@ -83,7 +84,9 @@ INSTALLED_APPS = DEBUG_APPS + (
 
 MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'deployutils.apps.django.middleware.RequestLoggingMiddleware',
+    'deployutils.apps.django.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -209,10 +212,6 @@ LOGGING = {
         'django': {
             'handlers': [],
         },
-        'requests': {
-            'handlers': [],
-            'level': 'WARNING',
-        },
         # This is the root logger.
         # The level will only be taken into account if the record is not
         # propagated from a child logger.
@@ -293,6 +292,7 @@ TEMPLATES_DIRS = (
     os.path.join(BASE_DIR, 'djaopsp', 'templates', 'jinja2'),
     os.path.join(BASE_DIR, 'djaopsp', 'templates'),)
 
+# List of callables that know how to import templates from various sources.
 TEMPLATES_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
@@ -314,9 +314,7 @@ TEMPLATES = [
         'OPTIONS': {
             'loaders': TEMPLATES_LOADERS,
         }
-    }]
-
-TEMPLATES += [
+    },
     {
         'NAME': 'html',
         'BACKEND': 'django.template.backends.jinja2.Jinja2',
@@ -363,19 +361,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # API settings
 # ------------
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'djaopsp.views.errors.drf_exception_handler',
-    'PAGE_SIZE': 25,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'deployutils.apps.django.authentication.JWTAuthentication',
+        # `rest_framework.authentication.SessionAuthentication` is the last
+        # one in the list because it will raise a PermissionDenied if the CSRF
+        # is absent.
+        'rest_framework.authentication.SessionAuthentication',
+    ),
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
     'DEFAULT_SCHEMA_CLASS': 'djaopsp.views.api_docs.AutoSchema',
+    'EXCEPTION_HANDLER': 'djaopsp.views.errors.drf_exception_handler',
     'SEARCH_PARAM': 'q',
+    'PAGE_SIZE': 25,
     'ORDERING_PARAM': 'o'
 }
+
 
 # Session settings
 # ----------------
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
-SESSION_ENGINE = 'deployutils.apps.django.backends.encrypted_cookies'
+SESSION_ENGINE = 'deployutils.apps.django.backends.jwt_session_store'
 
 JWT_ALGORITHM = 'HS256'
 
@@ -485,6 +491,7 @@ DEPLOYUTILS = {
     },
     'ALLOWED_NO_SESSION': [
         STATIC_URL,
+        '/docs/api/',
         reverse_lazy('login'),
         reverse_lazy('homepage')
     ]
@@ -544,6 +551,7 @@ SCORE_CALCULATORS = {
     '/sustainability/': 'djaopsp.scores.ScoreCalculator',
     '/metal/boxes-and-enclosures/': 'djaopsp.scores.ScoreCalculator',
 }
+
 UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members'])
 UNLOCK_EDITORS = set(['managed'])
 UNLOCK_BROKERS = set([APP_NAME])

@@ -17,7 +17,7 @@ from survey.mixins import TimersMixin
 from survey.models import Answer, Choice, Sample, Unit, UnitEquivalences
 
 from ..compat import reverse, six
-from ..mixins import AccountMixin, SegmentReportMixin
+from ..mixins import AccountMixin, SectionReportMixin
 from ..models import ScorecardCache
 from ..scores import freeze_scores, get_score_calculator, populate_rollup
 from ..utils import get_leafs, get_practice_serializer, get_scores_tree
@@ -30,7 +30,7 @@ from .serializers import (AssessmentContentSerializer, AssessmentNodeSerializer,
 LOGGER = logging.getLogger(__name__)
 
 
-class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
+class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                                 SampleFreezeAPIView):
 
     def post(self, request, *args, **kwargs):
@@ -103,6 +103,8 @@ class AssessmentCompleteAPIView(SegmentReportMixin, TimersMixin,
                 scorecard.nb_planned_improvements = 0
             if scorecard.nb_na_answers is None:
                 scorecard.nb_na_answers = 0
+            if scorecard.normalized_score is None:
+                scorecard.normalized_score = 0
 
         ScorecardCache.objects.bulk_create(scorecards)
 
@@ -197,7 +199,7 @@ class AssessmentCompleteIndexAPIView(AssessmentCompleteAPIView):
     """
 
 
-class AssessmentContentMixin(SegmentReportMixin, CampaignContentMixin,
+class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
                              SampleCandidatesMixin, SampleAnswersMixin):
 
     practice_serializer_class = get_practice_serializer()
@@ -410,7 +412,33 @@ class AssessmentContentMixin(SegmentReportMixin, CampaignContentMixin,
             questions_by_key,
             self.get_planned(prefix=prefix),
             key='planned')
+
         return list(six.itervalues(questions_by_key))
+
+
+    def get_queryset(self):
+        queryset = super(AssessmentContentMixin, self).get_queryset()
+
+        # We will add the normalized_score here
+        scores_by_path = {}
+        for seg in self.segments_available:
+            segment_path =seg.get('path')
+            title = seg.get('title')
+            score_calculator = get_score_calculator(segment_path)
+            if score_calculator:
+                for scorecard_cache in score_calculator.get_scorecards(
+                        self.campaign, segment_path, title=title,
+                        includes=[self.sample]):
+                    scores_by_path[scorecard_cache.path] = scorecard_cache
+
+        for row in queryset:
+            path = row.get('path')
+            scorecard_cache = scores_by_path.get(path)
+            if scorecard_cache:
+                row.update({
+                    'normalized_score': scorecard_cache.normalized_score})
+
+        return queryset
 
 
 class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
@@ -599,25 +627,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
-        # We will add the normalized_score here
-        scores_by_path = {}
-        for seg in self.segments_available:
-            segment_path =seg.get('path')
-            title = seg.get('title')
-            score_calculator = get_score_calculator(segment_path)
-            if score_calculator:
-                for scorecard_cache in score_calculator.get_scorecards(
-                        self.campaign, segment_path, title=title,
-                        includes=[self.sample]):
-                    scores_by_path[scorecard_cache.path] = scorecard_cache
-
-        for row in queryset:
-            path = row.get('path')
-            scorecard_cache = scores_by_path.get(path)
-            if scorecard_cache:
-                row.update({
-                    'normalized_score': scorecard_cache.normalized_score})
 
         # Ready to serialize
         serializer = AssessmentNodeSerializer(
@@ -845,7 +854,7 @@ class HistoricalAssessmentsAPIView(AccountMixin, generics.ListAPIView):
             is_frozen=True).order_by('-created_at').select_related('campaign')
 
 
-class BenchmarkAPIView(SegmentReportMixin, GraphMixin, RollupMixin,
+class BenchmarkAPIView(SectionReportMixin, GraphMixin, RollupMixin,
                        ScoresMixin, generics.ListAPIView):
     """
     Retrieves benchmark graphs

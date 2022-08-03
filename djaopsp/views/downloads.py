@@ -25,6 +25,22 @@ class PracticesSpreadsheetView(ListView):
     basename = 'practices'
     content_type = \
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    base_headers = ['']
+    peer_value_headers = []
+    intrinsic_value_headers = []
+
+    valueFills = [
+        PatternFill(fill_type=FILL_SOLID, fgColor='FF9CD76B'), # green-level-0
+        PatternFill(fill_type=FILL_SOLID, fgColor='FF69B02B'), # green-level-1
+        PatternFill(fill_type=FILL_SOLID, fgColor='FF007C3F'), # green-level-2
+        PatternFill(fill_type=FILL_SOLID, fgColor='FFFFD700'), # green-level-3
+    ]
+
+    def get_value_fill(self, val):
+        idx = val - 1
+        if idx < len(self.valueFills):
+            return self.valueFills[idx]
+        return self.valueFills[-1]
 
     # Methods to be redefined in subclasses
     def get_headings(self):
@@ -71,9 +87,42 @@ class PracticesSpreadsheetView(ListView):
 
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals
-        headings = self.get_headings()
-        self.create_writer(headings, title="Practices")
-        self.writerow(headings)
+
+        # We need to run `get_queryset` before `get_headings` so we know
+        # how many columns to display for implementation rate.
+        queryset = self.get_queryset()
+        headers = self.get_headings()
+        self.create_writer(headers, title="Practices")
+        super_headers = []
+        nb_peer_value_headers = 0
+        nb_intrinsic_value_headers = 0
+        if self.peer_value_headers:
+            nb_peer_value_headers = 1
+            super_headers += ['Peer-based value'] # for correct nb cols
+            for header in self.peer_value_headers:
+                super_headers += ["" for unused in range(0, len(header[1]))]
+                nb_peer_value_headers += len(header[1])
+        if self.intrinsic_value_headers:
+            nb_intrinsic_value_headers = len(self.intrinsic_value_headers)
+            super_headers += ['Intrinsic value'] + [
+                "" for unused in range(1, nb_intrinsic_value_headers)]
+        if super_headers:
+            super_headers = ([
+                "" for unused in range(0, len(self.base_headers))] +
+                super_headers)
+            self.writerow(super_headers)
+            if nb_peer_value_headers:
+                first_col = chr(ord('A') + len(self.base_headers))
+                last_col = chr(ord('A') + len(self.base_headers) +
+                    nb_peer_value_headers - 1)
+                self.wsheet.merge_cells('%s1:%s1' % (first_col, last_col))
+            if nb_intrinsic_value_headers:
+                first_col = chr(ord('A') + len(self.base_headers) +
+                    nb_peer_value_headers)
+                last_col = chr(ord('A') + len(self.base_headers) +
+                    nb_peer_value_headers + nb_intrinsic_value_headers - 1)
+                self.wsheet.merge_cells('%s1:%s1' % (first_col, last_col))
+        self.writerow(headers)
 
         title_alignment = Alignment(
             horizontal="center", vertical="center", wrap_text=True)
@@ -98,7 +147,7 @@ class PracticesSpreadsheetView(ListView):
             wrap_text=True)
         heading_width = 3.32
 
-        for entry in self.get_queryset():
+        for entry in queryset:
             row = self.format_row(entry)
             self.writerow(row)
             self.wsheet.cell(row=self.wsheet.max_row, column=1).alignment = \
@@ -109,7 +158,7 @@ class PracticesSpreadsheetView(ListView):
                     min_row=self.wsheet.max_row,
                     max_row=self.wsheet.max_row):
                 first = True
-                for cell in row_cells:
+                for idx, cell in enumerate(row_cells):
                     if not first:
                         cell.alignment = inner_cell_alignment
                     if self.is_practice(entry):
@@ -120,6 +169,14 @@ class PracticesSpreadsheetView(ListView):
                             entry['indent'] + len(entry['title']))
                     if entry['indent'] == 0:
                         cell.fill = tile_background
+                    if headers[idx] in self.intrinsic_value_headers:
+                        try:
+                            value = int(cell.value)
+                            if value:
+                                cell.border = self.border
+                                cell.fill = self.get_value_fill(value)
+                        except TypeError:
+                            pass
                     first = False
 
         self.wsheet.column_dimensions['A'].width = 0.332 * heading_width

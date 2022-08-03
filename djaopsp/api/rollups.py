@@ -389,19 +389,9 @@ WHERE survey_sample.created_at < '%(ends_at)s'
             # We don't have any scorecard/chart to compute.
             return Sample.objects.none()
 
-        use_scorecard_cache = False
-        for seg in self.scores_of_interest:
-            prefix = seg.get('path')
-            if prefix:
-                score_calculator = get_score_calculator(prefix)
-                if score_calculator:
-                    use_scorecard_cache = True
-                    break
-        if use_scorecard_cache:
-            frozen_query = self._get_scorecard_cache_query(
-                self.scores_of_interest)
-        else:
-            frozen_query = self._get_frozen_query(self.scores_of_interest)
+        # The scores_of_interest do not represent solely segments. They might
+        # also represent sections within a segment (see benchmarks API).
+        frozen_query = self._get_scorecard_cache_query(self.scores_of_interest)
 
         if self.expired_at:
             reporting_clause = \

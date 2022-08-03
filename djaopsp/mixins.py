@@ -83,15 +83,6 @@ class AccountMixin(deployutils_mixins.AccountMixin):
 class CampaignMixin(CampaignMixinBase):
 
     @property
-    def db_path(self):
-        if not hasattr(self, '_db_path'):
-            self._db_path = self.kwargs.get(self.path_url_kwarg, '').replace(
-                self.URL_PATH_SEP, self.DB_PATH_SEP)
-            if not self._db_path.startswith(self.DB_PATH_SEP):
-                self._db_path = self.DB_PATH_SEP + self._db_path
-        return self._db_path
-
-    @property
     def segments_available(self):
         if not hasattr(self, '_segments_available'):
             candidates = get_segments_candidates(self.campaign)
@@ -105,11 +96,26 @@ class CampaignMixin(CampaignMixinBase):
                 self._segments_available = candidates
         return self._segments_available
 
+    @property
+    def sections_available(self):
+        """
+        Returns a subset of questions in a segment an account
+        can answer against.
+        """
+        if not hasattr(self, '_sections_available'):
+            self._sections_available = self.segments_available
+        return self._sections_available
+
 
 class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):
     """
     Loads assessment and improvement for a profile
     """
+    @property
+    def db_path(self):
+        # We use the tree of `pages.PageElement` to infer the missing elements
+        # from the db_path used to retrieve `survey.Question`.
+        return self.full_path
 
     @property
     def improvement_sample(self):
@@ -167,6 +173,16 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):
         if not hasattr(self, '_segments_available'):
             self._segments_available = get_segments_available(self.sample)
         return self._segments_available
+
+    @property
+    def sections_available(self):
+        """
+        Returns a subset of questions in a segment an account
+        can answer against.
+        """
+        if not hasattr(self, '_sections_available'):
+            self._sections_available = self.segments_available
+        return self._sections_available
 
     @property
     def segments_candidates(self):
@@ -231,7 +247,7 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):
         return context
 
 
-class SegmentReportMixin(ReportMixin):
+class SectionReportMixin(ReportMixin):
     # We want `campaign` from ReportMixin and `segments_available`
     # from `CampaignContentMixin` so it is safer to redefine them here.
     @property
@@ -252,15 +268,34 @@ class SegmentReportMixin(ReportMixin):
         if not hasattr(self, '_segments_available'):
             # We get all segments that have at least one answer, regardless
             # of their visibility or ownership status.
-            self._segments_available = get_segments_available(self.sample)
             if self.db_path and self.db_path != self.DB_PATH_SEP:
-                candidates = self._segments_available
+                candidates = self.get_segments_candidates()
                 self._segments_available = []
                 for seg in candidates:
                     path = seg.get('path')
-                    if path and path.startswith(self.db_path):
+                    is_pagebreak = seg.get('extra', {}).get('pagebreak')
+                    if (path and is_pagebreak and
+                        self.db_path.startswith(path)):
                         self._segments_available += [seg]
-                if not self._segments_available:
+            else:
+                self._segments_available = get_segments_available(self.sample)
+        return self._segments_available
+
+
+    @property
+    def sections_available(self):
+        if not hasattr(self, '_sections_available'):
+            # We get all segments that have at least one answer, regardless
+            # of their visibility or ownership status.
+            self._sections_available = self.segments_available
+            if self.db_path and self.db_path != self.DB_PATH_SEP:
+                candidates = self._sections_available
+                self._sections_available = []
+                for seg in candidates:
+                    path = seg.get('path')
+                    if path and path.startswith(self.db_path):
+                        self._sections_available += [seg]
+                if not self._sections_available:
                     # Either the segment does not have an answer yet,
                     # or we are dealing with a section of a segment
                     # displayed on its own page.
@@ -296,14 +331,14 @@ class SegmentReportMixin(ReportMixin):
                         element.extra = json.loads(element.extra)
                     except (TypeError, ValueError):
                         pass
-                    self._segments_available = [{
+                    self._sections_available = [{
                         'indent': 0,
                         'path': self.db_path,
                         'slug': element.slug,
                         'title': element.title,
                         'extra': element.extra,
                     }]
-        return self._segments_available
+        return self._sections_available
 
     @property
     def nb_answers(self):

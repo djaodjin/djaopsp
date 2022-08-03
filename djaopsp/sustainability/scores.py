@@ -151,6 +151,11 @@ class ScoreCalculator(ScoreCalculatorBase):
             scorecard_caches += ScorecardCache.objects.filter(
                 sample=sample, path__startswith=prefix)
         if active_samples:
+            is_planned = False
+            for sample in active_samples:
+                if sample.extra and 'is_planned' in sample.extra:
+                    is_planned = True
+                    break
             parts = prefix.split('/')
             slug = parts[-1]
             slug_prefix = '/'.join(parts[:-1])
@@ -162,7 +167,11 @@ class ScoreCalculator(ScoreCalculatorBase):
                 leafs = get_leafs(rollup_tree, campaign)
                 for scored_answer in self.get_scored_answers(
                         campaign, includes=active_samples, prefix=prefix):
-                    if scored_answer.is_planned:
+
+                    if (not is_planned and scored_answer.is_planned) or (
+                        is_planned and not scored_answer.is_planned):
+                        # `scored_answer.is_planned` might be `None` otherwise
+                        # we would use a xor.
                         continue
                     account_id = scored_answer.account_id
                     for leaf_prefix, leaf_values in six.iteritems(leafs):

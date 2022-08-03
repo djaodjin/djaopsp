@@ -20,14 +20,14 @@ from survey.helpers import get_extra
 
 from .downloads import PracticesSpreadsheetView
 from ..api.samples import AssessmentContentMixin
-from ..compat import reverse
-from ..mixins import AccountMixin, ReportMixin, SegmentReportMixin
+from ..compat import reverse, six
+from ..mixins import AccountMixin, ReportMixin, SectionReportMixin
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-class AssessPracticesView(SegmentReportMixin, TemplateView):
+class AssessPracticesView(SectionReportMixin, TemplateView):
     """
     Profile assessment page
     """
@@ -257,10 +257,29 @@ class TrackMetricsView(AccountMixin, TemplateView):
 
 class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
 
+    base_headers = ['', 'Assessed', 'Planned', 'Comments', 'Opportunity']
+    intrinsic_value_headers = ['Environmental', 'Ops/maintenance', 'Financial',
+        'Implementation ease', 'AVERAGE VALUE']
+
     def get_headings(self):
-        return ['', 'Assessed', 'Planned', 'Comments',
-                'Environmental', 'Ops/maintenance', 'Financial',
-                'Implementation ease', 'AVERAGE VALUE']
+        if not hasattr(self, 'units'):
+            self.units = {}
+        self.peer_value_headers = []
+        for unit in six.itervalues(self.units):
+            if (unit.system == unit.SYSTEM_ENUMERATED and
+                unit.slug == 'assessment'):
+                self.peer_value_headers += [
+                    (unit.slug, [choice.text for choice in unit.choices])]
+        headers = [] + self.base_headers
+        for header in self.peer_value_headers:
+            headers += header[1]
+        if self.peer_value_headers:
+            headers += [
+                "Nb respondents",
+            ]
+        headers += self.intrinsic_value_headers
+        return headers
+
 
     def format_row(self, entry):
         default_unit = entry.get('default_unit', {})
@@ -287,11 +306,29 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
                 unit = answer.get('unit')
                 if unit and default_unit and unit.slug == default_unit:
                     primary_planned = answer.get('measured')
+        # base_headers
         row = [
             entry['title'],
             primary_assessed,
             primary_planned,
             comments,
+            entry.get('opportunity')]
+
+        # peer_value_headers
+        for header in self.peer_value_headers:
+            if default_unit and default_unit == header[0]:
+                for text in header[1]:
+                    row += [entry.get('rate', {}).get(text, 0)]
+            else:
+                for text in header[1]:
+                    row += [""]
+        if self.peer_value_headers:
+            row += [
+                entry.get('nb_respondents'),
+            ]
+
+        # intrinsic_value_headers
+        row += [
             entry.get('environmental_value'),
             entry.get('business_value'),
             entry.get('profitability'),

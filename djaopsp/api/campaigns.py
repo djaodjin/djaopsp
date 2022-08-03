@@ -52,7 +52,7 @@ class CampaignContentMixin(AccountMixin, CampaignMixin):
 
     def get_queryset(self):
         #pylint:disable=too-many-locals,too-many-statements
-        segments = self.segments_available
+        segments = self.sections_available
         by_tiles = OrderedDict()
         if self.kwargs.get(self.path_url_kwarg):
             strip_segment_prefix = True
@@ -278,7 +278,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
                 ]
             }
         """
-        segments = self.segments_available
+        segments = self.sections_available
         serializer = self.get_serializer(segments, many=True)
         return Response({'results': serializer.data})
 
