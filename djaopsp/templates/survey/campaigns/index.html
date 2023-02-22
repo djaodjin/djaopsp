@@ -1,0 +1,84 @@
+{% extends "survey/base.html" %}
+
+{% block survey_content %}
+<div>
+  <div>
+    <h1 class="text-center">Assessments</h1>
+  </div>
+  <div id="panel-icons" class="panel-icons">
+    <div id="app">
+      <campaign-list inline-template>
+        <div class="container">
+          <div class="row">
+            <div class="col pt-4">
+              <form @submit.prevent="save">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                <div class="row">
+                  <div class="col-md-5">
+                    <div class="mr-2 mb-3 w-100">
+                      <input type="text" class="form-control"
+                             v-model="newItem.title"
+                             placeholder="Assessment title">
+                    </div>
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <button type="submit" class="btn btn-primary btn-md w-100">
+                      Create Assessment
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div>
+            <table class="table table-striped mb-4" infinite-wrapper>
+              <thead>
+                <tr>
+                  <th class="text-nowrap">
+                    Created at
+                    <a href="#" class="text-nowrap btn-link btn-sort ml-2" @click.prevent="sortBy('created_at')">
+                      <i :class="sortIcon('created_at')"></i>
+                    </a>
+                  </th>
+                  <th class="text-nowrap">
+                    Title
+                    <a href="#" class="btn-link btn-sort ml-2" @click.prevent="sortBy('title')">
+                      <i :class="sortIcon('title')"></i>
+                    </a>
+                  </th>
+                </tr>
+              </thead>
+
+              <!-- Show Loader -->
+              <tbody v-if="!itemsLoaded">
+                <tr>
+                  <td colspan="2">
+                    <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                  </td>
+                </tr>
+              </tbody>
+              <!-- Show empty list -->
+              <tbody v-show="itemsLoaded && items.results.length == 0" v-cloak>
+                <tr>
+                  <td colspan="2">
+                    <h3 class="text-center"><em>No entries <span v-show="params.q"> [[params.q]]</span></em></h3>
+                  </td>
+                </tr>
+              </tbody>
+              <!-- Show Data Entries -->
+              <tbody id="has-items" v-show="itemsLoaded && items.results.length > 0" v-cloak>
+                <tr v-for="(entry, index) in items.results" :class="{'bg-info': isInfiniteScroll && params.page > 1 && (itemsPerPage * (params.page - 1)) === index}">
+                  <td class="text-nowrap">[[entry.created_at]]</td>
+                  <td class="text-nowrap"><a :href="entry.slug + '/'">[[entry.title]]</a></td>
+                </tr>
+              </tbody>
+            </table>
+            {% include "_pagination.html" %}
+          </div>
+        </div>
+      </campaign-list>
+    </div>
+  </div>
+</div>
+{% endblock %}

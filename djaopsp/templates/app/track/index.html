@@ -1,0 +1,86 @@
+{% extends "app/track/base.html" %}
+
+{% block track_content %}
+<div class="container">
+  <div class="row text-center">
+    {% if profile.picture %}
+    <div class="col-4 mt-3">
+      <img class="logo" width="48" src="{{profile.picture}}">
+    </div>
+    <div class="col-8 text-left mt-3">
+      <h1>{{profile.printable_name}}</h1>
+    </div>
+    {% else %}
+    <div class="col-12 mt-3">
+      <h1>{{profile.printable_name}}</h1>
+    </div>
+    {% endif %}
+  </div>
+  <div class="row">
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
+        <div class="card-body">
+          <h2>{% trans %}Recorded data points{% endtrans %}</h2>
+          <p>
+{% trans %}
+Under this section, you can view the recorded data points that have been
+entered for your profile so far.
+{% endtrans %}
+          </p>
+          <div class="text-center">
+            <a href="values/">{% trans %}View{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
+        <div class="card-body">
+          <h2>{% trans %}Energy &amp; GHG Emissions{% endtrans %}</h2>
+          <p>
+{% trans %}
+Under this section, you can track energy consumption and estimate
+GHG Emissions.
+{% endtrans %}
+          </p>
+          <div class="text-center">
+            <a href="energy-ghg-emissions/">{% trans %}Enter{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
+        <div class="card-body">
+          <h2>{% trans %}Waste{% endtrans %}</h2>
+          <p>
+{% trans %}
+Under this section, you can track waste generated.
+{% endtrans %}
+          </p>
+          <div class="text-center">
+            <a href="waste/">{% trans %}Enter{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mt-4">
+      <div class="card bg-white text-dark h-100">
+        <div class="card-body">
+          <h2>{% trans %}Water{% endtrans %}</h2>
+          <p>
+{% trans %}
+Under this section, you can track water usage.
+{% endtrans %}
+          </p>
+          <div class="text-center">
+            <a href="water/">{% trans %}Enter{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

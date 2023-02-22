@@ -1,0 +1,118 @@
+{% extends "app/base.html" %}
+
+{% block app_content %}
+<div class="mx-4 pt-4">
+  <div class="row">
+    <div class="col-md-7">
+      <ul class="nav nav-tabs squared-tabs surrounded-tabs">
+        <li class="nav-item squared-tabs-li text-center first_tab">
+          <img style="width:90px;height:90px;"
+               src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" />
+        </li>
+      </ul>
+    </div>
+    <div class="col-md-5">
+      <nav class="navbar navbar-dark">
+        <ul class="navbar-nav nav-pills ml-auto">
+          {% block help_menus %}
+
+          {# current menus #}
+
+          {% if urls.portfolio_responses %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="nav-link{% if request.path == urls.portfolio_responses %} active{% endif %}" href="{{urls.portfolio_responses}}">Reporting entities</a>
+          </li>
+          {% endif %}
+          {% if urls.reporting_organization_dashboard %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="nav-link{% if request.path == urls.reporting_organization_dashboard %} active{% endif %}" href="{{urls.reporting_organization_dashboard}}">Activity summary</a>
+          </li>
+          {% endif %}
+          {% if urls.matrix_chart %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="nav-link{% if request.path == urls.matrix_chart %} active{% endif %}" href="{{urls.matrix_chart}}">Compare scores</a>
+          </li>
+          {% endif %}
+
+          {# new menus #}
+
+          {% if urls.accessibles %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">Responses</a>
+          </li>
+          {% endif %}
+          {% if urls.engage %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="nav-link{% if request.path == urls.engage %} active{% endif %}" id="compare-lnk" href="{{urls.engage}}">Engage</a>
+          </li>
+          {% endif %}
+          {% if urls.download %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" href="{{urls.download}}">
+              <i class="fa fa-file-text"></i> Download (xlsx)
+            </a>
+          </li>
+          {% endif %}
+          {% endblock %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="bg-white text-dark">
+        <div class="mx-3">
+          <h1 class="d-inline my-0">{% block reporting_title %}{% endblock %}</h1>
+          {% if campaign %}
+          <h3 class="d-inline my-0"> | {{campaign.title}}</h3>
+          {% endif %}
+          <div class="d-inline">
+            <sup class="d-none" role="button">
+              <small>
+                <i id="help-request" class="fa fa-question-circle"></i>
+              </small>
+            </sup>
+          </div>
+          <h2 class="my-0">{{profile.printable_name}}</h2>
+          {% block reporting_content %}
+          {% endblock %}
+        </div>
+      </div>{# /.bg-white #}
+    </div>
+  </div>{# /.row #}
+</div>
+{% endblock %}
+
+{% block app_bodyscripts %}
+{% if ASSETS_DEBUG %}
+<script type="text/javascript" src="{{'/static/vendor/chart.js/dist/chart.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/chartjs-plugin-annotation.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-survey-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaopsp-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/reporting-vue.js'|asset}}"></script>
+{% else %}
+<script type="text/javascript" src="{{'/static/cache/reporting.js'|asset}}"></script>
+{% endif %}
+
+<script type="text/javascript">
+const UTILITY_COLOR = '#f0ad4e';
+const UTILITY_COLOR_LAST = '#facf6f';
+const EUISSCA_COLOR = '#3ca65b';
+const EUISSCA_COLOR_LAST = '#3fa95f';
+
+Vue.prototype.$dateRange = {
+    start_at: "{% if start_at %}{{start_at}}{% endif %}",
+    ends_at: "{% if ends_at %}{{ends_at}}{% endif %}"
+};
+Vue.prototype.$accountExtra = {% if account_extra %}{{account_extra|safe}}{% else %}{}{% endif %};
+</script>
+
+{% block reporting_scripts %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends "app/improve/base.html" %}
+
+{% block improve_content %}
+<campaign-questions-list class="panel-icons" id="panel-icons" inline-template>
+  <div>
+    <div class="panel-body panel-icons-no-benchmark">
+      <div class="row">
+        <div class="col-md-12 text-center" style="display:table-row;">
+          <div class="row-icons">
+            <div style="display:inline-block;float:left;flex:auto;">
+              <div class="header-tuple">
+                <ul class="nav nav-tabs squared-tabs">
+                  <li v-show="!itemsLoaded">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                  </li>
+                  <li :data-id="icon.path"
+                      :class="'nav-item squared-tabs-li' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '') + (containsTag(icon, 'tilebreak') ?  ' bordered-left' : '')"
+                      v-for="icon in getEntries('targets', 1)"
+                      v-if="itemsLoaded && items.path === '/sustainability'"
+                      v-show="itemsLoaded && items.results.length"
+                      v-cloak>
+                    <a class="nav-link icon-inner orange"
+                       :href="'#tab-' + icon.slug"
+                       role="{{role}}" data-toggle="{{role}}"
+                       @click.prevent="toggleTile($event, icon)">
+                       <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
+                       <div class="icon-caption">[[icon.title]]</div>
+                    </a>
+                    <div :id="icon.slug + '-score'" class="icon-score">
+                      <div>
+                        (<span class="rollup-weight"
+                               :data-id="icon.path"
+                               data-key="weight"
+                               @click.prevent="editScoreWeight($event)">[[humanizeScoreWeight(icon.score_weight, icon.score_percentage)]]</span>)
+                      </div>
+                    </div>
+                  </li>{# / items.path === '/sustainability' #}
+                  <li :data-id="icon.path"
+                      :class="'nav-item squared-tabs-li' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '') + (containsTag(icon, 'tilebreak') ?  ' bordered-left' : '')"
+                      v-for="icon in getEntries('', 1)"
+                      v-if="itemsLoaded && items.path !== '/sustainability'"
+                      v-show="itemsLoaded && items.results.length"
+                      v-cloak>
+                    <a class="nav-link icon-inner orange"
+                       :href="'#tab-' + icon.slug"
+                       role="{{role}}" data-toggle="{{role}}"
+                       @click.prevent="toggleTile($event, icon)">
+                       <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
+                       <div class="icon-caption">[[icon.title]]</div>
+                    </a>
+                    <div :id="icon.slug + '-score'" class="icon-score">
+                      <div>
+                        (<span class="rollup-weight"
+                               :data-id="icon.path"
+                               data-key="weight"
+                               @click.prevent="editScoreWeight($event)">[[humanizeScoreWeight(icon.score_weight, icon.score_percentage)]]</span>)
+                      </div>
+                    </div>
+                  </li>{# / items.path !== '/sustainability' #}
+                </ul>
+              </div> {# .header-tuple #}
+            </div>
+          </div> {# .row-icons #}
+        </div> {# .col-md-12 #}
+      </div> {# .row #}
+
+      {# expanded tabs for sustainability core target #}
+      <div v-if="itemsLoaded && items.path === '/sustainability'" v-cloak>
+        <div :class="'tab-content collapse' + (activeTile ? ' show' : '')">
+          <div role="tabpanel"
+               :class="'tab-pane' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '')"
+               :id="'tab-' + icon.slug"
+               v-for="icon in getEntries('targets', 1)"
+               v-show="itemsLoaded && items.results.length > 0"
+               v-cloak>
+            <div v-show="!showVsPeers">
+              <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+              <table class="table table-striped table-bordered table-assessment">
+                <thead>
+                  <tr>
+                    <th colspan="6">
+                    </th>
+                    <th colspan="6">
+                    </th>
+                  </tr>
+                </thead>
+                <tbody v-for="practice in getEntries(icon.slug)">
+                  {% include "app/assess/_assess_row.html" %}
+                </tbody>
+              </table>
+            </div>{# /!showVsPeers #}
+          </div>
+        </div>
+      </div>{# / items.path === '/sustainability' #}
+
+      {# expanded tabs for making an improvement plan #}
+      <div id="improve-tabs"
+           :class="'tab-content collapse' + (activeTile ? ' show' : '')">
+        <div role="tabpanel"
+             :class="'tab-pane' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '')"
+             :id="'tab-' + icon.slug"
+             v-for="icon in getEntries('', 1)"
+             v-show="itemsLoaded && items.results.length"
+             v-cloak>
+          <div v-show="!showVsPeers">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+            <table class="table table-striped table-bordered table-assessment">
+              <thead>
+                <tr>
+                  <th colspan="6" style="border-bottom:none;">
+                  </th>
+                  <th></th>
+                  <th class="text-center pb-0"
+                      colspan="6">
+                    Select your target
+                  </th>
+                </tr>
+                <tr>
+                  <th class="sticky-cell sticky-cell-top" colspan="6">
+                    <div class="sticky-cell-content-container">
+                      <div class="sticky-cell-content" style="padding-left:0.75rem;">
+                        Practices
+                        {% include "app/improve/_vs_value_toggle.html" %}
+                      </div>
+                    </div>
+                  </th>
+                  <th class="sticky-cell sticky-cell-top text-center">
+                    <div class="sticky-cell-content-container">
+                      {% trans %}Assessed{% endtrans %}
+                    </div>
+                  </th>
+                  <th class="sticky-cell sticky-cell-top text-center" data-toggle="tooltip" data-placement="top" title="Percentage of peer respondents that have implemented a best practice.">
+                    <div class="sticky-cell-content-container">
+                      <div class="sticky-cell-content">
+                        <button class="btn btn-link btn-sort" @click="sortBy('rate')">
+                          <i :class="'fa fa-sort' + sortedBy('rate')"></i>
+                        </button>
+                        Implementation rate
+                      </div>
+                    </div>
+                  </th>
+                  <th class="sticky-cell sticky-cell-top text-center" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Opportunity points by which your score could increase if this best practice is implemented. See FAQs for scoring methodology and calculations.">
+                    <div class="sticky-cell-content-container">
+                      <div class="sticky-cell-content">
+                        <button class="btn btn-link btn-sort" @click="sortBy('opportunity')">
+                          <i :class="'fa fa-sort' + sortedBy('opportunity')"></i>
+                        </button>
+                        Opportunity score
+                      </div>
+                    </div>
+                  </th>
+                  <th class="sticky-cell sticky-cell-top text-center">
+                    <div class="sticky-cell-content-container">
+                      <div class="sticky-cell-content">Select for Improvement Plan</div>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr :id="practice.slug"
+                    :class="isRequiredShown(practice) ? 'practice-required' : ''"
+                    v-for="practice in getEntries(icon.slug)"
+                    v-show="itemsLoaded && items.results.length">
+                  {% include "app/improve/_sustainability_improve_row.html" %}
+                </tr>
+              </tbody>
+            </table>
+          </div>{# /!showVsPeers #}
+          <div v-show="showVsPeers">
+            <table class="table table-striped table-bordered table-assessment">
+              <thead>
+                {% include "app/improve/_sustainability_value_header.html" %}
+              </thead>
+              <tbody data-prefix="{{abs_prefix}}">
+                <tr :data-id="getPath(practice)"
+                    v-for="practice in getEntries(icon.slug)"
+                    v-show="itemsLoaded && items.results.length">
+                  {% include "app/_sustainability_value_row.html" %}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          {% block icons_actions %}
+          <div class="row mb-4">
+            <div class="col-sm-6 text-left">
+              <a id="download-assessment"
+                 class="btn btn-secondary"
+                 href="{{urls.download}}" target="_blank">
+                <i class="fa fa-download"></i> Planned actions (.xslx)
+              </a>
+              <a id="print-actions-guidance"
+                 class="btn btn-primary"
+                 href="{{urls.print}}" target="_blank">Actions guidance (.pdf)
+              </a>
+            </div>
+            <div class="col-sm-6 text-right">
+              <div class="text-right"
+                   style="display:inline-block;padding-left:10px;">
+                {% if not sample.is_frozen %}
+                <button id="reset-button"
+                        class="btn btn-primary"
+                        data-toggle="modal" data-target="#reset-assessment"
+                        v-show="!showVsPeers">
+                  Reset
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>{# /.row #}
+          {% endblock %}
+        </div>
+      </div> {# /improve-tabs #}
+
+      <!-- modals -->
+      {% include "app/_reset_assessment.html" %}
+    </div> {# .panel-body #}
+
+    {% block panel_footer %}
+    <div class="card-footer">
+      <div class="row">
+        <div class="offset-sm-3 col-sm-6 text-center">
+          <p>
+Click on each icon to expand it.
+          </p>
+          {% if sample.is_frozen %}
+          <p>
+          Completed on {{sample.created_at|date}}
+          </p>
+          {% else %}
+          <p>
+{% trans %}If your organization doesn't have targets, select "No Target" from the drop-down. Once done, go to the REVIEW step, then click the Complete button at the bottom of the page to create a report.{% endtrans %}
+          </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endblock %}
+
+    <div v-if="itemsLoaded && items.path !== '/sustainability'">
+      {% include "app/improve/_improve_charts.html" %}
+    </div>
+
+  </div>
+</campaign-questions-list>
+{% endblock %}

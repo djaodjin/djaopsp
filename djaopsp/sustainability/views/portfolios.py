@@ -1,0 +1,49 @@
+# Copyright (c) 2022, DjaoDjin inc.
+# see LICENSE.
+
+import logging
+
+from djaopsp.views.portfolios import ReportingDashboardPPTXView
+
+from ..api.portfolios import (BySegmentsMixin, CompletionRateMixin,
+    GoalsMixin, GHGEmissionsRateMixin, GHGEmissionsAmountMixin)
+
+
+LOGGER = logging.getLogger(__name__)
+
+
+class CompletionRatePPTXView(CompletionRateMixin, ReportingDashboardPPTXView):
+    """
+    Download completion rate as a .pptx presentation
+    """
+    basename = 'completion-rate'
+
+
+class GoalsPPTXView(GoalsMixin, ReportingDashboardPPTXView):
+    """
+    Download goals as a .pptx presentation
+    """
+    basename = 'goals'
+
+
+class BySegmentsPPTXView(BySegmentsMixin, ReportingDashboardPPTXView):
+    """
+    Download BySegments as a .pptx presentation
+    """
+    basename = 'by-segments'
+
+
+class GHGEmissionsRatePPTXView(GHGEmissionsRateMixin,
+                               ReportingDashboardPPTXView):
+    """
+    Download GHG emissions rate as a .pptx presentation
+    """
+    basename = 'ghg-emissions-rate'
+
+
+class GHGEmissionsAmountPPTXView(GHGEmissionsAmountMixin,
+                                 ReportingDashboardPPTXView):
+    """
+    Download GHG emissions amount as a .pptx presentation
+    """
+    basename = 'ghg-emissions-amount'

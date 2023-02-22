@@ -1,0 +1,92 @@
+[
+{ "fields": {
+    "unit": 8,
+    "rank": 1,
+    "question": 403,
+    "text": "Initiating",
+    "descr": "initiating assigned formal responsibility"
+  },
+  "model" : "survey.choice", "pk" : 400
+},
+{ "fields": {
+    "unit": 8,
+    "rank": 2,
+    "question": 403,
+    "text": "Progressing",
+    "descr": "progressing assigned formal responsibility"
+  },
+  "model" : "survey.choice", "pk" : 401
+},
+{ "fields": {
+    "unit": 8,
+    "rank": 3,
+    "question": 403,
+    "text": "Optimizing",
+    "descr": "optimizing assigned formal responsibility"
+  },
+  "model" : "survey.choice", "pk" : 402
+},
+{ "fields": {
+    "unit": 8,
+    "rank": 4,
+    "question": 403,
+    "text": "Leading",
+    "descr": "leading assigned formal responsibility"
+  },
+  "model" : "survey.choice", "pk" : 403
+},
+{ "fields": {
+    "unit": 8,
+    "rank": 5,
+    "question": 403,
+    "text": "Transforming",
+    "descr": "transforming assigned formal responsibility"
+  },
+  "model" : "survey.choice", "pk" : 404
+},
+{ "fields": {
+    "unit": 8,
+    "rank": 1,
+    "question": 404,
+    "text": "Initiating",
+    "descr": "initiating report internally"
+  },
+  "model" : "survey.choice", "pk" : 405
+},
+{ "fields": {
+    "unit": 8,
+    "rank": 2,
+    "question": 404,
+    "text": "Progressing",
+    "descr": "progressing report internally"
+  },
+  "model" : "survey.choice", "pk" : 406
+},
+{ "fields": {
+    "unit": 8,
+    "rank": 3,
+    "question": 404,
+    "text": "Optimizing",
+    "descr": "optimizing report internally"
+  },
+  "model" : "survey.choice", "pk" : 407
+},
+{ "fields": {
+    "unit": 8,
+    "rank": 4,
+    "question": 404,
+    "text": "Leading",
+    "descr": "leading report internally"
+  },
+  "model" : "survey.choice", "pk" : 408
+},
+{ "fields": {
+    "unit": 8,
+    "rank": 5,
+    "question": 404,
+    "text": "Transforming",
+    "descr": "transforming report internally"
+  },
+  "model" : "survey.choice", "pk" : 409
+}
+]

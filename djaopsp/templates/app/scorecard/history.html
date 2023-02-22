@@ -1,0 +1,52 @@
+{% extends "app/scorecard/base.html" %}
+
+{% block app_content %}
+<div class="container">
+  <div class="row">
+    <div class="col-12 mt-4">
+      <h1 class="text-center">Historical assessments</h1>
+    </div>
+  </div>
+  <div class="row text-center">
+    {% if profile.picture %}
+    <div class="col-4">
+      <img class="logo" width="48" src="{{profile.picture}}">
+    </div>
+    <div class="col-8 text-left">
+      <h2>{{profile.printable_name}}</h2>
+    </div>
+    {% else %}
+    <div class="col-12">
+      <h2>{{profile.printable_name}}</h2>
+    </div>
+    {% endif %}
+  </div>
+  <div class="bg-white text-dark">
+    <scorecard-history inline-template class="pt-2">
+      <div>
+        <div class="text-center mt-4" v-show="!itemsLoaded">
+          <!-- loading -->
+          <i class="fa fa-refresh fa-spin fa-2x"></i>
+        </div>
+        <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
+          <!-- loaded, no data -->
+          {% trans %}No previous assessments{% endtrans %}
+        </div>
+        <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+          <!-- loaded, items present -->
+          <div class="row my-2" v-for="item in items.results">
+            <div class="col-12 text-center">
+              <div>
+              [[ $globals.humanizeDate(item.last_completed_at) ]]
+              </div>
+              <div style="border-bottom: 1px solid #aaa;">
+              <a :href="_safeUrl('{{urls.scorecard_base}}', item.slug) + '/'">[[item.campaign.title]]</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </scorecard-history>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1192 @@
+{% extends "app/track/base.html" %}
+
+{% block app_content %}
+<div class="container">
+  <h1 class="text-center pt-4">GHG Emissions Estimate Calculator</h1>
+  <data-tracker inline-template
+    id="panel-icons" class="panel-icons">
+    <div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12 text-center" style="display:table-row;">
+            <div class="row-icons">
+              <div style="display:inline-block;float:left;flex:auto;">
+                <div class="header-tuple">
+                  <ul class="nav nav-tabs squared-tabs">
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('stationary-combustion') ? ' active': '')"
+                        v-cloak>
+                      <a class="nav-link icon-inner orange"
+                         href="#tab-stationary-combustion"
+                         @click="toggleTile($event, 'stationary-combustion')">
+                        <img class="icon-equipment" src="{{'/static/img/icons/production.png'|asset}}">
+                        <div class="icon-caption">{% trans %}S1 - Stationary Combustion{% endtrans %}</div>
+                      </a>
+                    </li>
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('mobile-combustion') ? ' active': '')"
+                        v-cloak>
+                      <a class="nav-link icon-inner orange"
+                         href="#tab-mobile-combustion"
+                         @click="toggleTile($event, 'mobile-combustion')">
+                        <img class="icon-equipment" src="{{'/static/img/icons/truck.png'|asset}}">
+                        <div class="icon-caption">{% trans %}S1 - Mobile Combustion{% endtrans %}</div>
+                      </a>
+                    </li>
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('refrigerants') ? ' active': '')"
+                        v-cloak>
+                      <a class="nav-link icon-inner orange"
+                         href="#tab-refrigerants"
+                         @click="toggleTile($event, 'refrigerants')">
+                        <img class="icon-equipment" src="{{'/static/img/icons/hvac.png'|asset}}">
+                        <div class="icon-caption">{% trans %}S1 - Refrigerants{% endtrans %}</div>
+                      </a>
+                    </li>
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('purchased-electricity') ? ' active': '')"
+                        v-cloak>
+                      <a class="nav-link icon-inner orange"
+                         href="#tab-purchased-electricity"
+                         @click="toggleTile($event, 'purchased-electricity')">
+                        <img class="icon-equipment" src="{{'/static/img/icons/lightning.png'|asset}}">
+                        <div class="icon-caption">{% trans %}S2 - Purchased Electricity{% endtrans %}</div>
+                      </a>
+                    </li>
+                    <li :class="'nav-item squared-tabs-li' + (isActiveTile('transportation') ? ' active': '')"
+                        v-cloak>
+                      <a class="nav-link icon-inner orange"
+                         href="#tab-transportation"
+                         @click="toggleTile($event, 'transportation')">
+                        <img class="icon-equipment" src="{{'/static/img/icons/fuel-supply.png'|asset}}">
+                        <div class="icon-caption">{% trans %}S3 - Transportation{% endtrans %}</div>
+                      </a>
+                    </li>
+                  </ul>
+                </div> {# .header-tuple #}
+              </div>
+            </div> {# .row-icons #}
+          </div> {# .col-md-12 #}
+        </div> {# .row #}
+
+        {% block icons_content %}
+        {# expanded tabs go here #}
+        <div :class="'tab-content collapse' + (activeTile ? ' show' : '')">
+          <div role="tabpanel"
+               :class="'tab-pane' + (isActiveTile('stationary-combustion') ? ' active': '')"
+               id="tab-stationary-combustion"
+               v-cloak>
+            <scope1-stationary-combustion inline-template :init-url="'{{urls.api_track_scope1_stationary_combustion}}'">
+              <div>
+                <p>
+Includes fuel consumption at a facility to produce electricity, steam, heat, or power. The combustion of fossil fuels by natural gas boilers, diesel generators and other equipment emits carbon dioxide, methane, and nitrous oxide into the atmosphere.
+                </p>
+                <div v-show="!showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Fuel type</th>
+                        <th>Fuel amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr :id="item.slug" v-for="item in items.results"
+                          v-show="itemsLoaded && items.results.length > 0">
+                        <td>
+                          {% include "app/track/_profile_descr.html" %}
+                        </td>
+                        <td>[[humanizeFuelType(item.extra.fuel_type)]]</td>
+                        <td>
+                          <div class="input-group">
+                            <input class="form-control"
+                                   name="measured" type="number" min="0"
+                                   v-model="item.measured">
+                            <div class="input-group-append">
+                              <select class="form-control"
+                                      name="unit"
+                                      v-model="item.unit">
+                                <option value="btu">Btu</option>
+                                <option value="mmbtu">mmBtu</option>
+                                <option value="therm">therm</option>
+                                <option value="kwh">kWh</option>
+                                <option value="mwh">MWh</option>
+                                <option value="mj">MJ</option>
+                                <option value="gj">GJ</option>
+                              </select>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr id="add-scope1-inventory">
+                        <td>
+                          <input class="form-control" name="full_name"
+                                 type="text" v-model="newItem.full_name" />
+                        </td>
+                        <td>
+                          <select class="form-control" name="fuel-type"
+                                  v-model="newItem.extra.fuel_type">
+                            <option value="anthracite-coal">Anthracite Coal</option>
+                            <option value="bituminous-coal">Bituminous Coal</option>
+                            <option value="sub-bituminous-coal">Sub-bituminous Coal</option>
+                            <option value="lignite-coal">Lignite Coal</option>
+                            <option value="mixed-Commercial-Sector">Mixed (Commercial Sector)</option>
+                            <option value="mixed-electric-power-sector">Mixed (Electric Power Sector)</option>
+                            <option value="mixed-industrial-coking">Mixed (Industrial Coking)</option>
+                            <option value="mixed-industrial-sector">Mixed (Industrial Sector)</option>
+                            <option value="coal-coke">Coal Coke</option>
+                            <option value="municipal-solid-waste">Municipal Solid Waste</option>
+                            <option value="petroleum-coke-solid">Petroleum Coke (Solid)</option>
+                            <option value="plastics">Plastics</option>
+                            <option value="tires">Tires</option>
+                            <option value="agricultural-byproducts">Agricultural Byproducts</option>
+                            <option value="peat">Peat</option>
+                            <option value="solid-byproducts">Solid Byproducts</option>
+                            <option value="wood-and-wood-residuals">Wood and Wood Residuals</option>
+                            <option value="natural-gas">Natural Gas</option>
+                            <option value="blast-furnace-gas">Blast Furnace Gas</option>
+                            <option value="coke-oven-gas">Coke Oven Gas</option>
+                            <option value="fuel-gas">Fuel Gas</option>
+                            <option value="propane-gas">Propane Gas</option>
+                            <option value="landfill-gas">Landfill Gas</option>
+                            <option value="other-biomass-gases">Other Biomass Gases</option>
+                            <option value="asphalt-and-road-oil">Asphalt and Road Oil</option>
+                            <option value="aviation-gasoline">Aviation Gasoline</option>
+                            <option value="butane">Butane</option>
+                            <option value="butylene">Butylene</option>
+                            <option value="crude-oil">Crude Oil</option>
+                            <option value="distillate-fuel-oil-no-1">Distillate Fuel Oil No. 1</option>
+                            <option value="distillate-fuel-oil-no-2">Distillate Fuel Oil No. 2</option>
+                            <option value="distillate-fuel-oil-no-4">Distillate Fuel Oil No. 4</option>
+                            <option value="ethane">Ethane</option>
+                            <option value="ethylene">Ethylene</option>
+                            <option value="heavy-gas-oils">Heavy Gas Oils</option>
+                            <option value="isobutane">Isobutane</option>
+                            <option value="isobutylene">Isobutylene</option>
+                            <option value="kerosene">Kerosene</option>
+                            <option value="kerosene-type-jet-fuel">Kerosene-Type Jet Fuel</option>
+                            <option value="liquefied-petroleum-gases-lpg">Liquefied Petroleum Gases (LPG)</option>
+                            <option value="lubricants">Lubricants</option>
+                            <option value="motor-gasoline">Motor Gasoline</option>
+                            <option value="naphtha-401-deg-f">Naphtha (&lt;401 deg F)</option>
+                            <option value="natural-gasoline">Natural Gasoline</option>
+                            <option value="other-oil-401-deg-f">Other Oil (&gt;401 deg F)</option>
+                            <option value="pentanes-plus">Pentanes Plus</option>
+                            <option value="petrochemical-feedstocks">Petrochemical Feedstocks</option>
+                            <option value="petroleum-coke">Petroleum Coke</option>
+                            <option value="propane">Propane</option>
+                            <option value="propylene">Propylene</option>
+                            <option value="residual-fuel-oil-no-5">Residual Fuel Oil No. 5</option>
+                            <option value="residual-fuel-oil-no-6">Residual Fuel Oil No. 6</option>
+                            <option value="special-naphtha">Special Naphtha</option>
+                            <option value="unfinished-oils">Unfinished Oils</option>
+                            <option value="used-oil">Used Oil</option>
+                            <option value="biodiesel-100">Biodiesel (100%)</option>
+                            <option value="ethanol-100">Ethanol (100%)</option>
+                            <option value="rendered-animal-fat">Rendered Animal Fat</option>
+                            <option value="vegetable-oil">Vegetable Oil</option>
+                          </select>
+                        </td>
+                        <td>
+                          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                          <button class="btn btn-secondary"
+                              @click.prevent="addItem">Add row</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                  </div>
+                </div>{# /!showEmissionsEstimate #}
+                <div v-show="showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th colspan="2">
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th colspan="5">
+                          GHG Emissions (tonnes CO<sub>2</sub>e)
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Fuel type</th>
+                        <th>
+                          CO<sub>2</sub> (tonnes)
+                        </th>
+                        <th>
+                          CH<sub>4</sub> (tonnes)
+                        </th>
+                        <th>
+                          N<sub>2</sub>O (tonnes)
+                        </th>
+                        <th>
+                          CO<sub>2</sub>e (tonnes)
+                        </th>
+                        <th>
+                          Biofuel CO<sub>2</sub> (tonnes)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in items.results"
+                          v-show="itemsLoaded && items.results.length > 0">
+                        <td>[[item.printable_name]]</td>
+                        <td>[[humanizeFuelType(item.extra.fuel_type)]]</td>
+                        <td>[[estimateCO2(item)]]</td>
+                        <td>[[estimateCH4(item)]]</td>
+                        <td>[[estimateN2O(item)]]</td>
+                        <td>[[estimateCO2e(item)]]</td>
+                        <td>[[estimateBiogenicCO2(item)]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="text-center my-4">
+                    <button id="scope1-stationary-combustion-record"
+                            class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
+                </div>{# /showEmissionsEstimate #}
+              </div>
+            </scope1-stationary-combustion>
+          </div>{# /#tab-stationary-combustion #}
+
+          <div role="tabpanel"
+               :class="'tab-pane' + (isActiveTile('mobile-combustion') ? ' active': '')"
+               id="tab-mobile-combustion"
+               v-cloak>
+            <scope1-mobile-combustion inline-template :init-url="'{{urls.api_track_scope1_mobile_combustion}}'">
+              <div>
+                <p>
+Includes fuel consumption by vehicles that are owned or leased by the company. Combustion of fossil fuels in vehicles (including cars, trucks, planes, and boats) emits carbon dioxide, methane, and nitrous oxide into the atmosphere.
+                </p>
+                <div v-show="!showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th colspan="3">
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Activity type</th>
+                        <th>Fuel source</th>
+                        <th>Vehicle type</th>
+                        <th>Activity amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                        <td>
+                          {% include "app/track/_profile_descr.html" %}
+                        </td>
+                        <td>[[humanizeActivityType(item.extra.activity_type)]]</td>
+                        <td>[[humanizeFuelSource(item.extra.fuel_type)]]</td>
+                        <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
+                        <td>
+                          <div class="input-group">
+                            <input :class="'form-control' + (item.missing ? ' is-invalid' : '')"
+                                   type="number" min="0"
+                                   v-model="item.measured">
+                            <div class="input-group-append">
+                              <select class="form-control" name="unit"
+                                      v-model="item.unit"
+                                      v-if="item.extra.activity_type == 'distance'">
+                                <option value="nautical-mile">nautical mile</option>
+                                <option value="mile">mile</option>
+                                <option value="km">km</option>
+                              </select>
+                              <select class="form-control" name="unit"
+                                      v-model="item.unit"
+                                      v-if="item.extra.activity_type != 'distance'">
+                                <option value="gallons">gal (US)</option>
+                                <option value="liters">Liter</option>
+                                <option value="bbl">Barrel</option>
+                                <option value="scf">Standard Cubic Foot</option>
+                                <option value="ccf">Hundred Cubic Feet</option>
+                                <option value="m3">m3</option>
+                              </select>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <input class="form-control" type="text" v-model="newItem.full_name" />
+                        </td>
+                        <td>
+                          <select class="form-control" name="activity-type"
+                                    v-model="newItem.extra.activity_type">
+                            <option value="fuel-use">Fuel Use</option>
+                            <option value="distance">Distance Activity</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select class="form-control" name="fuel-type"
+                                  v-model="newItem.extra.fuel_type">
+                            <option value="motor-gasoline">Motor Gasoline</option>
+                            <option value="diesel-fuel">Diesel Fuel</option>
+                            <option value="biodiesel">Biodiesel (100%)</option>
+                            <option value="compressed-natural-gas">Compressed Natural Gas</option>
+                            <option value="ethanol">Ethanol (100%)</option>
+                            <option value="jet-fuel">Jet Fuel</option>
+                            <option value="aviation-gasoline">Aviation Gasoline</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select class="form-control" name="vehicle-type"
+                                  v-model="newItem.extra.vehicle_type"
+                                  v-if="newItem.extra.fuel_type == 'motor-gasoline'">
+                            <option value="gasoline-passenger-cars">Gasoline Passenger Cars</option>
+                            <option value="gasoline-light-duty-trucks">Gasoline Light-duty Trucks (Vans, Pickup Trucks, SUVs)</option>
+                            <option value="gasoline-heavy-duty-vehicles">Gasoline Heavy-duty Vehicles</option>
+                            <option value="hybrid-gasoline-passenger-cars">Hybrid (Gasoline) Passenger Cars</option>
+                            <option value="gasoline-agricultural-equipment">Gasoline Agricultural Equipment</option>
+                            <option value="gasoline-ships-and-boats">Gasoline Ships and Boats</option>
+                            <option value="gasoline-motorcycles">Gasoline Motorcycles</option>
+                            <option value="other-gasoline-non-road-vehicles">Other Gasoline Non-Road Vehicles</option>
+                          </select>
+                          <select class="form-control" name="vehicle-type"
+                                  v-model="newItem.extra.vehicle_type"
+                                  v-if="newItem.extra.fuel_type == 'diesel-fuel'">
+                            <option value="diesel-passenger-cars">Diesel Passenger Cars</option>
+                            <option value="diesel-light-duty-trucks">Diesel Light-duty Trucks</option>
+                            <option value="diesel-medium-and-heavy-duty-vehicles">Diesel Medium- and Heavy-duty Vehicles</option>
+                            <option value="diesel-agricultural-equipment">Diesel Agricultural Equipment</option>
+                            <option value="diesel-ships-and-boats">Diesel Ships and Boats</option>
+                            <option value="diesel-medium-and-heavy-duty-vehicles">Diesel Medium- and Heavy-duty Vehicles</option>
+                            <option value="other-diesel-non-road-vehicles">Other Diesel Non-Road Vehicles</option>
+                          </select>
+                          <select class="form-control" name="vehicle-type"
+                                  v-model="newItem.extra.vehicle_type"
+                                  v-if="newItem.extra.fuel_type == 'biodiesel'">
+                            <option value="biodiesel-passenger-cars">Biodiesel Passenger Cars</option>
+                            <option value="biodiesel-light-duty-vehicles">Biodiesel Light-duty Vehicles</option>
+                            <option value="biodiesel-medium-and-heavy-duty-vehicles">Biodiesel Medium- and Heavy-duty Vehicles</option>
+                            <option value="biodiesel-medium-and-heavy-duty-vehicles">Biodiesel Medium- and Heavy-duty Vehicles</option>
+                          </select>
+                          <select class="form-control" name="vehicle-type"
+                                  v-model="newItem.extra.vehicle_type"
+                                  v-if="newItem.extra.fuel_type == 'compressed-natural-gas'">
+                            <option value="cng-light-duty-vehicles">CNG Light-duty Vehicles</option>
+                            <option value="cng-medium-and-heavy-duty-vehicles">CNG Medium- and Heavy-duty Vehicles</option>
+                          </select>
+                          <select class="form-control" name="vehicle-type"
+                                  v-model="newItem.extra.vehicle_type"
+                                  v-if="newItem.extra.fuel_type == 'ethanol'">
+                            <option value="ethanol-light-duty-vehicles">Ethanol Light-duty Vehicles</option>
+                            <option value="ethanol-medium-and-heavy-duty-vehicles">Ethanol Medium- and Heavy-duty Vehicles</option>
+                          </select>
+                          <select class="form-control" name="vehicle-type"
+                                  v-model="newItem.extra.vehicle_type"
+                                  v-if="newItem.extra.fuel_type == 'jet-fuel'">
+                            <option value="jet-fuel-aircraft">Jet Fuel Aircraft</option>
+                          </select>
+                          <select class="form-control" name="vehicle-type"
+                                  v-if="newItem.extra.fuel_type == 'aviation-gasoline'">
+                            <option value="aviation-gasoline-aircraft">Aviation Gasoline Aircraft</option>
+                          </select>
+                        </td>
+                        <td>
+                          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                          <button class="btn btn-secondary"
+                                  @click.prevent="addItem">Add row</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
+                </div>{# /!showEmissionsEstimate #}
+                <div v-show="showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th colspan="4">
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th colspan="5">
+                          GHG Emissions (tonnes CO<sub>2</sub>e)
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Activity type</th>
+                        <th>Fuel source</th>
+                        <th>Vehicle type</th>
+                        <th>
+                          CO<sub>2</sub> (tonnes)
+                        </th>
+                        <th>
+                          CH<sub>4</sub> (tonnes)
+                        </th>
+                        <th>
+                          N<sub>2</sub>O (tonnes)
+                        </th>
+                        <th>
+                          CO<sub>2</sub>e (tonnes)
+                        </th>
+                        <th>
+                          Biofuel CO<sub>2</sub> (tonnes)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                        <td>[[item.printable_name]]</td>
+                        <td>[[humanizeActivityType(item.extra.activity_type)]]</td>
+                        <td>[[humanizeFuelSource(item.extra.fuel_type)]]</td>
+                        <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
+                        <td>[[estimateCO2(item)]]</td>
+                        <td>[[estimateCH4(item)]]</td>
+                        <td>[[estimateN2O(item)]]</td>
+                        <td>[[estimateCO2e(item)]]</td>
+                        <td>[[estimateBiogenicCO2(item)]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
+                </div>{# /showEmissionsEstimate #}
+              </div>
+            </scope1-mobile-combustion>
+          </div>{# /#tab-mobile-combustion #}
+
+          <div role="tabpanel"
+               :class="'tab-pane' + (isActiveTile('refrigerants') ? ' active': '')"
+               id="tab-refrigerants"
+               v-cloak>
+            <scope1-refrigerants inline-template :init-url="'{{urls.api_track_scope1_refrigerants}}'">
+              <div>
+                <p>
+Includes leaks in your company's HVAC system, chillers, refrigerators, etc., through which refrigerant gas escapes. Most refrigerant gases contribute to global warming when leaked into the atmosphere. The quantity of leaked gas is assumed to equal the amount of gas replaced in these systems by your HVAC or chiller maintenance company.  Records or invoices from your maintenance company show the amount and type of refrigerant gas (e.g., freon, R-22, HFC-134a , CFC-12) replaced in your building's systems.
+                </p>
+                <div v-show="!showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th colspan="4">
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
+                        </th>
+                        <th colspan="8">
+                        </th>
+                      </tr>
+                      <tr>
+                        <th colspan="3">
+                        </th>
+                        <th colspan="2">
+                          Decrease in Inventory (kilograms)
+                        </th>
+                        <th colspan="3">
+                          Purchases/Acquisitions of Refrigerant (kilograms)
+                        </th>
+                        <th colspan="5">
+                          Sales/Disbursements of Refrigerant (kilograms)
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Type of Air Conditioning and Refrigeration Equipment</th>
+                        <th>Refrigerant Used</th>
+                        <th>Refrigerant inventory (in storage, not equipment) at the beginning of the period</th>
+                        <th>Refrigerant inventory (in storage, not equipment) at the end of the period</th>
+                        <th>Refrigerant purchased from producers/ distributors</th>
+                        <th>Refrigerant returned by equipment users</th>
+                        <th>Refrigerant returned after off-site recycling or reclamation</th>
+                        <th>Refrigerant charged into equipment*<br />If not known, see steps A1 to A4 for a default value</th>
+                        <th>Refrigerant delivered to equipment users in containers</th>
+                        <th>Refrigerant returned to refrigerant producers</th>
+                        <th>Refrigerant sent off-site for recycling or reclamation</th>
+                        <th>Refrigerant sent off-site for destruction</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                        <td>
+                          {% include "app/track/_profile_descr.html" %}
+                        </td>
+                        <td>[[item.extra.equipment_type]]</td>
+                        <td>[[humanizeRefrigerantUsed(item.extra.refrigerant_used)]]</td>
+                        <td>
+                          <input class="form-control" type="number" min="0"
+                                 v-model="item.begin_inventory_measured">
+                        </td>
+                        <td>
+                          <input class="form-control" type="number" min="0"
+                                 v-model="item.end_inventory_measured">
+                        </td>
+                        <td>
+                          <input class="form-control" type="number" min="0"
+                                 v-model="item.purchased_measured">
+                        </td>
+                          <td>
+                            <input class="form-control" type="number" min="0"
+                                   v-model="item.returned_by_users_measured">
+                          </td>
+                        <td>
+                          <input class="form-control" type="number" min="0"
+                                 v-model="item.returned_after_recycling_measured">
+                        </td>
+                        <td>
+                          <input class="form-control" type="number" min="0"
+                                 v-model="item.charged_into_equipment_measured">
+                        </td>
+                        <td>
+                          <input class="form-control" type="number" min="0"
+                                 v-model="item.delivered_to_users_measured">
+                        </td>
+                        <td>
+                          <input class="form-control" type="number" min="0"
+                                 v-model="item.returned_to_producers_measured">
+                        </td>
+                        <td>
+                          <input class="form-control" type="number" min="0"
+                                 v-model="item.sent_offsite_for_recycling_measured">
+                        </td>
+                        <td>
+                          <input class="form-control" type="number" min="0"
+                                 v-model="item.sent_offsite_for_destruction_measured">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <input class="form-control" type="text" v-model="newItem.full_name" />
+                        </td>
+                        <td>
+                          <input class="form-control" type="text" v-model="newItem.extra.equipment_type" />
+                        </td>
+                        <td>
+                          <select class="form-control" name="refrigerant-used"
+                                  v-model="newItem.extra.refrigerant_used">
+                            <option :value="key" v-for="(option, key) in $ef_refrigerants">[[option.title]]</option>
+                          </select>
+                        </td>
+                        <td colspan="10">
+                          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                          <button class="btn btn-secondary"
+                                  @click.prevent="addItem">Add row</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
+                </div>{# /!showEmissionsEstimate #}
+                <div v-show="showEmissionsEstimate">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th colspan="3">
+                          {% include "app/track/_ghg-emissions-toggle.html" %}
+                        </th>
+                        <th colspan="1">
+                          GHG Emissions (tonnes CO<sub>2</sub>e)
+                        </th>
+                      </tr>
+                      <tr>
+                        <th>Facility</th>
+                        <th>Type of Air Conditioning and Refrigeration Equipment</th>
+                        <th>Refrigerant Used</th>
+                        <th>
+                          CO<sub>2</sub>e (tonnes)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in items.results"
+                          v-show="itemsLoaded && items.results.length > 0">
+                        <td>
+                          [[item.printable_name]]
+                        </td>
+                        <td>[[item.extra.equipment_type]]</td>
+                        <td>[[humanizeRefrigerantUsed(item.extra.refrigerant_used)]]</td>
+                        <td>[[estimateCO2e(item)]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
+                </div>{# /showEmissionsEstimate #}
+              </div>
+            </scope1-refrigerants>
+          </div>{# /#tab-refrigerants #}
+
+         <div role="tabpanel"
+               :class="'tab-pane' + (isActiveTile('purchased-electricity') ? ' active': '')"
+               id="tab-purchased-electricity"
+               v-cloak>
+           <scope2-purchased-electricity inline-template :init-url="'{{urls.api_track_ghg_emissions_scope2}}'">
+             <div>
+               <p>
+Electricity and other sources of energy purchased from your local utility (that is not combusted on-site). Examples include electricity, steam, and chilled or hot water. To generate this energy, utilities combust coal, natural gas, and other fossil fuels, emitting carbon dioxide, methane, and nitrous oxide in the process.
+               </p>
+               <div v-show="!showEmissionsEstimate">
+                 <table class="table table-striped table-bordered">
+                   <thead>
+                     <tr>
+                       <th colspan="3">
+                         {% include "app/track/_ghg-emissions-toggle.html" %}
+                       </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">From</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="starts_at">
+                          </div>
+                        </th>
+                        <th>
+                          <div class="input-group mr-2">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">To</label>
+                            </div>
+                            <input class="form-control" type="date"
+                                   v-model="ends_at">
+                          </div>
+                        </th>
+                     </tr>
+                     <tr>
+                       <th>Facility</th>
+                       <th>Grid</th>
+                       <th>Calculation Approach</th>
+                       <th>Type of Emission Factor</th>
+                       <th>Amount of Electricity Consumption</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                       <td>
+                          {% include "app/track/_profile_descr.html" %}
+                       </td>
+                       <td>[[humanizeGrid(item.extra.grid)]]</td>
+                       <td>[[humanizeCalculationApproach(item.extra.calculation_approach)]]</td>
+                       <td>[[humanizeTypeOfEmissionFactor(item.extra.type_of_emission_factor)]]</td>
+                       <td>
+                         <div class="input-group">
+                           <input class="form-control" type="number" min="0"
+                                  v-model="item.measured">
+                           <div class="input-group-append">
+                             <select class="form-control"
+                                     v-model="item.unit"
+                                     v-if="item.extra.calculation_approach == 'purchased-electricity-location-based' || item.extra.calculation_approach == 'purchased-electricity-market-based'">
+                                <option value="kwh">kWh</option>
+                                <option value="mwh">MWh</option>
+                             </select>
+                             <select class="form-control"
+                                     v-model="item.unit"
+                                     v-if="item.extra.calculation_approach == 'heat-steam'">
+                                <option value="btu">Btu</option>
+                                <option value="mmbtu">mmBtu</option>
+                                <option value="therm">therm</option>
+                                <option value="kwh">kWh</option>
+                                <option value="mwh">MWh</option>
+                             </select>
+                           </div>
+                         </div>
+                       </td>
+                     </tr>
+                     <tr>
+                       <td>
+                         <input class="form-control" type="text" v-model="newItem.full_name" />
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                 v-model="newItem.extra.grid">
+                           <option value="akgd">AKGD</option>
+                           <option value="akms">AKMS</option>
+                           <option value="aznm">AZNM</option>
+                           <option value="camx">CAMX</option>
+                           <option value="erct">ERCT</option>
+                           <option value="frcc">FRCC</option>
+                           <option value="hims">HIMS</option>
+                           <option value="hioa">HIOA</option>
+                           <option value="mroe">MROE</option>
+                           <option value="mrow">MROW</option>
+                           <option value="newe">NEWE</option>
+                           <option value="nwpp">NWPP</option>
+                           <option value="nycw">NYCW</option>
+                           <option value="nyli">NYLI</option>
+                           <option value="nyup">NYUP</option>
+                           <option value="rfce">RFCE</option>
+                           <option value="rfcm">RFCM</option>
+                           <option value="rfcw">RFCW</option>
+                           <option value="rmpa">RMPA</option>
+                           <option value="spno">SPNO</option>
+                           <option value="spso">SPSO</option>
+                           <option value="srmv">SRMV</option>
+                           <option value="srmw">SRMW</option>
+                           <option value="srso">SRSO</option>
+                           <option value="srtv">SRTV</option>
+                           <option value="srvc">SRVC</option>
+                           <option value="us">U.S.</option>
+                           <option value="ca">CA</option>
+                           <option value="newfoundland-and-labrador">Newfoundland and Labrador</option>
+                           <option value="prince-edward-island">Prince Edward Island</option>
+                           <option value="nova-scotia">Nova Scotia</option>
+                           <option value="new-brunswick">New Brunswick</option>
+                           <option value="quebec">Quebec</option>
+                           <option value="ontario">Ontario</option>
+                           <option value="manitoba">Manitoba</option>
+                           <option value="saskatchewan">Saskatchewan</option>
+                           <option value="alberta">Alberta</option>
+                           <option value="british-columbia">British Columbia</option>
+                           <option value="yukon">Yukon</option>
+                           <option value="northwest-territories-and-nunavut">Northwest Territories and Nunavut</option>
+                         </select>
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                 v-model="newItem.extra.calculation_approach">
+                           <option value="purchased-electricity-location-based">Purchased Electricity - Location Based</option>
+                           <option value="purchased-electricity-market-based">Purchased Electricity - Market Based</option>
+                           <option value="heat-steam">Heat/Steam</option>
+                         </select>
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                 v-model="newItem.extra.type_of_emission_factor"
+                                 v-if="newItem.extra.calculation_approach == 'purchased-electricity-market-based'">
+<!--                       <option value="custom-emission-factor">Custom emission factor</option> -->
+                           <option value="residual-mix">Residual Mix</option>
+                           <option value="grid-average-location-based">Grid Average/Location Based</option>
+                         </select>
+                         <select class="form-control"
+                                 v-model="newItem.extra.type_of_emission_factor"
+                                 v-if="newItem.extra.calculation_approach == 'purchased-electricity-location-based'">
+<!--                       <option value="custom-emission-factor">Custom emission factor</option> -->
+                           <option value="grid-average-location-based">Grid Average/Location Based</option>
+                         </select>
+                         <select class="form-control"
+                                 v-model="newItem.extra.type_of_emission_factor"
+                                 v-if="newItem.extra.calculation_approach == 'heat-steam'">
+<!--                       <option value="custom-emission-factor">Custom emission factor</option> -->
+                           <option value="grid-average-location-based">Grid Average/Location Based</option>
+                         </select>
+                       </td>
+                       <td>
+                         <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                         <button class="btn btn-secondary"
+                                 @click.prevent="addItem">Add row</button>
+                       </td>
+                     </tr>
+                   </tbody>
+                 </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
+               </div>{# /!showEmissionsEstimate #}
+               <div v-show="showEmissionsEstimate">
+                 <table class="table table-striped table-bordered">
+                   <thead>
+                     <tr>
+                       <th colspan="4">
+                         {% include "app/track/_ghg-emissions-toggle.html" %}
+                       </th>
+                       <th colspan="4">
+                         GHG Emissions (tonnes CO<sub>2</sub>e)
+                       </th>
+                     </tr>
+                     <tr>
+                       <th>Facility</th>
+                       <th>Grid</th>
+                       <th>Calculation Approach</th>
+                       <th>Type of Emission Factor</th>
+                       <th>
+                         CO<sub>2</sub> (tonnes)
+                       </th>
+                       <th>
+                         CH<sub>4</sub> (tonnes)
+                       </th>
+                       <th>
+                         N<sub>2</sub>O (tonnes)
+                       </th>
+                       <th>
+                         CO<sub>2</sub>e (tonnes)
+                       </th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <tr v-for="item in items.results"
+                         v-show="itemsLoaded && items.results.length > 0">
+                       <td>[[item.printable_name]]</td>
+                       <td>[[humanizeGrid(item.extra.grid)]]</td>
+                       <td>[[humanizeCalculationApproach(item.extra.calculation_approach)]]</td>
+                       <td>[[humanizeTypeOfEmissionFactor(item.extra.type_of_emission_factor)]]</td>
+                        <td>[[estimateCO2(item)]]</td>
+                        <td>[[estimateCH4(item)]]</td>
+                        <td>[[estimateN2O(item)]]</td>
+                        <td>[[estimateCO2e(item)]]</td>
+                     </tr>
+                   </tbody>
+                 </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
+               </div>{# /showEmissionsEstimate #}
+             </div>
+           </scope2-purchased-electricity>
+         </div>{# /#tab-purchased-electricity #}
+
+         <div role="tabpanel"
+              :class="'tab-pane' + (isActiveTile('transportation') ? ' active': '')"
+              id="tab-transportation"
+              v-cloak>
+           <scope3-transportation inline-template :init-url="'{{urls.api_track_ghg_emissions_scope3}}'">
+             <div>
+               <p>
+Fuel consumption by vehicles used to conduct company-financed travel. Examples include commercial air travel and use of rented vehicles during business trips (travel using company-owned/leased vehicles are included in Scope 1).
+               </p>
+               <div v-show="!showEmissionsEstimate">
+                 <table class="table table-striped table-bordered">
+                   <thead>
+                     <tr>
+                       <th>
+                         {% include "app/track/_ghg-emissions-toggle.html" %}
+                       </th>
+                       <th>
+                         <div class="input-group mr-2">
+                           <div class="input-group-prepend">
+                             <label class="input-group-text">From</label>
+                           </div>
+                           <input class="form-control" type="date"
+                                  v-model="starts_at">
+                         </div>
+                       </th>
+                       <th>
+                         <div class="input-group mr-2">
+                           <div class="input-group-prepend">
+                             <label class="input-group-text">To</label>
+                           </div>
+                           <input class="form-control" type="date"
+                                  v-model="ends_at">
+                         </div>
+                       </th>
+                       <th colspan="7">
+                       </th>
+                     </tr>
+                     <tr>
+                       <th>Description</th>
+                       <th>Category</th>
+                       <th>Emission Factor Dataset</th>
+                       <th>Mode of Transport</th>
+                       <th>Activity Type</th>
+                       <th>Vehicle Type</th>
+                       <th>Amount of Activity Type</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                       <td>
+                         {% include "app/track/_profile_descr.html" %}
+                       </td>
+                       <td>[[humanizeCategory(item.extra.category)]]</td>
+                       <td>[[humanizeEmissionFactorDataset(item.extra.emission_factor_dataset)]]</td>
+                       <td>[[humanizeModeOfTransport(item.extra.mode_of_transport)]]</td>
+                       <td>[[humanizeActivityType(item.extra.activity_type)]]</td>
+                       <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
+                       <td>
+                         <div class="input-group">
+                           <input class="form-control" type="number" min="0"
+                                  v-model="item.measured">
+                           <div class="input-group-append">
+                             <select class="form-control"
+                                     v-model="item.unit"
+                                     v-if="item.extra.activity_type == 'distance'">
+                               <option value="nautical-mile">nautical mile</option>
+                               <option value="mile">mile</option>
+                               <option value="km">km</option>
+                             </select>
+                             <select class="form-control"
+                                     v-model="item.unit"
+                                     v-if="item.extra.activity_type == 'passenger-distance'">
+                               <option value="passenger-mile">passenger-mile</option>
+                               <option value="passenger-mile">passenger-km</option>
+                             </select>
+                             <select class="form-control"
+                                     v-model="item.unit"
+                                     v-if="item.extra.activity_type == 'vehicle-distance'">
+                               <option value="vehicle-mile">vehicle-mile</option>
+                               <option value="vehicle-km">vehicle-km</option>
+                             </select>
+                             <select class="form-control"
+                                     v-model="item.unit"
+                                     v-if="item.extra.activity_type == 'weight-distance'">
+                               <option value="ton-mile">ton-mile</option>
+                               <option value="tonne-km">tonne-km</option>
+                             </select>
+                           </div>
+                         </div>
+                       </td>
+                     </tr>
+                     <tr>
+                       <td>
+                         <input class="form-control" type="text"
+                                v-model="newItem.full_name" />
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                 v-model="newItem.extra.category">
+                           <option value="upstream-td">Upstream T&amp;D</option>
+                           <option value="business-travel">Business Travel</option>
+                           <option value="employee-commute">Employee Commute</option>
+                         </select>
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                 v-model="newItem.extra.emission_factor_dataset">
+                           <option value="us-epa">US EPA</option>
+<!--                       <option value="uk-defra">UK DEFRA</option> -->
+                         </select>
+                       </td>
+                       <td>
+                         <select class="form-control"
+                                v-model="newItem.extra.mode_of_transport">
+                           <option value="car">Car</option>
+                           <option value="air">Air</option>
+                           <option value="bus">Bus</option>
+                           <option value="rail">Rail</option>
+                           <option value="ferry">Ferry</option>
+                         </select>
+                       </td>
+                        <td>
+                         <select class="form-control"
+                                v-model="newItem.extra.activity_type">
+                           <option value="distance">Distance</option>
+                           <option value="passenger-distance">Passenger Distance</option>
+                           <option value="vehicle-distance">Vehicle Distance</option>
+                           <option value="weight-distance">Weight Distance</option>
+                         </select>
+                       </td>
+                        <td>
+                         <select class="form-control"
+                                 v-model="newItem.extra.vehicle_type"
+                                 v-if="newItem.extra.category == 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'air'">
+                           <option value="aircraft">Aircraft</option>
+                         </select>
+                         <select class="form-control"
+                                 v-model="newItem.extra.vehicle_type"
+                                 v-if="newItem.extra.category == 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'car'">
+                           <option value="medium-and-heavy-duty-truck">Medium- and Heavy-Duty Truck</option>
+                           <option value="passenger-car-a1">Passenger Car A1</option>
+                           <option value="light-duty-truck-b1">Light-Duty Truck B1</option>
+                         </select>
+                         <select class="form-control"
+                                 v-model="newItem.extra.vehicle_type"
+                                 v-if="newItem.extra.category == 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'ferry'">
+                           <option value="waterborne-craft">Waterborne Craft</option>
+                         </select>
+                         <select class="form-control"
+                                 v-model="newItem.extra.vehicle_type"
+                                 v-if="newItem.extra.category == 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'rail'">
+                           <option value="rail">Rail</option>
+                         </select>
+                         <!-- business travel and employee commute -->
+                         <select class="form-control"
+                                 v-model="newItem.extra.vehicle_type"
+                                 v-if="newItem.extra.category != 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'air'">
+                           <option value="air-travel-short-haul-300-miles">Air Travel - Short Haul (&lt; 300 miles)</option>
+                           <option value="air-travel-medium-haul-300-miles-2300-miles">Air Travel - Medium Haul (&gt;= 300 miles,  &lt; 2300 miles)</option>
+                           <option value="air-travel-long-haul-2300-miles">Air Travel - Long Haul (&gt;= 2300 miles)</option>
+                         </select>
+                         <select class="form-control"
+                                 v-model="newItem.extra.vehicle_type"
+                                 v-if="newItem.extra.category != 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'car'">
+                           <option value="passenger-car-a">Passenger Car A</option>
+                           <option value="light-duty-truck-b">Light-Duty Truck B</option>
+                           <option value="motorcycle">Motorcycle</option>
+                         </select>
+                         <select class="form-control"
+                                 v-model="newItem.extra.vehicle_type"
+                                 v-if="newItem.extra.category != 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'bus'">
+                           <option value="bus">Bus</option>
+                         </select>
+                         <select class="form-control"
+                                 v-model="newItem.extra.vehicle_type"
+                                 v-if="newItem.extra.category != 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'rail'">
+                           <option value="intercity-rail">Intercity Rail (i.e. Amtrak) C</option>
+                           <option value="commuter-rail-d">Commuter Rail D</option>
+                           <option value="transit-rail">Transit Rail (i.e. Subway, Tram) E</option>
+                         </select>
+                       </td>
+                       <td>
+                         <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                         <button class="btn btn-secondary"
+                                 @click.prevent="addItem">Add row</button>
+                       </td>
+                     </tr>
+                   </tbody>
+                 </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
+               </div>{# /!showEmissionsEstimate #}
+               <div v-show="showEmissionsEstimate">
+                 <table class="table table-striped table-bordered">
+                   <thead>
+                     <tr>
+                       <th colspan="6">
+                         {% include "app/track/_ghg-emissions-toggle.html" %}
+                       </th>
+                       <th colspan="5">GHG Emissions (tonnes CO<sub>2</sub>e)</th>
+                     </tr>
+                     <tr>
+                       <th>Description</th>
+                       <th>Category</th>
+                       <th>Emission Factor Dataset</th>
+                       <th>Mode of Transport</th>
+                       <th>Activity Type</th>
+                       <th>Vehicle Type</th>
+                       <th>
+                         CO<sub>2</sub> (tonnes)
+                       </th>
+                       <th>
+                         CH<sub>4</sub> (tonnes)
+                       </th>
+                       <th>
+                         N<sub>2</sub>O (tonnes)
+                       </th>
+                       <th>
+                         CO<sub>2</sub>e (tonnes)
+                       </th>
+                       <th>
+                         Biofuel CO<sub>2</sub> (tonnes)
+                       </th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <tr v-for="item in items.results"
+                         v-show="itemsLoaded && items.results.length > 0">
+                       <td>[[item.printable_name]]</td>
+                       <td>[[humanizeCategory(item.extra.category)]]</td>
+                       <td>[[item.extra.emission_factor_dataset]]</td>
+                       <td>[[humanizeModeOfTransport(item.extra.mode_of_transport)]]</td>
+                       <td>[[humanizeActivityType(item.extra.activity_type)]]</td>
+                       <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
+                       <td>[[estimateCO2(item)]]</td>
+                       <td>[[estimateCH4(item)]]</td>
+                       <td>[[estimateN2O(item)]]</td>
+                       <td>[[estimateCO2e(item)]]</td>
+                       <td>[[estimateBiogenicCO2(item)]]</td>
+                     </tr>
+                   </tbody>
+                 </table>
+                  <div class="text-center my-4">
+                    <button class="btn btn-primary"
+                            @click.prevent="save">Record</button>
+                  </div>
+               </div>{# /showEmissionsEstimate #}
+             </div>
+          </scope3-transportation>
+         </div>{# /#tab-transportation #}
+
+        </div>
+        {% endblock %}
+      </div> {# .panel-body #}
+      {% block panel_footer %}
+      <div class="card-footer" style="padding:0;">
+      </div>
+      {% endblock %}
+    </div>
+  </data-tracker> {# .panel-icons #}
+  <p class="text-dark text-center mt-4">
+    This Web tool is based on the
+    <a href="https://ghgprotocol.org/ghg-emissions-calculation-tool"
+       target="_blank">GHG Emissions Calculation Tool</a>
+    provided by:
+  </p>
+  <div class="row text-center mb-4">
+    <div class="col-sm-4">
+      <img class="img-fluid" src="{{'/static/img/greenhouse-gas-protocol.jpg'|asset}}" style="height:64px;">
+    </div>
+    <div class="col-sm-4">
+      <img class="img-fluid" src="{{'/static/img/world-resources-institute.png'|asset}}" style="height:64px;">
+    </div>
+    <div class="col-sm-4">
+      <img class="img-fluid" src="{{'/static/img/logo-anthesis-dark.png'|asset}}" style="height:64px;">
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block track_scripts %}
+<script type="text/javascript" src="{{'/static/js/energy-ghg-emissions-types.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/ef-stationary-combustion.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/ef-mobile-combustion.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/ef-default-average-fuel-efficiency.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/ef-refrigerants.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/ef-grid-region-location-based.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/ef-residual-mix-market-based.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/ef-heat-steam.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/ef-scope3-transport.js'|asset}}"></script>
+{% endblock %}

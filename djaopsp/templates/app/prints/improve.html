@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+.bestpractice-title {
+  font-size: 26px;
+  font-family:'Helvetica Neue';
+}
+
+.bestpractice-body {
+  font-size: 12px;
+}
+
+.bestpractice-body h1 {
+  font-size: 18px;
+}
+.bestpractice-body h2 {
+  font-size: 16px;
+}
+.bestpractice-body h3 {
+  font-size: 14px;
+}
+.bestpractice-body h4,
+.bestpractice-body h5,
+.bestpractice-body h6 {
+  font-size: 12px;
+  font-weight: bold;
+}
+    </style>
+  </head>
+  <body>
+    <!-- XXX - HACK to customize PDF, add style into tags -->
+    <h1 style="font-size:30px;font-family:'Helvetica Neue';text-align:center;margin-bottom:0px">Improvement Plan</h1>
+    <h2 style="font-size:30px;font-family:'Helvetica Neue';font-weight:200;margin-bottom:0px;margin-top:0px;text-align:center">Practices</h2>
+    <hr>
+    {% for item in table_of_content %}
+    <div style="margin-left:{{item.indent * 10}}px;">{{item.title}}</div>
+    {% endfor %}
+    <hr>
+    {% for item in object_list %}
+    <h1 class="bestpractice-title">{{item.title}}</h1>
+    <div class="bestpractice-body">
+      {% if item.text %}
+      {{item.text|safe}}
+      {% else %}
+      <p>
+Guidance has not yet been developed for this practice. If you would like us to
+develop guidance, or are interested in authoring content for this practice,
+please contact us (https://tspproject.org/contact/).
+      </p>
+      {% endif %}
+    </div>
+  {% endfor %}
+  </body>
+</html>

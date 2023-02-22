@@ -1,0 +1,76 @@
+<div class="improvement-planning">
+  <div>
+    <button class="btn btn-primary" type="button"
+            data-toggle="collapse" data-target="#improvement-dashboard"
+            aria-expanded="false" aria-controls="improvement-dashboard">
+        Planning dashboard
+    </button>
+    <div id="improvement-dashboard" class="text-center inner collapse" style="">
+      <div>
+        <h3 style="margin-top:20px;margin-bottom:0;">Planning Dashboard</h3>
+        <div>Estimated impacts of your improvement plan selections</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="score-card" style="flex:auto;">
+            <h4>Total Score <span id="improvement-score"></span></h4>
+            <div id="totals"
+                 class="chart-content" style="margin:auto;"
+                 v-for="practice in [{highest_normalized_score: 75, normalized_score: 60, avg_normalized_score: 25}]">
+              {% include "app/_score_arcs.html" %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 bordered-left">
+          <div id="{{path}}-chart" class="chart-container chart-container-default"
+               v-show="activeTile === null">
+            {% if segments_available %}
+            <div>
+              {% if segments_available.0.picture %}
+              <div class="orange icon-inner d-inline-block">
+                <img class="icon-equipment" style="margin-top: 15px;"
+                     src="{{segments_available.0.picture}}" />
+              </div>
+              {% endif %}
+              <span class="title">{{segments_available.0.title}}</span>
+            </div>
+            <div>
+              <div class="chart-content c3 benchmark-chart-small">
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="chart-container"
+               v-for="tile in getEntries('', 0)"
+               v-show="activeTile && tile.slug == activeTile.slug">
+            <div>
+              <div class="orange icon-inner d-inline-block"
+                   v-if="tile.picture">
+                <img class="icon-equipment" style="margin-top: 15px;"
+                     :src="tile.picture" />
+              </div>
+              <span class="title">[[tile.title]]</span>
+            </div>
+            {% include "app/_tile_chart.html" %}
+          </div>
+        </div>
+      </div>
+        <div class="benchmarks-top-border">
+          <div class="row" style="margin-top: 25px;margin-bottom:15px;">
+            <div class="col-sm-6">
+              <a id="download-improvements"
+                 class="improve-link"
+                 href="{{urls.download}}"
+                 target="_blank">Print planned actions</a>
+            </div>
+            <div class="col-sm-6">
+              <a id="print-actions-guidance"
+                 class="improve-link"  style="margin-right:15px;"
+                 href="{{urls.print}}"
+                 target="_blank">Print actions guidance</a>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+{% extends "app/base.html" %}
+
+{% block app_content %}
+{% block survey_content %}
+<div>
+  <div>
+    <h1 class="text-center">Campaigns</h1>
+  </div>
+  <div id="panel-icons" class="panel-icons">
+  </div>
+</div>
+{% endblock %}
+{% endblock %}
+
+{% block app_bodyscripts %}
+<script type="text/javascript" src="{{'/static/vendor/jquery-ui.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/hallo.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-editor.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-upload.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-sidebar-gallery.js'|asset}}"></script>
+{% if ASSETS_DEBUG %}
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-survey-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-pages-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/editors-vue.js'|asset}}"></script>
+{% else %}
+<script type="text/javascript" src="{{'/static/cache/editors.js'|asset}}"></script>
+{% endif %}
+{% block survey_bodyscripts %}
+{% endblock %}
+{% endblock %}

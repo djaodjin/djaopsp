@@ -1,0 +1,79 @@
+[
+{ "fields" : {
+    "slug": "djaopsp",
+    "full_name": "DjaoDjin"
+  },
+  "model" : "djaopsp.account", "pk" : 2
+},
+{ "fields" : {
+    "slug": "alliance",
+    "full_name": "Alliance (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 3
+},
+{ "fields" : {
+    "slug": "energy-utility",
+    "full_name": "Energy Utility (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 4
+},
+{ "fields" : {
+    "slug": "janice-shop",
+    "full_name": "Janice Shop"
+  },
+  "model" : "djaopsp.account", "pk" : 5
+},
+{ "fields" : {
+    "slug": "supplier-1",
+    "full_name": "S1 - Tamerin (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 6
+},
+{ "fields" : {
+    "slug": "water-utility",
+    "full_name": "Water Utility (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 7
+},
+{ "fields" : {
+    "slug": "andy-shop",
+    "full_name": "Andy's shop"
+  },
+  "model" : "djaopsp.account", "pk" : 8
+},
+{ "fields" : {
+    "slug": "main-factory",
+    "full_name": "Main Factory"
+  },
+  "model" : "djaopsp.account", "pk" : 9
+},
+{ "fields": {
+    "date_joined": "2023-01-01T00:00:00+00:00",
+    "email": "tspproject@localhost.localdomain",
+    "first_name": "Steve",
+    "is_active": true,
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "steve"
+  },
+  "model": "auth.User", "pk": 7
+},
+{ "fields": {
+    "date_joined": "2023-01-01T00:00:00+00:00",
+    "email": "tspproject@localhost.localdomain",
+    "first_name": "Andy",
+    "is_active": true,
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "andy"
+  },
+  "model": "auth.User", "pk": 8
+},
+{ "fields": {
+    "date_joined": "2023-01-01T00:00:00+00:00",
+    "email": "alice@localhost.localdomain",
+    "first_name": "Alice",
+    "is_active": true,
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "alice"
+  },
+  "model": "auth.User", "pk": 10
+}]

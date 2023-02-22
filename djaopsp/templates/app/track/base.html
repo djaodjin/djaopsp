@@ -1,0 +1,23 @@
+{% extends "app/base.html" %}
+
+{% block app_content %}
+{% block track_content %}
+{% endblock %}
+{% endblock %}
+
+{% block app_bodyscripts %}
+{% if ASSETS_DEBUG %}
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaopsp-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/assess-vue.js'|asset}}"></script>
+{% else %}
+<script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
+{% endif %}
+<script type="text/javascript">
+Vue.prototype.$dateRange = {
+    starts_at: "{% if starts_at %}{{starts_at}}{% endif %}",
+    ends_at: "{% if ends_at %}{{ends_at}}{% endif %}"
+};
+</script>
+{% block track_scripts %}{% endblock %}
+{% endblock %}

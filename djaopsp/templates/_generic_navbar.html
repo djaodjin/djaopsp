@@ -1,0 +1,13 @@
+{% if request and request|is_authenticated %}
+<li class="nav-item">
+  <a id="app_home" class="nav-link" href="{{'/app/'|site_url}}{% if profile %}{{profile}}/{% endif %}">{% trans %}Home{% endtrans %}</a>
+</li>
+{% endif %}
+<li class="nav-item dropdown {% if request and '/docs/' in request.path %} active{% endif %}">
+ <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans %}Help{% endtrans %} <span class="caret"></span></a>
+  <ul class="dropdown-menu" role="menu">
+    <li role="presentation"><a class="dropdown-item" role="menuitem" tabindex="-1" href="{{'/docs/faq/'|site_url}}">{% trans %}Faq{% endtrans %}</a></li>
+    <li role="presentation"><a class="dropdown-item" role="menuitem" tabindex="-1" href="{{'/docs/tutorials/'|site_url}}">{% trans %}Tutorials{% endtrans %}</a></li>
+    <li role="presentation"><a class="dropdown-item" role="menuitem" tabindex="-1" href="{{'/contact/'|site_url}}">{% trans %}Contact us{% endtrans %}</a></li>
+  </ul>
+</li>

@@ -1,0 +1,290 @@
+{% extends "app/share/base.html" %}
+
+{% block share_content %}
+<div class="container mb-4">
+  <h1 class="text-center">Share {{campaign.title}}</h1>
+  <h2 class="text-center">for {{profile.printable_name}}</h2>
+  <div class="bg-white text-dark px-2 py-4">
+    <div class="row">
+      <div class="col-8">
+        {% if sample.is_frozen %}
+        {% if latest_completed_assessment %}
+        <p class="text-left">
+The {{campaign.title}} was last
+<strong>completed on {{latest_completed_assessment.created_at|date}}</strong>.
+Please make sure you have an up-to-date assessment before sharing it. In order
+to do so, <a href="{{urls.update_assessment}}">review and update</a>
+the answers, then click complete.
+        </p>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-warning">
+          <div>
+<strong>This report is a work in progress.</strong>
+You first need to mark it complete before it can be shared.
+          </div>
+        </div>
+        {% endif %}
+        <div class="text-left m-2">
+          <portfolios-received-list inline-template id="received">
+            <div>
+              <div class="text-center mt-4" v-show="!itemsLoaded">
+                <i class="fa fa-refresh fa-spin fa-2x"></i>
+              </div>
+              <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
+                <p>
+There are currently no pending requests for your {{campaign.title}}.
+                </p>
+              </div>
+              <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+                <p>
+The following organizations have requested a copy of the latest {{campaign.title}}.
+                </p>
+                <p>
+No data will be shared until you click the <strong>accept</strong> button.
+                </p>
+                <div class="card mt-1" v-for="(received, index) in items.results">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-2">
+<img class="img-fluid" style="max-height:64px;" :src="received.grantee.picture || '{{'/static/img/default-organization.png'|asset}}'" >
+                      </div>
+                      <div class="col-5">
+[[received.grantee.printable_name ? received.grantee.printable_name : '@' + received.grantee]]
+                      </div>
+                      <div class="col-5 text-right">
+                        <button class="btn btn-secondary"
+                                @click.prevent="ignore(received, index)">Ignore</button>
+                        <button class="btn btn-primary"
+                                {% if not sample.is_frozen %} disabled{% endif %}
+                                @click.prevent="accept(received, index)">Accept</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>{# /.card #}
+              </div>{# /.itemsLoaded && items.results.length == 0 #}
+            </div>
+          </portfolios-received-list>
+        </div>
+
+        {% if sample.is_frozen %}
+        <hr />
+        <div id="grants" class="text-left m-2">
+          <label>Send a copy pro-actively to ...</label>
+          <portfolios-grant-list inline-template
+              v-bind:default-selected-accounts='[{slug: "{{profile.slug}}" }]'>
+            <div>
+              <div class="mb-2">
+                <div class="text-center mt-4" v-show="!itemsLoaded">
+                  <i class="fa fa-refresh fa-spin fa-2x"></i>
+                </div>
+                <div v-if="itemsLoaded && items.results.length > 0" v-cloak>
+                  <div class="card" v-for="(grant, index) in items.results">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-2">
+                        </div>
+                        <div class="col-5">
+                          <div>
+You sent a copy of @[[grant.account]] [[grant.campaign]] to @[[grant.grantee]]. They have yet to accept it.
+                          </div>
+                        </div>
+                        <div class="col-5 text-right">
+                          <button class="btn btn-danger"
+                            @click.prevent="ignore(grant, index)">
+                            Retire
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>{# /.card #}
+                </div>
+              </div>
+              <form class="form" @submit.prevent="submitGrants">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                <fieldset>
+                  <grantee-typeahead inline-template
+                      v-bind:dataset="grant.grantee"
+                      v-bind:default-message='"Hello,\n\nI would like to invite you to view {{profile.printable_name}}’s Scorecard information on The Sustainability Project.\n\nThank you.\n- {% if request.user.first_name %}{{request.user.first_name}}{% else %}{{request.user.username}}{% endif %}"'
+                      v-bind:show-accounts="showAccounts"
+                      v-on:selectitem="addGrantee">
+                    <div>
+                      <div id="grantee-search" class="input-group w-100">
+                        <div class="input-group-prepend">
+                          <!-- optional indicators -->
+                          <div class="input-group-text">
+                            <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                            <template v-else>
+                              <i class="fa fa-search" v-show="isEmpty"></i>
+                              <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                            </template>
+                          </div>
+                        </div>
+                        <!-- the input field -->
+                        <input class="form-control" type="text"
+                               placeholder="Enter profile name or email address"
+                               autocomplete="off"
+                               v-model="query"
+                               @keydown.down="down"
+                               @keydown.up="up"
+                               @keydown.enter="hit"
+                               @blur="reset"
+                               @input="update" />
+                        <!-- the list -->
+                        <ul class="dropdown-menu"
+                            style="display:block;padding:5px;"
+                            v-show="hasItems">
+                          <li :class="activeClass($item)"
+                              v-for="(item, $item) in items"
+                              @mousedown="hit"
+                              @mousemove="setActive($item)">
+                            <a v-text="item.printable_name"></a>
+                          </li>
+                        </ul>
+                      </div>
+                      <!-- invite form:
+                           grant portfolio to a user that is not yet registered.
+                        -->
+                      <div id="portfolio-grant-invite" v-show="unregistered">
+                        <div class="has-error">
+                          <div class="help-block invalid-feedback">
+[[(query || selectedItem.email)]] is not yet registered.
+This is an opportunity to invite her/him.
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="mt-2" for="email">
+                            Send invite to
+                          </label>
+                          <input class="form-control"
+                                 name="email" max-length="150" type="text"
+                                 v-model="selectedItem.email" />
+                        </div>
+                        <div class="form-group">
+                          <label for="full_name">
+                            Profile name of the organization invited
+                          </label>
+                          <input class="form-control"
+                                 name="full_name" max-length="150"
+                                 ref="fullName" type="text"
+                                 v-model="selectedItem.full_name"
+                                 autofocus />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">
+The following message will be sent alongside the invite
+                          </label>
+                          <textarea class="form-control"
+                                    name="message"
+                                    maxlength="4096" rows="10" type="text"
+                                    v-model="selectedItem.message"></textarea>
+                        </div>
+                        <div>
+                          <button class="btn btn-primary w-100"
+                                  type="submit"
+                                  @click.prevent="submitInvite"
+                                  v-show="!showAccounts">Next &raquo;</button>
+                        </div>
+                      </div>
+                      <!-- end of invite form -->
+                    </div>
+                  </grantee-typeahead>
+                </fieldset>
+                <fieldset v-show="showAccounts">
+                  <p>
+<strong>You are about to share a copy</strong> of the following most current
+report(s) with <em>[[grant.grantee.email ? grant.grantee.email : grant.grantee.printable_name]]</em>.
+No data will be shared until you click the <strong>send</strong>
+button.
+                  </p>
+                  <div class="card mt-1" v-for="(account, index) in grant.accounts">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-2">
+                        </div>
+                        <div class="col-5">
+                          <div>
+[[account.full_name ? account.full_name : account.slug]]
+                          </div>
+                          <div v-if="account.campaign">
+[[account.campaign ? account.campaign.title : "-"]]
+                          </div>
+                        </div>
+                        {% if urls.api_grant_allowed_candidates %}
+                        <div class="col-5 text-right">
+                          <button class="btn btn-danger"
+                            @click.prevent="removeAccount(grant.accounts, index)">Remove</button>
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>{# /.card #}
+
+                  {# When it is allowed to share other assessments #}
+                  {# than one's own.                               #}
+                  {% if urls.api_grant_allowed_candidates %}
+                  <grant-allowed-typeahead inline-template ref="account" v-bind:dataset="grant.accounts" v-on:selectitem="addAccount">
+                    <div id="team-accounts-search" class="input-group w-100">
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">
+                          <!-- optional indicators -->
+                          <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                          <template v-else>
+                            <i class="fa fa-search" v-show="isEmpty"></i>
+                            <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                          </template>
+                        </div>
+                      </div>
+                      <!-- the input field -->
+                      <input class="form-control" type="text"
+                             placeholder="Enter name of profile ..."
+                             autocomplete="off"
+                             v-model="query"
+                             @keydown.down="down"
+                             @keydown.up="up"
+                             @keydown.enter="hit"
+                             @keydown.esc="reset"
+                             @blur="reset"
+                             @input="update"/>
+                      <div class="input-group-append">
+                        <button class="btn btn-primary"
+                                @click.prevent="search">Add</button>
+                      </div>
+                      <!-- the list -->
+                      <ul class="dropdown-menu"
+                          v-show="hasItems">
+                        <li :class="activeClass($item)"
+                            v-for="(item, $item) in items"
+                            @mousedown="hit"
+                            @mousemove="setActive($item)"
+                            @click="setActiveAndHit($item)">
+                          <a v-text="item.email"></a>
+                        </li>
+                      </ul>
+                    </div>
+                  </grant-allowed-typeahead>
+                  {% endif %}
+                  <div class="mt-2" v-show="grant.accounts.length > 0">
+                    <button class="btn btn-primary w-100"
+                         type="submit">Send</button>
+                  </div>
+                </fieldset>
+              </form>
+            </div>
+          </portfolios-grant-list>
+        </div>{# /.grants #}
+      </div>{# /.col-8 #}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block share_scripts %}
+{% if ASSETS_DEBUG %}
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-survey-vue.js'|asset}}"></script>
+{% else %}
+<script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
+{% endif %}
+{% endblock %}

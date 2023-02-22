@@ -1,0 +1,20 @@
+<td :id="practice.slug" colspan="6">
+  <div style="display:inline-block;">
+    <div :class="indentHeader(practice)"
+         style="display:inline-block;">
+      <span class="title"
+            v-if="!isPractice(practice)">
+        [[practice.title]]
+      </span>
+      <a class="title"
+         :href="'{{urls.pages_index}}' + practice.slug + '/'"
+         v-if="isPractice(practice)">
+        [[practice.title]]
+      </a>
+    </div>
+  </div>
+</td>
+
+<td v-for="answer in practice.answers">
+    {#[[answer[0] ]]#} - [[practice.nb_respondents]]
+</td>

@@ -1,0 +1,23 @@
+<div id="breadcrumbs">
+  <div class="question-mark" style="float: right; padding-right: 25px;">
+    {% block help_menus %}
+    {% endblock %}
+  </div> <!-- .question-mark -->
+  <ol class="col-md-9 breadcrumb">
+    <li class="breadcrumb-item">
+      {% if profile %}
+      <a href="{{'/app/'|site_url}}{{profile}}/">{{profile.printable_name}}</a>
+      {% else %}
+      <a href="{{'/app/'|site_url}}">Home</a>
+      {% endif %}
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{{urls.pages_index}}">Knowledge Sharing</a>
+    </li>
+    {% for breadcrumb_tuple in breadcrumbs %}
+    <li class="breadcrumb-item">
+        <a id="bc-{{breadcrumb_tuple.0}}" href="{{breadcrumb_tuple.2}}">{{breadcrumb_tuple.1}}</a>
+    </li>
+    {% endfor %}
+  </ol>
+</div>

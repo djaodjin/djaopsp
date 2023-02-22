@@ -1,0 +1,63 @@
+[
+{
+  "fields": {
+    "slug": "totals",
+    "title": "Total score",
+    "extra": "{\"tags\": [\"metric\"]}"
+  },
+  "model": "survey.editablefilter", "pk": 1
+},
+{
+  "fields": {
+    "slug": "boxes-and-enclosures",
+    "title": "Boxes & enclosures",
+    "extra": "{\"tags\": [\"cohort\"]}"
+  },
+  "model": "survey.editablefilter", "pk": 13
+},
+{
+  "fields": {
+    "rank": 0,
+    "editable_filter": 13,
+    "operator": "startswith",
+    "operand": "/metal/boxes-and-enclosures",
+    "field": "extra",
+    "selector": "keepmatching"
+  },
+  "model": "survey.editablepredicate", "pk": 13
+},
+{
+  "fields": {
+    "slug": "totals",
+    "account": 2,
+    "title": "Average scores by industry segments",
+    "metric": 1,
+    "cohorts": [13]
+  },
+  "model": "survey.matrix", "pk": 1
+},
+{
+  "fields": {
+    "slug": "suppliers",
+    "title": "Energy utility suppliers",
+    "account": 4
+  },
+  "model": "survey.editablefilter", "pk": 14
+},
+{
+  "fields": {
+    "slug": "ghg-emissions",
+    "title": "GHG Emissions",
+    "account": 6,
+    "extra": "{\"path\":\"/sustainability/data-measured/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1\"}"
+  },
+  "model": "survey.editablefilter", "pk": 15
+},
+{
+  "fields": {
+    "editable_filter": 15,
+    "account": 9,
+    "rank": 1
+  },
+  "model": "survey.EditableFilterEnumeratedAccounts", "pk": 1
+}]

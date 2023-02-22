@@ -1,0 +1,28 @@
+{% extends "notification/base.eml" %}
+
+{% block subject %}
+{{account.printable_name|safe}} completed their assessment
+{% endblock %}
+
+{% block title %}
+{{account.printable_name|safe}} completed their assessment
+{% endblock %}
+
+{% block html_content %}
+{% if message %}
+<pre>
+{{message}}
+</pre>
+{% endif %}
+<p>
+You are receiving this email, because {{account.printable_name|safe}}
+is listed on your dashboard.
+</p>
+<p>
+View the completed assessment for {{account.printable_name|safe}}
+by clicking on the link below:
+</p>
+<p>
+<a href="{{back_url}}">{{back_url}}</a>
+</p>
+{% endblock %}

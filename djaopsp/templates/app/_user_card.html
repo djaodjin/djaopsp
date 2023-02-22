@@ -1,0 +1,17 @@
+<div :id="item.user.slug" class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-3">
+          <div>
+            <a :href="'/users/' + item.user.slug + '/'"><img class="card-img-top rounded-circle" v-bind:src="item.user.picture ? item.user.picture : '{{'/static/img/default-user.png'|asset}}'" alt=""></a>
+          </div>
+      </div>
+      <div class="col-9">
+        <h5 class="card-title"><a :href="'/users/' + item.user.slug + '/'">[[item.user.printable_name]]</a></h5>
+        <h6 class="card-subtitle">[[item.user.email]]</h6>
+        <span class="badge badge-secondary">[[ item.role_description ? item.role_description.title : "" ]]</span>
+         <span class="badge badge-primary" v-if="item.user.email && (item.user.email == entry.email)">Primary Contact</span>
+      </div>
+    </div>
+  </div>
+</div>

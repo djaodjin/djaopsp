@@ -1,0 +1,7 @@
+<div style="font-size:10px;">
+    <span>Energy</span>
+    <input style="width:auto;vertical-align:middle;"
+           type="range" min="0" max="1" name="emissionsEstimate"
+           v-model="emissionsEstimate">
+    <span>vs. {% if peers %}{{peers}}{% else %}CO2e{% endif %}</span>
+</div>

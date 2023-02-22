@@ -1,0 +1,62 @@
+{% extends "app/reporting/base.html" %}
+
+{% block reporting_title %}Compare{% endblock %}
+
+
+{% block reporting_content %}
+<djaopsp-compare-samples id="compare-dashboard" inline-template>
+  <div>
+    <table class="table table-bordered table-assessment mt-4">
+      <thead>
+        <tr>
+          <th class="sticky-cell sticky-cell-top">
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                  Name
+              </div>
+            </div>
+          </th>
+          <th class="sticky-cell sticky-cell-top"
+              v-for="label in items.labels"
+              v-show="itemsLoaded && items.results.length > 0" v-cloak>
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                  [[label]]
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th class="sticky-cell sticky-cell-top">
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                  Date
+              </div>
+            </div>
+          </th>
+          <th class="sticky-cell sticky-cell-top" colspan="2">
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+              </div>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-show="!itemsLoaded">
+          <td colspan="7">
+            <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
+          </td>
+        </tr>
+        <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
+            <td colspan="7">No response to compare</td>
+        </tr>
+        <tr v-for="practice in items.results" v-cloak>
+          {% include "survey/matrix/_compare_row.html" %}
+        </tr>
+      </tbody>
+    </table>
+    {% include "_pagination.html" %}
+  </div>
+</djaopsp-compare-samples>
+{% endblock %}

@@ -1,0 +1,537 @@
+{% extends "app/scorecard/base.html" %}
+
+{% block scorecard_content %}
+<scorecard inline-template  class="container pt-4">
+  <div class="pt-4">
+    <div class="bg-white text-dark">
+      <section id="summary">
+        {% if not sample.is_frozen %}
+        <div class="alert alert-warning">
+          <div>
+<strong>This report is a work in progress.</strong>
+Once you are ready, please click
+the <em>Complete</em> button at the bottom of the page to create a frozen report. Required questions with missing answers are highlighted with a red vertical bar to the right.
+          </div>
+        </div>
+        {% endif %}
+        <div class="row">
+          <div class="col-sm-8">
+            <div class="row">
+              <div class="col-sm-4 text-center text-sm-right">
+                <img class="my-4 img-fluid" style="max-height:100px;" src="{% if sample.account.picture %}{{sample.account.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+              </div>
+              <div class="col-sm-8 text-center text-sm-left">
+                <h1 class="mt-4">{{sample.account.printable_name}}</h1>
+                <h2>{{sample.campaign.title}}</h2>
+                <div>{{sample.created_at|date}}</div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 text-right">
+                <div class="row text-center mx-4">
+                  {% for highlight in highlights %}
+                  <div class="col-6 col-md-3 text-center">
+                    <div class="mt-2 icon-inner{% if highlight.reporting %} orange{% else %} grey{% endif %}" style="margin-left:auto;margin-right:auto;">
+                      <img class="icon-equipment"
+                           src="{{highlight.picture|asset}}">
+                      <div class="icon-caption text-white">{{highlight.text}}</div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="mt-2 ml-2">
+                  Contact Information
+                  <ul class="list-unstyled mb-0">
+                    {% if sample.account.email %}
+                    <li>{{sample.account.email}}</li>
+                    {% endif %}
+                    {% if sample.account.phone %}
+                    <li>{{sample.account.phone}}</li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% if summary_performance %}
+          <div class="col-sm-4 bordered-left">
+            <div class="h-100" style="background-color: #e5e9dd;">
+              <div class="text-center">
+                <canvas id="summary-chart"></canvas>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </section> {# <!-- /#summary --> #}
+      <section id="details">
+        {% if not sample.is_frozen and not is_mandatory_segment_present %}
+        <div class="text-center">
+          <hr />
+          <p>
+            {% if sample.campaign.description %}
+            {{sample.campaign.description}}
+            {% else %}
+            {% trans %}Get started!{% endtrans %}
+            {% endif %}
+          </p>
+          <a id="get-started-btn" href="{{urls.assess_mandatory_segment}}" class="btn btn-primary btn-lg">{% trans %}Respond to 2022 Questions{% endtrans %} &raquo;</a>
+        </div>
+        {% endif %}{# /not is_mandatory_segment_present #}
+        <div class="text-center mt-4" v-show="!itemsLoaded">
+          <i class="fa fa-refresh fa-spin fa-2x"></i>
+        </div>
+        <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+          <div :name="practice.slug" v-for="practice in getEntries()">
+            <div class="mt-4" v-if="isChartHeading(practice)">
+              <hr v-if="practice.picture" />
+              <div>
+                <div :class="indentHeader(practice)">
+                  <div class="orange icon-inner d-inline-block"
+                       v-if="practice.picture && practice.indent > 0">
+                    <img class="icon-equipment" style="margin-top: 15px;"
+                         :src="practice.picture" />
+                  </div>
+                  <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                </div>
+                {% if not sample.is_frozen %}
+                <div v-if="practice.indent == 0">
+                  <a :href="'{{urls.assess_base}}' + practice.slug + '/'">Update</a>
+                  <a id="reset-assessment-btn"
+                     class="ml-4" href=""
+                     data-toggle="modal"
+                     data-target="#reset-assessment"
+                     @click="setActiveElement(practice)">Remove</a>
+                </div>
+                {% endif %}
+              </div>
+              <div class="row">
+                <div class="col-md-8">
+                  {# tile-summary #}
+                  <div v-if="practice.indent == 0"
+                    v-for="block in chunkBy(getEntries(practice.slug, 1, 'scorecard'), 6)"
+                    v-if="getEntries(practice.slug, 1, 'scorecard').length > 0">
+                    <div class="row">
+                      <div class="col-md-2" v-for="subheading in block">
+                        <ul class="nav nav-tabs squared-tabs">
+                          <li class="nav-item squared-tabs-li">
+                            <a class="nav-link icon-inner orange">
+                              <img class="icon-equipment"
+                                   :src="subheading.picture"
+                                   v-if="subheading.picture">
+                              <div class="icon-caption text-white">[[subheading.title]]</div>
+                            </a>
+                            <div class="icon-score">
+                              <h3 class="rollup-score">
+                                <i class="fa fa-spinner fa-spin" v-if="typeof subheading.normalized_score === 'undefined'"></i>
+                                <span v-if="typeof subheading.normalized_score !== 'undefined'">[[$globals.humanizeNumber(subheading.normalized_score)]]%
+                              </h3>
+                              <div>
+                                (<span class="rollup-weight">[[$globals.humanizeNumber(subheading.score_weight, subheading.score_percentage)]]</span>)
+                              </div>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>{# /tile-summary #}
+                  <div v-if="containsTag(practice, 'scorecard') && (practice.indent > 0 || getEntries(practice.slug, 1, 'scorecard').length == 0)">
+                    <div class="text-center d-flex align-items-center"
+                         style="height:150px;max-width:300px;"
+                         v-if="!chartsAvailable && !charts[practice.path]">
+                      <div class="box">
+                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                      </div>
+                    </div>
+                    <div class="text-center d-flex align-items-center"
+                         style="height:150px;max-width:300px;background:#eee;"
+                         v-if="chartsAvailable && !charts[practice.path]">
+                      <div class="box">There is not enough data available to benchmark with peers.</div>
+                    </div>
+                    <canvas :data-id="practice.path" v-show="charts[practice.path]"></canvas>
+                  </div>
+                </div>{# /.col-md-8 #}
+                <div class="col-md-4">
+                  <div :class="indentHeader(practice) + ' py-2'"
+                       v-if="practice.indent == 0">
+                    {% include "app/_score_arcs.html" %}
+                  </div>{# /practice.indent == 0 #}
+                  <div :class="indentHeader(practice)"
+                       v-if="practice.indent > 0">
+                    [[asPercent(practice.normalized_score)]]
+                  </div>
+                </div>{# /.col-md-4 #}
+              </div>{# /.row #}
+              <div v-if="practice.indent == 0"
+                v-for="block in chunkBy(getEntries(practice.slug, 1, 'scorecard'), 3)">
+                <div class="row">
+                  <div class="col-md-4" v-for="subheading in block">
+                    <div class="orange icon-inner d-inline-block"
+                         v-if="subheading.picture">
+                      <img class="icon-equipment" style="margin-top: 15px;"
+                           :src="subheading.picture" />
+                    </div>
+                    <span class="title">[[subheading.title]]</span>
+                    <div class="text-center d-flex align-items-center"
+                         style="height:150px;max-width:300px;"
+                         v-if="!chartsAvailable && !charts[subheading.path]">
+                      <div class="box">
+                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                      </div>
+                    </div>
+                    <div class="text-center d-flex align-items-center"
+                         style="height:150px;max-width:300px;background:#eee;"
+                         v-if="chartsAvailable && !charts[subheading.path]">
+                      <div class="box">There is not enough data available to benchmark with peers.</div>
+                    </div>
+                    <canvas :data-id="'/summary' + subheading.path" v-show="charts[subheading.path]"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>{# /.isChartHeading - i.e. heading with charts and score #}
+            <p class="text-center" v-if="practice.indent == 0">
+Benchmarking is based on responses from <span v-if="!chartsLoaded">?</span><span v-if="chartsLoaded" v-cloak>[[getNbRespondents(practice)]]</span>
+companies responding on practices in the industry segment.
+            </p>
+
+            <div v-if="!isChartHeading(practice) && !isPractice(practice)">
+              <hr v-if="isTilePicture(practice)" />
+              <div class="row">
+                <div class="col-12">
+                  <div :class="indentHeader(practice) + ' mt-2'">
+                    <div class="orange icon-inner d-inline-block"
+                         v-if="isTilePicture(practice)">
+                      <img class="icon-equipment" style="margin-top: 15px;"
+                           :src="practice.picture" />
+                    </div>
+                    <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  </div>
+                  {% if not sample.is_frozen %}
+                  <div v-if="practice.indent == 0">
+                    <a :href="'{{urls.assess_base}}' + practice.slug + '/'">Update</a>
+                    <a id="reset-assessment-btn"
+                       class="ml-4" href=""
+                       data-toggle="modal"
+                       data-target="#reset-assessment"
+                       @click="setActiveElement(practice)">Remove</a>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>{# /.row #}
+              <div v-if="isDataMetricsHeader(practice)">
+                <table class="table table-bordered table-striped">
+                  <tr class="text-right">
+                    <th></th>
+                    <th v-for="year in getColHeaders(practice)">
+                      [[year]]
+                    </th>
+                  </tr>
+                  <tr v-for="total in getEntries(practice.slug)">
+                    <th>[[total.title]]</th>
+                    <td class="text-right"
+                        v-for="year in getColHeaders(practice)">
+                      [[getColValue(total, year)]]
+                    </td>
+                  </tr>
+                  <caption class="text-center">
+                    [[getCaptionTitle(practice)]]
+                  </caption>
+                </table>
+              </div>{# /.isDataMetricsHeader #}
+            </div>{# /!isChartHeading(practice) && !isPractice(practice) - i.e. regular heading #}
+
+            <div v-if="isEnumUnit(practice)">
+              <div class="row">
+                <div class="col-md-8">
+                  <div :class="indentHeader(practice) + ' mt-2'">
+                    <a class="title"
+                       :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''">
+                      [[practice.title]]
+                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6 col-md-4"
+                         v-if="isAssessmentUnit(practice)">
+                      Implementation rate<br />
+                      [[practice.nb_respondents]] respondents
+                      <div class="progress" style="margin:0">
+                        <div :class="'progress-bar progress-bar-success green-level-' + practice.avg_value"
+                             role="progressbar"
+                             :aria-valuenow="getRate(practice)"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             :style="implementationRateStyle(getRate(practice))">
+                          <span :class="{'text-muted': !getRate(practice) || getRate(practice) < 35}">[[asPercent(getRate(practice))]]</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4"
+                         v-if="isScoredPractice(practice)">
+                      Opportunity score<br />
+                      [[getOpportunity(practice)]]
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div :class="'bestpractice mt-2' + (isRequiredShown(practice) ? ' practice-required' : '')">
+                    <div class="row">
+                      <div class="col-6">
+                        <div>
+                          <strong>[[getPrimaryAnswer(practice).measured ? getPrimaryAnswer(practice).measured : "-"]]</strong>
+                        </div>
+                      </div>
+                      <div class="col-6" v-if="getPrimaryPlanned(practice) && getPrimaryPlanned(practice).measured">
+                        <div>
+                          (planned: <strong>[[getPrimaryPlanned(practice).measured]]</strong>)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p @click.prevent="openLink($event)"
+                     v-html="textAsHtml(getCommentsAnswer(practice).measured)"
+                     v-if="getCommentsAnswer(practice).measured">
+                  </p>
+                </div>
+              </div>
+            </div>{# /isEnumUnit(practice) #}
+
+            <div v-if="isFreetextUnit(practice)">
+              <div class="row">
+                <div class="col-md-8">
+                  <div :class="indentHeader(practice) + ' mt-2'">
+                    <a class="title"
+                       :href="'{{urls.pages_index}}' + practice.slug + '/'">
+                      [[practice.title]]
+                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div
+                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                    v-if="practice.answers.length === 0">
+                    &dash;
+                  </div>
+                  <div v-for="answer in practice.answers"
+                       v-if="practice.answers.length > 0">
+                    <div v-if="answer.measured">
+                      [[answer.measured]]
+                    </div>
+                    <div v-if="!answer.measured">
+                      &dash;
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>{# /isFreetextUnit(practice) #}
+
+            <div v-if="isEmployeeCountUIHint(practice)">
+              <div class="row">
+                <div class="col-md-8">
+                  <div :class="indentHeader(practice) + ' mt-2'">
+                    <a class="title"
+                       :href="'{{urls.pages_index}}' + practice.slug + '/'">
+                      [[practice.title]]
+                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div
+                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                    v-if="practice.answers.length === 0">
+                    &dash;
+                  </div>
+                  <div v-if="practice.answers.length > 0">
+                    <span v-if="getPrimaryAnswer(practice).measured === '0'">0-10 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '11'">11-50 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '51'">51-200 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '201'">201-500 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '501'">501-1,000 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '1001'">1,001-5,000 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '5001'">5,001-10,000 employees</span>
+                    <span v-if="getPrimaryAnswer(practice).measured === '10001'">10,001+ employees</span>
+                  </div>
+                </div>
+              </div>
+            </div>{# /isEmployeeCountUIHint(practice) #}
+
+            <div v-if="isNumberUnit(practice)">
+              <div class="row">
+                <div class="col-md-8">
+                  <div :class="indentHeader(practice) + ' mt-2'">
+                    <a class="title"
+                       :href="'{{urls.pages_index}}' + practice.slug + '/'">
+                      [[practice.title]]
+                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div
+                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                    v-if="practice.answers.length === 0">
+                    &dash;
+                  </div>
+                  <div v-for="answer in practice.answers"
+                       v-if="practice.answers.length > 0">
+                    <div v-if="answer.measured">
+                      <span v-if="answer.unit === 'percentage'">
+                      [[answer.measured]]%
+                      </span>
+                      <span v-if="answer.unit === 'ends-at'">
+                        On [[answer.measured]]
+                      </span>
+                      <span v-if="answer.unit === 'yes-no' && answer.measured === 'Yes'">
+                        (not publicly disclosed)
+                      </span>
+                      <span v-if="!(answer.unit === 'percentage' || answer.unit === 'ends-at' || answer.unit === 'yes-no')">
+                      [[answer.measured]] [[getUnit(answer).title]]
+                      </span>
+                    </div>
+                    <div
+                      :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                      v-if="!answer.measured">
+                      &dash;
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>{# /isNumberUnit(practice) #}
+
+            <div v-if="isDatetimeUnit(practice)">
+              <div class="row">
+                <div class="col-md-8">
+                  <div :class="indentHeader(practice) + ' mt-2'">
+                    <a class="title"
+                       :href="'{{urls.pages_index}}' + practice.slug + '/'">
+                      [[practice.title]]
+                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div
+                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                    v-if="practice.answers.length === 0">
+                    &dash;
+                  </div>
+                  <div
+                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                    v-if="practice.answers.length > 0">
+                    <strong>[[getPrimaryAnswer(practice).measured ? getPrimaryAnswer(practice).measured : "-"]]</strong>
+                  </div>
+                  <p @click.prevent="openLink($event)"
+                     v-html="textAsHtml(getCommentsAnswer(practice).measured)"
+                     v-if="getCommentsAnswer(practice).measured">
+                  </p>
+                </div>
+              </div>
+            </div>{# /isDatetimeUnit(practice) #}
+
+          </div>{# /v-for=getEntries() #}
+        </div>{# /v-if=itemsLoaded && items.results.length > 0 #}
+        {% if not sample.is_frozen %}
+        <div id="add-segments-actions" class="d-print-none text-center"
+             v-show="itemsLoaded" v-cloak>
+          {% if segments_candidates %}
+          <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+            <hr />
+            <div class="dropdown">
+              <button id="segment-selector" class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
+                <span class="text">Add industry-specific assessment</span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="segment-selector">
+                {% for segment in segments_candidates %}
+                <li class="dropdown-item dropdown-item-indent-{{segment.indent}}">
+                  <div>
+                    {% if not segment.disabled %}
+                    {% if segment.extra and segment.extra.pagebreak %}
+                    <a id="{{segment.slug}}-btn" href="{{urls.assess_base}}{{segment.slug}}/" role="menuitem" tabindex="-1">{{segment.title}}</a>
+                    {% else %}
+                    <button class="btn btn-link" disabled>{{segment.title}}</button>
+                    {% endif %}
+                    {% else %}
+                    <span class="disabled" role="menuitem" tabindex="-1">{{segment.title}} <i class="fa fa-wrench"></i></span>
+                    {% endif %}
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endif %}
+        </div> {# /#add-segments-actions #}
+        {% endif %}
+      </section> {# <!-- /# details --> #}
+      <section id="next-actions" class="d-print-none" v-show="itemsLoaded" v-cloak>
+        <hr />
+        <div class="row mt-4">
+          <div class="col-sm-4 col-md-3">
+            <a id="xlsx-download-btn" class="mt-2 btn btn-secondary w-100"
+               href="{{urls.scorecard_download}}"
+               target="_blank"
+               v-show="itemsLoaded && items.results.length > 0">
+              <i class="fa fa-file-text"></i>&nbsp;&nbsp;Download (xlsx)
+            </a>
+            <button id="pdf-print-btn" class="mt-2 btn btn-secondary w-100"
+               onClick="window.print()"
+               v-show="itemsLoaded && items.results.length > 0">
+              <i class="fa fa-file-text"></i>&nbsp;&nbsp;Print (pdf)
+            </button>
+          </div>
+          {% if sample.is_frozen %}
+          {# actions only available when a scorecard is frozen #}
+          <div class="col-sm-4 col-md-3 offset-md-6">
+            <a id="share-btn" class="mt-2 btn btn-secondary w-100"
+               href="{{urls.scorecard_share}}">
+              Share report
+            </a>
+          </div>
+          {# XXX disabled until functionality is implemented          #}
+          {# <div class="col-sm-4 col-md-3">                          #}
+          {#   <a id="embed-btn" class="mt-2 btn btn-secondary w-100" #}
+          {#      href="">                                            #}
+          {#     Embed link                                           #}
+          {#   </a>                                                   #}
+          {# </div>                                                   #}
+          {% else %}
+          {# actions only available when a scorecard is active #}
+          <div class="col-sm-4 col-md-3 offset-md-3">
+            {% if is_mandatory_segment_present %}
+            <form method="post" action="." @submit.prevent="freezeAssessment">
+              <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+              <button id="complete-assessment-btn"
+                      class="mt-2 btn btn-primary w-100"
+                      href=""
+                      data-toggle="modal"
+                      data-target="#complete-assessment"
+                      :disabled="freezeAssessmentDisabled"
+                      v-show="itemsLoaded && items.results.length > 0">
+                Complete
+              </button>
+            </form>
+            {% else %}
+            <div>
+              You can only <strong>Complete</strong> the assessment
+              after responding to the ESG Core questions.
+              Click <em>Assess</em> at the top to get started!
+            </div>
+            {% endif %}
+          </div>
+          <div class="col-sm-4 col-md-3">
+            <a id="invite-contributor-btn" class="mt-2 btn btn-secondary w-100"
+               href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">
+              Invite contributor
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </section> {# /#next-actions #}
+    </div>
+    <!-- modals -->
+    {% include "app/_reset_assessment.html" %}
+    {% include "app/_complete_assessment.html" %}
+  </div>
+</scorecard>
+{% endblock %}

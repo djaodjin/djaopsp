@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="DjaoDjin inc.">
+    <meta name="copyright" content="Copyright (c) 2023 DjaoDjin inc.">
+    {% block localheadermeta %}
+    <title>{% if request and request.site %}{{request.site.printable_name}}{% else %}{% trans %}Practices Sharing Platform{% endtrans %}{% endif %} | DjaoDjin</title>
+    <meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
+    <meta property="og:site_name" content="DjaoDjin" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:account_id" content="1551213320" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:creator" content="@djaodjin" />
+    <meta name="twitter:domain" content="https://djaodjin.com" />
+    <meta name="twitter:image" content="https://djaodjin.com/static/img/og-image.png" />
+    <meta name="twitter:site" content="@djaodjin" />
+    {% endblock %}
+    <link rel="stylesheet" media="screen, print" href="{{'/static/cache/base.css'|asset}}" />
+    <style media="screen">
+      [v\:cloak], [v-cloak], [data-v-cloak], [x-v-cloak], .v-cloak, .x-v-cloak {
+        display: none !important;
+      }
+      /* Override Bootstrap 4 styling on Django Debug Toolbar */
+      #djDebug[hidden], #djDebug [hidden] {
+        display: block !important;
+      }
+      #djDebug [hidden][style='display: none;'] {
+        display: none !important;
+      }
+    </style>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    {% block localheader %}{% endblock %}
+</head>
+<body{% block body_classes %}{% endblock %}>
+  {% block body_top_template %}{% endblock %}
+  <div id="wrap">
+    <div id="main">
+      <div class="dashboard-container">
+        <div class="{% block dashboard_inner_container_classes %}{% endblock %}">
+          {% block dashboard_nav %}
+            <div class="d-print-none dashboard-nav nav-main-frnt">
+              <div class="dashboard-nav-inner-container">
+                <div class="dashboard-nav-main dashboard-nav-color-theme">
+                  <div>
+                    <header>
+                      <nav class="navbar{% block _navbar_extra_classes %} navbar-light{% endblock %}">
+                        <div class="navbar-header">
+                          {% include "_navbarbrand.html" %}
+                        </div>
+                      </nav>
+                    </header>
+                    <div class="dashboard-nav-menu">
+                      {% block sidebar %}
+                        <hr />
+                        <ul class="nav flex-column d-md-none">
+                            {% include "_generic_navbar.html" %}
+                        </ul>
+                      {% endblock %}
+                    </div>
+                  </div>
+
+                  <!-- Start Dashboard Footer -->
+                  {% block dashboard_footer %}
+                      <div class="dashboard-nav-footer dashboard-nav-color-theme">
+                          <div class="footer-links">
+                              <a href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm pr-2"></i></a>
+                              <a href="https://twitter.com/djaodjin"  target="_blank"><i class="fa fa-twitter fa-sm pr-2"></i></a>
+                              <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
+                          </div>
+
+                          <div>
+                          {% trans %}Powered by &copy; 2023 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
+                          </div>
+                      </div>
+                  {% endblock %}
+                  <!-- End Dashboard Footer -->
+
+                </div>
+              </div><!-- /.dashboard-nav-inner-container -->
+            </div>
+          {% endblock %}
+
+          <div class="dashboard-content">
+            <div class="d-print-none fullviewport">
+              <header>
+                <nav class="navbar navbar-expand-md navbar-dark border-bottom{% block navbar_extra_classes %}{% endblock %}">
+                  <a href="" class="sidebar-toggle d-inline-block d-sm-none position-relative">
+                    <div class="bar1 closed"></div>
+                    <div class="bar2 closed"></div>
+                    <div class="bar3 closed"></div>
+                  </a>
+
+                  {% block content_navbarbrand %}
+                    <div class="navbar-brand-container">
+                      {% include "_navbarbrand.html" %}
+                    </div>
+                  {% endblock %}
+
+                  {% block header_navbar_large %}
+                    <div class="navbar-collapse collapse navbar-right">
+                      <ul class="nav navbar-nav ml-auto mt-lg-0">
+                        {% include "_generic_navbar.html" %}
+                      </ul>
+                    </div>
+                    <ul class="nav navbar-nav ml-auto mt-lg-0 header-menubar">
+                    <!-- The content here will be replaced by _menubar.html -->
+                      <li class="nav-item">
+                      {% if request and request|is_authenticated %}
+                        <a class="nav-link">{{request.user.username}}</a>
+                      {% else %}
+                        <a id="login" class="nav-link btn btn-primary text-white" href="{{'/login/'|site_url}}">Sign In</a>
+                      {% endif %}
+                      </li>
+                    <!-- this area will be populated by _menubar.html -->
+                    </ul>
+                  {% endblock %}
+                </nav>
+              </header>
+              {% block fullviewport %}
+              {% endblock %}
+            </div><!-- /.fullviewport -->
+            <div{% block content_area_classes %} class="content-area-container"{% endblock %}>
+              <div id="messages">
+                <div id="messages-content">
+                  {% if request %}
+                    {% for message in request|messages %}
+                      <div class="alert{% if message.tags %} alert-{{message.tags}}{% endif %}">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        {% if 'safe' in message.tags %}
+                          <div>{{message|safe}}</div>
+                        {% else %}
+                          <div>{{message}}</div>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                  {% if form %}
+                    {% for message in form|messages %}
+                      <div class="alert alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <div>{{message}}</div>
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                  <script type="text/javascript">
+                    var _showErrorMessagesProviderNotified = "{% trans %}We have been notified and have started on fixing the error. We apologize for the inconvenience.{% endtrans %}";
+                  </script>
+                </div>
+              </div>
+              {% block content %}
+              {% endblock %}
+            </div>
+          </div><!-- /.dashboard-content -->
+        </div><!-- /.dashboard-inner-container -->
+      </div><!-- /.dashboard-container -->
+    </div><!-- /#main -->
+  </div><!-- /.wrap -->
+
+  <!-- Start Main Footer -->
+  {% block footer %}
+  <footer class="footer text-center w-100">
+    {% block localfooter %}
+    {% endblock %}
+    <div class="d-print-none mt-2">
+      <a class="pr-2" href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm"></i></a>
+      <a class="pr-2" href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
+      &dash;
+      <a  class="pl-2" href="/legal/">{% trans %}Legal{% endtrans %}</a>
+    </div>
+    <div class="mb-2">
+      {% trans %}Powered by &copy; 2023 DjaoDjin. All rights reserved.{% endtrans %} <span class="d-none d-print-inline-block">&dash; <a href="{{''|site_url}}">{{''|site_url}}</a></span>
+    </div>
+
+  </footer>
+  {% endblock footer %}
+  <!-- End Main Footer -->
+
+{% block _bodyscripts %}
+<script type="text/javascript" src="{{'/static/vendor/jquery.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/popper-utils.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/popper.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/bootstrap.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/djaodjin-menubar.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/djaodjin-dashboard.js'|asset}}"></script>
+{% block bodyscripts %}
+{% endblock %}
+{% endblock %}
+</body>
+</html>

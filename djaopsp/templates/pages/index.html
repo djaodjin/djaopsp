@@ -1,0 +1,99 @@
+{% extends "pages/base.html" %}
+
+{% block pages_content %}
+<div class="container">
+  <div class="row text-center">
+    <div class="col-12 mt-3">
+      <h1>{% trans %}Knowledge Sharing{% endtrans %}</h1>
+    </div>
+  </div>
+  <div class="pt-4">
+    <div class="text-dark">
+      <div class="row">
+        <div class="col-12">
+          <editables-list inline-template class="mt-4">
+            <div>
+              {% if profile %}
+              <div class="text-right">
+                <a id="new-page" class="btn btn-primary" href="#new-pageelement" data-toggle="modal" data-target="#new-pageelement">New practice</a>
+              </div>
+              <!-- modal to create a new page -->
+              <div id="new-pageelement" class="modal fade"
+                   tabindex="-1" role="dialog"
+                   aria-labelledby="Create a page" aria-hidden="true" style="color: #000;">
+                <div class="modal-dialog">
+                  <form class="modal-content"
+                        @submit.prevent="create($event)">
+                    <div class="modal-header">
+                      <h4 class="modal-title">{% trans %}Create a new practice ...{% endtrans %}</h4>
+                      <button type="button"
+                              class="close"
+                              data-dismiss="modal"
+                              aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <label class="form-label">
+                        Title
+                      </label>
+                      <input class="form-control w-100"
+                             type="text" name="title" placeholder="Title"
+                             v-model="newItem.title">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary"
+                              data-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary">{% trans %}Create{% endtrans %}</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              {% endif %}
+              <!-- end modal to create a new page -->
+              {# show loading spinner #}
+              <div class="text-center mt-4" v-show="!itemsLoaded">
+                <i class="fa fa-refresh fa-spin fa-2x"></i>
+              </div>
+              {# show empty #}
+              <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
+                <h3 class="text-center"><em>No entries <span v-show="params.q"> [[params.q]]</span></em></h3>
+              </div>
+              {# show non-empty list #}
+              <div v-show="itemsLoaded && items.results.length > 0"  v-cloak>
+                <div class="row" v-for="idx in nbRows">
+                  <div class="col-md-6 mt-2" v-for="item in items.results.slice((idx - 1) * nbItemsPerRow, ((idx - 1) * nbItemsPerRow + nbItemsPerRow) > items.results.length ? items.results.length : ((idx - 1) * nbItemsPerRow + nbItemsPerRow))">
+                    <a :id="item.slug" :href="'{{urls.pages_index}}' + item.path.substr(1) + '/'">
+                      <div class="card bg-white text-dark h-100">
+                        <div class="card-body">
+                          <div class="row">
+                            <div class="col-4">
+                              <div class="d-inline-block">
+                                <img class="icon-inner"
+                                     style="padding:5px; border: 1px #eee solid;"
+                                     :src="item.picture" v-if="item.picture">
+                                <img class="icon-inner"
+                                     src="{{'/static/img/design.png'|asset}}"
+                                     v-if="!item.picture">
+                              </div>
+                            </div>
+                            <div class="col-8 text-left">
+                              <h3>[[item.title]]</h3>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                <div class="pt-4"></div>
+                {% include "_pagination.html" %}
+              </div>{# /non-empty list #}
+            </div>
+          </editables-list>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

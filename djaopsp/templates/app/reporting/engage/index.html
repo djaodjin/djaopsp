@@ -1,0 +1,518 @@
+{% extends "app/reporting/base.html" %}
+
+{% block localheadermeta %}
+<title>{{campaign.title}} Engagement - {{profile.printable_name}} | Practice Sharing Platform</title>
+<meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
+<meta property="og:title" content="{{campaign.title}} Engagement - {{profile.printable_name}} | Practice Sharing Platform" />
+<meta property="og:url" content="https://www.tspproject.org/" />
+<meta name="description" property="og:description" content="Engage reporting profiles with {{campaign.title}}" />
+{% endblock %}
+
+{% block reporting_title %}Engage{% endblock %}
+
+
+{% block help_menus %}
+<li class="divider-vertical"></li>
+<li class="nav-item">
+    <a class="nav-link{% if request.path == urls.compare %} active{% endif %}" id="compare-lnk" href="{{urls.compare}}">Compare</a>
+</li>
+<li class="divider-vertical"></li>
+<li class="nav-item">
+    <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">Responses</a>
+</li>
+<li class="divider-vertical"></li>
+<li class="nav-item">
+    <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" href="{{urls.download}}">
+        <i class="fa fa-file-text"></i> Download (xlsx)
+    </a>
+</li>
+{% if urls.invite_all %}
+<li class="divider-vertical"></li>
+<li class="nav-item">
+    <a class="btn btn-primary{% if request.path == urls.invite_all %} active{% endif %}" id="invite-all-btn" href="{{urls.invite_all}}">
+        <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}(Re-)send invite to all{% endtrans %}
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+
+{% block reporting_content %}
+<engage-profiles inline-template>
+  <div>
+
+    <div class="row align-items-end">
+      <div id="invite-search" class="col-md-3">
+        <div class="input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="from-inp">From</span>
+          </div>
+          <input class="form-control" type="date"
+                 v-model="_start_at" v-cloak>
+        </div>
+        <div class="input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          </div>
+          <input class="form-control" type="date"
+                 v-model="_ends_at" v-cloak>
+        </div>
+        <div class="input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
+          </div>
+          <input class="form-control"
+                 type="text"
+                 placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
+                 v-model="params.q" />
+        </div>
+        <button class="btn btn-secondary btn-sm mb-2 w-100"
+          :disabled="!outdated"
+          @click.prevent="filterList()">{% trans %}Search{% endtrans %}</button>
+      </div>{# /#invite-search #}
+
+      <div class="col-md-4 text-center">
+        <div class="d-inline-block" style="position:relative;height:200px;margin:auto;" v-show="itemsLoaded" v-cloak>
+          <canvas id="summaryChart" height="200"></canvas>
+          <div class="text-center">
+Total completions ([[params.unit == 'percentage' ? '%' : 'Nb']])
+          </div>
+        </div>
+        <div class="mt-4">
+        {% include "app/reporting/_percentage_toggle.html" %}
+        </div>
+      </div>
+      <div class="col-md-5">
+        <reporting-completion-rate :params="params" inline-template>
+          <div>
+            <div>
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="completionRate"></canvas>
+              </div>
+            </div>
+            <div class="text-center">
+              <span>Weekly completions ([[params.unit == 'percentage' ? '%' : 'Nb']])</span>
+              <span class="float-right">
+              <a id="download-competion-rate" class="btn btn-secondary btn-sm" :href="'{{urls.download_completion_rate}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+              </span>
+            </div>
+          </div>
+        </reporting-completion-rate>
+      </div>{# /.col-md-5 #}
+    </div>{# /.row #}
+
+    <table class="table table-striped mt-4">
+      <thead>
+        <tr>
+          <th class="sticky-cell sticky-cell-top">
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+              </div>
+            </div>
+          </th>
+          <th class="sticky-cell sticky-cell-top"
+              style="white-space:nowrap;">
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                {% trans %}Profile{% endtrans %}
+                <button class="btn btn-link btn-sort"
+                        @click.prevent="sortBy('printable_name')">
+                  <i :class="sortIcon('printable_name')"></i>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th class="text-nowrap text-center sticky-cell sticky-cell-top">
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                {% trans %}Tags{% endtrans %}
+                <button class="btn btn-link btn-sort"
+                        @click.prevent="sortBy('tags')">
+                  <i :class="sortIcon('tags')"></i>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th class="text-nowrap text-center sticky-cell sticky-cell-top">
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                  {% trans %}Status{% endtrans %}
+                <button class="btn btn-link btn-sort"
+                        @click.prevent="sortBy('reporting_status')">
+                  <i :class="sortIcon('reporting_status')"></i>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th class="text-nowrap text-center sticky-cell sticky-cell-top">
+            <!-- This column shows the last update made to a response.
+                 When the status is "Completed", this is the completion date,
+                 otherwise it is the date a user with a role on the invited
+                 profile made a modification to the response.
+              -->
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                  {% trans %}Last update{% endtrans %}
+                <button class="btn btn-link btn-sort"
+                        @click.prevent="sortBy('last_activity_at')">
+                  <i :class="sortIcon('last_activity_at')"></i>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th class="text-nowrap text-center sticky-cell sticky-cell-top">
+            <!-- This column shows the last communication with the profile,
+                 i.e. either the initial invite or the last reminder sent
+                 from the platform.
+              -->
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                {% trans %}Last communication{% endtrans %}
+                <button class="btn btn-link btn-sort"
+                        @click.prevent="sortBy('last_completed_at')">
+                  <i :class="sortIcon('last_completed_at')"></i>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th class="sticky-cell sticky-cell-top">
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                  {# primary action #}
+              </div>
+            </div>
+          </th>
+          <th class="text-nowrap text-center sticky-cell sticky-cell-top"
+              style="border-left:2px solid black;">
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                  {% trans %}Added{% endtrans %}
+                <button class="btn btn-link btn-sort"
+                        @click.prevent="sortBy('invited_at')">
+                  <i :class="sortIcon('invited_at')"></i>
+                </button>
+              </div>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-show="!itemsLoaded">
+          <td colspan="8">
+            <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
+          </td>
+        </tr>
+        <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
+            <td colspan="8">No profile accessible for {{profile}}</td>
+        </tr>
+
+        {% if DEMO_SCREENSHOT %}
+        <tr v-show="itemsLoaded && items.results.length > 0" v-cloak>
+            <!-- found a profile through search that had not been previously
+                 invited in this period. -->
+          <td>
+            <span>1</span>
+          </td>
+          <td>
+            <img class="img-fluid" style="max-height: 1rem;" src="{{'/static/img/default-organization.png'|asset}}" /> Supplier 1<br />
+            <small><a href=""><i class="fa fa-envelope"></i> {% trans %}Contacts{% endtrans %}</a></small>
+          </td>
+          <td>
+              {# tags #}
+          </td>
+          <td class="text-center" colspan="3">
+              no invite between [[_start_at]] and [[_ends_at]]
+          </td>
+          <td class="text-nowrap text-center">
+            <a class="btn btn-primary" href="">{% trans %}Add{% endtrans %}</a><!-- XXX popup will button to send invite or add without sending request. -->
+          </td>
+          <td class="text-center"
+              style="border-left:2px solid black;">
+          </td>
+        </tr>
+        <tr v-show="itemsLoaded && items.results.length > 0" v-cloak>
+            <!-- profile which has completed the survey -->
+          <td>
+            <span>2</span>
+          </td>
+          <td>
+            <img class="img-fluid" style="max-height: 1rem;" src="{{'/static/img/default-organization.png'|asset}}" /> Supplier 2<br />
+            <small><a href=""><i class="fa fa-envelope"></i> {% trans %}Contacts{% endtrans %}</a></small>
+          </td>
+          <td>
+            <span class="badge badge-secondary">high impact</span>
+            <small><a href=""><i class="fa fa-edit"></i></a></small>
+          </td>
+          <td class="text-center">
+              Completed<br />
+              <a href="">93%</a>
+          </td>
+          <td class="text-center">
+            2023/01/12<br />
+            <small>(2 days ago)</small><br />
+            <small><a href=""><i class="fa fa-envelope"></i> respondents</a></small>
+          </td>
+          <td class="text-center">
+              2023/12/01<br />
+              <small>(2 days ago)</small><br />
+              <small><a href=""><i class="fa fa-envelope"></i> {% trans %}sent to{% endtrans %}</a></small>
+          </td>
+          <td class="text-nowrap text-center"><!-- 2020 -->
+            <a class="btn btn-secondary" href="">Re-send</a>
+          </td>
+          <td class="text-center"
+              style="border-left:2px solid black;">
+              2022/09/01<br />
+              <small>(2 days ago)</small><br />
+              <button class="btn btn-sm btn-danger">
+                <i class="fa fa-times"></i> remove
+              </button>
+          </td>
+        </tr>
+        <tr v-show="itemsLoaded && items.results.length > 0" v-cloak>
+            <!-- profile  -->
+          <td>
+            <span>3</span>
+          </td>
+          <td>
+            <img class="img-fluid" style="max-height: 1rem;" src="{{'/static/img/default-organization.png'|asset}}"> Supplier 3<br />
+            <small><a href=""><i class="fa fa-envelope"></i> {% trans %}Contacts{% endtrans %}</a></small>
+          </td>
+          <td>
+            <small><a href=""><i class="fa fa-edit"></i></a></small>
+          </td>
+          <td class="text-center">
+              Work in progress
+          </td>
+          <td class="text-center">
+              2023/01/12<br />
+              <small>(2 days ago)</small><br />
+              <small><a href=""><i class="fa fa-envelope"></i> respondents</a></small>
+          </td>
+          <td class="text-center">
+              2023/12/01<br />
+              <small>(2 days ago)</small><br />
+              <small><a href=""><i class="fa fa-envelope"></i> {% trans %}sent to{% endtrans %}</a></small>
+          </td>
+          <td class="text-center">
+            <a class="btn btn-secondary" href="">Re-send</a>
+          </td>
+          <td class="text-center"
+              style="border-left:2px solid black;">
+              2022/09/01<br />
+              <small>(2 days ago)</small><br />
+              <button class="btn btn-sm btn-danger">
+                  <i class="fa fa-times"></i> remove
+              </button>
+          </td>
+        </tr>
+        <tr v-show="itemsLoaded && items.results.length > 0" v-cloak>
+          <!-- profile  -->
+          <td>
+            <span>4</span>
+          </td>
+          <td>
+            <img class="img-fluid" style="max-height: 1rem;" src="{{'/static/img/default-organization.png'|asset}}"> Supplier 4<br />
+            <small><a href=""><i class="fa fa-envelope"></i> {% trans %}Contacts{% endtrans %}</a></small>
+          </td>
+          <td>
+            <small><a href=""><i class="fa fa-edit"></i></a></small>
+          </td>
+          <td class="text-center">
+              Invited
+          </td>
+          <td class="text-center">
+              No answer yet
+          </td>
+          <td class="text-center">
+              2023/12/01<br />
+              <small>(2 days ago)</small><br />
+              <small><a href=""><i class="fa fa-envelope"></i> {% trans %}sent to{% endtrans %}</a></small>
+          </td>
+          <td class="text-center"><!-- 2020 -->
+              <a class="btn btn-secondary" href="">Re-send</a>
+          </td>
+          <td class="text-center"
+              style="border-left:2px solid black;">
+              2023/12/01<br />
+              <small>(2 days ago)</small><br />
+              <button class="btn btn-sm btn-danger">
+                  <i class="fa fa-times"></i> remove
+              </button>
+          </td>
+        </tr>
+
+        <tr v-show="itemsLoaded && items.results.length > 0" v-cloak>
+          <!-- profile that has declined to share score  -->
+          <td>
+            <span>5</span>
+          </td>
+          <td>
+            <img class="img-fluid" style="max-height: 1rem;" src="{{'/static/img/default-organization.png'|asset}}"> Supplier 5<br />
+            <small><a href=""><i class="fa fa-envelope"></i> {% trans %}Contacts{% endtrans %}</a></small>
+          </td>
+          <td>
+            <span class="badge badge-secondary">high impact</span>
+            <small><a href=""><i class="fa fa-edit"></i></a></small>
+          </td>
+          <td class="text-center">
+              Completed<br />
+              <small>(declined to share score)</small>
+          </td>
+          <td class="text-center">
+              2023/01/12<br />
+              <small>(2 days ago)</small><br />
+              <small><a href=""><i class="fa fa-envelope"></i> respondents</a></small>
+          </td>
+          <td class="text-center">
+              2023/12/01<br />
+              <small>(2 days ago)</small><br />
+              <small><a href=""><i class="fa fa-envelope"></i> {% trans %}sent to{% endtrans %}</a></small>
+          </td>
+          <td class="text-nowrap text-center"><!-- 2020 -->
+            <a class="btn btn-secondary" href="">Re-send</a>
+          </td>
+          <td class="text-center"
+              style="border-left:2px solid black;">
+              2022/09/01<br />
+              <small>(2 days ago)</small><br />
+              <button class="btn btn-sm btn-danger">
+                <i class="fa fa-times"></i> remove
+              </button>
+          </td>
+        </tr>
+
+        <tr v-show="itemsLoaded && items.results.length > 0" v-cloak>
+          <!-- profile that has declined to respond  -->
+          <td>
+            <span>6</span>
+          </td>
+          <td>
+            <img class="img-fluid" style="max-height: 1rem;" src="{{'/static/img/default-organization.png'|asset}}"> Supplier 6<br />
+            <small><a href=""><i class="fa fa-envelope"></i> {% trans %}Contacts{% endtrans %}</a></small>
+          </td>
+          <td>
+            <small><a href=""><i class="fa fa-edit"></i></a></small>
+          </td>
+          <td class="text-center">
+              Declined<br />
+              <small>(declined to respond)</small>
+          </td>
+          <td class="text-center">
+              No response will be provided
+          </td>
+          <td class="text-center">
+              2023/12/01<br />
+              <small>(2 days ago)</small><br />
+              <small><a href=""><i class="fa fa-envelope"></i> {% trans %}sent to{% endtrans %}</a></small>
+          </td>
+          <td class="text-center"><!-- 2020 -->
+            <a class="btn btn-secondary" href="">Re-send</a>
+          </td>
+          <td class="text-center"
+              style="border-left:2px solid black;">
+              2023/12/01<br />
+              <small>(2 days ago)</small><br />
+              <button class="btn btn-sm btn-danger">
+                <i class="fa fa-times"></i> remove
+              </button>
+          </td>
+        </tr>
+        {% endif %}
+        <tr :id="entry.slug"
+            :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
+            v-for="(entry, index) in items.results"
+            v-show="itemsLoaded && items.results.length > 0" v-cloak>
+            <!-- profile whose report was requested at some point. -->
+          <td>
+            <span>[[index + 1]]</span><br />
+          </td>
+          <td>
+            <img class="img-fluid" style="max-height: 1rem;" :src="entry.picture || '{{'/static/img/default-organization.png'|asset}}'"> [[entry.account.printable_name ? entry.account.printable_name : entry.account]]<br />
+            <small><a href=""><i class="fa fa-envelope"></i> {% trans %}Contacts{% endtrans %}</a></small>
+          </td>
+          <td>
+            <span class="badge badge-secondary" v-for="tag in entry.tags">[[tag]]</span>
+            <small><a href=""><i class="fa fa-edit"></i></a></small>
+          </td>
+          <td class="text-center">
+            [[entry.reporting_status]]
+          </td>
+          <td class="text-center">
+            <div v-if="entry.last_activity_at">
+              [[$globals.humanizeDate(entry.last_activity_at)]]<br />
+              <small>([[$globals.humanizeTimeDelta(entry.last_activity_at)]])</small><br />
+              <small><a href=""><i class="fa fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
+            </div>
+            <div v-if="!entry.last_activity_at">
+                {% trans %}No answer yet{% endtrans %}
+            </div>
+          </td>
+          <td class="text-center">
+            <div v-if="entry.requested_at">
+              [[$globals.humanizeDate(entry.requested_at)]]<br />
+              <small>([[$globals.humanizeTimeDelta(entry.requested_at)]])</small><br />
+              <small><a href=""><i class="fa fa-envelope"></i> {% trans %}sent to{% endtrans %}</a></small>
+              </div>
+          </td>
+          <td class="text-center"><!-- 2020 -->
+            <a class="btn btn-secondary" href="" v-if="!entry.requested_at">Invite</a>
+            <a class="btn btn-secondary" href="" v-if="entry.requested_at">Re-send</a>
+          </td>
+          <td class="text-nowrap text-center"
+              style="border-left:2px solid black;">
+            [[$globals.humanizeDate(entry.created_at)]]<br />
+            <small>([[$globals.humanizeTimeDelta(entry.created_at)]])</small><br />
+            <button class="btn btn-sm btn-danger"
+                    @click.prevent="remove($event, index)">
+              <i class="fa fa-times"></i> remove
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    {% include "_pagination.html" %}
+  </div>
+</engage-profiles>
+{% endblock %}
+
+{% block reporting_scripts %}
+<script type="text/javascript">
+         jQuery(document).ready(function($) {
+          var summaryChart = new Chart(
+                document.getElementById('summaryChart'),
+                {
+                    type: 'doughnut',
+                    borderWidth: 0,
+                    data: {
+                        labels: ['Completed', 'Work in progress', 'Invited'],
+                        datasets: [{
+                            label: "Engagement",
+                            backgroundColor: ['#69B02B', '#9CD76B', '#ff5555'],
+                            data: [50, 25, 25]}]
+                    },
+                    options: {
+                        borderWidth: 1,
+                        responsive: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'right',
+                                labels: {
+                                    boxWidth: 20,
+                                    padding: 2,
+                                    fontSize: 8,
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+         });
+</script>
+{% endblock %}

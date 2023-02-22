@@ -1,113 +1,77 @@
-# Envconnect webapp
+DjaoDjin Practices Sharing Platform
+===================================
 
-This Django project contains the web application for the enviro-connect project.
+This repository contains the code for DjaoDjin practices sharing platform.
+To learn more visit [DjaoDjin's Website](https://www.djaodjin.com/).
 
-## Prerequisites
+The practices sharing platform is built on
+[Django](https://www.djangoproject.com/),
+[Vue.js](https://vuejs.org/), [Bootstrap](https://getbootstrap.com/)
+frameworks and many more Open Source projects. Thank you for the support!
 
-    $ make require
+<p align="center">
+<img src="https://static.djangoproject.com/img/logos/django-logo-positive.png" height="75">
+<img src="https://vuejs.org/images/logo.png" height="75">
+<img src="https://getbootstrap.com/docs/4.3/assets/brand/bootstrap-solid.svg" height="75">
+</p>
 
-## Install
+If you are looking to add features, this project integrates
+- [djaodjin-pages](https://github.com/djaodjin/djaodjin-pages/) for content management
+- [djaodjin-survey](https://github.com/djaodjin/djaodjin-survey/) for assessments
 
-    $ make install
-    $ make initdb
+Tested with
+
+- **Python:** 3.7, **Django:** 3.2 (latest), **Django Rest Framework:** 3.12
 
 
-## Development setup: Step-by-step
+Install
+-------
 
-### Install prerequisites
+First you will need to create a workspace environment, download the 3rd party
+vendor prerequisite packages and build the static assets.
 
-    $ python3 -m venv envconnect
-    $ source envconnect/bin/activate
-    $ mkdir -p envconnect/reps
-    $ cd envconnect/reps
-    $ git clone https://github.com/djaodjin/envconnect.git
-    $ cd envconnect
-
-    $ ../../bin/pip install -r requirements.txt -r dev-requirements.txt
-    $ make install
-    $ make initdb
+<pre><code>
+    $ python -m venv <em>installTop</em>
+    $ source <em>installTop</em>/bin/activate
+    $ pip install -r requirements.txt
     $ make vendor-assets-prerequisites
+    $ make install-conf
     $ make build-assets
+</code></pre>
 
-### Dev Configuration
+At this point, all the 3rd party vendor prerequisite packages (Python and
+Javascript) have been downloaded and installed in the environment.
 
-To run the dev servers, set the `DEBUG` flag to `True` in your environment's `site.conf` file:
+Then create the database, and start the built-in webserver
 
-    $ diff -u ../../etc/envconnect/site.conf
-    -DEBUG=False
-    +DEBUG=True
-
-You may choose to load the Vue client by setting `FEATURES_VUEJS = True`. If you do, make sure the client is **not** set to [stand-alone mode](#stand-alone-mode). The Angular client is loaded by default.
-
-#### CAREFUL 
-Make sure the file you're changing is `/env/etc/envconnect/site.conf`, and *not* `/env/reps/envconnect/etc/site.conf`. Otherwise, you might see an error like:
-
-```
-2020-09-18 17:18:18,875 INFO exited: livereload (exit status 1; not expected)
-2020-09-18 17:18:19,883 INFO spawned: 'livereload' with pid 32803
-config loaded from '/.../env/etc/envconnect/credentials'
-config loaded from '/.../env/etc/envconnect/site.conf'
-logging app messages in '/.../env/var/log/gunicorn/envconnect-app.log'
-Unknown command: 'livereload'
-```
-
-And `livereload` will cycle through a few of these messages until it errors with:
-
-```
-2020-09-18 17:18:27,761 INFO exited: livereload (exit status 1; not expected)
-2020-09-18 17:18:28,765 INFO gave up: livereload entered FATAL state, too many start retries too quickly
-```
+    $ python manage.py migrate --run-syncdb
+    $ python manage.py createsuperuser
+    $ python manage.py runserver
 
 
+Development
+-----------
+
+You will want to toggle `DEBUG` on in the site.conf file.
+
+<pre><code>
+    $ diff -u <em>installTop</em>/etc/djaoapp/site.conf
+    -DEBUG = False
+    +DEBUG = True
+
+    # Create the tests databases and load test datasets.
+    $ make initdb
+
+    # To generate some sample data, disable emailing of receipts and run:
+    $ python manage.py load_test_transactions
+
+    # Spins up a dev server that re-compiles the `.css` files
+    # on page reload whenever necessary.
+    $ python manage.py runserver --nostatic
+</code></pre>
 
 
-### Launching and debugging the full webserver
+Release Notes
+=============
 
-    $ supervisord
-    # browse http://localhost:8000/envconnect/
-
-
-### Running the new Vue client by itself
-
-```
-$ cd clients/web
-$ VUE_APP_STANDALONE=1 VUE_APP_API_HOST=http://localhost:8080 yarn serve
-# browse http://localhost:8080/envconnect/app/supplier-1/
-```
-
-### Lints and fixes files
-
-```
-$ cd clients/web
-$ yarn lint
-```
-
-### <a name="stand-alone-mode"></a>Client stand-alone mode
-
-The client (Vue app) has its own navigation which can be enabled using the `VUE_APP_STANDALONE` flag in the `.env` file at the client root (`clients/web`). In stand-alone mode, the app will also make calls to a mock server and make changes to an in-memory database.
-
-### Client locales
-
-The client app uses [vue-i18n](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-vue-app-with-vue-i18n) to manage the translations of its content strings. Additionally, the UI framework (vuetify) has its own translations. This means that when changing locales for the app, remember to: 
-- Add the locale file for the content in `src/locales`
-- Update the locales list in `LocaleChanger.vue`
-- Update the imports and the `lang.locales` option in `src/plugins/vuetify.js`
-
-The app's default locale and fallback locale are set via the environment variables `VUE_APP_I18N_LOCALE` and `VUE_APP_I18N_FALLBACK_LOCALE` respectively in the `.env` file at the client root (`clients/web`)
-
-
-## Testing
-
-    supplier user account: steve, yoyo
-    supplier manager user account: alice, yoyo
-    website administrator: donny, yoyo
-
-### Testing the client app
-
-When running the client app in [stand-alone mode](#stand-alone-mode), a list of scenarios have already been set up to test the functionality of the app. These same scenarios are also used by tests in Cypress.
-
-`/clients/web/src/mocks/scenarios`: List of scenarios
-
-`yarn run cy:run` : run the complete test suite in Cypress from the command line
-
-`yarn run cy:open` : launches the [Cypress Test Runner](https://docs.cypress.io/guides/core-concepts/test-runner.html), where groups of tests or the entire test suite can be run. To run the tests, make sure the local development server is up and running (`yarn serve`).
+See [release notes](https://www.djaodjin.com/docs/djaopsp/releases/)
