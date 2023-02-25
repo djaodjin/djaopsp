@@ -557,7 +557,8 @@ REQUESTED_ACCOUNTS_CALLABLE = None
 SEND_NOTIFICATION_CALLABLE = None
 SCORE_CALCULATORS = {
     '/sustainability/': 'djaopsp.scores.ScoreCalculator',
-    '/metal/boxes-and-enclosures/': 'djaopsp.scores.ScoreCalculator',
+    '/metal/boxes-and-enclosures':
+        'djaopsp.sustainability.scores.ScoreCalculator',
 }
 
 UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members'])
