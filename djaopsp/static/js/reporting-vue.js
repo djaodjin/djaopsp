@@ -27,7 +27,11 @@ Vue.component('reporting-organizations', {
     data: function() {
         var data = {
             url: this.$urls.api_portfolio_responses,
-            item: {
+            api_profiles_base_url: this.$urls.api_organizations,
+            params: {
+                o: 'full_name' // XXX '-created_at' in old dashboard
+            },
+            newItem: {
                 email: "",
                 full_name: "",
                 type: "organization",
@@ -108,45 +112,49 @@ Vue.component('reporting-organizations', {
             var vm = this;
             if( newAccount ) {
                 if( newAccount.hasOwnProperty('slug') && newAccount.slug ) {
-                    vm.item.slug = newAccount.slug;
+                    vm.newItem.slug = newAccount.slug;
                 }
                 if( newAccount.hasOwnProperty('email') && newAccount.email ) {
-                    vm.item.email = newAccount.email;
+                    vm.newItem.email = newAccount.email;
                 }
                 if( newAccount.hasOwnProperty('printable_name')
                     && newAccount.printable_name ) {
-                    vm.item.full_name = newAccount.printable_name;
+                    vm.newItem.full_name = newAccount.printable_name;
                 }
                 if( newAccount.hasOwnProperty('full_name')
                     && newAccount.full_name ) {
-                    vm.item.full_name = newAccount.full_name;
+                    vm.newItem.full_name = newAccount.full_name;
                 }
                 if( newAccount.hasOwnProperty('created_at')
                     && newAccount.created_at ) {
-                    vm.item.created_at = newAccount.created_at;
+                    vm.newItem.created_at = newAccount.created_at;
                 }
             }
             $("#invite-reporting-entity").modal("show");
         },
-        requestAssessment: function() {
+        requestAssessment: function(campaign) {
             var vm = this;
             vm.$refs.account.reset();
-            if( !vm.item.slug ) {
-                vm.reqPost(vm.$urls.api_account_candidates, vm.item,
+            var data = {
+                accounts: [vm.newItem],
+                message: vm.message,
+            }
+            if( typeof campaign !== 'undefined' ) {
+                data['campaign'] = campaign;
+            }
+            if( !vm.newItem.slug ) {
+                vm.reqPost(vm.$urls.api_account_candidates, vm.newItem,
                 function(resp) {
-                    vm.item = resp;
-                    vm.reqPost(vm.$urls.api_accessibles, {
-                        "accounts": [vm.item],
-                        "message": vm.message,
-                    }, function success(resp) {
+                    vm.newItem = resp;
+                    data.accounts = [vm.newItem];
+                    vm.reqPost(vm.$urls.api_accessibles, data,
+                    function success(resp) {
                         vm.get();
                     });
                 });
             } else {
-                vm.reqPost(vm.$urls.api_accessibles, {
-                    "accounts": [vm.item],
-                    "message": vm.message,
-                }, function success(resp) {
+                vm.reqPost(vm.$urls.api_accessibles, data,
+                function success(resp) {
                     vm.get();
                 });
             }
@@ -178,6 +186,70 @@ Vue.component('reporting-organizations', {
                 showMessages(['Preferences saved.'], 'info');
             });
         },
+        toggleContacts: function(toggledIdx) {
+            var vm = this;
+            var entry = vm.items.results[toggledIdx];
+            vm.showContacts = vm.showContacts === toggledIdx ? -1 : toggledIdx;
+            if( vm.showContacts >= 0 ) {
+                const api_roles_url = vm._safeUrl(vm.api_profiles_base_url,
+                    [entry.slug, 'roles']);
+                vm.reqGet(api_roles_url, function(resp) {
+                    entry.contacts = resp.results;
+                    entry.contacts.sort(function(a, b) {
+                        if( a.user.last_login ) {
+                            if( b.user.last_login ) {
+                                if( a.user.last_login
+                                    > b.user.last_login ) {
+                                    return -1;
+                                }
+                                if( a.user.last_login
+                                    < b.user.last_login ) {
+                                    return 1;
+                                }
+                            } else {
+                                return -1;
+                            }
+                        } else {
+                            if( b.user.last_login ) {
+                                return 1;
+                            } else {
+                            }
+                        }
+                        return 0;
+                    });
+                    vm.$forceUpdate();
+                });
+            }
+        },
+        saveTags: function(item) {
+            var vm = this;
+            if( !item.extra ) {
+                item.extra = {}
+            }
+            item.extra.tags = item.tagsAsText.split(',');
+            vm.reqPatch(vm._safeUrl(vm.$urls.api_accessibles, [
+                'metadata', item.slug]), {extra: {tags: item.extra.tags}});
+            item.editTags = false;
+            vm.$forceUpdate();
+        },
+        toggleEditTags: function(toggledIdx) {
+            var vm = this;
+            var entry = vm.items.results[toggledIdx];
+            for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                if( idx != toggledIdx ) {
+                    vm.items.results[idx].editTags = false;
+                }
+            }
+            entry.editTags = !entry.editTags;
+            if( entry.editTags && !entry.tagsAsText ) {
+                try {
+                    entry.tagsAsText = entry.extra.tags.join(", ");
+                } catch (err) {
+                    entry.tagsAsText = "";
+                }
+            }
+            vm.$forceUpdate();
+        }
     },
     mounted: function(){
         this.get();

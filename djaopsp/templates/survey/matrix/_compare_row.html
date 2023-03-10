@@ -1,4 +1,4 @@
-<td :id="practice.slug" colspan="6">
+<td :id="practice.slug" :colspan="!isPractice(practice) ? items.labels.length + 1 : 1">
   <div style="display:inline-block;">
     <div :class="indentHeader(practice)"
          style="display:inline-block;">
@@ -16,5 +16,5 @@
 </td>
 
 <td v-for="answer in practice.answers">
-    {#[[answer[0] ]]#} - [[practice.nb_respondents]]
+    [[answer.measured ? answer.measured : '-']]
 </td>

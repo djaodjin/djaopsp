@@ -12,7 +12,7 @@
           <th class="sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                  Name
+                {% trans %}Organization/Profile{% endtrans %}
               </div>
             </div>
           </th>
@@ -27,18 +27,10 @@
           </th>
         </tr>
         <tr>
-          <th class="sticky-cell sticky-cell-top">
-            <div class="sticky-cell-content-container">
-              <div class="sticky-cell-content">
-                  Date
-              </div>
-            </div>
+          <th>
+            {% trans %}Date{% endtrans %}
           </th>
-          <th class="sticky-cell sticky-cell-top" colspan="2">
-            <div class="sticky-cell-content-container">
-              <div class="sticky-cell-content">
-              </div>
-            </div>
+          <th :colspan="items.labels.length">
           </th>
         </tr>
       </thead>
@@ -49,7 +41,7 @@
           </td>
         </tr>
         <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
-            <td colspan="7">No response to compare</td>
+            <td colspan="7">{% trans %}No response to compare{% endtrans %}</td>
         </tr>
         <tr v-for="practice in items.results" v-cloak>
           {% include "survey/matrix/_compare_row.html" %}

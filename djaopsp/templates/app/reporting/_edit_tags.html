@@ -1,0 +1,9 @@
+<div>
+  <div v-show="showEditTags !== index" v-if="entry.extra">
+    <span v-for="tag in entry.extra.tags" class="badge badge-secondary">[[tag]]</span>
+  </div>
+  <div v-show="showEditTags === index">
+    <textarea @blur="saveTags(entry)" v-model="entry.tagsAsText"></textarea>
+  </div>
+  <small><a href=""  @click.prevent="toggleEditTags(index)"><i class="fa fa-edit"></i></a></small>
+</div>

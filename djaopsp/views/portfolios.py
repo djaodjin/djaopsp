@@ -195,6 +195,12 @@ class DashboardMixin(TrailMixin, CampaignMixin, AccountMixin):
                 if self.default_expired_at else None),
             'campaign': self.campaign
         })
+        return context
+
+class MenubarMixin(object):
+
+    def get_context_data(self, **kwargs):
+        context = super(MenubarMixin, self).get_context_data(**kwargs)
         update_context_urls(context, {
             # reporting dashboards menu items
             'portfolio_responses': reverse(
@@ -204,11 +210,29 @@ class DashboardMixin(TrailMixin, CampaignMixin, AccountMixin):
                 self.account, self.campaign)),
             'matrix_chart': reverse(
                 'matrix_chart', args=(self.account, self.campaign, 'totals')),
+            'updated_dashboard': reverse('reporting_profile_accessibles',
+                args=(self.account, self.campaign)),
         })
         return context
 
 
-class ActiveReportingEntitiesView(DashboardMixin, TemplateView):
+class UpdatedMenubarMixin(object):
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdatedMenubarMixin, self).get_context_data(**kwargs)
+        update_context_urls(context, {
+            # reporting dashboards menu items
+            'compare': reverse('matrix_compare',
+                args=(self.account, self.campaign)),
+            'engage': reverse('reporting_profile_engage',
+                args=(self.account, self.campaign)),
+            'accessibles': reverse('reporting_profile_accessibles',
+                args=(self.account, self.campaign)),
+        })
+        return context
+
+
+class ActiveReportingEntitiesView(MenubarMixin, DashboardMixin, TemplateView):
 
     template_name = 'app/reporting/active.html'
 
@@ -224,7 +248,8 @@ class ActiveReportingEntitiesView(DashboardMixin, TemplateView):
         return context
 
 
-class PortfolioAccessiblesView(DashboardMixin, TemplateView):
+class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
+                               TemplateView):
     """
     Lists yearly actvity for all profiles a report has either
     been requested from or granted by.
@@ -254,10 +279,6 @@ class PortfolioAccessiblesView(DashboardMixin, TemplateView):
             'api_portfolio_responses': reverse(
                 'api_portfolio_accessible_samples',
                 args=(self.account, self.campaign)),
-            'compare': reverse('matrix_compare',
-                args=(self.account, self.campaign)),
-            'engage': reverse('reporting_profile_engage',
-                args=(self.account, self.campaign)),
             'download': reverse('portfolio_responses_download',
                 args=(self.account, self.campaign)),
             'download_raw': reverse('download_matrix_compare',
@@ -266,7 +287,7 @@ class PortfolioAccessiblesView(DashboardMixin, TemplateView):
         return context
 
 
-class PortfolioEngageView(DashboardMixin, TemplateView):
+class PortfolioEngageView(UpdatedMenubarMixin, DashboardMixin, TemplateView):
     """
     Lists profiles that are currently part of an engagement effort.
     """
@@ -276,24 +297,29 @@ class PortfolioEngageView(DashboardMixin, TemplateView):
         context = super(PortfolioEngageView, self).get_context_data(
             **kwargs)
         update_context_urls(context, {
+            'api_activities_base': site_url("/api/activities"),
+            'api_sample_base_url': reverse('survey_api_sample_new', args=(
+                self.account,)),
+            'api_accessibles': reverse(
+                'survey_api_portfolios_requests', args=(self.account,)),
+            'api_account_candidates': site_url("/api/accounts/profiles"),
+            'api_organizations': site_url("/api/profile"),
             'api_portfolios_requests': reverse(
                 'api_portfolio_engagement', args=(
                 self.account, self.campaign)),
             'api_reporting_completion_rate': reverse(
                 'api_reporting_completion_rate', args=(
                 self.account, self.campaign)),
+            'download': reverse('portfolio_responses_download',
+                args=(self.account, self.campaign)),
             'download_completion_rate': reverse(
                 'reporting_download_completion_rate', args=(
                 self.account, self.campaign)),
-            'compare': reverse('matrix_compare',
-                args=(self.account, self.campaign)),
-            'accessibles': reverse('reporting_profile_accessibles',
-                args=(self.account, self.campaign)),
         })
         return context
 
 
-class PortfolioResponsesView(DashboardMixin, TemplateView):
+class PortfolioResponsesView(MenubarMixin, DashboardMixin, TemplateView):
     """
     Manages engagement with requested reports
     """
@@ -536,7 +562,7 @@ class CompletedAssessmentsRawXLSXView(CompletedAssessmentsMixin, TemplateView):
             datetime_or_now().strftime('%Y%m%d'))
 
 
-class ReportingDashboardView(DashboardMixin, TemplateView):
+class ReportingDashboardView(MenubarMixin, DashboardMixin, TemplateView):
 
     template_name = 'app/reporting/dashboard/index.html'
 
@@ -588,7 +614,7 @@ class ReportingDashboardView(DashboardMixin, TemplateView):
         return context
 
 
-class PortfoliosDetailView(DashboardMixin, MatrixDetailView):
+class PortfoliosDetailView(MenubarMixin, DashboardMixin, MatrixDetailView):
 
     matrix_url_kwarg = 'path'
 

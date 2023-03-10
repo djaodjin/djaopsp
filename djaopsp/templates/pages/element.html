@@ -7,10 +7,9 @@
     <div {% if element %}id="{{element.slug}}"{% else %}:id="item.slug"{% endif %}>
       <div class="row">
         <div class="col-12">
-          <ul class="nav nav-tabs squared-tabs surrounded-tabs">
+          <ul class="nav nav-tabs surrounded-tabs">
             <li class="nav-item squared-tabs-li text-center first_tab">
                 <img class="editable droppable-image"
-                     style="width:90px;height:90px;"
                      {% if element %}src="{% if element.picture %}{{element.picture}}{% endif %}"{% else %}:src="item.picture"{% endif %} />
             </li>
           </ul>

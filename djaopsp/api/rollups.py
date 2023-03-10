@@ -13,7 +13,7 @@ from ..queries import get_completed_assessments_at_by
 from ..mixins import CampaignMixin
 from ..models import ScorecardCache
 from ..scores import get_score_calculator
-from ..utils import TransparentCut, get_scores_tree
+from ..utils import TransparentCut, get_scores_tree, segments_as_sql
 from .serializers import ReportingSerializer
 
 LOGGER = logging.getLogger(__name__)
@@ -262,34 +262,11 @@ ON frozen_assessments.account_id = frozen_improvements.account_id AND
         # the latest assessment if in a subsequent year no plan is created.
         return frozen_query
 
-    @staticmethod
-    def _get_segments_query(segments):
-        segments_query = None
-        for segment in segments:
-            if segments_query:
-                segments_query = "%(segments_query)s UNION "\
-                    "SELECT '%(segment_path)s'%(convert_to_text)s AS path,"\
-                    " '%(segment_title)s'%(convert_to_text)s AS title" % {
-                        'segments_query': segments_query,
-                        'segment_path': segment['path'],
-                        'segment_title': segment['title'],
-                        'convert_to_text': ("" if is_sqlite3() else "::text")
-                    }
-            else:
-                segments_query = \
-                    "SELECT '%(segment_path)s'%(convert_to_text)s AS path,"\
-                    " '%(segment_title)s'%(convert_to_text)s AS title" % {
-                        'segment_path': segment['path'],
-                        'segment_title': segment['title'],
-                        'convert_to_text': ("" if is_sqlite3() else "::text")
-                    }
-        return segments_query
-
 
     def _get_scorecard_cache_query(self, segments, ends_at=None):
         if not ends_at:
             ends_at = self.ends_at
-        segments_query = self._get_segments_query(segments)
+        segments_query = segments_as_sql(segments)
 
         if self.expired_at:
             reporting_completed_clause = \

@@ -16,8 +16,7 @@ urlpatterns = [
     path('app/',
         AccountRedirectView.as_view(
             pattern_name='app',
-            account_url_kwarg='profile',
-            new_account_url=site_url('/users/roles/accept/')),
+            account_url_kwarg='profile'),
         name='app_redirect'),
     path('getstarted/<slug:campaign>/<path:path>/',
         GetStartedView.as_view(), name='getstarted_campaign_path'),

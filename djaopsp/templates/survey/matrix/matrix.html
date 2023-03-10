@@ -8,10 +8,9 @@ display: none;
 </style>
 {% endblock %}
 
+{% block reporting_title %}{% trans %}Compare scores{% endtrans %}{% endblock %}
+
 {% block reporting_content %}
-<div>
-  <h1 class="text-center">Compare scores</h1>
-</div>
 <div class="container pt-4">
   <div class="bg-white text-dark">
     <compare-dashboard id="compare-dashboard" inline-template>

@@ -444,7 +444,11 @@ def get_scores_tree(roots=None, prefix=""):
     return scores_tree
 
 
-def _get_segments_query(segments):
+def segments_as_sql(segments):
+    """
+    Returns an SQL query from a list of segments encoded as
+    {'path': ..., 'title': ...}.
+    """
     segments_query = None
     for segment in segments:
         if segments_query:

@@ -9,7 +9,7 @@
 {% endblock %}
 
 
-{% block reporting_title %}Accessible responses{% endblock %}
+{% block reporting_title %}{% trans %}Accessible responses{% endtrans %}{% endblock %}
 
 
 {% block reporting_content %}
@@ -29,8 +29,8 @@
               <div class="sticky-cell-content">
                 {% trans %}Organization/profile{% endtrans %}
                 <button class="btn btn-link btn-sort"
-                        @click.prevent="sortBy('printable_name')">
-                  <i :class="sortIcon('printable_name')"></i>
+                        @click.prevent="sortBy('full_name')">
+                  <i :class="sortIcon('full_name')"></i>
                 </button>
               </div>
             </div>
@@ -38,20 +38,16 @@
           <th class="sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                {% trans %}Tags{% endtrans %}
-                <button class="btn btn-link btn-sort"
-                        @click.prevent="sortBy('printable_name')">
-                  <i :class="sortIcon('printable_name')"></i>
-                </button>
+                <button class="btn btn-sort">{% trans %}Tags{% endtrans %}</button>
               </div>
             </div>
           </th>
-          <th class="sticky-cell sticky-cell-top"
+          <th class="sticky-cell sticky-cell-top text-center"
               v-for="(label, index) in items.labels.slice().reverse()"
               v-show="itemsLoaded && items.results.length > 0" v-cloak>
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                  [[label]]
+                  <button class="btn btn-sort">[[label]]</button>
               </div>
             </div>
           </th>
@@ -84,51 +80,49 @@
             </div>
           </td>
         </tr>
-        <tr v-show="!itemsLoaded">
+      </tbody>
+      <tbody v-show="!itemsLoaded">
+        <tr>
           <td colspan="3">
             <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
           </td>
         </tr>
-        <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
+      </tbody>
+      <tbody v-show="itemsLoaded && items.results.length == 0" v-cloak>
+        <tr>
           <td colspan="3">No profile accessible for {{profile}}</td>
         </tr>
-        <tr :id="entry.slug"
-            :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
-            v-for="(entry, index) in items.results"
-            v-show="itemsLoaded && items.results.length > 0" v-cloak>
-          <!-- profile whose report was requested at some point. -->
+      </tbody>
+      <tbody :id="entry.slug"
+             :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
+             v-for="(entry, index) in items.results"
+             v-show="itemsLoaded && items.results.length > 0" v-cloak>
+        <!-- profile whose report was requested at some point. -->
+        <tr>
           <td>
             <span>[[index + 1]]</span><br />
           </td>
           <td>
-            <img class="img-fluid" style="max-height: 1rem;" :src="entry.picture || '{{'/static/img/default-organization.png'|asset}}'"> [[entry.printable_name]]<br />
-            <small><a href=""><i class="fa fa-envelope"></i> {% trans %}Contacts{% endtrans %}</a></small>
+            {% include "app/reporting/_profile_card.html" %}
           </td>
           <td>
-            <span class="badge badge-secondary">high impact</span>
-            <span class="badge badge-secondary" v-if="index == 3">granted</span><br />
-            <small><a href=""><i class="fa fa-edit"></i></a></small>
+            {% include "app/reporting/_edit_tags.html" %}
           </td>
           <td class="text-center" v-for="val in entry.values.slice().reverse()">
-            <a :href="val[2]" v-if="val[1] === 'verified'">
-              <span class="fa fa-certificate" style="color: yellow;"
-                    v-if="val[3] === null"></span>
-              <span style="color: yellow;"
-                    v-if="val[3] !== null">[[val[3] ]]%</span>
-            </a>
-            <a :href="val[2]" v-if="val[1] === 'completed'">
-              <span class="fa fa-circle" style="color: green;"
-                    v-if="val[3] === null"></span>
-              <span style="color: green;"
-                    v-if="val[3] !== null">[[val[3] ]]%</span>
-            </a>
+            <i class="fa fa-certificate" style="color: green;"
+               v-if="val[1] === 'verified'"></i>
+            <i class="fa fa-circle" style="color: green;"
+               v-if="val[1] === 'completed'"></i>
             <i class="fa fa-circle" style="color: red;"
                v-if="val[1] === 'responded'"></i>
             <i class="fa fa-circle" style="color: red;"
                v-if="val[1] === 'declined'"></i>
             <i class="fa fa-circle" style="color: grey;"
                v-if="val[1] === 'no-data'"></i>
-            <!-- 2023 verified|completed|requested|no-request -->
+            <br />
+            <a :href="val[2]" v-if="val[1] === 'verified' || val[1] === 'completed'">
+              <span>[[val[3] !== null ? val[3] + '%' : {% trans %}'view'{% endtrans %}]]</span>
+            </a>
           </td>
           <td>
             <button class="btn btn-danger btn-sm" @click.prevent="remove($event, index)" data-trip data-trip-index="3" data-trip-content="<p>Click here to cancel access request.</p>" data-trip-position="s">

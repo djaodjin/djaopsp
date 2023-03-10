@@ -420,18 +420,17 @@ li.squared-tabs-li > ul > li:first-child{
     margin-left: 5px;
 }
 
-.squared-tabs.surrounded-tabs{
+.surrounded-tabs {
   position: relative;
-  bottom: -1px;
+//  bottom: -1px;
   margin-bottom: 0px;
   margin-top: 0px;
-  border-bottom: 1px solid #ACAFAF;
   z-index: 1;   // to cover the top border and make it look like a tab.
+  list-style: none;
 }
 
-.squared-tabs.surrounded-tabs > li {
+.surrounded-tabs > li {
   background-color: #fff;
-  border: 1px solid #ACAFAF;
   border-bottom-color: transparent;
   border-radius: 5px 5px 0px 0px;
   cursor: default;
@@ -439,12 +438,17 @@ li.squared-tabs-li > ul > li:first-child{
   padding:6px !important;
 }
 
-.squared-tabs.surrounded-tabs > li.active{
+.surrounded-tabs > li.active {
   background: #F0F1F1;
 }
 
-@media (min-width: 768px) {
-  .squared-tabs.surrounded-tabs > li.active:after{
+.surrounded-tabs img {
+  width: 90px;
+  height:90px;
+}
+
+@include media-breakpoint-up(sm) {
+  .surrounded-tabs > li.active:after{
       position: absolute;
       bottom: -1px;
       width: 10px;

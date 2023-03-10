@@ -232,7 +232,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
         ends_at = self.sample.created_at + relativedelta(months=1)
         last_frozen_assessments = \
             Sample.objects.get_latest_frozen_by_accounts(
-                self.sample.campaign, before=ends_at)
+                self.sample.campaign, ends_at=ends_at, tags=[])
 
         # total number of answers
         for row in Answer.objects.filter(

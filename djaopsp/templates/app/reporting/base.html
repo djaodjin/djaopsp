@@ -1,19 +1,27 @@
 {% extends "app/base.html" %}
 
 {% block app_content %}
-<div class="mx-4 pt-4">
+{% if urls.updated_dashboard %}
+<div class="alert alert-info">
+  <div>
+Try out the <a href="{{urls.updated_dashboard}}">new dashboards</a>
+  </div>
+</div>
+{% endif %}
+<div class="mx-4">
   <div class="row">
-    <div class="col-md-7">
-      <ul class="nav nav-tabs squared-tabs surrounded-tabs">
-        <li class="nav-item squared-tabs-li text-center first_tab">
-          <img style="width:90px;height:90px;"
-               src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" />
-        </li>
-      </ul>
-    </div>
     <div class="col-md-5">
+      <div class="pt-4">
+        <ul class="nav surrounded-tabs">
+          <li class="nav-item squared-tabs-li text-center">
+            <img src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" />
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-7">
       <nav class="navbar navbar-dark">
-        <ul class="navbar-nav nav-pills ml-auto">
+        <ul class="navbar-nav ml-auto">
           {% block help_menus %}
 
           {# current menus #}
@@ -38,7 +46,6 @@
           {% endif %}
 
           {# new menus #}
-
           {% if urls.accessibles %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
@@ -48,7 +55,13 @@
           {% if urls.engage %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.engage %} active{% endif %}" id="compare-lnk" href="{{urls.engage}}">Engage</a>
+            <a class="nav-link{% if request.path == urls.engage %} active{% endif %}" id="engage-lnk" href="{{urls.engage}}">Engage</a>
+          </li>
+          {% endif %}
+          {% if urls.compare %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="nav-link{% if request.path == urls.compare %} active{% endif %}" id="compare-lnk" href="{{urls.compare}}">Compare</a>
           </li>
           {% endif %}
           {% if urls.download %}
@@ -68,9 +81,9 @@
     <div class="col-12">
       <div class="bg-white text-dark">
         <div class="mx-3">
-          <h1 class="d-inline my-0">{% block reporting_title %}{% endblock %}</h1>
+          <h1 class="d-inline pb-0 my-0">{% block reporting_title %}{% endblock %}</h1>
           {% if campaign %}
-          <h3 class="d-inline my-0"> | {{campaign.title}}</h3>
+          <h3 class="d-inline pb-0 my-0">/ {{campaign.title}}</h3>
           {% endif %}
           <div class="d-inline">
             <sup class="d-none" role="button">

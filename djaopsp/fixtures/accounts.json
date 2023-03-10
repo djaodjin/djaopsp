@@ -76,4 +76,52 @@
     "username": "alice"
   },
   "model": "auth.User", "pk": 10
+},
+{ "fields" : {
+    "slug": "supplier-2",
+    "full_name": "S2 - Erquin Asssociates (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 10
+},
+{ "fields" : {
+    "slug": "supplier-3",
+    "full_name": "S3 - Smith & Hill (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 11
+},
+{ "fields" : {
+    "slug": "supplier-4",
+    "full_name": "S4 - Hector Digging (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 12
+},
+{ "fields" : {
+    "slug": "supplier-5",
+    "full_name": "S5 - Middletown Steel (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 13
+},
+{ "fields" : {
+    "slug": "supplier-6",
+    "full_name": "S6 - Villafort Inc. (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 14
+},
+{ "fields" : {
+    "slug": "supplier-7",
+    "full_name": "S6 - SteelWorks (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 15
+},
+{ "fields" : {
+    "slug": "supplier-8",
+    "full_name": "S8 - Joe Trucks co. (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 16
+},
+{ "fields" : {
+    "slug": "supplier-9",
+    "full_name": "S9 - Ball Construction (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 17
 }]

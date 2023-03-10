@@ -6,9 +6,10 @@ from rest_framework import serializers
 from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementSerializer as BasePageElementSerializer)
-from survey.api.serializers import (AnswerSerializer, CampaignSerializer,
-    PortfolioOptInSerializer, UnitSerializer)
+from survey.api.serializers import (AccountSerializer, AnswerSerializer,
+    CampaignSerializer, PortfolioOptInSerializer, UnitSerializer)
 
+from ..compat import reverse
 from ..utils import get_practice_serializer
 
 
@@ -346,20 +347,39 @@ class ReportingSerializer(NoModelSerializer):
         return []
 
 
-class EngagementSerializer(PortfolioOptInSerializer):
+class EngagementSerializer(AccountSerializer):
 
+    REPORTING_STATUSES = (
+        'invited',
+        'updated',
+        'completed',
+        'completed-denied',
+        'completed-notshared',
+        'invited-denied'
+    )
+
+    sample = serializers.SlugField(required=False)
+    score_url = serializers.SerializerMethodField(
+        help_text=_("link to the scorecard"))
     reporting_status = serializers.CharField(required=False,
         help_text=_("current reporting status"))
-    last_activity_at = serializers.DateTimeField(required=False, allow_null=True,
+    last_activity_at = serializers.DateTimeField(required=False,
+        allow_null=True,
         help_text=_("Most recent time an assessment was updated"))
     requested_at = serializers.DateTimeField(required=False, allow_null=True,
         help_text=_("Datetime at which the scorecard was requested"))
+    normalized_score = serializers.IntegerField(required=False)
 
     class Meta(PortfolioOptInSerializer.Meta):
-        fields = PortfolioOptInSerializer.Meta.fields + (
-            'reporting_status', 'last_activity_at', 'requested_at')
-        read_only_fields = PortfolioOptInSerializer.Meta.read_only_fields + (
-            'reporting_status', 'last_activity_at', 'requested_at')
+        fields = AccountSerializer.Meta.fields + (
+            'sample', 'score_url', 'reporting_status',
+            'last_activity_at', 'requested_at', 'normalized_score')
+
+    def get_score_url(self, obj):
+        if hasattr(obj, 'sample'):
+            return reverse('scorecard', args=(
+                self.context['account'], obj.sample))
+        return None
 
 
 class HistoricalAssessmentSerializer(NoModelSerializer):

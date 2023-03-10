@@ -19,6 +19,7 @@ from pages.models import PageElement
 from survey.api.matrix import MatrixDetailAPIView
 from survey.api.portfolios import PortfoliosRequestsAPIView
 from survey.api.serializers import MetricsSerializer, TableSerializer, UnitSerializer
+from survey.filters import SearchFilter, OrderingFilter
 from survey.helpers import construct_yearly_periods, get_extra
 from survey.queries import get_frozen_answers
 from survey.mixins import DateRangeContextMixin
@@ -33,7 +34,7 @@ from ..queries import get_completed_assessments_at_by
 from ..mixins import AccountMixin
 from ..models import ScorecardCache
 from ..utils import (TransparentCut, get_alliances, get_reporting_accounts,
-    get_requested_accounts, get_segments_candidates)
+    get_requested_accounts, get_segments_candidates, segments_as_sql)
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
 from .serializers import (AssessmentNodeSerializer,
     AssessmentContentSerializer, EngagementSerializer, ReportingSerializer)
@@ -363,7 +364,7 @@ INNER JOIN survey_sample
      survey_sample.created_at = scorecards.created_at
 """ % {
     'ends_at': ends_at.isoformat(),
-    'segments_query': self._get_segments_query(self.segments),
+    'segments_query': segments_as_sql(self.segments),
     'accounts_clause': accounts_clause,
     #pylint:disable=protected-access
     'scorecardcache_table': ScorecardCache._meta.db_table
@@ -790,9 +791,10 @@ class CompletedAssessmentsMixin(AccountMixin):
 
     def get_queryset(self):
         queryset = Sample.objects.filter(
-            campaign__isnull=False,
-            is_frozen=True,
-            extra__isnull=True).order_by('-created_at').annotate(
+            pk__in=[sample.pk
+                for sample in Sample.objects.get_latest_frozen_by_accounts(
+            tags=[])]).order_by(
+            '-created_at').annotate(
                 last_completed_at=F('created_at'),
                 account_slug=F('account__slug'),
                 printable_name=F('account__full_name'),
@@ -840,6 +842,24 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
     """
     serializer_class = ReportingSerializer
     schema = None
+
+    def decorate_queryset(self, queryset):
+        for sample in queryset:
+            sample.score_url = reverse('scorecard',
+                args=(self.account, sample.slug))
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            self.decorate_queryset(page)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        self.decorate_queryset(queryset)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 
@@ -1004,6 +1024,39 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
 #XXX    pagination_class = MetricsPagination - hardcoded in serializer
     serializer_class = AssessmentContentSerializer
 
+    @property
+    def samples(self):
+        """
+        Samples to compare
+
+        One per column
+        """
+        if not hasattr(self, '_samples'):
+            reporting_accounts = get_reporting_accounts(
+                self.account, campaign=self.campaign)
+            # XXX currently start_at and ends_at have shaky definition in
+            #     this context.
+            if reporting_accounts:
+                # Calling `get_completed_assessments_at_by` with an `accounts`
+                # arguments evaluating to `False` will return all the latest
+                # frozen samples.
+                self._samples = get_completed_assessments_at_by(self.campaign,
+                    start_at=self.start_at, ends_at=self.ends_at,
+                    accounts=reporting_accounts)
+            else:
+                self._samples = Sample.objects.none()
+        return self._samples
+
+    @property
+    def labels(self):
+        """
+        Labels for columns
+        """
+        if not hasattr(self, '_labels'):
+            self._labels = sorted([
+                sample.account.printable_name for sample in self.samples])
+        return self._labels
+
     @staticmethod
     def next_answer(answers_iterator, questions_by_key, extra_fields):
         answer = next(answers_iterator)
@@ -1038,6 +1091,26 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
     def as_answer(self, key):
         return key
 
+    @staticmethod
+    def equiv_default_unit(values):
+        results = []
+        for val in values:
+            found = False
+            for resp in val:
+                try:
+                    if resp.is_equiv_default_unit:
+                        found = {
+                            'measured': resp.measured_text,
+                            'unit': resp.unit,
+                            'created_at': resp.created_at,
+                            'collected_by': resp.collected_by,
+                        }
+                        break
+                except AttributeError:
+                    pass
+            results += [found]
+        return results
+
     def attach_results(self, units, questions_by_key, answers,
                        extra_fields=None):
         if extra_fields is None:
@@ -1052,34 +1125,60 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
         try:
             answer = self.next_answer(answers_iterator,
                 questions_by_key, extra_fields=extra_fields)
+            question = answer.question
         except StopIteration:
             pass
         try:
             key = self.as_answer(next(keys_iterator))
         except StopIteration:
             pass
+        # `answers` will be populated even when there is no `Answer` model
+        # just so we can get the list of questions.
+        # On the other hand self.labels will be an empty list if there are
+        # no samples to compare.
         try:
-            while answer and key:
-                if question and answer.question != question:
-                    while key:
-                        values += [key]
-                        key = self.as_answer(next(keys_iterator))
-                    question.answers = values
+            while answer:
+                if answer.question != question:
+                    try:
+                        while key:
+                            values += [[{}]]
+                            key = self.as_answer(next(keys_iterator))
+                    except StopIteration:
+                        keys_iterator = iter(self.labels)
+                        try:
+                            key = self.as_answer(next(keys_iterator))
+                        except StopIteration:
+                            key = None
+                    questions_by_key[question.pk].update({
+                        'answers': self.equiv_default_unit(values)})
                     values = []
-                    keys_iterator = iter(self.labels)
                     question = answer.question
 
-                if answer.sample.account.printable_name < key:
-                    values += [answer]
-                    answer = None
-                    answer = self.next_answer(answers_iterator,
-                        questions_by_key, extra_fields=extra_fields)
-                elif key < answer.sample.account.printable_name:
-                    values += [key]
-                    key = None
-                    key = self.as_answer(next(keys_iterator))
+                if key and answer.sample.account.printable_name > key:
+                    while answer.sample.account.printable_name > key:
+                        values += [[{}]]
+                        key = self.as_answer(next(keys_iterator))
+                elif key and answer.sample.account.printable_name < key:
+                    try:
+                        if answer.sample != values[-1][0].sample:
+                            values += [[answer]]
+                        else:
+                            values[-1] += [answer]
+                    except IndexError:
+                        values += [[answer]]
+                    try:
+                        answer = self.next_answer(answers_iterator,
+                            questions_by_key, extra_fields=extra_fields)
+                    except StopIteration:
+                        answer = None
                 else:
-                    values += [answer]
+                    try:
+                        if answer.sample != values[-1][0].sample:
+                            values += [[answer]]
+                        else:
+                            values[-1] += [answer]
+                    except IndexError:
+                        values += [[answer]]
                     try:
                         answer = self.next_answer(answers_iterator,
                             questions_by_key, extra_fields=extra_fields)
@@ -1089,23 +1188,14 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
                         key = self.as_answer(next(keys_iterator))
                     except StopIteration:
                         key = None
-        except StopIteration:
-            pass
-        try:
-            while answer:
-                values += [answer]
-                answer = self.next_answer(answers_iterator,
-                    questions_by_key, extra_fields=extra_fields)
-        except StopIteration:
-            pass
-        try:
             while key:
-                values += [key]
+                values += [[{}]]
                 key = self.as_answer(next(keys_iterator))
         except StopIteration:
             pass
         if question:
-            question.values = values
+            questions_by_key[question.pk].update({
+                'answers': self.equiv_default_unit(values)})
 
 
     def get_questions(self, prefix):
@@ -1113,6 +1203,10 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
         Overrides CampaignContentMixin.get_questions to return a list
         of questions based on the answers available in the compared samples.
         """
+        if prefix != '/sustainability':
+            # XXX testing
+            return []
+
         if not hasattr(self, 'units'):
             self.units = {}
         if not prefix.endswith(self.DB_PATH_SEP):
@@ -1120,23 +1214,11 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
 
         units = {}
         questions_by_key = {}
-        reporting_accounts = get_reporting_accounts(
-            self.account, campaign=self.campaign,
-            start_at=self.start_at, ends_at=self.ends_at)
-
-        if reporting_accounts:
-            # Calling `get_completed_assessments_at_by` with an `accounts`
-            # arguments evaluating to `False` will return all the latest
-            # frozen samples.
-            samples = get_completed_assessments_at_by(self.campaign,
-                start_at=self.start_at, ends_at=self.ends_at,
-                accounts=reporting_accounts)
-            self.labels = [sample.account.printable_name for sample in samples]
-
+        if self.samples:
             self.attach_results(
                 units,
                 questions_by_key,
-                get_frozen_answers(self.campaign, samples, prefix=prefix))
+                get_frozen_answers(self.campaign, self.samples, prefix=prefix))
 
         return list(six.itervalues(questions_by_key))
 
@@ -1320,6 +1402,20 @@ class CompareIndexAPIView(CompareAPIView):
 
 class PortfolioAccessibleSamplesMixin(DashboardMixin):
 
+    search_fields = (
+        'slug',
+        'full_name',
+        'email',
+    )
+    ordering_fields = (
+        ('created_at', 'created_at'),
+        ('full_name', 'full_name'),
+    )
+
+    ordering = ('full_name',)
+
+    filter_backends = (SearchFilter, OrderingFilter)
+
     def get_latest_frozen_by_accounts_by_year(self, campaign, includes,
         start_at=None, ends_at=None):
         """
@@ -1405,7 +1501,11 @@ ORDER BY account_id, created_at
                 latest_sample = sample.created_at
             if earliest_sample is None or earliest_sample > sample.created_at:
                 earliest_sample = sample.created_at
-        years = construct_yearly_periods(earliest_sample, latest_sample)
+        first_year = datetime.datetime(
+            year=earliest_sample.year, month=1, day=1)
+        last_year = datetime.datetime(
+            year=latest_sample.year, month=12, day=31)
+        years = construct_yearly_periods(first_year, last_year)
         self.labels = [val.year for val in years]
 
         for account in page:
@@ -1532,10 +1632,216 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
 class PortfolioEngagementMixin(DashboardMixin):
     """
     """
+    search_fields = (
+        'slug',
+        'full_name',
+        'email',
+    )
+    ordering_fields = (
+        ('created_at', 'created_at'),
+        ('full_name', 'full_name'),
+        ('reporting_status', 'reporting_status'),
+        ('last_activity_at', 'last_activity_at'),
+        ('requested_at', 'requested_at'),
+    )
+
+    ordering = ('full_name',)
+
+    filter_backends = (SearchFilter, OrderingFilter)
+
+    @property
+    def segments(self):
+        if not hasattr(self, '_segments'):
+            self._segments = get_segments_candidates(self.campaign)
+        return self._segments
+
+    def decorate_queryset(self, queryset):
+        engagement = {val.account_id: val for val
+            in self.get_engagement(queryset)}
+        scores = ScorecardCache.objects.filter(sample__in={
+            val.sample_id for val in engagement.values()}, path__in=[
+            seg['path'] for seg in self.segments]).order_by('path')
+        scores = {val.sample_id: val for val in scores}
+        for account in queryset:
+            engage = engagement.get(account.pk)
+            if engage:
+                account.grantee = engage.grantee
+                account.account = engage.account
+                account.campaign = engage.campaign
+                account.state = engage.state
+                account.verification_key = engage.verification_key
+                account.extra = engage.extra
+
+                account.sample = engage.sample
+                account.reporting_status = engage.reporting_status
+                account.last_activity_at = engage.last_activity_at
+                #account.requested_at = engage.requested_at
+                scorecard_cache = scores.get(engage.sample_id)
+                if scorecard_cache:
+                    account.normalized_score = scorecard_cache.normalized_score
+        return queryset
+
+    def get_queryset(self):
+        return self.requested_accounts
+
+    def get_engagement(self, accounts):
+        sep = ""
+        accounts_clause = ""
+        if False:
+            search = SearchFilter()
+            terms = search.get_search_terms(self.request)
+            for search_field in self.search_fields:
+                search_field = search_field[len('account__'):]
+                for term in terms:
+                    accounts_clause += \
+                        "%(sep)s%(search_field)s ILIKE '%%%%%(term)s%%%%'" % {
+                        'sep': sep,
+                        'search_field': search_field,
+                        'term': term
+                    }
+                    sep = "OR "
+            if accounts_clause:
+                accounts_clause = "AND account_id IN (SELECT id FROM %s WHERE %s)" % (
+                    get_account_model()._meta.db_table, accounts_clause)
+
+        if accounts:
+            accounts_clause = "AND account_id IN (%s)" % ",".join([
+                str(account.pk) for account in accounts])
+
+
+        campaign_clause = "AND survey_portfoliodoubleoptin.campaign_id = %d" % self.campaign.pk
+        after_clause = ""
+        if self.start_at:
+            after_clause = "AND survey_portfoliodoubleoptin.created_at >= '%s'" % self.start_at
+        before_clause = ""
+        if self.ends_at:
+            before_clause = "AND survey_portfoliodoubleoptin.created_at < '%s'" % self.ends_at
+        sql_query = """
+WITH requests AS (
+SELECT survey_portfoliodoubleoptin.* FROM survey_portfoliodoubleoptin
+INNER JOIN (
+    SELECT
+      grantee_id,
+      account_id,
+      MAX(created_at) AS created_at
+    FROM survey_portfoliodoubleoptin
+    WHERE
+      survey_portfoliodoubleoptin.grantee_id IN (%(grantees)s) AND
+      survey_portfoliodoubleoptin.state IN (
+        %(optin_request_initiated)d,
+        %(optin_request_accepted)d,
+        %(optin_request_denied)d,
+        %(optin_request_expired)d)
+      %(campaign_clause)s
+      %(after_clause)s
+      %(before_clause)s
+      %(accounts_clause)s
+    GROUP BY grantee_id, account_id) AS latest_requests
+ON  survey_portfoliodoubleoptin.grantee_id = latest_requests.grantee_id AND
+    survey_portfoliodoubleoptin.account_id = latest_requests.account_id AND
+    survey_portfoliodoubleoptin.created_at = latest_requests.created_at
+    WHERE
+      survey_portfoliodoubleoptin.state IN (
+        %(optin_request_initiated)d,
+        %(optin_request_accepted)d,
+        %(optin_request_denied)d,
+        %(optin_request_expired)d)
+      %(campaign_clause)s
+      %(after_clause)s
+      %(before_clause)s
+),
+completed_by_accounts AS (
+SELECT
+  survey_sample.*,
+  CASE WHEN latest_completion.state = %(optin_request_accepted)d
+           THEN 'completed'
+       WHEN latest_completion.state = %(optin_request_denied)d
+           THEN 'completed-denied'
+       ELSE 'completed-notshared' END AS reporting_status
+FROM survey_sample INNER JOIN (
+  SELECT
+    survey_sample.account_id,
+    survey_sample.is_frozen,
+    requests.state,
+    MAX(survey_sample.created_at) AS last_updated_at
+  FROM requests
+  INNER JOIN survey_sample ON
+    requests.account_id = survey_sample.account_id
+  WHERE
+    survey_sample.created_at >= requests.created_at AND
+    survey_sample.is_frozen AND
+    survey_sample.extra IS NULL AND
+    survey_sample.created_at < '%(ends_at)s'
+  GROUP BY survey_sample.account_id, survey_sample.is_frozen, requests.state
+) AS latest_completion
+ON survey_sample.account_id = latest_completion.account_id AND
+   survey_sample.created_at = latest_completion.last_updated_at AND
+   survey_sample.is_frozen = latest_completion.is_frozen
+),
+updated_by_accounts AS (
+SELECT
+  survey_sample.*,
+  'updated' AS reporting_status
+FROM survey_sample INNER JOIN (
+  SELECT
+    survey_sample.account_id,
+    MAX(survey_sample.updated_at) AS last_updated_at
+  FROM requests
+  INNER JOIN survey_sample ON
+    requests.account_id = survey_sample.account_id
+  WHERE
+    survey_sample.updated_at >= requests.created_at AND
+    survey_sample.extra IS NULL AND
+    survey_sample.updated_at < '%(ends_at)s'
+  GROUP BY survey_sample.account_id, survey_sample.extra
+  ) AS latest_update
+ON survey_sample.account_id = latest_update.account_id AND
+   survey_sample.updated_at = latest_update.last_updated_at
+)
+SELECT
+  requests.*,
+  COALESCE(
+    completed_by_accounts.slug,
+    updated_by_accounts.slug) AS sample,
+  COALESCE(
+    completed_by_accounts.id,
+    updated_by_accounts.id) AS sample_id,
+  COALESCE(
+    completed_by_accounts.reporting_status,
+    updated_by_accounts.reporting_status,
+    CASE WHEN requests.state = %(optin_request_denied)d
+        THEN 'invited-denied' ELSE 'invited' END) AS reporting_status,
+  COALESCE(
+    completed_by_accounts.created_at,
+    updated_by_accounts.updated_at,
+    null) AS last_activity_at
+FROM requests
+LEFT OUTER JOIN completed_by_accounts
+ON requests.account_id = completed_by_accounts.account_id
+LEFT OUTER JOIN updated_by_accounts
+ON requests.account_id = updated_by_accounts.account_id
+""" % {
+    'grantees': self.account.pk,
+    'campaign_clause': campaign_clause,
+    'before_clause': before_clause,
+    'after_clause': after_clause,
+    'accounts_clause': accounts_clause,
+    'ends_at': self.ends_at,
+    'optin_request_initiated': PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
+    'optin_request_accepted': PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED,
+    'optin_request_expired': PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED,
+    'optin_request_denied': PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED
+}
+        return PortfolioDoubleOptIn.objects.raw(sql_query)
+
+    def paginate_queryset(self, queryset):
+        page = super(
+            PortfolioEngagementMixin, self).paginate_queryset(queryset)
+        return self.decorate_queryset(page if page else queryset)
 
 
 class PortfolioEngagementAPIView(PortfolioEngagementMixin,
-                                 PortfoliosRequestsAPIView):
+                                 generics.ListAPIView): #XXXPortfoliosRequestsAPIView):
     """
     List engagement for reporting profiles
 
@@ -1592,109 +1898,18 @@ class PortfolioEngagementAPIView(PortfolioEngagementMixin,
         }
     """
     serializer_class = EngagementSerializer
-    filter_backends = []
-
-    def get_queryset(self):
-        campaign_clause = "AND survey_portfoliodoubleoptin.campaign_id = %d" % self.campaign.pk
-        after_clause = "AND survey_portfoliodoubleoptin.created_at >= '%s'" % self.start_at
-        before_clause = "AND survey_portfoliodoubleoptin.created_at < '%s'" % self.ends_at
-        sql_query = """
-WITH requests AS (
-SELECT * FROM survey_portfoliodoubleoptin
-WHERE
-  survey_portfoliodoubleoptin.grantee_id IN (%(grantees)s) AND
-  survey_portfoliodoubleoptin.state IN (
-        %(optin_request_initiated)d,
-        %(optin_request_accepted)d,
-        %(optin_request_denied)d,
-        %(optin_request_expired)d)
-  %(campaign_clause)s
-  %(after_clause)s
-  %(before_clause)s
-),
-completed_by_accounts AS (
-SELECT
-  survey_sample.*,
-  CASE WHEN latest_completion.state = %(optin_request_accepted)d
-           THEN 'completed'
-       WHEN latest_completion.state = %(optin_request_denied)d
-           THEN 'completed-denied'
-       ELSE 'completed-notshared' END AS reporting_status
-FROM survey_sample INNER JOIN (
-  SELECT
-    survey_sample.account_id,
-    requests.state,
-    MAX(survey_sample.created_at) AS last_updated_at
-  FROM requests
-  INNER JOIN survey_sample ON
-    requests.account_id = survey_sample.account_id
-  WHERE
-    survey_sample.created_at > requests.created_at AND
-    survey_sample.is_frozen AND
-    survey_sample.extra IS NULL AND
-    survey_sample.created_at < '%(ends_at)s'
-  GROUP BY (survey_sample.account_id, requests.state)
-  ) AS latest_completion
-ON survey_sample.account_id = latest_completion.account_id AND
-   survey_sample.created_at = latest_completion.last_updated_at AND
-   survey_sample.is_frozen AND
-   survey_sample.extra IS NULL
-),
-updated_by_accounts AS (
-SELECT
-  survey_sample.*,
-  'updated' AS reporting_status
-FROM survey_sample INNER JOIN (
-  SELECT
-    survey_sample.account_id,
-    MAX(survey_sample.updated_at) AS last_updated_at
-  FROM requests
-  INNER JOIN survey_sample ON
-    requests.account_id = survey_sample.account_id
-  WHERE
-    survey_sample.updated_at > requests.created_at AND
-    survey_sample.extra IS NULL AND
-    survey_sample.updated_at < '%(ends_at)s'
-  GROUP BY survey_sample.account_id
-  ) AS latest_update
-ON survey_sample.account_id = latest_update.account_id AND
-   survey_sample.updated_at = latest_update.last_updated_at AND
-   survey_sample.extra IS NULL
-)
-SELECT
-  requests.*,
-  COALESCE(
-    completed_by_accounts.reporting_status,
-    updated_by_accounts.reporting_status,
-    CASE WHEN requests.state = %(optin_request_denied)d
-        THEN 'invited-denied' ELSE 'invited' END) AS reporting_status,
-  COALESCE(
-    completed_by_accounts.created_at,
-    updated_by_accounts.updated_at,
-    null) AS last_activity_at
-FROM requests
-LEFT OUTER JOIN completed_by_accounts
-ON requests.account_id = completed_by_accounts.account_id
-LEFT OUTER JOIN updated_by_accounts
-ON requests.account_id = updated_by_accounts.account_id
-""" % {
-    'grantees': self.account.pk,
-    'campaign_clause': campaign_clause,
-    'before_clause': before_clause,
-    'after_clause': after_clause,
-    'ends_at': self.ends_at,
-    'optin_request_initiated': PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
-    'optin_request_accepted': PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED,
-    'optin_request_expired': PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED,
-    'optin_request_denied': PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED
-}
-        return PortfolioDoubleOptIn.objects.raw(sql_query)
 
     def get(self, request, *args, **kwargs):
         self._start_time()
         resp = self.list(request, *args, **kwargs)
         self._report_queries("http response created")
         return resp
+
+    def get_serializer_context(self):
+        context = super(
+            PortfolioEngagementAPIView, self).get_serializer_context()
+        context.update({'account': self.account})
+        return context
 
     def post(self, request, *args, **kwargs):
         """

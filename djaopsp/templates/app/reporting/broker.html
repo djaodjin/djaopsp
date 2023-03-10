@@ -1,9 +1,9 @@
 {% extends "app/reporting/base.html" %}
 
+{% block reporting_title %}Completed assessments{% endblock %}
+
 {% block reporting_content %}
-<div>
-  <h1 class="text-center">Completed assessments</h1>
-  <reporting-organizations id="managed" inline-template>
+<reporting-organizations id="managed" inline-template>
   <div>
     <table class="table table-striped">
       <thead>
@@ -44,26 +44,13 @@
               [[entry.printable_name]]
           </td>
           <!-- Campaign -->
-          <td style="vertical-align:middle;" v-if="!entry.requested_at">
+          <td style="vertical-align:middle;">
               <a :href="entry.score_url">[[ entry.segment ]]</a>
           </td>
         </tr>
       </tbody>
     </table>
     {% include "_pagination.html" %}
-    <div class="card-body">
-      <div class="row" style="margin-top: 5px;">
-        <div class="col-sm-6">
-          <a id="download-reporting" class="btn btn-secondary mb-2"
-             :href="'{{urls.download}}' + getQueryString(['page'])"
-             target="_blank">
-              <i class="fa fa-download"></i> Download
-          </a>
-        </div>
-      </div>
-    </div>
   </div>
-  </div>
-  </reporting-organizations>
-</div>
+</reporting-organizations>
 {% endblock %}

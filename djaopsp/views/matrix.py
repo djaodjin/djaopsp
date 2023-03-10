@@ -17,12 +17,12 @@ from ..api.portfolios import SupplierListMixin
 from ..compat import reverse, six
 from ..helpers import as_valid_sheet_title
 from ..queries import get_completed_assessments_at_by
-from .portfolios import DashboardMixin
+from .portfolios import DashboardMixin, UpdatedMenubarMixin
 
 LOGGER = logging.getLogger(__name__)
 
 
-class CompareView(DashboardMixin, CompareBaseView):
+class CompareView(UpdatedMenubarMixin, DashboardMixin, CompareBaseView):
     """
     Compare samples side-by-side
     """
@@ -44,13 +44,6 @@ class CompareView(DashboardMixin, CompareBaseView):
                 'download': reverse(
                     'download_matrix_compare', kwargs=url_kwargs),
             })
-
-        update_context_urls(context, {
-            'engage': reverse('reporting_profile_engage',
-                args=(self.account, self.campaign)),
-            'accessibles': reverse('reporting_profile_accessibles',
-                args=(self.account, self.campaign)),
-        })
         return context
 
 
