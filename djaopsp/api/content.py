@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
 from pages.api.elements import (PageElementAPIView as PageElementBaseAPIView,
@@ -64,10 +64,14 @@ class PageElementAPIView(VisibilityMixin, PageElementBaseAPIView):
     def attach(self, elements):
         extra_fields = self.get_extra_fields()
         values_by_path = {}
-        for resp in get_question_model().objects.filter(
+        queryset = get_question_model().objects.filter(
             path__in=[elem['path'] for elem in elements]).values(
-            'path', *extra_fields):
+            'path', 'default_unit__slug', *extra_fields)
+        for resp in queryset:
             path = resp.pop('path')
+            # don't ask. Django ORM is being funny as usual.
+            default_unit_slug = resp.pop('default_unit__slug')
+            resp.update({'default_unit': default_unit_slug})
             values_by_path.update({path: resp})
         for elem in elements:
             path = elem['path']

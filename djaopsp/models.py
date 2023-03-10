@@ -13,6 +13,8 @@ class Account(models.Model):
 
     slug = models.SlugField(unique=True, db_index=True)
     full_name = models.CharField(max_length=60, blank=True)
+    email = models.EmailField()
+    phone = models.CharField(max_length=11)
     extra = get_extra_field_class()(null=True, blank=True,
         help_text=_("Extra meta data (can be stringify JSON)"))
 

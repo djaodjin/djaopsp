@@ -855,11 +855,11 @@ li.active .system-menus {
 
 a.text-grey:hover,
 .text-grey{
-  color:#616363;
+  color: $body-color;
 }
 
 .link-grey{
-  color:#616363;
+  color: $body-color;
 }
 .link-grey:visited{
   color:#2a6496;
@@ -1211,7 +1211,7 @@ a.text-grey{
 
 .panel-icons {
   background-color: transparent;
-  color:#616363;
+  color: $body-color;
   behavior: url(../vendor/PIE.htc);
 }
 
@@ -1225,9 +1225,9 @@ a.text-grey{
 
 .panel-grey{
   margin: 0;
-  border:1px solid #ACAFAF;
+  background: $body-bg;
+  color: $body-color;
   border-radius:10px;
-  color:#616363;
   behavior: url(../vendor/PIE.htc);
 }
 
@@ -1246,7 +1246,7 @@ a.text-grey{
 
 .panel-heading > .row > .col-md-5 > a:hover{
    text-decoration:none;
-   color:#616363;
+   color: $body-color;
 }
 
 .nav-tabs.nav-djaopsp  > li {

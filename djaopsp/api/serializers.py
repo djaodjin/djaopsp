@@ -50,23 +50,27 @@ class BenchmarkSerializer(NoModelSerializer):
 
 class PracticeSerializer(BaseNodeElementSerializer):
 
-    avg_value = serializers.SerializerMethodField()
+    default_unit = serializers.SerializerMethodField()
     score_weight = serializers.SerializerMethodField(required=False)
 
     class Meta(BaseNodeElementSerializer.Meta):
         model = BaseNodeElementSerializer.Meta.model
         fields = BaseNodeElementSerializer.Meta.fields + (
-            'avg_value', 'score_weight')
+            'default_unit', 'score_weight')
 
-    @staticmethod
-    def get_avg_value(obj):
-        if hasattr(obj, 'avg_value'):
-            return obj.avg_value
-        try:
-            return obj['avg_value']
-        except (TypeError, KeyError):
-            pass
-        return None
+    def get_default_unit(self, obj):
+        default_unit = None
+        if hasattr(obj, 'default_unit'):
+            default_unit = obj.default_unit
+        else:
+            try:
+                default_unit = obj['default_unit']
+            except (TypeError, KeyError):
+                pass
+        if default_unit and isinstance(default_unit, UnitSerializer.Meta.model):
+            default_unit = UnitSerializer(
+                context=self._context).to_representation(default_unit)
+        return default_unit
 
     @staticmethod
     def get_score_weight(obj):

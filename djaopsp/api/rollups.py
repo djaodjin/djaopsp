@@ -156,8 +156,13 @@ class ScoresMixin(TimersMixin, DateRangeContextMixin, CampaignMixin):
             if not frozen_assessments_query:
                 frozen_assessments_query = segment_query
             else:
-                frozen_assessments_query = "(%s) UNION (%s)" % (
-                    frozen_assessments_query, segment_query)
+                # SQLite3 doesn't like parentheses around UNION operands
+                if is_sqlite3():
+                    frozen_assessments_query = "%s UNION %s" % (
+                        frozen_assessments_query, segment_query)
+                else:
+                    frozen_assessments_query = "(%s) UNION (%s)" % (
+                        frozen_assessments_query, segment_query)
             segment_query = get_completed_assessments_at_by(
                 self.campaign, ends_at=self.ends_at,
                 prefix=prefix, title=segment['title'],
@@ -165,8 +170,12 @@ class ScoresMixin(TimersMixin, DateRangeContextMixin, CampaignMixin):
             if not frozen_improvements_query:
                 frozen_improvements_query = segment_query
             else:
-                frozen_improvements_query = "(%s) UNION (%s)" % (
-                    frozen_improvements_query, segment_query)
+                if is_sqlite3():
+                    frozen_improvements_query = "%s UNION %s" % (
+                        frozen_improvements_query, segment_query)
+                else:
+                    frozen_improvements_query = "(%s) UNION (%s)" % (
+                        frozen_improvements_query, segment_query)
 
         if self.expired_at:
             reporting_clause = \

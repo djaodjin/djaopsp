@@ -19,9 +19,8 @@
         <div class="col-12">
           <div class="tab-pane active in">
             <div class="tab-content">
-                <div class="card panel-grey panel-cartitem over-radius">
-                  <div class="card-body">
-                    <div class="mt-4">
+                <div class="panel-grey panel-cartitem over-radius">
+                    <div class="p-2">
                       <h1 class="editable" data-key="title" v-cloak>{% if element %}{{element.title}}{% else %}[[item.title]]{% endif %}</h1>
                       <div data-key="tags" class="editable text-right">
                         <span class="badge badge-pill badge-info"
@@ -135,7 +134,6 @@ The Sustainability Project (TSP). Please use the following attribution:
                       {% include "pages/_comments.html" %}
                       {% endblock %}
                     </div>
-                  </div>{# /.card-body #}
                 </div>
             </div>{# /.tab-content #}
           </div>
