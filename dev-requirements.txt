@@ -14,7 +14,7 @@ supervisor==4.2.0
 docutils==0.18.1
 
 # static analysis
-pylint-2.14.5
+pylint==2.14.5
 pylint-django==2.0.15
 
 # To generate documentation
