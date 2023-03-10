@@ -4,6 +4,8 @@ FROM python:3.9-slim-bullseye
 # RUN python3 --version
 # RUN cat /etc/debian_version
 
+LABEL org.opencontainers.image.source https://github.com/djaodjin/djaopsp
+
 #     Without the following line we have trouble fetching libxml2
 RUN apt-get clean all
 #     Loads the list of native packages
