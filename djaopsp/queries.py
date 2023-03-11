@@ -22,7 +22,7 @@ def get_completed_assessments_at_by(campaign, start_at=None, ends_at=None,
     typically used to filter out 'testing' accounts
     """
     #pylint:disable=too-many-arguments,too-many-locals
-    sep = ""
+    sep = "AND "
     additional_filters = ""
     if accounts:
         if isinstance(accounts, list):
@@ -93,9 +93,9 @@ INNER JOIN (
     FROM survey_sample
     %(prefix_join)s
     WHERE survey_sample.campaign_id = %(campaign_id)d AND
-          survey_sample.is_frozen AND
-          %(additional_filters)s
+          survey_sample.is_frozen
           %(extra_clause)s
+          %(additional_filters)s
     GROUP BY account_id) AS last_updates
 ON survey_sample.account_id = last_updates.account_id AND
    survey_sample.created_at = last_updates.last_updated_at
