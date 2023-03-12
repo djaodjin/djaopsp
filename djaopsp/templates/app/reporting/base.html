@@ -58,7 +58,7 @@ Try out the <a href="{{urls.updated_dashboard}}">new dashboards</a>
             <a class="nav-link{% if request.path == urls.engage %} active{% endif %}" id="engage-lnk" href="{{urls.engage}}">Engage</a>
           </li>
           {% endif %}
-          {% if urls.compare %}
+          {% if FEATURES_DEBUG and urls.compare %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
             <a class="nav-link{% if request.path == urls.compare %} active{% endif %}" id="compare-lnk" href="{{urls.compare}}">Compare</a>

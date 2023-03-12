@@ -1160,7 +1160,11 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
                         key = self.as_answer(next(keys_iterator))
                 elif key and answer.sample.account.printable_name < key:
                     try:
-                        if answer.sample != values[-1][0].sample:
+                        try:
+                            sample = values[-1][0].sample
+                        except AttributeError:
+                            sample = values[-1][0].get('sample')
+                        if answer.sample != sample:
                             values += [[answer]]
                         else:
                             values[-1] += [answer]
@@ -1173,7 +1177,11 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
                         answer = None
                 else:
                     try:
-                        if answer.sample != values[-1][0].sample:
+                        try:
+                            sample = values[-1][0].sample
+                        except AttributeError:
+                            sample = values[-1][0].get('sample')
+                        if answer.sample != sample:
                             values += [[answer]]
                         else:
                             values[-1] += [answer]

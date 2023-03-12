@@ -15,11 +15,14 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 from django.db.utils import DatabaseError
 from survey.models import Portfolio, PortfolioDoubleOptIn
+from survey.utils import get_account_model
 
 LOGGER = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+
+    account_model = get_account_model()
 
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)
@@ -75,7 +78,7 @@ FROM optins LEFT OUTER JOIN survey_portfolio ON (
     survey_portfolio.campaign_id = optins.campaign_id)
 WHERE
     survey_portfolio.ends_at IS NULL OR
-    optins.last_trigger_at >= survey_portfolio.ends_at
+    optins.last_trigger_at > survey_portfolio.ends_at
     ORDER BY optins.last_trigger_at DESC, optins.grantee_id
 ), latest_completions AS (
 SELECT
@@ -84,16 +87,38 @@ SELECT
 FROM survey_sample
 WHERE is_frozen AND extra IS NULL
 GROUP BY account_id
-)
+), portfolios AS (
 SELECT
     outofsync_portfolios.*,
     latest_completions.latest_completed_at AS latest_completed_at
 FROM latest_completions
 INNER JOIN outofsync_portfolios
-ON latest_completions.account_id = outofsync_portfolios.account_id
+ON latest_completions.account_id = outofsync_portfolios.account_id)
+SELECT
+  grantee_slug,
+  %(account_table)s.slug AS account_slug,
+  campaign_id,
+  last_trigger_at,
+  portfolio_id,
+  ends_at,
+  latest_completed_at
+FROM (
+SELECT
+  %(account_table)s.slug AS grantee_slug,
+  account_id,
+  campaign_id,
+  last_trigger_at,
+  portfolios.id AS portfolio_id,
+  ends_at,
+  latest_completed_at
+FROM portfolios INNER JOIN %(account_table)s
+ON portfolios.grantee_id = %(account_table)s.id) AS portfolio_grantees
+INNER JOIN %(account_table)s
+ON portfolio_grantees.account_id = %(account_table)s.id
 """ % {
     'grant_accepted': PortfolioDoubleOptIn.OPTIN_GRANT_ACCEPTED,
-    'request_accepted': PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED
+    'request_accepted': PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED,
+    'account_table': self.account_model._meta.db_table
 }
         count = 0
         sep = ""
@@ -108,8 +133,8 @@ ON latest_completions.account_id = outofsync_portfolios.account_id
                             self.stdout.write("grantee_id,account_id,"\
                             "campaign_id,last_trigger_at,portfolio_id,ends_at")
                         sep = ",\n"
-                    grantee_id = optin[0]
-                    account_id = optin[1]
+                    grantee_slug = optin[0]
+                    account_slug = optin[1]
                     campaign_id = optin[2]
                     last_trigger_at = optin[3]
                     portfolio_id = optin[4]
@@ -122,14 +147,16 @@ ON latest_completions.account_id = outofsync_portfolios.account_id
                             else:
                                 self.stdout.write("UPDATE survey_portfolio SET ends_at='%s' WHERE grantee_id=%d AND account_id=%d AND campaign_id IS NULL;" % (max(last_trigger_at, latest_completed_at), grantee_id, account_id))
                         else:
-                            self.stdout.write("INSERT INTO survey_portfolio (grantee_id,account_id,campaign_id,ends_at) VALUES (%d,%d,%s,'%s');" % (
-                                grantee_id, account_id,
-                                str(campaign_id) if campaign_id else "null",
-                                max(last_trigger_at,
-                                    latest_completed_at).strftime("%Y-%m-%d")))
+                            self.stdout.write("INSERT INTO survey_portfolio (grantee_id,account_id,campaign_id,ends_at) VALUES ((SELECT id FROM %(account_table)s WHERE slug='%(grantee_slug)s'),(SELECT id FROM %(account_table)s WHERE slug='%(account_slug)s'),%(campaign_id)s,'%(ends_at)s');" % {
+                    'account_table': self.account_model._meta.db_table,
+                    'grantee_slug': grantee_slug,
+                    'account_slug': account_slug,
+                    'campaign_id': str(campaign_id) if campaign_id else "null",
+                    'ends_at': max(last_trigger_at,
+                                   latest_completed_at).strftime("%Y-%m-%d")})
                     else:
-                        self.stdout.write("%d,%d,%s,%s,%s,%s,%s" % (
-                            grantee_id, account_id,
+                        self.stdout.write("%s,%s,%s,%s,%s,%s,%s" % (
+                            grantee_slug, account_slug,
                             str(campaign_id) if campaign_id else "-",
                             last_trigger_at.strftime("%Y-%m-%d"),
                             (latest_completed_at.strftime("%Y-%m-%d")

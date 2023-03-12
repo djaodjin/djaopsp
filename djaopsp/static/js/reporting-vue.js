@@ -45,6 +45,7 @@ Vue.component('reporting-organizations', {
             },
             autoreload: false,
             getCompleteCb: 'populateSummaryChart',
+            showEditTags: -1,
         };
         if( this.$accountExtra ) {
             data.accountExtra = this.$accountExtra;
@@ -229,26 +230,21 @@ Vue.component('reporting-organizations', {
             item.extra.tags = item.tagsAsText.split(',');
             vm.reqPatch(vm._safeUrl(vm.$urls.api_accessibles, [
                 'metadata', item.slug]), {extra: {tags: item.extra.tags}});
-            item.editTags = false;
-            vm.$forceUpdate();
+            vm.showEditTags = -1;
         },
         toggleEditTags: function(toggledIdx) {
             var vm = this;
             var entry = vm.items.results[toggledIdx];
-            for( var idx = 0; idx < vm.items.results.length; ++idx ) {
-                if( idx != toggledIdx ) {
-                    vm.items.results[idx].editTags = false;
+            vm.showEditTags = vm.showEditTags === toggledIdx ? -1 : toggledIdx;
+            if( vm.showEditTags >= 0 ) {
+                if( !entry.tagsAsText ) {
+                    try {
+                        entry.tagsAsText = entry.extra.tags.join(", ");
+                    } catch (err) {
+                        entry.tagsAsText = "";
+                    }
                 }
             }
-            entry.editTags = !entry.editTags;
-            if( entry.editTags && !entry.tagsAsText ) {
-                try {
-                    entry.tagsAsText = entry.extra.tags.join(", ");
-                } catch (err) {
-                    entry.tagsAsText = "";
-                }
-            }
-            vm.$forceUpdate();
         }
     },
     mounted: function(){

@@ -121,7 +121,7 @@
                v-if="val[1] === 'no-data'"></i>
             <br />
             <a :href="val[2]" v-if="val[1] === 'verified' || val[1] === 'completed'">
-              <span>[[val[3] !== null ? val[3] + '%' : {% trans %}'view'{% endtrans %}]]</span>
+              <span>{% trans %}view{% endtrans %}</span>
             </a>
           </td>
           <td>
