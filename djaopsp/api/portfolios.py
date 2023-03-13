@@ -329,7 +329,7 @@ class DashboardAggregateMixin(DashboardMixin):
         filter_params.update({
             'sample__created_at__lt': datetime_or_now(ends_at)})
 
-        reporting_accounts = self.get_reporting_accounts(account=account)
+        reporting_accounts = self.get_requested_accounts(account=account)
         if not reporting_accounts:
             return ScorecardCache.objects.none()
 

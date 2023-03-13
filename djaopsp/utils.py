@@ -209,59 +209,60 @@ def get_reporting_accounts(account, campaign=None, start_at=None, ends_at=None):
     All accounts which have elected to share their scorecard
     with ``account``.
     """
+    queryset = None
     if (hasattr(settings, 'REPORTING_ACCOUNTS_CALLABLE') and
         settings.REPORTING_ACCOUNTS_CALLABLE):
-        return import_string(settings.REPORTING_ACCOUNTS_CALLABLE)(
+        queryset = import_string(settings.REPORTING_ACCOUNTS_CALLABLE)(
             account, campaign=campaign, start_at=start_at, ends_at=ends_at)
 
-    filter_params = {}
-    if campaign:
-        filter_params.update({
-            'portfolio_double_optin_accounts__campaign': campaign})
-    if start_at:
-        filter_params.update({
-            'portfolio_double_optin_accounts__created_at__gte': start_at})
-    if ends_at:
-        filter_params.update({
-            'portfolios_granted__ends_at__lt': ends_at})
-    queryset = get_account_model().objects.filter(
-        portfolios_granted__grantee=account,
-        **filter_params)
+    if queryset is None:
+        filter_params = {}
+        if start_at:
+            filter_params.update({
+                'portfolio_double_optin_accounts__created_at__gte': start_at})
+        if campaign:
+            filter_params.update({'portfolios__campaign': campaign})
+        queryset = get_account_model().objects.filter(
+            portfolios__grantee=account,
+            **filter_params).distinct()
 
-    return queryset.distinct()
+    return queryset
 
 
 def get_requested_accounts(account, campaign=None, start_at=None, ends_at=None):
     """
     All accounts which ``account`` has requested a scorecard from.
     """
+    queryset = None
     if (hasattr(settings, 'REQUESTED_ACCOUNTS_CALLABLE') and
         settings.REQUESTED_ACCOUNTS_CALLABLE):
-        return import_string(settings.REQUESTED_ACCOUNTS_CALLABLE)(
+            queryset = import_string(settings.REQUESTED_ACCOUNTS_CALLABLE)(
             account, campaign=campaign, start_at=start_at, ends_at=ends_at)
 
-    filter_params = {}
-    if campaign:
-        filter_params.update({
-            'portfolio_double_optin_accounts__campaign': campaign})
-    if start_at:
-        filter_params.update({
-            'portfolio_double_optin_accounts__created_at__gte': start_at})
-    if ends_at:
-        filter_params.update({
-            'portfolio_double_optin_accounts__created_at__lt': ends_at})
-    queryset = get_account_model().objects.filter(
-        portfolio_double_optin_accounts__grantee=account,
-        portfolio_double_optin_accounts__state__in=(
-            PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
-            PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED,
-            PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED,
-            PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED),
-            **filter_params).annotate(
-            requested_at=F('portfolio_double_optin_accounts__created_at'),
-            grant_key=F('portfolio_double_optin_accounts__state'))
+    if queryset is None:
+        filter_params = {}
+        if start_at:
+            filter_params.update({
+                'portfolio_double_optin_accounts__created_at__gte': start_at})
+        if ends_at:
+            filter_params.update({
+                'portfolio_double_optin_accounts__created_at__lt': ends_at})
+        if campaign:
+            filter_params.update({
+                'portfolio_double_optin_accounts__campaign': campaign})
+        queryset = get_account_model().objects.filter(
+            portfolio_double_optin_accounts__grantee=account,
+            portfolio_double_optin_accounts__state__in=(
+                PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
+                PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED,
+                PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED,
+                PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED),
+                **filter_params).annotate(
+                requested_at=F('portfolio_double_optin_accounts__created_at'),
+                grant_key=F('portfolio_double_optin_accounts__state')
+        ).distinct()
 
-    return queryset.distinct('slug')
+    return queryset
 
 
 def get_highlights(sample):

@@ -508,7 +508,7 @@ WHERE survey_question.path LIKE '%%%(path)s'
         if not labels:
             raise ValueError("labels cannot be `None`")
         values = []
-        reporting_accounts = self.get_reporting_accounts(account=account)
+        reporting_accounts = self.get_requested_accounts(account)
         for label in labels:
             scope1_total = 0
             scope2_total = 0
