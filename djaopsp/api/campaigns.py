@@ -1,7 +1,8 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
+from __future__ import unicode_literals
 
-import json
+import csv, json
 from collections import OrderedDict
 
 from django.db import transaction
@@ -18,6 +19,7 @@ from survey.utils import get_question_model
 from survey.api.campaigns import CampaignAPIView as CampaignBaseAPIView
 
 from .serializers import ContentNodeSerializer, CreateContentElementSerializer
+from ..campaigns import import_campaign
 from ..compat import six
 from ..mixins import AccountMixin, CampaignMixin
 
@@ -500,3 +502,92 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data,
             status=status.HTTP_201_CREATED, headers=headers)
+
+
+class CampaignUploadAPIView(CampaignEditableContentAPIView):
+
+    def post(self, request, *args, **kwargs):
+        """
+        Uploads practices
+
+        Upload all practices, tiles and segments for a campaign from a CSV file.
+
+        **Tags**: editors
+
+        **Examples
+
+        Content of ``sustainability.csv``:
+
+        .. code-block:: csv
+
+            Joe,Smith,joesmith@example.com
+            Marie,Johnson,mariejohnson@example.com
+
+        .. code-block:: http
+
+            POST /api/content/editables/alliance/campaigns/sustainability\
+/upload HTTP/1.1
+
+            Content-Disposition: form-data; name="file"; filename="sustainability.csv"
+            Content-Type: text/csv
+
+        responds:
+
+        .. code-block:: json
+
+            {
+                "count": 5,
+                "next": null,
+                "previous": null,
+                "results": [
+                    {
+                        "path": null,
+                        "title": "Construction",
+                        "tags": ["public"],
+                        "indent": 0
+                    },
+                    {
+                      "path": null,
+                      "title": "Governance & management",
+                      "picture": "https://assets.tspproject.org/management.png",
+                      "indent": 1
+                    },
+                    {
+                        "path": "/construction/governance/the-assessment\
+    -process-is-rigorous",
+                        "title": "The assessment process is rigorous",
+                        "indent": 2,
+                        "environmental_value": 1,
+                        "business_value": 1,
+                        "profitability": 1,
+                        "implementation_ease": 1,
+                        "avg_value": 1
+                    },
+                    {
+                      "path": null,
+                      "title": "Production",
+                      "picture": "https://assets.tspproject.org/production.png",
+                      "indent": 1
+                    },
+                    {
+                        "path": "/construction/production/adjust-air-fuel\
+    -ratio",
+                        "title": "Adjust Air fuel ratio",
+                        "indent": 2,
+                        "environmental_value": 2,
+                        "business_value": 2,
+                        "profitability": 2,
+                        "implementation_ease": 2,
+                        "avg_value": 2
+                    }
+                ]
+            }
+
+        """
+        uploaded = request.FILES.get('file')
+        try:
+            import_campaign(self.campaign, uploaded)
+        except csv.Error as err:
+            raise ValidationError({'detail': str(err)})
+
+        return self.get(request, *args, **kwargs)

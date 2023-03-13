@@ -1,12 +1,60 @@
 {% extends "survey/base.html" %}
 
 {% block survey_content %}
-<div>
-  <div>
-    <h1 class="text-center">{{campaign.title}} Assessment</h1>
+<div class="mx-4 pt-4">
+  <div class="row">
+    <div class="col-md-7">
+      <ul class="nav nav-tabs surrounded-tabs">
+        <li class="nav-item squared-tabs-li text-center first_tab">
+          <img src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" />
+        </li>
+      </ul>
+    </div>
+    <div class="col-md-5">
+      <nav class="navbar navbar-dark">
+        <ul class="navbar-nav nav-pills ml-auto">
+          {% block help_menus %}
+          {% if urls.download %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" href="{{urls.download}}">
+              <i class="fa fa-file-text"></i> Download (xlsx)
+            </a>
+          </li>
+          {% endif %}
+          {% if urls.api_upload %}
+          <!-- File Upload -->
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <div id="upload-btn"
+                 data-complete-url="{{urls.api_upload}}"
+                 djupload-success >
+              <div class="previewsContainer">
+                <span class="dz-default dz-message"><i class="fa fa-cloud"></i> {% trans %}Upload (.xlsx){% endtrans %}</span>
+              </div>
+            </div>
+          </li>
+          {% endif %}
+          {% endblock %}
+        </ul>
+      </nav>
+    </div>
   </div>
-  <div id="panel-icons" class="panel-icons">
+  <div class="row">
+    <div class="col-12">
+      <div class="bg-white text-dark">
+        <div class="mx-3">
+          <h1 class="d-inline my-0">{% block campaign_title %}{{campaign.title}}{% endblock %}</h1>
+          <div class="d-inline">
+            <sup class="d-none" role="button">
+              <small>
+                <i id="help-request" class="fa fa-question-circle"></i>
+              </small>
+            </sup>
+          </div>
+          <h2 class="my-0">{{profile.printable_name}}</h2>
     <div id="app">
+          {% block campaign_content %}
       <editable-practices-list id="editable-practices-list" inline-template>
         <div class="container-fluid">
           <div class="row">
@@ -284,14 +332,28 @@
           </div><!-- confirm-delete -->
         </div>
       </editable-practices-list>
-      <div>
-        <a id="download-assessment"
-           class="btn btn-secondary"
-           href="{{urls.campaign_download}}" target="_blank">
-          <i class="fa fa-download"></i> Download
-        </a>
-      </div>
-    </div>
-  </div>
+          {% endblock %}
 </div>
+        </div>
+      </div>{# /.bg-white #}
+    </div>
+  </div>{# /.row #}
+</div>
+{% endblock %}
+
+{% block survey_bodyscripts %}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+
+    {% if urls.api_upload %}
+    $("#upload-btn").djupload({
+        csrfToken: "{{csrf_token}}",
+        uploadUrl: "{{urls.api_upload}}",
+        uploadSuccessMessage: function(filename, location) {
+            return '{% trans %}"${filename}" uploaded sucessfully{% endtrans %}'.replace('${filename}', filename);
+        }
+    });
+    {% endif %}
+});
+</script>
 {% endblock %}

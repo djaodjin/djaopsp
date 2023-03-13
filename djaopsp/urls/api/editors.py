@@ -6,9 +6,12 @@ API URLs
 """
 from django.urls import path, include
 from ...api.campaigns import (CampaignEditableSegmentsAPIView,
-    CampaignEditableContentAPIView)
+    CampaignEditableContentAPIView, CampaignUploadAPIView)
 
 urlpatterns = [
+    path('campaigns/<slug:campaign>/upload',
+        CampaignUploadAPIView.as_view(),
+         name='api_campaign_upload'),
     path('campaigns/<slug:campaign>/segments',
         CampaignEditableSegmentsAPIView.as_view(),
          name='api_campaign_editable_segments'),

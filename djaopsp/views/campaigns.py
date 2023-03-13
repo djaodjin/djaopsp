@@ -36,14 +36,16 @@ class CampaignEditView(CampaignMixin, AccountMixin, TemplateView):
                 'pages_api_editables_index', args=(self.account,)),
             'api_content': reverse('api_campaign_editable_content',
                 args=(self.account, campaign_slug)),
-            'campaign_download': reverse('campaign_download',
-                args=(self.account, campaign_slug)),
             'api_alias_node': reverse('pages_api_alias_node', args=(
                 self.account, '')),
             'api_mirror_node': reverse('pages_api_mirror_node',
                 args=(self.account, '')),
             'api_move_node': reverse('pages_api_move_node',
                 args=(self.account, '')),
+            'api_upload': reverse('api_campaign_upload',
+                args=(self.account, campaign_slug)),
+            'download': reverse('campaign_download',
+                args=(self.account, campaign_slug)),
         })
         update_context_urls(context, urls)
         return context
