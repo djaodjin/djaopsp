@@ -1510,9 +1510,9 @@ ORDER BY account_id, created_at
             if earliest_sample is None or earliest_sample > sample.created_at:
                 earliest_sample = sample.created_at
         first_year = datetime.datetime(
-            year=earliest_sample.year, month=1, day=1)
+            year=datetime_or_now(earliest_sample).year, month=1, day=1)
         last_year = datetime.datetime(
-            year=latest_sample.year, month=12, day=31)
+            year=datetime_or_now(latest_sample).year, month=12, day=31)
         years = construct_yearly_periods(first_year, last_year)
         self.labels = [val.year for val in years]
 
