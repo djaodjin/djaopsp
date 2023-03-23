@@ -8,12 +8,13 @@ from django.urls import include, path
 
 from ...views.matrix import CompareView, CompareXLSXView
 from ...views.portfolios import (ActiveReportingEntitiesView,
-    CompletedAssessmentsRawXLSXView,
-    DashboardRedirectView, ReportingDashboardView,
-    PortfolioAccessiblesView, PortfolioEngageView,
+    CompletedAssessmentsRawXLSXView, CompletionRatePPTXView,
+    DashboardRedirectView, EngagementStatsPPTXView,
+    PortfolioAccessiblesView, PortfolioEngagementView,
     PortfolioResponsesView, PortfolioResponsesXLSXView,
-    PortfoliosDetailView)
-
+    PortfoliosDetailView, ReportingDashboardView)
+from ...downloads.reporting import (PortfolioAccessiblesXLSXView,
+    PortfolioEngagementXLSXView)
 
 urlpatterns = [
     # Redirects
@@ -22,6 +23,13 @@ urlpatterns = [
             breadcrumb_url='reporting_profile_accessibles'),
         name='portfolio_analyze'),
 
+    # PPTX charts downloads
+    path('reporting/<slug:campaign>/download/completion-rate/',
+        CompletionRatePPTXView.as_view(),
+        name='reporting_download_completion_rate'),
+    path('reporting/<slug:campaign>/download/engagement/stats/',
+        EngagementStatsPPTXView.as_view(),
+        name='reporting_download_engagement_stats'),
     # Views specifics to sustainability assessment
     path('reporting/<slug:campaign>/',
          include('djaopsp.sustainability.urls.views')),
@@ -44,9 +52,15 @@ urlpatterns = [
     path('reporting/<slug:campaign>/active/',
         ActiveReportingEntitiesView.as_view(),
         name='active_reporting_entities'),
+    path('reporting/<slug:campaign>/engage/download/',
+        PortfolioEngagementXLSXView.as_view(),
+        name='reporting_profile_engage_download'),
     path('reporting/<slug:campaign>/engage/',
-        PortfolioEngageView.as_view(),
+        PortfolioEngagementView.as_view(),
         name='reporting_profile_engage'),
+    path('reporting/<slug:campaign>/accessibles/download/',
+        PortfolioAccessiblesXLSXView.as_view(),
+        name='reporting_profile_accessibles_download'),
     path('reporting/<slug:campaign>/accessibles/',
         PortfolioAccessiblesView.as_view(),
         name='reporting_profile_accessibles'),

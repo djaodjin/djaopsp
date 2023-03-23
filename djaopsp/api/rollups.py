@@ -6,6 +6,7 @@ from collections import OrderedDict
 from pages.models import PageElement
 from survey.mixins import DateRangeContextMixin, TimersMixin
 from survey.models import Sample
+from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, is_sqlite3
 
 from ..compat import six
@@ -411,7 +412,7 @@ WHERE survey_sample.created_at < '%(ends_at)s'
             reporting_clause = \
                 "%d" % ReportingSerializer.REPORTING_ASSESSMENT_PHASE
 
-        if self.db_path and self.db_path != self.DB_PATH_SEP:
+        if self.db_path and self.db_path != DB_PATH_SEP:
             assessments_query = frozen_query
         else:
             assessments_query = """
@@ -567,7 +568,7 @@ class RollupMixin(object):
         if prefix:
             try:
                 roots = [PageElement.objects.get(
-                    slug=prefix.split(self.DB_PATH_SEP)[-1])]
+                    slug=prefix.split(DB_PATH_SEP)[-1])]
             except PageElement.DoesNotExist:
                 roots = None
         self._report_queries("[get_scores_tree] entry point")

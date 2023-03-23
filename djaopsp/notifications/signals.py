@@ -36,6 +36,7 @@ def portfolios_grant_initiated_notice(sender, portfolios, invitee, message,
           "back_url": "{{api_base_url}}",
         }
     """
+    #pylint:disable=unused-argument
     LOGGER.debug("[signal] portfolios_grant_initiated_notice(portfolios=%s,"\
         "invitee=%s)", portfolios, invitee)
     if False:
@@ -81,6 +82,7 @@ def portfolios_request_initiated_notice(sender, portfolios, invitee, message,
           "back_url": "{{api_base_url}}",
         }
     """
+    #pylint:disable=unused-argument
     portfolio = portfolios[0] # XXX first one only
     LOGGER.debug("[signal] portfolios_request_initiated_notice("\
         "portfolio=%s, invitee=%s)", portfolio, invitee)
@@ -127,6 +129,7 @@ def portfolio_request_accepted_notice(sender, portfolio, request, **kwargs):
           "back_url": "{{api_base_url}}",
         }
     """
+    #pylint:disable=unused-argument
     LOGGER.debug("[signal] portfolio_request_accepted_notice(portfolio=%s)",
         portfolio)
     latest_completed_assessment = get_latest_completed_assessment(

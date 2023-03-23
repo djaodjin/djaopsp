@@ -6,8 +6,6 @@ Views URLs
 """
 from django.urls import path
 from deployutils.apps.django.redirects import AccountRedirectView
-from deployutils.apps.django.templatetags.deployutils_prefixtags import (
-    site_url)
 
 from ...views.app import GetStartedView
 

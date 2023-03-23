@@ -1,17 +1,16 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
 """
-API URLs for portfolios engagement & analytics dashboards
+API URLs for portfolios analytics dashboards
+related to sustainability questionnaires
 """
 from django.urls import path
 
-from ..api.portfolios import (CompletionRateAPIView, GoalsAPIView,
+from ..api.portfolios import (GoalsAPIView,
     BySegmentsAPIView, GHGEmissionsRateAPIView, GHGEmissionsAmountAPIView)
 
 urlpatterns = [
-    path('completion-rate',
-        CompletionRateAPIView.as_view(), name="api_reporting_completion_rate"),
     path('goals',
         GoalsAPIView.as_view(), name="api_reporting_goals"),
     path('by-segments',

@@ -1,22 +1,15 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
 import logging
 
 from djaopsp.views.portfolios import ReportingDashboardPPTXView
 
-from ..api.portfolios import (BySegmentsMixin, CompletionRateMixin,
+from ..api.portfolios import (BySegmentsMixin,
     GoalsMixin, GHGEmissionsRateMixin, GHGEmissionsAmountMixin)
 
 
 LOGGER = logging.getLogger(__name__)
-
-
-class CompletionRatePPTXView(CompletionRateMixin, ReportingDashboardPPTXView):
-    """
-    Download completion rate as a .pptx presentation
-    """
-    basename = 'completion-rate'
 
 
 class GoalsPPTXView(GoalsMixin, ReportingDashboardPPTXView):

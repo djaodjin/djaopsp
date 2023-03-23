@@ -25,7 +25,6 @@ class Command(BaseCommand):
             dest='campaign',
             help='name of of the campaign')
         parser.add_argument('filename', action='store',
-            dest='filename',
             help='csv file with questions for the campaign')
 
 

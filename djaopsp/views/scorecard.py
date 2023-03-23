@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -12,6 +12,7 @@ from django.views.generic.base import (RedirectView, TemplateResponseMixin,
     TemplateView)
 from django.views.generic.edit import FormMixin
 from survey.models import Answer, Campaign, Sample
+from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_question_model
 
 from ..compat import reverse
@@ -117,11 +118,12 @@ class ScorecardIndexView(ReportMixin, TemplateView):
 
     @property
     def campaign_mandatory_segments(self):
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_campaign_mandatory_segments'):
             self._campaign_mandatory_segments = []
             campaign_slug = self.sample.campaign.slug
             campaign_prefix = "%s%s%s" % (
-                self.DB_PATH_SEP, campaign_slug, self.DB_PATH_SEP)
+                DB_PATH_SEP, campaign_slug, DB_PATH_SEP)
             if get_question_model().objects.filter(
                     path__startswith=campaign_prefix).exists():
                 self._campaign_mandatory_segments = [campaign_prefix]
@@ -129,6 +131,7 @@ class ScorecardIndexView(ReportMixin, TemplateView):
 
     @property
     def is_mandatory_segment_present(self):
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_is_mandatory_segment_present'):
             filter_args = None
             for seg_path in self.campaign_mandatory_segments:

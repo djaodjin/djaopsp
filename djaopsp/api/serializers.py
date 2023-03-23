@@ -249,7 +249,36 @@ class AssessmentNodeSerializer(PRACTICE_SERIALIZER):
         return None
 
 
-class AssessmentContentSerializer(BasePageElementSerializer):
+class CompareNodeSerializer(PRACTICE_SERIALIZER):
+    """
+    One practice retrieved through the assess content API
+    """
+    default_unit = serializers.SerializerMethodField(required=False)
+    values = serializers.ListField(
+        child=serializers.ListField(child=AnswerSerializer()), required=False)
+
+    class Meta(PRACTICE_SERIALIZER.Meta):
+        fields = PRACTICE_SERIALIZER.Meta.fields + (
+            'default_unit', 'values',)
+        read_only_fields = PRACTICE_SERIALIZER.Meta.read_only_fields + (
+            'default_unit', 'values',)
+
+    def get_default_unit(self, obj):
+        default_unit = None
+        if hasattr(obj, 'default_unit'):
+            default_unit = obj.default_unit
+        else:
+            try:
+                default_unit = obj['default_unit']
+            except (TypeError, KeyError):
+                pass
+        if default_unit:
+            return UnitSerializer(context=self._context).to_representation(
+                default_unit)
+        return None
+
+
+class AssessmentContentSerializer(serializers.ListSerializer):
 
     count = serializers.IntegerField()
     labels = serializers.ListField(serializers.CharField(), required=False)
@@ -353,14 +382,21 @@ class ReportingSerializer(NoModelSerializer):
 
 class EngagementSerializer(AccountSerializer):
 
-    REPORTING_STATUSES = (
-        'invited',
-        'updated',
-        'completed',
-        'completed-denied',
-        'completed-notshared',
-        'invited-denied'
-    )
+    REPORTING_INVITED = 'invited'
+    REPORTING_UPDATED = 'updated'
+    REPORTING_COMPLETED = 'completed'
+    REPORTING_COMPLETED_DENIED = 'completed-denied'
+    REPORTING_COMPLETED_NOTSHARED = 'completed-notshared'
+    REPORTING_INVITED_DENIED = 'invited-denied'
+
+    REPORTING_STATUS = {
+        'invited': "Invited",
+        'updated': "Work-in-progress",
+        'completed': "Completed",
+        'completed-denied': "Completed",
+        'completed-notshared': "Completed",
+        'invited-denied': "Invited"
+    }
 
     sample = serializers.SlugField(required=False)
     score_url = serializers.SerializerMethodField(

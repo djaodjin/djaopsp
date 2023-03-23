@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE
 
 """
@@ -18,7 +18,6 @@ from docutils import core
 from docutils import frontend
 from docutils.writers.html5_polyglot import Writer
 from pages.api.assets import UploadAssetAPIView
-from pages.serializers import NodeElementSerializer
 from rest_framework import exceptions, serializers
 from rest_framework.schemas.generators import EndpointEnumerator
 from rest_framework.request import Request as HttpRequest
@@ -396,10 +395,6 @@ class AutoSchema(BaseAutoSchema):
             }
 
         if (isinstance(field, serializers.ListSerializer) and
-            isinstance(field.child, NodeElementSerializer)):
-            return {}
-
-        if (isinstance(field, serializers.ListSerializer) and
             isinstance(field.child, serializers.CharField)):
             return {
                 'type': 'array',
@@ -757,10 +752,10 @@ class APIDocView(TemplateView):
                         'examples': examples
                     })
                     if 'tags' in func_details and func_details['tags']:
-                        if ('content' not in func_details['tags'] and
-                            'editors' not in func_details['tags']):
-                            tags |= set(func_details['tags'])
-                            api_end_points += [func_details]
+                        #if ('content' not in func_details['tags'] and
+                        #    'editors' not in func_details['tags']):
+                        tags |= set(func_details['tags'])
+                        api_end_points += [func_details]
                 except AttributeError:
 #                    raise
                     pass

@@ -20,7 +20,6 @@ from survey.utils import get_account_model
 
 from ..compat import is_authenticated, reverse
 from ..mixins import AccountMixin
-from ..notifications import signals
 from ..utils import (get_latest_active_assessments,
     get_latest_completed_assessment)
 
@@ -117,6 +116,7 @@ class GetStartedProfileView(AccountMixin, FormMixin, TemplateResponseMixin,
         Returns a list of campaigns that can an account
         can answer against.
         """
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_campaign_candidates'):
             self._campaign_candidates = super(
                 GetStartedProfileView, self).campaign_candidates
@@ -192,7 +192,8 @@ class GetStartedProfileView(AccountMixin, FormMixin, TemplateResponseMixin,
         if not redirects:
             if not self.campaign_candidates:
                 raise Http404(
-                  "No campaigns available for %(account)s" % str(self.account))
+                    "No campaigns available for %(account)s" % {
+                    'account': self.account})
             sample = self.create_sample(self.campaign_candidates[0])
             kwargs.update({'sample': sample})
         return super(GetStartedProfileView, self).get(request, *args, **kwargs)

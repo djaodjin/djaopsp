@@ -1,11 +1,10 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
-import copy, logging, json
+import copy, logging
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
-from deployutils.crypt import JSONEncoder
 from deployutils.helpers import datetime_or_now
 from django.db import transaction
 from django.db.models import Count, F
@@ -16,6 +15,7 @@ from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
     SampleFreezeAPIView)
 from survey.mixins import TimersMixin
 from survey.models import Answer, Choice, Sample, Unit, UnitEquivalences
+from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
 
 from ..compat import reverse, six
@@ -25,7 +25,7 @@ from ..scores import freeze_scores, get_score_calculator
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignContentMixin
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
-from .serializers import (AssessmentContentSerializer, AssessmentNodeSerializer,
+from .serializers import (AssessmentNodeSerializer,
     BenchmarkSerializer, HistoricalAssessmentSerializer, UnitSerializer)
 
 
@@ -302,8 +302,8 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
         Overrides CampaignContentMixin.get_questions to return a list
         of questions based on the answers available in the sample.
         """
-        if not prefix.endswith(self.DB_PATH_SEP):
-            prefix = prefix + self.DB_PATH_SEP
+        if not prefix.endswith(DB_PATH_SEP):
+            prefix = prefix + DB_PATH_SEP
 
         extra_fields = getattr(
             self.practice_serializer_class.Meta, 'extra_fields', [])
@@ -491,7 +491,7 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
               "slug": "formalized-esg-strategy",
               "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
               "indent": 3,
-              "title": "(3) Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
+              "title": "(3) Does your company have a formalized ESG strategy?",
               "picture": "/tspproject/static/img/management-basics.png",
               "extra": {
                 "segments": [
@@ -532,10 +532,11 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
         }
     """
     exclude_param = 'e'
-    serializer_class = AssessmentContentSerializer
+    serializer_class = AssessmentNodeSerializer
 
     @property
     def exclude_questions(self):
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_exclude_questions'):
             self._exclude_questions = self.request.query_params.get(
                 self.exclude_param)
@@ -544,7 +545,7 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
     def get_serializer_context(self):
         context = super(AssessmentContentAPIView, self).get_serializer_context()
         context.update({
-            'prefix': self.db_path if self.db_path else self.DB_PATH_SEP,
+            'prefix': self.db_path if self.db_path else DB_PATH_SEP,
         })
         return context
 
@@ -552,17 +553,22 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
         queryset = self.filter_queryset(self.get_queryset())
 
         # Ready to serialize
-        serializer = AssessmentNodeSerializer(
+        serializer = self.get_serializer_class()(
             queryset, many=True, context=self.get_serializer_context())
+
+        return self.get_paginated_response(serializer.data)
+
+    def get_paginated_response(self, data):
         if not hasattr(self, 'units'):
             self.units = {}
-        return http.Response(self.get_serializer_class()(
-            context=self.get_serializer_context()).to_representation({
-                'count': len(serializer.data),
-                'results': serializer.data,
-                'units': {key: UnitSerializer().to_representation(val)
-                    for key, val in six.iteritems(self.units)}
-            }))
+
+        return http.Response(OrderedDict([
+            ('count', len(data)),
+            ('path', self.path),
+            ('results', data),
+            ('units', {key: UnitSerializer().to_representation(val)
+                    for key, val in six.iteritems(self.units)})
+        ]))
 
 
 class AssessmentContentIndexAPIView(AssessmentContentAPIView):
@@ -685,7 +691,7 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
               "slug": "formalized-esg-strategy",
               "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
               "indent": 3,
-              "title": "(3) Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
+              "title": "(3) Does your company have a formalized ESG strategy?",
               "picture": "/tspproject/static/img/management-basics.png",
               "extra": {
                 "segments": [
@@ -755,7 +761,7 @@ class HistoricalAssessmentsAPIView(AccountMixin, generics.ListAPIView):
             "last_completed_at": "2016-07-15T00:35:26.565000Z",
             "campaign": {
               "slug": "sustainability",
-              "account": "djaopsp",
+              "account": "alliance",
               "title": "ESG/Environmental practices",
               "description": "ESG/Environmental practices assessment",
               "active": true
@@ -857,6 +863,7 @@ class BenchmarkAPIView(SectionReportMixin, GraphMixin, RollupMixin,
         Returns all accounts available as a string
         that can be used in SQL statements.
         """
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_requested_accounts_pk_as_sql'):
             self._requested_accounts_pk_as_sql = (
                 "(SELECT id FROM %s)" % self.account_model._meta.db_table)
@@ -864,12 +871,12 @@ class BenchmarkAPIView(SectionReportMixin, GraphMixin, RollupMixin,
 
     @property
     def scores_tree(self):
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_scores_tree'):
             self._scores_tree = OrderedDict()
             for seg in self.segments_available:
                 segment_path = seg.get('path')
-                prefix = self.DB_PATH_SEP.join(segment_path.split(
-                    self.DB_PATH_SEP)[:-1])
+                prefix = DB_PATH_SEP.join(segment_path.split(DB_PATH_SEP)[:-1])
                 self._scores_tree.update(get_scores_tree(
                     [PageElement.objects.get(slug=seg['slug'])], prefix=prefix))
         return self._scores_tree
@@ -879,6 +886,7 @@ class BenchmarkAPIView(SectionReportMixin, GraphMixin, RollupMixin,
         """
         Returns the segments/tiles we are interested in for this query.
         """
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_scores_of_interest'):
             self._scores_of_interest = flatten_content_tree(self.scores_tree)
         return self._scores_of_interest

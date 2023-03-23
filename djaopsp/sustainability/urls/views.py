@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -6,16 +6,13 @@ Views URLs
 """
 from django.urls import path
 
-from ..views.portfolios import (CompletionRatePPTXView,
+from ..views.portfolios import (
     GoalsPPTXView, BySegmentsPPTXView, GHGEmissionsRatePPTXView,
     GHGEmissionsAmountPPTXView)
 
 
 urlpatterns = [
     # PPTX charts downloads
-    path('download/completion-rate/',
-        CompletionRatePPTXView.as_view(),
-        name='reporting_download_completion_rate'),
     path('download/goals/',
         GoalsPPTXView.as_view(),
         name='reporting_download_goals'),

@@ -15,6 +15,6 @@
   </div>
 </td>
 
-<td v-for="answer in practice.answers">
-    [[answer.measured ? answer.measured : '-']]
+<td v-for="answer in practice.values">
+    [[(answer.length > 0 && answer[0].measured) ? answer[0].measured : '-']]
 </td>

@@ -13,8 +13,7 @@ import datetime, logging
 from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
 from django.db import connection
-from django.db.utils import DatabaseError
-from survey.models import Portfolio, PortfolioDoubleOptIn
+from survey.models import PortfolioDoubleOptIn
 from survey.utils import get_account_model
 
 LOGGER = logging.getLogger(__name__)
@@ -143,11 +142,34 @@ ON portfolio_grantees.account_id = %(account_table)s.id
                     if show_fix:
                         if portfolio_id:
                             if campaign_id:
-                                self.stdout.write("UPDATE survey_portfolio SET ends_at='%s' WHERE grantee_id=%d AND account_id=%d AND campaign_id=%s;" % (max(last_trigger_at, latest_completed_at), grantee_id, account_id, campaign_id))
+                                self.stdout.write(
+                                    "UPDATE survey_portfolio SET"\
+" ends_at='%(ends_at)s' WHERE grantee_id=(SELECT id FROM %(account_table)s"\
+" WHERE slug='%(grantee_slug)s') AND account_id=(SELECT id"\
+" FROM %(account_table)s WHERE slug='%(account_slug)s')"\
+" AND campaign_id=%(campaign_id)s;" % {
+                    'account_table': self.account_model._meta.db_table,
+                    'grantee_slug': grantee_slug,
+                    'account_slug': account_slug,
+                    'ends_at': max(last_trigger_at, latest_completed_at),
+                    'campaign_id': str(campaign_id) if campaign_id else "null"})
                             else:
-                                self.stdout.write("UPDATE survey_portfolio SET ends_at='%s' WHERE grantee_id=%d AND account_id=%d AND campaign_id IS NULL;" % (max(last_trigger_at, latest_completed_at), grantee_id, account_id))
+                                self.stdout.write(
+                                    "UPDATE survey_portfolio SET"\
+" ends_at='%(ends_at)s' WHERE grantee_id=(SELECT id FROM %(account_table)s"\
+" WHERE slug='%(grantee_slug)s') AND account_id=(SELECT id"\
+" FROM %(account_table)s WHERE slug='%(account_slug)s')"\
+" AND campaign_id IS NULL;" % {
+                    'account_table': self.account_model._meta.db_table,
+                    'grantee_slug': grantee_slug,
+                    'account_slug': account_slug,
+                    'ends_at': max(last_trigger_at, latest_completed_at)})
                         else:
-                            self.stdout.write("INSERT INTO survey_portfolio (grantee_id,account_id,campaign_id,ends_at) VALUES ((SELECT id FROM %(account_table)s WHERE slug='%(grantee_slug)s'),(SELECT id FROM %(account_table)s WHERE slug='%(account_slug)s'),%(campaign_id)s,'%(ends_at)s');" % {
+                            self.stdout.write(
+                                "INSERT INTO survey_portfolio (grantee_id,"\
+"account_id,campaign_id,ends_at) VALUES ((SELECT id FROM %(account_table)s"\
+" WHERE slug='%(grantee_slug)s'),(SELECT id FROM %(account_table)s"\
+" WHERE slug='%(account_slug)s'),%(campaign_id)s,'%(ends_at)s');" % {
                     'account_table': self.account_model._meta.db_table,
                     'grantee_slug': grantee_slug,
                     'account_slug': account_slug,
@@ -167,4 +189,3 @@ ON portfolio_grantees.account_id = %(account_table)s.id
         if sep and show_fix:
             self.stdout.write("COMMIT;")
         self.stderr.write("%d inaccurate portfolios" % count)
-

@@ -7,16 +7,16 @@ from collections import OrderedDict
 
 from django.db import transaction
 from django.db.models import Max
-from pages.serializers import PageElementSerializer
-from pages.models import PageElement, RelationShip, flatten_content_tree
 from pages.api.elements import PageElementEditableListAPIView
-from rest_framework import status
+from pages.mixins import TrailMixin
+from pages.models import PageElement, RelationShip, flatten_content_tree
+from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from survey.models import EnumeratedQuestions
 from survey.utils import get_question_model
-from survey.api.campaigns import CampaignAPIView as CampaignBaseAPIView
+from survey.settings import DB_PATH_SEP
 
 from .serializers import ContentNodeSerializer, CreateContentElementSerializer
 from ..campaigns import import_campaign
@@ -69,20 +69,20 @@ class CampaignContentMixin(AccountMixin, CampaignMixin):
                 for question in queryset:
                     path = question.get('path')
                     path = path[len(segment_prefix):]
-                    parts = path.strip(self.DB_PATH_SEP).split(self.DB_PATH_SEP)
+                    parts = path.strip(DB_PATH_SEP).split(DB_PATH_SEP)
                     if strip_segment_prefix:
                         prefix = ''
                     else:
                         segment_prefix_parts = segment_prefix.strip(
-                            self.DB_PATH_SEP).split(self.DB_PATH_SEP)
-                        prefix = self.DB_PATH_SEP.join(
+                            DB_PATH_SEP).split(DB_PATH_SEP)
+                        prefix = DB_PATH_SEP.join(
                             segment_prefix_parts[:-1])
                         if prefix:
-                            prefix = self.DB_PATH_SEP + prefix
+                            prefix = DB_PATH_SEP + prefix
                         parts = [segment_prefix_parts[-1]] + parts
                     practices = by_tiles
                     for part in parts[:-1]:
-                        prefix = self.DB_PATH_SEP.join([prefix, part])
+                        prefix = DB_PATH_SEP.join([prefix, part])
                         if prefix not in practices:
                             practices[prefix] = ({
                                 'slug': part,
@@ -95,7 +95,7 @@ class CampaignContentMixin(AccountMixin, CampaignMixin):
                             practices[prefix][0].update({'extra': extra})
                         practices = practices[prefix][1]
                     part = parts[-1]
-                    prefix = self.DB_PATH_SEP.join([prefix, part])
+                    prefix = DB_PATH_SEP.join([prefix, part])
                     if prefix not in practices:
                         if not ('title' in question and
                                 'picture' in question and
@@ -150,63 +150,13 @@ class CampaignContentMixin(AccountMixin, CampaignMixin):
                     merged_fields['extra'].update(element.get('extra', {}))
                 element.update(merged_fields)
         campaign_slug = self.campaign.slug
-        campaign_path = "%s%s" % (self.DB_PATH_SEP, campaign_slug)
+        campaign_path = "%s%s" % (DB_PATH_SEP, campaign_slug)
         for seg_path, seg_val in six.iteritems(by_tiles):
             if seg_path == campaign_path:
                 seg_val[0].update({'rank': -1})
                 break
         elements = flatten_content_tree(by_tiles)
         return elements
-
-
-class CampaignAPIView(CampaignBaseAPIView):
-    """
-    Retrieves a campaign
-
-    Retrieves the details of a ``Campaign``.
-
-    **Tags**: assessments
-
-    **Examples**
-
-    .. code-block:: http
-
-        GET /api/envconnect/campaign/construction HTTP/1.1
-
-    responds
-
-    .. code-block:: json
-
-        {
-          "count": 8,
-          "next": null,
-          "previous": null,
-          "results": [
-          {
-            "slug": "metal",
-            "path": null,
-            "title": "Metal structures & equipment",
-            "indent": 0
-          },
-          {
-            "slug": "boxes-and-enclosures",
-            "path": "/metal/boxes-and-enclosures",
-            "title": "Boxes & enclosures",
-            "indent": 1,
-            "pagebreak": true,
-            "tags": [
-              "scorecard"
-            ]
-          }
-          ]
-        }
-    """
-    serializer_class = PageElementSerializer
-
-    def get_serializer_context(self):
-        context = super(CampaignAPIView, self).get_serializer_context()
-        context.update({'prefix': self.path})
-        return context
 
 
 class CampaignEditableSegmentsAPIView(CampaignContentMixin,
@@ -488,7 +438,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
             rank = 0 if rank is None else rank + 1
             for prefix_parts in parent.get_parent_paths():
                 rank = rank + 1
-                path = self.DB_PATH_SEP + self.DB_PATH_SEP.join([
+                path = DB_PATH_SEP + DB_PATH_SEP.join([
                     part.slug for part in prefix_parts] + [element.slug])
                 question = get_question_model().objects.create(
                     path=path, content=element)
@@ -504,7 +454,11 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
             status=status.HTTP_201_CREATED, headers=headers)
 
 
-class CampaignUploadAPIView(CampaignEditableContentAPIView):
+class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
+                            generics.CreateAPIView):
+
+    serializer_class = ContentNodeSerializer
+    strip_segment_prefix = True
 
     def post(self, request, *args, **kwargs):
         """
@@ -590,4 +544,6 @@ class CampaignUploadAPIView(CampaignEditableContentAPIView):
         except csv.Error as err:
             raise ValidationError({'detail': str(err)})
 
-        return self.get(request, *args, **kwargs)
+        results = self.get_queryset()
+        serializer = self.get_serializer(results, many=True)
+        return Response({'results': serializer.data})

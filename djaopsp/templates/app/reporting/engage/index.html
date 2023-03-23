@@ -8,56 +8,58 @@
 <meta name="description" property="og:description" content="Engage reporting profiles with {{campaign.title}}" />
 {% endblock %}
 
-{% block reporting_title %}{% trans %}Engage{% endtrans %}{% endblock %}
-
-
-{% block reporting_content %}
+{% block reporting_container %}
 <engage-profiles inline-template>
   <div>
-    <div class="row align-items-end">
-      <div id="invite-search" class="col-md-3">
-        <div class="input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp">From</span>
-          </div>
-          <input class="form-control" type="date"
-                 v-model="_start_at" v-cloak>
+    <div class="row">
+      <div class="col-sm-8">
+        <h1 class="d-inline pb-0 my-0">{% trans %}Engage{% endtrans %}</h1>
+        {% if campaign %}
+        <h3 class="d-inline pb-0 my-0">/ {{campaign.title}}</h3>
+        {% endif %}
+        <div class="d-inline">
+          <sup role="button">
+            <a href="{{'/docs/guides/djaopsp/engage/'|site_url}}" target="_blank">
+            <small>
+              <i id="help-request" class="fa fa-question-circle"></i>
+            </small>
+            </a>
+          </sup>
         </div>
-        <div class="input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          </div>
-          <input class="form-control" type="date"
-                 v-model="_ends_at" v-cloak>
-        </div>
-        <div class="input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
-          </div>
-          <input class="form-control"
-                 type="text"
-                 placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
-                 v-model="params.q" />
-        </div>
-        <button class="btn btn-secondary btn-sm mb-2 w-100"
-          :disabled="!outdated"
-          @click.prevent="reload()">{% trans %}Search{% endtrans %}</button>
-      </div>{# /#invite-search #}
-
-      <div class="col-md-4 text-center">
-        <div class="d-inline-block" style="position:relative;height:200px;margin:auto;" v-show="itemsLoaded" v-cloak>
-          <canvas id="summaryChart" height="200"></canvas>
-          <div class="text-center">
-Total completions ([[params.unit == 'percentage' ? '%' : 'Nb']])
-          </div>
-        </div>
-        <div class="mt-4">
-        {% include "app/reporting/_percentage_toggle.html" %}
+        <h2 class="my-0">{{profile.printable_name}}</h2>
+      </div>
+      <div class="col-sm-4">
+        <div class="mt-4 text-right">
+          {% include "app/reporting/_percentage_toggle.html" %}
         </div>
       </div>
-      <div class="col-md-5">
+    </div>
+
+    {# reporting_content #}
+    <div class="offset-md-3 col-md-6 mt-2">
+        <form id="period-update" class="form-inline" @submit.prevent="reload()">
+          <div class="input-group input-group-sm mr-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="from-inp">From</span>
+            </div>
+            <input class="form-control" type="date" v-model="_start_at" v-cloak>
+          </div>
+          <div class="input-group input-group-sm mr-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            </div>
+            <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+          </div>
+          <button class="btn btn-secondary btn-sm mr-2"
+                  :disabled="!outdated"
+                  >{% trans %}Update{% endtrans %}</button>
+        </form>{# /#period-update #}
+</div>
+    <div class="row mt-4">
+      <div class="col-md-6">
         <reporting-completion-rate :params="params" inline-template>
           <div>
+            <h2 class="text-center">Completed week-by-week ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
             <div>
               <div class="card-body" v-if="!itemLoaded">
                 <p>
@@ -68,16 +70,30 @@ Total completions ([[params.unit == 'percentage' ? '%' : 'Nb']])
                 <canvas id="completionRate"></canvas>
               </div>
             </div>
-            <div class="text-center">
-              <span>Weekly completions ([[params.unit == 'percentage' ? '%' : 'Nb']])</span>
-              <span class="float-right">
-              <a id="download-competion-rate" class="btn btn-secondary btn-sm" :href="'{{urls.download_completion_rate}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
-              </span>
-            </div>
           </div>
         </reporting-completion-rate>
-      </div>{# /.col-md-5 #}
+      </div>{# /.col-md-6 #}
+      <div class="col-md-6 text-center">
+        <reporting-completion-total :params="params" inline-template>
+          <div>
+            <h2>Status ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
+            <h3 class="text-center" v-if="itemLoaded">(outer: {{profile.printable_name}}, inner: [[item.results[1].printable_name]])</h3>
+            <div>
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="summaryChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-completion-total>
+      </div>
     </div>{# /.row #}
+
+    <hr />
 
     <table class="table table-striped mt-4">
       <thead>
@@ -143,8 +159,8 @@ Total completions ([[params.unit == 'percentage' ? '%' : 'Nb']])
               <div class="sticky-cell-content">
                 {% trans %}Last reminder{% endtrans %}
                 <button class="btn btn-link btn-sort"
-                        @click.prevent="sortBy('requested_at')">
-                  <i :class="sortIcon('requested_at')"></i>
+                        @click.prevent="sortBy('last_reminder_at')">
+                  <i :class="sortIcon('last_reminder_at')"></i>
                 </button>
               </div>
             </div>
@@ -162,14 +178,32 @@ Total completions ([[params.unit == 'percentage' ? '%' : 'Nb']])
               <div class="sticky-cell-content">
                   {% trans %}Added{% endtrans %}
                 <button class="btn btn-link btn-sort"
-                        @click.prevent="sortBy('created_at')">
-                  <i :class="sortIcon('created_at')"></i>
+                        @click.prevent="sortBy('requested_at')">
+                  <i :class="sortIcon('requested_at')"></i>
                 </button>
               </div>
             </div>
           </th>
         </tr>
       </thead>
+      <tbody>
+        <tr>
+          <td colspan="8">
+            <form id="invite-search" class="form-inline" @submit.prevent="reload()">
+              <div class="input-group input-group-sm mr-2">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
+                </div>
+                <input class="form-control"
+                       type="text"
+                       placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
+                       v-model="params.q" />
+              </div>
+              <button class="btn btn-secondary btn-sm mr-2"
+                      :disabled="!outdated"
+                      >{% trans %}Search{% endtrans %}</button>
+            </form>{# /#invite-search #}
+      </tbody>
       <tbody v-show="!itemsLoaded">
         <tr>
           <td colspan="8">
@@ -240,7 +274,7 @@ Total completions ([[params.unit == 'percentage' ? '%' : 'Nb']])
             </div>
             <div v-if="entry.reporting_status === 'completed-denied'">
                 {% trans %}Completed{% endtrans %}<br />
-                <small>({% trans %}declined to share score{% endtrans %})</small>
+                <small>({% trans %}declined to share{% endtrans %})</small>
             </div>
             <div v-if="entry.reporting_status === 'invited-denied'">
                 {% trans %}Declined{% endtrans %}<br />
@@ -270,9 +304,9 @@ Total completions ([[params.unit == 'percentage' ? '%' : 'Nb']])
             </div>
           </td>
           <td class="text-center">
-            <div v-if="entry.requested_at">
-              [[$globals.humanizeDate(entry.requested_at)]]<br />
-              <small>([[$globals.humanizeTimeDelta(entry.requested_at)]])</small><br />
+            <div v-if="entry.last_reminder_at">
+              [[$globals.humanizeDate(entry.last_reminder_at)]]<br />
+              <small>([[$globals.humanizeTimeDelta(entry.last_reminder_at)]])</small><br />
               <small><a href="" @click.prevent="toggleRecipients(index)"><i class="fa fa-envelope"></i> {% trans %}sent to{% endtrans %}</a></small>
               <div class="text-left" v-for="contact in entry.recipients" v-show="index === showRecipients">
                   <img class="img-fluid" style="max-height: 1rem;" :src="contact.picture || '{{'/static/img/default-user.png'|asset}}'"> [[contact.printable_name]] &lt;[[contact.email]]&gt;<br />
@@ -280,6 +314,9 @@ Total completions ([[params.unit == 'percentage' ? '%' : 'Nb']])
                       <span class="badge badge-secondary">[[contact.role_description.title]]</span> [[contact.last_login ? ("{% trans %}last login{% endtrans %}: " + $globals.humanizeDate(contact.last_login)) : ""]]
                   </small>
               </div>
+            </div>
+            <div v-if="!entry.last_reminder_at">
+                Not available
             </div>
           </td>
           <td class="text-center">
@@ -291,8 +328,8 @@ Total completions ([[params.unit == 'percentage' ? '%' : 'Nb']])
           </td>
           <td class="text-nowrap text-center"
               style="border-left:2px solid black;">
-            [[$globals.humanizeDate(entry.created_at)]]<br />
-            <small>([[$globals.humanizeTimeDelta(entry.created_at)]])</small><br />
+            [[$globals.humanizeDate(entry.requested_at)]]<br />
+            <small>([[$globals.humanizeTimeDelta(entry.requested_at)]])</small><br />
             <button class="btn btn-sm btn-danger"
                     @click.prevent="remove($event, index)">
               <i class="fa fa-times"></i> remove
@@ -309,36 +346,12 @@ Total completions ([[params.unit == 'percentage' ? '%' : 'Nb']])
 
 {% block reporting_scripts %}
 <script type="text/javascript">
-         jQuery(document).ready(function($) {
-          var summaryChart = new Chart(
-                document.getElementById('summaryChart'),
-                {
-                    type: 'doughnut',
-                    borderWidth: 0,
-                    data: {
-                        labels: ['Completed', 'Work in progress', 'Invited'],
-                        datasets: [{
-                            label: "Engagement",
-                            backgroundColor: ['#69B02B', '#9CD76B', '#ff5555'],
-                            data: [50, 25, 25]}]
-                    },
-                    options: {
-                        borderWidth: 1,
-                        responsive: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'right',
-                                labels: {
-                                    boxWidth: 20,
-                                    padding: 2,
-                                    fontSize: 8,
-                                }
-                            }
-                        }
-                    }
-                }
-            );
-         });
+jQuery(document).ready(function($) {
+
+    $("#invite-reporting-entity").on('shown.bs.modal', function () {
+        $(this).find("[name='email']").focus();
+    });
+
+});
 </script>
 {% endblock %}

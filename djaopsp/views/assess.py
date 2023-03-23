@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -14,9 +14,10 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.base import (ContextMixin, RedirectView,
     TemplateResponseMixin, TemplateView)
 from django.template.defaultfilters import slugify
-from survey.models import EditableFilter
-from survey.utils import get_question_model
 from survey.helpers import get_extra
+from survey.models import EditableFilter
+from survey.settings import DB_PATH_SEP, URL_PATH_SEP
+from survey.utils import get_question_model
 
 from .downloads import PracticesSpreadsheetView
 from ..api.samples import AssessmentContentMixin
@@ -65,7 +66,7 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
                 'track_metrics_index', args=(self.account,)),
             'api_content': reverse('api_sample_content',
                 args=(self.account, self.sample,
-                      self.full_path.lstrip(self.URL_PATH_SEP))),
+                      self.full_path.lstrip(URL_PATH_SEP))),
             'api_assessment_sample': reverse('survey_api_sample',
                 args=(self.account, self.sample)),
             'api_asset_upload_complete': self.request.build_absolute_uri(
@@ -74,7 +75,7 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
                 'survey_api_aggregate_metric_base', args=(self.account,)),
         })
         if self.path:
-            url_path = self.path.lstrip(self.URL_PATH_SEP)
+            url_path = self.path.lstrip(URL_PATH_SEP)
             update_context_urls(context, {
                 'download': reverse('assess_download_segment', args=(
                     self.account, self.sample, url_path)),
@@ -135,7 +136,7 @@ class AssessRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
     def get(self, request, *args, **kwargs):
         campaign_slug = self.sample.campaign.slug
         campaign_prefix = "%s%s%s" % (
-            self.DB_PATH_SEP, campaign_slug, self.DB_PATH_SEP)
+            DB_PATH_SEP, campaign_slug, DB_PATH_SEP)
         has_mandatory_segment = get_question_model().objects.filter(
             path__startswith=campaign_prefix).exists()
         if has_mandatory_segment:
@@ -228,7 +229,7 @@ class TrackMetricsView(AccountMixin, TemplateView):
         if tag:
             slug_part = tag
         else:
-            slug_part = path.split(self.DB_PATH_SEP)[-1]
+            slug_part = path.split(DB_PATH_SEP)[-1]
         api_endpoint = "api_track_%s" % slug_part.replace('-', '_')
         update_context_urls(context, {
             api_endpoint: reverse(
@@ -245,6 +246,7 @@ class TrackMetricsView(AccountMixin, TemplateView):
             'ends_at': ends_at.isoformat()
         })
         metric = self.kwargs.get('metric')
+        #pylint:disable=line-too-long
         if metric == 'energy-ghg-emissions':
             self.get_editable_filter_context(context, '/sustainability/data-measured/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1',
                     title='Scope1 Stationary Combustion')
@@ -296,6 +298,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
 
 
     def format_row(self, entry):
+        #pylint:disable=too-many-locals
         default_unit = entry.get('default_unit', {})
         if default_unit:
             try:

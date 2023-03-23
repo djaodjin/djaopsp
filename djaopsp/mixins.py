@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 import json
 
@@ -10,6 +10,7 @@ from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from pages.mixins import TrailMixin
 from pages.models import PageElement
+from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.mixins import CampaignMixin as CampaignMixinBase, SampleMixin
 from survey.models import Answer, Campaign, Sample
 from survey.utils import get_question_model
@@ -86,7 +87,7 @@ class CampaignMixin(CampaignMixinBase):
     def segments_available(self):
         if not hasattr(self, '_segments_available'):
             candidates = get_segments_candidates(self.campaign)
-            if self.db_path and self.db_path != self.DB_PATH_SEP:
+            if self.db_path and self.db_path != DB_PATH_SEP:
                 self._segments_available = []
                 for seg in candidates:
                     path = seg.get('path')
@@ -217,17 +218,16 @@ class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):
             'segments_available': self.segments_available,
         })
         if len(self.segments_available) == 1:
-            path_parts = self.path.lstrip(
-                self.URL_PATH_SEP).split(self.URL_PATH_SEP)
+            path_parts = self.path.lstrip(URL_PATH_SEP).split(URL_PATH_SEP)
             seg_parts = self.segments_available[0].get('path').lstrip(
-                self.DB_PATH_SEP).split(self.DB_PATH_SEP)
+                DB_PATH_SEP).split(DB_PATH_SEP)
             visible_parts = []
             for seg_part in seg_parts:
                 if seg_part in path_parts:
                     visible_parts += [seg_part]
-            path = self.URL_PATH_SEP.join(visible_parts)
+            path = URL_PATH_SEP.join(visible_parts)
         else:
-            path = self.path.lstrip(self.URL_PATH_SEP)
+            path = self.path.lstrip(URL_PATH_SEP)
         # These URLs can't be accessed by profiles the sample was shared
         # with. They must use ``sample.account``.
         if path:
@@ -271,7 +271,7 @@ class SectionReportMixin(ReportMixin):
         if not hasattr(self, '_segments_available'):
             # We get all segments that have at least one answer, regardless
             # of their visibility or ownership status.
-            if self.db_path and self.db_path != self.DB_PATH_SEP:
+            if self.db_path and self.db_path != DB_PATH_SEP:
                 candidates = self.get_segments_candidates()
                 self._segments_available = []
                 for seg in candidates:
@@ -292,7 +292,7 @@ class SectionReportMixin(ReportMixin):
             # We get all segments that have at least one answer, regardless
             # of their visibility or ownership status.
             self._sections_available = self.segments_available
-            if self.db_path and self.db_path != self.DB_PATH_SEP:
+            if self.db_path and self.db_path != DB_PATH_SEP:
                 candidates = self._sections_available
                 self._sections_available = []
                 for seg in candidates:
@@ -307,7 +307,7 @@ class SectionReportMixin(ReportMixin):
                                     #     because "sustainability" is not
                                     #     currently set as "public". (v1 to v2)
                     owners = self.owners
-                    slug = self.db_path.split(self.DB_PATH_SEP)[-1]
+                    slug = self.db_path.split(DB_PATH_SEP)[-1]
                     try:
                         queryset = PageElement.objects.filter(slug=slug)
                         element = queryset.get()

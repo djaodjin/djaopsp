@@ -5,7 +5,7 @@ This file contains SQL statements as building blocks for benchmarking
 results in APIs, downloads, etc.
 """
 from django.db.models.query import QuerySet, RawQuerySet
-from survey.models import Sample
+from survey.models import PortfolioDoubleOptIn, Sample
 from survey.utils import is_sqlite3
 
 
@@ -107,3 +107,151 @@ WHERE survey_sample.is_frozen
        'prefix_join': prefix_join,
        'additional_filters': additional_filters}
     return Sample.objects.raw(sql_query)
+
+
+def get_engagement(campaign, accounts,
+                   grantees=None, start_at=None, ends_at=None):
+    accounts_clause = ""
+    if accounts:
+        accounts_clause = "AND account_id IN (%s)" % ",".join([
+            str(account.pk) for account in accounts])
+    grantees_clause = ""
+    if grantees:
+        grantees_clause = "AND grantee_id IN (%s)" % ",".join([
+            str(account.pk) for account in grantees])
+
+    campaign_clause = (
+        "AND survey_portfoliodoubleoptin.campaign_id = %d" % campaign.pk)
+    after_clause = ""
+    if start_at:
+        after_clause = (
+            "AND survey_portfoliodoubleoptin.created_at >= '%s'" % start_at)
+    before_clause = ""
+    before_sample_created_clause = ""
+    before_sample_updated_clause = ""
+    if ends_at:
+        before_clause = (
+            "AND survey_portfoliodoubleoptin.created_at < '%s'" % ends_at)
+        before_sample_created_clause = (
+            "AND survey_sample.created_at < '%s'"  % ends_at)
+        before_sample_updated_clause = (
+            "AND survey_sample.updated_at < '%s'"  % ends_at)
+
+    sql_query = """
+WITH requests AS (
+SELECT survey_portfoliodoubleoptin.* FROM survey_portfoliodoubleoptin
+INNER JOIN (
+    SELECT
+      grantee_id,
+      account_id,
+      MAX(created_at) AS created_at
+    FROM survey_portfoliodoubleoptin
+    WHERE
+      state IN (
+        %(optin_request_initiated)d,
+        %(optin_request_accepted)d,
+        %(optin_request_denied)d,
+        %(optin_request_expired)d)
+      %(campaign_clause)s
+      %(after_clause)s
+      %(before_clause)s
+      %(grantees_clause)s
+      %(accounts_clause)s
+    GROUP BY grantee_id, account_id) AS latest_requests
+ON  survey_portfoliodoubleoptin.grantee_id = latest_requests.grantee_id AND
+    survey_portfoliodoubleoptin.account_id = latest_requests.account_id AND
+    survey_portfoliodoubleoptin.created_at = latest_requests.created_at
+    WHERE
+      survey_portfoliodoubleoptin.state IN (
+        %(optin_request_initiated)d,
+        %(optin_request_accepted)d,
+        %(optin_request_denied)d,
+        %(optin_request_expired)d)
+      %(campaign_clause)s
+      %(after_clause)s
+      %(before_clause)s
+),
+completed_by_accounts AS (
+SELECT
+  survey_sample.*,
+  CASE WHEN latest_completion.state = %(optin_request_accepted)d
+           THEN 'completed'
+       WHEN latest_completion.state = %(optin_request_denied)d
+           THEN 'completed-denied'
+       ELSE 'completed-notshared' END AS reporting_status
+FROM survey_sample INNER JOIN (
+  SELECT
+    survey_sample.account_id,
+    survey_sample.is_frozen,
+    requests.state,
+    MAX(survey_sample.created_at) AS last_updated_at
+  FROM requests
+  INNER JOIN survey_sample ON
+    requests.account_id = survey_sample.account_id
+  WHERE
+    survey_sample.created_at >= requests.created_at AND
+    survey_sample.is_frozen AND
+    survey_sample.extra IS NULL
+    %(before_sample_created_clause)s
+  GROUP BY survey_sample.account_id, survey_sample.is_frozen, requests.state
+) AS latest_completion
+ON survey_sample.account_id = latest_completion.account_id AND
+   survey_sample.created_at = latest_completion.last_updated_at AND
+   survey_sample.is_frozen = latest_completion.is_frozen
+),
+updated_by_accounts AS (
+SELECT
+  survey_sample.*,
+  'updated' AS reporting_status
+FROM survey_sample INNER JOIN (
+  SELECT
+    survey_sample.account_id,
+    MAX(survey_sample.updated_at) AS last_updated_at
+  FROM requests
+  INNER JOIN survey_sample ON
+    requests.account_id = survey_sample.account_id
+  WHERE
+    survey_sample.updated_at >= requests.created_at AND
+    survey_sample.extra IS NULL
+    %(before_sample_updated_clause)s
+  GROUP BY survey_sample.account_id, survey_sample.extra
+  ) AS latest_update
+ON survey_sample.account_id = latest_update.account_id AND
+   survey_sample.updated_at = latest_update.last_updated_at
+)
+SELECT
+  requests.*,
+  COALESCE(
+    completed_by_accounts.slug,
+    updated_by_accounts.slug) AS sample,
+  COALESCE(
+    completed_by_accounts.id,
+    updated_by_accounts.id) AS sample_id,
+  COALESCE(
+    completed_by_accounts.reporting_status,
+    updated_by_accounts.reporting_status,
+    CASE WHEN requests.state = %(optin_request_denied)d
+        THEN 'invited-denied' ELSE 'invited' END) AS reporting_status,
+  COALESCE(
+    completed_by_accounts.created_at,
+    updated_by_accounts.updated_at,
+    null) AS last_activity_at
+FROM requests
+LEFT OUTER JOIN completed_by_accounts
+ON requests.account_id = completed_by_accounts.account_id
+LEFT OUTER JOIN updated_by_accounts
+ON requests.account_id = updated_by_accounts.account_id
+""" % {
+    'grantees_clause': grantees_clause,
+    'campaign_clause': campaign_clause,
+    'before_clause': before_clause,
+    'after_clause': after_clause,
+    'accounts_clause': accounts_clause,
+    'before_sample_created_clause': before_sample_created_clause,
+    'before_sample_updated_clause': before_sample_updated_clause,
+    'optin_request_initiated': PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
+    'optin_request_accepted': PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED,
+    'optin_request_expired': PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED,
+    'optin_request_denied': PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED
+    }
+    return PortfolioDoubleOptIn.objects.raw(sql_query)

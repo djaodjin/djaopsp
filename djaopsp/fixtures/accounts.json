@@ -122,7 +122,7 @@
 },
 { "fields" : {
     "slug": "supplier-7",
-    "full_name": "S6 - SteelWorks (Demo)"
+    "full_name": "S7 - SteelWorks (Demo)"
   },
   "model" : "djaopsp.account", "pk" : 15
 },

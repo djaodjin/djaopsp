@@ -5,39 +5,37 @@
 import datetime, json, re
 from collections import OrderedDict
 
-from dateutil.relativedelta import relativedelta, SU
-from deployutils.crypt import JSONEncoder
-from deployutils.helpers import datetime_or_now, parse_tz
+from dateutil.relativedelta import relativedelta
+from deployutils.helpers import datetime_or_now
 from django.contrib.auth import get_user_model
 from django.db import connection
 from django.db.models import F
-import pytz
 from rest_framework import generics
 from rest_framework import response as http
 from rest_framework.pagination import PageNumberPagination
 from pages.models import PageElement
-from survey.api.matrix import MatrixDetailAPIView
-from survey.api.portfolios import PortfoliosRequestsAPIView
-from survey.api.serializers import MetricsSerializer, TableSerializer, UnitSerializer
+from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
+    MatrixDetailAPIView)
+from survey.api.serializers import MetricsSerializer, TableSerializer
 from survey.filters import SearchFilter, OrderingFilter
-from survey.helpers import construct_yearly_periods, get_extra
-from survey.queries import get_frozen_answers
-from survey.mixins import DateRangeContextMixin
-from survey.models import Answer, EditableFilter, PortfolioDoubleOptIn, Sample, UnitEquivalences
+from survey.helpers import (construct_yearly_periods, construct_weekly_periods,
+    get_extra)
+from survey.models import Answer, EditableFilter, Sample
 from survey.pagination import MetricsPagination
-from survey.utils import get_account_model, get_question_model
+from survey.settings import URL_PATH_SEP, DB_PATH_SEP
+from survey.utils import (as_sql_date_trunc_year, get_account_model,
+    get_question_model)
 
 from .campaigns import CampaignContentMixin
-from .samples import attach_answers
 from ..compat import reverse, six
-from ..queries import get_completed_assessments_at_by
+from ..queries import get_completed_assessments_at_by, get_engagement
 from ..mixins import AccountMixin
 from ..models import ScorecardCache
 from ..utils import (TransparentCut, get_alliances, get_reporting_accounts,
     get_requested_accounts, get_segments_candidates, segments_as_sql)
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
-from .serializers import (AssessmentNodeSerializer,
-    AssessmentContentSerializer, EngagementSerializer, ReportingSerializer)
+from .serializers import (CompareNodeSerializer, EngagementSerializer,
+    ReportingSerializer)
 
 
 class CompletionSummaryPagination(PageNumberPagination):
@@ -439,10 +437,8 @@ class SupplierListMixin(DashboardMixin):
                 parts = report_summary.segment_path.strip('/').split('/')
                 if report_summary.normalized_score is not None:
                     if report_summary.slug:
-                        report_summary.score_url = reverse(
-                            'scorecard', args=(
-                            report_summary.account_slug,
-                            report_summary.slug))
+                        report_summary.score_url = reverse('scorecard',
+                            args=(self.account, report_summary.slug))
         self._report_queries("report summaries updated with scores")
 
     def get_nb_questions_per_segment(self):
@@ -568,19 +564,20 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
     """
     @property
     def db_path(self):
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_db_path'):
             self._db_path = ""
             prefix_candidate = self.kwargs.get(self.path_url_kwarg, '').replace(
-                self.URL_PATH_SEP, self.DB_PATH_SEP)
+                URL_PATH_SEP, DB_PATH_SEP)
             if prefix_candidate:
                 # If the path is not a segment prefix, we just forget about it.
-                last_part = prefix_candidate.split(self.URL_PATH_SEP)[-1]
+                last_part = prefix_candidate.split(URL_PATH_SEP)[-1]
                 for seg in get_segments_candidates(self.campaign):
                     if seg.get('path', "").endswith(last_part):
                         self._db_path = seg.get('path')
                         break
-            if self._db_path and not self._db_path.startswith(self.DB_PATH_SEP):
-                self._db_path = self.DB_PATH_SEP + self._db_path
+            if self._db_path and not self._db_path.startswith(DB_PATH_SEP):
+                self._db_path = DB_PATH_SEP + self._db_path
         return self._db_path
 
     def get_accounts(self):
@@ -750,7 +747,7 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
             charts = self.get_charts(rollup_tree)
         else:
             rollup_tree = {
-                self.DB_PATH_SEP: ({
+                DB_PATH_SEP: ({
                     'slug': "totals",
                     'title': "Totals",
                     'extra': {'tags': [TransparentCut.TAG_SCORECARD]}
@@ -759,12 +756,12 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
             self.decorate_with_cohorts(rollup_tree)
             self._report_queries("decorate_with_cohorts completed")
             natural_charts = OrderedDict()
-            totals = rollup_tree.get(self.DB_PATH_SEP)
+            totals = rollup_tree.get(DB_PATH_SEP)
             for cohort in totals[0]['cohorts']:
                 natural_chart = (totals[1][cohort['slug']][0], {})
                 natural_charts.update({cohort['slug']: natural_chart})
             rollup_tree = {
-                self.DB_PATH_SEP: (totals[0], natural_charts)}
+                DB_PATH_SEP: (totals[0], natural_charts)}
             charts = self.get_charts(rollup_tree)
             self._report_queries("get_charts completed")
             for chart in charts:
@@ -859,17 +856,18 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
 
         self.decorate_queryset(queryset)
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return http.Response(serializer.data)
 
 
 
 # We should use DashboardMixin instead of DateRangeContextMixin
 # but there are MRO class order issue between CampaignMixin and AccountMixin
 # when we do that.
-class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
-                     generics.ListAPIView):
+class CompareAPIView(CampaignContentMixin, CompareAPIBaseView):
     """
     Lists compared samples
+
+    **Tags**: reporting
 
     **Examples**:
 
@@ -974,7 +972,7 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
               "slug": "formalized-esg-strategy",
               "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
               "indent": 3,
-              "title": "(3) Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
+              "title": "(3) Does your company have a formalized ESG strategy?",
               "picture": "/tspproject/static/img/management-basics.png",
               "extra": {
                 "segments": [
@@ -1005,9 +1003,9 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
               },
               "ui_hint": "yes-no-comments",
               "answers": [{
-                "measured": true
+                "measured": "true"
               }, {
-                "measured": false
+                "measured": "false"
               }],
               "candidates": [],
               "planned": [],
@@ -1021,8 +1019,8 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
     title = "Compare"
     scale = 1
     unit = None
-#XXX    pagination_class = MetricsPagination - hardcoded in serializer
-    serializer_class = AssessmentContentSerializer
+#XXX    pagination_class = Units+labels
+    serializer_class = CompareNodeSerializer
 
     @property
     def samples(self):
@@ -1031,6 +1029,7 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
 
         One per column
         """
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_samples'):
             reporting_accounts = get_reporting_accounts(
                 self.account, campaign=self.campaign)
@@ -1047,218 +1046,36 @@ class CompareAPIView(DateRangeContextMixin, CampaignContentMixin,
                 self._samples = Sample.objects.none()
         return self._samples
 
-    @property
-    def labels(self):
-        """
-        Labels for columns
-        """
-        if not hasattr(self, '_labels'):
-            self._labels = sorted([
-                sample.account.printable_name for sample in self.samples])
-        return self._labels
-
-    @staticmethod
-    def next_answer(answers_iterator, questions_by_key, extra_fields):
-        answer = next(answers_iterator)
-        question_pk = answer.question_id
-        value = questions_by_key.get(question_pk)
-        if not value:
-            question = answer.question
-            default_unit = question.default_unit
-            value = {
-                'path': question.path,
-                'rank': answer.rank,
-                'required': answer.required,
-                'default_unit': default_unit,
-                'ui_hint': question.ui_hint,
-            }
-            for field_name in extra_fields:
-                value.update({field_name: getattr(question, field_name)})
-            questions_by_key.update({question_pk: value})
-        else:
-            default_unit = value.get('default_unit')
-
-        if( answer.unit == default_unit or
-            UnitEquivalences.objects.filter(
-                source=default_unit, target=answer.unit).exists() or
-            UnitEquivalences.objects.filter(
-                source=answer.unit, target=default_unit).exists() ):
-            # we have the answer we are looking for.
-            nb_respondents = value.get('nb_respondents', 0) + 1
-            value.update({'nb_respondents': nb_respondents})
-        return answer
-
-    def as_answer(self, key):
-        return key
-
-    @staticmethod
-    def equiv_default_unit(values):
-        results = []
-        for val in values:
-            found = False
-            for resp in val:
-                try:
-                    if resp.is_equiv_default_unit:
-                        found = {
-                            'measured': resp.measured_text,
-                            'unit': resp.unit,
-                            'created_at': resp.created_at,
-                            'collected_by': resp.collected_by,
-                        }
-                        break
-                except AttributeError:
-                    pass
-            results += [found]
-        return results
-
-    def attach_results(self, units, questions_by_key, answers,
-                       extra_fields=None):
-        if extra_fields is None:
-            extra_fields = []
-
-        question = None
-        values = []
-        key = None
-        answer = None
-        keys_iterator = iter(self.labels)
-        answers_iterator = iter(answers)
-        try:
-            answer = self.next_answer(answers_iterator,
-                questions_by_key, extra_fields=extra_fields)
-            question = answer.question
-        except StopIteration:
-            pass
-        try:
-            key = self.as_answer(next(keys_iterator))
-        except StopIteration:
-            pass
-        # `answers` will be populated even when there is no `Answer` model
-        # just so we can get the list of questions.
-        # On the other hand self.labels will be an empty list if there are
-        # no samples to compare.
-        try:
-            while answer:
-                if answer.question != question:
-                    try:
-                        while key:
-                            values += [[{}]]
-                            key = self.as_answer(next(keys_iterator))
-                    except StopIteration:
-                        keys_iterator = iter(self.labels)
-                        try:
-                            key = self.as_answer(next(keys_iterator))
-                        except StopIteration:
-                            key = None
-                    questions_by_key[question.pk].update({
-                        'answers': self.equiv_default_unit(values)})
-                    values = []
-                    question = answer.question
-
-                if key and answer.sample.account.printable_name > key:
-                    while answer.sample.account.printable_name > key:
-                        values += [[{}]]
-                        key = self.as_answer(next(keys_iterator))
-                elif key and answer.sample.account.printable_name < key:
-                    try:
-                        try:
-                            sample = values[-1][0].sample
-                        except AttributeError:
-                            sample = values[-1][0].get('sample')
-                        if answer.sample != sample:
-                            values += [[answer]]
-                        else:
-                            values[-1] += [answer]
-                    except IndexError:
-                        values += [[answer]]
-                    try:
-                        answer = self.next_answer(answers_iterator,
-                            questions_by_key, extra_fields=extra_fields)
-                    except StopIteration:
-                        answer = None
-                else:
-                    try:
-                        try:
-                            sample = values[-1][0].sample
-                        except AttributeError:
-                            sample = values[-1][0].get('sample')
-                        if answer.sample != sample:
-                            values += [[answer]]
-                        else:
-                            values[-1] += [answer]
-                    except IndexError:
-                        values += [[answer]]
-                    try:
-                        answer = self.next_answer(answers_iterator,
-                            questions_by_key, extra_fields=extra_fields)
-                    except StopIteration:
-                        answer = None
-                    try:
-                        key = self.as_answer(next(keys_iterator))
-                    except StopIteration:
-                        key = None
-            while key:
-                values += [[{}]]
-                key = self.as_answer(next(keys_iterator))
-        except StopIteration:
-            pass
-        if question:
-            questions_by_key[question.pk].update({
-                'answers': self.equiv_default_unit(values)})
-
-
     def get_questions(self, prefix):
         """
         Overrides CampaignContentMixin.get_questions to return a list
         of questions based on the answers available in the compared samples.
         """
-        if prefix != '/sustainability':
-            # XXX testing
-            return []
+        if not prefix.endswith(DB_PATH_SEP):
+            prefix = prefix + DB_PATH_SEP
 
-        if not hasattr(self, 'units'):
-            self.units = {}
-        if not prefix.endswith(self.DB_PATH_SEP):
-            prefix = prefix + self.DB_PATH_SEP
-
-        units = {}
         questions_by_key = {}
         if self.samples:
             self.attach_results(
-                units,
                 questions_by_key,
-                get_frozen_answers(self.campaign, self.samples, prefix=prefix))
+                Answer.objects.get_frozen_answers(
+                    self.campaign, self.samples, prefix=prefix))
 
         return list(six.itervalues(questions_by_key))
-
 
     def get_serializer_context(self):
         context = super(CompareAPIView, self).get_serializer_context()
         context.update({
-            'prefix': self.db_path if self.db_path else self.DB_PATH_SEP,
+            'prefix': self.db_path if self.db_path else DB_PATH_SEP,
         })
         return context
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        # Ready to serialize
-        serializer = AssessmentNodeSerializer(
-            queryset, many=True, context=self.get_serializer_context())
-        if not hasattr(self, 'units'):
-            self.units = {}
-        return http.Response(self.get_serializer_class()(
-            context=self.get_serializer_context()).to_representation({
-                'count': len(serializer.data),
-                'labels': self.labels,
-                'units': {key: UnitSerializer().to_representation(val)
-                    for key, val in six.iteritems(self.units)},
-                'results': serializer.data,
-            }))
 
 
 class CompareIndexAPIView(CompareAPIView):
     """
     Lists compared samples
+
+    **Tags**: reporting
 
     **Examples**:
 
@@ -1362,7 +1179,7 @@ class CompareIndexAPIView(CompareAPIView):
               "slug": "formalized-esg-strategy",
               "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
               "indent": 3,
-              "title": "(3) Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
+              "title": "(3) Does your company have a formalized ESG strategy?",
               "picture": "/tspproject/static/img/management-basics.png",
               "extra": {
                 "segments": [
@@ -1393,9 +1210,9 @@ class CompareIndexAPIView(CompareAPIView):
               },
               "ui_hint": "yes-no-comments",
               "answers": [{
-                "measured": true
+                "measured": "true"
               }, {
-                "measured": false
+                "measured": "false"
               }],
               "candidates": [],
               "planned": [],
@@ -1462,7 +1279,7 @@ FROM survey_sample
 INNER JOIN (
     SELECT
         account_id,
-        date_trunc('year', survey_sample.created_at) AS year,
+        %(as_year)s AS year,
         MAX(survey_sample.created_at) AS last_updated_at
     FROM survey_sample
     INNER JOIN accounts ON
@@ -1482,6 +1299,7 @@ WHERE
 ORDER BY account_id, created_at
 """ % {'campaign_id': campaign.pk,
        'accounts_query': accounts_query,
+       'as_year': as_sql_date_trunc_year('survey_sample.created_at'),
        'date_range_clause': date_range_clause}
         return Sample.objects.raw(sql_query)
 
@@ -1638,8 +1456,7 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
 
 
 class PortfolioEngagementMixin(DashboardMixin):
-    """
-    """
+
     search_fields = (
         'slug',
         'full_name',
@@ -1711,136 +1528,8 @@ class PortfolioEngagementMixin(DashboardMixin):
             if accounts_clause:
                 accounts_clause = "AND account_id IN (SELECT id FROM %s WHERE %s)" % (
                     get_account_model()._meta.db_table, accounts_clause)
-
-        if accounts:
-            accounts_clause = "AND account_id IN (%s)" % ",".join([
-                str(account.pk) for account in accounts])
-
-
-        campaign_clause = "AND survey_portfoliodoubleoptin.campaign_id = %d" % self.campaign.pk
-        after_clause = ""
-        if self.start_at:
-            after_clause = "AND survey_portfoliodoubleoptin.created_at >= '%s'" % self.start_at
-        before_clause = ""
-        if self.ends_at:
-            before_clause = "AND survey_portfoliodoubleoptin.created_at < '%s'" % self.ends_at
-        sql_query = """
-WITH requests AS (
-SELECT survey_portfoliodoubleoptin.* FROM survey_portfoliodoubleoptin
-INNER JOIN (
-    SELECT
-      grantee_id,
-      account_id,
-      MAX(created_at) AS created_at
-    FROM survey_portfoliodoubleoptin
-    WHERE
-      survey_portfoliodoubleoptin.grantee_id IN (%(grantees)s) AND
-      survey_portfoliodoubleoptin.state IN (
-        %(optin_request_initiated)d,
-        %(optin_request_accepted)d,
-        %(optin_request_denied)d,
-        %(optin_request_expired)d)
-      %(campaign_clause)s
-      %(after_clause)s
-      %(before_clause)s
-      %(accounts_clause)s
-    GROUP BY grantee_id, account_id) AS latest_requests
-ON  survey_portfoliodoubleoptin.grantee_id = latest_requests.grantee_id AND
-    survey_portfoliodoubleoptin.account_id = latest_requests.account_id AND
-    survey_portfoliodoubleoptin.created_at = latest_requests.created_at
-    WHERE
-      survey_portfoliodoubleoptin.state IN (
-        %(optin_request_initiated)d,
-        %(optin_request_accepted)d,
-        %(optin_request_denied)d,
-        %(optin_request_expired)d)
-      %(campaign_clause)s
-      %(after_clause)s
-      %(before_clause)s
-),
-completed_by_accounts AS (
-SELECT
-  survey_sample.*,
-  CASE WHEN latest_completion.state = %(optin_request_accepted)d
-           THEN 'completed'
-       WHEN latest_completion.state = %(optin_request_denied)d
-           THEN 'completed-denied'
-       ELSE 'completed-notshared' END AS reporting_status
-FROM survey_sample INNER JOIN (
-  SELECT
-    survey_sample.account_id,
-    survey_sample.is_frozen,
-    requests.state,
-    MAX(survey_sample.created_at) AS last_updated_at
-  FROM requests
-  INNER JOIN survey_sample ON
-    requests.account_id = survey_sample.account_id
-  WHERE
-    survey_sample.created_at >= requests.created_at AND
-    survey_sample.is_frozen AND
-    survey_sample.extra IS NULL AND
-    survey_sample.created_at < '%(ends_at)s'
-  GROUP BY survey_sample.account_id, survey_sample.is_frozen, requests.state
-) AS latest_completion
-ON survey_sample.account_id = latest_completion.account_id AND
-   survey_sample.created_at = latest_completion.last_updated_at AND
-   survey_sample.is_frozen = latest_completion.is_frozen
-),
-updated_by_accounts AS (
-SELECT
-  survey_sample.*,
-  'updated' AS reporting_status
-FROM survey_sample INNER JOIN (
-  SELECT
-    survey_sample.account_id,
-    MAX(survey_sample.updated_at) AS last_updated_at
-  FROM requests
-  INNER JOIN survey_sample ON
-    requests.account_id = survey_sample.account_id
-  WHERE
-    survey_sample.updated_at >= requests.created_at AND
-    survey_sample.extra IS NULL AND
-    survey_sample.updated_at < '%(ends_at)s'
-  GROUP BY survey_sample.account_id, survey_sample.extra
-  ) AS latest_update
-ON survey_sample.account_id = latest_update.account_id AND
-   survey_sample.updated_at = latest_update.last_updated_at
-)
-SELECT
-  requests.*,
-  COALESCE(
-    completed_by_accounts.slug,
-    updated_by_accounts.slug) AS sample,
-  COALESCE(
-    completed_by_accounts.id,
-    updated_by_accounts.id) AS sample_id,
-  COALESCE(
-    completed_by_accounts.reporting_status,
-    updated_by_accounts.reporting_status,
-    CASE WHEN requests.state = %(optin_request_denied)d
-        THEN 'invited-denied' ELSE 'invited' END) AS reporting_status,
-  COALESCE(
-    completed_by_accounts.created_at,
-    updated_by_accounts.updated_at,
-    null) AS last_activity_at
-FROM requests
-LEFT OUTER JOIN completed_by_accounts
-ON requests.account_id = completed_by_accounts.account_id
-LEFT OUTER JOIN updated_by_accounts
-ON requests.account_id = updated_by_accounts.account_id
-""" % {
-    'grantees': self.account.pk,
-    'campaign_clause': campaign_clause,
-    'before_clause': before_clause,
-    'after_clause': after_clause,
-    'accounts_clause': accounts_clause,
-    'ends_at': self.ends_at,
-    'optin_request_initiated': PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
-    'optin_request_accepted': PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED,
-    'optin_request_expired': PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED,
-    'optin_request_denied': PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED
-}
-        return PortfolioDoubleOptIn.objects.raw(sql_query)
+        return get_engagement(self.campaign, accounts, grantees=[self.account],
+            start_at=self.start_at, ends_at=self.ends_at)
 
     def paginate_queryset(self, queryset):
         page = super(
@@ -1849,7 +1538,7 @@ ON requests.account_id = updated_by_accounts.account_id
 
 
 class PortfolioEngagementAPIView(PortfolioEngagementMixin,
-                                 generics.ListAPIView): #XXXPortfoliosRequestsAPIView):
+                                 generics.ListAPIView):
     """
     List engagement for reporting profiles
 
@@ -1919,42 +1608,303 @@ class PortfolioEngagementAPIView(PortfolioEngagementMixin,
         context.update({'account': self.account})
         return context
 
-    def post(self, request, *args, **kwargs):
-        """
-        Initiates a request
 
-        Initiate a request of data for an account.
+class CompletionRateMixin(DashboardAggregateMixin):
 
-        **Tags**: portfolios
+    def get_aggregate(self, account=None, labels=None, years=0):
+        # XXX Use the *labels* instead of recomputing weekly periods?
+        last_date = datetime_or_now(self.ends_at)
+        if self.default_start_at:
+            first_date = self.default_start_at
+        else:
+            first_date = last_date - relativedelta(months=4)
+        weekends_at = construct_weekly_periods(
+            first_date, last_date, years=years)
+        if len(weekends_at) < 2:
+            # Not enough time periods
+            return []
 
-        **Examples**
+        values = []
+        account_model = get_account_model()
+        requested_accounts = self.get_requested_accounts(account=account)
+        nb_requested_accounts = len(requested_accounts)
+        start_at = weekends_at[0]
+        for ends_at in weekends_at[1:]:
+            nb_frozen_samples = account_model.objects.filter(
+                samples__extra__isnull=True,
+                samples__is_frozen=True,
+                samples__created_at__gte=start_at,
+                samples__created_at__lt=ends_at,
+                samples__account_id__in=requested_accounts
+            ).distinct().count()
+            if self.is_percentage:
+                if nb_requested_accounts:
+                    rate = nb_frozen_samples * 100 // nb_requested_accounts
+                else:
+                    rate = 0
+            else:
+                rate = nb_frozen_samples
+            values += [(ends_at, rate)]
+        return values
 
-        .. code-block:: http
+    def get_response_data(self, request, *args, **kwargs):
+        alliances = get_alliances(self.account)
+        table = []
+        table += [{
+            'slug': "% completion" if self.is_percentage else "nb completed",
+            'printable_name': "% completion" if self.is_percentage else "nb completed",
+            'values': self.get_aggregate(self.account)
+        }]
+        table += [{
+            'slug': "vs. last year",
+            'printable_name': "vs. last year",
+            'values': self.get_aggregate(self.account, years=-1)
+        }]
+        for account in list(alliances):
+            table += [{
+                'slug': account.slug,
+                'printable_name': account.printable_name,
+                'values': self.get_aggregate(account)
+            }]
+        return  {
+            'title': "Completion rate (%s)" % (
+                '%' if self.is_percentage else "nb"),
+            'scale': self.scale,
+            'unit': self.unit,
+            'results': table
+        }
 
-            POST /api/energy-utility/reporting/sustainability/engagement HTTP/1.1
 
-        .. code-block:: json
+class CompletionRateAPIView(CompletionRateMixin, generics.RetrieveAPIView):
+    """
+    Retrieves the completion rate
 
-            {
-               "accounts": [
-                 {
-                   "slug": "supplier-1",
-                   "full_name": "Supplier 1"
-                 }
-               ]
-            }
+    Returns the week-by-week percentage of requested accounts
+    that have completed a scorecard.
 
-        responds
+    **Tags**: reporting
 
-        .. code-block:: json
+    **Examples**
 
-            {
-               "accounts": [
-                 {
-                   "slug": "supplier-1",
-                   "full_name": "Supplier 1"
-                 }
-               ]
-             }
-        """
-        return self.create(request, *args, **kwargs)
+    .. code-block:: http
+
+        GET /api/energy-utility/reporting/sustainability/completion-rate HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "title":"Completion rate (%)",
+          "scale":1,
+          "unit":"percentage",
+          "results":[{
+            "slug": "completion-rate",
+            "printable_name": "% completion",
+            "values":[
+              ["2020-09-13T00:00:00Z",0],
+              ["2020-09-20T00:00:00Z",0],
+              ["2020-09-27T00:00:00Z",0],
+              ["2020-10-04T00:00:00Z",0],
+              ["2020-10-11T00:00:00Z",0],
+              ["2020-10-18T00:00:00Z",0],
+              ["2020-10-25T00:00:00Z",0],
+              ["2020-11-01T00:00:00Z",0],
+              ["2020-11-08T00:00:00Z",0],
+              ["2020-11-15T00:00:00Z",0],
+              ["2020-11-22T00:00:00Z",0],
+              ["2020-11-29T00:00:00Z",0],
+              ["2020-12-06T00:00:00Z",0],
+              ["2020-12-13T00:00:00Z",0],
+              ["2020-12-20T00:00:00Z",0],
+              ["2020-12-27T00:00:00Z",0],
+              ["2021-01-03T00:00:00Z",0]
+            ]
+          }, {
+            "slug":"last-year",
+            "printable_name": "vs. last year",
+            "values":[
+              ["2019-09-15T00:00:00Z",0],
+              ["2019-09-22T00:00:00Z",0],
+              ["2019-09-29T00:00:00Z",0],
+              ["2019-10-06T00:00:00Z",0],
+              ["2019-10-13T00:00:00Z",0],
+              ["2019-10-20T00:00:00Z",0],
+              ["2019-10-27T00:00:00Z",0],
+              ["2019-11-03T00:00:00Z",0],
+              ["2019-11-10T00:00:00Z",0],
+              ["2019-11-17T00:00:00Z",0],
+              ["2019-11-24T00:00:00Z",0],
+              ["2019-12-01T00:00:00Z",0],
+              ["2019-12-08T00:00:00Z",0],
+              ["2019-12-15T00:00:00Z",0],
+              ["2019-12-22T00:00:00Z",0],
+              ["2019-12-29T00:00:00Z",0],
+              ["2020-01-05T00:00:00Z",0]
+            ]
+          }, {
+            "slug":"alliance",
+            "printable_name": "Alliance",
+            "values":[
+              ["2020-09-13T00:00:00Z",0],
+              ["2020-09-20T00:00:00Z",0],
+              ["2020-09-27T00:00:00Z",0],
+              ["2020-10-04T00:00:00Z",0],
+              ["2020-10-11T00:00:00Z",0],
+              ["2020-10-18T00:00:00Z",0],
+              ["2020-10-25T00:00:00Z",0],
+              ["2020-11-01T00:00:00Z",0],
+              ["2020-11-08T00:00:00Z",0],
+              ["2020-11-15T00:00:00Z",0],
+              ["2020-11-22T00:00:00Z",0],
+              ["2020-11-29T00:00:00Z",0],
+              ["2020-12-06T00:00:00Z",0],
+              ["2020-12-13T00:00:00Z",0],
+              ["2020-12-20T00:00:00Z",0],
+              ["2020-12-27T00:00:00Z",0],
+              ["2021-01-03T00:00:00Z",0]
+            ]
+          }]
+        }
+    """
+    def retrieve(self, request, *args, **kwargs):
+        return http.Response(self.get_response_data(request, *args, **kwargs))
+
+
+class EngagementStatsMixin(DashboardAggregateMixin):
+
+    def get_aggregate(self, account=None, labels=None, years=0):
+        requested_accounts = self.get_requested_accounts(account=account)
+        grantees = None # XXX should be all members for alliances but no more
+        if account == self.account:
+            grantees = [account]
+        engagement = get_engagement(self.campaign, requested_accounts,
+            grantees=grantees, start_at=self.start_at, ends_at=self.ends_at)
+
+        stats = {key: 0
+            for key in EngagementSerializer.REPORTING_STATUS.values()}
+        for val in engagement:
+            humanized_status = \
+                EngagementSerializer.REPORTING_STATUS[val.reporting_status]
+            stats[humanized_status] += 1
+
+        return list(stats.items())
+
+
+    def get_response_data(self, request, *args, **kwargs):
+        alliances = get_alliances(self.account)
+        table = []
+        table += [{
+            'slug': "% requests" if self.is_percentage else "nb requests",
+            'printable_name': "% requests" if self.is_percentage else "nb requests",
+            'values': self.get_aggregate(self.account)
+        }]
+        for account in list(alliances):
+            table += [{
+                'slug': account.slug,
+                'printable_name': account.printable_name,
+                'values': self.get_aggregate(account)
+            }]
+        return  {
+            'title': "Engagement (%s)" % (
+                '%' if self.is_percentage else "nb"),
+            'scale': self.scale,
+            'unit': self.unit,
+            'results': table
+        }
+
+
+class EngagementStatsAPIView(EngagementStatsMixin, generics.RetrieveAPIView):
+    """
+    Retrieves engagement statistics
+
+    Returns the engagement as of Today
+
+    **Tags**: reporting
+
+    **Examples**
+
+    .. code-block:: http
+
+        GET /api/energy-utility/reporting/sustainability/engagement/stats\
+ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "title":"Completion rate (%)",
+          "scale":1,
+          "unit":"percentage",
+          "results":[{
+            "slug": "completion-rate",
+            "printable_name": "% completion",
+            "values":[
+              ["2020-09-13T00:00:00Z",0],
+              ["2020-09-20T00:00:00Z",0],
+              ["2020-09-27T00:00:00Z",0],
+              ["2020-10-04T00:00:00Z",0],
+              ["2020-10-11T00:00:00Z",0],
+              ["2020-10-18T00:00:00Z",0],
+              ["2020-10-25T00:00:00Z",0],
+              ["2020-11-01T00:00:00Z",0],
+              ["2020-11-08T00:00:00Z",0],
+              ["2020-11-15T00:00:00Z",0],
+              ["2020-11-22T00:00:00Z",0],
+              ["2020-11-29T00:00:00Z",0],
+              ["2020-12-06T00:00:00Z",0],
+              ["2020-12-13T00:00:00Z",0],
+              ["2020-12-20T00:00:00Z",0],
+              ["2020-12-27T00:00:00Z",0],
+              ["2021-01-03T00:00:00Z",0]
+            ]
+          }, {
+            "slug":"last-year",
+            "printable_name": "vs. last year",
+            "values":[
+              ["2019-09-15T00:00:00Z",0],
+              ["2019-09-22T00:00:00Z",0],
+              ["2019-09-29T00:00:00Z",0],
+              ["2019-10-06T00:00:00Z",0],
+              ["2019-10-13T00:00:00Z",0],
+              ["2019-10-20T00:00:00Z",0],
+              ["2019-10-27T00:00:00Z",0],
+              ["2019-11-03T00:00:00Z",0],
+              ["2019-11-10T00:00:00Z",0],
+              ["2019-11-17T00:00:00Z",0],
+              ["2019-11-24T00:00:00Z",0],
+              ["2019-12-01T00:00:00Z",0],
+              ["2019-12-08T00:00:00Z",0],
+              ["2019-12-15T00:00:00Z",0],
+              ["2019-12-22T00:00:00Z",0],
+              ["2019-12-29T00:00:00Z",0],
+              ["2020-01-05T00:00:00Z",0]
+            ]
+          }, {
+            "slug":"alliance",
+            "printable_name": "Alliance",
+            "values":[
+              ["2020-09-13T00:00:00Z",0],
+              ["2020-09-20T00:00:00Z",0],
+              ["2020-09-27T00:00:00Z",0],
+              ["2020-10-04T00:00:00Z",0],
+              ["2020-10-11T00:00:00Z",0],
+              ["2020-10-18T00:00:00Z",0],
+              ["2020-10-25T00:00:00Z",0],
+              ["2020-11-01T00:00:00Z",0],
+              ["2020-11-08T00:00:00Z",0],
+              ["2020-11-15T00:00:00Z",0],
+              ["2020-11-22T00:00:00Z",0],
+              ["2020-11-29T00:00:00Z",0],
+              ["2020-12-06T00:00:00Z",0],
+              ["2020-12-13T00:00:00Z",0],
+              ["2020-12-20T00:00:00Z",0],
+              ["2020-12-27T00:00:00Z",0],
+              ["2021-01-03T00:00:00Z",0]
+            ]
+          }]
+        }
+    """
+    def retrieve(self, request, *args, **kwargs):
+        return http.Response(self.get_response_data(request, *args, **kwargs))

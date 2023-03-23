@@ -236,7 +236,7 @@ def get_requested_accounts(account, campaign=None, start_at=None, ends_at=None):
     queryset = None
     if (hasattr(settings, 'REQUESTED_ACCOUNTS_CALLABLE') and
         settings.REQUESTED_ACCOUNTS_CALLABLE):
-            queryset = import_string(settings.REQUESTED_ACCOUNTS_CALLABLE)(
+        queryset = import_string(settings.REQUESTED_ACCOUNTS_CALLABLE)(
             account, campaign=campaign, start_at=start_at, ends_at=ends_at)
 
     if queryset is None:

@@ -2,11 +2,11 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import csv, logging
+import csv, json, logging
 
 from django.db import transaction
 from pages.models import RelationShip
-from survey.models import EnumeratedQuestions, Unit
+from survey.models import Campaign, EnumeratedQuestions, Unit
 from survey.utils import get_content_model, get_question_model
 
 from .compat import StringIO
@@ -18,26 +18,35 @@ DB_PATH_SEP = '/'
 
 
 def import_campaign(campaign, file_d):
-
-    csv_file = csv.reader(StringIO(file_d.read().decode(
-        'utf-8', 'ignore')) if file_d else StringIO())
+    if not isinstance(campaign, Campaign):
+        campaign = Campaign.objects.get(slug=campaign)
+    csv_file = csv.reader(file_d if file_d else StringIO())
     with transaction.atomic():
-        seg_prefixes = []
+        cols = []
         row = next(csv_file)
         # first row is (heading/practice title), (default_unit), segments
         for seg in row[2:]:
             title = seg
             content, _ = get_content_model().objects.get_or_create(
-                title=title)
-            seg_prefixes += [DB_PATH_SEP + content.slug]
+                title=title, defaults={
+                    'extra': json.dumps({
+                        "pagebreak": True,
+                        "searchable": True,
+                        "tags": [
+                            "industry", "pagebreak", "scorecard", "enabled"]
+                    })
+                })
+            cols += [DB_PATH_SEP + content.slug]
         # follow on rows could be heading or practice
-        _import_campaign_section(campaign, csv_file, seg_prefixes)
+        _import_campaign_section(campaign, csv_file, [cols])
 
 
 def _import_campaign_section(campaign, csv_reader, seg_prefixes,
-                             heading=None, level=0, rank=1):
-    #pylint:disable=too-many-arguments,too-many-locals
-    LOGGER.debug("create section %s", heading)
+                             headings=None, rank=1):
+    #pylint:disable=too-many-arguments,too-many-locals,too-many-nested-blocks
+    LOGGER.debug("%d segment prefixes: %s", len(seg_prefixes), seg_prefixes)
+    if headings is None:
+        headings = [None]
     section_rank = 1
     try:
         row = next(csv_reader)
@@ -45,35 +54,61 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
             # XXX follow on rows could be heading or practice
             title = row[0]
             level_unit = row[1]
+            LOGGER.debug('adding "%s" (level_unit=%s) ...', title, level_unit)
             section_level = 0
             default_unit = None
             try:
                 section_level = int(level_unit)
+                content = get_content_model().objects.create(title=title)
             except ValueError:
                 default_unit = Unit.objects.get(slug=level_unit)
-            content, _ = get_content_model().objects.get_or_create(
-                title=title)
-            RelationShip.objects.get_or_create(
-                orig_element=heading,
-                dest_element=content,
-                defaults={
-                    'rank': section_rank
-                })
-            section_rank += 1
+                content, _ = get_content_model().objects.get_or_create(
+                    title=title)
             if section_level:
-                if section_level < level:
-                    break
                 # We have a heading
-                rank = _import_campaign_section(
-                    campaign, csv_reader, [DB_PATH_SEP.join([
-                        prefix, heading.slug
-                    ]) for prefix in seg_prefixes], content, section_level,
-                    rank)
+                while len(seg_prefixes) > section_level:
+                    seg_prefixes.pop()
+                    headings.pop()
+                if section_level == 1:
+                    for idx, col in enumerate(row[2:]):
+                        if col:
+                            heading = get_content_model().objects.get(
+                                slug=seg_prefixes[0][idx][1:])
+                            section_rank = RelationShip.objects.filter(
+                                orig_element=heading).count() + 1
+                            RelationShip.objects.get_or_create(
+                                orig_element=heading,
+                                dest_element=content,
+                                defaults={
+                                    'rank': section_rank
+                                })
+                else:
+                    section_rank = RelationShip.objects.filter(
+                        orig_element=headings[-1]).count() + 1
+                    RelationShip.objects.get_or_create(
+                        orig_element=headings[-1],
+                        dest_element=content,
+                        defaults={
+                            'rank': section_rank
+                        })
+                seg_prefixes.append([DB_PATH_SEP.join([
+                    prefix, content.slug]) for prefix in seg_prefixes[-1]])
+                headings.append(content)
+                assert len(seg_prefixes) == (section_level + 1)
+                section_rank = 1
             else:
-                for idx, col in enumerate(row[1:]):
+                # We have a practice
+                RelationShip.objects.get_or_create(
+                    orig_element=headings[-1],
+                    dest_element=content,
+                    defaults={
+                        'rank': section_rank
+                    })
+                section_rank += 1
+                for idx, col in enumerate(row[2:]):
                     if col:
                         path = DB_PATH_SEP.join(
-                            [seg_prefixes[idx], heading.slug, content.slug])
+                            [seg_prefixes[-1][idx], content.slug])
                         LOGGER.debug("create question %s", path)
                         question, _ = \
                             get_question_model().objects.get_or_create(
@@ -89,6 +124,7 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
                                 'required': True
                             })
                         rank = rank + 1
+            row = next(csv_reader)
     except StopIteration:
         pass
     return rank

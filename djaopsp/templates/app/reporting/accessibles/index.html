@@ -62,22 +62,23 @@
       <tbody>
         <tr>
           <td colspan="2">
-            <div class="input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
+            <form @submit.prevent="filterList()">
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
+                </div>
+                <input class="form-control"
+                       type="text"
+                       placeholder="{% trans %}Type Organization/profile ...{% endtrans %}"
+                       v-model="params.q" />
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm"
+                            :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
+                </div>
               </div>
-              <input class="form-control"
-                     type="text"
-                     placeholder="{% trans %}Type Organization/profile ...{% endtrans %}"
-                     v-model="params.q" />
-            </div>
+            </form>
           </td>
-          <td colspan="8">
-            <div class="text-left">
-              <button class="btn btn-secondary btn-sm"
-                      :disabled="!outdated"
-                      @click.prevent="filterList()">{% trans %}Search{% endtrans %}</button>
-            </div>
+          <td :colspan="items.results.length + 2" v-show="itemsLoaded">
           </td>
         </tr>
       </tbody>
@@ -93,6 +94,22 @@
           <td colspan="3">No profile accessible for {{profile}}</td>
         </tr>
       </tbody>
+      <tr :id="received.account"
+          :class="received.supplier_initiated ? 'supplier-initiated' : ''"
+          v-for="(received, index) in grants.results"
+          v-show="itemsLoaded && grants.results.length > 0" v-cloak>
+          <td class="text-center" :colspan="items.results.length + 2">
+              <em>{% trans profile_name="[[received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}</em>
+              <button class="btn btn-secondary"
+                      @click.prevent="ignore(received, index)">
+                  {% trans %}Ignore{% endtrans %}
+              </button>
+              <button class="btn btn-primary"
+                      @click.prevent="accept(received, index)">
+                  {% trans %}Accept{% endtrans %}
+              </button>
+          </td>
+      </tr>
       <tbody :id="entry.slug"
              :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
              v-for="(entry, index) in items.results"

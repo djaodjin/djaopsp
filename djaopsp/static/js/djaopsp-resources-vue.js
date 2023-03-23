@@ -241,6 +241,10 @@ var practicesListMixin = {
             return practice.answers[0];
         },
 
+        getIntrinsicValue: function(practice, fieldName) {
+            return practice.extra && practice.extra.intrinsic_values ?
+                (practice.extra.intrinsic_values[fieldName] || 0) : 0;
+        },
         getOpportunity: function(practice) {
             var vm = this;
             if( vm.isNotApplicable(practice) ) {

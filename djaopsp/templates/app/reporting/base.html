@@ -81,19 +81,33 @@ Try out the <a href="{{urls.updated_dashboard}}">new dashboards</a>
     <div class="col-12">
       <div class="bg-white text-dark">
         <div class="mx-3">
-          <h1 class="d-inline pb-0 my-0">{% block reporting_title %}{% endblock %}</h1>
-          {% if campaign %}
-          <h3 class="d-inline pb-0 my-0">/ {{campaign.title}}</h3>
-          {% endif %}
-          <div class="d-inline">
-            <sup class="d-none" role="button">
-              <small>
-                <i id="help-request" class="fa fa-question-circle"></i>
-              </small>
-            </sup>
+          {% block reporting_container %}
+          <div class="row">
+            <div class="col-sm-8">
+              <h1 class="d-inline pb-0 my-0">{% block reporting_title %}{% endblock %}</h1>
+              {% if campaign %}
+              <h3 class="d-inline pb-0 my-0">/ {{campaign.title}}</h3>
+              {% endif %}
+              <div class="d-inline">
+                {% if urls.help %}
+                <sup role="button">
+                  <a href="{{urls.help}}" target="_blank">
+                    <small>
+                      <i id="help-request" class="fa fa-question-circle"></i>
+                    </small>
+                  </a>
+                </sup>
+                {% endif %}
+              </div>
+              <h2 class="my-0">{{profile.printable_name}}</h2>
+            </div>
+            <div class="col-sm-4">
+              {% block reporting_toggle %}
+              {% endblock %}
+            </div>
           </div>
-          <h2 class="my-0">{{profile.printable_name}}</h2>
           {% block reporting_content %}
+          {% endblock %}
           {% endblock %}
         </div>
       </div>{# /.bg-white #}

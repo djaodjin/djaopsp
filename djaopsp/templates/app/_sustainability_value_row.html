@@ -19,50 +19,50 @@
 </td>
 
 {# environmental_value #}
-<td :class="'green-level-' + practice['environmental_value'] + ' editable-consumption edit-range cell-fix-width'"
+<td :class="'editable-consumption edit-range cell-fix-width green-level-' + getIntrinsicValue(practice, 'environmental')"
     {% if is_content_manager %}
     :data-key="environmental_value"
     data-range-step="1" data-range-min="0" data-range-max="4"
-    :data-range-value="practice['environmental_value']"
+    :data-range-value="getIntrinsicValue(practice, 'environmental')"
     @click="editConsumption($event, practice)"
     @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
     {% endif %}
     v-if="isPractice(practice)">
 </td>
 {# business_value #}
-<td :class="'green-level-' + practice['business_value'] + ' editable-consumption edit-range cell-fix-width'"
+<td :class="'editable-consumption edit-range cell-fix-width green-level-' + getIntrinsicValue(practice, 'business')"
     {% if is_content_manager %}
     :data-key="business_value"
     data-range-step="1" data-range-min="0" data-range-max="4"
-    :data-range-value="practice['business_value']"
+    :data-range-value="getIntrinsicValue(practice, 'business')"
     @click="editConsumption($event, practice)"
     @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
     {% endif %}
     v-if="isPractice(practice)">
 </td>
 {# profitability #}
-<td :class="'green-level-' + practice['profitability'] + ' editable-consumption edit-range cell-fix-width'"
+<td :class="'editable-consumption edit-range cell-fix-width green-level-' + getIntrinsicValue(practice, 'profitability')"
     {% if is_content_manager %}
     :data-key="profitability"
     data-range-step="1" data-range-min="0" data-range-max="4"
-    :data-range-value="practice['profitability']"
+    :data-range-value="getIntrinsicValue(practice, 'profitability')"
     @click="editConsumption($event, practice)"
     @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
     {% endif %}
     v-if="isPractice(practice)">
 </td>
 {# implementation_ease #}
-<td :class="'green-level-' + practice['implementation_ease'] + ' editable-consumption edit-range cell-fix-width'"
+<td :class="'editable-consumption edit-range cell-fix-width green-level-' + getIntrinsicValue(practice, 'implementation_ease')"
     {% if is_content_manager %}
     :data-key="implementation_ease"
     data-range-step="1" data-range-min="0" data-range-max="4"
-    :data-range-value="practice['implementation_ease']"
+    :data-range-value="getIntrinsicValue(practice, 'implementation_ease')"
     @click="editConsumption($event, practice)"
     @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
     {% endif %}
     v-if="isPractice(practice)">
 </td>
 {# avg_value #}
-<td :class="'green-level-' + practice.avg_value + ' cell-fix-width-5 total-sep'"
+<td :class="'cell-fix-width-5 total-sep green-level-' + practice.avg_value"
     v-if="isPractice(practice)">
 </td>

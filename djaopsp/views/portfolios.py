@@ -10,7 +10,6 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
 from deployutils.helpers import datetime_or_now, update_context_urls
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db import connection
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -18,7 +17,7 @@ from django.views.generic.base import (ContextMixin, RedirectView,
     TemplateResponseMixin, TemplateView)
 from openpyxl import Workbook
 from pages.mixins import TrailMixin
-from pages.models import PageElement, build_content_tree
+from pages.models import PageElement
 from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.shapes.autoshape import Shape
@@ -26,14 +25,17 @@ from pptx.shapes.graphfrm import GraphicFrame
 from survey.helpers import get_extra
 from survey.models import Campaign, Matrix
 from survey.views.matrix import MatrixDetailView
-from survey.utils import get_account_model
+from survey.settings import URL_PATH_SEP
 
-from ..api.portfolios import CompletedAssessmentsMixin, SupplierListMixin
+from ..api.portfolios import (DashboardAggregateMixin,
+    CompletedAssessmentsMixin, CompletionRateMixin,
+    EngagementStatsMixin, SupplierListMixin)
+from ..api.rollups import GraphMixin
 from ..api.serializers import ReportingSerializer
 from ..compat import reverse, six
 from ..helpers import as_valid_sheet_title
-from ..queries import get_completed_assessments_at_by
 from ..mixins import AccountMixin, CampaignMixin
+from ..utils import get_scores_tree
 
 LOGGER = logging.getLogger(__name__)
 
@@ -51,6 +53,7 @@ class DashboardRedirectView(AccountMixin, TemplateResponseMixin, ContextMixin,
         """
         Returns a list of campaign dashboards available to the request user.
         """
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_dashboards_available'):
             filtered_in = Q(account__slug=self.account)
             for visible in set(['public']):
@@ -276,25 +279,29 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
             'api_organizations': site_url("/api/profile"),
             'api_organization_profile': site_url(
                 "/api/profile/%(account)s" % {'account': self.account}),
+            'api_portfolios_received': reverse(
+                'survey_api_portfolios_received', args=(self.account,)),
             'api_portfolio_responses': reverse(
                 'api_portfolio_accessible_samples',
                 args=(self.account, self.campaign)),
-            'download': reverse('portfolio_responses_download',
+            'download': reverse('reporting_profile_accessibles_download',
                 args=(self.account, self.campaign)),
             'download_raw': reverse('download_matrix_compare',
                 args=(self.account, self.campaign)),
+            'help': site_url("/docs/guides/djaopsp/accessibles/")
         })
         return context
 
 
-class PortfolioEngageView(UpdatedMenubarMixin, DashboardMixin, TemplateView):
+class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
+                              TemplateView):
     """
     Lists profiles that are currently part of an engagement effort.
     """
     template_name = 'app/reporting/engage/index.html'
 
     def get_context_data(self, **kwargs):
-        context = super(PortfolioEngageView, self).get_context_data(
+        context = super(PortfolioEngagementView, self).get_context_data(
             **kwargs)
         update_context_urls(context, {
             'api_activities_base': site_url("/api/activities"),
@@ -307,13 +314,19 @@ class PortfolioEngageView(UpdatedMenubarMixin, DashboardMixin, TemplateView):
             'api_portfolios_requests': reverse(
                 'api_portfolio_engagement', args=(
                 self.account, self.campaign)),
+            'api_portfolio_engagement_stats': reverse(
+                'api_portfolio_engagement_stats', args=(
+                self.account, self.campaign)),
             'api_reporting_completion_rate': reverse(
                 'api_reporting_completion_rate', args=(
                 self.account, self.campaign)),
-            'download': reverse('portfolio_responses_download',
+            'download': reverse('reporting_profile_engage_download',
                 args=(self.account, self.campaign)),
             'download_completion_rate': reverse(
                 'reporting_download_completion_rate', args=(
+                self.account, self.campaign)),
+            'download_engagement_stats': reverse(
+                'reporting_download_engagement_stats', args=(
                 self.account, self.campaign)),
         })
         return context
@@ -614,7 +627,8 @@ class ReportingDashboardView(MenubarMixin, DashboardMixin, TemplateView):
         return context
 
 
-class PortfoliosDetailView(MenubarMixin, DashboardMixin, MatrixDetailView):
+class PortfoliosDetailView(GraphMixin, MenubarMixin, DashboardMixin,
+                           MatrixDetailView):
 
     matrix_url_kwarg = 'path'
 
@@ -629,7 +643,7 @@ class PortfoliosDetailView(MenubarMixin, DashboardMixin, MatrixDetailView):
         if queryset is None:
             queryset = self.get_queryset()
         candidate = self.kwargs.get(self.matrix_url_kwarg)
-        candidate = candidate.lstrip(self.URL_PATH_SEP)
+        candidate = candidate.lstrip(URL_PATH_SEP)
         return get_object_or_404(queryset, slug=candidate)
 
     def get_context_data(self, **kwargs):
@@ -638,9 +652,8 @@ class PortfoliosDetailView(MenubarMixin, DashboardMixin, MatrixDetailView):
         try:
             segment_prefix = self.full_path
             segment_element = self.element
-            scores_tree = self.get_scores_tree(
-                [segment_element], root_prefix=segment_prefix)
-            self.decorate_with_breadcrumbs(scores_tree)
+            scores_tree = get_scores_tree(
+                [segment_element], prefix=segment_prefix)
             # Remove sgement chart that would otherwise be added.
             charts = self.get_charts(
                 scores_tree, excludes=[segment_element.slug])
@@ -700,7 +713,7 @@ class PortfoliosDetailView(MenubarMixin, DashboardMixin, MatrixDetailView):
         return context
 
 
-class ReportingDashboardPPTXView(DashboardMixin, TemplateView):
+class ReportingDashboardPPTXView(DashboardAggregateMixin, TemplateView):
     """
     Download reporting dashboard as an .pptx spreadsheet.
     """
@@ -770,3 +783,17 @@ class ReportingDashboardPPTXView(DashboardMixin, TemplateView):
             self.get_filename())
 
         return resp
+
+
+class CompletionRatePPTXView(CompletionRateMixin, ReportingDashboardPPTXView):
+    """
+    Download completion rate as a .pptx presentation
+    """
+    basename = 'completion-rate'
+
+
+class EngagementStatsPPTXView(EngagementStatsMixin, ReportingDashboardPPTXView):
+    """
+    Download engagement statistics as a .pptx presentation
+    """
+    basename = 'doughnut'
