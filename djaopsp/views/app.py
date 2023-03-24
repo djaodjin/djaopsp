@@ -110,22 +110,6 @@ class GetStartedProfileView(AccountMixin, FormMixin, TemplateResponseMixin,
     template_name = 'app/scorecard/redirects.html'
     form_class = ScorecardRedirectForm
 
-    @property
-    def campaign_candidates(self):
-        """
-        Returns a list of campaigns that can an account
-        can answer against.
-        """
-        #pylint:disable=attribute-defined-outside-init
-        if not hasattr(self, '_campaign_candidates'):
-            self._campaign_candidates = super(
-                GetStartedProfileView, self).campaign_candidates
-            campaign = self.kwargs.get('campaign')
-            if campaign:
-                self._campaign_candidates = self._campaign_candidates.filter(
-                slug=campaign)
-        return self._campaign_candidates
-
     def create_sample(self, campaign):
         account_model = get_account_model()
         with transaction.atomic():

@@ -78,6 +78,16 @@ class AccountMixin(deployutils_mixins.AccountMixin):
                     filtered_in = accounts_q
             self._campaign_candidates = (Campaign.objects.filter(filtered_in)
                 if filtered_in else Campaign.objects.all())
+            campaign = self.kwargs.get('campaign')
+            if campaign:
+                self._campaign_candidates = self._campaign_candidates.filter(
+                    slug=campaign)
+            else:
+                # We don't have a campaign slug, so let's restrict further
+                # to campaigns that are searchable.
+                self._campaign_candidates = self._campaign_candidates.filter(
+                    extra__contains='searchable')
+
         return self._campaign_candidates
 
 

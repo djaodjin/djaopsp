@@ -10,7 +10,7 @@
           <div>
 <strong>This report is a work in progress.</strong>
 Once you are ready, please click
-the <em>Complete</em> button at the bottom of the page to create a frozen report. Required questions with missing answers are highlighted with a red vertical bar to the right.
+the <em>Complete</em> button at the bottom of the page to create a frozen report. The report will then appear under <em>Historical reports</em> and can be shared with customers and stakeholders.
           </div>
         </div>
         {% endif %}
@@ -69,19 +69,21 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
         </div>
       </section> {# <!-- /#summary --> #}
       <section id="details">
-        {% if not sample.is_frozen and not is_mandatory_segment_present %}
+        {% if not sample.is_frozen %}
+        {% if urls.assess_mandatory_segment and not is_mandatory_segment_present %}
         <div class="text-center">
           <hr />
           <p>
             {% if sample.campaign.description %}
             {{sample.campaign.description}}
-            {% else %}
-            {% trans %}Get started!{% endtrans %}
             {% endif %}
           </p>
-          <a id="get-started-btn" href="{{urls.assess_mandatory_segment}}" class="btn btn-primary btn-lg">{% trans %}Respond to 2022 Questions{% endtrans %} &raquo;</a>
+          <p>
+            {% trans %}Click Assess in the horizontal progress bar at the top of the page to get started!{% endtrans %}
+          </p>
         </div>
-        {% endif %}{# /not is_mandatory_segment_present #}
+        {% endif %}{# /no answer on mandatory segment #}
+        {% endif %}{# /not sample.is_frozen #}
         <div class="text-center mt-4" v-show="!itemsLoaded">
           <i class="fa fa-refresh fa-spin fa-2x"></i>
         </div>
@@ -434,31 +436,29 @@ companies responding on practices in the industry segment.
         {% if not sample.is_frozen %}
         <div id="add-segments-actions" class="d-print-none text-center"
              v-show="itemsLoaded" v-cloak>
-          {% if segments_candidates %}
-          <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
-            <hr />
-            <div class="dropdown">
-              <button id="segment-selector" class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
-                <span class="text">Add industry-specific assessment</span>
-              </button>
-              <ul class="dropdown-menu" role="menu" aria-labelledby="segment-selector">
-                {% for segment in segments_candidates %}
-                <li class="dropdown-item dropdown-item-indent-{{segment.indent}}">
-                  <div>
-                    {% if not segment.disabled %}
-                    {% if segment.extra and segment.extra.pagebreak %}
-                    <a id="{{segment.slug}}-btn" href="{{urls.assess_base}}{{segment.slug}}/" role="menuitem" tabindex="-1">{{segment.title}}</a>
-                    {% else %}
-                    <button class="btn btn-link" disabled>{{segment.title}}</button>
-                    {% endif %}
-                    {% else %}
-                    <span class="disabled" role="menuitem" tabindex="-1">{{segment.title}} <i class="fa fa-wrench"></i></span>
-                    {% endif %}
-                  </div>
-                </li>
-                {% endfor %}
-              </ul>
-            </div>
+          {% if segments_candidates and (not urls.assess_mandatory_segment or is_mandatory_segment_present) %}
+          <hr />
+          <div class="dropdown">
+            <button id="segment-selector" class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
+              <span class="text">Add industry-specific assessment</span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="segment-selector">
+              {% for segment in segments_candidates %}
+              <li class="dropdown-item dropdown-item-indent-{{segment.indent}}">
+                <div>
+                  {% if not segment.disabled %}
+                  {% if segment.extra and segment.extra.pagebreak %}
+                  <a id="{{segment.slug}}-btn" href="{{urls.assess_base}}{{segment.slug}}/" role="menuitem" tabindex="-1">{{segment.title}}</a>
+                  {% else %}
+                  <button class="btn btn-link" disabled>{{segment.title}}</button>
+                  {% endif %}
+                  {% else %}
+                  <span class="disabled" role="menuitem" tabindex="-1">{{segment.title}} <i class="fa fa-wrench"></i></span>
+                  {% endif %}
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
           </div>
           {% endif %}
         </div> {# /#add-segments-actions #}
@@ -466,17 +466,18 @@ companies responding on practices in the industry segment.
       </section> {# <!-- /# details --> #}
       <section id="next-actions" class="d-print-none" v-show="itemsLoaded" v-cloak>
         <hr />
+
         <div class="row mt-4">
           <div class="col-sm-4 col-md-3">
             <a id="xlsx-download-btn" class="mt-2 btn btn-secondary w-100"
                href="{{urls.scorecard_download}}"
                target="_blank"
-               v-show="itemsLoaded && items.results.length > 0">
+               v-show="itemsLoaded">
               <i class="fa fa-file-text"></i>&nbsp;&nbsp;Download (xlsx)
             </a>
             <button id="pdf-print-btn" class="mt-2 btn btn-secondary w-100"
                onClick="window.print()"
-               v-show="itemsLoaded && items.results.length > 0">
+               v-show="itemsLoaded">
               <i class="fa fa-file-text"></i>&nbsp;&nbsp;Print (pdf)
             </button>
           </div>
@@ -497,8 +498,14 @@ companies responding on practices in the industry segment.
           {# </div>                                                   #}
           {% else %}
           {# actions only available when a scorecard is active #}
+          <div class="col-sm-4 col-md-3">
+            <a id="invite-contributor-btn" class="mt-2 btn btn-secondary w-100"
+               href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">
+              Invite contributor
+            </a>
+          </div>
           <div class="col-sm-4 col-md-3 offset-md-3">
-            {% if is_mandatory_segment_present %}
+            {% if not urls.assess_mandatory_segment or is_mandatory_segment_present %}
             <form method="post" action="." @submit.prevent="freezeAssessment">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <button id="complete-assessment-btn"
@@ -511,19 +518,10 @@ companies responding on practices in the industry segment.
                 Complete
               </button>
             </form>
-            {% else %}
-            <div>
-              You can only <strong>Complete</strong> the assessment
-              after responding to the ESG Core questions.
-              Click <em>Assess</em> at the top to get started!
-            </div>
+            <p class="mt-2">
+              {% trans %}You can only record a response once all sections have been answered. Required questions with missing answers are highlighted with a red vertical bar to the right.{% endtrans %}
+            </p>
             {% endif %}
-          </div>
-          <div class="col-sm-4 col-md-3">
-            <a id="invite-contributor-btn" class="mt-2 btn btn-secondary w-100"
-               href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">
-              Invite contributor
-            </a>
           </div>
           {% endif %}
         </div>
