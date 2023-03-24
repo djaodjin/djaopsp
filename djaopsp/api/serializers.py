@@ -406,14 +406,18 @@ class EngagementSerializer(AccountSerializer):
     last_activity_at = serializers.DateTimeField(required=False,
         allow_null=True,
         help_text=_("Most recent time an assessment was updated"))
+    last_reminder_at = serializers.DateTimeField(required=False,
+        allow_null=True,
+        help_text=_("Most recent time a reminder was sent"))
     requested_at = serializers.DateTimeField(required=False, allow_null=True,
         help_text=_("Datetime at which the scorecard was requested"))
     normalized_score = serializers.IntegerField(required=False)
 
     class Meta(PortfolioOptInSerializer.Meta):
         fields = AccountSerializer.Meta.fields + (
-            'sample', 'score_url', 'reporting_status',
-            'last_activity_at', 'requested_at', 'normalized_score')
+            'extra', 'sample', 'score_url', 'reporting_status',
+            'last_activity_at', 'last_reminder_at', 'requested_at',
+            'normalized_score')
 
     def get_score_url(self, obj):
         if hasattr(obj, 'sample'):

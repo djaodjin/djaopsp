@@ -64,14 +64,6 @@ Try out the <a href="{{urls.updated_dashboard}}">new dashboards</a>
             <a class="nav-link{% if request.path == urls.compare %} active{% endif %}" id="compare-lnk" href="{{urls.compare}}">Compare</a>
           </li>
           {% endif %}
-          {% if urls.download %}
-          <li class="divider-vertical"></li>
-          <li class="nav-item">
-            <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" href="{{urls.download}}">
-              <i class="fa fa-file-text"></i> Download (xlsx)
-            </a>
-          </li>
-          {% endif %}
           {% endblock %}
         </ul>
       </nav>

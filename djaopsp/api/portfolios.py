@@ -28,11 +28,13 @@ from survey.utils import (as_sql_date_trunc_year, get_account_model,
 
 from .campaigns import CampaignContentMixin
 from ..compat import reverse, six
-from ..queries import get_completed_assessments_at_by, get_engagement
+from ..queries import (get_completed_assessments_at_by, get_engagement,
+    get_requested_by_accounts_by_year)
 from ..mixins import AccountMixin
 from ..models import ScorecardCache
-from ..utils import (TransparentCut, get_alliances, get_reporting_accounts,
-    get_requested_accounts, get_segments_candidates, segments_as_sql)
+from ..utils import (TransparentCut, get_alliances, get_latest_reminders,
+    get_reporting_accounts, get_requested_accounts, get_segments_candidates,
+    segments_as_sql)
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
 from .serializers import (CompareNodeSerializer, EngagementSerializer,
     ReportingSerializer)
@@ -1241,6 +1243,12 @@ class PortfolioAccessibleSamplesMixin(DashboardMixin):
 
     filter_backends = (SearchFilter, OrderingFilter)
 
+    REPORTING_NO_DATA = 'no-data'
+    REPORTING_RESPONDED = 'responded'
+    REPORTING_COMPLETED = 'completed'
+    REPORTING_VERIFIED = 'verified'
+    REPORTING_DECLINED = 'declined'
+
     def get_latest_frozen_by_accounts_by_year(self, campaign, includes,
         start_at=None, ends_at=None):
         """
@@ -1274,7 +1282,10 @@ SELECT
     accounts.slug AS account_slug,
     survey_sample.account_id AS account_id,
     survey_sample.id AS id,
-    survey_sample.created_at AS created_at
+    survey_sample.created_at AS created_at,
+    CASE WHEN survey_sample.created_at < survey_portfolio.ends_at
+       THEN 'completed'
+       ELSE 'responded' END AS state
 FROM survey_sample
 INNER JOIN (
     SELECT
@@ -1293,21 +1304,27 @@ INNER JOIN (
    survey_sample.created_at = last_updates.last_updated_at
 INNER JOIN accounts ON
    survey_sample.account_id = accounts.id
+INNER JOIN survey_portfolio ON
+   survey_portfolio.account_id = accounts.id
 WHERE
+   survey_portfolio.grantee_id IN (%(grantees)s) AND
    survey_sample.is_frozen AND
    survey_sample.extra IS NULL
 ORDER BY account_id, created_at
 """ % {'campaign_id': campaign.pk,
        'accounts_query': accounts_query,
+       'grantees': ",".join([str(self.account.pk)]),
        'as_year': as_sql_date_trunc_year('survey_sample.created_at'),
        'date_range_clause': date_range_clause}
         return Sample.objects.raw(sql_query)
 
     def get_queryset(self):
-        return self.requested_accounts
+        return get_reporting_accounts(self.account)
 
-    def as_sample(self, key):
-        return (key, 'no-data', None, None)
+    def as_sample(self, key, requested_by_keys):
+        state = (self.REPORTING_DECLINED
+            if key in requested_by_keys else self.REPORTING_NO_DATA)
+        return (key, state, None, None)
 
     def decorate_queryset(self, page):
         samples_by_account_ids = {}
@@ -1320,7 +1337,7 @@ ORDER BY account_id, created_at
             if sample.account_id not in samples_by_account_ids:
                 samples_by_account_ids[sample.account_id] = []
             samples_by_account_ids[sample.account_id] += [
-                (sample.created_at, 'completed',
+                (sample.created_at, sample.state,
                  self.request.build_absolute_uri(reverse('scorecard',
                     args=(self.account, sample.slug))), 0)]
             if latest_sample is None or latest_sample < sample.created_at:
@@ -1334,7 +1351,17 @@ ORDER BY account_id, created_at
         years = construct_yearly_periods(first_year, last_year)
         self.labels = [val.year for val in years]
 
+        requested_by_accounts = {}
+        for optin in get_requested_by_accounts_by_year(
+                self.campaign, page, self.account):
+            if optin.account_id not in requested_by_accounts:
+                requested_by_accounts[optin.account_id] = set([])
+            requested_by_accounts[optin.account_id] |= set([
+                optin.created_at])
+
         for account in page:
+            if hasattr(account, '_extra'):
+                account.extra = account._extra
             values = []
             key = None
             sample = None
@@ -1345,7 +1372,8 @@ ORDER BY account_id, created_at
             except StopIteration:
                 pass
             try:
-                key = self.as_sample(next(keys_iterator))
+                key = self.as_sample(next(keys_iterator),
+                    requested_by_accounts.get(account.pk, []))
             except StopIteration:
                 pass
             try:
@@ -1357,7 +1385,8 @@ ORDER BY account_id, created_at
                     elif key[0].year < sample[0].year:
                         values += [key]
                         key = None
-                        key = self.as_sample(next(keys_iterator))
+                        key = self.as_sample(next(keys_iterator),
+                            requested_by_accounts.get(account.pk, []))
                     else:
                         values += [sample]
                         try:
@@ -1365,7 +1394,8 @@ ORDER BY account_id, created_at
                         except StopIteration:
                             sample = None
                         try:
-                            key = self.as_sample(next(keys_iterator))
+                            key = self.as_sample(next(keys_iterator),
+                                requested_by_accounts.get(account.pk, []))
                         except StopIteration:
                             key = None
             except StopIteration:
@@ -1379,7 +1409,8 @@ ORDER BY account_id, created_at
             try:
                 while key:
                     values += [key]
-                    key = self.as_sample(next(keys_iterator))
+                    key = self.as_sample(next(keys_iterator),
+                        requested_by_accounts.get(account.pk, []))
             except StopIteration:
                 pass
             account.values = values
@@ -1483,6 +1514,8 @@ class PortfolioEngagementMixin(DashboardMixin):
     def decorate_queryset(self, queryset):
         engagement = {val.account_id: val for val
             in self.get_engagement(queryset)}
+        latest_reminders = {val.pk: val for val
+            in get_latest_reminders(queryset)}
         scores = ScorecardCache.objects.filter(sample__in={
             val.sample_id for val in engagement.values()}, path__in=[
             seg['path'] for seg in self.segments]).order_by('path')
@@ -1504,6 +1537,9 @@ class PortfolioEngagementMixin(DashboardMixin):
                 scorecard_cache = scores.get(engage.sample_id)
                 if scorecard_cache:
                     account.normalized_score = scorecard_cache.normalized_score
+            reminder = latest_reminders.get(account.pk)
+            if reminder:
+                account.last_reminder_at = reminder.last_reminder_at
         return queryset
 
     def get_queryset(self):

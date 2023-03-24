@@ -828,7 +828,7 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
                     },
                     options: {
                         borderWidth: 1,
-                        responsive: false,
+                        responsive: true,
                         plugins: {
                             legend: {
                                 display: true,

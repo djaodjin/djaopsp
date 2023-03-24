@@ -6,7 +6,7 @@ results in APIs, downloads, etc.
 """
 from django.db.models.query import QuerySet, RawQuerySet
 from survey.models import PortfolioDoubleOptIn, Sample
-from survey.utils import is_sqlite3
+from survey.utils import as_sql_date_trunc_year, get_account_model, is_sqlite3
 
 
 def get_completed_assessments_at_by(campaign, start_at=None, ends_at=None,
@@ -254,4 +254,73 @@ ON requests.account_id = updated_by_accounts.account_id
     'optin_request_expired': PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED,
     'optin_request_denied': PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED
     }
+    return PortfolioDoubleOptIn.objects.raw(sql_query)
+
+
+def get_requested_by_accounts_by_year(campaign, includes, grantee,
+                                      start_at=None, ends_at=None):
+    """
+    Returns the most recent double-optin for each year between
+    starts_at and ends_at for each account in includes.
+    """
+    date_range_clause = ""
+    if start_at:
+        date_range_clause = (" AND survey_sample.created_at >= '%s'" %
+            start_at.isoformat())
+    if ends_at:
+        date_range_clause += (" AND survey_sample.created_at < '%s'" %
+            ends_at.isoformat())
+    # We cannot use `self.requested_accounts.query` because `params` are
+    # not quoted. don't ask.
+    # https://code.djangoproject.com/ticket/25416
+    account_ids = [str(account.pk) for account in includes]
+    if not account_ids:
+        return Sample.objects.none()
+
+    accounts_query = "SELECT id, slug FROM %(accounts_table)s"\
+        " WHERE id IN (%(account_ids)s)" % {
+            'accounts_table': get_account_model()._meta.db_table,
+            'account_ids': ','.join(account_ids)
+        }
+    sql_query = """
+WITH accounts AS (
+%(accounts_query)s
+)
+SELECT
+    accounts.slug AS account_slug,
+    survey_portfoliodoubleoptin.account_id AS account_id,
+    survey_portfoliodoubleoptin.id AS id,
+--    survey_portfoliodoubleoptin.created_at AS created_at,
+    last_updates.year AS created_at
+FROM survey_portfoliodoubleoptin
+INNER JOIN (
+    SELECT
+        account_id,
+        %(as_year)s AS year,
+        MAX(survey_portfoliodoubleoptin.created_at) AS last_updated_at
+    FROM survey_portfoliodoubleoptin
+    INNER JOIN accounts ON
+        survey_portfoliodoubleoptin.account_id = accounts.id
+    WHERE survey_portfoliodoubleoptin.campaign_id = %(campaign_id)d AND
+          survey_portfoliodoubleoptin.state IN (%(optin_request_states)s) AND
+          survey_portfoliodoubleoptin.grantee_id IN (%(grantees)s)
+          %(date_range_clause)s
+    GROUP BY account_id, year) AS last_updates ON
+   survey_portfoliodoubleoptin.account_id = last_updates.account_id AND
+   survey_portfoliodoubleoptin.created_at = last_updates.last_updated_at
+INNER JOIN accounts ON
+   survey_portfoliodoubleoptin.account_id = accounts.id
+ORDER BY account_id, created_at
+""" % {'campaign_id': campaign.pk,
+       'accounts_query': accounts_query,
+       'grantees': ",".join([str(grantee.pk)]),
+       'as_year': as_sql_date_trunc_year(
+           'survey_portfoliodoubleoptin.created_at'),
+       'date_range_clause': date_range_clause,
+       'optin_request_states': ",".join([
+           str(PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED),
+           str(PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED),
+           str(PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED),
+           str(PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED)])
+       }
     return PortfolioDoubleOptIn.objects.raw(sql_query)

@@ -224,7 +224,8 @@ def get_reporting_accounts(account, campaign=None, start_at=None, ends_at=None):
             filter_params.update({'portfolios__campaign': campaign})
         queryset = get_account_model().objects.filter(
             portfolios__grantee=account,
-            **filter_params).distinct()
+            **filter_params).annotate(
+                _extra=F('portfolio_double_optin_accounts__extra')).distinct()
 
     return queryset
 
@@ -515,3 +516,13 @@ def get_summary_performance(sample):
     if sample.campaign.slug == 'sustainability':
         return [11, 16, 7, 3]
     return []
+
+
+def get_latest_reminders(accounts, start_at=None, ends_at=None):
+    queryset = []
+    if (hasattr(settings, 'LATEST_REMINDERS_CALLABLE') and
+        settings.LATEST_REMINDERS_CALLABLE):
+        queryset = import_string(settings.LATEST_REMINDERS_CALLABLE)(
+            accounts, start_at=start_at, ends_at=ends_at)
+
+    return queryset
