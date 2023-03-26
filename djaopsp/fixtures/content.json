@@ -1303,7 +1303,7 @@
     "description" : "Please answer the core Environmental, Social and Governance (ESG) questions, then pick an industry segment and assess your organization against environmental practices in your organization's industry of choice.",
     "account": 2,
     "active": true,
-    "extra": "{\"visibility\":[\"public\"],\"highlights\":[{\"slug\":\"reporting_esg_strategy\",\"includes\":[\"formalized-esg-strategy\"],\"picture\":\"static/img/other.png\",\"text\":\"formalized ESG strategy\"}, {\"slug\":\"reporting_environmental_metrics\",\"includes\":[\"ghg-emissions-scope1\",\"ghg-emissions-scope2\",\"ghg-emissions-scope3\",\"hazardous-waste\",\"non-hazardous-waste\",\"waste-recycled\",\"water-discharged\",\"water-recycled\",\"water-withdrawn\"],\"picture\":\"static/img/data-metrics.png\",\"text\":\"tracking environmental metrics\"}, {\"slug\":\"reporting_publicly\",\"includes\":[\"energy-publicly-reported\",\"ghg-emissions-scope1-publicly-reported\",\"ghg-emissions-scope2-publicly-reported\",\"ghg-emissions-scope3-publicly-reported\",\"water-publicly-reported\",\"waste-publicly-reported\"],\"picture\":\"static/img/lighting.png\",\"text\":\"reporting data publicly\"}, {\"slug\":\"reporting_environmental_targets\",\"includes\":[\"ghg-emissions-scope1-target-by\",\"ghg-emissions-scope2-target-by\",\"ghg-emissions-scope3-target-by\",\"waste-target-by\",\"water-target-by\"],\"picture\":\"static/img/lighting.png\",\"text\":\"communicated environmental targets\"}],\"/sustainability/governance/esg-strategy-heading/formalized-esg-strategy\":2.0}"
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"highlights\":[{\"slug\":\"reporting_esg_strategy\",\"includes\":[\"formalized-esg-strategy\"],\"picture\":\"static/img/other.png\",\"text\":\"formalized ESG strategy\"}, {\"slug\":\"reporting_environmental_metrics\",\"includes\":[\"ghg-emissions-scope1\",\"ghg-emissions-scope2\",\"ghg-emissions-scope3\",\"hazardous-waste\",\"non-hazardous-waste\",\"waste-recycled\",\"water-discharged\",\"water-recycled\",\"water-withdrawn\"],\"picture\":\"static/img/data-metrics.png\",\"text\":\"tracking environmental metrics\"}, {\"slug\":\"reporting_publicly\",\"includes\":[\"energy-publicly-reported\",\"ghg-emissions-scope1-publicly-reported\",\"ghg-emissions-scope2-publicly-reported\",\"ghg-emissions-scope3-publicly-reported\",\"water-publicly-reported\",\"waste-publicly-reported\"],\"picture\":\"static/img/lighting.png\",\"text\":\"reporting data publicly\"}, {\"slug\":\"reporting_environmental_targets\",\"includes\":[\"ghg-emissions-scope1-target-by\",\"ghg-emissions-scope2-target-by\",\"ghg-emissions-scope3-target-by\",\"waste-target-by\",\"water-target-by\"],\"picture\":\"static/img/lighting.png\",\"text\":\"communicated environmental targets\"}],\"/sustainability/governance/esg-strategy-heading/formalized-esg-strategy\":2.0}"
   },
   "model" : "survey.campaign", "pk" : 1
 },
@@ -1314,7 +1314,7 @@
     "description" : "Assessment of practices around cybersecurity",
     "account" : 3,
     "active": true,
-    "extra": "{\"visibility\":[\"tier1-members\"]}"
+    "extra": "{\"searchable\":true,\"visibility\":[\"tier1-members\"]}"
   },
   "model" : "survey.campaign", "pk" : 2
 },
