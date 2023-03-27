@@ -18,15 +18,6 @@ Vue.component('editable-practices-list', {
         }
     },
     methods: {
-        includes: function(entry, segment) {
-            if( entry.extra && entry.extra.segments ) {
-                return entry.extra.segments.includes(segment.path);
-            }
-            if( entry.segments ) {
-                return entry.segments.includes(segment.path);
-            }
-            return false;
-        },
         addElementBelow: function(entry, index) {
             var vm = this;
             var parent = '';
@@ -64,14 +55,6 @@ Vue.component('editable-practices-list', {
             vm.activeEntry.title = newPractice.title;
             return false;
         },
-        deleteTree: function(entry, index) {
-            var vm = this;
-            var urlBase = vm.$urls.edit.api_content;
-            if( vm.activeSegment ) {
-                urlBase = vm._safeUrl(urlBase, vm.activeSegment.path);
-            }
-            vm.reqDelete(vm._safeUrl(urlBase, vm._getPath(entry, index)));
-        },
         aliasTree: function(entry, index, segment) {
             var vm = this;
             var attachPath = segment.path;
@@ -82,6 +65,41 @@ Vue.component('editable-practices-list', {
                 vm._clearInput();
                 vm._loadData();
             });
+        },
+        deleteTree: function(entry, index) {
+            var vm = this;
+            var urlBase = vm.$urls.edit.api_content;
+            if( vm.activeSegment ) {
+                urlBase = vm._safeUrl(urlBase, vm.activeSegment.path);
+            }
+            vm.reqDelete(vm._safeUrl(urlBase, vm._getPath(entry, index)));
+        },
+        includes: function(entry, segment) {
+            if( entry.extra && entry.extra.segments ) {
+                return entry.extra.segments.includes(segment.path);
+            }
+            if( entry.segments ) {
+                return entry.segments.includes(segment.path);
+            }
+            return false;
+        },
+        indentHeader: function(row) {
+            var vm = this;
+            if( vm.isPractice(row) ) {
+                return "bestpractice";
+            }
+            if( row.indent <= 0 ) {
+                return "heading-tile";
+            }
+            var indentSpace = row.indent - 1;
+            return "heading-" + indentSpace;
+        },
+        isPractice: function(row) {
+            var vm = this;
+            if( typeof row.default_unit !== "undefined" ) {
+                return row.default_unit !== null;
+            }
+            return false;
         },
         moveTreeDown: function(entry, index) {
             var vm = this;
@@ -306,6 +324,13 @@ Vue.component('editable-practices-list', {
             }
             return path;
         },
+        _loadData: function() {
+            var vm = this;
+            vm.reqGet(vm.segmentsUrl, function(resp) {
+                vm.segments = resp.results;
+            });
+            vm.get();
+        },
         _moveTree: function(movedPath, attachPath, rank, externalKey) {
             var vm = this;
             var postUrl = vm._safeUrl(vm.$urls.api_move_node, attachPath);
@@ -320,13 +345,6 @@ Vue.component('editable-practices-list', {
             function(resp) {
                 vm._clearInput();
             });
-        },
-        _loadData: function() {
-            var vm = this;
-            vm.reqGet(vm.segmentsUrl, function(resp) {
-                vm.segments = resp.results;
-            });
-            vm.get();
         }
     },
     mounted: function(){

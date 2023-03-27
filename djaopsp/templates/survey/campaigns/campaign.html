@@ -90,9 +90,8 @@
                              form inputs to add a new tile. -->
 
                         <!-- Show Data Entries -->
-                        <tbody v-for="(entry, index) in items.results"
-                               v-show="itemsLoaded && items.results.length > 0" v-cloak>
-                          <tr v-show="!entry.hide">
+                        <tbody v-show="itemsLoaded && items.results.length > 0" v-cloak>
+                          <tr :id="entry.slug" v-for="(entry, index) in items.results" v-show="!entry.hide">
                             <td style="white-space: nowrap">
                               <div v-if="entry.indent > 0">
                                 <button class="btn btn-secondary btn-sm" @click="moveTreeUp(entry, index)">
@@ -110,7 +109,7 @@
                               </div>
                             </td>
                             <td>
-                              <div :class="entry.url ? 'bestpractice indent-header-' + entry.indent : 'heading-'+ entry.indent + ' indent-header-' + entry.indent">
+                              <div :class="indentHeader(entry)">
                                 <div class="input-group" v-if="index == activeIndex">
                                   <input class="form-control" type="text"
                                          v-model="entry.title" />
@@ -118,13 +117,15 @@
                                     <button class="btn btn-primary" type="submit" value="submit" @click="updateElement(entry, index)">Update</button>
                                   </div>
                                 </div>
-                                <a class="title" target="_blank" :href="entry.url"
-                                   v-if="index != activeIndex && entry.url">
+                                <a class="title"
+                                   :href="entry.url ? entry.url : '{{urls.pages_editables_index}}' + entry.slug + '/'"
+                                   target="_blank"
+                                   v-if="index != activeIndex && isPractice(entry)">
                                   [[entry.title]]
                                 </a>
                                 <div class="title"
                                      @click.prevent="toggleShowHide(entry, index)"
-                                     v-if="index != activeIndex && !entry.url" >
+                                     v-if="index != activeIndex && !isPractice(entry)" >
                                   <img style="width:90px;height:90px;"
                                        :src="entry.picture" v-if="entry.indent == 0" />
                                   <div class="mt-2">
@@ -136,7 +137,7 @@
                                           @click.prevent="setActive(entry, index)">
                                     <i class="fa fa-edit"></i>
                                   </button>
-                                  <button :id="'header-' + entry.slug" class="btn btn-link" @click.prevent="toggleAddBelow(entry, index)" v-if="!entry.url">
+                                  <button :id="'header-' + entry.slug" class="btn btn-link" @click.prevent="toggleAddBelow(entry, index)" v-if="!isPractice(entry)">
                                     <i class="fa fa-plus"></i> Add
                                   </button>
                                   <button class="btn btn-link text-danger delete" href=""
@@ -150,13 +151,13 @@
                             <td v-for="segment in segments"
                                 v-if="segment.path"
                                 v-show="segments.length > 0" v-cloak>
-                              <div v-if="includes(entry, segment)"
-                                   :class="entry.url ? 'bestpractice indent-header-' + entry.indent : 'heading-'+ entry.indent + ' indent-header-' + entry.indent">
+                              <div :class="indentHeader(entry)"
+                                   v-if="includes(entry, segment)">
                                 <a class="title"
                                    :href="entry.url"
                                    target="_blank"
-                                   v-if="entry.url">[[entry.title]]</a>
-                                <div class="title" v-if="!entry.url">
+                                   v-if="isPractice(entry)">[[entry.title]]</a>
+                                <div class="title" v-if="!isPractice(entry)">
                                   <img style="width:90px;height:90px;"
                                        :src="entry.picture" v-if="entry.indent == 0" />
                                   <div class="mt-2">
@@ -173,8 +174,8 @@
                                   </button>
                                 </div>
                               </div>
-                              <div v-if="!includes(entry, segment) && !entry.url && entry.indent == 0"
-                                   :class="'text-center heading-'+ entry.indent + ' indent-header-' + entry.indent">
+                              <div v-if="!includes(entry, segment) && !isPractice(entry) && entry.indent == 0"
+                                   :class="indentHeader(entry)">
                                 <button class="btn btn-primary" @click.prevent="aliasTree(entry, index, segment)">
                                   <i class="fa fa-plus"></i> Add [[entry.title]]
                                 </button>

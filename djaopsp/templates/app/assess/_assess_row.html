@@ -1,5 +1,5 @@
-<tr>
-<td :id="practice.slug" colspan="6"
+<tr :id="practice.slug">
+<td colspan="6"
     :class="isRequiredShown(practice) ? 'practice-required' : (isRequiredAnswered(practice) ? 'practice-required-answered' : '')">
   <div style="display:inline-block;">
     <div :class="indentHeader(practice)"

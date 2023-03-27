@@ -88,14 +88,36 @@ PRACTICE_SERIALIZER = get_practice_serializer()
 
 class ContentNodeSerializer(PRACTICE_SERIALIZER):
 
+    rank = serializers.SerializerMethodField()
+    required = serializers.SerializerMethodField(required=False)
+
     url = serializers.CharField(required=False)
-    nb_referencing_practices = serializers.IntegerField(required=False)
     segments = serializers.ListSerializer(child=serializers.CharField(),
         required=False)
 
     class Meta(PRACTICE_SERIALIZER.Meta):
         fields = PRACTICE_SERIALIZER.Meta.fields + (
-            'url', 'nb_referencing_practices', 'segments')
+            'rank', 'required', 'url', 'segments')
+
+    @staticmethod
+    def get_rank(obj):
+        if hasattr(obj, 'rank'):
+            return obj.rank
+        try:
+            return obj['rank']
+        except (TypeError, KeyError):
+            pass
+        return 0
+
+    @staticmethod
+    def get_required(obj):
+        if hasattr(obj, 'required'):
+            return obj.required
+        try:
+            return obj['required']
+        except (TypeError, KeyError):
+            pass
+        return False
 
 
 class ContentElementSerializer(BasePageElementSerializer):
@@ -136,14 +158,11 @@ class KeyValueTuple(serializers.ListField):
     max_length = 3
 
 
-class AssessmentNodeSerializer(PRACTICE_SERIALIZER):
+class AssessmentNodeSerializer(ContentNodeSerializer):
     """
     One practice retrieved through the assess content API
     """
-    rank = serializers.SerializerMethodField()
-    required = serializers.SerializerMethodField(required=False)
     ui_hint = serializers.SerializerMethodField(required=False)
-    default_unit = serializers.SerializerMethodField(required=False)
     answers = serializers.ListField(child=AnswerSerializer(), required=False)
     candidates = serializers.ListField(child=AnswerSerializer(), required=False)
     planned = serializers.ListField(child=AnswerSerializer(), required=False)
@@ -154,13 +173,12 @@ class AssessmentNodeSerializer(PRACTICE_SERIALIZER):
     rate = serializers.SerializerMethodField(required=False)
     opportunity = serializers.SerializerMethodField(required=False)
 
-    class Meta(PRACTICE_SERIALIZER.Meta):
-        fields = PRACTICE_SERIALIZER.Meta.fields + (
-            'rank', 'required', 'default_unit', 'ui_hint',
+    class Meta(ContentNodeSerializer.Meta):
+        fields = ContentNodeSerializer.Meta.fields + ('ui_hint',
             'answers', 'candidates', 'planned',
             'normalized_score', 'nb_respondents', 'rate', 'opportunity')
-        read_only_fields = PRACTICE_SERIALIZER.Meta.read_only_fields + (
-            'rank', 'required', 'default_unit', 'ui_hint',
+        read_only_fields = ContentNodeSerializer.Meta.read_only_fields + (
+            'ui_hint',
             'answers', 'candidates', 'planned',
             'normalized_score', 'nb_respondents', 'rate', 'opportunity')
 
@@ -209,16 +227,6 @@ class AssessmentNodeSerializer(PRACTICE_SERIALIZER):
         return None
 
     @staticmethod
-    def get_rank(obj):
-        if hasattr(obj, 'rank'):
-            return obj.rank
-        try:
-            return obj['rank']
-        except (TypeError, KeyError):
-            pass
-        return 0
-
-    @staticmethod
     def get_rate(obj):
         if hasattr(obj, 'rate'):
             return obj.rate
@@ -227,16 +235,6 @@ class AssessmentNodeSerializer(PRACTICE_SERIALIZER):
         except (TypeError, KeyError):
             pass
         return {}
-
-    @staticmethod
-    def get_required(obj):
-        if hasattr(obj, 'required'):
-            return obj.required
-        try:
-            return obj['required']
-        except (TypeError, KeyError):
-            pass
-        return False
 
     @staticmethod
     def get_ui_hint(obj):

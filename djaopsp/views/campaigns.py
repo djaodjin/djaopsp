@@ -46,6 +46,8 @@ class CampaignEditView(CampaignMixin, AccountMixin, TemplateView):
                 args=(self.account, campaign_slug)),
             'download': reverse('campaign_download',
                 args=(self.account, campaign_slug)),
+            'pages_editables_index': reverse('pages_editables_index',
+                args=(self.account,)),
         })
         update_context_urls(context, urls)
         return context

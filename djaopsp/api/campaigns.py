@@ -34,13 +34,14 @@ class CampaignContentMixin(AccountMixin, CampaignMixin):
         return [{
             'path': question.get('path'),
             'rank': question.get('enumeratedquestions__rank'),
+            'default_unit': question.get('default_unit__slug'),
             'title': question.get('content__title'),
             'picture': question.get('content__picture'),
             'extra': self._as_extra_dict(question.get('content__extra')),
         } for question in get_question_model().objects.filter(
             path__startswith=prefix,
             enumeratedquestions__campaign=self.campaign
-        ).values('path', 'enumeratedquestions__rank',
+        ).values('path', 'enumeratedquestions__rank', 'default_unit__slug',
             'content__title', 'content__picture', 'content__extra').order_by(
             'enumeratedquestions__rank')]
 
