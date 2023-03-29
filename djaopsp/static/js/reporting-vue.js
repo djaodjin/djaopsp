@@ -108,8 +108,16 @@ Vue.component('engage-profiles', {
         requestAssessment: function(campaign) {
             var vm = this;
             var data = {
-                accounts: [vm.newItem],
+                accounts: [{}],
                 message: vm.message,
+            }
+            // We remove the blank fields such that the backend serializer
+            // does not complain that "the field is not required but when
+            // present it shouldn't be blank".
+            for( key in vm.newItem ) {
+                if( vm.newItem.hasOwnProperty(key) &&  vm.newItem[key] ) {
+                    data.accounts[0][key] = vm.newItem[key];
+                }
             }
             if( typeof campaign !== 'undefined' ) {
                 data['campaign'] = campaign;
@@ -472,6 +480,7 @@ Vue.component('reporting-organizations', {
                 if( newAccount.hasOwnProperty('slug') && newAccount.slug ) {
                     vm.newItem.slug = newAccount.slug;
                 }
+                console.log()
                 if( newAccount.hasOwnProperty('email') && newAccount.email ) {
                     vm.newItem.email = newAccount.email;
                 }
@@ -494,8 +503,13 @@ Vue.component('reporting-organizations', {
             var vm = this;
             vm.$refs.account.reset();
             var data = {
-                accounts: [vm.newItem],
+                accounts: [{}],
                 message: vm.message,
+            }
+            for( key in vm.newItem ) {
+                if( vm.newItem.hasOwnProperty(key) &&  vm.newItem[key] ) {
+                    data.accounts[0][key] = vm.newItem[key];
+                }
             }
             if( typeof campaign !== 'undefined' ) {
                 data['campaign'] = campaign;

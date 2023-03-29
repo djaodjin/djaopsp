@@ -4,7 +4,7 @@
 <div class="container">
   <div class="row">
     <div class="col-12 mt-4">
-      <h1 class="text-center">Historical assessments</h1>
+      <h1 class="text-center">{% trans %}Historical reports{% endtrans %}</h1>
     </div>
   </div>
   <div class="row text-center">
@@ -32,7 +32,7 @@
           <!-- loaded, no data -->
           {% trans %}No previous assessments{% endtrans %}
         </div>
-        <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+        <div id="historical-responses" v-show="itemsLoaded && items.results.length > 0" v-cloak>
           <!-- loaded, items present -->
           <div class="row my-2" v-for="item in items.results">
             <div class="col-12 text-center">

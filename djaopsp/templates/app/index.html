@@ -34,7 +34,7 @@ Last completed on <span class="date">{{latest_completed_assessment.created_at|da
             </p>
             <div class="row">
               <div class="col-sm-6">
-                <a href="{{urls.scorecard_history}}">{% trans %}Historical reports{% endtrans %}</a>
+                <a id="scorecard-history" href="{{urls.scorecard_history}}">{% trans %}Historical reports{% endtrans %}</a>
               </div>
               <div class="col-sm-6">
                 <a id="scorecard-update" class="btn btn-primary" href="{{urls.profile_getstarted}}">{% trans %}Update{% endtrans %}</a>
