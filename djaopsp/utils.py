@@ -24,7 +24,7 @@ from pages.models import PageElement, build_content_tree, flatten_content_tree
 from survey.models import (Answer, Campaign, Choice, PortfolioDoubleOptIn,
     Sample, Unit)
 from survey.helpers import get_extra
-from survey.utils import get_question_model, is_sqlite3
+from survey.queries import get_question_model, is_sqlite3
 
 from .compat import import_string, six, gettext_lazy as _
 
@@ -202,32 +202,6 @@ def get_alliances(account):
         settings.ALLIANCES_CALLABLE):
         return import_string(settings.ALLIANCES_CALLABLE)(account)
     return []
-
-
-def get_reporting_accounts(account, campaign=None, start_at=None, ends_at=None):
-    """
-    All accounts which have elected to share their scorecard
-    with ``account``.
-    """
-    queryset = None
-    if (hasattr(settings, 'REPORTING_ACCOUNTS_CALLABLE') and
-        settings.REPORTING_ACCOUNTS_CALLABLE):
-        queryset = import_string(settings.REPORTING_ACCOUNTS_CALLABLE)(
-            account, campaign=campaign, start_at=start_at, ends_at=ends_at)
-
-    if queryset is None:
-        filter_params = {}
-        if start_at:
-            filter_params.update({
-                'portfolio_double_optin_accounts__created_at__gte': start_at})
-        if campaign:
-            filter_params.update({'portfolios__campaign': campaign})
-        queryset = get_account_model().objects.filter(
-            portfolios__grantee=account,
-            **filter_params).annotate(
-                _extra=F('portfolio_double_optin_accounts__extra')).distinct()
-
-    return queryset
 
 
 def get_requested_accounts(account, campaign=None, start_at=None, ends_at=None):

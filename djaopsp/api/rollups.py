@@ -6,8 +6,8 @@ from collections import OrderedDict
 from pages.models import PageElement
 from survey.mixins import DateRangeContextMixin, TimersMixin
 from survey.models import Sample
+from survey.queries import get_account_model, is_sqlite3
 from survey.settings import DB_PATH_SEP
-from survey.utils import get_account_model, is_sqlite3
 
 from ..compat import six
 from ..queries import get_completed_assessments_at_by

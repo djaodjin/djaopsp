@@ -20,21 +20,23 @@ from survey.api.serializers import MetricsSerializer, TableSerializer
 from survey.filters import SearchFilter, OrderingFilter
 from survey.helpers import (construct_yearly_periods, construct_weekly_periods,
     get_extra)
+from survey.api.matrix import (BenchmarkAPIView as BenchmarkBaseAPIView,
+    BenchmarkIndexAPIView as BenchmarkIndexBaseAPIView)
 from survey.models import Answer, EditableFilter, Sample
 from survey.pagination import MetricsPagination
+from survey.queries import as_sql_date_trunc_year
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
-from survey.utils import (as_sql_date_trunc_year, get_account_model,
+from survey.utils import (get_accessible_accounts, get_account_model,
     get_question_model)
 
 from .campaigns import CampaignContentMixin
 from ..compat import reverse, six
 from ..queries import (get_completed_assessments_at_by, get_engagement,
-    get_requested_by_accounts_by_year)
+    get_engagement_by_reporting_status, get_requested_by_accounts_by_year)
 from ..mixins import AccountMixin
 from ..models import ScorecardCache
 from ..utils import (TransparentCut, get_alliances, get_latest_reminders,
-    get_reporting_accounts, get_requested_accounts, get_segments_candidates,
-    segments_as_sql)
+    get_requested_accounts, get_segments_candidates, segments_as_sql)
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
 from .serializers import (CompareNodeSerializer, EngagementSerializer,
     ReportingSerializer)
@@ -276,7 +278,7 @@ class DashboardMixin(ScoresMixin, AccountMixin):
         #   `BySegmentsMixin`, `GHGEmissionsRateMixin`.
         if not account:
             account = self.account
-        return get_reporting_accounts(account,
+        return get_accessible_accounts([account],
             start_at=self.start_at, ends_at=self.ends_at)
 
     def get_requested_accounts(self, account=None):
@@ -405,6 +407,24 @@ INNER JOIN survey_sample
             'unit': self.unit,
             'results': table
         }
+
+
+class BenchmarkAPIView(BenchmarkBaseAPIView):
+
+    def attach_results(self, questions_by_key, account=None):
+        if account is None:
+            account = self.account
+
+        super(BenchmarkAPIView, self).attach_results(questions_by_key, account)
+
+        alliances = get_alliances(account)
+        for alliance in list(alliances):
+            super(BenchmarkAPIView, self).attach_results(
+                questions_by_key, alliance)
+
+
+class BenchmarkIndexAPIView(BenchmarkIndexBaseAPIView):
+    pass
 
 
 class SupplierListMixin(DashboardMixin):
@@ -1033,8 +1053,8 @@ class CompareAPIView(CampaignContentMixin, CompareAPIBaseView):
         """
         #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_samples'):
-            reporting_accounts = get_reporting_accounts(
-                self.account, campaign=self.campaign)
+            reporting_accounts = get_accessible_accounts(
+                [self.account], campaign=self.campaign)
             # XXX currently start_at and ends_at have shaky definition in
             #     this context.
             if reporting_accounts:
@@ -1319,7 +1339,7 @@ ORDER BY account_id, created_at
         return Sample.objects.raw(sql_query)
 
     def get_queryset(self):
-        return get_reporting_accounts(self.account)
+        return get_accessible_accounts([self.account])
 
     def as_sample(self, key, requested_by_keys):
         state = (self.REPORTING_DECLINED
@@ -1814,15 +1834,25 @@ class EngagementStatsMixin(DashboardAggregateMixin):
         grantees = None # XXX should be all members for alliances but no more
         if account == self.account:
             grantees = [account]
-        engagement = get_engagement(self.campaign, requested_accounts,
+        engagement = get_engagement_by_reporting_status(
+            self.campaign, requested_accounts,
             grantees=grantees, start_at=self.start_at, ends_at=self.ends_at)
 
         stats = {key: 0
             for key in EngagementSerializer.REPORTING_STATUS.values()}
-        for val in engagement:
+        for reporting_status, val in six.iteritems(engagement):
             humanized_status = \
-                EngagementSerializer.REPORTING_STATUS[val.reporting_status]
-            stats[humanized_status] += 1
+                EngagementSerializer.REPORTING_STATUS[reporting_status]
+            stats[humanized_status] += val
+
+        if self.unit == 'percentage':
+            total = 0
+            for val in six.itervalues(stats):
+                total += val
+            prev_stats = stats
+            stats = {}
+            for key, val in six.iteritems(prev_stats):
+                stats.update({key: round(val * 100 / total)})
 
         return list(stats.items())
 
@@ -1943,4 +1973,7 @@ class EngagementStatsAPIView(EngagementStatsMixin, generics.RetrieveAPIView):
         }
     """
     def retrieve(self, request, *args, **kwargs):
-        return http.Response(self.get_response_data(request, *args, **kwargs))
+        self._start_time()
+        resp = self.get_response_data(request, *args, **kwargs)
+        self._report_queries("[EngagementStatsAPIView] http response created")
+        return http.Response(resp)

@@ -56,6 +56,7 @@ class CampaignEditView(CampaignMixin, AccountMixin, TemplateView):
 class CampaignXLSXView(CampaignContentMixin, PracticesSpreadsheetView):
 
     basename = 'practices'
+    strip_segment_prefix = True
 
     def get_headings(self):
         segments = [seg for seg in self.segments_available if seg['path']]
@@ -64,8 +65,8 @@ class CampaignXLSXView(CampaignContentMixin, PracticesSpreadsheetView):
     def format_row(self, entry):
         row = [entry['title']]
         for seg in self.segments_available:
-            tags = entry.get('extra', {}).get('tags', [])
-            if seg['path'] in tags:
+            segments = entry.get('extra', {}).get('segments', [])
+            if seg['path'] in segments:
                 row += [entry['title']]
             else:
                 row += ['']

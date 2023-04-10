@@ -37,7 +37,7 @@
           <div class="row my-2" v-for="item in items.results">
             <div class="col-12 text-center">
               <div>
-              [[ $globals.humanizeDate(item.last_completed_at) ]]
+              [[ $globals.humanizeDate(item.created_at) ]]
               </div>
               <div style="border-bottom: 1px solid #aaa;">
               <a :href="_safeUrl('{{urls.scorecard_base}}', item.slug) + '/'">[[item.campaign.title]]</a>

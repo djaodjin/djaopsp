@@ -36,6 +36,7 @@ Vue.component('engage-profiles', {
             url: this.$urls.api_portfolios_requests,
             api_profiles_base_url: this.$urls.api_organizations,
             typeaheadUrl: this.$urls.api_account_candidates,
+            autoreload: false,
             params: {
                 o: 'full_name'
             },
@@ -72,6 +73,11 @@ Vue.component('engage-profiles', {
             }], function(resp, typeaheadResp) {
                 vm.loadComplete(resp[0], typeaheadResp[0]);
             });
+            if( !vm.autoreload ) {
+                for( let key in vm.$refs ) {
+                    vm.$refs[key].get();
+                }
+            }
         },
         populateInvite: function(newAccount) {
             var vm = this;
@@ -630,15 +636,29 @@ Vue.component('activity-summary', {
         percentToggleMixin
     ],
     data: function() {
-        return this.getInitData();
+        var data = {
+            params: {
+                unit: 'percentage',
+                start_at: null,
+                ends_at: null,
+                // The timezone for both start_at and ends_at.
+                timezone: 'local'
+            },
+        }
+        if( this.$dateRange ) {
+            if( this.$dateRange.start_at ) {
+                data.params['start_at'] = this.$dateRange.start_at;
+            }
+            if( this.$dateRange.ends_at ) {
+                data.params['ends_at'] = this.$dateRange.ends_at;
+            }
+            if( this.$dateRange.timezone ) {
+                data.params['timezone'] = this.$dateRange.timezone;
+            }
+        }
+        return data;
     },
     methods: {
-        getInitData: function(){
-            var data = {
-                autoreload: false
-            };
-             return data;
-        },
         filterList: function() {
             this.get();
         },
@@ -740,7 +760,7 @@ var dashboardChart = Vue.component('dashboardChart', {
     watch: {
         _unit: function(newVal, oldVal) {
             this.debouncedGet();
-        }
+        },
     }
 });
 
@@ -859,6 +879,16 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
             );
         },
     },
+    computed: {
+        circleLabels: function() {
+            const vm = this;
+            let text = "";
+            for( let idx = 1; idx  < vm.item.results.length; ++idx ) {
+                text += ', ' + vm.item.results[idx].printable_name
+            }
+            return text;
+        }
+    }
 }));
 
 

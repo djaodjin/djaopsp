@@ -1,40 +1,39 @@
 {% extends "app/reporting/dashboard/base.html" %}
 
-{% block reporting_title %}{% trans %}Activity summary{% endtrans %}{% endblock %}
+{% block reporting_title %}{% trans %}Highlights{% endtrans %}{% endblock %}
 
 {% block reporting_dashboard_content %}
 <activity-summary inline-template>
-  <div id="panel-icons" class="panel-icons panel-icons-no-benchmark">
+  <div>
+
+    {# reporting_content #}
     <div class="row">
-      <div class="col-md-4 ml-4">
-        <h5 class="mt-4">{{campaign.title}} invite period</h5>
-        <div class="text-right pr-3">
-          <div class="input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">From</span>
-            </div>
-            <input class="form-control" type="date"
-                   v-model="_start_at" v-cloak>
+    <div class="col-md-6 mt-2">
+      <form id="period-update" class="form-inline" @submit.prevent="reload()">
+        <div class="input-group input-group-sm mr-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="from-inp">From</span>
           </div>
+          <input class="form-control" type="date" v-model="_start_at" v-cloak>
         </div>
-        <div class="text-right pr-3 mt-2">
-          <div class="input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            </div>
-            <input class="form-control" type="date"
-                   v-model="_ends_at" v-cloak>
+        <div class="input-group input-group-sm mr-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
           </div>
+          <input class="form-control" type="date" v-model="_ends_at" v-cloak>
         </div>
-        <div class="text-right pr-3 mt-2">
-          <button class="btn btn-secondary btn-sm mb-2 w-100"
-                  :disabled="!outdated"
-                  @click.prevent="filterList()">Update</button>
-        </div>
+        <button class="btn btn-secondary btn-sm mr-2"
+                :disabled="!outdated"
+                >{% trans %}Update{% endtrans %}</button>
+      </form>{# /#period-update #}
+    </div>
+      <div class="col-md-6 mt-2 text-right">
+          {% include "app/reporting/_percentage_toggle.html" %}
       </div>
-    </div>{# /row #}
+    </div>
+
     <hr />
-    {% include "app/reporting/_percentage_toggle.html" %}
+
     <div class="row">
       <div class="col-sm-8">
         <reporting-completion-rate ref="completionRate" :params="params" inline-template>
@@ -56,27 +55,23 @@
           </div>
         </reporting-completion-rate>
       </div>
-      <div class="col-md-4 align-self-center">
-        <active-reporting-entities inline-template>
-          <div class="text-black bg-white" style="border: 1px solid #ddd;">
-            <h3 class="text-center mt-4">Active within the last 7 days</h3>
-            <div id="active-reporting-entities-content">
-              <div class="card-body" v-if="!itemsLoaded">
+      <div class="col-md-4">
+       <reporting-completion-total ref="completionTotal" :params="params" inline-template>
+          <div>
+            <h2 class="text-center mt-2">Status ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
+            <h3 class="text-center" v-if="itemLoaded">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h3>
+            <div>
+              <div class="card-body" v-if="!itemLoaded">
                 <p>
                   <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
                 </p>
               </div>
-              <div class="card-body" v-if="itemsLoaded">
-                <div class="p-4 text-center" style="font-size: 32px;">
-                  [[items.count]] users
-                </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="summaryChart" style="max-height: 240px;"></canvas>
               </div>
-              <div class="text-center mb-4">
-                <a href="{{urls.active_reporting_entities}}">see detailed activity &raquo;</a>
-              </div>
-            </div>{# /#active-reporting-entities-content #}
+            </div>
           </div>
-        </active-reporting-entities>
+        </reporting-completion-total>
       </div>
     </div><!-- /.row (activity) -->
     <hr />
@@ -106,7 +101,7 @@
         <reporting-by-segments ref="bySegments" :params="params" inline-template>
           <div>
             <h2 class="text-center mt-4">Assessments completed by segments</h2>
-            <h3 class="text-center">(([[params.unit == 'percentage' ? '%' : 'Nb']]) of suppliers)</h3>
+            <h3 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h3>
             <div class="p-4">
               <div class="card-body" v-if="!itemLoaded">
                 <p>
@@ -149,6 +144,36 @@
         </reporting-ghg-emissions-rate>
       </div>
     </div><!-- /.row (ghg emissions) -->
+
+    <hr />
+
+    <div>
+      <p>
+Download raw data as either one question per row with supplier
+data in columns (i.e. spreadsheet), or one row per (supplier, question) pair
+(i.e. long format).
+The spreadsheet download is better suited when you are going to do analytics
+on your computer in a spreadsheet application.
+The long format download is better suited to upload the raw data into
+an Online Analytical Processing (OLAP) software.
+      </p>
+      <div class="row text-center">
+        <div class="col-sm-6">
+          <a id="download-assessment-details" class="btn btn-secondary mb-2"
+             :href="'{{urls.download_raw}}' + getQueryString(['page'])"
+             target="_blank">
+            <i class="fa fa-download"></i> Spreadsheet (.xlsx)
+          </a>
+        </div>
+        <div class="col-sm-6">
+          <a id="download-long-format" class="btn btn-secondary mb-2"
+             :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
+             target="_blank">
+            <i class="fa fa-download"></i> Long format (.csv)
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </activity-summary>
 {% endblock %}

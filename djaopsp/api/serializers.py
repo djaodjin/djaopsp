@@ -7,7 +7,7 @@ from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementSerializer as BasePageElementSerializer)
 from survey.api.serializers import (AccountSerializer, AnswerSerializer,
-    CampaignSerializer, PortfolioOptInSerializer, UnitSerializer)
+    PortfolioOptInSerializer, UnitSerializer)
 
 from ..compat import reverse
 from ..utils import get_practice_serializer
@@ -422,12 +422,3 @@ class EngagementSerializer(AccountSerializer):
             return reverse('scorecard', args=(
                 self.context['account'], obj.sample))
         return None
-
-
-class HistoricalAssessmentSerializer(NoModelSerializer):
-
-    slug = serializers.SlugField()
-    last_completed_at = serializers.DateTimeField(source='created_at',
-        read_only=True,
-        help_text=_("Date/time an assessment was completed"))
-    campaign = CampaignSerializer()

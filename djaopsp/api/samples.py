@@ -7,26 +7,26 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from deployutils.helpers import datetime_or_now
 from django.db import transaction
-from django.db.models import Count, F
+from django.db.models import F
 from pages.models import PageElement, flatten_content_tree
 from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
 from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
     SampleFreezeAPIView)
 from survey.mixins import TimersMixin
-from survey.models import Answer, Choice, Sample, Unit, UnitEquivalences
+from survey.models import Choice, Sample, Unit, UnitEquivalences
 from survey.settings import DB_PATH_SEP
-from survey.utils import get_account_model
+from survey.utils import get_account_model, get_benchmarks_enumerated
 
 from ..compat import reverse, six
-from ..mixins import AccountMixin, SectionReportMixin
+from ..mixins import SectionReportMixin
 from ..models import ScorecardCache
 from ..scores import freeze_scores, get_score_calculator
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignContentMixin
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
 from .serializers import (AssessmentNodeSerializer,
-    BenchmarkSerializer, HistoricalAssessmentSerializer, UnitSerializer)
+    BenchmarkSerializer, UnitSerializer)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -234,43 +234,10 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
             Sample.objects.get_latest_frozen_by_accounts(
                 self.sample.campaign, ends_at=ends_at, tags=[])
 
-        # total number of answers
-        for row in Answer.objects.filter(
-                question__in=questions_by_key.keys(),
-                unit_id=F('question__default_unit_id'),
-                sample_id__in=last_frozen_assessments).values(
-                'question__id', 'question__path').annotate(Count('sample_id')):
-            path = row['question__path']
-            question_pk = row['question__id']
-            count = row['sample_id__count']
-            value = questions_by_key.get(question_pk, {'path': path})
-            value.update({'nb_respondents': count})
-            if question_pk not in questions_by_key:
-                questions_by_key.update({question_pk: value})
-
-        # per-choice number of answers
-        for row in Answer.objects.filter(
-                question__in=questions_by_key.keys(),
-                unit_id=F('question__default_unit_id'),
-                sample_id__in=last_frozen_assessments,
-                question__default_unit__system=Unit.SYSTEM_ENUMERATED,
-                unit__enums__id=F('measured')).values(
-                'question__id', 'question__path',
-                'measured', 'unit__enums__text').annotate(
-                Count('sample_id')):
-            path = row['question__path']
-            question_pk = row['question__id']
-            count = row['sample_id__count']
-            measured = row['unit__enums__text']
-            value = questions_by_key.get(question_pk, {'path': path})
-            total = value.get('nb_respondents', None)
-            rate = value.get('rate', {})
-            rate.update({
-                measured: (int(count * 100 // total) if total else 0)})
-            if 'rate' not in value:
-                value.update({'rate': rate})
-            if question_pk not in questions_by_key:
-                questions_by_key.update({question_pk: value})
+        # populate nb_respondents and response rate for question
+        # with enumerated choices.
+        questions_by_key = get_benchmarks_enumerated(
+            last_frozen_assessments, questions_by_key.keys(), questions_by_key)
 
         # opportunity to improve score
         score_calculator = get_score_calculator(prefix)
@@ -731,51 +698,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
           ]
         }
     """
-
-
-class HistoricalAssessmentsAPIView(AccountMixin, generics.ListAPIView):
-    """
-    Lists frozen samples
-
-    Returns a list of frozen samples that belong to a profile. Typically this
-    is a list of historical assessments.
-
-    **Tags**: assessments
-
-    **Examples**
-
-    .. code-block:: http
-
-         GET /api/andy-shop/samples HTTP/1.1
-
-    responds
-
-    .. code-block:: json
-
-        {
-          "count": 1,
-          "previous": null,
-          "next": null,
-          "results": [{
-            "slug": "dda134c8b4da487da9169e771794deed",
-            "last_completed_at": "2016-07-15T00:35:26.565000Z",
-            "campaign": {
-              "slug": "sustainability",
-              "account": "alliance",
-              "title": "ESG/Environmental practices",
-              "description": "ESG/Environmental practices assessment",
-              "active": true
-            }
-          }]
-        }
-    """
-    serializer_class = HistoricalAssessmentSerializer
-
-    def get_queryset(self):
-        return Sample.objects.filter(
-            account=self.account,
-            extra__isnull=True,
-            is_frozen=True).order_by('-created_at').select_related('campaign')
 
 
 class BenchmarkAPIView(SectionReportMixin, GraphMixin, RollupMixin,

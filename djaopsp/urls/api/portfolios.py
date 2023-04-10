@@ -6,9 +6,9 @@ API URLs for portfolios engagement & analytics dashboards
 """
 from django.urls import include, path
 
-from ...api.portfolios import (CompareAPIView, CompareIndexAPIView,
-    CompletedAssessmentsAPIView, CompletionRateAPIView,
-    EngagementStatsAPIView,
+from ...api.portfolios import (BenchmarkAPIView, BenchmarkIndexAPIView,
+    CompareAPIView, CompareIndexAPIView,
+    CompletedAssessmentsAPIView, CompletionRateAPIView, EngagementStatsAPIView,
     PortfolioAccessibleSamplesAPIView, PortfolioEngagementAPIView,
     PortfolioResponsesAPIView, TotalScoreBySubsectorAPIView)
 
@@ -17,10 +17,14 @@ urlpatterns = [
     path('completed',
         CompletedAssessmentsAPIView.as_view(),
          name="api_completed_assessments"),
+    path('reporting/<slug:campaign>/benchmarks/<path:path>',
+        BenchmarkAPIView.as_view(), name='survey_api_benchmarks'),
+    path('reporting/<slug:campaign>/benchmarks',
+        BenchmarkIndexAPIView.as_view(), name='survey_api_benchmarks_index'),
     path('reporting/<slug:campaign>/compare/<path:path>',
-        CompareAPIView.as_view(), name='survey_api_compare_samples_path'),
+        CompareAPIView.as_view(), name='survey_api_compare_samples'),
     path('reporting/<slug:campaign>/compare',
-        CompareIndexAPIView.as_view(), name='survey_api_compare_samples'),
+        CompareIndexAPIView.as_view(), name='survey_api_compare_samples_index'),
     path('reporting/<slug:campaign>/engagement/stats',
         EngagementStatsAPIView.as_view(),
         name="api_portfolio_engagement_stats"),

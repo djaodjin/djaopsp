@@ -306,7 +306,7 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
             **kwargs)
         update_context_urls(context, {
             'api_activities_base': site_url("/api/activities"),
-            'api_sample_base_url': reverse('survey_api_sample_new', args=(
+            'api_sample_base_url': reverse('survey_api_sample_list', args=(
                 self.account,)),
             'api_accessibles': reverse(
                 'survey_api_portfolios_requests', args=(self.account,)),
@@ -594,9 +594,11 @@ class ReportingDashboardView(MenubarMixin, DashboardMixin, TemplateView):
             'active_reporting_entities': reverse(
                 'active_reporting_entities', args=(
                 self.account, self.campaign)),
-
             'api_reporting_completion_rate': reverse(
                 'api_reporting_completion_rate', args=(
+                self.account, self.campaign)),
+            'api_portfolio_engagement_stats': reverse(
+                'api_portfolio_engagement_stats', args=(
                 self.account, self.campaign)),
             'api_reporting_goals': reverse(
                 'api_reporting_goals', args=(
@@ -624,6 +626,10 @@ class ReportingDashboardView(MenubarMixin, DashboardMixin, TemplateView):
             'download_ghg_emissions_amount': reverse(
                 'reporting_download_ghg_emissions_amount', args=(
                 self.account, self.campaign)),
+            'download_raw': reverse('download_matrix_compare',
+                args=(self.account, self.campaign)),
+            'download_raw_long': reverse('download_raw_long',
+                args=(self.account, self.campaign)),
         })
         return context
 

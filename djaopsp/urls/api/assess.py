@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -9,7 +9,7 @@ from django.urls import include, path
 from ...api.samples import (
     AssessmentContentAPIView, AssessmentContentIndexAPIView,
     AssessmentCompleteAPIView, AssessmentCompleteIndexAPIView,
-    BenchmarkAPIView, BenchmarkIndexAPIView, HistoricalAssessmentsAPIView)
+    BenchmarkAPIView, BenchmarkIndexAPIView)
 
 
 urlpatterns = [
@@ -25,13 +25,10 @@ urlpatterns = [
         name='survey_api_sample_freeze_index'),
     path('sample/<slug:sample>/benchmarks/<path:path>',
         BenchmarkAPIView.as_view(),
-        name='api_benchmark'),
+        name='survey_api_sample_benchmarks'),
     path('sample/<slug:sample>/benchmarks',
         BenchmarkIndexAPIView.as_view(),
-        name='api_benchmark_index'),
-    path('samples',
-        HistoricalAssessmentsAPIView.as_view(),
-        name='api_historical_assessments'),
+        name='survey_api_sample_benchmarks_index'),
     path('', include('survey.urls.api.sample')),
     path('', include('survey.urls.api.metrics')),
     path('', include('survey.urls.api.filters')),

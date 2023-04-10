@@ -887,7 +887,8 @@ Vue.component('scorecard-history', {
     ],
     data: function() {
         return {
-            url: this.$urls.api_historical_assessments,
+            url: this.$urls.api_sample_list,
+            params: {state: "completed"}
         }
     },
     mounted: function(){

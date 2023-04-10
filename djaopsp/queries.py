@@ -4,9 +4,11 @@
 This file contains SQL statements as building blocks for benchmarking
 results in APIs, downloads, etc.
 """
+from django.db import connection
 from django.db.models.query import QuerySet, RawQuerySet
 from survey.models import PortfolioDoubleOptIn, Sample
-from survey.utils import as_sql_date_trunc_year, get_account_model, is_sqlite3
+from survey.queries import as_sql_date_trunc_year, is_sqlite3
+from survey.utils import get_account_model
 
 
 def get_completed_assessments_at_by(campaign, start_at=None, ends_at=None,
@@ -109,8 +111,8 @@ WHERE survey_sample.is_frozen
     return Sample.objects.raw(sql_query)
 
 
-def get_engagement(campaign, accounts,
-                   grantees=None, start_at=None, ends_at=None):
+def _get_engagement_sql(campaign, accounts,
+                        grantees=None, start_at=None, ends_at=None):
     accounts_clause = ""
     if accounts:
         accounts_clause = "AND account_id IN (%s)" % ",".join([
@@ -168,12 +170,13 @@ ON  survey_portfoliodoubleoptin.grantee_id = latest_requests.grantee_id AND
         %(optin_request_denied)d,
         %(optin_request_expired)d)
       %(campaign_clause)s
-      %(after_clause)s
-      %(before_clause)s
 ),
 completed_by_accounts AS (
-SELECT
-  survey_sample.*,
+SELECT DISTINCT
+  survey_sample.account_id,
+  survey_sample.id,
+  survey_sample.slug,
+  survey_sample.created_at,
   CASE WHEN latest_completion.state = %(optin_request_accepted)d
            THEN 'completed'
        WHEN latest_completion.state = %(optin_request_denied)d
@@ -200,8 +203,11 @@ ON survey_sample.account_id = latest_completion.account_id AND
    survey_sample.is_frozen = latest_completion.is_frozen
 ),
 updated_by_accounts AS (
-SELECT
-  survey_sample.*,
+SELECT DISTINCT
+  survey_sample.account_id,
+  survey_sample.id,
+  survey_sample.slug,
+  survey_sample.updated_at,
   'updated' AS reporting_status
 FROM survey_sample INNER JOIN (
   SELECT
@@ -254,7 +260,30 @@ ON requests.account_id = updated_by_accounts.account_id
     'optin_request_expired': PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED,
     'optin_request_denied': PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED
     }
-    return PortfolioDoubleOptIn.objects.raw(sql_query)
+    return sql_query
+
+
+def get_engagement(campaign, accounts,
+                   grantees=None, start_at=None, ends_at=None):
+    return PortfolioDoubleOptIn.objects.raw(
+        _get_engagement_sql(campaign, accounts, grantees=grantees,
+            start_at=start_at, ends_at=ends_at))
+
+
+def get_engagement_by_reporting_status(campaign, accounts,
+                                grantees=None, start_at=None, ends_at=None):
+    sql_query = """
+SELECT reporting_status, COUNT(account_id)
+FROM (SELECT DISTINCT account_id, reporting_status FROM (%(engagement_sql)s)
+  AS engagement) AS uniq_engagement
+GROUP BY reporting_status
+    """ % {'engagement_sql': _get_engagement_sql(
+        campaign, accounts, grantees=grantees,
+        start_at=start_at, ends_at=ends_at)}
+    with connection.cursor() as cursor:
+        cursor.execute(sql_query, params=None)
+        results = {val[0]: val[1] for val in cursor.fetchall()}
+    return results
 
 
 def get_requested_by_accounts_by_year(campaign, includes, grantee,

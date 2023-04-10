@@ -175,7 +175,8 @@ class ScorecardIndexView(ReportMixin, TemplateView):
                 args=(self.account, self.sample)),
             'survey_api_sample_answers': reverse('api_sample_content',
                 args=(self.account, self.sample, '-'))[:-2],
-            'api_account_benchmark': reverse('api_benchmark_index',
+            'api_account_benchmark': reverse(
+                'survey_api_sample_benchmarks_index',
                 args=(self.account, self.sample)),
             # These URLs can't be accessed by profiles the sample was shared
             # with. They must use ``sample.account``.
@@ -204,7 +205,7 @@ class ScorecardHistoryView(AccountMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ScorecardHistoryView, self).get_context_data(**kwargs)
         update_context_urls(context, {
-            'api_historical_assessments': reverse('api_historical_assessments',
+            'api_sample_list': reverse('survey_api_sample_list',
                     args=(self.account,)),
             'scorecard_base': reverse('scorecard_redirect',
                     args=(self.account,)),

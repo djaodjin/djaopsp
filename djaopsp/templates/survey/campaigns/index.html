@@ -3,7 +3,7 @@
 {% block survey_content %}
 <div>
   <div>
-    <h1 class="text-center">Assessments</h1>
+    <h1 class="text-center">{% trans %}Questionnaires{% endtrans %}</h1>
   </div>
   <div id="panel-icons" class="panel-icons">
     <div id="app">
@@ -18,12 +18,12 @@
                     <div class="mr-2 mb-3 w-100">
                       <input type="text" class="form-control"
                              v-model="newItem.title"
-                             placeholder="Assessment title">
+                             placeholder="{% trans %}Questionnaire title{% endtrans %}">
                     </div>
                   </div>
                   <div class="col-md-3 mb-3">
                     <button type="submit" class="btn btn-primary btn-md w-100">
-                      Create Assessment
+                      {% trans %}Create Questionnaire{% endtrans %}
                     </button>
                   </div>
                 </div>
@@ -62,14 +62,14 @@
               <tbody v-show="itemsLoaded && items.results.length == 0" v-cloak>
                 <tr>
                   <td colspan="2">
-                    <h3 class="text-center"><em>No entries <span v-show="params.q"> [[params.q]]</span></em></h3>
+                    <h3 class="text-center"><em>{% trans %}No entries{% endtrans %} <span v-show="params.q"> [[params.q]]</span></em></h3>
                   </td>
                 </tr>
               </tbody>
               <!-- Show Data Entries -->
               <tbody id="has-items" v-show="itemsLoaded && items.results.length > 0" v-cloak>
                 <tr v-for="(entry, index) in items.results" :class="{'bg-info': isInfiniteScroll && params.page > 1 && (itemsPerPage * (params.page - 1)) === index}">
-                  <td class="text-nowrap">[[entry.created_at]]</td>
+                  <td class="text-nowrap">[[$globals.humanizeDate(entry.created_at)]]</td>
                   <td class="text-nowrap"><a :href="entry.slug + '/'">[[entry.title]]</a></td>
                 </tr>
               </tbody>

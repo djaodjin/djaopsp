@@ -37,27 +37,28 @@
 
     {# reporting_content #}
     <div class="offset-md-3 col-md-6 mt-2">
-        <form id="period-update" class="form-inline" @submit.prevent="reload()">
-          <div class="input-group input-group-sm mr-2">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">From</span>
-            </div>
-            <input class="form-control" type="date" v-model="_start_at" v-cloak>
+      <form id="period-update" class="form-inline" @submit.prevent="reload()">
+        <div class="input-group input-group-sm mr-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="from-inp">From</span>
           </div>
-          <div class="input-group input-group-sm mr-2">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            </div>
-            <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+          <input class="form-control" type="date" v-model="_start_at" v-cloak>
+        </div>
+        <div class="input-group input-group-sm mr-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
           </div>
-          <button class="btn btn-secondary btn-sm mr-2"
-                  :disabled="!outdated"
-                  >{% trans %}Update{% endtrans %}</button>
-        </form>{# /#period-update #}
-</div>
+          <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+        </div>
+        <button class="btn btn-secondary btn-sm mr-2"
+                :disabled="!outdated"
+                >{% trans %}Update{% endtrans %}</button>
+      </form>{# /#period-update #}
+    </div>
+
     <div class="row mt-4">
       <div class="col-md-6">
-        <reporting-completion-rate :params="params" inline-template>
+        <reporting-completion-rate ref="completionWeekly" :params="params" inline-template>
           <div>
             <h2 class="text-center">Completed week-by-week ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
             <div>
@@ -74,10 +75,10 @@
         </reporting-completion-rate>
       </div>{# /.col-md-6 #}
       <div class="col-md-6 text-center">
-        <reporting-completion-total :params="params" inline-template>
+        <reporting-completion-total ref="completionTotal" :params="params" inline-template>
           <div>
             <h2>Status ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
-            <h3 class="text-center" v-if="itemLoaded">(outer: {{profile.printable_name}}, inner: [[item.results[1].printable_name]])</h3>
+            <h3 class="text-center" v-if="itemLoaded">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h3>
             <div>
               <div class="card-body" v-if="!itemLoaded">
                 <p>
@@ -221,25 +222,27 @@
             <td colspan="8">{% trans profile=profile %}No profile accessible for {{profile}}{% endtrans %}</td>
         </tr>
       </tbody>
-      <tbody :id="entry.slug"
+      <tbody v-show="itemsLoaded && items.results.length > 0" v-cloak>
+        <tr :id="entry.slug"
             :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
-            v-for="(entry, index) in items.results"
-            v-show="itemsLoaded && items.results.length > 0" v-cloak>
-        <tr v-if="hasNoReportingStatus(entry)">
-          <!-- profile whose report has not been requested yet. -->
+            v-for="(entry, index) in items.results">
           <td>
             <span>[[index + 1]]</span><br />
           </td>
           <td>
             {% include "app/reporting/_profile_card.html" %}
           </td>
-          <td>
+
+          <!-- profile whose report has not been requested yet. -->
+          <td v-if="hasNoReportingStatus(entry)">
               {# tags #}
           </td>
-          <td class="text-center" colspan="3">
+          <td class="text-center" colspan="3"
+              v-if="hasNoReportingStatus(entry)">
               no invite between [[_start_at]] and [[_ends_at]]
           </td>
-          <td class="text-nowrap text-center">
+          <td class="text-nowrap text-center"
+              v-if="hasNoReportingStatus(entry)">
               <button id="invite-reporting-profile-open"
                       class="btn btn-primary"
                       data-toggle="modal"
@@ -247,22 +250,16 @@
                       @click="populateInvite(entry)">{% trans %}Add{% endtrans %}</button>
           </td>
           <td class="text-center"
-              style="border-left:2px solid black;">
+              style="border-left:2px solid black;"
+              v-if="hasNoReportingStatus(entry)">
           </td>
-        </tr>
 
-        <tr v-if="!hasNoReportingStatus(entry)">
           <!-- profile whose report was requested at some point. -->
-          <td>
-            <span>[[index + 1]]</span><br />
-          </td>
-          <td>
-            {% include "app/reporting/_profile_card.html" %}
-          </td>
-          <td>
+          <td v-if="!hasNoReportingStatus(entry)">
             {% include "app/reporting/_edit_tags.html" %}
           </td>
-          <td class="text-center">
+          <td class="text-center"
+              v-if="!hasNoReportingStatus(entry)">
             <div v-if="entry.reporting_status === 'invited'">
                 {% trans %}Invited{% endtrans %}
             </div>
@@ -286,11 +283,12 @@
                 <small>({% trans %}declined to respond{% endtrans %})</small>
             </div>
           </td>
-          <td class="text-center">
+          <td class="text-center"
+              v-if="!hasNoReportingStatus(entry)">
             <div v-if="entry.last_activity_at">
               [[$globals.humanizeDate(entry.last_activity_at)]]<br />
               <small>([[$globals.humanizeTimeDelta(entry.last_activity_at)]])</small><br />
-              <small><a href="" @click.prevent="toggleRespondents(index)"><i class="fa fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
+              <small v-if="entry.reporting_status === 'completed'"><a href="" @click.prevent="toggleRespondents(index)"><i class="fa fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
 
               <div class="text-left" v-for="contact in entry.respondents" v-show="index === showRespondents">
                   <img class="img-fluid" style="max-height: 1rem;" :src="contact.picture || '{{'/static/img/default-user.png'|asset}}'"> [[contact.full_name]] &lt;[[contact.email]]&gt;<br />
@@ -308,7 +306,8 @@
                 </span>
             </div>
           </td>
-          <td class="text-center">
+          <td class="text-center"
+              v-if="!hasNoReportingStatus(entry)">
             <div v-if="entry.last_reminder_at">
               [[$globals.humanizeDate(entry.last_reminder_at)]]<br />
               <small>([[$globals.humanizeTimeDelta(entry.last_reminder_at)]])</small><br />
@@ -326,7 +325,8 @@
                 Not available
             </div>
           </td>
-          <td class="text-center">
+          <td class="text-center"
+              v-if="!hasNoReportingStatus(entry)">
               <button id="invite-reporting-profile-open"
                       class="btn btn-secondary"
                       data-toggle="modal"
@@ -334,7 +334,8 @@
                       @click="populateInvite(entry)">{% trans %}(Re-)send{% endtrans %}</button>
           </td>
           <td class="text-nowrap text-center"
-              style="border-left:2px solid black;">
+              style="border-left:2px solid black;"
+              v-if="!hasNoReportingStatus(entry)">
             [[$globals.humanizeDate(entry.requested_at)]]<br />
             <small>([[$globals.humanizeTimeDelta(entry.requested_at)]])</small><br />
             <button class="btn btn-sm btn-danger"

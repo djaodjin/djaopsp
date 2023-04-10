@@ -14,7 +14,7 @@ from ...views.portfolios import (ActiveReportingEntitiesView,
     PortfolioResponsesView, PortfolioResponsesXLSXView,
     PortfoliosDetailView, ReportingDashboardView)
 from ...downloads.reporting import (PortfolioAccessiblesXLSXView,
-    PortfolioEngagementXLSXView)
+    PortfolioEngagementXLSXView, LongFormatCSVView)
 
 urlpatterns = [
     # Redirects
@@ -38,9 +38,15 @@ urlpatterns = [
     path('completed/download/',
         CompletedAssessmentsRawXLSXView.as_view(),
          name="completed_assessments_download"),
+    path('reporting/<slug:campaign>/compare/<path:path>/download/long/',
+        LongFormatCSVView.as_view(),
+        name='download_raw_long_path'),
     path('reporting/<slug:campaign>/compare/<path:path>/download/',
         CompareXLSXView.as_view(),
         name='download_matrix_compare_path'),
+    path('reporting/<slug:campaign>/compare/download/long/',
+        LongFormatCSVView.as_view(),
+        name='download_raw_long'),
     path('reporting/<slug:campaign>/compare/download/',
         CompareXLSXView.as_view(),
         name='download_matrix_compare'),
