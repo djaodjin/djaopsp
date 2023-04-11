@@ -137,4 +137,10 @@
     "full_name": "S9 - Ball Construction (Demo)"
   },
   "model" : "djaopsp.account", "pk" : 17
+},
+{ "fields" : {
+    "slug": "demo-utility",
+    "full_name": "Utility (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 18
 }]
