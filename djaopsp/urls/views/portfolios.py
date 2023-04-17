@@ -7,7 +7,7 @@ Views URLs
 from django.urls import include, path
 
 from ...views.matrix import CompareView, CompareXLSXView
-from ...views.portfolios import (ActiveReportingEntitiesView,
+from ...views.portfolios import (
     CompletedAssessmentsRawXLSXView, CompletionRatePPTXView,
     DashboardRedirectView, EngagementStatsPPTXView,
     PortfolioAccessiblesView, PortfolioEngagementView,
@@ -55,9 +55,6 @@ urlpatterns = [
         name='portfolio_responses_download'),
 
     # Dashboards as HTML pages
-    path('reporting/<slug:campaign>/active/',
-        ActiveReportingEntitiesView.as_view(),
-        name='active_reporting_entities'),
     path('reporting/<slug:campaign>/engage/download/',
         PortfolioEngagementXLSXView.as_view(),
         name='reporting_profile_engage_download'),

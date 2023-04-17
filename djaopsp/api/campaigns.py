@@ -7,15 +7,17 @@ from collections import OrderedDict
 
 from django.db import transaction
 from django.db.models import Max
-from pages.api.elements import PageElementEditableListAPIView
+from pages.api.elements import (PageElementEditableListAPIView,
+    PageElementEditableDetail)
 from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip, flatten_content_tree
 from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from survey.mixins import QuestionMixin
 from survey.models import EnumeratedQuestions
-from survey.utils import get_question_model
+from survey.utils import get_question_model, get_question_serializer
 from survey.settings import DB_PATH_SEP
 
 from .serializers import ContentNodeSerializer, CreateContentElementSerializer
@@ -548,3 +550,94 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
         results = self.get_queryset()
         serializer = self.get_serializer(results, many=True)
         return Response({'results': serializer.data})
+
+
+class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
+                                      PageElementEditableDetail):
+
+    serializer_class = get_question_serializer()
+
+    def get_object(self):
+        return self.question
+
+    def get(self, request, *args, **kwargs):
+        """
+        Retrieves details of a question
+
+        **Tags**: editors
+
+        **Examples
+
+        .. code-block:: http
+
+            GET /api/content/editables/envconnect/campaigns/sustainability/construction/governance/the-assessment-process-is-rigorous HTTP/1.1
+
+        responds
+
+        .. code-block:: json
+
+            {
+                "path": "/construction/governance/the-assessment\
+-process-is-rigorous",
+                "title": "The assessment process is rigorous",
+                "default_unit": "assessment",
+                "avg_value": 1,
+            }
+        """
+        return super(CampaignEditableQuestionAPIView, self).get(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Updates a question
+
+        Updates the title, text and, if applicable, the metrics associated
+        associated to the content element referenced by *path*.
+
+        **Tags**: editors
+
+        **Examples
+
+        .. code-block:: http
+
+            POST /api/content/editables/alliance/campaigns/sustainability \
+ HTTP/1.1
+
+        .. code-block:: json
+
+            {
+              "title": "Adjust air/fuel ratio"
+            }
+
+        responds:
+
+        .. code-block:: json
+
+            {
+                "path": "/construction/governance/the-assessment\
+-process-is-rigorous",
+                "title": "The assessment process is rigorous",
+                "default_unit": "assessment",
+                "avg_value": 1,
+            }
+        """
+        #pylint:disable=useless-super-delegation
+        return super(CampaignEditableQuestionAPIView, self).put(
+            request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        # Implementation note: overrides overide in `PageElementEditableDetail`
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        update_kwargs = {}
+        for field_name, field_value in six.iteritems(serializer.validated_data):
+            if field_value:
+                update_kwargs.update({
+                    field_name: field_value
+                })
+
+        get_question_model().objects.filter(
+            path__endswith=self.db_path).update(**update_kwargs)
+
+        return Response(serializer.data)

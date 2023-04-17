@@ -44,6 +44,7 @@ class CampaignEditView(CampaignMixin, AccountMixin, TemplateView):
                 args=(self.account, '')),
             'api_upload': reverse('api_campaign_upload',
                 args=(self.account, campaign_slug)),
+            'api_units': reverse('survey_api_units'),
             'download': reverse('campaign_download',
                 args=(self.account, campaign_slug)),
             'pages_editables_index': reverse('pages_editables_index',

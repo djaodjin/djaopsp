@@ -10,6 +10,9 @@ $footer-height: 34px;
 }
 
 //.tick line {display: none;}
+header .nav-item {
+  border-left: 1px solid #fff;
+}
 
 .navbar-top {
   border-top: 0;
@@ -1259,19 +1262,6 @@ a.text-grey{
     margin-right:15px;
     height:140px;
   }
-}
-
-
-.menubar{
-padding: 8px 30px;
-margin-bottom: 0;
-list-style: none;
-background-color: transparent;
-border-radius: 4px;
-}
-
-.menubar > li{
-display: inline-block;
 }
 
 .nav-tabs.nav-djaopsp {

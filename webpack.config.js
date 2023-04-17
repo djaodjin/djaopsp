@@ -73,7 +73,7 @@ module.exports = {
           itemMixin: ['js/djaodjin-resources-vue.js', 'itemMixin'],
           itemListMixin: ['js/djaodjin-resources-vue.js', 'itemListMixin'],
           paramsMixin: ['js/djaodjin-resources-vue.js', 'paramsMixin'],
-          TypeAhead: ['js/djaodjin-resources-vue.js', 'TypeAhead'],
+          typeAheadMixin: ['js/djaodjin-resources-vue.js', 'typeAheadMixin'],
           practicesListMixin: [
               'js/djaopsp-resources-vue.js', 'practicesListMixin'],
       })

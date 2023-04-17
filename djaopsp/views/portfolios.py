@@ -236,22 +236,6 @@ class UpdatedMenubarMixin(object):
         return context
 
 
-class ActiveReportingEntitiesView(MenubarMixin, DashboardMixin, TemplateView):
-
-    template_name = 'app/reporting/active.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        update_context_urls(context, {
-            'api_active_reporting_entities': site_url(
-                '/api/profile/%s/subscribers/engaged' % self.account),
-            'api_inactive_reporting_entities': site_url(
-                '/api/profile/%s/subscribers/unengaged' % self.account),
-            'api_organizations': site_url("/api/profile"),
-        })
-        return context
-
-
 class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
                                TemplateView):
     """

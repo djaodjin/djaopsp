@@ -281,7 +281,14 @@ Vue.component('editable-practices-list', {
                 vm._clearInput();
             });
         },
-
+        updateItemSelected: function(item, question) {
+            var vm = this;
+            vm.reqPatch(vm._safeUrl(vm.url, question.path), {
+                'default_unit': item.slug
+            }, function() {
+                question.default_unit = item.slug;
+            });
+        },
         _clearInput: function() {
             var vm = this;
             vm.addBelowIndex = -1;
@@ -353,7 +360,10 @@ Vue.component('editable-practices-list', {
 });
 
 
-Vue.component('practice-typeahead', TypeAhead.extend({
+Vue.component('practice-typeahead', {
+  mixins: [
+      typeAheadMixin
+  ],
   props: ['dataset'],
   data: function data() {
     return {
@@ -391,4 +401,4 @@ Vue.component('practice-typeahead', TypeAhead.extend({
       }
     },
   }
-}));
+});
