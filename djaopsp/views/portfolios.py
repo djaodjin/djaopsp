@@ -4,7 +4,6 @@
 import datetime, io, json, logging, os, re
 from collections import OrderedDict
 
-from dateutil.relativedelta import relativedelta
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import datetime_or_now, update_context_urls
@@ -34,7 +33,8 @@ from ..api.rollups import GraphMixin
 from ..api.serializers import ReportingSerializer
 from ..compat import reverse, six
 from ..helpers import as_valid_sheet_title
-from ..mixins import AccountMixin, CampaignMixin
+from ..mixins import (AccountMixin, CampaignMixin,
+    AccountsAggregatedQuerysetMixin)
 from ..utils import get_scores_tree
 
 LOGGER = logging.getLogger(__name__)
@@ -105,68 +105,8 @@ class DashboardRedirectView(AccountMixin, TemplateResponseMixin, ContextMixin,
         return super(DashboardRedirectView, self).get(request, *args, **kwargs)
 
 
-class DashboardMixin(TrailMixin, CampaignMixin, AccountMixin):
-
-    @property
-    def start_at(self):
-        if not hasattr(self, '_start_at'):
-            self._start_at = self.default_start_at
-        return self._start_at
-
-    def get_query_param(self, param):
-        return self.request.GET.get('ends_at')
-
-    @property
-    def ends_at(self):
-        """
-        End of the period when reporting organization were suppossed to complete
-        an assessment.
-        """
-        if not hasattr(self, '_ends_at'):
-            param_ends_at = self.get_query_param('ends_at')
-            if param_ends_at is not None:
-                param_ends_at = param_ends_at.strip('"')
-            self._ends_at = datetime_or_now(param_ends_at)
-            if not param_ends_at:
-                # When there are no specified `ends_at` in the query
-                # string, we trying to be smart about which default to use
-                # depending on the annual reporting season.
-                expires_at = datetime.datetime(self._ends_at.year, 8, 1,
-                    tzinfo=self._ends_at.tzinfo)
-                if self._ends_at < expires_at:
-                    self._ends_at = self._ends_at + relativedelta(months=1)
-                    if self._ends_at > expires_at:
-                        self.ends_at = expires_at
-                else:
-                    self._ends_at = datetime.datetime(
-                        self._ends_at.year + 1, 1, 1,
-                        tzinfo=self._ends_at.tzinfo)
-        return self._ends_at
-
-    @property
-    def default_start_at(self):
-        """
-        Start of the period when reporting organization were invited.
-        """
-        # XXX `DashboardMixin` in appi/portfolios.py has the same definition.
-        if not hasattr(self, '_default_start_at'):
-            self._default_start_at = get_extra(self.account, 'start_at', None)
-            if self._default_start_at:
-                self._default_start_at = datetime_or_now(self._default_start_at)
-            param_start_at = self.request.GET.get('start_at', None)
-            if param_start_at is not None:
-                param_start_at = param_start_at.strip('"')
-                self._default_start_at = datetime_or_now(param_start_at)
-            # In general `ends_at` could be `None`,
-            # which would be a problem here.
-            default_ends_at = datetime_or_now(self.ends_at)
-            if (self._default_start_at and
-                self._default_start_at >= default_ends_at):
-                # fixing period to 12 months if for any reason the start date
-                # is after the ends date.
-                self._default_start_at = default_ends_at - relativedelta(
-                    months=12)
-        return self._default_start_at
+class DashboardMixin(TrailMixin, CampaignMixin,
+                     AccountsAggregatedQuerysetMixin):
 
     @property
     def default_expired_at(self):
@@ -185,21 +125,22 @@ class DashboardMixin(TrailMixin, CampaignMixin, AccountMixin):
                 param_expired_at = param_expired_at.strip('"')
                 self._default_expired_at = datetime_or_now(param_expired_at)
             if (self._default_expired_at and
-                self._default_expired_at >= self.default_start_at):
-                self._default_expired_at = self.default_start_at
-        return self._default_start_at
+                self._default_expired_at >= self.accounts_start_at):
+                self._default_expired_at = self.accounts_start_at
+        return self._default_expired_at
 
     def get_context_data(self, **kwargs):
         context = super(DashboardMixin, self).get_context_data(**kwargs)
         context.update({
             'ends_at': self.ends_at.isoformat(),
-            'start_at': (self.default_start_at.isoformat()
-                if self.default_start_at else None),
+            'start_at': (self.accounts_start_at.isoformat()
+                if self.accounts_start_at else None),
             'expired_at': (self.default_expired_at.isoformat()
                 if self.default_expired_at else None),
             'campaign': self.campaign
         })
         return context
+
 
 class MenubarMixin(object):
 
@@ -232,6 +173,9 @@ class UpdatedMenubarMixin(object):
                 args=(self.account, self.campaign)),
             'accessibles': reverse('reporting_profile_accessibles',
                 args=(self.account, self.campaign)),
+            'highlights': reverse(
+                'reporting_organization_dashboard', args=(
+                self.account, self.campaign)),
         })
         return context
 
@@ -353,7 +297,7 @@ class PortfolioResponsesView(MenubarMixin, DashboardMixin, TemplateView):
         return context
 
 
-class PortfolioResponsesXLSXView(DashboardMixin, SupplierListMixin, TemplateView):
+class PortfolioResponsesXLSXView(SupplierListMixin, TemplateView):
     """
     Download scores of all reporting entities as an Excel spreadsheet.
     """
@@ -573,11 +517,6 @@ class ReportingDashboardView(MenubarMixin, DashboardMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ReportingDashboardView, self).get_context_data(**kwargs)
         update_context_urls(context, {
-            'api_active_reporting_entities': site_url(
-                '/api/profile/%s/subscribers/engaged' % self.account),
-            'active_reporting_entities': reverse(
-                'active_reporting_entities', args=(
-                self.account, self.campaign)),
             'api_reporting_completion_rate': reverse(
                 'api_reporting_completion_rate', args=(
                 self.account, self.campaign)),

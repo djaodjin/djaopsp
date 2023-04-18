@@ -548,7 +548,7 @@ class RollupMixin(object):
         for path, node in six.iteritems(rollup_tree):
             if path == prefix:
                 accounts = node[0].get('accounts', {})
-                # `accounts` (`get_requested_accounts`) used
+                # `accounts` used
                 # in `decorate_with_cohorts` is a dictionary indexed by id,
                 # so we cannot use value.account.slug.
                 account_id = value.account_id
@@ -641,28 +641,30 @@ class GraphMixin(object):
                     highest_normalized_score = normalized_score
                 sum_normalized_scores += normalized_score
                 if distribution is None:
-                    distribution = {
-                        'x' : ["0-25%", "25-50%", "50-75%", "75-100%"],
-                        'y' : [0 for _ in range(4)],
-                        'organization_rate': ""
-                    }
+                    distribution = [
+                        ["0-25%", 0],
+                        ["25-50%", 0],
+                        ["50-75%", 0],
+                        ["75-100%", 0]
+                    ]
+                    organization_rate = ""
                 if normalized_score < 25:
-                    distribution['y'][0] += 1
+                    distribution[0][1] += 1
                     if is_view_account:
-                        distribution['organization_rate'] = distribution['x'][0]
+                        organization_rate = distribution[0][0]
                 elif normalized_score < 50:
-                    distribution['y'][1] += 1
+                    distribution[1][1] += 1
                     if is_view_account:
-                        distribution['organization_rate'] = distribution['x'][1]
+                        organization_rate = distribution[1][0]
                 elif normalized_score < 75:
-                    distribution['y'][2] += 1
+                    distribution[2][1] += 1
                     if is_view_account:
-                        distribution['organization_rate'] = distribution['x'][2]
+                        organization_rate = distribution[2][0]
                 else:
                     assert normalized_score <= 100
-                    distribution['y'][3] += 1
+                    distribution[3][1] += 1
                     if is_view_account:
-                        distribution['organization_rate'] = distribution['x'][3]
+                        organization_rate = distribution[3][0]
 
             self.create_distributions(node[1], view_account_id=view_account_id)
 
@@ -681,13 +683,18 @@ class GraphMixin(object):
                     'opportunity': denominator,
                     'highest_normalized_score': highest_normalized_score,
                     'avg_normalized_score': avg_normalized_score,
-                    'distribution': distribution
+                    'organization_rate': organization_rate,
+                    'benchmarks': [{
+                        'slug': "all",
+                        'printable_name': "All",
+                        'values': distribution
+                    }]
                 })
             elif TransparentCut.TAG_SCORECARD in node[0].get(
                     'extra', {}).get('tags', []):
                 node[0].update({
                     'nb_respondents': nb_respondents,
-                    'distribution': []
+                    'benchmarks': []
                 })
             if 'accounts' in node[0]:
                 del node[0]['accounts']
@@ -710,7 +717,7 @@ class GraphMixin(object):
                 charts += leaf_charts
                 complete &= leaf_complete
                 charts += [chart[0]]
-                if 'distribution' in chart[0]:
+                if 'benchmarks' in chart[0]:
                     normalized_score = chart[0].get('normalized_score', None)
                     complete &= (normalized_score is not None)
         return charts, complete

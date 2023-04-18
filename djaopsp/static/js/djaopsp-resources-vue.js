@@ -471,13 +471,18 @@ var practicesListMixin = {
         // benchmark charts
         buildChart: function(data) {
             var vm = this;
-            var labels = data.distribution.x;
+            var labels = [];
+            var values = [];
             var organizationX = -1;
-            for( var idx = 0; idx < data.distribution.x.length; ++idx ) {
-                if( data.distribution.organization_rate ==
-                    data.distribution.x[idx] ) {
+            const benchmarkValues = data.benchmarks.length > 0 ?
+                  data.benchmarks[0].values : [];
+            for( var idx = 0; idx < benchmarkValues.length; ++idx ) {
+                const label = benchmarkValues[idx][0];
+                labels.push(label);
+                const val = benchmarkValues[idx][1];
+                values.push(val);
+                if( data.organization_rate == label ) {
                     organizationX = idx;
-                    break
                 }
             }
             var datasets = [];
@@ -488,7 +493,7 @@ var practicesListMixin = {
                 label: "peers",
                 backgroundColor: '#f0ad4e',
                 borderColor: '#f0ad4e',
-                data: data.distribution.y
+                data: values
             });
 
             var chartKeys = [data.path, '/summary' + data.path];

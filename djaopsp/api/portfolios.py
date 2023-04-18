@@ -18,10 +18,10 @@ from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
 from survey.api.serializers import MetricsSerializer, TableSerializer
 from survey.filters import SearchFilter, OrderingFilter
-from survey.helpers import (construct_yearly_periods, construct_weekly_periods,
-    get_extra)
+from survey.helpers import construct_yearly_periods, construct_weekly_periods
 from survey.api.matrix import (BenchmarkAPIView as BenchmarkBaseAPIView,
     BenchmarkIndexAPIView as BenchmarkIndexBaseAPIView)
+from survey.mixins import TimersMixin
 from survey.models import Answer, EditableFilter, Sample
 from survey.pagination import MetricsPagination
 from survey.queries import as_sql_date_trunc_year
@@ -33,10 +33,11 @@ from .campaigns import CampaignContentMixin
 from ..compat import reverse, six
 from ..queries import (get_completed_assessments_at_by, get_engagement,
     get_engagement_by_reporting_status, get_requested_by_accounts_by_year)
-from ..mixins import AccountMixin
+from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
+    AccountsNominativeQuerysetMixin, CampaignMixin)
 from ..models import ScorecardCache
 from ..utils import (TransparentCut, get_alliances, get_latest_reminders,
-    get_requested_accounts, get_segments_candidates, segments_as_sql)
+    get_segments_candidates, segments_as_sql)
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
 from .serializers import (CompareNodeSerializer, EngagementSerializer,
     ReportingSerializer)
@@ -47,8 +48,10 @@ class CompletionSummaryPagination(PageNumberPagination):
     Decorate the results of an API call with stats on completion of assessment
     and improvement planning.
     """
+    #pylint:disable=too-many-instance-attributes
 
     def paginate_queryset(self, queryset, request, view=None):
+        #pylint:disable=attribute-defined-outside-init
         self.nb_organizations = 0
         self.reporting_publicly_count = 0
         self.no_assessment = 0
@@ -119,8 +122,127 @@ class CompletionSummaryPagination(PageNumberPagination):
         ]))
 
 
-class DashboardMixin(ScoresMixin, AccountMixin):
+class DashboardAggregateMixin(CampaignMixin, AccountsAggregatedQuerysetMixin):
     """
+    Builds aggregated reporting
+    """
+    scale = 1
+    serializer_class = MetricsSerializer
+    title = ""
+
+    def get_reporting_scorecards(self, account=None, start_at=None,
+                                 ends_at=None, aggregate_set=False):
+        filter_params = {}
+        if start_at:
+            filter_params.update({
+                'sample__created_at__gte': datetime_or_now(start_at)})
+        if not ends_at:
+            ends_at = self.ends_at
+        filter_params.update({
+            'sample__created_at__lt': datetime_or_now(ends_at)})
+
+        reporting_accounts = self.get_requested_accounts(
+            account, aggregate_set=aggregate_set)
+        if not reporting_accounts:
+            return ScorecardCache.objects.none()
+
+        accounts_clause = "AND account_id IN (%s)" % (
+            ','.join([str(account.pk) for account in reporting_accounts]))
+
+        scorecards_query = """WITH
+segments AS (
+  %(segments_query)s
+),
+scorecards AS (
+  SELECT
+    segments.path AS segment_path,
+    segments.title AS segment_title,
+    survey_sample.account_id AS account_id,
+    MAX(survey_sample.created_at) AS created_at
+  FROM %(scorecardcache_table)s
+  INNER JOIN survey_sample
+    ON %(scorecardcache_table)s.sample_id = survey_sample.id
+  INNER JOIN segments
+    ON %(scorecardcache_table)s.path = segments.path
+  WHERE survey_sample.created_at < '%(ends_at)s'
+    %(accounts_clause)s
+  GROUP BY segments.path, segments.title, survey_sample.account_id
+)
+SELECT %(scorecardcache_table)s.id FROM %(scorecardcache_table)s
+INNER JOIN scorecards
+  ON %(scorecardcache_table)s.path = scorecards.segment_path
+INNER JOIN survey_sample
+  ON survey_sample.id = %(scorecardcache_table)s.sample_id AND
+     survey_sample.account_id = scorecards.account_id AND
+     survey_sample.created_at = scorecards.created_at
+""" % {
+    'ends_at': ends_at.isoformat(),
+    'segments_query': segments_as_sql(self.segments_available),
+    'accounts_clause': accounts_clause,
+    #pylint:disable=protected-access
+    'scorecardcache_table': ScorecardCache._meta.db_table
+}
+
+        # `ScorecardCache.objects.raw` is terminal so we need to get around it.
+        with connection.cursor() as cursor:
+            cursor.execute(scorecards_query, params=None)
+            pks = [rec[0] for rec in cursor.fetchall()]
+        scorecards = ScorecardCache.objects.filter(pk__in=pks)
+        return scorecards
+
+    def get_labels(self, aggregate=None):
+        if not aggregate:
+            return None
+        return [val[0] for val in aggregate]
+
+    def get_response_data(self, request, *args, **kwargs):
+        #pylint:disable=unused-argument
+        account_aggregate = self.get_aggregate(
+            self.account, labels=self.get_labels())
+        table = [{
+            'slug': self.account.slug,
+            'printable_name': self.account.printable_name,
+            'values': account_aggregate
+        }]
+        labels = self.get_labels(account_aggregate)
+        for account in list(get_alliances(self.account)):
+            table += [{
+                'slug': account.slug,
+                'printable_name': account.printable_name,
+                'values': self.get_aggregate(
+                    account, labels=labels, aggregate_set=True)
+            }]
+        return {
+            "title": self.title,
+            'scale': self.scale,
+            'unit': self.unit,
+            'results': table
+        }
+
+
+class BenchmarkAPIView(BenchmarkBaseAPIView):
+
+    def attach_results(self, questions_by_key, account=None):
+        if account is None:
+            account = self.account
+
+        super(BenchmarkAPIView, self).attach_results(questions_by_key, account)
+
+        alliances = get_alliances(account)
+        for alliance in list(alliances):
+            super(BenchmarkAPIView, self).attach_results(
+                questions_by_key, alliance)
+
+
+class BenchmarkIndexAPIView(BenchmarkIndexBaseAPIView):
+    pass
+
+
+class SupplierListMixin(ScoresMixin, AccountsNominativeQuerysetMixin):
+    """
+    Scores for all reporting entities in a format that can be used by the API
+    and spreadsheet downloads.
+
     The dashboard contains the columns:
       - Supplier/facility: derived from `sample.account_id`
       - Last activity: derived from `sample.created_at` as long as
@@ -173,84 +295,6 @@ class DashboardMixin(ScoresMixin, AccountMixin):
       - user.last_name
       - created_at
     """
-
-    @property
-    def start_at(self):
-        if not hasattr(self, '_start_at'):
-            self._start_at = self.default_start_at
-        return self._start_at
-
-    @property
-    def ends_at(self):
-        """
-        End of the period when reporting organization were suppossed to complete
-        an assessment.
-        """
-        if not hasattr(self, '_ends_at'):
-            param_ends_at = self.get_query_param('ends_at')
-            if param_ends_at is not None:
-                param_ends_at = param_ends_at.strip('"')
-            # We assume specifying today is as good as `None` in this case.
-            self._ends_at = datetime_or_now(param_ends_at)
-        return self._ends_at
-
-    @property
-    def default_start_at(self):
-        """
-        Start of the period when reporting organization were invited.
-        """
-        # XXX `DashboardMixin` in views/portfolios.py has the same definition.
-        if not hasattr(self, '_default_start_at'):
-            self._default_start_at = get_extra(self.account, 'start_at', None)
-            if self._default_start_at:
-                self._default_start_at = datetime_or_now(self._default_start_at)
-            param_start_at = self.get_query_param('start_at')
-            if param_start_at is not None:
-                param_start_at = param_start_at.strip('"')
-                self._default_start_at = datetime_or_now(param_start_at)
-            # In general `ends_at` could be `None`,
-            # which would be a problem here.
-            default_ends_at = datetime_or_now(self.ends_at)
-            if (self._default_start_at and
-                self._default_start_at >= default_ends_at):
-                try:
-                    # fixing period to 12 months if for any reason the start
-                    # date is after the ends date.
-                    self._default_start_at = (
-                        default_ends_at - relativedelta(months=12))
-                except ValueError:
-                    # deal with a bogus ends_at date
-                    self._default_start_at = default_ends_at
-        return self._default_start_at
-
-    @property
-    def default_expired_at(self):
-        """
-        Date after which assessments should be updated.
-        """
-        # XXX `DashboardMixin` in views/portfolios.py has the same definition.
-        if not hasattr(self, '_default_expired_at'):
-            self._default_expired_at = get_extra(
-                self.account, 'expired_at', None)
-            if self._default_expired_at:
-                self._default_expired_at = datetime_or_now(
-                    self._default_expired_at)
-            param_expired_at = self.get_query_param('expired_at')
-            if param_expired_at is not None:
-                param_expired_at = param_expired_at.strip('"')
-                self._default_expired_at = datetime_or_now(param_expired_at)
-            if (self._default_expired_at and
-                self._default_expired_at >= self.default_start_at):
-                self._default_expired_at = self.default_start_at
-        return self._default_start_at
-
-    @property
-    def requested_accounts(self):
-        if not hasattr(self, '_requested_accounts'):
-            self._requested_accounts = self.get_requested_accounts(
-            account=self.account)
-        return self._requested_accounts
-
     @property
     def requested_accounts_pk_as_sql(self):
         if not hasattr(self, '_requested_accounts_pk_as_sql'):
@@ -260,178 +304,6 @@ class DashboardMixin(ScoresMixin, AccountMixin):
                 self._requested_accounts_pk_as_sql = "(%s)" % ','.join(pks)
         return self._requested_accounts_pk_as_sql
 
-
-    def get_query_param(self, key):
-        try:
-            return self.request.query_params.get(key, None)
-        except AttributeError:
-            pass
-        return self.request.GET.get(key, None)
-
-    def get_reporting_accounts(self, account=None):
-        """
-        All accounts which have elected to share their scorecard
-        with ``account``.
-        """
-        # called directly from `GHGEmissionsAmountMixin`
-        # called transitively (get_reporting_scorecards) from `GoalsMixin`,
-        #   `BySegmentsMixin`, `GHGEmissionsRateMixin`.
-        if not account:
-            account = self.account
-        return get_accessible_accounts([account],
-            start_at=self.start_at, ends_at=self.ends_at)
-
-    def get_requested_accounts(self, account=None):
-        """
-        All accounts which ``account`` has requested a scorecard from.
-        """
-        if not account:
-            account = self.account
-        return get_requested_accounts(account, campaign=self.campaign,
-            start_at=self.start_at, ends_at=self.ends_at)
-
-
-class DashboardAggregateMixin(DashboardMixin):
-    """
-    Builds aggregated reporting
-    """
-    scale = 1
-    serializer_class = MetricsSerializer
-    default_unit = 'profiles'
-    valid_units = ('percentage',)
-
-    @property
-    def unit(self):
-        if not hasattr(self, '_unit'):
-            self._unit = self.default_unit
-            param_unit = self.get_query_param('unit')
-            if param_unit is not None and param_unit in self.valid_units:
-                self._unit = param_unit
-        return self._unit
-
-    @property
-    def is_percentage(self):
-        return self.unit == 'percentage'
-
-    @property
-    def segments(self):
-        if not hasattr(self, '_segments'):
-            self._segments = get_segments_candidates(self.campaign)
-        return self._segments
-
-
-    def get_reporting_scorecards(self, account=None,
-                                 start_at=None, ends_at=None):
-        filter_params = {}
-        if start_at:
-            filter_params.update({
-                'sample__created_at__gte': datetime_or_now(start_at)})
-        if not ends_at:
-            ends_at = self.ends_at
-        filter_params.update({
-            'sample__created_at__lt': datetime_or_now(ends_at)})
-
-        reporting_accounts = self.get_requested_accounts(account=account)
-        if not reporting_accounts:
-            return ScorecardCache.objects.none()
-
-        accounts_clause = "AND account_id IN (%s)" % (
-            ','.join([str(account.pk) for account in reporting_accounts]))
-
-        scorecards_query = """WITH
-segments AS (
-  %(segments_query)s
-),
-scorecards AS (
-  SELECT
-    segments.path AS segment_path,
-    segments.title AS segment_title,
-    survey_sample.account_id AS account_id,
-    MAX(survey_sample.created_at) AS created_at
-  FROM %(scorecardcache_table)s
-  INNER JOIN survey_sample
-    ON %(scorecardcache_table)s.sample_id = survey_sample.id
-  INNER JOIN segments
-    ON %(scorecardcache_table)s.path = segments.path
-  WHERE survey_sample.created_at < '%(ends_at)s'
-    %(accounts_clause)s
-  GROUP BY segments.path, segments.title, survey_sample.account_id
-)
-SELECT %(scorecardcache_table)s.id FROM %(scorecardcache_table)s
-INNER JOIN scorecards
-  ON %(scorecardcache_table)s.path = scorecards.segment_path
-INNER JOIN survey_sample
-  ON survey_sample.id = %(scorecardcache_table)s.sample_id AND
-     survey_sample.account_id = scorecards.account_id AND
-     survey_sample.created_at = scorecards.created_at
-""" % {
-    'ends_at': ends_at.isoformat(),
-    'segments_query': segments_as_sql(self.segments),
-    'accounts_clause': accounts_clause,
-    #pylint:disable=protected-access
-    'scorecardcache_table': ScorecardCache._meta.db_table
-}
-
-        # `ScorecardCache.objects.raw` is terminal so we need to get around it.
-        with connection.cursor() as cursor:
-            cursor.execute(scorecards_query, params=None)
-            pks = [rec[0] for rec in cursor.fetchall()]
-        scorecards = ScorecardCache.objects.filter(pk__in=pks)
-        return scorecards
-
-    def get_labels(self, aggregate=None):
-        if not aggregate:
-            return None
-        return [val[0] for val in aggregate]
-
-    def get_response_data(self, request, *args, **kwargs):
-        #pylint:disable=unused-argument
-        alliances = get_alliances(self.account)
-        account_aggregate = self.get_aggregate(
-            self.account, labels=self.get_labels())
-        table = [{
-            'slug': self.account.slug,
-            'printable_name': self.account.printable_name,
-            'values': account_aggregate
-        }]
-        labels = self.get_labels(account_aggregate)
-        for account in list(alliances):
-            table += [{
-                'slug': account.slug,
-                'printable_name': account.printable_name,
-                'values': self.get_aggregate(account, labels=labels)
-            }]
-        return {
-            "title": self.title,
-            'scale': self.scale,
-            'unit': self.unit,
-            'results': table
-        }
-
-
-class BenchmarkAPIView(BenchmarkBaseAPIView):
-
-    def attach_results(self, questions_by_key, account=None):
-        if account is None:
-            account = self.account
-
-        super(BenchmarkAPIView, self).attach_results(questions_by_key, account)
-
-        alliances = get_alliances(account)
-        for alliance in list(alliances):
-            super(BenchmarkAPIView, self).attach_results(
-                questions_by_key, alliance)
-
-
-class BenchmarkIndexAPIView(BenchmarkIndexBaseAPIView):
-    pass
-
-
-class SupplierListMixin(DashboardMixin):
-    """
-    Scores for all reporting entities in a format that can be used by the API
-    and spreadsheet downloads.
-    """
     def decorate_queryset(self, queryset):
         """
         Updates `normalized_score` in rows of the queryset.
@@ -544,14 +416,8 @@ f1e2e916eb494b90f9ff0a36982341/content/boxes-and-enclosures/",
     serializer_class = ReportingSerializer
     pagination_class = CompletionSummaryPagination
 
-    def get(self, request, *args, **kwargs):
-        self._start_time()
-        resp = self.list(request, *args, **kwargs)
-        self._report_queries("http response created")
-        return resp
 
-
-class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
+class TotalScoreBySubsectorAPIView(RollupMixin, GraphMixin, SupplierListMixin,
                                    MatrixDetailAPIView):
     """
     Retrieves a matrix of scores for cohorts against a metric
@@ -603,8 +469,13 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
         return self._db_path
 
     def get_accounts(self):
+        """
+        All accounts which have elected to share their scorecard
+        with ``account``.
+        """
         # overrides `MatrixDetailAPIView.get_accounts()`
-        return self.get_reporting_accounts()
+        return get_accessible_accounts([self.account],
+            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at)
 
     @staticmethod
     def as_metric_candidate(cohort_slug):
@@ -794,11 +665,6 @@ class TotalScoreBySubsectorAPIView(SupplierListMixin, RollupMixin, GraphMixin,
                     'picture': element.picture if element is not None else None,
                 })
 
-        self.create_distributions(rollup_tree)
-        self._report_queries("create_distributions completed")
-        self.flatten_distributions(rollup_tree, prefix=segment_prefix)
-        self._report_queries("flatten_distributions completed")
-
         for chart in charts:
             if 'accounts' in chart:
                 del chart['accounts']
@@ -881,11 +747,8 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
         return http.Response(serializer.data)
 
 
-
-# We should use DashboardMixin instead of DateRangeContextMixin
-# but there are MRO class order issue between CampaignMixin and AccountMixin
-# when we do that.
-class CompareAPIView(CampaignContentMixin, CompareAPIBaseView):
+class CompareAPIView(CampaignContentMixin, AccountsNominativeQuerysetMixin,
+                     CompareAPIBaseView):
     """
     Lists compared samples
 
@@ -1247,7 +1110,8 @@ class CompareIndexAPIView(CompareAPIView):
     """
 
 
-class PortfolioAccessibleSamplesMixin(DashboardMixin):
+class PortfolioAccessibleSamplesMixin(TimersMixin, CampaignMixin,
+                                      AccountsNominativeQuerysetMixin):
 
     search_fields = (
         'slug',
@@ -1347,6 +1211,7 @@ ORDER BY account_id, created_at
         return (key, state, None, None)
 
     def decorate_queryset(self, page):
+        #pylint:disable=too-many-locals
         samples_by_account_ids = {}
         samples = self.get_latest_frozen_by_accounts_by_year(
             self.campaign, page)
@@ -1381,6 +1246,7 @@ ORDER BY account_id, created_at
 
         for account in page:
             if hasattr(account, '_extra'):
+                #pylint:disable=protected-access
                 account.extra = account._extra
             values = []
             key = None
@@ -1506,7 +1372,7 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
 
 
 
-class PortfolioEngagementMixin(DashboardMixin):
+class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
 
     search_fields = (
         'slug',
@@ -1538,7 +1404,7 @@ class PortfolioEngagementMixin(DashboardMixin):
             in get_latest_reminders(queryset)}
         scores = ScorecardCache.objects.filter(sample__in={
             val.sample_id for val in engagement.values()}, path__in=[
-            seg['path'] for seg in self.segments]).order_by('path')
+            seg['path'] for seg in self.segments_available]).order_by('path')
         scores = {val.sample_id: val for val in scores}
         for account in queryset:
             engage = engagement.get(account.pk)
@@ -1652,12 +1518,6 @@ class PortfolioEngagementAPIView(PortfolioEngagementMixin,
     """
     serializer_class = EngagementSerializer
 
-    def get(self, request, *args, **kwargs):
-        self._start_time()
-        resp = self.list(request, *args, **kwargs)
-        self._report_queries("http response created")
-        return resp
-
     def get_serializer_context(self):
         context = super(
             PortfolioEngagementAPIView, self).get_serializer_context()
@@ -1667,11 +1527,13 @@ class PortfolioEngagementAPIView(PortfolioEngagementMixin,
 
 class CompletionRateMixin(DashboardAggregateMixin):
 
-    def get_aggregate(self, account=None, labels=None, years=0):
+    def get_aggregate(self, account=None, labels=None,
+                      aggregate_set=False, years=0):
+        #pylint:disable=too-many-locals
         # XXX Use the *labels* instead of recomputing weekly periods?
-        last_date = datetime_or_now(self.ends_at)
-        if self.default_start_at:
-            first_date = self.default_start_at
+        last_date = datetime_or_now(self.accounts_ends_at)
+        if self.accounts_start_at:
+            first_date = self.accounts_start_at
         else:
             first_date = last_date - relativedelta(months=4)
         weekends_at = construct_weekly_periods(
@@ -1682,7 +1544,8 @@ class CompletionRateMixin(DashboardAggregateMixin):
 
         values = []
         account_model = get_account_model()
-        requested_accounts = self.get_requested_accounts(account=account)
+        requested_accounts = self.get_requested_accounts(
+            account, aggregate_set=aggregate_set)
         nb_requested_accounts = len(requested_accounts)
         start_at = weekends_at[0]
         for ends_at in weekends_at[1:]:
@@ -1704,9 +1567,7 @@ class CompletionRateMixin(DashboardAggregateMixin):
         return values
 
     def get_response_data(self, request, *args, **kwargs):
-        alliances = get_alliances(self.account)
-        table = []
-        table += [{
+        table = [{
             'slug': "% completion" if self.is_percentage else "nb completed",
             'printable_name': "% completion" if self.is_percentage else "nb completed",
             'values': self.get_aggregate(self.account)
@@ -1716,11 +1577,11 @@ class CompletionRateMixin(DashboardAggregateMixin):
             'printable_name': "vs. last year",
             'values': self.get_aggregate(self.account, years=-1)
         }]
-        for account in list(alliances):
+        for account in list(get_alliances(self.account)):
             table += [{
                 'slug': account.slug,
                 'printable_name': account.printable_name,
-                'values': self.get_aggregate(account)
+                'values': self.get_aggregate(account, aggregate_set=True)
             }]
         return  {
             'title': "Completion rate (%s)" % (
@@ -1829,8 +1690,12 @@ class CompletionRateAPIView(CompletionRateMixin, generics.RetrieveAPIView):
 
 class EngagementStatsMixin(DashboardAggregateMixin):
 
-    def get_aggregate(self, account=None, labels=None, years=0):
-        requested_accounts = self.get_requested_accounts(account=account)
+    title = "Engagement"
+
+    def get_aggregate(self, account=None, labels=None,
+                      aggregate_set=False):
+        requested_accounts = self.get_requested_accounts(
+            account, aggregate_set=aggregate_set)
         grantees = None # XXX should be all members for alliances but no more
         if account == self.account:
             grantees = [account]
@@ -1855,29 +1720,6 @@ class EngagementStatsMixin(DashboardAggregateMixin):
                 stats.update({key: round(val * 100 / total)})
 
         return list(stats.items())
-
-
-    def get_response_data(self, request, *args, **kwargs):
-        alliances = get_alliances(self.account)
-        table = []
-        table += [{
-            'slug': "% requests" if self.is_percentage else "nb requests",
-            'printable_name': "% requests" if self.is_percentage else "nb requests",
-            'values': self.get_aggregate(self.account)
-        }]
-        for account in list(alliances):
-            table += [{
-                'slug': account.slug,
-                'printable_name': account.printable_name,
-                'values': self.get_aggregate(account)
-            }]
-        return  {
-            'title': "Engagement (%s)" % (
-                '%' if self.is_percentage else "nb"),
-            'scale': self.scale,
-            'unit': self.unit,
-            'results': table
-        }
 
 
 class EngagementStatsAPIView(EngagementStatsMixin, generics.RetrieveAPIView):
@@ -1973,7 +1815,5 @@ class EngagementStatsAPIView(EngagementStatsMixin, generics.RetrieveAPIView):
         }
     """
     def retrieve(self, request, *args, **kwargs):
-        self._start_time()
         resp = self.get_response_data(request, *args, **kwargs)
-        self._report_queries("[EngagementStatsAPIView] http response created")
         return http.Response(resp)

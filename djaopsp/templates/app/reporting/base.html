@@ -49,19 +49,25 @@
           {% if urls.accessibles %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">Responses</a>
+            <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">{% trans %}Responses{% endtrans %}</a>
           </li>
           {% endif %}
           {% if urls.engage %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.engage %} active{% endif %}" id="engage-lnk" href="{{urls.engage}}">Engage</a>
+            <a class="nav-link{% if request.path == urls.engage %} active{% endif %}" id="engage-lnk" href="{{urls.engage}}">{% trans %}Engage{% endtrans %}</a>
+          </li>
+          {% endif %}
+          {% if urls.highlights %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="nav-link{% if request.path == urls.highlights %} active{% endif %}" href="{{urls.highlights}}">{% trans %}Highlights{% endtrans %}</a>
           </li>
           {% endif %}
           {% if FEATURES_DEBUG and urls.compare %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.compare %} active{% endif %}" id="compare-lnk" href="{{urls.compare}}">Compare</a>
+            <a class="nav-link{% if request.path == urls.compare %} active{% endif %}" id="compare-lnk" href="{{urls.compare}}">{% trans %}Compare{% endtrans %}</a>
           </li>
           {% endif %}
           {% endblock %}

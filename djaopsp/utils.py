@@ -204,7 +204,8 @@ def get_alliances(account):
     return []
 
 
-def get_requested_accounts(account, campaign=None, start_at=None, ends_at=None):
+def get_requested_accounts(account, campaign=None, aggregate_set=False,
+                           start_at=None, ends_at=None):
     """
     All accounts which ``account`` has requested a scorecard from.
     """
@@ -212,7 +213,8 @@ def get_requested_accounts(account, campaign=None, start_at=None, ends_at=None):
     if (hasattr(settings, 'REQUESTED_ACCOUNTS_CALLABLE') and
         settings.REQUESTED_ACCOUNTS_CALLABLE):
         queryset = import_string(settings.REQUESTED_ACCOUNTS_CALLABLE)(
-            account, campaign=campaign, start_at=start_at, ends_at=ends_at)
+            account, campaign=campaign, aggregate_set=aggregate_set,
+            start_at=start_at, ends_at=ends_at)
 
     if queryset is None:
         filter_params = {}

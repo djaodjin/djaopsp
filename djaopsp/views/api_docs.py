@@ -441,7 +441,8 @@ class AutoSchema(BaseAutoSchema):
         operation.update(kwargs)
         return operation
 
-    def _get_serializer(self, method, serializer_class, uses_pagination=False):
+    def _get_serializer(self, path, method, serializer_class,
+                        uses_pagination=False):
         view = self.view
         many = False
         if method == 'GET' and hasattr(view, 'list'):
@@ -585,7 +586,7 @@ class AutoSchema(BaseAutoSchema):
                     # We assume `request_body=no_body` here.
                     serializer_class = None
 
-        serializer = self._get_serializer(method, serializer_class)
+        serializer = self._get_serializer(path, method, serializer_class)
         if not isinstance(serializer, serializers.Serializer):
             return {}
 
@@ -662,7 +663,7 @@ class AutoSchema(BaseAutoSchema):
 
 
         if serializer_class or hasattr(view, 'get_serializer_class'):
-            serializer = self._get_serializer(method, serializer_class,
+            serializer = self._get_serializer(path, method, serializer_class,
                 uses_pagination=many)
             if isinstance(serializer, serializers.Serializer):
                 schema = self.map_serializer(serializer)

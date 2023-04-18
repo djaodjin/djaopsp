@@ -13,8 +13,10 @@ import datetime, logging
 from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
 from django.db import connection
+from pages.models import PageElement
 from survey.models import PortfolioDoubleOptIn
-from survey.utils import get_account_model
+from survey.settings import DB_PATH_SEP
+from survey.utils import get_account_model, get_question_model
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,6 +33,12 @@ class Command(BaseCommand):
         parser.add_argument('--show-portfolios-fix', action='store_true',
             dest='show_portfolios_fix', default=False,
             help='Show SQL fixes for portfolios that do not match optins')
+        parser.add_argument('--show-questions', action='store_true',
+            dest='show_questions', default=False,
+            help='Show questions that do not match elements')
+        parser.add_argument('--show-questions-fix', action='store_true',
+            dest='show_questions_fix', default=False,
+            help='Show SQL fixes for questions that do not match elements')
         parser.add_argument('--dry-run', action='store_true',
             dest='dry_run', default=False,
             help='Do not commit database updates')
@@ -38,9 +46,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         #pylint:disable=too-many-locals,too-many-statements
         start_time = datetime.datetime.utcnow()
-        self.check_portfolios(
-            show=options['show_portfolios'],
-            show_fix=options['show_portfolios_fix'])
+#        self.check_portfolios(
+#            show=options['show_portfolios'],
+#            show_fix=options['show_portfolios_fix'])
+        self.check_questions(
+            show=options['show_questions'],
+            show_fix=options['show_questions_fix'])
         end_time = datetime.datetime.utcnow()
         delta = relativedelta(end_time, start_time)
         LOGGER.info("completed in %d hours, %d minutes, %d.%d seconds",
@@ -189,3 +200,26 @@ ON portfolio_grantees.account_id = %(account_table)s.id
         if sep and show_fix:
             self.stdout.write("COMMIT;")
         self.stderr.write("%d inaccurate portfolios" % count)
+
+    def check_questions(self, show=False, show_fix=False):
+        count = 0
+        for question in get_question_model().objects.all():
+            slug = question.path.split(DB_PATH_SEP)[-1]
+            element = PageElement.objects.get(slug=slug)
+            if question.content.pk != element.pk:
+                if show:
+                    self.stderr.write(
+                        "warning: question %s points to content %s"
+                        % (question.path, question.content.slug))
+                    self.stderr.write("\t    \"%s\"" % question.content.title)
+                    self.stderr.write("\tvs. \"%s\"" % element.title)
+                if count == 0 and show_fix:
+                    self.stdout.write("BEGIN;")
+                if show_fix:
+                    self.stdout.write("UPDATE survey_question SET"\
+" content_id=(SELECT id FROM pages_pageelement WHERE slug='%s')"\
+" WHERE path='%s';" % (slug, question.path))
+                count += 1
+        if count and show_fix:
+            self.stdout.write("COMMIT;")
+        self.stderr.write("%d questions/element discrepencies" % count)

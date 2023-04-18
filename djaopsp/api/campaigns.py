@@ -23,10 +23,10 @@ from survey.settings import DB_PATH_SEP
 from .serializers import ContentNodeSerializer, CreateContentElementSerializer
 from ..campaigns import import_campaign
 from ..compat import six
-from ..mixins import AccountMixin, CampaignMixin
+from ..mixins import CampaignMixin
 
 
-class CampaignContentMixin(AccountMixin, CampaignMixin):
+class CampaignContentMixin(CampaignMixin):
     """
     Queryset to present practices in 2d matrix of segments and tiles.
     """
@@ -570,7 +570,8 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
         .. code-block:: http
 
-            GET /api/content/editables/envconnect/campaigns/sustainability/construction/governance/the-assessment-process-is-rigorous HTTP/1.1
+            GET /api/content/editables/envconnect/campaigns/sustainability\
+/construction/governance/the-assessment-process-is-rigorous HTTP/1.1
 
         responds
 

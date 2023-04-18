@@ -94,13 +94,18 @@
       </div>
     </div>{# /.row #}
 
-    {% if urls.download %}
-    <div class="text-right">
+    <div class="row">
+      <div class="col-sm-6" v-show="itemsLoaded" v-cloak>
+        [[items.count]] invited profiles
+      </div>
+      {% if urls.download %}
+      <div class="col-sm-6 text-right">
         <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" href="{{urls.download}}">
           <i class="fa fa-file-text"></i> Download (xlsx)
         </a>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
     <table class="table table-striped mt-4">
       <thead>
         <tr>

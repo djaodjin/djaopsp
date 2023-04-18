@@ -748,10 +748,18 @@ Vue.component('scorecard', {
         },
         getNbRespondents: function(practice) {
             var vm = this;
-            return (vm.charts &&
-                vm.charts[practice.slug] &&
-                vm.charts[practice.slug].nb_respondents) ?
-                vm.charts[practice.slug].nb_respondents : "?";
+            if( vm.charts ) {
+                var chartKeys = [practice.path, '/summary' + practice.path];
+                for( var idx = 0; idx < chartKeys.length; ++idx ) {
+                    var chartKey = chartKeys[idx];
+                    var chart = vm.charts[chartKey];
+                    if( chart ) {
+                        return chart.nb_respondents ?
+                            chart.nb_respondents : "?";
+                    }
+                }
+            }
+            return "?";
         },
         indentHeader: function(practice) {
             var vm = this;

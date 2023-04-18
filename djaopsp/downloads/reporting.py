@@ -13,15 +13,14 @@ from rest_framework.request import Request
 from survey.compat import force_str, six
 from survey.filters import DateRangeFilter
 from survey.helpers import get_extra
-from survey.mixins import DateRangeContextMixin
 from survey.models import Answer, Choice, Unit
 
 from ..api.portfolios import (PortfolioAccessibleSamplesMixin,
     PortfolioEngagementMixin)
 from ..helpers import as_valid_sheet_title
-from ..mixins import AccountMixin, CampaignMixin
+from ..mixins import (AccountMixin, CampaignMixin,
+    AccountsNominativeQuerysetMixin)
 from ..queries import get_completed_assessments_at_by
-from ..utils import get_requested_accounts
 
 
 LOGGER = logging.getLogger(__name__)
@@ -187,7 +186,8 @@ class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):
         self.wsheet.append(row)
 
 
-class LongFormatCSVView(DateRangeContextMixin, CampaignMixin, CSVDownloadView):
+class LongFormatCSVView(CampaignMixin, AccountsNominativeQuerysetMixin,
+                        CSVDownloadView):
     """
     Download raw data in format suitable for OLAP Software
     """
@@ -195,9 +195,7 @@ class LongFormatCSVView(DateRangeContextMixin, CampaignMixin, CSVDownloadView):
     filter_backends = [DateRangeFilter]
 
     def get_queryset(self):
-        requested_accounts = get_requested_accounts(
-            self.account, campaign=self.campaign,
-            start_at=self.start_at, ends_at=self.ends_at).filter(
+        requested_accounts = self.requested_accounts.filter(
             grant_key__isnull=True)
         queryset = Answer.objects.filter(
             Q(unit_id=F('question__default_unit_id')) |

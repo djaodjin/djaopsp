@@ -2,22 +2,25 @@
 # see LICENSE.
 import json
 
+from dateutil.relativedelta import relativedelta
 from deployutils.apps.django import mixins as deployutils_mixins
-from deployutils.helpers import update_context_urls
+from deployutils.helpers import datetime_or_now, update_context_urls
 from django.conf import settings
 from django.db.models import Q, F
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from pages.mixins import TrailMixin
 from pages.models import PageElement
-from survey.settings import URL_PATH_SEP, DB_PATH_SEP
-from survey.mixins import CampaignMixin as CampaignMixinBase, SampleMixin
+from survey.helpers import get_extra
+from survey.mixins import (CampaignMixin as CampaignMixinBase,
+    DateRangeContextMixin, SampleMixin)
 from survey.models import Answer, Campaign, Sample
+from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import get_question_model
 
 from .compat import reverse
-from .utils import (get_account_model, get_segments_available,
-    get_segments_candidates)
+from .utils import (get_account_model, get_requested_accounts,
+    get_segments_available, get_segments_candidates)
 
 
 class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
@@ -118,7 +121,7 @@ class CampaignMixin(CampaignMixinBase):
         return self._sections_available
 
 
-class ReportMixin(VisibilityMixin, AccountMixin, SampleMixin, TrailMixin):
+class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
     """
     Loads assessment and improvement for a profile
     """
@@ -433,3 +436,96 @@ class SectionReportMixin(ReportMixin):
                     ).distinct()
                     self._nb_required_questions += queryset.count()
         return self._nb_required_questions
+
+
+class AccountsAggregatedQuerysetMixin(DateRangeContextMixin, AccountMixin):
+    """
+    A set of accounts used to select requested responses
+    """
+    default_unit = 'profiles'
+    valid_units = ('percentage',)
+
+    @property
+    def unit(self):
+        if not hasattr(self, '_unit'):
+            self._unit = self.default_unit
+            param_unit = self.get_query_param('unit')
+            if param_unit is not None and param_unit in self.valid_units:
+                self._unit = param_unit
+        return self._unit
+
+    @property
+    def is_percentage(self):
+        return self.unit == 'percentage'
+
+    @property
+    def accounts_ends_at(self):
+        """
+        End of the period when requested accounts were suppossed to respond
+        """
+        if not hasattr(self, '_accounts_ends_at'):
+            param_ends_at = self.get_query_param('accounts_ends_at',
+                self.get_query_param('ends_at'))
+            if param_ends_at is not None:
+                param_ends_at = param_ends_at.strip('"')
+            if not param_ends_at:
+                # When there are no specified `ends_at` in the query
+                # string, we trying to be smart about which default to use
+                # depending on the annual reporting season.
+                pass
+            # We assume specifying today is as good as `None` in this case.
+            self._accounts_ends_at = datetime_or_now(param_ends_at)
+        return self._accounts_ends_at
+
+    @property
+    def accounts_start_at(self):
+        """
+        Start of the period when requested accounts were invited
+        """
+        if not hasattr(self, '_accounts_start_at'):
+            self._accounts_start_at = get_extra(self.account, 'start_at', None)
+            if self._accounts_start_at:
+                self._accounts_start_at = datetime_or_now(
+                    self._accounts_start_at)
+            param_start_at = self.get_query_param('accounts_start_at',
+                self.get_query_param('start_at'))
+            if param_start_at is not None:
+                param_start_at = param_start_at.strip('"')
+                self._accounts_start_at = datetime_or_now(param_start_at)
+            # In general `ends_at` could be `None`,
+            # which would be a problem here.
+            accounts_ends_at = datetime_or_now(self.accounts_ends_at)
+            if (self._accounts_start_at and
+                self._accounts_start_at >= accounts_ends_at):
+                try:
+                    # fixing period to 12 months if for any reason the start
+                    # date is after the ends date.
+                    self._accounts_start_at = (
+                        accounts_ends_at - relativedelta(months=12))
+                except ValueError:
+                    # deal with a bogus ends_at date
+                    self._accounts_start_at = accounts_ends_at
+        return self._accounts_start_at
+
+    def get_requested_accounts(self, grantee, aggregate_set=False):
+        """
+        All accounts which ``grantee`` has requested a scorecard from.
+        """
+        if not grantee:
+            grantee = self.account
+        return get_requested_accounts(grantee,
+            campaign=self.campaign, aggregate_set=aggregate_set,
+            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at)
+
+
+class AccountsNominativeQuerysetMixin(AccountsAggregatedQuerysetMixin):
+    """
+    A set of accounts used to select requested responses the organization
+    has direct access to
+    """
+
+    @property
+    def requested_accounts(self):
+        if not hasattr(self, '_requested_accounts'):
+            self._requested_accounts = self.get_requested_accounts(self.account)
+        return self._requested_accounts

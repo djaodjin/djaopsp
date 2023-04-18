@@ -17,9 +17,10 @@ class GoalsMixin(DashboardAggregateMixin):
 
     title = "Goals"
 
-    def get_aggregate(self, account=None, labels=None):
+    def get_aggregate(self, account=None, labels=None, aggregate_set=False):
         #pylint:disable=unused-argument
-        scorecards = self.get_reporting_scorecards(account)
+        scorecards = self.get_reporting_scorecards(
+            account, aggregate_set=aggregate_set)
         assessment_only_count = scorecards.exclude(
             Q(reporting_energy_target=True) |
             Q(reporting_water_target=True) |
@@ -116,9 +117,11 @@ class BySegmentsMixin(DashboardAggregateMixin):
 
     title = "Assessments completed by segments"
 
-    def get_aggregate(self, account=None, labels=None):
-        segments = {segment['path']: segment for segment in self.segments}
-        by_segments = self.get_reporting_scorecards(account).filter(
+    def get_aggregate(self, account=None, labels=None, aggregate_set=False):
+        segments = {segment['path']: segment
+            for segment in self.segments_available}
+        by_segments = self.get_reporting_scorecards(
+            account, aggregate_set=aggregate_set).filter(
             path__in=segments).values('path').annotate(
             nb_accounts=Count('path')).order_by('-nb_accounts')
 
@@ -200,9 +203,10 @@ class GHGEmissionsRateMixin(DashboardAggregateMixin):
 
     title = "GHG emissions reported"
 
-    def get_aggregate(self, account=None, labels=None):
+    def get_aggregate(self, account=None, labels=None, aggregate_set=False):
         #pylint:disable=unused-argument
-        scorecards = self.get_reporting_scorecards(account)
+        scorecards = self.get_reporting_scorecards(
+            account, aggregate_set=aggregate_set)
         nb_reported = scorecards.filter(
             reporting_ghg_generated=True).values(
             'sample__account_id').distinct().count()
@@ -338,11 +342,12 @@ WHERE survey_question.path LIKE '%%%(path)s'
        'account_ids': ','.join([str(account.pk) for account in accounts]),
        'ends_at': ends_at}
 
-    def get_aggregate(self, account=None, labels=None):
+    def get_aggregate(self, account=None, labels=None, aggregate_set=False):
         if not labels:
             raise ValueError("labels cannot be `None`")
         values = []
-        reporting_accounts = self.get_requested_accounts(account)
+        reporting_accounts = self.get_requested_accounts(
+            account, aggregate_set=aggregate_set)
         for label in labels:
             scope1_total = 0
             scope2_total = 0

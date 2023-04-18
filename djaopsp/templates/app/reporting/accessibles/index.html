@@ -15,6 +15,10 @@
 {% block reporting_content %}
 <reporting-organizations inline-template>
   <div>
+    <div class="row">
+      <div class="col-sm-6" v-show="itemsLoaded" v-cloak>
+        [[items.count]] accessible profiles
+      </div>
       {% if urls.download %}
       <div class="text-right">
       <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" href="{{urls.download}}">
@@ -22,6 +26,7 @@
       </a>
       </div>
       {% endif %}
+    </div>
     <table class="table table-striped mt-4">
       <thead>
         <tr>
@@ -96,65 +101,64 @@
           </td>
         </tr>
       </tbody>
-      <tbody v-show="itemsLoaded && items.results.length == 0" v-cloak>
-        <tr>
+      <tbody v-show="itemsLoaded" v-cloak>
+        <tr v-show="items.results.length == 0">
           <td colspan="3">No profile accessible for {{profile}}</td>
         </tr>
-      </tbody>
-      <tr :id="received.account"
-          :class="received.supplier_initiated ? 'supplier-initiated' : ''"
-          v-for="(received, index) in grants.results"
-          v-show="itemsLoaded && grants.results.length > 0" v-cloak>
-          <td class="text-center" colspan="3">
+        <tr :id="received.account"
+            :class="received.supplier_initiated ? 'supplier-initiated' : ''"
+            v-for="(received, index) in grants.results"
+            v-show="itemsLoaded && grants.results.length > 0" v-cloak>
+            <td class="text-center" colspan="3">
               <em>{% trans profile_name="[[received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}</em>
-          </td>
-          <td :colspan="items.labels.length + 1">
-              <button class="btn btn-secondary"
-                      @click.prevent="ignore(received, index)">
-                  {% trans %}Ignore{% endtrans %}
-              </button>
-              <button class="btn btn-primary"
-                      @click.prevent="accept(received, index)">
-                  {% trans %}Accept{% endtrans %}
-              </button>
-          </td>
-      </tr>
-      <tbody :id="entry.slug"
-             :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
-             v-for="(entry, index) in items.results"
-             v-show="itemsLoaded && items.results.length > 0" v-cloak>
+            </td>
+            <td :colspan="items.labels.length + 1">
+                <button class="btn btn-secondary"
+                        @click.prevent="ignore(received, index)">
+                    {% trans %}Ignore{% endtrans %}
+                </button>
+                <button class="btn btn-primary"
+                        @click.prevent="accept(received, index)">
+                    {% trans %}Accept{% endtrans %}
+                </button>
+            </td>
+        </tr>
+        <tr :id="entry.slug"
+            :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
+            v-for="(entry, index) in items.results"
+            v-show="itemsLoaded && items.results.length > 0" v-cloak>
         <!-- profile whose report was requested at some point. -->
-        <tr>
-          <td>
-            <span>[[index + 1]]</span><br />
-          </td>
-          <td>
-            {% include "app/reporting/_profile_card.html" %}
-          </td>
-          <td>
-            {% include "app/reporting/_edit_tags.html" %}
-          </td>
-          <td class="text-center" v-for="val in entry.values.slice().reverse()">
-            <i class="fa fa-certificate" style="color: green;"
-               v-if="val[1] === 'verified'"></i>
-            <i class="fa fa-circle" style="color: green;"
-               v-if="val[1] === 'completed'"></i>
-            <i class="fa fa-circle" style="color: yellow;"
-               v-if="val[1] === 'responded'"></i>
-            <i class="fa fa-circle" style="color: red;"
-               v-if="val[1] === 'declined'"></i>
-            <i class="fa fa-circle" style="color: grey;"
-               v-if="val[1] === 'no-data'"></i>
-            <br />
-            <a :href="val[2]" v-if="val[1] === 'verified' || val[1] === 'completed'">
+        <td>
+          <span>[[index + 1]]</span><br />
+        </td>
+        <td>
+          {% include "app/reporting/_profile_card.html" %}
+        </td>
+        <td>
+          {% include "app/reporting/_edit_tags.html" %}
+        </td>
+        <td class="text-center"
+            v-for="val in entry.values.slice().reverse()">
+          <i class="fa fa-certificate" style="color: green;"
+             v-if="val[1] === 'verified'"></i>
+          <i class="fa fa-circle" style="color: green;"
+             v-if="val[1] === 'completed'"></i>
+          <i class="fa fa-circle" style="color: yellow;"
+             v-if="val[1] === 'responded'"></i>
+          <i class="fa fa-circle" style="color: red;"
+             v-if="val[1] === 'declined'"></i>
+          <i class="fa fa-circle" style="color: grey;"
+             v-if="val[1] === 'no-data'"></i>
+          <br />
+          <a :href="val[2]" v-if="val[1] === 'verified' || val[1] === 'completed'">
               <span>{% trans %}view{% endtrans %}</span>
-            </a>
-          </td>
-          <td>
-            <button class="btn btn-danger btn-sm" @click.prevent="remove($event, index)" data-trip data-trip-index="3" data-trip-content="<p>Click here to cancel access request.</p>" data-trip-position="s">
-              <i class="fa fa-trash-o"></i>
-            </button>
-          </td>
+          </a>
+        </td>
+        <td>
+          <button class="btn btn-danger btn-sm" @click.prevent="remove($event, index)" data-trip data-trip-index="3" data-trip-content="<p>Click here to cancel access request.</p>" data-trip-position="s">
+            <i class="fa fa-trash-o"></i>
+          </button>
+        </td>
         </tr>
       </tbody>
     </table>

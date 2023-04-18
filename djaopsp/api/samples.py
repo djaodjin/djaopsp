@@ -13,6 +13,7 @@ from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
 from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
     SampleFreezeAPIView)
+from survey.api.matrix import SampleBenchmarksAPIView
 from survey.mixins import TimersMixin
 from survey.models import Choice, Sample, Unit, UnitEquivalences
 from survey.settings import DB_PATH_SEP
@@ -701,7 +702,7 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
 
 
 class BenchmarkAPIView(SectionReportMixin, GraphMixin, RollupMixin,
-                       ScoresMixin, generics.ListAPIView):
+                       ScoresMixin, SampleBenchmarksAPIView):
     """
     Retrieves benchmark graphs
 

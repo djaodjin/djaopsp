@@ -17,12 +17,12 @@ from ..api.portfolios import SupplierListMixin
 from ..compat import reverse, six
 from ..helpers import as_valid_sheet_title
 from ..queries import get_completed_assessments_at_by
-from .portfolios import DashboardMixin, UpdatedMenubarMixin
+from .portfolios import UpdatedMenubarMixin
 
 LOGGER = logging.getLogger(__name__)
 
 
-class CompareView(UpdatedMenubarMixin, DashboardMixin, CompareBaseView):
+class CompareView(UpdatedMenubarMixin, CompareBaseView):
     """
     Compare samples side-by-side
     """
@@ -47,7 +47,7 @@ class CompareView(UpdatedMenubarMixin, DashboardMixin, CompareBaseView):
         return context
 
 
-class CompareXLSXView(DashboardMixin, SupplierListMixin, TemplateView):
+class CompareXLSXView(SupplierListMixin, TemplateView):
     """
     Download detailed answers of each suppliers
     """
