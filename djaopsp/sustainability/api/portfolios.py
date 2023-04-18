@@ -11,6 +11,7 @@ from rest_framework.response import Response
 import pytz
 
 from djaopsp.api.portfolios import DashboardAggregateMixin
+from djaopsp.helpers import as_percentage
 
 
 class GoalsMixin(DashboardAggregateMixin):
@@ -44,20 +45,14 @@ class GoalsMixin(DashboardAggregateMixin):
             scorecards_count - assessment_only_count - targets_and_plan_count)
 
         if self.is_percentage:
-            if scorecards_count > 0:
-                assessment_only_count = (
-                    assessment_only_count * 100 // scorecards_count)
-                targets_or_plan_count = (
-                    targets_or_plan_count * 100 // scorecards_count)
-                targets_and_plan_count = (
-                    targets_and_plan_count * 100 // scorecards_count)
-                reporting_publicly_count = (
-                    reporting_publicly_count * 100 // scorecards_count)
-            else:
-                assessment_only_count = 0
-                targets_or_plan_count = 0
-                targets_and_plan_count = 0
-                reporting_publicly_count = 0
+            assessment_only_count = as_percentage(
+                assessment_only_count, scorecards_count)
+            targets_or_plan_count = as_percentage(
+                targets_or_plan_count, scorecards_count)
+            targets_and_plan_count = as_percentage(
+                targets_and_plan_count, scorecards_count)
+            reporting_publicly_count = as_percentage(
+                reporting_publicly_count, scorecards_count)
         values = [
             ["Assessment only", assessment_only_count],
             ["Targets or plan", targets_or_plan_count],
@@ -214,12 +209,8 @@ class GHGEmissionsRateMixin(DashboardAggregateMixin):
             'sample__account_id').distinct().count()
         nb_not_reported = nb_scorecards - nb_reported
         if self.is_percentage:
-            if nb_scorecards:
-                nb_reported = (nb_reported  * 100 // nb_scorecards)
-                nb_not_reported = (nb_not_reported * 100 // nb_scorecards)
-            else:
-                nb_reported = 0
-                nb_not_reported = 0
+            nb_reported = as_percentage(nb_reported, nb_scorecards)
+            nb_not_reported = as_percentage(nb_not_reported, nb_scorecards)
         return [
             ["Reported", nb_reported],
             ["Not reported", nb_not_reported]

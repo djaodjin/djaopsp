@@ -31,6 +31,7 @@ from survey.utils import (get_accessible_accounts, get_account_model,
 
 from .campaigns import CampaignContentMixin
 from ..compat import reverse, six
+from ..helpers import as_percentage
 from ..queries import (get_completed_assessments_at_by, get_engagement,
     get_engagement_by_reporting_status, get_requested_by_accounts_by_year)
 from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
@@ -1557,10 +1558,7 @@ class CompletionRateMixin(DashboardAggregateMixin):
                 samples__account_id__in=requested_accounts
             ).distinct().count()
             if self.is_percentage:
-                if nb_requested_accounts:
-                    rate = nb_frozen_samples * 100 // nb_requested_accounts
-                else:
-                    rate = 0
+                rate = as_percentage(nb_frozen_samples, nb_requested_accounts)
             else:
                 rate = nb_frozen_samples
             values += [(ends_at, rate)]
@@ -1717,7 +1715,7 @@ class EngagementStatsMixin(DashboardAggregateMixin):
             prev_stats = stats
             stats = {}
             for key, val in six.iteritems(prev_stats):
-                stats.update({key: round(val * 100 / total)})
+                stats.update({key: as_percentage(val, total)})
 
         return list(stats.items())
 
