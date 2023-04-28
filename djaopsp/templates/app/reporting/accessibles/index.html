@@ -74,7 +74,7 @@
       <tbody>
         <tr>
           <td colspan="2">
-            <form @submit.prevent="filterList()">
+            <form @submit.prevent="reload()">
               <div class="input-group input-group-sm">
                 <div class="input-group-prepend">
                   <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
@@ -85,6 +85,7 @@
                        v-model="params.q" />
                 <div class="input-group-append">
                     <button class="btn btn-secondary btn-sm"
+                            type="submit"
                             :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
                 </div>
               </div>
