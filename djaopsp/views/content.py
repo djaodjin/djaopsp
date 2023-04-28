@@ -49,5 +49,9 @@ class EditablesDetailView(AccountMixin, PageElementEditableView):
     def get_context_data(self, **kwargs):
         context = super(
             EditablesDetailView, self).get_context_data(**kwargs)
-        context.update({'practice': self.element})
+        # Adding element in the context, we are using server-side rendering
+        # instead of relying on Vue to load the content. This is because
+        # there seems to still be some issues with editors on
+        # `.editable .edit-formatted`.
+        context.update({'element': self.element})
         return context

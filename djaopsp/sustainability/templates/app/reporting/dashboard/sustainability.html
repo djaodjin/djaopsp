@@ -1,0 +1,408 @@
+{% extends "app/reporting/dashboard/base.html" %}
+
+{% block reporting_title %}{% trans %}Highlights{% endtrans %}{% endblock %}
+
+{% block reporting_dashboard_content %}
+<activity-summary inline-template>
+  <div>
+
+    {# reporting_content #}
+    <div class="row">
+    <div class="col-md-6 mt-2">
+      <form id="period-update" class="form-inline" @submit.prevent="reload()">
+        <div class="input-group input-group-sm mr-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="from-inp">From</span>
+          </div>
+          <input class="form-control" type="date" v-model="_start_at" v-cloak>
+        </div>
+        <div class="input-group input-group-sm mr-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          </div>
+          <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+        </div>
+        <button class="btn btn-secondary btn-sm mr-2"
+                :disabled="!outdated"
+                >{% trans %}Update{% endtrans %}</button>
+      </form>{# /#period-update #}
+    </div>
+      <div class="col-md-6 mt-2 text-right">
+          {% include "app/reporting/_percentage_toggle.html" %}
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+      <div class="col-sm-8">
+        <reporting-completion-rate ref="completionRate" :params="params" inline-template>
+          <div>
+            <h2 class="text-center mt-2">Completion rate ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
+            <div>
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="completionRate"></canvas>
+              </div>
+            </div>
+            <div class="text-center">
+              <a id="download-competion-rate" class="btn btn-secondary mb-2" :href="'{{urls.download_completion_rate}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
+          </div>
+        </reporting-completion-rate>
+      </div>
+      <div class="col-md-4">
+       <reporting-completion-total ref="completionTotal" :params="params" inline-template>
+          <div>
+            <h2 class="text-center mt-2">Status ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
+            <h3 class="text-center" v-if="itemLoaded">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h3>
+            <div>
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="summaryChart" style="max-height: 240px;"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-completion-total>
+      </div>
+    </div><!-- /.row (activity) -->
+    <hr />
+    <div class="row">
+      <div class="col-sm-6">
+        <reporting-goals ref="goals" :params="params" inline-template>
+          <div>
+            <h2 class="text-center mt-4">Planned improvements & targets</h2>
+            <h3 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h3>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="goals"></canvas>
+              </div>
+            </div>
+            <div class="text-center">
+              <a id="download-goals" class="btn btn-secondary mb-2" :href="'{{urls.download_goals}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
+          </div>
+        </reporting-goals>
+      </div>
+      <div class="col-md-6">
+        <reporting-by-segments ref="bySegments" :params="params" inline-template>
+          <div>
+            <h2 class="text-center mt-4">Assessments completed by segments</h2>
+            <h3 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h3>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="bySegements"></canvas>
+              </div>
+            </div>
+            <div class="text-center">
+              <a id="download-by-segments" class="btn btn-secondary mb-2" :href="'{{urls.download_by_segments}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
+          </div>
+        </reporting-by-segments>
+      </div>
+    </div><!-- /.row (assessments) -->
+
+    <hr />
+
+    <h2 class="text-center mt-4">Policies</h2>
+    <div class="row">
+      <div class="col-sm-4">
+        <h3 class="text-center">Environmental violation</h3>
+        <reporting-benchmarks inline-template
+            ref="environmental-fines" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/governance/environmental-reporting/environmental-fines">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/governance/environmental-reporting/environmental-fines"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+      <div class="col-sm-4">
+        <h3 class="text-center">Code of conduct breach</h3>
+        <reporting-benchmarks inline-template
+            ref="governance-fines" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/governance/social-reporting/governance-fines">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/governance/social-reporting/governance-fines"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+    </div>
+
+    <hr />
+
+    <h2 class="text-center mt-4">GHG Emissions publicly reported</h2>
+    <div class="row">
+      <div class="col-sm-4">
+        <h3 class="text-center">Scope 1</h3>
+        <reporting-benchmarks inline-template
+            ref="ghgEmissionsRateScope1" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+
+      <div class="col-sm-4">
+        <h3 class="text-center">Scope 2</h3>
+        <reporting-benchmarks inline-template
+            ref="ghgEmissionsRateScope2" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+
+      <div class="col-sm-4">
+        <h3 class="text-center">Scope 3</h3>
+        <reporting-benchmarks inline-template
+            ref="ghgEmissionsRateScope3" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-publicly-reported">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-publicly-reported"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+    </div><!-- /.row (ghg emissions) -->
+
+    <h2 class="text-center mt-4">GHG Emissions targets</h2>
+    <div class="row">
+      <div class="col-sm-4">
+        <h3 class="text-center">Scope 1</h3>
+        <reporting-benchmarks inline-template
+            ref="ghgEmissionsTargetScope1" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/ghg-emissions-target/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/targets/ghg-emissions-target/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+
+      <div class="col-sm-4">
+        <h3 class="text-center">Scope 2</h3>
+        <reporting-benchmarks inline-template
+            ref="ghgEmissionsTargetScope2" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/ghg-emissions-target/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/targets/ghg-emissions-target/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+
+      <div class="col-sm-4">
+        <h3 class="text-center">Scope 3</h3>
+        <reporting-benchmarks inline-template
+            ref="ghgEmissionsTargetScope3" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/ghg-emissions-target/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/targets/ghg-emissions-target/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+    </div><!-- /.row (ghg emissions targets) -->
+
+    <hr />
+
+    <h2 class="text-center mt-4">Environmental targets outside GHG Emissions</h2>
+    <div class="row">
+      <div class="col-sm-4">
+        <h3 class="text-center">Water use target</h3>
+        <reporting-benchmarks inline-template
+            ref="water-target-by" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/water-target/water-target-by">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/targets/water-target/water-target-by"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+
+      <div class="col-sm-4">
+        <h3 class="text-center">Waste reduction target</h3>
+        <reporting-benchmarks inline-template
+            ref="waste-target-by" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/waste-target/waste-target-by">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/targets/waste-target/waste-target-by"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+
+      <div class="col-sm-4">
+        <h3 class="text-center">Energy reduction target</h3>
+        <reporting-benchmarks inline-template
+            ref="energy-target-by" :params="params"
+            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/energy-target/energy-target-by">
+          <div>
+            <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
+            <div class="p-4">
+              <div class="card-body" v-if="!itemLoaded">
+                <p>
+                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                </p>
+              </div>
+              <div class="card-body" v-show="itemLoaded">
+                <canvas id="/sustainability/targets/energy-target/energy-target-by"></canvas>
+              </div>
+            </div>
+          </div>
+        </reporting-benchmarks>
+      </div>
+
+    </div>
+
+    <hr />
+
+    <div>
+      <p>
+Download raw data as either one question per row with supplier
+data in columns (i.e. spreadsheet), or one row per (supplier, question) pair
+(i.e. long format).
+The spreadsheet download is better suited when you are going to do analytics
+on your computer in a spreadsheet application.
+The long format download is better suited to upload the raw data into
+an Online Analytical Processing (OLAP) software.
+      </p>
+      <div class="row text-center">
+        <div class="col-sm-6">
+          <a id="download-assessment-details" class="btn btn-secondary mb-2"
+             :href="'{{urls.download_raw}}' + getQueryString(['page'])"
+             target="_blank">
+            <i class="fa fa-download"></i> Spreadsheet (.xlsx)
+          </a>
+        </div>
+        <div class="col-sm-6">
+          <a id="download-long-format" class="btn btn-secondary mb-2"
+             :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
+             target="_blank">
+            <i class="fa fa-download"></i> Long format (.csv)
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</activity-summary>
+{% endblock %}

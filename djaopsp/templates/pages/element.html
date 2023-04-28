@@ -146,10 +146,6 @@ The Sustainability Project (TSP). Please use the following attribution:
 
 {% block pages_scripts %}
 <script type="text/javascript" charset="utf-8">
-{% if element %}
-Vue.prototype.$element = {{element|to_json}};
-{% endif %}
-
 {% if edit_perm %}
 assetsUploadUrl = "{% if urls.api_upload_assets %}{{urls.api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_url}}{% endif %}";
 

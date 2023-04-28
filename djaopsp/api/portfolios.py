@@ -19,7 +19,8 @@ from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
 from survey.api.serializers import MetricsSerializer, TableSerializer
 from survey.filters import SearchFilter, OrderingFilter
 from survey.helpers import construct_yearly_periods, construct_weekly_periods
-from survey.api.matrix import (BenchmarkAPIView as BenchmarkBaseAPIView,
+from survey.api.matrix import (BenchmarkMixin,
+    BenchmarkAPIView as BenchmarkBaseAPIView,
     BenchmarkIndexAPIView as BenchmarkIndexBaseAPIView)
 from survey.mixins import TimersMixin
 from survey.models import Answer, EditableFilter, Sample
@@ -202,14 +203,14 @@ INNER JOIN survey_sample
             self.account, labels=self.get_labels())
         table = [{
             'slug': self.account.slug,
-            'printable_name': self.account.printable_name,
+            'title': self.account.printable_name,
             'values': account_aggregate
         }]
         labels = self.get_labels(account_aggregate)
         for account in list(get_alliances(self.account)):
             table += [{
                 'slug': account.slug,
-                'printable_name': account.printable_name,
+                'title': account.printable_name,
                 'values': self.get_aggregate(
                     account, labels=labels, aggregate_set=True)
             }]
@@ -224,15 +225,18 @@ INNER JOIN survey_sample
 class BenchmarkAPIView(BenchmarkBaseAPIView):
 
     def attach_results(self, questions_by_key, account=None):
-        if account is None:
+        if not account:
             account = self.account
-
-        super(BenchmarkAPIView, self).attach_results(questions_by_key, account)
+        accessible_accounts = self.get_accessible_accounts([account])
+        self._attach_results(questions_by_key, accessible_accounts,
+            account.printable_name, account.slug)
 
         alliances = get_alliances(account)
         for alliance in list(alliances):
-            super(BenchmarkAPIView, self).attach_results(
-                questions_by_key, alliance)
+            accessible_accounts = get_accessible_accounts(
+                [alliance], campaign=self.campaign, aggregate_set=True)
+            self._attach_results(questions_by_key, accessible_accounts,
+                alliance.printable_name, alliance.slug)
 
 
 class BenchmarkIndexAPIView(BenchmarkIndexBaseAPIView):
@@ -1567,18 +1571,18 @@ class CompletionRateMixin(DashboardAggregateMixin):
     def get_response_data(self, request, *args, **kwargs):
         table = [{
             'slug': "% completion" if self.is_percentage else "nb completed",
-            'printable_name': "% completion" if self.is_percentage else "nb completed",
+            'title': "% completion" if self.is_percentage else "nb completed",
             'values': self.get_aggregate(self.account)
         }]
         table += [{
             'slug': "vs. last year",
-            'printable_name': "vs. last year",
+            'title': "vs. last year",
             'values': self.get_aggregate(self.account, years=-1)
         }]
         for account in list(get_alliances(self.account)):
             table += [{
                 'slug': account.slug,
-                'printable_name': account.printable_name,
+                'title': account.printable_name,
                 'values': self.get_aggregate(account, aggregate_set=True)
             }]
         return  {

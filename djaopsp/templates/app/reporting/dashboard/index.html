@@ -76,27 +76,6 @@
     </div><!-- /.row (activity) -->
     <hr />
     <div class="row">
-      <div class="col-sm-6">
-        <reporting-goals ref="goals" :params="params" inline-template>
-          <div>
-            <h2 class="text-center mt-4">Planned improvements & targets</h2>
-            <h3 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h3>
-            <div class="p-4">
-              <div class="card-body" v-if="!itemLoaded">
-                <p>
-                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
-                </p>
-              </div>
-              <div class="card-body" v-show="itemLoaded">
-                <canvas id="goals"></canvas>
-              </div>
-            </div>
-            <div class="text-center">
-              <a id="download-goals" class="btn btn-secondary mb-2" :href="'{{urls.download_goals}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
-            </div>
-          </div>
-        </reporting-goals>
-      </div>
       <div class="col-md-6">
         <reporting-by-segments ref="bySegments" :params="params" inline-template>
           <div>
@@ -119,31 +98,6 @@
         </reporting-by-segments>
       </div>
     </div><!-- /.row (assessments) -->
-    <hr />
-    <div class="row">
-      <div class="col-sm-4">
-        <reporting-ghg-emissions-rate ref="ghgEmissionsRate" :params="params" inline-template>
-          <div>
-            <h2 class="text-center mt-4">GHG emissions reported</h2>
-            <h3 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h3>
-            <h3 class="text-center">(outer: {{profile.printable_name}}, inner: EUISSCA)</h3>
-            <div class="p-4">
-              <div class="card-body" v-if="!itemLoaded">
-                <p>
-                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
-                </p>
-              </div>
-              <div class="card-body" v-show="itemLoaded">
-                <canvas id="GHGEmissionsRate"></canvas>
-              </div>
-            </div>
-            <div class="text-center">
-              <a id="download-ghg-emissions-rate" class="btn btn-secondary mb-2" :href="'{{urls.download_ghg_emissions_rate}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
-            </div>
-          </div>
-        </reporting-ghg-emissions-rate>
-      </div>
-    </div><!-- /.row (ghg emissions) -->
 
     <hr />
 

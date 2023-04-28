@@ -686,7 +686,7 @@ class GraphMixin(object):
                     'organization_rate': organization_rate,
                     'benchmarks': [{
                         'slug': "all",
-                        'printable_name': "All",
+                        'title': "All",
                         'values': distribution
                     }]
                 })

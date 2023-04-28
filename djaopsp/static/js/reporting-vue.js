@@ -728,14 +728,6 @@ var dashboardChart = Vue.component('dashboardChart', {
             vm.reqGet(url, cb);
         },
     },
-    mounted: function(){
-        this.get()
-    },
-    created: function () {
-        // _.debounce is a function provided by lodash to limit how
-        // often a particularly expensive operation can be run.
-        this.debouncedGet = _.debounce(this.get, 500)
-    },
     computed: {
         _start_at: {
             get: function() {
@@ -761,8 +753,113 @@ var dashboardChart = Vue.component('dashboardChart', {
         _unit: function(newVal, oldVal) {
             this.debouncedGet();
         },
+    },
+    mounted: function(){
+        if( this.$el.dataset && this.$el.dataset.url ) {
+            this.url = this.$el.dataset.url;
+        }
+        this.get()
+    },
+    created: function () {
+        // _.debounce is a function provided by lodash to limit how
+        // often a particularly expensive operation can be run.
+        this.debouncedGet = _.debounce(this.get, 500)
     }
 });
+
+
+/** Reporting a question aggregated answers by choice
+ */
+Vue.component('reporting-benchmarks', dashboardChart.extend({
+    data: function(){
+        return {
+            url: null,
+            charts: {},
+        }
+    },
+    methods: {
+        chart: function(resp) {
+            var vm = this;
+            vm.item = resp;
+            vm.itemLoaded = true;
+            var labels = [];
+            var datasets = [];
+            var colors = [
+                [UTILITY_COLOR, UTILITY_COLOR_LAST],
+                [EUISSCA_COLOR, EUISSCA_COLOR_LAST]];
+            for( var idx = 0; idx < resp.results.length; ++idx ) {
+                const benchmarks = resp.results[idx].benchmarks;
+                for( var benchIdx = 0; benchIdx < benchmarks.length; ++benchIdx ) {
+                    var data = [];
+                    for( var valIdx = 0; valIdx < benchmarks[benchIdx].values.length;
+                         ++valIdx ) {
+                        if( benchIdx == 0 ) {
+                            labels.push(benchmarks[benchIdx].values[valIdx][0]);
+                        }
+                        data.push(benchmarks[benchIdx].values[valIdx][1]);
+                    }
+                    datasets.push({
+                        label: benchmarks[benchIdx].slug,
+                        backgroundColor: colors[benchIdx],
+                        data: data
+                    });
+                }
+                var chartKey = resp.results[idx].path;
+                var chart = vm.charts[chartKey];
+                if( chart ) {
+                    chart.destroy();
+                }
+                var element = document.getElementById(chartKey);
+                if( element ) {
+                    if( resp.results[idx].default_unit &&
+                        resp.results[idx].default_unit.system == "datetime" ) {
+                        vm.charts[chartKey] = new Chart(element, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: datasets
+                            },
+                            options: {
+                                responsive: false,
+                                plugins: {
+                                    legend: {
+                                        display: false,
+                                        // position: 'top',
+                                    },
+                                    title: {
+                                        display: false
+                                    },
+                                }
+                            },
+                        });
+                    } else {
+                        vm.charts[chartKey] = new Chart(element, {
+                            type: 'doughnut',
+                            data: {
+                                labels: labels,
+                                datasets: datasets
+                            },
+                            options: {}
+                        });
+                    }
+                }
+            }
+        },
+    },
+    computed: {
+        circleLabels: function() {
+            const vm = this;
+            let text = "";
+            if( vm.item && vm.item.results && vm.item.results.length > 0 ) {
+                const benchmarks = vm.item.results[0].benchmarks;
+                for( let idx = 1; idx  < benchmarks.length; ++idx ) {
+                    text += ', ' + benchmarks[idx].title
+                }
+            }
+            return text;
+        }
+    }
+}));
 
 
 /** Reporting completion rate
@@ -884,7 +981,7 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
             const vm = this;
             let text = "";
             for( let idx = 1; idx  < vm.item.results.length; ++idx ) {
-                text += ', ' + vm.item.results[idx].printable_name
+                text += ', ' + vm.item.results[idx].title
             }
             return text;
         }
