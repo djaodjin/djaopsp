@@ -16,11 +16,10 @@ from rest_framework.pagination import PageNumberPagination
 from pages.models import PageElement
 from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
-from survey.api.serializers import MetricsSerializer, TableSerializer
+from survey.api.serializers import MetricsSerializer
 from survey.filters import SearchFilter, OrderingFilter
 from survey.helpers import construct_yearly_periods, construct_weekly_periods
-from survey.api.matrix import (BenchmarkMixin,
-    BenchmarkAPIView as BenchmarkBaseAPIView,
+from survey.api.matrix import (BenchmarkAPIView as BenchmarkBaseAPIView,
     BenchmarkIndexAPIView as BenchmarkIndexBaseAPIView)
 from survey.mixins import TimersMixin
 from survey.models import Answer, EditableFilter, Sample
@@ -41,8 +40,8 @@ from ..models import ScorecardCache
 from ..utils import (TransparentCut, get_alliances, get_latest_reminders,
     get_segments_candidates, segments_as_sql)
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
-from .serializers import (CompareNodeSerializer, EngagementSerializer,
-    ReportingSerializer)
+from .serializers import (AccessiblesSerializer, CompareNodeSerializer,
+    EngagementSerializer, ReportingSerializer)
 
 
 class CompletionSummaryPagination(PageNumberPagination):
@@ -1366,7 +1365,7 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
     title = "Accessibles"
     scale = 1
     unit = None
-    serializer_class = TableSerializer
+    serializer_class = AccessiblesSerializer
     pagination_class = MetricsPagination
 
     def get(self, request, *args, **kwargs):

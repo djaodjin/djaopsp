@@ -7,7 +7,7 @@ from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementSerializer as BasePageElementSerializer)
 from survey.api.serializers import (AccountSerializer, AnswerSerializer,
-    PortfolioOptInSerializer, UnitSerializer)
+    PortfolioOptInSerializer, TableSerializer, UnitSerializer)
 
 from ..compat import reverse
 from ..utils import get_practice_serializer
@@ -376,6 +376,17 @@ class ReportingSerializer(NoModelSerializer):
         if isinstance(extra, dict):
             return extra.keys()
         return []
+
+
+class AccessiblesSerializer(TableSerializer):
+
+    printable_name = serializers.CharField(required=False, read_only=True,
+        help_text=_("Title of data serie that can be safely used for display"\
+        " in HTML pages"))
+    title = serializers.CharField(source='printable_name',
+        required=False, read_only=True,
+        help_text=_("Title of data serie that can be safely used for display"\
+        " in HTML pages"))
 
 
 class EngagementSerializer(AccountSerializer):
