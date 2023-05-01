@@ -507,6 +507,12 @@ class AccountsAggregatedQuerysetMixin(DateRangeContextMixin, AccountMixin):
                     self._accounts_start_at = accounts_ends_at
         return self._accounts_start_at
 
+    @property
+    def search_terms(self):
+        if not hasattr(self, '_search_terms'):
+            self._search_terms = self.get_query_param('q', None)
+        return self._search_terms
+
     def get_requested_accounts(self, grantee, aggregate_set=False):
         """
         All accounts which ``grantee`` has requested a scorecard from.
@@ -515,7 +521,8 @@ class AccountsAggregatedQuerysetMixin(DateRangeContextMixin, AccountMixin):
             grantee = self.account
         return get_requested_accounts(grantee,
             campaign=self.campaign, aggregate_set=aggregate_set,
-            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at)
+            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
+            search_terms=self.search_terms)
 
 
 class AccountsNominativeQuerysetMixin(AccountsAggregatedQuerysetMixin):

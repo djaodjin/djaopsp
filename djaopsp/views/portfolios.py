@@ -347,7 +347,7 @@ class PortfolioResponsesXLSXView(SupplierListMixin, TemplateView):
             self.account.slug + '-' + self.basename + '-%Y%m%d.xlsx')
 
     def _writerecord(self, rec, categories, last_activity_at, reporting_status,
-                     last_completed_at, report_to):
+                     last_completed_at):
         #pylint:disable=too-many-arguments,too-many-locals
         row = []
         for field_name in self.headings:
@@ -417,8 +417,7 @@ class PortfolioResponsesXLSXView(SupplierListMixin, TemplateView):
             for rep in reports_to:
                 report_to = "" if rep[0] == self.account.slug else rep[1]
                 self._writerecord(rec, categories, last_activity_at,
-                    reporting_status, last_completed_at,
-                    report_to=report_to)
+                    reporting_status, last_completed_at)
                 segment_slug = None
                 if segment_slug:
                     if segment_slug not in self.suppliers_per_segment:

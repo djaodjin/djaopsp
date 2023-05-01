@@ -13,7 +13,7 @@ from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
 from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
     SampleFreezeAPIView)
-from survey.api.matrix import SampleBenchmarksAPIView
+from survey.api.matrix import SampleBenchmarksAPIView, SampleBenchmarkMixin
 from survey.mixins import TimersMixin
 from survey.models import Choice, Sample, Unit, UnitEquivalences
 from survey.settings import DB_PATH_SEP
@@ -23,11 +23,12 @@ from ..compat import reverse, six
 from ..mixins import SectionReportMixin
 from ..models import ScorecardCache
 from ..scores import freeze_scores, get_score_calculator
+from ..queries import get_scored_assessments
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignContentMixin
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
 from .serializers import (AssessmentNodeSerializer,
-    BenchmarkSerializer, UnitSerializer)
+    SampleBenchmarksSerializer, UnitSerializer)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -701,8 +702,10 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
     """
 
 
-class BenchmarkAPIView(SectionReportMixin, GraphMixin, RollupMixin,
-                       ScoresMixin, SampleBenchmarksAPIView):
+class BenchmarkAPIView(TimersMixin, GraphMixin, RollupMixin,
+                       SampleBenchmarkMixin,
+                       SectionReportMixin, CampaignContentMixin,
+                       generics.ListAPIView):
     """
     Retrieves benchmark graphs
 
@@ -775,22 +778,9 @@ class BenchmarkAPIView(SectionReportMixin, GraphMixin, RollupMixin,
             "score_weight": 1.0
          }]
     """
-    serializer_class = BenchmarkSerializer
     pagination_class = None
-    DB_PATH_SEP = '/'
     account_model = get_account_model()
-
-    @property
-    def requested_accounts_pk_as_sql(self):
-        """
-        Returns all accounts available as a string
-        that can be used in SQL statements.
-        """
-        #pylint:disable=attribute-defined-outside-init
-        if not hasattr(self, '_requested_accounts_pk_as_sql'):
-            self._requested_accounts_pk_as_sql = (
-                "(SELECT id FROM %s)" % self.account_model._meta.db_table)
-        return self._requested_accounts_pk_as_sql
+    serializer_class = SampleBenchmarksSerializer
 
     @property
     def scores_tree(self):
@@ -814,12 +804,29 @@ class BenchmarkAPIView(SectionReportMixin, GraphMixin, RollupMixin,
             self._scores_of_interest = flatten_content_tree(self.scores_tree)
         return self._scores_of_interest
 
-
     def list(self, request, *args, **kwargs):
-        #pylint:disable=unused-argument,too-many-nested-blocks
         self._start_time()
-        queryset = self.get_queryset()
-        for score in queryset:
+        queryset = self.filter_queryset(self.get_queryset())
+        self.decorate_queryset(queryset)
+
+        # Ready to serialize
+        serializer = self.get_serializer_class()(
+            queryset, many=True, context=self.get_serializer_context())
+
+        self._report_queries("BenchmarkAPIView.list done")
+        return http.Response(serializer.data)
+
+
+    def decorate_queryset(self, queryset):
+        #pylint:disable=unused-argument,too-many-nested-blocks
+        # `queryset` is a list of questions
+
+        accounts = None # XXX self.get_accessible_accounts()
+        scored_assessments = get_scored_assessments(
+            self.campaign, accounts=accounts,
+            scores_of_interest=self.scores_of_interest, db_path=self.db_path,
+            ends_at=self.ends_at)
+        for score in scored_assessments:
             if score.segment_path:
                 self._insert_in_tree(
                     self.scores_tree, score.segment_path, score)
@@ -847,7 +854,27 @@ class BenchmarkAPIView(SectionReportMixin, GraphMixin, RollupMixin,
                                 break
         self._report_queries("sample scorecard_cache computed")
 
-        return http.Response(charts)
+        for question in queryset:
+            question_path = question.get('path')
+            benchmarks = question.get('benchmarks')
+            default_unit = question.get('default_unit')
+            if default_unit:
+                question.update({
+                    'default_unit': Unit.objects.get(slug=default_unit),
+                })
+            for chart in charts:
+                chart_path = chart.get('path')
+                if question_path == chart_path:
+                    question.update({
+                        'organization_rate': chart.get('organization_rate'),
+                        'benchmarks': chart.get('benchmarks'),
+                        'nb_respondents': chart.get('nb_respondents'),
+                        'avg_normalized_score':
+                            chart.get('avg_normalized_score'),
+                        'highest_normalized_score':
+                            chart.get('highest_normalized_score')
+                    })
+                    break
 
 
 class BenchmarkIndexAPIView(BenchmarkAPIView):

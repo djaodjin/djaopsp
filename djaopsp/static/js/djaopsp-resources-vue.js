@@ -474,8 +474,11 @@ var practicesListMixin = {
             var labels = [];
             var values = [];
             var organizationX = -1;
-            const benchmarkValues = data.benchmarks.length > 0 ?
+            const benchmarkValues = (
+                data.benchmarks && data.benchmarks.length > 0) ?
                   data.benchmarks[0].values : [];
+            if( benchmarkValues.length === 0 ) return;
+
             for( var idx = 0; idx < benchmarkValues.length; ++idx ) {
                 const label = benchmarkValues[idx][0];
                 labels.push(label);

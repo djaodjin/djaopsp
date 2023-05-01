@@ -5,6 +5,7 @@ import datetime, io, logging
 
 from deployutils.helpers import datetime_or_now, update_context_urls
 from django.db import connection
+from django.db.models.query import QuerySet, RawQuerySet
 from django.http import HttpResponse
 from django.views.generic.base import TemplateView
 from openpyxl import Workbook
@@ -225,7 +226,22 @@ class CompareXLSXView(SupplierListMixin, TemplateView):
         #pylint:disable=too-many-statements,too-many-locals
         self.by_paths = {}
         accounts_with_response = set([])
-        if self.requested_accounts_pk_as_sql:
+        accounts = self.requested_accounts
+        sep = ""
+        accounts_clause = ""
+        if accounts:
+            if isinstance(accounts, list):
+                account_ids = "(%s)" % ','.join([
+                    str(account_id) for account_id in accounts])
+            elif isinstance(accounts, QuerySet):
+                account_ids = "(%s)" % ','.join([
+                    str(account.pk) for account in accounts])
+            elif isinstance(accounts, RawQuerySet):
+                account_ids = "(%s)" % accounts.query.sql
+            accounts_clause += (
+                "%(sep)ssamples.account_id IN %(account_ids)s" % {
+                    'sep': sep, 'account_ids': account_ids})
+        if accounts_clause:
             reporting_answers_sql = """
 WITH samples AS (
     %(latest_assessments)s
@@ -244,7 +260,7 @@ INNER JOIN samples
   ON survey_answer.sample_id = samples.id
 INNER JOIN survey_unit
   ON survey_answer.unit_id = survey_unit.id
-WHERE samples.account_id IN %(account_ids)s)
+WHERE %(accounts_clause)s
 SELECT
   answers.path,
   answers.account_id,
@@ -259,7 +275,7 @@ LEFT OUTER JOIN survey_choice
      survey_choice.id = answers.measured
 """ % {
             'latest_assessments': self.latest_assessments.query.sql,
-            'account_ids': self.requested_accounts_pk_as_sql
+            'accounts_clause': accounts_clause
         }
             comments_unit = Unit.objects.get(slug='freetext')
             with connection.cursor() as cursor:

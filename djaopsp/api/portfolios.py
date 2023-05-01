@@ -33,12 +33,13 @@ from .campaigns import CampaignContentMixin
 from ..compat import reverse, six
 from ..helpers import as_percentage
 from ..queries import (get_completed_assessments_at_by, get_engagement,
-    get_engagement_by_reporting_status, get_requested_by_accounts_by_year)
+    get_engagement_by_reporting_status, get_requested_by_accounts_by_year,
+    segments_as_sql)
 from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
     AccountsNominativeQuerysetMixin, CampaignMixin)
 from ..models import ScorecardCache
 from ..utils import (TransparentCut, get_alliances, get_latest_reminders,
-    get_segments_candidates, segments_as_sql)
+    get_segments_candidates)
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
 from .serializers import (AccessiblesSerializer, CompareNodeSerializer,
     EngagementSerializer, ReportingSerializer)
@@ -299,15 +300,6 @@ class SupplierListMixin(ScoresMixin, AccountsNominativeQuerysetMixin):
       - user.last_name
       - created_at
     """
-    @property
-    def requested_accounts_pk_as_sql(self):
-        if not hasattr(self, '_requested_accounts_pk_as_sql'):
-            self._requested_accounts_pk_as_sql = ""
-            pks = [str(account.pk) for account in self.requested_accounts]
-            if pks:
-                self._requested_accounts_pk_as_sql = "(%s)" % ','.join(pks)
-        return self._requested_accounts_pk_as_sql
-
     def decorate_queryset(self, queryset):
         """
         Updates `normalized_score` in rows of the queryset.

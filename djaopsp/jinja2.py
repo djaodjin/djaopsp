@@ -26,7 +26,9 @@ def environment(**options):
             loader_class = options['loader'].__class__
         options['loader'] = loader_class(get_template_search_path())
     env = Jinja2Environment(extensions=[i18n], **options)
-    # i18n
+    # `jinja2.ext.i18n` was added to the extensions so it is safe to disable
+    # pylint warning here.
+    #pylint:disable=no-member
     env.install_gettext_callables(gettext=gettext, ngettext=ngettext,
         newstyle=True)
     # Generic filters to render pages

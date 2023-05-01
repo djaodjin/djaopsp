@@ -22,32 +22,6 @@ class NoModelSerializer(serializers.Serializer):
         raise RuntimeError('`update()` should not be called.')
 
 
-class DistributionSerializer(NoModelSerializer):
-
-    x = serializers.ListField(serializers.CharField())
-    y = serializers.ListField(child=serializers.IntegerField())
-    organization_rate = serializers.CharField()
-
-
-class BenchmarkSerializer(NoModelSerializer):
-
-    slug = serializers.CharField()
-    title = serializers.CharField()
-    nb_answers = serializers.IntegerField(required=False)
-    nb_questions = serializers.IntegerField(required=False)
-    nb_respondents = serializers.IntegerField(required=False)
-    numerator = serializers.FloatField(required=False)
-    improvement_numerator = serializers.FloatField(required=False)
-    denominator = serializers.FloatField(required=False)
-    normalized_score = serializers.IntegerField(required=False)
-    improvement_score = serializers.IntegerField(required=False)
-    score_weight = serializers.FloatField()
-    highest_normalized_score = serializers.IntegerField(required=False)
-    avg_normalized_score = serializers.IntegerField(required=False)
-    created_at = serializers.DateTimeField(required=False)
-    distribution = DistributionSerializer(required=False)
-
-
 class PracticeSerializer(BaseNodeElementSerializer):
 
     default_unit = serializers.SerializerMethodField()
@@ -170,7 +144,7 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
     # assessment results
     normalized_score = serializers.SerializerMethodField(required=False)
     nb_respondents = serializers.SerializerMethodField(required=False)
-    rate = serializers.SerializerMethodField(required=False)
+    rate = serializers.SerializerMethodField(required=False) # XXX to deprecate
     opportunity = serializers.SerializerMethodField(required=False)
 
     class Meta(ContentNodeSerializer.Meta):
@@ -245,6 +219,24 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
         except (TypeError, KeyError):
             pass
         return None
+
+
+class SampleBenchmarksSerializer(ContentNodeSerializer):
+
+    avg_normalized_score = serializers.IntegerField(required=False)
+    highest_normalized_score = serializers.IntegerField(required=False)
+    nb_respondents = serializers.IntegerField(required=False)
+    benchmarks = serializers.ListField(child=TableSerializer(), required=False)
+    organization_rate = serializers.CharField(required=False) # XXX should move
+    # to AssessmentNodeSerializer.
+
+    class Meta(ContentNodeSerializer.Meta):
+        fields = ContentNodeSerializer.Meta.fields + (
+            'avg_normalized_score', 'highest_normalized_score',
+            'nb_respondents', 'organization_rate', 'benchmarks',)
+        read_only_fields = ContentNodeSerializer.Meta.read_only_fields + (
+            'avg_normalized_score', 'highest_normalized_score',
+            'nb_respondents', 'organization_rate', 'benchmarks',)
 
 
 class CompareNodeSerializer(PRACTICE_SERIALIZER):

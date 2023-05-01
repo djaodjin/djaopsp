@@ -16,7 +16,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models import F
+from django.db.models import F, Q, Min, Max, Case, When
 from django.utils import translation
 from extended_templates.backends import get_email_backend
 from pages.helpers import ContentCut
@@ -205,7 +205,7 @@ def get_alliances(account):
 
 
 def get_requested_accounts(account, campaign=None, aggregate_set=False,
-                           start_at=None, ends_at=None):
+                           start_at=None, ends_at=None, search_terms=None):
     """
     All accounts which ``account`` has requested a scorecard from.
     """
@@ -227,6 +227,10 @@ def get_requested_accounts(account, campaign=None, aggregate_set=False,
         if campaign:
             filter_params.update({
                 'portfolio_double_optin_accounts__campaign': campaign})
+        if search_terms:
+            filter_params.update({
+                'full_name__icontains': search_terms
+            })
         queryset = get_account_model().objects.filter(
             portfolio_double_optin_accounts__grantee=account,
             portfolio_double_optin_accounts__state__in=(
@@ -235,8 +239,10 @@ def get_requested_accounts(account, campaign=None, aggregate_set=False,
                 PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED,
                 PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED),
                 **filter_params).annotate(
-                requested_at=F('portfolio_double_optin_accounts__created_at'),
-                grant_key=F('portfolio_double_optin_accounts__state')
+                requested_at=Min('portfolio_double_optin_accounts__created_at'),
+                grant_key=Case(
+                When(portfolio_double_optin_accounts__state=0, then=True),
+                output_field=models.BooleanField())
         ).distinct()
 
     return queryset
@@ -420,33 +426,6 @@ def get_scores_tree(roots=None, prefix=""):
         del scores_tree[root_path]
     scores_tree.update(ups)
     return scores_tree
-
-
-def segments_as_sql(segments):
-    """
-    Returns an SQL query from a list of segments encoded as
-    {'path': ..., 'title': ...}.
-    """
-    segments_query = None
-    for segment in segments:
-        if segments_query:
-            segments_query = "%(segments_query)s UNION "\
-                "SELECT '%(segment_path)s'%(convert_to_text)s AS path,"\
-                " '%(segment_title)s'%(convert_to_text)s AS title" % {
-                    'segments_query': segments_query,
-                    'segment_path': segment['path'],
-                    'segment_title': segment['title'],
-                    'convert_to_text': ("" if is_sqlite3() else "::text")
-                }
-        else:
-            segments_query = \
-                "SELECT '%(segment_path)s'%(convert_to_text)s AS path,"\
-                " '%(segment_title)s'%(convert_to_text)s AS title" % {
-                    'segment_path': segment['path'],
-                    'segment_title': segment['title'],
-                    'convert_to_text': ("" if is_sqlite3() else "::text")
-                }
-    return segments_query
 
 
 def get_segments_available(sample, visibility=None, owners=None,

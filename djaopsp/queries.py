@@ -8,7 +8,12 @@ from django.db import connection
 from django.db.models.query import QuerySet, RawQuerySet
 from survey.models import PortfolioDoubleOptIn, Sample
 from survey.queries import as_sql_date_trunc_year, is_sqlite3
+from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
+
+from .api.serializers import ReportingSerializer
+from .models import ScorecardCache
+from .scores import get_score_calculator
 
 
 def get_completed_assessments_at_by(campaign, start_at=None, ends_at=None,
@@ -353,3 +358,433 @@ ORDER BY account_id, created_at
            str(PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED)])
        }
     return PortfolioDoubleOptIn.objects.raw(sql_query)
+
+
+def _get_frozen_query_sql(campaign, segments, ends_at, expired_at=None):
+    frozen_assessments_query = None
+    frozen_improvements_query = None
+
+    for segment in segments:
+        prefix = segment['path']
+        segment_query = get_completed_assessments_at_by(
+            campaign, ends_at=ends_at,
+            prefix=prefix, title=segment['title']).query.sql
+        if not frozen_assessments_query:
+            frozen_assessments_query = segment_query
+        else:
+            # SQLite3 doesn't like parentheses around UNION operands
+            if is_sqlite3():
+                frozen_assessments_query = "%s UNION %s" % (
+                    frozen_assessments_query, segment_query)
+            else:
+                frozen_assessments_query = "(%s) UNION (%s)" % (
+                    frozen_assessments_query, segment_query)
+        segment_query = get_completed_assessments_at_by(
+            campaign, ends_at=ends_at,
+            prefix=prefix, title=segment['title'],
+            extra='is_planned').query.sql
+        if not frozen_improvements_query:
+            frozen_improvements_query = segment_query
+        else:
+            if is_sqlite3():
+                frozen_improvements_query = "%s UNION %s" % (
+                    frozen_improvements_query, segment_query)
+            else:
+                frozen_improvements_query = "(%s) UNION (%s)" % (
+                    frozen_improvements_query, segment_query)
+
+    if expired_at:
+        reporting_clause = \
+"""  CASE WHEN _frozen_assessments.created_at < '%(expired_at)s'
+   THEN %(reporting_expired)d
+   ELSE %(reporting_completed)d END""" % {
+         'expired_at': expired_at.isoformat(),
+         'reporting_completed': ReportingSerializer.REPORTING_PLANNING_PHASE,
+         'reporting_expired': ReportingSerializer.REPORTING_ABANDONED
+        }
+    else:
+        reporting_clause = "%d" % ReportingSerializer.REPORTING_PLANNING_PHASE
+    frozen_assessments_query = """SELECT
+  _frozen_assessments.id AS id,
+  _frozen_assessments.slug AS slug,
+  _frozen_assessments.created_at AS created_at,
+  _frozen_assessments.campaign_id AS campaign_id,
+  _frozen_assessments.account_id AS account_id,
+  _frozen_assessments.updated_at AS updated_at,
+  _frozen_assessments.is_frozen AS is_frozen,
+  _frozen_assessments.extra AS extra,
+  _frozen_assessments.segment_path AS segment_path,
+  _frozen_assessments.segment_title AS segment_title,
+  %(reporting_clause)s AS reporting_status
+FROM (%(query)s) AS _frozen_assessments""" % {
+    'query': frozen_assessments_query.replace('%', '%%'),
+    'reporting_clause': reporting_clause}
+
+    frozen_improvements_query = """SELECT
+  _frozen_improvements.id AS id,
+  _frozen_improvements.slug AS slug,
+  _frozen_improvements.created_at AS created_at,
+  _frozen_improvements.campaign_id AS campaign_id,
+  _frozen_improvements.account_id AS account_id,
+  _frozen_improvements.updated_at AS updated_at,
+  _frozen_improvements.is_frozen AS is_frozen,
+  _frozen_improvements.extra AS extra,
+  _frozen_improvements.segment_path AS segment_path,
+  _frozen_improvements.segment_title AS segment_title
+FROM (%(query)s) AS _frozen_improvements""" % {
+    'query': frozen_improvements_query.replace('%', '%%')}
+
+    if expired_at:
+        reporting_clause = \
+"""  CASE WHEN frozen_assessments.created_at < '%(expired_at)s'
+   THEN %(reporting_expired)d
+   ELSE %(reporting_completed)d END""" % {
+           'expired_at': expired_at.isoformat(),
+           'reporting_completed': ReportingSerializer.REPORTING_COMPLETED,
+           'reporting_expired': ReportingSerializer.REPORTING_EXPIRED
+   }
+    else:
+        reporting_clause = "%d" % ReportingSerializer.REPORTING_COMPLETED
+    frozen_query = """
+WITH frozen_assessments AS (%(frozen_assessments_query)s),
+frozen_improvements AS (%(frozen_improvements_query)s)
+SELECT
+  frozen_assessments.id AS id,
+  frozen_assessments.slug AS slug,
+  frozen_assessments.created_at AS created_at,
+  frozen_assessments.campaign_id AS campaign_id,
+  frozen_assessments.account_id AS account_id,
+  frozen_assessments.updated_at AS updated_at,
+  frozen_assessments.is_frozen AS is_frozen,
+  frozen_assessments.extra AS extra,
+  frozen_assessments.segment_path AS segment_path,
+  frozen_assessments.segment_title AS segment_title,
+  0 AS nb_na_answers,
+  0 AS reporting_publicly,
+  0 AS reporting_fines,
+  0 AS reporting_energy_consumption,
+  0 AS reporting_ghg_generated,
+  0 AS reporting_water_consumption,
+  0 AS reporting_waste_generated,
+  0 AS nb_planned_improvements,
+  0 AS reporting_energy_target,
+  0 AS reporting_ghg_target,
+  0 AS reporting_water_target,
+  0 AS reporting_waste_target,
+  0 AS normalized_score,
+  CASE WHEN frozen_assessments.created_at < frozen_improvements.created_at
+       THEN (%(reporting_clause)s)
+       ELSE frozen_assessments.reporting_status END AS reporting_status
+FROM frozen_assessments
+LEFT OUTER JOIN frozen_improvements
+ON frozen_assessments.account_id = frozen_improvements.account_id AND
+   frozen_assessments.segment_path = frozen_improvements.segment_path""" % {
+   'frozen_assessments_query': frozen_assessments_query,
+   'frozen_improvements_query': frozen_improvements_query,
+   'reporting_clause': reporting_clause}
+    # Implementation Note: frozen_improvements will always pick the latest
+    # improvement plan which might not be the ones associated with
+    # the latest assessment if in a subsequent year no plan is created.
+    return frozen_query
+
+
+def _get_scorecard_cache_query_sql(segments, ends_at, expired_at=None):
+    segments_query = segments_as_sql(segments)
+
+    if expired_at:
+        reporting_completed_clause = \
+"""  CASE WHEN survey_sample.created_at < '%(expired_at)s'
+   THEN %(reporting_expired)d
+   ELSE %(reporting_completed)d END""" % {
+           'expired_at': expired_at.isoformat(),
+           'reporting_expired': ReportingSerializer.REPORTING_EXPIRED,
+           'reporting_completed': ReportingSerializer.REPORTING_COMPLETED
+   }
+        reporting_planning_clause = \
+"""  CASE WHEN survey_sample.created_at < '%(expired_at)s'
+   THEN %(reporting_expired)d
+   ELSE %(reporting_completed)d END""" % {
+           'expired_at': expired_at.isoformat(),
+           'reporting_expired': ReportingSerializer.REPORTING_ABANDONED,
+           'reporting_completed': ReportingSerializer.REPORTING_PLANNING_PHASE
+   }
+    else:
+        reporting_completed_clause = (
+            "%d" % ReportingSerializer.REPORTING_COMPLETED)
+        reporting_planning_clause = (
+            "%d" % ReportingSerializer.REPORTING_PLANNING_PHASE)
+
+    scorecard_cache_query = """WITH
+segments AS (
+  %(segments_query)s
+),
+scorecards AS (
+  SELECT
+    segments.path AS segment_path,
+    segments.title AS segment_title,
+    survey_sample.account_id AS account_id,
+    MAX(survey_sample.created_at) AS created_at
+  FROM %(scorecardcache_table)s
+  INNER JOIN survey_sample
+    ON %(scorecardcache_table)s.sample_id = survey_sample.id
+  INNER JOIN segments
+    ON %(scorecardcache_table)s.path = segments.path
+  WHERE survey_sample.created_at < '%(ends_at)s'
+  GROUP BY segments.path, segments.title, survey_sample.account_id
+)
+SELECT
+  survey_sample.id AS id,
+  survey_sample.slug AS slug,
+  survey_sample.created_at AS created_at,
+  survey_sample.campaign_id AS campaign_id,
+  survey_sample.account_id AS account_id,
+  survey_sample.updated_at AS updated_at,
+  survey_sample.is_frozen AS is_frozen,
+  survey_sample.extra AS extra,
+  scorecards.segment_path AS segment_path,
+  scorecards.segment_title AS segment_title,
+  %(scorecardcache_table)s.nb_na_answers AS nb_na_answers,
+  %(scorecardcache_table)s.reporting_publicly AS reporting_publicly,
+  %(scorecardcache_table)s.reporting_fines AS reporting_fines,
+  %(scorecardcache_table)s.reporting_energy_consumption AS reporting_energy_consumption,
+  %(scorecardcache_table)s.reporting_ghg_generated AS reporting_ghg_generated,
+  %(scorecardcache_table)s.reporting_water_consumption AS reporting_water_consumption,
+  %(scorecardcache_table)s.reporting_waste_generated AS reporting_waste_generated,
+  %(scorecardcache_table)s.reporting_energy_target AS reporting_energy_target,
+  %(scorecardcache_table)s.reporting_ghg_target AS reporting_ghg_target,
+  %(scorecardcache_table)s.reporting_water_target AS reporting_water_target,
+  %(scorecardcache_table)s.reporting_waste_target AS reporting_waste_target,
+  %(scorecardcache_table)s.nb_planned_improvements AS nb_planned_improvements,
+  %(scorecardcache_table)s.normalized_score AS normalized_score,
+  CASE WHEN %(scorecardcache_table)s.nb_planned_improvements > 0
+       THEN (%(reporting_completed_clause)s)
+       ELSE (%(reporting_planning_clause)s) END AS reporting_status
+FROM %(scorecardcache_table)s
+INNER JOIN scorecards
+  ON %(scorecardcache_table)s.path = scorecards.segment_path
+INNER JOIN survey_sample
+  ON survey_sample.id = %(scorecardcache_table)s.sample_id AND
+     survey_sample.account_id = scorecards.account_id AND
+     survey_sample.created_at = scorecards.created_at
+WHERE survey_sample.created_at < '%(ends_at)s'
+""" % {
+    'ends_at': ends_at.isoformat(),
+    'segments_query': segments_query,
+    'reporting_planning_clause': reporting_planning_clause,
+    'reporting_completed_clause': reporting_completed_clause,
+    #pylint:disable=protected-access
+    'scorecardcache_table': ScorecardCache._meta.db_table
+}
+    return scorecard_cache_query
+
+
+def _get_scored_assessments_sql(campaign, accounts=None,
+                                scores_of_interest=None,
+                                db_path=None, ends_at=None, expired_at=None,
+                                sort_ordering=None):
+    #pylint:disable=too-many-arguments,too-many-locals
+    # The scores_of_interest do not represent solely segments. They might
+    # also represent sections within a segment (see benchmarks API).
+    # None-the-less as long as all segments in a survey are scored, this
+    # code will work to differentiate between using the scorecard cache
+    # and just getting frozen samples.
+    use_scorecard_cache = False
+    for seg in scores_of_interest:
+        prefix = seg.get('path')
+        if prefix:
+            score_calculator = get_score_calculator(prefix)
+            if score_calculator:
+                use_scorecard_cache = True
+                break
+    if use_scorecard_cache:
+        frozen_query = _get_scorecard_cache_query_sql(
+            scores_of_interest, ends_at, expired_at=expired_at)
+    else:
+        frozen_query = _get_frozen_query_sql(
+            campaign, scores_of_interest, ends_at, expired_at=expired_at)
+
+    # We mark assessments completed prior to expired_at as expired.
+    if expired_at:
+        reporting_clause = \
+"""  CASE WHEN active_assessments.created_at < '%(expired_at)s'
+   THEN %(reporting_abandoned)d
+   ELSE %(reporting_inprogress)d END""" % {
+           'expired_at': expired_at.isoformat(),
+           'reporting_inprogress':
+               ReportingSerializer.REPORTING_ASSESSMENT_PHASE,
+           'reporting_abandoned': ReportingSerializer.REPORTING_ABANDONED
+   }
+    else:
+        reporting_clause = \
+            "%d" % ReportingSerializer.REPORTING_ASSESSMENT_PHASE
+
+    # If we are not returning results on a specific segment, we will
+    # show all segments on a campaign.
+    if db_path and db_path != DB_PATH_SEP:
+        assessments_query = frozen_query
+    else:
+        assessments_query = """
+WITH frozen AS (%(frozen_query)s)
+SELECT
+  COALESCE(frozen.id, active_assessments.id) AS id,
+  COALESCE(frozen.slug, active_assessments.slug) AS slug,
+  frozen.created_at AS created_at,
+  COALESCE(frozen.campaign_id, active_assessments.campaign_id) AS campaign_id,
+  COALESCE(frozen.account_id, active_assessments.account_id) AS account_id,
+  active_assessments.updated_at AS updated_at,
+  COALESCE(frozen.is_frozen, active_assessments.is_frozen) AS is_frozen,
+  COALESCE(frozen.extra, active_assessments.extra) AS extra,
+  frozen.segment_path AS segment_path,
+  frozen.segment_title AS segment_title,
+  frozen.nb_na_answers AS nb_na_answers,
+  frozen.reporting_publicly AS reporting_publicly,
+  frozen.reporting_fines AS reporting_fines,
+  frozen.reporting_energy_consumption AS reporting_energy_consumption,
+  frozen.reporting_ghg_generated AS reporting_ghg_generated,
+  frozen.reporting_water_consumption AS reporting_water_consumption,
+  frozen.reporting_waste_generated AS reporting_waste_generated,
+  frozen.nb_planned_improvements AS nb_planned_improvements,
+  frozen.reporting_energy_target AS reporting_energy_target,
+  frozen.reporting_ghg_target AS reporting_ghg_target,
+  frozen.reporting_water_target AS reporting_water_target,
+  frozen.reporting_waste_target AS reporting_waste_target,
+  frozen.normalized_score AS normalized_score,
+  COALESCE(frozen.reporting_status, %(reporting_clause)s) AS reporting_status
+FROM (SELECT
+    survey_sample.id AS id,
+    survey_sample.slug AS slug,
+    survey_sample.created_at AS created_at,
+    survey_sample.campaign_id AS campaign_id,
+    survey_sample.account_id AS account_id,
+    survey_sample.updated_at AS updated_at,
+    survey_sample.is_frozen AS is_frozen,
+    survey_sample.extra AS extra
+    FROM survey_sample
+    WHERE survey_sample.extra IS NULL AND
+          NOT survey_sample.is_frozen AND
+          survey_sample.campaign_id = %(campaign_id)d
+) AS active_assessments
+LEFT OUTER JOIN frozen
+ON active_assessments.account_id = frozen.account_id AND
+   active_assessments.campaign_id = frozen.campaign_id""" % {
+       'frozen_query': frozen_query,
+       'campaign_id': campaign.id,
+       'reporting_clause': reporting_clause}
+
+    # Select accounts
+    account_model = get_account_model()
+    accounts_clause = ""
+    if accounts:
+        if isinstance(accounts, list):
+            account_ids = "(%s)" % ','.join([
+                str(account_id) for account_id in accounts])
+        elif isinstance(accounts, QuerySet):
+            account_ids = "(%s)" % ','.join([
+                str(account.pk) for account in accounts])
+        elif isinstance(accounts, RawQuerySet):
+            account_ids = "(%s)" % accounts.query.sql
+        accounts_clause = "%(account_table)s.id IN %(account_ids)s" % {
+            'account_table': account_model._meta.db_table,
+            'account_ids': account_ids}
+    if accounts_clause:
+        accounts_clause = "WHERE %s" % accounts_clause
+
+    order_clause = ""
+    if sort_ordering:
+        order_clause = "ORDER BY "
+        sep = ""
+        for sort_field, sort_dir in sort_ordering:
+            order_clause += "%s%s %s" % (sep, sort_field, sort_dir)
+            if sort_field in ('last_activity_at', 'last_completed_at'):
+                order_clause += " NULLS LAST"
+            sep = ", "
+
+    query = """
+WITH assessments AS (%(assessments_query)s)
+SELECT
+  assessments.id AS id,
+  assessments.slug AS slug,
+  assessments.created_at AS created_at,
+  assessments.campaign_id AS campaign_id,
+  COALESCE(assessments.account_id, %(account_table)s.id) AS account_id,
+  assessments.updated_at AS updated_at,
+  assessments.is_frozen AS is_frozen,
+  assessments.extra AS extra,
+  assessments.segment_path AS segment_path,
+  assessments.segment_title AS segment,    -- XXX should be segment_title
+  assessments.nb_na_answers AS nb_na_answers,
+  assessments.reporting_publicly AS reporting_publicly,
+  assessments.reporting_fines AS reporting_fines,
+  assessments.reporting_energy_consumption AS reporting_energy_consumption,
+  assessments.reporting_ghg_generated AS reporting_ghg_generated,
+  assessments.reporting_water_consumption AS reporting_water_consumption,
+  assessments.reporting_waste_generated AS reporting_waste_generated,
+  assessments.nb_planned_improvements AS nb_planned_improvements,
+  assessments.reporting_energy_target AS reporting_energy_target,
+  assessments.reporting_ghg_target AS reporting_ghg_target,
+  assessments.reporting_water_target AS reporting_water_target,
+  assessments.reporting_waste_target AS reporting_waste_target,
+  assessments.normalized_score AS normalized_score,
+  COALESCE(assessments.reporting_status, %(reporting_status)d) AS reporting_status,
+  %(account_table)s.slug AS account_slug,
+  %(account_table)s.full_name AS printable_name,
+  %(account_table)s.email AS email,
+  %(account_table)s.phone AS phone,
+  assessments.created_at AS last_completed_at,
+  assessments.updated_at AS last_activity_at,
+  '' AS score_url                              -- updated later
+FROM %(account_table)s
+%(join_clause)s JOIN assessments
+ON %(account_table)s.id = assessments.account_id
+%(accounts_clause)s
+%(order_clause)s""" % {
+    'assessments_query': assessments_query,
+#XXX    'join_clause': "INNER" if self.db_path else "LEFT OUTER",
+    'join_clause': "LEFT OUTER",
+    'account_table': account_model._meta.db_table,
+    'reporting_status': ReportingSerializer.REPORTING_NOT_STARTED,
+    'accounts_clause': accounts_clause,
+    'order_clause': order_clause}
+
+    return query
+
+
+def get_scored_assessments(campaign, accounts=None,
+                           scores_of_interest=None,
+                           db_path=None, ends_at=None, expired_at=None,
+                           sort_ordering=None):
+    sql_query = _get_scored_assessments_sql(
+        campaign, accounts=accounts, scores_of_interest=scores_of_interest,
+        db_path=db_path, ends_at=ends_at, expired_at=expired_at,
+        sort_ordering=sort_ordering)
+    if not sql_query:
+        # We don't have any scorecard/chart to compute.
+        return Sample.objects.none()
+    return Sample.objects.raw(sql_query)
+
+
+def segments_as_sql(segments):
+    """
+    Returns an SQL query from a list of segments encoded as
+    {'path': ..., 'title': ...}.
+    """
+    segments_query = None
+    for segment in segments:
+        if segments_query:
+            segments_query = "%(segments_query)s UNION "\
+                "SELECT '%(segment_path)s'%(convert_to_text)s AS path,"\
+                " '%(segment_title)s'%(convert_to_text)s AS title" % {
+                    'segments_query': segments_query,
+                    'segment_path': segment['path'],
+                    'segment_title': segment['title'],
+                    'convert_to_text': ("" if is_sqlite3() else "::text")
+                }
+        else:
+            segments_query = \
+                "SELECT '%(segment_path)s'%(convert_to_text)s AS path,"\
+                " '%(segment_title)s'%(convert_to_text)s AS title" % {
+                    'segment_path': segment['path'],
+                    'segment_title': segment['title'],
+                    'convert_to_text': ("" if is_sqlite3() else "::text")
+                }
+    return segments_query

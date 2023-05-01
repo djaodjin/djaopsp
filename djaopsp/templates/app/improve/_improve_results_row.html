@@ -41,7 +41,7 @@
          aria-valuemin="0"
          aria-valuemax="100"
          :style="implementationRateStyle(getRate(practice, choice.text))">
-      <span :class="{'text-muted': !getRate(practice, choice.text) || getRate(practice, choice.text) < 35}">[[asPercent(practice.rate[choice.text])]]</span>
+      <span :class="{'text-muted': !getRate(practice, choice.text) || getRate(practice, choice.text) < 35}">[[asPercent(getRate(practice, choice.text))]]</span>
     </div>
   </div>
 </td>
