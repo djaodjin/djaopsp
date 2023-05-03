@@ -5,30 +5,38 @@
 {% block reporting_dashboard_content %}
 <activity-summary inline-template>
   <div>
-
     {# reporting_content #}
+    {% if urls.download %}
     <div class="row">
-    <div class="col-md-6 mt-2">
-      <form id="period-update" class="form-inline" @submit.prevent="reload()">
-        <div class="input-group input-group-sm mr-2">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp">From</span>
-          </div>
-          <input class="form-control" type="date" v-model="_start_at" v-cloak>
-        </div>
-        <div class="input-group input-group-sm mr-2">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          </div>
-          <input class="form-control" type="date" v-model="_ends_at" v-cloak>
-        </div>
-        <button class="btn btn-secondary btn-sm mr-2"
-                :disabled="!outdated"
-                >{% trans %}Update{% endtrans %}</button>
-      </form>{# /#period-update #}
+      <div class="col-12 text-right">
+        <a class="mb-2 btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
+          <i class="fa fa-file-text"></i> {% trans %}Download (pptx){% endtrans %}
+        </a>
+      </div>
     </div>
+    {% endif %}
+    <div class="row">
+      <div class="col-md-6 mt-2">
+        <form id="period-update" class="form-inline" @submit.prevent="reload()">
+          <div class="input-group input-group-sm mr-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="from-inp">From</span>
+            </div>
+            <input class="form-control" type="date" v-model="_start_at" v-cloak>
+          </div>
+          <div class="input-group input-group-sm mr-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            </div>
+            <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+          </div>
+          <button class="btn btn-secondary btn-sm mr-2"
+                  :disabled="!outdated"
+                  >{% trans %}Update{% endtrans %}</button>
+        </form>{# /#period-update #}
+      </div>
       <div class="col-md-6 mt-2 text-right">
-          {% include "app/reporting/_percentage_toggle.html" %}
+        {% include "app/reporting/_percentage_toggle.html" %}
       </div>
     </div>
 
@@ -50,7 +58,7 @@
               </div>
             </div>
             <div class="text-center">
-              <a id="download-competion-rate" class="btn btn-secondary mb-2" :href="'{{urls.download_completion_rate}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+              <a id="download-competion-rate" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download_completion_rate}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
             </div>
           </div>
         </reporting-completion-rate>
@@ -69,6 +77,9 @@
               <div class="card-body" v-show="itemLoaded">
                 <canvas id="summaryChart" style="max-height: 240px;"></canvas>
               </div>
+            </div>
+            <div class="text-center">
+              <a id="download-completion-total" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download_engagement_stats}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
             </div>
           </div>
         </reporting-completion-total>
@@ -92,7 +103,7 @@
               </div>
             </div>
             <div class="text-center">
-              <a id="download-goals" class="btn btn-secondary mb-2" :href="'{{urls.download_goals}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+              <a id="download-goals" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download_goals}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
             </div>
           </div>
         </reporting-goals>
@@ -113,7 +124,7 @@
               </div>
             </div>
             <div class="text-center">
-              <a id="download-by-segments" class="btn btn-secondary mb-2" :href="'{{urls.download_by_segments}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+              <a id="download-by-segments" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download_by_segments}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
             </div>
           </div>
         </reporting-by-segments>
@@ -124,7 +135,7 @@
 
     <h2 class="text-center mt-4">Policies</h2>
     <div class="row">
-      <div class="col-sm-4">
+      <div class="offset-sm-2 col-sm-4">
         <h3 class="text-center">Environmental violation</h3>
         <reporting-benchmarks inline-template
             ref="environmental-fines" :params="params"
@@ -141,6 +152,9 @@
               <div class="card-body" v-show="itemLoaded">
                 <canvas id="/sustainability/governance/environmental-reporting/environmental-fines"></canvas>
               </div>
+            </div>
+            <div class="text-center">
+              <a id="download-environmental-fines" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/governance/environmental-reporting/environmental-fines' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
             </div>
           </div>
         </reporting-benchmarks>
@@ -162,6 +176,9 @@
               <div class="card-body" v-show="itemLoaded">
                 <canvas id="/sustainability/governance/social-reporting/governance-fines"></canvas>
               </div>
+            </div>
+            <div class="text-center">
+              <a id="download-governance-fines" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/governance/environmental-reporting/governance-fines' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
             </div>
           </div>
         </reporting-benchmarks>
@@ -190,6 +207,9 @@
                 <canvas id="/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported"></canvas>
               </div>
             </div>
+            <div class="text-center">
+              <a id="download-ghg-emissions-scope1-publicly-reported" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
           </div>
         </reporting-benchmarks>
       </div>
@@ -212,6 +232,9 @@
                 <canvas id="/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported"></canvas>
               </div>
             </div>
+            <div class="text-center">
+              <a id="download-ghg-emissions-scope2-publicly-reported" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
           </div>
         </reporting-benchmarks>
       </div>
@@ -233,6 +256,9 @@
               <div class="card-body" v-show="itemLoaded">
                 <canvas id="/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-publicly-reported"></canvas>
               </div>
+            </div>
+            <div class="text-center">
+              <a id="download-ghg-emissions-scope3-publicly-reported" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-publicly-reported' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
             </div>
           </div>
         </reporting-benchmarks>
@@ -258,6 +284,9 @@
                 <canvas id="/sustainability/targets/ghg-emissions-target/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by"></canvas>
               </div>
             </div>
+            <div class="text-center">
+              <a id="download-ghg-emissions-scope1-target-by" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/ghg-emissions-target/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
           </div>
         </reporting-benchmarks>
       </div>
@@ -279,6 +308,9 @@
                 <canvas id="/sustainability/targets/ghg-emissions-target/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by"></canvas>
               </div>
             </div>
+            <div class="text-center">
+              <a id="download-ghg-emissions-scope2-target-by" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/ghg-emissions-target/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
           </div>
         </reporting-benchmarks>
       </div>
@@ -299,6 +331,9 @@
               <div class="card-body" v-show="itemLoaded">
                 <canvas id="/sustainability/targets/ghg-emissions-target/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by"></canvas>
               </div>
+            </div>
+            <div class="text-center">
+              <a id="download-ghg-emissions-scope3-target-by" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/ghg-emissions-target/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
             </div>
           </div>
         </reporting-benchmarks>
@@ -326,6 +361,9 @@
                 <canvas id="/sustainability/targets/water-target/water-target-by"></canvas>
               </div>
             </div>
+            <div class="text-center">
+              <a id="download-water-target-by" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/water-target/water-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
           </div>
         </reporting-benchmarks>
       </div>
@@ -346,6 +384,9 @@
               <div class="card-body" v-show="itemLoaded">
                 <canvas id="/sustainability/targets/waste-target/waste-target-by"></canvas>
               </div>
+            </div>
+            <div class="text-center">
+              <a id="download-waste-target-by" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/waste-target/waste-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
             </div>
           </div>
         </reporting-benchmarks>
@@ -368,6 +409,9 @@
                 <canvas id="/sustainability/targets/energy-target/energy-target-by"></canvas>
               </div>
             </div>
+            <div class="text-center">
+              <a id="download-energy-target-by" class="btn btn-secondary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/energy-target/energy-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            </div>
           </div>
         </reporting-benchmarks>
       </div>
@@ -376,8 +420,8 @@
 
     <hr />
 
-    <div>
-      <p>
+    <div class="bg-light">
+      <p class="p-4">
 Download raw data as either one question per row with supplier
 data in columns (i.e. spreadsheet), or one row per (supplier, question) pair
 (i.e. long format).

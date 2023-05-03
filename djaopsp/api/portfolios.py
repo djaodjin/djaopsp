@@ -16,11 +16,10 @@ from rest_framework.pagination import PageNumberPagination
 from pages.models import PageElement
 from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
-from survey.api.serializers import MetricsSerializer
+from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
 from survey.filters import SearchFilter, OrderingFilter
 from survey.helpers import construct_yearly_periods, construct_weekly_periods
-from survey.api.matrix import (BenchmarkAPIView as BenchmarkBaseAPIView,
-    BenchmarkIndexAPIView as BenchmarkIndexBaseAPIView)
+from survey.api.matrix import BenchmarkMixin as BenchmarkMixinBase
 from survey.mixins import TimersMixin
 from survey.models import Answer, EditableFilter, Sample
 from survey.pagination import MetricsPagination
@@ -222,7 +221,7 @@ INNER JOIN survey_sample
         }
 
 
-class BenchmarkAPIView(BenchmarkBaseAPIView):
+class BenchmarkMixin(BenchmarkMixinBase):
 
     def attach_results(self, questions_by_key, account=None):
         if not account:
@@ -239,8 +238,61 @@ class BenchmarkAPIView(BenchmarkBaseAPIView):
                 alliance.printable_name, alliance.slug)
 
 
-class BenchmarkIndexAPIView(BenchmarkIndexBaseAPIView):
-    pass
+class BenchmarkAPIView(BenchmarkMixin, generics.ListAPIView):
+    """
+    Aggregated benchmark for requested accounts
+
+    **Examples**:
+
+    .. code-block:: http
+
+        GET /api/energy-utility/reporting/sustainability/benchmarks\
+/sustainability HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+
+        {
+          "count": 4,
+          "results": []
+        }
+    """
+    serializer_class = SampleBenchmarksSerializer
+    pagination_class = MetricsPagination
+
+    def get_serializer_context(self):
+        context = super(BenchmarkAPIView, self).get_serializer_context()
+        context.update({
+            'prefix': self.db_path if self.db_path else settings.DB_PATH_SEP,
+        })
+        return context
+
+    def get_queryset(self):
+        return self.get_questions(self.db_path)
+
+
+class BenchmarkIndexAPIView(BenchmarkAPIView):
+    """
+    Aggregated benchmark for requested accounts
+
+    **Examples**:
+
+    .. code-block:: http
+
+        GET /api/energy-utility/reporting/sustainability/benchmarks HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+
+        {
+          "count": 4,
+          "results": []
+        }
+    """
 
 
 class SupplierListMixin(ScoresMixin, AccountsNominativeQuerysetMixin):

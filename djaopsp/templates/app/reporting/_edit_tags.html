@@ -1,9 +1,25 @@
 <div>
-  <div v-show="showEditTags !== index" v-if="entry.extra">
-    <span v-for="tag in entry.extra.tags" class="badge badge-secondary">[[tag]]</span>
+  <div v-show="showEditTags !== index">
+    <span class="badge badge-secondary" v-for="tag in entry.extra.tags" v-if="entry.extra">[[tag]]</span>
+    <small><a href="" @click.prevent="toggleEditTags(index)"><i class="fa fa-edit"></i></a></small>
   </div>
   <div v-show="showEditTags === index">
-    <textarea @blur="saveTags(entry)" v-model="entry.tagsAsText"></textarea>
+    <small><a href="" @click.prevent="toggleEditTags(index)"><i class="fa fa-times"></i></a> {% trans %}select tags ...{% endtrans %}</small>
+    <div v-show="showPreferences < 0">
+      <select class="form-select w-100" multiple="multiple"
+              v-model="entry.extra.tags"
+              @blur="saveTags(entry)">
+        <option :value="choice" :selected="isSelectedTag(entry, choice)" v-for="choice in tagChoices">[[choice]]</option>
+      </select>
+      <div>
+        <small><a href="" @click.prevent="togglePreferences(index)">{% trans %}update choices{% endtrans %}</small>
+      </div>
+    </div>
+    <div v-show="showPreferences >= 0">
+      <textarea @blur="savePreferences" v-model="preferenceTagsAsText"></textarea>
+      <div>
+        <small><a href="" @click.prevent="togglePreferences(index)">{% trans %}list choices{% endtrans %}</small>
+      </div>
+    </div>
   </div>
-  <small><a href=""  @click.prevent="toggleEditTags(index)"><i class="fa fa-edit"></i></a></small>
 </div>

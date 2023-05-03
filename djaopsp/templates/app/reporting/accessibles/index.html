@@ -17,13 +17,13 @@
   <div>
     <div class="row">
       <div class="col-sm-6" v-show="itemsLoaded" v-cloak>
-        [[items.count]] accessible profiles
+        [[items.count]] {% trans %}accessible profiles{% endtrans %}
       </div>
       {% if urls.download %}
-      <div class="text-right">
-      <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" href="{{urls.download}}">
-          <i class="fa fa-file-text"></i> Download (xlsx)
-      </a>
+      <div class="col-sm-6 text-right">
+        <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
+          <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
+        </a>
       </div>
       {% endif %}
     </div>
@@ -60,6 +60,18 @@
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
                   <button class="btn btn-sort">[[label]]</button>
+                  <!--
+                  <select class="form-select"
+                          v-model="params.status"
+                          @change="reload()">
+                      <option value="">{% trans %}All{% endtrans %}</option>
+                      <option value="verified"><i class="fa fa-certificate" style="color: green;"></i> verified</option>
+                      <option value="completed"><i class="fa fa-circle" style="color: green;"></i> completed</option>
+                      <option value="responded"><i class="fa fa-circle" style="color: yellow;"></i> responded</option>
+                      <option value="declined"><i class="fa fa-circle" style="color: red;"></i> declined</option>
+                      <option value="no-data"><i class="fa fa-circle" style="color: red;"></i> no-data</option>
+                  </select>
+                  -->
               </div>
             </div>
           </th>
@@ -104,7 +116,7 @@
       </tbody>
       <tbody v-show="itemsLoaded" v-cloak>
         <tr v-show="items.results.length == 0">
-          <td colspan="3">No profile accessible for {{profile}}</td>
+          <td colspan="3">{% trans profile=profile.printable_name %}No profile accessible for {{profile}}{% endtrans %}</td>
         </tr>
         <tr :id="received.account"
             :class="received.supplier_initiated ? 'supplier-initiated' : ''"

@@ -8,29 +8,38 @@
 
     {# reporting_content #}
     <div class="row">
-    <div class="col-md-6 mt-2">
-      <form id="period-update" class="form-inline" @submit.prevent="reload()">
-        <div class="input-group input-group-sm mr-2">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp">From</span>
+      <div class="col-md-6 mt-2">
+        <form id="period-update" class="form-inline" @submit.prevent="reload()">
+          <div class="input-group input-group-sm mr-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="from-inp">From</span>
+            </div>
+            <input class="form-control" type="date" v-model="_start_at" v-cloak>
           </div>
-          <input class="form-control" type="date" v-model="_start_at" v-cloak>
-        </div>
-        <div class="input-group input-group-sm mr-2">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <div class="input-group input-group-sm mr-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            </div>
+            <input class="form-control" type="date" v-model="_ends_at" v-cloak>
           </div>
-          <input class="form-control" type="date" v-model="_ends_at" v-cloak>
-        </div>
-        <button class="btn btn-secondary btn-sm mr-2"
-                :disabled="!outdated"
-                >{% trans %}Update{% endtrans %}</button>
-      </form>{# /#period-update #}
-    </div>
+          <button class="btn btn-secondary btn-sm mr-2"
+                  :disabled="!outdated"
+                  >{% trans %}Update{% endtrans %}</button>
+        </form>{# /#period-update #}
+      </div>
       <div class="col-md-6 mt-2 text-right">
-          {% include "app/reporting/_percentage_toggle.html" %}
+        {% include "app/reporting/_percentage_toggle.html" %}
       </div>
     </div>
+    {% if urls.download %}
+    <div class="row">
+      <div class="col-12 text-right">
+        <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
+          <i class="fa fa-file-text"></i> {% trans %}Download (pptx){% endtrans %}
+        </a>
+      </div>
+    </div>
+    {% endif %}
 
     <hr />
 

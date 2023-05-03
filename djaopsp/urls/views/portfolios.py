@@ -13,8 +13,9 @@ from ...views.portfolios import (
     PortfolioAccessiblesView, PortfolioEngagementView,
     PortfolioResponsesView, PortfolioResponsesXLSXView,
     PortfoliosDetailView, ReportingDashboardView)
-from ...downloads.reporting import (PortfolioAccessiblesXLSXView,
-    PortfolioEngagementXLSXView, LongFormatCSVView)
+from ...downloads.reporting import (BenchmarkPPTXView, FullReportPPTXView,
+    LongFormatCSVView, PortfolioAccessiblesXLSXView,
+    PortfolioEngagementXLSXView)
 
 urlpatterns = [
     # Redirects
@@ -33,6 +34,12 @@ urlpatterns = [
     # Views specifics to sustainability assessment
     path('reporting/<slug:campaign>/',
          include('djaopsp.sustainability.urls.views')),
+    path('reporting/<slug:campaign>/download/<path:path>',
+        BenchmarkPPTXView.as_view(),
+        name='reporting_download_benchmarks'),
+    path('reporting/<slug:campaign>/download/',
+        FullReportPPTXView.as_view(),
+        name='reporting_download_full_report'),
 
     # Download of dashboards as spreadsheets
     path('completed/download/',

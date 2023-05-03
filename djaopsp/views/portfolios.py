@@ -35,7 +35,7 @@ from ..compat import reverse, six
 from ..helpers import as_valid_sheet_title
 from ..mixins import (AccountMixin, CampaignMixin,
     AccountsAggregatedQuerysetMixin)
-from ..utils import get_scores_tree
+from ..utils import get_scores_tree, get_alliances
 
 LOGGER = logging.getLogger(__name__)
 
@@ -239,6 +239,7 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
             'api_accessibles': reverse(
                 'survey_api_portfolios_requests', args=(self.account,)),
             'api_account_candidates': site_url("/api/accounts/profiles"),
+            'api_profile': site_url("/api/profile/%s" % str(self.account)),
             'api_organizations': site_url("/api/profile"),
             'api_portfolios_requests': reverse(
                 'api_portfolio_engagement', args=(
@@ -537,8 +538,13 @@ class ReportingDashboardView(MenubarMixin, DashboardMixin, TemplateView):
             'api_reporting_ghg_emissions_amount': reverse(
                 'api_reporting_ghg_emissions_amount', args=(
                 self.account, self.campaign)),
+            'download': reverse('reporting_download_full_report', args=(
+                self.account, self.campaign)),
             'download_completion_rate': reverse(
                 'reporting_download_completion_rate', args=(
+                self.account, self.campaign)),
+            'download_engagement_stats': reverse(
+                'reporting_download_engagement_stats', args=(
                 self.account, self.campaign)),
             'download_goals': reverse(
                 'reporting_download_goals', args=(self.account, self.campaign)),
@@ -675,17 +681,18 @@ class ReportingDashboardPPTXView(DashboardAggregateMixin, TemplateView):
             for slide in prs.slides:
                 for shape in slide.shapes:
                     if isinstance(shape, Shape):
+                        if '{{title}}' in shape.text:
+                            shape.text = shape.text.replace(
+                                '{{title}}', self.title)
+                        if '{{accounts}}' in shape.text:
+                            shape.text = shape.text.replace(
+                                '{{accounts}}', ', '.join([
+                                self.account.printable_name] + [
+                                alliance.printable_name for alliance
+                                    in get_alliances(self.account)]))
                         if (self.is_percentage and
                             shape.text == "(nb suppliers)"):
                             shape.text = "(% of suppliers)"
-                        if shape.text.startswith("(outer: member"):
-                            alliance = "Alliance"
-                            series = data.get('results', [])
-                            if len(series) > 1:
-                                alliance = series[-1].get(
-                                    'printable_name', alliance)
-                            shape.text = "(outer: %s, inner: %s)" % (
-                                self.account.printable_name, alliance)
                     elif isinstance(shape, GraphicFrame):
                         # We found the chart's container
                         try:
@@ -729,3 +736,11 @@ class EngagementStatsPPTXView(EngagementStatsMixin, ReportingDashboardPPTXView):
     Download engagement statistics as a .pptx presentation
     """
     basename = 'doughnut'
+
+    def get_response_data(self, request, *args, **kwargs):
+        resp = super(EngagementStatsPPTXView, self).get_response_data(
+            request, *args, **kwargs)
+        # We have to reverse the results to keep charts consistent with
+        # HTML version.
+        resp.update({'results': reversed(resp.get('results'))})
+        return resp

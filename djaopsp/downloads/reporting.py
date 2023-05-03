@@ -1,27 +1,33 @@
 # Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
-import csv, io, logging
+import csv, datetime, io, logging, os
 
 from deployutils.helpers import datetime_or_now
 from deployutils.apps.django.mixins.timers import TimersMixin
+from django.conf import settings
 from django.db.models import Q, F
 from django.http import HttpResponse
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from openpyxl import Workbook
+from pptx import Presentation
+from pptx.chart.data import CategoryChartData
+from pptx.shapes.autoshape import Shape
+from pptx.shapes.graphfrm import GraphicFrame
 from rest_framework.request import Request
 from survey.compat import force_str, six
 from survey.filters import DateRangeFilter
 from survey.helpers import get_extra
 from survey.models import Answer, Choice, Unit
+from survey.utils import get_question_model
 
-from ..api.portfolios import (PortfolioAccessibleSamplesMixin,
+from ..api.portfolios import (BenchmarkMixin, PortfolioAccessibleSamplesMixin,
     PortfolioEngagementMixin)
 from ..helpers import as_valid_sheet_title
 from ..mixins import (AccountMixin, CampaignMixin,
     AccountsNominativeQuerysetMixin)
 from ..queries import get_completed_assessments_at_by
-
+from ..utils import get_alliances
 
 LOGGER = logging.getLogger(__name__)
 
@@ -83,6 +89,120 @@ class CSVDownloadView(AccountMixin, ListView):
 
     def queryrow_to_columns(self, record):
         raise NotImplementedError
+
+
+class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
+    """
+    Download full report as a .pptx presentation
+    """
+    content_type = \
+     'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    basename = 'report'
+    is_percentage = True
+    title = 'Full Report'
+
+    def get_filename(self):
+        return datetime_or_now().strftime(
+            self.account.slug + '-' + self.basename + '-%Y%m%d.pptx')
+
+    def get_template_names(self):
+        candidates = [
+            os.path.join('app', 'reporting', '%s.pptx' % self.campaign),
+            os.path.join('app', 'reporting', '%s.pptx' % self.basename)]
+        return candidates + super(FullReportPPTXView, self).get_template_names()
+
+    def get(self, request, *args, **kwargs):
+        #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks
+
+        # Prepares the result file
+        content = io.BytesIO()
+        candidate = None
+        for candidate_template in self.get_template_names():
+            for template_dir in settings.TEMPLATES_DIRS:
+                full_path = os.path.join(template_dir, candidate_template)
+                if os.path.exists(full_path):
+                    candidate = full_path
+                    break
+            if candidate:
+                break
+        if candidate:
+            data = {}
+            with open(candidate, 'rb') as reporting_file:
+                prs = Presentation(reporting_file)
+            for slide in prs.slides:
+                LOGGER.debug("slide=%s", slide)
+                for shape in slide.shapes:
+                    LOGGER.debug("\tshape=%s", shape)
+                    if isinstance(shape, Shape):
+                        LOGGER.debug("\t- text=%s", shape.text)
+                        if '{{title}}' in shape.text:
+                            shape.text = shape.text.replace(
+                                '{{title}}', self.title)
+                        if '{{accounts}}' in shape.text:
+                            shape.text = shape.text.replace(
+                                '{{accounts}}', ', '.join([
+                                self.account.printable_name] + [
+                                alliance.printable_name for alliance
+                                    in get_alliances(self.account)]))
+                        if (self.is_percentage and
+                            shape.text == "(nb suppliers)"):
+                            shape.text = "(% of suppliers)"
+                    elif isinstance(shape, GraphicFrame):
+                        # We found the chart's container
+                        try:
+                            chart = shape.chart
+                            if chart.has_title:
+                                data = self.get_data(chart.chart_title)
+                            else:
+                                data = self.get_data()
+                            chart_data = CategoryChartData()
+                            labels = False
+                            for serie in data:
+                                if not labels:
+                                    for point in serie.get('values'):
+                                        label = point[0]
+                                        if isinstance(label, datetime.datetime):
+                                            label = label.date()
+                                        chart_data.add_category(label)
+                                    labels = True
+                                chart_data.add_series(
+                                serie.get('slug'),
+                                    [point[1] for point in serie.get('values')])
+
+                            chart.replace_data(chart_data)
+                        except ValueError:
+                            pass
+            prs.save(content)
+        content.seek(0)
+
+        resp = HttpResponse(content, content_type=self.content_type)
+        resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
+            self.get_filename())
+
+        return resp
+
+
+class BenchmarkPPTXView(BenchmarkMixin, FullReportPPTXView):
+    """
+    Download benchmarks a .pptx presentation
+    """
+    basename = 'benchmarks'
+
+    def get_template_names(self):
+        return [os.path.join('app', 'reporting', 'doughnut.pptx')]
+
+    @property
+    def title(self):
+        if not hasattr(self, '_title'):
+            question = get_question_model().objects.filter(
+                path=self.db_path).first()
+            if question:
+                self._title = question.title
+        return self._title
+
+    def get_data(self, title=None):
+        questions = self.get_questions(self.db_path)
+        return reversed(questions[0].get('benchmarks', []))
 
 
 class TemplateXLSXView(AccountMixin, TimersMixin, ListView):

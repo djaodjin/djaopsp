@@ -1,7 +1,7 @@
 {% extends "app/reporting/base.html" %}
 
 {% block localheadermeta %}
-<title>{{campaign.title}} Engagement - {{profile.printable_name}} | Practice Sharing Platform</title>
+<title>{% trans campaign=campaign.title, profile=profile.printable_name %}{{campaign}} Engagement - {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
 <meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
 <meta property="og:title" content="{{campaign.title}} Engagement - {{profile.printable_name}} | Practice Sharing Platform" />
 <meta property="og:url" content="https://www.tspproject.org/" />
@@ -40,13 +40,13 @@
       <form id="period-update" class="form-inline" @submit.prevent="reload()">
         <div class="input-group input-group-sm mr-2">
           <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp">From</span>
+            <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
           </div>
           <input class="form-control" type="date" v-model="_start_at" v-cloak>
         </div>
         <div class="input-group input-group-sm mr-2">
           <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
           </div>
           <input class="form-control" type="date" v-model="_ends_at" v-cloak>
         </div>
@@ -60,7 +60,7 @@
       <div class="col-md-6">
         <reporting-completion-rate ref="completionWeekly" :params="params" inline-template>
           <div>
-            <h2 class="text-center">Completed week-by-week ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
+            <h2 class="text-center">{% trans %}Completed week-by-week{% endtrans %} ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
             <div>
               <div class="card-body" v-if="!itemLoaded">
                 <p>
@@ -77,7 +77,7 @@
       <div class="col-md-6 text-center">
         <reporting-completion-total ref="completionTotal" :params="params" inline-template>
           <div>
-            <h2>Status ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
+            <h2>{% trans %}Status{% endtrans %} ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
             <h3 class="text-center" v-if="itemLoaded">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h3>
             <div>
               <div class="card-body" v-if="!itemLoaded">
@@ -96,12 +96,12 @@
 
     <div class="row">
       <div class="col-sm-6" v-show="itemsLoaded" v-cloak>
-        [[items.count]] invited profiles
+        [[items.count]] {% trans %}invited profiles{% endtrans %}
       </div>
       {% if urls.download %}
       <div class="col-sm-6 text-right">
-        <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" href="{{urls.download}}">
-          <i class="fa fa-file-text"></i> Download (xlsx)
+        <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
+          <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
         </a>
       </div>
       {% endif %}
@@ -138,10 +138,21 @@
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
                   {% trans %}Status{% endtrans %}
-                <button class="btn btn-link btn-sort"
-                        @click.prevent="sortBy('reporting_status')">
-                  <i :class="sortIcon('reporting_status')"></i>
-                </button>
+                  <!--
+                  <div>
+                  <select class="form-select"
+                          v-model="params.status"
+                          @change="reload()">
+                      <option value="">{% trans %}All{% endtrans %}</option>
+                      <option value="invited">{% trans %}Invited{% endtrans %}</option>
+                      <option value="updated">{% trans %}Work in progress{% endtrans %}</option>
+                      <option value="completed">{% trans %}Completed{% endtrans %}</option>
+                      <option value="completed-notshared">{% trans %}Completed{% endtrans %} ({% trans %}not yet shared{% endtrans %})</option>
+                      <option value="completed-denied">{% trans %}Completed{% endtrans %} ({% trans %}declined to share{% endtrans %})</option>
+                      <option value="invited-denied">{% trans %}Declined to respond{% endtrans %}</option>
+                  </select>
+                  </div>
+                  -->
               </div>
             </div>
           </th>
@@ -244,7 +255,7 @@
           </td>
           <td class="text-center" colspan="3"
               v-if="hasNoReportingStatus(entry)">
-              no invite between [[_start_at]] and [[_ends_at]]
+              {% trans %}no invite between{% endtrans %} [[_start_at]] and [[_ends_at]]
           </td>
           <td class="text-nowrap text-center"
               v-if="hasNoReportingStatus(entry)">

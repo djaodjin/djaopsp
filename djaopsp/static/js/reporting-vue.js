@@ -22,6 +22,87 @@ var percentToggleMixin = {
     }
 };
 
+var portfolioTagsMixin = {
+    data: function() {
+        var initialData = {
+            api_profile: this.$urls.api_profile,
+            api_profiles_base_url: this.$urls.api_organizations,
+            typeaheadUrl: this.$urls.api_account_candidates,
+            showEditTags: -1,
+            showPreferences: -1,
+            preferenceTagsAsText: "",
+            accountExtra: {},
+        }
+        if( this.$accountExtra ) {
+            initialData.accountExtra = this.$accountExtra;
+        }
+        return initialData;
+    },
+    methods: {
+        isSelectedTag: function(item, choice) {
+            for( let idx = 0; idx < item.extra.tags.length; ++idx ) {
+                if( choice === item.extra.tags[idx] ) return true;
+            }
+            return false;
+        },
+        savePreferences: function() {
+            var vm = this;
+            vm.accountExtra.tags = vm.preferenceTagsAsText.split(',');
+            vm.reqPatch(vm.$urls.api_profile, {
+                extra: JSON.stringify(vm.accountExtra)});
+        },
+        saveTags: function(item) {
+            var vm = this;
+            if( !item.extra ) {
+                item.extra = {}
+            }
+            //XXXitem.extra.tags = item.tagsAsText.split(',');
+            vm.reqPatch(vm._safeUrl(vm.$urls.api_accessibles, [
+                'metadata', item.slug]), {extra: {tags: item.extra.tags}});
+            vm.showEditTags = -1;
+            vm.showPreferences = -1;
+        },
+        toggleEditTags: function(toggledIdx) {
+            var vm = this;
+            var entry = vm.items.results[toggledIdx];
+            if( vm.showEditTags === toggledIdx ) {
+                vm.saveTags(entry);
+                vm.showEditTags = -1;
+            } else {
+                vm.showEditTags = vm.showEditTags = toggledIdx;
+            }
+            if( vm.showEditTags >= 0 ) {
+                if( !entry.tagsAsText ) {
+                    try {
+                        entry.tagsAsText = entry.extra.tags.join(", ");
+                    } catch (err) {
+                        entry.tagsAsText = "";
+                    }
+                }
+            }
+        },
+        togglePreferences: function(toggleIdx) {
+            var vm = this;
+            vm.showPreferences = vm.showPreferences > 0 ? -1 : 1;
+            if( !vm.preferenceTagsAsText ) {
+                try {
+                    vm.preferenceTagsAsText = vm.tagChoices.join(", ");
+                } catch (err) {
+                    vm.preferenceTagsAsText = "";
+                }
+            }
+        }
+    },
+    computed: {
+        tagChoices: function() {
+            const vm = this;
+            if( vm.accountExtra && vm.accountExtra.tags ) {
+                return vm.accountExtra.tags;
+            }
+            return [];
+        }
+    }
+};
 
 /** Component to list, add and remove profiles that are currently invited
     to a campaign.
@@ -29,11 +110,13 @@ var percentToggleMixin = {
 Vue.component('engage-profiles', {
     mixins: [
         itemListMixin,
-        percentToggleMixin
+        percentToggleMixin,
+        portfolioTagsMixin
     ],
     data: function() {
         return {
             url: this.$urls.api_portfolios_requests,
+            api_profile: this.$urls.api_profile,
             api_profiles_base_url: this.$urls.api_organizations,
             typeaheadUrl: this.$urls.api_account_candidates,
             autoreload: false,
@@ -50,7 +133,6 @@ Vue.component('engage-profiles', {
             showContacts: -1,
             showRespondents: -1,
             showRecipients: -1,
-            showEditTags: -1,
             message: this.$defaultRequestInitiatedMessage,
             getCb: 'loadComplete'
         }
@@ -182,7 +264,14 @@ Vue.component('engage-profiles', {
                 vm.items.results.push(typeaheadResp.results[leftIdx]);
             }
             for(; rightIdx < resp.results.length; ++rightIdx ) {
-                vm.items.results.push(resp.results[rightIdx]);
+                let item = resp.results[rightIdx];
+                if( !item.extra ) {
+                    item.extra = {}
+                }
+                if( !item.extra.tags ) {
+                    item.extra.tags = []
+                }
+                vm.items.results.push(item);
             }
             vm.itemsLoaded = true;
         },
@@ -291,30 +380,6 @@ Vue.component('engage-profiles', {
                 });
             }
         },
-        saveTags: function(item) {
-            var vm = this;
-            if( !item.extra ) {
-                item.extra = {}
-            }
-            item.extra.tags = item.tagsAsText.split(',');
-            vm.reqPatch(vm._safeUrl(vm.$urls.api_accessibles, [
-                'metadata', item.slug]), {extra: {tags: item.extra.tags}});
-            vm.showEditTags = -1;
-        },
-        toggleEditTags: function(toggledIdx) {
-            var vm = this;
-            var entry = vm.items.results[toggledIdx];
-            vm.showEditTags = vm.showEditTags === toggledIdx ? -1 : toggledIdx;
-            if( vm.showEditTags >= 0 ) {
-                if( !entry.tagsAsText ) {
-                    try {
-                        entry.tagsAsText = entry.extra.tags.join(", ");
-                    } catch (err) {
-                        entry.tagsAsText = "";
-                    }
-                }
-            }
-        }
     },
     mounted: function(){
         this.get();
@@ -344,7 +409,8 @@ Vue.component('djaopsp-compare-samples', {
 
 Vue.component('reporting-organizations', {
     mixins: [
-        itemListMixin
+        itemListMixin,
+        portfolioTagsMixin
     ],
     data: function() {
         var data = {
@@ -374,11 +440,7 @@ Vue.component('reporting-organizations', {
             getCb: 'loadComplete',
             getCompleteCb: 'populateSummaryChart',
             showContacts: -1,
-            showEditTags: -1,
         };
-        if( this.$accountExtra ) {
-            data.accountExtra = this.$accountExtra;
-        }
         return data;
     },
     methods: {
@@ -426,6 +488,15 @@ Vue.component('reporting-organizations', {
                 resp.results = vm.items.results.concat(resp.results);
             } else {
                 vm.items = resp;
+            }
+            for( let idx = 0; idx < vm.items.results.length; ++idx ) {
+                let item = vm.items.results[idx];
+                if( !item.extra ) {
+                    item.extra = {}
+                }
+                if( !item.extra.tags ) {
+                    item.extra.tags = []
+                }
             }
             vm.grants = grantsResp;
             vm.itemsLoaded = true;
@@ -486,7 +557,6 @@ Vue.component('reporting-organizations', {
                 if( newAccount.hasOwnProperty('slug') && newAccount.slug ) {
                     vm.newItem.slug = newAccount.slug;
                 }
-                console.log()
                 if( newAccount.hasOwnProperty('email') && newAccount.email ) {
                     vm.newItem.email = newAccount.email;
                 }
@@ -557,6 +627,7 @@ Vue.component('reporting-organizations', {
             } else {
                 delete vm.accountExtra.start_at;
             }
+            vm.accountExtra.tags = vm.preferenceTagsAsText.split(',');
             vm.reqPatch(vm.$urls.api_organization_profile, {
                 extra: JSON.stringify(vm.accountExtra)},
             function(resp) {
@@ -599,30 +670,6 @@ Vue.component('reporting-organizations', {
                 });
             }
         },
-        saveTags: function(item) {
-            var vm = this;
-            if( !item.extra ) {
-                item.extra = {}
-            }
-            item.extra.tags = item.tagsAsText.split(',');
-            vm.reqPatch(vm._safeUrl(vm.$urls.api_accessibles, [
-                'metadata', item.slug]), {extra: {tags: item.extra.tags}});
-            vm.showEditTags = -1;
-        },
-        toggleEditTags: function(toggledIdx) {
-            var vm = this;
-            var entry = vm.items.results[toggledIdx];
-            vm.showEditTags = vm.showEditTags === toggledIdx ? -1 : toggledIdx;
-            if( vm.showEditTags >= 0 ) {
-                if( !entry.tagsAsText ) {
-                    try {
-                        entry.tagsAsText = entry.extra.tags.join(", ");
-                    } catch (err) {
-                        entry.tagsAsText = "";
-                    }
-                }
-            }
-        }
     },
     mounted: function(){
         this.get();
@@ -820,7 +867,7 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                                 datasets: datasets
                             },
                             options: {
-                                responsive: false,
+                                responsive: true,
                                 plugins: {
                                     legend: {
                                         display: false,
