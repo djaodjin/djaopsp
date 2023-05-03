@@ -26,7 +26,7 @@
                         <span class="badge badge-pill badge-info"
                               v-for="tag in tags"></span>
                         {% if edit_perm %}
-                        <span id="lock">add tags ... <i class="fa fa-edit"></i></span>
+                        <span id="lock">{% trans %}add tags ...{% endtrans %} <i class="fa fa-edit"></i></span>
                         {% endif %}
                       </div>
                       <div class="mt-2 text-justify markdown-description">
@@ -36,7 +36,7 @@
                           {% if element.text %}
                           {{element.text|safe}}
                           {% else %}
-                          This page is currently empty.
+                          {% trans %}This page is currently empty.{% endtrans %}
                           {% endif %}
                         </div>
                         {% else %}
@@ -46,7 +46,7 @@
                         </div>
                         <div class="editable edit-formatted" data-key="text"
                              style="min-height: 25vh"
-                             v-html="item.text ? item.text : 'This page is currently empty.'"
+                             v-html="item.text ? item.text : '{% trans %}This page is currently empty.{% endtrans %}'"
                              v-show="itemLoaded" {# v-show instead of v-if such that the jQuery editor plugin can find the node in the DOM. #}
                              v-cloak>
                         </div>
@@ -65,7 +65,7 @@
                               <form class="modal-content"
                                     @submit.prevent="create($event)">
                                 <div class="modal-header">
-                                  <h4 class="modal-title">Create a new practice ...</h4>
+                                  <h4 class="modal-title">{% trans %}Create a new practice ...{% endtrans %}</h4>
                                   <button type="button"
                                           class="close"
                                           data-dismiss="modal"
@@ -83,8 +83,8 @@
                                 </div>
                                 <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary"
-                                          data-dismiss="modal">Cancel</button>
-                                  <button type="submit" class="btn btn-primary">Create</button>
+                                          data-dismiss="modal">{% trans %}Cancel{% endtrans %}</button>
+                                  <button type="submit" class="btn btn-primary">{% trans %}Create{% endtrans %}</button>
                                 </div>
                               </form>
                             </div>
@@ -93,7 +93,7 @@
                         {% endif %}
                         <div v-if="item.account == 'envconnect'">
                             <p class="text-center mt-3">
-<a href="{{'/docs/faq/#environmental-practices'|site_url}}">How was this practice identified and selected?</a>
+<a href="{{'/docs/faq/#environmental-practices'|site_url}}">{% trans %}How was this practice identified and selected?{% endtrans %}</a>
                             </p>
                           <p class="text-center mt-3">
 <img height="32" src="{{'/static/img/cc_icon_black_x2.png'|asset}}" />
@@ -101,9 +101,8 @@
 <img height="32" src="{{'/static/img/attribution_icon_black_x2.png'|asset}}" />
                           </p>
                           <p>
-This material is licensed as Creative Commons <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.
-When using it for any project, you are required to give credit to
-The Sustainability Project (TSP). Please use the following attribution:
+{% trans %}This material is licensed as Creative Commons{% endtrans %} <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.
+{% trans %}When using it for any project, you are required to give credit to The Sustainability Project (TSP). Please use the following attribution:{% endtrans %}
                           </p>
                             <p class="border-left pl-2" v-cloak>
 <em>&quot;<a :href="'https://www.tspproject.org/app/info' + item.path">[[item.title]]</a> by <a href="https://www.tspproject.org/">The Sustainability Project (TSP)</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.&quot;</em>
@@ -113,7 +112,7 @@ The Sustainability Project (TSP). Please use the following attribution:
                         <div class="text-center">
                           {% if aliases %}
                           <div style="margin-top: 15px;">
-                            <h4>This content is aliased through:</h4>
+                            <h4>{% trans %}This content is aliased through:{% endtrans %}</h4>
                                   {% for alias in aliases %}
                             <ol class="breadcrumb">
                               {% for alias_breadcrumb in alias %}

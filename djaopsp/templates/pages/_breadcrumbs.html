@@ -8,11 +8,11 @@
       {% if profile %}
       <a href="{{'/app/'|site_url}}{{profile}}/">{{profile.printable_name}}</a>
       {% else %}
-      <a href="{{'/app/'|site_url}}">Home</a>
+      <a href="{{'/app/'|site_url}}">{% trans %}Home{% endtrans %}</a>
       {% endif %}
     </li>
     <li class="breadcrumb-item">
-      <a href="{{urls.pages_index}}">Knowledge Sharing</a>
+      <a href="{{urls.pages_index}}">{% trans %}Knowledge Sharing{% endtrans %}</a>
     </li>
     {% for breadcrumb_tuple in breadcrumbs %}
     <li class="breadcrumb-item">

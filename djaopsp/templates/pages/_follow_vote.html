@@ -1,9 +1,9 @@
 {% block follow_vote %}
 <div class="d-inline dj-answers-actions" v-cloak>
   <button type="submit" class="btn btn-danger btn-sm dj-answers-unfollow"
-    @click="submitFollow()" v-if="isFollowing">Unfollow</button>
+    @click="submitFollow()" v-if="isFollowing">{% trans %}Unfollow{% endtrans %}</button>
   <button type="submit" class="btn btn-primary btn-sm dj-answers-follow"
-    @click="submitFollow()" v-if="!isFollowing">Follow</button>
+    @click="submitFollow()" v-if="!isFollowing">{% trans %}Follow{% endtrans %}</button>
   <button id="rate_bp" type="submit"
           class="btn btn-primary btn-sm dj-answers-upvote"
           @click="submitVote()">

@@ -43,7 +43,7 @@
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary"
-                              data-dismiss="modal">Cancel</button>
+                              data-dismiss="modal">{% trans %}Cancel{% endtrans %}</button>
                       <button type="submit" class="btn btn-primary">{% trans %}Create{% endtrans %}</button>
                     </div>
                   </form>
@@ -57,7 +57,7 @@
               </div>
               {# show empty #}
               <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
-                <h3 class="text-center"><em>No entries <span v-show="params.q"> [[params.q]]</span></em></h3>
+                <h3 class="text-center"><em>{% trans %}No entries{% endtrans %} <span v-show="params.q"> [[params.q]]</span></em></h3>
               </div>
               {# show non-empty list #}
               <div v-show="itemsLoaded && items.results.length > 0"  v-cloak>

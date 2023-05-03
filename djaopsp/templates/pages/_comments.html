@@ -1,6 +1,6 @@
 {% block comments %}
 <div class="mt-2">
-  <h5>[[comments.count]] Comments</h5>
+  <h5>[[comments.count]] {% trans %}Comments{% endtrans %}</h5>
   <div :id="'comment_from_'+ comment.user" class="d-flex" v-for="comment in comments.results">
     <div class="col-sm-3 bg-light">
       <p class="mt-2 bg-light">
@@ -21,24 +21,21 @@
     <fieldset>
       <div class="form-group">
         <label class="control-label">
-<strong>Comments/lessons learned to share on this page?</strong>
-Submit them via the comment box below.
+<strong>{% trans %}Comments/lessons learned to share on this page?{% endtrans %}</strong>
+{% trans %}Submit them via the comment box below.{% endtrans %}
         </label>
         <textarea id="id_comment" class="form-control" cols="40" rows="10"
                   name="comment" v-model="message"></textarea>
       </div>
       <div class="form-actions">
         <label class="control-label">
-<strong>ATTENTION!</strong> Comments you write here will be made public to all
-visiting this page. They should be meant to help others and/or improve
-the content of the page.
+<strong>{% trans %}ATTENTION!{% endtrans %}</strong>
+{% trans %}Comments you write here will be made public to all visiting this page. They should be meant to help others and/or improve the content of the page.{% endtrans %}
         </label>
         <div class="row">
           <div class="col-md-6">
            <label class="control-label">
-To add comments specific to your organization's assessment, please
-use the <em>sticky note</em> icon between the practice title and
-the multiple choices (See picture).
+{% trans %}To add comments specific to your organization's assessment, please use the <em>sticky note</em> icon between the practice title and the multiple choices (See picture).{% endtrans %}
             </label>
           </div>
           <div class="col-md-6 text-right">
@@ -53,7 +50,7 @@ the multiple choices (See picture).
     </fieldset>
   </form>
   {% else %}
-  <p>Please <a href="{{'/login/'|site_url}}?next={{request.path}}">log in</a> to leave a comment.</p>
+  <p>{% trans %}Please{% endtrans %} <a href="{{'/login/'|site_url}}?next={{request.path}}">{% trans %}log in{% endtrans %}</a> {% trans %}to leave a comment.{% endtrans %}</p>
   {% endif %}
 </div>
 {% endblock %}
