@@ -885,6 +885,78 @@ Vue.component('scorecard', {
 });
 
 
+/** Component used to display requested scorecards
+
+    used in app/scorecard/history.html
+ */
+Vue.component('scorecard-requests', {
+    mixins: [
+        itemListMixin
+    ],
+    data: function() {
+        return {
+            url: this.$urls.api_requests,
+            params: {state: "request-initiated"},
+            api_profiles_url: this.$urls.api_organizations,
+            getCompleteCb: 'getCompleted',
+            byCampaigns: {}
+        }
+    },
+    methods: {
+        getCompleted: function(){
+            var vm = this;
+            vm.mergeResults = false;
+            const profiles = new Set();
+            vm.byCampaigns = {};
+            for( let idx =0; idx < vm.items.results.length; ++idx ) {
+                const item = vm.items.results[idx];
+                profiles.add(item.grantee);
+                const campaign =
+                      item.campaign.slug ? item.campaign.slug : item.campaign;
+                if( !(campaign in vm.byCampaigns) ) {
+                    vm.byCampaigns[campaign] = {
+                        campaign: item.campaign,
+                        expected_behavior: 'share',//'share', 'update', 'create'
+                        requests: []
+                    };
+                }
+                if( item.expected_behavior === 'update' &&
+                  vm.byCampaigns[campaign].expected_behavior === 'share' ) {
+                    vm.byCampaigns[campaign].expected_behavior = 'update';
+                } else if ( item.expected_behavior === 'create' &&
+                  (vm.byCampaigns[campaign].expected_behavior === 'update' ||
+                   vm.byCampaigns[campaign].expected_behavior === 'share') ) {
+                    vm.byCampaigns[campaign].expected_behavior = 'create';
+                }
+                vm.byCampaigns[campaign].requests.push(item);
+            }
+            let queryParams = "?q_f=slug";
+            for( const profile of profiles ) {
+                queryParams += "&q=" + profile;
+            }
+            vm.reqGet(vm.api_profiles_url + queryParams,
+            function(resp) {
+                let profiles = {}
+                for( let idx = 0; idx < resp.results.length; ++idx ) {
+                    const item = resp.results[idx];
+                    profiles[item.slug] = item;
+                }
+                for( let idx =0; idx < vm.items.results.length; ++idx ) {
+                    const item = vm.items.results[idx];
+                    if( item.grantee in profiles ) {
+                        item.grantee = profiles[item.grantee];
+                    }
+                }
+                vm.$forceUpdate();
+            });
+        },
+    },
+    mounted: function(){
+        this.get();
+    }
+});
+
+
 /** Component used to display historical scorecards
 
     used in app/scorecard/history.html
@@ -896,8 +968,52 @@ Vue.component('scorecard-history', {
     data: function() {
         return {
             url: this.$urls.api_sample_list,
-            params: {state: "completed"}
+            params: {state: "completed"},
+            api_profiles_url: this.$urls.api_organizations,
+            getCompleteCb: 'getCompleted',
         }
+    },
+    methods: {
+        getCompleted: function(){
+            var vm = this;
+            vm.mergeResults = false;
+            const profiles = new Set();
+            const foundCampaigns = new Set();
+            for( let idx =0; idx < vm.items.results.length; ++idx ) {
+                const item = vm.items.results[idx];
+                for( let grantee of item.grantees ) {
+                    profiles.add(grantee);
+                }
+                const campaign =
+                      item.campaign.slug ? item.campaign.slug : item.campaign;
+                if( !foundCampaigns.has(campaign) ) {
+                    item.latest = true;
+                    foundCampaigns.add(campaign);
+                }
+            }
+            // decorate profiles
+            let queryParams = "?q_f=slug";
+            for( const profile of profiles ) {
+                queryParams += "&q=" + profile;
+            }
+            vm.reqGet(vm.api_profiles_url + queryParams,
+            function(resp) {
+                let profiles = {}
+                for( let idx = 0; idx < resp.results.length; ++idx ) {
+                    const item = resp.results[idx];
+                    profiles[item.slug] = item;
+                }
+                for( let idx =0; idx < vm.items.results.length; ++idx ) {
+                    const item = vm.items.results[idx];
+                    for( let jdx = 0; jdx < item.grantees.length; ++jdx ) {
+                        if( item.grantees[jdx] in profiles ) {
+                            item.grantees[jdx] = profiles[item.grantees[jdx] ];
+                        }
+                    }
+                }
+                vm.$forceUpdate();
+            });
+        },
     },
     mounted: function(){
         this.get();

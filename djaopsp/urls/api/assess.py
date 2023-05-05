@@ -9,7 +9,7 @@ from django.urls import include, path
 from ...api.samples import (
     AssessmentContentAPIView, AssessmentContentIndexAPIView,
     AssessmentCompleteAPIView, AssessmentCompleteIndexAPIView,
-    BenchmarkAPIView, BenchmarkIndexAPIView)
+    SampleBenchmarksAPIView, SampleBenchmarksIndexAPIView)
 
 
 urlpatterns = [
@@ -24,10 +24,10 @@ urlpatterns = [
         AssessmentCompleteIndexAPIView.as_view(),
         name='survey_api_sample_freeze_index'),
     path('sample/<slug:sample>/benchmarks/<path:path>',
-        BenchmarkAPIView.as_view(),
+        SampleBenchmarksAPIView.as_view(),
         name='survey_api_sample_benchmarks'),
     path('sample/<slug:sample>/benchmarks',
-        BenchmarkIndexAPIView.as_view(),
+        SampleBenchmarksIndexAPIView.as_view(),
         name='survey_api_sample_benchmarks_index'),
     path('', include('survey.urls.api.sample')),
     path('', include('survey.urls.api.metrics')),

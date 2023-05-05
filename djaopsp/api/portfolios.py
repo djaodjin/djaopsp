@@ -265,7 +265,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.ListAPIView):
     def get_serializer_context(self):
         context = super(BenchmarkAPIView, self).get_serializer_context()
         context.update({
-            'prefix': self.db_path if self.db_path else settings.DB_PATH_SEP,
+            'prefix': self.db_path if self.db_path else DB_PATH_SEP,
         })
         return context
 
@@ -556,6 +556,7 @@ class TotalScoreBySubsectorAPIView(RollupMixin, GraphMixin, SupplierListMixin,
         return accounts
 
     def get_score_weight(self, path):
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_weights'):
             try:
                 self._weights = json.loads(self.campaign.extra)
@@ -838,11 +839,6 @@ class CompareAPIView(CampaignContentMixin, AccountsNominativeQuerysetMixin,
                   "/sustainability"
                 ]
               },
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": -1,
               "required": false,
               "default_unit": null,
@@ -864,11 +860,6 @@ class CompareAPIView(CampaignContentMixin, AccountsNominativeQuerysetMixin,
                 ]
               },
               "count": 1,
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": 1,
               "required": false,
               "default_unit": null,
@@ -889,11 +880,6 @@ class CompareAPIView(CampaignContentMixin, AccountsNominativeQuerysetMixin,
                   "/sustainability"
                 ]
               },
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": 1,
               "required": false,
               "default_unit": null,
@@ -914,11 +900,6 @@ class CompareAPIView(CampaignContentMixin, AccountsNominativeQuerysetMixin,
                   "/sustainability"
                 ]
               },
-              "avg_value": 0,
-              "environmental_value": 1,
-              "business_value": 1,
-              "profitability": 1,
-              "implementation_ease": 1,
               "rank": 4,
               "required": true,
               "default_unit": {
@@ -1045,11 +1026,6 @@ class CompareIndexAPIView(CompareAPIView):
                   "/sustainability"
                 ]
               },
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": -1,
               "required": false,
               "default_unit": null,
@@ -1071,11 +1047,6 @@ class CompareIndexAPIView(CompareAPIView):
                 ]
               },
               "count": 1,
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": 1,
               "required": false,
               "default_unit": null,
@@ -1096,11 +1067,6 @@ class CompareIndexAPIView(CompareAPIView):
                   "/sustainability"
                 ]
               },
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": 1,
               "required": false,
               "default_unit": null,
@@ -1121,11 +1087,6 @@ class CompareIndexAPIView(CompareAPIView):
                   "/sustainability"
                 ]
               },
-              "avg_value": 0,
-              "environmental_value": 1,
-              "business_value": 1,
-              "profitability": 1,
-              "implementation_ease": 1,
               "rank": 4,
               "required": true,
               "default_unit": {

@@ -63,6 +63,6 @@
     v-if="isPractice(practice)">
 </td>
 {# avg_value #}
-<td :class="'cell-fix-width-5 total-sep green-level-' + practice.avg_value"
+<td :class="'cell-fix-width-5 total-sep green-level-' + getIntrinsicValue(practice, 'avg_value')"
     v-if="isPractice(practice)">
 </td>

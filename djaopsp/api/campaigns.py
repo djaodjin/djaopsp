@@ -205,12 +205,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
                         "path": "/construction/governance/the-assessment\
     -process-is-rigorous",
                         "title": "The assessment process is rigorous",
-                        "indent": 2,
-                        "environmental_value": 1,
-                        "business_value": 1,
-                        "profitability": 1,
-                        "implementation_ease": 1,
-                        "avg_value": 1
+                        "indent": 2
                     },
                     {
                       "path": null,
@@ -222,12 +217,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
                         "path": "/construction/production/adjust-air-fuel\
     -ratio",
                         "title": "Adjust Air fuel ratio",
-                        "indent": 2,
-                        "environmental_value": 2,
-                        "business_value": 2,
-                        "profitability": 2,
-                        "implementation_ease": 2,
-                        "avg_value": 2
+                        "indent": 2
                     }
                 ]
             }
@@ -318,12 +308,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
                         "path": "/construction/governance/the-assessment\
     -process-is-rigorous",
                         "title": "The assessment process is rigorous",
-                        "indent": 2,
-                        "environmental_value": 1,
-                        "business_value": 1,
-                        "profitability": 1,
-                        "implementation_ease": 1,
-                        "avg_value": 1
+                        "indent": 2
                     },
                     {
                       "path": null,
@@ -335,12 +320,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
                         "path": "/construction/production/adjust-air-fuel\
     -ratio",
                         "title": "Adjust Air fuel ratio",
-                        "indent": 2,
-                        "environmental_value": 2,
-                        "business_value": 2,
-                        "profitability": 2,
-                        "implementation_ease": 2,
-                        "avg_value": 2
+                        "indent": 2
                     }
                 ]
             }
@@ -513,12 +493,7 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
                         "path": "/construction/governance/the-assessment\
     -process-is-rigorous",
                         "title": "The assessment process is rigorous",
-                        "indent": 2,
-                        "environmental_value": 1,
-                        "business_value": 1,
-                        "profitability": 1,
-                        "implementation_ease": 1,
-                        "avg_value": 1
+                        "indent": 2
                     },
                     {
                       "path": null,
@@ -530,12 +505,7 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
                         "path": "/construction/production/adjust-air-fuel\
     -ratio",
                         "title": "Adjust Air fuel ratio",
-                        "indent": 2,
-                        "environmental_value": 2,
-                        "business_value": 2,
-                        "profitability": 2,
-                        "implementation_ease": 2,
-                        "avg_value": 2
+                        "indent": 2
                     }
                 ]
             }
@@ -581,8 +551,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
                 "path": "/construction/governance/the-assessment\
 -process-is-rigorous",
                 "title": "The assessment process is rigorous",
-                "default_unit": "assessment",
-                "avg_value": 1,
+                "default_unit": "assessment"
             }
         """
         return super(CampaignEditableQuestionAPIView, self).get(request, *args, **kwargs)
@@ -617,8 +586,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
                 "path": "/construction/governance/the-assessment\
 -process-is-rigorous",
                 "title": "The assessment process is rigorous",
-                "default_unit": "assessment",
-                "avg_value": 1,
+                "default_unit": "assessment"
             }
         """
         #pylint:disable=useless-super-delegation

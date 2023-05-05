@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -12,7 +12,7 @@ from ...views.assess import (AssessPracticesXLSXView, AssessPracticesView,
 from ...views.downloads import ImproveContentPDFView
 from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
     ScorecardRedirectView, DataValuesView)
-from ...views.share import ShareView
+from ...views.share import ShareView, ShareRedirectView
 
 
 urlpatterns = [
@@ -48,4 +48,6 @@ urlpatterns = [
     # Share
     path('share/<slug:sample>/',
         ShareView.as_view(), name='share'),
+    path('share/',
+         ShareRedirectView.as_view(), name='share_redirect'),
 ]

@@ -242,8 +242,25 @@ var practicesListMixin = {
         },
 
         getIntrinsicValue: function(practice, fieldName) {
-            return practice.extra && practice.extra.intrinsic_values ?
-                (practice.extra.intrinsic_values[fieldName] || 0) : 0;
+            if( !(practice.extra && practice.extra.intrinsic_values) ) {
+                return 0;
+            }
+            if( fieldName === 'avg_value' ) {
+                if( practice.extra.intrinsic_values.length == 0 ) {
+                    return 0;
+                }
+                if( practice.extra.intrinsic_values['avg_value'] ) {
+                    return practice.extra.intrinsic_values['avg_value'];
+                }
+                let total = 0;
+                for( let idx = 0;
+                     idx < practice.extra.intrinsic_values.length; ++idx) {
+                    total += practice.extra.intrinsic_values[idx];
+                }
+                return Math.round(
+                    total / practice.extra.intrinsic_values.length);
+            }
+            return practice.extra.intrinsic_values[fieldName] || 0;
         },
         getOpportunity: function(practice) {
             var vm = this;

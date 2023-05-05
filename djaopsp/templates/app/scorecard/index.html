@@ -261,7 +261,7 @@ companies responding on practices in the industry segment.
                       Implementation rate<br />
                       [[practice.nb_respondents]] respondents
                       <div class="progress" style="margin:0">
-                        <div :class="'progress-bar progress-bar-success green-level-' + practice.avg_value"
+                        <div :class="'progress-bar progress-bar-success green-level-' + getIntrinsicValue(practice, 'avg_value')"
                              role="progressbar"
                              :aria-valuenow="getRate(practice)"
                              aria-valuemin="0"
@@ -483,6 +483,7 @@ companies responding on practices in the industry segment.
           </div>
           {% if sample.is_frozen %}
           {# actions only available when a scorecard is frozen #}
+          {% if urls.share %}
           <div class="col-sm-4 col-md-3 offset-md-6">
             <a id="share-btn" class="mt-2 btn btn-secondary w-100"
                href="{{urls.scorecard_share}}">
@@ -496,6 +497,7 @@ companies responding on practices in the industry segment.
           {#     Embed link                                           #}
           {#   </a>                                                   #}
           {# </div>                                                   #}
+          {% endif %}
           {% else %}
           {# actions only available when a scorecard is active #}
           <div class="col-sm-4 col-md-3">

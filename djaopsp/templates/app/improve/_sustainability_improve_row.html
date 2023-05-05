@@ -29,7 +29,7 @@
     v-if="isPractice(practice)">
     [[practice.nb_respondents]] respondents
     <div class="progress" style="margin:0">
-        <div :class="'progress-bar progress-bar-success green-level-' + practice.avg_value"
+        <div :class="'progress-bar progress-bar-success green-level-' + getIntrinsicValue(practice, 'avg_value')"
              role="progressbar"
              :aria-valuenow="getRate(practice)"
              aria-valuemin="0"

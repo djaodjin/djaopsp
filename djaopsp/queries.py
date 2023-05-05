@@ -753,6 +753,7 @@ def get_scored_assessments(campaign, accounts=None,
                            scores_of_interest=None,
                            db_path=None, ends_at=None, expired_at=None,
                            sort_ordering=None):
+    #pylint:disable=too-many-arguments
     sql_query = _get_scored_assessments_sql(
         campaign, accounts=accounts, scores_of_interest=scores_of_interest,
         db_path=db_path, ends_at=ends_at, expired_at=expired_at,

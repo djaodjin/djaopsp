@@ -101,6 +101,9 @@ class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
     is_percentage = True
     title = 'Full Report'
 
+    def get_data(self, title=None):
+        return []
+
     def get_filename(self):
         return datetime_or_now().strftime(
             self.account.slug + '-' + self.basename + '-%Y%m%d.pptx')
@@ -193,6 +196,7 @@ class BenchmarkPPTXView(BenchmarkMixin, FullReportPPTXView):
 
     @property
     def title(self):
+        #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_title'):
             question = get_question_model().objects.filter(
                 path=self.db_path).first()

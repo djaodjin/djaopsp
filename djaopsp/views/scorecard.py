@@ -3,6 +3,8 @@
 
 import logging
 
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_url)
 from deployutils.helpers import update_context_urls
 from django import forms
 from django.db import transaction
@@ -180,8 +182,6 @@ class ScorecardIndexView(ReportMixin, TemplateView):
                 args=(self.account, self.sample)),
             # These URLs can't be accessed by profiles the sample was shared
             # with. They must use ``sample.account``.
-            'scorecard_share': reverse('share',
-                args=(self.sample.account, self.sample)),
             'assess_base': reverse('assess_practices',
                 args=(self.sample.account, self.sample, '-'))[:-2],
             'api_assessment_freeze': reverse('survey_api_sample_freeze_index',
@@ -205,9 +205,16 @@ class ScorecardHistoryView(AccountMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ScorecardHistoryView, self).get_context_data(**kwargs)
         update_context_urls(context, {
+            'api_organizations': site_url("/api/accounts/profiles"),
             'api_sample_list': reverse('survey_api_sample_list',
                     args=(self.account,)),
+            'api_requests': reverse('survey_api_portfolios_received',
+                    args=(self.account,)),
+            'get_started': reverse('profile_getstarted',
+                    args=(self.account,)),
             'scorecard_base': reverse('scorecard_redirect',
+                    args=(self.account,)),
+            'share_base': reverse('share_redirect',
                     args=(self.account,)),
         })
         return context

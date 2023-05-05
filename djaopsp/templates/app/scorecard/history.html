@@ -1,46 +1,107 @@
 {% extends "app/scorecard/base.html" %}
 
+{% block localheadermeta %}
+<title>{% trans profile=profile.printable_name %}Completed Questionnaires for {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
+<meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
+<meta property="og:title" content="{% trans profile=profile.printable_name %}Completed Questionnaires History for {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}" />
+<meta property="og:url" content="https://www.tspproject.org/" />
+<meta name="description" property="og:description" content="}" />
+{% endblock %}
+
 {% block app_content %}
-<div class="container">
-  <div class="row">
-    <div class="col-12 mt-4">
-      <h1 class="text-center">{% trans %}Historical reports{% endtrans %}</h1>
+<div class="container pt-4">
+  <div class="bg-white text-dark p-4">
+    <div class="row">
+      <div class="col-sm-2 text-center text-sm-right">
+        <img class="img-fluid" style="max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+      </div>
+      <div class="col-sm-10 text-center text-sm-left">
+        <h1>{% trans %}Questionnaires{% endtrans %}</h1>
+        <h2 class="my-0">{{profile.printable_name}}</h2>
+      </div>
     </div>
-  </div>
-  <div class="row text-center">
-    {% if profile.picture %}
-    <div class="col-4">
-      <img class="logo" width="48" src="{{profile.picture}}">
-    </div>
-    <div class="col-8 text-left">
-      <h2>{{profile.printable_name}}</h2>
-    </div>
-    {% else %}
-    <div class="col-12">
-      <h2>{{profile.printable_name}}</h2>
-    </div>
-    {% endif %}
-  </div>
-  <div class="bg-white text-dark">
-    <scorecard-history inline-template class="pt-2">
+    <h3 class="mt-4">{% trans %}Pending Requests{% endtrans %}</h3>
+    <scorecard-requests inline-template class="pt-2">
       <div>
+        <!-- loading -->
         <div class="text-center mt-4" v-show="!itemsLoaded">
-          <!-- loading -->
           <i class="fa fa-refresh fa-spin fa-2x"></i>
         </div>
+        <!-- loaded, no data -->
         <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
-          <!-- loaded, no data -->
+          {% trans %}No requests{% endtrans %}
+          <a href="{{urls.get_started|site_url}}sustainability/">ESG/Environmental practices</a>
+        </div>
+        <!-- loaded, items present -->
+        <div id="scorecard-requests" v-show="itemsLoaded && items.results.length > 0" v-cloak>
+          <div class="my-2" v-for="(items, campaign) in byCampaigns">
+            <div class="mb-2">
+{% trans profile=profile.printable_name %}The following organizations would like an updated assessment to the [[items.campaign.title ? items.campaign.title : items.campaign]] questionnaire.{% endtrans %}
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="my-2 px-2" v-for="entry in items.requests">
+                  <img class="img-fluid" style="max-height: 1rem;" :src="entry.grantee.picture || '{{'/static/img/default-organization.png'|asset}}'"> [[entry.grantee.printable_name ? entry.grantee.printable_name : entry.grantee]]
+                  <small> - on [[ $globals.humanizeDate(entry.created_at) ]]
+                      ([[$globals.humanizeTimeDelta(entry.created_at)]])</small>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="row">
+                  <div class="col-sm-4">
+                  <a class="btn btn-primary my-2"
+                     :href="_safeUrl('{{urls.get_started}}', campaign) + '/'"
+                     v-if="items.expected_behavior === 'create'">{% trans %}Create{% endtrans %}</a>
+                  <a class="btn btn-primary my-2"
+                     :href="_safeUrl('{{urls.get_started}}', campaign) + '/'"
+                     v-if="items.expected_behavior !== 'create'">{% trans %}Update{% endtrans %}</a>
+                  </div>
+                  <div class="col-sm-8">
+                  <small class="mt-2" v-if="items.expected_behavior === 'share'">{% trans %}If you have recently completed this questionnaire and do not wish to make updates, you can share the latest assessment by clicking the share link in the <em>Previously Completed</em> section below.{% endtrans %}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </scorecard-requests>
+    <p class="mt-4">
+This Website provides additional questionnaires on which to assess
+your organizations performance on a variety of qualitative and quantitative
+metrics.<br /><a href="{{'docs/guides/'|site_url}}">{% trans %}See questionnaires{% endtrans %} &raquo;</a>
+    </p>
+
+    <hr />
+    <h3>{% trans %}Previously Completed{% endtrans %}</h3>
+    <scorecard-history inline-template class="pt-2">
+      <div>
+        <!-- loading -->
+        <div class="text-center mt-4" v-show="!itemsLoaded">
+          <i class="fa fa-refresh fa-spin fa-2x"></i>
+        </div>
+        <!-- loaded, no data -->
+        <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
           {% trans %}No previous assessments{% endtrans %}
         </div>
+        <!-- loaded, items present -->
         <div id="historical-responses" v-show="itemsLoaded && items.results.length > 0" v-cloak>
-          <!-- loaded, items present -->
           <div class="row my-2" v-for="item in items.results">
-            <div class="col-12 text-center">
-              <div>
-              [[ $globals.humanizeDate(item.created_at) ]]
+            <div class="col-2 text-right">
+              <a :href="_safeUrl('{{urls.scorecard_base}}', item.slug) + '/'">[[ $globals.humanizeDate(item.created_at) ]]</a>
+            </div>
+            <div class="col-4 text-left">
+              [[item.campaign.title]]
+            </div>
+            <div class="col-4 text-left" v-if="item.latest || item.grantees.length > 0">
+              <div v-if="item.latest">
+                  <a :href="_safeUrl('{{urls.share_base}}', item.slug) + '/'">share with customers, investors, etc. &raquo;</a>
               </div>
-              <div style="border-bottom: 1px solid #aaa;">
-              <a :href="_safeUrl('{{urls.scorecard_base}}', item.slug) + '/'">[[item.campaign.title]]</a>
+              <div v-if="item.grantees.length > 0">
+                <span>This assessment and older assessments for [[item.campaign.title]] have been shared with:</span>
+                <div v-for="grantee in item.grantees">
+                  <img class="img-fluid" style="max-height: 1rem;" :src="grantee.picture || '{{'/static/img/default-organization.png'|asset}}'"> [[grantee.printable_name ? grantee.printable_name : grantee]]
+                </div>
               </div>
             </div>
           </div>

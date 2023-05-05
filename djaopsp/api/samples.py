@@ -13,7 +13,7 @@ from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
 from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
     SampleFreezeAPIView)
-from survey.api.matrix import SampleBenchmarksAPIView, SampleBenchmarkMixin
+from survey.api.matrix import SampleBenchmarkMixin
 from survey.mixins import TimersMixin
 from survey.models import Choice, Sample, Unit, UnitEquivalences
 from survey.settings import DB_PATH_SEP
@@ -26,7 +26,7 @@ from ..scores import freeze_scores, get_score_calculator
 from ..queries import get_scored_assessments
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignContentMixin
-from .rollups import GraphMixin, RollupMixin, ScoresMixin
+from .rollups import GraphMixin, RollupMixin
 from .serializers import (AssessmentNodeSerializer,
     SampleBenchmarksSerializer, UnitSerializer)
 
@@ -118,6 +118,13 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
     def create(self, request, *args, **kwargs):
         self._start_time()
         created_at = datetime_or_now()
+
+        if self.sample.is_frozen:
+            raise ValidationError({'detail': "sample is already frozen"})
+
+        if not self.segments_available:
+            raise ValidationError({'detail':
+                "You cannot freeze a sample with no answers"})
 
         if self.nb_required_answers < self.nb_required_questions:
             raise ValidationError({'detail':
@@ -391,11 +398,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
                   "/sustainability"
                 ]
               },
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": -1,
               "required": false,
               "default_unit": null,
@@ -417,11 +419,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
                 ]
               },
               "count": 1,
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": 1,
               "required": false,
               "default_unit": null,
@@ -442,11 +439,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
                   "/sustainability"
                 ]
               },
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": 1,
               "required": false,
               "default_unit": null,
@@ -467,11 +459,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
                   "/sustainability"
                 ]
               },
-              "avg_value": 0,
-              "environmental_value": 1,
-              "business_value": 1,
-              "profitability": 1,
-              "implementation_ease": 1,
               "rank": 4,
               "required": true,
               "default_unit": {
@@ -592,11 +579,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
                   "/sustainability"
                 ]
               },
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": -1,
               "required": false,
               "default_unit": null,
@@ -617,11 +599,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
                   "/sustainability"
                 ]
               },
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": 1,
               "required": false,
               "default_unit": null,
@@ -642,11 +619,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
                   "/sustainability"
                 ]
               },
-              "avg_value": null,
-              "environmental_value": null,
-              "business_value": null,
-              "profitability": null,
-              "implementation_ease": null,
               "rank": 1,
               "required": false,
               "default_unit": null,
@@ -667,11 +639,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
                   "/sustainability"
                 ]
               },
-              "avg_value": 0,
-              "environmental_value": 1,
-              "business_value": 1,
-              "profitability": 1,
-              "implementation_ease": 1,
               "rank": 4,
               "required": true,
               "default_unit": {
@@ -702,10 +669,10 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
     """
 
 
-class BenchmarkAPIView(TimersMixin, GraphMixin, RollupMixin,
-                       SampleBenchmarkMixin,
-                       SectionReportMixin, CampaignContentMixin,
-                       generics.ListAPIView):
+class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
+                              SampleBenchmarkMixin,
+                              SectionReportMixin, CampaignContentMixin,
+                              generics.ListAPIView):
     """
     Retrieves benchmark graphs
 
@@ -813,7 +780,7 @@ class BenchmarkAPIView(TimersMixin, GraphMixin, RollupMixin,
         serializer = self.get_serializer_class()(
             queryset, many=True, context=self.get_serializer_context())
 
-        self._report_queries("BenchmarkAPIView.list done")
+        self._report_queries("SampleBenchmarksAPIView.list done")
         return http.Response(serializer.data)
 
 
@@ -877,7 +844,7 @@ class BenchmarkAPIView(TimersMixin, GraphMixin, RollupMixin,
                     break
 
 
-class BenchmarkIndexAPIView(BenchmarkAPIView):
+class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
     """
     Retrieves benchmark graphs
 

@@ -1,0 +1,21 @@
+{% extends "app/share/base.html" %}
+
+{% block share_content %}
+<section id="redirects" class="container py-4">
+  <h1 class="text-center">{% trans %}Pick a response to share ...{% endtrans %}</h1>
+  <div class="bg-white" style="min-height:30rem;">
+    <div class="row">
+      <div class="col-12 offset-md-3 col-md-6 my-4 py-4">
+        {% if redirects %}
+        {% for redirect in redirects %}
+        <div class="text-center">
+          <a class="btn btn-primary w-100 mt-2"
+             href="{{redirect.0}}">Share {{redirect.1}} ...</a>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

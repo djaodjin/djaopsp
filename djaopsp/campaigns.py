@@ -41,7 +41,7 @@ def import_campaign(campaign, file_d):
                     })
                 cols += [DB_PATH_SEP + content.slug]
             except content_model.MultipleObjectsReturned as err:
-                LOGGER.error("%s: segment '%s' already exists" % (err, title))
+                LOGGER.error("%s: segment '%s' already exists", err, title)
                 raise
         # follow on rows could be heading or practice
         _import_campaign_section(campaign, csv_file, [cols])
@@ -72,8 +72,8 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
                 try:
                     default_unit = Unit.objects.get(slug=level_unit)
                 except Unit.DoesNotExist as err:
-                    LOGGER.error("%s: cannot find unit '%s'" % (
-                        err, level_unit))
+                    LOGGER.error("%s: cannot find unit '%s'",
+                        err, level_unit)
                     raise
                 content, _ = content_model.objects.get_or_create(
                     title=title, account=campaign.account)

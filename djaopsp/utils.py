@@ -16,7 +16,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models import F, Q, Min, Max, Case, When
+from django.db.models import Min, Case, When
 from django.utils import translation
 from extended_templates.backends import get_email_backend
 from pages.helpers import ContentCut
@@ -24,7 +24,7 @@ from pages.models import PageElement, build_content_tree, flatten_content_tree
 from survey.models import (Answer, Campaign, Choice, PortfolioDoubleOptIn,
     Sample, Unit)
 from survey.helpers import get_extra
-from survey.queries import get_question_model, is_sqlite3
+from survey.queries import get_question_model
 
 from .compat import import_string, six, gettext_lazy as _
 
@@ -177,7 +177,8 @@ def get_practice_serializer():
     Returns the ``PracticeSerializer`` model that is active
     in this project.
     """
-    path = settings.PRACTICE_SERIALIZER
+    path = getattr(settings, 'PRACTICE_SERIALIZER',
+        'djaopsp.api.serializers.PracticeSerializer')
     dot_pos = path.rfind('.')
     module, attr = path[:dot_pos], path[dot_pos + 1:]
     try:
@@ -209,6 +210,7 @@ def get_requested_accounts(account, campaign=None, aggregate_set=False,
     """
     All accounts which ``account`` has requested a scorecard from.
     """
+    #pylint:disable=too-many-arguments
     queryset = None
     if (hasattr(settings, 'REQUESTED_ACCOUNTS_CALLABLE') and
         settings.REQUESTED_ACCOUNTS_CALLABLE):

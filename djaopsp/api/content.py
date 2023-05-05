@@ -166,11 +166,15 @@ class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
 -process-is-rigorous",
                     "title": "The assessment process is rigorous",
                     "indent": 2,
-                    "environmental_value": 1,
-                    "business_value": 1,
-                    "profitability": 1,
-                    "implementation_ease": 1,
-                    "avg_value": 1
+                    "extra": {
+                        "intrinsic_values": {
+                            "environmental_value": 1,
+                            "business_value": 1,
+                            "profitability": 1,
+                            "implementation_ease": 1,
+                            "avg_value": 1
+                        }
+                    }
                 },
                 {
                     "path": null,
@@ -183,11 +187,15 @@ class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
 -ratio",
                     "title": "Adjust Air fuel ratio",
                     "indent": 2,
-                    "environmental_value": 2,
-                    "business_value": 2,
-                    "profitability": 2,
-                    "implementation_ease": 2,
-                    "avg_value": 2
+                    "extra": {
+                        "intrinsic_values": {
+                            "environmental_value": 2,
+                            "business_value": 2,
+                            "profitability": 2,
+                            "implementation_ease": 2,
+                            "avg_value": 2
+                        }
+                    }
                 }
             ]
         }

@@ -551,7 +551,6 @@ USE_TZ = True
 # djaopsp app
 # -----------
 ACCOUNT_MODEL = 'djaopsp.Account'
-PRACTICE_SERIALIZER = 'djaopsp.api.serializers.PracticeSerializer'
 REPORTING_ACCOUNTS_CALLABLE = None
 REQUESTED_ACCOUNTS_CALLABLE = None
 SEND_NOTIFICATION_CALLABLE = None
