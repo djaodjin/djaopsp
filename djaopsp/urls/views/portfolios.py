@@ -65,9 +65,6 @@ urlpatterns = [
     path('reporting/<slug:campaign>/engage/download/',
         PortfolioEngagementXLSXView.as_view(),
         name='reporting_profile_engage_download'),
-    path('reporting/<slug:campaign>/engage/',
-        PortfolioEngagementView.as_view(),
-        name='reporting_profile_engage'),
     path('reporting/<slug:campaign>/accessibles/download/',
         PortfolioAccessiblesXLSXView.as_view(),
         name='reporting_profile_accessibles_download'),
@@ -84,11 +81,16 @@ urlpatterns = [
     path('reporting/<slug:campaign>/matrix/<path:path>/',
         PortfoliosDetailView.as_view(), name='matrix_chart'),
 
-    path('reporting/<slug:campaign>/',
+    path('reporting/<slug:campaign>/retiring/',
         PortfolioResponsesView.as_view(),
         name='portfolio_responses'),
+    path('reporting/<slug:campaign>/',
+        PortfolioEngagementView.as_view(),
+        name='reporting_profile_engage'),
+
     path('reporting/',
-        DashboardRedirectView.as_view(breadcrumb_url='portfolio_responses'),
+        DashboardRedirectView.as_view(
+            breadcrumb_url='reporting_profile_engage'),
         name='portfolio_engage'),
     path('', include('survey.urls.views.portfolios')),
 ]

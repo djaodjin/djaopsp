@@ -1,33 +1,10 @@
 {% extends "app/reporting/base.html" %}
 
-{% block app_content %}
-{% if urls.updated_dashboard %}
-<div class="alert alert-info">
-  <div>
-<strong>EXPERIMENTAL</strong> - Try out <a href="{{urls.updated_dashboard}}">new dashboards</a> to track separately all responses and currently engaged suppliers. Whenever you have any feedback, questions or comments, please <a href="{{'/contact/'|site_url}}">contact us</a>.
-  </div>
-</div>
-{% endif %}
+{% block reporting_title %}
+Reporting profiles
+{% endblock %}
 
-<nav class="navbar">
-  <ul class="navbar-nav ml-auto" style="margin-bottom: 1rem;">
-    {% block help_menus %}
-    <li class="nav-item">
-      <a class="nav-link{% if request.path == urls.portfolio_responses %} active{% endif %}" style="color:white;" href="{{urls.portfolio_responses}}">Reporting entities</a>
-    </li>
-    <li class="divider-vertical"></li>
-    <li class="nav-item">
-      <a class="nav-link{% if request.path == urls.reporting_organization_dashboard %} active{% endif %}" style="color:white;" href="{{urls.reporting_organization_dashboard}}">Activity summary</a>
-    </li>
-    <li class="divider-vertical"></li>
-    <li class="nav-item">
-      <a class="nav-link{% if request.path == urls.matrix_chart %} active{% endif %}" style="color:white;" href="{{urls.matrix_chart}}">Compare scores</a>
-    </li>
-    {% endblock %}
-  </ul>
-</nav>
 {% block reporting_content %}
-<h1 class="text-center">Reporting profiles</h1>
 <reporting-organizations id="managed" inline-template>
   <div>
     <div class="row">
@@ -89,7 +66,7 @@ Completed: A supplier has submitted both a complete assessment and improvement p
           </div>
         </div>
       </div>
-    </div>{# donut and invite period. #}
+    </div>{# /.row donut and invite period. #}
     <div id="panel-icons" class="panel-icons">
       <div class="card-body">
         {% block reporting_samples_list %}
@@ -228,53 +205,52 @@ user).</em>
         {% include "_pagination.html" %}
         <!-- modal dialogs -->
         {% include "app/reporting/_invite_reporting_profile.html" %}
-    </div>
-  </div>
-  <div class="card-body">
-    <div class="row" style="margin-top: 5px;">
-      <div class="col-sm-6">
-        <a id="download-reporting" class="btn btn-secondary mb-2"
-           :href="'{{urls.download}}' + getQueryString(['page'])"
-           target="_blank">
-          <i class="fa fa-download"></i> Scores
-        </a>
-        <a id="download-assessment-details" class="btn btn-secondary mb-2"
-           :href="'{{urls.download_raw}}' + getQueryString(['page'])"
-           target="_blank">
-          <i class="fa fa-download"></i> Assessment details
-        </a>
       </div>
-      <div class="col-md-6">
-        <form method="post" @submit.prevent="savePreferences()">
-          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-          <div class="input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">Expired before</span>
+    </div>{# /.panel-icons" #}
+    <div class="card-body">
+      <div class="row" style="margin-top: 5px;">
+        <div class="col-sm-6">
+          <a id="download-reporting" class="btn btn-secondary mb-2"
+             :href="'{{urls.download}}' + getQueryString(['page'])"
+             target="_blank">
+            <i class="fa fa-download"></i> Scores
+          </a>
+          <a id="download-assessment-details" class="btn btn-secondary mb-2"
+             :href="'{{urls.download_raw}}' + getQueryString(['page'])"
+             target="_blank">
+            <i class="fa fa-download"></i> Assessment details
+          </a>
+        </div>
+        <div class="col-md-6">
+          <form method="post" @submit.prevent="savePreferences()">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+            <div class="input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="from-inp">Expired before</span>
+              </div>
+              <input class="form-control" type="date" v-model="_start_at" v-cloak>
             </div>
-            <input class="form-control" type="date" v-model="_start_at" v-cloak>
-          </div>
-          <div>
-            <label style="color:#000;margin-top: 10px;">
-              <input type="checkbox"
-                     v-model="accountExtra.supply_chain"> Display full supply chain.
-            </label>
-          </div>
-          <div>
-            <label style="color:#000;margin-top: 10px;">
-              <input type="checkbox"
-                     v-model="accountExtra.reminder"> Remind suppliers to complete assessment and planning every Friday morning.
-            </label>
-          </div>
-          <div>
-            <button class="btn btn-secondary">Save preferences</button>
-          </div>
-        </form>
+            <div>
+              <label style="color:#000;margin-top: 10px;">
+                <input type="checkbox"
+                       v-model="accountExtra.supply_chain"> Display full supply chain.
+              </label>
+            </div>
+            <div>
+              <label style="color:#000;margin-top: 10px;">
+                <input type="checkbox"
+                       v-model="accountExtra.reminder"> Remind suppliers to complete assessment and planning every Friday morning.
+              </label>
+            </div>
+            <div>
+              <button class="btn btn-secondary">Save preferences</button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-  </div><!-- /.card-body -->
-</div>
+    </div><!-- /.card-body -->
+  </div>
 </reporting-organizations>
-{% endblock %}
 {% endblock %}
 
 {% block reporting_scripts %}

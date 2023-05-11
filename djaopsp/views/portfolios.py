@@ -150,13 +150,11 @@ class MenubarMixin(object):
             # reporting dashboards menu items
             'portfolio_responses': reverse(
                 'portfolio_responses', args=(self.account, self.campaign)),
-            'reporting_organization_dashboard': reverse(
-                'reporting_organization_dashboard', args=(
-                self.account, self.campaign)),
-            'matrix_chart': reverse(
-                'matrix_chart', args=(self.account, self.campaign, 'totals')),
-            'updated_dashboard': reverse('reporting_profile_accessibles',
-                args=(self.account, self.campaign)),
+            #'reporting_organization_dashboard': reverse(
+            #    'reporting_organization_dashboard', args=(
+            #    self.account, self.campaign)),
+            #'matrix_chart': reverse(
+            #    'matrix_chart', args=(self.account, self.campaign, 'totals')),
         })
         return context
 
@@ -176,6 +174,8 @@ class UpdatedMenubarMixin(object):
             'highlights': reverse(
                 'reporting_organization_dashboard', args=(
                 self.account, self.campaign)),
+            'previous_dashboard': reverse('portfolio_responses',
+                args=(self.account, self.campaign)),
         })
         return context
 
@@ -258,6 +258,7 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
             'download_engagement_stats': reverse(
                 'reporting_download_engagement_stats', args=(
                 self.account, self.campaign)),
+            'help': site_url("/docs/guides/djaopsp/engage/")
         })
         return context
 
@@ -504,7 +505,7 @@ class CompletedAssessmentsRawXLSXView(CompletedAssessmentsMixin, TemplateView):
             datetime_or_now().strftime('%Y%m%d'))
 
 
-class ReportingDashboardView(MenubarMixin, DashboardMixin, TemplateView):
+class ReportingDashboardView(UpdatedMenubarMixin, DashboardMixin, TemplateView):
 
     template_name = 'app/reporting/dashboard/index.html'
 

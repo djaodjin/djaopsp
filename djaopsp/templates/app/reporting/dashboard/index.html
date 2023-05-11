@@ -1,40 +1,42 @@
 {% extends "app/reporting/dashboard/base.html" %}
 
-{% block reporting_title %}{% trans %}Highlights{% endtrans %}{% endblock %}
+{% block reporting_title %}{% trans %}Insights{% endtrans %}{% endblock %}
 
-{% block reporting_dashboard_content %}
+{% block reporting_content %}
 <activity-summary inline-template>
   <div>
-
-    {# reporting_content #}
+    {# Following `div` matches engage page layout #}
     <div class="row">
-      <div class="col-md-6 mt-2">
-        <form id="period-update" class="form-inline" @submit.prevent="reload()">
+      <div class="col-md-6">
+        <form id="period-update" class="form-inline mt-4" @submit.prevent="reload()">
           <div class="input-group input-group-sm mr-2">
             <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">From</span>
+              <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
             </div>
             <input class="form-control" type="date" v-model="_start_at" v-cloak>
           </div>
           <div class="input-group input-group-sm mr-2">
             <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             </div>
             <input class="form-control" type="date" v-model="_ends_at" v-cloak>
           </div>
           <button class="btn btn-secondary btn-sm mr-2"
-                  :disabled="!outdated"
-                  >{% trans %}Update{% endtrans %}</button>
+                :disabled="!outdated"
+                >{% trans %}Update{% endtrans %}</button>
         </form>{# /#period-update #}
       </div>
-      <div class="col-md-6 mt-2 text-right">
-        {% include "app/reporting/_percentage_toggle.html" %}
+      <div class="col-md-6">
+        <div class="mt-4 text-right">
+          {% include "app/reporting/_percentage_toggle.html" %}
+        </div>
       </div>
     </div>
-    {% if urls.download %}
+
+    {% if FEATURES_DEBUG and urls.download %}
     <div class="row">
       <div class="col-12 text-right">
-        <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
+        <a class="mt-4 btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
           <i class="fa fa-file-text"></i> {% trans %}Download (pptx){% endtrans %}
         </a>
       </div>
@@ -43,70 +45,75 @@
 
     <hr />
 
-    <div class="row">
-      <div class="col-sm-8">
-        <reporting-completion-rate ref="completionRate" :params="params" inline-template>
-          <div>
-            <h2 class="text-center mt-2">Completion rate ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
+    {% block reporting_activity_summary %}
+    <div>
+      <div class="row">
+        <div class="col-sm-8">
+          <reporting-completion-rate inline-template
+                                     ref="completionRate" :params="params">
             <div>
-              <div class="card-body" v-if="!itemLoaded">
-                <p>
-                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
-                </p>
+              <h2 class="text-center mt-2">Completion rate ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
+              <div>
+                <div class="card-body" v-if="!itemLoaded">
+                  <p>
+                    <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                  </p>
+                </div>
+                <div class="card-body" v-show="itemLoaded">
+                  <canvas id="completionRate"></canvas>
+                </div>
               </div>
-              <div class="card-body" v-show="itemLoaded">
-                <canvas id="completionRate"></canvas>
+              <div class="text-center">
+                <a id="download-competion-rate" class="btn btn-secondary mb-2" :href="'{{urls.download_completion_rate}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
               </div>
             </div>
-            <div class="text-center">
-              <a id="download-competion-rate" class="btn btn-secondary mb-2" :href="'{{urls.download_completion_rate}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
-            </div>
-          </div>
-        </reporting-completion-rate>
-      </div>
-      <div class="col-md-4">
-       <reporting-completion-total ref="completionTotal" :params="params" inline-template>
-          <div>
-            <h2 class="text-center mt-2">Status ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
-            <h3 class="text-center" v-if="itemLoaded">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h3>
+          </reporting-completion-rate>
+        </div>
+        <div class="col-md-4">
+          <reporting-completion-total ref="completionTotal" :params="params" inline-template>
             <div>
-              <div class="card-body" v-if="!itemLoaded">
-                <p>
-                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
-                </p>
-              </div>
-              <div class="card-body" v-show="itemLoaded">
-                <canvas id="summaryChart" style="max-height: 240px;"></canvas>
-              </div>
-            </div>
-          </div>
-        </reporting-completion-total>
-      </div>
-    </div><!-- /.row (activity) -->
-    <hr />
-    <div class="row">
-      <div class="col-md-6">
-        <reporting-by-segments ref="bySegments" :params="params" inline-template>
-          <div>
-            <h2 class="text-center mt-4">Assessments completed by segments</h2>
-            <h3 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h3>
-            <div class="p-4">
-              <div class="card-body" v-if="!itemLoaded">
-                <p>
-                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
-                </p>
-              </div>
-              <div class="card-body" v-show="itemLoaded">
-                <canvas id="bySegements"></canvas>
+              <h2 class="text-center mt-2">Status ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
+              <h3 class="text-center" v-if="itemLoaded">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h3>
+              <div>
+                <div class="card-body" v-if="!itemLoaded">
+                  <p>
+                    <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                  </p>
+                </div>
+                <div class="card-body" v-show="itemLoaded">
+                  <canvas id="summaryChart" style="max-height: 240px;"></canvas>
+                </div>
               </div>
             </div>
-            <div class="text-center">
-              <a id="download-by-segments" class="btn btn-secondary mb-2" :href="'{{urls.download_by_segments}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+          </reporting-completion-total>
+        </div>
+      </div><!-- /.row (activity) -->
+      <hr />
+      <div class="row">
+        <div class="col-md-6">
+          <reporting-by-segments ref="bySegments" :params="params" inline-template>
+            <div>
+              <h2 class="text-center mt-4">Assessments completed by segments</h2>
+              <h3 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h3>
+              <div class="p-4">
+                <div class="card-body" v-if="!itemLoaded">
+                  <p>
+                    <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                  </p>
+                </div>
+                <div class="card-body" v-show="itemLoaded">
+                  <canvas id="bySegements"></canvas>
+                </div>
+              </div>
+              <div class="text-center">
+                <a id="download-by-segments" class="btn btn-secondary mb-2" :href="'{{urls.download_by_segments}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+              </div>
             </div>
-          </div>
-        </reporting-by-segments>
-      </div>
-    </div><!-- /.row (assessments) -->
+          </reporting-by-segments>
+        </div>
+      </div><!-- /.row (assessments) -->
+    </div>
+    {% endblock %}
 
     <hr />
 

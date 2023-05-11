@@ -79,6 +79,7 @@ var portfolioTagsMixin = {
                         entry.tagsAsText = "";
                     }
                 }
+                vm.showPreferences = ( vm.tagChoices && vm.tagChoices.length === 0 ) ? 1 : -1;
             }
         },
         togglePreferences: function(toggleIdx) {
@@ -499,7 +500,35 @@ Vue.component('reporting-organizations', {
                 }
             }
             vm.grants = grantsResp;
+            vm.populateProfiles(vm.grants);
             vm.itemsLoaded = true;
+        },
+        populateProfiles: function(portfolios) {
+            var vm = this;
+            const profiles = new Set();
+            for( let idx =0; idx < portfolios.results.length; ++idx ) {
+                const item = portfolios.results[idx];
+                profiles.add(item.account);
+            }
+            let queryParams = "?q_f=slug";
+            for( const profile of profiles ) {
+                queryParams += "&q=" + profile;
+            }
+            vm.reqGet(vm.api_profiles_base_url + queryParams,
+            function(resp) {
+                let profiles = {}
+                for( let idx = 0; idx < resp.results.length; ++idx ) {
+                    const item = resp.results[idx];
+                    profiles[item.slug] = item;
+                }
+                for( let idx =0; idx < portfolios.results.length; ++idx ) {
+                    const item = portfolios.results[idx];
+                    if( item.account in profiles ) {
+                        item.account = profiles[item.account];
+                    }
+                }
+                vm.$forceUpdate();
+            });
         },
         populateSummaryChart: function() {
             var vm = this;

@@ -1,27 +1,20 @@
 {% extends "app/base.html" %}
 
 {% block app_content %}
-{% if urls.updated_dashboard %}
+{% if urls.previous_dashboard %}
 <div class="alert alert-info">
   <div>
-<strong>EXPERIMENTAL</strong> - Try out <a href="{{urls.updated_dashboard}}">new dashboards</a> to track separately all responses and currently engaged suppliers. Whenever you have any feedback, questions or comments, please <a href="{{'/contact/'|site_url}}">contact us</a>.
+<strong>RETIRING ON May 31st 2023</strong> - The <a href="{{urls.previous_dashboard}}">previous dashboard</a> is still available until May 31st 2023. If there are use cases you cannot accomplish with the new dashboards, please <a href="{{'/contact/'|site_url}}">contact us</a>.
   </div>
 </div>
 {% endif %}
-<div class="mx-4">
+<div class="p-4">
   <div class="row">
     <div class="col-md-5">
-      <div class="pt-4">
-        <ul class="nav surrounded-tabs">
-          <li class="nav-item squared-tabs-li text-center">
-            <img src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" />
-          </li>
-        </ul>
-      </div>
     </div>
     <div class="col-md-7">
-      <nav class="navbar navbar-dark">
-        <ul class="navbar-nav ml-auto">
+      <nav>
+        <ul class="nav nav-tabs justify-content-end">
           {% block help_menus %}
 
           {# current menus #}
@@ -46,12 +39,6 @@
           {% endif %}
 
           {# new menus #}
-          {% if urls.accessibles %}
-          <li class="divider-vertical"></li>
-          <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">{% trans %}Responses{% endtrans %}</a>
-          </li>
-          {% endif %}
           {% if urls.engage %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
@@ -61,7 +48,13 @@
           {% if urls.highlights %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.highlights %} active{% endif %}" href="{{urls.highlights}}">{% trans %}Highlights{% endtrans %}</a>
+            <a class="nav-link{% if request.path == urls.highlights %} active{% endif %}" href="{{urls.highlights}}">{% trans %}Insights{% endtrans %}</a>
+          </li>
+          {% endif %}
+          {% if urls.accessibles %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">{% trans %}All Available{% endtrans %}</a>
           </li>
           {% endif %}
           {% if FEATURES_DEBUG and urls.compare %}
@@ -77,29 +70,34 @@
   </div>
   <div class="row">
     <div class="col-12">
-      <div class="bg-white text-dark">
-        <div class="mx-3">
+      <div class="bg-white text-dark p-3">
+        <div>
           {% block reporting_container %}
           <div class="row">
-            <div class="col-sm-8">
-              <h1 class="d-inline pb-0 my-0">{% block reporting_title %}{% endblock %}</h1>
-              {% if campaign %}
-              <h3 class="d-inline pb-0 my-0">/ {{campaign.title}}</h3>
-              {% endif %}
-              <div class="d-inline">
-                {% if urls.help %}
-                <sup role="button">
-                  <a href="{{urls.help}}" target="_blank">
-                    <small>
-                      <i id="help-request" class="fa fa-question-circle"></i>
-                    </small>
-                  </a>
-                </sup>
-                {% endif %}
+            <div class="col-sm-7">
+              <div>
+                <img class="img-fluid" style="max-height:100px;vertical-align:top;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+                <div class="d-inline-block pl-2">
+                  <h1 class="d-inline pb-0 my-0">{% block reporting_title %}{% endblock %}</h1>
+                  {% if campaign %}
+                  <h3 class="d-inline pb-0 my-0">/ {{campaign.title}}</h3>
+                  {% endif %}
+                  <div class="d-inline">
+                    {% if urls.help %}
+                    <sup role="button">
+                      <a href="{{urls.help}}" target="_blank">
+                        <small>
+                          <i id="help-request" class="fa fa-question-circle"></i>
+                        </small>
+                      </a>
+                    </sup>
+                    {% endif %}
+                  </div>
+                  <h2 class="my-0">{{profile.printable_name}}</h2>
+                </div>
               </div>
-              <h2 class="my-0">{{profile.printable_name}}</h2>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-5">
               {% block reporting_toggle %}
               {% endblock %}
             </div>

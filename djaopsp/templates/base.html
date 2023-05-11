@@ -12,12 +12,6 @@
     <meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
     <meta property="og:site_name" content="DjaoDjin" />
     <meta property="og:type" content="website" />
-    <meta name="twitter:account_id" content="1551213320" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:creator" content="@djaodjin" />
-    <meta name="twitter:domain" content="https://djaodjin.com" />
-    <meta name="twitter:image" content="https://djaodjin.com/static/img/og-image.png" />
-    <meta name="twitter:site" content="@djaodjin" />
     {% endblock %}
     <link rel="stylesheet" media="screen, print" href="{{'/static/cache/base.css'|asset}}" />
     <style media="screen">
@@ -55,27 +49,26 @@
                     </header>
                     <div class="dashboard-nav-menu">
                       {% block sidebar %}
-                        <hr />
-                        <ul class="nav flex-column d-md-none">
-                            {% include "_generic_navbar.html" %}
-                        </ul>
+                      <hr />
+                      <ul class="nav flex-column d-md-none">
+                        {% include "_generic_navbar.html" %}
+                      </ul>
                       {% endblock %}
                     </div>
                   </div>
 
                   <!-- Start Dashboard Footer -->
                   {% block dashboard_footer %}
-                      <div class="dashboard-nav-footer dashboard-nav-color-theme">
-                          <div class="footer-links">
-                              <a href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm pr-2"></i></a>
-                              <a href="https://twitter.com/djaodjin"  target="_blank"><i class="fa fa-twitter fa-sm pr-2"></i></a>
-                              <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
-                          </div>
+                  <div class="dashboard-nav-footer dashboard-nav-color-theme">
+                    <div class="footer-links">
+                      <a href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm pr-2"></i></a>
+                      <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
+                    </div>
 
-                          <div>
-                          {% trans %}Powered by &copy; 2023 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
-                          </div>
-                      </div>
+                    <div>
+                      {% trans %}Powered by &copy; 2023 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
+                    </div>
+                  </div>
                   {% endblock %}
                   <!-- End Dashboard Footer -->
 
@@ -95,28 +88,28 @@
                   </a>
 
                   {% block content_navbarbrand %}
-                    <div class="navbar-brand-container">
-                      {% include "_navbarbrand.html" %}
-                    </div>
+                  <div class="navbar-brand-container">
+                    {% include "_navbarbrand.html" %}
+                  </div>
                   {% endblock %}
 
                   {% block header_navbar_large %}
-                    <div class="navbar-collapse collapse navbar-right">
-                      <ul class="nav navbar-nav ml-auto mt-lg-0">
-                        {% include "_generic_navbar.html" %}
-                      </ul>
-                    </div>
-                    <ul class="nav navbar-nav ml-auto mt-lg-0 header-menubar">
-                    <!-- The content here will be replaced by _menubar.html -->
-                      <li class="nav-item">
-                      {% if request and request|is_authenticated %}
-                        <a class="nav-link">{{request.user.username}}</a>
-                      {% else %}
-                        <a id="login" class="nav-link btn btn-primary text-white" href="{{'/login/'|site_url}}">Sign In</a>
-                      {% endif %}
-                      </li>
-                    <!-- this area will be populated by _menubar.html -->
+                  <div class="navbar-collapse collapse navbar-right">
+                    <ul class="nav navbar-nav ml-auto mt-lg-0">
+                      {% include "_generic_navbar.html" %}
                     </ul>
+                  </div>
+                  <ul class="nav navbar-nav ml-auto mt-lg-0 header-menubar">
+                    {# The content here will be replaced by _menubar.html #}
+                    <li class="nav-item">
+                      {% if request and request|is_authenticated %}
+                      <a class="nav-link">{{request.user.username}}</a>
+                      {% else %}
+                      <a id="login" class="nav-link btn btn-primary text-white mx-2" href="{{'/login/'|site_url}}">Sign In</a>
+                      {% endif %}
+                    </li>
+                    {# end of replaced by _menubar.html #}
+                  </ul>
                   {% endblock %}
                 </nav>
               </header>
@@ -128,22 +121,22 @@
                 <div id="messages-content">
                   {% if request %}
                     {% for message in request|messages %}
-                      <div class="alert{% if message.tags %} alert-{{message.tags}}{% endif %}">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        {% if 'safe' in message.tags %}
-                          <div>{{message|safe}}</div>
-                        {% else %}
-                          <div>{{message}}</div>
-                        {% endif %}
-                      </div>
+                    <div class="alert{% if message.tags %} alert-{{message.tags}}{% endif %}">
+                      <button type="button" class="close" data-dismiss="alert">&times;</button>
+                      {% if 'safe' in message.tags %}
+                      <div>{{message|safe}}</div>
+                      {% else %}
+                      <div>{{message}}</div>
+                      {% endif %}
+                    </div>
                     {% endfor %}
                   {% endif %}
                   {% if form %}
                     {% for message in form|messages %}
-                      <div class="alert alert-danger">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        <div>{{message}}</div>
-                      </div>
+                    <div class="alert alert-danger">
+                      <button type="button" class="close" data-dismiss="alert">&times;</button>
+                      <div>{{message}}</div>
+                    </div>
                     {% endfor %}
                   {% endif %}
                   <script type="text/javascript">

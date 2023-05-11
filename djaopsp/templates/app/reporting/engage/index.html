@@ -8,52 +8,37 @@
 <meta name="description" property="og:description" content="Engage reporting profiles with {{campaign.title}}" />
 {% endblock %}
 
-{% block reporting_container %}
+{% block reporting_title %}{% trans %}Engage{% endtrans %}{% endblock %}
+
+{% block reporting_content %}
 <engage-profiles inline-template>
   <div>
     <div class="row">
-      <div class="col-sm-8">
-        <h1 class="d-inline pb-0 my-0">{% trans %}Engage{% endtrans %}</h1>
-        {% if campaign %}
-        <h3 class="d-inline pb-0 my-0">/ {{campaign.title}}</h3>
-        {% endif %}
-        <div class="d-inline">
-          <sup role="button">
-            <a href="{{'/docs/guides/djaopsp/engage/'|site_url}}" target="_blank">
-            <small>
-              <i id="help-request" class="fa fa-question-circle"></i>
-            </small>
-            </a>
-          </sup>
-        </div>
-        <h2 class="my-0">{{profile.printable_name}}</h2>
+      <div class="col-md-6">
+        <form id="period-update" class="form-inline mt-4"
+              @submit.prevent="reload()">
+          <div class="input-group input-group-sm mr-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
+            </div>
+            <input class="form-control" type="date" v-model="_start_at" v-cloak>
+          </div>
+          <div class="input-group input-group-sm mr-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            </div>
+            <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+          </div>
+          <button class="btn btn-secondary btn-sm mr-2"
+                :disabled="!outdated"
+                >{% trans %}Update{% endtrans %}</button>
+        </form>{# /#period-update #}
       </div>
-      <div class="col-sm-4">
+      <div class="col-md-6">
         <div class="mt-4 text-right">
           {% include "app/reporting/_percentage_toggle.html" %}
         </div>
       </div>
-    </div>
-
-    {# reporting_content #}
-    <div class="offset-md-3 col-md-6 mt-2">
-      <form id="period-update" class="form-inline" @submit.prevent="reload()">
-        <div class="input-group input-group-sm mr-2">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-          </div>
-          <input class="form-control" type="date" v-model="_start_at" v-cloak>
-        </div>
-        <div class="input-group input-group-sm mr-2">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          </div>
-          <input class="form-control" type="date" v-model="_ends_at" v-cloak>
-        </div>
-        <button class="btn btn-secondary btn-sm mr-2"
-                :disabled="!outdated"
-                >{% trans %}Update{% endtrans %}</button>
-      </form>{# /#period-update #}
     </div>
 
     <div class="row mt-4">

@@ -1,4 +1,4 @@
-<div>
+<div style="width:12rem;">
   <div v-show="showEditTags !== index">
     <span class="badge badge-secondary" v-for="tag in entry.extra.tags" v-if="entry.extra">[[tag]]</span>
     <small><a href="" @click.prevent="toggleEditTags(index)"><i class="fa fa-edit"></i></a></small>
@@ -6,7 +6,7 @@
   <div v-show="showEditTags === index">
     <small><a href="" @click.prevent="toggleEditTags(index)"><i class="fa fa-times"></i></a> {% trans %}select tags ...{% endtrans %}</small>
     <div v-show="showPreferences < 0">
-      <select class="form-select w-100" multiple="multiple"
+      <select class="form-control w-100" multiple="multiple"
               v-model="entry.extra.tags"
               @blur="saveTags(entry)">
         <option :value="choice" :selected="isSelectedTag(entry, choice)" v-for="choice in tagChoices">[[choice]]</option>
@@ -16,7 +16,10 @@
       </div>
     </div>
     <div v-show="showPreferences >= 0">
-      <textarea @blur="savePreferences" v-model="preferenceTagsAsText"></textarea>
+      <textarea class="form-control"
+                placeholder="{% trans %}type words separated by commas then click 'list choices' and select multiple tags.{% endtrans %}"
+                v-model="preferenceTagsAsText"
+                @blur="savePreferences"></textarea>
       <div>
         <small><a href="" @click.prevent="togglePreferences(index)">{% trans %}list choices{% endtrans %}</small>
       </div>

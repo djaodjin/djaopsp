@@ -9,25 +9,61 @@
 {% endblock %}
 
 
-{% block reporting_title %}{% trans %}Accessible responses{% endtrans %}{% endblock %}
+{% block reporting_title %}{% trans %}All available assessments{% endtrans %}{% endblock %}
 
+{% block reporting_toggle %}
+<div class="side-notes" style="font-size:0.8rem;">
+  <h5>What are the different statuses?</h5>
+  <div class="row">
+    <div class="col-sm-6">
+      <dl>
+        <dt><i class="fa fa-certificate" style="color: green;"></i> verified</dt>
+        <dd>A subject matter expert has read through the response and rated the accuracy of the response.</dd>
+      </dl>
+      <dl>
+        <dt><i class="fa fa-circle" style="color: green;"></i> completed</dt>
+        <dd>The reporting profile as completed the questionnaire and shared it with your account.</dd>
+      </dl>
+      <dl>
+        <dt><i class="fa fa-circle" style="color: yellow;"></i> responded</dt>
+        <dd>The reporting profile as completed the questionnaire but hasn't shared the response with your account yet.</dd>
+      </dl>
+      </div>
+      <div class="col-sm-6">
+      <dl>
+        <dt><i class="fa fa-circle" style="color: red;"></i> declined</dt>
+        <dd>The reporting profile as completed the questionnaire but has declined to share the response with your account.</dd>
+      </dl>
+      <dl>
+        <dt><i class="fa fa-circle" style="color: grey;"></i> no-data</dt>
+        <dd>The reporting profile as not completed the questionnaire. It could either means they abandoned in the middle of responding or they have never started.</dd>
+      </dl>
+      {% if urls.help %}
+      <a href="{{urls.help}}" target="blank">find more help &raquo;</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
 
 {% block reporting_content %}
 <reporting-organizations inline-template>
   <div>
-    <div class="row">
+    <div class="row align-items-end">
       <div class="col-sm-6" v-show="itemsLoaded" v-cloak>
-        [[items.count]] {% trans %}accessible profiles{% endtrans %}
+        <span class="mt-4">
+          [[items.count]] {% trans %}accessible profiles{% endtrans %}
+        </span>
       </div>
       {% if urls.download %}
       <div class="col-sm-6 text-right">
-        <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
+        <a class="mt-4 mb-1 btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
           <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
         </a>
       </div>
       {% endif %}
     </div>
-    <table class="table table-striped mt-4">
+    <table class="table table-striped">
       <thead>
         <tr>
           <th class="sticky-cell sticky-cell-top">
@@ -123,7 +159,7 @@
             v-for="(received, index) in grants.results"
             v-show="itemsLoaded && grants.results.length > 0" v-cloak>
             <td class="text-center" colspan="3">
-              <em>{% trans profile_name="[[received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}</em>
+              <img class="img-fluid" style="max-height: 1rem;" :src="received.account.picture || '{{'/static/img/default-organization.png'|asset}}'"><em class="pl-1">{% trans profile_name="[[received.account.printable_name ? received.account.printable_name : received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}</em>
             </td>
             <td :colspan="items.labels.length + 1">
                 <button class="btn btn-secondary"
