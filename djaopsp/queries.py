@@ -393,6 +393,10 @@ def _get_frozen_query_sql(campaign, segments, ends_at, expired_at=None):
                 frozen_improvements_query = "(%s) UNION (%s)" % (
                     frozen_improvements_query, segment_query)
 
+    if not frozen_assessments_query or not frozen_improvements_query:
+        # We don't have any segements of interest, so nothing to do.
+        return ""
+
     if expired_at:
         reporting_clause = \
 """  CASE WHEN _frozen_assessments.created_at < '%(expired_at)s'
@@ -602,6 +606,9 @@ def _get_scored_assessments_sql(campaign, accounts=None,
     else:
         frozen_query = _get_frozen_query_sql(
             campaign, scores_of_interest, ends_at, expired_at=expired_at)
+    if not frozen_query:
+        # We don't have any segements of interest, so nothing to do.
+        return ""
 
     # We mark assessments completed prior to expired_at as expired.
     if expired_at:

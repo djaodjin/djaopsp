@@ -504,6 +504,7 @@ Vue.component('reporting-organizations', {
             vm.itemsLoaded = true;
         },
         populateProfiles: function(portfolios) {
+            if( typeof portfolios === 'undefined' ) return;
             var vm = this;
             const profiles = new Set();
             for( let idx =0; idx < portfolios.results.length; ++idx ) {
