@@ -40,8 +40,10 @@ var portfolioTagsMixin = {
     },
     methods: {
         isSelectedTag: function(item, choice) {
-            for( let idx = 0; idx < item.extra.tags.length; ++idx ) {
-                if( choice === item.extra.tags[idx] ) return true;
+            if( item.extra && item.extra.tags ) {
+                for( let idx = 0; idx < item.extra.tags.length; ++idx ) {
+                    if( choice === item.extra.tags[idx] ) return true;
+                }
             }
             return false;
         },
@@ -177,6 +179,9 @@ Vue.component('engage-profiles', {
                         vm.newItem.email = newAccount.contacts[0].user.email;
                     }
                 }
+            }
+            if( !vm.newItem.email && vm.params.q && vm.params.q.indexOf('@') ) {
+                vm.newItem.email = vm.params.q;
             }
             if( newAccount.hasOwnProperty('printable_name')
                 && newAccount.printable_name ) {

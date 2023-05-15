@@ -230,9 +230,15 @@ def get_requested_accounts(account, campaign=None, aggregate_set=False,
             filter_params.update({
                 'portfolio_double_optin_accounts__campaign': campaign})
         if search_terms:
-            filter_params.update({
-                'full_name__icontains': search_terms
-            })
+            if '@' in search_terms:
+                domain = search_terms.split('@')[-1]
+                filter_params.update({
+                    'email__endswith': domain
+                })
+            else:
+                filter_params.update({
+                    'full_name__icontains': search_terms
+                })
         queryset = get_account_model().objects.filter(
             portfolio_double_optin_accounts__grantee=account,
             portfolio_double_optin_accounts__state__in=(

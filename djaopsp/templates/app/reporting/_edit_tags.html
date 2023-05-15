@@ -1,6 +1,7 @@
 <div style="width:12rem;">
   <div v-show="showEditTags !== index">
-    <span class="badge badge-secondary" v-for="tag in entry.extra.tags" v-if="entry.extra">[[tag]]</span>
+    <span class="badge badge-secondary" v-for="tag in entry.extra.tags"
+          v-if="entry.extra">[[tag]]</span>
     <small><a href="" @click.prevent="toggleEditTags(index)"><i class="fa fa-edit"></i></a></small>
   </div>
   <div v-show="showEditTags === index">
@@ -8,6 +9,7 @@
     <div v-show="showPreferences < 0">
       <select class="form-control w-100" multiple="multiple"
               v-model="entry.extra.tags"
+              v-if="entry.extra"
               @blur="saveTags(entry)">
         <option :value="choice" :selected="isSelectedTag(entry, choice)" v-for="choice in tagChoices">[[choice]]</option>
       </select>

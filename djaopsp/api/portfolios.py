@@ -22,7 +22,7 @@ from survey.filters import SearchFilter, OrderingFilter
 from survey.helpers import construct_yearly_periods, construct_weekly_periods
 from survey.api.matrix import BenchmarkMixin as BenchmarkMixinBase
 from survey.mixins import TimersMixin
-from survey.models import Answer, EditableFilter, Sample
+from survey.models import Answer, EditableFilter, PortfolioDoubleOptIn, Sample
 from survey.pagination import MetricsPagination
 from survey.queries import as_sql_date_trunc_year
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
@@ -1464,6 +1464,8 @@ class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
         return ordering_fields
 
     def get_queryset(self):
+        if not self.requested_accounts:
+            return PortfolioDoubleOptIn.objects.none()
         queryset = get_engagement(self.campaign, self.requested_accounts,
             grantees=[self.account], start_at=self.start_at,
             ends_at=self.ends_at, filter_by=self.get_filtering(),

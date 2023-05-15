@@ -224,7 +224,17 @@
       </tbody>
       <tbody v-show="itemsLoaded && items.results.length == 0" v-cloak>
         <tr>
-            <td colspan="8">{% trans profile=profile %}No profile accessible for {{profile}}{% endtrans %}</td>
+          <td colspan="8" v-if="!params.q">
+            {% trans profile=profile.printable_name %}No profile accessible for {{profile}}{% endtrans %}
+          </td>
+          <td class="text-center" colspan="8" v-if="params.q">
+            Invite [[params.q]] as a new profile ...
+            <button id="create-reporting-profile-open"
+                    class="btn btn-primary"
+                    data-toggle="modal"
+                    data-target="#invite-reporting-entity"
+                    @click="populateInvite({email: params.q})">{% trans %}Add{% endtrans %}</button>
+          </td>
         </tr>
       </tbody>
       <tbody v-show="itemsLoaded && items.results.length > 0" v-cloak>
