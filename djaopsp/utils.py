@@ -216,7 +216,7 @@ def get_requested_accounts(account, campaign=None, aggregate_set=False,
         settings.REQUESTED_ACCOUNTS_CALLABLE):
         queryset = import_string(settings.REQUESTED_ACCOUNTS_CALLABLE)(
             account, campaign=campaign, aggregate_set=aggregate_set,
-            start_at=start_at, ends_at=ends_at)
+            start_at=start_at, ends_at=ends_at, search_terms=search_terms)
 
     if queryset is None:
         filter_params = {}

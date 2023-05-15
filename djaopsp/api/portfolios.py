@@ -13,6 +13,7 @@ from django.db.models import F
 from rest_framework import generics
 from rest_framework import response as http
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.settings import api_settings
 from pages.models import PageElement
 from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
@@ -1385,22 +1386,27 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
 
 class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
 
+    ordering_param = api_settings.ORDERING_PARAM
+
     search_fields = (
         'slug',
         'full_name',
         'email',
     )
     ordering_fields = (
-        ('created_at', 'created_at'),
         ('full_name', 'full_name'),
-        ('reporting_status', 'reporting_status'),
         ('last_activity_at', 'last_activity_at'),
-        ('requested_at', 'requested_at'),
+        # XXX We cannot sort by `last_reminder_at` as these are added
+        # in `decorate_queryset`.
+        # ('last_reminder_at', 'last_reminder_at'),
+        ('created_at', 'requested_at'),
     )
 
     ordering = ('full_name',)
 
-    filter_backends = (SearchFilter, OrderingFilter)
+    filter_backends = (SearchFilter,) # XXX When `OrderingFilter` is listed
+                                      # here, Django will attempt to call
+                                      # and `order_by` method on a `RawQuerySet`
 
     @property
     def segments(self):
@@ -1409,60 +1415,60 @@ class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
         return self._segments
 
     def decorate_queryset(self, queryset):
-        engagement = {val.account_id: val for val
-            in self.get_engagement(queryset)}
         latest_reminders = {val.pk: val for val
             in get_latest_reminders(queryset)}
         scores = ScorecardCache.objects.filter(sample__in={
-            val.sample_id for val in engagement.values()}, path__in=[
+            val.sample_id for val in queryset}, path__in=[
             seg['path'] for seg in self.segments_available]).order_by('path')
         scores = {val.sample_id: val for val in scores}
         for account in queryset:
-            engage = engagement.get(account.pk)
-            if engage:
-                account.grantee = engage.grantee
-                account.account = engage.account
-                account.campaign = engage.campaign
-                account.state = engage.state
-                account.verification_key = engage.verification_key
-                account.extra = engage.extra
-
-                account.sample = engage.sample
-                account.reporting_status = engage.reporting_status
-                account.last_activity_at = engage.last_activity_at
-                #account.requested_at = engage.requested_at
-                scorecard_cache = scores.get(engage.sample_id)
-                if scorecard_cache:
-                    account.normalized_score = scorecard_cache.normalized_score
+            scorecard_cache = scores.get(account.sample_id)
+            if scorecard_cache:
+                account.normalized_score = scorecard_cache.normalized_score
             reminder = latest_reminders.get(account.pk)
             if reminder:
                 account.last_reminder_at = reminder.last_reminder_at
         return queryset
 
-    def get_queryset(self):
-        return self.requested_accounts
+    def get_filtering(self):
+        param_states = []
+        params = self.get_query_param('status')
+        if params:
+            if isinstance(params, six.string_types):
+                params = params.split(',')
+            param_states = [param.strip() for param in params]
+        # validate states
+        states = []
+        valid_states = set(EngagementSerializer.REPORTING_STATUS)
+        for state in param_states:
+            if state in valid_states:
+                states += [state]
+        return states
 
-    def get_engagement(self, accounts):
-        sep = ""
-        accounts_clause = ""
-        if False:
-            search = SearchFilter()
-            terms = search.get_search_terms(self.request)
-            for search_field in self.search_fields:
-                search_field = search_field[len('account__'):]
-                for term in terms:
-                    accounts_clause += \
-                        "%(sep)s%(search_field)s ILIKE '%%%%%(term)s%%%%'" % {
-                        'sep': sep,
-                        'search_field': search_field,
-                        'term': term
-                    }
-                    sep = "OR "
-            if accounts_clause:
-                accounts_clause = "AND account_id IN (SELECT id FROM %s WHERE %s)" % (
-                    get_account_model()._meta.db_table, accounts_clause)
-        return get_engagement(self.campaign, accounts, grantees=[self.account],
-            start_at=self.start_at, ends_at=self.ends_at)
+    def get_ordering(self):
+        params = self.get_query_param(self.ordering_param)
+        if params:
+            if isinstance(params, six.string_types):
+                params = params.split(',')
+            fields = [param.strip() for param in params]
+        ordering_fields = []
+        valid_fields = {val[1]: val[0] for val in self.ordering_fields}
+        for field_ordering in fields + list(self.ordering):
+            field = field_ordering.lstrip('-')
+            if field in valid_fields:
+                db_field_ordering = valid_fields[field]
+                if (db_field_ordering not in ordering_fields and
+                    ('-' + db_field_ordering) not in ordering_fields):
+                    rev_prefix = '-' if field_ordering.startswith('-') else ''
+                    ordering_fields += [rev_prefix + db_field_ordering]
+        return ordering_fields
+
+    def get_queryset(self):
+        queryset = get_engagement(self.campaign, self.requested_accounts,
+            grantees=[self.account], start_at=self.start_at,
+            ends_at=self.ends_at, filter_by=self.get_filtering(),
+            order_by=self.get_ordering())
+        return queryset
 
     def paginate_queryset(self, queryset):
         page = super(

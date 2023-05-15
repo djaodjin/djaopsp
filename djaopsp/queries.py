@@ -117,11 +117,22 @@ WHERE survey_sample.is_frozen
 
 
 def _get_engagement_sql(campaign, accounts,
-                        grantees=None, start_at=None, ends_at=None):
+                        grantees=None, start_at=None, ends_at=None,
+                        filter_by=None, order_by=None):
+    #pylint:disable=too-many-arguments,too-many-locals
     accounts_clause = ""
     if accounts:
-        accounts_clause = "AND account_id IN (%s)" % ",".join([
-            str(account.pk) for account in accounts])
+        account_ids = ""
+        if isinstance(accounts, list):
+            account_ids = "(%s)" % ','.join([
+                str(account_id) for account_id in accounts])
+        elif isinstance(accounts, QuerySet):
+            account_ids = "(%s)" % ','.join([
+                str(account.pk) for account in accounts])
+        elif isinstance(accounts, RawQuerySet):
+            account_ids = "(%s)" % accounts.query.sql
+        if account_ids:
+            accounts_clause = "AND account_id IN %s" % account_ids
     grantees_clause = ""
     if grantees:
         grantees_clause = "AND grantee_id IN (%s)" % ",".join([
@@ -143,6 +154,24 @@ def _get_engagement_sql(campaign, accounts,
             "AND survey_sample.created_at < '%s'"  % ends_at)
         before_sample_updated_clause = (
             "AND survey_sample.updated_at < '%s'"  % ends_at)
+
+    filter_by_clause = ""
+    if filter_by:
+        filter_by_clause = "WHERE reporting_status IN (%s)" % ",".join(
+            ["'%s'" % val for val in filter_by])
+    order_by_clause = ""
+    if order_by:
+        order_by_clause = "ORDER BY "
+        sep = ""
+        for field_ordering in order_by:
+            if field_ordering.startswith('-'):
+                order_by_clause += "%s%s DESC" % (
+                    sep, field_ordering.lstrip('-'))
+                sep = ", "
+            else:
+                order_by_clause += "%s%s" % (
+                    sep, field_ordering)
+                sep = ", "
 
     sql_query = """
 WITH requests AS (
@@ -231,6 +260,13 @@ ON survey_sample.account_id = latest_update.account_id AND
    survey_sample.updated_at = latest_update.last_updated_at
 )
 SELECT
+  %(accounts_table)s.slug,
+  %(accounts_table)s.full_name AS printable_name,
+  %(accounts_table)s.picture,
+  %(accounts_table)s.extra,
+  engaged.created_at AS requested_at,
+  engaged.* FROM (
+SELECT
   requests.*,
   COALESCE(
     completed_by_accounts.slug,
@@ -251,28 +287,38 @@ FROM requests
 LEFT OUTER JOIN completed_by_accounts
 ON requests.account_id = completed_by_accounts.account_id
 LEFT OUTER JOIN updated_by_accounts
-ON requests.account_id = updated_by_accounts.account_id
+ON requests.account_id = updated_by_accounts.account_id) AS engaged
+INNER JOIN %(accounts_table)s
+ON engaged.account_id = %(accounts_table)s.id
+%(filter_by_clause)s
+%(order_by_clause)s
 """ % {
     'grantees_clause': grantees_clause,
     'campaign_clause': campaign_clause,
     'before_clause': before_clause,
     'after_clause': after_clause,
     'accounts_clause': accounts_clause,
+    'filter_by_clause': filter_by_clause,
+    'order_by_clause': order_by_clause,
     'before_sample_created_clause': before_sample_created_clause,
     'before_sample_updated_clause': before_sample_updated_clause,
     'optin_request_initiated': PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
     'optin_request_accepted': PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED,
     'optin_request_expired': PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED,
-    'optin_request_denied': PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED
+    'optin_request_denied': PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED,
+    'accounts_table': get_account_model()._meta.db_table,
     }
     return sql_query
 
 
 def get_engagement(campaign, accounts,
-                   grantees=None, start_at=None, ends_at=None):
+                   grantees=None, start_at=None, ends_at=None,
+                   filter_by=None, order_by=None):
+    #pylint:disable=too-many-arguments
     return PortfolioDoubleOptIn.objects.raw(
         _get_engagement_sql(campaign, accounts, grantees=grantees,
-            start_at=start_at, ends_at=ends_at))
+            start_at=start_at, ends_at=ends_at,
+            filter_by=filter_by, order_by=order_by))
 
 
 def get_engagement_by_reporting_status(campaign, accounts,
@@ -690,8 +736,8 @@ ON active_assessments.account_id = frozen.account_id AND
                 str(account.pk) for account in accounts])
         elif isinstance(accounts, RawQuerySet):
             account_ids = "(%s)" % accounts.query.sql
-        accounts_clause = "%(account_table)s.id IN %(account_ids)s" % {
-            'account_table': account_model._meta.db_table,
+        accounts_clause = "%(accounts_table)s.id IN %(account_ids)s" % {
+            'accounts_table': account_model._meta.db_table,
             'account_ids': account_ids}
     if accounts_clause:
         accounts_clause = "WHERE %s" % accounts_clause
@@ -713,7 +759,7 @@ SELECT
   assessments.slug AS slug,
   assessments.created_at AS created_at,
   assessments.campaign_id AS campaign_id,
-  COALESCE(assessments.account_id, %(account_table)s.id) AS account_id,
+  COALESCE(assessments.account_id, %(accounts_table)s.id) AS account_id,
   assessments.updated_at AS updated_at,
   assessments.is_frozen AS is_frozen,
   assessments.extra AS extra,
@@ -733,22 +779,22 @@ SELECT
   assessments.reporting_waste_target AS reporting_waste_target,
   assessments.normalized_score AS normalized_score,
   COALESCE(assessments.reporting_status, %(reporting_status)d) AS reporting_status,
-  %(account_table)s.slug AS account_slug,
-  %(account_table)s.full_name AS printable_name,
-  %(account_table)s.email AS email,
-  %(account_table)s.phone AS phone,
+  %(accounts_table)s.slug AS account_slug,
+  %(accounts_table)s.full_name AS printable_name,
+  %(accounts_table)s.email AS email,
+  %(accounts_table)s.phone AS phone,
   assessments.created_at AS last_completed_at,
   assessments.updated_at AS last_activity_at,
   '' AS score_url                              -- updated later
-FROM %(account_table)s
+FROM %(accounts_table)s
 %(join_clause)s JOIN assessments
-ON %(account_table)s.id = assessments.account_id
+ON %(accounts_table)s.id = assessments.account_id
 %(accounts_clause)s
 %(order_clause)s""" % {
     'assessments_query': assessments_query,
 #XXX    'join_clause': "INNER" if self.db_path else "LEFT OUTER",
     'join_clause': "LEFT OUTER",
-    'account_table': account_model._meta.db_table,
+    'accounts_table': account_model._meta.db_table,
     'reporting_status': ReportingSerializer.REPORTING_NOT_STARTED,
     'accounts_clause': accounts_clause,
     'order_clause': order_clause}

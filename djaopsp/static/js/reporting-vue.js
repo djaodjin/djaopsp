@@ -122,7 +122,8 @@ Vue.component('engage-profiles', {
             typeaheadUrl: this.$urls.api_account_candidates,
             autoreload: false,
             params: {
-                o: 'full_name'
+                o: 'full_name',
+                status: ''
             },
             newItem: {
                 email: "",
