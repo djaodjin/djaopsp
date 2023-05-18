@@ -55,6 +55,23 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
                   </ul>
                 </div>
               </div>
+              {% if verification_enabled %}
+              <div class="col-sm-6">
+                <form class="mt-2">
+                  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                  <select class="form-control"
+                          v-model="verificationStatus"
+                          @change="updateVerificationStatus()">
+                      <option value="">(grey) {% trans %}Not yet reviewed nor verified{% endtrans %}</option>
+                      <option value="invited">(red) {% trans %}Found serious discrepancies between responses
+and supporting documents{% endtrans %}</option>
+                      <option value="updated">(orange) {% trans %}Responses are technically accurate but lacking consistency with the pool of suppliers reviews {% endtrans %}</option>
+                      <option value="completed">(green) {% trans %}Responses are consistent with average answers and supporting documents{% endtrans %}</option>
+                      <option value="completed-notshared">(gold) {% trans %}All questions have been answered positively with supporting documentation more rigorously detailed than the pool of suppliers reviewed.{% endtrans %} ({% trans %}not yet shared{% endtrans %})</option>
+                  </select>
+                </form>
+              </div>
+              {% endif %}
             </div>
           </div>
           {% if summary_performance %}
@@ -247,6 +264,7 @@ companies responding on practices in the industry segment.
             </div>{# /!isChartHeading(practice) && !isPractice(practice) - i.e. regular heading #}
 
             <div v-if="isEnumUnit(practice)">
+              <div>
               <div class="row">
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
@@ -298,10 +316,19 @@ companies responding on practices in the industry segment.
                      v-if="getCommentsAnswer(practice).measured">
                   </p>
                 </div>
+              </div>{# /.row assessment #}
+              {% if verification_enabled %}
+              <div class="row">
+                <div class="col-md-8">
+                  {% include "app/scorecard/_verification_comments.html" %}
+                </div>
+              </div>
+              {% endif %}
               </div>
             </div>{# /isEnumUnit(practice) #}
 
             <div v-if="isFreetextUnit(practice)">
+              <div>
               <div class="row">
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
@@ -327,6 +354,14 @@ companies responding on practices in the industry segment.
                     </div>
                   </div>
                 </div>
+              </div>{# /.row assessment answer #}
+              {% if verification_enabled %}
+              <div class="row">
+                <div class="col-md-8">
+                  {% include "app/scorecard/_verification_comments.html" %}
+                </div>
+              </div>
+              {% endif %}
               </div>
             </div>{# /isFreetextUnit(practice) #}
 

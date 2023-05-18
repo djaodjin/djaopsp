@@ -240,6 +240,32 @@ var practicesListMixin = {
             }
             return practice.answers[0];
         },
+        // Returns comments from the auditor that verifies the accuracy
+        // of an answer.
+        getVerificationComments: function(practice) {
+            if( typeof practice.verification === 'undefined' ) {
+                 practice['verification'] = [];
+            }
+            if( practice.verification.length < 1 ) {
+                practice.verification.push({
+                    unit: 'freetext',
+                    measured: ""
+                });
+            }
+            return practice.verification[practice.verification.length - 1];
+        },
+        getPicture: function(user) {
+            if( user && user.picture ) {
+                return user.picture;
+            }
+            return "";
+        },
+        getPrintableName: function(user) {
+            if( user && user.printable_name ) {
+                return user.printable_name;
+            }
+            return user;
+        },
 
         getIntrinsicValue: function(practice, fieldName) {
             if( !(practice.extra && practice.extra.intrinsic_values) ) {

@@ -34,7 +34,7 @@ class AppView(AccountMixin, TemplateView):
 
     @property
     def unlock_editors(self):
-        is_broker = bool(self.accessible_profiles & settings.UNLOCK_BROKERS)
+        is_broker = bool(self.account.slug in settings.UNLOCK_BROKERS)
         accessible_plans = {plan['slug']
             for plan in self.get_accessible_plans(self.request,
                     profile=str(self.account) # if we don't convert to `str`,
@@ -46,7 +46,7 @@ class AppView(AccountMixin, TemplateView):
 
     @property
     def unlock_portfolios(self):
-        is_broker = bool(self.accessible_profiles & settings.UNLOCK_BROKERS)
+        is_broker = bool(self.account.slug in settings.UNLOCK_BROKERS)
         accessible_plans = {plan['slug']
             for plan in self.get_accessible_plans(self.request,
                     profile=str(self.account) # if we don't convert to `str`,

@@ -1,0 +1,58 @@
+// CSS for pricing page
+// --------------------
+$plan-footer-height: 70px;
+
+
+.plan-short {
+  min-height:100%;
+  padding-left: 5px;
+  padding-right: 5px;
+  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid #eee;
+  box-shadow: 0px 0px 20px #eee;
+  border-radius: 7px;
+}
+
+.plan-short:hover {
+  cursor: pointer;
+  background-color: lighten(theme-color(primary), 75%);
+}
+
+.plan-wrap {
+  min-height: 100%;
+}
+
+.plan-main {
+  min-height: 100%;
+}
+
+.plan-footer {
+  position: relative;
+  height: $plan-footer-height;
+  bottom: $plan-footer-height;
+  text-align: center;
+}
+
+
+.plan-pricing {
+  color: #111; //theme-color(secondary);
+  font-weight: bold;
+  text-align: center !important;
+  margin-bottom: 2rem;
+}
+
+.plan-pricing h2 {
+  font-size: 36px;
+}
+
+.plan-desc ul {
+  list-style: none;
+}
+
+.plan-desc li:before {
+  font-family: 'FontAwesome';
+  content: "\f058";
+  margin: 0 18px 0 -15px;
+  color: theme-color(secondary);
+}

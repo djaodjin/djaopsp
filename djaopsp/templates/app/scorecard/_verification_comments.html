@@ -1,0 +1,70 @@
+<div class="mt-2">
+<label>Verifier's notes</label>
+<explainer inline-template
+           style="background-color: yellow;"
+           v-bind:callback-arg="practice"
+           v-bind:collected-by-picture="getPicture(getVerificationComments(practice).collected_by)"
+           v-bind:collected-by-printable-name="getPrintableName(getVerificationComments(practice).collected_by)"
+           v-bind:collected-at-time="getVerificationComments(practice).created_at"
+           v-bind:init-text="getVerificationComments(practice).measured"
+           v-on:update-text="updateVerificationComments">
+  <div>
+    <div class="p-2" v-show="!editMode">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="mt-2">
+            <img :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+            <span>[[collectedByPrintableName]]</span>
+          </div>
+          <small>[[humanizeDate(collectedAtTime)]]</small><br />
+          <small>([[humanizeTimeDelta(collectedAtTime)]])</small>
+        </div>
+        <div class="border-left col-md-9">
+          <p class="mt-2" style="word-wrap:break-word;"
+             v-html="textAsHtml"
+             @click.prevent="openLink($event)">
+          </p>
+          <button class="btn btn-link" style="padding:0;margin:0;" @click.prevent="toggleEditMode">{% trans %}Update{% endtrans %} ...</button>
+        </div>
+      </div>
+    </div>
+    <form class="p-2" @submit.prevent="saveText" v-show="editMode">
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+      <textarea class="form-control"
+              name="other-measures"
+              type="text" rows="10"
+              placeholder="Please enter succint notes about what you verified, how you verified it and what the supplier is expected to do in order to correct the findings (if any). Thank you."
+              v-model="text"
+              @keydown="fitToText"
+              @drop.prevent="dropFile"
+              @dragenter.prevent @dragover.prevent></textarea>
+      <div class="progress upload-progress" v-show="uploadInProgress">
+        <div class="progress-bar" role="progressbar"
+             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+             style="width: 60%;">
+          <span class="progress-bar-info"></span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6">
+          <div class="mt-2 text-left">
+            <button type="button" class="btn btn-secondary">
+              <label :for="callbackArg.slug + '-file'" style="margin-bottom:0;">
+                    {% trans %}Upload{% endtrans %}
+              </label>
+            </button>
+            <input name="file" type="file" :id="callbackArg.slug + '-file'" style="display:none;" @change.prevent="uploadFile" />
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="mt-2 text-right">
+            <button class="btn btn-primary" type="submit" value="submit">
+                {% trans %}Submit{% endtrans %}
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</explainer>
+</div>

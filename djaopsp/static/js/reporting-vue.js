@@ -517,9 +517,11 @@ Vue.component('reporting-organizations', {
                 const item = portfolios.results[idx];
                 profiles.add(item.account);
             }
-            let queryParams = "?q_f=slug";
+            let queryParams = "?q_f=slug&q=";
+            let sep = "";
             for( const profile of profiles ) {
-                queryParams += "&q=" + profile;
+                queryParams += sep + profile;
+                sep = ",";
             }
             vm.reqGet(vm.api_profiles_base_url + queryParams,
             function(resp) {

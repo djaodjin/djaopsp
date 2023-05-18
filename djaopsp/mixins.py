@@ -34,6 +34,16 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
         return broker and broker in self.accessible_profiles
 
     @property
+    def is_auditor(self):
+        accessible_audits = set([
+            org['slug'] for org in self.get_accessible_profiles(
+                self.request, roles=['auditor'])])
+        if True:
+            return accessible_audits & settings.UNLOCK_BROKERS
+        broker = self.request.session.get('site', {}).get('slug')
+        return broker and broker in accessible_audits
+
+    @property
     def visibility(self):
         if not hasattr(self, '_visibility'):
             if self.manages_broker:

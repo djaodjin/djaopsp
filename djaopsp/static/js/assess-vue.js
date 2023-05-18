@@ -143,18 +143,6 @@ Vue.component('campaign-questions-list', {
             }
             return practice.candidates[0];
         },
-        getPicture: function(user) {
-            if( user && user.picture ) {
-                return user.picture;
-            }
-            return "";
-        },
-        getPrintableName: function(user) {
-            if( user && user.printable_name ) {
-                return user.printable_name;
-            }
-            return user;
-        },
         importFromTrackingTool: function(practice) {
             var vm = this;
             var primaryAnswer = vm.getPrimaryAnswer(practice);
@@ -657,6 +645,7 @@ Vue.component('scorecard', {
             activeTile: null,
             summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
             freezeAssessmentDisabled: false,
+            verificationStatus: ""
         }
     },
     methods: {
@@ -880,6 +869,23 @@ Vue.component('scorecard', {
                     '<a href="$1">uploaded document</a>');
             }
             return activeLinks;
+        },
+        // auditors workflow
+        updateVerificationComments: function(text, practice) {
+            var vm = this;
+            vm.getVerificationComments(practice).measured = text;
+            var data = {measured: text}
+            vm.reqPost(vm._safeUrl(vm.api_assessment_sample, '/notes' +
+                vm.prefix + path), data,
+            function success(resp) {
+            });
+        },
+        updateVerificationStatus: function() {
+            var vm = this;
+            vm.reqPatch(vm._safeUrl(vm.api_assessment_sample, '/notes'),
+                {verification_status: vm.VerificationStatus},
+            function success(resp) {
+            });
         }
     },
 });
@@ -930,9 +936,11 @@ Vue.component('scorecard-requests', {
                 }
                 vm.byCampaigns[campaign].requests.push(item);
             }
-            let queryParams = "?q_f=slug";
+            let queryParams = "?q_f=slug&q=";
+            let sep = "";
             for( const profile of profiles ) {
-                queryParams += "&q=" + profile;
+                queryParams += sep + profile;
+                sep = ",";
             }
             vm.reqGet(vm.api_profiles_url + queryParams,
             function(resp) {
@@ -992,9 +1000,11 @@ Vue.component('scorecard-history', {
                 }
             }
             // decorate profiles
-            let queryParams = "?q_f=slug";
+            let queryParams = "?q_f=slug&q=";
+            let sep = "";
             for( const profile of profiles ) {
-                queryParams += "&q=" + profile;
+                queryParams += sep + profile;
+                sep = ",";
             }
             vm.reqGet(vm.api_profiles_url + queryParams,
             function(resp) {
