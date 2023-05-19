@@ -261,7 +261,7 @@ INNER JOIN samples
   ON survey_answer.sample_id = samples.id
 INNER JOIN survey_unit
   ON survey_answer.unit_id = survey_unit.id
-WHERE %(accounts_clause)s
+WHERE %(accounts_clause)s)
 SELECT
   answers.path,
   answers.account_id,
