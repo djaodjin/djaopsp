@@ -1,10 +1,9 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
 import io, math
 
-from deployutils.helpers import datetime_or_now
 from django.http import HttpResponse
 from django.views.generic import ListView
 from extended_templates.backends.pdf import PdfTemplateResponse
@@ -14,6 +13,7 @@ from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from openpyxl.utils import get_column_letter
 from pages.models import PageElement
+from survey.queries import datetime_or_now
 
 from ..api.samples import AssessmentContentMixin
 from ..helpers import as_valid_sheet_title

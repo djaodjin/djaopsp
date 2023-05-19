@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
-from deployutils.helpers import datetime_or_now, update_context_urls
+from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
@@ -23,6 +23,7 @@ from pptx.shapes.autoshape import Shape
 from pptx.shapes.graphfrm import GraphicFrame
 from survey.helpers import get_extra
 from survey.models import Campaign, Matrix
+from survey.queries import datetime_or_now
 from survey.views.matrix import MatrixDetailView
 from survey.settings import URL_PATH_SEP
 

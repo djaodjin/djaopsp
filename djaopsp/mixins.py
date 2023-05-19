@@ -4,7 +4,7 @@ import json
 
 from dateutil.relativedelta import relativedelta
 from deployutils.apps.django import mixins as deployutils_mixins
-from deployutils.helpers import datetime_or_now, update_context_urls
+from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db.models import Q, F
 from django.http import Http404
@@ -15,6 +15,7 @@ from survey.helpers import get_extra
 from survey.mixins import (CampaignMixin as CampaignMixinBase,
     DateRangeContextMixin, SampleMixin)
 from survey.models import Answer, Campaign, Sample
+from survey.queries import datetime_or_now
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import get_question_model
 

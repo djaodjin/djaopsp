@@ -5,7 +5,6 @@ import copy, logging
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
-from deployutils.helpers import datetime_or_now
 from django.db import transaction
 from django.db.models import F
 from pages.models import PageElement, flatten_content_tree
@@ -16,6 +15,7 @@ from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
 from survey.api.matrix import SampleBenchmarkMixin
 from survey.mixins import TimersMixin
 from survey.models import Choice, Sample, Unit, UnitEquivalences
+from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_benchmarks_enumerated
 

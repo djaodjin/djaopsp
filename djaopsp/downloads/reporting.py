@@ -3,7 +3,6 @@
 
 import csv, datetime, io, logging, os
 
-from deployutils.helpers import datetime_or_now
 from deployutils.apps.django.mixins.timers import TimersMixin
 from django.conf import settings
 from django.db.models import Q, F
@@ -19,6 +18,7 @@ from survey.compat import force_str, six
 from survey.filters import DateRangeFilter
 from survey.helpers import get_extra
 from survey.models import Answer, Choice, Unit
+from survey.queries import datetime_or_now
 from survey.utils import get_question_model
 
 from ..api.portfolios import (BenchmarkMixin, PortfolioAccessibleSamplesMixin,

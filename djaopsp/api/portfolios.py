@@ -6,7 +6,6 @@ import datetime, json, re
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
-from deployutils.helpers import datetime_or_now
 from django.contrib.auth import get_user_model
 from django.db import connection
 from django.db.models import F
@@ -24,7 +23,7 @@ from survey.api.matrix import BenchmarkMixin as BenchmarkMixinBase
 from survey.mixins import TimersMixin
 from survey.models import Answer, EditableFilter, PortfolioDoubleOptIn, Sample
 from survey.pagination import MetricsPagination
-from survey.queries import as_sql_date_trunc_year
+from survey.queries import as_sql_date_trunc_year, datetime_or_now
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import (get_accessible_accounts, get_account_model,
     get_question_model)

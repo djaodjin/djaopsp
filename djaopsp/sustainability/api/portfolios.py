@@ -3,11 +3,12 @@
 import datetime
 
 from dateutil.relativedelta import relativedelta
-from deployutils.helpers import datetime_or_now, parse_tz
+from deployutils.helpers import parse_tz
 from django.db import connection
 from django.db.models import Count, Q
 from rest_framework import generics
 from rest_framework.response import Response
+from survey.queries import datetime_or_now
 import pytz
 
 from djaopsp.api.portfolios import DashboardAggregateMixin

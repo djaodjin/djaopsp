@@ -233,7 +233,7 @@
                     class="btn btn-primary"
                     data-toggle="modal"
                     data-target="#invite-reporting-entity"
-                    @click="populateInvite({email: params.q})">{% trans %}Add{% endtrans %}</button>
+                    @click="populateInvite({})">{% trans %}Add{% endtrans %}</button>
           </td>
         </tr>
       </tbody>
@@ -369,12 +369,12 @@
 
 {% block reporting_scripts %}
 <script type="text/javascript">
-jQuery(document).ready(function($) {
+Vue.prototype.$defaultRequestInitiatedMessage = "Hello,\n\nI would like to invite you to complete and share an assessment for your organization\n\nThank you.\n- {{request.user.first_name}}\n";
 
+jQuery(document).ready(function($) {
     $("#invite-reporting-entity").on('shown.bs.modal', function () {
         $(this).find("[name='email']").focus();
     });
-
 });
 </script>
 {% endblock %}

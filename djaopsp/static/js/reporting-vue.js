@@ -167,6 +167,7 @@ Vue.component('engage-profiles', {
         },
         populateInvite: function(newAccount) {
             var vm = this;
+            vm.newItem = {};
             if( newAccount.hasOwnProperty('slug') && newAccount.slug ) {
                 vm.newItem.slug = newAccount.slug;
             }
@@ -180,7 +181,8 @@ Vue.component('engage-profiles', {
                     }
                 }
             }
-            if( !vm.newItem.email && vm.params.q && vm.params.q.indexOf('@') ) {
+            if( !vm.newItem.email && vm.params.q &&
+                vm.params.q.indexOf('@') > 0 ) {
                 vm.newItem.email = vm.params.q;
             }
             if( newAccount.hasOwnProperty('printable_name')
@@ -191,6 +193,10 @@ Vue.component('engage-profiles', {
                 && newAccount.full_name ) {
                 vm.newItem.full_name = newAccount.full_name;
             }
+            if( !vm.newItem.full_name && vm.params.q &&
+                vm.params.q.indexOf('@') < 0 ) {
+                vm.newItem.full_name = vm.params.q;
+            }
             if( newAccount.hasOwnProperty('picture')
                 && newAccount.picture ) {
                 vm.newItem.picture = newAccount.picture;
@@ -199,8 +205,14 @@ Vue.component('engage-profiles', {
                 && newAccount.created_at ) {
                 vm.newItem.created_at = newAccount.created_at;
             }
+            vm.params.q = "";
         },
-        requestAssessment: function(campaign) {
+        hideModal: function($event) {
+            var form = jQuery($event.target);
+            var modalDialog = form.parents('.modal');
+            if( modalDialog ) modalDialog.modal('hide');
+        },
+        requestAssessment: function($event, campaign) {
             var vm = this;
             var data = {
                 accounts: [{}],
@@ -225,12 +237,14 @@ Vue.component('engage-profiles', {
                     vm.reqPost(vm.$urls.api_accessibles, data,
                     function success(resp) {
                         vm.get();
+                        vm.hideModal($event);
                     });
                 });
             } else {
                 vm.reqPost(vm.$urls.api_accessibles, data,
                 function success(resp) {
                     vm.get();
+                    vm.hideModal($event);
                 });
             }
             return false;

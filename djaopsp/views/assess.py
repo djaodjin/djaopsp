@@ -6,7 +6,7 @@ import datetime, json, logging
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
-from deployutils.helpers import datetime_or_now, update_context_urls
+from deployutils.helpers import update_context_urls
 from django.core.files.storage import get_storage_class
 from django.db.models import Q
 from django.http import HttpResponseRedirect
@@ -16,6 +16,7 @@ from django.views.generic.base import (ContextMixin, RedirectView,
 from django.template.defaultfilters import slugify
 from survey.helpers import get_extra
 from survey.models import EditableFilter
+from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP, URL_PATH_SEP
 from survey.utils import get_question_model
 

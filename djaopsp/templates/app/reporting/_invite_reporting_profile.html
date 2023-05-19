@@ -10,7 +10,8 @@
         <button type="button" class="close"
                 data-dismiss="modal" aria-hidden="true">&times;</button>
       </div>
-      <form>
+      <form @submit.prevent="requestAssessment($event, '{{campaign}}')">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
         <div class="modal-body">
           <p class="text-danger" v-if="!newItem.slug">
 {% trans %}There are no records of this profile in the system. This is an opportunity to invite that organization/profile to respond to the questionnaire.{% endtrans %}
@@ -49,9 +50,8 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary"
                     data-dismiss="modal">{% trans %}Cancel{% endtrans %}</button>
-            <button @click.prevent="requestAssessment('{{campaign}}')"
-                    type="submit" class="btn btn-primary"
-                    data-dismiss="modal">{% trans %}Request assessment{% endtrans %}</button>
+            <button type="submit"
+                    class="btn btn-primary">{% trans %}Request assessment{% endtrans %}</button>
         </div>
       </form>
     </div>

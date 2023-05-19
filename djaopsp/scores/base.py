@@ -1,11 +1,11 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
 import datetime, logging
 
-from deployutils.helpers import datetime_or_now
 from django.conf import settings
 from survey.models import Answer, Sample, Unit
+from survey.queries import datetime_or_now
 
 from ..compat import import_string, six
 

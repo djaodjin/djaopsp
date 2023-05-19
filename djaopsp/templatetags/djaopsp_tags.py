@@ -3,12 +3,12 @@
 
 from deployutils.apps.django.compat import (
     is_authenticated as base_is_authenticated)
-from deployutils.helpers import datetime_or_now
 from django import template
 from django.contrib.messages.api import get_messages
 from django.forms import widgets, BaseForm
 from django.template.defaultfilters import capfirst
 from django.utils.encoding import force_text
+from survey.queries import datetime_or_now
 
 from ..compat import reverse, six, urljoin
 
