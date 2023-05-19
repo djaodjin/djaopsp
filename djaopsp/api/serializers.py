@@ -6,6 +6,7 @@ from rest_framework import serializers
 from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementSerializer as BasePageElementSerializer)
+from survey.models import PortfolioDoubleOptIn
 from survey.api.serializers import (AccountSerializer, AnswerSerializer,
     PortfolioOptInSerializer, TableSerializer, UnitSerializer)
 
@@ -413,15 +414,30 @@ class EngagementSerializer(AccountSerializer):
     requested_at = serializers.DateTimeField(required=False, allow_null=True,
         help_text=_("Datetime at which the scorecard was requested"))
     normalized_score = serializers.IntegerField(required=False)
+    api_remove = serializers.SerializerMethodField()
 
-    class Meta(PortfolioOptInSerializer.Meta):
+    class Meta(AccountSerializer.Meta):
         fields = AccountSerializer.Meta.fields + (
-            'extra', 'sample', 'score_url', 'reporting_status',
+            'extra', 'sample', 'reporting_status',
             'last_activity_at', 'last_reminder_at', 'requested_at',
-            'normalized_score')
+            'normalized_score', 'score_url', 'api_remove')
+
+    def get_api_remove(self, obj):
+        api_endpoint = None
+        view = self.context.get('view')
+        if (obj.state == PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED and
+            view.account == obj.grantee): # XXX expects PortfolioDoubleOptIn
+                                          # While we are having
+                                          # an `AccountSerializer`
+            api_endpoint = reverse('api_portfolios_request_accept',
+                args=(obj.grantee, obj.verification_key,))
+        request = self.context.get('request')
+        if request and api_endpoint:
+            return request.build_absolute_uri(api_endpoint)
+        return api_endpoint
 
     def get_score_url(self, obj):
-        if hasattr(obj, 'sample'):
+        if hasattr(obj, 'sample') and obj.sample:
             return reverse('scorecard', args=(
                 self.context['account'], obj.sample))
         return None

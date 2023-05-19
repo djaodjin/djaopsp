@@ -354,6 +354,7 @@
             [[$globals.humanizeDate(entry.requested_at)]]<br />
             <small>([[$globals.humanizeTimeDelta(entry.requested_at)]])</small><br />
             <button class="btn btn-sm btn-danger"
+                    v-if="entry.api_remove"
                     @click.prevent="remove($event, index)">
               <i class="fa fa-times"></i> remove
             </button>

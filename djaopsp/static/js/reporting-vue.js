@@ -251,11 +251,13 @@ Vue.component('engage-profiles', {
         },
         remove: function ($event, idx) {
             var vm = this;
-            vm.reqDelete(vm._safeUrl(vm.$urls.api_accessibles,
-                vm.items.results[idx].slug),
-            function success(resp) {
-                vm.get();
-            });
+            console.log("XXX vm.items.results[idx]=", vm.items.results[idx]);
+            if( vm.items.results[idx].api_remove ) {
+                vm.reqDelete(vm.items.results[idx].api_remove,
+                function success(resp) {
+                    vm.get();
+                });
+            }
         },
         loadComplete: function(resp, typeaheadResp) {
             var vm = this;
