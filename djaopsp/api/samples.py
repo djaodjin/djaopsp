@@ -13,7 +13,7 @@ from rest_framework.exceptions import ValidationError
 from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
     SampleFreezeAPIView)
 from survey.api.matrix import SampleBenchmarkMixin
-from survey.mixins import TimersMixin
+from survey.mixins import SampleMixin, TimersMixin
 from survey.models import Choice, Sample, Unit, UnitEquivalences
 from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP
@@ -21,7 +21,7 @@ from survey.utils import get_account_model, get_benchmarks_enumerated
 
 from ..compat import reverse, six
 from ..mixins import SectionReportMixin
-from ..models import ScorecardCache
+from ..models import ScorecardCache, VerifiedAnswer, VerifiedSample
 from ..scores import freeze_scores, get_score_calculator
 from ..queries import get_scored_assessments
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
@@ -32,6 +32,28 @@ from .serializers import (AssessmentNodeSerializer,
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+class SampleNotesMixin(SampleMixin):
+
+    def get_notes(self, prefix=None, sample=None, excludes=None):
+        """
+        Returns verifier notes on a sample.
+
+        The answers can be filtered such that only questions with a path
+        starting by `prefix` are included. Questions included whose
+        extra field does not contain `excludes` can be further removed
+        from the results.
+        """
+        if not prefix:
+            prefix = self.path
+        if not sample:
+            sample = self.sample
+        return VerifiedAnswer.objects.filter(
+            answer__sample=self.sample,
+            answer__question__path__startswith=prefix).prefetch_related(
+            'answer__unit', 'answer__question',
+            'answer__question__default_unit')
 
 
 class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
@@ -216,7 +238,8 @@ class AssessmentCompleteIndexAPIView(AssessmentCompleteAPIView):
 
 
 class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
-                             SampleCandidatesMixin, SampleAnswersMixin):
+                             SampleNotesMixin, SampleCandidatesMixin,
+                             SampleAnswersMixin):
 
     practice_serializer_class = get_practice_serializer()
 
@@ -300,6 +323,15 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
                     excludes=self.exclude_questions),
                 extra_fields=extra_fields,
                 key='candidates')
+        elif self.is_auditor:
+            # Verification notes are only available to auditors
+            attach_answers(
+                units,
+                questions_by_key,
+                self.get_notes(prefix=prefix,
+                    excludes=self.exclude_questions),
+                extra_fields=extra_fields,
+                key='notes')
 
         self.attach_results(questions_by_key, prefix)
 
@@ -518,9 +550,15 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
         if not hasattr(self, 'units'):
             self.units = {}
 
+        verified_sample = VerifiedSample.objects.filter(
+            sample=self.sample).first()
+
         return http.Response(OrderedDict([
             ('count', len(data)),
             ('path', self.path),
+            ('verified_status', VerifiedSample.STATUSES[
+                verified_sample.verified_status if verified_sample
+                else VerifiedSample.STATUS_NO_REVIEW][1]),
             ('results', data),
             ('units', {key: UnitSerializer().to_representation(val)
                     for key, val in six.iteritems(self.units)})
@@ -958,7 +996,8 @@ def attach_answers(units, questions_by_key, queryset,
             value = {
                 'path': path,
                 'rank': resp.rank,
-                'required': resp.required,
+                'required': (
+                    resp.required if hasattr(resp, 'required') else True),
                 'default_unit': default_unit,
                 'ui_hint': question.ui_hint,
             }

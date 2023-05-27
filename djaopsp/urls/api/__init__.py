@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -30,6 +30,7 @@ urlpatterns = [
     path('', include('survey.urls.api.noauth')),
 
     path('<slug:profile>/', include('djaopsp.urls.api.assess')),
+    path('<slug:profile>/', include('djaopsp.urls.api.audit')),
     path('<slug:profile>/', include('djaopsp.urls.api.portfolios')),
     path('<slug:profile>/', include('survey.urls.api.campaigns')),
     path('<slug:profile>/', include('survey.urls.api.portfolios')),

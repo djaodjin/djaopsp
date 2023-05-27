@@ -189,6 +189,8 @@ class ScorecardIndexView(ReportMixin, TemplateView):
                 args=(self.sample.account, self.sample)),
             'api_assessment_reset': reverse('survey_api_sample_reset_index',
                 args=(self.sample.account, self.sample)),
+            'api_assessment_notes': reverse('api_verifier_notes_index',
+                args=(self.sample.account, self.sample)),
             # The Vue component will use the fully resolved URL to show
             # if it is an external link or an uploaded document.
             'api_asset_upload_complete': self.request.build_absolute_uri(

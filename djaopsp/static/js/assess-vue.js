@@ -634,11 +634,15 @@ Vue.component('scorecard', {
     data: function() {
         return {
             url: this.$urls.survey_api_sample_answers,
-            api_assessment_freeze: this.$urls.api_assessment_freeze,
-            api_assessment_reset: this._safeUrl(
-                this.$urls.api_assessment_reset ?
-                    this.$urls.api_assessment_reset : vm._safeUrl(
-                    this.$urls.api_assessment_sample, '/reset')),
+            api_assessment_freeze: this.$urls.api_assessment_freeze ?
+                this.$urls.api_assessment_freeze : this._safeUrl(
+                    this.$urls.api_assessment_sample, '/freeze'),
+            api_assessment_reset: this.$urls.api_assessment_reset ?
+                this.$urls.api_assessment_reset : this._safeUrl(
+                    this.$urls.api_assessment_sample, '/reset'),
+            api_assessment_notes: this.$urls.api_assessment_notes ?
+                this.$urls.api_assessment_notes : this._safeUrl(
+                    this.$urls.api_assessment_sample, '/notes'),
             account_benchmark_url: this.$urls.api_account_benchmark,
             upload_complete_url: this.$urls.api_asset_upload_complete,
             params: {o: ""},
@@ -875,19 +879,31 @@ Vue.component('scorecard', {
             var vm = this;
             vm.getVerificationComments(practice).measured = text;
             var data = {measured: text}
-            vm.reqPost(vm._safeUrl(vm.api_assessment_sample, '/notes' +
-                vm.prefix + path), data,
+            vm.reqPost(vm._safeUrl(vm.api_assessment_notes,
+                vm.prefix + practice.path), data,
             function success(resp) {
             });
         },
         updateVerificationStatus: function() {
             var vm = this;
-            vm.reqPatch(vm._safeUrl(vm.api_assessment_sample, '/notes'),
-                {verification_status: vm.VerificationStatus},
+            vm.reqPatch(vm.api_assessment_notes, {
+                verified_status: vm.verificationStatus ? vm.verificationStatus
+                    : 'no-review'},
             function success(resp) {
             });
         }
     },
+    watch: {
+        itemsLoaded: function (val) {
+            var vm = this;
+            vm.verificationStatus = vm.items.verified_status;
+            if( vm.chartsLoaded ) {
+                setTimeout(function() {
+                    vm.buildCharts(vm.chartsAPIResp);
+                }, 5000);
+            }
+        },
+    }
 });
 
 

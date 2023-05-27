@@ -7,10 +7,11 @@ from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementSerializer as BasePageElementSerializer)
 from survey.models import PortfolioDoubleOptIn
-from survey.api.serializers import (AccountSerializer, AnswerSerializer,
-    PortfolioOptInSerializer, TableSerializer, UnitSerializer)
+from survey.api.serializers import (EnumField, AccountSerializer,
+    AnswerSerializer, TableSerializer, UnitSerializer)
 
 from ..compat import reverse
+from ..models import VerifiedSample
 from ..utils import get_practice_serializer
 
 
@@ -141,6 +142,7 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
     answers = serializers.ListField(child=AnswerSerializer(), required=False)
     candidates = serializers.ListField(child=AnswerSerializer(), required=False)
     planned = serializers.ListField(child=AnswerSerializer(), required=False)
+    notes = serializers.ListField(child=AnswerSerializer(), required=False)
 
     # assessment results
     normalized_score = serializers.SerializerMethodField(required=False)
@@ -150,11 +152,11 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
 
     class Meta(ContentNodeSerializer.Meta):
         fields = ContentNodeSerializer.Meta.fields + ('ui_hint',
-            'answers', 'candidates', 'planned',
+            'answers', 'candidates', 'planned', 'notes',
             'normalized_score', 'nb_respondents', 'rate', 'opportunity')
         read_only_fields = ContentNodeSerializer.Meta.read_only_fields + (
             'ui_hint',
-            'answers', 'candidates', 'planned',
+            'answers', 'candidates', 'planned', 'notes',
             'normalized_score', 'nb_respondents', 'rate', 'opportunity')
 
     def get_default_unit(self, obj):
@@ -355,6 +357,12 @@ class ReportingSerializer(NoModelSerializer):
     tags = serializers.SerializerMethodField(required=False,
         help_text=_("extra information tags"))
 
+    verified_status = EnumField(choices=VerifiedSample.STATUSES,
+        help_text=_("verification status"))
+    verified_by = serializers.SlugRelatedField(read_only=True,
+        required=False, slug_field='username',
+        help_text=_("User that collected the answer"))
+
     def get_reporting_status(self, obj):
         if (hasattr(obj, 'reporting_status') and
             obj.reporting_status < len(self.REPORTING_STATUS)):
@@ -441,3 +449,13 @@ class EngagementSerializer(AccountSerializer):
             return reverse('scorecard', args=(
                 self.context['account'], obj.sample))
         return None
+
+
+class VerifiedSampleSerializer(serializers.ModelSerializer):
+
+    verified_status = EnumField(choices=VerifiedSample.STATUSES,
+        help_text=_("verification status"))
+
+    class Meta:
+        model = VerifiedSample
+        fields = ('verified_status',)

@@ -243,16 +243,16 @@ var practicesListMixin = {
         // Returns comments from the auditor that verifies the accuracy
         // of an answer.
         getVerificationComments: function(practice) {
-            if( typeof practice.verification === 'undefined' ) {
-                 practice['verification'] = [];
+            if( typeof practice.notes === 'undefined' ) {
+                 practice['notes'] = [];
             }
-            if( practice.verification.length < 1 ) {
-                practice.verification.push({
+            if( practice.notes.length < 1 ) {
+                practice.notes.push({
                     unit: 'freetext',
                     measured: ""
                 });
             }
-            return practice.verification[practice.verification.length - 1];
+            return practice.notes[practice.notes.length - 1];
         },
         getPicture: function(user) {
             if( user && user.picture ) {

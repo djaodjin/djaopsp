@@ -1,9 +1,11 @@
-# Copyright (c) 2021, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE.
 
+from django.conf import settings as django_settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from survey.models import Sample, get_extra_field_class
+from pages import settings as pages_settings
+from survey.models import Answer, Sample, get_extra_field_class
 
 from .compat import python_2_unicode_compatible
 
@@ -59,3 +61,76 @@ class ScorecardCache(models.Model):
     class Meta:
         unique_together = ('sample', 'path')
         db_table = 'envconnect_scorecardcache'
+
+
+@python_2_unicode_compatible
+class VerifiedSample(models.Model):
+    """
+    Overall assessment of auditor for a response to a questionnaire.
+    """
+    STATUS_NO_REVIEW = 0
+    STATUS_UNDER_REVIEW = 1
+    STATUS_DISCREPANCIES = 2
+    STATUS_LACK_CONSISTENCY = 3
+    STATUS_MEET_EXPECTATIONS = 4
+    STATUS_RIGOROUS = 5
+
+    STATUSES = [
+            (STATUS_NO_REVIEW, 'no-review'),
+            (STATUS_UNDER_REVIEW, 'under-review'),
+            (STATUS_DISCREPANCIES, 'discrepencies'),
+            (STATUS_LACK_CONSISTENCY, 'lack-consistency'),
+            (STATUS_MEET_EXPECTATIONS, 'meet-expectations'),
+            (STATUS_RIGOROUS, 'rigorous'),
+        ]
+
+    sample = models.OneToOneField(Sample, on_delete=models.CASCADE,
+        related_name='verified')
+    verified_status = models.PositiveSmallIntegerField(
+        choices=STATUSES, default=STATUS_NO_REVIEW,
+        help_text=_("Verification Status"))
+    verified_by = models.ForeignKey(django_settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT)
+    extra = get_extra_field_class()(null=True, blank=True,
+        help_text=_("Extra meta data (can be stringify JSON)"))
+
+    def __str__(self):
+        return str(self.sample.slug)
+
+
+@python_2_unicode_compatible
+class VerifiedAnswer(models.Model):
+    """
+    Notes from auditor about an answer
+    """
+    answer = models.OneToOneField(Answer, on_delete=models.CASCADE,
+        related_name='verified_answer')
+    created_at = models.DateTimeField(_('date/time submitted'),
+        default=None, db_index=True)
+    text = models.TextField(_('text'),
+        max_length=pages_settings.COMMENT_MAX_LENGTH)
+    verified_by = models.ForeignKey(django_settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT)
+
+    def __str__(self):
+        return '%s-%d' % (self.answer.sample.slug, self.answer.rank)
+
+    @property
+    def collected_by(self):
+        return self.verified_by
+
+    @property
+    def question(self):
+        return self.answer.question
+
+    @property
+    def measured_text(self):
+        return self.text
+
+    @property
+    def rank(self):
+        return self.answer.rank
+
+    @property
+    def unit(self):
+        return self.answer.unit

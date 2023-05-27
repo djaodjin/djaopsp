@@ -1,6 +1,6 @@
 {% extends "app/reporting/base.html" %}
 
-{% block reporting_title %}Completed assessments{% endblock %}
+{% block reporting_title %}{% trans %}Completed assessments{% endtrans %}{% endblock %}
 
 {% block reporting_content %}
 <reporting-organizations id="managed" inline-template>
@@ -8,19 +8,29 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Last completed<button class="btn btn-link btn-sort"
+          <th>{% trans %}Last completed{% endtrans %}<button class="btn btn-link btn-sort"
                   @click.prevent="sortBy('last_completed_at')">
                   <i :class="sortIcon('last_completed_at')"></i>
               </button>
           </th>
-          <th>Organization/profile<button class="btn btn-link btn-sort"
+          <th>{% trans %}Organization/profile{% endtrans %}<button class="btn btn-link btn-sort"
                   @click.prevent="sortBy('printable_name')">
                   <i :class="sortIcon('printable_name')"></i>
               </button>
           </th>
-          <th>Campaign<button class="btn btn-link btn-sort"
+          <th>{% trans %}Questionnaire{% endtrans %}<button class="btn btn-link btn-sort"
                   @click.prevent="sortBy('segment')">
                   <i :class="sortIcon('segment')"></i>
+              </button>
+          </th>
+          <th>{% trans %}Verified Status{% endtrans %}<button class="btn btn-link btn-sort"
+                  @click.prevent="sortBy('status')">
+                  <i :class="sortIcon('status')"></i>
+              </button>
+          </th>
+          <th>{% trans %}Assigned verifier{% endtrans %}<button class="btn btn-link btn-sort"
+                  @click.prevent="sortBy('verifier')">
+                  <i :class="sortIcon('verifier')"></i>
               </button>
           </th>
         </tr>
@@ -46,6 +56,12 @@
           <!-- Campaign -->
           <td style="vertical-align:middle;">
               <a :href="entry.score_url">[[ entry.segment ]]</a>
+          </td>
+          <td style="vertical-align:middle;">
+              [[ entry.verified_status ]]
+          </td>
+          <td style="vertical-align:middle;">
+            [[ entry.verified_by ]]
           </td>
         </tr>
       </tbody>

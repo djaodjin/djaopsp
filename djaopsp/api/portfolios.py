@@ -36,7 +36,7 @@ from ..queries import (get_completed_assessments_at_by, get_engagement,
     segments_as_sql)
 from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
     AccountsNominativeQuerysetMixin, CampaignMixin)
-from ..models import ScorecardCache
+from ..models import ScorecardCache, VerifiedSample
 from ..utils import (TransparentCut, get_alliances, get_latest_reminders,
     get_segments_candidates)
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
@@ -733,7 +733,7 @@ class CompletedAssessmentsMixin(AccountMixin):
                 account_slug=F('account__slug'),
                 printable_name=F('account__full_name'),
                 email=F('account__email'),
-                segment=F('campaign__title'))
+                segment=F('campaign__title')).select_related('verified')
         return queryset
 
 
@@ -783,6 +783,12 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
                 args=(sample.account, sample.slug)) # We use sample.account here
             # because the broker should be able to access all scorecards
             # without requiring a `Portfolio` record to exist.
+            try:
+                sample.verified_status = sample.verified.verified_status
+                sample.verified_by = sample.verified.verified_by
+            except VerifiedSample.DoesNotExist: #RelatedObjectDoesNotExist:
+                sample.verified_status = VerifiedSample.STATUS_NO_REVIEW
+                sample.verified_by = None
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
