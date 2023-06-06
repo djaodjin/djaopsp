@@ -101,7 +101,7 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
 
 class ImprovePracticesView(AssessPracticesView):
     """
-    Profile improvement targets page
+    Improvement planning page
     """
     template_name = 'app/improve/index.html'
     breadcrumb_url = 'improve_practices'
@@ -128,8 +128,8 @@ class AssessRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
     """
     Redirects to an assess page for a segment
     """
-    template_name = 'app/assess/redirects.html'
     breadcrumb_url = 'assess_practices'
+    template_name = 'app/assess/redirects.html'
 
     def get_redirect_url(self, *args, **kwargs):
         return reverse(self.breadcrumb_url, kwargs=kwargs)
@@ -141,7 +141,7 @@ class AssessRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
         has_mandatory_segment = get_question_model().objects.filter(
             path__startswith=campaign_prefix).exists()
         if has_mandatory_segment:
-            kwargs.update({'path': campaign_prefix.strip('/')})
+            kwargs.update({'path': campaign_prefix.strip(URL_PATH_SEP)})
             url = self.get_redirect_url(*args, **kwargs)
             return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
 
@@ -156,7 +156,7 @@ class AssessRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
             # content node at this point.
             path = seg.get('path')
             if path:
-                kwargs.update({'path': path.strip('/')})
+                kwargs.update({'path': path.strip(URL_PATH_SEP)})
                 url = self.get_redirect_url(*args, **kwargs)
                 print_name = seg.get('title')
                 redirects += [(url, print_name)]
@@ -171,18 +171,53 @@ class AssessRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
         return super(AssessRedirectView, self).get(request, *args, **kwargs)
 
 
-class ImproveRedirectView(AssessRedirectView):
+class ImproveRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
+                         RedirectView):
     """
-    Redirects to a targets/improve page for a segment
+    Redirects to an improvement planning page for a segment
     """
     breadcrumb_url = 'improve_practices'
+    template_name = 'app/improve/redirects.html'
+
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse(self.breadcrumb_url, kwargs=kwargs)
+
+    def get(self, request, *args, **kwargs):
+        campaign_slug = self.sample.campaign.slug
+        campaign_prefix = "%s%s%s" % (
+            DB_PATH_SEP, campaign_slug, DB_PATH_SEP)
+
+        candidates = self.segments_available
+        redirects = []
+        for seg in candidates:
+            # We insured that all candidates are the prefixed
+            # content node at this point.
+            extra = seg.get('extra')
+            if extra and extra.get('visibility'):
+                # Prevents sections that do not lend themselves
+                # to improvement planning.
+                path = seg.get('path')
+                if path:
+                    kwargs.update({'path': path.strip(URL_PATH_SEP)})
+                    url = self.get_redirect_url(*args, **kwargs)
+                    print_name = seg.get('title')
+                    redirects += [(url, print_name)]
+
+        if len(redirects) == 1:
+            return super(ImproveRedirectView, self).get(
+                request, *args, **kwargs)
+
+        context = self.get_context_data(**kwargs)
+        context.update({
+            'redirects': redirects,
+        })
+        return self.render_to_response(context)
 
 
 class TrackMetricsView(AccountMixin, TemplateView):
     """
     Profile metrics page
     """
-    DB_PATH_SEP = '/'
     template_name = 'app/track/index.html'
 
     def get_template_names(self):

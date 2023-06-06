@@ -15,30 +15,7 @@
                   </li>
                   <li :data-id="icon.path"
                       :class="'nav-item squared-tabs-li' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '') + (containsTag(icon, 'tilebreak') ?  ' bordered-left' : '')"
-                      v-for="icon in getEntries('targets', 1)"
-                      v-if="itemsLoaded && items.path === '/sustainability'"
-                      v-show="itemsLoaded && items.results.length"
-                      v-cloak>
-                    <a class="nav-link icon-inner orange"
-                       :href="'#tab-' + icon.slug"
-                       role="{{role}}" data-toggle="{{role}}"
-                       @click.prevent="toggleTile($event, icon)">
-                       <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
-                       <div class="icon-caption">[[icon.title]]</div>
-                    </a>
-                    <div :id="icon.slug + '-score'" class="icon-score">
-                      <div>
-                        (<span class="rollup-weight"
-                               :data-id="icon.path"
-                               data-key="weight"
-                               @click.prevent="editScoreWeight($event)">[[humanizeScoreWeight(icon.score_weight, icon.score_percentage)]]</span>)
-                      </div>
-                    </div>
-                  </li>{# / items.path === '/sustainability' #}
-                  <li :data-id="icon.path"
-                      :class="'nav-item squared-tabs-li' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '') + (containsTag(icon, 'tilebreak') ?  ' bordered-left' : '')"
                       v-for="icon in getEntries('', 1)"
-                      v-if="itemsLoaded && items.path !== '/sustainability'"
                       v-show="itemsLoaded && items.results.length"
                       v-cloak>
                     <a class="nav-link icon-inner orange"
@@ -56,42 +33,13 @@
                                @click.prevent="editScoreWeight($event)">[[humanizeScoreWeight(icon.score_weight, icon.score_percentage)]]</span>)
                       </div>
                     </div>
-                  </li>{# / items.path !== '/sustainability' #}
+                  </li>
                 </ul>
               </div> {# .header-tuple #}
             </div>
           </div> {# .row-icons #}
         </div> {# .col-md-12 #}
       </div> {# .row #}
-
-      {# expanded tabs for sustainability core target #}
-      <div v-if="itemsLoaded && items.path === '/sustainability'" v-cloak>
-        <div :class="'tab-content collapse' + (activeTile ? ' show' : '')">
-          <div role="tabpanel"
-               :class="'tab-pane' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '')"
-               :id="'tab-' + icon.slug"
-               v-for="icon in getEntries('targets', 1)"
-               v-show="itemsLoaded && items.results.length > 0"
-               v-cloak>
-            <div v-show="!showVsPeers">
-              <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-              <table class="table table-striped table-bordered table-assessment">
-                <thead>
-                  <tr>
-                    <th colspan="6">
-                    </th>
-                    <th colspan="6">
-                    </th>
-                  </tr>
-                </thead>
-                <tbody v-for="practice in getEntries(icon.slug)">
-                  {% include "app/assess/_assess_row.html" %}
-                </tbody>
-              </table>
-            </div>{# /!showVsPeers #}
-          </div>
-        </div>
-      </div>{# / items.path === '/sustainability' #}
 
       {# expanded tabs for making an improvement plan #}
       <div id="improve-tabs"
@@ -236,9 +184,7 @@ Click on each icon to expand it.
     </div>
     {% endblock %}
 
-    <div v-if="itemsLoaded && items.path !== '/sustainability'">
-      {% include "app/improve/_improve_charts.html" %}
-    </div>
+    {% include "app/improve/_improve_charts.html" %}
 
   </div>
 </campaign-questions-list>

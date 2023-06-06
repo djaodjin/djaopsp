@@ -257,16 +257,22 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         assess_url = None
         improve_url = None
         if not self.sample.is_frozen:
+            assess_url = (reverse('assess_practices', args=(
+                self.sample.account, self.sample, path)) if path
+                else reverse('assess_redirect', args=(
+                        self.sample.account, self.sample,)))
+            improve_url = reverse('improve_redirect',
+                args=(self.sample.account, self.sample,))
             if path:
-                assess_url = reverse('assess_practices',
-                    args=(self.sample.account, self.sample, path))
-                improve_url = reverse('improve_practices',
-                    args=(self.sample.account, self.sample, path))
-            else:
-                assess_url = reverse('assess_redirect',
-                    args=(self.sample.account, self.sample,))
-                improve_url = reverse('improve_redirect',
-                    args=(self.sample.account, self.sample,))
+                for seg in self.segments_available:
+                    # We insured that all candidates are the prefixed
+                    # content node at this point.
+                    extra = seg.get('extra')
+                    if extra and extra.get('visibility'):
+                        improve_url = reverse('improve_practices', args=(
+                            self.sample.account, self.sample, path))
+                        break
+
         if assess_url:
             update_context_urls(context, {'assess': assess_url})
         if improve_url:
