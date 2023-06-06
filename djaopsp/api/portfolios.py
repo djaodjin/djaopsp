@@ -381,6 +381,12 @@ class SupplierListMixin(ScoresMixin, AccountsNominativeQuerysetMixin):
                     if report_summary.slug:
                         report_summary.score_url = reverse('scorecard',
                             args=(self.account, report_summary.slug))
+            try:
+                report_summary.verified_status = report_summary.verified.verified_status
+                report_summary.verified_by = report_summary.verified.verified_by
+            except VerifiedSample.DoesNotExist: #RelatedObjectDoesNotExist:
+                report_summary.verified_status = VerifiedSample.STATUS_NO_REVIEW
+                report_summary.verified_by = None
         self._report_queries("report summaries updated with scores")
 
     def get_nb_questions_per_segment(self):
