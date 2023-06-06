@@ -57,9 +57,6 @@ urlpatterns = [
     path('reporting/<slug:campaign>/compare/download/',
         CompareXLSXView.as_view(),
         name='download_matrix_compare'),
-    path('reporting/<slug:campaign>/download/',
-        PortfolioResponsesXLSXView.as_view(),
-        name='portfolio_responses_download'),
 
     # Dashboards as HTML pages
     path('reporting/<slug:campaign>/engage/download/',
@@ -81,6 +78,9 @@ urlpatterns = [
     path('reporting/<slug:campaign>/matrix/<path:path>/',
         PortfoliosDetailView.as_view(), name='matrix_chart'),
 
+    path('reporting/<slug:campaign>/retiring/download/',
+        PortfolioResponsesXLSXView.as_view(),
+        name='portfolio_responses_download'),
     path('reporting/<slug:campaign>/retiring/',
         PortfolioResponsesView.as_view(),
         name='portfolio_responses'),
