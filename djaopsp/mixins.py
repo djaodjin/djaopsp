@@ -256,7 +256,7 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         # with. They must use ``sample.account``.
         assess_url = None
         improve_url = None
-        if not self.sample.is_frozen:
+        if True or not self.sample.is_frozen:
             if path:
                 assess_url = reverse('assess_practices',
                     args=(self.sample.account, self.sample, path))
