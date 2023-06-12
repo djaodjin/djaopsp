@@ -46,6 +46,9 @@ class ScoreCalculator(ScoreCalculatorBase):
     Abstract base class to compute scores on individual answers
     for an assessment
     """
+    intrinsic_value_headers = ['Environmental', 'Ops/maintenance', 'Financial',
+        'Implementation ease', 'AVERAGE VALUE']
+
     def __init__(self):
         self.assessment_unit_id = Unit.objects.get(slug=ASSESSMENT_UNIT).pk
         self.points_unit_id = Unit.objects.get(slug=SCORE_UNIT).pk

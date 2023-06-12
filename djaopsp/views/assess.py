@@ -21,6 +21,7 @@ from survey.settings import DB_PATH_SEP, URL_PATH_SEP
 from survey.utils import get_question_model
 
 from .downloads import PracticesSpreadsheetView
+from ..scores import get_score_calculator
 from ..api.samples import AssessmentContentMixin
 from ..compat import reverse, six
 from ..mixins import AccountMixin, ReportMixin, SectionReportMixin
@@ -271,8 +272,21 @@ class TrackMetricsView(AccountMixin, TemplateView):
 class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
 
     base_headers = ['', 'Assessed', 'Planned', 'Comments', 'Opportunity']
-    intrinsic_value_headers = ['Environmental', 'Ops/maintenance', 'Financial',
-        'Implementation ease', 'AVERAGE VALUE']
+
+    @property
+    def intrinsic_value_headers(self):
+        if not hasattr(self, '_intrinsic_value_headers'):
+            self._intrinsic_value_headers = []
+            for seg in self.segments_available:
+                prefix = seg.get('path')
+                if prefix:
+                    score_calculator = get_score_calculator(prefix)
+                    if (score_calculator and
+                        score_calculator.intrinsic_value_headers):
+                        self._intrinsic_value_headers = \
+                            score_calculator.intrinsic_value_headers
+                        break
+        return self._intrinsic_value_headers
 
     def get_headings(self):
         if not hasattr(self, 'units'):
@@ -301,10 +315,12 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
     def format_row(self, entry):
         #pylint:disable=too-many-locals
         default_unit = entry.get('default_unit', {})
+        default_unit_choices = []
         if default_unit:
             try:
                 default_unit = default_unit.slug
             except AttributeError:
+                default_unit_choices = default_unit.get('choices', [])
                 default_unit = default_unit.get('slug', "")
         answers = entry.get('answers')
         primary_assessed = None
@@ -325,8 +341,18 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
                 if unit and default_unit and unit.slug == default_unit:
                     primary_planned = answer.get('measured')
         # base_headers
+        title = entry['title']
+        if default_unit and default_unit_choices:
+            subtitle = ""
+            for choice in default_unit_choices:
+                text = choice.get('text', "").strip()
+                descr = choice.get('descr', "").strip()
+                if text != descr:
+                    subtitle += "\n%s - %s" % (text, descr)
+            if subtitle:
+                title += "\n" + subtitle
         row = [
-            entry['title'],
+            title,
             primary_assessed,
             primary_planned,
             comments,
@@ -346,13 +372,19 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
             ]
 
         # intrinsic_value_headers
-        environmental_value = entry.get('environmental_value', 0)
-        business_value = entry.get('business_value', 0)
-        profitability = entry.get('profitability', 0)
-        implementation_ease = entry.get('implementation_ease', 0)
-        avg_value = entry.get('avg_value', 0)
-        if (environmental_value or business_value or profitability or
-            implementation_ease or avg_value):
+        avg_value = 0
+        extra = entry.get('extra')
+        if extra:
+            intrinsic_values = extra.get('intrinsic_values')
+            if intrinsic_values:
+                environmental_value = intrinsic_values.get('environmental', 0)
+                business_value = intrinsic_values.get('business', 0)
+                profitability = intrinsic_values.get('profitability', 0)
+                implementation_ease = intrinsic_values.get(
+                    'implementation_ease', 0)
+                avg_value = (environmental_value + business_value +
+                    profitability + implementation_ease) // 4
+        if avg_value:
             row += [
                 environmental_value,
                 business_value,

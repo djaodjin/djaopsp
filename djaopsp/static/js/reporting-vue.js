@@ -770,6 +770,9 @@ Vue.component('activity-summary', {
             for( let key in vm.$refs ) {
                 vm.$refs[key].get();
             }
+        },
+        reload: function() {
+            this.get();
         }
     },
     mounted: function(){

@@ -20,6 +20,8 @@ class ScoreCalculator(object):
     Abstract base class to compute scores on individual answers
     for an assessment
     """
+    intrinsic_value_headers = []
+
     def get_opportunity(self, campaign,
                         includes=None, excludes=None, prefix=None,
                         last_frozen_assessments=None):

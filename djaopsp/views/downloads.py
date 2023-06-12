@@ -173,7 +173,8 @@ class PracticesSpreadsheetView(ListView):
                             entry['indent'] + len(entry['title']))
                     if entry['indent'] == 0:
                         cell.fill = tile_background
-                    if headers[idx] in self.intrinsic_value_headers:
+                    if (self.intrinsic_value_headers and
+                        headers[idx] in self.intrinsic_value_headers):
                         try:
                             value = int(cell.value)
                             if value:
@@ -183,7 +184,7 @@ class PracticesSpreadsheetView(ListView):
                             pass
                     first = False
 
-        self.wsheet.column_dimensions['A'].width = 0.332 * heading_width
+        self.wsheet.column_dimensions['A'].width = 0.7 * heading_width
 
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \

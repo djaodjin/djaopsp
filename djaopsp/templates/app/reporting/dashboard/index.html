@@ -8,7 +8,8 @@
     {# Following `div` matches engage page layout #}
     <div class="row">
       <div class="col-md-6">
-        <form id="period-update" class="form-inline mt-4" @submit.prevent="reload()">
+        <form id="period-update" class="form-inline mt-4"
+              @submit.prevent="reload()">
           <div class="input-group input-group-sm mr-2">
             <div class="input-group-prepend">
               <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
@@ -23,7 +24,7 @@
           </div>
           <button class="btn btn-secondary btn-sm mr-2"
                 :disabled="!outdated"
-                >{% trans %}Update{% endtrans %}</button>
+                type="submit">{% trans %}Update{% endtrans %}</button>
         </form>{# /#period-update #}
       </div>
       <div class="col-md-6">
