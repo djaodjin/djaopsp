@@ -952,7 +952,7 @@ Vue.component('scorecard-requests', {
                 }
                 vm.byCampaigns[campaign].requests.push(item);
             }
-            let queryParams = "?q_f=slug&q=";
+            let queryParams = "?q_f==slug&q=";
             let sep = "";
             for( const profile of profiles ) {
                 queryParams += sep + profile;
@@ -1016,7 +1016,7 @@ Vue.component('scorecard-history', {
                 }
             }
             // decorate profiles
-            let queryParams = "?q_f=slug&q=";
+            let queryParams = "?q_f==slug&q=";
             let sep = "";
             for( const profile of profiles ) {
                 queryParams += sep + profile;
