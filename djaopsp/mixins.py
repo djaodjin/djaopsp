@@ -256,24 +256,25 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         # with. They must use ``sample.account``.
         assess_url = None
         improve_url = None
-        if True or not self.sample.is_frozen:
-            if path:
-                assess_url = reverse('assess_practices',
-                    args=(self.sample.account, self.sample, path))
-                improve_url = reverse('improve_practices',
-                    args=(self.sample.account, self.sample, path))
-            else:
-                assess_url = reverse('assess_redirect',
-                    args=(self.sample.account, self.sample,))
-                improve_url = reverse('improve_redirect',
-                    args=(self.sample.account, self.sample,))
+        # Allows grantee to access assess and improve pages (read-only).
+        account = self.account
+        if path:
+            assess_url = reverse('assess_practices',
+                args=(account, self.sample, path))
+            improve_url = reverse('improve_practices',
+                args=(account, self.sample, path))
+        else:
+            assess_url = reverse('assess_redirect',
+                args=(account, self.sample,))
+            improve_url = reverse('improve_redirect',
+                args=(account, self.sample,))
         if assess_url:
             update_context_urls(context, {'assess': assess_url})
         if improve_url:
             update_context_urls(context, {'improve': improve_url})
         update_context_urls(context, {
             'complete': reverse('scorecard',
-                args=(self.sample.account, self.sample,)),
+                args=(account, self.sample,)),
         })
         if self.account == self.sample.account:
             update_context_urls(context, {'share': reverse('share',
