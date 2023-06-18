@@ -36,14 +36,22 @@ var practicesListMixin = {
             },
             prefix: this.$prefix ? this.$prefix : "",
             api_assessment_sample: this.$urls.api_assessment_sample,
+            normalizedScore: 0,
             // benchmark charts
             chartsLoaded: false,
             chartsAvailable: false,
             chartsAPIResp: null,
             charts: {},
+            avgNormalizedScore: 0,
+            highestNormalizedScore: 0,
+            getCompleteCb: 'contentLoaded'
         }
     },
     methods: {
+        contentLoaded: function() {
+            var vm = this;
+            vm.normalizedScore = vm.items.normalized_score;
+        },
         getEntries: function(prefix, indent, includeTag) {
             var vm = this;
             var results = [];
@@ -731,7 +739,9 @@ var practicesListMixin = {
         if( vm.account_benchmark_url ) {
             vm.reqGet(vm.account_benchmark_url,
             function(resp) {
-                vm.chartsAPIResp = resp;
+                vm.avgNormalizedScore = resp.avg_normalized_score;
+                vm.highestNormalizedScore = resp.highest_normalized_score;
+                vm.chartsAPIResp = resp.results;
                 vm.chartsLoaded = true;
             });
             vm.buildSummaryChart();

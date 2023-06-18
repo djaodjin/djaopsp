@@ -17,6 +17,34 @@
         <p>
           XXX No assessments!!
         </p>
+        {% for item in segments_candidates %}
+        <div>
+          <a id="{{item.slug}}" href="{{urls.assess}}{{item.path}}/">
+            <div class="card bg-white text-dark h-100">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-4">
+                    <div class="d-inline-block">
+                      {% if item.picture %}
+                      <img class="icon-inner"
+                           style="padding:5px; border: 1px #eee solid;"
+                           src="{{item.picture}}">
+                      {% else %}
+                      <img class="icon-inner"
+                           style="padding:5px; border: 1px #eee solid;"
+                           src="{{'/static/img/design.png'|asset}}">
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="col-8 text-left">
+                    <h3>{{item.title}}</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
         {% endif %}
       </div>
     </div>

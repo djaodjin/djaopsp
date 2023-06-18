@@ -475,8 +475,9 @@ def get_segments_candidates(campaign, visibility=None, owners=None):
     return []
 
 
-def get_summary_performance(sample):
-    if sample.campaign.slug == 'sustainability':
+def get_summary_performance(improvement_sample):
+    if improvement_sample.campaign.slug == 'sustainability':
+        #Answer.objects.filter(sample=improvement_sample).select_related('content__extra')
         return [11, 16, 7, 3]
     return []
 

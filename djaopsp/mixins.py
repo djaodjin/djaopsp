@@ -240,6 +240,7 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         context.update({
             'sample': self.sample,
             'segments_available': self.segments_available,
+            'segments_candidates': self.segments_candidates,
         })
         if len(self.segments_available) == 1:
             path_parts = self.path.lstrip(URL_PATH_SEP).split(URL_PATH_SEP)

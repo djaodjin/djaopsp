@@ -38,53 +38,55 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
                     </div>
                   </div>
                   {% endfor %}
+                  {% if summary_performance %}
+                  <div class="text-center">
+                    <canvas id="summary-chart"></canvas>
+                  </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
-            <div class="row">
-              <div class="col-sm-6">
-                <div class="mt-2 ml-2">
-                  Contact Information
-                  <ul class="list-unstyled mb-0">
-                    {% if sample.account.email %}
-                    <li>{{sample.account.email}}</li>
-                    {% endif %}
-                    {% if sample.account.phone %}
-                    <li>{{sample.account.phone}}</li>
-                    {% endif %}
-                  </ul>
-                </div>
-              </div>
-              {% if verification_enabled %}
-              <div class="col-sm-6">
-                <form class="mt-2">
-                  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                  <select class="form-control"
-                          v-model="verificationStatus"
-                          @change="updateVerificationStatus()">
-                      <option value="no-review">(grey) {% trans %}Not yet reviewed nor verified{% endtrans %}</option>
-                      <option value="under-review">(grey) {% trans %}Under review{% endtrans %}</option>
-                      <option value="discrepencies">(red) {% trans %}Found serious discrepancies between responses
-and supporting documents{% endtrans %}</option>
-                      <option value="lack-consistency">(orange) {% trans %}Responses are technically accurate but lacking consistency with the pool of suppliers reviews {% endtrans %}</option>
-                      <option value="meet-expectations">(green) {% trans %}Responses are consistent with average answers and supporting documents{% endtrans %}</option>
-                      <option value="rigorous">(gold) {% trans %}All questions have been answered positively with supporting documentation more rigorously detailed than the pool of suppliers reviewed.{% endtrans %} ({% trans %}not yet shared{% endtrans %})</option>
-                  </select>
-                </form>
-              </div>
-              {% endif %}
-            </div>
-          </div>
-          {% if summary_performance %}
+          </div>{# /.col-sm-8 #}
           <div class="col-sm-4 bordered-left">
             <div class="h-100" style="background-color: #e5e9dd;">
-              <div class="text-center">
-                <canvas id="summary-chart"></canvas>
+              <div class="py-2">
+                {% include "app/_score_arcs.html" %}
               </div>
             </div>
           </div>
+        </div>{# /.row #}
+        <div class="row">
+          <div class="col-sm-8">
+            <div class="mt-2 ml-2">
+              Contact Information
+              <ul class="list-unstyled mb-0">
+                {% if sample.account.email %}
+                <li>{{sample.account.email}}</li>
+                {% endif %}
+                {% if sample.account.phone %}
+                <li>{{sample.account.phone}}</li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+          {% if verification_enabled %}
+          <div class="col-sm-4">
+            <form class="mt-2">
+              <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+              <select class="form-control"
+                      v-model="verificationStatus"
+                      @change="updateVerificationStatus()">
+                <option value="no-review">(grey) {% trans %}Not yet reviewed nor verified{% endtrans %}</option>
+                <option value="under-review">(grey) {% trans %}Under review{% endtrans %}</option>
+                <option value="discrepencies">(red) {% trans %}Found serious discrepancies between responses and supporting documents{% endtrans %}</option>
+                <option value="lack-consistency">(orange) {% trans %}Responses are technically accurate but lacking consistency with the pool of suppliers reviews {% endtrans %}</option>
+                <option value="meet-expectations">(green) {% trans %}Responses are consistent with average answers and supporting documents{% endtrans %}</option>
+                <option value="rigorous">(gold) {% trans %}All questions have been answered positively with supporting documentation more rigorously detailed than the pool of suppliers reviewed.{% endtrans %} ({% trans %}not yet shared{% endtrans %})</option>
+              </select>
+            </form>
+          </div>
           {% endif %}
-        </div>
+        </div>{# /.row #}
       </section> {# <!-- /#summary --> #}
       <section id="details">
         {% if not sample.is_frozen %}
@@ -176,10 +178,6 @@ and supporting documents{% endtrans %}</option>
                   </div>
                 </div>{# /.col-md-8 #}
                 <div class="col-md-4">
-                  <div :class="indentHeader(practice) + ' py-2'"
-                       v-if="practice.indent == 0">
-                    {% include "app/_score_arcs.html" %}
-                  </div>{# /practice.indent == 0 #}
                   <div :class="indentHeader(practice)"
                        v-if="practice.indent > 0">
                     [[asPercent(practice.normalized_score)]]

@@ -672,15 +672,20 @@ Vue.component('scorecard', {
                                 'energy', 'ghg-emissions', 'waste', 'water'],
                             datasets: [{
                                 label: "score",
-                                data: vm.summaryPerformance
+                                data: vm.summaryPerformance,
+                                backgroundColor: [
+                                    'rgb(255, 99, 132)',
+                                    'rgb(75, 192, 192)',
+                                    'rgb(255, 205, 86)',
+                                    'rgb(201, 203, 207)']
                             }]
                         },
                         options: {
                             responsive: true,
                             plugins: {
                                 legend: {
-                                    display: false,
-                                    // position: 'top',
+                                    display: true,
+                                    position: 'bottom',
                                 },
                                 title: {
                                     display: false
