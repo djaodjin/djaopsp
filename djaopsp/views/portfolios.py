@@ -483,13 +483,14 @@ class CompletedAssessmentsRawXLSXView(CompletedAssessmentsMixin, TemplateView):
         wbook = Workbook()
         self.wsheet = wbook.active
         self.wsheet.title = as_valid_sheet_title("Completed")
-        headings = ['Completed at', 'Name', 'Campaign']
+        headings = ['Completed at', 'Name', 'Domain', 'Campaign']
         self.wsheet.append(headings)
 
         for rec in self.get_queryset():
+            domain = rec.email.split('@')[-1] if rec.email else ""
             self.wsheet.append([
                 rec.last_completed_at.strftime('%Y/%m/%d'),
-                rec.printable_name, rec.segment])
+                rec.printable_name, domain, rec.segment])
 
         # Prepares the result file
         content = io.BytesIO()
