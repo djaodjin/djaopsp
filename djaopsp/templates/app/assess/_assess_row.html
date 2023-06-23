@@ -52,6 +52,19 @@
     </button>
 </td>
 
+<td class="text-center"
+    :colspan="6"
+    v-if="isNAICSUIHint(practice)">
+  <div class="input-group">
+    <select class="form-control"
+            v-model="getPrimaryAnswer(practice).measured"
+            @blur="updateAssessmentAnswer(practice)"
+            {% if sample.is_frozen %} disabled{% endif %}>
+      <option value="237">237 (Heavy and Civil Engineering Construction)</option>
+    </select>
+  </div>
+</td>
+
 {# Presents questions based on its ui_hint and default unit #}
 <td class="text-center"
     colspan="6"

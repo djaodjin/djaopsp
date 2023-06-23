@@ -3,123 +3,94 @@
 {% block assess_content %}
 <campaign-questions-list class="panel-icons" id="panel-icons" inline-template>
   <div>
-    <div class="panel-body">
-      <div class="row">
-        <div class="col-md-12 text-center" style="display:table-row;">
-          <div class="row-icons">
-            <div style="display:inline-block;float:left;flex:auto;">
-              <div class="header-tuple">
-                <ul class="nav nav-tabs squared-tabs">
-                  <li v-show="!itemsLoaded">
-                    <i class="fa fa-spinner fa-spin fa-2x"></i>
-                  </li>
-                  <li :data-id="icon.path"
-                      :class="'nav-item squared-tabs-li' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '') + (containsTag(icon, 'tilebreak') ?  ' bordered-left' : '')"
-                      v-for="icon in getEntries('', 1)"
-                      v-show="itemsLoaded && items.results.length"
-                      v-cloak>
-                    <a class="nav-link icon-inner orange"
-                       :href="'#tab-' + icon.slug"
-                       role="{{role}}" data-toggle="{{role}}"
-                       @click.prevent="toggleTile($event, icon)">
-                      <img class="icon-equipment" :src="icon.picture" v-if="icon.picture">
-                      <div class="icon-caption">[[icon.title]]</div>
-                    </a>
-                    <div :id="icon.slug + '-score'" class="icon-score">
-                      <div v-show="icon.score_weight > 0">
-                        (<span class="rollup-weight"
-                               :data-id="icon.path"
-                               data-key="weight"
-                               @click.prevent="editScoreWeight($event)">[[humanizeScoreWeight(icon.score_weight, icon.score_percentage)]]</span>)
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </div> {# .header-tuple #}
+    <div id="assess-tabs"
+         class="tab-content collapse show"
+         v-for="icon in getEntries('', 1)"
+         v-show="itemsLoaded && items.results.length"
+         v-cloak>
+      {# nav item #}
+      <div class="container">
+        <div class="row text-center">
+          <div class="offset-sm-3 col-sm-6 mt-2">
+        <a :id="icon.slug"
+           :href="'#tab-' + icon.slug"
+           role="{{role}}" data-toggle="{{role}}"
+           @click.prevent="toggleTile($event, icon)">
+          <div class="card bg-white text-dark h-100">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-4">
+                  <div class="d-inline-block">
+                    <img class="icon-inner orange"
+                         style="padding:5px; border: 1px #eee solid;"
+                         :src="icon.picture" v-if="icon.picture">
+                    <img class="icon-inner orange"
+                         src="{{'/static/img/design.png'|asset}}"
+                         v-if="!icon.picture">
+                  </div>
+                </div>
+                <div class="col-8 text-left">
+                  <h3>[[icon.title]]</h3>
+                  <p>
+                    [[icon.text]]
+                  </p>
+                </div>
+              </div>
             </div>
-          </div> {# .row-icons #}
-        </div> {# .col-md-12 #}
-      </div> {# .row #}
+          </div>
+        </a>
+      </div>
+      </div>
+      </div>
+      {# /nav item #}
 
       {# expanded tabs go here #}
-      <div id="assess-tabs"
-           :class="'tab-content collapse' + (activeTile ? ' show' : '')">
-        <div role="tabpanel"
-             :class="'tab-pane' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '')"
-             :id="'tab-' + icon.slug"
-             v-for="icon in getEntries('', 1)"
-             v-show="itemsLoaded && items.results.length"
-             v-cloak>
-          <div v-show="!showVsPeers">
-            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-            <table class="table table-bordered table-assessment">
-              <thead v-if="!isEnumHeaderShown(icon)">
-                <tr>
-                  <th colspan="6" style="width:50%;">
-                  </th>
-                  <th colspan="6">
-                  </th>
-                </tr>
-              </thead>
-              <thead v-if="isEnumHeaderShown(icon)">
-                <tr>
-                  <th colspan="6" style="border-bottom:none;width:50%;">
-                  </th>
-                  <th class="text-center pb-0"
-                      colspan="6">
-                    Implemented as standard practice? <a style="cursor:pointer;" href=""><i class="fa fa-question-circle"></i></a>
-                    <div class="text-right mt-2">
-                      <div style="display:inline-block;">
-                        <div class="text-left m-0 p-0" style="line-height:1;">
-                          <small class="candidate-answer">
-                            <div class="radio-border mr-2">
-                              <div style="background-color:white;line-height:0;padding: 2px;border-radius:50%;">
-                              </div>
+      <div role="tabpanel"
+           :class="'tab-pane' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '')"
+           :id="'tab-' + icon.slug">
+        <div v-show="!showVsPeers">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+          <table class="table table-bordered table-assessment">
+            <thead v-if="!isEnumHeaderShown(icon)">
+              <tr>
+                <th colspan="6" style="width:50%;">
+                </th>
+                <th colspan="6">
+                </th>
+              </tr>
+            </thead>
+            <thead v-if="isEnumHeaderShown(icon)">
+              <tr>
+                <th colspan="6" style="border-bottom:none;width:50%;">
+                </th>
+                <th class="text-center pb-0"
+                    colspan="6">
+                  Implemented as standard practice? <a style="cursor:pointer;" href=""><i class="fa fa-question-circle"></i></a>
+                  <div class="text-right mt-2">
+                    <div style="display:inline-block;">
+                      <div class="text-left m-0 p-0" style="line-height:1;">
+                        <small class="candidate-answer">
+                          <div class="radio-border mr-2">
+                            <div style="background-color:white;line-height:0;padding: 2px;border-radius:50%;">
                             </div>
-                            <label style="vertical-align:middle;">
-                              <span>previous completed assessment</span>
-                            </label>
-                          </small>
-                        </div>
-                        <div class="text-left m-0 p-0" style="line-height:1;">
-                          <small>
-                            <span class="practice-required mr-2" style="border-top:1px solid #dee2e6;border-bottom:1px solid #dee2e6;">&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                            required answer
-                          </small>
-                        </div>
+                          </div>
+                          <label style="vertical-align:middle;">
+                            <span>previous completed assessment</span>
+                          </label>
+                        </small>
+                      </div>
+                      <div class="text-left m-0 p-0" style="line-height:1;">
+                        <small>
+                          <span class="practice-required mr-2" style="border-top:1px solid #dee2e6;border-bottom:1px solid #dee2e6;">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                          required answer
+                        </small>
                       </div>
                     </div>
-                  </th>
-                </tr>
-                <tr>
-                  <th class="sticky-cell sticky-cell-top" colspan="6">
-                    <div class="sticky-cell-content-container">
-                      <div class="sticky-cell-content" style="padding-left:0.75rem;">
-                        Practices
-                        {% include "app/assess/_vs_peers_toggle.html" %}
-                      </div>
-                    </div>
-                  </th>
-                  <th class="sticky-cell sticky-cell-top text-center"
-                      :colspan="getNbInputCols(icon)"
-                      v-for="choice in getChoices(icon)">
-                    <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" :title="choice.descr">
-                      <div class="sticky-cell-content">[[choice.text]]</div>
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody :data-id="getPath(practice)"
-                    v-for="practice in getEntries(icon.slug)"
-                    v-show="itemsLoaded && items.results.length">
-                  {% include "app/assess/_assess_row.html" %}
-              </tbody>
-            </table>
-          </div>{# /!showVsPeers #}
-          <div v-show="showVsPeers">
-            <table class="table table-bordered table-assessment">
-              <thead>
-                <th class="sticky-cell sticky-cell-top" colspan="6" style="border-bottom:none;width:50%;">
+                  </div>
+                </th>
+              </tr>
+              <tr>
+                <th class="sticky-cell sticky-cell-top" colspan="6">
                   <div class="sticky-cell-content-container">
                     <div class="sticky-cell-content" style="padding-left:0.75rem;">
                       Practices
@@ -127,120 +98,153 @@
                     </div>
                   </div>
                 </th>
-                <th colspan="6" v-if="!isEnumHeaderShown(icon)">
-                </th>
                 <th class="sticky-cell sticky-cell-top text-center"
                     :colspan="getNbInputCols(icon)"
-                    v-for="choice in getChoices(icon)"
-                    v-if="isEnumHeaderShown(icon)">
-                  <div class="sticky-cell-content-container"
-                       data-toggle="tooltip"
-                       data-placement="bottom"
-                       :title="choice.descr">
+                    v-for="choice in getChoices(icon)">
+                  <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" :title="choice.descr">
                     <div class="sticky-cell-content">[[choice.text]]</div>
                   </div>
                 </th>
-              </thead>
-              <tbody data-prefix="{{abs_prefix}}"
-                     :data-id="getPath(practice)"
-                     v-for="practice in getEntries(icon.slug)"
-                     v-show="itemsLoaded && items.results.length">
-                <tr>
-                  {% include "app/assess/_assess_results_row.html" %}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          {% block icons_actions %}
-          <div class="row mb-4">
-            <div class="col-sm-6 text-left">
-              <a id="download-assessment"
-                 class="btn btn-secondary"
-                 href="{{urls.download}}" target="_blank">
-                <i class="fa fa-download"></i> Download assessment
-              </a>
-            </div>
-            <div class="col-sm-6 text-right">
+              </tr>
+            </thead>
+            <tbody :data-id="getPath(practice)"
+                   v-for="practice in getEntries(icon.slug)"
+                   v-show="itemsLoaded && items.results.length">
+              {% include "app/assess/_assess_row.html" %}
+            </tbody>
+          </table>
+          {% if not sample.is_frozen %}
+          <div class="row">
+            <div class="col-sm-6 text-center">
               <div class="text-right"
                    style="display:inline-block;padding-left:10px;">
-                {% if not sample.is_frozen %}
                 <button id="reset-button"
                         class="btn btn-primary"
                         data-toggle="modal" data-target="#reset-assessment"
                         v-show="!showVsPeers">
-                  Reset
+                  {% trans %}Reset{% endtrans %}
                 </button>
-                <button id="use-candidate-button"
-                        class="btn btn-primary"
-                        @click.prevent="useCandidateAssessment($event, '{{prefix}}')"
-                        v-show="!showVsPeers">
-                  Use previous assessment
-                </button>
-                {% endif %}
               </div>
             </div>
-          </div>{# /.row #}
-          {% endblock %}
-        </div>
-      </div>{# /assess-tabs #}
+            <div class="col-sm-6 text-center">
+              <button id="use-candidate-button"
+                      class="btn btn-primary"
+                      @click.prevent="useCandidateAssessment($event, '{{prefix}}')"
+                      v-show="!showVsPeers">
+                {% trans %}Use previous assessment{% endtrans %}
+              </button>
+            </div>
+          </div>{# /.row (action buttons) #}
+          {% endif %}
+        </div>{# /!showVsPeers #}
+        <div v-show="showVsPeers">
+          <table class="table table-bordered table-assessment">
+            <thead>
+              <th class="sticky-cell sticky-cell-top" colspan="6" style="border-bottom:none;width:50%;">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content" style="padding-left:0.75rem;">
+                    Practices
+                    {% include "app/assess/_vs_peers_toggle.html" %}
+                  </div>
+                </div>
+              </th>
+              <th colspan="6" v-if="!isEnumHeaderShown(icon)">
+              </th>
+              <th class="sticky-cell sticky-cell-top text-center"
+                  :colspan="getNbInputCols(icon)"
+                  v-for="choice in getChoices(icon)"
+                  v-if="isEnumHeaderShown(icon)">
+                <div class="sticky-cell-content-container"
+                     data-toggle="tooltip"
+                     data-placement="bottom"
+                     :title="choice.descr">
+                  <div class="sticky-cell-content">[[choice.text]]</div>
+                </div>
+              </th>
+            </thead>
+            <tbody data-prefix="{{abs_prefix}}"
+                   :data-id="getPath(practice)"
+                   v-for="practice in getEntries(icon.slug)"
+                   v-show="itemsLoaded && items.results.length">
+              <tr>
+                {% include "app/assess/_assess_results_row.html" %}
+              </tr>
+            </tbody>
+          </table>
+        </div>{# /showVsPeers #}
+      </div>{# /expanded tab #}
+    </div>{# /v-for=icon #}
 
-      <!-- modals -->
-      <div id="syncBaselineAt" class="modal fade"
-           tabindex="-1" role="dialog"
-           aria-labelledby="{% trans %}Update all reporting start dates{% endtrans %}"
-           aria-hidden="true">
-        <form class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">{% trans %}Update all reporting start dates{% endtrans %} ...</h5>
-              <button type="button" class="close"
-                      data-dismiss="modal" aria-hidden="true">&times;</button>
-            </div>
-            <div class="modal-body">
-              <p>
-                {% trans %}Before going further, would you like to update all reporting start date to [[getAnswerStartsAt(activeElement).measured]]?{% endtrans %}
-              </p>
-              <div class="modal-footer">
-                <button class="btn btn-secondary"
-                        data-dismiss="modal">{% trans %}No{% endtrans %}</button>
-                <button type="submit"
-                        class="btn btn-primary"
-                        data-dismiss="modal"
-                        @click.prevent="updateAllStartsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
-              </div>
+    {% block icons_actions %}
+    <div class="container">
+      <div class="row my-4">
+        <div class="col-sm-3 text-left">
+          <a id="download-assessment"
+             class="btn btn-secondary w-100"
+             href="{{urls.download}}" target="_blank">
+            <i class="fa fa-download"></i> {% trans %}Download assessment{% endtrans %}
+          </a>
+        </div>
+      </div>{# /.row #}
+    </div>
+    {% endblock %}
+
+    <!-- modals -->
+    <div id="syncBaselineAt" class="modal fade"
+         tabindex="-1" role="dialog"
+         aria-labelledby="{% trans %}Update all reporting start dates{% endtrans %}"
+         aria-hidden="true">
+      <form class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{% trans %}Update all reporting start dates{% endtrans %} ...</h5>
+            <button type="button" class="close"
+                    data-dismiss="modal" aria-hidden="true">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>
+              {% trans %}Before going further, would you like to update all reporting start date to [[getAnswerStartsAt(activeElement).measured]]?{% endtrans %}
+            </p>
+            <div class="modal-footer">
+              <button class="btn btn-secondary"
+                      data-dismiss="modal">{% trans %}No{% endtrans %}</button>
+              <button type="submit"
+                      class="btn btn-primary"
+                      data-dismiss="modal"
+                      @click.prevent="updateAllStartsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
             </div>
           </div>
-        </form>
-      </div>{# /#syncBaselineAt  #}
-      <div id="syncEndsAt" class="modal fade"
-           tabindex="-1" role="dialog"
-           aria-labelledby="{% trans %}Update all reporting end dates{% endtrans %}"
-           aria-hidden="true">
-        <form class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">{% trans %}Update all reporting end dates{% endtrans %} ...</h5>
-              <button type="button" class="close"
-                      data-dismiss="modal" aria-hidden="true">&times;</button>
-            </div>
-            <div class="modal-body">
-              <p>
-                {% trans %}Before going further, would you like to update all reporting end date to [[getAnswerEndsAt(activeElement).measured]]?{% endtrans %}
-              </p>
-              <div class="modal-footer">
-                <button class="btn btn-secondary"
-                        data-dismiss="modal">{% trans %}No{% endtrans %}</button>
-                <button type="submit"
-                        class="btn btn-primary"
-                        data-dismiss="modal"
-                        @click.prevent="updateAllEndsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
-              </div>
+        </div>
+      </form>
+    </div>{# /#syncBaselineAt  #}
+    <div id="syncEndsAt" class="modal fade"
+         tabindex="-1" role="dialog"
+         aria-labelledby="{% trans %}Update all reporting end dates{% endtrans %}"
+         aria-hidden="true">
+      <form class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{% trans %}Update all reporting end dates{% endtrans %} ...</h5>
+            <button type="button" class="close"
+                    data-dismiss="modal" aria-hidden="true">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>
+              {% trans %}Before going further, would you like to update all reporting end date to [[getAnswerEndsAt(activeElement).measured]]?{% endtrans %}
+            </p>
+            <div class="modal-footer">
+              <button class="btn btn-secondary"
+                      data-dismiss="modal">{% trans %}No{% endtrans %}</button>
+              <button type="submit"
+                      class="btn btn-primary"
+                      data-dismiss="modal"
+                      @click.prevent="updateAllEndsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
             </div>
           </div>
-        </form>
-      </div>{# /#syncEndsAt  #}
-      {% include "app/_reset_assessment.html" %}
-    </div> {# .panel-body #}
+        </div>
+      </form>
+    </div>{# /#syncEndsAt  #}
+    {% include "app/_reset_assessment.html" %}
 
     {% block panel_footer %}
     <div class="card-footer">

@@ -173,6 +173,10 @@ Vue.component('campaign-questions-list', {
             return vm.isOpenComments && (vm.activeElement &&
                 vm.activeElement.slug === practice.slug);
         },
+        isNAICSUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'naics';
+        },
         isRevenueUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'revenue'

@@ -10,12 +10,20 @@
         {% for redirect in redirects %}
         <div class="text-center">
           <a class="btn btn-primary w-100 mt-2"
-             href="{{redirect.0}}">Update {{redirect.1}} ...</a>
+             href="{{redirect.0}}">{% trans %}Update{% endtrans %} {{redirect.1}} ...</a>
         </div>
         {% endfor %}
         {% else %}
         <p>
-          XXX No assessments!!
+{% trans %}To create or complete an improvement plan towards your stated targets, we have indentified practices relevent and specific to each of the following industry segments.{% endtrans %}
+(<a target="_blank" href="{{'/docs/faq/#best-practices-1'|site_url}}">How were practices for each industry segment identified or selected?</a>)
+        </p>
+        <p>
+          <ol>
+            <li>Select an industry segment</li>
+            <li>Assess your organization against the identified practices</li>
+            <li>Select practices you want to focus on over the next year and create an improvement plan</li>
+          </ol>
         </p>
         {% for item in segments_candidates %}
         <div>
