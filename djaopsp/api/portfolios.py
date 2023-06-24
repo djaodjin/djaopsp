@@ -8,7 +8,7 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db import connection
-from django.db.models import F
+from django.db.models import F, Max, Min
 from rest_framework import generics
 from rest_framework import response as http
 from rest_framework.pagination import PageNumberPagination
@@ -1229,6 +1229,11 @@ ORDER BY account_id, created_at
         return get_accessible_accounts([self.account])
 
     def as_sample(self, key, requested_by_keys):
+        """
+        Fills a cell for column `key` with generated content since we do not
+        have a completed sample. `state` could either be 'declined' when the
+        profile has been invited, or 'no-data' in all cases.
+        """
         state = (self.REPORTING_DECLINED
             if key in requested_by_keys else self.REPORTING_NO_DATA)
         return (key, state, None, None)
@@ -1239,8 +1244,6 @@ ORDER BY account_id, created_at
         samples = self.get_latest_frozen_by_accounts_by_year(
             self.campaign, page)
 
-        latest_sample = None
-        earliest_sample = None
         for sample in samples:
             if sample.account_id not in samples_by_account_ids:
                 samples_by_account_ids[sample.account_id] = []
@@ -1248,14 +1251,21 @@ ORDER BY account_id, created_at
                 (sample.created_at, sample.state,
                  self.request.build_absolute_uri(reverse('scorecard',
                     args=(self.account, sample.slug))), 0)]
-            if latest_sample is None or latest_sample < sample.created_at:
-                latest_sample = sample.created_at
-            if earliest_sample is None or earliest_sample > sample.created_at:
-                earliest_sample = sample.created_at
+
+        # We want the range of years consistent between different pages
+        # returned. As a result we use `self.get_queryset()` here to compute
+        # a range of dates.
+        range_dates = Sample.objects.filter(
+            account__in=self.get_queryset(),
+            is_frozen=True,
+            extra__isnull=True).aggregate(
+            Min('created_at'), Max('created_at'))
         first_year = datetime.datetime(
-            year=datetime_or_now(earliest_sample).year, month=1, day=1)
+            year=datetime_or_now(range_dates.get('created_at__min')).year,
+            month=1, day=1)
         last_year = datetime.datetime(
-            year=datetime_or_now(latest_sample).year, month=12, day=31)
+            year=datetime_or_now(range_dates.get('created_at__max')).year,
+            month=12, day=31)
         years = construct_yearly_periods(first_year, last_year)
         self.labels = [val.year for val in years]
 
@@ -1360,10 +1370,10 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
                     "values": [
                         ["2023-01-01T00:00:00Z", "complete", 95],
                         ["2022-01-01T00:00:00Z", "complete", 95],
-                        ["2021-01-01T00:00:00Z", "invited", null],
-                        ["2020-01-01T00:00:00Z", "not-invited", null],
-                        ["2019-01-01T00:00:00Z", "not-invited", null],
-                        ["2018-01-01T00:00:00Z", "not-invited", null]
+                        ["2021-01-01T00:00:00Z", "declined", null],
+                        ["2020-01-01T00:00:00Z", "no-data", null],
+                        ["2019-01-01T00:00:00Z", "no-data", null],
+                        ["2018-01-01T00:00:00Z", "no-data", null]
                     ]
                 },
                 {
@@ -1372,10 +1382,10 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
                     "values": [
                         ["2023-01-01T00:00:00Z", "complete", 82],
                         ["2022-01-01T00:00:00Z", "complete", 82],
-                        ["2021-01-01T00:00:00Z", "invited", null],
-                        ["2020-01-01T00:00:00Z", "not-invited", null],
-                        ["2019-01-01T00:00:00Z", "not-invited", null],
-                        ["2018-01-01T00:00:00Z", "not-invited", null]
+                        ["2021-01-01T00:00:00Z", "declined", null],
+                        ["2020-01-01T00:00:00Z", "no-data", null],
+                        ["2019-01-01T00:00:00Z", "no-data", null],
+                        ["2018-01-01T00:00:00Z", "no-data", null]
                     ]
                 }
           ]

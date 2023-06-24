@@ -31,12 +31,12 @@
       </div>
       <div class="col-sm-6">
       <dl>
-        <dt><i class="fa fa-circle" style="color: red;"></i> declined</dt>
-        <dd>The reporting profile as completed the questionnaire but has declined to share the response with your account.</dd>
+        <dt><i class="fa fa-circle" style="color: red;"></i> no-response</dt>
+        <dd>The reporting profile was invited but did not complete the questionnaire. It could either means they abandoned in the middle of responding or they have never started.</dd>
       </dl>
       <dl>
         <dt><i class="fa fa-circle" style="color: grey;"></i> no-data</dt>
-        <dd>The reporting profile as not completed the questionnaire. It could either means they abandoned in the middle of responding or they have never started.</dd>
+        <dd>The reporting profile has not completed the questionnaire nor had been invited to do so.</dd>
       </dl>
       {% if urls.help %}
       <a href="{{urls.help}}" target="blank">find more help &raquo;</a>
@@ -104,7 +104,7 @@
                       <option value="verified"><i class="fa fa-certificate" style="color: green;"></i> verified</option>
                       <option value="completed"><i class="fa fa-circle" style="color: green;"></i> completed</option>
                       <option value="responded"><i class="fa fa-circle" style="color: yellow;"></i> responded</option>
-                      <option value="declined"><i class="fa fa-circle" style="color: red;"></i> declined</option>
+                      <option value="declined"><i class="fa fa-circle" style="color: red;"></i> no-response</option>
                       <option value="no-data"><i class="fa fa-circle" style="color: red;"></i> no-data</option>
                   </select>
                   -->

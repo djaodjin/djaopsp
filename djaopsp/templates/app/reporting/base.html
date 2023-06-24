@@ -4,7 +4,7 @@
 {% if urls.previous_dashboard %}
 <div class="alert alert-info">
   <div>
-<strong>RETIRING ON May 31st 2023</strong> - The <a href="{{urls.previous_dashboard}}">previous dashboard</a> is still available until May 31st 2023. If there are use cases you cannot accomplish with the new dashboards, please <a href="{{'/contact/'|site_url}}">contact us</a>.
+<strong>EXTENDED to June 30th 2023</strong> - The <a href="{{urls.previous_dashboard}}">previous dashboard</a> is still available until June 30th 2023. If there are use cases you cannot accomplish with the new dashboards, please <a href="{{'/contact/'|site_url}}">contact us</a>.
   </div>
 </div>
 {% endif %}
@@ -45,22 +45,22 @@
             <a class="nav-link{% if request.path == urls.engage %} active{% endif %}" id="engage-lnk" href="{{urls.engage}}">{% trans %}Engage{% endtrans %}</a>
           </li>
           {% endif %}
-          {% if urls.highlights %}
-          <li class="divider-vertical"></li>
-          <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.highlights %} active{% endif %}" href="{{urls.highlights}}">{% trans %}Insights{% endtrans %}</a>
-          </li>
-          {% endif %}
           {% if urls.accessibles %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">{% trans %}All Available{% endtrans %}</a>
+            <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">{% trans %}Track{% endtrans %}</a>
           </li>
           {% endif %}
           {% if FEATURES_DEBUG and urls.compare %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
             <a class="nav-link{% if request.path == urls.compare %} active{% endif %}" id="compare-lnk" href="{{urls.compare}}">{% trans %}Compare{% endtrans %}</a>
+          </li>
+          {% endif %}
+          {% if urls.highlights %}
+          <li class="divider-vertical"></li>
+          <li class="nav-item">
+            <a class="nav-link{% if request.path == urls.highlights %} active{% endif %}" href="{{urls.highlights}}">{% trans %}Insights{% endtrans %}</a>
           </li>
           {% endif %}
           {% endblock %}

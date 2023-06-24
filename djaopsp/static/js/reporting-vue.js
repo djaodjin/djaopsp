@@ -509,18 +509,11 @@ Vue.component('reporting-organizations', {
         loadComplete: function(resp, grantsResp) {
             var vm = this;
             if( vm.mergeResults ) {
-                resp.results = vm.items.results.concat(resp.results);
+                vm.populateProfiles(resp);
+                vm.items.results = vm.items.results.concat(resp.results);
             } else {
                 vm.items = resp;
-            }
-            for( let idx = 0; idx < vm.items.results.length; ++idx ) {
-                let item = vm.items.results[idx];
-                if( !item.extra ) {
-                    item.extra = {}
-                }
-                if( !item.extra.tags ) {
-                    item.extra.tags = []
-                }
+                vm.populateProfiles(vm.items);
             }
             vm.grants = grantsResp;
             vm.populateProfiles(vm.grants);
@@ -532,7 +525,7 @@ Vue.component('reporting-organizations', {
             const profiles = new Set();
             for( let idx =0; idx < portfolios.results.length; ++idx ) {
                 const item = portfolios.results[idx];
-                profiles.add(item.account);
+                profiles.add(item.account ? item.account : item.slug);
             }
             let queryParams = "?q_f=slug&q=";
             let sep = "";
@@ -551,6 +544,27 @@ Vue.component('reporting-organizations', {
                     const item = portfolios.results[idx];
                     if( item.account in profiles ) {
                         item.account = profiles[item.account];
+                    } else if ( item.slug in profiles ) {
+                        const profile = profiles[item.slug];
+                        for( let key in profile ) {
+                            if( profile.hasOwnProperty(key) ) {
+                                item[key] = profile[key];
+                                if( key == 'extra' ) {
+                                    // We need a 'tags' key in `extra` dict
+                                    // to display tags.
+                                    if( item.extra ) {
+                                        if( typeof item.extra === 'string') {
+                                            item.extra = JSON.parse(item.extra);
+                                        }
+                                    } else {
+                                        item.extra = {}
+                                    }
+                                    if( !item.extra.tags ) {
+                                        item.extra.tags = []
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 vm.$forceUpdate();

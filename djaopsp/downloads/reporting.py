@@ -215,9 +215,18 @@ class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
     basename = 'download'
+    filter_backends = []
     title = ""
 
     def decorate_queryset(self, queryset):
+        return queryset
+
+    def filter_queryset(self, queryset):
+        """
+        Given a queryset, filter it with whichever filter backend is in use.
+        """
+        for backend in list(self.filter_backends):
+            queryset = backend().filter_queryset(self.request, queryset, self)
         return queryset
 
     def get_filename(self):
@@ -247,7 +256,7 @@ class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
         self.wsheet = wbook.active
         self.wsheet.title = as_valid_sheet_title(self.title)
 
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
         self.decorate_queryset(queryset)
 
         self.wsheet.append(self.get_headings())
@@ -275,12 +284,20 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
     title = "Accessibles responses"
 
     def get_headings(self):
-        return ['Supplier name', 'Tags'] + self.labels
+        return ['Supplier name', 'Tags'] + list(reversed(self.labels))
 
     def writerow(self, rec):
         row = [rec.printable_name, ", ".join(get_extra(rec, 'tags', []))]
-        for val in rec.values:
-            row += [val[1]]
+        for val in reversed(rec.values):
+            if val[1] in (self.REPORTING_COMPLETED, self.REPORTING_RESPONDED):
+                # WORKAROUND:
+                # "Excel does not support timezones in datetimes. The tzinfo
+                #  in the datetime/time object must be set to None."
+                row += [val[0].date()]
+            elif val[1] in (self.REPORTING_DECLINED,):
+                row += ['no-response']
+            else:
+                row += [val[1]]
         self.wsheet.append(row)
 
 
