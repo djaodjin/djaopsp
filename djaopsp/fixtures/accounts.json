@@ -143,4 +143,10 @@
     "full_name": "Utility (Demo)"
   },
   "model" : "djaopsp.account", "pk" : 18
+},
+{ "fields" : {
+    "slug": "supplier-100-completed-notshared",
+    "full_name": "S100 - Completed NotShared (Demo)"
+  },
+  "model" : "djaopsp.account", "pk" : 100
 }]

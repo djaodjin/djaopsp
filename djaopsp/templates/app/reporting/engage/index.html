@@ -242,7 +242,7 @@
             :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
             v-for="(entry, index) in items.results">
           <td>
-            <span>[[index + 1]]</span><br />
+            <span>[[index + 1 + (params.page ? (params.page - 1) * itemsPerPage : 0)]]</span><br />
           </td>
           <td>
             {% include "app/reporting/_profile_card.html" %}

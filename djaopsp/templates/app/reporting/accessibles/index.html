@@ -178,7 +178,7 @@
             v-show="itemsLoaded && items.results.length > 0" v-cloak>
         <!-- profile whose report was requested at some point. -->
         <td>
-          <span>[[index + 1]]</span><br />
+          <span>[[index + 1 + (params.page ? (params.page - 1) * itemsPerPage : 0)]]</span><br />
         </td>
         <td>
           {% include "app/reporting/_profile_card.html" %}

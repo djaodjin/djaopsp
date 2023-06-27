@@ -105,7 +105,8 @@ initdb:
 		djaopsp/fixtures/practices.json \
 		djaopsp/fixtures/practices_custom_choices.json \
 		djaopsp/fixtures/matrices.json \
-		djaopsp/fixtures/samples.json
+		djaopsp/fixtures/samples.json \
+		djaopsp/fixtures/100-completed-notshared.json
 
 
 # We build a local sqlite3 database to be packaged with the Docker image

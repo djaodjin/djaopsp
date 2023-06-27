@@ -140,6 +140,8 @@ def _get_engagement_sql(campaign, accounts,
 
     campaign_clause = (
         "AND survey_portfoliodoubleoptin.campaign_id = %d" % campaign.pk)
+    portfolio_campaign_clause = (
+        "survey_portfolio.campaign_id = %d" % campaign.pk)
     after_clause = ""
     if start_at:
         after_clause = (
@@ -205,36 +207,44 @@ ON  survey_portfoliodoubleoptin.grantee_id = latest_requests.grantee_id AND
         %(optin_request_expired)d)
       %(campaign_clause)s
 ),
+latest_completion AS (
+SELECT
+  survey_sample.account_id,
+  survey_sample.is_frozen,
+  requests.state,
+  MAX(survey_sample.created_at) AS last_updated_at
+FROM requests
+INNER JOIN survey_sample ON
+  requests.account_id = survey_sample.account_id
+WHERE
+  survey_sample.created_at >= requests.created_at AND
+  survey_sample.is_frozen AND
+  survey_sample.extra IS NULL
+  %(before_sample_created_clause)s
+GROUP BY survey_sample.account_id, survey_sample.is_frozen, requests.state
+),
 completed_by_accounts AS (
 SELECT DISTINCT
   survey_sample.account_id,
   survey_sample.id,
   survey_sample.slug,
   survey_sample.created_at,
-  CASE WHEN latest_completion.state = %(optin_request_accepted)d
+  CASE WHEN (portfolios.ends_at IS NOT NULL AND
+             latest_completion.last_updated_at <= portfolios.ends_at)
            THEN 'completed'
        WHEN latest_completion.state = %(optin_request_denied)d
            THEN 'completed-denied'
        ELSE 'completed-notshared' END AS reporting_status
-FROM survey_sample INNER JOIN (
-  SELECT
-    survey_sample.account_id,
-    survey_sample.is_frozen,
-    requests.state,
-    MAX(survey_sample.created_at) AS last_updated_at
-  FROM requests
-  INNER JOIN survey_sample ON
-    requests.account_id = survey_sample.account_id
-  WHERE
-    survey_sample.created_at >= requests.created_at AND
-    survey_sample.is_frozen AND
-    survey_sample.extra IS NULL
-    %(before_sample_created_clause)s
-  GROUP BY survey_sample.account_id, survey_sample.is_frozen, requests.state
-) AS latest_completion
+FROM survey_sample
+INNER JOIN latest_completion
 ON survey_sample.account_id = latest_completion.account_id AND
    survey_sample.created_at = latest_completion.last_updated_at AND
    survey_sample.is_frozen = latest_completion.is_frozen
+LEFT OUTER JOIN (
+  SELECT * FROM survey_portfolio
+  WHERE %(portfolio_campaign_clause)s
+      %(grantees_clause)s) AS portfolios
+ON survey_sample.account_id = portfolios.account_id
 ),
 updated_by_accounts AS (
 SELECT DISTINCT
@@ -295,6 +305,7 @@ ON engaged.account_id = %(accounts_table)s.id
 """ % {
     'grantees_clause': grantees_clause,
     'campaign_clause': campaign_clause,
+    'portfolio_campaign_clause': portfolio_campaign_clause,
     'before_clause': before_clause,
     'after_clause': after_clause,
     'accounts_clause': accounts_clause,
