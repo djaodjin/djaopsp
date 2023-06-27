@@ -139,6 +139,7 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
     One practice retrieved through the assess content API
     """
     ui_hint = serializers.SerializerMethodField(required=False)
+    text = serializers.CharField(required=False)
     answers = serializers.ListField(child=AnswerSerializer(), required=False)
     candidates = serializers.ListField(child=AnswerSerializer(), required=False)
     planned = serializers.ListField(child=AnswerSerializer(), required=False)
@@ -151,11 +152,11 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
     opportunity = serializers.SerializerMethodField(required=False)
 
     class Meta(ContentNodeSerializer.Meta):
-        fields = ContentNodeSerializer.Meta.fields + ('ui_hint',
+        fields = ContentNodeSerializer.Meta.fields + ('ui_hint', 'text',
             'answers', 'candidates', 'planned', 'notes',
             'normalized_score', 'nb_respondents', 'rate', 'opportunity')
         read_only_fields = ContentNodeSerializer.Meta.read_only_fields + (
-            'ui_hint',
+            'ui_hint', 'text',
             'answers', 'candidates', 'planned', 'notes',
             'normalized_score', 'nb_respondents', 'rate', 'opportunity')
 

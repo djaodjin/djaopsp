@@ -3,6 +3,10 @@
 {% block assess_content %}
 <campaign-questions-list class="panel-icons" id="panel-icons" inline-template>
   <div>
+    <div class="text-center"
+         v-show="!itemsLoaded">
+      <i class="fa fa-spinner fa-spin fa-2x"></i>
+    </div>
     <div id="assess-tabs"
          class="tab-content collapse show"
          v-for="icon in getEntries('', 1)"
@@ -11,36 +15,36 @@
       {# nav item #}
       <div class="container">
         <div class="row text-center">
-          <div class="offset-sm-3 col-sm-6 mt-2">
-        <a :id="icon.slug"
-           :href="'#tab-' + icon.slug"
-           role="{{role}}" data-toggle="{{role}}"
-           @click.prevent="toggleTile($event, icon)">
-          <div class="card bg-white text-dark h-100">
-            <div class="card-body">
-              <div class="row">
-                <div class="col-4">
-                  <div class="d-inline-block">
-                    <img class="icon-inner orange"
-                         style="padding:5px; border: 1px #eee solid;"
-                         :src="icon.picture" v-if="icon.picture">
-                    <img class="icon-inner orange"
-                         src="{{'/static/img/design.png'|asset}}"
-                         v-if="!icon.picture">
+          <div :class="((activeTile && icon.slug == activeTile.slug) ? '' : 'offset-md-3') + ' col-md-6 mt-2'">
+            <a :id="icon.slug"
+               :href="'#tab-' + icon.slug"
+               role="{{role}}" data-toggle="{{role}}"
+               @click.prevent="toggleTile($event, icon)">
+              <div class="card bg-white text-dark h-100">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-4">
+                      <div class="d-inline-block">
+                        <img class="icon-inner orange"
+                             style="padding:5px; border: 1px #eee solid;"
+                             :src="icon.picture" v-if="icon.picture">
+                        <img class="icon-inner orange"
+                             src="{{'/static/img/design.png'|asset}}"
+                             v-if="!icon.picture">
+                      </div>
+                    </div>
+                    <div class="col-8 text-left">
+                      <h3>[[icon.title]]</h3>
+                      <p>
+                        [[icon.text]]
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div class="col-8 text-left">
-                  <h3>[[icon.title]]</h3>
-                  <p>
-                    [[icon.text]]
-                  </p>
-                </div>
               </div>
-            </div>
+            </a>
           </div>
-        </a>
-      </div>
-      </div>
+        </div>
       </div>
       {# /nav item #}
 
@@ -135,6 +139,7 @@
               </button>
             </div>
           </div>{# /.row (action buttons) #}
+          <hr />
           {% endif %}
         </div>{# /!showVsPeers #}
         <div v-show="showVsPeers">
@@ -176,9 +181,9 @@
     </div>{# /v-for=icon #}
 
     {% block icons_actions %}
-    <div class="container">
+    <div class="container" v-show="itemsLoaded" v-cloak>
       <div class="row my-4">
-        <div class="col-sm-3 text-left">
+        <div class="col-md-3 text-left">
           <a id="download-assessment"
              class="btn btn-secondary w-100"
              href="{{urls.download}}" target="_blank">
@@ -249,12 +254,12 @@
     {% block panel_footer %}
     <div class="card-footer">
       <div class="row">
-        <div class="offset-sm-3 col-sm-6 text-center">
+        <div class="offset-md-3 col-md-6 text-center">
            <p v-show="itemsLoaded" v-cloak>
             {# [[nbAnswers]] out of [[nbQuestions]] questions answered. #}
           </p>
           <p>
-{% trans %}Click on each icon tile to expand it.{% endtrans %}
+{% trans %}Click to expand each icon tile, then answer each question or assess each practice under it. Each answer is automatically saved in a work-in-progress response.{% endtrans %}
           </p>
           {% if sample.is_frozen %}
           <p>
@@ -262,7 +267,7 @@
           </p>
           {% else %}
           <p>
-{% trans %}Go through both, ASSESS and TARGET steps, and answer questions under each tile. If your organization doesn't have targets, select "No Target" from the drop-down. Once done, go to the REVIEW step, then click the Complete button at the bottom of the page to create a report.{% endtrans %}
+{% trans %}Once done, move to the next step in the workflow progress bar at the top of the page. On the REVIEW step, click the &quot;Complete&quot; button at the bottom of the page to submit an official dated response.{% endtrans %}
           </p>
           {% endif %}
         </div>

@@ -254,6 +254,10 @@ Vue.component('campaign-questions-list', {
                     vm.valueSummaryToggle = true;
                     vm.vsPeersToggle = 0;
                 }
+                elem = vm.$el.querySelector('#' + tile.slug);
+                vm.$nextTick(function() {
+                    elem.scrollIntoView(true);
+                });
             }
         },
         populateUserProfiles: function() {
