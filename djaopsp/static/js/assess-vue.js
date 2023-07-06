@@ -664,6 +664,14 @@ Vue.component('scorecard', {
         buildSummaryChart: function() {
             // Creates the top level summary polar chart
             var vm = this;
+            var labels = [];
+            var data = [];
+            for( let key in vm.summaryPerformance ) {
+                if( vm.summaryPerformance.hasOwnProperty(key) ) {
+                    labels.push(key);
+                    data.push(vm.summaryPerformance[key]);
+                }
+            }
             var chartKey = 'summary-chart';
             var chart = vm.charts[chartKey];
             if( chart ) {
@@ -676,16 +684,14 @@ Vue.component('scorecard', {
                     {
                         type: 'polarArea',
                         data: {
-                            labels: [
-                                'energy', 'ghg-emissions', 'waste', 'water'],
+                            labels: labels,
                             datasets: [{
                                 label: "score",
-                                data: vm.summaryPerformance,
+                                data: data,
                                 backgroundColor: [
                                     'rgb(255, 99, 132)',
                                     'rgb(75, 192, 192)',
-                                    'rgb(255, 205, 86)',
-                                    'rgb(201, 203, 207)']
+                                    'rgb(255, 205, 86)']
                             }]
                         },
                         options: {

@@ -27,7 +27,7 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
               </div>
             </div>
             <div class="row">
-              <div class="col-12 text-right">
+              <div class="col-md-8 text-right">
                 <div class="row text-center mx-4">
                   {% for highlight in highlights %}
                   <div class="col-6 col-md-3 text-center">
@@ -38,12 +38,14 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
                     </div>
                   </div>
                   {% endfor %}
-                  {% if summary_performance %}
-                  <div class="text-center">
-                    <canvas id="summary-chart"></canvas>
-                  </div>
-                  {% endif %}
                 </div>
+              </div>
+              <div class="col-md-4">
+                {% if summary_performance %}
+                <div class="text-center">
+                  <canvas id="summary-chart"></canvas>
+                </div>
+                {% endif %}
               </div>
             </div>
           </div>{# /.col-sm-8 #}
