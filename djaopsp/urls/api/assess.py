@@ -6,6 +6,7 @@ API URLs for portfolios engagement & analytics dashboards
 """
 from django.urls import include, path
 
+from ...api.assets import AssetAPIView
 from ...api.samples import (
     AssessmentContentAPIView, AssessmentContentIndexAPIView,
     AssessmentCompleteAPIView, AssessmentCompleteIndexAPIView,
@@ -32,5 +33,7 @@ urlpatterns = [
     path('', include('survey.urls.api.sample')),
     path('', include('survey.urls.api.metrics')),
     path('', include('survey.urls.api.filters')),
+    path('assets/<path:path>',
+        AssetAPIView.as_view(), name='pages_api_asset'),
     path('', include('pages.urls.api.assets')),
 ]
