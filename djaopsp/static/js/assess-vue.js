@@ -702,7 +702,9 @@ Vue.component('scorecard', {
                                     position: 'bottom',
                                 },
                                 title: {
-                                    display: false
+                                    display: true,
+                                    text: "Improvement planning",
+                                    position: 'bottom',
                                 }
                             }
                         },

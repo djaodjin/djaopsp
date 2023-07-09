@@ -168,15 +168,11 @@
       <div class="row">
         <div class="offset-sm-3 col-sm-6 text-center">
           <p>
-Click on each icon to expand it.
+{% trans %}Click to expand each icon tile, then select practices you wish to add to your organization's improvement plan.{% endtrans %}
           </p>
           {% if sample.is_frozen %}
           <p>
           Completed on {{sample.created_at|date}}
-          </p>
-          {% else %}
-          <p>
-{% trans %}If your organization doesn't have targets, select "No Target" from the drop-down. Once done, go to the REVIEW step, then click the Complete button at the bottom of the page to create a report.{% endtrans %}
           </p>
           {% endif %}
         </div>

@@ -26,6 +26,7 @@
           </ol>
         </p>
         {% for item in segments_candidates %}
+        {% if item.extra and item.extra.pagebreak %}
         <div>
           <a id="{{item.slug}}" href="{{urls.assess}}{{item.path}}/">
             <div class="card bg-white text-dark h-100">
@@ -52,6 +53,7 @@
             </div>
           </a>
         </div>
+        {% endif %}
         {% endfor %}
         {% endif %}
       </div>
