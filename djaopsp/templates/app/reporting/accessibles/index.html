@@ -152,7 +152,7 @@
       </tbody>
       <tbody v-show="itemsLoaded" v-cloak>
         <tr v-show="items.results.length == 0">
-          <td colspan="3">{% trans profile=profile.printable_name %}No profile accessible for {{profile}}{% endtrans %}</td>
+          <td :colspan="items.labels.length + 1 + 3">{% trans profile=profile.printable_name %}No scorecard available for the search query. Note that a profile will not show on this dashboard until someone shares a completed questionnaire with your organization. If you have requested a profile to complete a questionnaire, you can check their progress towards completion on the "Engage" dashboard.{% endtrans %}</td>
         </tr>
         <tr :id="received.account"
             :class="received.supplier_initiated ? 'supplier-initiated' : ''"
