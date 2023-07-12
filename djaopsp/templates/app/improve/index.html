@@ -25,14 +25,6 @@
                       <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
                       <div class="icon-caption">[[icon.title]]</div>
                     </a>
-                    <div :id="icon.slug + '-score'" class="icon-score">
-                      <div>
-                        (<span class="rollup-weight"
-                               :data-id="icon.path"
-                               data-key="weight"
-                               @click.prevent="editScoreWeight($event)">[[humanizeScoreWeight(icon.score_weight, icon.score_percentage)]]</span>)
-                      </div>
-                    </div>
                   </li>
                 </ul>
               </div> {# .header-tuple #}

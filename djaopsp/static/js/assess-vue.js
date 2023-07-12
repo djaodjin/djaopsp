@@ -630,6 +630,42 @@ Vue.component('campaign-questions-list', {
 });
 
 
+/** Component used to display improvement charts
+    as used in app/improve/_improve_charts.html
+
+    requires Chart from chart.js
+*/
+Vue.component('planning-dashboard', {
+    mixins: [
+        practicesListMixin
+    ],
+    props: ['activeTile'],
+    data: function() {
+        return {
+            url: this.$urls.api_account_benchmark,
+            normalizedScore: 0,
+            // benchmark charts
+            chartsLoaded: false,
+            chartsAvailable: false,
+            chartsAPIResp: null,
+            charts: {},
+            avgNormalizedScore: 0,
+            highestNormalizedScore: 0,
+        }
+    },
+    methods: {
+        contentLoaded: function() {
+            var vm = this;
+            vm.avgNormalizedScore = vm.items.avg_normalized_score;
+            vm.highestNormalizedScore = vm.items.highest_normalized_score;
+            vm.chartsAPIResp = vm.items.results;
+            vm.buildCharts(vm.chartsAPIResp);
+            vm.chartsLoaded = true;
+        },
+    },
+});
+
+
 /** Component used to display a scorecard as used in app/scorecard/index.html
 
     requires Chart from chart.js

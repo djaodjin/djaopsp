@@ -287,12 +287,14 @@ var practicesListMixin = {
                     return practice.extra.intrinsic_values['avg_value'];
                 }
                 let total = 0;
-                for( let idx = 0;
-                     idx < practice.extra.intrinsic_values.length; ++idx) {
-                    total += practice.extra.intrinsic_values[idx];
+                let nbIntrinsicValues = 0;
+                for( var key in practice.extra.intrinsic_values ) {
+                    if( practice.extra.intrinsic_values.hasOwnProperty(key) ) {
+                        total += practice.extra.intrinsic_values[key];
+                        ++nbIntrinsicValues;
+                    }
                 }
-                return Math.round(
-                    total / practice.extra.intrinsic_values.length);
+                return Math.round(total / nbIntrinsicValues);
             }
             return practice.extra.intrinsic_values[fieldName] || 0;
         },
@@ -556,9 +558,9 @@ var practicesListMixin = {
                 var chart = vm.charts[chartKey];
                 if( chart ) {
                     chart.destroy();
+                    vm.charts[chartKey] = null;
                 }
-                var element = document.querySelector(
-                    '[data-id="' + chartKey + '"]');
+                var element = vm.$el.querySelector('[data-id="' + chartKey + '"]');
                 if( element ) {
                     vm.charts[chartKey] = new Chart(
                         element,

@@ -22,31 +22,28 @@ If you were prompted to take, or update, an assessment,
 start here.
 {% endtrans %}
           </p>
-          {% if latest_completed_assessment %}
           <div>
+            {% if latest_completed_assessment %}
             <p>
 Last completed on <span class="date">{{latest_completed_assessment.created_at|date}}</span>{% if latest_completed_assessment.author %} by <span class="author">{{latest_completed_assessment.author}}</span>{% endif %}.
             </p>
-            <div class="row">
-              <div class="col-sm-6">
-                <a id="scorecard-history" href="{{urls.scorecard_history}}">{% trans %}Historical reports{% endtrans %}</a>
-              </div>
-              <div class="col-sm-6">
-                <a id="scorecard-update" class="btn btn-primary" href="{{urls.profile_getstarted}}">{% trans %}Update{% endtrans %}</a>
-              </div>
-            </div>
-          </div>
-          {% else %}
-          <div>
+            {% else %}
             <p>
             </p>
+            {% endif %}
             <div class="row">
-              <div class="offset-sm-3 col-sm-6 offset-md-4 col-md-4 text-center">
-                <a id="scorecard-create" class="btn btn-primary w-100" href="{{urls.profile_getstarted}}">{% if active_assessment_in_progress %}{% trans %}Continue{% endtrans %}{% else %}{% trans %}Get started{% endtrans %}{% endif %}</a>
+              <div class="col-sm-6 col-md-4 text-center">
+                <a id="scorecard-history" href="{{urls.scorecard_history}}">{% trans %}Historical assessments{% endtrans %}</a>
+              </div>
+              <div class="col-sm-6 col-md-4 text-center">
+              {% if latest_completed_assessment %}
+              <a id="scorecard-update" class="btn btn-primary" href="{{urls.profile_getstarted}}">{% trans %}Update{% endtrans %}</a>
+              {% else %}
+              <a id="scorecard-create" class="btn btn-primary w-100" href="{{urls.profile_getstarted}}">{% if active_assessment_in_progress %}{% trans %}Continue{% endtrans %}{% else %}{% trans %}Get started{% endtrans %}{% endif %}</a>
+              {% endif %}
               </div>
             </div>
           </div>
-          {% endif %}
         </div>{# /assess #}
         <div class="card-body">
           <h2>{% trans %}Data Reporting{% endtrans %}</h2>

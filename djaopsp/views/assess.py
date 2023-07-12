@@ -117,6 +117,10 @@ class ImprovePracticesView(AssessPracticesView):
         update_context_urls(context, {
             'api_improvement_sample': reverse('survey_api_sample', args=(
                 self.account, self.improvement_sample)),
+            'api_account_benchmark': reverse(
+                'survey_api_sample_benchmarks',
+                args=(self.account, self.sample,
+                      self.full_path.lstrip(URL_PATH_SEP))),
             'print': reverse('improve_print', args=(
                 self.account, self.improvement_sample))
         })

@@ -8,9 +8,8 @@
         {% if not sample.is_frozen %}
         <div class="alert alert-warning">
           <div>
-<strong>This report is a work in progress.</strong>
-Once you are ready, please click
-the <em>Complete</em> button at the bottom of the page to create a frozen report. The report will then appear under <em>Historical reports</em> and can be shared with customers and stakeholders.
+<strong>{% trans %}This report is a work in progress.{% endtrans %}</strong>
+{% trans %}Once you are ready, please click the "Complete" button at the bottom of the page to create a frozen report. The report will then appear under "Historical assessments" and can be shared with customers and stakeholders.{% endtrans %}
           </div>
         </div>
         {% endif %}
@@ -124,12 +123,12 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
                 </div>
                 {% if not sample.is_frozen %}
                 <div v-if="practice.indent == 0">
-                  <a :href="'{{urls.assess_base}}' + practice.slug + '/'">Update</a>
+                  <a :href="'{{urls.assess_base}}' + practice.slug + '/'">{% trans %}Update{% endtrans %}</a>
                   <a id="reset-assessment-btn"
                      class="ml-4" href=""
                      data-toggle="modal"
                      data-target="#reset-assessment"
-                     @click="setActiveElement(practice)">Remove</a>
+                     @click="setActiveElement(practice)">{% trans %}Remove{% endtrans %}</a>
                 </div>
                 {% endif %}
               </div>
@@ -164,6 +163,7 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
                     </div>
                   </div>{# /tile-summary #}
                   <div v-if="containsTag(practice, 'scorecard') && (practice.indent > 0 || getEntries(practice.slug, 1, 'scorecard').length == 0)">
+                    {# XXX copy/pasted from _tile_chart.html? #}
                     <div class="text-center d-flex align-items-center"
                          style="height:150px;max-width:300px;"
                          v-if="!chartsAvailable && !charts[practice.path]">
@@ -174,7 +174,7 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
                     <div class="text-center d-flex align-items-center"
                          style="height:150px;max-width:300px;background:#eee;"
                          v-if="chartsAvailable && !charts[practice.path]">
-                      <div class="box">There is not enough data available to benchmark with peers.</div>
+                      <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
                     </div>
                     <canvas :data-id="practice.path" v-show="charts[practice.path]"></canvas>
                   </div>
@@ -214,8 +214,8 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
               </div>
             </div>{# /.isChartHeading - i.e. heading with charts and score #}
             <p class="text-center" v-if="practice.indent == 0">
-Benchmarking is based on responses from <span v-if="!chartsLoaded">?</span><span v-if="chartsLoaded" v-cloak>[[getNbRespondents(practice)]]</span>
-companies responding on practices in the industry segment.
+{% trans %}Benchmarking is based on responses from{% endtrans %} <span v-if="!chartsLoaded">?</span><span v-if="chartsLoaded" v-cloak>[[getNbRespondents(practice)]]</span>
+{% trans %}companies responding on practices in the industry segment.{% endtrans %}
             </p>
 
             <div v-if="!isChartHeading(practice) && !isPractice(practice)">
@@ -232,12 +232,12 @@ companies responding on practices in the industry segment.
                   </div>
                   {% if not sample.is_frozen %}
                   <div v-if="practice.indent == 0">
-                    <a :href="'{{urls.assess_base}}' + practice.slug + '/'">Update</a>
+                    <a :href="'{{urls.assess_base}}' + practice.slug + '/'">{% trans %}Update{% endtrans %}</a>
                     <a id="reset-assessment-btn"
                        class="ml-4" href=""
                        data-toggle="modal"
                        data-target="#reset-assessment"
-                       @click="setActiveElement(practice)">Remove</a>
+                       @click="setActiveElement(practice)">{% trans %}Remove{% endtrans %}</a>
                   </div>
                   {% endif %}
                 </div>
@@ -277,8 +277,8 @@ companies responding on practices in the industry segment.
                   <div class="row">
                     <div class="col-sm-6 col-md-4"
                          v-if="isAssessmentUnit(practice)">
-                      Implementation rate<br />
-                      [[practice.nb_respondents]] respondents
+                      {% trans %}Implementation rate{% endtrans %}<br />
+                      [[practice.nb_respondents]] {% trans %}respondents{% endtrans %}
                       <div class="progress" style="margin:0">
                         <div :class="'progress-bar progress-bar-success green-level-' + getIntrinsicValue(practice, 'avg_value')"
                              role="progressbar"
@@ -292,7 +292,7 @@ companies responding on practices in the industry segment.
                     </div>
                     <div class="col-sm-6 col-md-4"
                          v-if="isScoredPractice(practice)">
-                      Opportunity score<br />
+                      {% trans %}Opportunity score{% endtrans %}<br />
                       [[getOpportunity(practice)]]
                     </div>
                   </div>
@@ -307,7 +307,7 @@ companies responding on practices in the industry segment.
                       </div>
                       <div class="col-6" v-if="getPrimaryPlanned(practice) && getPrimaryPlanned(practice).measured">
                         <div>
-                          (planned: <strong>[[getPrimaryPlanned(practice).measured]]</strong>)
+                          ({% trans %}planned{% endtrans %}: <strong>[[getPrimaryPlanned(practice).measured]]</strong>)
                         </div>
                       </div>
                     </div>
@@ -419,10 +419,10 @@ companies responding on practices in the industry segment.
                       [[answer.measured]]%
                       </span>
                       <span v-if="answer.unit === 'ends-at'">
-                        On [[answer.measured]]
+                        {% trans %}On{% endtrans %} [[answer.measured]]
                       </span>
                       <span v-if="answer.unit === 'yes-no' && answer.measured === 'Yes'">
-                        (not publicly disclosed)
+                        ({% trans %}not publicly disclosed{% endtrans %})
                       </span>
                       <span v-if="!(answer.unit === 'percentage' || answer.unit === 'ends-at' || answer.unit === 'yes-no')">
                       [[answer.measured]] [[getUnit(answer).title]]
@@ -476,7 +476,7 @@ companies responding on practices in the industry segment.
           <hr />
           <div class="dropdown">
             <button id="segment-selector" class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
-              <span class="text">Add industry-specific assessment</span>
+              <span class="text">{% trans %}Add industry-specific assessment{% endtrans %}</span>
             </button>
             <ul class="dropdown-menu" role="menu" aria-labelledby="segment-selector">
               {% for segment in segments_candidates %}
@@ -509,12 +509,12 @@ companies responding on practices in the industry segment.
                href="{{urls.scorecard_download}}"
                target="_blank"
                v-show="itemsLoaded">
-              <i class="fa fa-file-text"></i>&nbsp;&nbsp;Download (xlsx)
+              <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Download (xlsx){% endtrans %}
             </a>
             <button id="pdf-print-btn" class="mt-2 btn btn-secondary w-100"
                onClick="window.print()"
                v-show="itemsLoaded">
-              <i class="fa fa-file-text"></i>&nbsp;&nbsp;Print (pdf)
+              <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
             </button>
           </div>
           {% if sample.is_frozen %}
@@ -523,7 +523,7 @@ companies responding on practices in the industry segment.
           <div class="col-sm-4 col-md-3 offset-md-6">
             <a id="share-btn" class="mt-2 btn btn-secondary w-100"
                href="{{urls.scorecard_share}}">
-              Share report
+              {% trans %}Share assessment{% endtrans %}
             </a>
           </div>
           {# XXX disabled until functionality is implemented          #}
@@ -539,7 +539,7 @@ companies responding on practices in the industry segment.
           <div class="col-sm-4 col-md-3">
             <a id="invite-contributor-btn" class="mt-2 btn btn-secondary w-100"
                href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">
-              Invite contributor
+              {% trans %}Invite a contributor{% endtrans %}
             </a>
           </div>
           <div class="col-sm-4 col-md-3 offset-md-3">
@@ -553,7 +553,7 @@ companies responding on practices in the industry segment.
                       data-target="#complete-assessment"
                       :disabled="freezeAssessmentDisabled"
                       v-show="itemsLoaded && items.results.length > 0">
-                Complete
+                {% trans %}Complete{% endtrans %}
               </button>
             </form>
             <p class="mt-2">

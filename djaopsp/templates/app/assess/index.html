@@ -3,6 +3,16 @@
 {% block assess_content %}
 <campaign-questions-list class="panel-icons" id="panel-icons" inline-template>
   <div>
+    <div class="row">
+      <div class="col-12 offset-md-3 col-md-6">
+        <p class="text-white">
+{% trans %}Click to expand each tile.{% endtrans %}<br />
+{% trans %}If you need to, you can download the questionnaire as a{% endtrans %}
+<a id="download-assessment" href="{{urls.download}}" target="_blank">{% trans %}spreadsheet (.xlsx){% endtrans %}</a>.<br />
+{% trans %}You can also{% endtrans %} <a id="invite-contributor-btn" href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">{% trans %}invite a contributor{% endtrans %}</a>{% trans %} to answer specific sections.{% endtrans %}
+        </p>
+      </div>
+    </div>
     <div class="text-center"
          v-show="!itemsLoaded">
       <i class="fa fa-spinner fa-spin fa-2x"></i>
@@ -173,17 +183,6 @@
     </div>{# /v-for=icon #}
 
     {% block icons_actions %}
-    <div class="container" v-show="itemsLoaded" v-cloak>
-      <div class="row my-4">
-        <div class="col-md-3 text-left">
-          <a id="download-assessment"
-             class="btn btn-secondary w-100"
-             href="{{urls.download}}" target="_blank">
-            <i class="fa fa-download"></i> {% trans %}Download (.xlsx){% endtrans %}
-          </a>
-        </div>
-      </div>{# /.row #}
-    </div>
     {% endblock %}
 
     <!-- modals -->
