@@ -46,9 +46,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         #pylint:disable=too-many-locals,too-many-statements
         start_time = datetime.datetime.utcnow()
-#        self.check_portfolios(
-#            show=options['show_portfolios'],
-#            show_fix=options['show_portfolios_fix'])
+        self.check_portfolios(
+            show=options['show_portfolios'],
+            show_fix=options['show_portfolios_fix'])
         self.check_questions(
             show=options['show_questions'],
             show_fix=options['show_questions_fix'])
@@ -63,6 +63,48 @@ class Command(BaseCommand):
     def check_portfolios(self, show=False, show_fix=False):
         if show_fix:
             show = True
+        duplicates_query = """
+WITH duplicates AS (
+  SELECT grantee_id, account_id, campaign_id, COUNT(*) AS nb_duplicates
+  FROM survey_portfolio
+  GROUP BY grantee_id, account_id, campaign_id
+  HAVING COUNT(*) > 1)
+SELECT accounts.slug, grants.slug, campaign_id, nb_duplicates FROM duplicates
+INNER JOIN saas_organization AS accounts
+ON accounts.id = duplicates.account_id
+INNER JOIN saas_organization AS grants
+ON grants.id = duplicates.grantee_id
+"""
+        count = 0
+        sep = ""
+        with connection.cursor() as cursor:
+            cursor.execute(duplicates_query, params=None)
+            for duplicate in cursor.fetchall():
+                account_slug = duplicate[0]
+                grantee_slug = duplicate[1]
+                campaign_id = duplicate[2]
+                nb_duplicates = duplicate[3]
+                if show:
+                    if not sep:
+                        if show_fix:
+                            self.stdout.write("BEGIN;")
+                        else:
+                            self.stdout.write("grantee_slug,account_slug,"\
+                            "campaign_id,nb_duplicates")
+                        sep = ",\n"
+                    if show_fix:
+                        pass
+                    else:
+                        self.stdout.write("%s,%s,%s,%s" % (
+                            grantee_slug, account_slug,
+                            str(campaign_id) if campaign_id else "-",
+                            nb_duplicates))
+                count += 1
+        if sep and show_fix:
+            self.stdout.write("COMMIT;")
+        self.stderr.write("%d duplicate portfolios" % count)
+
+        # portfolio and optins
         optins_query = """
 WITH optins AS (
 SELECT
@@ -140,8 +182,9 @@ ON portfolio_grantees.account_id = %(account_table)s.id
                         if show_fix:
                             self.stdout.write("BEGIN;")
                         else:
-                            self.stdout.write("grantee_id,account_id,"\
-                            "campaign_id,last_trigger_at,portfolio_id,ends_at")
+                            self.stdout.write("grantee_slug,account_slug,"\
+                            "campaign_id,last_trigger_at,latest_completed_at,"\
+                            "portfolio_id,ends_at")
                         sep = ",\n"
                     grantee_slug = optin[0]
                     account_slug = optin[1]
