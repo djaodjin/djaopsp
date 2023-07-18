@@ -49,10 +49,10 @@
                     </header>
                     <div class="dashboard-nav-menu">
                       {% block sidebar %}
-                      <hr />
-                      <ul class="nav flex-column d-md-none">
-                        {% include "_generic_navbar.html" %}
-                      </ul>
+                        <hr />
+                        <ul class="nav flex-column d-md-none">
+                          {% include "_generic_navbar.html" %}
+                        </ul>
                       {% endblock %}
                     </div>
                   </div>
@@ -88,28 +88,28 @@
                   </a>
 
                   {% block content_navbarbrand %}
-                  <div class="navbar-brand-container">
-                    {% include "_navbarbrand.html" %}
-                  </div>
+                    <div class="navbar-brand-container">
+                      {% include "_navbarbrand.html" %}
+                    </div>
                   {% endblock %}
 
                   {% block header_navbar_large %}
-                  <div class="navbar-collapse collapse navbar-right">
-                    <ul class="nav navbar-nav ml-auto mt-lg-0">
-                      {% include "_generic_navbar.html" %}
+                    <div class="navbar-collapse collapse navbar-right">
+                      <ul class="nav navbar-nav ml-auto mt-lg-0">
+                        {% include "_generic_navbar.html" %}
+                      </ul>
+                    </div>
+                    <ul class="nav navbar-nav ml-auto mt-lg-0 header-menubar">
+                      {# The content here will be replaced by _menubar.html #}
+                      <li class="nav-item">
+                        {% if request and request|is_authenticated %}
+                        <a class="nav-link">{{request.user.username}}</a>
+                        {% else %}
+                        <a id="login" class="nav-link btn btn-primary text-white mx-2" href="{{'/login/'|site_url}}">Sign In</a>
+                        {% endif %}
+                      </li>
+                      {# end of replaced by _menubar.html #}
                     </ul>
-                  </div>
-                  <ul class="nav navbar-nav ml-auto mt-lg-0 header-menubar">
-                    {# The content here will be replaced by _menubar.html #}
-                    <li class="nav-item">
-                      {% if request and request|is_authenticated %}
-                      <a class="nav-link">{{request.user.username}}</a>
-                      {% else %}
-                      <a id="login" class="nav-link btn btn-primary text-white mx-2" href="{{'/login/'|site_url}}">Sign In</a>
-                      {% endif %}
-                    </li>
-                    {# end of replaced by _menubar.html #}
-                  </ul>
                   {% endblock %}
                 </nav>
               </header>
@@ -121,22 +121,22 @@
                 <div id="messages-content">
                   {% if request %}
                     {% for message in request|messages %}
-                    <div class="alert{% if message.tags %} alert-{{message.tags}}{% endif %}">
-                      <button type="button" class="close" data-dismiss="alert">&times;</button>
-                      {% if 'safe' in message.tags %}
-                      <div>{{message|safe}}</div>
-                      {% else %}
-                      <div>{{message}}</div>
-                      {% endif %}
-                    </div>
+                      <div class="alert{% if message.tags %} alert-{{message.tags}}{% endif %}">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        {% if 'safe' in message.tags %}
+                          <div>{{message|safe}}</div>
+                        {% else %}
+                          <div>{{message}}</div>
+                        {% endif %}
+                      </div>
                     {% endfor %}
                   {% endif %}
                   {% if form %}
                     {% for message in form|messages %}
-                    <div class="alert alert-danger">
-                      <button type="button" class="close" data-dismiss="alert">&times;</button>
-                      <div>{{message}}</div>
-                    </div>
+                      <div class="alert alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <div>{{message}}</div>
+                      </div>
                     {% endfor %}
                   {% endif %}
                   <script type="text/javascript">
@@ -155,20 +155,25 @@
 
   <!-- Start Main Footer -->
   {% block footer %}
-  <footer class="footer text-center w-100">
-    {% block localfooter %}
-    {% endblock %}
-    <div class="d-print-none mt-2">
-      <a class="pr-2" href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm"></i></a>
-      <a class="pr-2" href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
-      &dash;
-      <a  class="pl-2" href="/legal/">{% trans %}Legal{% endtrans %}</a>
-    </div>
-    <div class="mb-2">
-      {% trans %}Powered by &copy; 2023 DjaoDjin. All rights reserved.{% endtrans %} <span class="d-none d-print-inline-block">&dash; <a href="{{''|site_url}}">{{''|site_url}}</a></span>
-    </div>
+    <footer class="footer text-center w-100 d-flex align-items-center justify-content-center">
 
-  </footer>
+      {% block localfooter %}
+      {% endblock %}
+
+      <div class="copyr">
+        <div class="my-2">
+          <a href="{{'/legal/'|site_url}}" target="_blank">{% trans %}Legal{% endtrans %}</a>
+          | <a href="{{'/contact/'|site_url}}" target="_blank">{% trans %}Contact{% endtrans %}</a>
+        </div>
+        <div class="my-2">
+          <a href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm pr-1"></i></a>
+          <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm pl-1"></i></a>
+        </div>
+        <div class="my-2">
+          {% trans %}Powered by DjaoDjin. &copy; 2023 All rights reserved.{% endtrans %}
+        </div>
+      </div>
+    </footer>
   {% endblock footer %}
   <!-- End Main Footer -->
 
