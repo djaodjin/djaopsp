@@ -23,6 +23,11 @@
                     <div class="p-2">
                       <h1 class="editable" data-key="title" v-cloak>{% if element %}{{element.title}}{% else %}[[item.title]]{% endif %}</h1>
                       <div data-key="tags" class="editable text-right">
+                        {% if element.tags %}
+                        {% for tag in element.tags %}
+                        <span class="badge badge-pill badge-info">{{tag}}</span>
+                        {% endfor %}
+                        {% endif %}
                         <span class="badge badge-pill badge-info"
                               v-for="tag in tags"></span>
                         {% if edit_perm %}

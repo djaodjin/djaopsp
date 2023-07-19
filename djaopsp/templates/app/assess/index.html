@@ -3,15 +3,18 @@
 {% block assess_content %}
 <campaign-questions-list class="panel-icons" id="panel-icons" inline-template>
   <div>
+    <div class="container">
     <div class="row">
       <div class="col-12 offset-md-3 col-md-6">
-        <p class="text-white">
-{% trans %}Click to expand each tile.{% endtrans %}<br />
-{% trans %}If you need to, you can download the questionnaire as a{% endtrans %}
-<a id="download-assessment" href="{{urls.download}}" target="_blank">{% trans %}spreadsheet (.xlsx){% endtrans %}</a>.<br />
-{% trans %}You can also{% endtrans %} <a id="invite-contributor-btn" href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">{% trans %}invite a contributor{% endtrans %}</a>{% trans %} to answer specific sections.{% endtrans %}
+        <p class="text-center text-white">
+{% trans %}Click to expand each icon tile.{% endtrans %}<br />
+{% trans %}If need be{% endtrans %},
+<a id="download-assessment" href="{{urls.download}}" target="_blank">{% trans %}download{% endtrans %}</a>
+{% trans %}the questionnaire or{% endtrans %}
+<a id="invite-contributor-btn" href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">{% trans %}invite a contributor{% endtrans %}</a>.
         </p>
       </div>
+    </div>
     </div>
     <div class="text-center"
          v-show="!itemsLoaded">
@@ -243,10 +246,10 @@
     {% include "app/_reset_assessment.html" %}
 
     {% block panel_footer %}
-    <div class="card-footer">
+    <div class="card-footer mt-4">
       <div class="row">
         <div class="offset-md-3 col-md-6 text-center">
-           <p v-show="itemsLoaded" v-cloak>
+          <p v-show="itemsLoaded" v-cloak>
             {# [[nbAnswers]] out of [[nbQuestions]] questions answered. #}
           </p>
           <p>
