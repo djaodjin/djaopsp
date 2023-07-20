@@ -346,7 +346,8 @@
                       class="btn btn-secondary"
                       data-toggle="modal"
                       data-target="#invite-reporting-entity"
-                      @click="populateInvite(entry)">{% trans %}(Re-)send{% endtrans %}</button>
+                      @click="populateInvite(entry)"
+                      v-if="entry.reporting_status !== 'completed'">{% trans %}(Re-)send{% endtrans %}</button>
           </td>
           <td class="text-nowrap text-center"
               style="border-left:2px solid black;"

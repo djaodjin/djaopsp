@@ -175,8 +175,6 @@ class UpdatedMenubarMixin(object):
             'highlights': reverse(
                 'reporting_organization_dashboard', args=(
                 self.account, self.campaign)),
-            'previous_dashboard': reverse('portfolio_responses',
-                args=(self.account, self.campaign)),
         })
         return context
 
