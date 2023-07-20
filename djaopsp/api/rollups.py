@@ -135,6 +135,8 @@ class ScoresMixin(TimersMixin, DateRangeContextMixin, CampaignMixin):
         return self._scores_of_interest
 
     def get_queryset(self):
+        if not self.requested_accounts:
+            return Sample.objects.none()
         return get_scored_assessments(
             self.campaign,
             accounts=self.requested_accounts,

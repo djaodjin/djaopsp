@@ -363,13 +363,17 @@ class SupplierListMixin(ScoresMixin, AccountsNominativeQuerysetMixin):
         accounts_by_pks = {account.pk: account
             for account in self.requested_accounts}
         for report_summary in queryset:
+            report_summary.requested_at = None
+            # There is something fundamentally incorrect with the logic
+            # if `report_summary.account_id` is not in the requested accounts.
             account = accounts_by_pks[report_summary.account_id]
-            report_summary.extra = account.extra
+            if account:
+                report_summary.extra = account.extra
+                if account.grant_key:
+                    report_summary.requested_at = account.requested_at
             contact = contacts.get(report_summary.email)
             report_summary.contact_name = (
                 contact.get_full_name() if contact else "")
-            report_summary.requested_at = (
-                account.requested_at if account.grant_key else None)
             if report_summary.requested_at:
                 report_summary.nb_na_answers = None
                 report_summary.reporting_publicly = None
@@ -1442,13 +1446,13 @@ class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
             val.sample_id for val in queryset}, path__in=[
             seg['path'] for seg in self.segments_available]).order_by('path')
         scores = {val.sample_id: val for val in scores}
-        for account in queryset:
-            scorecard_cache = scores.get(account.sample_id)
+        for portfolio in queryset:
+            scorecard_cache = scores.get(portfolio.sample_id)
             if scorecard_cache:
-                account.normalized_score = scorecard_cache.normalized_score
-            reminder = latest_reminders.get(account.pk)
+                portfolio.normalized_score = scorecard_cache.normalized_score
+            reminder = latest_reminders.get(portfolio.account_id)
             if reminder:
-                account.last_reminder_at = reminder.last_reminder_at
+                portfolio.last_reminder_at = reminder.last_reminder_at
         return queryset
 
     def get_filtering(self):
