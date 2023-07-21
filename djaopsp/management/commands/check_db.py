@@ -56,7 +56,7 @@ class Command(BaseCommand):
         delta = relativedelta(end_time, start_time)
         LOGGER.info("completed in %d hours, %d minutes, %d.%d seconds",
             delta.hours, delta.minutes, delta.seconds, delta.microseconds)
-        self.stdout.write("completed in %d hours, %d minutes, %d.%d seconds\n"
+        self.stderr.write("completed in %d hours, %d minutes, %d.%d seconds\n"
             % (delta.hours, delta.minutes, delta.seconds, delta.microseconds))
 
 
