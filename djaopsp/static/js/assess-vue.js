@@ -22,6 +22,8 @@ Vue.component('campaign-questions-list', {
             nbQuestions: this.$sample ? this.$sample.nbQuestions  : 0,
             nbRequiredAnswers: this.$sample ? this.$sample.nbRequiredAnswers : 0,
             nbRequiredQuestions: this.$sample ? this.$sample.nbRequiredQuestions : 0,
+            api_profiles_url: this.$urls.api_profiles,
+            profilesBySlug: {}
         }
     },
     methods: {
@@ -260,24 +262,58 @@ Vue.component('campaign-questions-list', {
                 });
             }
         },
+        getCollectedByField: function(user, fieldName) {
+            var vm = this;
+            if( user && user.hasOwnProperty(fieldName) ) {
+                return user[fieldName];
+            }
+            if( user ) {
+                const profile = vm.profilesBySlug[user];
+                if( profile && profile.hasOwnProperty(fieldName) ) {
+                    return profile[fieldName];
+                }
+                vm.profilesBySlug[user] = {
+                    picture: null,
+                    printable_name: user
+                };
+                let queryParams = "?q_f==slug&q=" + user;
+                vm.reqGet(vm.api_profiles_url + queryParams,
+                function(resp) {
+                    for( let idx = 0; idx < resp.results.length; ++idx ) {
+                        vm.profilesBySlug[resp.results[idx].slug] =
+                            resp.results[idx];
+                    }
+                }, function() {
+                    // discard errors (ex: "not found").
+                });
+                return vm.profilesBySlug[user][fieldName];
+            }
+            return "";
+        },
+        getPicture: function(user) {
+            return this.getCollectedByField(user, 'picture');
+        },
+        getPrintableName: function(user) {
+            return this.getCollectedByField(user, 'printable_name');
+        },
         populateUserProfiles: function() {
-            var profilesBySlug = {};
+            var vm = this;
             for( var idx = 0; idx < vm.items.results.length; ++idx ) {
                 var row = vm.items.results[idx];
                 if( row.answers ) {
                     for( var jdx = 0; jdx < row.answers.length; ++jdx ) {
                         var answer = row.answers[jdx];
                         if( !profilesBySlug[answer.collected_by] ) {
-                            profilesBySlug[answer.collected_by] = 1;
+                            vm.profilesBySlug[answer.collected_by] = 1;
                         }
                     }
                 }
             }
             for( var key in profilesBySlug ) {
                 if( profilesBySlug.hasOwnProperty(key) ) {
-                    vm.reqGet(vm._safeUrl(vm.$urls.api_profiles, key),
+                    vm.reqGet(vm._safeUrl(vm.api_profiles_url, key),
                     function(resp) {
-                        profilesBySlug[resp.slug] = resp;
+                        vm.profilesBySlug[resp.slug] = resp;
                     });
                 }
             }
@@ -397,6 +433,11 @@ Vue.component('campaign-questions-list', {
                     for( var idx = 0; idx < resp.length; ++resp ) {
                         var answer = vm.getAnswerByUnit(practice, resp[idx].unit);
                         answer.collected_by = resp[idx].collected_by;
+                        // We force an update here, otherwise the picture
+                        // of the commentator is not displayed on 'Submit'
+                        // of a new comment.
+                        // XXX doesn't work on the first comment??
+                        vm.$forceUpdate();
                     }
                 }
                 if( vm.openCommentsAutomatically(practice, newValue) ) {
@@ -460,8 +501,10 @@ Vue.component('campaign-questions-list', {
         },
         updateComment: function(text, practice) {
             var vm = this;
-            vm.getCommentsAnswer(practice).measured = text;
-            vm.updateAssessmentAnswer(practice, vm.getCommentsAnswer(practice))
+            const comment = vm.getCommentsAnswer(practice);
+
+            comment.measured = text;
+            vm.updateAssessmentAnswer(practice, comment);
         },
         updateMultipleAssessmentAnswers: function (heading, newValue) {
             var vm = this;

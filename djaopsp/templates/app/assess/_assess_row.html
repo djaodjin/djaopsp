@@ -443,7 +443,6 @@
             @blur="updateAssessmentAnswer(practice)"
             {% endif %}>
       <option value="no-target">No target</option>
-      <option value="2022">2022</option>
       <option value="2023">2023</option>
       <option value="2024">2024</option>
       <option value="2025">2025</option>
@@ -521,7 +520,7 @@
           <div class="row">
             <div class="col-md-3">
               <div class="mt-2">
-                <img :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+                <img class="rounded-circle" :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
                 <span>[[collectedByPrintableName]]</span>
               </div>
               <small>[[humanizeDate(collectedAtTime)]]</small><br />

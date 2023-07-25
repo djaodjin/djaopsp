@@ -844,29 +844,31 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
             if score.segment_path:
                 self._insert_in_tree(
                     self.scores_tree, score.segment_path, score)
-        self._report_queries("rollup_scores completed")
+        self._report_queries("frozen scorecards inserted")
+
+        if not self.sample.is_frozen:
+            # If we have a work-in-progress assessment, let's compute
+            # the score as it would show up Today and insert it in the tree
+            # such that `organization_rate` is computed correctly.
+            # Note that if a previously frozen sample score already exists
+            # it will be present in the tree. We need to override it.
+            for segment_path, segment_values in six.iteritems(self.scores_tree):
+                title = segment_values[0].get('title')
+                score_calculator = get_score_calculator(segment_path)
+                if score_calculator:
+                    for score in score_calculator.get_scorecards(
+                            self.campaign, segment_path, title=title,
+                            includes=[self.sample]):
+                        self._insert_in_tree(
+                            self.scores_tree, score.path, score)
+        self._report_queries("(optional) active sample scores inserted")
+
         self.create_distributions(
             self.scores_tree, view_account_id=self.account.pk)
         self._report_queries("create_distributions completed")
         charts, unused_segment_complete = self.flatten_distributions(
             self.scores_tree)
         self._report_queries("flatten_distributions completed")
-
-        if not self.sample.is_frozen:
-            for segment_path, segment_values in six.iteritems(self.scores_tree):
-                title = segment_values[0].get('title')
-                score_calculator = get_score_calculator(segment_path)
-                if score_calculator:
-                    for scorecard_cache in score_calculator.get_scorecards(
-                            self.campaign, segment_path, title=title,
-                            includes=[self.sample]):
-                        for chart in charts:
-                            path = chart.get('path')
-                            if scorecard_cache.path == path:
-                                chart.update({'normalized_score':
-                                    scorecard_cache.normalized_score})
-                                break
-        self._report_queries("sample scorecard_cache computed")
 
         for question in queryset:
             question_path = question.get('path')
@@ -889,6 +891,8 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
                             chart.get('highest_normalized_score')
                     })
                     break
+        self._report_queries("merge into JSON response completed")
+
 
 
 class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):

@@ -50,7 +50,7 @@
           </div>{# /.col-sm-8 #}
           <div class="col-sm-4 bordered-left">
             <div class="h-100" style="background-color: #e5e9dd;">
-              <div class="py-2">
+              <div class="py-2 text-center">
                 {% include "app/_score_arcs.html" %}
               </div>
             </div>
@@ -58,20 +58,16 @@
         </div>{# /.row #}
         <div class="row">
           <div class="col-sm-8">
-            <div class="mt-2 ml-2">
+            <div class="mt-2 ml-4">
               Contact Information
               <ul class="list-unstyled mb-0">
-                {% if sample.account.email %}
-                <li>{{sample.account.email}}</li>
-                {% endif %}
-                {% if sample.account.phone %}
-                <li>{{sample.account.phone}}</li>
-                {% endif %}
+                <li>{% if sample.account.email %}{{sample.account.email}}{% else %}&nbsp;{% endif %}</li>
+                <li>{% if sample.account.phone %}{{sample.account.phone}}{% else %}&nbsp;{% endif %}</li>
               </ul>
             </div>
           </div>
-          {% if verification_enabled %}
-          <div class="col-sm-4">
+          <div class="col-sm-4 text-right">
+            {% if verification_enabled %}
             <form class="mt-2">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <select class="form-control"
@@ -85,8 +81,15 @@
                 <option value="rigorous">(gold) {% trans %}All questions have been answered positively with supporting documentation more rigorously detailed than the pool of suppliers reviewed.{% endtrans %} ({% trans %}not yet shared{% endtrans %})</option>
               </select>
             </form>
+            {% endif %}
+            <span class="mt-2">
+              &nbsp;
+              <ul class="list-unstyled mb-0">
+                <li>&nbsp;</li>
+                <li><em>source: {{request|site_url}}</em></li>
+              </ul>
+            </span>
           </div>
-          {% endif %}
         </div>{# /.row #}
       </section> {# <!-- /#summary --> #}
       <section id="details">
@@ -180,8 +183,7 @@
                   </div>
                 </div>{# /.col-md-8 #}
                 <div class="col-md-4">
-                  <div :class="indentHeader(practice)"
-                       v-if="practice.indent > 0">
+                  <div :class="indentHeader(practice)">
                     [[asPercent(practice.normalized_score)]]
                   </div>
                 </div>{# /.col-md-4 #}
@@ -522,7 +524,7 @@
           {% if urls.share %}
           <div class="col-sm-4 col-md-3 offset-md-6">
             <a id="share-btn" class="mt-2 btn btn-secondary w-100"
-               href="{{urls.scorecard_share}}">
+               href="{{urls.share}}">
               {% trans %}Share assessment{% endtrans %}
             </a>
           </div>

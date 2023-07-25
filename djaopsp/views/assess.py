@@ -65,6 +65,7 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
             'pages_index': reverse('pages_index'),
             'track_metrics_index': reverse(
                 'track_metrics_index', args=(self.account,)),
+            'api_profiles': site_url("/api/accounts/users"),
             'api_content': reverse('api_sample_content',
                 args=(self.account, self.sample,
                       self.full_path.lstrip(URL_PATH_SEP))),

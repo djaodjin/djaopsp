@@ -51,7 +51,7 @@
                   <div class="col-sm-4">
                   <a class="btn btn-primary my-2"
                      :href="_safeUrl('{{urls.get_started}}', campaign) + '/'"
-                     v-if="items.expected_behavior === 'create'">{% trans %}Create{% endtrans %}</a>
+                     v-if="items.expected_behavior === 'create'">{% trans %}Get started{% endtrans %}</a>
                   <a class="btn btn-primary my-2"
                      :href="_safeUrl('{{urls.get_started}}', campaign) + '/'"
                      v-if="items.expected_behavior !== 'create'">{% trans %}Update{% endtrans %}</a>
