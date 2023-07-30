@@ -20,7 +20,7 @@
                       v-cloak>
                     <a class="nav-link icon-inner orange"
                        :href="'#tab-' + icon.slug"
-                       role="{{role}}" data-toggle="{{role}}"
+                       role="{{role}}" data-bs-toggle="{{role}}"
                        @click.prevent="toggleTile($event, icon)">
                       <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
                       <div class="icon-caption">[[icon.title]]</div>
@@ -88,7 +88,7 @@
                   <th class="sticky-cell sticky-cell-top text-center"
                       :colspan="getNbInputCols(icon)"
                       v-for="choice in getChoices(icon)">
-                    <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" :title="choice.descr">
+                    <div class="sticky-cell-content-container" data-bs-toggle="tooltip" data-bs-placement="bottom" :title="choice.descr">
                       <div class="sticky-cell-content">[[choice.text]]</div>
                     </div>
                   </th>
@@ -127,8 +127,8 @@
                     v-for="choice in getChoices(icon)"
                     v-if="isEnumHeaderShown(icon)">
                   <div class="sticky-cell-content-container"
-                       data-toggle="tooltip"
-                       data-placement="bottom"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="bottom"
                        :title="choice.descr">
                     <div class="sticky-cell-content">[[choice.text]]</div>
                   </div>
@@ -145,20 +145,20 @@
           </div>
           {% block icons_actions %}
           <div class="row mb-4">
-            <div class="col-sm-6 text-left">
+            <div class="col-sm-6 text-start">
               <a id="download-assessment"
                  class="btn btn-secondary"
                  href="{{urls.download}}" target="_blank">
                 <i class="fa fa-download"></i> Download assessment
               </a>
             </div>
-            <div class="col-sm-6 text-right">
-              <div class="text-right"
+            <div class="col-sm-6 text-end">
+              <div class="text-end"
                    style="display:inline-block;padding-left:10px;">
                 {% if not sample.is_frozen %}
                 <button id="reset-button"
                         class="btn btn-primary"
-                        data-toggle="modal" data-target="#reset-assessment"
+                        data-bs-toggle="modal" data-bs-target="#reset-assessment"
                         v-show="!showVsPeers">
                   Reset
                 </button>

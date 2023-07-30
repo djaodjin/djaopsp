@@ -20,7 +20,8 @@ header .nav-item {
 }
 
 .table-assessment {
-  tbody:nth-of-type(#{$table-striped-order}) {
+  $table-accent-bg: rgba(0, 0, 0, 0.05);
+  tbody:nth-of-type(#{$table-striped-order}) td {
     background-color: $table-accent-bg;
   }
 }
@@ -70,6 +71,7 @@ header .nav-item {
 
 .progressbar li a {
   color: white;
+  text-decoration: none;
 }
 
 .progressbar li a>.progressbar-step {
@@ -198,7 +200,7 @@ h2.icon-row-title {
 
 .improvement-planning .inner {
   background: #eafcd4;
-  border: 1px theme-color(primary) solid;
+  border: 1px map-get($theme-colors, "primary") solid;
 }
 
 .chart-title {
@@ -1061,14 +1063,14 @@ a.text-grey{
 }
 
 .navbar-light .navbar-nav  > .login > a:hover, .login > a:focus {
-  background-color:#79c84a; /* darken(@login-bg, 6.5%) */
+  background-color:#79c84a; /* shade-color(@login-bg, 6.5%) */
 }
 
 .navbar .divider-vertical {
   border-right: 1px solid #ffffff;
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
 .navbar-collapse .nav > .divider-vertical {
     display: none;
   }
@@ -1651,7 +1653,7 @@ thead{
 }
 
 .report-measurements-link {
-  color: theme-color(primary);
+  color: map-get($theme-colors, "primary");
 }
 
 /****** Best practice detail ********/
@@ -2016,15 +2018,46 @@ color: #000;
 }
 
 .supplier-initiated {
-  background: theme-color(primary);
+  background: map-get($theme-colors, "primary");
 }
 
 .table-striped tbody tr:nth-of-type(odd).supplier-initiated {
-  background: darken(theme-color(primary), 5%);
+  background: shade-color(map-get($theme-colors, "primary"), 5%);
 }
 
 .supplier-initiated a,
 .supplier-initiated a:hover,
 .supplier-initiated a:focus {
   color: white;
+}
+
+.breadcrumb-item > a {
+  &,
+  &:active,
+  &:hover,
+  &:visited {
+    color: $breadcrumb-divider-color;
+  }
+}
+
+.navbar .navbar-nav .nav-item a {
+  --#{$prefix}nav-link-color: white;
+}
+
+.btn-primary,
+.btn-secondary {
+  --#{$prefix}btn-color: var(--bs-white);
+  --#{$prefix}btn-hover-color: var(--bs-white);
+}
+
+.navbar-nav .nav-link {
+  --#{$prefix}nav-link-padding-x: 1.5rem;
+}
+
+.pages-card-link {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }

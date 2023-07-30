@@ -20,7 +20,7 @@
                       v-cloak>
                     <a class="nav-link icon-inner orange"
                        :href="'#tab-' + icon.slug"
-                       role="{{role}}" data-toggle="{{role}}"
+                       role="{{role}}" data-bs-toggle="{{role}}"
                        @click.prevent="toggleTile($event, icon)">
                       <img class="icon-equipment" :src="icon.picture" v-if="icon.picture">
                       <div class="icon-caption">[[icon.title]]</div>
@@ -68,11 +68,11 @@
                   <th class="text-center pb-0"
                       colspan="6">
                     Implemented as standard practice? <a style="cursor:pointer;" href=""><i class="fa fa-question-circle"></i></a>
-                    <div class="text-right mt-2">
+                    <div class="text-end mt-2">
                       <div style="display:inline-block;">
-                        <div class="text-left m-0 p-0" style="line-height:1;">
+                        <div class="text-start m-0 p-0" style="line-height:1;">
                           <small class="candidate-answer">
-                            <div class="radio-border mr-2">
+                            <div class="radio-border me-2">
                               <div style="background-color:white;line-height:0;padding: 2px;border-radius:50%;">
                               </div>
                             </div>
@@ -81,9 +81,9 @@
                             </label>
                           </small>
                         </div>
-                        <div class="text-left m-0 p-0" style="line-height:1;">
+                        <div class="text-start m-0 p-0" style="line-height:1;">
                           <small>
-                            <span class="practice-required mr-2" style="border-top:1px solid #dee2e6;border-bottom:1px solid #dee2e6;">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            <span class="practice-required me-2" style="border-top:1px solid #dee2e6;border-bottom:1px solid #dee2e6;">&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             required answer
                           </small>
                         </div>
@@ -103,7 +103,7 @@
                   <th class="sticky-cell sticky-cell-top text-center"
                       :colspan="getNbInputCols(icon)"
                       v-for="choice in getChoices(icon)">
-                    <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" :title="choice.descr">
+                    <div class="sticky-cell-content-container" data-bs-toggle="tooltip" data-bs-placement="bottom" :title="choice.descr">
                       <div class="sticky-cell-content">[[choice.text]]</div>
                     </div>
                   </th>
@@ -134,8 +134,8 @@
                     v-for="choice in getChoices(icon)"
                     v-if="isEnumHeaderShown(icon)">
                   <div class="sticky-cell-content-container"
-                       data-toggle="tooltip"
-                       data-placement="bottom"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="bottom"
                        :title="choice.descr">
                     <div class="sticky-cell-content">[[choice.text]]</div>
                   </div>
@@ -153,20 +153,20 @@
           </div>
           {% block icons_actions %}
           <div class="row mb-4">
-            <div class="col-sm-6 text-left">
+            <div class="col-sm-6 text-start">
               <a id="download-assessment"
                  class="btn btn-secondary"
                  href="{{urls.download}}" target="_blank">
                 <i class="fa fa-download"></i> Download assessment
               </a>
             </div>
-            <div class="col-sm-6 text-right">
-              <div class="text-right"
+            <div class="col-sm-6 text-end">
+              <div class="text-end"
                    style="display:inline-block;padding-left:10px;">
                 {% if not sample.is_frozen %}
                 <button id="reset-button"
                         class="btn btn-primary"
-                        data-toggle="modal" data-target="#reset-assessment"
+                        data-bs-toggle="modal" data-bs-target="#reset-assessment"
                         v-show="!showVsPeers">
                   Reset
                 </button>
@@ -193,8 +193,8 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">{% trans %}Update all reporting start dates{% endtrans %} ...</h5>
-              <button type="button" class="close"
-                      data-dismiss="modal" aria-hidden="true">&times;</button>
+              <button type="button" class="btn-close"
+                      data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <p>
@@ -202,10 +202,10 @@
               </p>
               <div class="modal-footer">
                 <button class="btn btn-secondary"
-                        data-dismiss="modal">{% trans %}No{% endtrans %}</button>
+                        data-bs-dismiss="modal">{% trans %}No{% endtrans %}</button>
                 <button type="submit"
                         class="btn btn-primary"
-                        data-dismiss="modal"
+                        data-bs-dismiss="modal"
                         @click.prevent="updateAllStartsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
               </div>
             </div>
@@ -220,8 +220,8 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">{% trans %}Update all reporting end dates{% endtrans %} ...</h5>
-              <button type="button" class="close"
-                      data-dismiss="modal" aria-hidden="true">&times;</button>
+              <button type="button" class="btn-close"
+                      data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <p>
@@ -229,10 +229,10 @@
               </p>
               <div class="modal-footer">
                 <button class="btn btn-secondary"
-                        data-dismiss="modal">{% trans %}No{% endtrans %}</button>
+                        data-bs-dismiss="modal">{% trans %}No{% endtrans %}</button>
                 <button type="submit"
                         class="btn btn-primary"
-                        data-dismiss="modal"
+                        data-bs-dismiss="modal"
                         @click.prevent="updateAllEndsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
               </div>
             </div>

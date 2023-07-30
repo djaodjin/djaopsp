@@ -9,7 +9,7 @@ Reporting profiles
   <div>
     <div class="row">
       <div class="col-md-6 text-center">
-        <div class="chart" data-toggle="tooltip" title="Not started: Registered but has not started Assessment. Typically, this indicates a supplier is registered but has never answered a question on the assessment.
+        <div class="chart" data-bs-toggle="tooltip" title="Not started: Registered but has not started Assessment. Typically, this indicates a supplier is registered but has never answered a question on the assessment.
 
 Abandoned: A supplier started an assessment and/or improvement plan but never completed or submitted it within the last 12 months.
 
@@ -30,36 +30,30 @@ Completed: A supplier has submitted both a complete assessment and improvement p
       </div>
       <div class="col-md-6">
         <h5 class="mt-4">Invite period</h5>
-        <div class="text-right pr-3">
+        <div class="text-end pe-3">
           <div class="input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">From</span>
-            </div>
+            <span class="input-group-text" id="from-inp">From</span>
             <input class="form-control" type="date"
                    v-model="_start_at" v-cloak>
           </div>
         </div>
-        <div class="text-right pr-3 mt-2">
+        <div class="text-end pe-3 mt-2">
           <div class="input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            </div>
+            <span class="input-group-text" id="from-inp">To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             <input class="form-control" type="date"
                    v-model="_ends_at" v-cloak>
           </div>
         </div>
-        <div class="pr-3 mt-2">
+        <div class="pe-3 mt-2">
           <div class="input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
-            </div>
+            <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
             <input class="form-control"
                    type="text"
                    v-model="params.q" />
           </div>
         </div>
-        <div class="pr-3 mt-2">
-          <div class="text-right">
+        <div class="pe-3 mt-2">
+          <div class="text-end">
             <button class="btn btn-secondary btn-sm mb-2 w-100"
                     :disabled="!outdated"
                     @click.prevent="reload()">Update</button>
@@ -115,16 +109,14 @@ Completed: A supplier has submitted both a complete assessment and improvement p
                     v-on:selectitem="addAccount">
                   <form  class="form-inline" @submit.prevent="search">
                     <div class="input-group mb-3">
-                      <div class="input-group-prepend">
-                        <!-- optional indicators -->
-                        <span class="input-group-text">
-                          <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                          <template v-else>
-                            <i class="fa fa-search" v-show="isEmpty"></i>
-                            <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                          </template>
+                      <!-- optional indicators -->
+                      <span class="input-group-text">
+                        <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                        <template v-else>
+                          <i class="fa fa-search" v-show="isEmpty"></i>
+                          <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                        </template>
                       </span>
-                      </div>
                       <!-- the input field -->
                       <input class="form-control"
                              type="text"
@@ -143,11 +135,9 @@ Completed: A supplier has submitted both a complete assessment and improvement p
                           <a v-text="item.printable_name"></a>
                       </li>
                       </ul>
-                      <div class="input-group-append">
-                        <button class="btn btn-primary" type="submit" value="submit">
-                          Add reporting profile
-                        </button>
-                      </div>
+                      <button class="btn btn-primary" type="submit" value="submit">
+                        Add reporting profile
+                      </button>
                     </div>
                   </form>
                 </account-typeahead>
@@ -173,7 +163,7 @@ user).</em>
                 &nbsp;&nbsp;&dash;&nbsp;&nbsp;<a v-if="entry.email"
                     :href="'mailto:' + entry.email"
                     style="color:black;"><i class="fa fa-envelope"></i> Email &raquo;</a>
-                <span class="badge badge-pill badge-primary"
+                <span class="badge rounded-pill bg-primary"
                       v-for="tag in entry.tags">[[tag]]</span>
               </td>
               <td style="vertical-align:middle;">
@@ -225,9 +215,7 @@ user).</em>
           <form method="post" @submit.prevent="savePreferences()">
             <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
             <div class="input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="from-inp">Expired before</span>
-              </div>
+              <span class="input-group-text" id="from-inp">Expired before</span>
               <input class="form-control" type="date" v-model="_start_at" v-cloak>
             </div>
             <div>

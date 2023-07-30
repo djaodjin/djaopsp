@@ -70,7 +70,7 @@
     :colspan="6"
     v-if="isRevenueUIHint(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
            type="number"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
@@ -86,7 +86,7 @@
       <option value="million-eur">Millions Euros</option>
     </select>
   </div>
-  <div class="text-right mt-1">
+  <div class="text-end mt-1">
     <input class="form-check-input"
            type="checkbox"
            :checked="getAnswerByUnit(practice, 'yes-no').measured === 'Yes'"
@@ -136,7 +136,7 @@
     :colspan="3"
     v-if="isPercentageUIHint(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
            type="number"
            min="0"
            max="100"
@@ -183,7 +183,7 @@
     :colspan="2"
     v-if="isEnergyUIHint(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
            type="number"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
@@ -202,10 +202,10 @@
       <option value="gj-year">Giga Joules (GJ)</option>
     </select>
   </div>
-  <div class="text-left mt-1">
+  <div class="text-start mt-1">
     <button class="btn btn-sm btn-secondary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
-    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of energy #}
@@ -242,7 +242,7 @@
     :colspan="2"
     v-if="isWaterUIHint(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
            type="text"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
@@ -258,10 +258,10 @@
         <option value="gallons-year">US Gallon</option>
     </select>
   </div>
-  <div class="text-left mt-1">
+  <div class="text-start mt-1">
     <button class="btn btn-sm btn-secondary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
-    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}water/">enter data in tracking tool &raquo;</a>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}water/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of water #}
@@ -297,7 +297,7 @@
     :colspan="2"
     v-if="isWasteUIHint(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
            type="text"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
@@ -315,10 +315,10 @@
         <option value="gallons-year">US Gallon</option>
     </select>
   </div>
-  <div class="text-left mt-1">
+  <div class="text-start mt-1">
     <button class="btn btn-sm btn-secondary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
-    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}waste/">enter data in tracking tool &raquo;</a>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}waste/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of waste #}
@@ -352,7 +352,7 @@
     colspan="2"
     v-if="isGHGEmissions(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
               type="number"
               placeholder=""
               v-model="getPrimaryAnswer(practice).measured"
@@ -365,10 +365,10 @@
         <option value="tons-year">Metric Tons CO2e</<option>
     </select>
   </div>
-  <div class="text-left mt-1" v-if="!isGHGEmissionsScope3(practice)">
+  <div class="text-start mt-1" v-if="!isGHGEmissionsScope3(practice)">
     <button class="btn btn-sm btn-secondary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
-    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of scope ghg emissions #}
@@ -391,7 +391,7 @@
     </div>
     <label :for="slugify(choice.text, practice.rank)"
          style="margin-bottom:0"
-         data-toggle="tooltip" data-placement="bottom"
+         data-bs-toggle="tooltip" data-bs-placement="bottom"
          :title="getPrimaryCandidate(practice).measured === choice.text ? (getPrimaryCandidate(practice).collected_by + ', ' + humanizeTimeDelta(getPrimaryCandidate(practice).created_at)) : ''">
       <span style="font-size:10px;">[[choice.descr ? choice.descr : ""]]</span>
     </label>
@@ -495,7 +495,7 @@
               <small>[[humanizeDate(collectedAtTime)]]</small><br />
               <small>([[humanizeTimeDelta(collectedAtTime)]])</small>
             </div>
-            <div class="border-left col-md-9">
+            <div class="border-start col-md-9">
               <p class="mt-2" style="word-wrap:break-word;"
                  v-html="textAsHtml"
                  @click.prevent="openLink($event)">
@@ -526,7 +526,7 @@
           </div>
           <div class="row">
             <div class="col-6">
-              <div class="mt-2 text-left">
+              <div class="mt-2 text-start">
                 <button type="button" class="btn btn-secondary">
                   <label :for="callbackArg.slug + '-file'" style="margin-bottom:0;">
                     Upload
@@ -536,7 +536,7 @@
               </div>
             </div>
             <div class="col-6">
-              <div class="mt-2 text-right">
+              <div class="mt-2 text-end">
                 <button class="btn btn-primary" type="submit" value="submit">
                   Submit
                 </button>

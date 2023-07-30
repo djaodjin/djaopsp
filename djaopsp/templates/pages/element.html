@@ -22,8 +22,8 @@
                 <div class="panel-grey panel-cartitem over-radius">
                     <div class="p-2">
                       <h1 class="editable" data-key="title" v-cloak>{% if element %}{{element.title}}{% else %}[[item.title]]{% endif %}</h1>
-                      <div data-key="tags" class="editable text-right">
-                        <span class="badge badge-pill badge-info"
+                      <div data-key="tags" class="editable text-end">
+                        <span class="badge rounded-pill bg-info"
                               v-for="tag in tags"></span>
                         {% if edit_perm %}
                         <span id="lock">{% trans %}add tags ...{% endtrans %} <i class="fa fa-edit"></i></span>
@@ -54,8 +54,10 @@
                         <hr />
                         {% if profile %}
                         <div id="create-chapter">
-                          <div class="text-right">
-                            <a id="new-page" class="btn btn-primary btn-block" href="#new-pageelement" data-toggle="modal" data-target="#new-pageelement">New practice</a>
+                          <div class="text-end">
+                            <div class="d-grid gap-2">
+                              <a id="new-page" class="btn btn-primary" href="#new-pageelement" data-bs-toggle="modal" data-bs-target="#new-pageelement">New practice</a>
+                            </div>
                           </div>
                           <!-- modal to create a new page -->
                           <div id="new-pageelement" class="modal fade"
@@ -67,10 +69,9 @@
                                 <div class="modal-header">
                                   <h4 class="modal-title">{% trans %}Create a new practice ...{% endtrans %}</h4>
                                   <button type="button"
-                                          class="close"
-                                          data-dismiss="modal"
+                                          class="btn-close"
+                                          data-bs-dismiss="modal"
                                           aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
                                   </button>
                                 </div>
                                 <div class="modal-body">
@@ -83,7 +84,7 @@
                                 </div>
                                 <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary"
-                                          data-dismiss="modal">{% trans %}Cancel{% endtrans %}</button>
+                                          data-bs-dismiss="modal">{% trans %}Cancel{% endtrans %}</button>
                                   <button type="submit" class="btn btn-primary">{% trans %}Create{% endtrans %}</button>
                                 </div>
                               </form>
@@ -104,7 +105,7 @@
 {% trans %}This material is licensed as Creative Commons{% endtrans %} <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.
 {% trans %}When using it for any project, you are required to give credit to The Sustainability Project (TSP). Please use the following attribution:{% endtrans %}
                           </p>
-                            <p class="border-left pl-2" v-cloak>
+                            <p class="border-start ps-2" v-cloak>
 <em>&quot;<a :href="'https://www.tspproject.org/app/info' + item.path">[[item.title]]</a> by <a href="https://www.tspproject.org/">The Sustainability Project (TSP)</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.&quot;</em>
                             </p>
                         </div>

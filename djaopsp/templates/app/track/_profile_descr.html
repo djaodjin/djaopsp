@@ -15,7 +15,7 @@
   <div class="input-group" v-if="isActiveItem(item)">
     <input class="form-control" name="full_name"
            type="text" v-model="item.printable_name" />
-    <button class="input-group-append btn btn-primary"
+    <button class="btn btn-primary"
             @click.prevent="update(item)">
       <i class="fa fa-save"></i>
     </button>

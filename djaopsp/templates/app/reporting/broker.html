@@ -10,7 +10,7 @@
         [[items.count]] {% trans %}completed questionnaires{% endtrans %}
       </div>
       {% if urls.download %}
-      <div class="col-sm-6 text-right">
+      <div class="col-sm-6 text-end">
         <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
           <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
         </a>

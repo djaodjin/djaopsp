@@ -17,17 +17,17 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
         <div class="row">
           <div class="col-sm-8">
             <div class="row">
-              <div class="col-sm-4 text-center text-sm-right">
+              <div class="col-sm-4 text-center text-sm-end">
                 <img class="my-4 img-fluid" style="max-height:100px;" src="{% if sample.account.picture %}{{sample.account.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
               </div>
-              <div class="col-sm-8 text-center text-sm-left">
+              <div class="col-sm-8 text-center text-sm-start">
                 <h1 class="mt-4">{{sample.account.printable_name}}</h1>
                 <h2>{{sample.campaign.title}}</h2>
                 <div>{{sample.created_at|date}}</div>
               </div>
             </div>
             <div class="row">
-              <div class="col-12 text-right">
+              <div class="col-12 text-end">
                 <div class="row text-center mx-4">
                   {% for highlight in highlights %}
                   <div class="col-6 col-md-3 text-center">
@@ -43,7 +43,7 @@ the <em>Complete</em> button at the bottom of the page to create a frozen report
             </div>
             <div class="row">
               <div class="col-sm-6">
-                <div class="mt-2 ml-2">
+                <div class="mt-2 ms-2">
                   Contact Information
                   <ul class="list-unstyled mb-0">
                     {% if sample.account.email %}
@@ -122,9 +122,9 @@ and supporting documents{% endtrans %}</option>
                 <div v-if="practice.indent == 0">
                   <a :href="'{{urls.assess_base}}' + practice.slug + '/'">Update</a>
                   <a id="reset-assessment-btn"
-                     class="ml-4" href=""
-                     data-toggle="modal"
-                     data-target="#reset-assessment"
+                     class="ms-4" href=""
+                     data-bs-toggle="modal"
+                     data-bs-target="#reset-assessment"
                      @click="setActiveElement(practice)">Remove</a>
                 </div>
                 {% endif %}
@@ -234,9 +234,9 @@ companies responding on practices in the industry segment.
                   <div v-if="practice.indent == 0">
                     <a :href="'{{urls.assess_base}}' + practice.slug + '/'">Update</a>
                     <a id="reset-assessment-btn"
-                       class="ml-4" href=""
-                       data-toggle="modal"
-                       data-target="#reset-assessment"
+                       class="ms-4" href=""
+                       data-bs-toggle="modal"
+                       data-bs-target="#reset-assessment"
                        @click="setActiveElement(practice)">Remove</a>
                   </div>
                   {% endif %}
@@ -244,7 +244,7 @@ companies responding on practices in the industry segment.
               </div>{# /.row #}
               <div v-if="isDataMetricsHeader(practice)">
                 <table class="table table-bordered table-striped">
-                  <tr class="text-right">
+                  <tr class="text-end">
                     <th></th>
                     <th v-for="year in getColHeaders(practice)">
                       [[year]]
@@ -252,7 +252,7 @@ companies responding on practices in the industry segment.
                   </tr>
                   <tr v-for="total in getEntries(practice.slug)">
                     <th>[[total.title]]</th>
-                    <td class="text-right"
+                    <td class="text-end"
                         v-for="year in getColHeaders(practice)">
                       [[getColValue(total, year)]]
                     </td>
@@ -475,7 +475,7 @@ companies responding on practices in the industry segment.
           {% if segments_candidates and (not urls.assess_mandatory_segment or is_mandatory_segment_present) %}
           <hr />
           <div class="dropdown">
-            <button id="segment-selector" class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown" data-flip="false">
+            <button id="segment-selector" class="btn btn-primary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-flip="false">
               <span class="text">Add industry-specific assessment</span>
             </button>
             <ul class="dropdown-menu" role="menu" aria-labelledby="segment-selector">
@@ -549,8 +549,8 @@ companies responding on practices in the industry segment.
               <button id="complete-assessment-btn"
                       class="mt-2 btn btn-primary w-100"
                       href=""
-                      data-toggle="modal"
-                      data-target="#complete-assessment"
+                      data-bs-toggle="modal"
+                      data-bs-target="#complete-assessment"
                       :disabled="freezeAssessmentDisabled"
                       v-show="itemsLoaded && items.results.length > 0">
                 Complete

@@ -3,6 +3,6 @@
 <div v-for="contact in entry.contacts" v-show="index === showContacts">
   <img class="img-fluid" style="max-height: 1rem;" :src="contact.picture || '{{'/static/img/default-user.png'|asset}}'"> [[contact.user.printable_name]] &lt;[[contact.user.email]]&gt;<br />
   <small>
-    <span class="badge badge-secondary">[[contact.role_description.title]]</span> [[contact.user.last_login ? ("{% trans %}last login{% endtrans %}: " + $globals.humanizeDate(contact.user.last_login)) : ""]]
+    <span class="badge bg-secondary">[[contact.role_description.title]]</span> [[contact.user.last_login ? ("{% trans %}last login{% endtrans %}: " + $globals.humanizeDate(contact.user.last_login)) : ""]]
   </small>
 </div>

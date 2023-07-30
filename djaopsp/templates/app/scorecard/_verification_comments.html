@@ -19,7 +19,7 @@
           <small>[[humanizeDate(collectedAtTime)]]</small><br />
           <small>([[humanizeTimeDelta(collectedAtTime)]])</small>
         </div>
-        <div class="border-left col-md-9">
+        <div class="border-start col-md-9">
           <p class="mt-2" style="word-wrap:break-word;"
              v-html="textAsHtml"
              @click.prevent="openLink($event)">
@@ -47,7 +47,7 @@
       </div>
       <div class="row">
         <div class="col-6">
-          <div class="mt-2 text-left">
+          <div class="mt-2 text-start">
             <button type="button" class="btn btn-secondary">
               <label :for="callbackArg.slug + '-file'" style="margin-bottom:0;">
                     {% trans %}Upload{% endtrans %}
@@ -57,7 +57,7 @@
           </div>
         </div>
         <div class="col-6">
-          <div class="mt-2 text-right">
+          <div class="mt-2 text-end">
             <button class="btn btn-primary" type="submit" value="submit">
                 {% trans %}Submit{% endtrans %}
             </button>

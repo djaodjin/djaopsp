@@ -1,7 +1,7 @@
 <div style="width:12rem;">
   <div v-show="showEditTags !== index">
     <div v-if="entry.extra">
-      <span class="badge badge-secondary" v-for="tag in entry.extra.tags">[[tag]]</span>
+      <span class="badge bg-secondary" v-for="tag in entry.extra.tags">[[tag]]</span>
     </div>
     <small><a href="" @click.prevent="toggleEditTags(index)"><i class="fa fa-edit"></i></a></small>
   </div>

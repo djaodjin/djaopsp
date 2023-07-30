@@ -28,11 +28,9 @@
 {% macro date_input_field(name, timezone, label, required=True, help_text="", value="", disabled=False, disabled_toggle="", errors="", hide_labels=False, show_as_text=False, extra_label_classes="", extra_control_classes="") -%}
 <div class="form-group{% if errors %} has-error{% endif %}">
   <uiv-dropdown{% if extra_control_classes %} class="{{extra_control_classes}}"{% endif %} append-to-body menu-right>
-    <div class="input-group mr-2">
+    <div class="input-group me-2">
       {% if not hide_labels %}
-      <div class="input-group-prepend">
-        <label class="input-group-text{% if required %} requiredField{% endif %}">{{label}}</label>
-      </div>
+      <label class="input-group-text{% if required %} requiredField{% endif %}">{{label}}</label>
       {% endif %}
       {% if show_as_text %}
       <span class="p-2">[[{{name}} ? ($globals.humanizeDate({{name}})) : "{% trans %}Never{% endtrans %}" ]]</span>
@@ -43,10 +41,8 @@
            {% if value %}value="{{value}}"{% endif %}
            {% if disabled %} disabled{% endif %} />
       {% endif %}
-      <div class="input-group-append"{% if disabled_toggle %} v-if="{{disabled_toggle}}"{% endif %}>
-        <button type="button" class="btn btn-outline-secondary dropdown-toggle"><i class="fa fa-calendar"></i>
-        </button>
-      </div>
+      <button type="button" class="btn btn-outline-secondary dropdown-toggle"{% if disabled_toggle %} v-if="{{disabled_toggle}}"{% endif %}><i class="fa fa-calendar"></i>
+      </button>
     </div>
     <template slot="dropdown">
       <li>
