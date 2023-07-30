@@ -55,20 +55,19 @@ Development
 You will want to toggle `DEBUG` on in the site.conf file.
 
 <pre><code>
-    $ diff -u <em>installTop</em>/etc/djaoapp/site.conf
+    $ diff -u <em>installTop</em>/etc/djaopsp/site.conf
     -DEBUG = False
     +DEBUG = True
 
     # Create the tests databases and load test datasets.
     $ make initdb
 
-    # To generate some sample data, disable emailing of receipts and run:
-    $ python manage.py load_test_transactions
-
     # Spins up a dev server that re-compiles the `.css` files
     # on page reload whenever necessary.
     $ python manage.py runserver --nostatic
 </code></pre>
+
+The app will be accessible at http://localhost:8000/djaopsp
 
 
 Release Notes
