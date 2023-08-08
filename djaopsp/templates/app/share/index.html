@@ -44,7 +44,8 @@ The following organizations have requested a copy of the latest {{campaign.title
 No data will be shared until you click the <strong>accept</strong> button.
                 </p>
                 <div :id="'request-' + (received.grantee.slug ? received.grantee.slug : received.grantee)" class="card mt-1"
-                     v-for="(received, index) in items.results">
+                     v-for="(received, index) in items.results"
+                     v-if="received.state === 'request-initiated'">
                   <div class="card-body">
                     <div class="row align-items-center">
                       <div class="col-2">
