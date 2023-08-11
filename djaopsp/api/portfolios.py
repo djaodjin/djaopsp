@@ -17,7 +17,7 @@ from pages.models import PageElement
 from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
 from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
-from survey.filters import SearchFilter, OrderingFilter
+from survey.filters import DateRangeFilter, OrderingFilter, SearchFilter
 from survey.helpers import construct_yearly_periods, construct_weekly_periods
 from survey.api.matrix import BenchmarkMixin as BenchmarkMixinBase
 from survey.mixins import TimersMixin
@@ -784,8 +784,26 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
           ]
         }
     """
-    serializer_class = ReportingSerializer
     schema = None
+    serializer_class = ReportingSerializer
+
+    search_fields = (
+        'full_name',
+        'printable_name'
+    )
+    alternate_fields = {
+        'full_name': 'account__full_name',
+        'printable_name': 'account__full_name',
+    }
+    ordering_fields = (
+        ('account__full_name', 'printable_name'),
+        ('campaign__title', 'segment'),
+        ('verified_status', 'status'),
+        ('created_at', 'last_completed_at')
+    )
+    ordering = ('-created_at',)
+
+    filter_backends = (DateRangeFilter, SearchFilter, OrderingFilter)
 
     def decorate_queryset(self, queryset):
         for sample in queryset:

@@ -442,7 +442,6 @@ Vue.component('reporting-organizations', {
             portfolios_received_url: this.$urls.api_portfolios_received,
             api_profiles_base_url: this.$urls.api_organizations,
             params: {
-                o: 'full_name' // XXX '-created_at' in old dashboard
             },
             newItem: {
                 email: "",

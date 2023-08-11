@@ -1,0 +1,34 @@
+<form action="." method="post" id="filter-form" class="form-horizontal pl-2 mb-3">
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+  <div class="row">
+    <div class="col-sm-6 col-lg-3 px-1">
+      {# specify start of date range #}
+      {% include "_params_start_at_field.html" %}
+    </div>
+    <div class="col-sm-6 col-lg-3 px-1">
+      {# specify end of date range #}
+      {% include "_params_ends_at_field.html" %}
+    </div>
+    <div class="col-sm-6 col-lg-4 px-1">
+      <div class="form-group">
+        <div class="input-group input-group-md">
+          <div class="input-group-prepend">
+            <label class="text-monospace input-group-text" id="filter-inp">{% trans %}Match{% endtrans %}</label>
+          </div>
+          <input class="form-control" type="text" v-model="params.q" />
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-3 col-lg-1 px-1">
+      <button id="update" class="btn btn-primary w-100" role="button"
+              :disabled="!outdated" @click.prevent="reload()"
+              href="#">{% trans %}Update{% endtrans %}</button>
+    </div>
+    {% if urls.download %}
+    <div class="col-sm-3 col-lg-1 p-0">
+      <a id="download" class="btn btn-secondary w-100" role="button"
+         :href="'{{urls.download}}' + getQueryString(['page'])">{% trans %}Download{% endtrans %}</a>
+    </div>
+    {% endif %}
+  </div>
+</form>

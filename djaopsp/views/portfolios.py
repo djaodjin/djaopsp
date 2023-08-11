@@ -79,6 +79,7 @@ class DashboardRedirectView(AccountMixin, TemplateResponseMixin, ContextMixin,
             update_context_urls(context, {
                 'api_portfolio_responses': reverse(
                     'api_completed_assessments', args=(self.account,)),
+                'api_organizations': site_url("/api/profile"),
                 'download': reverse(
                     'completed_assessments_download', args=(self.account,))
             })
