@@ -2,23 +2,18 @@
 
 {% block app_content %}
 <div class="container">
-  <div class="row text-center">
-    {% if profile.picture %}
-    <div class="col-4 mt-3">
-      <img class="logo" width="48" src="{{profile.picture}}">
-    </div>
-    <div class="col-8 text-left mt-3">
-      <h1>{{profile.printable_name}}</h1>
-    </div>
-    {% else %}
-    <div class="col-12 mt-3">
-      <h1>{{profile.printable_name}}</h1>
-    </div>
-    {% endif %}
-  </div>
+  <h1 class="text-center py-4">LEARN. ASSESS. IMPROVE.</h1>
   <div class="row">
     <div class="col-md-6 mt-4">
-      <div class="card bg-white text-dark h-100">
+      <div class="card bg-white text-dark">
+        <div class="card-body">
+
+        <div class="d-flex" style="align-items:center;">
+          <img class="img-fluid" style="margin-right:5px;line-height:100px;max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+          <h1 class="d-inline" style="overflow:hidden;">{{profile.printable_name}}</h1>
+        </div>
+
+        </div>
         <div class="card-body">
           <h2>{% trans %}Assess{% endtrans %}</h2>
           <p>
@@ -27,36 +22,29 @@ If you were prompted to take, or update, an assessment,
 start here.
 {% endtrans %}
           </p>
-          {% if latest_completed_assessment %}
           <div>
+            {% if latest_completed_assessment %}
             <p>
 Last completed on <span class="date">{{latest_completed_assessment.created_at|date}}</span>{% if latest_completed_assessment.author %} by <span class="author">{{latest_completed_assessment.author}}</span>{% endif %}.
             </p>
-            <div class="row">
-              <div class="col-sm-6">
-                <a id="scorecard-history" href="{{urls.scorecard_history}}">{% trans %}Historical reports{% endtrans %}</a>
-              </div>
-              <div class="col-sm-6">
-                <a id="scorecard-update" class="btn btn-primary" href="{{urls.profile_getstarted}}">{% trans %}Update{% endtrans %}</a>
-              </div>
-            </div>
-          </div>
-          {% else %}
-          <div>
+            {% else %}
             <p>
             </p>
+            {% endif %}
             <div class="row">
-              <div class="offset-4 col-4 text-center">
-                <a id="scorecard-create" class="btn btn-primary" href="{{urls.profile_getstarted}}">{% if active_assessment_in_progress %}{% trans %}Continue{% endtrans %}{% else %}{% trans %}Get started{% endtrans %}{% endif %}</a>
+              <div class="col-sm-6 col-md-4 text-center">
+                <a style="display: inline-block;text-align: center;vertical-align: middle;padding: 0.375rem 0;font-size: 1rem;line-height: 1.5;" id="scorecard-history" href="{{urls.scorecard_history}}">{% trans %}Historical assessments{% endtrans %}</a>
+              </div>
+              <div class="col-sm-6 col-md-4 text-center">
+              {% if latest_completed_assessment %}
+              <a id="scorecard-update" class="btn btn-primary" href="{{urls.profile_getstarted}}">{% trans %}Update{% endtrans %}</a>
+              {% else %}
+              <a id="scorecard-create" class="btn btn-primary w-100" href="{{urls.profile_getstarted}}">{% if active_assessment_in_progress %}{% trans %}Continue{% endtrans %}{% else %}{% trans %}Get started{% endtrans %}{% endif %}</a>
+              {% endif %}
               </div>
             </div>
           </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6 mt-4">
-      <div class="card bg-white text-dark h-100">
+        </div>{# /assess #}
         <div class="card-body">
           <h2>{% trans %}Data Reporting{% endtrans %}</h2>
           <p>
@@ -67,39 +55,7 @@ Record data metrics all year long so you can report quantifiable improvements.
           <div class="offset-4 col-4 text-center">
             <a id="track" href="{{urls.track_metrics}}">Enter</a>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6 mt-4">
-      <div class="card bg-white text-dark h-100">
-        <div class="card-body">
-          <h2>{% trans %}Learn{% endtrans %}</h2>
-          <p>
-{% trans %}
-Under this section, you will find industry-specific practices,
-and member-only content.
-{% endtrans %}
-          </p>
-          <div class="text-center">
-            <a id="browse-practices" href="{{urls.pages_index}}">{% trans %}Browse{% endtrans %}</a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6 mt-4">
-      <div class="card bg-white text-dark h-100">
-        <div class="card-body">
-          <h2>{% trans %}Newsfeed{% endtrans %}</h2>
-          {% include "app/_newsfeed.html" %}
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6 mt-4">
-      <div class="card bg-white text-dark h-100">
+        </div>{# /data-reporting #}
         <div class="card-body">
           <h2>{% trans %}Dashboards{% endtrans %}</h2>
           <p>
@@ -109,13 +65,11 @@ Manage invites sent to organizations, and their reporting status.
           </p>
           {% if urls.portfolio_engage %}
           <div class="row">
-            <!--
             <div class="col-6 text-center">
-              <a id="analyze-portfolios" href="{{urls.portfolio_analyze}}">Analyze</a>
-            </div>
-            -->
-            <div class="col-12 text-center">
               <a id="engage-portfolios" href="{{urls.portfolio_engage}}">Engage</a>
+            </div>
+            <div class="col-6 text-center">
+              <a id="track-portfolios" href="{{urls.portfolio_track}}">Track</a>
             </div>
           </div>
           {% else %}
@@ -130,10 +84,30 @@ please <a href="{{'/contact/'|site_url}}">contact us</a>.
           </p>
           {% endif %}
         </div>
-      </div>
+      </div>{# /.dashboards #}
     </div>
     <div class="col-md-6 mt-4">
-      <div class="card bg-white text-dark h-100">
+      <div class="card bg-white text-dark mb-2">
+        <div class="card-body">
+          <h2>{% trans %}Newsfeed{% endtrans %}</h2>
+          {% include "app/_newsfeed.html" %}
+        </div>
+      </div>
+      <div class="card bg-white text-dark mb-2">
+        <div class="card-body">
+          <h2>{% trans %}Learn{% endtrans %}</h2>
+          <p>
+{% trans %}
+Under this section, you will find industry-specific practices,
+and member-only content.
+{% endtrans %}
+          </p>
+          <div class="text-center">
+            <a id="browse-practices" href="{{urls.pages_index}}">{% trans %}Browse{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
+      <div class="card bg-white text-dark mb-2">
         <div class="card-body">
           <h2>{% trans %}Questionnaires{% endtrans %}</h2>
           <p>

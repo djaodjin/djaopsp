@@ -22,6 +22,8 @@ Vue.component('campaign-questions-list', {
             nbQuestions: this.$sample ? this.$sample.nbQuestions  : 0,
             nbRequiredAnswers: this.$sample ? this.$sample.nbRequiredAnswers : 0,
             nbRequiredQuestions: this.$sample ? this.$sample.nbRequiredQuestions : 0,
+            api_profiles_url: this.$urls.api_profiles,
+            profilesBySlug: {}
         }
     },
     methods: {
@@ -173,6 +175,10 @@ Vue.component('campaign-questions-list', {
             return vm.isOpenComments && (vm.activeElement &&
                 vm.activeElement.slug === practice.slug);
         },
+        isNAICSUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'naics';
+        },
         isRevenueUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'revenue'
@@ -250,26 +256,64 @@ Vue.component('campaign-questions-list', {
                     vm.valueSummaryToggle = true;
                     vm.vsPeersToggle = 0;
                 }
+                elem = vm.$el.querySelector('#' + tile.slug);
+                vm.$nextTick(function() {
+                    elem.scrollIntoView(true);
+                });
             }
         },
+        getCollectedByField: function(user, fieldName) {
+            var vm = this;
+            if( user && user.hasOwnProperty(fieldName) ) {
+                return user[fieldName];
+            }
+            if( user ) {
+                const profile = vm.profilesBySlug[user];
+                if( profile && profile.hasOwnProperty(fieldName) ) {
+                    return profile[fieldName];
+                }
+                vm.profilesBySlug[user] = {
+                    picture: null,
+                    printable_name: user
+                };
+                let queryParams = "?q_f==slug&q=" + user;
+                vm.reqGet(vm.api_profiles_url + queryParams,
+                function(resp) {
+                    for( let idx = 0; idx < resp.results.length; ++idx ) {
+                        vm.profilesBySlug[resp.results[idx].slug] =
+                            resp.results[idx];
+                    }
+                }, function() {
+                    // discard errors (ex: "not found").
+                });
+                return vm.profilesBySlug[user][fieldName];
+            }
+            return "";
+        },
+        getPicture: function(user) {
+            return this.getCollectedByField(user, 'picture');
+        },
+        getPrintableName: function(user) {
+            return this.getCollectedByField(user, 'printable_name');
+        },
         populateUserProfiles: function() {
-            var profilesBySlug = {};
+            var vm = this;
             for( var idx = 0; idx < vm.items.results.length; ++idx ) {
                 var row = vm.items.results[idx];
                 if( row.answers ) {
                     for( var jdx = 0; jdx < row.answers.length; ++jdx ) {
                         var answer = row.answers[jdx];
                         if( !profilesBySlug[answer.collected_by] ) {
-                            profilesBySlug[answer.collected_by] = 1;
+                            vm.profilesBySlug[answer.collected_by] = 1;
                         }
                     }
                 }
             }
             for( var key in profilesBySlug ) {
                 if( profilesBySlug.hasOwnProperty(key) ) {
-                    vm.reqGet(vm._safeUrl(vm.$urls.api_profiles, key),
+                    vm.reqGet(vm._safeUrl(vm.api_profiles_url, key),
                     function(resp) {
-                        profilesBySlug[resp.slug] = resp;
+                        vm.profilesBySlug[resp.slug] = resp;
                     });
                 }
             }
@@ -389,6 +433,11 @@ Vue.component('campaign-questions-list', {
                     for( var idx = 0; idx < resp.length; ++resp ) {
                         var answer = vm.getAnswerByUnit(practice, resp[idx].unit);
                         answer.collected_by = resp[idx].collected_by;
+                        // We force an update here, otherwise the picture
+                        // of the commentator is not displayed on 'Submit'
+                        // of a new comment.
+                        // XXX doesn't work on the first comment??
+                        vm.$forceUpdate();
                     }
                 }
                 if( vm.openCommentsAutomatically(practice, newValue) ) {
@@ -452,8 +501,10 @@ Vue.component('campaign-questions-list', {
         },
         updateComment: function(text, practice) {
             var vm = this;
-            vm.getCommentsAnswer(practice).measured = text;
-            vm.updateAssessmentAnswer(practice, vm.getCommentsAnswer(practice))
+            const comment = vm.getCommentsAnswer(practice);
+
+            comment.measured = text;
+            vm.updateAssessmentAnswer(practice, comment);
         },
         updateMultipleAssessmentAnswers: function (heading, newValue) {
             var vm = this;
@@ -622,6 +673,42 @@ Vue.component('campaign-questions-list', {
 });
 
 
+/** Component used to display improvement charts
+    as used in app/improve/_improve_charts.html
+
+    requires Chart from chart.js
+*/
+Vue.component('planning-dashboard', {
+    mixins: [
+        practicesListMixin
+    ],
+    props: ['activeTile'],
+    data: function() {
+        return {
+            url: this.$urls.api_account_benchmark,
+            normalizedScore: 0,
+            // benchmark charts
+            chartsLoaded: false,
+            chartsAvailable: false,
+            chartsAPIResp: null,
+            charts: {},
+            avgNormalizedScore: 0,
+            highestNormalizedScore: 0,
+        }
+    },
+    methods: {
+        contentLoaded: function() {
+            var vm = this;
+            vm.avgNormalizedScore = vm.items.avg_normalized_score;
+            vm.highestNormalizedScore = vm.items.highest_normalized_score;
+            vm.chartsAPIResp = vm.items.results;
+            vm.buildCharts(vm.chartsAPIResp);
+            vm.chartsLoaded = true;
+        },
+    },
+});
+
+
 /** Component used to display a scorecard as used in app/scorecard/index.html
 
     requires Chart from chart.js
@@ -656,6 +743,14 @@ Vue.component('scorecard', {
         buildSummaryChart: function() {
             // Creates the top level summary polar chart
             var vm = this;
+            var labels = [];
+            var data = [];
+            for( let key in vm.summaryPerformance ) {
+                if( vm.summaryPerformance.hasOwnProperty(key) ) {
+                    labels.push(key);
+                    data.push(vm.summaryPerformance[key]);
+                }
+            }
             var chartKey = 'summary-chart';
             var chart = vm.charts[chartKey];
             if( chart ) {
@@ -668,22 +763,27 @@ Vue.component('scorecard', {
                     {
                         type: 'polarArea',
                         data: {
-                            labels: [
-                                'energy', 'ghg-emissions', 'waste', 'water'],
+                            labels: labels,
                             datasets: [{
                                 label: "score",
-                                data: vm.summaryPerformance
+                                data: data,
+                                backgroundColor: [
+                                    'rgb(255, 99, 132)',
+                                    'rgb(75, 192, 192)',
+                                    'rgb(255, 205, 86)']
                             }]
                         },
                         options: {
                             responsive: true,
                             plugins: {
                                 legend: {
-                                    display: false,
-                                    // position: 'top',
+                                    display: true,
+                                    position: 'bottom',
                                 },
                                 title: {
-                                    display: false
+                                    display: true,
+                                    text: "Improvement planning",
+                                    position: 'bottom',
                                 }
                             }
                         },

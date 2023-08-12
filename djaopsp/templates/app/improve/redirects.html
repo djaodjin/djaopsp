@@ -1,0 +1,63 @@
+{% extends "app/improve/base.html" %}
+
+{% block improve_content %}
+<section id="redirects" class="container py-4">
+  <h1 class="text-center">{% trans %}Improvement planning ...{% endtrans %}</h1>
+  <div class="bg-white text-dark" style="min-height:30rem;">
+    <div class="row">
+      <div class="col-12 offset-md-3 col-md-6 my-4 py-4">
+        {% if redirects %}
+        {% for redirect in redirects %}
+        <div class="text-center">
+          <a class="btn btn-primary w-100 mt-2"
+             href="{{redirect.0}}">{% trans %}Update{% endtrans %} {{redirect.1}} ...</a>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>
+{% trans %}To create or complete an improvement plan towards your stated targets, we have indentified practices relevent and specific to each of the following industry segments.{% endtrans %}
+(<a target="_blank" href="{{'/docs/faq/#best-practices-1'|site_url}}">How were practices for each industry segment identified or selected?</a>)
+        </p>
+        <p>
+          <ol>
+            <li>Select an industry segment</li>
+            <li>Assess your organization against the identified practices</li>
+            <li>Select practices you want to focus on over the next year and create an improvement plan</li>
+          </ol>
+        </p>
+        {% for item in segments_candidates %}
+        {% if item.extra and item.extra.pagebreak %}
+        <div>
+          <a id="{{item.slug}}" href="{{urls.assess}}{{item.path}}/">
+            <div class="card bg-white text-dark h-100">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-4">
+                    <div class="d-inline-block">
+                      {% if item.picture %}
+                      <img class="icon-inner"
+                           style="padding:5px; border: 1px #eee solid;"
+                           src="{{item.picture}}">
+                      {% else %}
+                      <img class="icon-inner"
+                           style="padding:5px; border: 1px #eee solid;"
+                           src="{{'/static/img/design.png'|asset}}">
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="col-8 text-left">
+                    <h3>{{item.title}}</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

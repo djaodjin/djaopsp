@@ -52,6 +52,38 @@
     </button>
 </td>
 
+<td class="text-center"
+    :colspan="6"
+    v-if="isNAICSUIHint(practice)">
+  <div class="input-group">
+    <select class="form-control"
+            v-model="getPrimaryAnswer(practice).measured"
+            @blur="updateAssessmentAnswer(practice)"
+            {% if sample.is_frozen %} disabled{% endif %}>
+      <option value="[11] Agriculture, Forestry, Fishing and Hunting">[11] Agriculture, Forestry, Fishing and Hunting</option>
+      <option value="[21] Mining, Quarrying, and Oil and Gas Extraction">[21] Mining, Quarrying, and Oil and Gas Extraction</option>
+      <option value="[22] Utilities">[22] Utilities</option>
+      <option value="[23] Construction">[23] Construction</option>
+      <option value="[31-33] Manufacturing">[31-33] Manufacturing</option>
+      <option value="[42] Wholesale Trade">[42] Wholesale Trade</option>
+      <option value="[44-45] Retail Trade">[44-45] Retail Trade</option>
+      <option value="[48-49] Transportation and Warehousing">[48-49] Transportation and Warehousing</option>
+      <option value="[51] Information">[51] Information</option>
+      <option value="[52] Finance and Insurance">[52] Finance and Insurance</option>
+      <option value="[53] Real Estate and Rental and Leasing">[53] Real Estate and Rental and Leasing</option>
+      <option value="[54] Professional, Scientific, and Technical Services">[54] Professional, Scientific, and Technical Services</option>
+      <option value="[55] Management of Companies and Enterprises">[55] Management of Companies and Enterprises</option>
+      <option value="[56] Administrative and Support and Waste Management and Remediation Services">[56] Administrative and Support and Waste Management and Remediation Services</option>
+      <option value="[61] Educational Services">[61] Educational Services</option>
+      <option value="[62] Health Care and Social Assistance">[62] Health Care and Social Assistance</option>
+      <option value="[71] Arts, Entertainment, and Recreation">[71] Arts, Entertainment, and Recreation</option>
+      <option value="[72] Accommodation and Food Services">[72] Accommodation and Food Services</option>
+      <option value="[81] Other Services (except Public Administration)">[81] Other Services (except Public Administration)</option>
+      <option value="[92] Public Administration">[92] Public Administration</option>
+    </select>
+  </div>
+</td>
+
 {# Presents questions based on its ui_hint and default unit #}
 <td class="text-center"
     colspan="6"
@@ -411,7 +443,6 @@
             @blur="updateAssessmentAnswer(practice)"
             {% endif %}>
       <option value="no-target">No target</option>
-      <option value="2022">2022</option>
       <option value="2023">2023</option>
       <option value="2024">2024</option>
       <option value="2025">2025</option>
@@ -489,7 +520,7 @@
           <div class="row">
             <div class="col-md-3">
               <div class="mt-2">
-                <img :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+                <img class="rounded-circle" :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
                 <span>[[collectedByPrintableName]]</span>
               </div>
               <small>[[humanizeDate(collectedAtTime)]]</small><br />

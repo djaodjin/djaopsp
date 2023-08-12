@@ -19,7 +19,7 @@ from ...downloads.reporting import (BenchmarkPPTXView, FullReportPPTXView,
 
 urlpatterns = [
     # Redirects
-    path('reporting/analyze/',
+    path('reporting/track/',
         DashboardRedirectView.as_view(
             breadcrumb_url='reporting_profile_accessibles'),
         name='portfolio_analyze'),

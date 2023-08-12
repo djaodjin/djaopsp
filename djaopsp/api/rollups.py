@@ -156,7 +156,12 @@ class RollupMixin(object):
                 # `accounts` used
                 # in `decorate_with_cohorts` is a dictionary indexed by id,
                 # so we cannot use value.account.slug.
-                account_id = value.account_id
+                try:
+                    account_id = value.account_id
+                except AttributeError:
+                    # When we are dealing with `ScorecardCache` we need to
+                    # pass through the `sample`.
+                    account_id = value.sample.account_id
                 account = accounts.get(account_id, {})
                 account.update({'normalized_score': value.normalized_score})
                 if account_id not in accounts:

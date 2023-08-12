@@ -1,17 +1,15 @@
 <div>
   <div class="text-center d-flex align-items-center"
        style="height:150px;max-width:300px;"
-       v-if="!chartsAvailable && !charts[tile.slug]">
+       v-if="!chartsAvailable && !charts[practice.path]">
     <div class="box">
-        <i class="fa fa-refresh fa-spin fa-2x"></i>
+      <i class="fa fa-refresh fa-spin fa-2x"></i>
     </div>
   </div>
   <div class="text-center d-flex align-items-center"
        style="height:150px;max-width:300px;background:#eee;"
-       v-if="chartsAvailable && !charts[tile.slug]">
-      <div class="box">
-          {% trans %}There is not enough data available to benchmark with peers.{% endtrans %}
-      </div>
+       v-if="chartsAvailable && !charts[practice.path]">
+    <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
   </div>
-  <canvas :id="tile.slug" v-show="charts[tile.slug]"></canvas>
+  <canvas :data-id="practice.path" v-show="charts[practice.path]"></canvas>
 </div>

@@ -159,7 +159,6 @@ class ScorecardIndexView(ReportMixin, TemplateView):
             'verification_enabled': self.is_auditor,
             'highlights': get_highlights(self.sample),
             'is_mandatory_segment_present': self.is_mandatory_segment_present,
-            'segments_candidates': self.segments_candidates,
             'summary_performance': get_summary_performance(self.sample)
         })
         if not self.segments_available:

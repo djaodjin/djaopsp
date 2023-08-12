@@ -68,7 +68,7 @@ all:
 # from node_modules.
 #	cd $(srcDir) && cp -rf htdocs htdocs-backups
 #	cd $(srcDir) && $(MANAGE) collectstatic --noinput
-build-assets: $(ASSETS_DIR)/cache/base.css \
+build-assets: $(ASSETS_DIR)/cache/app.css \
               $(ASSETS_DIR)/cache/email.css \
               $(ASSETS_DIR)/cache/assess.js
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-dashboard.js $(ASSETS_DIR)/vendor
@@ -199,7 +199,7 @@ webpack-conf-paths.json: $(srcDir)/djaopsp/settings.py
 	cd $(srcDir) && $(MANAGE) generate_webpack_paths -o $@
 
 
-$(ASSETS_DIR)/cache/base.css: \
+$(ASSETS_DIR)/cache/app.css: \
         $(wildcard $(srcDir)/djaopsp/static/scss/vendor/bootstrap/*.scss) \
         $(wildcard $(srcDir)/djaopsp/static/scss/vendor/djaodjin/*.scss) \
         $(wildcard $(srcDir)/djaopsp/static/scss/vendor/*.scss) \

@@ -36,14 +36,22 @@ var practicesListMixin = {
             },
             prefix: this.$prefix ? this.$prefix : "",
             api_assessment_sample: this.$urls.api_assessment_sample,
+            normalizedScore: 0,
             // benchmark charts
             chartsLoaded: false,
             chartsAvailable: false,
             chartsAPIResp: null,
             charts: {},
+            avgNormalizedScore: 0,
+            highestNormalizedScore: 0,
+            getCompleteCb: 'contentLoaded'
         }
     },
     methods: {
+        contentLoaded: function() {
+            var vm = this;
+            vm.normalizedScore = vm.items.normalized_score;
+        },
         getEntries: function(prefix, indent, includeTag) {
             var vm = this;
             var results = [];
@@ -279,12 +287,14 @@ var practicesListMixin = {
                     return practice.extra.intrinsic_values['avg_value'];
                 }
                 let total = 0;
-                for( let idx = 0;
-                     idx < practice.extra.intrinsic_values.length; ++idx) {
-                    total += practice.extra.intrinsic_values[idx];
+                let nbIntrinsicValues = 0;
+                for( var key in practice.extra.intrinsic_values ) {
+                    if( practice.extra.intrinsic_values.hasOwnProperty(key) ) {
+                        total += practice.extra.intrinsic_values[key];
+                        ++nbIntrinsicValues;
+                    }
                 }
-                return Math.round(
-                    total / practice.extra.intrinsic_values.length);
+                return Math.round(total / nbIntrinsicValues);
             }
             return practice.extra.intrinsic_values[fieldName] || 0;
         },
@@ -548,9 +558,9 @@ var practicesListMixin = {
                 var chart = vm.charts[chartKey];
                 if( chart ) {
                     chart.destroy();
+                    vm.charts[chartKey] = null;
                 }
-                var element = document.querySelector(
-                    '[data-id="' + chartKey + '"]');
+                var element = vm.$el.querySelector('[data-id="' + chartKey + '"]');
                 if( element ) {
                     vm.charts[chartKey] = new Chart(
                         element,
@@ -731,7 +741,9 @@ var practicesListMixin = {
         if( vm.account_benchmark_url ) {
             vm.reqGet(vm.account_benchmark_url,
             function(resp) {
-                vm.chartsAPIResp = resp;
+                vm.avgNormalizedScore = resp.avg_normalized_score;
+                vm.highestNormalizedScore = resp.highest_normalized_score;
+                vm.chartsAPIResp = resp.results;
                 vm.chartsLoaded = true;
             });
             vm.buildSummaryChart();

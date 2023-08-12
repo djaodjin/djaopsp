@@ -16,7 +16,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models import Min, Case, When
+from django.db.models import Min, Case, When, Q, F
 from django.utils import translation
 from extended_templates.backends import get_email_backend
 from pages.helpers import ContentCut
@@ -475,10 +475,34 @@ def get_segments_candidates(campaign, visibility=None, owners=None):
     return []
 
 
-def get_summary_performance(sample):
-    if sample.campaign.slug == 'sustainability':
-        return [11, 16, 7, 3]
-    return []
+def get_summary_performance(improvement_sample):
+    if improvement_sample.campaign.slug == 'sustainability':
+        # natural answers
+        improvements = Answer.objects.filter(
+            Q(unit_id=F('question__default_unit_id')) |
+        Q(unit_id=F('question__default_unit__source_equivalences__target_id')),
+            sample=improvement_sample
+        ).select_related('question__content')
+        energy_ghg_emissions = 0
+        water = 0
+        waste = 0
+        for answer in improvements:
+            extra = answer.question.content.extra
+            if not extra:
+                continue
+            if 'Energy & GHG Emissions' in extra:
+                energy_ghg_emissions += 1
+            if 'Water' in extra:
+                water += 1
+            if 'Waste' in extra:
+                waste += 1
+        if energy_ghg_emissions or water or waste:
+            return {
+                'Energy & GHG Emissions': energy_ghg_emissions,
+                'Water': water,
+                'Waste': waste
+            }
+    return {}
 
 
 def get_latest_reminders(accounts, start_at=None, ends_at=None):

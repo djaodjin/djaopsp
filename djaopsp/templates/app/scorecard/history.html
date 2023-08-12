@@ -29,7 +29,7 @@
         </div>
         <!-- loaded, no data -->
         <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
-          {% trans %}No requests{% endtrans %}
+          {% trans %}No requests for{% endtrans %}
           <a href="{{urls.get_started|site_url}}sustainability/">ESG/Environmental practices</a>
         </div>
         <!-- loaded, items present -->
@@ -51,7 +51,7 @@
                   <div class="col-sm-4">
                   <a class="btn btn-primary my-2"
                      :href="_safeUrl('{{urls.get_started}}', campaign) + '/'"
-                     v-if="items.expected_behavior === 'create'">{% trans %}Create{% endtrans %}</a>
+                     v-if="items.expected_behavior === 'create'">{% trans %}Get started{% endtrans %}</a>
                   <a class="btn btn-primary my-2"
                      :href="_safeUrl('{{urls.get_started}}', campaign) + '/'"
                      v-if="items.expected_behavior !== 'create'">{% trans %}Update{% endtrans %}</a>

@@ -130,6 +130,15 @@ class CampaignContentMixin(CampaignMixin):
                     if 'extra' not in practices[prefix][0]:
                         practices[prefix][0].update({'extra': extra})
 
+        # Adds 'text' summaries for top-level tiles
+        summaries = PageElement.objects.filter(slug__in={val[0].get('slug')
+            for val in six.itervalues(by_tiles)}).values('slug', 'text')
+        for summary in summaries:
+            key = "%s%s" % (DB_PATH_SEP, summary.get('slug'))
+            text = summary.get('text')
+            if key in by_tiles:
+                by_tiles[key][0].update({'text': text})
+
         elements = flatten_content_tree(by_tiles, sort_by_key=False)
         headings = [element['slug'] for element in elements
             if 'title' not in element]

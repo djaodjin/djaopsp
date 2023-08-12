@@ -80,7 +80,7 @@ class AppView(AccountMixin, TemplateView):
         })
         if self.unlock_portfolios:
             update_context_urls(context, {
-                'portfolio_analyze': reverse('portfolio_analyze', args=(
+                'portfolio_track': reverse('portfolio_analyze', args=(
                     self.account,)),
                 'portfolio_engage': reverse('portfolio_engage', args=(
                     self.account,)),

@@ -240,6 +240,7 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         context.update({
             'sample': self.sample,
             'segments_available': self.segments_available,
+            'segments_candidates': self.segments_candidates,
         })
         if len(self.segments_available) == 1:
             path_parts = self.path.lstrip(URL_PATH_SEP).split(URL_PATH_SEP)
@@ -258,16 +259,21 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         improve_url = None
         # Allows grantee to access assess and improve pages (read-only).
         account = self.account
+        assess_url = reverse('assess_redirect',
+            args=(account, self.sample,))
+        improve_url = reverse('improve_redirect',
+            args=(account, self.sample,))
         if path:
             assess_url = reverse('assess_practices',
                 args=(account, self.sample, path))
-            improve_url = reverse('improve_practices',
-                args=(account, self.sample, path))
-        else:
-            assess_url = reverse('assess_redirect',
-                args=(account, self.sample,))
-            improve_url = reverse('improve_redirect',
-                args=(account, self.sample,))
+            for seg in self.segments_available:
+                # We insured that all candidates are the prefixed
+                # content node at this point.
+                extra = seg.get('extra')
+                if extra and extra.get('visibility'):
+                    improve_url = reverse('improve_practices', args=(
+                        self.sample.account, self.sample, path))
+                    break
         if assess_url:
             update_context_urls(context, {'assess': assess_url})
         if improve_url:

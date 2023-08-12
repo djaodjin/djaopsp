@@ -11,10 +11,10 @@
         <path
             class="arc-score"
             fill="#007040"
-            :d="topScoreBottomPath(practice.highest_normalized_score)"
+            :d="topScoreBottomPath(highestNormalizedScore)"
             />
         <text class="score-label" :x="4" :dy="-10" fill="white">
-            <textPath href="#topScorePath">top score ([[practice.highest_normalized_score]]%)</textPath>
+            <textPath href="#topScorePath">top score ([[highestNormalizedScore]]%)</textPath>
         </text>
     </g>
     <!-- average score arc -->
@@ -27,11 +27,11 @@
         <path
             class="arc-score"
             fill="#69b12b"
-            :d="avgScoreBottomPath(practice.avg_normalized_score)"
+            :d="avgScoreBottomPath(avgNormalizedScore)"
             />
         <text class="score-label" :x="4" :dy="-10" fill="white">
             <textPath href="#averageScorePath">
-                average ([[practice.avg_normalized_score]]%)
+                average ([[avgNormalizedScore]]%)
             </textPath>
         </text>
     </g>
@@ -45,15 +45,15 @@
         <path
             class="arc-score"
             fill="#9cd868"
-            :d="ownScoreBottomPath(practice.normalized_score)"
+            :d="ownScoreBottomPath(normalizedScore)"
             />
         <text class="score-label" x="4" dy="-10" fill="white">
-            <textPath href="#ownScorePath">you ([[practice.normalized_score]]%)</textPath>
+            <textPath href="#ownScorePath">you ([[normalizedScore]]%)</textPath>
         </text>
     </g>
     <g class="counter"
        :transform="'translate(' + (arcWidth / 2) + ', ' + arcHeight + ')'">
-        <text dx="-2.2rem" dy="-15">[[practice.normalized_score]]%</text>
+        <text dx="-2.2rem" dy="-15">[[normalizedScore]]%</text>
     </g>
   </svg>
 </div>

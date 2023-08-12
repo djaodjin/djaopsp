@@ -22,8 +22,9 @@ from survey.utils import get_account_model, get_benchmarks_enumerated
 from ..compat import reverse, six
 from ..mixins import SectionReportMixin
 from ..models import ScorecardCache, VerifiedAnswer, VerifiedSample
-from ..scores import freeze_scores, get_score_calculator
+from ..pagination import BenchmarksPagination
 from ..queries import get_scored_assessments
+from ..scores import freeze_scores, get_score_calculator
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignContentMixin
 from .rollups import GraphMixin, RollupMixin
@@ -550,12 +551,14 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
         if not hasattr(self, 'units'):
             self.units = {}
 
+        normalized_score = data[0].get('normalized_score')
         verified_sample = VerifiedSample.objects.filter(
             sample=self.sample).first()
 
         return http.Response(OrderedDict([
             ('count', len(data)),
             ('path', self.path),
+            ('normalized_score', normalized_score),
             ('verified_status', VerifiedSample.STATUSES[
                 verified_sample.verified_status if verified_sample
                 else VerifiedSample.STATUS_NO_REVIEW][1]),
@@ -732,58 +735,62 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
 
     .. code-block:: json
 
-        [{
-            "slug":"totals",
-            "title":"Total Score",
-            "nb_answers": 4,
-            "nb_questions": 4,
-            "nb_respondents": 2,
-            "numerator": 12.0,
-            "improvement_numerator": 8.0,
-            "denominator": 26.0,
-            "normalized_score": 46,
-            "improvement_score": 30,
-            "score_weight": 1.0,
-            "highest_normalized_score": 88,
-            "avg_normalized_score": 67,
-            "created_at":"2017-08-02T20:18:19.089",
-            "distribution": {
-                "y": [0, 1, 0, 1],
-                "x": ["0-25%", "25-50%", "50-75%", "75-100%"],
-                "organization_rate":"25-50%"
-            }
-         },
-         {
-            "slug":"energy-efficiency-management-basics",
-            "title":"Management",
-            "text":"/media/envconnect/management-basics.png",
-            "tag":"management",
-            "score_weight":1.0
-         },
-         {
-            "slug":"process-heating",
-            "title":"Process heating",
-            "text":"/media/envconnect/process-heating.png",
-            "nb_questions": 4,
-            "nb_answers": 4,
-            "nb_respondents": 2,
-            "numerator": 12.0,
-            "improvement_numerator": 8.0,
-            "denominator": 26.0,
-            "normalized_score": 46,
-            "improvement_score": 12,
-            "highest_normalized_score": 88,
-            "avg_normalized_score": 67,
-            "created_at": "2017-08-02T20:18:19.089",
-            "distribution": {
-                "y": [0, 1, 0, 1],
-                "x": [ "0-25%", "25-50%", "50-75%", "75-100%"],
-                "organization_rate": "25-50%"
-            },
-            "score_weight": 1.0
-         }]
+        {
+            "avg_normalized_score": 50,
+            "highest_normalized_score": 100,
+            "results": [{
+                "slug":"totals",
+                "title":"Total Score",
+                "nb_answers": 4,
+                "nb_questions": 4,
+                "nb_respondents": 2,
+                "numerator": 12.0,
+                "improvement_numerator": 8.0,
+                "denominator": 26.0,
+                "normalized_score": 46,
+                "improvement_score": 30,
+                "score_weight": 1.0,
+                "highest_normalized_score": 88,
+                "avg_normalized_score": 67,
+                "created_at":"2017-08-02T20:18:19.089",
+                "distribution": {
+                    "y": [0, 1, 0, 1],
+                    "x": ["0-25%", "25-50%", "50-75%", "75-100%"],
+                    "organization_rate":"25-50%"
+                }
+             },
+             {
+                "slug":"energy-efficiency-management-basics",
+                "title":"Management",
+                "text":"/media/envconnect/management-basics.png",
+                "tag":"management",
+                "score_weight":1.0
+             },
+             {
+                "slug":"process-heating",
+                "title":"Process heating",
+                "text":"/media/envconnect/process-heating.png",
+                "nb_questions": 4,
+                "nb_answers": 4,
+                "nb_respondents": 2,
+                "numerator": 12.0,
+                "improvement_numerator": 8.0,
+                "denominator": 26.0,
+                "normalized_score": 46,
+                "improvement_score": 12,
+                "highest_normalized_score": 88,
+                "avg_normalized_score": 67,
+                "created_at": "2017-08-02T20:18:19.089",
+                "distribution": {
+                    "y": [0, 1, 0, 1],
+                    "x": [ "0-25%", "25-50%", "50-75%", "75-100%"],
+                    "organization_rate": "25-50%"
+                },
+                "score_weight": 1.0
+             }]
+        }
     """
-    pagination_class = None
+    pagination_class = BenchmarksPagination
     account_model = get_account_model()
     serializer_class = SampleBenchmarksSerializer
 
@@ -814,10 +821,12 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
         queryset = self.filter_queryset(self.get_queryset())
         self.decorate_queryset(queryset)
 
-        # Ready to serialize
-        serializer = self.get_serializer_class()(
-            queryset, many=True, context=self.get_serializer_context())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
+        serializer = self.get_serializer(queryset, many=True)
         self._report_queries("SampleBenchmarksAPIView.list done")
         return http.Response(serializer.data)
 
@@ -835,29 +844,31 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
             if score.segment_path:
                 self._insert_in_tree(
                     self.scores_tree, score.segment_path, score)
-        self._report_queries("rollup_scores completed")
+        self._report_queries("frozen scorecards inserted")
+
+        if not self.sample.is_frozen:
+            # If we have a work-in-progress assessment, let's compute
+            # the score as it would show up Today and insert it in the tree
+            # such that `organization_rate` is computed correctly.
+            # Note that if a previously frozen sample score already exists
+            # it will be present in the tree. We need to override it.
+            for segment_path, segment_values in six.iteritems(self.scores_tree):
+                title = segment_values[0].get('title')
+                score_calculator = get_score_calculator(segment_path)
+                if score_calculator:
+                    for score in score_calculator.get_scorecards(
+                            self.campaign, segment_path, title=title,
+                            includes=[self.sample]):
+                        self._insert_in_tree(
+                            self.scores_tree, score.path, score)
+        self._report_queries("(optional) active sample scores inserted")
+
         self.create_distributions(
             self.scores_tree, view_account_id=self.account.pk)
         self._report_queries("create_distributions completed")
         charts, unused_segment_complete = self.flatten_distributions(
             self.scores_tree)
         self._report_queries("flatten_distributions completed")
-
-        if not self.sample.is_frozen:
-            for segment_path, segment_values in six.iteritems(self.scores_tree):
-                title = segment_values[0].get('title')
-                score_calculator = get_score_calculator(segment_path)
-                if score_calculator:
-                    for scorecard_cache in score_calculator.get_scorecards(
-                            self.campaign, segment_path, title=title,
-                            includes=[self.sample]):
-                        for chart in charts:
-                            path = chart.get('path')
-                            if scorecard_cache.path == path:
-                                chart.update({'normalized_score':
-                                    scorecard_cache.normalized_score})
-                                break
-        self._report_queries("sample scorecard_cache computed")
 
         for question in queryset:
             question_path = question.get('path')
@@ -880,6 +891,8 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
                             chart.get('highest_normalized_score')
                     })
                     break
+        self._report_queries("merge into JSON response completed")
+
 
 
 class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
@@ -902,58 +915,61 @@ class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
 
     .. code-block:: json
 
-        [{
-            "slug":"totals",
-            "title":"Total Score",
-            "nb_answers": 4,
-            "nb_questions": 4,
-            "nb_respondents": 2,
-            "numerator": 12.0,
-            "improvement_numerator": 8.0,
-            "denominator": 26.0,
-            "normalized_score": 46,
-            "improvement_score": 30,
-            "score_weight": 1.0,
-            "highest_normalized_score": 88,
-            "avg_normalized_score": 67,
-            "created_at":"2017-08-02T20:18:19.089",
-            "distribution": {
-                "y": [0, 1, 0, 1],
-                "x": ["0-25%", "25-50%", "50-75%", "75-100%"],
-                "organization_rate":"25-50%"
-            }
-         },
-         {
-            "slug":"energy-efficiency-management-basics",
-            "title":"Management",
-            "text":"/media/envconnect/management-basics.png",
-            "tag":"management",
-            "score_weight":1.0
-         },
-         {
-            "slug":"process-heating",
-            "title":"Process heating",
-            "text":"/media/envconnect/process-heating.png",
-            "nb_questions": 4,
-            "nb_answers": 4,
-            "nb_respondents": 2,
-            "numerator": 12.0,
-            "improvement_numerator": 8.0,
-            "denominator": 26.0,
-            "normalized_score": 46,
-            "improvement_score": 12,
-            "highest_normalized_score": 88,
-            "avg_normalized_score": 67,
-            "created_at": "2017-08-02T20:18:19.089",
-            "distribution": {
-                "y": [0, 1, 0, 1],
-                "x": [ "0-25%", "25-50%", "50-75%", "75-100%"],
-                "organization_rate": "25-50%"
-            },
-            "score_weight": 1.0
-         }]
+        {
+            "avg_normalized_score": 50,
+            "highest_normalized_score": 100,
+            "results": [{
+                "slug":"totals",
+                "title":"Total Score",
+                "nb_answers": 4,
+                "nb_questions": 4,
+                "nb_respondents": 2,
+                "numerator": 12.0,
+                "improvement_numerator": 8.0,
+                "denominator": 26.0,
+                "normalized_score": 46,
+                "improvement_score": 30,
+                "score_weight": 1.0,
+                "highest_normalized_score": 88,
+                "avg_normalized_score": 67,
+                "created_at":"2017-08-02T20:18:19.089",
+                "distribution": {
+                    "y": [0, 1, 0, 1],
+                    "x": ["0-25%", "25-50%", "50-75%", "75-100%"],
+                    "organization_rate":"25-50%"
+                }
+             },
+             {
+                "slug":"energy-efficiency-management-basics",
+                "title":"Management",
+                "text":"/media/envconnect/management-basics.png",
+                "tag":"management",
+                "score_weight":1.0
+             },
+             {
+                "slug":"process-heating",
+                "title":"Process heating",
+                "text":"/media/envconnect/process-heating.png",
+                "nb_questions": 4,
+                "nb_answers": 4,
+                "nb_respondents": 2,
+                "numerator": 12.0,
+                "improvement_numerator": 8.0,
+                "denominator": 26.0,
+                "normalized_score": 46,
+                "improvement_score": 12,
+                "highest_normalized_score": 88,
+                "avg_normalized_score": 67,
+                "created_at": "2017-08-02T20:18:19.089",
+                "distribution": {
+                    "y": [0, 1, 0, 1],
+                    "x": [ "0-25%", "25-50%", "50-75%", "75-100%"],
+                    "organization_rate": "25-50%"
+                },
+                "score_weight": 1.0
+             }]
+        }
     """
-    # XXX change `resp` to a {count:, results:} format.
 
 
 def attach_answers(units, questions_by_key, queryset,
