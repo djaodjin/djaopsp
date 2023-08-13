@@ -266,14 +266,8 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         if path:
             assess_url = reverse('assess_practices',
                 args=(account, self.sample, path))
-            for seg in self.segments_available:
-                # We insured that all candidates are the prefixed
-                # content node at this point.
-                extra = seg.get('extra')
-                if extra and extra.get('visibility'):
-                    improve_url = reverse('improve_practices', args=(
-                        self.sample.account, self.sample, path))
-                    break
+            improve_url = reverse('improve_practices',
+                args=(account, self.sample, path))
         if assess_url:
             update_context_urls(context, {'assess': assess_url})
         if improve_url:

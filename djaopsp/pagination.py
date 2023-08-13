@@ -15,8 +15,11 @@ class BenchmarksPagination(BasePagination):
     def paginate_queryset(self, queryset, request, view=None):
         #pylint:disable=attribute-defined-outside-init
         self.view = view
-        self.avg_normalized_score = queryset[0].get('avg_normalized_score')
-        self.highest_normalized_score = queryset[0].get('highest_normalized_score')
+        self.avg_normalized_score = None
+        self.highest_normalized_score = None
+        if queryset:
+            self.avg_normalized_score = queryset[0].get('avg_normalized_score')
+            self.highest_normalized_score = queryset[0].get('highest_normalized_score')
         return queryset
 
     def get_paginated_response(self, data):
