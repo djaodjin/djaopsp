@@ -128,15 +128,19 @@ makemessages:
 package-docker: build-assets package-docker-initdb
 	cd $(srcDir) && echo $(DOCKER) build .
 
-
+# we remove the build directory to make sure we don't have extra files remaining
+# when we excluded them in the package_theme command line. We also insures
+# we are not removing important directories in the src tree by running
+# the condition: `[ "$(abspath $(objDir))" != "$(abspath $(srcDir))" ]`.
 package-theme: build-assets
+	[ "$(abspath $(objDir))" != "$(abspath $(srcDir))" ] && rm -rf $(objDir)/$(APP_NAME)
 	cd $(srcDir) && DEBUG=0 FEATURES_REVERT_TO_DJANGO=0 \
 		$(MANAGE) package_theme \
 		--build_dir=$(objDir) --install_dir=htdocs/themes \
-		--exclude='_form.html' --exclude='.*/' \
-		--include='accounts/' --include='docs/' \
-		--include='notification/'
-	zip -d $(srcDir)/htdocs/themes/$(APP_NAME).zip "$(APP_NAME)/templates/accounts/base.html"
+		--exclude='_form.html' --exclude='_form_fields.html' \
+		--exclude='_params_start_at_field.html' \
+		--exclude='_params_ends_at_field.html' --exclude='_filter.html' \
+		--exclude='_pagination.html' --exclude='.*/'
 
 
 # Once tests are completed, run 'coverage report'.
