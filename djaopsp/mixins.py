@@ -38,7 +38,7 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
     def is_auditor(self):
         accessible_audits = set([
             org['slug'] for org in self.get_accessible_profiles(
-                self.request, roles=['auditor'])])
+                self.request, roles=[settings.AUDITOR_ROLE])])
         if True:
             return accessible_audits & settings.UNLOCK_BROKERS
         broker = self.request.session.get('site', {}).get('slug')

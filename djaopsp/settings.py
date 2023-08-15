@@ -558,6 +558,7 @@ SCORE_CALCULATORS = {
     '/sustainability/': 'djaopsp.scores.ScoreCalculator',
 }
 
+AUDITOR_ROLE = 'auditor'
 UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members'])
 UNLOCK_EDITORS = set(['managed'])
 UNLOCK_BROKERS = set([APP_NAME])
