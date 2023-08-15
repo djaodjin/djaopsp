@@ -179,7 +179,7 @@
                          v-if="chartsAvailable && !charts[practice.path]">
                       <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
                     </div>
-                    <canvas :data-id="practice.path" v-show="charts[practice.path]"></canvas>
+                    <canvas :data-id="practice.path" v-show="isChartAvailable(practice)"></canvas>
                   </div>
                 </div>{# /.col-md-8 #}
                 <div class="col-md-4">

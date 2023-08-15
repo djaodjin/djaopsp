@@ -608,7 +608,7 @@ scorecards AS (
     ON %(scorecardcache_table)s.sample_id = survey_sample.id
   INNER JOIN segments
     ON %(scorecardcache_table)s.path = segments.path
-  WHERE survey_sample.created_at < '%(ends_at)s'
+  WHERE survey_sample.created_at <= '%(ends_at)s' -- '<=' bc `organization_rate`
   GROUP BY segments.path, segments.title, survey_sample.account_id
 )
 SELECT
@@ -645,7 +645,7 @@ INNER JOIN survey_sample
   ON survey_sample.id = %(scorecardcache_table)s.sample_id AND
      survey_sample.account_id = scorecards.account_id AND
      survey_sample.created_at = scorecards.created_at
-WHERE survey_sample.created_at < '%(ends_at)s'
+WHERE survey_sample.created_at <= '%(ends_at)s' -- '<=' bc `organization_rate`
 """ % {
     'ends_at': ends_at.isoformat(),
     'segments_query': segments_query,

@@ -555,13 +555,12 @@ var practicesListMixin = {
             var chartKeys = [data.path, '/summary' + data.path];
             for( var idx = 0; idx < chartKeys.length; ++idx ) {
                 var chartKey = chartKeys[idx];
-                var chart = vm.charts[chartKey];
-                if( chart ) {
-                    chart.destroy();
-                    vm.charts[chartKey] = null;
-                }
                 var element = vm.$el.querySelector('[data-id="' + chartKey + '"]');
                 if( element ) {
+                    if( vm.charts[chartKey] ) {
+                        vm.charts[chartKey].destroy();
+                        vm.charts[chartKey] = null;
+                    }
                     vm.charts[chartKey] = new Chart(
                         element,
                         {
@@ -599,10 +598,15 @@ var practicesListMixin = {
                     vm.charts[chartKey] = {}; // to add `nb_respondents`
                 }
                 if( data.nb_respondents ) {
-                    vm.charts[chartKey].nb_respondents =
-                        data.nb_respondents;
+                    if( vm.charts[chartKey] ) {
+                        vm.charts[chartKey].nb_respondents =
+                            data.nb_respondents;
+                    }
                 }
             }
+        },
+        isChartAvailable: function (practice) {
+            return practice.path in this.charts;
         },
         buildCharts: function(resp) {
             var vm = this;

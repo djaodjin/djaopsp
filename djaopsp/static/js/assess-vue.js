@@ -995,13 +995,11 @@ Vue.component('scorecard', {
     },
     watch: {
         itemsLoaded: function (val) {
+            // This method does not override the implementation
+            // in `practicesListMixin`. Instead it runs both alongside each
+            // other.
             var vm = this;
             vm.verificationStatus = vm.items.verified_status;
-            if( vm.chartsLoaded ) {
-                setTimeout(function() {
-                    vm.buildCharts(vm.chartsAPIResp);
-                }, 5000);
-            }
         },
     }
 });
