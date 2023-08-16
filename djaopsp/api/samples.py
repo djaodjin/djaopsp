@@ -551,7 +551,8 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
         if not hasattr(self, 'units'):
             self.units = {}
 
-        normalized_score = data[0].get('normalized_score')
+        normalized_score = data[0].get('normalized_score') if data else None
+
         verified_sample = VerifiedSample.objects.filter(
             sample=self.sample).first()
 
