@@ -243,7 +243,9 @@
                   {% endif %}
                 </div>
               </div>{# /.row #}
-              <div v-if="isDataMetricsHeader(practice)">
+
+              {# different layout for differnt type of questions. #}
+              <div v-if="isDataMetricsHeader(practice)" :class="practiceStyle(practice)">
                 <table class="table table-bordered table-striped">
                   <tr class="text-right">
                     <th></th>
@@ -265,7 +267,7 @@
               </div>{# /.isDataMetricsHeader #}
             </div>{# /!isChartHeading(practice) && !isPractice(practice) - i.e. regular heading #}
 
-            <div v-if="isEnumUnit(practice)">
+            <div v-if="isEnumUnit(practice)" :class="practiceStyle(practice)">
               <div>
               <div class="row">
                 <div class="col-md-8">
@@ -319,17 +321,10 @@
                   </p>
                 </div>
               </div>{# /.row assessment #}
-              {% if verification_enabled %}
-              <div class="row">
-                <div class="col-md-8">
-                  {% include "app/scorecard/_verification_comments.html" %}
-                </div>
-              </div>
-              {% endif %}
-              </div>
+              </div> {# dummy div #}
             </div>{# /isEnumUnit(practice) #}
 
-            <div v-if="isFreetextUnit(practice)">
+            <div v-if="isFreetextUnit(practice)" :class="practiceStyle(practice)">
               <div>
               <div class="row">
                 <div class="col-md-8">
@@ -343,12 +338,12 @@
                 <div class="col-md-4">
                   <div
                     :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                    v-if="practice.answers.length === 0">
+                    v-if="practice.answers && practice.answers.length === 0">
                     &dash;
                   </div>
                   <div v-for="answer in practice.answers"
                        v-if="practice.answers.length > 0">
-                    <div v-if="answer.measured">
+                    <div v-if="practice.answers && answer.measured">
                       [[answer.measured]]
                     </div>
                     <div v-if="!answer.measured">
@@ -357,17 +352,10 @@
                   </div>
                 </div>
               </div>{# /.row assessment answer #}
-              {% if verification_enabled %}
-              <div class="row">
-                <div class="col-md-8">
-                  {% include "app/scorecard/_verification_comments.html" %}
-                </div>
-              </div>
-              {% endif %}
               </div>
             </div>{# /isFreetextUnit(practice) #}
 
-            <div v-if="isEmployeeCountUIHint(practice)">
+            <div v-if="isEmployeeCountUIHint(practice)" :class="practiceStyle(practice)">
               <div class="row">
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
@@ -380,10 +368,10 @@
                 <div class="col-md-4">
                   <div
                     :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                    v-if="practice.answers.length === 0">
+                    v-if="practice.answers && practice.answers.length === 0">
                     &dash;
                   </div>
-                  <div v-if="practice.answers.length > 0">
+                  <div v-if="practice.answers && practice.answers.length > 0">
                     <span v-if="getPrimaryAnswer(practice).measured === '0'">0-10 employees</span>
                     <span v-if="getPrimaryAnswer(practice).measured === '11'">11-50 employees</span>
                     <span v-if="getPrimaryAnswer(practice).measured === '51'">51-200 employees</span>
@@ -397,7 +385,7 @@
               </div>
             </div>{# /isEmployeeCountUIHint(practice) #}
 
-            <div v-if="isNumberUnit(practice)">
+            <div v-if="isNumberUnit(practice)" :class="practiceStyle(practice)">
               <div class="row">
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
@@ -410,11 +398,11 @@
                 <div class="col-md-4">
                   <div
                     :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                    v-if="practice.answers.length === 0">
+                    v-if="practice.answers && practice.answers.length === 0">
                     &dash;
                   </div>
                   <div v-for="answer in practice.answers"
-                       v-if="practice.answers.length > 0">
+                       v-if="practice.answers && practice.answers.length > 0">
                     <div v-if="answer.measured">
                       <span v-if="answer.unit === 'percentage'">
                       [[answer.measured]]%
@@ -439,7 +427,7 @@
               </div>
             </div>{# /isNumberUnit(practice) #}
 
-            <div v-if="isDatetimeUnit(practice)">
+            <div v-if="isDatetimeUnit(practice)" :class="practiceStyle(practice)">
               <div class="row">
                 <div class="col-md-8">
                   <div :class="indentHeader(practice) + ' mt-2'">
@@ -452,12 +440,12 @@
                 <div class="col-md-4">
                   <div
                     :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                    v-if="practice.answers.length === 0">
+                    v-if="practice.answers && practice.answers.length === 0">
                     &dash;
                   </div>
                   <div
                     :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                    v-if="practice.answers.length > 0">
+                    v-if="practice.answers && practice.answers.length > 0">
                     <strong>[[getPrimaryAnswer(practice).measured ? getPrimaryAnswer(practice).measured : "-"]]</strong>
                   </div>
                   <p @click.prevent="openLink($event)"

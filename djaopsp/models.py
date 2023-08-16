@@ -86,51 +86,15 @@ class VerifiedSample(models.Model):
 
     sample = models.OneToOneField(Sample, on_delete=models.CASCADE,
         related_name='verified')
+    verifier_notes = models.OneToOneField(Sample, on_delete=models.CASCADE,
+        related_name='notes')
     verified_status = models.PositiveSmallIntegerField(
         choices=STATUSES, default=STATUS_NO_REVIEW,
         help_text=_("Verification Status"))
     verified_by = models.ForeignKey(django_settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT)
+        null=True, on_delete=models.PROTECT)
     extra = get_extra_field_class()(null=True, blank=True,
         help_text=_("Extra meta data (can be stringify JSON)"))
 
     def __str__(self):
         return str(self.sample.slug)
-
-
-@python_2_unicode_compatible
-class VerifiedAnswer(models.Model):
-    """
-    Notes from auditor about an answer
-    """
-    answer = models.OneToOneField(Answer, on_delete=models.CASCADE,
-        related_name='verified_answer')
-    created_at = models.DateTimeField(_('date/time submitted'),
-        default=None, db_index=True)
-    text = models.TextField(_('text'),
-        max_length=pages_settings.COMMENT_MAX_LENGTH)
-    verified_by = models.ForeignKey(django_settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT)
-
-    def __str__(self):
-        return '%s-%d' % (self.answer.sample.slug, self.answer.rank)
-
-    @property
-    def collected_by(self):
-        return self.verified_by
-
-    @property
-    def question(self):
-        return self.answer.question
-
-    @property
-    def measured_text(self):
-        return self.text
-
-    @property
-    def rank(self):
-        return self.answer.rank
-
-    @property
-    def unit(self):
-        return self.answer.unit

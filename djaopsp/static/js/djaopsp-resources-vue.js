@@ -660,6 +660,15 @@ var practicesListMixin = {
                 y: centerY + (radius * Math.sin(angleInRadians))
             };
         },
+        practiceStyle: function(practice) {
+            var vm = this;
+            if( practice.extra &&
+                practice.extra.tags &&
+                practice.extra.tags.includes('verify') ) {
+                return 'verifier-notes';
+            }
+            return '';
+        },
         topScoreBottomPath: function(percentage) {
             // path drawing percentage
             return this.describeArc(this.arcWidth / 2, 0,

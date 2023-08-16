@@ -16,7 +16,7 @@ from survey.settings import DB_PATH_SEP
 from survey.utils import get_question_model
 
 from ..compat import is_authenticated, six
-from ..models import VerifiedAnswer, VerifiedSample
+from ..models import VerifiedSample
 from .serializers import AssessmentNodeSerializer, VerifiedSampleSerializer
 from .samples import AssessmentContentMixin, attach_answers
 
@@ -258,51 +258,6 @@ class VerifierNotesAPIView(AssessmentContentMixin, generics.ListCreateAPIView):
         #pylint:disable=useless-super-delegation
         return super(VerifierNotesAPIView, self).post(
             request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        #pylint:disable=unused-argument,too-many-locals,too-many-statements
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
-        if not isinstance(serializer.validated_data, list):
-            validated_data = [serializer.validated_data]
-
-        user = self.request.user if is_authenticated(self.request) else None
-        created_at = datetime_or_now()
-        at_least_one_created = False
-        results = []
-        errors = []
-
-        for datapoint in validated_data:
-            measured = datapoint.get('measured', None)
-            if not measured:
-                continue
-            defaults = {
-                'created_at': created_at,
-                'verified_by': user,
-                'text': measured
-            }
-            answer = Answer.objects.get(
-                Q(unit=self.question.default_unit) |
-                Q(unit__in=UnitEquivalences.objects.filter(
-                    source=self.question.default_unit).values('target')),
-                sample=self.sample,
-                question=self.question)
-            verified_answer, created = \
-                VerifiedAnswer.objects.update_or_create(
-                    defaults=defaults, answer=answer)
-            results += [verified_answer]
-            if created:
-                at_least_one_created = True
-        if errors:
-            raise ValidationError(errors)
-
-        serializer = self.get_serializer(results, many=True)
-        headers = self.get_success_headers(serializer.data)
-        return http.Response(serializer.data,
-            status=http_status.HTTP_201_CREATED if at_least_one_created
-                else http_status.HTTP_200_OK,
-            headers=headers)
 
 
 class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):

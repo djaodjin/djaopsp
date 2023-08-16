@@ -1,4 +1,4 @@
-<tr :id="practice.slug">
+<tr :id="practice.slug" :class="practiceStyle(practice)">
 <td colspan="6"
     :class="isRequiredShown(practice) ? 'practice-required' : (isRequiredAnswered(practice) ? 'practice-required-answered' : '')">
   <div style="display:inline-block;">
