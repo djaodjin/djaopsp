@@ -14,14 +14,14 @@ from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
     SampleFreezeAPIView)
 from survey.api.matrix import SampleBenchmarkMixin
 from survey.mixins import SampleMixin, TimersMixin
-from survey.models import Choice, Sample, Unit, UnitEquivalences
+from survey.models import Campaign, Choice, Sample, Unit, UnitEquivalences
 from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_benchmarks_enumerated
 
 from ..compat import reverse, six
 from ..mixins import SectionReportMixin
-from ..models import ScorecardCache, VerifiedAnswer, VerifiedSample
+from ..models import ScorecardCache, VerifiedSample
 from ..pagination import BenchmarksPagination
 from ..queries import get_scored_assessments
 from ..scores import freeze_scores, get_score_calculator
@@ -50,11 +50,16 @@ class SampleNotesMixin(SampleMixin):
             prefix = self.path
         if not sample:
             sample = self.sample
-        return VerifiedAnswer.objects.filter(
-            answer__sample=self.sample,
-            answer__question__path__startswith=prefix).prefetch_related(
-            'answer__unit', 'answer__question',
-            'answer__question__default_unit')
+        verified_sample = VerifiedSample.objects.filter(
+            sample=self.sample).first()
+        if not verified_sample:
+            with transaction.atomic():
+                verifier_notes = Sample.objects.create(
+                    campaign=Campaign.objects.get(slug='%s-verified' % str(self.sample.campaign)))
+                verified_sample = VerifiedSample.objects.create(
+                    sample=self.sample, verifier_notes=verifier_notes)
+        return self.get_answers(
+            prefix=prefix, sample=verified_sample.verifier_notes)
 
 
 class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
