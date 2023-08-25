@@ -58,7 +58,7 @@ SECRET_KEY ?= $(shell $(PYTHON) -c 'import sys ; from random import choice ; sys
 DJAODJIN_SECRET_KEY ?= $(shell $(PYTHON) -c 'import sys ; from random import choice ; sys.stdout.write("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@\#$%^*-_=+") for i in range(50)]))' )
 
 
-.PHONY: build-assets doc generateschema initdb makemessages package-docker vendor-assets-prerequisites
+.PHONY: build-assets doc generateschema initdb makemessages package-docker setup-livedemo vendor-assets-prerequisites
 
 all:
 	@echo "Nothing to be done for 'make'."
@@ -108,6 +108,7 @@ initdb:
 		djaopsp/fixtures/samples.json \
 		djaopsp/fixtures/100-completed-notshared.json
 
+setup-livedemo: package-docker-initdb
 
 # We build a local sqlite3 database to be packaged with the Docker image
 # such that the container can be started without prior configuration.
