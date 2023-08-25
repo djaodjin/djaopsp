@@ -24,7 +24,7 @@ WORKDIR /app/reps/djaopsp
 #    Installs the preprequisites used for debugging (DEBUG=1, API_DEBUG=1)
 #    so we don't have to rebuild a container to investigate when something
 #    goes wrong.
-RUN /app/bin/pip install -r requirements.txt -r dev-requirements.txt
+RUN /app/bin/pip install -r requirements.txt
 
 # Create local configuration files
 RUN /bin/mkdir -p /etc/djaopsp
