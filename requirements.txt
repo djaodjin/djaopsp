@@ -21,13 +21,33 @@ cryptography==38.0.3    # for pyOpenSSL 22.1.0 compatibility
 psycopg2-binary==2.9.3
 setproctitle==1.2.3
 
+# Dev and Deploy
+# --------------
+# To run with DEBUG=1
+django-debug-toolbar==3.5.0       # 3.4.0 requires Django>=3.2
+                                  # 3.2.4 fails with SQLPanel is not scriptable
+                                  # 2.2.1 is the last version for Django2.2
+                                  # 1.11 does not support Django 2.2
+
 # We cannot build the assets (i.e. webpack-conf-paths.json) unless DEBUG=1
 # and django-extensions is installed.
-django-extensions==3.2.0          # 3.2.0 required by Django==4.0
+django-extensions==3.2.0          # required by Django==4.0
+Faker==2.0.0
+sqlparse==0.4.2                   # required by django-debug-toolbar
+                                  # without being a prerequisite
 
-# To generate API docs
+# To run with API_DEBUG=1
+docutils==0.18.1
+
+# static analysis
+pylint==2.14.5
+pylint-django==2.0.15
+
+# To generate documentation (Read-the-docs and API reference)
 coreapi==2.3.3
-docutils==0.15.2  # botocore has a constraint: docutils<0.16
 drf-yasg==1.8.0
 Pygments==2.12.0
+pyyaml==6.0
+Sphinx==3.1.2
+sphinxcontrib-httpdomain==1.7.0
 uritemplate==4.1.1
