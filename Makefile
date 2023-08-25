@@ -115,7 +115,14 @@ setup-livedemo: package-docker-initdb
 package-docker-initdb:
 	-[ -f $(DOCKER_DB_FILENAME) ] && rm -f $(DOCKER_DB_FILENAME)
 	cd $(srcDir) && DB_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) migrate $(RUNSYNCDB) --noinput
-	cd $(srcDir) && DB_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) loadfixtures djaopsp/fixtures/default-db.json
+	cd $(srcDir) && DB_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) loadfixtures \
+		djaopsp/fixtures/accounts.json \
+		djaopsp/fixtures/content.json \
+		djaopsp/fixtures/practices.json \
+		djaopsp/fixtures/practices_custom_choices.json \
+		djaopsp/fixtures/matrices.json \
+		djaopsp/fixtures/samples.json \
+		djaopsp/fixtures/100-completed-notshared.json
 
 
 install:: install-conf
