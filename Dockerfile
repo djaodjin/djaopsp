@@ -1,10 +1,10 @@
-FROM python:3.9-slim-bullseye
-# As of 2021-10-04: Python 3.9.7, Debian 11.0 (Bullseye)
-# RUN which python3
-# RUN python3 --version
-# RUN cat /etc/debian_version
+FROM python:3.10-slim-bullseye
+# As of 2023-04-21: Python 3.10.11, Debian 11.0 (Bullseye)
 
 LABEL org.opencontainers.image.source https://github.com/djaodjin/djaopsp
+
+# Print version info for build log
+RUN echo "Building with" `python --version` '('`which python`')' "on Debian" `cat /etc/debian_version` "(Bullseye Slim)..."
 
 #     Without the following line we have trouble fetching libxml2
 RUN apt-get clean all
