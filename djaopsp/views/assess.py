@@ -352,7 +352,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
             self.sample.created_at.strftime("%Y-%m-%d")]
 
 
-    def format_row(self, entry):
+    def format_row(self, entry, key=None):
         #pylint:disable=too-many-locals
         default_unit = entry.get('default_unit', {})
         default_unit_choices = []

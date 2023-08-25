@@ -25,8 +25,7 @@ from survey.models import Answer, EditableFilter, PortfolioDoubleOptIn, Sample
 from survey.pagination import MetricsPagination
 from survey.queries import as_sql_date_trunc_year, datetime_or_now
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
-from survey.utils import (get_accessible_accounts, get_account_model,
-    get_question_model)
+from survey.utils import get_accessible_accounts, get_account_model
 
 from .campaigns import CampaignContentMixin
 from ..compat import reverse, six
@@ -393,14 +392,8 @@ class SupplierListMixin(ScoresMixin, AccountsNominativeQuerysetMixin):
                 report_summary.verified_by = None
         self._report_queries("report summaries updated with scores")
 
-    def get_nb_questions_per_segment(self):
-        nb_questions_per_segment = {}
-        for segment in get_segments_candidates(self.campaign):
-            nb_questions = get_question_model().objects.filter(
-                path__startswith=segment.path).count()
-            nb_questions_per_segment.update({segment.path: nb_questions})
-        return nb_questions_per_segment
-
+    def get_queryset(self):
+        return self.get_scored_samples()
 
     def paginate_queryset(self, queryset):
         page = super(SupplierListMixin, self).paginate_queryset(queryset)

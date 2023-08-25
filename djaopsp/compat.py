@@ -1,4 +1,4 @@
-# Copyright (c) 2021, DjaoDjin inc.
+# Copyright (c) 2023, DjaoDjin inc.
 # see LICENSE
 
 #pylint: disable=no-name-in-module,unused-import,import-error,bad-except-order
@@ -40,6 +40,16 @@ try:
     from django.template.context_processors import csrf
 except ImportError: # django < 1.8
     from django.core.context_processors import csrf
+
+
+try:
+    if six.PY3:
+        from django.utils.encoding import force_str
+    else:
+        from django.utils.encoding import force_text as force_str
+except ImportError: # django < 3.0
+    from django.utils.encoding import force_text as force_str
+
 
 try:
     from django.utils.module_loading import import_string

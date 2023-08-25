@@ -4,8 +4,7 @@
 from django.conf import settings as django_settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from pages import settings as pages_settings
-from survey.models import Answer, Sample, get_extra_field_class
+from survey.models import Sample, get_extra_field_class
 
 from .compat import python_2_unicode_compatible
 

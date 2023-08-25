@@ -3,19 +3,15 @@
 
 import logging
 
-from django.db.models import Q
-from rest_framework import generics, response as http, status as http_status
+from rest_framework import generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework.exceptions import ValidationError
 
 from survey.api.serializers import AnswerSerializer
-from survey.models import Answer, UnitEquivalences
-from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_question_model
 
-from ..compat import is_authenticated, six
+from ..compat import six
 from ..models import VerifiedSample
 from .serializers import AssessmentNodeSerializer, VerifiedSampleSerializer
 from .samples import AssessmentContentMixin, attach_answers

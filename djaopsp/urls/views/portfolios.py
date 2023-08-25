@@ -11,7 +11,7 @@ from ...views.portfolios import (
     CompletedAssessmentsRawXLSXView, CompletionRatePPTXView,
     DashboardRedirectView, EngagementStatsPPTXView,
     PortfolioAccessiblesView, PortfolioEngagementView,
-    PortfolioResponsesView, PortfolioResponsesXLSXView,
+    PortfolioResponsesView,
     PortfoliosDetailView, ReportingDashboardView)
 from ...downloads.reporting import (BenchmarkPPTXView, FullReportPPTXView,
     LongFormatCSVView, PortfolioAccessiblesXLSXView,
@@ -78,9 +78,6 @@ urlpatterns = [
     path('reporting/<slug:campaign>/matrix/<path:path>/',
         PortfoliosDetailView.as_view(), name='matrix_chart'),
 
-    path('reporting/<slug:campaign>/retiring/download/',
-        PortfolioResponsesXLSXView.as_view(),
-        name='portfolio_responses_download'),
     path('reporting/<slug:campaign>/retiring/',
         PortfolioResponsesView.as_view(),
         name='portfolio_responses'),

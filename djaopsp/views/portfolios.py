@@ -2,13 +2,11 @@
 # see LICENSE.
 
 import datetime, io, json, logging, os, re
-from collections import OrderedDict
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -29,10 +27,9 @@ from survey.settings import URL_PATH_SEP
 
 from ..api.portfolios import (DashboardAggregateMixin,
     CompletedAssessmentsMixin, CompletionRateMixin,
-    EngagementStatsMixin, SupplierListMixin)
+    EngagementStatsMixin)
 from ..api.rollups import GraphMixin
-from ..api.serializers import ReportingSerializer
-from ..compat import reverse, six
+from ..compat import reverse
 from ..helpers import as_valid_sheet_title
 from ..mixins import (AccountMixin, CampaignMixin,
     AccountsAggregatedQuerysetMixin)
@@ -297,176 +294,6 @@ class PortfolioResponsesView(MenubarMixin, DashboardMixin, TemplateView):
             'account_extra': json.dumps(self.account.extra),
         })
         return context
-
-
-class PortfolioResponsesXLSXView(SupplierListMixin, TemplateView):
-    """
-    Download scores of all reporting entities as an Excel spreadsheet.
-    """
-    content_type = \
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    basename = 'dashboard'
-
-    headings = OrderedDict([
-        ('printable_name', 'Supplier name'),
-        ('categories', 'Categories'),
-        ('contact_name', 'Contact name'),
-        ('email', 'Contact email'),
-        ('phone', 'Contact phone'),
-        ('last_activity_at', 'Last activity'),
-        ('reporting_status', 'Status'),
-        ('last_completed_at', 'Last completed'),
-        ('segment', 'Industry segment'),
-        ('normalized_score', 'Score'),
-        ('nb_na_answers', '# N/A'),
-        ('reporting_publicly', 'Reporting publicly'),
-        ('reporting_fines', 'Environmental fines'),
-        ('nb_planned_improvements', '# Planned actions'),
-
-        ('reporting_energy_consumption', 'Energy measured'),
-        ('reporting_ghg_generated', 'GHG Emissions measured'),
-        ('reporting_water_consumption', 'Water measured'),
-        ('reporting_waste_generated', 'Waste measured'),
-        ('reporting_energy_target', 'Energy targets'),
-        ('reporting_ghg_target', 'GHG Emissions targets'),
-        ('reporting_water_target', 'Water targets'),
-        ('reporting_waste_target', 'Waste targets'),
-    ])
-
-    def get_headings(self):
-        return self.headings
-
-    @staticmethod
-    def get_indent_bestpractice(depth=0):
-        return "  " * depth
-
-    @staticmethod
-    def get_indent_heading(depth=0):
-        return "  " * depth
-
-    def get_filename(self):
-        return datetime_or_now().strftime(
-            self.account.slug + '-' + self.basename + '-%Y%m%d.xlsx')
-
-    def _writerecord(self, rec, categories, last_activity_at, reporting_status,
-                     last_completed_at):
-        #pylint:disable=too-many-arguments,too-many-locals
-        row = []
-        for field_name in self.headings:
-            if field_name == 'categories':
-                val = categories
-            elif field_name in (
-                    'printable_name', 'contact_name', 'email', 'phone',
-                    'last_activity_at', 'reporting_status'):
-                if field_name == 'reporting_status':
-                    val = reporting_status
-                elif field_name == 'last_activity_at':
-                    val = last_activity_at
-                else:
-                    val = getattr(rec, field_name)
-            else:
-                val = 'Requested'
-                if not rec.requested_at:
-                    if (last_completed_at and
-                        field_name in ('reporting_publicly', 'reporting_fines',
-                        'reporting_energy_consumption',
-                        'reporting_ghg_generated',
-                        'reporting_water_consumption',
-                        'reporting_waste_generated',
-                        'reporting_energy_target',
-                        'reporting_ghg_target',
-                        'reporting_water_target',
-                        'reporting_waste_target')):
-                        val = ("Yes" if getattr(rec, field_name) else "No")
-                    elif field_name == 'last_completed_at':
-                        val = last_completed_at
-                    else:
-                        val = getattr(rec, field_name)
-            row += [val]
-        if not rec.contact_name:
-            LOGGER.warning("supplier '%s', contact e-mail '%s' not found!",
-                rec.printable_name, rec.email)
-        self.wsheet.append(row)
-
-    def writerow(self, rec, headings=None):
-        last_activity_at = rec.last_activity_at
-        if last_activity_at and isinstance(last_activity_at, datetime.datetime):
-            last_activity_at = last_activity_at.strftime("%Y-%m-%d")
-        reporting_status = rec.reporting_status
-        if reporting_status < len(ReportingSerializer.REPORTING_STATUS):
-            reporting_status = (
-                ReportingSerializer.REPORTING_STATUS[reporting_status][1])
-        else:
-            reporting_status = ""
-        last_completed_at = rec.last_completed_at
-        if last_completed_at and isinstance(last_completed_at,
-                                            datetime.datetime):
-            last_completed_at = last_completed_at.strftime("%Y-%m-%d")
-        extra = rec.extra if hasattr(rec, 'extra') else None
-        if extra and isinstance(extra, six.string_types):
-            try:
-                extra = json.loads(extra)
-            except (TypeError, ValueError):
-                extra = {}
-        categories = ','.join(extra.keys()) if extra else ""
-        if headings:
-            self._writerecord(rec, categories, last_activity_at,
-                reporting_status, last_completed_at)
-        else:
-#            reports_to = rec.reports_to if hasattr(rec, 'reports_to') else [(
-#                self.account.slug, self.account.full_name)]
-            reports_to = [(self.account.slug, self.account.full_name)]
-            for rep in reports_to:
-                report_to = "" if rep[0] == self.account.slug else rep[1]
-                self._writerecord(rec, categories, last_activity_at,
-                    reporting_status, last_completed_at)
-                segment_slug = None
-                if segment_slug:
-                    if segment_slug not in self.suppliers_per_segment:
-                        self.suppliers_per_segment[segment_slug] = set(
-                            [])
-                    self.suppliers_per_segment[segment_slug] |= set(
-                        [rec['slug']])
-
-    def get(self, request, *args, **kwargs):
-        #pylint: disable=unused-argument
-        self._start_time()
-        wbook = Workbook()
-
-        # Populate the Total sheet
-        self.wsheet = wbook.active
-        self.wsheet.title = as_valid_sheet_title("Suppliers invited to TSP")
-        self.wsheet.append(["Utility member", self.account.full_name])
-        contact_model = get_user_model()
-        contact_name = ""
-        try:
-            contact = contact_model.objects.get(
-                email__iexact=self.account.email)
-            contact_name = contact.get_full_name()
-        except contact_model.DoesNotExist:
-            LOGGER.warning("member '%s', contact e-mail '%s' not found!",
-                self.account.full_name, self.account.email)
-        self.wsheet.append(["Utility contact name", contact_name])
-        self.wsheet.append(["Utility contact email", self.account.email])
-        self.wsheet.append(["Utility contact phone", self.account.phone])
-        self.wsheet.append([])
-        self.wsheet.append(list(six.itervalues(self.headings)))
-
-        queryset = self.get_queryset()
-        self.decorate_queryset(queryset)
-        for account in queryset:
-            self.writerow(account)
-
-        # Prepares the result file
-        content = io.BytesIO()
-        wbook.save(content)
-        content.seek(0)
-
-        resp = HttpResponse(content, content_type=self.content_type)
-        resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
-            self.get_filename())
-        self._report_queries("http response created")
-        return resp
 
 
 class CompletedAssessmentsRawXLSXView(CompletedAssessmentsMixin, TemplateView):

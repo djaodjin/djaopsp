@@ -63,7 +63,7 @@ class CampaignXLSXView(CampaignContentMixin, PracticesSpreadsheetView):
         segments = [seg for seg in self.segments_available if seg['path']]
         return [''] + [seg['title'] for seg in segments]
 
-    def format_row(self, entry):
+    def format_row(self, entry, key=None):
         row = [entry['title']]
         for seg in self.segments_available:
             segments = entry.get('extra', {}).get('segments', [])
