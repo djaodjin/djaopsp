@@ -1,5 +1,7 @@
-DjaoDjin Practices Sharing Platform
-===================================
+DjaoDjin Practices Survey Platform
+==================================
+
+[![Documentation Status](https://readthedocs.org/projects/djaopsp/badge/?version=latest)](https://djaopsp.readthedocs.io/en/latest/?badge=latest)
 
 This repository contains the code for DjaoDjin practices sharing platform.
 To learn more visit [DjaoDjin's Website](https://www.djaodjin.com/).

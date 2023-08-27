@@ -1318,6 +1318,14 @@
   },
   "model" : "survey.campaign", "pk" : 2
 },
+{ "fields" : {
+    "slug" : "sustainability-verified",
+    "title" : "Verification of ESG/Environmental practices",
+    "created_at": "2023-01-01T00:00:00.000Z",
+    "account": 2
+  },
+  "model" : "survey.campaign", "pk" : 3
+},
 {
   "fields": {
     "title": "Core Environment, Social and Governance (ESG) Assessment",

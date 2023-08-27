@@ -14,7 +14,10 @@ Contents:
 .. toctree::
    :maxdepth: 1
 
+   runtime-config
+   development
    models
+   share
 
 Indices and tables
 ==================

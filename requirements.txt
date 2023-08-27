@@ -49,5 +49,5 @@ drf-yasg==1.8.0
 Pygments==2.16.1
 pyyaml==6.0
 Sphinx==5.3.0
-sphinxcontrib-httpdomain==1.7.0
+sphinxcontrib-httpdomain==1.8.1
 uritemplate==4.1.1
