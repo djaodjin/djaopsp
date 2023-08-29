@@ -49,7 +49,7 @@ var portfolioTagsMixin = {
         },
         savePreferences: function() {
             var vm = this;
-            vm.accountExtra.tags = vm.preferenceTagsAsText.split(',');
+            vm.$set(vm.accountExtra, 'tags', vm.preferenceTagsAsText.split(','));
             vm.reqPatch(vm.$urls.api_profile, {
                 extra: JSON.stringify(vm.accountExtra)});
         },

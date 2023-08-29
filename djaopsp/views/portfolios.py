@@ -19,7 +19,7 @@ from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.shapes.autoshape import Shape
 from pptx.shapes.graphfrm import GraphicFrame
-from survey.helpers import get_extra
+from survey.helpers import extra_as_internal, get_extra
 from survey.models import Campaign, Matrix
 from survey.queries import datetime_or_now
 from survey.views.matrix import MatrixDetailView
@@ -138,6 +138,11 @@ class DashboardMixin(TrailMixin, CampaignMixin,
                 if self.default_expired_at else None),
             'campaign': self.campaign
         })
+        extra = extra_as_internal(self.account)
+        if extra:
+            context.update({
+                'account_extra': json.dumps(extra),
+            })
         return context
 
 
