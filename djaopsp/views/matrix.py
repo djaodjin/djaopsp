@@ -163,31 +163,31 @@ ORDER BY answers.path, answers.account_id
             'latest_assessments': self.latest_assessments.query.sql,
             'accounts_clause': accounts_clause
         }
-
-            with connection.cursor() as cursor:
-                cursor.execute(reporting_answers_sql, params=None)
-                prev_path = None
-                chunk = []
-                for row in cursor:
-                    # The SQL quesry is ordered by `path` so we can build
-                    # the final result by chunks, path by path.
-                    path = row[0].split('/')[-1] # XXX slug
-                    if prev_path and path != prev_path:
-                        # flush
+                # XXX should still print questions if no accounts.
+                with connection.cursor() as cursor:
+                    cursor.execute(reporting_answers_sql, params=None)
+                    prev_path = None
+                    chunk = []
+                    for row in cursor:
+                        # The SQL quesry is ordered by `path` so we can build
+                        # the final result by chunks, path by path.
+                        path = row[0].split('/')[-1] # XXX slug
+                        if prev_path and path != prev_path:
+                            # flush
+                            #if path in self._by_paths:
+                            #    raise RuntimeError("Updating already processed path '%s'" % path)
+                            self._by_paths.update({path: self.tabularize(
+                                chunk, self.accounts_with_engagement)})
+                            chunk = []
+                            self._report_queries("tabularize %s" % path)
+                        chunk += [row]
+                        prev_path = path
+                    if chunk:
                         #if path in self._by_paths:
                         #    raise RuntimeError("Updating already processed path '%s'" % path)
                         self._by_paths.update({path: self.tabularize(
                             chunk, self.accounts_with_engagement)})
-                        chunk = []
                         self._report_queries("tabularize %s" % path)
-                    chunk += [row]
-                    prev_path = path
-                if chunk:
-                    #if path in self._by_paths:
-                    #    raise RuntimeError("Updating already processed path '%s'" % path)
-                    self._by_paths.update({path: self.tabularize(
-                        chunk, self.accounts_with_engagement)})
-                    self._report_queries("tabularize %s" % path)
         return self._by_paths
 
     def add_datapoint(self, account, row):
@@ -252,6 +252,7 @@ ORDER BY answers.path, answers.account_id
             path = datapoint[0]
         except StopIteration:
             datapoint = None
+        prev_key = None
         try:
             key = self.as_account(next(keys_iterator))
         except StopIteration:
@@ -266,8 +267,12 @@ ORDER BY answers.path, answers.account_id
                     raise RuntimeError("Impossibility! Maybe datapoints"\
                         " and/or keys are not sorted properly.")
                 if self.after_account(datapoint, key):
+                    prev_key = key
                     key = None
                     key = self.as_account(next(keys_iterator))
+                    if prev_key and prev_key == key:
+                        raise RuntimeError(
+                            "We have a duplicate key for %s" % str(key))
                 else:
                     # equals
                     account = results[-1]
@@ -287,7 +292,11 @@ ORDER BY answers.path, answers.account_id
             while key:
                 if not results or not self.equals(results[-1], key):
                     results += [key]
+                prev_key = key
                 key = self.as_account(next(keys_iterator))
+                if prev_key and prev_key == key:
+                    raise RuntimeError(
+                        "We have a duplicate key for %s" % str(key))
         except StopIteration:
             pass
         assert len(results) == len(keys)
