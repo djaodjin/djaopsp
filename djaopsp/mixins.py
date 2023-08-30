@@ -242,17 +242,16 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
             'segments_available': self.segments_available,
             'segments_candidates': self.segments_candidates,
         })
-        if len(self.segments_available) == 1:
-            path_parts = self.path.lstrip(URL_PATH_SEP).split(URL_PATH_SEP)
-            seg_parts = self.segments_available[0].get('path').lstrip(
-                DB_PATH_SEP).split(DB_PATH_SEP)
-            visible_parts = []
-            for seg_part in seg_parts:
-                if seg_part in path_parts:
-                    visible_parts += [seg_part]
-            path = URL_PATH_SEP.join(visible_parts)
-        else:
-            path = self.path.lstrip(URL_PATH_SEP)
+        segments_available_set = {
+            seg['slug'] for seg in self.segments_available}
+        segments_candidates_set = {
+            seg['slug'] for seg in self.segments_candidates}
+        segments_improve_set = segments_candidates_set & segments_available_set
+
+        # XXX should we try to remove silent parts from path
+        # (i.e. /metal/boxes-and-enclosures to /boxes-and-enclosures) ?
+        path = self.path.lstrip(URL_PATH_SEP)
+
         # These URLs can't be accessed by profiles the sample was shared
         # with. They must use ``sample.account``.
         assess_url = None
@@ -266,8 +265,9 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         if path:
             assess_url = reverse('assess_practices',
                 args=(account, self.sample, path))
-            improve_url = reverse('improve_practices',
-                args=(account, self.sample, path))
+            if segments_improve_set:
+                improve_url = reverse('improve_practices',
+                    args=(account, self.sample, path))
         if assess_url:
             update_context_urls(context, {'assess': assess_url})
         if improve_url:

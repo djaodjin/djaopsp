@@ -40,6 +40,7 @@ def environment(**options):
     env.filters['messages'] = djaopsp_tags.messages
     env.filters['no_cache'] = djaopsp_tags.no_cache
     env.filters['pluralize'] = djaopsp_tags.pluralize
+    env.filters['rstrip_sep'] = djaopsp_tags.rstrip_sep
     env.filters['site_url'] = deployutils_prefixtags.site_url
     env.filters['to_json'] = deployutils_extratags.to_json
 

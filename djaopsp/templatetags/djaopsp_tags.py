@@ -50,9 +50,8 @@ def pluralize(text):
 
 
 @register.filter()
-def djasset(path):
-    path_prefix = '/'
-    return urljoin(path_prefix, path)
+def rstrip_sep(path):
+    return path.rstrip('/')
 
 
 @register.simple_tag
