@@ -483,17 +483,20 @@ class AccountsAggregatedQuerysetMixin(DateRangeContextMixin, AccountMixin):
         End of the period when requested accounts were suppossed to respond
         """
         if not hasattr(self, '_accounts_ends_at'):
+            _accounts_ends_at = get_extra(self.account, 'ends_at', None)
+            at_time = datetime_or_now()
+            if _accounts_ends_at:
+                _accounts_ends_at = datetime_or_now(_accounts_ends_at)
+                if _accounts_ends_at > at_time:
+                    at_time = _accounts_ends_at
             param_ends_at = self.get_query_param('accounts_ends_at',
                 self.get_query_param('ends_at'))
             if param_ends_at is not None:
-                param_ends_at = param_ends_at.strip('"')
-            if not param_ends_at:
                 # When there are no specified `ends_at` in the query
-                # string, we trying to be smart about which default to use
-                # depending on the annual reporting season.
-                pass
-            # We assume specifying today is as good as `None` in this case.
-            self._accounts_ends_at = datetime_or_now(param_ends_at)
+                # string, we will be defaulting to the value stored
+                # in `account.extra` or `now` whichever is grater.
+                at_time = param_ends_at.strip('"')
+            self._accounts_ends_at = datetime_or_now(at_time)
         return self._accounts_ends_at
 
     @property

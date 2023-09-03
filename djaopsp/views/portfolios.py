@@ -107,35 +107,12 @@ class DashboardRedirectView(AccountMixin, TemplateResponseMixin, ContextMixin,
 class DashboardMixin(TrailMixin, CampaignMixin,
                      AccountsAggregatedQuerysetMixin):
 
-    @property
-    def default_expired_at(self):
-        """
-        Date after which assessments should be updated.
-        """
-        # XXX `DashboardMixin` in appi/portfolios.py has the same definition.
-        if not hasattr(self, '_default_expired_at'):
-            self._default_expired_at = get_extra(
-                self.account, 'expired_at', None)
-            if self._default_expired_at:
-                self._default_expired_at = datetime_or_now(
-                    self._default_expired_at)
-            param_expired_at = self.request.GET.get('expired_at', None)
-            if param_expired_at is not None:
-                param_expired_at = param_expired_at.strip('"')
-                self._default_expired_at = datetime_or_now(param_expired_at)
-            if (self._default_expired_at and
-                self._default_expired_at >= self.accounts_start_at):
-                self._default_expired_at = self.accounts_start_at
-        return self._default_expired_at
-
     def get_context_data(self, **kwargs):
         context = super(DashboardMixin, self).get_context_data(**kwargs)
         context.update({
-            'ends_at': self.ends_at.isoformat(),
+            'ends_at': self.accounts_ends_at.isoformat(),
             'start_at': (self.accounts_start_at.isoformat()
                 if self.accounts_start_at else None),
-            'expired_at': (self.default_expired_at.isoformat()
-                if self.default_expired_at else None),
             'campaign': self.campaign
         })
         extra = extra_as_internal(self.account)
