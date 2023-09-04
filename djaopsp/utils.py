@@ -7,7 +7,7 @@ Furthermore this functions rely on the models to be loaded. For pure
 helper functions that do not rely on the order Django loads the modules,
 see the file helpers.py in the same directory.
 """
-import json, logging, smtplib
+import json, logging, re, smtplib
 from collections import OrderedDict
 from importlib import import_module
 
@@ -503,6 +503,37 @@ def get_summary_performance(improvement_sample):
                 'Waste': waste
             }
     return {}
+
+
+def get_supporting_documents(samples, internal_host=None, prefix=None):
+    """
+    Returns a pair of sets for supporting documents from a list of samples.
+
+    The first set contains all URI endpoints that do not match `internal_host`
+    while the second set contains all URI endpoints that match `internal_host`.
+    """
+    kwargs = {}
+    if prefix:
+        kwargs.update({'question__path__startswith': prefix})
+    freetexts = Choice.objects.filter(pk__in=Answer.objects.filter(
+        sample__in=samples,
+        unit__system=Unit.SYSTEM_FREETEXT,
+        **kwargs).values('measured')).values_list('text', flat=True)
+    documents = set([])
+    for text in freetexts:
+        look = re.search(r'(https?://\S+)', text)
+        while look:
+            documents.add(look.group(1))
+            start_pos = look.end(1)
+            look = re.search(r'(https?://\S+)', text[start_pos:])
+    publics = []
+    privates = []
+    for doc in documents:
+        if internal_host and doc.startswith(internal_host):
+            privates += [doc]
+        else:
+            publics += [doc]
+    return publics, privates
 
 
 def get_latest_reminders(accounts, start_at=None, ends_at=None):
