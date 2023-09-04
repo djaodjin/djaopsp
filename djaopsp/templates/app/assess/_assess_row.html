@@ -18,6 +18,7 @@
       </div>
       <a class="title"
          :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
+         target="_blank"
          v-if="isPractice(practice) && isEnumHeaderShown(icon)">
         [[practice.title]]
       </a>

@@ -7,6 +7,7 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
 from django.db.models import F
+from django.utils.translation import ugettext_lazy as _
 from pages.models import PageElement, flatten_content_tree
 from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
@@ -148,16 +149,21 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
         created_at = datetime_or_now()
 
         if self.sample.is_frozen:
-            raise ValidationError({'detail': "sample is already frozen"})
+            raise ValidationError({'detail': _("sample is already frozen")})
 
         if not self.segments_available:
             raise ValidationError({'detail':
-                "You cannot freeze a sample with no answers"})
+                _("You cannot freeze a sample with no answers")})
 
         if self.nb_required_answers < self.nb_required_questions:
-            raise ValidationError({'detail':
-                "You have only answered %d of the %d required practices." % (
-                self.nb_required_answers, self.nb_required_questions)})
+            raise ValidationError({'detail': _("You have only answered"\
+" %(nb_required_answers)d of the %(nb_required_questions)d required"\
+" practices. Locate practices with a red vertical bar on the right side"\
+" of the page. Then scroll back up to the section title, click 'Update' under"\
+" the section title. Assess the missing practices, then come back"\
+" to the 'REVIEW' step.") % {
+    'nb_required_answers': self.nb_required_answers,
+    'nb_required_questions': self.nb_required_questions}})
 
         frozen_assessment_sample = None
         frozen_improvement_sample = None
@@ -838,7 +844,7 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
 
 
     def decorate_queryset(self, queryset):
-        #pylint:disable=unused-argument,too-many-nested-blocks
+        #pylint:disable=unused-argument,too-many-nested-blocks,too-many-locals
         # `queryset` is a list of questions
 
         accounts = None # XXX self.get_accessible_accounts()
@@ -878,7 +884,6 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
 
         for question in queryset:
             question_path = question.get('path')
-            benchmarks = question.get('benchmarks')
             default_unit = question.get('default_unit')
             if default_unit:
                 question.update({

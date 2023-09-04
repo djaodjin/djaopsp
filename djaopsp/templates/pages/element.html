@@ -1,5 +1,12 @@
 {% extends "pages/base.html" %}
 
+{% block localheadermeta %}
+<title>{% if element %}{{element.title}}{% else %}{% trans %}Practices Sharing Platform{% endtrans %}{% endif %} | DjaoDjin</title>
+<meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
+<meta property="og:site_name" content="DjaoDjin" />
+<meta property="og:type" content="website" />
+{% endblock %}
+
 {% block content %}
 <section  id="app" class="backdrop container-fluid">
   {% include "pages/_breadcrumbs.html" %}
