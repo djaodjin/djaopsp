@@ -510,6 +510,14 @@
   },
   "model": "survey.unit", "pk": 143
 },
+{
+  "fields": {
+    "slug": "chatgpt_answer",
+    "title": "ChatGPT Answer",
+    "system": 0
+  },
+  "model": "survey.unit", "pk": 144
+},
 
 {
 "fields": {
