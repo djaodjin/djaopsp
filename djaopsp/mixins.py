@@ -263,6 +263,17 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         improve_url = reverse('improve_redirect',
             args=(account, self.sample,))
         if path:
+            # A convoluted way to get back to the industry segment `path`
+            # prefix...
+            for seg in self.segments_candidates:
+                seg_path = seg.get('path')
+                extra = seg.get('extra', {})
+                pagebreak = extra.get('pagebreak', False) if extra else False
+                if pagebreak and seg_path and path.startswith(seg_path[1:]):
+                    path = seg_path[1:]
+                    break
+            # ... so the progresbar links are always at the industry segment
+            # level.
             assess_url = reverse('assess_practices',
                 args=(account, self.sample, path))
             if segments_improve_set:
