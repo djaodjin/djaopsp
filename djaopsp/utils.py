@@ -476,7 +476,8 @@ def get_segments_candidates(campaign, visibility=None, owners=None):
 
 
 def get_summary_performance(improvement_sample):
-    if improvement_sample.campaign.slug == 'sustainability':
+    if (improvement_sample and
+        improvement_sample.campaign.slug == 'sustainability'):
         # natural answers
         improvements = Answer.objects.filter(
             Q(unit_id=F('question__default_unit_id')) |
