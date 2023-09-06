@@ -143,6 +143,7 @@ def _get_engagement_sql(campaign, accounts,
     portfolio_campaign_clause = (
         "survey_portfolio.campaign_id = %d" % campaign.pk)
     after_clause = ""
+    after_sample_created_clause = ""
     if start_at:
         after_clause = (
             "AND survey_portfoliodoubleoptin.created_at >= '%s'" % start_at)
@@ -207,6 +208,26 @@ ON  survey_portfoliodoubleoptin.grantee_id = latest_requests.grantee_id AND
         %(optin_request_expired)d)
       %(campaign_clause)s
 ),
+portfolios AS (
+  SELECT * FROM survey_portfolio
+  WHERE %(portfolio_campaign_clause)s
+      %(grantees_clause)s
+      %(accounts_clause)s
+),
+-- last completed in validity period (includes invite period)
+last_valid_completed AS (
+  SELECT
+    survey_sample.account_id,
+    survey_sample.is_frozen,
+    MAX(survey_sample.created_at) AS last_updated_at
+  FROM survey_sample
+  WHERE
+    survey_sample.is_frozen AND
+    survey_sample.extra IS NULL
+    %(after_sample_created_clause)s
+    %(before_sample_created_clause)s
+  GROUP BY survey_sample.account_id, survey_sample.is_frozen
+),
 completed_by_accounts AS (
 SELECT DISTINCT
   survey_sample.account_id,
@@ -214,36 +235,22 @@ SELECT DISTINCT
   survey_sample.slug,
   survey_sample.created_at,
   CASE WHEN (portfolios.ends_at IS NOT NULL AND
-             last_completed_after_request.last_updated_at <= portfolios.ends_at)
+             last_valid_completed.last_updated_at <= portfolios.ends_at)
            THEN 'completed'
-       WHEN last_completed_after_request.state = %(optin_request_denied)d
+       WHEN requests.state = %(optin_request_denied)d
            THEN 'completed-denied'
        ELSE 'completed-notshared' END AS reporting_status
 FROM survey_sample
-INNER JOIN ( -- last completed after request
-  SELECT
-    survey_sample.account_id,
-    survey_sample.is_frozen,
-    requests.state,
-    MAX(survey_sample.created_at) AS last_updated_at
-  FROM requests
-  INNER JOIN survey_sample ON
-    requests.account_id = survey_sample.account_id
-  WHERE
-    survey_sample.created_at >= requests.created_at AND
-    survey_sample.is_frozen AND
-    survey_sample.extra IS NULL
-    %(before_sample_created_clause)s
-  GROUP BY survey_sample.account_id, survey_sample.is_frozen, requests.state
-) AS last_completed_after_request
-ON survey_sample.account_id = last_completed_after_request.account_id AND
-   survey_sample.created_at = last_completed_after_request.last_updated_at AND
-   survey_sample.is_frozen = last_completed_after_request.is_frozen
-LEFT OUTER JOIN (
-  SELECT * FROM survey_portfolio
-  WHERE %(portfolio_campaign_clause)s
-      %(grantees_clause)s) AS portfolios
+INNER JOIN last_valid_completed
+ON survey_sample.account_id = last_valid_completed.account_id AND
+   survey_sample.created_at = last_valid_completed.last_updated_at AND
+   survey_sample.is_frozen = last_valid_completed.is_frozen
+INNER JOIN requests
+ON requests.account_id = survey_sample.account_id
+LEFT OUTER JOIN portfolios
 ON survey_sample.account_id = portfolios.account_id
+WHERE last_valid_completed.last_updated_at > requests.created_at OR
+    portfolios.ends_at > requests.created_at
 ),
 updated_by_accounts AS (
 SELECT DISTINCT
@@ -324,11 +331,12 @@ ON engaged.account_id = %(accounts_table)s.id
     'grantees_clause': grantees_clause,
     'campaign_clause': campaign_clause,
     'portfolio_campaign_clause': portfolio_campaign_clause,
-    'before_clause': before_clause,
-    'after_clause': after_clause,
     'accounts_clause': accounts_clause,
     'filter_by_clause': filter_by_clause,
     'order_by_clause': order_by_clause,
+    'after_clause': after_clause,
+    'after_sample_created_clause': after_sample_created_clause,
+    'before_clause': before_clause,
     'before_sample_created_clause': before_sample_created_clause,
     'before_sample_updated_clause': before_sample_updated_clause,
     'optin_request_initiated': PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
