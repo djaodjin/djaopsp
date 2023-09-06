@@ -23,7 +23,7 @@ If you are looking to add features, this project integrates
 
 Tested with
 
-- **Python:** 3.7, **Django:** 3.2 (latest), **Django Rest Framework:** 3.12
+- **Python:** 3.10, **Django:** 3.2 ([LTS](https://www.djangoproject.com/download/))
 
 
 Install

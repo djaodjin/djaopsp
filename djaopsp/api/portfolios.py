@@ -1482,6 +1482,7 @@ class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
         return states
 
     def get_ordering(self):
+        fields = []
         params = self.get_query_param(self.ordering_param)
         if params:
             if isinstance(params, six.string_types):
@@ -1499,11 +1500,14 @@ class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
                     ordering_fields += [rev_prefix + db_field_ordering]
         return ordering_fields
 
+    def get_grantees(self):
+        return [self.account]
+
     def get_queryset(self):
         if not self.requested_accounts:
             return PortfolioDoubleOptIn.objects.none()
         queryset = get_engagement(self.campaign, self.requested_accounts,
-            grantees=[self.account], start_at=self.start_at,
+            grantees=self.get_grantees(), start_at=self.start_at,
             ends_at=self.ends_at, filter_by=self.get_filtering(),
             order_by=self.get_ordering())
         return queryset

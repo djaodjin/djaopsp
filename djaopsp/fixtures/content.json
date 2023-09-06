@@ -514,7 +514,7 @@
   "fields": {
     "slug": "chatgpt_answer",
     "title": "ChatGPT Answer",
-    "system": 0
+    "system": 4
   },
   "model": "survey.unit", "pk": 144
 },
