@@ -40,8 +40,8 @@ sqlparse==0.4.2                   # required by django-debug-toolbar
 docutils==0.18.1
 
 # static analysis
-pylint==2.14.5
-pylint-django==2.0.15
+pylint==2.17.5
+pylint-django==2.5.3
 
 # To generate documentation (Read-the-docs and API reference)
 coreapi==2.3.3
