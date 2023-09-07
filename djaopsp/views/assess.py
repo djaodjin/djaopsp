@@ -193,10 +193,9 @@ class ImproveRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
         campaign_prefix = "%s%s%s" % (
             DB_PATH_SEP, campaign_slug, DB_PATH_SEP)
 
-        candidates = self.segments_available
         redirects = []
-        for seg in candidates:
-            # We insured that all candidates are the prefixed
+        for seg in self.segments_available:
+            # We insured that all segments available are the prefixed
             # content node at this point.
             extra = seg.get('extra')
             if extra and extra.get('visibility'):
@@ -210,6 +209,11 @@ class ImproveRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
                     redirects += [(url, print_name)]
 
         if len(redirects) == 1:
+            return super(ImproveRedirectView, self).get(
+                request, *args, **kwargs)
+
+        if not self.segments_candidates:
+            kwargs.update({'path': self.sample.campaign.slug})
             return super(ImproveRedirectView, self).get(
                 request, *args, **kwargs)
 

@@ -248,8 +248,6 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
             seg['slug'] for seg in self.segments_candidates}
         segments_improve_set = segments_candidates_set & segments_available_set
 
-        # XXX should we try to remove silent parts from path
-        # (i.e. /metal/boxes-and-enclosures to /boxes-and-enclosures) ?
         path = self.path.lstrip(URL_PATH_SEP)
 
         # These URLs can't be accessed by profiles the sample was shared
