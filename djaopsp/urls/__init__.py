@@ -9,7 +9,7 @@ from django.urls import path, re_path, include
 
 from .. import __version__
 from ..urlbuilders import login_required
-
+from ..notifications import signals
 
 if settings.DEBUG: #pylint: disable=no-member
     from django.contrib import admin

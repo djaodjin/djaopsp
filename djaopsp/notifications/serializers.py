@@ -3,7 +3,7 @@
 
 from rest_framework import serializers
 from survey.api.serializers import (NoModelSerializer,
-    InviteeSerializer as ProfileSerializer)
+    InviteeSerializer as ProfileSerializer, CampaignSerializer)
 from survey.models import Campaign
 
 from ..compat import gettext_lazy as _
@@ -14,10 +14,12 @@ class UserDetailSerializer(NoModelSerializer):
         help_text=_("Unique identifier for the user, typically used in URLs"))
     printable_name = serializers.CharField(source='get_full_name',
         help_text=_("Full name (effectively first name followed by last name)"))
+    email = serializers.CharField(
+        help_text=_("E-mail address for the originating user"))
 
     class Meta:
-        fields = ('username', 'printable_name')
-        read_only_fields = ('username', 'printable_name')
+        fields = ('username', 'printable_name', 'email')
+        read_only_fields = ('username', 'printable_name', 'email')
 
 
 class NotificationSerializer(NoModelSerializer):
@@ -48,12 +50,14 @@ class PortfolioNotificationSerializer(NotificationSerializer):
 
     grantee = ProfileSerializer()
     account = ProfileSerializer()
-    campaign = serializers.SlugRelatedField(required=False,
-        queryset=Campaign.objects.all(), slug_field='slug')
+    campaign = CampaignSerializer(required=False)
+    last_completed_at = serializers.CharField(required=False)
     message = serializers.CharField(required=False, allow_null=True)
     originated_by = UserDetailSerializer(
         help_text=_("the user at the origin of the notification"))
 
     class Meta:
-        fields = ("grantee", "account", "campaign", "message", "originated_by",)
-        read_only_fields = ("grantee", "account", "campaign", "originated_by",)
+        fields = ("grantee", "account", "campaign", "last_completed_at",
+            "message", "originated_by",)
+        read_only_fields = ("grantee", "account", "campaign",
+            "last_completed_at", "originated_by",)

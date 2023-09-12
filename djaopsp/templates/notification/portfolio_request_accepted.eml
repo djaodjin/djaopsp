@@ -1,26 +1,39 @@
 {% extends "notification/base.eml" %}
 
 {% block subject %}
-{{account.printable_name|safe}} completed their assessment
+{{account.printable_name|safe}} shared their {{campaign.title}} assessment
 {% endblock %}
 
 {% block title %}
-{{account.printable_name|safe}} completed their assessment
+{{account.printable_name|safe}} shared their {{campaign.title}} assessment
 {% endblock %}
 
 {% block html_content %}
 {% if message %}
-<pre>
+<p>
 {{message}}
-</pre>
+</p>
 {% endif %}
 <p>
-You are receiving this email, because {{account.printable_name|safe}}
-is listed on your dashboard.
+I shared <strong>{{account.printable_name|safe}}</strong>
+{{campaign.title}} assessments up to {{last_completed_at}} with
+{{grantee.printable_name}}.
+</p>
+<p>
+{{originated_by.printable_name}}<br/>
+{{originated_by.email}}
+</p>
+<hr />
+<p>
+You are receiving this email, because you are listed as a profile
+manager for {{grantee.printable_name}} and your organization requested
+<strong>{{account.printable_name|safe}}</strong> response
+(see <em>Engage</em> dashboard).
 </p>
 <p>
 View the completed assessment for {{account.printable_name|safe}}
-by clicking on the link below:
+through {{grantee.printable_name}} <em>Engage</em> and <em>Track</em>
+dashboards, or directly by clicking on the link below:
 </p>
 <p>
 <a href="{{back_url}}">{{back_url}}</a>

@@ -139,11 +139,12 @@ def portfolio_request_accepted_notice(sender, portfolio, request, **kwargs):
         # Let's not confuse anyone.
         return
     back_url = request.build_absolute_uri(reverse('scorecard',
-        args=(portfolio.account, latest_completed_assessment)))
+        args=(portfolio.grantee, latest_completed_assessment)))
     context = {
         'back_url': back_url,
         'account': portfolio.account,
         'campaign': portfolio.campaign,
+        'last_completed_at': latest_completed_assessment.created_at.date(),
         'grantee': portfolio.grantee,
         'originated_by': request.user,
     }
