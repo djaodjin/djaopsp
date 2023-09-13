@@ -28,17 +28,18 @@ class NotificationSerializer(NoModelSerializer):
         help_text=_("Site on which the product is hosted"))
     back_url = serializers.URLField(
         help_text=_("Link back to the site"))
+    originated_by = UserDetailSerializer(
+        help_text=_("the user at the origin of the notification"))
 
     class Meta:
-        fields = ('broker', 'back_url',)
-        read_only_fields = ('broker', 'back_url',)
+        fields = ('broker', 'back_url', 'originated_by')
+        read_only_fields = ('broker', 'back_url', 'originated_by')
 
 
 class PortfolioGrantInitiatedSerializer(NotificationSerializer):
 
-    invitee = ProfileSerializer()
-    campaign = serializers.SlugRelatedField(required=False,
-        queryset=Campaign.objects.all(), slug_field='slug')
+    grantee = ProfileSerializer()
+    campaign = CampaignSerializer(required=False)
     message = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
@@ -53,11 +54,9 @@ class PortfolioNotificationSerializer(NotificationSerializer):
     campaign = CampaignSerializer(required=False)
     last_completed_at = serializers.CharField(required=False)
     message = serializers.CharField(required=False, allow_null=True)
-    originated_by = UserDetailSerializer(
-        help_text=_("the user at the origin of the notification"))
 
     class Meta:
-        fields = ("grantee", "account", "campaign", "last_completed_at",
-            "message", "originated_by",)
-        read_only_fields = ("grantee", "account", "campaign",
-            "last_completed_at", "originated_by",)
+        fields = ('grantee', 'account', 'campaign', 'last_completed_at',
+            'message',)
+        read_only_fields = ('grantee', 'account', 'campaign',
+            'last_completed_at',)

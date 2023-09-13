@@ -236,8 +236,12 @@ Vue.component('engage-profiles', {
                     data.accounts = [vm.newItem];
                     vm.reqPost(vm.$urls.api_accessibles, data,
                     function success(resp) {
+                        const now = new Date(Date.now());
+                        const endsAt = new Date(vm.params.ends_at);
+                        if( isNaN(endsAt) || endsAt < now ) {
+                            vm.params.ends_at = now.toISOString();
+                        }
                         vm.params.q = vm.newItem.full_name;
-                        vm.params.ends_at = Date.now().toISOString();
                         vm.get();
                         vm.hideModal($event);
                     });

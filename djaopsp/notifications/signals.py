@@ -101,6 +101,7 @@ def portfolios_request_initiated_notice(sender, portfolios, invitee, message,
         },
         'account': portfolio.account,
         'campaign': portfolio.campaign,
+        'deadline': portfolio.ends_at,
         'grantee': portfolio.grantee,
         'originated_by': request.user,
         'message': message
@@ -140,7 +141,14 @@ def portfolio_request_accepted_notice(sender, portfolio, request, **kwargs):
         return
     back_url = request.build_absolute_uri(reverse('scorecard',
         args=(portfolio.grantee, latest_completed_assessment)))
+    broker = request.session.get('site', {})
     context = {
+       'broker': {
+            'slug': settings.APP_NAME,
+            'full_name': broker.get('printable_name'),
+            'printable_name': broker.get('printable_name'),
+            'email': broker.get('email')
+        },
         'back_url': back_url,
         'account': portfolio.account,
         'campaign': portfolio.campaign,
