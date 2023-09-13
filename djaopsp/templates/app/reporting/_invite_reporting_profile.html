@@ -44,6 +44,13 @@
                         type="text" rows="10"
                         v-model="message">
               </textarea>
+              {% if request.user %}
+              <p class="mt-2">
+                Sincerely,<br />
+                {{request.user.get_full_name()}}<br />
+                {% if request.user.email %}{{request.user.email}}{% endif %}
+              </p>
+              {% endif %}
             </div>
           </div>
         </div>

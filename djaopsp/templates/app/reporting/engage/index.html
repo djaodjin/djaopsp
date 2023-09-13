@@ -371,7 +371,7 @@
 
 {% block reporting_scripts %}
 <script type="text/javascript">
-Vue.prototype.$defaultRequestInitiatedMessage = "Hello,\n\nI would like to invite you to complete and share an assessment for your organization\n\nThank you.\n- {{request.user.first_name}}\n";
+Vue.prototype.$defaultRequestInitiatedMessage = "Hello,\n\nI would like to invite you to complete and share an assessment for your organization.";
 
 jQuery(document).ready(function($) {
     $("#invite-reporting-entity").on('shown.bs.modal', function () {
