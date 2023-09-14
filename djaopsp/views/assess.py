@@ -352,7 +352,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
         return headers
 
     def get_title_row(self):
-        return [self.account.printable_name,
+        return [self.sample.account.printable_name,
             self.sample.created_at.strftime("%Y-%m-%d")]
 
 
@@ -442,4 +442,4 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
 
     def get_filename(self):
         return datetime_or_now().strftime("%s-%s-%%Y%%m%%d.xlsx" % (
-            self.account.slug, self.campaign.slug))
+            self.sample.account.slug, self.campaign.slug))
