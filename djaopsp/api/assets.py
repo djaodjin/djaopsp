@@ -7,6 +7,7 @@ from django.http import Http404
 from django.db.models import Q
 from pages.api.assets import AssetAPIView as AssetBaseAPIView
 from survey.models import Portfolio
+from survey.queries import datetime_or_now
 
 from ..mixins import VisibilityMixin
 
@@ -35,9 +36,13 @@ class AssetAPIView(VisibilityMixin, AssetBaseAPIView):
               "updated_at": "2016-10-26T00:00:00.00000+00:00"
             }
         """
-        if not Portfolio.objects.filter(
-            Q(account=self.account) &
-            Q(grantee__slug__in=self.accessible_profiles)).exists():
+        at_time = datetime_or_now()
+        if not (self.is_auditor or
+            self.account.slug in self.accessible_profiles or
+            Portfolio.objects.filter(
+                Q(account=self.account) &
+                Q(grantee__slug__in=self.accessible_profiles) &
+                Q(ends_at__lt=at_time)).exists()):
             raise Http404()
 
         return super(AssetAPIView, self).get(request, *args, **kwargs)
