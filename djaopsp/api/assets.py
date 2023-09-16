@@ -41,8 +41,7 @@ class AssetAPIView(VisibilityMixin, AssetBaseAPIView):
             self.account.slug in self.accessible_profiles or
             Portfolio.objects.filter(
                 Q(account=self.account) &
-                Q(grantee__slug__in=self.accessible_profiles) &
-                Q(ends_at__lt=at_time)).exists()):
+                Q(grantee__slug__in=self.accessible_profiles)).exists()):
             raise Http404()
 
         return super(AssetAPIView, self).get(request, *args, **kwargs)
