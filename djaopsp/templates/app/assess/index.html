@@ -33,7 +33,7 @@
                :href="'#tab-' + icon.slug"
                role="{{role}}" data-toggle="{{role}}"
                @click.prevent="toggleTile($event, icon)">
-              <div class="card bg-white text-dark h-100">
+              <div :class="'card h-100 text-dark ' + practiceStyle(icon)">
                 <div class="card-body">
                   <div class="row">
                     <div class="col-4">

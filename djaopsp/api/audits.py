@@ -3,25 +3,20 @@
 
 import logging
 
-from rest_framework import generics
-from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import UpdateModelMixin
+from survey.api.sample import SampleAnswersAPIView
 
-from survey.api.serializers import AnswerSerializer
-from survey.settings import DB_PATH_SEP
-from survey.utils import get_question_model
-
-from ..compat import six
+from ..mixins import ReportMixin
 from ..models import VerifiedSample
-from .serializers import AssessmentNodeSerializer, VerifiedSampleSerializer
-from .samples import AssessmentContentMixin, attach_answers
+from .serializers import VerifiedSampleSerializer
+
 
 LOGGER = logging.getLogger(__name__)
 
 
-class VerifierNotesAPIView(AssessmentContentMixin, generics.ListCreateAPIView):
+class VerifierNotesAPIView(ReportMixin, SampleAnswersAPIView):
     """
-    Lists answers
+    Lists verifier notes
 
     The list returned contains at least one measurement for each question
     in the campaign. If there are no measurement yet on a question, ``measured``
@@ -175,49 +170,6 @@ class VerifierNotesAPIView(AssessmentContentMixin, generics.ListCreateAPIView):
          ]
     }
     """
-    serializer_class = AssessmentNodeSerializer
-
-    # Used to POST and create an answer.
-    @property
-    def question(self):
-        #pylint:disable=attribute-defined-outside-init
-        if not hasattr(self, '_question'):
-            self._question = get_object_or_404(
-                get_question_model().objects.all(), path=self.path)
-        return self._question
-
-    def get_questions(self, prefix):
-        """
-        Overrides CampaignContentMixin.get_questions to return a list
-        of questions based on the answers available in the sample.
-        """
-        if not prefix.endswith(DB_PATH_SEP):
-            prefix = prefix + DB_PATH_SEP
-
-        extra_fields = getattr(
-            self.practice_serializer_class.Meta, 'extra_fields', [])
-        units = {}
-        questions_by_key = {}
-        attach_answers(
-            units,
-            questions_by_key,
-            self.get_notes(prefix=prefix, sample=self.sample,
-                excludes=self.exclude_questions),
-            extra_fields=extra_fields,
-            key='notes')
-
-        return list(six.itervalues(questions_by_key))
-
-    def get_serializer_class(self):
-        if self.request.method.lower() == 'post':
-            return AnswerSerializer
-        return super(VerifierNotesAPIView, self).get_serializer_class()
-
-    def get_serializer(self, *args, **kwargs):
-        if isinstance(self.request.data, list):
-            kwargs.update({'many': True})
-        return super(VerifierNotesAPIView, self).get_serializer(
-            *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """
@@ -255,39 +207,17 @@ class VerifierNotesAPIView(AssessmentContentMixin, generics.ListCreateAPIView):
         return super(VerifierNotesAPIView, self).post(
             request, *args, **kwargs)
 
+    def create(self, request, *args, **kwargs):
+        verification = self.get_or_create_verification()
+        if verification.verifier_notes == self.sample:
+            verification.verified_by = self.request.user
+            verification.verified_status = VerifiedSample.STATUS_UNDER_REVIEW
+            verification.save()
+        return super(VerifierNotesAPIView, self).create(
+            request, *args, **kwargs)
+
 
 class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
-    """
-        Adds notes by verifier
-
-        A frozen sample cannot be edited to add and/or update answers.
-
-        **Tags**: assessments
-
-        **Examples
-
-        .. code-block:: http
-
-            POST /api/supplier-1/sample/0123456789abcdef/notes/construction \
- HTTP/1.1
-
-        .. code-block:: json
-
-            {}
-
-        responds
-
-        .. code-block:: json
-
-            {
-              "slug": "0123456789abcdef",
-              "account": "supplier-1",
-              "created_at": "2020-01-01T00:00:00Z",
-              "is_frozen": true,
-              "campaign": null,
-              "updated_at": "2020-01-01T00:00:00Z"
-            }
-    """
 
     def get_serializer_class(self):
         if self.request.method.lower() in ['put', 'patch']:
@@ -309,8 +239,7 @@ class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
 
         .. code-block:: http
 
-            PUT /api/supplier-1/sample/0123456789abcdef/notes \
- HTTP/1.1
+            PUT /api/supplier-1/sample/0123456789abcdef/notes HTTP/1.1
 
         .. code-block:: json
 
@@ -333,8 +262,12 @@ class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
         """
         return self.update(request, *args, **kwargs)
 
+    def perform_update(self, serializer):
+        verification = serializer.instance
+        verification.verified_by = self.request.user
+        verification.verified_status = serializer.validated_data.get(
+            'verified_status')
+        verification.save()
+
     def get_object(self):
-        #pylint:disable=unused-variable
-        verified_sample, created = VerifiedSample.objects.update_or_create(
-            defaults={'verified_by': self.request.user}, sample=self.sample)
-        return verified_sample
+        return self.get_or_create_verification()

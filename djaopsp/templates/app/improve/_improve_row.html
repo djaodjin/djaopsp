@@ -289,7 +289,7 @@
 {# when question.unit.system is 'enum' #}
 
 <td class="text-center"
-    v-if="isEnumUIHint(practice)"
+    v-if="isEnumRadioUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
   <span v-if="getPrimaryAnswer(practice).measured">[[getPrimaryAnswer(practice).measured]]</span>
   <em v-if="!getPrimaryAnswer(practice).measured">&dash;</em>
@@ -297,7 +297,7 @@
 <td :class="'text-center' + ((getPrimaryPlanned(practice).measured !== getPrimaryPlanned(practice).measured) && (getPrimaryPlanned(practice).measured === choice.text) ? ' green-level-4' : '')"
     :colspan="getNbInputCols(practice)"
     v-for="(choice, idx) in getChoices(practice, icon)"
-    v-if="isEnumUIHint(practice)"
+    v-if="isEnumRadioUIHint(practice)"
     v-show="!isActiveCommentsShown(practice)">
   <div>{# form-check #}
     <div class="radio-border">

@@ -25,7 +25,7 @@
 </td>
 
 <td class="text-center"
-    v-if="isEnumUIHint(practice)"
+    v-if="isEnumUnit(practice)"
     v-show="!isActiveCommentsShown(practice)">
   <span v-if="getPrimaryPlanned(practice).measured">[[getPrimaryPlanned(practice).measured]]</span>
   <em v-if="!getPrimaryPlanned(practice).measured">&dash;</em>

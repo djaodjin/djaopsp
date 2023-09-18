@@ -10,7 +10,7 @@ from django.template.defaultfilters import capfirst
 from django.utils.encoding import force_text
 from survey.queries import datetime_or_now
 
-from ..compat import reverse, six, urljoin
+from ..compat import reverse, six
 
 
 register = template.Library()

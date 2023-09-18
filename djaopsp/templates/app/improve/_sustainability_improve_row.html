@@ -20,7 +20,7 @@
 </td>
 
 <td class="text-center"
-    v-if="isEnumUIHint(practice)"
+    v-if="isEnumUnit(practice)"
     v-show="!isActiveCommentsShown(practice)">
   <span v-if="getPrimaryAnswer(practice).measured">[[getPrimaryAnswer(practice).measured]]</span>
   <em v-if="!getPrimaryAnswer(practice).measured">&dash;</em>

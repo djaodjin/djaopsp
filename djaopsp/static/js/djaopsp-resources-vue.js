@@ -375,15 +375,29 @@ var practicesListMixin = {
                 row.extra && row.extra.tags &&
                 (row.extra.tags.includes('data-metrics-header')));
         },
+        isEmployeeCountUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'employee-count';
+        },
         isEnergyUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'energy';
         },
-        isEnumUIHint: function(row) {
+        isEnumUnit: function(row) {
             var vm = this;
-            return vm.isPractice(row) && (row.ui_hint === 'radio' ||
+            return vm.isPractice(row) &&
+                row.default_unit && row.default_unit.system === 'enum';
+        },
+        isEnumRadioUIHint: function(row) {
+            var vm = this;
+            return vm.isEnumUnit(row) && (row.ui_hint === 'radio' ||
                 row.ui_hint === 'yes-no-comments' ||
                 row.ui_hint === 'yes-comments');
+        },
+        isEnumSelectUIHint: function(row) {
+            var vm = this;
+            return vm.isEnumUnit(row) && row.ui_hint === 'select'
+                && row.default_unit.slug !== 'verifiability';
         },
         isFreetextUIHint: function(row) {
             var vm = this;
@@ -399,9 +413,10 @@ var practicesListMixin = {
             var vm = this;
             return vm.isPractice(row) && (row.ui_hint === 'ghg-emissions-scope3');
         },
-        isEmployeeCountUIHint: function(row) {
+        isVerifiabilityUIHint: function(row) {
             var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'employee-count';
+            return vm.isPractice(row) &&
+                row.default_unit.slug === 'verifiability';
         },
         isPagebreak: function(row) {
             var vm = this;

@@ -2045,5 +2045,16 @@ color: #000;
 }
 
 .verifier-notes {
-  background: yellow;
+  background: rgb(123,233,255);
+}
+
+.verifier-notes .heading-0>.title,
+.verifier-notes .heading-1>.title,
+.verifier-notes .heading-2>.title,
+.verifier-notes .heading-3>.title,
+.verifier-notes .heading-4>.title,
+.verifier-notes .heading-5>.title,
+.verifier-notes .heading-6>.title,
+.verifier-notes .heading-7>.title {
+  color: black;
 }

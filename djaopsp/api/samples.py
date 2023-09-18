@@ -15,7 +15,7 @@ from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
     SampleFreezeAPIView)
 from survey.api.matrix import SampleBenchmarkMixin
 from survey.mixins import SampleMixin, TimersMixin
-from survey.models import Campaign, Choice, Sample, Unit, UnitEquivalences
+from survey.models import Choice, Sample, Unit, UnitEquivalences
 from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_benchmarks_enumerated
@@ -49,18 +49,9 @@ class SampleNotesMixin(SampleMixin):
         """
         if not prefix:
             prefix = self.path
-        if not sample:
-            sample = self.sample
-        verified_sample = VerifiedSample.objects.filter(
-            sample=self.sample).first()
-        if not verified_sample:
-            with transaction.atomic():
-                verifier_notes = Sample.objects.create(
-                    campaign=Campaign.objects.get(slug='%s-verified' % str(self.sample.campaign)))
-                verified_sample = VerifiedSample.objects.create(
-                    sample=self.sample, verifier_notes=verifier_notes)
+        verification = self.get_or_create_verification()
         return self.get_answers(
-            prefix=prefix, sample=verified_sample.verifier_notes)
+            prefix=prefix, sample=verification.verifier_notes)
 
 
 class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
@@ -336,14 +327,17 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
                 extra_fields=extra_fields,
                 key='candidates')
         elif self.is_auditor:
-            # Verification notes are only available to auditors
+            # Verification notes are only available to verifiers
             attach_answers(
                 units,
                 questions_by_key,
                 self.get_notes(prefix=prefix,
                     excludes=self.exclude_questions),
                 extra_fields=extra_fields,
-                key='notes')
+                key='answers') # Implementation note: attaching the notes
+                               # as 'answers' instead of 'notes' because
+                               # so far they are distinct questions and
+                               # it simplifies the Javascript client.
 
         self.attach_results(questions_by_key, prefix)
 

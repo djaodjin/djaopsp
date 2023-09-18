@@ -10,6 +10,7 @@ Vue.component('campaign-questions-list', {
     data: function() {
         return {
             url: this.$urls.api_content,
+            api_verification_sample: this.$urls.api_verification_sample || null,
             api_improvement_sample: this.$urls.api_improvement_sample,
             api_aggregate_metric_base: this.$urls.api_aggregate_metric_base,
             valueSummaryToggle: true,
@@ -380,10 +381,20 @@ Vue.component('campaign-questions-list', {
             });
         },
 
-        // Call on the API to update an assessment answer
-        _callUpdateAnswer: function(path, measured,
+        // Call on the API to update an Answer in a Sample.
+        // By passing a dict `{unit: "__slug__", measured: "__value__"}`,
+        // it is possible to attach additional answers to a question
+        // on top of the primary answer (i.e. the one where
+        // `answer.unit == question.default_unit`). Free form text comments
+        // heavily rely on this feature for example.
+        _callUpdateAnswer: function(practice, measured,
                                      successCallback, errorCallback) {
             var vm = this;
+            const path = practice.path;
+            const apiUrl = ( practice.extra &&
+                             practice.extra.tags &&
+                             practice.extra.tags.includes('verify') ) ?
+                  vm._safeUrl(vm.api_verification_sample, '/notes') :  vm._safeUrl(vm.api_assessment_sample, '/answers');
             var data = null;
             if( typeof measured === 'undefined' || measured === null ) return;
             if( vm._isArray(measured) ) {
@@ -395,8 +406,7 @@ Vue.component('campaign-questions-list', {
             } else {
                 data = {measured: measured};
             }
-            vm.reqPost(vm._safeUrl(vm.api_assessment_sample, '/answers' +
-                vm.prefix + path), data,
+            vm.reqPost(vm._safeUrl(apiUrl, vm.prefix + path), data,
             function success(resp, textStatus, jqXHR) {
                 if( jqXHR.status == 201 ) {
                     vm.nbAnswers++;
@@ -427,7 +437,7 @@ Vue.component('campaign-questions-list', {
             if( typeof newValue === 'undefined' ) {
                 newValue = vm.getPrimaryAnswer(practice);
             }
-            vm._callUpdateAnswer(practice.path, newValue,
+            vm._callUpdateAnswer(practice, newValue,
             function success(resp) {
                 if( resp.length ) {
                     for( var idx = 0; idx < resp.length; ++resp ) {
@@ -473,29 +483,35 @@ Vue.component('campaign-questions-list', {
                 }
             });
         },
+        // We update all `starts-at` in the UI and in the database.
         updateAllStartsAt: function(practice) {
             var vm = this;
-            var atTime = vm.getAnswerStartsAt(
-                practice ? practice : vm.activeElement).measured;
+            const newValue = vm.getAnswerStartsAt(
+                practice ? practice : vm.activeElement)
+            const atTime = newValue.measured;
             var practices = vm.getEntries();
             for( var idx = 0; idx < practices.length; ++idx ) {
                 var row = practices[idx];
                 if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
                     vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ) {
                     vm.getAnswerStartsAt(row).measured = atTime;
+                    vm._callUpdateAnswer(row, newValue);
                 }
             }
         },
+        // We update all `ends-at` in the UI and in the database.
         updateAllEndsAt: function(practice) {
             var vm = this;
-            var atTime = vm.getAnswerEndsAt(
-                practice ? practice : vm.activeElement).measured;
+            var newValue = vm.getAnswerEndsAt(
+                practice ? practice : vm.activeElement)
+            const atTime = newValue.measured;
             var practices = vm.getEntries();
             for( var idx = 0; idx < practices.length; ++idx ) {
                 var row = practices[idx];
                 if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
                     vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ) {
                     vm.getAnswerEndsAt(row).measured = atTime;
+                    vm._callUpdateAnswer(row, newValue);
                 }
             }
         },
@@ -540,7 +556,7 @@ Vue.component('campaign-questions-list', {
                 var row = vm.items.results[idx];
                 if( vm.isPractice(row) ) {
                     vm.getPrimaryAnswer(row).measured = newValue;
-                    vm._callUpdateAnswer(row.path, newValue);
+                    vm._callUpdateAnswer(row, newValue);
                 }
             }
         },
@@ -874,11 +890,6 @@ Vue.component('scorecard', {
         },
         isAssessmentUnit: function(row) {
             return this.isEnumUnit(row) && row.default_unit.slug === 'assessment';
-        },
-        isEnumUnit: function(row) {
-            var vm = this;
-            return vm.isPractice(row) &&
-                row.default_unit && row.default_unit.system === 'enum';
         },
         isFreetextUnit: function(row) {
             var vm = this;

@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 from deployutils.apps.django import mixins as deployutils_mixins
 from deployutils.helpers import update_context_urls
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Q, F
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
@@ -20,6 +21,7 @@ from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import get_question_model
 
 from .compat import reverse
+from .models import VerifiedSample
 from .utils import (get_account_model, get_requested_accounts,
     get_segments_available, get_segments_candidates)
 
@@ -34,11 +36,32 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
         broker = self.request.session.get('site', {}).get('slug')
         return broker and broker in self.accessible_profiles
 
+
+    @property
+    def verifier_accounts(self):
+        """
+        Returns accounts for which the `request.user` is listed as a verifier.
+        """
+        if not hasattr(self, '_verifier_accounts'):
+            self._verifier_accounts = None
+            accessibles = set([
+                org['slug'] for org in self.get_accessible_profiles(
+                    self.request, roles=['manager', settings.AUDITOR_ROLE])])
+            broker = self.request.session.get('site', {}).get('slug')
+            if broker:
+                accessibles.add(broker)
+            if accessibles:
+                self._verifier_accounts = list(
+                    get_account_model().objects.filter(slug__in=accessibles))
+        return self._verifier_accounts
+
     @property
     def is_auditor(self):
-        accessible_audits = set([
-            org['slug'] for org in self.get_accessible_profiles(
-                self.request, roles=[settings.AUDITOR_ROLE])])
+        if self.verifier_accounts:
+            accessible_audits = set([
+                account.slug for account in self.verifier_accounts])
+        else:
+            accessible_audits = set([])
         if True:
             return accessible_audits & settings.UNLOCK_BROKERS
         broker = self.request.session.get('site', {}).get('slug')
@@ -195,6 +218,13 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         return self._improvement_sample
 
     @property
+    def verification(self):
+        if not hasattr(self, '_verification'):
+            self._verification = VerifiedSample.objects.filter(
+                Q(sample=self.sample) | Q(verifier_notes=self.sample)).first()
+        return self._verification
+
+    @property
     def segments_available(self):
         if not hasattr(self, '_segments_available'):
             self._segments_available = get_segments_available(self.sample)
@@ -220,6 +250,26 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
             self._segments_candidates = self.get_segments_candidates(
                 searchable_only=True)
         return self._segments_candidates
+
+
+    def get_or_create_verification(self):
+        """
+        Creates a `VerifiedSample` for a verifier to store verification notes
+        """
+        if not self.verification:
+            verifier_account = None
+            if self.verifier_accounts:
+                verifier_account = self.verifier_accounts[0]
+            assessment_sample = self.sample
+            with transaction.atomic():
+                verifier_notes = Sample.objects.create(
+                    account=verifier_account,
+                    campaign=Campaign.objects.get(
+                        slug='%s-verified' % str(assessment_sample.campaign)))
+                self._verification = VerifiedSample.objects.create(
+                    sample=assessment_sample, verifier_notes=verifier_notes)
+        return self.verification
+
 
     def get_segments_candidates(self, searchable_only=False):
         results = []
@@ -476,6 +526,19 @@ class SectionReportMixin(ReportMixin):
                     ).distinct()
                     self._nb_required_questions += queryset.count()
         return self._nb_required_questions
+
+    def get_context_data(self, **kwargs):
+        context = super(SectionReportMixin, self).get_context_data(**kwargs)
+        if self.is_auditor:
+            verified_sample = VerifiedSample.objects.filter(
+                sample=self.sample).first()
+            if verified_sample and verified_sample.verifier_notes:
+                update_context_urls(context, {
+                    'api_verification_sample': reverse('survey_api_sample',
+                        args=(verified_sample.verifier_notes.account,
+                              verified_sample.verifier_notes)),
+                })
+        return context
 
 
 class AccountsAggregatedQuerysetMixin(DateRangeContextMixin, AccountMixin):

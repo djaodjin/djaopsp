@@ -4,7 +4,6 @@
 from rest_framework import serializers
 from survey.api.serializers import (NoModelSerializer,
     InviteeSerializer as ProfileSerializer, CampaignSerializer)
-from survey.models import Campaign
 
 from ..compat import gettext_lazy as _
 
