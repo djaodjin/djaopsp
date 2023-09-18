@@ -2,10 +2,8 @@
 
 {% block localheadermeta %}
 <title>{% trans profile=profile.printable_name %}Completed Questionnaires for {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
-<meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
 <meta property="og:title" content="{% trans profile=profile.printable_name %}Completed Questionnaires History for {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}" />
-<meta property="og:url" content="https://www.tspproject.org/" />
-<meta name="description" property="og:description" content="}" />
+<meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
 {% endblock %}
 
 {% block app_content %}

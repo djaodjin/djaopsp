@@ -7,11 +7,11 @@
     <meta name="author" content="DjaoDjin inc.">
     <meta name="copyright" content="Copyright (c) 2023 DjaoDjin inc.">
     <link rel="icon" href="{{'/favicon.ico'|site_url}}" type="image/x-icon">
-    {% block localheadermeta %}
-    <title>{% if request and request.site %}{{request.site.printable_name}}{% else %}{% trans %}Practices Sharing Platform{% endtrans %}{% endif %} | DjaoDjin</title>
-    <meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
-    <meta property="og:site_name" content="DjaoDjin" />
+    <meta property="og:site_name" content="{% if request and request.site %}{{request.site.printable_name}}{% else %}Practices Sharing Platform{% endif %}" />
     <meta property="og:type" content="website" />
+    {% block localheadermeta %}
+    <title>{% if request and request.site %}{{request.site.printable_name}}{% else %}{% trans %}Practices Sharing Platform{% endtrans %}{% endif %}</title>
+    <meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
     {% endblock %}
     <link rel="stylesheet" media="screen, print" href="{{'/static/cache/app.css'|asset}}" />
     <style media="screen">

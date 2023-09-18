@@ -2,9 +2,7 @@
 
 {% block localheadermeta %}
 <title>{% if element %}{{element.title}}{% else %}{% trans %}Practices Sharing Platform{% endtrans %}{% endif %} | DjaoDjin</title>
-<meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
-<meta property="og:site_name" content="DjaoDjin" />
-<meta property="og:type" content="website" />
+<meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
 {% endblock %}
 
 {% block content %}
@@ -117,7 +115,7 @@
 {% trans %}When using it for any project, you are required to give credit to The Sustainability Project (TSP). Please use the following attribution:{% endtrans %}
                           </p>
                             <p class="border-left pl-2" v-cloak>
-<em>&quot;<a :href="'https://www.tspproject.org/app/info' + item.path">[[item.title]]</a> by <a href="https://www.tspproject.org/">The Sustainability Project (TSP)</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.&quot;</em>
+<em>&quot;<a :href="'{{request|site_url}}/app/info' + item.path">[[item.title]]</a> by <a href="{{request|site_url}}">The Sustainability Project (TSP)</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.&quot;</em>
                             </p>
                         </div>
                         {% if edit_perm %}

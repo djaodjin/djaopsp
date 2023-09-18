@@ -2,9 +2,8 @@
 
 {% block localheadermeta %}
 <title>{% trans campaign=campaign.title, profile=profile.printable_name %}{{campaign}} Engagement - {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
-<meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
 <meta property="og:title" content="{{campaign.title}} Engagement - {{profile.printable_name}} | Practice Sharing Platform" />
-<meta property="og:url" content="https://www.tspproject.org/" />
+<meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
 <meta name="description" property="og:description" content="Engage reporting profiles with {{campaign.title}}" />
 {% endblock %}
 

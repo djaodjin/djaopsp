@@ -2,9 +2,8 @@
 
 {% block localheadermeta %}
 <title>{{campaign.title}} Responses - {{profile.printable_name}} | Practice Sharing Platform</title>
-<meta property="og:image" content="https://djaodjin.com/static/img/og-image.png" />
 <meta property="og:title" content="{{campaign.title}} Responses - {{profile.printable_name}} | Practice Sharing Platform" />
-<meta property="og:url" content="https://www.tspproject.org/" />
+<meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
 <meta name="description" property="og:description" content="Browse responses to {{campaign.title}}" />
 {% endblock %}
 
