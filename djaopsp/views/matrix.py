@@ -56,7 +56,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     and accounts as columns.
     """
     basename = 'dashboard'
-    show_comments = False # XXX
+    show_comments = True
     show_scores = True
     show_planned = False
 
@@ -317,8 +317,9 @@ ORDER BY answers.path, answers.account_id
         kwargs = {}
         if self.show_planned:
             kwargs.update({'extra': 'is_planned'})
-        return get_completed_assessments_at_by(self.campaign,
+        queryset = get_completed_assessments_at_by(self.campaign,
             ends_at=self.ends_at, prefix=from_root, **kwargs)
+        return queryset
 
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals

@@ -1199,29 +1199,31 @@ class PortfolioAccessibleSamplesMixin(TimersMixin, CampaignMixin,
         sql_query = """
 WITH accounts AS (
 %(accounts_query)s
+),
+last_updates AS (
+SELECT
+  account_id,
+  %(as_year)s AS year,
+  MAX(survey_sample.created_at) AS last_updated_at
+FROM survey_sample
+INNER JOIN accounts ON
+  survey_sample.account_id = accounts.id
+WHERE survey_sample.campaign_id = %(campaign_id)d AND
+  survey_sample.is_frozen AND
+  survey_sample.extra IS NULL
+  %(date_range_clause)s
+GROUP BY account_id, year
 )
 SELECT
     accounts.slug AS account_slug,
     survey_sample.account_id AS account_id,
     survey_sample.id AS id,
     survey_sample.created_at AS created_at,
-    CASE WHEN survey_sample.created_at < survey_portfolio.ends_at
+    CASE WHEN survey_sample.created_at < MAX(survey_portfolio.ends_at)
        THEN 'completed'
        ELSE 'responded' END AS state
 FROM survey_sample
-INNER JOIN (
-    SELECT
-        account_id,
-        %(as_year)s AS year,
-        MAX(survey_sample.created_at) AS last_updated_at
-    FROM survey_sample
-    INNER JOIN accounts ON
-        survey_sample.account_id = accounts.id
-    WHERE survey_sample.campaign_id = %(campaign_id)d AND
-          survey_sample.is_frozen AND
-          survey_sample.extra IS NULL
-          %(date_range_clause)s
-    GROUP BY account_id, year) AS last_updates ON
+INNER JOIN last_updates ON
    survey_sample.account_id = last_updates.account_id AND
    survey_sample.created_at = last_updates.last_updated_at
 INNER JOIN accounts ON
@@ -1230,8 +1232,12 @@ INNER JOIN survey_portfolio ON
    survey_portfolio.account_id = accounts.id
 WHERE
    survey_portfolio.grantee_id IN (%(grantees)s) AND
+   (survey_portfolio.campaign_id = %(campaign_id)s OR
+    survey_portfolio.campaign_id IS NULL) AND
    survey_sample.is_frozen AND
    survey_sample.extra IS NULL
+GROUP BY accounts.slug,
+        survey_sample.account_id, survey_sample.id, survey_sample.created_at
 ORDER BY account_id, created_at
 """ % {'campaign_id': campaign.pk,
        'accounts_query': accounts_query,
@@ -1241,7 +1247,9 @@ ORDER BY account_id, created_at
         return Sample.objects.raw(sql_query)
 
     def get_queryset(self):
-        return get_accessible_accounts([self.account])
+        queryset = get_accessible_accounts(
+            [self.account], campaign=self.campaign)
+        return queryset
 
     def as_sample(self, key, requested_by_keys):
         """
