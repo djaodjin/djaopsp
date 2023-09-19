@@ -176,7 +176,7 @@ ORDER BY answers.path, answers.account_id
                             # flush
                             #if path in self._by_paths:
                             #    raise RuntimeError("Updating already processed path '%s'" % path)
-                            self._by_paths.update({path: self.tabularize(
+                            self._by_paths.update({prev_path: self.tabularize(
                                 chunk, self.accounts_with_engagement)})
                             chunk = []
                             self._report_queries("tabularize %s" % path)
@@ -185,7 +185,7 @@ ORDER BY answers.path, answers.account_id
                     if chunk:
                         #if path in self._by_paths:
                         #    raise RuntimeError("Updating already processed path '%s'" % path)
-                        self._by_paths.update({path: self.tabularize(
+                        self._by_paths.update({prev_path: self.tabularize(
                             chunk, self.accounts_with_engagement)})
                         self._report_queries("tabularize %s" % path)
         return self._by_paths

@@ -262,12 +262,16 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
                 verifier_account = self.verifier_accounts[0]
             assessment_sample = self.sample
             with transaction.atomic():
-                verifier_notes = Sample.objects.create(
-                    account=verifier_account,
-                    campaign=Campaign.objects.get(
-                        slug='%s-verified' % str(assessment_sample.campaign)))
-                self._verification = VerifiedSample.objects.create(
-                    sample=assessment_sample, verifier_notes=verifier_notes)
+                try:
+                    campaign_verified = Campaign.objects.get(
+                        slug='%s-verified' % str(assessment_sample.campaign))
+                    verifier_notes = Sample.objects.create(
+                        account=verifier_account,
+                        campaign=campaign_verified)
+                    self._verification = VerifiedSample.objects.create(
+                        sample=assessment_sample, verifier_notes=verifier_notes)
+                except Campaign.DoesNotExist:
+                    self._verification = None
         return self.verification
 
 

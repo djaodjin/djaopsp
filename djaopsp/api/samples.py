@@ -50,6 +50,8 @@ class SampleNotesMixin(SampleMixin):
         if not prefix:
             prefix = self.path
         verification = self.get_or_create_verification()
+        if not verification:
+            return []
         return self.get_answers(
             prefix=prefix, sample=verification.verifier_notes)
 
