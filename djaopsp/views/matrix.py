@@ -58,7 +58,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     basename = 'dashboard'
     show_comments = True
     show_scores = True
-    show_planned = False
+    show_planned = True
 
 #    ordering = ('full_name',)
     ordering = ('account_id',)
@@ -84,8 +84,18 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     def latest_assessments(self):
         if not hasattr(self, '_latest_assessments'):
             #pylint:disable=attribute-defined-outside-init
-            self._latest_assessments = self.get_latest_samples(self.db_path)
+            self._latest_assessments = get_completed_assessments_at_by(
+                self.campaign, ends_at=self.ends_at, prefix=self.db_path)
         return self._latest_assessments
+
+    @property
+    def latest_improvements(self):
+        if not hasattr(self, '_improvements'):
+            #pylint:disable=attribute-defined-outside-init
+            self._improvements = get_completed_assessments_at_by(
+                self.campaign, ends_at=self.ends_at, prefix=self.db_path,
+                extra='is_planned')
+        return self._improvements
 
     @property
     def accounts_with_engagement(self):
@@ -110,88 +120,23 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         """
         #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_by_paths'):
-            self._by_paths = {}
-            accounts = self.requested_accounts
-            sep = ""
-            accounts_clause = ""
-            if accounts:
-                if isinstance(accounts, list):
-                    account_ids = "(%s)" % ','.join([
-                        str(account_id) for account_id in accounts])
-                elif isinstance(accounts, QuerySet):
-                    account_ids = "(%s)" % ','.join([
-                        str(account.pk) for account in accounts])
-                elif isinstance(accounts, RawQuerySet):
-                    account_ids = "(%s)" % accounts.query.sql
-                accounts_clause += (
-                    "%(sep)ssamples.account_id IN %(account_ids)s" % {
-                        'sep': sep, 'account_ids': account_ids})
-            if accounts_clause:
-                reporting_answers_sql = """
-WITH samples AS (
-    %(latest_assessments)s
-),
-answers AS (SELECT
-    survey_question.path,
-    samples.account_id,
-    survey_answer.measured,
-    survey_answer.unit_id,
-    survey_question.default_unit_id,
-    survey_unit.title
-FROM survey_answer
-INNER JOIN survey_question
-  ON survey_answer.question_id = survey_question.id
-INNER JOIN samples
-  ON survey_answer.sample_id = samples.id
-INNER JOIN survey_unit
-  ON survey_answer.unit_id = survey_unit.id
-WHERE %(accounts_clause)s)
-SELECT
-  answers.path,
-  answers.account_id,
-  answers.measured,
-  answers.unit_id,
-  answers.default_unit_id,
-  answers.title,
-  survey_choice.text
-FROM answers
-LEFT OUTER JOIN survey_choice
-  ON survey_choice.unit_id = answers.unit_id AND
-     survey_choice.id = answers.measured
-ORDER BY answers.path, answers.account_id
-""" % {
-            'latest_assessments': self.latest_assessments.query.sql,
-            'accounts_clause': accounts_clause
-        }
-                # XXX should still print questions if no accounts.
-                with connection.cursor() as cursor:
-                    cursor.execute(reporting_answers_sql, params=None)
-                    prev_path = None
-                    chunk = []
-                    for row in cursor:
-                        # The SQL quesry is ordered by `path` so we can build
-                        # the final result by chunks, path by path.
-                        path = row[0].split('/')[-1] # XXX slug
-                        if prev_path and path != prev_path:
-                            # flush
-                            #if path in self._by_paths:
-                            #    raise RuntimeError("Updating already processed path '%s'" % path)
-                            self._by_paths.update({prev_path: self.tabularize(
-                                chunk, self.accounts_with_engagement)})
-                            chunk = []
-                            self._report_queries("tabularize %s" % path)
-                        chunk += [row]
-                        prev_path = path
-                    if chunk:
-                        #if path in self._by_paths:
-                        #    raise RuntimeError("Updating already processed path '%s'" % path)
-                        self._by_paths.update({prev_path: self.tabularize(
-                            chunk, self.accounts_with_engagement)})
-                        self._report_queries("tabularize %s" % path)
+            self._by_paths = self.get_answers_by_paths(self.latest_assessments)
+            if self.show_planned:
+                planned_by_paths = self.get_answers_by_paths(
+                    self.latest_improvements)
+                for path, row in planned_by_paths.items():
+                    by_paths_row = self._by_paths.get(path)
+                    if row and by_paths_row:
+                        assert len(row) == len(by_paths_row)
+                        for by_paths_cell, cell in zip(by_paths_row, row):
+                            assert by_paths_cell.get('account_id') == \
+                                cell.get('account_id')
+                            by_paths_cell.update({
+                                'planned': cell.get('measured', '')})
         return self._by_paths
 
     def add_datapoint(self, account, row):
-        account_id = row[1]
+        # account_id = row[1]
         measured = row[2]
         unit_id = row[3]
         default_unit_id = row[4]
@@ -249,7 +194,7 @@ ORDER BY answers.path, answers.account_id
         datapoints_iterator = iter(datapoints)
         try:
             datapoint = next(datapoints_iterator)
-            path = datapoint[0]
+            # path = datapoint[0]
         except StopIteration:
             datapoint = None
         prev_key = None
@@ -313,13 +258,86 @@ ORDER BY answers.path, answers.account_id
             row += [slug]
         return row
 
-    def get_latest_samples(self, from_root):
-        kwargs = {}
-        if self.show_planned:
-            kwargs.update({'extra': 'is_planned'})
-        queryset = get_completed_assessments_at_by(self.campaign,
-            ends_at=self.ends_at, prefix=from_root, **kwargs)
-        return queryset
+    def get_answers_by_paths(self, latest_samples):
+        answers_by_paths = {}
+        accounts = self.requested_accounts
+        sep = ""
+        accounts_clause = ""
+        if accounts:
+            if isinstance(accounts, list):
+                account_ids = "(%s)" % ','.join([
+                    str(account_id) for account_id in accounts])
+            elif isinstance(accounts, QuerySet):
+                account_ids = "(%s)" % ','.join([
+                    str(account.pk) for account in accounts])
+            elif isinstance(accounts, RawQuerySet):
+                account_ids = "(%s)" % accounts.query.sql
+            accounts_clause += (
+                "%(sep)ssamples.account_id IN %(account_ids)s" % {
+                    'sep': sep, 'account_ids': account_ids})
+        if accounts_clause:
+            reporting_answers_sql = """
+WITH samples AS (
+    %(latest_assessments)s
+),
+answers AS (SELECT
+    survey_question.path,
+    samples.account_id,
+    survey_answer.measured,
+    survey_answer.unit_id,
+    survey_question.default_unit_id,
+    survey_unit.title
+FROM survey_answer
+INNER JOIN survey_question
+  ON survey_answer.question_id = survey_question.id
+INNER JOIN samples
+  ON survey_answer.sample_id = samples.id
+INNER JOIN survey_unit
+  ON survey_answer.unit_id = survey_unit.id
+WHERE %(accounts_clause)s)
+SELECT
+  answers.path,
+  answers.account_id,
+  answers.measured,
+  answers.unit_id,
+  answers.default_unit_id,
+  answers.title,
+  survey_choice.text
+FROM answers
+LEFT OUTER JOIN survey_choice
+  ON survey_choice.unit_id = answers.unit_id AND
+     survey_choice.id = answers.measured
+ORDER BY answers.path, answers.account_id
+""" % {
+            'latest_assessments': latest_samples.query.sql,
+            'accounts_clause': accounts_clause
+        }
+            # XXX should still print questions if no accounts.
+            with connection.cursor() as cursor:
+                cursor.execute(reporting_answers_sql, params=None)
+                prev_path = None
+                chunk = []
+                for row in cursor:
+                    # The SQL quesry is ordered by `path` so we can build
+                    # the final result by chunks, path by path.
+                    path = row[0].split('/')[-1] # XXX slug
+                    if prev_path and path != prev_path:
+                        # flush
+                        #if prev_path in answers_by_paths:
+                        #    raise RuntimeError("Updating already processed path '%s'" % path)
+                        answers_by_paths.update({prev_path: self.tabularize(
+                            chunk, self.accounts_with_engagement)})
+                        chunk = []
+                        self._report_queries("tabularize %s" % path)
+                    chunk += [row]
+                    prev_path = path
+                if chunk:
+                    #if prev_path in answers_by_paths:
+                    #    raise RuntimeError("Updating already processed path '%s'" % path)
+                    answers_by_paths.update({prev_path: self.tabularize(
+                        chunk, self.accounts_with_engagement)})
+                    self._report_queries("tabularize %s" % path)
+        return answers_by_paths
 
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals
@@ -335,6 +353,9 @@ ORDER BY answers.path, answers.account_id
             self.write_sheet(title="Comments", key='comments',
                 queryset=queryset)
         self._report_queries("written comments")
+        if self.show_planned:
+            self.write_sheet(title="Planned", key='planned', queryset=queryset)
+            self._report_queries("written planned")
         if self.show_scores:
             # XXX uncoment to print detail scores on each question.
             # self.write_sheet(title="Scores", key='score',

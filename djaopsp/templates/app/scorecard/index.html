@@ -168,7 +168,8 @@
                   </div>
                 </div>{# /.col-md-8 #}
                 <div class="col-md-4">
-                  <div :class="indentHeader(practice)">
+                                      {# 30px matches .nav-tabs.squared-tabs #}
+                  <div :class="indentHeader(practice)" style="margin-left: 20px; margin-top:50px;">
                     [[asPercent(practice.normalized_score)]]
                   </div>
                 </div>{# /.col-md-4 #}
@@ -234,6 +235,7 @@
 {% trans %}companies responding on practices in the industry segment.{% endtrans %}
             </p>
 
+            {# Beginning of details section #}
             <div v-if="!isChartHeading(practice) && !isPractice(practice)">
               <hr v-if="isTilePicture(practice)" />
               <div class="row">
@@ -462,9 +464,11 @@
                 </div>
               </div>
             </div>{# /isDatetimeUnit(practice) #}
+            {# End of details section #}
 
           </div>{# /v-for=getEntries() #}
         </div>{# /v-if=itemsLoaded && items.results.length > 0 #}
+
         {% if not sample.is_frozen %}
         <div id="add-segments-actions" class="d-print-none text-center"
              v-show="itemsLoaded" v-cloak>
