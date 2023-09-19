@@ -560,12 +560,18 @@ Vue.component('campaign-questions-list', {
                 }
             }
         },
+
+        getPlannedChecked: function(practice) {
+            var vm = this;
+            return Boolean(vm.getPrimaryPlanned(practice).measured)
+        },
+
         updatePlannedAnswer: function(practice, newValue) {
             var vm = this;
             if( vm.isPractice(practice) ) {
                 var improveUrl = vm._safeUrl(vm.api_improvement_sample,
                     '/answers' + vm.prefix + practice.path);
-                if( practice.planned ) {
+                if( typeof newValue !== 'undefined' ) {
                     var data = {
                         measured: newValue
                     };

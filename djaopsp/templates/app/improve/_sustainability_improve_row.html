@@ -48,6 +48,8 @@
     <input class="improvement-checkbox"
            type="checkbox"
            {% if sample.is_frozen %} disabled{% endif %}
-           @change="updatePlannedAnswer(practice, YES)"
+           {# counter-intuitive but `@change` is called after the model #}
+           {# is updated to `false`. #}
+           @change="updatePlannedAnswer(practice, getPlannedChecked(practice) ? YES : undefined)"
            v-model="getPrimaryPlanned(practice).measured" />
 </td>
