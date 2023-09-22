@@ -38,7 +38,7 @@ RUNSYNCDB     = $(if $(findstring --run-syncdb,$(shell cd $(srcDir) && $(MANAGE)
 
 ifneq ($(wildcard $(CONFIG_DIR)/site.conf),)
 # `make initdb` will install site.conf but only after `grep` is run
-# and DB_FILNAME set to "". We use the default value in the template site.conf
+# and DB_FILENAME set to "". We use the default value in the template site.conf
 # here to prevent that issue.
 DB_FILENAME   := $(shell grep ^DB_NAME $(CONFIG_DIR)/site.conf | cut -f 2 -d '"')
 endif

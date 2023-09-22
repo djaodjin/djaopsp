@@ -3,7 +3,6 @@
 Django settings for djaopsp project.
 """
 import os, sys
-from pathlib import Path
 
 from deployutils.configs import load_config, update_settings
 
@@ -11,7 +10,7 @@ from .compat import reverse_lazy
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Default values that can be overriden by `update_settings` later on.
 APP_NAME = os.path.basename(BASE_DIR)

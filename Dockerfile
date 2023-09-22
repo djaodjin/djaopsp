@@ -13,30 +13,34 @@ RUN apt-get update -y
 #     Installs required native packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libpangoft2-1.0-0
 
-RUN /usr/local/bin/python3 -m venv /app --system-site-packages
+RUN /usr/local/bin/python3 -m venv --upgrade-deps /app --system-site-packages
 #    If we attempt to upgrade from pip 21.2.3 to 22.0.4,
 #    installing requests>=2.22.0 fails ("cannot find package").
 #RUN /app/bin/pip install pip setuptools --upgrade
 
-#    Bundle app source
-COPY . /app/reps/djaopsp
-WORKDIR /app/reps/djaopsp
 #    Installs the preprequisites used for debugging (DEBUG=1, API_DEBUG=1)
 #    so we don't have to rebuild a container to investigate when something
 #    goes wrong.
-RUN /app/bin/pip install -r requirements.txt
+RUN /app/bin/pip install Django==3.2.20 djangorestframework==3.12.4 djaodjin-deployutils==0.10.6 djaodjin-extended-templates==0.3.4 djaodjin-pages==0.6.9 djaodjin-survey==0.9.11 gunicorn==20.1.0 jinja2==3.1.2 html5lib==1.1 monotonic==1.6 openpyxl==3.1.2 python-pptx==0.6.21 pytz==2023.3 django-debug-toolbar==3.5.0 django-extensions==3.2.0 Faker==2.0.0 sqlparse==0.4.4 docutils==0.18.1
+RUN /app/bin/pip install cairocffi==1.3.0 coverage==6.3.2 cryptography==38.0.3 psycopg2-binary==2.9.3 setproctitle==1.2.3
+
+#    Bundle app source
+COPY . /app/reps/djaopsp
+WORKDIR /app/reps/djaopsp
 
 # Create local configuration files
-RUN /bin/mkdir -p /etc/djaopsp
+RUN /bin/mkdir -p /etc/djaopsp /var/run/djaopsp
 RUN /bin/sed -e "s,\%(SECRET_KEY)s,`/app/bin/python -c 'import sys ; from random import choice ; sys.stdout.write("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^*-_=+") for i in range(50)]))'`," -e "s,\%(DJAODJIN_SECRET_KEY)s,`/app/bin/python -c 'import sys ; from random import choice ; sys.stdout.write("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^*-_=+") for i in range(50)]))'`," etc/credentials > /etc/djaopsp/credentials
-RUN /bin/sed -e "s,^DB_LOCATION *= *\".*\",DB_LOCATION = \"sqlite3:///app/reps/djaopsp/db.sqlite\"," etc/site.conf > /etc/djaopsp/site.conf
+RUN /bin/sed -e "s,^DB_LOCATION *= *\".*\",DB_LOCATION = \"sqlite3:///app/reps/djaopsp/db.sqlite\"," -e s,%(DB_NAME)s,db,g \
+   -e 's,%(APP_NAME)s,djaopsp,g' -e 's,%(LOCALSTATEDIR)s,/var,g'\
+   etc/site.conf > /etc/djaopsp/site.conf
 RUN /bin/sed -e 's,%(APP_NAME)s,djaopsp,g' -e 's,%(LOCALSTATEDIR)s,/var,g'\
   -e 's,%(PID_FILE)s,/var/run/djaopsp.pid,g'\
   -e 's,bind="127.0.0.1:%(APP_PORT)s",bind="0.0.0.0:80",'\
   etc/gunicorn.conf > /etc/djaopsp/gunicorn.conf
 
 # Expose application http port
-Expose 80
+Expose 80/tcp
 
 # Run
-CMD ["/app/bin/gunicorn", "-c", "/etc/djaopsp/gunicorn.conf", "djaopsp.wsgi"]
+ENTRYPOINT ["/app/bin/gunicorn", "-c", "/etc/djaopsp/gunicorn.conf", "djaopsp.wsgi"]
