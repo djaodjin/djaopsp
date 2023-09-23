@@ -15,7 +15,7 @@ from django.views.generic.base import (ContextMixin, RedirectView,
     TemplateResponseMixin, TemplateView)
 from django.template.defaultfilters import slugify
 from survey.helpers import get_extra
-from survey.models import EditableFilter
+from survey.models import Choice, EditableFilter
 from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP, URL_PATH_SEP
 from survey.utils import get_question_model
@@ -56,7 +56,13 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
             'prefix': self.full_path,
             'nb_answers': self.nb_answers,
             'nb_questions': self.nb_questions,
+            'units': {}
         })
+        for unit_slug in ('verifiability', 'supporting-document',
+                          'completeness'):
+            context['units'].update({
+                unit_slug.replace('-', '_'): Choice.objects.filter(
+                    unit__slug=unit_slug).order_by('rank')})
         if not self.sample.is_frozen:
             context.update({
                 'nb_required_answers': self.nb_required_answers,

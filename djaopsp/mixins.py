@@ -259,19 +259,23 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         if not self.verification:
             verifier_account = None
             if self.verifier_accounts:
+                # If we don't have a verifier account, we do not create
+                # any verifier notes otherwise it could lead to serious
+                # data issues in the future.
                 verifier_account = self.verifier_accounts[0]
-            assessment_sample = self.sample
-            with transaction.atomic():
-                try:
-                    campaign_verified = Campaign.objects.get(
-                        slug='%s-verified' % str(assessment_sample.campaign))
-                    verifier_notes = Sample.objects.create(
-                        account=verifier_account,
-                        campaign=campaign_verified)
-                    self._verification = VerifiedSample.objects.create(
-                        sample=assessment_sample, verifier_notes=verifier_notes)
-                except Campaign.DoesNotExist:
-                    self._verification = None
+                assessment_sample = self.sample
+                with transaction.atomic():
+                    try:
+                        campaign_verified = Campaign.objects.get(
+                            slug='%s-verified' % str(assessment_sample.campaign))
+                        verifier_notes = Sample.objects.create(
+                            account=verifier_account,
+                            campaign=campaign_verified)
+                        self._verification = VerifiedSample.objects.create(
+                            sample=assessment_sample,
+                            verifier_notes=verifier_notes)
+                    except Campaign.DoesNotExist:
+                        self._verification = None
         return self.verification
 
 
@@ -354,6 +358,19 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         if self.account == self.sample.account:
             update_context_urls(context, {'share': reverse('share',
                 args=(self.sample.account, self.sample,))})
+
+        if self.is_auditor:
+            verified_sample = self.get_or_create_verification()
+            if verified_sample:
+                if verified_sample.verified_by:
+                    context.update({'verified_by': verified_sample.verified_by})
+                if verified_sample.verifier_notes:
+                    update_context_urls(context, {
+                        'api_verification_sample': reverse('survey_api_sample',
+                            args=(verified_sample.verifier_notes.account,
+                            verified_sample.verifier_notes)),
+                    })
+
         return context
 
 
@@ -530,19 +547,6 @@ class SectionReportMixin(ReportMixin):
                     ).distinct()
                     self._nb_required_questions += queryset.count()
         return self._nb_required_questions
-
-    def get_context_data(self, **kwargs):
-        context = super(SectionReportMixin, self).get_context_data(**kwargs)
-        if self.is_auditor:
-            verified_sample = VerifiedSample.objects.filter(
-                sample=self.sample).first()
-            if verified_sample and verified_sample.verifier_notes:
-                update_context_urls(context, {
-                    'api_verification_sample': reverse('survey_api_sample',
-                        args=(verified_sample.verifier_notes.account,
-                              verified_sample.verifier_notes)),
-                })
-        return context
 
 
 class AccountsAggregatedQuerysetMixin(DateRangeContextMixin, AccountMixin):

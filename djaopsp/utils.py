@@ -212,6 +212,8 @@ def get_requested_accounts(account, campaign=None, aggregate_set=False,
     """
     #pylint:disable=too-many-arguments
     queryset = None
+    if aggregate_set:
+        search_terms = None
     if (hasattr(settings, 'REQUESTED_ACCOUNTS_CALLABLE') and
         settings.REQUESTED_ACCOUNTS_CALLABLE):
         queryset = import_string(settings.REQUESTED_ACCOUNTS_CALLABLE)(

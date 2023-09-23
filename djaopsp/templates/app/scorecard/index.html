@@ -73,9 +73,14 @@
             </div>
           </div>
         </div>{# /.row #}
-        <div class="row">
-          <div class="col-sm-4 text-right">
+        <div class="row mx-2">
+          <div class="col-sm-4">
             {% if verification_enabled %}
+            {% if verified_by %}
+            <p>
+              {% trans %}Verified by{% endtrans %}: {{verified_by.get_full_name()}}
+            </p>
+            {% endif %}
             <form class="d-print-none mt-2">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <select class="form-control"
@@ -330,6 +335,7 @@
                       </div>
                     </div>
                   </div>
+                  {# XXX only shows comments, no all units #}
                   <p @click.prevent="openLink($event)"
                      v-html="textAsHtml(getCommentsAnswer(practice).measured)"
                      v-if="getCommentsAnswer(practice).measured">
@@ -357,7 +363,7 @@
                   <div v-for="answer in practice.answers"
                        v-if="practice.answers.length > 0">
                     <div v-if="practice.answers && answer.measured">
-                      [[answer.measured]]
+                      [[answer.measured]] {# XXX no unit #}
                     </div>
                     <div v-if="!answer.measured">
                       &dash;
@@ -425,6 +431,7 @@
                         ({% trans %}not publicly disclosed{% endtrans %})
                       </span>
                       <span v-if="!(answer.unit === 'percentage' || answer.unit === 'ends-at' || answer.unit === 'yes-no')">
+                      {# XXX shows all answers with units #}
                       [[answer.measured]] [[getUnit(answer).title]]
                       </span>
                     </div>
@@ -457,6 +464,7 @@
                     v-if="practice.answers && practice.answers.length > 0">
                     <strong>[[getPrimaryAnswer(practice).measured ? getPrimaryAnswer(practice).measured : "-"]]</strong>
                   </div>
+                  {# XXX only shows comments #}
                   <p @click.prevent="openLink($event)"
                      v-html="textAsHtml(getCommentsAnswer(practice).measured)"
                      v-if="getCommentsAnswer(practice).measured">

@@ -415,28 +415,29 @@
     <select class="form-control"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)">
-      <option value="no-response">No Response</option>
-      <option value="sr-no">Self-reported No</option>
-      <option value="yes-unverifiable">Self-reported Yes &gt; Unverifiable</option>
-      <option value="yes-verifiable">Self-reported Yes &gt; Verifiable</option>
+      <option v-if="getAnswerByUnit(practice, 'completeness').measured == null" disabled :value="null">{% trans %}Select verifiability ...{% endtrans %}</option>
+      {% for option in units.verifiability %}
+      <option value="{{option.text}}">{{option.descr}}</option>
+      {% endfor %}
     </select>
     <select class="form-control"
-            v-model="getAnswerByUnit(practice, 'supporting-document').measured"
-            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'))">
-      <option value="sustainability-report">CSR/Sustainability Report</option>
-      <option value="company-mission-statement">Company Mission Statement</option>
+            v-model="getAnswerByUnit(practice, 'completeness').measured"
+            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'completeness'))">
+      <option v-if="getAnswerByUnit(practice, 'completeness').measured == null" disabled :value="null">{% trans %}Select completeness ...{% endtrans %}</option>
+      {% for option in units.completeness %}
+      <option value="{{option.text}}">{{option.descr}}</option>
+      {% endfor %}
     </select>
   </div>
   <div class="input-group">
     <select class="form-control"
-            v-model="getAnswerByUnit(practice, 'completeness').measured"
-            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'completeness'))">
-      <option value="no-response">No Response</option>
-      <option value="sr-no">Self-reported No</option>
-      <option value="yes-inaccurate">Self-reported Yes &gt; Inaccurate</option>
-      <option value="yes-unreliable">Self-reported Yes &gt; Unreliable</option>
-      <option value="yes-accurate-incomplete">Self-reported Yes &gt; Accurate, Incomplete</option>
-      <option value="yes-accurate-complete">Self-reported Yes &gt; Accurate and Complete</option>
+            v-model="getAnswerByUnit(practice, 'supporting-document').measured"
+            value=""
+            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'))">
+      <option v-if="getAnswerByUnit(practice, 'supporting-document').measured == null" disabled :value="null">{% trans %}Select supporting document ...{% endtrans %}</option>
+      {% for option in units.supporting_document %}
+      <option value="{{option.text}}">{{option.descr}}</option>
+      {% endfor %}
     </select>
   </div>
 </td>
