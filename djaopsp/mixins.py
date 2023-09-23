@@ -51,6 +51,7 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
             if broker:
                 accessibles.add(broker)
             if accessibles:
+                accessibles &= settings.UNLOCK_BROKERS
                 self._verifier_accounts = list(
                     get_account_model().objects.filter(slug__in=accessibles))
         return self._verifier_accounts
