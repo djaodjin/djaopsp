@@ -154,7 +154,8 @@ class GetStartedProfileView(AccountMixin, FormMixin, TemplateResponseMixin,
     def get(self, request, *args, **kwargs):
         campaign = kwargs.get('campaign')
         candidates = get_latest_active_assessments(
-            self.account, campaign=campaign)
+            self.account, campaign=campaign).exclude(
+                campaign__slug__endswith='-verified')
 
         redirects = []
         for sample in candidates:
