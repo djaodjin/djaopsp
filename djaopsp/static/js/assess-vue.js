@@ -974,10 +974,10 @@ Vue.component('scorecard', {
             this.activeTile = practice;
         },
         // display with active links
-        textAsHtml: function(text) {
+        textAsHtml: function(text, required) {
             var vm = this;
             if( !text ) {
-                return "";
+                return required ? "&dash;" : "";
             }
             var activeLinks = text.replace(
                 /(https?:\/\/\S+)/gi,

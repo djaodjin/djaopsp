@@ -179,8 +179,12 @@ var practicesListMixin = {
             return 0;
         },
         asPercent: function(rate) {
-            return (
-                isNaN(rate) || rate === null) ? "" : (rate.toFixed(0) + "%");
+            try {
+                return (
+                    isNaN(rate) || rate === null) ? "" : (rate.toFixed(0) + "%");
+            } catch( error ) {
+            }
+            return "";
         },
         containsTag: function(row, tag) {
             var result = false;
@@ -247,6 +251,26 @@ var practicesListMixin = {
                 }].concat(practice['answers']);
             }
             return practice.answers[0];
+        },
+        getSecondaryAnswers: function(practice) {
+            let vm = this;
+            if( !practice ) return {};
+            if( typeof practice.answers === 'undefined' ||
+              practice.answers.length < 1 ) {
+                return [];
+            }
+            if( vm.isUnitEquivalent(
+                practice.answers[0].unit, practice.default_unit.slug) ) {
+                return practice.answers.slice(1);
+            }
+            let results = []
+            for( let idx = 0; idx < practice.answers.length; ++idx ) {
+                if( !vm.isUnitEquivalent(
+                    practice.answers[idx].unit, practice.default_unit.slug) ) {
+                    results.push(practice.answers[idx]);
+                }
+            }
+            return results;
         },
         // Returns comments from the auditor that verifies the accuracy
         // of an answer.
@@ -643,6 +667,10 @@ var practicesListMixin = {
                                  resp[idx].avg_normalized_score == null) ) {
                                 vm.items.results[jdx].avg_normalized_score =
                                     resp[idx].avg_normalized_score;
+                            }
+                            if( resp[idx].hasOwnProperty('benchmarks') ) {
+                                vm.items.results[jdx].benchmarks =
+                                    resp[idx].benchmarks;
                             }
                             vm.buildChart(resp[idx]);
                             break;

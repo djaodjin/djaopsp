@@ -80,9 +80,9 @@ def freeze_scores(sample, excludes=None, collected_by=None, created_at=None,
             account=sample.account,
             extra=sample.extra,
             is_frozen=True)
-    LOGGER.info("freeze %s scores for segment %s based of sample %s:"\
-        " frozen as %s", sample.account, segment_path, sample.slug,
-        score_sample)
+    LOGGER.info("freeze %s scores for segment %s based of sample %s"\
+        " (extra=%s): frozen as %s", sample.account, segment_path, sample.slug,
+        sample.extra, score_sample)
     # Copy the actual answers inputted by users
     points_unit_id = Unit.objects.get(slug=SCORE_UNIT).pk
     user_answers = []
@@ -108,26 +108,30 @@ def freeze_scores(sample, excludes=None, collected_by=None, created_at=None,
     calculator = get_score_calculator(segment_path)
     if calculator:
         score_answers = []
-        for decorated_answer in calculator.get_scored_answers(
+        calculator_answers = calculator.get_scored_answers(
                 sample.campaign, includes=[sample], prefix=segment_path,
-                excludes=excludes):
+                excludes=excludes)
+        for decorated_answer in calculator_answers:
             if (decorated_answer.answer_id and
                 decorated_answer.is_planned == sample.extra):
                 numerator = decorated_answer.numerator
                 denominator = decorated_answer.denominator
-                LOGGER.debug("create(created_at=%s, question_id=%s,"\
-                    " unit_id=%s, measured=%s, denominator=%s,"\
-                    " collected_by=%s, sample=%s)",
-                    created_at, decorated_answer.id, points_unit_id,
-                    numerator, denominator, collected_by, score_sample)
-                score_answers += [Answer(
-                    created_at=created_at,
-                    question_id=decorated_answer.id,
-                    unit_id=points_unit_id,
-                    measured=numerator,
-                    denominator=denominator,
-                    collected_by=collected_by,
-                    sample=score_sample)]
+                if numerator or denominator:
+                    LOGGER.debug("create(created_at=%s, question_id=%s,"\
+                        " unit_id=%s, measured=%s, denominator=%s,"\
+                        " collected_by=%s, sample=%s)",
+                        created_at, decorated_answer.id, points_unit_id,
+                        numerator, denominator, collected_by, score_sample)
+                    score_answers += [Answer(
+                        created_at=created_at,
+                        question_id=decorated_answer.id,
+                        unit_id=points_unit_id,
+                        measured=numerator,
+                        denominator=denominator,
+                        collected_by=collected_by,
+                        sample=score_sample)]
+        LOGGER.info("write %d scored answers in %s for segment '%s'" % (
+            len(score_answers), score_sample, segment_path))
         Answer.objects.bulk_create(score_answers)
 
     # Update date of active sample to be later than all frozen ones.

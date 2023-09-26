@@ -241,7 +241,8 @@
             </p>
 
             {# Beginning of details section #}
-            <div v-if="!isChartHeading(practice) && !isPractice(practice)">
+            <div :class="practiceStyle(practice)"
+                 v-if="!isChartHeading(practice) && !isPractice(practice)">
               <hr v-if="isTilePicture(practice)" />
               <div class="row">
                 <div class="col-12">
@@ -297,7 +298,7 @@
                     [[practice.title]]
                     <a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
-                  <div class="row">
+                  <div class="row" v-if="isAssessmentUnit(practice)">
                     <div class="col-sm-6 col-md-4"
                          v-if="isAssessmentUnit(practice)">
                       {% trans %}Implementation rate{% endtrans %}<br />
@@ -313,13 +314,31 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-sm-6 col-md-4"
-                         v-if="isScoredPractice(practice)">
+                    <div class="col-sm-6 col-md-4">
                       {% trans %}Opportunity score{% endtrans %}<br />
                       [[getOpportunity(practice)]]
                     </div>
                   </div>
-                </div>
+                  {# XXX Temporarily disabled until we handle special 2-values case #}
+                  {# <div class="row" v-if="!isAssessmentUnit(practice)">           #}
+                  {#   <div class="col-sm-6 col-md-4">                              #}
+                  {#     <div v-for="benchmark in practice.benchmarks">             #}
+                  {#       <div class="progress mt-1"                               #}
+                  {#            v-for="value in benchmark.values">                  #}
+                  {#         <div class="progress-bar progress-bar-success green-level-2" #}
+                  {#              role="progressbar"                                #}
+                  {#              :aria-valuenow="value[1]"                         #}
+                  {#              aria-valuemin="0"                                 #}
+                  {#              aria-valuemax="100"                               #}
+                  {#              :style="implementationRateStyle(value[1])">       #}
+                  {#           <span>[[asPercent(value[1])]]</span>                 #}
+                  {#         </div>                                                 #}
+                  {#         <span>[[value[0] ]]</span>                             #}
+                  {#       </div>                                                   #}
+                  {#     </div>                                                     #}
+                  {#  </div>                                                        #}
+                  {# </div>                                                         #}
+                </div> {# /practice-related information #}
                 <div class="col-md-4">
                   <div :class="'bestpractice mt-2' + (isRequiredShown(practice) ? ' practice-required' : '')">
                     <div class="row">
@@ -335,11 +354,23 @@
                       </div>
                     </div>
                   </div>
-                  {# XXX only shows comments, no all units #}
-                  <p @click.prevent="openLink($event)"
-                     v-html="textAsHtml(getCommentsAnswer(practice).measured)"
-                     v-if="getCommentsAnswer(practice).measured">
-                  </p>
+                  {# Show non-primary answers #}
+                  <div v-for="answer in getSecondaryAnswers(practice)"
+                       v-if="answer.measured && answer.unit !== 'points'">
+                    <p @click.prevent="openLink($event)"
+                       v-html="textAsHtml(answer.measured)"
+                       v-if="answer.unit === 'freetext'">
+                    </p>
+                    <span v-if="answer.unit === 'percentage'">
+                      [[answer.measured]]%
+                    </span>
+                    <span v-if="answer.unit === 'ends-at'">
+                      {% trans %}On{% endtrans %} [[answer.measured]]
+                    </span>
+                    <span v-if="!(answer.unit === 'freetext' || answer.unit === 'percentage' || answer.unit === 'ends-at')">
+                      [[answer.measured]] [[getUnit(answer).title]]
+                    </span>
+                  </div>
                 </div>
               </div>{# /.row assessment #}
               </div> {# dummy div #}
@@ -355,19 +386,27 @@
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div
-                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                    v-if="practice.answers && practice.answers.length === 0">
-                    &dash;
+                  <div :class="isRequiredShown(practice) ? ' practice-required' : ''">
+                    <p @click.prevent="openLink($event)"
+                       v-html="textAsHtml(getPrimaryAnswer(practice).measured, practice.required)">
+                    </p>
                   </div>
-                  <div v-for="answer in practice.answers"
-                       v-if="practice.answers.length > 0">
-                    <div v-if="practice.answers && answer.measured">
-                      [[answer.measured]] {# XXX no unit #}
-                    </div>
-                    <div v-if="!answer.measured">
-                      &dash;
-                    </div>
+                  {# Show non-primary answers #}
+                  <div v-for="answer in getSecondaryAnswers(practice)"
+                       v-if="answer.measured && answer.unit !== 'points'">
+                    <p @click.prevent="openLink($event)"
+                       v-html="textAsHtml(answer.measured)"
+                       v-if="answer.unit === 'freetext'">
+                    </p>
+                    <span v-if="answer.unit === 'percentage'">
+                      [[answer.measured]]%
+                    </span>
+                    <span v-if="answer.unit === 'ends-at'">
+                      {% trans %}On{% endtrans %} [[answer.measured]]
+                    </span>
+                    <span v-if="!(answer.unit === 'freetext' || answer.unit === 'percentage' || answer.unit === 'ends-at')">
+                      [[answer.measured]] [[getUnit(answer).title]]
+                    </span>
                   </div>
                 </div>
               </div>{# /.row assessment answer #}
@@ -399,7 +438,7 @@
                     <span v-if="getPrimaryAnswer(practice).measured === '10001'">10,001+ employees</span>
                   </div>
                 </div>
-              </div>
+              </div>{# /.row #}
             </div>{# /isEmployeeCountUIHint(practice) #}
 
             <div v-if="isNumberUnit(practice)" :class="practiceStyle(practice)">
@@ -413,36 +452,38 @@
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div
-                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                    v-if="practice.answers && practice.answers.length === 0">
-                    &dash;
+                  <div :class="isRequiredShown(practice) ? ' practice-required' : ''">
+                    <span v-if="getPrimaryAnswer(practice).measured !== null">
+                       [[getPrimaryAnswer(practice).measured]]
+                    </span>
+                    <span v-if="getPrimaryAnswer(practice).measured === null">
+                       &dash;
+                    </span>
                   </div>
-                  <div v-for="answer in practice.answers"
-                       v-if="practice.answers && practice.answers.length > 0">
-                    <div v-if="answer.measured">
-                      <span v-if="answer.unit === 'percentage'">
+                  {# Show non-primary answers #}
+                  <div v-for="answer in getSecondaryAnswers(practice)"
+                       v-if="answer.measured && answer.unit !== 'points'">
+                    <p @click.prevent="openLink($event)"
+                       v-html="textAsHtml(answer.measured)"
+                       v-if="answer.unit === 'freetext'">
+                    </p>
+                    <span v-if="answer.unit === 'percentage'">
                       [[answer.measured]]%
-                      </span>
-                      <span v-if="answer.unit === 'ends-at'">
-                        {% trans %}On{% endtrans %} [[answer.measured]]
-                      </span>
-                      <span v-if="answer.unit === 'yes-no' && answer.measured === 'Yes'">
+                    </span>
+                    <span v-if="answer.unit === 'ends-at'">
+                      {% trans %}On{% endtrans %} [[answer.measured]]
+                    </span>
+
+                    {# Attention! extra conditions for revenue #}
+                    <span v-if="answer.unit === 'yes-no' && answer.measured === 'Yes'">
                         ({% trans %}not publicly disclosed{% endtrans %})
                       </span>
-                      <span v-if="!(answer.unit === 'percentage' || answer.unit === 'ends-at' || answer.unit === 'yes-no')">
-                      {# XXX shows all answers with units #}
+                    <span v-if="!(answer.unit === 'freetext' || answer.unit === 'percentage' || answer.unit === 'ends-at' || answer.unit === 'yes-no')">
                       [[answer.measured]] [[getUnit(answer).title]]
-                      </span>
-                    </div>
-                    <div
-                      :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                      v-if="!answer.measured">
-                      &dash;
-                    </div>
+                    </span>
                   </div>
                 </div>
-              </div>
+              </div>{# /.row #}
             </div>{# /isNumberUnit(practice) #}
 
             <div v-if="isDatetimeUnit(practice)" :class="practiceStyle(practice)">
@@ -454,23 +495,33 @@
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div
-                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                    v-if="practice.answers && practice.answers.length === 0">
-                    &dash;
+                  <div :class="isRequiredShown(practice) ? ' practice-required' : ''">
+                    <span v-if="getPrimaryAnswer(practice).measured !== null">
+                       [[getPrimaryAnswer(practice).measured]]
+                    </span>
+                    <span v-if="getPrimaryAnswer(practice).measured === null">
+                       &dash;
+                    </span>
                   </div>
-                  <div
-                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                    v-if="practice.answers && practice.answers.length > 0">
-                    <strong>[[getPrimaryAnswer(practice).measured ? getPrimaryAnswer(practice).measured : "-"]]</strong>
+                  {# Show non-primary answers #}
+                  <div v-for="answer in getSecondaryAnswers(practice)"
+                       v-if="answer.measured && answer.unit !== 'points'">
+                    <p @click.prevent="openLink($event)"
+                       v-html="textAsHtml(answer.measured)"
+                       v-if="answer.unit === 'freetext'">
+                    </p>
+                    <span v-if="answer.unit === 'percentage'">
+                      [[answer.measured]]%
+                    </span>
+                    <span v-if="answer.unit === 'ends-at'">
+                      {% trans %}On{% endtrans %} [[answer.measured]]
+                    </span>
+                    <span v-if="!(answer.unit === 'freetext' || answer.unit === 'percentage' || answer.unit === 'ends-at')">
+                      [[answer.measured]] [[getUnit(answer).title]]
+                    </span>
                   </div>
-                  {# XXX only shows comments #}
-                  <p @click.prevent="openLink($event)"
-                     v-html="textAsHtml(getCommentsAnswer(practice).measured)"
-                     v-if="getCommentsAnswer(practice).measured">
-                  </p>
                 </div>
-              </div>
+              </div>{# /.row #}
             </div>{# /isDatetimeUnit(practice) #}
             {# End of details section #}
 
