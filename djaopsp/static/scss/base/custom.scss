@@ -176,6 +176,14 @@ h2.icon-row-title {
   padding: 5px 0;
 }
 
+.icon-heading {
+  text-align: center;
+  vertical-align: top;
+  background-color:transparent;
+  color: white;
+  height: 1em;
+}
+
 .grey{
   color: white;
   background-color:#AAAAAA !important;
@@ -2045,7 +2053,8 @@ color: #000;
 }
 
 .verifier-notes {
-  background: rgb(123,233,255);
+//  background: rgb(123,233,255);
+  background: #c4dbfa;
 }
 
 .verifier-notes .heading-0>.title,

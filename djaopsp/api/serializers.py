@@ -66,6 +66,7 @@ class ContentNodeSerializer(PRACTICE_SERIALIZER):
 
     rank = serializers.SerializerMethodField()
     required = serializers.SerializerMethodField(required=False)
+    frozen = serializers.SerializerMethodField(required=False)
 
     url = serializers.CharField(required=False)
     segments = serializers.ListSerializer(child=serializers.CharField(),
@@ -73,7 +74,7 @@ class ContentNodeSerializer(PRACTICE_SERIALIZER):
 
     class Meta(PRACTICE_SERIALIZER.Meta):
         fields = PRACTICE_SERIALIZER.Meta.fields + (
-            'rank', 'required', 'url', 'segments')
+            'rank', 'required', 'frozen', 'url', 'segments')
 
     @staticmethod
     def get_rank(obj):
@@ -91,6 +92,16 @@ class ContentNodeSerializer(PRACTICE_SERIALIZER):
             return obj.required
         try:
             return obj['required']
+        except (TypeError, KeyError):
+            pass
+        return False
+
+    @staticmethod
+    def get_frozen(obj):
+        if hasattr(obj, 'frozen'):
+            return obj.required
+        try:
+            return obj['frozen']
         except (TypeError, KeyError):
             pass
         return False

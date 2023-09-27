@@ -47,7 +47,7 @@
     v-for="choice in getChoices(practice, icon)"
     v-if="!isPractice(practice) && isEnumHeaderShown(icon)">
     <button class="btn btn-select-all" href=""
-            {% if sample.is_frozen %} disabled{% endif %}
+            :disabled="practice.frozen"
             @click.prevent="updateMultipleAssessmentAnswers(practice, choice.text)">
       <i class="fa fa-circle"></i>
     </button>
@@ -60,7 +60,7 @@
     <select class="form-control"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
-            {% if sample.is_frozen %} disabled{% endif %}>
+            :disabled="practice.frozen">
       <option value="[11] Agriculture, Forestry, Fishing and Hunting">[11] Agriculture, Forestry, Fishing and Hunting</option>
       <option value="[21] Mining, Quarrying, and Oil and Gas Extraction">[21] Mining, Quarrying, and Oil and Gas Extraction</option>
       <option value="[22] Utilities">[22] Utilities</option>
@@ -95,7 +95,7 @@
       placeholder=""
       v-model="getPrimaryAnswer(practice).measured"
       @blur="updateAssessmentAnswer(practice)"
-      {% if sample.is_frozen %} disabled{% endif %}></textarea>
+      :disabled="practice.frozen"></textarea>
 </td>
 
 {# The unit is fixed. question.ui_hint === 'revenue' #}
@@ -108,11 +108,11 @@
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           :disabled="practice.frozen"></input>
     <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice)"
-            {% if sample.is_frozen %} disabled{% endif %}>
+            :disabled="practice.frozen">
       <option value="usd">US Dollars ($)</option>
       <option value="million-usd">Millions US Dollars ($M)</option>
       <option value="eur">Euros</option>
@@ -135,7 +135,7 @@
     <select class="form-control"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
-            {% if sample.is_frozen %} disabled{% endif %}>
+            :disabled="practice.frozen">
       <option value="0">0-10 employees</option>
       <option value="11">11-50 employees</option>
       <option value="51">51-200 employees</option>
@@ -158,9 +158,8 @@
     <input class="form-control"
            type="date"
            v-model="getAnswerEndsAt(practice).measured"
-           {% if sample.is_frozen %}
-           disabled
-           {% else %}
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
            @blur="updateAssessmentAnswer(practice, getAnswerEndsAt(practice))"
            {% endif %}></input>
   </div>
@@ -174,9 +173,8 @@
            min="0"
            max="100"
            v-model="getPrimaryAnswer(practice).measured"
-           {% if sample.is_frozen %}
-           disabled
-           {% else %}
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
            @blur="updateAssessmentAnswer(practice)"
            {% endif %}></input>
     <label class="form-control input-group-suffix">
@@ -194,9 +192,8 @@
     <input class="form-control"
            type="date"
            v-model="getAnswerStartsAt(practice).measured"
-           {% if sample.is_frozen %}
-           disabled
-           {% else %}
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
            @blur="updateStartsAt(practice)"
            {% endif %}></input>
 </td>
@@ -206,9 +203,8 @@
     <input class="form-control"
            type="date"
            v-model="getAnswerEndsAt(practice).measured"
-           {% if sample.is_frozen %}
-           disabled
-           {% else %}
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
            @blur="updateEndsAt(practice)"
            {% endif %}></input>
 </td>
@@ -221,11 +217,11 @@
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice, practice.answers)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           :disabled="practice.frozen"></input>
     <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
-            {% if sample.is_frozen %} disabled{% endif %}>
+            :disabled="practice.frozen">
       <option value="btu-year">Btu</option>
       <option value="mmbtu-year">mmBtu</option>
       <option value="kwh-year">Kilowatt-hour (kWh)</option>
@@ -253,9 +249,8 @@
     <input class="form-control"
            type="date"
            v-model="getAnswerStartsAt(practice).measured"
-           {% if sample.is_frozen %}
-           disabled
-           {% else %}
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
            @blur="updateStartsAt(practice)"
            {% endif %}></input>
 </td>
@@ -265,9 +260,8 @@
     <input class="form-control"
            type="date"
            v-model="getAnswerEndsAt(practice).measured"
-           {% if sample.is_frozen %}
-           disabled
-           {% else %}
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
            @blur="updateEndsAt(practice)"
            {% endif %}></input>
 </td>
@@ -280,11 +274,11 @@
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice, practice.answers)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           :disabled="practice.frozen"></input>
     <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
-            {% if sample.is_frozen %} disabled{% endif %}>
+            :disabled="practice.frozen">
         <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
         <option value="kiloliters-year">Kilo liters</option>
         <option value="ft3-year">Cubic feet (ft.<sup>3</sup>)</option>
@@ -308,9 +302,8 @@
     <input class="form-control"
            type="date"
            v-model="getAnswerStartsAt(practice).measured"
-           {% if sample.is_frozen %}
-           disabled
-           {% else %}
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
            @blur="updateStartsAt(practice)"
            {% endif %}></input>
 </td>
@@ -320,9 +313,8 @@
     <input class="form-control"
            type="date"
            v-model="getAnswerEndsAt(practice).measured"
-           {% if sample.is_frozen %}
-           disabled
-           {% else %}
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
            @blur="updateEndsAt(practice)"
            {% endif %}></input>
 </td>
@@ -335,11 +327,11 @@
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice, practice.answers)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           :disabled="practice.frozen"></input>
     <select class="form-control input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
-            {% if sample.is_frozen %} disabled{% endif %}>
+            :disabled="practice.frozen">
         <option value="tons-year">Metric tons</option>
         <option value="lbs-year">Pounds</option>
         <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
@@ -363,9 +355,8 @@
     <input class="form-control"
            type="date"
            v-model="getAnswerStartsAt(practice).measured"
-           {% if sample.is_frozen %}
-           disabled
-           {% else %}
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
            @blur="updateStartsAt(practice)"
            {% endif %}></input>
 </td>
@@ -375,9 +366,8 @@
     <input class="form-control"
            type="date"
            v-model="getAnswerEndsAt(practice).measured"
-           {% if sample.is_frozen %}
-           disabled
-           {% else %}
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
            @blur="updateEndsAt(practice)"
            {% endif %}></input>
 </td>
@@ -390,11 +380,11 @@
               placeholder=""
               v-model="getPrimaryAnswer(practice).measured"
               @blur="updateAssessmentAnswer(practice, practice.answers)"
-           {% if sample.is_frozen %} disabled{% endif %}></input>
+           :disabled="practice.frozen"></input>
     <select class="form-control"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
-            {% if sample.is_frozen %} disabled{% endif %}>
+            :disabled="practice.frozen">
         <option value="tons-year">Metric Tons CO2e</<option>
     </select>
   </div>
@@ -414,7 +404,8 @@
   <div class="input-group">
     <select class="form-control"
             v-model="getPrimaryAnswer(practice).measured"
-            @blur="updateAssessmentAnswer(practice)">
+            @blur="updateAssessmentAnswer(practice)"
+            :disabled="practice.frozen">
       <option v-if="getAnswerByUnit(practice, 'completeness').measured == null" disabled :value="null">{% trans %}Select verifiability ...{% endtrans %}</option>
       {% for option in units.verifiability %}
       <option value="{{option.text}}">{{option.descr}}</option>
@@ -422,7 +413,8 @@
     </select>
     <select class="form-control"
             v-model="getAnswerByUnit(practice, 'completeness').measured"
-            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'completeness'))">
+            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'completeness'))"
+            :disabled="practice.frozen">
       <option v-if="getAnswerByUnit(practice, 'completeness').measured == null" disabled :value="null">{% trans %}Select completeness ...{% endtrans %}</option>
       {% for option in units.completeness %}
       <option value="{{option.text}}">{{option.descr}}</option>
@@ -433,7 +425,8 @@
     <select class="form-control"
             v-model="getAnswerByUnit(practice, 'supporting-document').measured"
             value=""
-            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'))">
+            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'))"
+            :disabled="practice.frozen">
       <option v-if="getAnswerByUnit(practice, 'supporting-document').measured == null" disabled :value="null">{% trans %}Select supporting document ...{% endtrans %}</option>
       {% for option in units.supporting_document %}
       <option value="{{option.text}}">{{option.descr}}</option>
@@ -470,7 +463,7 @@
            :checked="getPrimaryAnswer(practice).measured === choice.text"
            @change="updateAssessmentAnswer(practice, choice.text)"
            v-model="getPrimaryAnswer(practice).measured"
-           {% if sample.is_frozen %} disabled{% endif %} />
+           :disabled="practice.frozen" />
     </div>
     <label :for="slugify(choice.text, practice.rank)"
          style="margin-bottom:0"
@@ -488,9 +481,8 @@
   <div class="input-group">
     <select class="form-control"
             v-model="getPrimaryAnswer(practice).measured"
-            {% if sample.is_frozen %}
-            disabled
-            {% else %}
+            :disabled="practice.frozen"
+            {% if not sample.is_frozen %}
             @blur="updateAssessmentAnswer(practice)"
             {% endif %}>
       <option value="no-target">No target</option>
@@ -545,6 +537,7 @@
 
 {# optional comments #}
 <tr v-if="isPractice(practice)"
+    :class="practiceStyle(practice)"
     v-show="isActiveCommentsShown(practice)">
 <td colspan="6"
     :class="isRequiredShown(practice) ? 'practice-required' : (isRequiredAnswered(practice) ? 'practice-required-answered' : '')">
@@ -552,7 +545,7 @@
 <td colspan="6">
   {# comments #}
   <div class="mt-2">
-    <h5 class="my-0">Notes, Public URL Links, and/or Uploaded Documents</h5>
+    <h5 class="my-0">{% trans %}Notes, Public URL Links, and/or Uploaded Documents{% endtrans %}</h5>
     <p class="text-danger" v-if="isNotApplicable(practice)">
       You selected <strong>&quot;Not Applicable&quot;</strong>, please explain.
     </p>
@@ -562,13 +555,14 @@
                v-bind:collected-by-printable-name="getPrintableName(getCommentsAnswer(practice).collected_by)"
                v-bind:collected-at-time="getCommentsAnswer(practice).created_at"
                v-bind:init-text="getCommentsAnswer(practice).measured"
-               v-on:update-text="updateComment">
+               v-on:update-text="updateComment"
+               :disabled="practice.frozen">
       <div>
         <div v-show="!editMode">
-          {% if not sample.is_frozen %}
-          <button class="btn btn-link" style="padding:0;margin:0;" @click.prevent="toggleEditMode">update</button>
-          {% endif %}
-          <div class="row">
+          <button class="btn btn-link" style="padding:0;margin:0;"
+                  :disabled="disabled"
+                  @click.prevent="toggleEditMode">update</button>
+          <div class="row" v-if="textAsHtml">
             <div class="col-md-3">
               <div class="mt-2">
                 <img class="rounded-circle" :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
@@ -584,20 +578,22 @@
               </p>
             </div>
           </div>
+          <div class="row" v-if="!textAsHtml">
+            <div class="col-12">
+              <em>{% trans %}No notes were added.{% endtrans %}</em>
+            </div>
+          </div>
         </div>
         <form @submit.prevent="saveText" v-show="editMode">
           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
           <textarea class="form-control"
               name="other-measures"
               type="text" rows="10"
-              placeholder="Please comment about the current and planned implementation of the practice at your organization; when available, include supporting links to CSR/Sustainability report, Annual report, etc. (You can also upload these reports by drag/drop to this box if necessary). If you think the practice does not apply to your organization, please explain why. Thank you."
+              :placeholder="isTagged('verify') ? '{% trans %}If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you.{% endtrans %}' : '{% trans %}Please comment about the current and planned implementation of the practice at your organization; when available, include supporting links to CSR/Sustainability report, Annual report, etc. (You can also upload these reports by drag/drop to this box if necessary). If you think the practice does not apply to your organization, please explain why. Thank you.{% endtrans %}'"
               v-model="text"
-              {% if sample.is_frozen %}
-              disabled
-              {% else %}
+              :disabled="disabled"
               @keydown="fitToText"
               @drop.prevent="dropFile" @dragenter.prevent @dragover.prevent
-              {% endif %}
               ></textarea>
           <div class="progress upload-progress" v-show="uploadInProgress">
             <div class="progress-bar" role="progressbar"
@@ -609,18 +605,20 @@
           <div class="row">
             <div class="col-6">
               <div class="mt-2 text-left">
-                <button type="button" class="btn btn-secondary">
+                <button type="button" class="btn btn-secondary" :disabled="disabled">
                   <label :for="callbackArg.slug + '-file'" style="margin-bottom:0;">
-                    Upload
+                    {% trans %}Upload{% endtrans %}
                   </label>
                 </button>
-                <input name="file" type="file" :id="callbackArg.slug + '-file'" style="display:none;" @change.prevent="uploadFile" />
+                <input name="file" type="file" :id="callbackArg.slug + '-file'" style="display:none;" @change.prevent="uploadFile" :disabled="disabled" />
               </div>
             </div>
             <div class="col-6">
               <div class="mt-2 text-right">
-                <button class="btn btn-primary" type="submit" value="submit">
-                  Submit
+                <button class="btn btn-primary"
+                    type="submit" value="submit"
+                    :disabled="disabled">
+                  {% trans %}Submit{% endtrans %}
                 </button>
               </div>
             </div>

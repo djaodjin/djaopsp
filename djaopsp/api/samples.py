@@ -1019,6 +1019,7 @@ def attach_answers(units, questions_by_key, queryset,
             value = {
                 'path': path,
                 'rank': resp.rank,
+                'frozen': bool(getattr(resp, 'frozen', False)),
                 'required': (
                     resp.required if hasattr(resp, 'required') else True),
                 'default_unit': default_unit,

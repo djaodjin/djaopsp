@@ -119,19 +119,19 @@
         </div>
         <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
           <div :name="practice.slug" v-for="practice in getEntries()">
-            <div class="mt-4" v-if="practice.indent == 0 && isChartHeading(practice)">
+            <div class="mt-4" v-if="isChartHeading(practice)">
               <hr v-if="practice.picture" />
-              <div>
+
+              {# segment title #}
+              <div v-if="practice.indent === 0">
                 <div :class="indentHeader(practice)">
-                  <div class="orange icon-inner d-inline-block"
-                       v-if="practice.picture && practice.indent > 0">
-                    <img class="icon-equipment" style="margin-top: 15px;"
-                         :src="practice.picture" />
+                  <div class="d-inline-block" v-if="practice.picture">
+                    <img class="icon-heading" :src="practice.picture" />
                   </div>
                   <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
                 </div>
                 {% if not sample.is_frozen %}
-                <div v-if="practice.indent == 0">
+                <div>
                   <a :href="'{{urls.assess_base}}' + practice.slug + '/'">{% trans %}Update{% endtrans %}</a>
                   <a id="reset-assessment-btn"
                      class="ml-4" href=""
@@ -140,105 +140,107 @@
                      @click="setActiveElement(practice)">{% trans %}Remove{% endtrans %}</a>
                 </div>
                 {% endif %}
-              </div>
 
-              {# summary of tile sections #}
-              <div class="row"
-                   v-if="practice.indent == 0 && getEntries(practice.slug, 1, 'scorecard').length > 0">
-                <div class="col-md-8">
-                  <div v-for="block in chunkBy(getEntries(practice.slug, 1, 'scorecard'), 6)">
-                    <div class="row">
-                      <div class="col-md-2" v-for="subheading in block">
-                        <ul class="nav nav-tabs squared-tabs">
-                          <li class="nav-item squared-tabs-li">
-                            <a class="nav-link icon-inner orange">
-                              <img class="icon-equipment"
-                                   :src="subheading.picture"
-                                   v-if="subheading.picture">
-                              <div class="icon-caption text-white">[[subheading.title]]</div>
-                            </a>
-                            <div class="icon-score">
-                              <h3 class="rollup-score">
-                                <i class="fa fa-spinner fa-spin" v-if="typeof subheading.normalized_score === 'undefined'"></i>
-                                <span v-if="typeof subheading.normalized_score !== 'undefined'">[[$globals.humanizeNumber(subheading.normalized_score)]]%
-                              </h3>
-                              <div>
-                                (<span class="rollup-weight">[[$globals.humanizeNumber(subheading.score_weight, subheading.score_percentage)]]</span>)
-                              </div>
-                            </div>
-                          </li>
-                        </ul>
+                {# scorecard for segment #}
+                <div class="row"
+                     v-if="containsTag(practice, 'scorecard')">
+                  <div class="col-md-8">
+                    <div>
+                      {# XXX copy/pasted from _tile_chart.html? #}
+                      <div class="text-center d-flex align-items-center"
+                           style="height:150px;max-width:300px;"
+                           v-if="!chartsAvailable && !charts[practice.path]">
+                        <div class="box">
+                          <i class="fa fa-refresh fa-spin fa-2x"></i>
+                        </div>
                       </div>
+                      <div class="text-center d-flex align-items-center"
+                           style="height:150px;max-width:300px;background:#eee;"
+                           v-if="chartsAvailable && !charts[practice.path]">
+                        <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
+                      </div>
+                      <canvas :data-id="practice.path" v-show="isChartAvailable(practice)"></canvas>
                     </div>
-                  </div>
-                </div>{# /.col-md-8 #}
-                <div class="col-md-4">
-                                      {# 30px matches .nav-tabs.squared-tabs #}
-                  <div :class="indentHeader(practice)" style="margin-left: 20px; margin-top:50px;">
-                    [[asPercent(practice.normalized_score)]]
-                  </div>
-                </div>{# /.col-md-4 #}
-              </div>{# /.row #}
+                  </div>{# /.col-md-8 #}
+                  <div class="col-md-4">
+                    <div :class="indentHeader(practice)">
+                      [[asPercent(practice.normalized_score)]]
+                    </div>
+                  </div>{# /.col-md-4 #}
+                </div>{# /scorecard for segment #}
 
-              {# summary when no tile sections #}
-              <div class="row"
-                   v-if="containsTag(practice, 'scorecard') && (practice.indent > 0 || getEntries(practice.slug, 1, 'scorecard').length == 0)">
-                <div class="col-md-8">
-                  <div>
-                    {# XXX copy/pasted from _tile_chart.html? #}
-                    <div class="text-center d-flex align-items-center"
-                         style="height:150px;max-width:300px;"
-                         v-if="!chartsAvailable && !charts[practice.path]">
-                      <div class="box">
-                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                {# summary of tile sections #}
+                <div v-for="block in chunkBy(getEntries(practice.slug, 1, 'scorecard'), 3)">
+                  <div class="row">
+                    <div class="col-md-4" v-for="subheading in block">
+                      <div>
+                        <div class="d-inline-block" v-if="subheading.picture">
+                          <img class="icon-heading" :src="subheading.picture" />
+                        </div>
+                        <span class="title">[[subheading.title]]</span>
+                        <span>([[asPercent(subheading.normalized_score)]])</span>
                       </div>
-                    </div>
-                    <div class="text-center d-flex align-items-center"
-                         style="height:150px;max-width:300px;background:#eee;"
-                         v-if="chartsAvailable && !charts[practice.path]">
-                      <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
-                    </div>
-                    <canvas :data-id="practice.path" v-show="isChartAvailable(practice)"></canvas>
-                  </div>
-                </div>{# /.col-md-8 #}
-                <div class="col-md-4">
-                  <div :class="indentHeader(practice)">
-                    [[asPercent(practice.normalized_score)]]
-                  </div>
-                </div>{# /.col-md-4 #}
-              </div>
-
-              <div v-if="practice.indent == 0"
-                v-for="block in chunkBy(getEntries(practice.slug, 1, 'scorecard'), 3)">
-                <div class="row">
-                  <div class="col-md-4" v-for="subheading in block">
-                    <div class="orange icon-inner d-inline-block"
-                         v-if="subheading.picture">
-                      <img class="icon-equipment" style="margin-top: 15px;"
-                           :src="subheading.picture" />
-                    </div>
-                    <span class="title">[[subheading.title]]</span>
-                    <div class="text-center d-flex align-items-center"
-                         style="height:150px;max-width:300px;"
-                         v-if="!chartsAvailable && !charts[subheading.path]">
-                      <div class="box">
-                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                      <div class="text-center d-flex align-items-center"
+                           style="height:150px;max-width:300px;"
+                           v-if="!chartsAvailable && !charts[subheading.path]">
+                        <div class="box">
+                          <i class="fa fa-refresh fa-spin fa-2x"></i>
+                        </div>
                       </div>
+                      <div class="text-center d-flex align-items-center"
+                           style="height:150px;max-width:300px;background:#eee;"
+                           v-if="chartsAvailable && !charts[subheading.path]">
+                        <div class="box">There is not enough data available to benchmark with peers.</div>
+                      </div>
+                      <canvas :data-id="'/summary' + subheading.path" v-show="charts[subheading.path]"></canvas>
                     </div>
-                    <div class="text-center d-flex align-items-center"
-                         style="height:150px;max-width:300px;background:#eee;"
-                         v-if="chartsAvailable && !charts[subheading.path]">
-                      <div class="box">There is not enough data available to benchmark with peers.</div>
-                    </div>
-                    <canvas :data-id="'/summary' + subheading.path" v-show="charts[subheading.path]"></canvas>
                   </div>
                 </div>
-              </div>
-            </div>{# /.isChartHeading - i.e. heading with charts and score #}
-            <p class="text-center" v-if="practice.indent == 0">
+                <p class="text-center">
 {% trans %}Benchmarking is based on responses from{% endtrans %} <span v-if="!chartsLoaded">?</span><span v-if="chartsLoaded" v-cloak>[[getNbRespondents(practice)]]</span>
 {% trans %}companies responding on practices in the industry segment.{% endtrans %}
-            </p>
+                </p>
+              </div>{# /practice.indent == 0 #}
+
+              <div v-if="practice.indent > 0">
+                {# tile title #}
+                <div :class="indentHeader(practice)">
+                  <div class="d-inline-block" v-if="practice.picture">
+                    <img class="icon-heading" :src="practice.picture" />
+                  </div>
+                  <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                </div>
+
+                {# summary when no tile sections #}
+                <div class="row"
+                     v-if="containsTag(practice, 'scorecard') && (getEntries(practice.slug, 1, 'scorecard').length == 0)">
+                  <div class="col-md-8">
+                    <div>
+                      {# XXX copy/pasted from _tile_chart.html? #}
+                      <div class="text-center d-flex align-items-center"
+                           style="height:150px;max-width:300px;"
+                           v-if="!chartsAvailable && !charts[practice.path]">
+                        <div class="box">
+                          <i class="fa fa-refresh fa-spin fa-2x"></i>
+                        </div>
+                      </div>
+                      <div class="text-center d-flex align-items-center"
+                           style="height:150px;max-width:300px;background:#eee;"
+                           v-if="chartsAvailable && !charts[practice.path]">
+                        <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
+                      </div>
+                      <canvas :data-id="practice.path" v-show="isChartAvailable(practice)"></canvas>
+                    </div>
+                  </div>{# /.col-md-8 #}
+                  <div class="col-md-4">
+                    <div :class="indentHeader(practice)">
+                      [[asPercent(practice.normalized_score)]]
+                    </div>
+                  </div>{# /.col-md-4 #}
+                </div>
+              </div>{# /practice.indent > 0 #}
+
+            </div>{# /.isChartHeading - i.e. heading with charts and score #}
 
             {# Beginning of details section #}
             <div :class="practiceStyle(practice)"
@@ -247,23 +249,13 @@
               <div class="row">
                 <div class="col-12">
                   <div :class="indentHeader(practice) + ' mt-2'">
-                    <div class="orange icon-inner d-inline-block"
+                    <div class="d-inline-block"
                          v-if="isTilePicture(practice)">
-                      <img class="icon-equipment" style="margin-top: 15px;"
+                      <img class="icon-heading"
                            :src="practice.picture" />
                     </div>
                     <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
-                  {% if not sample.is_frozen %}
-                  <div v-if="practice.indent == 0">
-                    <a :href="'{{urls.assess_base}}' + practice.slug + '/'">{% trans %}Update{% endtrans %}</a>
-                    <a id="reset-assessment-btn"
-                       class="ml-4" href=""
-                       data-toggle="modal"
-                       data-target="#reset-assessment"
-                       @click="setActiveElement(practice)">{% trans %}Remove{% endtrans %}</a>
-                  </div>
-                  {% endif %}
                 </div>
               </div>{# /.row #}
 
