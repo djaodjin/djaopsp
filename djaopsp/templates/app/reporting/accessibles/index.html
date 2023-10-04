@@ -199,7 +199,7 @@
              v-if="val[1] === 'no-data'"></i>
           <br />
           <a :href="val[2]" v-if="val[1] === 'verified' || val[1] === 'completed'">
-              <span>{% trans %}view{% endtrans %}</span>
+              <small>[[$globals.humanizeMonthDay(val[0])]]</small>
           </a>
         </td>
         <td>

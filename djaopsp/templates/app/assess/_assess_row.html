@@ -12,14 +12,10 @@
          v-if="!isPractice(practice) && isPagebreak(practice)">
         [[practice.title]]
       </a>
-      <div v-if="isPractice(practice) && !isEnumHeaderShown(icon)">
-        <span class="title">[[practice.title]]</span>
-        <span v-if="practice.text && practice.text.indexOf('.png', practice.text.length - 4) < 0" v-bind-html="practice.text"></span>
-      </div>
       <a class="title"
          :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
          target="_blank"
-         v-if="isPractice(practice) && isEnumHeaderShown(icon)">
+         v-if="isPractice(practice)">
         [[practice.title]]
       </a>
     </div>
@@ -411,6 +407,11 @@
       <option value="{{option.text}}">{{option.descr}}</option>
       {% endfor %}
     </select>
+    <a class="p-2"
+       href="{{'/docs/guides/verification/#verifiability'|site_url}}"
+       target="_blank">
+      <i class="fa fa-question-circle"></i>
+    </a>
     <select class="form-control"
             v-model="getAnswerByUnit(practice, 'completeness').measured"
             @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'completeness'))"
@@ -420,6 +421,11 @@
       <option value="{{option.text}}">{{option.descr}}</option>
       {% endfor %}
     </select>
+    <a class="p-2"
+       href="{{'/docs/guides/verification/#completeness'|site_url}}"
+       target="_blank">
+      <i class="fa fa-question-circle"></i>
+    </a>
   </div>
   <div class="input-group">
     <select class="form-control"

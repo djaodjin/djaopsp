@@ -197,9 +197,24 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
     bottom: 5px
 }
 
-@include media-breakpoint-down(sm) {
+.avatar-top {
+    height: 32px;
+    width: 32px;
+    vertical-align: baseline;
+    border-radius: 50%;
+}
 
-    .menubar-label-expanded {
+.avatar {
+    position: absolute;
+    left: 15px;
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+}
+
+@include media-breakpoint-down(md) {
+
+    .menubar-label .menubar-label-expanded {
         display: none;
         margin-right: 0.5rem !important;
     }
