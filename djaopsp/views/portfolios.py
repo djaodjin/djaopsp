@@ -372,6 +372,8 @@ class ReportingDashboardView(UpdatedMenubarMixin, DashboardMixin, TemplateView):
                 args=(self.account, self.campaign)),
             'download_raw_long': reverse('download_raw_long',
                 args=(self.account, self.campaign)),
+            'download_scores': reverse('download_compare_scores',
+                args=(self.account, self.campaign)),
         })
         return context
 

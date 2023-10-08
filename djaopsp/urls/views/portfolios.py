@@ -6,7 +6,7 @@ Views URLs
 """
 from django.urls import include, path
 
-from ...views.matrix import CompareView, CompareXLSXView
+from ...views.matrix import CompareView, CompareXLSXView, CompareScoresXLSXView
 from ...views.portfolios import (
     CompletedAssessmentsRawXLSXView, CompletionRatePPTXView,
     DashboardRedirectView, EngagementStatsPPTXView,
@@ -54,6 +54,9 @@ urlpatterns = [
     path('reporting/<slug:campaign>/compare/download/long/',
         LongFormatCSVView.as_view(),
         name='download_raw_long'),
+    path('reporting/<slug:campaign>/compare/download/scores/',
+        CompareScoresXLSXView.as_view(),
+        name='download_compare_scores'),
     path('reporting/<slug:campaign>/compare/download/',
         CompareXLSXView.as_view(),
         name='download_matrix_compare'),

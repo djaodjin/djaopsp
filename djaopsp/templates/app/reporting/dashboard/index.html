@@ -129,14 +129,21 @@ The long format download is better suited to upload the raw data into
 an Online Analytical Processing (OLAP) software.
       </p>
       <div class="row text-center">
-        <div class="col-sm-6">
+        <div class="col-sm-4">
+          <a id="download-assessment-details" class="btn btn-secondary mb-2"
+             :href="'{{urls.download_scores}}' + getQueryString(['page'])"
+             target="_blank">
+            <i class="fa fa-download"></i> Scores (.xlsx)
+          </a>
+        </div>
+        <div class="col-sm-4">
           <a id="download-assessment-details" class="btn btn-secondary mb-2"
              :href="'{{urls.download_raw}}' + getQueryString(['page'])"
              target="_blank">
-            <i class="fa fa-download"></i> Spreadsheet (.xlsx)
+            <i class="fa fa-download"></i> Answers (.xlsx)
           </a>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
           <a id="download-long-format" class="btn btn-secondary mb-2"
              :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
              target="_blank">

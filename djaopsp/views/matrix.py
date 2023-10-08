@@ -55,10 +55,9 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     Download a spreadsheet of answers/comments with questions as rows
     and accounts as columns.
     """
-    basename = 'dashboard'
+    basename = 'dashboard-answers'
     show_comments = True
-    show_scores = True
-    show_planned = True
+    show_planned = False
 
 #    ordering = ('full_name',)
     ordering = ('account_id',)
@@ -356,37 +355,6 @@ ORDER BY answers.path, answers.account_id
         if self.show_planned:
             self.write_sheet(title="Planned", key='planned', queryset=queryset)
             self._report_queries("written planned")
-        if self.show_scores:
-            # XXX uncoment to print detail scores on each question.
-            # self.write_sheet(title="Scores", key='score',
-            #    queryset=queryset)
-            self.create_writer("Scores")
-            self.write_headers()
-
-            for entry in self.segments_available:
-                row = [self._get_title(entry)]
-                slug = entry.get('slug')
-
-                queryset = self.accounts_with_engagement
-                scores = ScorecardCache.objects.filter(sample__in={
-                    val.sample_id for val in queryset}, path=entry['path'])
-                scores = {val.sample_id: val for val in scores}
-
-                for reporting in self.accounts_with_engagement:
-                    if (reporting.reporting_status
-                        != EngagementSerializer.REPORTING_COMPLETED):
-                        row += [""]
-                    else:
-                        scorecard_cache = scores.get(reporting.sample_id)
-                        if scorecard_cache:
-                            measured = scorecard_cache.normalized_score
-                        else:
-                            measured = ""
-                        row += [measured]
-                row += [slug]
-                self.writerow(row)
-
-        self._report_queries("written scores")
 
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \
@@ -444,3 +412,55 @@ ORDER BY answers.path, answers.account_id
             else:
                 headings += [""]
         self.writerow(headings)
+
+
+class CompareScoresXLSXView(CompareXLSXView):
+    """
+    Download a spreadsheet of scores with segments as rows and accounts
+    as columns.
+    """
+    basename = 'dashboard-scores'
+
+    def get(self, request, *args, **kwargs):
+        #pylint: disable=unused-argument,too-many-locals
+
+        # We need to run `get_queryset` before `get_headings` so we know
+        # how many columns to display for implementation rate.
+        self._start_time()
+        queryset = self.get_queryset()
+        self._report_queries("built list of questions")
+
+
+        # XXX uncoment to print detail scores on each question.
+        # self.write_sheet(title="Scores", key='score',
+        #    queryset=queryset)
+        self.create_writer("Scores")
+        self.write_headers()
+        for entry in self.segments_available:
+            row = [self._get_title(entry)]
+            slug = entry.get('slug')
+
+            queryset = self.accounts_with_engagement
+            scores = ScorecardCache.objects.filter(sample__in={
+                val.sample_id for val in queryset}, path=entry['path'])
+            scores = {val.sample_id: val for val in scores}
+
+            for reporting in self.accounts_with_engagement:
+                if (reporting.reporting_status
+                    != EngagementSerializer.REPORTING_COMPLETED):
+                    row += [""]
+                else:
+                    scorecard_cache = scores.get(reporting.sample_id)
+                    if scorecard_cache:
+                        measured = scorecard_cache.normalized_score
+                    else:
+                        measured = ""
+                    row += [measured]
+            row += [slug]
+            self.writerow(row)
+        self._report_queries("written scores")
+
+        resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
+        resp['Content-Disposition'] = \
+            'attachment; filename="{}"'.format(self.get_filename())
+        return resp
