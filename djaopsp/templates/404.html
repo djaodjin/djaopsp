@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row py-5">
+    <div class="offset-sm-2 col-sm-8 text-center mt-4 px-4">
+      <h3>{% trans %}Uh-oh, we couldn't find that.{% endtrans %}</h3>
+      <p class="text-secondary">
+          {% trans %}404 Page Not Found{% endtrans %}
+      </p>
+      <p>
+{% trans %}The page you were looking for could not be found.{% endtrans %}
+      </p>
+      <p>
+{% trans %}If you think there is a mistake, please <a href="/contact/">contact us</a>.{% endtrans %} {% trans %}We do our best to reply within 24 hours. Thank you!{% endtrans %}
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
