@@ -237,7 +237,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
 
     def post(self, request, *args, **kwargs):
         """
-        Creates a page element
+        Creates a segment in a campaign
 
         **Tags: editors
 
@@ -541,7 +541,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
     def get(self, request, *args, **kwargs):
         """
-        Retrieves details of a question
+        Retrieves a question
 
         **Tags**: editors
 
@@ -564,6 +564,61 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
             }
         """
         return super(CampaignEditableQuestionAPIView, self).get(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Deletes questions
+
+        Deletes all questions under prefix *path*.
+
+        **Tags**: editors
+
+        **Examples
+
+        .. code-block:: http
+
+            DELETE /api/content/editables/alliance/campaigns/sustainability \
+ HTTP/1.1
+        """
+        #pylint:disable=useless-super-delegation
+        return super(CampaignEditableQuestionAPIView, self).delete(
+            request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Creates a question
+
+        Creates a new question under prefix *path*.
+
+        **Tags**: editors
+
+        **Examples
+
+        .. code-block:: http
+
+            POST /api/content/editables/alliance/campaigns/sustainability \
+ HTTP/1.1
+
+        .. code-block:: json
+
+            {
+              "title": "Adjust air/fuel ratio"
+            }
+
+        responds:
+
+        .. code-block:: json
+
+            {
+                "path": "/construction/governance/the-assessment\
+-process-is-rigorous",
+                "title": "The assessment process is rigorous",
+                "default_unit": "assessment"
+            }
+        """
+        #pylint:disable=useless-super-delegation
+        return super(CampaignEditableQuestionAPIView, self).post(
+            request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         """

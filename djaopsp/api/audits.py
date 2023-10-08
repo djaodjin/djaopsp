@@ -170,10 +170,11 @@ class VerifierNotesAPIView(ReportMixin, SampleAnswersAPIView):
          ]
     }
     """
+    schema = None # XXX temporarily disable API doc
 
     def post(self, request, *args, **kwargs):
         """
-        Adds notes by verifier
+        Adds verifier notes to an answer
 
         A frozen sample cannot be edited to add and/or update answers.
 
@@ -219,6 +220,8 @@ class VerifierNotesAPIView(ReportMixin, SampleAnswersAPIView):
 
 class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
 
+    schema = None # XXX temporarily disable API doc
+
     def get_serializer_class(self):
         if self.request.method.lower() in ['put', 'patch']:
             return VerifiedSampleSerializer
@@ -226,6 +229,41 @@ class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Adds verifier notes to a sample
+
+        A frozen sample cannot be edited to add and/or update answers.
+
+        **Tags**: assessments
+
+        **Examples
+
+        .. code-block:: http
+
+            POST /api/supplier-1/sample/0123456789abcdef/notes HTTP/1.1
+
+        .. code-block:: json
+
+            {}
+
+        responds
+
+        .. code-block:: json
+
+            {
+              "slug": "0123456789abcdef",
+              "account": "supplier-1",
+              "created_at": "2020-01-01T00:00:00Z",
+              "is_frozen": true,
+              "campaign": null,
+              "updated_at": "2020-01-01T00:00:00Z"
+            }
+        """
+        #pylint:disable=useless-super-delegation
+        return super(VerifierNotesIndexAPIView, self).post(
+            request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         """

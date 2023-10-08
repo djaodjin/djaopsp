@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+{% block localheadermeta %}
+<title>Practices Survey Platform API Reference | DjaoDjin</title>
+<meta property="og:image" content="https://www.djaodjin.com/static/img/docs/desktop-control_panel-melissa.png" />
+<meta property="og:site_name" content="DjaoDjin" />
+<meta property="og:type" content="website" />
+{% endblock %}
+
 {% macro api_param_doc(param, operationId, response=True, indent=0) -%}
 {% if response or not param.readOnly %}
 {% if param.type %}
@@ -18,7 +25,7 @@
       <p>
         {{param.description}}
         {% if (param.type == 'object' or param.type == 'array') and param|schema_properties(definitions) %}
-        <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#collapse-{{operationId}}-{{param.name}}" aria-expanded="false" aria-controls="collapse-{{operationId}}">...</button>
+        <button class="btn btn-default" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{operationId}}-{{param.name}}" aria-expanded="false" aria-controls="collapse-{{operationId}}">...</button>
         {% endif %}
       </p>
     </div>
@@ -37,11 +44,6 @@
 {% endif %}
 {%- endmacro %}
 
-{# to show the sidebar #}
-{% block navbar_extra_classes %} dashboard-nav-color-theme {% endblock %}
-{% block dashboard_inner_container_classes %} dashboard-inner-container {% endblock %}
-{% block footer %}{% endblock %}
-
 
 {% block sidebar %}
 <ul id="api-doc-sidebar" class="nav flex-column">
@@ -53,12 +55,24 @@
   </li>
   <li class="nav-item">
       <a class="nav-link" href="#workflows">By workflows</a>
-      <ul class="list-unstyled ml-2">
+      <ul class="list-unstyled ms-2">
         <li class="nav-item">
           <a class="nav-link" href="#assessments">Assessments</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="#portfolios">Sharing</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="#reporting">Reporting</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#benchmarks">Benchmarks</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#content">Content readers</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#editors">Content editors</a>
         </li>
       </ul>
   </li>
@@ -69,10 +83,16 @@
 </ul>
 {% endblock %}
 
-{% block content_area_classes %} style="padding-left: 20px;"{% endblock %}
+{% block saas_localheader %}
+<link rel="stylesheet" media="screen" href="{{request|site_url}}/assets/cache/dashboard.css" />
+{% endblock %}
+{% block content_area_classes %}{% endblock %}
+{% block dashboard_inner_container_classes %}dashboard-inner-container{% endblock %}
+{% block dashboard_inner_classes %} class="dashboard-inner-container"{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block content %}
-<div id="api-doc-content">
+<div class="ms-3 ml-3" id="api-doc-content">
   {# intro #}
   <a name="index"></a>
   <div id="intro">
@@ -82,7 +102,7 @@
         <p>
 This is the reference documentation for the Practice Sharing Platform API.
 Most API calls require an authentication token. To authenticate, take a look
-at the <a href="{{'/docs/reference/djaoapp/latest/api/'|site_url}}">Profile,
+at the <a href="{{'/docs/reference/djaoapp/2023-09-22/api/'|site_url}}">Profile,
 Billing and Access Control API reference documentation</a>.
         </ul>
         <p>
@@ -100,40 +120,124 @@ Browse the API endpoints by ...
   <div id="workflows">
     <a name="workflows"></a>
     <h2>By workflows <a href="#workflows" class="header-anchor"><i class="fa fa-link"></i></a></h2>
-    <a name="assessments"></a>
-    <h3>Assessments <a href="#assessments" class="header-anchor"><i class="fa fa-link"></i></a></h3>
-    <div class="row">
-      <div class="col-sm-6">
-        <ul>
-          {% for summary_end_point in api_end_points_by_summary %}
-          {% if 'assessments' in summary_end_point.tags %}
-          <li><a href="#{{summary_end_point.operationId}}">{{summary_end_point.summary}}</a></li>
-          {% endif %}
-          {% endfor %}
-        </ul>
-      </div>
-      <div class="col-sm-6">
-        <p>
+    <div id="assessments">
+      <a name="assessments"></a>
+      <h3>Assessments <a href="#assessments" class="header-anchor"><i class="fa fa-link"></i></a></h3>
+      <div class="row">
+        <div class="col-md-6">
+          <ul>
+            {% for summary_end_point in api_end_points_by_summary %}
+            {% if 'assessments' in summary_end_point.tags %}
+            <li><a href="#{{summary_end_point.operationId}}">{{summary_end_point.summary}}</a></li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <p>
 This section contains APIs related to assessments
-        </p>
+          </p>
+        </div>
       </div>
     </div>
-    <a name="reporting"></a>
-    <h3>Reporting <a href="#reporting" class="header-anchor"><i class="fa fa-link"></i></a></h3>
-    <div class="row">
-      <div class="col-sm-6">
-        <ul>
-          {% for summary_end_point in api_end_points_by_summary %}
-          {% if 'reporting' in summary_end_point.tags %}
-          <li><a href="#{{summary_end_point.operationId}}">{{summary_end_point.summary}}</a></li>
-          {% endif %}
-          {% endfor %}
-        </ul>
+    <div id="portfolios">
+      <a name="portfolios"></a>
+      <h3>Sharing <a href="#portfolios" class="header-anchor"><i class="fa fa-link"></i></a></h3>
+      <div class="row">
+        <div class="col-md-6">
+          <ul>
+            {% for summary_end_point in api_end_points_by_summary %}
+            {% if 'portfolios' in summary_end_point.tags %}
+            <li><a href="#{{summary_end_point.operationId}}">{{summary_end_point.summary}}</a></li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <p>
+This section contains APIs related to sharing data
+          </p>
+        </div>
       </div>
-      <div class="col-sm-6">
-        <p>
+    </div>
+    <div id="reporting">
+      <a name="reporting"></a>
+      <h3>Reporting <a href="#reporting" class="header-anchor"><i class="fa fa-link"></i></a></h3>
+      <div class="row">
+        <div class="col-md-6">
+          <ul>
+            {% for summary_end_point in api_end_points_by_summary %}
+            {% if 'reporting' in summary_end_point.tags %}
+            <li><a href="#{{summary_end_point.operationId}}">{{summary_end_point.summary}}</a></li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <p>
 This section contains APIs related to reporting
-        </p>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div id="benchmarks">
+      <a name="benchmarks"></a>
+      <h3>Benchmarks <a href="#benchmarks" class="header-anchor"><i class="fa fa-link"></i></a></h3>
+      <div class="row">
+        <div class="col-md-6">
+          <ul>
+            {% for summary_end_point in api_end_points_by_summary %}
+            {% if 'benchmarks' in summary_end_point.tags %}
+            <li><a href="#{{summary_end_point.operationId}}">{{summary_end_point.summary}}</a></li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <p>
+This section contains APIs related to anonymized aggregated benchmarks
+          </p>
+        </div>
+      </div>
+    </div>
+    <div id="content">
+      <a name="content"></a>
+      <h3>Content readers <a href="#content" class="header-anchor"><i class="fa fa-link"></i></a></h3>
+      <div class="row">
+        <div class="col-md-6">
+          <ul>
+            {% for summary_end_point in api_end_points_by_summary %}
+            {% if 'content' in summary_end_point.tags %}
+            <li><a href="#{{summary_end_point.operationId}}">{{summary_end_point.summary}}</a></li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <p>
+This section contains APIs related to content readers
+          </p>
+        </div>
+      </div>
+    </div>
+    <div id="editors">
+      <a name="editors"></a>
+      <h3>Content editors <a href="#editors" class="header-anchor"><i class="fa fa-link"></i></a></h3>
+      <div class="row">
+        <div class="col-md-6">
+          <ul>
+            {% for summary_end_point in api_end_points_by_summary %}
+            {% if 'editors' in summary_end_point.tags %}
+            <li><a href="#{{summary_end_point.operationId}}">{{summary_end_point.summary}}</a></li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <p>
+This section contains APIs related to content editors
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -142,24 +246,29 @@ This section contains APIs related to reporting
   {# alphabetically listed #}
   <div id="alphabetical">
     <section class="row">
-      <div class="col-sm-7">
+      <div class="col-md-7">
         <a name="alphabetical"></a>
         <h2 class="mt-4">Alphabetical <a href="#alphabetical" class="header-anchor"><i class="fa fa-link"></i></a></h2>
-      </div>
-      <div class="col-sm-5 code">
       </div>
     </section>
     {% for api_end_point in api_end_points %}
     <section class="row">
-      <div class="col-sm-7">
+      <div class="col-md-7">
         <a name="{{api_end_point.operationId}}"></a><h3 class="mt-4">{{api_end_point.summary}} <a href="#{{api_end_point.operationId}}" class="header-anchor"><i class="fa fa-link"></i></a></h3>
-        <pre class="end-point-url" style="background:#eee;">{{api_end_point.func|upper}} {{api_end_point.path}}</pre>
+        <div class="example">
+            <div class="example-title">
+                endpoint
+            </div>
+            <div class="example-body">
+                <pre class="code">{{api_end_point.func|upper}} {{api_end_point.path}}</pre>
+            </div>
+        </div>
         <div>
           {{api_end_point.description}}
         </div>
         {% if api_end_point|query_parameters %}
         <div>
-          <h5 class="param-list-header"><span rel="tooltip" data-toggle="tooltip" data-placement="bottom" title="Parameters that are appended to the URL. For example, in /items?id=###, the query parameter is id">Query parameters</span></h5>
+          <h5 class="param-list-header"><span rel="tooltip" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Parameters that are appended to the URL. For example, in /items?id=###, the query parameter is id">Query parameters</span></h5>
           <div class="params-wrap">
             {% for param in api_end_point|query_parameters %}
             {{ api_param_doc(param, api_end_point.operationId) }}
@@ -170,11 +279,15 @@ This section contains APIs related to reporting
         {% if api_end_point|request_body_parameters(definitions) %}
         <div>
           <h5 class="param-list-header">Request body</h5>
-          <div class="params-wrap">
-            {% for param in api_end_point|request_body_parameters(definitions) %}
-            {{ api_param_doc(param, api_end_point.operationId, response=False) }}
-            {% endfor %}
-          </div>
+          <zippy>
+            <div class="zippy">
+              <div class="zippy-content">
+                {% for param in api_end_point|request_body_parameters(definitions) %}
+                {{ api_param_doc(param, api_end_point.operationId, response=False) }}
+                {% endfor %}
+              </div>
+            </div>
+          </zippy>
         </div> {# .param-list-header #}
         {% endif %}
         <responses-list>
@@ -199,16 +312,22 @@ This section contains APIs related to reporting
           {% endfor %}
         </responses-list>{# .responses-list #}
       </div>
-      <div class="col-sm-5 code">
-        <h3>Examples</h3>
-        {# getting api_jwt_* tokens curl -X POST -H 'Content-Type: application/json; charset=UTF-8' -d '{"username":"xia", "password": "yoyo"}' http://localhost:8020/api/auth/ #}
-        {% for example in api_end_point.examples %}
-        <pre class="code http literal-block"><code>curl{% if 'user' in api_end_point.tags %} -H 'Authorization: Bearer {{api_jwt_user|safe}}'{% endif %}{% if 'subscriber' in api_end_point.tags %} -H 'Authorization: Bearer {{api_jwt_subscriber|safe}}'{% endif %}{% if 'provider' in api_end_point.tags %} -H 'Authorization: Bearer {{api_jwt_provider|safe}}'{% endif %}{% if 'broker' in api_end_point.tags %} -H 'Authorization: Bearer {{api_jwt_broker|safe}}'{% endif %}{% if example.func in ('POST', 'PUT', 'PATCH', 'DELETE') %} -X {{example.func}}{% endif %}{% if example.requestBody %} -H 'Content-Type: application/json; charset=UTF-8' -d '{{example.requestBody}}'{% endif %}{# <span class="name function">{{example.func}}</span> #} <span class="name api_base_url">{{api_base_url}}</span><span class="name namespace">{% if example.path %}{{example.path.replace('&', '\&')}}{% else %}XXX{% endif %}</span></code></pre>
-        {% if example.resp %}
-        responds
-        <pre class="code json literal-block">{{example.resp}}</pre>
-        {% endif %}
-        {% endfor %}
+      <div class="col-md-5 col-example">
+        <h3 class="mt-4">&nbsp;</h3>
+        <div class="example">
+          <div class="example-title">
+            Examples
+          </div>
+          <div class="example-body">
+            {% for example in api_end_point.examples %}
+            <pre class="code http literal-block"><code>curl{% if 'user' in api_end_point.tags %} -H 'Authorization: Bearer {{api_jwt_user|safe}}'{% endif %}{% if 'subscriber' in api_end_point.tags %} -H 'Authorization: Bearer {{api_jwt_subscriber|safe}}'{% endif %}{% if 'provider' in api_end_point.tags %} -H 'Authorization: Bearer {{api_jwt_provider|safe}}'{% endif %}{% if 'broker' in api_end_point.tags %} -H 'Authorization: Bearer {{api_jwt_broker|safe}}'{% endif %}{% if example.func in ('POST', 'PUT', 'PATCH', 'DELETE') %} -X {{example.func}}{% endif %}{% if example.requestBody %} -H 'Content-Type: application/json; charset=UTF-8' -d '{{example.requestBody}}'{% endif %}{# <span class="name function">{{example.func}}</span> #} <span class="name api_base_url">{{api_base_url}}</span><span class="name namespace">{% if example.path %}{{example.path.replace('&', '\&')}}{% else %}XXX{% endif %}</span></code></pre>
+            {% if example.resp %}
+            responds
+            <pre class="code json literal-block">{{example.resp}}</pre>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>{# /.example #}
       </div>
     </section>
     {% endfor %}

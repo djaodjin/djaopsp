@@ -10,7 +10,7 @@ from ...api.portfolios import (BenchmarkAPIView, BenchmarkIndexAPIView,
     CompareAPIView, CompareIndexAPIView,
     CompletedAssessmentsAPIView, CompletionRateAPIView, EngagementStatsAPIView,
     PortfolioAccessibleSamplesAPIView, PortfolioEngagementAPIView,
-    PortfolioResponsesAPIView, TotalScoreBySubsectorAPIView)
+    TotalScoreBySubsectorAPIView)
 
 
 urlpatterns = [
@@ -38,8 +38,6 @@ urlpatterns = [
         CompletionRateAPIView.as_view(), name="api_reporting_completion_rate"),
     path('reporting/<slug:campaign>/',
         include('djaopsp.sustainability.urls.api')),
-    path('reporting/<slug:campaign>',
-        PortfolioResponsesAPIView.as_view(), name="api_portfolio_responses"),
     path('reporting/<slug:campaign>/matrix/<path:path>',
         TotalScoreBySubsectorAPIView.as_view()),
     path('reporting/<slug:campaign>/', include('survey.urls.api.matrix')),

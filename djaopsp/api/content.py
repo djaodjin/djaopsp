@@ -12,7 +12,7 @@ from ..utils import get_practice_serializer
 
 class PageElementAPIView(VisibilityMixin, PageElementBaseAPIView):
     """
-    Lists a tree of page elements under a path
+    Lists tree of page elements matching prefix
 
     **Tags: content
 
@@ -83,7 +83,7 @@ class PageElementAPIView(VisibilityMixin, PageElementBaseAPIView):
 
 class PageElementIndexAPIView(PageElementAPIView):
     """
-    Lists the tree of page elements under the root
+    Lists tree of page elements
 
     **Tags: content
 

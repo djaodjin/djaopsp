@@ -403,71 +403,6 @@ class SupplierListMixin(ScoresMixin, AccountsNominativeQuerysetMixin):
         return page
 
 
-class PortfolioResponsesAPIView(SupplierListMixin, generics.ListAPIView):
-    """
-    Lists assessments for reporting profiles
-
-    List of suppliers accessible by the request user
-    with normalized (total) score when the supplier completed
-    an assessment.
-
-    **Tags**: reporting
-
-    **Examples
-
-    .. code-block:: http
-
-        GET /api/energy-utility/reporting/sustainability HTTP/1.1
-
-    responds
-
-    .. code-block:: json
-
-        {
-          "count": 1,
-          "next": null,
-          "previous": null,
-          "results":[
-          {
-              "slug": "andy-shop",
-              "printable_name": "Andy's Shop",
-              "email": "andy@localhost.localdomain",
-              "last_activity_at": "2016-07-15T00:36:19.448000Z",
-              "requested_at": null,
-              "reporting_status": "Planning phase",
-              "segment": "",
-              "score_url": "",
-              "normalized_score": null,
-              "nb_na_answers": null,
-              "reporting_publicly": null,
-              "reporting_fines": null,
-              "nb_planned_improvements": null,
-              "tags": ["high_impact"]
-          },
-          {
-              "slug": "supplier-1",
-              "printable_name": "S1 - Tamerin (Demo)",
-              "email": "steve@localhost.localdomain",
-              "last_activity_at": "2017-01-01T00:00:00Z",
-              "requested_at": null,
-              "reporting_status": "Completed",
-              "segment": "Boxes & enclosures",
-              "score_url": "/app/supplier-1/scorecard/\
-f1e2e916eb494b90f9ff0a36982341/content/boxes-and-enclosures/",
-              "normalized_score": 90,
-              "nb_na_answers": 1,
-              "reporting_publicly": true,
-              "reporting_fines": null,
-              "nb_planned_improvements": 1,
-              "tags": []
-          }
-          ]
-        }
-    """
-    serializer_class = ReportingSerializer
-    pagination_class = CompletionSummaryPagination
-
-
 class TotalScoreBySubsectorAPIView(RollupMixin, GraphMixin, SupplierListMixin,
                                    MatrixDetailAPIView):
     """
@@ -828,7 +763,7 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
 class CompareAPIView(CampaignContentMixin, AccountsNominativeQuerysetMixin,
                      CompareAPIBaseView):
     """
-    Lists compared samples
+    Compares answers matching prefix
 
     **Tags**: reporting
 
@@ -1016,7 +951,7 @@ class CompareAPIView(CampaignContentMixin, AccountsNominativeQuerysetMixin,
 
 class CompareIndexAPIView(CompareAPIView):
     """
-    Lists compared samples
+    Compares answers
 
     **Tags**: reporting
 
@@ -1368,7 +1303,9 @@ ORDER BY account_id, created_at
 class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
                                         generics.ListAPIView):
     """
-    List year-by-year accessible responses for reporting profiles
+    Lists accessible samples by year
+
+    Lists year-by-year accessible responses for reporting profiles
 
     **Tags**: reporting
 
@@ -1529,7 +1466,7 @@ class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
 class PortfolioEngagementAPIView(PortfolioEngagementMixin,
                                  generics.ListAPIView):
     """
-    List engagement for reporting profiles
+    Lists engagement for reporting profiles
 
 
     reporting_status can be one of:

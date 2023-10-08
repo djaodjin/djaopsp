@@ -764,8 +764,9 @@ class APIDocView(TemplateView):
             'content': "Content",
             'editors': "Editors",
             'assessments': "Assessments",
-            'reporting': "Reporting",
             'portfolios': "Portfolios",
+            'reporting': "Reporting",
+            'benchmarks': "Benchmarks"
         })
         for tag in sorted(tags):
             if not tag in expanded_tags:

@@ -61,7 +61,7 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
 
     def post(self, request, *args, **kwargs):
         """
-        Freezes part of sample
+        Freezes answers matching prefix
 
         A frozen sample cannot be edited to add and/or update answers.
 
@@ -208,7 +208,7 @@ class AssessmentCompleteIndexAPIView(AssessmentCompleteAPIView):
 
     def post(self, request, *args, **kwargs):
         """
-        Freezes a sample
+        Freezes answers
 
         A frozen sample cannot be edited to add and/or update answers.
 
@@ -388,7 +388,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
 
 class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
     """
-    Lists part of an assessment
+    Formats answers matching prefix
 
     The list returned contains at least one measurement for each question
     in the campaign. If there are no measurement yet on a question, ``measured``
@@ -578,7 +578,7 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
 
 class AssessmentContentIndexAPIView(AssessmentContentAPIView):
     """
-    Lists an assessment
+    Formats answers
 
     The list returned contains at least one measurement for each question
     in the campaign. If there are no measurement yet on a question, ``measured``
@@ -723,14 +723,14 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
                               SectionReportMixin, CampaignContentMixin,
                               generics.ListAPIView):
     """
-    Retrieves benchmark graphs
+    Retrieves benchmarks matching prefix
 
     XXX change `resp` to a {count:, results:} format.
 
     Returns a list of graphs with anonymized performance of peers
     for paths marked as visible (see ::ref::`api_score`).
 
-    **Tags**: scorecard
+    **Tags**: benchmarks
 
     **Examples
 
@@ -904,12 +904,12 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
 
 class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
     """
-    Retrieves benchmark graphs
+    Retrieves benchmarks
 
     Returns a list of graphs with anonymized performance of peers
     for paths marked as visible (see ::ref::`api_score`).
 
-    **Tags**: scorecard
+    **Tags**: benchmarks
 
     **Examples
 

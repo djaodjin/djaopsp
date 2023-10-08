@@ -10,6 +10,38 @@ $footer-height: 150px;
 $score-card-width: 300px;
 $green-level-4-color: #FFD700;
 
+// variables specific to djaoapp used for code examples
+//$example-title-bg: rgb(62, 68, 88);
+//$example-title-color: rgb(105, 115, 134);
+//$example-bg: #222527;
+//$example-color: rgb(105, 115, 134);
+$example-bg: rgb(247, 250, 252);
+$example-color: rgb(105, 115, 134);
+$example-title-color: rgb(105, 115, 134);
+$example-title-bg: rgb(227, 232, 238);
+$jumbotron-shadow-start-color: #000;
+$jumbotron-shadow-end-color: #eee;
+
+// variables specific to djaoapp used for code examples
+$example-title-bg-dark: rgb(79, 86, 107);
+$example-title-color-dark: rgb(147, 156, 171);
+//$example-bg-dark: rgb(143, 153, 166);
+//$example-color-dark: rgb(45, 49, 68);
+$example-bg-dark: rgb(18, 20, 28);
+$example-color-dark: rgb(193, 193, 193);
+$jumbotron-shadow-start-color-dark: $jumbotron-shadow-end-color;
+$jumbotron-shadow-end-color-dark: $jumbotron-shadow-start-color;
+
+:root,
+[data-bs-theme="light"] {
+    --example-title-bg: #{$example-title-bg};
+    --example-title-color: #{$example-title-color};
+    --example-bg: #{$example-bg};
+    --example-color: #{$example-color};
+    --jumbotron-shadow-start-color: #{$jumbotron-shadow-start-color};
+    --jumbotron-shadow-end-color: #{$jumbotron-shadow-end-color};
+}
+
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
@@ -2066,4 +2098,172 @@ color: #000;
 .verifier-notes .heading-6>.title,
 .verifier-notes .heading-7>.title {
   color: black;
+}
+
+
+// Code samples and API documentation
+// ----------------------------------
+.param-indent-1 {
+  border-left: 1px solid #ddd;
+  padding-left: 5px;
+}
+
+.param-indent-2 {
+  border-left: 3px solid #ddd;
+  padding-left: 5px;
+}
+
+.param-indent-3 {
+  border-left: 6px solid #ddd;
+  padding-left: 5px;
+}
+
+.param-indent-4 {
+  border-left: 9px solid #ddd;
+  padding-left: 5px;
+}
+
+a.header-anchor {
+  opacity: 0;
+}
+a.header-anchor:hover{
+  opacity: 1.0;
+}
+
+.example {
+    color: var(--example-color);
+    background-color: var(--example-bg);
+    border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.07) 0px 0px 0px 1px;
+    margin-bottom: 12px;
+}
+
+@include media-breakpoint-up(md) {
+
+  .col-example {
+      color: var(--example-color);
+      background-color: var(--example-bg);
+  }
+
+  .col-example > .example {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+}
+
+.example-title {
+  color: var(--example-title-color);
+  background-color: var(--example-title-bg);
+  text-transform: uppercase;
+  padding: 10px 12px;
+  font-size: $badge-font-size;
+  font-weight: 500;
+}
+
+.example-body {
+  padding: 12px 20px;
+}
+
+pre.code{
+  background-color:inherit;
+  color:inherit;
+  margin:0;
+  font-size: $font-size-sm;
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  text-align: left;
+  word-spacing: normal;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+.code.json .name {
+  color: #c1ef65;
+}
+
+.code.json .literal.string {
+  color: #d0d0d0;
+}
+
+.code.json .literal.number {
+  color: #77bcd7;
+}
+
+.code.json .keyword {
+  color: #ebde68;
+}
+
+.param-list-header {
+    color: var(--bs-body-secondary-color);
+    border-bottom: 1px solid rgba(38, 50, 56, 0.3);
+    margin: 3em 0 1em 0;
+    font-weight: normal;
+    text-transform: uppercase;
+}
+
+.param-name {
+    display: table-cell;
+    width: 25%;
+    vertical-align: top;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.param-type {
+    margin: 25px 0 5px 0;
+    text-transform: capitalize;
+}
+
+.param-required {
+  display: inline-block;
+  padding: $badge-padding-y $badge-padding-x;
+  padding-right: .6em;
+  padding-left: .6em;
+  font-size: $badge-font-size;
+  font-weight: $badge-font-weight;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  color: red;
+  border: 1px solid red;
+  background-color: transparent;
+  @include border-radius(10rem);
+
+  // Empty badges collapse automatically
+  &:empty {
+    display: none;
+  }
+
+}
+
+.params-wrap {
+    display: table;
+    width: 100%;
+}
+
+.param {
+    display: table-row;
+}
+
+.param-info {
+    display: table-cell;
+    width: 75%;
+    padding-top: 10px;
+    padding-left: 5px;
+    box-sizing: border-box;
+}
+
+.param-builtin {
+    border-bottom: 1px solid #9fb4be;
+    padding-bottom: 10px;
 }

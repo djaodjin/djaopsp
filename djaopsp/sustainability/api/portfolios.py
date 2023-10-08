@@ -105,6 +105,8 @@ class GoalsAPIView(GoalsMixin, generics.RetrieveAPIView):
           }]
         }
     """
+    schema = None # XXX temporarily disabled API docs
+
     def retrieve(self, request, *args, **kwargs):
         return Response(self.get_response_data(request, *args, **kwargs))
 
@@ -257,6 +259,8 @@ class GHGEmissionsRateAPIView(GHGEmissionsRateMixin, generics.RetrieveAPIView):
           }]
         }
     """
+    schema = None # XXX temporarily disabled API docs
+
     def retrieve(self, request, *args, **kwargs):
         return Response(self.get_response_data(request, *args, **kwargs))
 
@@ -409,5 +413,7 @@ class GHGEmissionsAmountAPIView(GHGEmissionsAmountMixin,
           }]
         }
     """
+    schema = None # XXX temporarily disabled API docs
+
     def retrieve(self, request, *args, **kwargs):
         return Response(self.get_response_data(request, *args, **kwargs))
