@@ -8,7 +8,6 @@ from django.db import connection
 from django.db.models.query import QuerySet, RawQuerySet
 from django.http import HttpResponse
 from survey.helpers import get_extra
-from survey.mixins import TimersMixin
 from survey.models import PortfolioDoubleOptIn, Unit
 from survey.views.matrix import CompareView as CompareBaseView
 
@@ -50,7 +49,7 @@ class CompareView(UpdatedMenubarMixin, CompareBaseView):
 
 
 class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
-                      TimersMixin, PracticesSpreadsheetView):
+                      PracticesSpreadsheetView):
     """
     Download a spreadsheet of answers/comments with questions as rows
     and accounts as columns.
@@ -58,6 +57,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     basename = 'dashboard-answers'
     show_comments = True
     show_planned = False
+    add_expanded_styles = False
 
 #    ordering = ('full_name',)
     ordering = ('account_id',)
@@ -347,14 +347,11 @@ ORDER BY answers.path, answers.account_id
         queryset = self.get_queryset()
         self._report_queries("built list of questions")
         self.write_sheet(title="Answers", key='measured', queryset=queryset)
-        self._report_queries("written answers sheet")
         if self.show_comments:
             self.write_sheet(title="Comments", key='comments',
                 queryset=queryset)
-        self._report_queries("written comments")
         if self.show_planned:
             self.write_sheet(title="Planned", key='planned', queryset=queryset)
-            self._report_queries("written planned")
 
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \
@@ -458,7 +455,7 @@ class CompareScoresXLSXView(CompareXLSXView):
                     row += [measured]
             row += [slug]
             self.writerow(row)
-        self._report_queries("written scores")
+        self._report_queries("written sheet 'Scores'")
 
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \

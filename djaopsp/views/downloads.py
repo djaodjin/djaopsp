@@ -13,15 +13,17 @@ from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from openpyxl.utils import get_column_letter
 from pages.models import PageElement
+from survey.mixins import TimersMixin
 from survey.queries import datetime_or_now
 
 from ..api.samples import AssessmentContentMixin
 from ..helpers import as_valid_sheet_title
 
 
-class PracticesSpreadsheetView(ListView):
+class PracticesSpreadsheetView(TimersMixin, ListView):
 
     add_style = True
+    add_expanded_styles = True
     depth = 0
     basename = 'practices'
     content_type = \
@@ -133,11 +135,13 @@ class PracticesSpreadsheetView(ListView):
 
         self.create_writer(title=title)
         self.write_headers()
+        self._report_queries(
+            "headers written in sheet '%s'" % title)
         start_row = self.wsheet.max_row
         for entry in queryset:
             row = self.format_row(entry, key=key)
             self.writerow(row)
-        #self._report_queries("rows written in sheet '%s'" % title)
+        self._report_queries("rows written in sheet '%s'" % title)
 
         if self.add_style:
             max_indent = 0
@@ -178,7 +182,7 @@ class PracticesSpreadsheetView(ListView):
                             indent=indent, wrap_text=True)
                 for indent in range(0, max_indent + 1)]
 
-            #self._report_queries("computed styles for sheet '%s'" % title)
+            self._report_queries("computed styles for sheet '%s'" % title)
 
             # Column headers
             for column in self.wsheet.columns:
@@ -209,33 +213,36 @@ class PracticesSpreadsheetView(ListView):
                                 min_row=idx, max_row=idx):
                             for cell in row_cells:
                                 cell.fill = tile_background
-            #self._report_queries("applied styles on first column in sheet '%s'"
-            #    % title)
+            self._report_queries("applied styles on first column in sheet '%s'"
+                % title)
 
-            headers = self.get_headings()
-            for row_cells in self.wsheet.iter_rows(
-                    min_row=start_row + 1, max_row=self.wsheet.max_row):
-                first = True
-                for idx, cell in enumerate(row_cells):
-                    if first:
-                        first = False
-                        continue
-                    cell.alignment = inner_cell_alignment
-                    if (self.intrinsic_value_headers and
-                        headers[idx] in self.intrinsic_value_headers):
-                        try:
-                            value = int(cell.value)
-                            if value:
-                                cell.border = bordered
-                                cell.fill = self.get_value_fill(value)
-                        except (TypeError, ValueError):
-                            pass
+            if self.add_expanded_styles:
+                headers = self.get_headings()
+                for row_cells in self.wsheet.iter_rows(
+                        min_row=start_row + 1, max_row=self.wsheet.max_row):
+                    first = True
+                    for idx, cell in enumerate(row_cells):
+                        if first:
+                            first = False
+                            continue
+                        cell.alignment = inner_cell_alignment
+                        if (self.intrinsic_value_headers and
+                            headers[idx] in self.intrinsic_value_headers):
+                            try:
+                                value = int(cell.value)
+                                if value:
+                                    cell.border = bordered
+                                    cell.fill = self.get_value_fill(value)
+                            except (TypeError, ValueError):
+                                pass
+                self._report_queries("applied all styles in sheet '%s'" % title)
 
-            #self._report_queries("applied all styles in sheet '%s'" % title)
+        self._report_queries("written sheet '%s'" % title)
 
 
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals
+        self._start_time()
 
         # We need to run `get_queryset` before `get_headings` so we know
         # how many columns to display for implementation rate.
