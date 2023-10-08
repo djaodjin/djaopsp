@@ -5,8 +5,7 @@
 #pylint: disable=invalid-name,unused-argument
 from functools import WRAPPER_ASSIGNMENTS
 import six
-
-from six.moves.urllib.parse import urljoin, urlparse, urlunparse
+from six.moves.urllib.parse import urljoin, urlparse, urlsplit, urlunparse
 from six import StringIO
 
 try:

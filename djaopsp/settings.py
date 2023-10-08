@@ -14,6 +14,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Default values that can be overriden by `update_settings` later on.
 APP_NAME = os.path.basename(BASE_DIR)
+RUN_DIR = os.path.join(BASE_DIR, 'var', 'run', 'cache')
 
 DEBUG = True
 FEATURES_USE_PORTFOLIOS = False
