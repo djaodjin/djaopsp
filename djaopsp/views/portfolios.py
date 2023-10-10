@@ -180,6 +180,7 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
     def get_context_data(self, **kwargs):
         context = super(PortfolioAccessiblesView, self).get_context_data(
             **kwargs)
+        context.update({'ends_at': None, 'start_at': None})
         update_context_urls(context, {
             'api_accessibles': reverse(
                 'survey_api_portfolios_requests', args=(self.account,)),

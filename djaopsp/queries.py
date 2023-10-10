@@ -7,7 +7,7 @@ results in APIs, downloads, etc.
 from django.db import connection
 from django.db.models.query import QuerySet, RawQuerySet
 from survey.models import PortfolioDoubleOptIn, Sample
-from survey.queries import as_sql_date_trunc_year, is_sqlite3
+from survey.queries import as_sql_date_trunc, is_sqlite3
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
 
@@ -374,8 +374,9 @@ GROUP BY reporting_status
     return results
 
 
-def get_requested_by_accounts_by_year(campaign, includes, grantee,
-                                      start_at=None, ends_at=None):
+def get_requested_by_accounts_by_period(campaign, includes, grantee,
+                                        start_at=None, ends_at=None,
+                                        period='yearly'):
     """
     Returns the most recent double-optin for each year between
     starts_at and ends_at for each account in includes.
@@ -408,12 +409,12 @@ SELECT
     survey_portfoliodoubleoptin.account_id AS account_id,
     survey_portfoliodoubleoptin.id AS id,
 --    survey_portfoliodoubleoptin.created_at AS created_at,
-    last_updates.year AS created_at
+    last_updates.period AS created_at
 FROM survey_portfoliodoubleoptin
 INNER JOIN (
     SELECT
         account_id,
-        %(as_year)s AS year,
+        %(as_period)s AS period,
         MAX(survey_portfoliodoubleoptin.created_at) AS last_updated_at
     FROM survey_portfoliodoubleoptin
     INNER JOIN accounts ON
@@ -422,7 +423,7 @@ INNER JOIN (
           survey_portfoliodoubleoptin.state IN (%(optin_request_states)s) AND
           survey_portfoliodoubleoptin.grantee_id IN (%(grantees)s)
           %(date_range_clause)s
-    GROUP BY account_id, year) AS last_updates ON
+    GROUP BY account_id, period) AS last_updates ON
    survey_portfoliodoubleoptin.account_id = last_updates.account_id AND
    survey_portfoliodoubleoptin.created_at = last_updates.last_updated_at
 INNER JOIN accounts ON
@@ -431,8 +432,8 @@ ORDER BY account_id, created_at
 """ % {'campaign_id': campaign.pk,
        'accounts_query': accounts_query,
        'grantees': ",".join([str(grantee.pk)]),
-       'as_year': as_sql_date_trunc_year(
-           'survey_portfoliodoubleoptin.created_at'),
+       'as_period': as_sql_date_trunc(
+           'survey_portfoliodoubleoptin.created_at', period=period),
        'date_range_clause': date_range_clause,
        'optin_request_states': ",".join([
            str(PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED),
@@ -571,7 +572,7 @@ ON frozen_assessments.account_id = frozen_improvements.account_id AND
    'reporting_clause': reporting_clause}
     # Implementation Note: frozen_improvements will always pick the latest
     # improvement plan which might not be the ones associated with
-    # the latest assessment if in a subsequent year no plan is created.
+    # the latest assessment if in a subsequent period no plan is created.
     return frozen_query
 
 

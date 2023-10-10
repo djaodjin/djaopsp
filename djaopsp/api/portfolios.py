@@ -18,12 +18,13 @@ from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
 from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
 from survey.filters import DateRangeFilter, OrderingFilter, SearchFilter
-from survey.helpers import construct_yearly_periods, construct_weekly_periods
+from survey.helpers import (construct_monthly_periods,
+    construct_yearly_periods, construct_weekly_periods, period_less_than)
 from survey.api.matrix import BenchmarkMixin as BenchmarkMixinBase
 from survey.mixins import TimersMixin
 from survey.models import Answer, EditableFilter, PortfolioDoubleOptIn, Sample
 from survey.pagination import MetricsPagination
-from survey.queries import as_sql_date_trunc_year, datetime_or_now
+from survey.queries import as_sql_date_trunc, datetime_or_now
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import get_accessible_accounts, get_account_model
 
@@ -31,7 +32,7 @@ from .campaigns import CampaignContentMixin
 from ..compat import reverse, six
 from ..helpers import as_percentage
 from ..queries import (get_completed_assessments_at_by, get_engagement,
-    get_engagement_by_reporting_status, get_requested_by_accounts_by_year,
+    get_engagement_by_reporting_status, get_requested_by_accounts_by_period,
     segments_as_sql)
 from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
     AccountsNominativeQuerysetMixin, CampaignMixin)
@@ -1106,8 +1107,14 @@ class PortfolioAccessibleSamplesMixin(TimersMixin, CampaignMixin,
     REPORTING_VERIFIED = 'verified'
     REPORTING_DECLINED = 'declined'
 
-    def get_latest_frozen_by_accounts_by_year(self, campaign, includes,
-        start_at=None, ends_at=None):
+    @property
+    def period(self):
+        if not hasattr(self, '_period'):
+            self._period = self.get_query_param('period', 'monthly')
+        return self._period
+
+    def get_latest_frozen_by_accounts_by_period(self, campaign, includes,
+        start_at=None, ends_at=None, period='yearly'):
         """
         Returns the most recent frozen assessment for each year between
         starts_at and ends_at for each account.
@@ -1138,7 +1145,7 @@ WITH accounts AS (
 last_updates AS (
 SELECT
   account_id,
-  %(as_year)s AS year,
+  %(as_period)s AS period,
   MAX(survey_sample.created_at) AS last_updated_at
 FROM survey_sample
 INNER JOIN accounts ON
@@ -1147,7 +1154,7 @@ WHERE survey_sample.campaign_id = %(campaign_id)d AND
   survey_sample.is_frozen AND
   survey_sample.extra IS NULL
   %(date_range_clause)s
-GROUP BY account_id, year
+GROUP BY account_id, period
 )
 SELECT
     accounts.slug AS account_slug,
@@ -1177,7 +1184,8 @@ ORDER BY account_id, created_at
 """ % {'campaign_id': campaign.pk,
        'accounts_query': accounts_query,
        'grantees': ",".join([str(self.account.pk)]),
-       'as_year': as_sql_date_trunc_year('survey_sample.created_at'),
+       'as_period': as_sql_date_trunc(
+           'survey_sample.created_at', period=period),
        'date_range_clause': date_range_clause}
         return Sample.objects.raw(sql_query)
 
@@ -1199,8 +1207,9 @@ ORDER BY account_id, created_at
     def decorate_queryset(self, page):
         #pylint:disable=too-many-locals
         samples_by_account_ids = {}
-        samples = self.get_latest_frozen_by_accounts_by_year(
-            self.campaign, page)
+        samples = self.get_latest_frozen_by_accounts_by_period(
+            self.campaign, page, start_at=self.start_at, ends_at=self.ends_at,
+            period=self.period)
 
         for sample in samples:
             if sample.account_id not in samples_by_account_ids:
@@ -1213,23 +1222,32 @@ ORDER BY account_id, created_at
         # We want the range of years consistent between different pages
         # returned. As a result we use `self.get_queryset()` here to compute
         # a range of dates.
-        range_dates = Sample.objects.filter(
-            account__in=self.get_queryset(),
-            is_frozen=True,
-            extra__isnull=True).aggregate(
-            Min('created_at'), Max('created_at'))
-        first_year = datetime.datetime(
-            year=datetime_or_now(range_dates.get('created_at__min')).year,
-            month=1, day=1)
-        last_year = datetime.datetime(
-            year=datetime_or_now(range_dates.get('created_at__max')).year,
-            month=12, day=31)
-        years = construct_yearly_periods(first_year, last_year)
-        self.labels = [val.year for val in years]
+        if self.start_at and self.ends_at:
+            first_year = self.start_at
+            last_year = self.ends_at
+        else:
+            range_dates = Sample.objects.filter(
+                account__in=self.get_queryset(),
+                is_frozen=True,
+                extra__isnull=True).aggregate(
+                Min('created_at'), Max('created_at'))
+            first_year = datetime.datetime(
+                year=datetime_or_now(range_dates.get('created_at__min')).year,
+                month=1, day=1)
+            last_year = datetime.datetime(
+                year=datetime_or_now(range_dates.get('created_at__max')).year,
+                month=12, day=31)
+
+        if self.period == 'monthly':
+            periods = construct_monthly_periods(first_year, last_year)
+            self.labels = [val.strftime("%b %Y") for val in periods]
+        else:
+            periods = construct_yearly_periods(first_year, last_year)
+            self.labels = [val.year for val in periods]
 
         requested_by_accounts = {}
-        for optin in get_requested_by_accounts_by_year(
-                self.campaign, page, self.account):
+        for optin in get_requested_by_accounts_by_period(
+                self.campaign, page, self.account, period=self.period):
             if optin.account_id not in requested_by_accounts:
                 requested_by_accounts[optin.account_id] = set([])
             requested_by_accounts[optin.account_id] |= set([
@@ -1242,7 +1260,7 @@ ORDER BY account_id, created_at
             values = []
             key = None
             sample = None
-            keys_iterator = iter(years)
+            keys_iterator = iter(periods)
             samples_iterator = iter(samples_by_account_ids.get(account.pk, []))
             try:
                 sample = next(samples_iterator)
@@ -1255,11 +1273,13 @@ ORDER BY account_id, created_at
                 pass
             try:
                 while sample and key:
-                    if sample[0].year < key[0].year:
+                    if period_less_than(
+                            sample[0], key[0], period=self.period):
                         values += [sample]
                         sample = None
                         sample = next(samples_iterator)
-                    elif key[0].year < sample[0].year:
+                    elif period_less_than(
+                            key[0], sample[0], period=self.period):
                         values += [key]
                         key = None
                         key = self.as_sample(next(keys_iterator),

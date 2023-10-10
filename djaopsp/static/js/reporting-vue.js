@@ -446,6 +446,7 @@ Vue.component('reporting-organizations', {
             portfolios_received_url: this.$urls.api_portfolios_received,
             api_profiles_base_url: this.$urls.api_organizations,
             params: {
+                period: 'yearly'
             },
             newItem: {
                 email: "",
