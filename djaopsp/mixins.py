@@ -49,24 +49,16 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
                     self.request, roles=['manager', settings.AUDITOR_ROLE])])
             broker = self.request.session.get('site', {}).get('slug')
             if broker:
-                accessibles.add(broker)
+                accessibles &= set([broker])
+            accessibles &= settings.UNLOCK_BROKERS
             if accessibles:
-                accessibles &= settings.UNLOCK_BROKERS
                 self._verifier_accounts = list(
                     get_account_model().objects.filter(slug__in=accessibles))
         return self._verifier_accounts
 
     @property
     def is_auditor(self):
-        if self.verifier_accounts:
-            accessible_audits = set([
-                account.slug for account in self.verifier_accounts])
-        else:
-            accessible_audits = set([])
-        if True:
-            return accessible_audits & settings.UNLOCK_BROKERS
-        broker = self.request.session.get('site', {}).get('slug')
-        return broker and broker in accessible_audits
+        return bool(self.verifier_accounts)
 
     @property
     def visibility(self):
