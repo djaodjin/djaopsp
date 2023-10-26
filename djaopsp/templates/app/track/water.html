@@ -60,7 +60,7 @@
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="2">
+                        <th>
                         </th>
                         <th>
                           <div class="input-group mr-2">
@@ -88,7 +88,8 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results"
+                      <tr :id="item.slug"
+                          v-for="item in items.results"
                           v-show="itemsLoaded && items.results.length > 0">
                         <td>
                           {% include "app/track/_profile_descr.html" %}
@@ -97,9 +98,11 @@
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="number" min="0"
-                                   v-model="item.amount">
+                                   name="measured"
+                                   v-model="item.measured">
                             <div class="input-group-append">
                               <select class="form-control"
+                                   name="unit"
                                    v-model="item.unit">
                                 <option value="tons">Metric tons</option>
                                 <option value="lbs">Pounds</option>
@@ -114,7 +117,9 @@
                       </tr>
                       <tr>
                         <td>
-                          <input class="form-control" type="text" v-model="newItem.full_name" />
+                          <input class="form-control" type="text"
+                                 name="full_name"
+                                 v-model="newItem.full_name" />
                         </td>
                         <td>
                           <select class="form-control" name="water-type"
@@ -124,19 +129,15 @@
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary"
-                              @click.prevent="addItem">Add row</button>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
+                          <button class="btn btn-secondary add-row"
+                              @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                   <div class="text-center">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                 </div>
               </div>
@@ -153,7 +154,7 @@
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="2">
+                        <th>
                         </th>
                         <th>
                           <div class="input-group mr-2">
@@ -181,7 +182,8 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results"
+                      <tr :id="item.slug"
+                          v-for="item in items.results"
                           v-show="itemsLoaded && items.results.length > 0">
                         <td>
                           {% include "app/track/_profile_descr.html" %}
@@ -190,9 +192,11 @@
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="number" min="0"
-                                   v-model="item.amount">
+                                   name="measured"
+                                   v-model="item.measured">
                             <div class="input-group-append">
                               <select class="form-control"
+                                   name="unit"
                                    v-model="item.unit">
                                 <option value="tons">Metric tons</option>
                                 <option value="lbs">Pounds</option>
@@ -207,7 +211,9 @@
                       </tr>
                       <tr>
                         <td>
-                          <input class="form-control" type="text" v-model="newItem.full_name" />
+                          <input class="form-control" type="text"
+                                 name="full_name"
+                                 v-model="newItem.full_name" />
                         </td>
                         <td>
                           <select class="form-control" name="water-type"
@@ -217,8 +223,8 @@
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary"
-                              @click.prevent="addItem">Add row</button>
+                          <button class="btn btn-secondary add-row"
+                              @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                         <td>
                         </td>
@@ -228,8 +234,8 @@
                     </tbody>
                   </table>
                   <div class="text-center">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                 </div>
               </div>
@@ -247,7 +253,7 @@
                   <table class="table table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th colspan="2">
+                        <th>
                         </th>
                         <th>
                           <div class="input-group mr-2">
@@ -275,7 +281,8 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results"
+                      <tr :id="item.slug"
+                          v-for="item in items.results"
                           v-show="itemsLoaded && items.results.length > 0">
                         <td>
                           {% include "app/track/_profile_descr.html" %}
@@ -284,9 +291,11 @@
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="number" min="0"
-                                   v-model="item.amount">
+                                   name="measured"
+                                   v-model="item.measured">
                             <div class="input-group-append">
                               <select class="form-control"
+                                   name="unit"
                                    v-model="item.unit">
                                 <option value="tons">Metric tons</option>
                                 <option value="lbs">Pounds</option>
@@ -302,6 +311,7 @@
                       <tr>
                         <td>
                           <input class="form-control" type="text"
+                                 name="full_name"
                                  v-model="newItem.full_name" />
                         </td>
                         <td>
@@ -312,8 +322,8 @@
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary"
-                              @click.prevent="addItem">Add row</button>
+                          <button class="btn btn-secondary add-row"
+                              @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                         <td>
                         </td>
@@ -323,8 +333,8 @@
                     </tbody>
                   </table>
                   <div class="text-center">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                 </div>
               </div>
@@ -340,4 +350,14 @@
     </div>
   </data-tracker> {# .panel-icons #}
 </div>
+{% endblock %}
+
+{% block track_scripts %}
+<script type="text/javascript">
+Vue.prototype.$water_type = {
+    "unspecified": {
+        "title": "Unspecified"
+    },
+};
+</script>
 {% endblock %}

@@ -110,7 +110,8 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                       </tr>
                     </thead>
                     <tbody>
-                      <tr :id="item.slug" v-for="item in items.results"
+                      <tr :id="item.slug"
+                          v-for="item in items.results"
                           v-show="itemsLoaded && items.results.length > 0">
                         <td>
                           {% include "app/track/_profile_descr.html" %}
@@ -208,14 +209,14 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary"
-                              @click.prevent="addItem">Add row</button>
+                          <button class="btn btn-secondary add-row"
+                              @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                   <div class="text-center my-4">
-                    <button class="btn btn-primary"
+                    <button class="btn btn-primary record"
                             @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                 </div>{# /!showEmissionsEstimate #}
@@ -251,7 +252,8 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results"
+                      <tr :id="item.slug"
+                          v-for="item in items.results"
                           v-show="itemsLoaded && items.results.length > 0">
                         <td>[[item.printable_name]]</td>
                         <td>[[humanizeFuelType(item.extra.fuel_type)]]</td>
@@ -264,9 +266,8 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                     </tbody>
                   </table>
                   <div class="text-center my-4">
-                    <button id="scope1-stationary-combustion-record"
-                            class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                 </div>{# /showEmissionsEstimate #}
               </div>
@@ -317,7 +318,9 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                      <tr :id="item.slug"
+                          v-for="item in items.results"
+                          v-show="itemsLoaded && items.results.length > 0">
                         <td>
                           {% include "app/track/_profile_descr.html" %}
                         </td>
@@ -328,6 +331,7 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                           <div class="input-group">
                             <input :class="'form-control' + (item.missing ? ' is-invalid' : '')"
                                    type="number" min="0"
+                                   name="measured"
                                    v-model="item.measured">
                             <div class="input-group-append">
                               <select class="form-control" name="unit"
@@ -430,15 +434,15 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary"
-                                  @click.prevent="addItem">Add row</button>
+                          <button class="btn btn-secondary add-row"
+                                  @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                   <div class="text-center my-4">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                 </div>{# /!showEmissionsEstimate #}
                 <div v-show="showEmissionsEstimate">
@@ -475,7 +479,9 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                      <tr :id="item.slug"
+                          v-for="item in items.results"
+                          v-show="itemsLoaded && items.results.length > 0">
                         <td>[[item.printable_name]]</td>
                         <td>[[humanizeActivityType(item.extra.activity_type)]]</td>
                         <td>[[humanizeFuelSource(item.extra.fuel_type)]]</td>
@@ -489,8 +495,8 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                     </tbody>
                   </table>
                   <div class="text-center my-4">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                 </div>{# /showEmissionsEstimate #}
               </div>
@@ -564,7 +570,9 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                      <tr :id="item.slug"
+                          v-for="item in items.results"
+                          v-show="itemsLoaded && items.results.length > 0">
                         <td>
                           {% include "app/track/_profile_descr.html" %}
                         </td>
@@ -626,15 +634,15 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                         </td>
                         <td colspan="10">
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary"
-                                  @click.prevent="addItem">Add row</button>
+                          <button class="btn btn-secondary add-row"
+                                  @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                   <div class="text-center my-4">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                 </div>{# /!showEmissionsEstimate #}
                 <div v-show="showEmissionsEstimate">
@@ -658,7 +666,8 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in items.results"
+                      <tr :id="item.slug"
+                          v-for="item in items.results"
                           v-show="itemsLoaded && items.results.length > 0">
                         <td>
                           [[item.printable_name]]
@@ -670,8 +679,8 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                     </tbody>
                   </table>
                   <div class="text-center my-4">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                 </div>{# /showEmissionsEstimate #}
               </div>
@@ -722,7 +731,9 @@ Electricity and other sources of energy purchased from your local utility (that 
                      </tr>
                    </thead>
                    <tbody>
-                     <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                     <tr :id="item.slug"
+                         v-for="item in items.results"
+                         v-show="itemsLoaded && items.results.length > 0">
                        <td>
                           {% include "app/track/_profile_descr.html" %}
                        </td>
@@ -732,9 +743,11 @@ Electricity and other sources of energy purchased from your local utility (that 
                        <td>
                          <div class="input-group">
                            <input class="form-control" type="number" min="0"
+                                  name="measured"
                                   v-model="item.measured">
                            <div class="input-group-append">
                              <select class="form-control"
+                                     name="unit"
                                      v-model="item.unit"
                                      v-if="item.extra.calculation_approach == 'purchased-electricity-location-based' || item.extra.calculation_approach == 'purchased-electricity-market-based'">
                                 <option value="kwh">kWh</option>
@@ -755,10 +768,13 @@ Electricity and other sources of energy purchased from your local utility (that 
                      </tr>
                      <tr>
                        <td>
-                         <input class="form-control" type="text" v-model="newItem.full_name" />
+                         <input class="form-control"
+                                type="text" name="full_name"
+                                v-model="newItem.full_name" />
                        </td>
                        <td>
                          <select class="form-control"
+                                 name="grid"
                                  v-model="newItem.extra.grid">
                            <option value="akgd">AKGD</option>
                            <option value="akms">AKMS</option>
@@ -804,6 +820,7 @@ Electricity and other sources of energy purchased from your local utility (that 
                        </td>
                        <td>
                          <select class="form-control"
+                                 name="calculation_approach"
                                  v-model="newItem.extra.calculation_approach">
                            <option value="purchased-electricity-location-based">Purchased Electricity - Location Based</option>
                            <option value="purchased-electricity-market-based">Purchased Electricity - Market Based</option>
@@ -819,6 +836,7 @@ Electricity and other sources of energy purchased from your local utility (that 
                            <option value="grid-average-location-based">Grid Average/Location Based</option>
                          </select>
                          <select class="form-control"
+                                 name="type_of_emission_factor"
                                  v-model="newItem.extra.type_of_emission_factor"
                                  v-if="newItem.extra.calculation_approach == 'purchased-electricity-location-based'">
 <!--                       <option value="custom-emission-factor">Custom emission factor</option> -->
@@ -833,15 +851,16 @@ Electricity and other sources of energy purchased from your local utility (that 
                        </td>
                        <td>
                          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                         <button class="btn btn-secondary"
-                                 @click.prevent="addItem">Add row</button>
+                         <button class="btn btn-secondary add-row"
+                                 @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                        </td>
                      </tr>
                    </tbody>
                  </table>
+
                   <div class="text-center my-4">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                </div>{# /!showEmissionsEstimate #}
                <div v-show="showEmissionsEstimate">
@@ -875,7 +894,8 @@ Electricity and other sources of energy purchased from your local utility (that 
                      </tr>
                    </thead>
                    <tbody>
-                     <tr v-for="item in items.results"
+                     <tr :id="item.slug"
+                         v-for="item in items.results"
                          v-show="itemsLoaded && items.results.length > 0">
                        <td>[[item.printable_name]]</td>
                        <td>[[humanizeGrid(item.extra.grid)]]</td>
@@ -889,8 +909,8 @@ Electricity and other sources of energy purchased from your local utility (that 
                    </tbody>
                  </table>
                   <div class="text-center my-4">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                </div>{# /showEmissionsEstimate #}
              </div>
@@ -945,7 +965,9 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                      </tr>
                    </thead>
                    <tbody>
-                     <tr v-for="item in items.results" v-show="itemsLoaded && items.results.length > 0">
+                     <tr :id="item.slug"
+                         v-for="item in items.results"
+                         v-show="itemsLoaded && items.results.length > 0">
                        <td>
                          {% include "app/track/_profile_descr.html" %}
                        </td>
@@ -957,6 +979,7 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                        <td>
                          <div class="input-group">
                            <input class="form-control" type="number" min="0"
+                                  name="measured"
                                   v-model="item.measured">
                            <div class="input-group-append">
                              <select class="form-control"
@@ -1080,15 +1103,15 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                        </td>
                        <td>
                          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                         <button class="btn btn-secondary"
-                                 @click.prevent="addItem">Add row</button>
+                         <button class="btn btn-secondary add-row"
+                                 @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                        </td>
                      </tr>
                    </tbody>
                  </table>
                   <div class="text-center my-4">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                </div>{# /!showEmissionsEstimate #}
                <div v-show="showEmissionsEstimate">
@@ -1125,7 +1148,8 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                      </tr>
                    </thead>
                    <tbody>
-                     <tr v-for="item in items.results"
+                     <tr :id="item.slug"
+                         v-for="item in items.results"
                          v-show="itemsLoaded && items.results.length > 0">
                        <td>[[item.printable_name]]</td>
                        <td>[[humanizeCategory(item.extra.category)]]</td>
@@ -1142,8 +1166,8 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                    </tbody>
                  </table>
                   <div class="text-center my-4">
-                    <button class="btn btn-primary"
-                            @click.prevent="save">Record</button>
+                    <button class="btn btn-primary record"
+                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
                   </div>
                </div>{# /showEmissionsEstimate #}
              </div>

@@ -1,9 +1,5 @@
 <div>
   <div v-if="!isActiveItem(item)">
-    <button class="btn btn-lnk btn-sm text-danger"
-            @click.prevent="remove(item)">
-      <i class="fa fa-times"></i>
-    </button>
     [[item.printable_name]]
     <button class="btn btn-lnk title"
             style="float:right;"
@@ -13,6 +9,10 @@
     </button>
   </div>
   <div class="input-group" v-if="isActiveItem(item)">
+    <button class="btn btn-lnk btn-sm text-danger"
+            @click.prevent="remove(item)">
+      <i class="fa fa-times"></i>
+    </button>
     <input class="form-control" name="full_name"
            type="text" v-model="item.printable_name" />
     <button class="input-group-append btn btn-primary"

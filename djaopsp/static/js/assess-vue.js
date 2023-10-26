@@ -151,20 +151,35 @@ Vue.component('campaign-questions-list', {
             var primaryAnswer = vm.getPrimaryAnswer(practice);
             var startsAt = vm.getAnswerStartsAt(practice).measured;
             var endsAt = vm.getAnswerEndsAt(practice).measured;
-            var queryParams = "created_at=" + startsAt + "&ends_at=" + endsAt;
+            var queryParams = "";
+            var sep = "";
+            if( startsAt ) {
+                queryParams += "start_at=" + startsAt;
+                sep = "&";
+            }
+            if( endsAt ) {
+                // Implementation note: we add 1s so that the data
+                // that was recorded on the last day of the period
+                // is included. (`<` vs. `<=`).
+                queryParams += sep + "ends_at=" + endsAt + "T00:00:01Z";
+                sep = "&";
+            }
             if( primaryAnswer.unit ) {
                 const rindex = primaryAnswer.unit.lastIndexOf('-');
                 const unit = rindex ? primaryAnswer.unit.substr(0, rindex)
                       : primaryAnswer.unit;
-                queryParams += "&unit=" + unit;
+                queryParams += sep + "unit=" + unit;
             }
             vm.reqGet(vm._safeUrl(vm.api_aggregate_metric_base,
                 vm.prefix + practice.path) + (
                 queryParams ? ("?" + queryParams) : ""),
             function(resp) {
-                primaryAnswer.measured = resp.measured;
-                primaryAnswer.unit = resp.unit;
-                vm.$forceUpdate();
+                vm.updateAssessmentAnswer(practice, {
+                    'measured': parseInt(resp.measured),
+                    'unit': resp.unit + '-year'
+                });
+                vm.$set(primaryAnswer, 'measured', parseInt(resp.measured));
+                vm.$set(primaryAnswer, 'unit', resp.unit + '-year');
             });
         },
         isEnumHeaderShown: function(icon) {
@@ -1222,6 +1237,7 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
             }
             vm.reqPost(vm.url, data,
             function(resp) {
+                // XXX default unit is not passed through `resp`
                 vm.items.results.push(resp);
                 vm.newItem = vm.clearNewItem();
             });
@@ -1455,7 +1471,7 @@ Vue.component('waste-tracker', dataMetricTracker.extend({
         return {
             newItem: {
                 full_name: "",
-                waste_type: "",
+                extra: {},
                 unit: "tons",
             },
         }
@@ -1471,7 +1487,7 @@ Vue.component('waste-tracker', dataMetricTracker.extend({
     },
     computed: {
         isInvalidNewItem: function() {
-            return !this.newItem.full_name || !this.newItem.waste_type;
+            return !this.newItem.full_name || !this.newItem.extra.waste_type;
         }
     }
 }));
@@ -1482,13 +1498,13 @@ Vue.component('water-tracker', dataMetricTracker.extend({
         return {
             newItem: {
                 full_name: "",
-                water_type: "",
+                extra: {}
             },
         }
     },
     methods: {
         humanizeWaterType: function(waterType) {
-            var result = this.$waste_type[waterType]
+            var result = this.$water_type[waterType]
             if( typeof result !== 'undefined' ) {
                 return result.title;
             }
@@ -1497,7 +1513,7 @@ Vue.component('water-tracker', dataMetricTracker.extend({
     },
     computed: {
         isInvalidNewItem: function() {
-            return !this.newItem.full_name || !this.newItem.water_type;
+            return !this.newItem.full_name || !this.newItem.extra.water_type;
         }
     }
 }));

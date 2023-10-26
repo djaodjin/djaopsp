@@ -87,6 +87,9 @@
         <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
           <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
         </a>
+        <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-contacts" :href="'{{urls.download}}invites/' + getQueryString(['page'])">
+          <i class="fa fa-file-text"></i> {% trans %}Contacts (xlsx){% endtrans %}
+        </a>
       </div>
       {% endif %}
     </div>
