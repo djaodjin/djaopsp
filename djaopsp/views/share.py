@@ -69,6 +69,9 @@ class ShareView(ReportMixin, PortfoliosView):
             'api_account_candidates': site_url("/api/accounts/profiles"),
         })
         if latest_completed_assessment:
+            # XXX We expect a single active assessment for suppliers.
+            # When used with a `verifier_notes` sample, this will return
+            # all active verifier notes.
             active_assessment = get_latest_active_assessments(
                 self.sample.account, campaign=self.sample.campaign).get()
             update_context_urls(context, {

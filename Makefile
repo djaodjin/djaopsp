@@ -66,16 +66,18 @@ all:
 
 # We are installing the overridden vendor files along with the ones installed
 # from node_modules.
-#	cd $(srcDir) && cp -rf htdocs htdocs-backups
-#	cd $(srcDir) && $(MANAGE) collectstatic --noinput
+# Implementation note: chart.js is a directory. chartjs-plugin-annotation.js
+# is not ES5 compatible.
 build-assets: $(ASSETS_DIR)/cache/app.css \
               $(ASSETS_DIR)/cache/email.css \
               $(ASSETS_DIR)/cache/assess.js
+	cd $(srcDir) && DEBUG=0 $(MANAGE) collectstatic --noinput
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-dashboard.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-menubar.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/hallo.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/jquery-ui.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-i18n.js $(ASSETS_DIR)/vendor
+	rm -rf $(srcDir)/htdocs/static/vendor/chart.js $(srcDir)/htdocs/static/vendor/chartjs-plugin-annotation.js
 	cd $(srcDir) && $(ESCHECK) es5 htdocs/static/cache/*.js htdocs/static/vendor/*.js -v
 
 

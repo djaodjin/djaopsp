@@ -3,6 +3,7 @@
 
 import logging
 
+from django.db import transaction
 from rest_framework.mixins import UpdateModelMixin
 from survey.api.sample import SampleAnswersAPIView
 
@@ -302,10 +303,14 @@ class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
 
     def perform_update(self, serializer):
         verification = serializer.instance
+        verified_status = serializer.validated_data.get('verified_status')
         verification.verified_by = self.request.user
-        verification.verified_status = serializer.validated_data.get(
-            'verified_status')
-        verification.save()
+        verification.verified_status = verified_status
+        verification.verifier_notes.is_frozen = bool(
+            verified_status >= VerifiedSample.STATUS_REVIEW_COMPLETED)
+        with transaction.atomic():
+            verification.verifier_notes.save()
+            verification.save()
 
     def get_object(self):
         return self.get_or_create_verification()

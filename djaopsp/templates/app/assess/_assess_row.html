@@ -447,7 +447,8 @@
     v-if="isEnumSelectUIHint(practice)">
     <select class="form-control"
             v-model="getPrimaryAnswer(practice).measured"
-            @blur="updateAssessmentAnswer(practice)">
+            @blur="updateAssessmentAnswer(practice)"
+            :disabled="practice.frozen">
       <option value="">Select ...</option>
       <option :value="choice.text"
         v-for="(choice, idx) in getChoices(practice, icon)"

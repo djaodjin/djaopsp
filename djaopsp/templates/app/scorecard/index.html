@@ -88,6 +88,7 @@
                       @change="updateVerificationStatus()">
                 <option value="no-review">(grey) {% trans %}Not yet reviewed nor verified{% endtrans %}</option>
                 <option value="under-review">(grey) {% trans %}Under review{% endtrans %}</option>
+                <option value="review-completed">(grey) {% trans %}Verification completed{% endtrans %}</option>
                 <option value="discrepencies">(red) {% trans %}Found serious discrepancies between responses and supporting documents{% endtrans %}</option>
                 <option value="lack-consistency">(orange) {% trans %}Responses are technically accurate but lacking consistency with the pool of suppliers reviews {% endtrans %}</option>
                 <option value="meet-expectations">(green) {% trans %}Responses are consistent with average answers and supporting documents{% endtrans %}</option>
@@ -243,7 +244,7 @@
             </div>{# /.isChartHeading - i.e. heading with charts and score #}
 
             {# Beginning of details section #}
-            <div :class="practiceStyle(practice)"
+            <div :class="practiceStyle(practice) + ((practiceStyle(practice) == 'verifier-notes' && practice.indent == 1) ? ' pagebreak' : '')"
                  v-if="!isChartHeading(practice) && !isPractice(practice)">
               <hr v-if="isTilePicture(practice)" />
               <div class="row">
