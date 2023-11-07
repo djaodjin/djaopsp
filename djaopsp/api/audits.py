@@ -3,14 +3,24 @@
 
 import logging
 
+from django.conf import settings
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
+from rest_framework import generics
+from rest_framework import response as http
 from rest_framework.mixins import UpdateModelMixin
 from survey.api.sample import SampleAnswersAPIView
+from survey.helpers import (construct_monthly_periods,
+    construct_yearly_periods, construct_weekly_periods, period_less_than)
+from survey.models import Sample
+from survey.queries import datetime_or_now
+from survey.utils import get_accessible_accounts, get_account_model
+
 
 from ..mixins import ReportMixin
 from ..models import VerifiedSample
+from .portfolios import CompletionRateMixin
 from .serializers import VerifiedSampleSerializer
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -314,3 +324,165 @@ class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
 
     def get_object(self):
         return self.get_or_create_verification()
+
+
+class VerifiedStatsAPIView(CompletionRateMixin, generics.RetrieveAPIView):
+    """
+    Retrieves verification completed
+
+    Returns the verification completed week-by-week.
+
+    **Tags**: reporting
+
+    **Examples**
+
+    .. code-block:: http
+
+        GET /api/energy-utility/reporting/sustainability/engagement/stats\
+ HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "title":"Completion rate (%)",
+          "scale":1,
+          "unit":"percentage",
+          "results":[{
+            "slug": "completion-rate",
+            "printable_name": "% completion",
+            "values":[
+              ["2020-09-13T00:00:00Z",0],
+              ["2020-09-20T00:00:00Z",0],
+              ["2020-09-27T00:00:00Z",0],
+              ["2020-10-04T00:00:00Z",0],
+              ["2020-10-11T00:00:00Z",0],
+              ["2020-10-18T00:00:00Z",0],
+              ["2020-10-25T00:00:00Z",0],
+              ["2020-11-01T00:00:00Z",0],
+              ["2020-11-08T00:00:00Z",0],
+              ["2020-11-15T00:00:00Z",0],
+              ["2020-11-22T00:00:00Z",0],
+              ["2020-11-29T00:00:00Z",0],
+              ["2020-12-06T00:00:00Z",0],
+              ["2020-12-13T00:00:00Z",0],
+              ["2020-12-20T00:00:00Z",0],
+              ["2020-12-27T00:00:00Z",0],
+              ["2021-01-03T00:00:00Z",0]
+            ]
+          }, {
+            "slug":"last-year",
+            "printable_name": "vs. last year",
+            "values":[
+              ["2019-09-15T00:00:00Z",0],
+              ["2019-09-22T00:00:00Z",0],
+              ["2019-09-29T00:00:00Z",0],
+              ["2019-10-06T00:00:00Z",0],
+              ["2019-10-13T00:00:00Z",0],
+              ["2019-10-20T00:00:00Z",0],
+              ["2019-10-27T00:00:00Z",0],
+              ["2019-11-03T00:00:00Z",0],
+              ["2019-11-10T00:00:00Z",0],
+              ["2019-11-17T00:00:00Z",0],
+              ["2019-11-24T00:00:00Z",0],
+              ["2019-12-01T00:00:00Z",0],
+              ["2019-12-08T00:00:00Z",0],
+              ["2019-12-15T00:00:00Z",0],
+              ["2019-12-22T00:00:00Z",0],
+              ["2019-12-29T00:00:00Z",0],
+              ["2020-01-05T00:00:00Z",0]
+            ]
+          }, {
+            "slug":"alliance",
+            "printable_name": "Alliance",
+            "values":[
+              ["2020-09-13T00:00:00Z",0],
+              ["2020-09-20T00:00:00Z",0],
+              ["2020-09-27T00:00:00Z",0],
+              ["2020-10-04T00:00:00Z",0],
+              ["2020-10-11T00:00:00Z",0],
+              ["2020-10-18T00:00:00Z",0],
+              ["2020-10-25T00:00:00Z",0],
+              ["2020-11-01T00:00:00Z",0],
+              ["2020-11-08T00:00:00Z",0],
+              ["2020-11-15T00:00:00Z",0],
+              ["2020-11-22T00:00:00Z",0],
+              ["2020-11-29T00:00:00Z",0],
+              ["2020-12-06T00:00:00Z",0],
+              ["2020-12-13T00:00:00Z",0],
+              ["2020-12-20T00:00:00Z",0],
+              ["2020-12-27T00:00:00Z",0],
+              ["2021-01-03T00:00:00Z",0]
+            ]
+          }]
+        }
+    """
+    def get_response_data(self, request, *args, **kwargs):
+        #pylint:disable=unused-argument
+        account = self.account
+        last_date = datetime_or_now(self.accounts_ends_at)
+        if self.accounts_start_at:
+            first_date = self.accounts_start_at
+        else:
+            first_date = last_date - relativedelta(months=4)
+        weekends_at = construct_weekly_periods(
+            first_date, last_date, years=0)
+        if len(weekends_at) < 2:
+            # Not enough time periods
+            return []
+
+        completed_values = []
+        verified_values = []
+        account_model = get_account_model()
+        requested_accounts = self.get_requested_accounts(
+            account, aggregate_set=False)
+        nb_requested_accounts = len(requested_accounts)
+        start_at = weekends_at[0]
+        frozen_samples_kwargs = {}
+        if str(self.account) not in settings.UNLOCK_BROKERS:
+            frozen_samples_kwargs = {'account_id__in': requested_accounts}
+        for ends_at in weekends_at[1:]:
+            frozen_samples = Sample.objects.filter(
+                extra__isnull=True,
+                is_frozen=True,
+                created_at__gte=start_at,
+                created_at__lt=ends_at,
+                **frozen_samples_kwargs)
+            nb_verified_samples = VerifiedSample.objects.filter(
+                sample__in=frozen_samples,
+                verified_status__gte=VerifiedSample.STATUS_REVIEW_COMPLETED
+            ).count()
+            nb_frozen_samples = frozen_samples.count()
+
+            if self.is_percentage:
+                rate = as_percentage(nb_frozen_samples, nb_frozen_samples)
+            else:
+                rate = nb_frozen_samples
+            completed_values += [(ends_at, rate)]
+            if self.is_percentage:
+                rate = as_percentage(nb_verified_samples, nb_frozen_samples)
+            else:
+                rate = nb_verified_samples
+            verified_values += [(ends_at, rate)]
+            start_at = ends_at
+
+        table = [{
+            'slug': 'completed',
+            'title': _('Completed'),
+            'values': completed_values
+        }, {
+            'slug': 'verified',
+            'title': _('Verified'),
+            'values': verified_values
+        }]
+        return {
+            "title": self.title,
+            'scale': self.scale,
+            'unit': self.unit,
+            'results': table
+        }
+
+    def retrieve(self, request, *args, **kwargs):
+        resp = self.get_response_data(request, *args, **kwargs)
+        return http.Response(resp)

@@ -676,6 +676,21 @@ class CompletedAssessmentsMixin(AccountMixin):
         return queryset
 
 
+    def decorate_queryset(self, queryset):
+        for sample in queryset:
+            sample.score_url = reverse('scorecard',
+                args=(sample.account, sample.slug)) # We use sample.account here
+            # because the broker should be able to access all scorecards
+            # without requiring a `Portfolio` record to exist.
+            try:
+                sample.verified_status = sample.verified.verified_status
+                sample.verified_by = sample.verified.verified_by
+            except VerifiedSample.DoesNotExist: #RelatedObjectDoesNotExist:
+                sample.verified_status = VerifiedSample.STATUS_NO_REVIEW
+                sample.verified_by = None
+        return queryset
+
+
 class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
                                   generics.ListAPIView):
     """
@@ -733,19 +748,6 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
     ordering = ('-created_at',)
 
     filter_backends = (DateRangeFilter, SearchFilter, OrderingFilter)
-
-    def decorate_queryset(self, queryset):
-        for sample in queryset:
-            sample.score_url = reverse('scorecard',
-                args=(sample.account, sample.slug)) # We use sample.account here
-            # because the broker should be able to access all scorecards
-            # without requiring a `Portfolio` record to exist.
-            try:
-                sample.verified_status = sample.verified.verified_status
-                sample.verified_by = sample.verified.verified_by
-            except VerifiedSample.DoesNotExist: #RelatedObjectDoesNotExist:
-                sample.verified_status = VerifiedSample.STATUS_NO_REVIEW
-                sample.verified_by = None
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

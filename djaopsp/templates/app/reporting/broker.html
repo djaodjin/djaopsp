@@ -4,6 +4,29 @@
 
 {% block reporting_content %}
 <reporting-organizations id="managed" inline-template>
+<div>
+
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <reporting-completion-rate ref="completionWeekly" :params="params" inline-template>
+        <div>
+          <h2 class="text-center">{% trans %}Completed and verified week-by-week{% endtrans %}<span v-cloak>([[params.unit == 'percentage' ? '%' : 'Nb']])</span></h2>
+          <div>
+            <div class="card-body" v-if="!itemLoaded">
+              <p>
+                <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+              </p>
+            </div>
+            <div class="card-body" v-show="itemLoaded" v-cloak>
+              <canvas id="completionRate"></canvas>
+            </div>
+          </div>
+        </div>
+      </reporting-completion-rate>
+    </div>{# /.col-md-6 #}
+    <div class="col-md-6 text-center">
+    </div>
+  </div>
   <div>
     <div class="pt-2">
     {% include "_filter.html" %}
@@ -29,6 +52,11 @@
           <th>{% trans %}Questionnaire{% endtrans %}<button class="btn btn-link btn-sort"
                   @click.prevent="sortBy('segment')">
                   <i :class="sortIcon('segment')"></i>
+              </button>
+          </th>
+          <th>{% trans %}Priority to verify{% endtrans %}<button class="btn btn-link btn-sort"
+                  @click.prevent="sortBy('priority')">
+                  <i :class="sortIcon('priority')"></i>
               </button>
           </th>
           <th>{% trans %}Verified Status{% endtrans %}<button class="btn btn-link btn-sort"
@@ -58,12 +86,15 @@
           <td style="vertical-align:middle;" v-if="!entry.requested_at">
             <span>[[entry.last_completed_at ? shortDate(entry.last_completed_at) : 'Incomplete']]</span>
           </td>
-          <td style="vertical-align:middle;">
-              [[entry.printable_name]]
+          <td>
+            {% include "app/reporting/_profile_card.html" %}
           </td>
           <!-- Campaign -->
           <td style="vertical-align:middle;">
               <a :href="entry.score_url">[[ entry.segment ]]</a>
+          </td>
+          <td style="vertical-align:middle;">
+            <span v-if="entry.extra">[[ entry.extra.priority ]]</span>
           </td>
           <td style="vertical-align:middle;">
               [[ entry.verified_status ]]
@@ -76,5 +107,6 @@
     </table>
     {% include "_pagination.html" %}
   </div>
+</div>
 </reporting-organizations>
 {% endblock %}

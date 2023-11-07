@@ -2023,3 +2023,21 @@ Vue.component('data-values', {
         vm.get();
     }
 });
+
+
+/** Lists respondent accounts
+ */
+Vue.component('respondents-list', {
+    mixins: [
+        itemListMixin
+    ],
+    data: function() {
+        return {
+            url: this.$urls.api_respondents
+        }
+    },
+
+    mounted: function(){
+        this.get()
+    }
+});

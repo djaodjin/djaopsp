@@ -9,6 +9,7 @@ from pages.serializers import (
 from survey.models import PortfolioDoubleOptIn
 from survey.api.serializers import (EnumField, AccountSerializer,
     AnswerSerializer, TableSerializer, UnitSerializer)
+from survey.utils import get_account_model
 
 from ..compat import reverse
 from ..models import VerifiedSample
@@ -471,3 +472,31 @@ class VerifiedSampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = VerifiedSample
         fields = ('verified_status',)
+
+
+class RespondentAccountSerializer(serializers.ModelSerializer):
+
+    printable_name = serializers.SerializerMethodField(read_only=True,
+        help_text=_("Name that can be safely used for display in HTML pages"))
+    picture = serializers.SerializerMethodField(read_only=True,
+        help_text=_("URL location of the profile picture"))
+
+    class Meta:
+        model = get_account_model()
+        fields = ('printable_name', 'picture')
+
+    @staticmethod
+    def get_printable_name(obj):
+        try:
+            return obj.printable_name
+        except AttributeError:
+            pass
+        return obj.get_full_name()
+
+    @staticmethod
+    def get_picture(obj):
+        try:
+            return obj.picture
+        except AttributeError:
+            pass
+        return None

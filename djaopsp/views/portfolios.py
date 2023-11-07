@@ -33,6 +33,7 @@ from ..compat import reverse
 from ..helpers import as_valid_sheet_title
 from ..mixins import (AccountMixin, CampaignMixin,
     AccountsAggregatedQuerysetMixin)
+from ..models import VerifiedSample
 from ..utils import get_scores_tree, get_alliances
 
 LOGGER = logging.getLogger(__name__)
@@ -73,6 +74,11 @@ class DashboardRedirectView(AccountMixin, TemplateResponseMixin, ContextMixin,
         if str(self.account) in settings.UNLOCK_BROKERS:
             # Dashboard looks quite different for the broker.
             context = self.get_context_data(**kwargs)
+            if str(self.account) in settings.UNLOCK_BROKERS:
+                update_context_urls(context, {
+                    'api_reporting_completion_rate': reverse(
+                        'api_verified_aggregate', args=(self.account,)),
+                })
             update_context_urls(context, {
                 'api_portfolio_responses': reverse(
                     'api_completed_assessments', args=(self.account,)),
@@ -292,14 +298,20 @@ class CompletedAssessmentsRawXLSXView(CompletedAssessmentsMixin, TemplateView):
         wbook = Workbook()
         self.wsheet = wbook.active
         self.wsheet.title = as_valid_sheet_title("Completed")
-        headings = ['Completed at', 'Name', 'Domain', 'Campaign']
+        headings = ['Completed at', 'Name', 'Domain', 'Campaign',
+            'Priority', 'Verified Status']
         self.wsheet.append(headings)
 
-        for rec in self.get_queryset():
+        for rec in self.decorate_queryset(self.get_queryset()):
             domain = rec.email.split('@')[-1] if rec.email else ""
+            priority = get_extra(rec, 'priority', 0)
+            verified_status = (VerifiedSample.STATUSES[rec.verified_status]
+                if rec.verified_status < len(VerifiedSample.STATUSES)
+                else VerifiedSample.STATUSES[0])
             self.wsheet.append([
                 rec.last_completed_at.strftime('%Y/%m/%d'),
-                rec.printable_name, domain, rec.segment])
+                rec.printable_name, domain, rec.segment,
+                priority, verified_status[1]])
 
         # Prepares the result file
         content = io.BytesIO()

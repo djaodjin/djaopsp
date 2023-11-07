@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Q
 from django.utils.translation import ugettext_lazy as _
 from pages.models import PageElement, flatten_content_tree
 from rest_framework import generics, response as http, status as http_status
@@ -14,11 +14,13 @@ from rest_framework.exceptions import ValidationError
 from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
     SampleFreezeAPIView)
 from survey.api.matrix import SampleBenchmarkMixin
+from survey.filters import OrderingFilter, SearchFilter
 from survey.mixins import SampleMixin, TimersMixin
 from survey.models import Choice, Sample, Unit, UnitEquivalences
 from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP
-from survey.utils import get_account_model, get_benchmarks_enumerated
+from survey.utils import (get_account_model, get_account_serializer,
+    get_benchmarks_enumerated)
 
 from ..compat import reverse, six
 from ..mixins import SectionReportMixin
@@ -30,7 +32,7 @@ from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignContentMixin
 from .rollups import GraphMixin, RollupMixin
 from .serializers import (AssessmentNodeSerializer,
-    SampleBenchmarksSerializer, UnitSerializer)
+    RespondentAccountSerializer, SampleBenchmarksSerializer, UnitSerializer)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -1075,3 +1077,165 @@ def attach_answers(units, questions_by_key, queryset,
             if choice.text == default_unit_choice.get('text'):
                 default_unit_choice.update({'descr': choice.descr})
                 break
+
+
+class RespondentsAPIView(generics.ListAPIView):
+    """
+    Formats answers matching prefix
+
+    The list returned contains at least one measurement for each question
+    in the campaign. If there are no measurement yet on a question, ``measured``
+    will be null.
+
+    There might be more than one measurement per question as long as there are
+    no duplicated ``unit`` per question. For example, to the question
+    ``adjust-air-fuel-ratio``, there could be a measurement with unit
+    ``assessment`` (Mostly Yes/ Yes / No / Mostly No) and a measurement with
+    unit ``freetext`` (i.e. a comment).
+
+    The {sample} must belong to {organization}.
+
+    {path} can be used to filter the tree of questions by a prefix.
+
+    **Tags**: assessments
+
+    **Examples**
+
+    .. code-block:: http
+
+         GET /api/respondents HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 4,
+          "results": [
+            {
+              "count": 1,
+              "slug": "sustainability",
+              "path": "/sustainability",
+              "indent": 0,
+              "title": "Core Environment, Social and Governance (ESG) Assessment",
+              "picture": null,
+              "extra": {
+                "pagebreak": true,
+                "tags": [
+                  "scorecard"
+                ],
+                "visibility": [
+                  "public"
+                ],
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "rank": -1,
+              "required": false,
+              "default_unit": null,
+              "ui_hint": null,
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
+            },
+            {
+              "count": 1,
+              "slug": "governance",
+              "path": "/sustainability/governance",
+              "indent": 1,
+              "title": "Strategy & Governance",
+              "picture": "/tspproject/static/img/management-basics.png",
+              "extra": {
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "count": 1,
+              "rank": 1,
+              "required": false,
+              "default_unit": null,
+              "ui_hint": null,
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
+            },
+            {
+              "count": 1,
+              "slug": "esg-strategy-heading",
+              "path": "/sustainability/governance/esg-strategy-heading",
+              "indent": 2,
+              "title": "Environment, Social & Governance (ESG) Strategy",
+              "picture": null,
+              "extra": {
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "rank": 1,
+              "required": false,
+              "default_unit": null,
+              "ui_hint": null,
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
+            },
+            {
+              "count": 1,
+              "slug": "formalized-esg-strategy",
+              "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
+              "indent": 3,
+              "title": "(3) Does your company have a formalized ESG strategy?",
+              "picture": "/tspproject/static/img/management-basics.png",
+              "extra": {
+                "segments": [
+                  "/sustainability"
+                ]
+              },
+              "rank": 4,
+              "required": true,
+              "default_unit": {
+                "slug": "yes-no",
+                "title": "Yes/No",
+                "system": "enum",
+                "choices": [
+                  {
+                    "text": "Yes",
+                    "descr": "Yes"
+                  },
+                  {
+                    "text": "No",
+                    "descr": "No"
+                  }
+                ]
+              },
+              "ui_hint": "yes-no-comments",
+              "answers": [],
+              "candidates": [],
+              "planned": [],
+              "nb_respondents": 0,
+              "rate": {},
+              "opportunity": null
+            }
+          ]
+        }
+    """
+    search_fields = (
+        'full_name',
+        'email'
+    )
+    ordering_fields = (
+        ('full_name', 'printable_name'),
+        ('created_at', 'created_at')
+    )
+    ordering = ('printable_name',)
+
+    filter_backends = (OrderingFilter, SearchFilter)
+    serializer_class = RespondentAccountSerializer
+
+    def get_queryset(self):
+        queryset = get_account_model().objects.filter(
+            samples__extra__isnull=True,
+            samples__is_frozen=True).exclude(
+            Q(email__isnull=True)|Q(email="")).distinct()
+        return queryset

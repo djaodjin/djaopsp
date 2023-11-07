@@ -10,9 +10,12 @@ from pages.api.elements import (PageElementSearchAPIView,
 
 from ...api.content import (PageElementAPIView, PageElementIndexAPIView,
     PageElementEditableListAPIView)
+from ...api.samples import RespondentsAPIView
 
 
 urlpatterns = [
+    path('respondents', RespondentsAPIView.as_view(),
+         name='api_respondents'),
     path('content/editables/<slug:profile>',
         PageElementEditableListAPIView.as_view(),
         name="pages_api_editables_index"),
