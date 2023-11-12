@@ -375,6 +375,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
         answers = entry.get('answers')
         primary_assessed = None
         primary_planned = None
+        points = None
         comments = ""
         if answers:
             for answer in answers:
@@ -384,6 +385,8 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
                     continue
                 if unit and unit.slug == 'freetext': #XXX
                     comments = answer.get('measured')
+                if unit and unit.slug == 'points': #XXX
+                    points = float(answer.get('measured'))
         planned = entry.get('planned')
         if planned:
             for answer in planned:

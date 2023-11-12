@@ -14,6 +14,7 @@ import tiktoken
 from PyPDF2 import PdfReader
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from survey.api.sample import update_or_create_answer
 from survey.models import Sample, Unit
@@ -198,7 +199,8 @@ def persist_answers(oa_answers, sample):
     """
     Presists OpenAI answers into the database
     """
-    unit = Unit.objects.get(slug='chatgpt_answer')
+    collected_by = get_user_model().objects.get(username='chatgpt')
+    unit = Unit.objects.get(slug='ai-audit')
     created_at = datetime_or_now()
 
     results = []
@@ -207,7 +209,8 @@ def persist_answers(oa_answers, sample):
         question = get_question_model().objects.get(path=question_path)
         obj, _ = update_or_create_answer(
             datapoint={'measured': openai_answer, 'unit': unit},
-            sample=sample, question=question, created_at=created_at)
+            sample=sample, question=question, created_at=created_at,
+            collected_by=collected_by)
         results.append(obj)
 
     return results

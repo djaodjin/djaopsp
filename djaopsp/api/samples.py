@@ -330,6 +330,18 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
                     excludes=self.exclude_questions),
                 extra_fields=extra_fields,
                 key='candidates')
+            # Attach scores
+            calculator = get_score_calculator(prefix)
+            if calculator:
+                score_answers = []
+                calculator_answers = calculator.get_scored_answers(
+                    self.sample.campaign, includes=[self.sample], prefix=prefix)
+                attach_answers(
+                    units,
+                    questions_by_key,
+                    calculator_answers,
+                    extra_fields=extra_fields)
+
         elif self.is_auditor:
             # Verification notes are only available to verifiers
             attach_answers(

@@ -304,7 +304,7 @@ class CompletedAssessmentsRawXLSXView(CompletedAssessmentsMixin, TemplateView):
 
         for rec in self.decorate_queryset(self.get_queryset()):
             domain = rec.email.split('@')[-1] if rec.email else ""
-            priority = get_extra(rec, 'priority', 0)
+            priority = get_extra(rec.account, 'priority', 0)
             verified_status = (VerifiedSample.STATUSES[rec.verified_status]
                 if rec.verified_status < len(VerifiedSample.STATUSES)
                 else VerifiedSample.STATUSES[0])

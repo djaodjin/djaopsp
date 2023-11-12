@@ -60,6 +60,19 @@
   },
   "model": "auth.User", "pk": 1
 },
+{
+  "fields": {
+    "date_joined": "2023-01-01T00:00:00+00:00",
+    "email": "chatgpt@localhost.localdomain",
+    "first_name": "ChatGPT",
+    "is_active": true,
+    "is_staff": false,
+    "is_superuser": false,
+    "password": "!",
+    "username": "chatgpt"
+  },
+  "model": "auth.User", "pk": 2
+},
 { "fields": {
     "date_joined": "2023-01-01T00:00:00+00:00",
     "email": "tspproject@localhost.localdomain",

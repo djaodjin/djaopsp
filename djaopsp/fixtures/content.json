@@ -512,8 +512,8 @@
 },
 {
   "fields": {
-    "slug": "chatgpt_answer",
-    "title": "ChatGPT Answer",
+    "slug": "ai-audit",
+    "title": "Information collected by the verifier AI",
     "system": 4
   },
   "model": "survey.unit", "pk": 144
