@@ -56,7 +56,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     """
     basename = 'dashboard-answers'
     show_comments = True
-    show_planned = False
+    show_planned = True
     add_expanded_styles = False
 
 #    ordering = ('full_name',)
