@@ -332,7 +332,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
                 key='candidates')
             # Attach scores
             calculator = get_score_calculator(prefix)
-            if calculator:
+            if False and calculator:
                 score_answers = []
                 calculator_answers = calculator.get_scored_answers(
                     self.sample.campaign, includes=[self.sample], prefix=prefix)
