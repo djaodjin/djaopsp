@@ -24,6 +24,9 @@
     v-show="!isActiveCommentsShown(practice)">
   <span v-if="getPrimaryAnswer(practice).measured">[[getPrimaryAnswer(practice).measured]]</span>
   <em v-if="!getPrimaryAnswer(practice).measured">&dash;</em>
+  <div>
+    <small><a href="{{urls.assess}}">{% trans %}update{% endtrans %}</a></small>
+  </div>
 </td>
 <td class="text-center cell-fix-width-3"
     v-if="isPractice(practice)">
