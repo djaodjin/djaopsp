@@ -1705,6 +1705,9 @@ Vue.component('scope1-mobile-combustion', ghgEmissionsEstimator.extend({
         },
         asFuelUse: function(row) {
             var vm = this;
+            if( row.extra.activity_type === 'fuel-use' ) {
+                return {measured: row.measured, unit: row.unit};
+            }
             const lookup = row.extra.fuel_type + '-' + row.extra.vehicle_type;
             const ef_factors = vm.$ef_default_average_fuel_efficiency[lookup];
             if( typeof ef_factors == 'undefined' ) {

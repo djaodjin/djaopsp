@@ -329,7 +329,7 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                         <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
                         <td>
                           <div class="input-group">
-                            <input :class="'form-control' + (item.missing ? ' is-invalid' : '')"
+                            <input :class="'form-control text-right' + (item.missing ? ' is-invalid' : '')"
                                    type="number" min="0"
                                    name="measured"
                                    v-model="item.measured">

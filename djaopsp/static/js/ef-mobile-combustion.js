@@ -29,7 +29,7 @@ Vue.prototype.$ef_mobile_combustion = {
     unit: "gallons",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories\", March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub); WRI, GHG Protocol - Emission Factors from Cross-Sector Tools, April 2014"
   },
-  "motor-gasoline-gasoline-light-duty-trucks-vans-pickup-trucks-suvs": {
+  "motor-gasoline-gasoline-light-duty-trucks": {
     title: "Motor Gasoline - Gasoline Light-duty Trucks (Vans, Pickup Trucks, SUVs)",
     heat_content: 0.000000,
     co2_factor: 8.780000,

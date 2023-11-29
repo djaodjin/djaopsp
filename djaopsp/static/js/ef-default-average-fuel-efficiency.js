@@ -5,7 +5,7 @@ Vue.prototype.$ef_default_average_fuel_efficiency = {
     numerator_unit: 'mile',
     denominator_unit: 'gallons'
 },
-  "motor-gasoline-gasoline-light-duty-trucks-vans-pickup-trucks-suvs": {
+  "motor-gasoline-gasoline-light-duty-trucks": {
     title: "Motor Gasoline - Gasoline Light-duty Trucks (Vans, Pickup Trucks, SUVs)",
     fuel_efficiency: 16.2,
     numerator_unit: 'mile',
