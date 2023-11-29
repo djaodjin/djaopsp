@@ -287,6 +287,7 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         return results
 
     def get_context_data(self, **kwargs):
+        #pylint:disable=too-many-locals
         context = super(ReportMixin, self).get_context_data(**kwargs)
         context.update({
             'sample': self.sample,

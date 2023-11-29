@@ -50,6 +50,7 @@ class ScoreCalculator(ScoreCalculatorBase):
         'Implementation ease', 'AVERAGE VALUE']
 
     def __init__(self):
+        super(ScoreCalculator, self).__init__()
         self.assessment_unit_id = Unit.objects.get(slug=ASSESSMENT_UNIT).pk
         self.points_unit_id = Unit.objects.get(slug=SCORE_UNIT).pk
 

@@ -380,7 +380,6 @@ class SupplierListMixin(ScoresMixin, AccountsNominativeQuerysetMixin):
                 report_summary.reporting_fines = None
                 report_summary.nb_planned_improvements = None
             elif report_summary.segment_path:
-                parts = report_summary.segment_path.strip('/').split('/')
                 if report_summary.normalized_score is not None:
                     if report_summary.slug:
                         report_summary.score_url = reverse('scorecard',
@@ -1121,6 +1120,7 @@ class PortfolioAccessibleSamplesMixin(TimersMixin, CampaignMixin,
         Returns the most recent frozen assessment for each year between
         starts_at and ends_at for each account.
         """
+        #pylint:disable=too-many-arguments
         date_range_clause = ""
         if start_at:
             date_range_clause = (" AND survey_sample.created_at >= '%s'" %

@@ -381,6 +381,7 @@ def get_requested_by_accounts_by_period(campaign, includes, grantee,
     Returns the most recent double-optin for each year between
     starts_at and ends_at for each account in includes.
     """
+    #pylint:disable=too-many-arguments
     date_range_clause = ""
     if start_at:
         date_range_clause = (" AND survey_sample.created_at >= '%s'" %

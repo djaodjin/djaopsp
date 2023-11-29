@@ -43,7 +43,7 @@ if sys.version_info[0] < 3:
     API_DEBUG = False
 
 # Remove extra information used for documentation like examples, etc.
-OPENAPI_SPEC_COMPLIANT = (int(os.getenv('OPENAPI_SPEC_COMPLIANT', "0")) > 0)
+OPENAPI_SPEC_COMPLIANT = bool(int(os.getenv('OPENAPI_SPEC_COMPLIANT', "0")) > 0)
 
 if not hasattr(sys.modules[__name__], "SECRET_KEY"):
     from random import choice
@@ -555,7 +555,7 @@ REPORTING_ACCOUNTS_CALLABLE = None
 REQUESTED_ACCOUNTS_CALLABLE = None
 SEND_NOTIFICATION_CALLABLE = None
 SCORE_CALCULATORS = {
-    '/sustainability/': 'djaopsp.scores.ScoreCalculator',
+    '/sustainability': 'djaopsp.scores.ScoreCalculator',
 }
 
 AUDITOR_ROLE = 'auditor'

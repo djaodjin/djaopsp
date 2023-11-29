@@ -3,6 +3,7 @@
 
 import logging
 
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
@@ -10,15 +11,13 @@ from rest_framework import generics
 from rest_framework import response as http
 from rest_framework.mixins import UpdateModelMixin
 from survey.api.sample import SampleAnswersAPIView
-from survey.helpers import (construct_monthly_periods,
-    construct_yearly_periods, construct_weekly_periods, period_less_than)
+from survey.helpers import construct_weekly_periods
 from survey.models import Sample
 from survey.queries import datetime_or_now
-from survey.utils import get_accessible_accounts, get_account_model
-
 
 from ..mixins import ReportMixin
 from ..models import VerifiedSample
+from ..helpers import as_percentage
 from .portfolios import CompletionRateMixin
 from .serializers import VerifiedSampleSerializer
 
@@ -419,7 +418,7 @@ class VerifiedStatsAPIView(CompletionRateMixin, generics.RetrieveAPIView):
         }
     """
     def get_response_data(self, request, *args, **kwargs):
-        #pylint:disable=unused-argument
+        #pylint:disable=unused-argument,too-many-locals
         account = self.account
         last_date = datetime_or_now(self.accounts_ends_at)
         if self.accounts_start_at:
@@ -434,10 +433,8 @@ class VerifiedStatsAPIView(CompletionRateMixin, generics.RetrieveAPIView):
 
         completed_values = []
         verified_values = []
-        account_model = get_account_model()
         requested_accounts = self.get_requested_accounts(
             account, aggregate_set=False)
-        nb_requested_accounts = len(requested_accounts)
         start_at = weekends_at[0]
         frozen_samples_kwargs = {}
         if str(self.account) not in settings.UNLOCK_BROKERS:

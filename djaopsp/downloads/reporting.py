@@ -102,6 +102,7 @@ class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
     title = 'Full Report'
 
     def get_data(self, title=None):
+        #pylint:disable=unused-argument
         return []
 
     def get_filename(self):
@@ -217,6 +218,10 @@ class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
     basename = 'download'
     filter_backends = []
     title = ""
+
+    def __init__(self, **kwargs):
+        super(TemplateXLSXView, self).__init__(**kwargs)
+        self.wsheet = None
 
     def decorate_queryset(self, queryset):
         return queryset
@@ -334,6 +339,10 @@ class LongFormatCSVView(CampaignMixin, AccountsNominativeQuerysetMixin,
     """
     headings = ['profile', 'created_at', 'unit', 'measured', 'path', 'title']
     filter_backends = [DateRangeFilter]
+
+    def __init__(self, **kwargs):
+        super(LongFormatCSVView, self).__init__(**kwargs)
+        self._choices = {}
 
     def get_queryset(self):
         requested_accounts = self.requested_accounts.filter(

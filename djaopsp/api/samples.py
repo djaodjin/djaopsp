@@ -19,15 +19,15 @@ from survey.mixins import SampleMixin, TimersMixin
 from survey.models import Choice, Sample, Unit, UnitEquivalences
 from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP
-from survey.utils import (get_account_model, get_account_serializer,
-    get_benchmarks_enumerated)
+from survey.utils import get_account_model, get_benchmarks_enumerated
 
 from ..compat import reverse, six
 from ..mixins import SectionReportMixin
-from ..models import ScorecardCache, VerifiedSample
+from ..models import VerifiedSample
 from ..pagination import BenchmarksPagination
 from ..queries import get_scored_assessments
-from ..scores import freeze_scores, get_score_calculator
+from ..scores import (freeze_scores, get_score_calculator,
+    populate_scorecard_cache)
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignContentMixin
 from .rollups import GraphMixin, RollupMixin
@@ -98,47 +98,6 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
             request, *args, **kwargs)
 
 
-    def populate_scorecard_cache(self, sample, calculator,
-                                 segment_path, segment_title):
-        LOGGER.info("populate %s scorecard cache for %s based of sample %s",
-            sample.account, segment_path, str(sample))
-        scorecards = calculator.get_scorecards(
-                sample.campaign, segment_path, title=segment_title,
-                includes=[sample], bypass_cache=True)
-        # XXX fixes highlights that were not set.
-        for scorecard in scorecards:
-            if scorecard.reporting_publicly is None:
-                scorecard.reporting_publicly = False
-            if scorecard.reporting_fines is None:
-                scorecard.reporting_fines = False
-            if scorecard.reporting_environmental_fines is None:
-                scorecard.reporting_environmental_fines = False
-            if scorecard.reporting_energy_consumption is None:
-                scorecard.reporting_energy_consumption = False
-            if scorecard.reporting_water_consumption is None:
-                scorecard.reporting_water_consumption = False
-            if scorecard.reporting_ghg_generated is None:
-                scorecard.reporting_ghg_generated = False
-            if scorecard.reporting_waste_generated is None:
-                scorecard.reporting_waste_generated = False
-            if scorecard.reporting_energy_target is None:
-                scorecard.reporting_energy_target = False
-            if scorecard.reporting_water_target is None:
-                scorecard.reporting_water_target = False
-            if scorecard.reporting_ghg_target is None:
-                scorecard.reporting_ghg_target = False
-            if scorecard.reporting_waste_target is None:
-                scorecard.reporting_waste_target = False
-            if scorecard.nb_planned_improvements is None:
-                scorecard.nb_planned_improvements = 0
-            if scorecard.nb_na_answers is None:
-                scorecard.nb_na_answers = 0
-            if scorecard.normalized_score is None:
-                scorecard.normalized_score = 0
-
-        ScorecardCache.objects.bulk_create(scorecards)
-
-
     def create(self, request, *args, **kwargs):
         self._start_time()
         created_at = datetime_or_now()
@@ -190,7 +149,7 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                     calculator = get_score_calculator(segment_path)
                     if calculator:
                         segment_title = segment.get('title')
-                        self.populate_scorecard_cache(
+                        populate_scorecard_cache(
                             frozen_assessment_sample, calculator,
                             segment_path, segment_title)
             self._report_queries("freezing assessment: scorecard cache created")

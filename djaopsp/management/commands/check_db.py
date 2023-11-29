@@ -61,6 +61,7 @@ class Command(BaseCommand):
 
 
     def check_portfolios(self, show=False, show_fix=False):
+        #pylint:disable=too-many-locals
         if show_fix:
             show = True
         duplicates_query = """

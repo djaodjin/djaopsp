@@ -75,7 +75,7 @@ def fetch_resource(url, cache_dir=None):
         filename = os.path.join(cache_dir, filename)
         if not os.path.isdir(cache_dir):
             os.makedirs(cache_dir)
-    unused, ext = os.path.splitext(filename)
+    _unused, ext = os.path.splitext(filename)
     if not ext:
         filename += '.html'
 
@@ -313,7 +313,7 @@ class Command(BaseCommand):
             sample_start_time = datetime.datetime.utcnow()
             cache_dir = os.path.join(settings.RUN_DIR, str(sample))
             self.stdout.write("fetching URLs into %s" % cache_dir)
-            public_docs, unused = get_supporting_documents([sample])
+            public_docs, _unused = get_supporting_documents([sample])
             hints = {}
             if not questions_by_path:
                 questions_by_path = {question.path: question.title

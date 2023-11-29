@@ -207,7 +207,53 @@
   },
   "model" : "survey.unit", "pk": 13
 },
-
+{ "fields": {
+    "slug": "verifiability",
+    "title": "Verifiability",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk": 14
+},
+{ "fields": {
+    "unit": 14,
+    "rank": 1,
+    "text": "no-response",
+    "descr": "No Response"
+  },
+  "model" : "survey.choice", "pk": 19
+},
+{ "fields": {
+    "unit": 14,
+    "rank": 2,
+    "text": "no-verifiable",
+    "descr": "Self-reported No > Unverifiable"
+  },
+  "model" : "survey.choice", "pk": 20
+},
+{ "fields": {
+    "unit": 14,
+    "rank": 3,
+    "text": "no-unverifiable",
+    "descr": "Self-reported No > Verifiable"
+  },
+  "model" : "survey.choice", "pk": 21
+},
+{ "fields": {
+    "unit": 14,
+    "rank": 4,
+    "text": "yes-unverifiable",
+    "descr": "Self-reported Yes > Unverifiable"
+  },
+  "model" : "survey.choice", "pk": 22
+},
+{ "fields": {
+    "unit": 14,
+    "rank": 5,
+    "text": "yes-verifiable",
+    "descr": "Self-reported Yes > Verifiable"
+  },
+  "model" : "survey.choice", "pk": 23
+},
 {
   "fields": {
     "slug": "usd",
@@ -1311,7 +1357,7 @@
     "description" : "Please answer the core Environmental, Social and Governance (ESG) questions, then pick an industry segment and assess your organization against environmental practices in your organization's industry of choice.",
     "account": 2,
     "active": true,
-    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"highlights\":[{\"slug\":\"reporting_esg_strategy\",\"includes\":[\"formalized-esg-strategy\"],\"picture\":\"static/img/other.png\",\"text\":\"formalized ESG strategy\"}, {\"slug\":\"reporting_environmental_metrics\",\"includes\":[\"ghg-emissions-scope1\",\"ghg-emissions-scope2\",\"ghg-emissions-scope3\",\"hazardous-waste\",\"non-hazardous-waste\",\"waste-recycled\",\"water-discharged\",\"water-recycled\",\"water-withdrawn\"],\"picture\":\"static/img/data-metrics.png\",\"text\":\"tracking environmental metrics\"}, {\"slug\":\"reporting_publicly\",\"includes\":[\"energy-publicly-reported\",\"ghg-emissions-scope1-publicly-reported\",\"ghg-emissions-scope2-publicly-reported\",\"ghg-emissions-scope3-publicly-reported\",\"water-publicly-reported\",\"waste-publicly-reported\"],\"picture\":\"static/img/lighting.png\",\"text\":\"reporting data publicly\"}, {\"slug\":\"reporting_environmental_targets\",\"includes\":[\"ghg-emissions-scope1-target-by\",\"ghg-emissions-scope2-target-by\",\"ghg-emissions-scope3-target-by\",\"waste-target-by\",\"water-target-by\"],\"picture\":\"static/img/lighting.png\",\"text\":\"communicated environmental targets\"}],\"/sustainability/governance/esg-strategy-heading/formalized-esg-strategy\":2.0}"
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"highlights\":[{\"slug\":\"reporting_esg_strategy\",\"includes\":[\"formalized-esg-strategy\"],\"picture\":\"static/img/other.png\",\"text\":\"formalized ESG strategy\"}, {\"slug\":\"reporting_environmental_metrics\",\"includes\":[\"ghg-emissions-scope1\",\"ghg-emissions-scope2\",\"ghg-emissions-scope3\",\"hazardous-waste\",\"non-hazardous-waste\",\"waste-recycled\",\"water-discharged\",\"water-recycled\",\"water-withdrawn\"],\"picture\":\"static/img/data-metrics.png\",\"text\":\"tracking environmental metrics\"}, {\"slug\":\"reporting_publicly\",\"includes\":[\"energy-publicly-reported\",\"ghg-emissions-scope1-publicly-reported\",\"ghg-emissions-scope2-publicly-reported\",\"ghg-emissions-scope3-publicly-reported\",\"water-publicly-reported\",\"waste-publicly-reported\"],\"picture\":\"static/img/lighting.png\",\"text\":\"reporting data publicly\"}, {\"slug\":\"reporting_environmental_targets\",\"includes\":[\"ghg-emissions-scope1-target-by\",\"ghg-emissions-scope2-target-by\",\"ghg-emissions-scope3-target-by\",\"waste-target-by\",\"water-target-by\"],\"picture\":\"static/img/lighting.png\",\"text\":\"communicated environmental targets\"}],\"/sustainability/governance/esg-strategy-heading/formalized-esg-strategy\":10,\"/sustainability/governance/esg-strategy-heading/assign-formal-authority\":4,\"/sustainability/governance/esg-strategy-heading/report-internally\":1,\"/sustainability/governance/esg-strategy-heading/report-externally\":4,\"/sustainability/governance/esg-strategy-heading/report-3rd-party-verified\":4,\"/sustainability/governance/esg-assessment/systematic-rigorous-assessment\":1,\"/sustainability/governance/governance-policies/employee-code-of-conduct\":4,\"/sustainability/governance/governance-policies/supplier-code-of-conduct\":4,\"/sustainability/governance/governance-policies/sourcing-practices\":1,\"/sustainability/governance/governance-policies/sourcing-practices/conflict-minerals-in-products-report\":4,\"/sustainability/governance/governance-policies/sourcing-practices/high-risk-regions-sourcing-products\":4,\"/sustainability/governance/environmental-management-rigor/env-system-in-place\":1,\"/sustainability/governance/environmental-management-rigor/env-system-certified\":4,\"/sustainability/governance/environmental-management-rigor/env-system-audited\":4,\"/sustainability/governance/social-reporting/social-kpis/kpi-diversity-discrimination-harassment\":1,\"/sustainability/governance/social-reporting/social-kpis/kpi-diversity-of-employees\":4,\"/sustainability/governance/social-reporting/social-kpis/kpi-diversity-of-board\":4,\"/sustainability/governance/social-reporting/social-kpis/kpi-recordable-incident-rate\":1,\"/sustainability/governance/social-reporting/social-kpis/kpi-lost-time-case-rate\":4,\"/sustainability/governance/social-reporting/social-kpis/kpi-dart-rate\":4,\"/sustainability/governance/social-reporting/social-kpis/kpi-work-related-fatalities\":4}"
   },
   "model" : "survey.campaign", "pk" : 1
 },
@@ -3834,8 +3880,55 @@
   },
   "model": "pages.RelationShip", "pk": 188
 },
-
-
+{
+  "fields": {
+    "title": "Verification",
+    "slug": "sustainability-verified",
+    "picture": "/static/img/management-basics.png",
+    "account": 2,
+    "extra": "{\"tags\":[\"verify\"]}"
+  },
+  "model": "pages.PageElement", "pk": 189
+},
+{
+  "fields": {
+    "rank": 10,
+    "orig_element": 1, "dest_element": 189
+  },
+  "model": "pages.RelationShip", "pk": 189
+},
+{
+  "fields": {
+    "title": "(3) The company has a formalized ESG strategy",
+    "slug": "formalized-esg-strategy-verified",
+    "picture": "/static/img/management-basics.png",
+    "account": 2,
+    "extra": "{\"tags\":[\"verify\"]}"
+  },
+  "model": "pages.PageElement", "pk": 190
+},
+{
+  "fields": {
+    "orig_element": 189, "dest_element": 190
+  },
+  "model": "pages.RelationShip", "pk": 190
+},
+{
+  "fields": {
+    "title": "(3) The company reports environmental metrics",
+    "slug": "report-environmental-metrics-verified",
+    "picture": "/static/img/management-basics.png",
+    "account": 2,
+    "extra": "{\"tags\":[\"verify\"]}"
+  },
+  "model": "pages.PageElement", "pk": 191
+},
+{
+  "fields": {
+    "orig_element": 189, "dest_element": 191
+  },
+  "model": "pages.RelationShip", "pk": 191
+},
 
 {
   "fields": {

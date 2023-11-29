@@ -533,37 +533,33 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
 
 class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
                                       PageElementEditableDetail):
+    """
+    Retrieves a question
 
+    **Tags**: editors
+
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/content/editables/envconnect/campaigns/sustainability\
+/construction/governance/the-assessment-process-is-rigorous HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "path": "/construction/governance/the-assessment\
+-process-is-rigorous",
+            "title": "The assessment process is rigorous",
+            "default_unit": "assessment"
+        }
+    """
     serializer_class = get_question_serializer()
 
     def get_object(self):
         return self.question
-
-    def get(self, request, *args, **kwargs):
-        """
-        Retrieves a question
-
-        **Tags**: editors
-
-        **Examples
-
-        .. code-block:: http
-
-            GET /api/content/editables/envconnect/campaigns/sustainability\
-/construction/governance/the-assessment-process-is-rigorous HTTP/1.1
-
-        responds
-
-        .. code-block:: json
-
-            {
-                "path": "/construction/governance/the-assessment\
--process-is-rigorous",
-                "title": "The assessment process is rigorous",
-                "default_unit": "assessment"
-            }
-        """
-        return super(CampaignEditableQuestionAPIView, self).get(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         """

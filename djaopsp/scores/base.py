@@ -4,10 +4,13 @@
 import datetime, logging
 
 from django.conf import settings
-from survey.models import Answer, Sample, Unit
+from django.db.models import F
+from survey.models import Answer, Choice, Sample, Unit
 from survey.queries import datetime_or_now
 
 from ..compat import import_string, six
+from ..models import ScorecardCache
+from ..utils import get_score_weight
 
 
 LOGGER = logging.getLogger(__name__)
@@ -21,6 +24,12 @@ class ScoreCalculator(object):
     for an assessment
     """
     intrinsic_value_headers = []
+
+    def __init__(self):
+        self.points_unit_id = Unit.objects.get(slug=SCORE_UNIT).pk
+        self.yes_no_unit_id = Unit.objects.get(slug='yes-no').pk
+        self.yes = Choice.objects.get(
+            unit_id=self.yes_no_unit_id, text='Yes').pk
 
     def get_opportunity(self, campaign,
                         includes=None, excludes=None, prefix=None,
@@ -40,18 +49,105 @@ class ScoreCalculator(object):
         #pylint:disable=too-many-arguments,unused-argument
         return []
 
+
     def get_scored_answers(self, campaign,
                            includes=None, excludes=None, prefix=None):
         """
         Retuns answers with score computed based on opportunity.
         """
-        #pylint:disable=unused-argument
-        return []
+        results = []
+        queryset = Answer.objects.filter(
+            unit_id=F('question__default_unit_id'),
+            sample__in=includes,
+            question__default_unit_id=self.yes_no_unit_id,
+            question__path__startswith=prefix,
+            measured=self.yes
+        ).distinct().select_related('question')
+        for answer in queryset:
+            answer.measured = get_score_weight(
+                campaign, answer.question.path, default_value=0)
+
+            answer.numerator = answer.measured  # XXX for freeze_scores
+            answer.unit_id = self.points_unit_id
+            answer.answer_id = answer.pk # XXX for freeze_scores
+            answer.is_planned = includes[0].extra # XXX for freeze_scores
+            answer.id = answer.question_id # XXX for freeze_scores
+            results += [answer]
+
+        return results
+
 
     def get_scorecards(self, campaign, prefix, title=None, includes=None,
                        bypass_cache=False):
-        #pylint:disable=unused-argument,too-many-arguments
-        return []
+        """
+        Returns an aggregate of answers' scores and relevant metrics
+        to be cached.
+        """
+        #pylint:disable=too-many-arguments
+        active_samples = []
+        frozen_samples = []
+        if bypass_cache:
+            active_samples = includes
+        else:
+            for sample in includes:
+                if sample.is_frozen:
+                    frozen_samples += [sample]
+                else:
+                    active_samples += [sample]
+        scorecard_caches = []
+        for sample in frozen_samples:
+            scorecard_caches += ScorecardCache.objects.filter(
+                sample=sample, path__startswith=prefix)
+            for scored_answer in self.get_scored_answers(campaign,
+                includes=[sample], prefix=prefix):
+                # created_at, measured, denominator, path
+                LOGGER.debug("%s,%s,%s,%s", scored_answer.created_at.date(),
+                    scored_answer.measured, scored_answer.denominator,
+                    scored_answer.question.path)
+
+        if active_samples:
+            for sample in active_samples:
+                scorecard_cache = ScorecardCache(
+                    sample_id=sample.id, # XXX for freeze_scores
+                    path=prefix, sample=sample, normalized_score=0)
+                scorecard_cache.numerator = 0
+                scorecard_cache.nb_answers = 0
+                scorecard_cache.nb_questions = 0
+                scorecard_cache.denominator = 100
+                for scored_answer in self.get_scored_answers(campaign,
+                                        includes=includes, prefix=prefix):
+                    if scored_answer.denominator:
+                        scorecard_cache.normalized_score += scored_answer.measured
+                        scorecard_cache.numerator += scored_answer.measured
+                        scorecard_cache.nb_answers = scorecard_cache.nb_answers + 1
+                        scorecard_cache.nb_questions = scorecard_cache.nb_questions + 1
+                # XXX for freeze_scores
+                scorecard_cache.normalized_score = round(
+                    scorecard_cache.normalized_score)
+                scorecard_cache.account_id = includes[0].account_id
+                scorecard_cache.slug = includes[0].slug
+                scorecard_cache.created_at = includes[0].created_at
+                scorecard_cache.campaign_id = includes[0].campaign_id
+                scorecard_cache.updated_at = includes[0].updated_at
+                scorecard_cache.is_frozen  = includes[0].is_frozen
+                scorecard_cache.extra  = includes[0].extra
+                scorecard_cache.segment_path = prefix
+                scorecard_cache.segment_title = title
+                scorecard_cache.nb_na_answers = 0
+                scorecard_cache.reporting_publicly = False
+                scorecard_cache.reporting_fines = False
+                scorecard_cache.reporting_energy_consumption = False
+                scorecard_cache.reporting_ghg_generated = False
+                scorecard_cache.reporting_water_consumption = False
+                scorecard_cache.reporting_waste_generated = False
+                scorecard_cache.reporting_energy_target = False
+                scorecard_cache.reporting_ghg_target = False
+                scorecard_cache.reporting_water_target = False
+                scorecard_cache.reporting_waste_target = False
+
+                scorecard_caches += [scorecard_cache]
+
+        return scorecard_caches
 
 
 def freeze_scores(sample, excludes=None, collected_by=None, created_at=None,
@@ -68,6 +164,7 @@ def freeze_scores(sample, excludes=None, collected_by=None, created_at=None,
     #pylint:disable=too-many-arguments,disable=too-many-locals
     # This function must be executed in a `transaction.atomic` block.
     # XXX check sample is not already frozen???
+    at_time = created_at
     created_at = datetime_or_now(created_at)
     if not segment_path:
         segment_path = '/'
@@ -130,8 +227,8 @@ def freeze_scores(sample, excludes=None, collected_by=None, created_at=None,
                         denominator=denominator,
                         collected_by=collected_by,
                         sample=score_sample)]
-        LOGGER.info("write %d scored answers in %s for segment '%s'" % (
-            len(score_answers), score_sample, segment_path))
+        LOGGER.info("write %d scored answers in %s for segment '%s'",
+            len(score_answers), score_sample, segment_path)
         Answer.objects.bulk_create(score_answers)
 
     # Update date of active sample to be later than all frozen ones.
@@ -375,3 +472,43 @@ def populate_rollup(rollup_tree, normalize_to_one, force_score=False):
     for account_id, scores in six.iteritems(accounts):
         _normalize(
             scores, normalize_to_one=normalize_to_one, force_score=force_score)
+
+
+def populate_scorecard_cache(sample, calculator, segment_path, segment_title):
+    LOGGER.info("populate %s scorecard cache for %s based of sample %s",
+        sample.account, segment_path, str(sample))
+    scorecards = calculator.get_scorecards(
+            sample.campaign, segment_path, title=segment_title,
+            includes=[sample], bypass_cache=True)
+    # XXX fixes highlights that were not set.
+    for scorecard in scorecards:
+        if scorecard.reporting_publicly is None:
+            scorecard.reporting_publicly = False
+        if scorecard.reporting_fines is None:
+            scorecard.reporting_fines = False
+        if scorecard.reporting_environmental_fines is None:
+            scorecard.reporting_environmental_fines = False
+        if scorecard.reporting_energy_consumption is None:
+            scorecard.reporting_energy_consumption = False
+        if scorecard.reporting_water_consumption is None:
+            scorecard.reporting_water_consumption = False
+        if scorecard.reporting_ghg_generated is None:
+            scorecard.reporting_ghg_generated = False
+        if scorecard.reporting_waste_generated is None:
+            scorecard.reporting_waste_generated = False
+        if scorecard.reporting_energy_target is None:
+            scorecard.reporting_energy_target = False
+        if scorecard.reporting_water_target is None:
+            scorecard.reporting_water_target = False
+        if scorecard.reporting_ghg_target is None:
+            scorecard.reporting_ghg_target = False
+        if scorecard.reporting_waste_target is None:
+            scorecard.reporting_waste_target = False
+        if scorecard.nb_planned_improvements is None:
+            scorecard.nb_planned_improvements = 0
+        if scorecard.nb_na_answers is None:
+            scorecard.nb_na_answers = 0
+        if scorecard.normalized_score is None:
+            scorecard.normalized_score = 0
+
+    ScorecardCache.objects.bulk_create(scorecards)

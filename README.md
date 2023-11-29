@@ -64,8 +64,8 @@ You will want to toggle `DEBUG` on in the site.conf file.
     # Create the tests databases and load test datasets.
     $ make initdb
 
-    # To generate some sample data, disable emailing of receipts and run:
-    $ python manage.py load_test_transactions
+    # To generate some sample data run:
+    $ python manage.py generate_test_data
 
     # Spins up a dev server that re-compiles the `.css` files
     # on page reload whenever necessary.

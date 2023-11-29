@@ -2160,7 +2160,42 @@
   },
   "model": "survey.EnumeratedQuestions", "pk": 131
 },
-
+{
+  "fields": {
+    "path": "/sustainability/sustainability-verified/formalized-esg-strategy-verified",
+    "content": 190,
+    "default_unit": 14,
+    "ui_hint": "select"
+  },
+  "model": "survey.question", "pk": 190
+},
+{
+  "fields": {
+    "campaign": 3,
+    "question": 190,
+    "rank": 190,
+    "required": true
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 190
+},
+{
+  "fields": {
+    "path": "/sustainability/sustainability-verified/report-environmental-metrics-verified",
+    "content": 191,
+    "default_unit": 4,
+    "ui_hint": "radio"
+  },
+  "model": "survey.question", "pk": 191
+},
+{
+  "fields": {
+    "campaign": 3,
+    "question": 191,
+    "rank": 191,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 191
+},
 
 {
   "fields": {
