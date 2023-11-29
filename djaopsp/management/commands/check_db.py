@@ -13,8 +13,9 @@ import datetime, logging
 from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
 from django.db import connection
+from django.db.models import Count
 from pages.models import PageElement
-from survey.models import PortfolioDoubleOptIn
+from survey.models import Answer, PortfolioDoubleOptIn
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_question_model
 
@@ -39,6 +40,12 @@ class Command(BaseCommand):
         parser.add_argument('--show-questions-fix', action='store_true',
             dest='show_questions_fix', default=False,
             help='Show SQL fixes for questions that do not match elements')
+        parser.add_argument('--show-answers', action='store_true',
+            dest='show_answers', default=False,
+            help='Show answers that do not match elements')
+        parser.add_argument('--show-answers-fix', action='store_true',
+            dest='show_answers_fix', default=False,
+            help='Show SQL fixes for answers that do not match elements')
         parser.add_argument('--dry-run', action='store_true',
             dest='dry_run', default=False,
             help='Do not commit database updates')
@@ -52,6 +59,9 @@ class Command(BaseCommand):
         self.check_questions(
             show=options['show_questions'],
             show_fix=options['show_questions_fix'])
+        self.check_answers(
+            show=options['show_answers'],
+            show_fix=options['show_answers_fix'])
         end_time = datetime.datetime.utcnow()
         delta = relativedelta(end_time, start_time)
         LOGGER.info("completed in %d hours, %d minutes, %d.%d seconds",
@@ -245,6 +255,7 @@ ON portfolio_grantees.account_id = %(account_table)s.id
             self.stdout.write("COMMIT;")
         self.stderr.write("%d inaccurate portfolios" % count)
 
+
     def check_questions(self, show=False, show_fix=False):
         count = 0
         for question in get_question_model().objects.all():
@@ -267,3 +278,44 @@ ON portfolio_grantees.account_id = %(account_table)s.id
         if count and show_fix:
             self.stdout.write("COMMIT;")
         self.stderr.write("%d questions/element discrepencies" % count)
+
+
+    def check_answers(self, show=False, show_fix=False):
+        """
+        Shows all answers which have a duplicate measurement for a triplet
+        (unit, sample, question).
+        """
+        queryset = Answer.objects.order_by('sample__account',
+            'sample', 'question', 'unit').values(
+            'sample', 'question', 'unit').annotate(Count('id')).filter(
+            id__count__gt=1)
+        count = queryset.count()
+        if show:
+            deletes = []
+            if count > 0:
+                self.stdout.write("count,unit,frozen,sample,account,question")
+            for answer in queryset:
+                duplicates = Answer.objects.filter(
+                    unit=answer['unit'],
+                    sample=answer['sample'],
+                    question=answer['question']).select_related(
+                    'unit', 'question', 'sample__account')
+                first = True
+                for duplicate in duplicates:
+                    self.stdout.write("%s,%s,%s,%s,%s,%s" % (
+                        duplicate.pk,
+                        duplicate.unit.slug,
+                        duplicate.sample.is_frozen,
+                        duplicate.sample.id,
+                        duplicate.sample.account.slug,
+                        duplicate.question.path))
+                    if first:
+                        first = False
+                        continue
+                    deletes += [duplicate.pk]
+                self.stdout.write("\n")
+            if show_fix and deletes:
+                self.stdout.write("DELETE FROM survey_answer WHERE id IN (%s);"
+                    % ','.join(deletes))
+        self.stderr.write(
+            "%d answers with same unit in (sample, question) pair" % count)
