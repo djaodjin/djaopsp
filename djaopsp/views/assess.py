@@ -3,17 +3,23 @@
 from __future__ import unicode_literals
 
 import datetime, json, logging
+from io import BytesIO
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
 from django.core.files.storage import get_storage_class
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.views.generic import ListView
 from django.views.generic.base import (ContextMixin, RedirectView,
     TemplateResponseMixin, TemplateView)
 from django.template.defaultfilters import slugify
+from pptx import Presentation
+from pptx.dml.color import RGBColor
+from pptx.util import Inches, Pt
+
 from survey.helpers import get_extra
 from survey.models import Choice, EditableFilter
 from survey.queries import datetime_or_now
@@ -451,4 +457,170 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
 
     def get_filename(self):
         return datetime_or_now().strftime("%s-%s-%%Y%%m%%d.xlsx" % (
+            self.sample.account.slug, self.campaign.slug))
+
+
+class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
+    def __init__(self):
+        super().__init__()
+        self.prs = Presentation()
+        self.left = Inches(1)
+        self.top = Inches(2)
+        self.width = Inches(8)
+        self.height = Inches(0.5)
+        self.max_height = Inches(7.5)
+        self.current_slide = None
+        self.title_hierarchy = {0: None, 1: None, 2: None, 3: None, 4: None, 5: None}
+        self.basename = 'practices'
+
+    def format_slide_title(self, title_shape):
+        title_shape.text_frame.paragraphs[0].font.size = Pt(18)
+        title_shape.text_frame.paragraphs[0].font.bold = True
+        title_shape.text_frame.paragraphs[0].font.color.rgb = RGBColor(42, 87, 141)
+
+    def format_entry_content(self, entry):
+        content = []
+        try:
+            default_unit_slug = entry['default_unit'].slug
+        except AttributeError:
+            default_unit_slug = entry.get('default_unit', {}).get('slug', "")
+
+        answers = entry.get('answers', [])
+        primary_assessed = None
+        primary_planned = None
+        points = None
+        comments = ""
+
+        for answer in answers:
+            try:
+                unit_slug = answer['unit'].slug
+            except AttributeError:
+                unit_slug = ""
+
+            measured = answer.get('measured')
+            if unit_slug == default_unit_slug:
+                primary_assessed = measured
+            elif unit_slug == 'freetext':
+                comments = measured
+            elif unit_slug == 'points':
+                points = float(measured) if measured else None
+
+        planned = entry.get('planned', [])
+        for plan in planned:
+            try:
+                unit_slug = plan['unit'].slug
+            except AttributeError:
+                unit_slug = ""
+
+            if unit_slug == default_unit_slug:
+                primary_planned = plan.get('measured')
+
+        title = entry['title']
+        content.append(f"Title: {title}")
+        opportunity = entry.get('opportunity')
+        rates = entry.get('rate', {})
+        nb_respondents = entry.get('nb_respondents', {})
+
+        if primary_assessed is not None:
+            content.append(f"Assessed: {primary_assessed}")
+        if primary_planned is not None:
+            content.append(f"Planned: {primary_planned}")
+        # if points is not None:
+        #     content.append(f"Points: {points}")
+        if comments:
+            content.append(f"Comments: {comments}")
+        if opportunity:
+            content.append(f"Opportunity: {opportunity}")
+        if nb_respondents:
+            content.append(f"Number of respondents: {nb_respondents}")
+        if rates:
+            for choice, value in rates.items():
+                content.append(f"{choice}: {value}")
+
+        return "\n".join(content)
+
+
+    def add_new_slide(self, presentation, title):
+        self.top = Inches(2)
+        slide_layout = presentation.slide_layouts[5]
+        slide = presentation.slides.add_slide(slide_layout)
+        title_shape = slide.shapes.title
+        title_shape.text = title
+        self.format_slide_title(title_shape)
+        return slide
+
+    def add_content_to_slide(self, slide, entry):
+        textbox = slide.shapes.add_textbox(self.left, self.top, self.width, self.height)
+        text_frame = textbox.text_frame
+        text_frame.word_wrap = True
+        content = self.format_entry_content(entry)
+
+        for line in content.split("\n"):
+            p = text_frame.add_paragraph()
+
+            if ": " in line:
+                prefix, rest = line.split(": ", 1)
+                run = p.add_run()
+                run.text = prefix + ": "
+                run.font.bold = True
+            else:
+                rest = line
+            run = p.add_run()
+            run.text = rest
+
+    def add_extra_content_to_title_slide(self, slide, extra_values):
+        for key, value in extra_values.items():
+            textbox = slide.shapes.add_textbox(self.left, self.top, self.width, self.height)
+            text_frame = textbox.text_frame
+            if key and value:
+                text_frame.text = f"{key}: {value}"
+            self.top += self.height
+            text_frame.word_wrap = True
+
+    def get(self, request, *args, **kwargs):
+        self.current_slide = None
+        queryset = self.get_queryset()
+
+        for entry in queryset:
+            indent_level = entry['indent']
+            title = entry['title']
+
+            if indent_level > 1:
+                self.title_hierarchy[indent_level] = title
+                for higher_level in range(indent_level + 1, 6):
+                    self.title_hierarchy[higher_level] = None
+
+                if 'answers' in entry:
+                    title_parts = [self.title_hierarchy[level] for level in range(1, indent_level) if self.title_hierarchy[level] is not None]
+                    composed_title = ' - '.join(title_parts)
+                    self.current_slide = self.add_new_slide(self.prs, composed_title)
+                    self.add_content_to_slide(self.current_slide, entry)
+
+            elif indent_level == 0:
+                self.current_slide = self.add_new_slide(self.prs, title)
+                extra_values = {
+                    'Campaign': self.sample.campaign.title,
+                    'Created at': self.sample.created_at.date(),
+                    'Campaign Creator': self.sample.account.full_name,
+                    'Normalized score': entry.get('normalized_score'),
+                }
+                self.add_extra_content_to_title_slide(self.current_slide, extra_values)
+
+            elif indent_level == 1:
+                self.current_slide = self.add_new_slide(self.prs, title)
+                self.title_hierarchy[1] = title
+                for higher_level in range(2, 6):
+                    self.title_hierarchy[higher_level] = None
+        ppt_io = BytesIO()
+        self.prs.save(ppt_io)
+        ppt_io.seek(0)
+        filename = self.get_filename()
+        response = HttpResponse(
+            ppt_io,
+            content_type='application/vnd.openxmlformats-officedocument.presentationml.presentation')
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        return response
+
+    def get_filename(self):
+        return datetime_or_now().strftime("%s-%s-%%Y%%m%%d.pptx" % (
             self.sample.account.slug, self.campaign.slug))
