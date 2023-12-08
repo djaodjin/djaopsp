@@ -461,22 +461,47 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
 
 
 class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
+    """
+    Allows downloading an assessment as a PPTX
+    """
+
     def __init__(self):
         super().__init__()
         self.prs = Presentation()
-        self.left = Inches(1)
-        self.top = Inches(2)
-        self.width = Inches(8)
-        self.height = Inches(0.5)
-        self.max_height = Inches(7.5)
+        self.template_config = {
+            "background_color": [255, 255, 255],
+            "title_font": "Arial",
+            "title_font_size": 18,
+            "title_font_color": [42, 87, 141],
+            "body_font": "Calibri",
+            "body_font_size": 12,
+            "left": 1,
+            "top": 2,
+            "width": 8,
+            "height": 0.5,
+        }
+        self.update_template_settings()
         self.current_slide = None
         self.title_hierarchy = {0: None, 1: None, 2: None, 3: None, 4: None, 5: None}
         self.basename = 'practices'
 
+    def update_template_settings(self):
+        self.left = Inches(self.template_config["left"])
+        self.top = Inches(self.template_config["top"])
+        self.width = Inches(self.template_config["width"])
+        self.height = Inches(self.template_config["height"])
+
+    def apply_background(self, slide):
+        bg_color = self.template_config.get("background_color")
+        if bg_color:
+            slide.background.fill.solid()
+            slide.background.fill.fore_color.rgb = RGBColor(*bg_color)
+
     def format_slide_title(self, title_shape):
-        title_shape.text_frame.paragraphs[0].font.size = Pt(18)
+        title_shape.text_frame.paragraphs[0].font.name = self.template_config["title_font"]
+        title_shape.text_frame.paragraphs[0].font.size = Pt(self.template_config["title_font_size"])
         title_shape.text_frame.paragraphs[0].font.bold = True
-        title_shape.text_frame.paragraphs[0].font.color.rgb = RGBColor(42, 87, 141)
+        title_shape.text_frame.paragraphs[0].font.color.rgb = RGBColor(*self.template_config["title_font_color"])
 
     def format_entry_content(self, entry):
         content = []
@@ -520,13 +545,15 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
         opportunity = entry.get('opportunity')
         rates = entry.get('rate', {})
         nb_respondents = entry.get('nb_respondents', {})
+        extra = entry.get('extra')
+        avg_value = 0
 
         if primary_assessed is not None:
             content.append(f"Assessed: {primary_assessed}")
         if primary_planned is not None:
             content.append(f"Planned: {primary_planned}")
-        # if points is not None:
-        #     content.append(f"Points: {points}")
+        if points is not None:
+            content.append(f"Points: {points}")
         if comments:
             content.append(f"Comments: {comments}")
         if opportunity:
@@ -536,14 +563,31 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
         if rates:
             for choice, value in rates.items():
                 content.append(f"{choice}: {value}")
+        if extra:
+            intrinsic_values = extra.get('intrinsic_values')
+            if intrinsic_values:
+                environmental_value = intrinsic_values.get('environmental', 0)
+                business_value = intrinsic_values.get('business', 0)
+                profitability = intrinsic_values.get('profitability', 0)
+                implementation_ease = intrinsic_values.get(
+                    'implementation_ease', 0)
+                avg_value = (environmental_value + business_value +
+                    profitability + implementation_ease) // 4
+            if avg_value:
+                content.append(f"Environmental value: {environmental_value}")
+                content.append(f"Business value: {business_value}")
+                content.append(f"Profitability: {profitability}")
+                content.append(f"Implementation Ease: {implementation_ease}")
+                content.append(f"Average Value: {avg_value}")
 
         return "\n".join(content)
 
 
     def add_new_slide(self, presentation, title):
-        self.top = Inches(2)
+        self.top = Inches(self.template_config["top"])
         slide_layout = presentation.slide_layouts[5]
         slide = presentation.slides.add_slide(slide_layout)
+        self.apply_background(slide)
         title_shape = slide.shapes.title
         title_shape.text = title
         self.format_slide_title(title_shape)
@@ -560,22 +604,34 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
 
             if ": " in line:
                 prefix, rest = line.split(": ", 1)
-                run = p.add_run()
-                run.text = prefix + ": "
-                run.font.bold = True
+                self.add_text_run(p, prefix + ":", bold=True)
             else:
                 rest = line
-            run = p.add_run()
-            run.text = rest
+
+            self.add_text_run(p, rest)
+
+    def add_text_run(self, paragraph, text, bold=False):
+        run = paragraph.add_run()
+        run.text = text
+        run.font.bold = bold
+        run.font.name = self.template_config["body_font"]
+        run.font.size = Pt(self.template_config["body_font_size"])
 
     def add_extra_content_to_title_slide(self, slide, extra_values):
         for key, value in extra_values.items():
             textbox = slide.shapes.add_textbox(self.left, self.top, self.width, self.height)
             text_frame = textbox.text_frame
-            if key and value:
-                text_frame.text = f"{key}: {value}"
-            self.top += self.height
             text_frame.word_wrap = True
+
+            if key and value:
+                p = text_frame.add_paragraph()
+                p.text = f"{key}: {value}"
+                # Set font settings for the paragraph
+                for run in p.runs:
+                    run.font.name = self.template_config["body_font"]
+                    run.font.size = Pt(self.template_config["body_font_size"])
+
+            self.top += self.height
 
     def get(self, request, *args, **kwargs):
         self.current_slide = None
@@ -617,7 +673,7 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
         filename = self.get_filename()
         response = HttpResponse(
             ppt_io,
-            content_type='application/vnd.openxmlformats-officedocument.presentationml.presentation')
+            content_type=self.content_type)
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
 
