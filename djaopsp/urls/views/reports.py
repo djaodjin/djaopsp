@@ -27,7 +27,7 @@ urlpatterns = [
          AssessPracticesXLSXView.as_view(), name='assess_download_segment'),
     path('assess/<slug:sample>/download/',
          AssessPracticesXLSXView.as_view(), name='assess_download'),
-    path('assess/<slug:sample>/downloadpptx/',
+    path('assess/<slug:sample>/download/pptx/',
          AssessPracticesPPTXView.as_view(), name='assess_download_pptx'),
     path('assess/<slug:sample>/<path:path>/',
          AssessPracticesView.as_view(), name='assess_practices'),

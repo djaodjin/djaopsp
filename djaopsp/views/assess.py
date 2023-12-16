@@ -626,7 +626,6 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
             if key and value:
                 p = text_frame.add_paragraph()
                 p.text = f"{key}: {value}"
-                # Set font settings for the paragraph
                 for run in p.runs:
                     run.font.name = self.template_config["body_font"]
                     run.font.size = Pt(self.template_config["body_font_size"])
