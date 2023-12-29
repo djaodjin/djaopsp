@@ -247,6 +247,18 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         return results
 
 
+    def merge_tabularized(self, orig_tab, tab, path=""):
+        for orig_account, account in zip(orig_tab, tab):
+            for orig_key, orig_val in orig_account.items():
+                if orig_key == 'score':
+                    continue
+                val = account.get(orig_key)
+                if orig_val and val and (orig_val != val):
+                    LOGGER.warning("[%s] value for key '%s' differs (%s vs %s)", path, orig_key, orig_val, val)
+                if not orig_val and val:
+                    orig_account[orig_key] = val
+
+
     def format_row(self, entry, key=None):
         row = [self._get_title(entry)]
         slug = entry.get('slug')
@@ -322,19 +334,27 @@ ORDER BY answers.path, answers.account_id
                     path = row[0].split('/')[-1] # XXX slug
                     if prev_path and path != prev_path:
                         # flush
-                        #if prev_path in answers_by_paths:
-                        #    raise RuntimeError("Updating already processed path '%s'" % path)
-                        answers_by_paths.update({prev_path: self.tabularize(
-                            chunk, self.accounts_with_engagement)})
+                        tab = self.tabularize(
+                            chunk, self.accounts_with_engagement)
+                        if prev_path in answers_by_paths:
+                            self.merge_tabularized(
+                                answers_by_paths[prev_path], tab,
+                                path=prev_path)
+                        else:
+                            answers_by_paths.update({prev_path: tab})
                         chunk = []
                         self._report_queries("tabularize %s" % path)
                     chunk += [row]
                     prev_path = path
                 if chunk:
-                    #if prev_path in answers_by_paths:
-                    #    raise RuntimeError("Updating already processed path '%s'" % path)
-                    answers_by_paths.update({prev_path: self.tabularize(
-                        chunk, self.accounts_with_engagement)})
+                    tab = self.tabularize(
+                        chunk, self.accounts_with_engagement)
+                    if prev_path in answers_by_paths:
+                        self.merge_tabularized(
+                            answers_by_paths[prev_path], tab,
+                            path=prev_path)
+                    else:
+                        answers_by_paths.update({prev_path: tab})
                     self._report_queries("tabularize %s" % path)
         return answers_by_paths
 
