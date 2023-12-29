@@ -87,6 +87,9 @@ metrics.<br /><a href="{{'docs/guides/'|site_url}}">{% trans %}See questionnaire
           <div class="row my-2" v-for="item in items.results">
             <div class="col-2 text-right">
               <a :href="_safeUrl('{{urls.scorecard_base}}', item.slug) + '/'">[[ $globals.humanizeDate(item.created_at) ]]</a>
+              {% if verification_enabled %}
+              <i class="fa fa-certificate" style="color: green;" v-if="item.verified_status != 'no-review' && item.verified_status != 'under-review'"></i>
+              {% endif %}
             </div>
             <div class="col-4 text-left">
               [[item.campaign.title]]

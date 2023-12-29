@@ -234,6 +234,7 @@ SELECT DISTINCT
   survey_sample.id,
   survey_sample.slug,
   survey_sample.created_at,
+  requests.grantee_id AS grantee_id,
   CASE WHEN (portfolios.ends_at IS NOT NULL AND
              last_valid_completed.last_updated_at <= portfolios.ends_at)
            THEN 'completed'
@@ -248,9 +249,13 @@ ON survey_sample.account_id = last_valid_completed.account_id AND
 INNER JOIN requests
 ON requests.account_id = survey_sample.account_id
 LEFT OUTER JOIN portfolios
-ON survey_sample.account_id = portfolios.account_id
-WHERE last_valid_completed.last_updated_at > requests.created_at OR
-    portfolios.ends_at > requests.created_at
+ON survey_sample.account_id = portfolios.account_id AND
+   requests.grantee_id = portfolios.grantee_id        -- avoids 'completed' and
+                                      -- 'completed-notshared' in same queryset
+WHERE (requests.ends_at IS NULL OR
+       last_valid_completed.last_updated_at < requests.ends_at) AND
+    (last_valid_completed.last_updated_at > requests.created_at OR
+    portfolios.ends_at > requests.created_at)
 ),
 updated_by_accounts AS (
 SELECT DISTINCT
@@ -317,7 +322,8 @@ SELECT
     null) AS last_activity_at
 FROM requests
 LEFT OUTER JOIN completed_by_accounts
-ON requests.account_id = completed_by_accounts.account_id
+ON requests.account_id = completed_by_accounts.account_id AND
+   requests.grantee_id = completed_by_accounts.grantee_id
 LEFT OUTER JOIN updated_by_accounts
 ON requests.account_id = updated_by_accounts.account_id
 LEFT OUTER JOIN latest_completion

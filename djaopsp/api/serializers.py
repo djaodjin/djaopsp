@@ -8,7 +8,8 @@ from pages.serializers import (
     PageElementSerializer as BasePageElementSerializer)
 from survey.models import PortfolioDoubleOptIn
 from survey.api.serializers import (EnumField, AccountSerializer,
-    AnswerSerializer, TableSerializer, UnitSerializer)
+    AnswerSerializer, SampleSerializer as SampleBaseSerializer,
+    TableSerializer, UnitSerializer)
 from survey.utils import get_account_model
 
 from ..compat import reverse
@@ -500,3 +501,13 @@ class RespondentAccountSerializer(serializers.ModelSerializer):
         except AttributeError:
             pass
         return None
+
+
+class SampleSerializer(SampleBaseSerializer):
+    """
+    """
+    verified_status = EnumField(choices=VerifiedSample.STATUSES,
+        help_text=_("verification status"))
+
+    class Meta(SampleBaseSerializer.Meta):
+        fields = SampleBaseSerializer.Meta.fields + ('verified_status',)

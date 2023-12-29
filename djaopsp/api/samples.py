@@ -13,6 +13,8 @@ from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
 from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
     SampleFreezeAPIView)
+from survey.api.sample import (
+    SampleRecentCreateAPIView as SampleRecentCreateBaseAPIView)
 from survey.api.matrix import SampleBenchmarkMixin
 from survey.filters import OrderingFilter, SearchFilter
 from survey.mixins import SampleMixin, TimersMixin
@@ -31,8 +33,8 @@ from ..scores import (freeze_scores, get_score_calculator,
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignContentMixin
 from .rollups import GraphMixin, RollupMixin
-from .serializers import (AssessmentNodeSerializer,
-    RespondentAccountSerializer, SampleBenchmarksSerializer, UnitSerializer)
+from .serializers import (AssessmentNodeSerializer, RespondentAccountSerializer,
+    SampleSerializer, SampleBenchmarksSerializer, UnitSerializer)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -1210,3 +1212,52 @@ class RespondentsAPIView(generics.ListAPIView):
             samples__is_frozen=True).exclude(
             Q(email__isnull=True)|Q(email="")).distinct()
         return queryset
+
+
+
+class SampleRecentCreateAPIView(SampleRecentCreateBaseAPIView):
+    """
+    Lists samples
+
+    Returns all samples for a profile
+
+    **Tags**: assessments
+
+    **Examples**
+
+    .. code-block:: http
+
+        GET /api/supplier-1/sample HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "count": 1,
+            "previous": null,
+            "next": null,
+            "results": [
+            {
+                "slug": "46f66f70f5ad41b29c4df08f683a9a7a",
+                "created_at": "2018-01-24T17:03:34.926193Z",
+                "campaign": "sustainability",
+                "is_frozen": false,
+                "extra": null
+            }
+            ]
+        }
+    """
+    serializer_class = SampleSerializer
+
+    def decorate_queryset(self, queryset):
+        verified_samples = {verified_sample.sample_id: verified_sample
+            for verified_sample in VerifiedSample.objects.filter(
+                sample__in=queryset,
+                verified_status=VerifiedSample.STATUS_REVIEW_COMPLETED)}
+        for sample in queryset:
+            verified_sample = verified_samples.get(sample.pk)
+            sample.verified_status = (verified_sample.verified_status
+                if verified_sample else VerifiedSample.STATUS_NO_REVIEW)
+        return super(SampleRecentCreateAPIView, self).decorate_queryset(
+            queryset)

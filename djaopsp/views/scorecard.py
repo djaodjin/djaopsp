@@ -18,7 +18,7 @@ from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_question_model
 
 from ..compat import reverse
-from ..mixins import AccountMixin, ReportMixin
+from ..mixins import AccountMixin, ReportMixin, VisibilityMixin
 from ..utils import (get_highlights, get_summary_performance,
     get_latest_active_assessments)
 
@@ -199,7 +199,7 @@ class ScorecardIndexView(ReportMixin, TemplateView):
         return context
 
 
-class ScorecardHistoryView(AccountMixin, TemplateView):
+class ScorecardHistoryView(VisibilityMixin, AccountMixin, TemplateView):
     """
     Profile scorecard history page
     """
@@ -207,6 +207,9 @@ class ScorecardHistoryView(AccountMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ScorecardHistoryView, self).get_context_data(**kwargs)
+        context.update({
+            'verification_enabled': self.is_auditor,
+        })
         update_context_urls(context, {
             'api_organizations': site_url("/api/accounts/profiles"),
             'api_sample_list': reverse('survey_api_sample_list',

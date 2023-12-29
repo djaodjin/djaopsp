@@ -15,9 +15,12 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 from django.db.models import Count
 from pages.models import PageElement
-from survey.models import Answer, PortfolioDoubleOptIn
+from survey.models import Answer, Campaign, PortfolioDoubleOptIn
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_question_model
+
+from ...queries import get_engagement
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +37,9 @@ class Command(BaseCommand):
         parser.add_argument('--show-portfolios-fix', action='store_true',
             dest='show_portfolios_fix', default=False,
             help='Show SQL fixes for portfolios that do not match optins')
+        parser.add_argument('--show-completed-notshared', action='store_true',
+            dest='show_completed_notshared', default=False,
+            help='Show completed but not shared responses')
         parser.add_argument('--show-questions', action='store_true',
             dest='show_questions', default=False,
             help='Show questions that do not match elements')
@@ -56,18 +62,39 @@ class Command(BaseCommand):
         self.check_portfolios(
             show=options['show_portfolios'],
             show_fix=options['show_portfolios_fix'])
-        self.check_questions(
-            show=options['show_questions'],
-            show_fix=options['show_questions_fix'])
-        self.check_answers(
-            show=options['show_answers'],
-            show_fix=options['show_answers_fix'])
+        self.check_completed_notshared(
+            show=options['show_completed_notshared'])
+        if options['show_questions'] or options['show_answers']:
+            self.check_questions(
+                show=options['show_questions'],
+                show_fix=options['show_questions_fix'])
+            self.check_answers(
+                show=options['show_answers'],
+                show_fix=options['show_answers_fix'])
         end_time = datetime.datetime.utcnow()
         delta = relativedelta(end_time, start_time)
         LOGGER.info("completed in %d hours, %d minutes, %d.%d seconds",
             delta.hours, delta.minutes, delta.seconds, delta.microseconds)
         self.stderr.write("completed in %d hours, %d minutes, %d.%d seconds\n"
             % (delta.hours, delta.minutes, delta.seconds, delta.microseconds))
+
+
+    def check_completed_notshared(self, show=False):
+        for campaign in Campaign.objects.all():
+            count = 0
+            queryset = get_engagement(campaign, accounts=None)
+            for val in queryset:
+                slug = val.account.slug
+                reporting_status = val.reporting_status
+                if reporting_status in ('completed-notshared',):
+                    count += 1
+                    if show:
+                        self.stdout.write('%d,%s,"%s","%s",%d,%s' % (
+                            val.pk, val.created_at.date(),
+                            slug, val.printable_name,
+                            val.grantee_id, reporting_status))
+            self.stderr.write("%d completed-notshared in campaign '%s'" % (
+                count, campaign))
 
 
     def check_portfolios(self, show=False, show_fix=False):

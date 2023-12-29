@@ -272,6 +272,11 @@ class GraphMixin(object):
                         organization_rate = distribution[2][0]
                 else:
                     assert normalized_score <= 100
+                    if normalized_score > 100:
+                        LOGGER.error(
+                            "normalized score for %s is above 100 (=%s)",
+                            account_id_str, normalized_score)
+                        continue
                     distribution[3][1] += 1
                     if is_view_account:
                         organization_rate = distribution[3][0]

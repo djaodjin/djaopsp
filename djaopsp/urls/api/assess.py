@@ -10,7 +10,8 @@ from ...api.assets import AssetAPIView
 from ...api.samples import (
     AssessmentContentAPIView, AssessmentContentIndexAPIView,
     AssessmentCompleteAPIView, AssessmentCompleteIndexAPIView,
-    SampleBenchmarksAPIView, SampleBenchmarksIndexAPIView)
+    SampleBenchmarksAPIView, SampleBenchmarksIndexAPIView,
+    SampleRecentCreateAPIView)
 
 
 urlpatterns = [
@@ -30,6 +31,9 @@ urlpatterns = [
     path('sample/<slug:sample>/benchmarks',
         SampleBenchmarksIndexAPIView.as_view(),
         name='survey_api_sample_benchmarks_index'),
+    path('sample',
+        SampleRecentCreateAPIView.as_view(),
+        name='survey_api_sample_list'),
     path('', include('survey.urls.api.sample')),
     path('', include('survey.urls.api.metrics')),
     path('', include('survey.urls.api.filters')),
