@@ -3,35 +3,38 @@
 from __future__ import unicode_literals
 
 import datetime, json, logging
+import openpyxl
 from io import BytesIO
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
+from django.core.exceptions import ValidationError
 from django.core.files.storage import get_storage_class
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from django.template.defaultfilters import slugify
+from django.views import View
 from django.views.generic import ListView
 from django.views.generic.base import (ContextMixin, RedirectView,
     TemplateResponseMixin, TemplateView)
-from django.template.defaultfilters import slugify
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.util import Inches, Pt
 
+from survey.api.sample import update_or_create_answer
 from survey.helpers import get_extra
-from survey.models import Choice, EditableFilter
+from survey.models import Choice, EditableFilter, Unit
 from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP, URL_PATH_SEP
 from survey.utils import get_question_model
 
 from .downloads import PracticesSpreadsheetView
-from ..scores import get_score_calculator
 from ..api.samples import AssessmentContentMixin
 from ..compat import reverse, six
-from ..mixins import AccountMixin, ReportMixin, SectionReportMixin
-
+from ..mixins import AccountMixin, ReportMixin, SectionReportMixin, CampaignMixin
+from ..scores import get_score_calculator
 
 LOGGER = logging.getLogger(__name__)
 
@@ -395,6 +398,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
                     points = float(answer.get('measured'))
         planned = entry.get('planned')
         if planned:
+            # Why for loop here?
             for answer in planned:
                 unit = answer.get('unit')
                 if unit and default_unit and unit.slug == default_unit:
@@ -458,6 +462,152 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
     def get_filename(self):
         return datetime_or_now().strftime("%s-%s-%%Y%%m%%d.xlsx" % (
             self.sample.account.slug, self.campaign.slug))
+
+
+class AssessPracticesXLSXUploadView(CampaignMixin, ReportMixin, View):
+    template_name = 'app/assess/upload_xlsx.html'
+    
+    def __init__(self, *args, **kwargs):
+        super(AssessPracticesXLSXUploadView, self).__init__(*args, **kwargs)
+        self._questions = None
+
+
+    def get(self, request, *args, **kwargs):
+        context = {
+            'profile': self.account,
+            'sample': self.sample.slug
+        }
+        # Currently a front-end view on its own page
+        # Need to evaluate if it needs to be a front-end view
+        # with a separate page or just a form
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        # Note: Downloaded XLSX doesn't get populated with questions until a 
+        # user has answered at least one question in the UI 
+        excel_file = request.FILES.get('upload_excel_file')
+        if not excel_file:
+            return HttpResponse("No file attached", status=400)
+
+        try:
+            if self.sample.is_frozen:
+                raise ValidationError({
+                    'detail': "cannot update answers in a frozen sample"})
+            self.process_uploaded_file(excel_file, request.user)
+            # Working on returning a list of answers created/updated and answers with invalid inputs
+            return HttpResponse("File processed successfully")
+        except Exception as e:
+            # Needs to be updated
+            return HttpResponse(str(e), status=500)
+
+    def process_uploaded_file(self, file, user):
+        workbook = openpyxl.load_workbook(file)
+        sheet = workbook.active
+        sample = self.sample
+        improvement_sample = self.improvement_sample
+        created_at = datetime_or_now()
+        for row in sheet.iter_rows(min_row=2):
+            spreadsheet_title = row[0].value
+            question = None
+            if spreadsheet_title:
+                question = self.get_question_by_title(spreadsheet_title)
+            if question:
+                # Adding improved processing logic here.
+                pass
+            # Note: Need to show correct "Choices/Unit" values to the users to use in the
+            # spreadsheet
+            assessed = row[1].value
+            planned = row[2].value
+            comment = row[3].value
+            
+            if question:
+                datapoint = {
+                    'measured': assessed,
+                    'unit': question.default_unit if question.default_unit else None
+                }
+
+                try:
+                    answer, created = update_or_create_answer(
+                        datapoint, question=question, sample=sample,
+                        created_at=created_at, collected_by=self.request.user)
+                    # Temporary print statements
+                    print(f"Answer {'created' if created else 'updated'}: {answer}")
+                except Exception as e:
+                    print(f"Error processing row: {e}")
+                
+                # Trying resetting all planned answers.
+                existing_answer = improvement_sample.answers.filter(question=question)
+                unit = question.default_unit if question.default_unit else None
+                if unit:
+                    existing_answer = existing_answer.filter(unit=unit)
+                existing_answer.delete()
+                if planned:
+                    # "No" answers in the spreadsheet are shown as checked boxes in
+                    # "Select for Improvement Plan." The field in the Spreadsheet has 
+                    # to be blank otherwise the box shows up as checked. Maybe a 
+                    # manual check to see if it's "No" then we treat it as blank?
+
+                    # Possible Bug: Opportunity score shows up as checkboxes and 
+                    # "Select for improvement plan" shows up as an empty column
+                    # when selecting any tab other than "Strategy & Governance" in "Planning" 
+                    # Tested with donny/kathryn/erin accounts on the ESG report. The 
+                    # "Strategy & Governance" tab shows up fine. 
+                    '''
+                    [Vue warn]: Error in nextTick: "TypeError: Cannot read properties of null (reading 'scrollIntoView')"
+                    found in
+                    ---> <CampaignQuestionsList>
+                    <Root>
+
+                    TypeError: Cannot read properties of null (reading 'scrollIntoView')
+                    at VueComponent.<anonymous> (assess-vue.js:277:26)
+                    at Array.<anonymous> (vue.js:3826:22)
+                    at flushCallbacks (vue.js:3748:20)
+                    '''
+                    planned_datapoint = {
+                        'measured': planned,
+                        'unit': unit
+                    }
+                    try:
+                        planned_answer, created = update_or_create_answer(
+                            planned_datapoint, question=question, sample=improvement_sample,
+                            created_at=created_at, collected_by=user)
+                        print(f"Planned Answer {'created' if created else 'updated'}: {planned_answer}")
+                    except Exception as e:
+                        print(f"Error processing planned answer for row: {e}")
+                
+                if comment:
+                    comment_datapoint = {
+                        'measured': comment,
+                        'unit': Unit.objects.get(slug='freetext')
+                    }
+                    try:
+                        comment_answer, created = update_or_create_answer(
+                            comment_datapoint, question=question, sample=sample,
+                            created_at=created_at, collected_by=user)
+                        print(f"Comment {'created' if created else 'updated'}: {comment_answer}")
+                    except Exception as e:
+                        print(f"Error processing planned answer for row: {e}")
+
+
+    def get_question_by_title(self, spreadsheet_title):
+        # Currently checking directly via titles, can use slugs in the spreadsheet or some
+        # other way
+        normalized_spreadsheet_title = spreadsheet_title.lower().strip()
+
+        for question in self.questions:
+            # Need to add check for EnumeratedQuestions to ensure the questions are active
+            normalized_question_title = question.content.title.lower().strip()
+            if normalized_question_title in normalized_spreadsheet_title:
+                return question
+
+        return None
+    
+    @property
+    def questions(self):
+        if self.sample and self._questions is None:
+            question_model = get_question_model()
+            self._questions = question_model.objects.filter(campaigns=self.sample.campaign)
+        return self._questions
 
 
 class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
