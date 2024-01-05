@@ -8,8 +8,8 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db import connection
-from django.db.models import F, Max, Min
-from rest_framework import generics
+from django.db.models import F, Q, Max, Min
+from rest_framework import generics, status
 from rest_framework import response as http
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.settings import api_settings
@@ -22,7 +22,8 @@ from survey.helpers import (construct_monthly_periods,
     construct_yearly_periods, construct_weekly_periods, period_less_than)
 from survey.api.matrix import BenchmarkMixin as BenchmarkMixinBase
 from survey.mixins import TimersMixin
-from survey.models import Answer, EditableFilter, PortfolioDoubleOptIn, Sample
+from survey.models import (Answer, EditableFilter, Portfolio,
+    PortfolioDoubleOptIn, Sample)
 from survey.pagination import MetricsPagination
 from survey.queries import as_sql_date_trunc, datetime_or_now
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
@@ -1385,6 +1386,38 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
         self._report_queries("http response created")
         return resp
 
+
+class PortfolioAccessiblesDeleteAPIView(generics.GenericAPIView):
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Removes access to profile data
+
+        **Tags**: reporting
+
+        **Examples
+
+        .. code-block:: http
+
+            DELETE /api/energy-utility/reporting/sustainability/accessibles\
+/supplier-1 HTTP/1.1
+
+        responds
+
+        204 No Content
+        """
+        profile_slug = self.kwargs.get('profile')
+        campaign_slug = self.kwargs.get('campaign')
+        account_slug = self.kwargs.get('account')
+        queryset = Portfolio.objects.filter(
+            Q(campaign__slug=campaign_slug) |
+            Q(campaign__isnull=True),
+            grantee__slug=profile_slug,
+            account__slug=account_slug)
+        LOGGER.info("remove %s from %s accessibles in campaign %s",
+            account_slug,  profile_slug, campaign_slug)
+        queryset.delete()
+        return http.Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):

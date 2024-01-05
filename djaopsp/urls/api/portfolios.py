@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -9,8 +9,8 @@ from django.urls import include, path
 from ...api.portfolios import (BenchmarkAPIView, BenchmarkIndexAPIView,
     CompareAPIView, CompareIndexAPIView,
     CompletedAssessmentsAPIView, CompletionRateAPIView, EngagementStatsAPIView,
-    PortfolioAccessibleSamplesAPIView, PortfolioEngagementAPIView,
-    TotalScoreBySubsectorAPIView)
+    PortfolioAccessibleSamplesAPIView, PortfolioAccessiblesDeleteAPIView,
+    PortfolioEngagementAPIView, TotalScoreBySubsectorAPIView)
 
 
 urlpatterns = [
@@ -31,6 +31,9 @@ urlpatterns = [
     path('reporting/<slug:campaign>/engagement',
         PortfolioEngagementAPIView.as_view(),
         name='api_portfolio_engagement'),
+    path('reporting/<slug:campaign>/accessibles/<slug:account>',
+        PortfolioAccessiblesDeleteAPIView.as_view(),
+        name='api_portfolio_accessibles_delete'),
     path('reporting/<slug:campaign>/accessibles',
         PortfolioAccessibleSamplesAPIView.as_view(),
         name='api_portfolio_accessible_samples'),

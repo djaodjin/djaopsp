@@ -683,8 +683,7 @@ Vue.component('reporting-organizations', {
         },
         remove: function ($event, idx) {
             var vm = this;
-            vm.reqDelete(vm._safeUrl(vm.$urls.api_accessibles,
-                vm.items.results[idx].slug),
+            vm.reqDelete(vm._safeUrl(vm.url, vm.items.results[idx].slug),
             function success(resp) {
                 vm.get();
             });
