@@ -1,0 +1,75 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+    <br>
+    <a href="{{ urls.sequence_progress_view }}">
+        Back to {{ sequence.slug }}
+    </a>
+
+    <h1>{{ element.page_element.title }}</h1>
+    {% if element.page_element.text %}
+        <hr>
+        <p>{{ element.page_element.text|safe }}</p>
+        <hr>
+    {% endif %}
+
+    {% if element.is_live_event %}
+        <p>Live Event URL: <a href="{{ urls.live_event_location }}">{{ urls.live_event_location }}</a></p>
+    
+    {% elif element.is_survey_event %}
+        <p>This is a Survey. </p>
+        <!-- Need to add more details about the Survey here -->
+    {% elif element.is_certificate %}
+        <p>This is a certificate. <a href="{{ urls.certificate_download }}">Download Certificate</a></p>
+    {% else %}
+        {% if not progress %}
+            <p>No progress yet!</p>
+            <section id="app">
+                <start-progress inline-template
+                    :sequence-slug="'{{ sequence.slug }}'"
+                    :user-username="'{{ request.user.username }}'"
+                    :element-rank="{{ element.rank }}">
+                    <div>
+                        <button id="startProgress" @click="startProgress">Start Progress</button>
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+
+                        <p>Click the button to start tracking your progress.</p>
+                    </div>
+                </start-progress>
+            </section>
+        {% else %}
+            <section id="app">
+                <viewing-timer inline-template
+                    :initial-duration="{{ viewing_duration_seconds }}"
+                    :rank="{{ element.rank }}"
+                    :sequence="'{{ sequence.slug }}'"
+                    :user="'{{ request.user.username }}'"
+                    :ping-interval="{{ ping_interval }}">
+                    <div>
+                        <label>Viewing Duration:</label> <span>[[ duration | formatDuration ]]</span>
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                    </div>
+                </viewing-timer>
+            </section>
+        {% endif %}
+    {% endif %}
+
+    {% if previous_element %}
+        <a href="{{ previous_element.url }}">
+            Previous
+        </a>
+    {% endif %}
+
+    {% if next_element %}
+        <a href="{{ next_element.url }}">
+            Next
+        </a>
+    {% endif %}
+    <br>
+
+{% endblock %}
+{% block app_bodyscripts %}
+    <script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
+    <script type="text/javascript" src="{{'/static/js/djaodjin-pages-vue.js'|asset}}"></script>
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ sequence.title }}</h2>
+<section id="app">
+    <sequence-items inline-template>
+        <div>
+            <div v-if="itemsLoaded">
+                <ul>
+                    {% for element in elements %}
+                    <li>
+                        {% if element.is_live_event %}
+                            <span class="live-event-label">
+                                <a href="{{ element.url }}">
+                            {{ element.title }}</a>({{ element.rank }}) -
+                                Live Event:</span>
+                        {% elif element.is_survey_event %}
+                            <span class="survey-event-label">
+                                <a href="{{ element.url }}">
+                            {{ element.title }}</a>({{ element.rank }}) -
+                                Survey:</span>
+                        {% elif element.is_certificate %}
+                            <span class="certificate-label">
+                            <a href="{{ urls.certificate_download }}">
+                                {{ element.title }}</a>({{ element.rank }}) - Certificate
+                            </span>
+                        {% else %}
+                        <a href="{{ element.url }}">
+                            {{ element.title }}</a>({{ element.rank }}) -
+
+                        <span v-if="items.results.some(item => item.rank === {{ element.rank }})">
+                            <template v-for="item in items.results">
+                                <span v-if="item.rank === {{ element.rank }}">
+                                    [[ item.viewing_duration | formatDuration ]]
+                                </span>
+                            </template>
+                        </span>
+                        <span v-else>
+                            No progress yet
+                        </span>
+                    {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+{#            {% include '_paginator.html' %}#}
+        </div>
+    </sequence-items>
+</section>
+{% endblock %}
+

@@ -15,9 +15,13 @@ from ...views.assess import TrackMetricsView, AssessPracticesView
 from ...views.content import ContentDetailView, ContentIndexView
 from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
     ScorecardRedirectView)
+from pages.views.elements import CertificateDownloadView
 
 
 urlpatterns = [
+    path('<slug:sequence>/certificate/',
+         CertificateDownloadView.as_view(),
+         name='certificate_download'),
     path('app/reporting/',
         AccountRedirectView.as_view(
             pattern_name='portfolio_engage'),
