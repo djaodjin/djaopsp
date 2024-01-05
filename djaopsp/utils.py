@@ -110,6 +110,12 @@ def _notified_recipients(notification_slug, context):
         user_email = context.get('grantee', {}).get('email', "")
         if user_email:
             recipients = [user_email]
+    elif notification_slug in ('sample_frozen_event'):
+        # This only gets a single email address and for the broker
+        # as well.
+        user_email = context.get('broker', {}).get('email', "")
+        if user_email:
+            recipients = [user_email]
 
     return recipients, bcc, reply_to
 

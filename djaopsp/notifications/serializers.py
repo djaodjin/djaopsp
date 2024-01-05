@@ -3,7 +3,7 @@
 
 from rest_framework import serializers
 from survey.api.serializers import (NoModelSerializer,
-    InviteeSerializer as ProfileSerializer, CampaignSerializer)
+    InviteeSerializer as ProfileSerializer, CampaignSerializer, SampleSerializer)
 
 from ..compat import gettext_lazy as _
 
@@ -59,3 +59,15 @@ class PortfolioNotificationSerializer(NotificationSerializer):
             'message',)
         read_only_fields = ('grantee', 'account', 'campaign',
             'last_completed_at',)
+
+class SampleFrozenNotificationSerializer(NotificationSerializer):
+    # Needs to be updated depending on how we end up
+    # getting the profile managers.
+    account = ProfileSerializer()
+    campaign = CampaignSerializer(required=False)
+    last_completed_at = serializers.CharField(required=False)
+    sample = SampleSerializer()
+
+    class Meta:
+        fields = ('account', 'campaign', 'last_completed_at', 'sample')
+
