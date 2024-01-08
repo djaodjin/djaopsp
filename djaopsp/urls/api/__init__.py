@@ -15,18 +15,16 @@ from ...api.content import (PageElementAPIView, PageElementIndexAPIView,
 from ...api.samples import RespondentsAPIView
 
 urlpatterns = [
-    path('sequences/',
+    path('sequences',
          SequenceListCreateAPIView.as_view(),
          name='api_sequence_list_create'),
-    path('sequences/<slug:sequence>/',
+    path('sequences/<slug:sequence>',
          SequenceRetrieveUpdateDestroyAPIView.as_view(),
          name='api_sequence_retrieve_update_destroy'),
-    path('sequences/<slug:sequence>/elements/',
+    path('sequences/<slug:sequence>/elements',
          AddElementToSequenceAPIView.as_view(),
          name='api_add_element_to_sequence'),
-    # Need to update path to allow adding using negative ranks
-    # Bugs out when using negative ranks.
-    re_path(r'sequences/(?P<sequence>[^/]+)/elements/(?P<rank>-?\d+)/',
+    re_path(r'sequences/(?P<sequence>[^/]+)/elements/(?P<rank>-?\d+)',
             RemoveElementFromSequenceAPIView.as_view(),
             name='api_remove_element_from_sequence'),
     path('respondents', RespondentsAPIView.as_view(),
