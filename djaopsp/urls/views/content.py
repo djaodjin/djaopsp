@@ -7,6 +7,7 @@ Views URLs
 from django.urls import path, re_path
 from ...views.content import (ContentDetailView, ContentIndexView, 
      SequenceProgressView, SequencePageElementView)
+from pages.views.elements import CertificateDownloadView
 
 
 urlpatterns = [
@@ -15,6 +16,9 @@ urlpatterns = [
     re_path(r'sequences/(?P<sequence>[^/]+)/(?P<rank>-?\d+)/',
           SequencePageElementView.as_view(),
           name='sequence_page_element_view'),
+    path('sequences/<slug:sequence>/certificate/',
+         CertificateDownloadView.as_view(),
+         name='certificate_download'),
     path('<path:path>/',
          ContentDetailView.as_view(), name='pages_element'),
     path('',
