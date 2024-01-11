@@ -170,16 +170,7 @@ def send_sample_frozen_notification(sender, sample, request, **kwargs):
 
     #pylint:disable=unused-argument
     LOGGER.debug("[signal] send_sample_frozen_notification(sample=%s)", sample)
-    
-    # Trying to figure out how exactly to access the profile managers.
-    # send_notification defaults to sending to the broker profile managers, but
-    # we need the sample's account's profile managers.
 
-    # Not sure if we use the Portfolio model and access
-    # its grantees based on whether their access is active(?)
-    # portfolios = Portfolio.objects.filter(account=sample.account, ends_at__lte=datetime.now())
-    # grantees = portfolios.values('grantee')
-    # and send an email to all of them
     broker = request.session.get('site', {})
     context = {
        'broker': {

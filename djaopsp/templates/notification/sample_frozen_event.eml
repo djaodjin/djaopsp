@@ -10,7 +10,7 @@ Sample Frozen Notification
 
 {% block html_content %}
 <p>Hello,</p>
-<p>A sample has been successfully frozen in your campaign <strong>{{ campaign.title }}</strong>.</p>
+<p>A sample has been successfully frozen in your campaign <strong>{% if sample.campaign %}{{sample.campaign.title}} {% endif %}</strong>.</p>
 <p>Details of the frozen sample:</p>
 <ul>
     <li>Account: {{ account.full_name }}</li>

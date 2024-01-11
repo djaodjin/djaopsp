@@ -61,13 +61,9 @@ class PortfolioNotificationSerializer(NotificationSerializer):
             'last_completed_at',)
 
 class SampleFrozenNotificationSerializer(NotificationSerializer):
-    # Needs to be updated depending on how we end up
-    # getting the profile managers.
     account = ProfileSerializer()
-    campaign = CampaignSerializer(required=False)
-    last_completed_at = serializers.CharField(required=False)
     sample = SampleSerializer()
 
     class Meta:
-        fields = ('account', 'campaign', 'last_completed_at', 'sample')
+        fields = ('account', 'sample')
 
