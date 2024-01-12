@@ -5,27 +5,13 @@ from pages.views.elements import PageElementView, PageElementEditableView
 from pages.views.sequences import (SequenceProgressView as BaseSequenceProgressView, 
     SequencePageElementView as BaseSequencePageElementView)
 
-from ..mixins import AccountMixin
-from ..models import SurveyEvent
+from ..mixins import AccountMixin, SequenceProgressMixin
 
-class SequenceProgressView(BaseSequenceProgressView):
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        elements = context.get('elements', [])
+class SequenceProgressView(SequenceProgressMixin, BaseSequenceProgressView):
+    pass
 
-        for element in elements:
-            element.is_survey_event = SurveyEvent.objects.filter(element=element.page_element).exists()
-        
-        context['elements'] = elements
-        
-        return context
-
-class SequencePageElementView(BaseSequencePageElementView):
-
-    def get_object(self, queryset=None):
-        element = super().get_object(queryset)
-        element.is_survey_event = SurveyEvent.objects.filter(element=element.page_element).exists()
-        return element
+class SequencePageElementView(SequenceProgressMixin, BaseSequencePageElementView):
+    pass
 
 class ContentIndexView(PageElementView):
     """
