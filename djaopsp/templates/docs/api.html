@@ -16,7 +16,7 @@
   </div>
   <div class="param-info{% if not (param.type == 'object' or param.type == 'array') %} param-builtin{% endif %}">
     <div>
-      <span class="param-type integer" title="">{{param.type}}</span>
+      <span class="param-type integer" title="">{% if param.type %}{{param.type}}{% else %}String{% endif %}</span>
       {% if not response and param.required %}
       <span class="param-required">required</span>
       {% endif %}

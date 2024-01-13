@@ -47,6 +47,13 @@ $jumbotron-shadow-end-color-dark: $jumbotron-shadow-start-color;
   display: none !important;
 }
 
+.password-toggle {
+  position: absolute;
+  top: 15%;
+  right: 10px;
+  cursor: pointer;
+}
+
 //.tick line {display: none;}
 header .nav-item {
   border-left: 1px solid #fff;

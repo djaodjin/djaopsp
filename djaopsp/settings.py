@@ -377,7 +377,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
-    'DEFAULT_SCHEMA_CLASS': 'djaopsp.views.api_docs.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'djaopsp.api_docs.schemas.AutoSchema',
     'EXCEPTION_HANDLER': 'djaopsp.views.errors.drf_exception_handler',
     'SEARCH_PARAM': 'q',
     'PAGE_SIZE': 25,

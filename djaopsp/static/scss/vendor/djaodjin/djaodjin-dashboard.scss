@@ -36,6 +36,26 @@ $box-shadow-color:              rgba(0, 0, 0, 0.05);
   background-color: #ddd;
 }
 
+// Profile and user pictures
+// -------------------------
+.croppa-container {
+   background-color: transparent;
+   margin-bottom: 25px;
+}
+
+.croppa--has-target {
+  background-color: white;
+}
+
+.imageSlider {
+  width: 25rem;
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: block;
+}
+
 // Code snipset in theme and rules pages
 // -------------------------------------
 .code {

@@ -88,13 +88,22 @@ class AccountMixin(deployutils_mixins.AccountMixin):
     @property
     def campaign_candidates(self):
         """
-        Returns a list of campaigns that can an account
-        can answer against.
+        Returns a list of campaigns that can an account can answer against.
+
+        Implementation note: The queiry filter is using the profiles/roles
+        passed through the HTTP `request`. As a result, the candidates are
+        consistant when there is a direct relationship between the {account}
+        specified in the URL and the authenticated user.
+        Results are inconsistent for broker profile managers accessing other
+        accounts.
         """
         if not hasattr(self, '_campaign_candidates'):
             filtered_in = None
             #pylint:disable=superfluous-parens
-            for visible in (set(['public']) | self.accessible_plans):
+            for visible in (set(['public']) | set([plan['slug']
+                    for plan in self.get_accessible_plans(
+                            self.request, profile=self.kwargs.get(
+                            self.account_url_kwarg))])):
                 visibility_q = Q(extra__contains=visible)
                 if filtered_in:
                     filtered_in |= visibility_q

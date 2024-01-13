@@ -43,7 +43,7 @@ else:
 
 if settings.API_DEBUG:
     from rest_framework.schemas import get_schema_view
-    from ..views.api_docs import APIDocView
+    from ..api_docs.views import APIDocView
     urlpatterns += [
         path(r'docs/api/schema/', get_schema_view(
             title="DjaoPsp API",
