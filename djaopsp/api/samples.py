@@ -162,9 +162,8 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
         for answer in answers:
             correct_answers_list = answer.question.get_correct_answer()
             # Here we add a comparison to check if the answer is correct
-            # Not sure how Answer.measured relates to the correct answer
-            if answer.measured in correct_answers_list:
-                # Not sure this works
+            # Not sure if this is how Answer.measured relates to the correct answer
+            if answer.measured_text in correct_answers_list:
                 ans_score = answer.question.correct_answers.points_per_answer
                 score += ans_score
         # How should we return the score?
