@@ -18,7 +18,7 @@ from survey.api.sample import (
 from survey.api.matrix import SampleBenchmarkMixin
 from survey.filters import OrderingFilter, SearchFilter
 from survey.mixins import SampleMixin, TimersMixin
-from survey.models import Choice, Sample, Unit, UnitEquivalences
+from survey.models import Choice, Sample, Unit, UnitEquivalences, Answer
 from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_benchmarks_enumerated
@@ -155,6 +155,19 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                             frozen_assessment_sample, calculator,
                             segment_path, segment_title)
             self._report_queries("freezing assessment: scorecard cache created")
+
+        score = 0
+
+        answers = Answer.objects.get_frozen_answers(self.campaign, self.sample)
+        for answer in answers:
+            correct_answers_list = answer.question.get_correct_answer()
+            # Here we add a comparison to check if the answer is correct
+            # Not sure how Answer.measured relates to the correct answer
+            if answer.measured in correct_answers_list:
+                # Not sure this works
+                ans_score = answer.question.correct_answers.points_per_answer
+                score += ans_score
+        # How should we return the score?
 
         # Next step in the assessment. After complete, scorecard is optional.
         next_url = reverse('share', args=(

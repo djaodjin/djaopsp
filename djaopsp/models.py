@@ -4,7 +4,7 @@
 from django.conf import settings as django_settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from survey.models import Sample, get_extra_field_class
+from survey.models import Sample, Question, Choice, get_extra_field_class
 
 from .compat import python_2_unicode_compatible
 
@@ -99,3 +99,18 @@ class VerifiedSample(models.Model):
 
     def __str__(self):
         return str(self.sample.slug)
+
+
+class CorrectAnswer(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE,
+        related_name='correct_answers')
+    points_per_answer = models.IntegerField(default=1)
+    # Should we define a new correct_answer field or use the one
+    # that exists in the Question model?
+
+    def __str__(self):
+        return f"Correct Answer for {self.question}: {self.question.correct_answer}"
+
+    @property
+    def correct_answer(self):
+        return self.question.correct_answer
