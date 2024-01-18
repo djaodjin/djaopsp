@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 #pylint:disable=too-many-lines
 
@@ -17,6 +17,7 @@ from pages.models import PageElement
 from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
 from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
+from survey.docs import extend_schema
 from survey.filters import DateRangeFilter, OrderingFilter, SearchFilter
 from survey.helpers import (construct_monthly_periods,
     construct_yearly_periods, construct_weekly_periods, period_less_than)
@@ -294,6 +295,11 @@ class BenchmarkIndexAPIView(BenchmarkAPIView):
           "results": []
         }
     """
+
+    @extend_schema(operation_id='reporting_benchmarks_index')
+    def get(self, request, *args, **kwargs):
+        return super(BenchmarkIndexAPIView, self).get(
+            request, *args, **kwargs)
 
 
 class SupplierListMixin(ScoresMixin, AccountsNominativeQuerysetMixin):
@@ -1085,6 +1091,11 @@ class CompareIndexAPIView(CompareAPIView):
         }
     """
 
+    @extend_schema(operation_id='reporting_compare_index')
+    def get(self, request, *args, **kwargs):
+        return super(CompareIndexAPIView, self).get(
+            request, *args, **kwargs)
+
 
 class PortfolioAccessibleSamplesMixin(TimersMixin, CampaignMixin,
                                       AccountsNominativeQuerysetMixin):
@@ -1475,7 +1486,8 @@ class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
             param_states = [param.strip() for param in params]
         # validate states
         states = []
-        valid_states = set(EngagementSerializer.REPORTING_STATUS)
+        valid_states = set([status[1]
+            for status in EngagementSerializer.REPORTING_STATUSES])
         for state in param_states:
             if state in valid_states:
                 states += [state]
@@ -1755,15 +1767,30 @@ class EngagementStatsMixin(DashboardAggregateMixin):
         grantees = None # XXX should be all members for alliances but no more
         if account == self.account:
             grantees = [account]
+
+        last_date = datetime_or_now(self.accounts_ends_at)
+        if self.accounts_start_at:
+            first_date = self.accounts_start_at
+        else:
+            first_date = last_date - relativedelta(months=4)
+        weekends_at = construct_weekly_periods(
+            first_date, last_date)
+
         engagement = get_engagement_by_reporting_status(
             self.campaign, requested_accounts,
-            grantees=grantees, start_at=self.start_at, ends_at=self.ends_at)
+            grantees=grantees, start_at=weekends_at[0], ends_at=weekends_at[-1])
 
-        stats = {key: 0
-            for key in EngagementSerializer.REPORTING_STATUS.values()}
+        COLLAPSED_REPORTING_STATUSES = {
+            EngagementSerializer.REPORTING_INVITED_DENIED: "Invited",
+            EngagementSerializer.REPORTING_INVITED: "Invited",
+            EngagementSerializer.REPORTING_UPDATED: "Work-in-progress",
+            EngagementSerializer.REPORTING_COMPLETED_DENIED: "Completed",
+            EngagementSerializer.REPORTING_COMPLETED_NOTSHARED: "Completed",
+            EngagementSerializer.REPORTING_COMPLETED: "Completed",
+        }
+        stats = {key: 0 for key in COLLAPSED_REPORTING_STATUSES.values()}
         for reporting_status, val in six.iteritems(engagement):
-            humanized_status = \
-                EngagementSerializer.REPORTING_STATUS[reporting_status]
+            humanized_status = COLLAPSED_REPORTING_STATUSES[reporting_status]
             stats[humanized_status] += val
 
         if self.unit == 'percentage':

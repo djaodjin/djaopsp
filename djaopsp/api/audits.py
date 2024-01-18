@@ -419,51 +419,11 @@ class VerifiedStatsAPIView(CompletionRateMixin, generics.RetrieveAPIView):
     """
     def get_response_data(self, request, *args, **kwargs):
         #pylint:disable=unused-argument,too-many-locals
-        account = self.account
-        last_date = datetime_or_now(self.accounts_ends_at)
-        if self.accounts_start_at:
-            first_date = self.accounts_start_at
-        else:
-            first_date = last_date - relativedelta(months=4)
-        weekends_at = construct_weekly_periods(
-            first_date, last_date, years=0)
-        if len(weekends_at) < 2:
-            # Not enough time periods
-            return []
-
-        completed_values = []
-        verified_values = []
-        requested_accounts = self.get_requested_accounts(
-            account, aggregate_set=False)
-        start_at = weekends_at[0]
-        frozen_samples_kwargs = {}
-        if str(self.account) not in settings.UNLOCK_BROKERS:
-            frozen_samples_kwargs = {'account_id__in': requested_accounts}
-        for ends_at in weekends_at[1:]:
-            frozen_samples = Sample.objects.filter(
-                extra__isnull=True,
-                is_frozen=True,
-                created_at__gte=start_at,
-                created_at__lt=ends_at,
-                **frozen_samples_kwargs)
-            nb_verified_samples = VerifiedSample.objects.filter(
-                sample__in=frozen_samples,
-                verified_status__gte=VerifiedSample.STATUS_REVIEW_COMPLETED
-            ).count()
-            nb_frozen_samples = frozen_samples.count()
-
-            if self.is_percentage:
-                rate = as_percentage(nb_frozen_samples, nb_frozen_samples)
-            else:
-                rate = nb_frozen_samples
-            completed_values += [(ends_at, rate)]
-            if self.is_percentage:
-                rate = as_percentage(nb_verified_samples, nb_frozen_samples)
-            else:
-                rate = nb_verified_samples
-            verified_values += [(ends_at, rate)]
-            start_at = ends_at
-
+        completed_values, verified_values = completed_verified_by_week(
+            self.account, campaign=self.campaign,
+            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
+            search_terms=self.search_terms,
+            as_percentage=self.is_percentage)
         table = [{
             'slug': 'completed',
             'title': _('Completed'),
@@ -483,3 +443,61 @@ class VerifiedStatsAPIView(CompletionRateMixin, generics.RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         resp = self.get_response_data(request, *args, **kwargs)
         return http.Response(resp)
+
+
+def completed_verified_by_week(grantee, campaign=None,
+                               start_at=None, ends_at=None, search_terms=None,
+                               as_percentage=False):
+    """
+    Returns two lists with completed and verified samples per week.
+    """
+    last_date = datetime_or_now(ends_at)
+    if start_at:
+        first_date = start_at
+    else:
+        first_date = last_date - relativedelta(months=4)
+
+    completed_values = []
+    verified_values = []
+    weekends_at = construct_weekly_periods(first_date, last_date, years=0)
+    if len(weekends_at) < 2:
+        # Not enough time periods
+        return completed_values, verified_values
+
+    period_start_at = weekends_at[0]
+    frozen_samples_kwargs = {}
+    if campaign:
+        frozen_samples_kwargs.update({'campaign': campaign})
+    if str(grantee) not in settings.UNLOCK_BROKERS:
+        requested_accounts = get_requested_accounts(grantee,
+            campaign=campaign, aggregate_set=False,
+            start_at=start_at, ends_at=ends_at,
+            search_terms=search_terms)
+        frozen_samples_kwargs.update({'account_id__in': requested_accounts})
+    for period_ends_at in weekends_at[1:]:
+        frozen_samples = Sample.objects.filter(
+            extra__isnull=True,
+            is_frozen=True,
+            created_at__gte=period_start_at,
+            created_at__lt=period_ends_at,
+            **frozen_samples_kwargs)
+        print("XXX frozen_samples.query=%s" % str(frozen_samples.query))
+        nb_verified_samples = VerifiedSample.objects.filter(
+            sample__in=frozen_samples,
+            verified_status__gte=VerifiedSample.STATUS_REVIEW_COMPLETED
+        ).count()
+        nb_frozen_samples = frozen_samples.count()
+        period_start_at = period_ends_at
+
+        if as_percentage:
+            rate = as_percentage(nb_frozen_samples, nb_frozen_samples)
+        else:
+            rate = nb_frozen_samples
+        completed_values += [(period_ends_at, rate)]
+        if as_percentage:
+            rate = as_percentage(nb_verified_samples, nb_frozen_samples)
+        else:
+            rate = nb_verified_samples
+        verified_values += [(period_ends_at, rate)]
+
+    return completed_values, verified_values

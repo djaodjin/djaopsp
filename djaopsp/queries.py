@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 """
 This file contains SQL statements as building blocks for benchmarking
@@ -11,7 +11,7 @@ from survey.queries import as_sql_date_trunc, is_sqlite3
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
 
-from .api.serializers import ReportingSerializer
+from .api.serializers import EngagementSerializer, ReportingSerializer
 from .models import ScorecardCache
 from .scores import get_score_calculator
 
@@ -237,10 +237,10 @@ SELECT DISTINCT
   requests.grantee_id AS grantee_id,
   CASE WHEN (portfolios.ends_at IS NOT NULL AND
              last_valid_completed.last_updated_at <= portfolios.ends_at)
-           THEN 'completed'
+           THEN %(REPORTING_COMPLETED)s
        WHEN requests.state = %(optin_request_denied)d
-           THEN 'completed-denied'
-       ELSE 'completed-notshared' END AS reporting_status
+           THEN %(REPORTING_COMPLETED_DENIED)s
+       ELSE %(REPORTING_COMPLETED_NOTSHARED)s END AS reporting_status
 FROM survey_sample
 INNER JOIN last_valid_completed
 ON survey_sample.account_id = last_valid_completed.account_id AND
@@ -263,7 +263,7 @@ SELECT DISTINCT
   survey_sample.id,
   survey_sample.slug,
   survey_sample.updated_at,
-  'updated' AS reporting_status
+  %(REPORTING_UPDATED)s AS reporting_status
 FROM survey_sample INNER JOIN (
   SELECT
     survey_sample.account_id,
@@ -314,7 +314,8 @@ SELECT
     completed_by_accounts.reporting_status,
     updated_by_accounts.reporting_status,
     CASE WHEN requests.state = %(optin_request_denied)d
-        THEN 'invited-denied' ELSE 'invited' END) AS reporting_status,
+        THEN %(REPORTING_INVITED_DENIED)s
+        ELSE %(REPORTING_INVITED)s END) AS reporting_status,
   COALESCE(
     completed_by_accounts.created_at,
     updated_by_accounts.updated_at,
@@ -350,6 +351,14 @@ ON engaged.account_id = %(accounts_table)s.id
     'optin_request_expired': PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED,
     'optin_request_denied': PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED,
     'accounts_table': get_account_model()._meta.db_table,
+    'REPORTING_INVITED_DENIED': EngagementSerializer.REPORTING_INVITED_DENIED,
+    'REPORTING_INVITED': EngagementSerializer.REPORTING_INVITED,
+    'REPORTING_UPDATED': EngagementSerializer.REPORTING_UPDATED,
+    'REPORTING_COMPLETED': EngagementSerializer.REPORTING_COMPLETED,
+    'REPORTING_COMPLETED_DENIED': \
+        EngagementSerializer.REPORTING_COMPLETED_DENIED,
+    'REPORTING_COMPLETED_NOTSHARED': \
+        EngagementSerializer.REPORTING_COMPLETED_NOTSHARED,
     }
     return sql_query
 
@@ -366,10 +375,17 @@ def get_engagement(campaign, accounts,
 
 def get_engagement_by_reporting_status(campaign, accounts,
                                 grantees=None, start_at=None, ends_at=None):
+    # Implementation note: We use the order defined in
+    # `EngagementSerializer.REPORTING_STATUSES` to collapse to a single
+    # reporting_status when an account managed reporting to multiple grantees
+    # differently.
     sql_query = """
+WITH uniq_engagement AS (
+SELECT account_id, MAX(reporting_status) AS reporting_status
+FROM (%(engagement_sql)s) AS engagement GROUP BY account_id
+)
 SELECT reporting_status, COUNT(account_id)
-FROM (SELECT DISTINCT account_id, reporting_status FROM (%(engagement_sql)s)
-  AS engagement) AS uniq_engagement
+FROM uniq_engagement
 GROUP BY reporting_status
     """ % {'engagement_sql': _get_engagement_sql(
         campaign, accounts, grantees=grantees,

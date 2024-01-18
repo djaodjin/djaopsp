@@ -406,26 +406,30 @@ class AccessiblesSerializer(TableSerializer):
 
 class EngagementSerializer(AccountSerializer):
 
-    REPORTING_INVITED = 'invited'
-    REPORTING_UPDATED = 'updated'
-    REPORTING_COMPLETED = 'completed'
-    REPORTING_COMPLETED_DENIED = 'completed-denied'
-    REPORTING_COMPLETED_NOTSHARED = 'completed-notshared'
-    REPORTING_INVITED_DENIED = 'invited-denied'
+    # Implementation Note: We use the following natural order of these
+    # reporting_status definition in `get_engagement_by_reporting_status`
+    # to collapse reporting_status to a single value when an account's response
+    # has been requested by multiple grantees.
+    REPORTING_INVITED_DENIED = -1
+    REPORTING_INVITED = 0
+    REPORTING_UPDATED = 1
+    REPORTING_COMPLETED_DENIED = 2
+    REPORTING_COMPLETED_NOTSHARED = 3
+    REPORTING_COMPLETED = 4
 
-    REPORTING_STATUS = {
-        'invited': "Invited",
-        'updated': "Work-in-progress",
-        'completed': "Completed",
-        'completed-denied': "Completed",
-        'completed-notshared': "Completed",
-        'invited-denied': "Invited"
-    }
+    REPORTING_STATUSES = (
+        (REPORTING_INVITED_DENIED, 'invited-denied'),
+        (REPORTING_INVITED, 'invited'),
+        (REPORTING_UPDATED, 'updated'),
+        (REPORTING_COMPLETED_DENIED, 'completed-denied'),
+        (REPORTING_COMPLETED_NOTSHARED, 'completed-notshared'),
+        (REPORTING_COMPLETED, 'completed'),
+    )
 
     sample = serializers.SlugField(required=False)
     score_url = serializers.SerializerMethodField(
         help_text=_("link to the scorecard"))
-    reporting_status = serializers.CharField(required=False,
+    reporting_status = EnumField(choices=REPORTING_STATUSES,
         help_text=_("current reporting status"))
     last_activity_at = serializers.DateTimeField(required=False,
         allow_null=True,
