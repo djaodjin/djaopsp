@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 import copy, logging
@@ -16,6 +16,7 @@ from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
 from survey.api.sample import (
     SampleRecentCreateAPIView as SampleRecentCreateBaseAPIView)
 from survey.api.matrix import SampleBenchmarkMixin
+from survey.docs import extend_schema
 from survey.filters import OrderingFilter, SearchFilter
 from survey.mixins import SampleMixin, TimersMixin
 from survey.models import Choice, Sample, Unit, UnitEquivalences
@@ -169,6 +170,7 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
 
 class AssessmentCompleteIndexAPIView(AssessmentCompleteAPIView):
 
+    @extend_schema(operation_id='sample_freeze_create_index')
     def post(self, request, *args, **kwargs):
         """
         Freezes answers
@@ -692,6 +694,11 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
         }
     """
 
+    @extend_schema(operation_id='sample_content_index')
+    def get(self, request, *args, **kwargs):
+        return super(AssessmentContentIndexAPIView, self).get(
+            request, *args, **kwargs)
+
 
 class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
                               SampleBenchmarkMixin,
@@ -745,14 +752,14 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
              {
                 "slug":"energy-efficiency-management-basics",
                 "title":"Management",
-                "text":"/media/envconnect/management-basics.png",
+                "text":"/media/djaopsp/management-basics.png",
                 "tag":"management",
                 "score_weight":1.0
              },
              {
                 "slug":"process-heating",
                 "title":"Process heating",
-                "text":"/media/envconnect/process-heating.png",
+                "text":"/media/djaopsp/process-heating.png",
                 "nb_questions": 4,
                 "nb_answers": 4,
                 "nb_respondents": 2,
@@ -924,14 +931,12 @@ class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
              {
                 "slug":"energy-efficiency-management-basics",
                 "title":"Management",
-                "text":"/media/envconnect/management-basics.png",
                 "tag":"management",
                 "score_weight":1.0
              },
              {
                 "slug":"process-heating",
                 "title":"Process heating",
-                "text":"/media/envconnect/process-heating.png",
                 "nb_questions": 4,
                 "nb_answers": 4,
                 "nb_respondents": 2,
@@ -952,6 +957,11 @@ class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
              }]
         }
     """
+
+    @extend_schema(operation_id='sample_benchmarks_index')
+    def get(self, request, *args, **kwargs):
+        return super(SampleBenchmarksIndexAPIView, self).get(
+            request, *args, **kwargs)
 
 
 def attach_answers(units, questions_by_key, queryset,

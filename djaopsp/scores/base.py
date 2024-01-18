@@ -379,8 +379,7 @@ def populate_rollup(rollup_tree, normalize_to_one, force_score=False):
                     "title": "Production",
                     "tag": "{\"tags\":[\"scorecard\"]}",
                     "score_weight": 1.0,
-                    "transparent_to_rollover": false,
-                    "text": "/envconnect/static/img/production.png"
+                    "transparent_to_rollover": false
                 },
                 {
                     "/boxes-and-enclosures/production/energy-efficiency": [{

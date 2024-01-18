@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -15,6 +15,7 @@ from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from survey.docs import extend_schema
 from survey.mixins import QuestionMixin
 from survey.models import EnumeratedQuestions
 from survey.utils import get_question_model, get_question_serializer
@@ -186,7 +187,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
 
         .. code-block:: http
 
-            GET /api/content/editables/alliance/campaigns/sustainability/segments\
+            GET /api/editables/alliance/campaigns/sustainability/segments\
      HTTP/1.1
 
         responds
@@ -245,7 +246,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
 
         .. code-block:: http
 
-            POST /api/content/editables/alliance/campaigns/sustainability\
+            POST /api/editables/alliance/campaigns/sustainability\
 /segments HTTP/1.1
 
         .. code-block:: json
@@ -290,7 +291,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
 
         .. code-block:: http
 
-            GET /api/content/editables/envconnect/campaigns/sustainability HTTP/1.1
+            GET /api/editables/djaopsp/campaigns/sustainability HTTP/1.1
 
         responds
 
@@ -338,6 +339,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
         serializer = self.get_serializer(results, many=True)
         return Response({'results': serializer.data})
 
+    @extend_schema(operation_id='editables_campaigns_create_index')
     def post(self, request, *args, **kwargs):
         """
         Creates a practice
@@ -351,7 +353,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
 
         .. code-block:: http
 
-            POST /api/content/editables/alliance/campaigns/sustainability \
+            POST /api/editables/alliance/campaigns/sustainability \
  HTTP/1.1
 
         .. code-block:: json
@@ -471,7 +473,7 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
 
         .. code-block:: http
 
-            POST /api/content/editables/alliance/campaigns/sustainability\
+            POST /api/editables/alliance/campaigns/sustainability\
 /upload HTTP/1.1
 
             Content-Disposition: form-data; name="file"; filename="sustainability.csv"
@@ -542,7 +544,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
     .. code-block:: http
 
-        GET /api/content/editables/envconnect/campaigns/sustainability\
+        GET /api/editables/djaopsp/campaigns/sustainability\
 /construction/governance/the-assessment-process-is-rigorous HTTP/1.1
 
     responds
@@ -573,7 +575,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
         .. code-block:: http
 
-            DELETE /api/content/editables/alliance/campaigns/sustainability \
+            DELETE /api/editables/alliance/campaigns/sustainability \
  HTTP/1.1
         """
         #pylint:disable=useless-super-delegation
@@ -592,7 +594,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
         .. code-block:: http
 
-            POST /api/content/editables/alliance/campaigns/sustainability \
+            POST /api/editables/alliance/campaigns/sustainability \
  HTTP/1.1
 
         .. code-block:: json
@@ -629,7 +631,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
         .. code-block:: http
 
-            POST /api/content/editables/alliance/campaigns/sustainability \
+            POST /api/editables/alliance/campaigns/sustainability \
  HTTP/1.1
 
         .. code-block:: json

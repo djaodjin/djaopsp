@@ -1,8 +1,9 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 from pages.api.elements import (PageElementAPIView as PageElementBaseAPIView,
     PageElementEditableListAPIView as PageElementEditableListBaseAPIView)
+from survey.docs import extend_schema
 from survey.utils import get_question_model
 
 from .serializers import ContentElementSerializer
@@ -91,7 +92,7 @@ class PageElementIndexAPIView(PageElementAPIView):
 
     .. code-block:: http
 
-        GET /api/content/ HTTP/1.1
+        GET /api/content HTTP/1.1
 
     responds
 
@@ -124,6 +125,11 @@ class PageElementIndexAPIView(PageElementAPIView):
         }
     """
 
+    @extend_schema(operation_id='content_index')
+    def get(self, request, *args, **kwargs):
+        return super(PageElementIndexAPIView, self).get(
+            request, *args, **kwargs)
+
 
 class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
     """
@@ -138,7 +144,7 @@ class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
 
     .. code-block:: http
 
-        GET /api/content/editables/alliance HTTP/1.1
+        GET /api/editables/alliance/content HTTP/1.1
 
     responds
 
@@ -202,6 +208,7 @@ class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
     """
     account_url_kwarg = 'profile'
 
+    @extend_schema(operation_id='editables_content_index')
     def post(self, request, *args, **kwargs):
         """
         Creates a page element
@@ -212,7 +219,7 @@ class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
 
         .. code-block:: http
 
-            POST /api/content/editables/alliance HTTP/1.1
+            POST /api/editables/alliance/content HTTP/1.1
 
         .. code-block:: json
 
