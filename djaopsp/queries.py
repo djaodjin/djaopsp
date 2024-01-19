@@ -889,7 +889,7 @@ def segments_as_sql(segments):
                 }
     return segments_query
 
-def get_portfolios_frozen_assessments(grantee=None, 
+def get_portfolios_frozen_assessments(grantees=None, 
                                      campaign=None, 
                                      start_at=None, 
                                      ends_at=None):
@@ -897,8 +897,11 @@ def get_portfolios_frozen_assessments(grantee=None,
     ends_at = datetime_or_now(ends_at)
 
     portfolio_filter_args = {'ends_at__lte': ends_at}
-    if grantee:
-        portfolio_filter_args['grantee__slug'] = grantee
+    if grantees:
+        if isinstance(grantees, list):
+            portfolio_filter_args['grantee__slug__in'] = grantees
+        else:
+            portfolio_filter_args['grantee__slug'] = grantees
     if campaign:
         portfolio_filter_args['campaign__slug'] = campaign
 

@@ -26,9 +26,9 @@ class Command(BaseCommand):
                             action='store',
                             help='Slug of the campaign',
                             default=None)
-        parser.add_argument('--grantee',
-                            action='store',
-                            help='Slug of grantee')
+        parser.add_argument('--grantees',
+                            nargs='+',
+                            help='Slug(s) of grantee(s)')
         parser.add_argument('--starts_at',
                             action='store',
                             help='Start date, in YYYY-MM-DD format')
@@ -38,7 +38,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         campaign_slug = options['campaign']
-        grantee = options['grantee']
+        grantees = options.get('grantees', [])
         ends_at = datetime_or_now(options['ends_at'])
         starts_at = datetime_or_now(options['starts_at']) if options['starts_at'] \
                 else ends_at - relativedelta(weeks=1)
@@ -54,11 +54,11 @@ class Command(BaseCommand):
         filter_args = {}
         if campaign:
             filter_args['campaign'] = campaign
-        if grantee:
-            filter_args['grantee'] = grantee
+        if grantees:
+            filter_args['grantees'] = grantees
 
-        if not campaign and not grantee:
-            raise ValueError("Either 'campaign' or 'grantee' must be provided")
+        if not campaign and not grantees:
+            raise ValueError("Either 'campaign' or 'grantees' must be provided")
 
         _, completed_surveys, campaigns = get_portfolios_frozen_assessments(
              **filter_args)
