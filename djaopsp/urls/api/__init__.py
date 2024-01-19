@@ -16,19 +16,23 @@ from ...api.samples import RespondentsAPIView
 urlpatterns = [
     path('respondents', RespondentsAPIView.as_view(),
          name='api_respondents'),
-    path('content/editables/<slug:profile>',
+    path('editables/<slug:profile>/content',
         PageElementEditableListAPIView.as_view(),
         name="pages_api_editables_index"),
-    path('content/editables/<slug:profile>/',
+    path('editables/<slug:profile>/',
          include('djaopsp.urls.api.editors')),
+    path('attendance/', include('pages.urls.api.sequences')),
+
+    path('progress/', include('pages.urls.api.progress')),
     path('content/', include('pages.urls.api.readers')),
+
     path('content/search',
         PageElementSearchAPIView.as_view(), name='api_page_element_search'),
     path('content/detail/<path:path>',
         PageElementDetailAPIView.as_view(), name='pages_api_pageelement'),
     path('content/<path:path>',
         PageElementAPIView.as_view(), name="api_content"),
-    path('content/',
+    path('content',
          PageElementIndexAPIView.as_view(), name="api_content_index"),
     path('', include('survey.urls.api.noauth')),
 

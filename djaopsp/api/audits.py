@@ -481,7 +481,6 @@ def completed_verified_by_week(grantee, campaign=None,
             created_at__gte=period_start_at,
             created_at__lt=period_ends_at,
             **frozen_samples_kwargs)
-        print("XXX frozen_samples.query=%s" % str(frozen_samples.query))
         nb_verified_samples = VerifiedSample.objects.filter(
             sample__in=frozen_samples,
             verified_status__gte=VerifiedSample.STATUS_REVIEW_COMPLETED
