@@ -100,7 +100,8 @@ def _notified_recipients(notification_slug, context):
         originated_by = {}
 
     if notification_slug in (
-            'portfolios_request_initiated',):
+            'portfolios_request_initiated',
+            'sample_frozen_event'):
         user_email = context.get('account', {}).get('email', "")
         if user_email:
             recipients = [user_email]

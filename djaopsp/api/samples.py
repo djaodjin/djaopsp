@@ -31,6 +31,7 @@ from ..pagination import BenchmarksPagination
 from ..queries import get_scored_assessments
 from ..scores import (freeze_scores, get_score_calculator,
     populate_scorecard_cache)
+from ..signals import sample_frozen
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignContentMixin
 from .rollups import GraphMixin, RollupMixin
@@ -156,6 +157,9 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                             frozen_assessment_sample, calculator,
                             segment_path, segment_title)
             self._report_queries("freezing assessment: scorecard cache created")
+        
+        # After a sample is frozen, send the signal.
+        sample_frozen.send(sender=self.__class__, sample=frozen_assessment_sample, request=request)
 
         # Next step in the assessment. After complete, scorecard is optional.
         next_url = reverse('share', args=(

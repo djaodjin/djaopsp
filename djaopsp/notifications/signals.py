@@ -8,9 +8,10 @@ from survey.signals import (portfolios_grant_initiated,
     portfolios_request_initiated, portfolio_request_accepted)
 
 from ..compat import reverse
+from ..signals import sample_frozen
 from ..utils import send_notification, get_latest_completed_assessment
 from .serializers import (PortfolioGrantInitiatedSerializer,
-    PortfolioNotificationSerializer)
+    PortfolioNotificationSerializer, SampleFrozenNotificationSerializer)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -158,3 +159,32 @@ def portfolio_request_accepted_notice(sender, portfolio, request, **kwargs):
     }
     send_notification('portfolio_request_accepted',
         context=PortfolioNotificationSerializer().to_representation(context))
+
+
+@receiver(sample_frozen,
+    dispatch_uid="sample_frozen")
+def send_sample_frozen_notification(sender, sample, request, **kwargs):
+
+    back_url = request.build_absolute_uri(reverse('scorecard',
+        args=(sample.account, sample)))
+
+    #pylint:disable=unused-argument
+    LOGGER.debug("[signal] send_sample_frozen_notification(sample=%s)", sample)
+
+    broker = request.session.get('site', {})
+    context = {
+       'broker': {
+            'slug': settings.APP_NAME,
+            'full_name': broker.get('printable_name'),
+            'printable_name': broker.get('printable_name'),
+            'email': broker.get('email')
+        },
+        'account': sample.account,
+        'back_url': back_url,
+        'campaign': sample.campaign,
+        'originated_by': request.user,
+        'sample': sample
+    }
+
+    send_notification('sample_frozen_event',
+        context=SampleFrozenNotificationSerializer().to_representation(context))
