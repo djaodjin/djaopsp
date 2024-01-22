@@ -4204,5 +4204,107 @@
     "account": 3
   },
   "model": "pages.PageElement", "pk": 600
-}
+},
+  {
+    "fields": {
+      "title": "Text Content",
+      "slug": "text-content",
+      "text": "<p>Some text content here.</p>",
+      "account": 2
+    },
+    "model": "pages.PageElement", "pk": 100
+  },
+  {
+    "fields": {
+      "title": "Survey Event",
+      "slug": "survey-event",
+      "text": "<p>Survey details here.</p>",
+      "account": 2
+    },
+    "model": "pages.PageElement", "pk": 101
+  },
+  {
+    "fields": {
+      "title": "Live Webinar Event",
+      "slug": "live-webinar-event",
+      "text": "<p>Details about the webinar.</p>",
+      "account": 2
+    },
+    "model": "pages.PageElement", "pk": 102
+  },
+  {
+    "fields": {
+      "title": "Certificate of Completion",
+      "slug": "certificate-completion",
+      "text": "<p>Certificate details here.</p>",
+      "account": 2
+    },
+    "model": "pages.PageElement", "pk": 103
+  },
+  {
+    "fields": {
+      "element": 101,
+      "created_at": "2023-03-20T12:00:00Z",
+      "campaign": 1,
+      "extra": "{\"questionnaire_id\":123, \"additional_info\":\"Survey extra data\"}"
+    },
+    "model": "djaopsp.SurveyEvent", "pk": 300
+  },
+  {
+    "fields": {
+      "element": 102,
+      "created_at": "2023-03-21T15:00:00Z",
+      "scheduled_at": "2023-04-15T15:00:00Z",
+      "location": "http://127.0.0.1:8000/webinar/live-event",
+      "max_attendees": 100,
+      "extra": "{}"
+    },
+    "model": "pages.LiveEvent", "pk": 301
+  },
+  {
+    "fields": {
+      "title": "Sequence with Various Elements",
+      "slug": "seq-various-elements",
+      "account": 2,
+      "has_certificate": true,
+      "created_at": "2023-01-04T00:00:00Z"
+    },
+    "model": "pages.Sequence", "pk": 104
+  },
+  {
+    "fields": {
+      "sequence": 104,
+      "page_element": 100,
+      "rank": 1,
+      "min_viewing_duration": "00:00:10"
+    },
+    "model": "pages.EnumeratedElements", "pk": 111
+  },
+  {
+    "fields": {
+      "sequence": 104,
+      "page_element": 101,
+      "rank": 2,
+      "min_viewing_duration": "00:00:20"
+    },
+    "model": "pages.EnumeratedElements", "pk": 112
+  },
+  {
+    "fields": {
+      "sequence": 104,
+      "page_element": 102,
+      "rank": 3,
+      "min_viewing_duration": "00:00:30"
+    },
+    "model": "pages.EnumeratedElements", "pk": 113
+  },
+  {
+    "fields": {
+      "sequence": 104,
+      "page_element": 103,
+      "rank": 4,
+      "min_viewing_duration": "00:00:00"
+    },
+    "model": "pages.EnumeratedElements", "pk": 114
+  }
 ]

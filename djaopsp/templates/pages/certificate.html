@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Certificate of Completion</title>
+</head>
+<body>
+{{ certificate.text|safe }}
+    <div class="certificate">
+        <div>Certificate of Completion</div>
+        <div>This is to certify that</div>
+        <div>{{ user.username }}</div>
+        <div>
+            has successfully completed the <strong>{{ sequence.title }}</strong> sequence.
+        </div>
+        <div>Date: {{ completion_date }}</div>
+    </div>
+</body>
+</html>
