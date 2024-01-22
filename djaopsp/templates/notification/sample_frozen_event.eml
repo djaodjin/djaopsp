@@ -1,0 +1,20 @@
+{% extends "notification/base.eml" %}
+
+{% block subject %}
+Sample Frozen Notification
+{% endblock %}
+
+{% block title %}
+{{ broker.printable_name }} - Sample Frozen
+{% endblock %}
+
+{% block html_content %}
+<p>Hello,</p>
+<p>A sample has been successfully frozen in your campaign <strong>{% if sample.campaign %}{{sample.campaign.title}} {% endif %}</strong>.</p>
+<p>Details of the frozen sample:</p>
+<ul>
+    <li>Account: {{ account.full_name }}</li>
+    <li>Frozen by: {{ originated_by.username }}</li>
+    <li>Frozen at: {{ sample.updated_at }}</li>
+</ul>
+{% endblock %}
