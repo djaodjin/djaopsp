@@ -4,7 +4,8 @@
 from django.conf import settings as django_settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from survey.models import Sample, get_extra_field_class
+from survey.models import Sample, get_extra_field_class, Campaign
+from pages.models import PageElement
 
 from .compat import python_2_unicode_compatible
 
@@ -99,3 +100,16 @@ class VerifiedSample(models.Model):
 
     def __str__(self):
         return str(self.sample.slug)
+
+
+class SurveyEvent(models.Model):
+    element = models.ForeignKey(PageElement, on_delete=models.CASCADE,
+                              related_name='surveys')
+    created_at = models.DateTimeField(editable=False, auto_now_add=True)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE,
+                                 related_name='campaigns')
+    extra = get_extra_field_class()(null=True, blank=True,
+        help_text=_("Extra meta data (can be stringify JSON)"))
+
+    def __str__(self):
+        return "%s-campaign" % str(self.element)

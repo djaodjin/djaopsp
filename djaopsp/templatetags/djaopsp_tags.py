@@ -204,3 +204,7 @@ def not_key(param_name):
     return not (param_name.lower() == 'password'
             or param_name.lower().endswith('_key')
             or param_name.lower().endswith('_password'))
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

@@ -2,9 +2,16 @@
 # see LICENSE.
 
 from pages.views.elements import PageElementView, PageElementEditableView
+from pages.views.sequences import (SequenceProgressView as BaseSequenceProgressView, 
+    SequencePageElementView as BaseSequencePageElementView)
 
-from ..mixins import AccountMixin
+from ..mixins import AccountMixin, SequenceProgressMixin
 
+class SequenceProgressView(SequenceProgressMixin, BaseSequenceProgressView):
+    pass
+
+class SequencePageElementView(SequenceProgressMixin, BaseSequencePageElementView):
+    pass
 
 class ContentIndexView(PageElementView):
     """

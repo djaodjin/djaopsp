@@ -10,7 +10,8 @@ from django.db import transaction
 from django.db.models import Q, F
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
-from pages.mixins import TrailMixin
+from pages.mixins import (TrailMixin, 
+    SequenceProgressMixin as SequenceProgressMixinBase)
 from pages.models import PageElement
 from survey.helpers import get_extra
 from survey.mixins import (CampaignMixin as CampaignMixinBase,
@@ -21,7 +22,7 @@ from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import get_question_model
 
 from .compat import reverse
-from .models import VerifiedSample
+from .models import VerifiedSample, SurveyEvent
 from .utils import (get_account_model, get_requested_accounts,
     get_segments_available, get_segments_candidates)
 
@@ -653,3 +654,9 @@ class AccountsNominativeQuerysetMixin(AccountsAggregatedQuerysetMixin):
         if not hasattr(self, '_requested_accounts'):
             self._requested_accounts = self.get_requested_accounts(self.account)
         return self._requested_accounts
+
+class SequenceProgressMixin(SequenceProgressMixinBase):
+
+    def update_element(self, obj):
+        super(SequenceProgressMixin, self).update_element(obj)
+        obj.is_survey_event = SurveyEvent.objects.filter(element=obj.page_element).exists()
