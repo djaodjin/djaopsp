@@ -127,13 +127,14 @@
                   <select class="form-control"
                           v-model="params.status"
                           @change="reload()">
+                      <option value="invited-denied">{% trans %}Declined to respond{% endtrans %}</option>
                       <option value="">{% trans %}Status{% endtrans %}</option>
                       <option value="invited">{% trans %}Invited{% endtrans %}</option>
                       <option value="updated">{% trans %}Work in progress{% endtrans %}</option>
-                      <option value="completed">{% trans %}Completed{% endtrans %}</option>
                       <option value="completed-notshared">{% trans %}Completed{% endtrans %} ({% trans %}not yet shared{% endtrans %})</option>
                       <option value="completed-denied">{% trans %}Completed{% endtrans %} ({% trans %}declined to share{% endtrans %})</option>
-                      <option value="invited-denied">{% trans %}Declined to respond{% endtrans %}</option>
+                      <option value="completed">{% trans %}Completed{% endtrans %}</option>
+                      <option value="verified">{% trans %}Verified{% endtrans %}</option>
                   </select>
               </div>
             </div>
@@ -277,15 +278,15 @@
           </td>
           <td class="text-center"
               v-if="!hasNoReportingStatus(entry)">
+            <div v-if="entry.reporting_status === 'invited-denied'">
+                {% trans %}Declined{% endtrans %}<br />
+                <small>({% trans %}declined to respond{% endtrans %})</small>
+            </div>
             <div v-if="entry.reporting_status === 'invited'">
                 {% trans %}Invited{% endtrans %}
             </div>
             <div v-if="entry.reporting_status === 'updated'">
                 {% trans %}Work in progress{% endtrans %}
-            </div>
-            <div v-if="entry.reporting_status === 'completed'">
-                {% trans %}Completed{% endtrans %}<br />
-              <a :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
             </div>
             <div v-if="entry.reporting_status === 'completed-notshared'">
                 {% trans %}Completed{% endtrans %}<br />
@@ -295,9 +296,13 @@
                 {% trans %}Completed{% endtrans %}<br />
                 <small>({% trans %}declined to share{% endtrans %})</small>
             </div>
-            <div v-if="entry.reporting_status === 'invited-denied'">
-                {% trans %}Declined{% endtrans %}<br />
-                <small>({% trans %}declined to respond{% endtrans %})</small>
+            <div v-if="entry.reporting_status === 'completed'">
+                {% trans %}Completed{% endtrans %}<br />
+              <a :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
+            </div>
+            <div v-if="entry.reporting_status === 'verified'">
+                {% trans %}Verified{% endtrans %}<br />
+              <a :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
             </div>
           </td>
           <td class="text-center"
@@ -305,7 +310,7 @@
             <div v-if="entry.last_activity_at">
               [[$globals.humanizeDate(entry.last_activity_at)]]<br />
               <small>([[$globals.humanizeTimeDelta(entry.last_activity_at)]])</small><br />
-              <small v-if="entry.reporting_status === 'completed'"><a href="" @click.prevent="toggleRespondents(index)"><i class="fa fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
+              <small v-if="entry.reporting_status === 'completed' || entry.reporting_status === 'verified'"><a href="" @click.prevent="toggleRespondents(index)"><i class="fa fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
 
               <div class="text-left" v-for="contact in entry.respondents" v-show="index === showRespondents">
                   <img class="img-fluid" style="max-height: 1rem;" :src="contact.picture || '{{'/static/img/default-user.png'|asset}}'"> [[contact.full_name]] &lt;[[contact.email]]&gt;<br />
@@ -349,7 +354,7 @@
                       data-toggle="modal"
                       data-target="#invite-reporting-entity"
                       @click="populateInvite(entry)"
-                      v-if="entry.reporting_status !== 'completed'">{% trans %}(Re-)send{% endtrans %}</button>
+                      v-if="!(entry.reporting_status === 'completed' || entry.reporting_status === 'verified')">{% trans %}(Re-)send{% endtrans %}</button>
           </td>
           <td class="text-nowrap text-center"
               style="border-left:2px solid black;"

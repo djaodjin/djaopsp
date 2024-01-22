@@ -257,6 +257,20 @@ WHERE (requests.ends_at IS NULL OR
     (last_valid_completed.last_updated_at > requests.created_at OR
     portfolios.ends_at > requests.created_at)
 ),
+verified_by_accounts AS (
+SELECT
+  completed_by_accounts.account_id,
+  completed_by_accounts.id,
+  completed_by_accounts.slug,
+  completed_by_accounts.created_at,
+  completed_by_accounts.grantee_id,
+  CASE WHEN COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1
+    THEN %(REPORTING_VERIFIED)s ELSE completed_by_accounts.reporting_status
+    END AS reporting_status
+FROM completed_by_accounts
+LEFT OUTER JOIN djaopsp_verifiedsample
+ON completed_by_accounts.id = djaopsp_verifiedsample.sample_id
+),
 updated_by_accounts AS (
 SELECT DISTINCT
   survey_sample.account_id,
@@ -305,26 +319,26 @@ SELECT
 SELECT
   requests.*,
   COALESCE(
-    completed_by_accounts.slug,
+    verified_by_accounts.slug,
     updated_by_accounts.slug) AS sample,
   COALESCE(
-    completed_by_accounts.id,
+    verified_by_accounts.id,
     updated_by_accounts.id) AS sample_id,
   COALESCE(
-    completed_by_accounts.reporting_status,
+    verified_by_accounts.reporting_status,
     updated_by_accounts.reporting_status,
     CASE WHEN requests.state = %(optin_request_denied)d
         THEN %(REPORTING_INVITED_DENIED)s
         ELSE %(REPORTING_INVITED)s END) AS reporting_status,
   COALESCE(
-    completed_by_accounts.created_at,
+    verified_by_accounts.created_at,
     updated_by_accounts.updated_at,
     latest_completion.last_updated_at,
     null) AS last_activity_at
 FROM requests
-LEFT OUTER JOIN completed_by_accounts
-ON requests.account_id = completed_by_accounts.account_id AND
-   requests.grantee_id = completed_by_accounts.grantee_id
+LEFT OUTER JOIN verified_by_accounts
+ON requests.account_id = verified_by_accounts.account_id AND
+   requests.grantee_id = verified_by_accounts.grantee_id
 LEFT OUTER JOIN updated_by_accounts
 ON requests.account_id = updated_by_accounts.account_id
 LEFT OUTER JOIN latest_completion
@@ -354,11 +368,12 @@ ON engaged.account_id = %(accounts_table)s.id
     'REPORTING_INVITED_DENIED': EngagementSerializer.REPORTING_INVITED_DENIED,
     'REPORTING_INVITED': EngagementSerializer.REPORTING_INVITED,
     'REPORTING_UPDATED': EngagementSerializer.REPORTING_UPDATED,
-    'REPORTING_COMPLETED': EngagementSerializer.REPORTING_COMPLETED,
     'REPORTING_COMPLETED_DENIED': \
         EngagementSerializer.REPORTING_COMPLETED_DENIED,
     'REPORTING_COMPLETED_NOTSHARED': \
         EngagementSerializer.REPORTING_COMPLETED_NOTSHARED,
+    'REPORTING_COMPLETED': EngagementSerializer.REPORTING_COMPLETED,
+    'REPORTING_VERIFIED': EngagementSerializer.REPORTING_VERIFIED,
     }
     return sql_query
 

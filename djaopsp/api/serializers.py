@@ -416,6 +416,7 @@ class EngagementSerializer(AccountSerializer):
     REPORTING_COMPLETED_DENIED = 2
     REPORTING_COMPLETED_NOTSHARED = 3
     REPORTING_COMPLETED = 4
+    REPORTING_VERIFIED = 5
 
     REPORTING_STATUSES = (
         (REPORTING_INVITED_DENIED, 'invited-denied'),
@@ -424,6 +425,7 @@ class EngagementSerializer(AccountSerializer):
         (REPORTING_COMPLETED_DENIED, 'completed-denied'),
         (REPORTING_COMPLETED_NOTSHARED, 'completed-notshared'),
         (REPORTING_COMPLETED, 'completed'),
+        (REPORTING_VERIFIED, 'verified'),
     )
 
     sample = serializers.SlugField(required=False)

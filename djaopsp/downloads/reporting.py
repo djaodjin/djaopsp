@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 import csv, datetime, io, logging, os
@@ -21,6 +21,7 @@ from survey.models import Answer, Choice, Unit
 from survey.queries import datetime_or_now
 from survey.utils import get_question_model
 
+from ..api.serializers import EngagementSerializer
 from ..api.portfolios import (BenchmarkMixin, PortfolioAccessibleSamplesMixin,
     PortfolioEngagementMixin)
 from ..helpers import as_valid_sheet_title
@@ -323,9 +324,10 @@ class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):
             'Added']
 
     def writerow(self, rec):
+        reporting_statuses = dict(EngagementSerializer.REPORTING_STATUSES)
         row = [rec.printable_name,
                ", ".join(get_extra(rec, 'tags', [])),
-               rec.reporting_status,
+               reporting_statuses[rec.reporting_status],
                rec.last_activity_at.date() if rec.last_activity_at else "",
                "",
                rec.requested_at.date() if rec.requested_at else ""]

@@ -9,6 +9,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db import connection
 from django.db.models import F, Q, Max, Min
+from django.template.defaultfilters import slugify
 from rest_framework import generics, status
 from rest_framework import response as http
 from rest_framework.pagination import PageNumberPagination
@@ -1169,7 +1170,8 @@ WHERE survey_sample.campaign_id = %(campaign_id)d AND
   survey_sample.extra IS NULL
   %(date_range_clause)s
 GROUP BY account_id, period
-)
+),
+completed_by_date AS (
 SELECT
     accounts.slug AS account_slug,
     survey_sample.account_id AS account_id,
@@ -1192,9 +1194,21 @@ WHERE
     survey_portfolio.campaign_id IS NULL) AND
    survey_sample.is_frozen AND
    survey_sample.extra IS NULL
-GROUP BY accounts.slug,
-        survey_sample.account_id, survey_sample.id, survey_sample.created_at
-ORDER BY account_id, created_at
+GROUP BY accounts.slug, survey_sample.account_id,
+   survey_sample.id, survey_sample.created_at
+)
+SELECT
+  completed_by_date.account_slug,
+  completed_by_date.account_id,
+  completed_by_date.id,
+  completed_by_date.created_at,
+  CASE WHEN COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1
+    THEN 'verified' ELSE completed_by_date.state
+    END AS state
+FROM completed_by_date
+LEFT OUTER JOIN djaopsp_verifiedsample
+ON completed_by_date.id = djaopsp_verifiedsample.sample_id
+ORDER BY completed_by_date.account_id, completed_by_date.created_at
 """ % {'campaign_id': campaign.pk,
        'accounts_query': accounts_query,
        'grantees': ",".join([str(self.account.pk)]),
@@ -1488,9 +1502,11 @@ class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
         states = []
         valid_states = set([status[1]
             for status in EngagementSerializer.REPORTING_STATUSES])
+        inverted_valid_states = {slugify(val): key
+            for key, val in EngagementSerializer.REPORTING_STATUSES}
         for state in param_states:
             if state in valid_states:
-                states += [state]
+                states += [inverted_valid_states[state]]
         return states
 
     def get_ordering(self):
@@ -1787,6 +1803,7 @@ class EngagementStatsMixin(DashboardAggregateMixin):
             EngagementSerializer.REPORTING_COMPLETED_DENIED: "Completed",
             EngagementSerializer.REPORTING_COMPLETED_NOTSHARED: "Completed",
             EngagementSerializer.REPORTING_COMPLETED: "Completed",
+            EngagementSerializer.REPORTING_VERIFIED: "Completed",
         }
         stats = {key: 0 for key in COLLAPSED_REPORTING_STATUSES.values()}
         for reporting_status, val in six.iteritems(engagement):
