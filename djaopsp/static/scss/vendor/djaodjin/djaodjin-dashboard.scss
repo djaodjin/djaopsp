@@ -13,7 +13,7 @@ $dashboard-sidebar-logo-height: 72px;
 
 // CSS specific to color the djaoapp dashboard pages
 $dashboard-content-bg:          white;
-$dashboard-sidebar-bg:          theme-color(secondary);
+$dashboard-sidebar-bg:          map-get($theme-colors, "secondary");
 $dashboard-sidebar-color:       white;
 $dashboard-icon-color:          $dashboard-sidebar-color;
 $dashboard-icon-color-active:   $dashboard-sidebar-bg;
@@ -28,13 +28,10 @@ $box-shadow-color:              rgba(0, 0, 0, 0.05);
   width: 100%;
 }
 
-.nav .divider-vertical {
+.navbar .divider-vertical {
   border-right: 1px solid $dashboard-sidebar-bg;
 }
 
-.nav-tabs .nav-link {
-  background-color: #ddd;
-}
 
 // Profile and user pictures
 // -------------------------
@@ -188,6 +185,16 @@ pre.code{
   overflow-y: auto;
 }
 
+.dashboard-nav-inner-container .navbar-brand > img {
+    max-height: 30px;
+}
+
+.dashboard-nav-inner-container .navbar {
+    padding-left: 4px;
+    padding-right: 4px;
+    height: 4.33rem;
+}
+
 .dashboard-nav-footer {
     position: absolute;
     clear:both;
@@ -266,12 +273,13 @@ pre.code{
     padding: 20px;
 }
 
-.navbar {
+
+header > .navbar {
     height: $navbar-height; // See comment about $navbar-height
 }
 
-.dashboard-content > .fullviewport .navbar {
-    background: $dashboard-sidebar-bg;
+.navbar .nav-item {
+    margin: 0 10px;
 }
 
 .no-results {
@@ -538,8 +546,17 @@ pre.code{
   margin-bottom: 10px;
 }
 
+.navbar-brand > img {
+    max-height: 30px;
+}
 
-@include media-breakpoint-down(xs) {
+// https://github.com/twbs/bootstrap/pull/37350
+input::-webkit-datetime-edit {
+    display: block;
+    padding: 0;
+}
+
+@include media-breakpoint-down(sm) {
 
     .dashboard-content > .fullviewport {
       padding-top: $navbar-height;
@@ -556,7 +573,7 @@ pre.code{
     }
 
     .dashboard-content > .fullviewport > header.scrolled {
-      background-color: theme-color(secondary);
+      background-color: $dashboard-sidebar-bg;
     }
 
     .dashboard-nav,
@@ -670,6 +687,7 @@ pre.code{
 
 .dashboard-nav-menu > hr {
     border-top-color: $dashboard-sidebar-color;
+    opacity: 1;
 }
 
 .dashboard-nav-menu > .nav li > a {
@@ -745,6 +763,7 @@ pre.code{
 
 /* upload themes */
 .dropzone-previews {
-  border-color: theme-color(primary);
+  border-color: map-get($theme-colors, "primary");
   background: #ccc;
 }
+

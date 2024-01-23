@@ -16,7 +16,7 @@ $plan-footer-height: 70px;
 
 .plan-short:hover {
   cursor: pointer;
-  background-color: lighten(theme-color(primary), 75%);
+  background-color: tint-color(map-get($theme-colors, "primary"), 75%);
 }
 
 .plan-wrap {
@@ -36,7 +36,7 @@ $plan-footer-height: 70px;
 
 
 .plan-pricing {
-  color: #111; //theme-color(secondary);
+  color: #111; //map-get($theme-colors, "secondary");
   font-weight: bold;
   text-align: center !important;
   margin-bottom: 2rem;
@@ -54,5 +54,5 @@ $plan-footer-height: 70px;
   font-family: 'FontAwesome';
   content: "\f058";
   margin: 0 18px 0 -15px;
-  color: theme-color(secondary);
+  color: map-get($theme-colors, "secondary");
 }

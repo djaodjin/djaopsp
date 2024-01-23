@@ -12,6 +12,7 @@ monotonic==1.6
 openpyxl==3.1.2
 python-pptx==0.6.21
 pytz==2023.3
+docutils==0.20.1
 
 # These have C/C++ components, they can be installed through the recent wheel
 # pip feature or through the native package manager

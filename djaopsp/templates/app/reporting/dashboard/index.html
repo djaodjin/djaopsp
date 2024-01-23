@@ -10,25 +10,21 @@
       <div class="col-md-6">
         <form id="period-update" class="form-inline mt-4"
               @submit.prevent="reload()">
-          <div class="input-group input-group-sm mr-2">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-            </div>
+          <div class="input-group input-group-sm me-2">
+            <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
             <input class="form-control" type="date" v-model="_start_at" v-cloak>
           </div>
-          <div class="input-group input-group-sm mr-2">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            </div>
+          <div class="input-group input-group-sm me-2">
+            <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             <input class="form-control" type="date" v-model="_ends_at" v-cloak>
           </div>
-          <button class="btn btn-secondary btn-sm mr-2"
+          <button class="btn btn-secondary btn-sm me-2"
                 :disabled="!outdated"
                 type="submit">{% trans %}Update{% endtrans %}</button>
         </form>{# /#period-update #}
       </div>
       <div class="col-md-6">
-        <div class="mt-4 text-right">
+        <div class="mt-4 text-end">
           {% include "app/reporting/_percentage_toggle.html" %}
         </div>
       </div>
@@ -36,7 +32,7 @@
 
     {% if FEATURES_DEBUG and urls.download %}
     <div class="row">
-      <div class="col-12 text-right">
+      <div class="col-12 text-end">
         <a class="mt-4 btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
           <i class="fa fa-file-text"></i> {% trans %}Download (pptx){% endtrans %}
         </a>

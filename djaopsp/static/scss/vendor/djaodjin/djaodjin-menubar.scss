@@ -4,7 +4,7 @@ $menubar-link-active-color:             $nav-tabs-link-active-color;
 $menubar-link-active-bg:                $nav-tabs-link-active-bg;
 
 $menubar-dropdown-bg:                   white;
-$menubar-dropdown-color:                theme-color(secondary);
+$menubar-dropdown-color:                map-get($theme-colors, "secondary");
 $menubar-dropdown-link-color:           $dropdown-link-color;
 $menubar-dropdown-link-hover-color:     $dropdown-link-hover-color;
 $menubar-dropdown-link-hover-bg:        $dropdown-link-hover-bg;
@@ -16,19 +16,18 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
     position: relative;
     align-self: center !important;
     color: $menubar-link-active-color;
-    background-color: transparent;
-    border-left: 1px solid $menubar-link-active-bg;
+    background-color: $menubar-link-active-bg;
 
-    @include hover-focus {
+    &:hover,
+    &:focus {
         text-decoration: none;
     }
 }
 
 .menubar-label {
-    display: block;
-    padding: 0.5rem 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
     text-decoration: none;
-    color: $menubar-dropdown-bg;
 }
 
 .menubar-label > div {
@@ -54,8 +53,6 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
 }
 
 .menubar-label.menubar-label-dropdown-toggle {
-  padding-top: 0.12rem;
-  padding-bottom: 0.13rem;
   white-space: nowrap;
   text-decoration: none;
   // Generate the caret automatically
@@ -124,7 +121,8 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
     background-color: $menubar-dropdown-bg;
     color: $menubar-dropdown-link-color;
 
-  @include hover-focus {
+  &:hover,
+  &:focus {
     color: $menubar-dropdown-link-hover-color;
     text-decoration: none;
     @include gradient-bg($menubar-dropdown-link-hover-bg);

@@ -84,7 +84,7 @@
         </span>
       </div>
       {% if urls.download %}
-      <div class="col-sm-6 text-right">
+      <div class="col-sm-6 text-end">
         <a class="mt-4 mb-1 btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
           <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
         </a>
@@ -152,18 +152,14 @@
           <td colspan="2">
             <form @submit.prevent="reload()">
               <div class="input-group input-group-sm">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
-                </div>
+                <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
                 <input class="form-control"
                        type="text"
                        placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
                        v-model="params.q" />
-                <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm"
-                            type="submit"
-                            :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
-                </div>
+                <button class="btn btn-secondary btn-sm"
+                        type="submit"
+                        :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
               </div>
             </form>
           </td>
@@ -187,7 +183,7 @@
             v-for="(received, index) in grants.results"
             v-show="itemsLoaded && grants.results.length > 0" v-cloak>
             <td class="text-center" colspan="3">
-              <img class="img-fluid" style="max-height: 1rem;" :src="received.account.picture || '{{'/static/img/default-organization.png'|asset}}'"><em class="pl-1">{% trans profile_name="[[received.account.printable_name ? received.account.printable_name : received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}</em>
+              <img class="img-fluid" style="max-height: 1rem;" :src="received.account.picture || '{{'/static/img/default-organization.png'|asset}}'"><em class="ps-1">{% trans profile_name="[[received.account.printable_name ? received.account.printable_name : received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}</em>
             </td>
             <td :colspan="items.labels.length + 1">
                 <button class="btn btn-secondary"

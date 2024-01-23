@@ -12,7 +12,7 @@
     </div>
     <div class="col-md-5">
       <nav class="navbar navbar-dark">
-        <ul class="navbar-nav nav-pills ml-auto">
+        <ul class="navbar-nav nav-pills ms-auto">
           {% block help_menus %}
           {% if urls.download %}
           <li class="divider-vertical"></li>
@@ -128,16 +128,14 @@
                                           v-if="isPractice(entry)">
                                 <div>
                                   <div class="input-group mb-3">
-                                    <div class="input-group-prepend">
-                                      <!-- optional indicators -->
-                                      <span class="input-group-text">
-                                        <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                                        <template v-else>
-                                          <i class="fa fa-search" v-show="isEmpty"></i>
-                                          <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                                        </template>
-                                      </span>
-                                    </div>
+                                    <!-- optional indicators -->
+                                    <span class="input-group-text">
+                                      <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                                      <template v-else>
+                                        <i class="fa fa-search" v-show="isEmpty"></i>
+                                        <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                                      </template>
+                                    </span>
                                     <!-- the input field -->
                                     <input class="form-control"
                                            type="text"
@@ -192,7 +190,7 @@
                                   </button>
                                   <button class="btn btn-link text-danger delete" href=""
                                           @click="setActive(entry, index)"
-                                          data-toggle="modal" data-target="#confirm-delete">
+                                          data-bs-toggle="modal" data-bs-target="#confirm-delete">
                                     <i class="fa fa-trash-o"></i>
                                   </button>
                                 </div>
@@ -222,8 +220,8 @@
                                   <button
                                     class="btn btn-link text-danger delete"
                                     href=""
-                                    data-toggle="modal"
-                                    data-target="#confirm-delete"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirm-delete"
                                     @click="setActive(entry, index)"
                                     v-if="entry.indent == 0">
                                     <i class="fa fa-trash-o"></i>
@@ -268,16 +266,14 @@
                                         v-bind:dataset="activeEntry.title"
                                         v-on:selectitem="addPractice">
                                       <div id="practice-search" class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                          <!-- optional indicators -->
-                                          <span class="input-group-text">
-                                            <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                                          <template v-else>
-                                            <i class="fa fa-search" v-show="isEmpty"></i>
-                                            <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                                          </template>
-                                          </span>
-                                        </div>
+                                        <!-- optional indicators -->
+                                        <span class="input-group-text">
+                                          <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                                        <template v-else>
+                                          <i class="fa fa-search" v-show="isEmpty"></i>
+                                          <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                                        </template>
+                                        </span>
                                         <!-- the input field -->
                                         <input class="form-control"
                                                type="text"
@@ -315,7 +311,7 @@
                                     <input class="form-control" type="text" v-model="activeEntry.segment" />
                                   </div>
                                 </div>
-                                <div class="form-actions text-right mr-3">
+                                <div class="form-actions text-end me-3">
                                   <button class="btn btn-primary" type="submit" value="submit"><i class="fa fa-plus"></i> Add</button>
                                 </div>
                               </form>
@@ -337,9 +333,8 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <h4 class="modal-title">Move under ...</h4>
-                  <button type="button" class="close" data-dismiss="modal"
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"
                           aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
                 <div class="modal-body">
@@ -372,16 +367,16 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <h4 class="modal-title">Delete ...</h4>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                   Please confirm you want to delete '[[activeEntry ? activeEntry.title : ""]]'.
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary"
-                          data-dismiss="modal">Cancel</button>
+                          data-bs-dismiss="modal">Cancel</button>
                   <button id="delete-action-btn"
-                          class="btn btn-danger btn-ok delete" data-dismiss="modal"
+                          class="btn btn-danger btn-ok delete" data-bs-dismiss="modal"
                           @click="deleteTree(activeEntry, activeIndex)">Delete</button>
                 </div>
               </div>
