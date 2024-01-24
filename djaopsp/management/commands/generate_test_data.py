@@ -99,7 +99,9 @@ class Command(BaseCommand):
             enumeratedquestions__campaign=campaign,
             enumeratedquestions__question__path__startswith=segment_path)
         for profile in profiles:
-            created_at = datetime_or_now(fake.date_between(start_at, ends_at))
+            created_date = fake.date_between(start_at, ends_at)
+            created_at = datetime_or_now(datetime.datetime(created_date.year, created_date.month, created_date.day))
+
             sample = Sample.objects.create(
                 campaign=campaign, account=profile, created_at=created_at)
             for question in questions:

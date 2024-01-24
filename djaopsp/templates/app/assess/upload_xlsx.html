@@ -1,0 +1,9 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+<form action="{{ url('asses_upload', kwargs={'sample': sample, 'profile': profile}) }}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <input type="file" name="upload_excel_file">
+    <button type="submit">Upload</button>
+</form>
+{% endblock %}
