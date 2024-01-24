@@ -63,19 +63,15 @@
                         <th>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">From</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">From</label>
                             <input class="form-control" type="date"
                                    v-model="starts_at">
                           </div>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">To</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">To</label>
                             <input class="form-control" type="date"
                                    v-model="ends_at">
                           </div>
@@ -101,7 +97,7 @@
                                    name="measured"
                                    v-model="item.measured">
                             <div class="input-group-append">
-                              <select class="form-control"
+                              <select class="form-control form-select"
                                    name="unit"
                                    v-model="item.unit">
                                 <option value="tons">Metric tons</option>
@@ -122,7 +118,8 @@
                                  v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="water-type"
+                          <select class="form-control form-select"
+                                  name="water-type"
                                   v-model="newItem.extra.water_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
@@ -157,19 +154,15 @@
                         <th>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">From</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">From</label>
                             <input class="form-control" type="date"
                                    v-model="starts_at">
                           </div>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">To</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">To</label>
                             <input class="form-control" type="date"
                                    v-model="ends_at">
                           </div>
@@ -192,12 +185,10 @@
                         <td>
                           <div class="input-group">
                             <input class="form-control" type="number" min="0"
-                                   name="measured"
-                                   v-model="item.measured">
+                                   name="measured" v-model="item.measured">
                             <div class="input-group-append">
-                              <select class="form-control"
-                                   name="unit"
-                                   v-model="item.unit">
+                              <select class="form-control form-select"
+                                   name="unit" v-model="item.unit">
                                 <option value="tons">Metric tons</option>
                                 <option value="lbs">Pounds</option>
                                 <option value="m3">Cubic meters (m<sup>3</sup>)</option>
@@ -216,7 +207,8 @@
                                  v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="water-type"
+                          <select class="form-control form-select"
+                                  name="water-type"
                                   v-model="newItem.extra.water_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
@@ -256,19 +248,15 @@
                         <th>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">From</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">From</label>
                             <input class="form-control" type="date"
                                    v-model="starts_at">
                           </div>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">To</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">To</label>
                             <input class="form-control" type="date"
                                    v-model="ends_at">
                           </div>
@@ -294,7 +282,7 @@
                                    name="measured"
                                    v-model="item.measured">
                             <div class="input-group-append">
-                              <select class="form-control"
+                              <select class="form-control form-select"
                                    name="unit"
                                    v-model="item.unit">
                                 <option value="tons">Metric tons</option>
@@ -315,7 +303,8 @@
                                  v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="water-type"
+                          <select class="form-control form-select"
+                                  name="water-type"
                                   v-model="newItem.extra.water_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
@@ -344,7 +333,7 @@
         {% endblock %}
       </div> {# .panel-body #}
       {% block panel_footer %}
-      <div class="card-footer" style="padding:0;">
+      <div class="card card-footer mt-4" style="padding:0;">
       </div>
       {% endblock %}
     </div>

@@ -2,7 +2,8 @@
   "name": "djaopsp-ui",
   "version": "0.1.0",
   "dependencies": {
-    "bootstrap": "~4.3.1",
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.1",
     "chart.js": "^3.7.1",
     "chartjs-plugin-annotation": "^2.0.0",
     "core-js": "^3.22.0",
@@ -14,7 +15,6 @@
     "lodash": "~4.17.21",
     "moment": "~2.29.1",
     "moment-timezone": "~0.5.33",
-    "popper.js": "~1.14.7",
     "vue": "~2.7.8"
   },
   "resolutions": {
@@ -25,9 +25,9 @@
     "@babel/core": "^7.17.9",
     "@babel/preset-env": "^7.16.11",
     "babel-loader": "^8.2.4",
-    "es-check": "^6.2.1",
-    "eslint": "^2.9.0",
+    "eslint": "^8.46.0",
     "eslint-config-google": "^0.5.0",
+    "eslint-plugin-unicorn": "^48.0.1",
     "https-browserify": "",
     "querystring-es3": "0.2.1",
     "raw-loader": "4.0.2",

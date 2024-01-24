@@ -16,10 +16,10 @@
         <div class="row">
           <div class="col-sm-8">
             <div class="row">
-              <div class="col-sm-4 text-center text-sm-right">
+              <div class="col-sm-4 text-center text-sm-end">
                 <img class="my-4 img-fluid" style="max-height:100px;" src="{% if sample.account.picture %}{{sample.account.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
               </div>
-              <div class="col-sm-8 text-center text-sm-left">
+              <div class="col-sm-8 text-center text-sm-start">
                 <h1 class="mt-4">{{sample.account.printable_name}}</h1>
                 <h2>{{sample.campaign.title}}</h2>
                 <div>{{sample.created_at|date}}</div>
@@ -29,7 +29,7 @@
               <div class="col-md-8">
                 <div class="row mx-2">
                   {% for highlight in highlights %}
-                  <div class="col-6 col-md-3 text-left">
+                  <div class="col-6 col-md-3 text-start text-left">
                     <div class="mt-2 icon-inner{% if highlight.reporting %} orange{% else %} grey{% endif %}">
                       <img class="icon-equipment"
                            src="{{highlight.picture|asset}}">
@@ -39,7 +39,7 @@
                   {% endfor %}
                 </div>
                 <div class="row mx-2">
-                  <div class="col-md-8 text-left">
+                  <div class="col-md-8 text-start text-left">
                     <div class="mt-4">
                       Contact Information
                       <ul class="list-unstyled mb-0">
@@ -83,7 +83,7 @@
             {% endif %}
             <form class="d-print-none mt-2">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-              <select class="form-control"
+              <select class="form-control form-select"
                       v-model="verificationStatus"
                       @change="updateVerificationStatus()">
                 <option value="no-review">(grey) {% trans %}Not yet reviewed nor verified{% endtrans %}</option>
@@ -263,7 +263,7 @@
               {# different layout for differnt type of questions. #}
               <div v-if="isDataMetricsHeader(practice)" :class="practiceStyle(practice)">
                 <table class="table table-bordered table-striped">
-                  <tr class="text-right">
+                  <tr class="text-end">
                     <th></th>
                     <th v-for="year in getColHeaders(practice)">
                       [[year]]
@@ -271,7 +271,7 @@
                   </tr>
                   <tr v-for="total in getEntries(practice.slug)">
                     <th>[[total.title]]</th>
-                    <td class="text-right"
+                    <td class="text-end"
                         v-for="year in getColHeaders(practice)">
                       [[getColValue(total, year)]]
                     </td>
@@ -528,8 +528,8 @@
               <button id="complete-assessment-btn"
                       class="mt-2 btn btn-primary w-100"
                       href=""
-                      data-toggle="modal"
-                      data-target="#complete-assessment"
+                      data-bs-toggle="modal"
+                      data-bs-target="#complete-assessment"
                       :disabled="freezeAssessmentDisabled"
                       v-show="itemsLoaded && items.results.length > 0">
                 {% trans %}Complete{% endtrans %}

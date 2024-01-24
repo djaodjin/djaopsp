@@ -56,7 +56,12 @@ $jumbotron-shadow-end-color-dark: $jumbotron-shadow-start-color;
 
 //.tick line {display: none;}
 header .nav-item {
-  border-left: 1px solid #fff;
+  border-left: 1px solid $white;
+  padding: 0 10px;
+}
+
+header .nav-item>.nav-link {
+  color: $white;
 }
 
 .navbar-top {
@@ -74,9 +79,14 @@ header .nav-item {
 }
 
 .table-assessment {
-  tbody:nth-of-type(#{$table-striped-order}) {
+  $table-accent-bg: rgba(0, 0, 0, 0.05);
+  tbody:nth-of-type(#{$table-striped-order}) td {
     background-color: $table-accent-bg;
   }
+}
+
+.tile-link {
+    text-decoration: none;
 }
 
 .practice-required {
@@ -124,6 +134,7 @@ header .nav-item {
 
 .progressbar li a {
   color: white;
+  text-decoration: none;
 }
 
 .progressbar li a>.progressbar-step {
@@ -260,7 +271,7 @@ h2.icon-row-title {
 
 .improvement-planning .inner {
   background: #eafcd4;
-  border: 1px theme-color(primary) solid;
+  border: 1px map-get($theme-colors, "primary") solid;
 }
 
 .chart-title {
@@ -312,13 +323,9 @@ b, strong{
    sticking the footer to the bottom while introducing a "border" above it. */
 #main{
   /*overflow:auto;*/
+  min-height: 100%;
   padding-bottom: $footer-height;/* stick to bottom must be in pixel
                                     (see comment abolve) */
-}
-
-header {
-  background: #3ca65b;
-  color: white;
 }
 
 #scroll-page {
@@ -1034,6 +1041,13 @@ a.text-grey{
    color:#54BAD8;
 }
 
+.bestpractice>a {
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .bestpractice>a.title,
 .bestpractice-0>a.title,
 .bestpractice-1>a.title,
@@ -1123,14 +1137,14 @@ a.text-grey{
 }
 
 .navbar-light .navbar-nav  > .login > a:hover, .login > a:focus {
-  background-color:#79c84a; /* darken(@login-bg, 6.5%) */
+  background-color:#79c84a; /* shade-color(@login-bg, 6.5%) */
 }
 
 .navbar .divider-vertical {
   border-right: 1px solid #ffffff;
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
 .navbar-collapse .nav > .divider-vertical {
     display: none;
   }
@@ -1659,7 +1673,7 @@ thead{
 }
 
 .choice-selected {
-  background-color: $secondary;
+  background-color: $secondary !important;
 }
 
 .table tr > th.sticky-cell {
@@ -1713,7 +1727,7 @@ thead{
 }
 
 .report-measurements-link {
-  color: theme-color(primary);
+  color: map-get($theme-colors, "primary");
 }
 
 /****** Best practice detail ********/
@@ -2078,11 +2092,11 @@ color: #000;
 }
 
 .supplier-initiated {
-  background: theme-color(primary);
+  background: map-get($theme-colors, "primary");
 }
 
 .table-striped tbody tr:nth-of-type(odd).supplier-initiated {
-  background: darken(theme-color(primary), 5%);
+  background: shade-color(map-get($theme-colors, "primary"), 5%);
 }
 
 .supplier-initiated a,
@@ -2090,6 +2104,7 @@ color: #000;
 .supplier-initiated a:focus {
   color: white;
 }
+
 
 .verifier-notes {
 //  background: rgb(123,233,255);
@@ -2277,4 +2292,33 @@ pre.code{
 
 @media print {
     .pagebreak { page-break-before: always; }
+}
+
+
+.breadcrumb-item > a {
+  &,
+  &:active,
+  &:hover,
+  &:visited {
+    color: $breadcrumb-divider-color;
+    text-decoration: none;
+  }
+}
+
+.btn-primary,
+.btn-secondary {
+  --#{$prefix}btn-color: var(--bs-white);
+  --#{$prefix}btn-hover-color: var(--bs-white);
+}
+
+.navbar-nav .nav-link {
+  --#{$prefix}nav-link-padding-x: 1.5rem;
+}
+
+.pages-card-link {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }

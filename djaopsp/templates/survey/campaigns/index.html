@@ -15,7 +15,7 @@
                 <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
                 <div class="row">
                   <div class="col-md-5">
-                    <div class="mr-2 mb-3 w-100">
+                    <div class="me-2 mb-3 w-100">
                       <input type="text" class="form-control"
                              v-model="newItem.title"
                              placeholder="{% trans %}Questionnaire title{% endtrans %}">
@@ -37,13 +37,13 @@
                 <tr>
                   <th class="text-nowrap">
                     Created at
-                    <a href="#" class="text-nowrap btn-link btn-sort ml-2" @click.prevent="sortBy('created_at')">
+                    <a href="#" class="text-nowrap btn-link btn-sort ms-2" @click.prevent="sortBy('created_at')">
                       <i :class="sortIcon('created_at')"></i>
                     </a>
                   </th>
                   <th class="text-nowrap">
                     Title
-                    <a href="#" class="btn-link btn-sort ml-2" @click.prevent="sortBy('title')">
+                    <a href="#" class="btn-link btn-sort ms-2" @click.prevent="sortBy('title')">
                       <i :class="sortIcon('title')"></i>
                     </a>
                   </th>

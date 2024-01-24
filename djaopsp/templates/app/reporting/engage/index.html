@@ -14,27 +14,29 @@
   <div>
     <div class="row">
       <div class="col-md-6">
-        <form id="period-update" class="form-inline mt-4"
+        <form id="period-update" class="row mt-4"
               @submit.prevent="reload()">
-          <div class="input-group input-group-sm mr-2">
-            <div class="input-group-prepend">
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
               <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
+              <input class="form-control" type="date" v-model="_start_at" v-cloak>
             </div>
-            <input class="form-control" type="date" v-model="_start_at" v-cloak>
           </div>
-          <div class="input-group input-group-sm mr-2">
-            <div class="input-group-prepend">
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
               <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <input class="form-control" type="date" v-model="_ends_at" v-cloak>
             </div>
-            <input class="form-control" type="date" v-model="_ends_at" v-cloak>
           </div>
-          <button class="btn btn-secondary btn-sm mr-2"
+          <div class="col-sm-4">
+            <button class="btn btn-secondary btn-sm"
                 :disabled="!outdated"
                 type="submit">{% trans %}Update{% endtrans %}</button>
+          </div>
         </form>{# /#period-update #}
       </div>
       <div class="col-md-6">
-        <div class="mt-4 text-right">
+        <div class="mt-4 text-end">
           {% include "app/reporting/_percentage_toggle.html" %}
         </div>
       </div>
@@ -83,7 +85,7 @@
         [[items.count]] {% trans %}invited profiles{% endtrans %}
       </div>
       {% if urls.download %}
-      <div class="col-sm-6 text-right">
+      <div class="col-sm-6 text-end">
         <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
           <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
         </a>
@@ -124,7 +126,7 @@
           <th class="text-nowrap text-center sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                  <select class="form-control"
+                  <select class="form-control form-select"
                           v-model="params.status"
                           @change="reload()">
                       <option value="invited-denied">{% trans %}Declined to respond{% endtrans %}</option>
@@ -199,18 +201,14 @@
           <td colspan="3">
             <form id="invite-search" @submit.prevent="reload()">
               <div class="input-group input-group-sm">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
-                </div>
+                <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
                 <input class="form-control"
                        type="text"
                        placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
                        v-model="params.q" />
-                <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm"
-                            type="submit"
-                            :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
-                </div>
+                <button class="btn btn-secondary btn-sm"
+                        type="submit"
+                        :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
               </div>
             </form>{# /#invite-search #}
           </td>
@@ -234,8 +232,8 @@
             Invite [[params.q]] as a new profile ...
             <button id="create-reporting-profile-open"
                     class="btn btn-primary"
-                    data-toggle="modal"
-                    data-target="#invite-reporting-entity"
+                    data-bs-toggle="modal"
+                    data-bs-target="#invite-reporting-entity"
                     @click="populateInvite({})">{% trans %}Add{% endtrans %}</button>
           </td>
         </tr>
@@ -263,8 +261,8 @@
               v-if="hasNoReportingStatus(entry)">
               <button id="invite-reporting-profile-open"
                       class="btn btn-primary"
-                      data-toggle="modal"
-                      data-target="#invite-reporting-entity"
+                      data-bs-toggle="modal"
+                      data-bs-target="#invite-reporting-entity"
                       @click="populateInvite(entry)">{% trans %}Add{% endtrans %}</button>
           </td>
           <td class="text-center"
@@ -298,11 +296,11 @@
             </div>
             <div v-if="entry.reporting_status === 'completed'">
                 {% trans %}Completed{% endtrans %}<br />
-              <a :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
+              <a class="btn-link" :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
             </div>
             <div v-if="entry.reporting_status === 'verified'">
                 {% trans %}Verified{% endtrans %}<br />
-              <a :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
+              <a class="btn-link" :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
             </div>
           </td>
           <td class="text-center"
@@ -310,9 +308,9 @@
             <div v-if="entry.last_activity_at">
               [[$globals.humanizeDate(entry.last_activity_at)]]<br />
               <small>([[$globals.humanizeTimeDelta(entry.last_activity_at)]])</small><br />
-              <small v-if="entry.reporting_status === 'completed' || entry.reporting_status === 'verified'"><a href="" @click.prevent="toggleRespondents(index)"><i class="fa fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
+              <small v-if="entry.reporting_status === 'completed' || entry.reporting_status === 'verified'"><a class="btn-link" href="" @click.prevent="toggleRespondents(index)"><i class="fa fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
 
-              <div class="text-left" v-for="contact in entry.respondents" v-show="index === showRespondents">
+              <div class="text-start" v-for="contact in entry.respondents" v-show="index === showRespondents">
                   <img class="img-fluid" style="max-height: 1rem;" :src="contact.picture || '{{'/static/img/default-user.png'|asset}}'"> [[contact.full_name]] &lt;[[contact.email]]&gt;<br />
                   <small>
                     [[contact.last_login ? ("{% trans %}last login{% endtrans %}: " + $globals.humanizeDate(contact.last_login)) : ""]]
@@ -335,10 +333,10 @@
               <small>([[$globals.humanizeTimeDelta(entry.last_reminder_at)]])</small><br />
 <!--
               <small><a href="" @click.prevent="toggleRecipients(index)"><i class="fa fa-envelope"></i> {% trans %}sent to{% endtrans %}</a></small>
-              <div class="text-left" v-for="contact in entry.recipients" v-show="index === showRecipients">
+              <div class="text-start" v-for="contact in entry.recipients" v-show="index === showRecipients">
                   <img class="img-fluid" style="max-height: 1rem;" :src="contact.picture || '{{'/static/img/default-user.png'|asset}}'"> [[contact.printable_name]] &lt;[[contact.email]]&gt;<br />
                   <small>
-                      <span class="badge badge-secondary">[[contact.role_description.title]]</span> [[contact.last_login ? ("{% trans %}last login{% endtrans %}: " + $globals.humanizeDate(contact.last_login)) : ""]]
+                      <span class="badge bg-secondary">[[contact.role_description.title]]</span> [[contact.last_login ? ("{% trans %}last login{% endtrans %}: " + $globals.humanizeDate(contact.last_login)) : ""]]
                   </small>
               </div>
 -->
@@ -351,8 +349,8 @@
               v-if="!hasNoReportingStatus(entry)">
               <button id="invite-reporting-profile-open"
                       class="btn btn-secondary"
-                      data-toggle="modal"
-                      data-target="#invite-reporting-entity"
+                      data-bs-toggle="modal"
+                      data-bs-target="#invite-reporting-entity"
                       @click="populateInvite(entry)"
                       v-if="!(entry.reporting_status === 'completed' || entry.reporting_status === 'verified')">{% trans %}(Re-)send{% endtrans %}</button>
           </td>

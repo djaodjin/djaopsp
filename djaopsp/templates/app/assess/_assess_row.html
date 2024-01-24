@@ -53,7 +53,7 @@
     :colspan="6"
     v-if="isNAICSUIHint(practice)">
   <div class="input-group">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
             :disabled="practice.frozen">
@@ -99,13 +99,13 @@
     :colspan="6"
     v-if="isRevenueUIHint(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
            type="number"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice)"
            :disabled="practice.frozen"></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice)"
             :disabled="practice.frozen">
@@ -115,7 +115,7 @@
       <option value="million-eur">Millions Euros</option>
     </select>
   </div>
-  <div class="text-right mt-1">
+  <div class="text-end mt-1">
     <input class="form-check-input"
            type="checkbox"
            :checked="getAnswerByUnit(practice, 'yes-no').measured === 'Yes'"
@@ -128,7 +128,7 @@
     :colspan="6"
     v-if="isEmployeeCountUIHint(practice)">
   <div class="input-group">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
             :disabled="practice.frozen">
@@ -164,7 +164,7 @@
     :colspan="3"
     v-if="isPercentageUIHint(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
            type="number"
            min="0"
            max="100"
@@ -208,13 +208,13 @@
     :colspan="2"
     v-if="isEnergyUIHint(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
            type="number"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice, practice.answers)"
            :disabled="practice.frozen"></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             :disabled="practice.frozen">
@@ -227,10 +227,10 @@
       <option value="gj-year">Giga Joules (GJ)</option>
     </select>
   </div>
-  <div class="text-left mt-1">
+  <div class="text-start mt-1">
     <button class="btn btn-sm btn-secondary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
-    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of energy #}
@@ -265,13 +265,13 @@
     :colspan="2"
     v-if="isWaterUIHint(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
            type="text"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice, practice.answers)"
            :disabled="practice.frozen"></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             :disabled="practice.frozen">
@@ -281,10 +281,10 @@
         <option value="gallons-year">US Gallon</option>
     </select>
   </div>
-  <div class="text-left mt-1">
+  <div class="text-start mt-1">
     <button class="btn btn-sm btn-secondary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
-    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}water/">enter data in tracking tool &raquo;</a>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}water/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of water #}
@@ -318,13 +318,13 @@
     :colspan="2"
     v-if="isWasteUIHint(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
            type="text"
            placeholder=""
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice, practice.answers)"
            :disabled="practice.frozen"></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             :disabled="practice.frozen">
@@ -336,10 +336,10 @@
         <option value="gallons-year">US Gallon</option>
     </select>
   </div>
-  <div class="text-left mt-1">
+  <div class="text-start mt-1">
     <button class="btn btn-sm btn-secondary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
-    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}waste/">enter data in tracking tool &raquo;</a>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}waste/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of waste #}
@@ -371,23 +371,23 @@
     colspan="2"
     v-if="isGHGEmissions(practice)">
   <div class="input-group">
-    <input class="form-control text-right"
+    <input class="form-control text-end"
               type="number"
               placeholder=""
               v-model="getPrimaryAnswer(practice).measured"
               @blur="updateAssessmentAnswer(practice, practice.answers)"
            :disabled="practice.frozen"></input>
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             :disabled="practice.frozen">
         <option value="tons-year">Metric Tons CO2e</<option>
     </select>
   </div>
-  <div class="text-left mt-1" v-if="!isGHGEmissionsScope3(practice)">
+  <div class="text-start mt-1" v-if="!isGHGEmissionsScope3(practice)">
     <button class="btn btn-sm btn-secondary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
-    <a class="btn-sm ml-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
   </div>
 </td>
 {# end of scope ghg emissions #}
@@ -398,7 +398,7 @@
     colspan="6" {# default value from `getNbInputCols` #}
     v-if="isVerifiabilityUIHint(practice)">
   <div class="input-group">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
             :disabled="practice.frozen">
@@ -412,7 +412,7 @@
        target="_blank">
       <i class="fa fa-question-circle"></i>
     </a>
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getAnswerByUnit(practice, 'completeness').measured"
             @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'completeness'))"
             :disabled="practice.frozen">
@@ -428,7 +428,7 @@
     </a>
   </div>
   <div class="input-group">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getAnswerByUnit(practice, 'supporting-document').measured"
             value=""
             @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'))"
@@ -445,7 +445,7 @@
 <td class="text-center"
     colspan="6" {# default value from `getNbInputCols` #}
     v-if="isEnumSelectUIHint(practice)">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
             :disabled="practice.frozen">
@@ -474,7 +474,7 @@
     </div>
     <label :for="slugify(choice.text, practice.rank)"
          style="margin-bottom:0"
-         data-toggle="tooltip" data-placement="bottom"
+         data-bs-toggle="tooltip" data-bs-placement="bottom"
          :title="getPrimaryCandidate(practice).measured === choice.text ? (getPrimaryCandidate(practice).collected_by + ', ' + humanizeTimeDelta(getPrimaryCandidate(practice).created_at)) : ''">
       <span style="font-size:10px;">[[choice.descr ? choice.descr : ""]]</span>
     </label>
@@ -486,7 +486,7 @@
     colspan="6"
     v-if="isTargetByUIHint(practice)">
   <div class="input-group">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
@@ -577,7 +577,7 @@
               <small>[[humanizeDate(collectedAtTime)]]</small><br />
               <small>([[humanizeTimeDelta(collectedAtTime)]])</small>
             </div>
-            <div class="border-left col-md-9">
+            <div class="border-start col-md-9">
               <p class="mt-2" style="word-wrap:break-word;"
                  v-html="textAsHtml"
                  @click.prevent="openLink($event)">
@@ -610,7 +610,7 @@
           </div>
           <div class="row">
             <div class="col-6">
-              <div class="mt-2 text-left">
+              <div class="mt-2 text-start text-left">
                 <button type="button" class="btn btn-secondary" :disabled="disabled">
                   <label :for="callbackArg.slug + '-file'" style="margin-bottom:0;">
                     {% trans %}Upload{% endtrans %}
@@ -620,7 +620,7 @@
               </div>
             </div>
             <div class="col-6">
-              <div class="mt-2 text-right">
+              <div class="mt-2 text-end text-right">
                 <button class="btn btn-primary"
                     type="submit" value="submit"
                     :disabled="disabled">

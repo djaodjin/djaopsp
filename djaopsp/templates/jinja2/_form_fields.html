@@ -192,7 +192,7 @@
   </label>
   {% endif %}
   <div class="{% if extra_control_classes %}{{extra_control_classes}} {% endif %}controls">
-    <select class="form-control{% if errors %} is-invalid{% endif %}" name="{{name}}"
+    <select class="form-control form-select{% if errors %} is-invalid{% endif %}" name="{{name}}"
       {% if disabled %} disabled{% endif %}>
       {% for choice in choices %}
       <option {% if value == choice[0] %}selected="1"{% endif %} value="{{choice[0]}}">{{choice[1]}}</option>

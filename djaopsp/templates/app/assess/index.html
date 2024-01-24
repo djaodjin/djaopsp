@@ -31,6 +31,7 @@
           <div :class="((activeTile && icon.slug == activeTile.slug) ? '' : 'offset-md-3') + ' col-md-6 mt-2'">
             <a :id="icon.slug"
                :href="'#tab-' + icon.slug"
+               class="tile-link"
                role="{{role}}" data-toggle="{{role}}"
                @click.prevent="toggleTile($event, icon)">
               <div :class="'card h-100 text-dark ' + practiceStyle(icon)">
@@ -46,8 +47,8 @@
                              v-if="!icon.picture">
                       </div>
                     </div>
-                    <div class="col-8 text-left">
-                      <h3>[[icon.title]]</h3>
+                    <div class="col-8 text-start text-left">
+                      <h4>[[icon.title]]</h4>
                       <p>
                         [[icon.text]]
                       </p>
@@ -83,9 +84,10 @@
                 <th class="text-center pb-0"
                     colspan="6">
                   Implemented as standard practice? <a style="cursor:pointer;" href=""><i class="fa fa-question-circle"></i></a>
-                  <div class="text-right mt-2">
+                  <div class="text-end text-right mt-2">
                     <div style="display:inline-block;">
-                      <div class="text-left m-0 p-0" style="line-height:1;">
+                      <div class="text-start text-left m-0 p-0"
+                           style="line-height:1;">
                         <small class="candidate-answer">
                           <div class="radio-border mr-2">
                             <div style="background-color:white;line-height:0;padding: 2px;border-radius:50%;">
@@ -96,7 +98,8 @@
                           </label>
                         </small>
                       </div>
-                      <div class="text-left m-0 p-0" style="line-height:1;">
+                      <div class="text-start text-left m-0 p-0"
+                           style="line-height:1;">
                         <small>
                           <span class="practice-required mr-2" style="border-top:1px solid #dee2e6;border-bottom:1px solid #dee2e6;">&nbsp;&nbsp;&nbsp;&nbsp;</span>
                           required answer
@@ -133,7 +136,7 @@
           {% if not sample.is_frozen %}
           <div class="row">
             <div class="offset-sm-6 col-sm-6 text-center">
-              <div class="text-right"
+              <div class="text-end text-right"
                    style="display:inline-block;padding-left:10px;">
                 <button id="reset-button"
                         class="btn btn-primary"
@@ -246,7 +249,7 @@
     {% include "app/_reset_assessment.html" %}
 
     {% block panel_footer %}
-    <div class="card-footer mt-4">
+    <div class="card card-footer mt-4">
       <div class="row">
         <div class="offset-md-3 col-md-6 text-center">
           <p v-show="itemsLoaded" v-cloak>

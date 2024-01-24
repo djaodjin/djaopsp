@@ -98,8 +98,8 @@ pre.code code{
 .param-required {
   display: inline-block;
   padding: $badge-padding-y $badge-padding-x;
-  padding-right: $badge-pill-padding-x;
-  padding-left: $badge-pill-padding-x;
+  padding-right: .6em;
+  padding-left: .6em;
   font-size: $badge-font-size;
   font-weight: $badge-font-weight;
   line-height: 1;
@@ -109,7 +109,7 @@ pre.code code{
   color: red;
   border: 1px solid red;
   background-color: transparent;
-  @include border-radius($badge-pill-border-radius);
+  @include border-radius(10rem);
 
   // Empty badges collapse automatically
   &:empty {

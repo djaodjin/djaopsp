@@ -85,19 +85,15 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                           {% include "app/track/_ghg-emissions-toggle.html" %}
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">From</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">From</label>
                             <input class="form-control" type="date"
                                    v-model="starts_at">
                           </div>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">To</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">To</label>
                             <input class="form-control" type="date"
                                    v-model="ends_at">
                           </div>
@@ -122,19 +118,17 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                             <input class="form-control"
                                    name="measured" type="number" min="0"
                                    v-model="item.measured">
-                            <div class="input-group-append">
-                              <select class="form-control"
-                                      name="unit"
-                                      v-model="item.unit">
-                                <option value="btu">Btu</option>
-                                <option value="mmbtu">mmBtu</option>
-                                <option value="therm">therm</option>
-                                <option value="kwh">kWh</option>
-                                <option value="mwh">MWh</option>
-                                <option value="mj">MJ</option>
-                                <option value="gj">GJ</option>
-                              </select>
-                            </div>
+                            <select class="form-control form-select"
+                                    name="unit"
+                                    v-model="item.unit">
+                              <option value="btu">Btu</option>
+                              <option value="mmbtu">mmBtu</option>
+                              <option value="therm">therm</option>
+                              <option value="kwh">kWh</option>
+                              <option value="mwh">MWh</option>
+                              <option value="mj">MJ</option>
+                              <option value="gj">GJ</option>
+                            </select>
                           </div>
                         </td>
                       </tr>
@@ -144,7 +138,8 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                                  type="text" v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="fuel-type"
+                          <select class="form-control form-select"
+                                  name="fuel-type"
                                   v-model="newItem.extra.fuel_type">
                             <option value="anthracite-coal">Anthracite Coal</option>
                             <option value="bituminous-coal">Bituminous Coal</option>
@@ -291,19 +286,15 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                           {% include "app/track/_ghg-emissions-toggle.html" %}
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">From</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">From</label>
                             <input class="form-control" type="date"
                                    v-model="starts_at">
                           </div>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">To</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">To</label>
                             <input class="form-control" type="date"
                                    v-model="ends_at">
                           </div>
@@ -329,29 +320,29 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                         <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
                         <td>
                           <div class="input-group">
-                            <input :class="'form-control text-right' + (item.missing ? ' is-invalid' : '')"
+                            <input :class="'form-control text-end text-right' + (item.missing ? ' is-invalid' : '')"
                                    type="number" min="0"
                                    name="measured"
                                    v-model="item.measured">
-                            <div class="input-group-append">
-                              <select class="form-control" name="unit"
-                                      v-model="item.unit"
-                                      v-if="item.extra.activity_type == 'distance'">
-                                <option value="nautical-mile">nautical mile</option>
-                                <option value="mile">mile</option>
-                                <option value="km">km</option>
-                              </select>
-                              <select class="form-control" name="unit"
-                                      v-model="item.unit"
-                                      v-if="item.extra.activity_type != 'distance'">
-                                <option value="gallons">gal (US)</option>
-                                <option value="liters">Liter</option>
-                                <option value="bbl">Barrel</option>
-                                <option value="scf">Standard Cubic Foot</option>
-                                <option value="ccf">Hundred Cubic Feet</option>
-                                <option value="m3">m3</option>
-                              </select>
-                            </div>
+                            <select class="form-control form-select"
+                                    name="unit"
+                                    v-model="item.unit"
+                                    v-if="item.extra.activity_type == 'distance'">
+                              <option value="nautical-mile">nautical mile</option>
+                              <option value="mile">mile</option>
+                              <option value="km">km</option>
+                            </select>
+                            <select class="form-control form-select"
+                                    name="unit"
+                                    v-model="item.unit"
+                                    v-if="item.extra.activity_type != 'distance'">
+                              <option value="gallons">gal (US)</option>
+                              <option value="liters">Liter</option>
+                              <option value="bbl">Barrel</option>
+                              <option value="scf">Standard Cubic Foot</option>
+                              <option value="ccf">Hundred Cubic Feet</option>
+                              <option value="m3">m3</option>
+                            </select>
                           </div>
                         </td>
                       </tr>
@@ -360,14 +351,16 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                           <input class="form-control" type="text" v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="activity-type"
-                                    v-model="newItem.extra.activity_type">
+                          <select class="form-control form-select"
+                                  name="activity-type"
+                                  v-model="newItem.extra.activity_type">
                             <option value="fuel-use">Fuel Use</option>
                             <option value="distance">Distance Activity</option>
                           </select>
                         </td>
                         <td>
-                          <select class="form-control" name="fuel-type"
+                          <select class="form-control form-select"
+                                  name="fuel-type"
                                   v-model="newItem.extra.fuel_type">
                             <option value="motor-gasoline">Motor Gasoline</option>
                             <option value="diesel-fuel">Diesel Fuel</option>
@@ -379,7 +372,8 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                           </select>
                         </td>
                         <td>
-                          <select class="form-control" name="vehicle-type"
+                          <select class="form-control form-select"
+                                  name="vehicle-type"
                                   v-model="newItem.extra.vehicle_type"
                                   v-if="newItem.extra.fuel_type == 'motor-gasoline'">
                             <option value="gasoline-passenger-cars">Gasoline Passenger Cars</option>
@@ -391,7 +385,8 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                             <option value="gasoline-motorcycles">Gasoline Motorcycles</option>
                             <option value="other-gasoline-non-road-vehicles">Other Gasoline Non-Road Vehicles</option>
                           </select>
-                          <select class="form-control" name="vehicle-type"
+                          <select class="form-control form-select"
+                                  name="vehicle-type"
                                   v-model="newItem.extra.vehicle_type"
                                   v-if="newItem.extra.fuel_type == 'diesel-fuel'">
                             <option value="diesel-passenger-cars">Diesel Passenger Cars</option>
@@ -402,7 +397,8 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                             <option value="diesel-medium-and-heavy-duty-vehicles">Diesel Medium- and Heavy-duty Vehicles</option>
                             <option value="other-diesel-non-road-vehicles">Other Diesel Non-Road Vehicles</option>
                           </select>
-                          <select class="form-control" name="vehicle-type"
+                          <select class="form-control form-select"
+                                  name="vehicle-type"
                                   v-model="newItem.extra.vehicle_type"
                                   v-if="newItem.extra.fuel_type == 'biodiesel'">
                             <option value="biodiesel-passenger-cars">Biodiesel Passenger Cars</option>
@@ -416,18 +412,21 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                             <option value="cng-light-duty-vehicles">CNG Light-duty Vehicles</option>
                             <option value="cng-medium-and-heavy-duty-vehicles">CNG Medium- and Heavy-duty Vehicles</option>
                           </select>
-                          <select class="form-control" name="vehicle-type"
+                          <select class="form-control form-select"
+                                  name="vehicle-type"
                                   v-model="newItem.extra.vehicle_type"
                                   v-if="newItem.extra.fuel_type == 'ethanol'">
                             <option value="ethanol-light-duty-vehicles">Ethanol Light-duty Vehicles</option>
                             <option value="ethanol-medium-and-heavy-duty-vehicles">Ethanol Medium- and Heavy-duty Vehicles</option>
                           </select>
-                          <select class="form-control" name="vehicle-type"
+                          <select class="form-control form-select"
+                                  name="vehicle-type"
                                   v-model="newItem.extra.vehicle_type"
                                   v-if="newItem.extra.fuel_type == 'jet-fuel'">
                             <option value="jet-fuel-aircraft">Jet Fuel Aircraft</option>
                           </select>
-                          <select class="form-control" name="vehicle-type"
+                          <select class="form-control form-select"
+                                  name="vehicle-type"
                                   v-if="newItem.extra.fuel_type == 'aviation-gasoline'">
                             <option value="aviation-gasoline-aircraft">Aviation Gasoline Aircraft</option>
                           </select>
@@ -520,19 +519,15 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                           {% include "app/track/_ghg-emissions-toggle.html" %}
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">From</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">From</label>
                             <input class="form-control" type="date"
                                    v-model="starts_at">
                           </div>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">To</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">To</label>
                             <input class="form-control" type="date"
                                    v-model="ends_at">
                           </div>
@@ -627,7 +622,8 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                           <input class="form-control" type="text" v-model="newItem.extra.equipment_type" />
                         </td>
                         <td>
-                          <select class="form-control" name="refrigerant-used"
+                          <select class="form-control form-select"
+                                  name="refrigerant-used"
                                   v-model="newItem.extra.refrigerant_used">
                             <option :value="key" v-for="(option, key) in $ef_refrigerants">[[option.title]]</option>
                           </select>
@@ -704,19 +700,15 @@ Electricity and other sources of energy purchased from your local utility (that 
                          {% include "app/track/_ghg-emissions-toggle.html" %}
                        </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">From</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">From</label>
                             <input class="form-control" type="date"
                                    v-model="starts_at">
                           </div>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">To</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">To</label>
                             <input class="form-control" type="date"
                                    v-model="ends_at">
                           </div>
@@ -746,14 +738,14 @@ Electricity and other sources of energy purchased from your local utility (that 
                                   name="measured"
                                   v-model="item.measured">
                            <div class="input-group-append">
-                             <select class="form-control"
+                             <select class="form-control form-select"
                                      name="unit"
                                      v-model="item.unit"
                                      v-if="item.extra.calculation_approach == 'purchased-electricity-location-based' || item.extra.calculation_approach == 'purchased-electricity-market-based'">
                                 <option value="kwh">kWh</option>
                                 <option value="mwh">MWh</option>
                              </select>
-                             <select class="form-control"
+                             <select class="form-control form-select"
                                      v-model="item.unit"
                                      v-if="item.extra.calculation_approach == 'heat-steam'">
                                 <option value="btu">Btu</option>
@@ -773,7 +765,7 @@ Electricity and other sources of energy purchased from your local utility (that 
                                 v-model="newItem.full_name" />
                        </td>
                        <td>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  name="grid"
                                  v-model="newItem.extra.grid">
                            <option value="akgd">AKGD</option>
@@ -819,7 +811,7 @@ Electricity and other sources of energy purchased from your local utility (that 
                          </select>
                        </td>
                        <td>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  name="calculation_approach"
                                  v-model="newItem.extra.calculation_approach">
                            <option value="purchased-electricity-location-based">Purchased Electricity - Location Based</option>
@@ -828,21 +820,21 @@ Electricity and other sources of energy purchased from your local utility (that 
                          </select>
                        </td>
                        <td>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.type_of_emission_factor"
                                  v-if="newItem.extra.calculation_approach == 'purchased-electricity-market-based'">
 <!--                       <option value="custom-emission-factor">Custom emission factor</option> -->
                            <option value="residual-mix">Residual Mix</option>
                            <option value="grid-average-location-based">Grid Average/Location Based</option>
                          </select>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  name="type_of_emission_factor"
                                  v-model="newItem.extra.type_of_emission_factor"
                                  v-if="newItem.extra.calculation_approach == 'purchased-electricity-location-based'">
 <!--                       <option value="custom-emission-factor">Custom emission factor</option> -->
                            <option value="grid-average-location-based">Grid Average/Location Based</option>
                          </select>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.type_of_emission_factor"
                                  v-if="newItem.extra.calculation_approach == 'heat-steam'">
 <!--                       <option value="custom-emission-factor">Custom emission factor</option> -->
@@ -934,19 +926,15 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                          {% include "app/track/_ghg-emissions-toggle.html" %}
                        </th>
                        <th>
-                         <div class="input-group mr-2">
-                           <div class="input-group-prepend">
-                             <label class="input-group-text">From</label>
-                           </div>
+                         <div class="input-group me-2">
+                           <label class="input-group-text">From</label>
                            <input class="form-control" type="date"
                                   v-model="starts_at">
                          </div>
                        </th>
                        <th>
-                         <div class="input-group mr-2">
-                           <div class="input-group-prepend">
-                             <label class="input-group-text">To</label>
-                           </div>
+                         <div class="input-group me-2">
+                           <label class="input-group-text">To</label>
                            <input class="form-control" type="date"
                                   v-model="ends_at">
                          </div>
@@ -981,33 +969,31 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                            <input class="form-control" type="number" min="0"
                                   name="measured"
                                   v-model="item.measured">
-                           <div class="input-group-append">
-                             <select class="form-control"
-                                     v-model="item.unit"
-                                     v-if="item.extra.activity_type == 'distance'">
-                               <option value="nautical-mile">nautical mile</option>
-                               <option value="mile">mile</option>
-                               <option value="km">km</option>
-                             </select>
-                             <select class="form-control"
-                                     v-model="item.unit"
-                                     v-if="item.extra.activity_type == 'passenger-distance'">
-                               <option value="passenger-mile">passenger-mile</option>
-                               <option value="passenger-mile">passenger-km</option>
-                             </select>
-                             <select class="form-control"
-                                     v-model="item.unit"
-                                     v-if="item.extra.activity_type == 'vehicle-distance'">
-                               <option value="vehicle-mile">vehicle-mile</option>
-                               <option value="vehicle-km">vehicle-km</option>
-                             </select>
-                             <select class="form-control"
-                                     v-model="item.unit"
-                                     v-if="item.extra.activity_type == 'weight-distance'">
-                               <option value="ton-mile">ton-mile</option>
-                               <option value="tonne-km">tonne-km</option>
-                             </select>
-                           </div>
+                            <select class="form-control form-select"
+                                    v-model="item.unit"
+                                    v-if="item.extra.activity_type == 'distance'">
+                              <option value="nautical-mile">nautical mile</option>
+                              <option value="mile">mile</option>
+                              <option value="km">km</option>
+                            </select>
+                            <select class="form-control form-select"
+                                    v-model="item.unit"
+                                    v-if="item.extra.activity_type == 'passenger-distance'">
+                              <option value="passenger-mile">passenger-mile</option>
+                              <option value="passenger-mile">passenger-km</option>
+                            </select>
+                            <select class="form-control form-select"
+                                    v-model="item.unit"
+                                    v-if="item.extra.activity_type == 'vehicle-distance'">
+                              <option value="vehicle-mile">vehicle-mile</option>
+                              <option value="vehicle-km">vehicle-km</option>
+                            </select>
+                            <select class="form-control form-select"
+                                    v-model="item.unit"
+                                    v-if="item.extra.activity_type == 'weight-distance'">
+                              <option value="ton-mile">ton-mile</option>
+                              <option value="tonne-km">tonne-km</option>
+                            </select>
                          </div>
                        </td>
                      </tr>
@@ -1017,7 +1003,7 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                                 v-model="newItem.full_name" />
                        </td>
                        <td>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.category">
                            <option value="upstream-td">Upstream T&amp;D</option>
                            <option value="business-travel">Business Travel</option>
@@ -1025,14 +1011,14 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                          </select>
                        </td>
                        <td>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.emission_factor_dataset">
                            <option value="us-epa">US EPA</option>
 <!--                       <option value="uk-defra">UK DEFRA</option> -->
                          </select>
                        </td>
                        <td>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                 v-model="newItem.extra.mode_of_transport">
                            <option value="car">Car</option>
                            <option value="air">Air</option>
@@ -1042,7 +1028,7 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                          </select>
                        </td>
                         <td>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                 v-model="newItem.extra.activity_type">
                            <option value="distance">Distance</option>
                            <option value="passenger-distance">Passenger Distance</option>
@@ -1051,49 +1037,49 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                          </select>
                        </td>
                         <td>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.vehicle_type"
                                  v-if="newItem.extra.category == 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'air'">
                            <option value="aircraft">Aircraft</option>
                          </select>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.vehicle_type"
                                  v-if="newItem.extra.category == 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'car'">
                            <option value="medium-and-heavy-duty-truck">Medium- and Heavy-Duty Truck</option>
                            <option value="passenger-car-a1">Passenger Car A1</option>
                            <option value="light-duty-truck-b1">Light-Duty Truck B1</option>
                          </select>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.vehicle_type"
                                  v-if="newItem.extra.category == 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'ferry'">
                            <option value="waterborne-craft">Waterborne Craft</option>
                          </select>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.vehicle_type"
                                  v-if="newItem.extra.category == 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'rail'">
                            <option value="rail">Rail</option>
                          </select>
                          <!-- business travel and employee commute -->
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.vehicle_type"
                                  v-if="newItem.extra.category != 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'air'">
                            <option value="air-travel-short-haul-300-miles">Air Travel - Short Haul (&lt; 300 miles)</option>
                            <option value="air-travel-medium-haul-300-miles-2300-miles">Air Travel - Medium Haul (&gt;= 300 miles,  &lt; 2300 miles)</option>
                            <option value="air-travel-long-haul-2300-miles">Air Travel - Long Haul (&gt;= 2300 miles)</option>
                          </select>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.vehicle_type"
                                  v-if="newItem.extra.category != 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'car'">
                            <option value="passenger-car-a">Passenger Car A</option>
                            <option value="light-duty-truck-b">Light-Duty Truck B</option>
                            <option value="motorcycle">Motorcycle</option>
                          </select>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.vehicle_type"
                                  v-if="newItem.extra.category != 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'bus'">
                            <option value="bus">Bus</option>
                          </select>
-                         <select class="form-control"
+                         <select class="form-control form-select"
                                  v-model="newItem.extra.vehicle_type"
                                  v-if="newItem.extra.category != 'upstream-td' && newItem.extra.emission_factor_dataset == 'us-epa' && newItem.extra.mode_of_transport == 'rail'">
                            <option value="intercity-rail">Intercity Rail (i.e. Amtrak) C</option>
@@ -1178,7 +1164,7 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
         {% endblock %}
       </div> {# .panel-body #}
       {% block panel_footer %}
-      <div class="card-footer" style="padding:0;">
+      <div class="card card-footer mt-4" style="padding:0;">
       </div>
       {% endblock %}
     </div>

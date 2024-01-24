@@ -41,7 +41,7 @@
                 <div class="dashboard-nav-main dashboard-nav-color-theme">
                   <div>
                     <header>
-                      <nav class="navbar{% block _navbar_extra_classes %} navbar-light{% endblock %}">
+                      <nav class="navbar{% block _navbar_extra_classes %}{% endblock %}">
                         <div class="navbar-header">
                           {% include "_navbarbrand.html" %}
                         </div>
@@ -61,7 +61,7 @@
                   {% block dashboard_footer %}
                   <div class="dashboard-nav-footer dashboard-nav-color-theme">
                     <div class="footer-links">
-                      <a href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm pr-2"></i></a>
+                      <a href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm pe-2"></i></a>
                       <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
                     </div>
 
@@ -80,26 +80,27 @@
           <div class="dashboard-content">
             <div class="d-print-none fullviewport">
               <header>
-                <nav class="navbar navbar-expand-md navbar-dark border-bottom{% block navbar_extra_classes %}{% endblock %}">
-                  <a href="" class="sidebar-toggle d-inline-block d-sm-none position-relative">
-                    <div class="bar1 closed"></div>
-                    <div class="bar2 closed"></div>
-                    <div class="bar3 closed"></div>
-                  </a>
+                <nav class="navbar navbar-expand-md border-bottom{% block navbar_extra_classes %} navbar-dark bg-secondary{% endblock %}">
+                  <div class="container-fluid">
+                    <a href="" class="sidebar-toggle d-inline-block d-sm-none position-relative">
+                      <div class="bar1 closed"></div>
+                      <div class="bar2 closed"></div>
+                      <div class="bar3 closed"></div>
+                    </a>
 
-                  {% block content_navbarbrand %}
+                    {% block content_navbarbrand %}
                     <div class="navbar-brand-container">
                       {% include "_navbarbrand.html" %}
                     </div>
-                  {% endblock %}
+                    {% endblock %}
 
-                  {% block header_navbar_large %}
-                    <div class="navbar-collapse collapse navbar-right">
-                      <ul class="nav navbar-nav ml-auto mt-lg-0">
+                    {% block header_navbar_large %}
+                    <div class="navbar-collapse collapse navbar-right justify-content-end">
+                      <ul class="nav navbar-nav ms-auto mt-lg-0 ml-auto">
                         {% include "_generic_navbar.html" %}
                       </ul>
                     </div>
-                    <ul class="nav navbar-nav ml-auto mt-lg-0 header-menubar">
+                    <ul class="nav navbar-nav ms-auto mt-lg-0 header-menubar ml-auto">
                       {# The content here will be replaced by _menubar.html #}
                       <li class="nav-item">
                         {% if request and request|is_authenticated %}
@@ -110,7 +111,8 @@
                       </li>
                       {# end of replaced by _menubar.html #}
                     </ul>
-                  {% endblock %}
+                    {% endblock %}
+                  </div>
                 </nav>
               </header>
               {% block fullviewport %}
@@ -121,22 +123,22 @@
                 <div id="messages-content">
                   {% if request %}
                     {% for message in request|messages %}
-                      <div class="alert{% if message.tags %} alert-{{message.tags}}{% endif %}">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        {% if 'safe' in message.tags %}
-                          <div>{{message|safe}}</div>
-                        {% else %}
-                          <div>{{message}}</div>
-                        {% endif %}
-                      </div>
+                    <div class="alert alert-dismissible fade show{% if message.tags %} alert-{{message.tags}}{% endif %}">
+                      {% if 'safe' in message.tags %}
+                      <div>{{message|safe}}</div>
+                      {% else %}
+                      <div>{{message}}</div>
+                      {% endif %}
+                      <button type="button" class="btn-close close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     {% endfor %}
                   {% endif %}
                   {% if form %}
                     {% for message in form|messages %}
-                      <div class="alert alert-danger">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        <div>{{message}}</div>
-                      </div>
+                    <div class="alert alert-dismissible fade show alert-danger">
+                      <div>{{message}}</div>
+                      <button type="button" class="btn-close close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     {% endfor %}
                   {% endif %}
                   <script type="text/javascript">
@@ -179,8 +181,7 @@
 
 {% block _bodyscripts %}
 <script type="text/javascript" src="{{'/static/vendor/jquery.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/popper-utils.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/popper.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/popper.min.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/bootstrap.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/djaodjin-menubar.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/djaodjin-dashboard.js'|asset}}"></script>

@@ -63,20 +63,16 @@
                         <th>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">From</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">From</label>
                             <input :class="'form-control' + (isInvalidStartsAt ? ' is-invalid' : '')"
                                    type="date"
                                    v-model="starts_at">
                           </div>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">To</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">To</label>
                             <input :class="'form-control' + (isInvalidStartsAt ? ' is-invalid' : '')"
                                    type="date"
                                    v-model="ends_at">
@@ -103,9 +99,8 @@
                                    name="measured"
                                    v-model="item.measured">
                             <div class="input-group-append">
-                              <select class="form-control"
-                                   name="unit"
-                                   v-model="item.unit">
+                              <select class="form-control form-select"
+                                   name="unit" v-model="item.unit">
                                 <option value="tons">Metric tons</option>
                                 <option value="lbs">Pounds</option>
                                 <option value="m3">Cubic meters (m<sup>3</sup>)</option>
@@ -125,7 +120,8 @@
                                  v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="waste-type"
+                          <select class="form-control form-select"
+                                  name="waste-type"
                                   v-model="newItem.extra.waste_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
@@ -162,19 +158,15 @@
                         <th>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">From</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">From</label>
                             <input class="form-control" type="date"
                                    v-model="starts_at">
                           </div>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">To</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">To</label>
                             <input class="form-control" type="date"
                                    v-model="ends_at">
                           </div>
@@ -198,17 +190,15 @@
                           <div class="input-group">
                             <input class="form-control" type="number" min="0"
                                    v-model="item.measured">
-                            <div class="input-group-append">
-                              <select class="form-control"
-                                   v-model="item.unit">
-                                <option value="tons">Metric tons</option>
-                                <option value="lbs">Pounds</option>
-                                <option value="m3">Cubic meters (m<sup>3</sup>)</option>
-                                <option value="kiloliters">Kilo liters</option>
-                                <option value="ft3">Cubic feet (ft.<sup>3</sup>)</option>
-                                <option value="gallons">US Gallon</option>
-                              </select>
-                            </div>
+                            <select class="form-control form-select"
+                                  v-model="item.unit">
+                              <option value="tons">Metric tons</option>
+                              <option value="lbs">Pounds</option>
+                              <option value="m3">Cubic meters (m<sup>3</sup>)</option>
+                              <option value="kiloliters">Kilo liters</option>
+                              <option value="ft3">Cubic feet (ft.<sup>3</sup>)</option>
+                              <option value="gallons">US Gallon</option>
+                            </select>
                           </div>
                         </td>
                       </tr>
@@ -218,7 +208,8 @@
                                  v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="waste-type"
+                          <select class="form-control form-select"
+                                  name="waste-type"
                                   v-model="newItem.extra.waste_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
@@ -255,19 +246,15 @@
                         <th>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">From</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">From</label>
                             <input class="form-control" type="date"
                                    v-model="starts_at">
                           </div>
                         </th>
                         <th>
-                          <div class="input-group mr-2">
-                            <div class="input-group-prepend">
-                              <label class="input-group-text">To</label>
-                            </div>
+                          <div class="input-group me-2">
+                            <label class="input-group-text">To</label>
                             <input class="form-control" type="date"
                                    v-model="ends_at">
                           </div>
@@ -291,17 +278,15 @@
                           <div class="input-group">
                             <input class="form-control" type="number" min="0"
                                    v-model="item.measured">
-                            <div class="input-group-append">
-                              <select class="form-control"
-                                   v-model="item.unit">
-                                <option value="tons">Metric tons</option>
-                                <option value="lbs">Pounds</option>
-                                <option value="m3">Cubic meters (m<sup>3</sup>)</option>
-                                <option value="kiloliters">Kilo liters</option>
-                                <option value="ft3">Cubic feet (ft.<sup>3</sup>)</option>
-                                <option value="gallons">US Gallon</option>
-                              </select>
-                            </div>
+                            <select class="form-control"
+                                  v-model="item.unit">
+                              <option value="tons">Metric tons</option>
+                              <option value="lbs">Pounds</option>
+                              <option value="m3">Cubic meters (m<sup>3</sup>)</option>
+                              <option value="kiloliters">Kilo liters</option>
+                              <option value="ft3">Cubic feet (ft.<sup>3</sup>)</option>
+                              <option value="gallons">US Gallon</option>
+                            </select>
                           </div>
                         </td>
                       </tr>
@@ -310,7 +295,8 @@
                           <input class="form-control" type="text" v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="waste-type"
+                          <select class="form-control form-select"
+                                  name="waste-type"
                                   v-model="newItem.extra.waste_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
@@ -335,7 +321,7 @@
         {% endblock %}
       </div> {# .panel-body #}
       {% block panel_footer %}
-      <div class="card-footer" style="padding:0;">
+      <div class="card card-footer mt-4" style="padding:0;">
       </div>
       {% endblock %}
     </div>

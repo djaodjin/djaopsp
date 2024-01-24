@@ -57,7 +57,7 @@ Development
 You will want to toggle `DEBUG` on in the site.conf file.
 
 <pre><code>
-    $ diff -u <em>installTop</em>/etc/djaoapp/site.conf
+    $ diff -u <em>installTop</em>/etc/djaopsp/site.conf
     -DEBUG = False
     +DEBUG = True
 
@@ -71,6 +71,8 @@ You will want to toggle `DEBUG` on in the site.conf file.
     # on page reload whenever necessary.
     $ python manage.py runserver --nostatic
 </code></pre>
+
+The app will be accessible at http://localhost:8000/djaopsp
 
 
 Release Notes

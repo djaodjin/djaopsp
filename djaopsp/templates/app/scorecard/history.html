@@ -10,10 +10,10 @@
 <div class="container pt-4">
   <div class="bg-white text-dark p-4">
     <div class="row">
-      <div class="col-sm-2 text-center text-sm-right">
+      <div class="col-sm-2 text-center text-sm-end">
         <img class="img-fluid" style="max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
       </div>
-      <div class="col-sm-10 text-center text-sm-left">
+      <div class="col-sm-10 text-center text-sm-start">
         <h1>{% trans %}Questionnaires{% endtrans %}</h1>
         <h2 class="my-0">{{profile.printable_name}}</h2>
       </div>
@@ -85,16 +85,16 @@ metrics.<br /><a href="{{'docs/guides/'|site_url}}">{% trans %}See questionnaire
         <!-- loaded, items present -->
         <div id="historical-responses" v-show="itemsLoaded && items.results.length > 0" v-cloak>
           <div class="row my-2" v-for="item in items.results">
-            <div class="col-2 text-right">
+            <div class="col-2 text-end">
               <a :href="_safeUrl('{{urls.scorecard_base}}', item.slug) + '/'">[[ $globals.humanizeDate(item.created_at) ]]</a>
               {% if verification_enabled %}
               <i class="fa fa-certificate" style="color: green;" v-if="item.verified_status != 'no-review' && item.verified_status != 'under-review'"></i>
               {% endif %}
             </div>
-            <div class="col-4 text-left">
+            <div class="col-4 text-start">
               [[item.campaign.title]]
             </div>
-            <div class="col-4 text-left" v-if="item.latest || item.grantees.length > 0">
+            <div class="col-4 text-start" v-if="item.latest || item.grantees.length > 0">
               <div v-if="item.latest">
                   <a :href="_safeUrl('{{urls.share_base}}', item.slug) + '/'">share with customers, investors, etc. &raquo;</a>
               </div>

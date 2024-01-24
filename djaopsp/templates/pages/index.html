@@ -32,7 +32,7 @@
                   </form>{# /#search #}
                 </div>
                 {% if profile %}
-                <div class="col-md-6 text-right">
+                <div class="col-md-6 text-end text-right">
                   <a id="new-page" class="btn btn-primary"
                      href="#new-pageelement"
                      data-toggle="modal" data-target="#new-pageelement">
@@ -86,7 +86,7 @@
               <div v-show="itemsLoaded && items.results.length > 0"  v-cloak>
                 <div class="row" v-for="idx in nbRows">
                   <div class="col-md-6 mt-2" v-for="item in items.results.slice((idx - 1) * nbItemsPerRow, ((idx - 1) * nbItemsPerRow + nbItemsPerRow) > items.results.length ? items.results.length : ((idx - 1) * nbItemsPerRow + nbItemsPerRow))">
-                    <a :id="item.slug" :href="'{{urls.pages_index}}' + item.path.substr(1) + '/'">
+                    <a class="pages-card-link" :id="item.slug" :href="'{{urls.pages_index}}' + item.path.substr(1) + '/'">
                       <div class="card bg-white text-dark h-100">
                         <div class="card-body">
                           <div class="row">
@@ -100,8 +100,8 @@
                                      v-if="!item.picture">
                               </div>
                             </div>
-                            <div class="col-8 text-left">
-                              <h3>[[item.title]]</h3>
+                            <div class="col-8 text-start">
+                              <h4>[[item.title]]</h4>
                             </div>
                           </div>
                         </div>
