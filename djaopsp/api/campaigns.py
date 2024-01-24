@@ -9,13 +9,13 @@ from django.db import transaction
 from django.db.models import Max
 from pages.api.elements import (PageElementEditableListAPIView,
     PageElementEditableDetail)
+from pages.docs import extend_schema
 from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip, flatten_content_tree
 from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from survey.docs import extend_schema
 from survey.mixins import QuestionMixin
 from survey.models import EnumeratedQuestions
 from survey.utils import get_question_model, get_question_serializer

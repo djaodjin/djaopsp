@@ -2,7 +2,7 @@
 # see LICENSE.
 #pylint:disable=too-many-lines
 
-import datetime, json, re
+import datetime, json, logging, re
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
@@ -14,11 +14,11 @@ from rest_framework import generics, status
 from rest_framework import response as http
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.settings import api_settings
+from pages.docs import extend_schema
 from pages.models import PageElement
 from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
 from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
-from survey.docs import extend_schema
 from survey.filters import DateRangeFilter, OrderingFilter, SearchFilter
 from survey.helpers import (construct_monthly_periods,
     construct_yearly_periods, construct_weekly_periods, period_less_than)
@@ -46,6 +46,8 @@ from .rollups import GraphMixin, RollupMixin, ScoresMixin
 from .serializers import (AccessiblesSerializer, CompareNodeSerializer,
     EngagementSerializer, ReportingSerializer)
 
+
+LOGGER = logging.getLogger(__name__)
 
 class CompletionSummaryPagination(PageNumberPagination):
     """

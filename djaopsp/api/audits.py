@@ -20,6 +20,7 @@ from ..models import VerifiedSample
 from ..helpers import as_percentage
 from .portfolios import CompletionRateMixin
 from .serializers import VerifiedSampleSerializer
+from ..utils import get_requested_accounts
 
 LOGGER = logging.getLogger(__name__)
 
