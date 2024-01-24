@@ -41,7 +41,7 @@
                 <div class="dashboard-nav-main dashboard-nav-color-theme">
                   <div>
                     <header>
-                      <nav class="navbar{% block _navbar_extra_classes %} navbar-light{% endblock %}">
+                      <nav class="navbar{% block _navbar_extra_classes %}{% endblock %}">
                         <div class="navbar-header">
                           {% include "_navbarbrand.html" %}
                         </div>
@@ -80,7 +80,7 @@
           <div class="dashboard-content">
             <div class="d-print-none fullviewport">
               <header>
-                <nav class="navbar navbar-expand-md navbar-dark border-bottom{% block navbar_extra_classes %}{% endblock %}">
+                <nav class="navbar navbar-expand-md border-bottom{% block navbar_extra_classes %} navbar-dark bg-secondary{% endblock %}">
                   <div class="container-fluid">
                     <a href="" class="sidebar-toggle d-inline-block d-sm-none position-relative">
                       <div class="bar1 closed"></div>

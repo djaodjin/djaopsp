@@ -9,7 +9,7 @@
     <small><a href="" @click.prevent="toggleEditTags(index)"><i class="fa fa-times"></i></a> {% trans %}select tags ...{% endtrans %}</small>
     <div v-show="showPreferences < 0">
       <div v-if="entry.extra && entry.extra.tags">
-        <select class="form-control w-100" multiple="multiple"
+        <select class="form-control form-select w-100" multiple="multiple"
                 v-model="entry.extra.tags"
                 @blur="saveTags(entry)">
           <option :value="choice" :selected="isSelectedTag(entry, choice)" v-for="choice in tagChoices">[[choice]]</option>

@@ -97,7 +97,7 @@
                                    name="measured"
                                    v-model="item.measured">
                             <div class="input-group-append">
-                              <select class="form-control"
+                              <select class="form-control form-select"
                                    name="unit"
                                    v-model="item.unit">
                                 <option value="tons">Metric tons</option>
@@ -118,7 +118,8 @@
                                  v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="water-type"
+                          <select class="form-control form-select"
+                                  name="water-type"
                                   v-model="newItem.extra.water_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
@@ -186,7 +187,7 @@
                             <input class="form-control" type="number" min="0"
                                    name="measured" v-model="item.measured">
                             <div class="input-group-append">
-                              <select class="form-control"
+                              <select class="form-control form-select"
                                    name="unit" v-model="item.unit">
                                 <option value="tons">Metric tons</option>
                                 <option value="lbs">Pounds</option>
@@ -206,7 +207,8 @@
                                  v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="water-type"
+                          <select class="form-control form-select"
+                                  name="water-type"
                                   v-model="newItem.extra.water_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
@@ -280,7 +282,7 @@
                                    name="measured"
                                    v-model="item.measured">
                             <div class="input-group-append">
-                              <select class="form-control"
+                              <select class="form-control form-select"
                                    name="unit"
                                    v-model="item.unit">
                                 <option value="tons">Metric tons</option>
@@ -301,7 +303,8 @@
                                  v-model="newItem.full_name" />
                         </td>
                         <td>
-                          <select class="form-control" name="water-type"
+                          <select class="form-control form-select"
+                                  name="water-type"
                                   v-model="newItem.extra.water_type">
                             <option value="unspecified">Unspecified</option>
                           </select>
@@ -330,7 +333,7 @@
         {% endblock %}
       </div> {# .panel-body #}
       {% block panel_footer %}
-      <div class="card-footer" style="padding:0;">
+      <div class="card card-footer mt-4" style="padding:0;">
       </div>
       {% endblock %}
     </div>

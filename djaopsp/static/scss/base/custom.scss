@@ -56,7 +56,12 @@ $jumbotron-shadow-end-color-dark: $jumbotron-shadow-start-color;
 
 //.tick line {display: none;}
 header .nav-item {
-  border-left: 1px solid #fff;
+  border-left: 1px solid $white;
+  padding: 0 10px;
+}
+
+header .nav-item>.nav-link {
+  color: $white;
 }
 
 .navbar-top {
@@ -78,6 +83,10 @@ header .nav-item {
   tbody:nth-of-type(#{$table-striped-order}) td {
     background-color: $table-accent-bg;
   }
+}
+
+.tile-link {
+    text-decoration: none;
 }
 
 .practice-required {
@@ -314,13 +323,9 @@ b, strong{
    sticking the footer to the bottom while introducing a "border" above it. */
 #main{
   /*overflow:auto;*/
+  min-height: 100%;
   padding-bottom: $footer-height;/* stick to bottom must be in pixel
                                     (see comment abolve) */
-}
-
-header {
-  background: #3ca65b;
-  color: white;
 }
 
 #scroll-page {
@@ -1036,6 +1041,13 @@ a.text-grey{
    color:#54BAD8;
 }
 
+.bestpractice>a {
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .bestpractice>a.title,
 .bestpractice-0>a.title,
 .bestpractice-1>a.title,
@@ -1661,7 +1673,7 @@ thead{
 }
 
 .choice-selected {
-  background-color: $secondary;
+  background-color: $secondary !important;
 }
 
 .table tr > th.sticky-cell {
@@ -2289,11 +2301,8 @@ pre.code{
   &:hover,
   &:visited {
     color: $breadcrumb-divider-color;
+    text-decoration: none;
   }
-}
-
-.navbar .navbar-nav .nav-item a {
-  --#{$prefix}nav-link-color: white;
 }
 
 .btn-primary,

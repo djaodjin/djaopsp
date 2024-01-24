@@ -29,7 +29,7 @@
               <div class="col-md-8">
                 <div class="row mx-2">
                   {% for highlight in highlights %}
-                  <div class="col-6 col-md-3 text-left">
+                  <div class="col-6 col-md-3 text-start text-left">
                     <div class="mt-2 icon-inner{% if highlight.reporting %} orange{% else %} grey{% endif %}">
                       <img class="icon-equipment"
                            src="{{highlight.picture|asset}}">
@@ -39,7 +39,7 @@
                   {% endfor %}
                 </div>
                 <div class="row mx-2">
-                  <div class="col-md-8 text-left">
+                  <div class="col-md-8 text-start text-left">
                     <div class="mt-4">
                       Contact Information
                       <ul class="list-unstyled mb-0">
@@ -83,7 +83,7 @@
             {% endif %}
             <form class="d-print-none mt-2">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-              <select class="form-control"
+              <select class="form-control form-select"
                       v-model="verificationStatus"
                       @change="updateVerificationStatus()">
                 <option value="no-review">(grey) {% trans %}Not yet reviewed nor verified{% endtrans %}</option>

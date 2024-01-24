@@ -34,7 +34,8 @@ been completed.{% endtrans %}
         {% for item in segments_candidates %}
         {% if item.extra and item.extra.pagebreak %}
         <div>
-          <a id="{{item.slug}}" href="{{urls.assess|rstrip_sep}}{{item.path}}/">
+          <a id="{{item.slug}}" class="tile-link"
+             href="{{urls.assess|rstrip_sep}}{{item.path}}/">
             <div class="card bg-white text-dark h-100">
               <div class="card-body">
                 <div class="row">
@@ -51,8 +52,8 @@ been completed.{% endtrans %}
                       {% endif %}
                     </div>
                   </div>
-                  <div class="col-8 text-left">
-                    <h3>{{item.title}}</h3>
+                  <div class="col-8 text-start text-left">
+                    <h4>{{item.title}}</h4>
                   </div>
                 </div>
               </div>

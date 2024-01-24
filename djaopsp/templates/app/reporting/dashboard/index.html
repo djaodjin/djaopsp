@@ -8,19 +8,25 @@
     {# Following `div` matches engage page layout #}
     <div class="row">
       <div class="col-md-6">
-        <form id="period-update" class="form-inline mt-4"
+        <form id="period-update" class="row mt-4"
               @submit.prevent="reload()">
-          <div class="input-group input-group-sm me-2">
-            <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-            <input class="form-control" type="date" v-model="_start_at" v-cloak>
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
+              <input class="form-control" type="date" v-model="_start_at" v-cloak>
+            </div>
           </div>
-          <div class="input-group input-group-sm me-2">
-            <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+            </div>
           </div>
-          <button class="btn btn-secondary btn-sm me-2"
-                :disabled="!outdated"
-                type="submit">{% trans %}Update{% endtrans %}</button>
+          <div class="col-sm-4">
+            <button class="btn btn-secondary btn-sm"
+                  :disabled="!outdated"
+                  type="submit">{% trans %}Update{% endtrans %}</button>
+          </div>
         </form>{# /#period-update #}
       </div>
       <div class="col-md-6">

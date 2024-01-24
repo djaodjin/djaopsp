@@ -75,7 +75,7 @@
            v-model="getPrimaryPlanned(practice).measured"
            @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryPlanned(practice).unit"
             @blur="updatePlannedAnswer(practice)"
              v-if="isRevenueUIHint(practice)"
@@ -122,7 +122,7 @@
            v-model="getPrimaryPlanned(practice).measured"
            @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryPlanned(practice).unit"
             @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
@@ -182,7 +182,7 @@
            v-model="getPrimaryPlanned(practice).measured"
            @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryPlanned(practice).unit"
             @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
@@ -229,7 +229,7 @@
            v-model="getPrimaryPlanned(practice).measured"
            @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryPlanned(practice).unit"
             @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
@@ -276,7 +276,7 @@
               v-model="getPrimaryPlanned(practice).measured"
               @blur="updatePlannedAnswer(practice)"
            {% if sample.is_frozen %} disabled{% endif %}></input>
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryPlanned(practice).unit"
             @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
@@ -328,7 +328,7 @@
     <label class="form-control input-group-prefix">
       {% trans %}Achieve by{% endtrans %}
     </label>
-    <select class="form-control"
+    <select class="form-control form-select"
           v-model="getPrimaryPlanned(practice).measured"
           @blur="updatePlannedAnswer(practice)"
           {% if sample.is_frozen %} disabled{% endif %}>
@@ -370,7 +370,7 @@
     <label class="form-control input-group-prefix">
       {% trans %}Baseline{% endtrans %}
     </label>
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryPlanned(practice).measured"
             @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>

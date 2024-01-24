@@ -50,30 +50,42 @@
   <div>
     <div class="row">
       <div class="col-md-6">
-        <form id="period-update" class="form-inline mt-4"
+        <form id="period-update" class="mt-4"
               @submit.prevent="reload()">
-          <div class="input-group input-group-sm mr-2">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
+          <div class="row">
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
+              </div>
+              <input class="form-control" type="date" v-model="_start_at" v-cloak>
             </div>
-            <input class="form-control" type="date" v-model="_start_at" v-cloak>
           </div>
-          <div class="input-group input-group-sm mr-2">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              </div>
+              <input class="form-control" type="date" v-model="_ends_at" v-cloak>
             </div>
-            <input class="form-control" type="date" v-model="_ends_at" v-cloak>
           </div>
-          <div class="input-group input-group-sm mr-2">
-              <select class="form-control"
+          </div>
+          <div class="row mt-2">
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
+              <select class="form-control form-select"
                       v-model="params.period">
                   <option value="monthly">{% trans %}Monthly{% endtrans %}</option>
                   <option value="yearly">{% trans %}Yearly{% endtrans %}</option>
               </select>
+            </div>
           </div>
-          <button class="btn btn-secondary btn-sm mr-2"
-                :disabled="!outdated"
-                type="submit">{% trans %}Update{% endtrans %}</button>
+          <div class="col-sm-4 text-end text-right">
+            <button class="btn btn-secondary btn-sm"
+                  :disabled="!outdated"
+                  type="submit">{% trans %}Update{% endtrans %}</button>
+          </div>
+          </div>
         </form>{# /#period-update #}
       </div>
     </div>
@@ -223,7 +235,7 @@
           <i class="fa fa-circle" style="color: grey;"
              v-if="val[1] === 'no-data'"></i>
           <br />
-          <a :href="val[2]" v-if="val[1] === 'verified' || val[1] === 'completed'">
+          <a :href="val[2]" v-if="val[1] === 'verified' || val[1] === 'completed'" class="btn-link">
               <small>[[$globals.humanizeMonthDay(val[0])]]</small>
           </a>
         </td>

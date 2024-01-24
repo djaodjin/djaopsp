@@ -14,19 +14,25 @@
   <div>
     <div class="row">
       <div class="col-md-6">
-        <form id="period-update" class="form-inline mt-4"
+        <form id="period-update" class="row mt-4"
               @submit.prevent="reload()">
-          <div class="input-group input-group-sm me-2">
-            <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-            <input class="form-control" type="date" v-model="_start_at" v-cloak>
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
+              <input class="form-control" type="date" v-model="_start_at" v-cloak>
+            </div>
           </div>
-          <div class="input-group input-group-sm me-2">
-            <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+            </div>
           </div>
-          <button class="btn btn-secondary btn-sm me-2"
+          <div class="col-sm-4">
+            <button class="btn btn-secondary btn-sm"
                 :disabled="!outdated"
                 type="submit">{% trans %}Update{% endtrans %}</button>
+          </div>
         </form>{# /#period-update #}
       </div>
       <div class="col-md-6">
@@ -120,7 +126,7 @@
           <th class="text-nowrap text-center sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                  <select class="form-control"
+                  <select class="form-control form-select"
                           v-model="params.status"
                           @change="reload()">
                       <option value="invited-denied">{% trans %}Declined to respond{% endtrans %}</option>
@@ -290,11 +296,11 @@
             </div>
             <div v-if="entry.reporting_status === 'completed'">
                 {% trans %}Completed{% endtrans %}<br />
-              <a :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
+              <a class="btn-link" :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
             </div>
             <div v-if="entry.reporting_status === 'verified'">
                 {% trans %}Verified{% endtrans %}<br />
-              <a :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
+              <a class="btn-link" :href="entry.score_url">[[entry.normalized_score ? '' + entry.normalized_score + '%' : {% trans %}"view"{% endtrans %}]]</a>
             </div>
           </td>
           <td class="text-center"
@@ -302,7 +308,7 @@
             <div v-if="entry.last_activity_at">
               [[$globals.humanizeDate(entry.last_activity_at)]]<br />
               <small>([[$globals.humanizeTimeDelta(entry.last_activity_at)]])</small><br />
-              <small v-if="entry.reporting_status === 'completed' || entry.reporting_status === 'verified'"><a href="" @click.prevent="toggleRespondents(index)"><i class="fa fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
+              <small v-if="entry.reporting_status === 'completed' || entry.reporting_status === 'verified'"><a class="btn-link" href="" @click.prevent="toggleRespondents(index)"><i class="fa fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
 
               <div class="text-start" v-for="contact in entry.respondents" v-show="index === showRespondents">
                   <img class="img-fluid" style="max-height: 1rem;" :src="contact.picture || '{{'/static/img/default-user.png'|asset}}'"> [[contact.full_name]] &lt;[[contact.email]]&gt;<br />

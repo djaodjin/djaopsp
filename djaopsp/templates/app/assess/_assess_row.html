@@ -53,7 +53,7 @@
     :colspan="6"
     v-if="isNAICSUIHint(practice)">
   <div class="input-group">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
             :disabled="practice.frozen">
@@ -105,7 +105,7 @@
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice)"
            :disabled="practice.frozen"></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice)"
             :disabled="practice.frozen">
@@ -128,7 +128,7 @@
     :colspan="6"
     v-if="isEmployeeCountUIHint(practice)">
   <div class="input-group">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
             :disabled="practice.frozen">
@@ -214,7 +214,7 @@
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice, practice.answers)"
            :disabled="practice.frozen"></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             :disabled="practice.frozen">
@@ -271,7 +271,7 @@
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice, practice.answers)"
            :disabled="practice.frozen"></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             :disabled="practice.frozen">
@@ -324,7 +324,7 @@
            v-model="getPrimaryAnswer(practice).measured"
            @blur="updateAssessmentAnswer(practice, practice.answers)"
            :disabled="practice.frozen"></input>
-    <select class="form-control input-group-suffix"
+    <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             :disabled="practice.frozen">
@@ -377,7 +377,7 @@
               v-model="getPrimaryAnswer(practice).measured"
               @blur="updateAssessmentAnswer(practice, practice.answers)"
            :disabled="practice.frozen"></input>
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).unit"
             @blur="updateAssessmentAnswer(practice, practice.answers)"
             :disabled="practice.frozen">
@@ -398,7 +398,7 @@
     colspan="6" {# default value from `getNbInputCols` #}
     v-if="isVerifiabilityUIHint(practice)">
   <div class="input-group">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
             :disabled="practice.frozen">
@@ -412,7 +412,7 @@
        target="_blank">
       <i class="fa fa-question-circle"></i>
     </a>
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getAnswerByUnit(practice, 'completeness').measured"
             @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'completeness'))"
             :disabled="practice.frozen">
@@ -428,7 +428,7 @@
     </a>
   </div>
   <div class="input-group">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getAnswerByUnit(practice, 'supporting-document').measured"
             value=""
             @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'))"
@@ -445,7 +445,7 @@
 <td class="text-center"
     colspan="6" {# default value from `getNbInputCols` #}
     v-if="isEnumSelectUIHint(practice)">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).measured"
             @blur="updateAssessmentAnswer(practice)"
             :disabled="practice.frozen">
@@ -486,7 +486,7 @@
     colspan="6"
     v-if="isTargetByUIHint(practice)">
   <div class="input-group">
-    <select class="form-control"
+    <select class="form-control form-select"
             v-model="getPrimaryAnswer(practice).measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
