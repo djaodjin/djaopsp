@@ -60,10 +60,10 @@ class PortfolioNotificationSerializer(NotificationSerializer):
         read_only_fields = ('grantee', 'account', 'campaign',
             'last_completed_at',)
 
+
 class SampleFrozenNotificationSerializer(NotificationSerializer):
     account = ProfileSerializer()
     sample = SampleSerializer()
 
     class Meta:
         fields = ('account', 'sample')
-

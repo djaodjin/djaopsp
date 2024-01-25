@@ -498,10 +498,13 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
             slide.background.fill.fore_color.rgb = RGBColor(*bg_color)
 
     def format_slide_title(self, title_shape):
-        title_shape.text_frame.paragraphs[0].font.name = self.template_config["title_font"]
-        title_shape.text_frame.paragraphs[0].font.size = Pt(self.template_config["title_font_size"])
+        title_shape.text_frame.paragraphs[0].font.name = \
+            self.template_config["title_font"]
+        title_shape.text_frame.paragraphs[0].font.size = Pt(
+            self.template_config["title_font_size"])
         title_shape.text_frame.paragraphs[0].font.bold = True
-        title_shape.text_frame.paragraphs[0].font.color.rgb = RGBColor(*self.template_config["title_font_color"])
+        title_shape.text_frame.paragraphs[0].font.color.rgb = RGBColor(
+            *self.template_config["title_font_color"])
 
     def format_entry_content(self, entry):
         content = []

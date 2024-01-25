@@ -7,7 +7,6 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
 from django.db import connection
-from django.db.models.query import QuerySet, RawQuerySet
 from django.http import HttpResponse
 from survey.helpers import get_extra
 from survey.models import Campaign, PortfolioDoubleOptIn, Unit
@@ -19,8 +18,7 @@ from ..api.serializers import EngagementSerializer
 from ..compat import force_str, gettext_lazy as _, reverse
 from ..mixins import AccountsNominativeQuerysetMixin
 from ..models import ScorecardCache
-from ..queries import (get_completed_assessments_at_by, get_engagement,
-    get_coalesce_engagement)
+from ..queries import get_completed_assessments_at_by, get_coalesce_engagement
 from ..utils import get_requested_accounts
 from .downloads import PracticesSpreadsheetView
 from .portfolios import UpdatedMenubarMixin
@@ -89,8 +87,9 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     @property
     def verified_campaign(self):
         if not hasattr(self, '_verified_campaign'):
+            #pylint:disable=attribute-defined-outside-init
             self._verified_campaign = self.campaign
-            look = re.match('(\S+)-verified$', self._verified_campaign.slug)
+            look = re.match(r'(\S+)-verified$', self._verified_campaign.slug)
             if look:
                 self._verified_campaign = get_object_or_404(
                     Campaign.objects.all(), slug=look.group(1))
@@ -293,7 +292,8 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                     continue
                 val = account.get(orig_key)
                 if orig_val and val and (orig_val != val):
-                    LOGGER.warning("[%s] value for key '%s' differs (%s vs %s)", path, orig_key, orig_val, val)
+                    LOGGER.warning("[%s] value for key '%s' differs (%s vs %s)",
+                        path, orig_key, orig_val, val)
                 if not orig_val and val:
                     orig_account[orig_key] = val
 
@@ -312,7 +312,8 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         answers_by_paths = {}
         question_clause = ""
         if self.kwargs.get('path'):
-            question_clause = "WHERE survey_question.path ILIKE '/%s%%'" % self.kwargs.get('path')
+            question_clause = ("WHERE survey_question.path ILIKE '/%s%%'"
+                % self.kwargs.get('path'))
         if self.requested_accounts:
             reporting_answers_sql = """
 WITH samples AS (
@@ -501,8 +502,7 @@ ORDER BY answers.path, answers.account_id
             last_activity_at_by_accounts.update({
                 sample.account_id: sample.created_at})
         headings = [force_str(_("Last completed at"))]
-        reporting_status_strings = {key: val
-            for key, val in EngagementSerializer.REPORTING_STATUSES}
+        reporting_status_strings = dict(EngagementSerializer.REPORTING_STATUSES)
         for reporting in self.accounts_with_engagement:
             account_id = reporting.pk
             last_activity_at = last_activity_at_by_accounts.get(account_id)

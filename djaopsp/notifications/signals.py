@@ -162,7 +162,7 @@ def portfolio_request_accepted_notice(sender, portfolio, request, **kwargs):
 
 
 @receiver(sample_frozen,
-    dispatch_uid="sample_frozen")
+    dispatch_uid="sample_frozen_notice")
 def send_sample_frozen_notification(sender, sample, request, **kwargs):
 
     back_url = request.build_absolute_uri(reverse('scorecard',

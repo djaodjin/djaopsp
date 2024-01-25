@@ -1,16 +1,19 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 from pages.views.elements import PageElementView, PageElementEditableView
-from pages.views.sequences import (SequenceProgressView as BaseSequenceProgressView, 
+from pages.views.sequences import (
+    SequenceProgressView as BaseSequenceProgressView,
     SequencePageElementView as BaseSequencePageElementView)
 
 from ..mixins import AccountMixin, SequenceProgressMixin
 
+
 class SequenceProgressView(SequenceProgressMixin, BaseSequenceProgressView):
     pass
 
-class SequencePageElementView(SequenceProgressMixin, BaseSequencePageElementView):
+class SequencePageElementView(SequenceProgressMixin,
+                              BaseSequencePageElementView):
     pass
 
 class ContentIndexView(PageElementView):

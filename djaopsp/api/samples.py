@@ -157,9 +157,10 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                             frozen_assessment_sample, calculator,
                             segment_path, segment_title)
             self._report_queries("freezing assessment: scorecard cache created")
-        
+
         # After a sample is frozen, send the signal.
-        sample_frozen.send(sender=self.__class__, sample=frozen_assessment_sample, request=request)
+        sample_frozen.send(sender=self.__class__,
+            sample=frozen_assessment_sample, request=request)
 
         # Next step in the assessment. After complete, scorecard is optional.
         next_url = reverse('share', args=(

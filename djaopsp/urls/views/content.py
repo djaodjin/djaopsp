@@ -1,13 +1,14 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 """
 Views URLs
 """
 from django.urls import path, re_path
+from pages.views.sequences import CertificateDownloadView
+
 from ...views.content import (ContentDetailView, ContentIndexView,
      SequenceProgressView, SequencePageElementView)
-from pages.views.sequences import CertificateDownloadView
 
 
 urlpatterns = [

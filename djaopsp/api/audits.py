@@ -424,7 +424,7 @@ class VerifiedStatsAPIView(CompletionRateMixin, generics.RetrieveAPIView):
             self.account, campaign=self.campaign,
             start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
             search_terms=self.search_terms,
-            as_percentage=self.is_percentage)
+            is_percentage=self.is_percentage)
         table = [{
             'slug': 'completed',
             'title': _('Completed'),
@@ -448,7 +448,7 @@ class VerifiedStatsAPIView(CompletionRateMixin, generics.RetrieveAPIView):
 
 def completed_verified_by_week(grantee, campaign=None,
                                start_at=None, ends_at=None, search_terms=None,
-                               as_percentage=False):
+                               is_percentage=False):
     """
     Returns two lists with completed and verified samples per week.
     """
@@ -489,12 +489,12 @@ def completed_verified_by_week(grantee, campaign=None,
         nb_frozen_samples = frozen_samples.count()
         period_start_at = period_ends_at
 
-        if as_percentage:
+        if is_percentage:
             rate = as_percentage(nb_frozen_samples, nb_frozen_samples)
         else:
             rate = nb_frozen_samples
         completed_values += [(period_ends_at, rate)]
-        if as_percentage:
+        if is_percentage:
             rate = as_percentage(nb_verified_samples, nb_frozen_samples)
         else:
             rate = nb_verified_samples
