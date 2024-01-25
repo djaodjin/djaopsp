@@ -4212,7 +4212,7 @@
       "text": "<p>Some text content here.</p>",
       "account": 2
     },
-    "model": "pages.PageElement", "pk": 100
+    "model": "pages.PageElement", "pk": 300
   },
   {
     "fields": {
@@ -4221,7 +4221,7 @@
       "text": "<p>Survey details here.</p>",
       "account": 2
     },
-    "model": "pages.PageElement", "pk": 101
+    "model": "pages.PageElement", "pk": 301
   },
   {
     "fields": {
@@ -4230,7 +4230,7 @@
       "text": "<p>Details about the webinar.</p>",
       "account": 2
     },
-    "model": "pages.PageElement", "pk": 102
+    "model": "pages.PageElement", "pk": 302
   },
   {
     "fields": {
@@ -4239,11 +4239,11 @@
       "text": "<p>Certificate details here.</p>",
       "account": 2
     },
-    "model": "pages.PageElement", "pk": 103
+    "model": "pages.PageElement", "pk": 303
   },
   {
     "fields": {
-      "element": 101,
+      "element": 301,
       "created_at": "2023-03-20T12:00:00Z",
       "campaign": 1,
       "extra": "{\"questionnaire_id\":123, \"additional_info\":\"Survey extra data\"}"
@@ -4252,7 +4252,7 @@
   },
   {
     "fields": {
-      "element": 102,
+      "element": 302,
       "created_at": "2023-03-21T15:00:00Z",
       "scheduled_at": "2023-04-15T15:00:00Z",
       "location": "http://127.0.0.1:8000/webinar/live-event",
@@ -4274,7 +4274,7 @@
   {
     "fields": {
       "sequence": 104,
-      "page_element": 100,
+      "content": 300,
       "rank": 1,
       "min_viewing_duration": "00:00:10"
     },
@@ -4283,7 +4283,7 @@
   {
     "fields": {
       "sequence": 104,
-      "page_element": 101,
+      "content": 301,
       "rank": 2,
       "min_viewing_duration": "00:00:20"
     },
@@ -4292,7 +4292,7 @@
   {
     "fields": {
       "sequence": 104,
-      "page_element": 102,
+      "content": 302,
       "rank": 3,
       "min_viewing_duration": "00:00:30"
     },
@@ -4301,7 +4301,7 @@
   {
     "fields": {
       "sequence": 104,
-      "page_element": 103,
+      "content": 303,
       "rank": 4,
       "min_viewing_duration": "00:00:00"
     },

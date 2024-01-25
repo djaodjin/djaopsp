@@ -3,7 +3,7 @@
 
 from pages.api.elements import (PageElementAPIView as PageElementBaseAPIView,
     PageElementEditableListAPIView as PageElementEditableListBaseAPIView)
-from survey.docs import extend_schema
+from pages.docs import extend_schema
 from survey.utils import get_question_model
 
 from .serializers import ContentElementSerializer

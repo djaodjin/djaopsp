@@ -8,6 +8,7 @@ from dateutil.relativedelta import relativedelta
 from django.db import transaction
 from django.db.models import F, Q
 from django.utils.translation import ugettext_lazy as _
+from pages.docs import extend_schema
 from pages.models import PageElement, flatten_content_tree
 from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
@@ -16,7 +17,6 @@ from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
 from survey.api.sample import (
     SampleRecentCreateAPIView as SampleRecentCreateBaseAPIView)
 from survey.api.matrix import SampleBenchmarkMixin
-from survey.docs import extend_schema
 from survey.filters import OrderingFilter, SearchFilter
 from survey.mixins import SampleMixin, TimersMixin
 from survey.models import Choice, Sample, Unit, UnitEquivalences
