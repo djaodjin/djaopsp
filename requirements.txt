@@ -3,7 +3,7 @@ Django==3.2.23
 djangorestframework==3.12.4
 djaodjin-deployutils==0.10.7
 djaodjin-extended-templates==0.4.5
-djaodjin-pages==0.7.0
+djaodjin-pages==0.7.1
 djaodjin-survey==0.9.14
 gunicorn==20.1.0
 jinja2==3.1.2        # >=3.1 not available with Py36?

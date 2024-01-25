@@ -1,22 +1,27 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
-import datetime, logging
+import datetime, logging, re
 
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_url)
 from deployutils.helpers import update_context_urls
 from django.db import connection
 from django.db.models.query import QuerySet, RawQuerySet
 from django.http import HttpResponse
 from survey.helpers import get_extra
-from survey.models import PortfolioDoubleOptIn, Unit
+from survey.models import Campaign, PortfolioDoubleOptIn, Unit
 from survey.views.matrix import CompareView as CompareBaseView
+from rest_framework.generics import get_object_or_404
 
 from ..api.campaigns import CampaignContentMixin
 from ..api.serializers import EngagementSerializer
 from ..compat import force_str, gettext_lazy as _, reverse
 from ..mixins import AccountsNominativeQuerysetMixin
 from ..models import ScorecardCache
-from ..queries import get_completed_assessments_at_by, get_engagement
+from ..queries import (get_completed_assessments_at_by, get_engagement,
+    get_coalesce_engagement)
+from ..utils import get_requested_accounts
 from .downloads import PracticesSpreadsheetView
 from .portfolios import UpdatedMenubarMixin
 
@@ -32,6 +37,8 @@ class CompareView(UpdatedMenubarMixin, CompareBaseView):
     def get_context_data(self, **kwargs):
         context = super(CompareView, self).get_context_data(**kwargs)
         update_context_urls(context, {
+            'api_version': site_url("/api"),
+            'api_account_candidates': site_url("/api/accounts/profiles"),
             'pages_index': reverse('pages_index')})
         url_kwargs = self.get_url_kwargs()
         if 'path' in self.kwargs:
@@ -80,11 +87,25 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         return element.get('title', "")
 
     @property
+    def verified_campaign(self):
+        if not hasattr(self, '_verified_campaign'):
+            self._verified_campaign = self.campaign
+            look = re.match('(\S+)-verified$', self._verified_campaign.slug)
+            if look:
+                self._verified_campaign = get_object_or_404(
+                    Campaign.objects.all(), slug=look.group(1))
+        return self._verified_campaign
+
+    @property
     def latest_assessments(self):
         if not hasattr(self, '_latest_assessments'):
             #pylint:disable=attribute-defined-outside-init
             self._latest_assessments = get_completed_assessments_at_by(
-                self.campaign, ends_at=self.ends_at, prefix=self.db_path)
+                self.verified_campaign,
+                ends_at=self.ends_at, prefix=self.db_path,
+                # create a list to prevent RawQuerySet if-condition later on
+                accounts=[account.pk for account
+                    in self.accounts_with_engagement])
         return self._latest_assessments
 
     @property
@@ -92,8 +113,12 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         if not hasattr(self, '_improvements'):
             #pylint:disable=attribute-defined-outside-init
             self._improvements = get_completed_assessments_at_by(
-                self.campaign, ends_at=self.ends_at, prefix=self.db_path,
-                extra='is_planned')
+                self.verified_campaign,
+                ends_at=self.ends_at, prefix=self.db_path,
+                extra='is_planned',
+                # create a list to prevent RawQuerySet if-condition later on
+                accounts=[account.pk for account
+                    in self.accounts_with_engagement])
         return self._improvements
 
     @property
@@ -104,10 +129,11 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
             if not self.requested_accounts:
                 self._accounts_with_engagement = \
                     PortfolioDoubleOptIn.objects.none()
-            self._accounts_with_engagement = get_engagement(
-                self.campaign, self.requested_accounts,
-                grantees=[self.account], start_at=self.start_at,
-                ends_at=self.ends_at, order_by=self.ordering)
+            self._accounts_with_engagement = get_coalesce_engagement(
+                self.verified_campaign, self.requested_accounts,
+                start_at=self.start_at, ends_at=self.ends_at,
+                order_by=self.ordering,
+                grantees=[self.account]) # XXX forces a single grantee
         return self._accounts_with_engagement
 
     @property
@@ -134,6 +160,17 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                                 'planned': cell.get('measured', '')})
         return self._by_paths
 
+    def get_requested_accounts(self, grantee, aggregate_set=False):
+        """
+        All accounts which ``grantee`` has requested a scorecard from.
+        """
+        if not grantee:
+            grantee = self.account
+        return get_requested_accounts(grantee,
+            campaign=self.verified_campaign, aggregate_set=aggregate_set,
+            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
+            search_terms=self.search_terms)
+
     def add_datapoint(self, account, row):
         # account_id = row[1]
         measured = row[2]
@@ -154,7 +191,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         Fills a cell for column `key` with generated content since we do not
         have an item for it.
         """
-        return {'account_id': key.account_id,
+        return {'account_id': key.pk,
             'reporting_status': key.reporting_status,
             'measured': "", 'comments': "", 'score': ""}
 
@@ -208,8 +245,10 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                 if self.before_account(datapoint, key):
                     # This condition should never hold as datapoints' keys
                     # are a subset of keys, correct?
-                    raise RuntimeError("Impossibility! Maybe datapoints"\
-                        " and/or keys are not sorted properly.")
+                    raise RuntimeError("Impossibility for "\
+                      " before_account(datapoint=%s, key=%s)."\
+                      " Maybe datapoints and/or keys are not sorted properly."
+                      % (datapoint, key))
                 if self.after_account(datapoint, key):
                     prev_key = key
                     key = None
@@ -220,8 +259,8 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                 else:
                     # equals
                     account = results[-1]
-                    if (key.get('reporting_status')
-                        == EngagementSerializer.REPORTING_COMPLETED):
+                    if (key.get('reporting_status') in
+                        EngagementSerializer.REPORTING_ACCESSIBLE_ANSWERS):
                         self.add_datapoint(account, datapoint)
                     try:
                         datapoint = next(datapoints_iterator)
@@ -271,27 +310,16 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
 
     def get_answers_by_paths(self, latest_samples):
         answers_by_paths = {}
-        accounts = self.requested_accounts
-        sep = ""
-        accounts_clause = ""
-        if accounts:
-            if isinstance(accounts, list):
-                account_ids = "(%s)" % ','.join([
-                    str(account_id) for account_id in accounts])
-            elif isinstance(accounts, QuerySet):
-                account_ids = "(%s)" % ','.join([
-                    str(account.pk) for account in accounts])
-            elif isinstance(accounts, RawQuerySet):
-                account_ids = "(%s)" % accounts.query.sql
-            accounts_clause += (
-                "%(sep)ssamples.account_id IN %(account_ids)s" % {
-                    'sep': sep, 'account_ids': account_ids})
-        if accounts_clause:
+        question_clause = ""
+        if self.kwargs.get('path'):
+            question_clause = "WHERE survey_question.path ILIKE '/%s%%'" % self.kwargs.get('path')
+        if self.requested_accounts:
             reporting_answers_sql = """
 WITH samples AS (
     %(latest_assessments)s
 ),
-answers AS (SELECT
+answers AS (
+SELECT
     survey_question.path,
     samples.account_id,
     survey_answer.measured,
@@ -305,7 +333,8 @@ INNER JOIN samples
   ON survey_answer.sample_id = samples.id
 INNER JOIN survey_unit
   ON survey_answer.unit_id = survey_unit.id
-WHERE %(accounts_clause)s)
+%(question_clause)s
+)
 SELECT
   answers.path,
   answers.account_id,
@@ -321,8 +350,65 @@ LEFT OUTER JOIN survey_choice
 ORDER BY answers.path, answers.account_id
 """ % {
             'latest_assessments': latest_samples.query.sql,
-            'accounts_clause': accounts_clause
+            'question_clause': question_clause
         }
+            if self.campaign != self.verified_campaign:
+                # dealing verified samples
+                reporting_answers_sql = """
+WITH latest_samples AS (
+    %(latest_assessments)s
+),
+samples AS (
+SELECT survey_sample.id,
+ survey_sample.slug,
+ survey_sample.created_at,
+ survey_sample.campaign_id,
+ latest_samples.account_id AS account_id,
+ survey_sample.is_frozen,
+ survey_sample.extra,
+ survey_sample.updated_at
+FROM survey_sample
+INNER JOIN djaopsp_verifiedsample
+ON djaopsp_verifiedsample.verifier_notes_id = survey_sample.id
+INNER JOIN latest_samples
+ON djaopsp_verifiedsample.sample_id = latest_samples.id
+WHERE djaopsp_verifiedsample.verified_status >= 2
+),
+answers AS (
+SELECT
+    survey_question.path,
+    samples.account_id,
+    survey_answer.measured,
+    survey_answer.unit_id,
+    survey_question.default_unit_id,
+    survey_unit.title
+FROM survey_answer
+INNER JOIN survey_question
+  ON survey_answer.question_id = survey_question.id
+INNER JOIN samples
+  ON survey_answer.sample_id = samples.id
+INNER JOIN survey_unit
+  ON survey_answer.unit_id = survey_unit.id
+%(question_clause)s
+)
+SELECT
+  answers.path,
+  answers.account_id,
+  answers.measured,
+  answers.unit_id,
+  answers.default_unit_id,
+  answers.title,
+  survey_choice.text
+FROM answers
+LEFT OUTER JOIN survey_choice
+  ON survey_choice.unit_id = answers.unit_id AND
+     survey_choice.id = answers.measured
+ORDER BY answers.path, answers.account_id
+""" % {
+            'latest_assessments': latest_samples.query.sql,
+            'question_clause': question_clause
+        }
+
             # XXX should still print questions if no accounts.
             with connection.cursor() as cursor:
                 cursor.execute(reporting_answers_sql, params=None)
@@ -415,12 +501,16 @@ ORDER BY answers.path, answers.account_id
             last_activity_at_by_accounts.update({
                 sample.account_id: sample.created_at})
         headings = [force_str(_("Last completed at"))]
+        reporting_status_strings = {key: val
+            for key, val in EngagementSerializer.REPORTING_STATUSES}
         for reporting in self.accounts_with_engagement:
-            account_id = reporting.account_id
+            account_id = reporting.pk
             last_activity_at = last_activity_at_by_accounts.get(account_id)
-            if (reporting.reporting_status
-                != EngagementSerializer.REPORTING_COMPLETED):
-                headings += [reporting.reporting_status]
+            if (reporting.reporting_status not in
+                EngagementSerializer.REPORTING_ACCESSIBLE_ANSWERS):
+                headings += [
+                    reporting_status_strings[reporting.reporting_status]
+                ]
             elif last_activity_at:
                 headings += [datetime.date(
                     last_activity_at.year,
@@ -463,8 +553,8 @@ class CompareScoresXLSXView(CompareXLSXView):
             scores = {val.sample_id: val for val in scores}
 
             for reporting in self.accounts_with_engagement:
-                if (reporting.reporting_status
-                    != EngagementSerializer.REPORTING_COMPLETED):
+                if (reporting.reporting_status not in
+                    EngagementSerializer.REPORTING_ACCESSIBLE_ANSWERS):
                     row += [""]
                 else:
                     scorecard_cache = scores.get(reporting.sample_id)

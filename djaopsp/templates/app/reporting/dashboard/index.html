@@ -1,5 +1,12 @@
 {% extends "app/reporting/dashboard/base.html" %}
 
+{% block localheadermeta %}
+<title>{% trans campaign=campaign.title, profile=profile.printable_name %}{{campaign}} Insights - {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
+<meta property="og:title" content="{{campaign.title}} Insights - {{profile.printable_name}} | Practice Sharing Platform" />
+<meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
+<meta name="description" property="og:description" content="Insights reporting profiles with {{campaign.title}}" />
+{% endblock %}
+
 {% block reporting_title %}{% trans %}Insights{% endtrans %}{% endblock %}
 
 {% block reporting_content %}

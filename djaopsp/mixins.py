@@ -10,7 +10,7 @@ from django.db import transaction
 from django.db.models import Q, F
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
-from pages.mixins import (TrailMixin, 
+from pages.mixins import (TrailMixin,
     SequenceProgressMixin as SequenceProgressMixinBase)
 from pages.models import PageElement
 from survey.helpers import get_extra

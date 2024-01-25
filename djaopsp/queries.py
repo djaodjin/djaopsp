@@ -308,14 +308,8 @@ WHERE
   survey_sample.extra IS NULL
   %(before_sample_created_clause)s
 GROUP BY survey_sample.account_id, survey_sample.is_frozen, requests.state
-)
-SELECT
-  %(accounts_table)s.slug,
-  %(accounts_table)s.full_name AS printable_name,
-  %(accounts_table)s.picture,
-  %(accounts_table)s.extra,
-  engaged.created_at AS requested_at,
-  engaged.* FROM (
+),
+engaged AS (
 SELECT
   requests.*,
   COALESCE(
@@ -343,7 +337,23 @@ LEFT OUTER JOIN updated_by_accounts
 ON requests.account_id = updated_by_accounts.account_id
 LEFT OUTER JOIN latest_completion
 ON requests.account_id = latest_completion.account_id
-) AS engaged
+)
+SELECT
+  %(accounts_table)s.slug,
+  %(accounts_table)s.full_name AS printable_name,
+  %(accounts_table)s.picture,
+  %(accounts_table)s.extra,
+  engaged.created_at AS requested_at,
+  engaged.sample,
+  engaged.sample_id,
+  engaged.reporting_status,
+  engaged.last_activity_at,
+  engaged.account_id,
+  engaged.campaign_id,
+  engaged.grantee_id,
+  engaged.initiated_by_id,
+  engaged.extra AS portfoliodoubleoptin_extra
+FROM engaged
 INNER JOIN %(accounts_table)s
 ON engaged.account_id = %(accounts_table)s.id
 %(filter_by_clause)s
@@ -386,6 +396,35 @@ def get_engagement(campaign, accounts,
         _get_engagement_sql(campaign, accounts, grantees=grantees,
             start_at=start_at, ends_at=ends_at,
             filter_by=filter_by, order_by=order_by))
+
+
+def get_coalesce_engagement(campaign, accounts,
+                            grantees=None, start_at=None, ends_at=None,
+                            filter_by=None, order_by=None):
+    """
+    While `get_engagement` might return an account multiple times, depending
+    on how many {grantees} are specified, `get_coalesce_engagement` guarentees
+    the returned queryset will contain each account only once.
+    This is done at the expanse of the `reporting_status` field which is
+    coalesce to the highest value accross all {grantees}.
+    """
+    sql_query = """
+SELECT
+  engagement.account_id AS id,
+  engagement.slug,
+  engagement.printable_name AS full_name,
+  engagement.picture,
+  engagement.extra,
+  MAX(engagement.requested_at) AS requested_at,
+  MAX(engagement.reporting_status) AS reporting_status
+FROM (%(engagement_sql)s) AS engagement
+WHERE reporting_status > 1 -- REPORTING_UPDATED
+GROUP BY account_id, slug, printable_name, picture, extra
+    """ % {
+        'engagement_sql': _get_engagement_sql(
+        campaign, accounts, grantees=grantees,
+        start_at=start_at, ends_at=ends_at)}
+    return get_account_model().objects.raw(sql_query)
 
 
 def get_engagement_by_reporting_status(campaign, accounts,

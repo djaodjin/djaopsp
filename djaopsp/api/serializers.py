@@ -428,6 +428,13 @@ class EngagementSerializer(AccountSerializer):
         (REPORTING_VERIFIED, 'verified'),
     )
 
+    REPORTING_ACCESSIBLE_ANSWERS = (
+        REPORTING_COMPLETED_DENIED,
+        REPORTING_COMPLETED_NOTSHARED,
+        REPORTING_COMPLETED,
+        REPORTING_VERIFIED
+    )
+
     sample = serializers.SlugField(required=False)
     score_url = serializers.SerializerMethodField(
         help_text=_("link to the scorecard"))
