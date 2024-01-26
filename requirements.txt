@@ -8,7 +8,7 @@ djaodjin-survey==0.9.14
 docutils==0.20.1          # Technically only needed for schema generation but
                           # djangorestframework will import regardless.
 gunicorn==20.1.0
-jinja2==3.1.2        # >=3.1 not available with Py36?
+jinja2==3.1.3        # >=3.1 not available with Py36?
 html5lib==1.1
 monotonic==1.6
 openpyxl==3.1.2
