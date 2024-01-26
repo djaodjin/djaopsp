@@ -5,6 +5,8 @@ djaodjin-deployutils==0.10.7
 djaodjin-extended-templates==0.4.5
 djaodjin-pages==0.7.1
 djaodjin-survey==0.9.14
+docutils==0.20.1          # Technically only needed for schema generation but
+                          # djangorestframework will import regardless.
 gunicorn==20.1.0
 jinja2==3.1.2        # >=3.1 not available with Py36?
 html5lib==1.1
@@ -12,7 +14,6 @@ monotonic==1.6
 openpyxl==3.1.2
 python-pptx==0.6.21
 pytz==2023.3
-docutils==0.20.1
 
 # These have C/C++ components, they can be installed through the recent wheel
 # pip feature or through the native package manager
@@ -38,8 +39,6 @@ sqlparse==0.4.4                   # required by django-debug-toolbar
                                   # without being a prerequisite
 
 # To run with API_DEBUG=1
-docutils==0.18.1
-
 # static analysis
 pylint==2.17.5
 pylint-django==2.5.3
