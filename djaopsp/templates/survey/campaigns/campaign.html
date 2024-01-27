@@ -256,6 +256,7 @@
                             <td :colspan="segments.length + 2">
                               <h2>Add a practice together with a new tile or segment</h2>
                               <form @submit.prevent="addElementBelow()">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
                                 <div class="input-group">
                                   <div class="col-md-3">
                                     <label>Practice</label>

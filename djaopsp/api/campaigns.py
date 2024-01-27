@@ -17,7 +17,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from survey.mixins import QuestionMixin
-from survey.models import EnumeratedQuestions
+from survey.models import EnumeratedQuestions, Unit
 from survey.utils import get_question_model, get_question_serializer
 from survey.settings import DB_PATH_SEP
 
@@ -379,8 +379,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
 
         """
         #pylint:disable=useless-super-delegation
-        return super(CampaignEditableContentAPIView, self).post(
-            request, *args, **kwargs)
+        return self.create(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         #pylint:disable=too-many-locals
@@ -440,7 +439,8 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
                 path = DB_PATH_SEP + DB_PATH_SEP.join([
                     part.slug for part in prefix_parts] + [element.slug])
                 question = get_question_model().objects.create(
-                    path=path, content=element)
+                    path=path, content=element,
+                    default_unit=Unit.objects.get(slug='freetext'))
                 EnumeratedQuestions.objects.get_or_create(
                     campaign=campaign, question=question, rank=rank)
 
