@@ -9,7 +9,7 @@ from deployutils.helpers import update_context_urls
 from django.db import connection
 from django.http import HttpResponse
 from survey.helpers import get_extra
-from survey.models import Campaign, PortfolioDoubleOptIn, Unit
+from survey.models import Campaign, PortfolioDoubleOptIn, Unit, UnitEquivalences
 from survey.views.matrix import CompareView as CompareBaseView
 from rest_framework.generics import get_object_or_404
 
@@ -82,7 +82,11 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
 
     @staticmethod
     def _get_title(element):
-        return element.get('title', "")
+        title = element.get('title', "")
+        default_unit = element.get('default_unit', {})
+        if default_unit and default_unit.get('system') in Unit.METRIC_SYSTEMS:
+            title += " (in %s)" % default_unit.get('title')
+        return title
 
     @property
     def verified_campaign(self):
@@ -170,6 +174,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
             start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
             search_terms=self.search_terms)
 
+
     def add_datapoint(self, account, row):
         # account_id = row[1]
         measured = row[2]
@@ -184,6 +189,18 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
             account.update({'score': measured})
         elif unit_id == self.comments_unit.pk:
             account['comments'] += str(text) if text else ""
+        else:
+            unit = Unit.objects.get(pk=unit_id)
+            if unit.system in (Unit.SYSTEM_STANDARD, Unit.SYSTEM_IMPERIAL):
+                default_unit = Unit.objects.get(pk=default_unit_id)
+                # There is no equivalence btw weight and volume for waste
+                if not (unit.slug in ('m3-year', 'gallons-year',
+                    'kiloliters-year') and
+                    default_unit.slug in ('tons-year')):
+                    equiv = UnitEquivalences.objects.get(
+                        source=unit, target=default_unit)
+                    account.update({'measured': equiv.as_target_unit(measured)})
+
 
     def as_account(self, key):
         """

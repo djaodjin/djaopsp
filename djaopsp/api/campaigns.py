@@ -37,7 +37,11 @@ class CampaignContentMixin(CampaignMixin):
         return [{
             'path': question.get('path'),
             'rank': question.get('enumeratedquestions__rank'),
-            'default_unit': question.get('default_unit__slug'),
+            'default_unit': {
+                'slug': question.get('default_unit__slug'),
+                'title': question.get('default_unit__title'),
+                'system': question.get('default_unit__system'),
+            },
             'title': question.get('content__title'),
             'picture': question.get('content__picture'),
             'extra': self._as_extra_dict(question.get('content__extra')),
@@ -45,7 +49,8 @@ class CampaignContentMixin(CampaignMixin):
             path__startswith=prefix,
             enumeratedquestions__campaign=self.campaign
         ).values('path', 'enumeratedquestions__rank', 'default_unit__slug',
-            'content__title', 'content__picture', 'content__extra').order_by(
+            'default_unit__title', 'default_unit__system', 'content__title',
+            'content__picture', 'content__extra').order_by(
             'enumeratedquestions__rank')]
 
     @staticmethod
