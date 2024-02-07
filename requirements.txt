@@ -1,4 +1,4 @@
-Django==3.2.23
+Django==3.2.24
 #djangorestframework==3.13.1
 djangorestframework==3.12.4
 djaodjin-deployutils==0.10.7
