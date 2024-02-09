@@ -1,7 +1,7 @@
 [
 { "fields" : {
     "slug": "djaopsp",
-    "full_name": "DjaoDjin"
+    "full_name": "DjaoPSP"
   },
   "model" : "djaopsp.account", "pk" : 2
 },
@@ -156,6 +156,23 @@
     "full_name": "Utility (Demo)"
   },
   "model" : "djaopsp.account", "pk" : 18
+},
+{ "fields" : {
+    "slug": "desktop-reviewers",
+    "full_name": "Desktop Reviewers"
+  },
+  "model" : "djaopsp.account", "pk" : 19
+},
+{ "fields": {
+    "date_joined": "2023-01-01T00:00:00+00:00",
+    "email": "abby@localhost.localdomain",
+    "first_name": "Abby",
+    "last_name": "Verifier",
+    "is_active": true,
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "abby"
+  },
+  "model": "auth.User", "pk": 19
 },
 { "fields" : {
     "slug": "supplier-100-completed-notshared",

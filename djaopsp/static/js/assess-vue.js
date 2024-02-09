@@ -1082,27 +1082,32 @@ Vue.component('scorecard-requests', {
                 }
                 vm.byCampaigns[campaign].requests.push(item);
             }
-            let queryParams = "?q_f==slug&q=";
-            let sep = "";
-            for( const profile of profiles ) {
-                queryParams += sep + profile;
-                sep = ",";
-            }
-            vm.reqGet(vm.api_profiles_url + queryParams,
-            function(resp) {
-                let profiles = {}
-                for( let idx = 0; idx < resp.results.length; ++idx ) {
-                    const item = resp.results[idx];
-                    profiles[item.slug] = item;
+            if( profiles.length > 0 ) {
+                let queryParams = "?q_f==slug&q=";
+                let sep = "";
+                for( const profile of profiles ) {
+                    queryParams += sep + profile;
+                    sep = ",";
                 }
-                for( let idx =0; idx < vm.items.results.length; ++idx ) {
-                    const item = vm.items.results[idx];
-                    if( item.grantee in profiles ) {
-                        item.grantee = profiles[item.grantee];
+                vm.reqGet(vm.api_profiles_url + queryParams,
+                function(resp) {
+                  let profiles = {}
+                  for( let idx = 0; idx < resp.results.length; ++idx ) {
+                      const item = resp.results[idx];
+                      profiles[item.slug] = item;
+                  }
+                    for( let idx =0; idx < vm.items.results.length; ++idx ) {
+                        const item = vm.items.results[idx];
+                        if( item.grantee in profiles ) {
+                            item.grantee = profiles[item.grantee];
+                        }
                     }
-                }
-                vm.$forceUpdate();
-            });
+                    vm.$forceUpdate();
+                }, function() {
+                    // Fail silently and run in degraded mode if we cannot load
+                    // the profile information (picture, etc.)
+                });
+            }
         },
     },
     mounted: function(){
@@ -1146,29 +1151,34 @@ Vue.component('scorecard-history', {
                 }
             }
             // decorate profiles
-            let queryParams = "?q_f==slug&q=";
-            let sep = "";
-            for( const profile of profiles ) {
-                queryParams += sep + profile;
-                sep = ",";
-            }
-            vm.reqGet(vm.api_profiles_url + queryParams,
-            function(resp) {
-                let profiles = {}
-                for( let idx = 0; idx < resp.results.length; ++idx ) {
-                    const item = resp.results[idx];
-                    profiles[item.slug] = item;
+            if( profiles.length > 0 ) {
+                let queryParams = "?q_f==slug&q=";
+                let sep = "";
+                for( const profile of profiles ) {
+                    queryParams += sep + profile;
+                    sep = ",";
                 }
-                for( let idx =0; idx < vm.items.results.length; ++idx ) {
-                    const item = vm.items.results[idx];
-                    for( let jdx = 0; jdx < item.grantees.length; ++jdx ) {
-                        if( item.grantees[jdx] in profiles ) {
-                            item.grantees[jdx] = profiles[item.grantees[jdx] ];
+                vm.reqGet(vm.api_profiles_url + queryParams,
+                function(resp) {
+                    let profiles = {}
+                    for( let idx = 0; idx < resp.results.length; ++idx ) {
+                        const item = resp.results[idx];
+                        profiles[item.slug] = item;
+                    }
+                    for( let idx =0; idx < vm.items.results.length; ++idx ) {
+                        const item = vm.items.results[idx];
+                        for( let jdx = 0; jdx < item.grantees.length; ++jdx ) {
+                            if( item.grantees[jdx] in profiles ) {
+                             item.grantees[jdx] = profiles[item.grantees[jdx] ];
+                            }
                         }
                     }
-                }
-                vm.$forceUpdate();
-            });
+                    vm.$forceUpdate();
+                }, function() {
+                    // Fail silently and run in degraded mode if we cannot load
+                    // the profile information (picture, etc.)
+                });
+            }
         },
     },
     mounted: function(){

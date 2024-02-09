@@ -44,14 +44,21 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
         Returns accounts for which the `request.user` is listed as a verifier.
         """
         if not hasattr(self, '_verifier_accounts'):
-            self._verifier_accounts = None
-            accessibles = set([
-                org['slug'] for org in self.get_accessible_profiles(
-                    self.request, roles=['manager', settings.AUDITOR_ROLE])])
+            unlocked_brokers = settings.UNLOCK_BROKERS
             broker = self.request.session.get('site', {}).get('slug')
             if broker:
-                accessibles &= set([broker])
-            accessibles &= settings.UNLOCK_BROKERS
+                unlocked_brokers |= set([broker])
+            accessibles = set([])
+            self._verifier_accounts = None
+            for org in self.get_accessible_profiles(
+                    self.request, roles=['manager', settings.AUDITOR_ROLE]):
+                org_slug = org['slug']
+                if org_slug in unlocked_brokers:
+                    accessibles |= set([org_slug])
+                for subscription in org.get('subscriptions', []):
+                    plan_key =  subscription.get('plan')
+                    if plan_key and plan_key == 'verification-partners':
+                        accessibles |= set([org_slug])
             if accessibles:
                 self._verifier_accounts = list(
                     get_account_model().objects.filter(slug__in=accessibles))
@@ -253,6 +260,24 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
             self._segments_candidates = self.get_segments_candidates(
                 searchable_only=True)
         return self._segments_candidates
+
+
+    @property
+    def verification_available(self):
+        """
+        Returns `True` if the response was verified and is available
+        to the account making the request to see the response.
+        """
+        if not hasattr(self, '_verification_available'):
+            self._verification_available = self.is_auditor
+            if not self._verification_available:
+                queryset = Sample.objects.filter(
+                    notes__sample=self.sample,
+                    notes__sample__account__portfolios__grantee=self.account,
+                    notes__verified_status__gte=\
+                    VerifiedSample.STATUS_REVIEW_COMPLETED)
+                self._verification_available = queryset.exists()
+        return self._verification_available
 
 
     def get_or_create_verification(self):

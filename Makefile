@@ -108,7 +108,8 @@ initdb:
 		djaopsp/fixtures/practices_custom_choices.json \
 		djaopsp/fixtures/matrices.json \
 		djaopsp/fixtures/samples.json \
-		djaopsp/fixtures/100-completed-notshared.json
+		djaopsp/fixtures/100-completed-notshared.json \
+		djaopsp/fixtures/800-data-series.json
 
 setup-livedemo: package-docker-initdb
 
@@ -124,7 +125,8 @@ package-docker-initdb:
 		djaopsp/fixtures/practices_custom_choices.json \
 		djaopsp/fixtures/matrices.json \
 		djaopsp/fixtures/samples.json \
-		djaopsp/fixtures/100-completed-notshared.json
+		djaopsp/fixtures/100-completed-notshared.json \
+		djaopsp/fixtures/800-data-series.json
 
 
 install:: install-conf

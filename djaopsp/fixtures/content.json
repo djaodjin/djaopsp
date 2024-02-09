@@ -1353,7 +1353,7 @@
 { "fields" : {
     "slug" : "sustainability",
     "title" : "ESG/Environmental practices",
-    "created_at": "2023-01-01T00:00:00.000Z",
+    "created_at": "2024-01-01T00:00:00.000Z",
     "description" : "Please answer the core Environmental, Social and Governance (ESG) questions, then pick an industry segment and assess your organization against environmental practices in your organization's industry of choice.",
     "account": 2,
     "active": true,
@@ -1364,7 +1364,7 @@
 { "fields" : {
     "slug" : "framework",
     "title" : "Cybersecurity framework",
-    "created_at": "2023-01-01T00:00:00.000Z",
+    "created_at": "2024-01-01T00:00:00.000Z",
     "description" : "Assessment of practices around cybersecurity",
     "account" : 3,
     "active": true,
@@ -1375,7 +1375,7 @@
 { "fields" : {
     "slug" : "sustainability-verified",
     "title" : "Verification of ESG/Environmental practices",
-    "created_at": "2023-01-01T00:00:00.000Z",
+    "created_at": "2024-01-01T00:00:00.000Z",
     "account": 2,
     "extra": ""
   },
@@ -4212,7 +4212,7 @@
       "text": "<p>Some text content here.</p>",
       "account": 2
     },
-    "model": "pages.PageElement", "pk": 300
+    "model": "pages.PageElement", "pk": 700
   },
   {
     "fields": {
@@ -4221,7 +4221,7 @@
       "text": "<p>Survey details here.</p>",
       "account": 2
     },
-    "model": "pages.PageElement", "pk": 301
+    "model": "pages.PageElement", "pk": 701
   },
   {
     "fields": {
@@ -4230,7 +4230,7 @@
       "text": "<p>Details about the webinar.</p>",
       "account": 2
     },
-    "model": "pages.PageElement", "pk": 302
+    "model": "pages.PageElement", "pk": 702
   },
   {
     "fields": {
@@ -4239,27 +4239,27 @@
       "text": "<p>Certificate details here.</p>",
       "account": 2
     },
-    "model": "pages.PageElement", "pk": 303
+    "model": "pages.PageElement", "pk": 703
   },
   {
     "fields": {
-      "element": 301,
-      "created_at": "2023-03-20T12:00:00Z",
+      "element": 701,
+      "created_at": "2024-03-20T12:00:00Z",
       "campaign": 1,
       "extra": "{\"questionnaire_id\":123, \"additional_info\":\"Survey extra data\"}"
     },
-    "model": "djaopsp.SurveyEvent", "pk": 300
+    "model": "djaopsp.SurveyEvent", "pk": 700
   },
   {
     "fields": {
-      "element": 302,
-      "created_at": "2023-03-21T15:00:00Z",
-      "scheduled_at": "2023-04-15T15:00:00Z",
+      "element": 702,
+      "created_at": "2024-03-21T15:00:00Z",
+      "scheduled_at": "2024-04-15T15:00:00Z",
       "location": "http://127.0.0.1:8000/webinar/live-event",
       "max_attendees": 100,
       "extra": "{}"
     },
-    "model": "pages.LiveEvent", "pk": 301
+    "model": "pages.LiveEvent", "pk": 701
   },
   {
     "fields": {
@@ -4267,14 +4267,14 @@
       "slug": "seq-various-elements",
       "account": 2,
       "has_certificate": true,
-      "created_at": "2023-01-04T00:00:00Z"
+      "created_at": "2024-01-04T00:00:00Z"
     },
     "model": "pages.Sequence", "pk": 104
   },
   {
     "fields": {
       "sequence": 104,
-      "content": 300,
+      "content": 700,
       "rank": 1,
       "min_viewing_duration": "00:00:10"
     },
@@ -4283,7 +4283,7 @@
   {
     "fields": {
       "sequence": 104,
-      "content": 301,
+      "content": 701,
       "rank": 2,
       "min_viewing_duration": "00:00:20"
     },
@@ -4292,7 +4292,7 @@
   {
     "fields": {
       "sequence": 104,
-      "content": 302,
+      "content": 702,
       "rank": 3,
       "min_viewing_duration": "00:00:30"
     },
@@ -4301,7 +4301,7 @@
   {
     "fields": {
       "sequence": 104,
-      "content": 303,
+      "content": 703,
       "rank": 4,
       "min_viewing_duration": "00:00:00"
     },

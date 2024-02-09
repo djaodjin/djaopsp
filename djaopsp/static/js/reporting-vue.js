@@ -425,6 +425,7 @@ Vue.component('djaopsp-compare-samples', {
             params: {
                 o: '-created_at'
             },
+            queryType: "individual-account",
             newItem: {
                 title: ''
             }
@@ -572,6 +573,9 @@ Vue.component('reporting-organizations', {
                     }
                 }
                 vm.$forceUpdate();
+            }, function() {
+                // Fail silently and run in degraded mode if we cannot load
+                // the profile information (picture, etc.)
             });
         },
         populateSummaryChart: function() {
