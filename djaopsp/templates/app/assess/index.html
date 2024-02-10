@@ -31,8 +31,8 @@
           <div :class="((activeTile && icon.slug == activeTile.slug) ? '' : 'offset-md-3') + ' col-md-6 mt-2'">
             <a :id="icon.slug"
                :href="'#tab-' + icon.slug"
-               class="tile-link"
-               role="{{role}}" data-toggle="{{role}}"
+               class="tile-link" role="{{role}}"
+               data-bs-toggle="{{role}}" data-toggle="{{role}}"
                @click.prevent="toggleTile($event, icon)">
               <div :class="'card h-100 text-dark ' + practiceStyle(icon)">
                 <div class="card-body">
@@ -121,7 +121,10 @@
                 <th class="sticky-cell sticky-cell-top text-center"
                     :colspan="getNbInputCols(icon)"
                     v-for="choice in getChoices(icon)">
-                  <div class="sticky-cell-content-container" data-toggle="tooltip" data-placement="bottom" :title="choice.descr">
+                  <div class="sticky-cell-content-container"
+                       data-bs-toggle="tooltip" data-bs-placement="bottom"
+                       data-toggle="tooltip" data-placement="bottom"
+                       :title="choice.descr">
                     <div class="sticky-cell-content">[[choice.text]]</div>
                   </div>
                 </th>
@@ -140,6 +143,7 @@
                    style="display:inline-block;padding-left:10px;">
                 <button id="reset-button"
                         class="btn btn-primary"
+                        data-bs-toggle="modal" data-bs-target="#reset-assessment"
                         data-toggle="modal" data-target="#reset-assessment"
                         v-show="!showVsPeers">
                   {% trans %}Reset{% endtrans %}
@@ -168,8 +172,8 @@
                   v-for="choice in getChoices(icon)"
                   v-if="isEnumHeaderShown(icon)">
                 <div class="sticky-cell-content-container"
-                     data-toggle="tooltip"
-                     data-placement="bottom"
+                     data-bs-toggle="tooltip" data-bs-placement="bottom"
+                     data-toggle="tooltip" data-placement="bottom"
                      :title="choice.descr">
                   <div class="sticky-cell-content">[[choice.text]]</div>
                 </div>

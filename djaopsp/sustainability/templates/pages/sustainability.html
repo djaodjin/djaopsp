@@ -18,8 +18,8 @@
                     v-show="itemsLoaded && items.results.length"
                     v-cloak>
                   <a class="nav-link icon-inner orange"
-                     :href="'#tab-' + icon.slug"
-                     role="{{role}}" data-toggle="{{role}}"
+                     :href="'#tab-' + icon.slug" role="{{role}}"
+                     data-bs-toggle="{{role}}" data-toggle="{{role}}"
                      @click.prevent="toggleTile($event, icon)">
                     <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
                     <div class="icon-caption">[[icon.title]]</div>

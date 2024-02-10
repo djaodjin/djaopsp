@@ -191,6 +191,7 @@
                                   <button class="btn btn-link text-danger delete" href=""
                                           @click="setActive(entry, index)"
                                           data-bs-toggle="modal" data-bs-target="#confirm-delete">
+                                          data-toggle="modal" data-target="#confirm-delete">
                                     <i class="fa fa-trash-o"></i>
                                   </button>
                                 </div>
@@ -220,8 +221,8 @@
                                   <button
                                     class="btn btn-link text-danger delete"
                                     href=""
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#confirm-delete"
+                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                    data-toggle="modal" data-target="#confirm-delete"
                                     @click="setActive(entry, index)"
                                     v-if="entry.indent == 0">
                                     <i class="fa fa-trash-o"></i>
@@ -334,7 +335,8 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <h4 class="modal-title">Move under ...</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  <button type="button" class="btn-close"
+                          data-bs-dismiss="modal" data-dismiss="modal"
                           aria-label="Close">
                   </button>
                 </div>
@@ -368,17 +370,21 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <h4 class="modal-title">Delete ...</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  <button type="button" class="btn-close"
+                          data-bs-dismiss="modal" data-dismiss="modal"
+                          aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                   Please confirm you want to delete '[[activeEntry ? activeEntry.title : ""]]'.
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary"
-                          data-bs-dismiss="modal">Cancel</button>
+                  <button class="btn btn-secondary"
+                          data-bs-dismiss="modal" data-dismiss="modal"
+                          type="button">{% trans %}Cancel{% endtrans %}</button>
                   <button id="delete-action-btn"
-                          class="btn btn-danger btn-ok delete" data-bs-dismiss="modal"
-                          @click="deleteTree(activeEntry, activeIndex)">Delete</button>
+                          class="btn btn-danger btn-ok delete"
+                          data-bs-dismiss="modal" data-dismiss="modal"
+                          @click="deleteTree(activeEntry, activeIndex)">{% trans %}Delete{% endtrans %}</button>
                 </div>
               </div>
             </div>

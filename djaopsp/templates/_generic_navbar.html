@@ -4,7 +4,9 @@
 </li>
 {% endif %}
 <li class="nav-item dropdown">
- <a href="#" class="nav-link dropdown-toggle {% if request and '/docs/' in request.path %} active{% endif %}" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans %}Help{% endtrans %} <span class="caret"></span></a>
+ <a href="#" class="nav-link dropdown-toggle {% if request and '/docs/' in request.path %} active{% endif %}"
+    data-bs-toggle="dropdown" data-toggle="dropdown"
+    role="button" aria-haspopup="true" aria-expanded="false">{% trans %}Help{% endtrans %} <span class="caret"></span></a>
   <ul class="dropdown-menu" role="menu">
     <li role="presentation"><a class="dropdown-item" role="menuitem" tabindex="-1" href="{{'/docs/faq/'|site_url}}">{% trans %}Faq{% endtrans %}</a></li>
     <li role="presentation"><a class="dropdown-item" role="menuitem" tabindex="-1" href="{{'/docs/tutorials/'|site_url}}">{% trans %}Tutorials{% endtrans %}</a></li>

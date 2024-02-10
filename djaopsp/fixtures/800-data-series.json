@@ -1,7 +1,8 @@
 [
 {
   "fields" : {
-      "title": "factory-size",
+      "slug": "factory-size",
+      "title": "Factory Size",
       "text" : "Factory footprint area ..."
   },
   "model" : "pages.PageElement", "pk" : 800

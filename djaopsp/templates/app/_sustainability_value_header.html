@@ -14,7 +14,8 @@
       <div class="btn btn-link btn-sort text-center"
            @click="sortBy('environmental_value')">
         <img src="{{'/static/img/green-leaf.png'|asset}}"
-             width="32" hegiht="32" data-bs-toggle="tooltip"
+             width="32" hegiht="32"
+             data-bs-toggle="tooltip" data-toggle="tooltip"
              title="Environmental value" />
       </div>
     </div>
@@ -27,7 +28,8 @@
       <div class="btn btn-link btn-sort text-center"
            @click="sortBy('business_value')">
         <img src="{{'/static/img/cogs.png'|asset}}"
-             width="32" hegiht="32" data-bs-toggle="tooltip"
+             width="32" hegiht="32"
+             data-bs-toggle="tooltip" data-toggle="tooltip"
              title="Ops/Maintenance value" />
       </div>
     </div>
@@ -40,7 +42,8 @@
       <div class="btn btn-link btn-sort text-center"
            @click="sortBy('profitability')">
         <img src="{{'/static/img/dollar-sign.png'|asset}}"
-             width="32" hegiht="32" data-bs-toggle="tooltip"
+             width="32" hegiht="32"
+             data-bs-toggle="tooltip" data-toggle="tooltip"
              title="Financial value" />
       </div>
     </div>
@@ -65,9 +68,9 @@
     <div class="sticky-cell-content">
       <div class="btn btn-link btn-sort text-center"
            @click="sortBy('avg_value')">
-        <span data-bs-toggle="tooltip"
-              title="Average Value"
-              style="cursor: default;">
+        <span style="cursor: default;"
+          data-bs-toggle="tooltip" data-toggle="tooltip"
+              title="Average Value">
         Average Value
         </span>
       </div>
