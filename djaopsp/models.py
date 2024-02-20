@@ -4,7 +4,7 @@
 from django.conf import settings as django_settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from survey.models import Sample, get_extra_field_class, Campaign
+from survey.models import Sample, get_extra_field_class, Campaign, Question, Choice
 from pages.models import PageElement
 
 from .compat import python_2_unicode_compatible
@@ -113,3 +113,14 @@ class SurveyEvent(models.Model):
 
     def __str__(self):
         return "%s-campaign" % str(self.element)
+
+
+class CorrectAnswer(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, 
+                                 related_name="correct_answers")
+    correct_answer = models.ForeignKey(Choice, on_delete=models.CASCADE,
+                                       related_name="correct_answers_on")
+    points_per_answer = models.IntegerField(default=1)
+
+    def __str__(self):
+        return "%s-CorrectAnswer" % str(self.question.path)
