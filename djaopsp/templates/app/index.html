@@ -65,11 +65,14 @@ Manage invites sent to organizations, and their reporting status.
           </p>
           {% if urls.portfolio_engage %}
           <div class="row">
-            <div class="col-6 text-center">
-              <a id="engage-portfolios" href="{{urls.portfolio_engage}}">Engage</a>
+            <div class="col-4 text-center">
+              <a id="engage-portfolios" href="{{urls.portfolio_engage}}">{% trans %}Engage{% endtrans %}</a>
             </div>
-            <div class="col-6 text-center">
-              <a id="track-portfolios" href="{{urls.portfolio_track}}">Track</a>
+            <div class="col-4 text-center">
+              <a id="track-portfolios" href="{{urls.portfolio_track}}">{% trans %}Track{% endtrans %}</a>
+            </div>
+            <div class="col-4 text-center">
+              <a id="insights-portfolios" href="{{urls.portfolio_track}}">{% trans %}Insights{% endtrans %}</a>
             </div>
           </div>
           {% else %}

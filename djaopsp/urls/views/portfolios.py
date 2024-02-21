@@ -23,6 +23,10 @@ urlpatterns = [
         DashboardRedirectView.as_view(
             breadcrumb_url='reporting_profile_accessibles'),
         name='portfolio_analyze'),
+    path('reporting/dashboard/',
+        DashboardRedirectView.as_view(
+            breadcrumb_url='reporting_organization_dashboard'),
+        name='portfolio_insights'),
 
     # PPTX charts downloads
     path('reporting/<slug:campaign>/download/completion-rate/',
