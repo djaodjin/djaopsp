@@ -6,7 +6,7 @@ import datetime, logging, re
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
-from django.db import connection
+from django.db import connection, models
 from django.http import HttpResponse
 from survey.helpers import get_extra
 from survey.models import Campaign, PortfolioDoubleOptIn, Unit, UnitEquivalences
@@ -578,22 +578,21 @@ class CompareScoresXLSXView(CompareXLSXView):
             row = [self._get_title(entry)]
             slug = entry.get('slug')
 
-            queryset = self.accounts_with_engagement
-            scores = ScorecardCache.objects.filter(sample__in={
-                val.sample_id for val in queryset}, path=entry['path'])
-            scores = {val.sample_id: val for val in scores}
+            scores = ScorecardCache.objects.filter(
+                sample__in=self.latest_assessments,
+                path=entry['path']).order_by('sample__account_id').values_list(
+                'pk', 'sample__account_id', 'normalized_score')
+            tab = self.tabularize([(val[0], val[1], val[2],
+                self.points_unit.pk, self.points_unit.pk, None, "")
+                for val in scores], self.accounts_with_engagement)
 
-            for reporting in self.accounts_with_engagement:
+            for item, reporting in zip(tab, self.accounts_with_engagement):
                 if (reporting.reporting_status not in
                     EngagementSerializer.REPORTING_ACCESSIBLE_ANSWERS):
                     row += [""]
                 else:
-                    scorecard_cache = scores.get(reporting.sample_id)
-                    if scorecard_cache:
-                        measured = scorecard_cache.normalized_score
-                    else:
-                        measured = ""
-                    row += [measured]
+                    row += [item.get('measured', "")]
+
             row += [slug]
             self.writerow(row)
         self._report_queries("written sheet 'Scores'")
