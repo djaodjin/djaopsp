@@ -4,7 +4,7 @@ djangorestframework==3.12.4
 djaodjin-deployutils==0.10.7
 djaodjin-extended-templates==0.4.5
 djaodjin-pages==0.7.1
-djaodjin-survey==0.10.0
+djaodjin-survey==0.10.1
 docutils==0.20.1          # Technically only needed for schema generation but
                           # djangorestframework will import regardless.
 gunicorn==20.1.0
@@ -48,7 +48,7 @@ coreapi==2.3.3
 drf-spectacular==0.27.0
 Pygments==2.16.1
 pyyaml==6.0
-Sphinx==5.3.0
+Sphinx==7.2.6
 sphinxcontrib-httpdomain==1.8.1
 uritemplate==4.1.1
 

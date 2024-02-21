@@ -336,7 +336,7 @@
                     <div class="row">
                       <div class="col-6">
                         <div>
-                          <strong>[[getPrimaryAnswer(practice).measured ? getPrimaryAnswer(practice).measured : "-"]]</strong>
+                          <strong>[[getPrimaryAnswer(practice).measured ? getMeasured(getPrimaryAnswer(practice)) : "-"]]</strong>
                         </div>
                       </div>
                       <div class="col-6" v-if="getPrimaryPlanned(practice) && getPrimaryPlanned(practice).measured">

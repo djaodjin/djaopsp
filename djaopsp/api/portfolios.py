@@ -688,9 +688,9 @@ class CompletedAssessmentsMixin(AccountMixin):
     def decorate_queryset(self, queryset):
         for sample in queryset:
             sample.score_url = reverse('scorecard',
-                args=(sample.account, sample.slug)) # We use sample.account here
-            # because the broker should be able to access all scorecards
-            # without requiring a `Portfolio` record to exist.
+                args=(self.account, sample.slug)) # The broker should be able
+            # to access all scorecards without requiring a `Portfolio` record
+            # to exist.
             try:
                 sample.verified_status = sample.verified.verified_status
                 sample.verified_by = sample.verified.verified_by

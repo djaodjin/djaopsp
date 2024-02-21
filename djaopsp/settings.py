@@ -595,5 +595,6 @@ SURVEY = {
     'ACCOUNT_LOOKUP_FIELD': 'slug',
     'ACCOUNT_MODEL': ACCOUNT_MODEL,
     'ACCOUNT_URL_KWARG': 'profile',
+    'BYPASS_SAMPLE_AVAILABLE': 'djaopsp.utils.is_portfolios_bypass',
     'CONTENT_MODEL': 'pages.PageElement',
 }

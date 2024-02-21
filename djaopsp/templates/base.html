@@ -106,7 +106,7 @@
                         {% if request and request|is_authenticated %}
                         <a class="nav-link">{{request.user.username}}</a>
                         {% else %}
-                        <a id="login" class="nav-link btn btn-primary text-white mx-2" href="{{'/login/'|site_url}}">Sign In</a>
+                        <a id="login" class="btn btn-primary text-white mx-2" href="{{'/login/'|site_url}}">{% trans %}Sign In{% endtrans %}</a>
                         {% endif %}
                       </li>
                       {# end of replaced by _menubar.html #}

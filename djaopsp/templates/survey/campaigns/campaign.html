@@ -188,10 +188,11 @@
                                   <button :id="'header-' + entry.slug" class="btn btn-link" @click.prevent="toggleAddBelow(entry, index)" v-if="!isPractice(entry)">
                                     <i class="fa fa-plus"></i> Add
                                   </button>
-                                  <button class="btn btn-link text-danger delete" href=""
-                                          @click="setActive(entry, index)"
-                                          data-bs-toggle="modal" data-bs-target="#confirm-delete">
-                                          data-toggle="modal" data-target="#confirm-delete">
+                                  <button class="btn btn-link text-danger delete"
+                                      href=""
+                                      @click="setActive(entry, index)"
+                                      data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                      data-toggle="modal" data-target="#confirm-delete">
                                     <i class="fa fa-trash-o"></i>
                                   </button>
                                 </div>

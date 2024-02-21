@@ -32,9 +32,14 @@
         </div>
       </div>
       {% endif %}
-      <p v-if="!(answer.unit === 'freetext' || answer.unit === 'ai-audit' || answer.unit === 'percentage' || answer.unit === 'ends-at' || answer.unit === 'yes-no')">
-          [[answer.measured]] [[getUnit(answer).title]]
-      </p>
+      <div v-if="!(answer.unit === 'freetext' || answer.unit === 'ai-audit' || answer.unit === 'percentage' || answer.unit === 'ends-at' || answer.unit === 'yes-no')">
+        <span v-if="getUnit(answer).system === 'enum'">
+          [[getUnit(answer).title]]: [[getMeasured(answer)]]
+        </span>
+        <span v-if="getUnit(answer).system !== 'enum'">
+          [[getMeasured(answer)]] [[getUnit(answer).title]]
+        </span>
+      </div>
     </div>
   </div>
 </div>

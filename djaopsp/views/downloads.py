@@ -297,7 +297,10 @@ class PracticesSpreadsheetView(TimersMixin, ListView):
                         self.wsheet.row_dimensions[i + 1].height = max_height
 
     def get_filename(self):
-        return datetime_or_now().strftime(self.basename + '-%Y%m%d.xlsx')
+        basename = self.basename
+        if hasattr(self, 'account'):
+            basename = '-'.join([str(self.account), self.basename])
+        return datetime_or_now().strftime(basename + '-%Y%m%d.xlsx')
 
 
 class ImproveContentPDFView(AssessmentContentMixin, ListView):

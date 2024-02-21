@@ -269,7 +269,8 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         to the account making the request to see the response.
         """
         if not hasattr(self, '_verification_available'):
-            self._verification_available = self.is_auditor
+            self._verification_available = (
+                self.account in self.verifier_accounts)
             if not self._verification_available:
                 queryset = Sample.objects.filter(
                     notes__sample=self.sample,

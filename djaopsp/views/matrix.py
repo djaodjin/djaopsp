@@ -10,6 +10,7 @@ from django.db import connection
 from django.http import HttpResponse
 from survey.helpers import get_extra
 from survey.models import Campaign, PortfolioDoubleOptIn, Unit, UnitEquivalences
+from survey.settings import DB_PATH_SEP
 from survey.views.matrix import CompareView as CompareBaseView
 from rest_framework.generics import get_object_or_404
 
@@ -37,6 +38,8 @@ class CompareView(UpdatedMenubarMixin, CompareBaseView):
         update_context_urls(context, {
             'api_version': site_url("/api"),
             'api_account_candidates': site_url("/api/accounts/profiles"),
+            'api_account_groups': reverse('survey_api_accounts_filter_list',
+                args=(self.account,)),
             'pages_index': reverse('pages_index')})
         url_kwargs = self.get_url_kwargs()
         if 'path' in self.kwargs:
@@ -59,7 +62,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     Download a spreadsheet of answers/comments with questions as rows
     and accounts as columns.
     """
-    basename = 'dashboard-answers'
+    basename = 'answers'
     show_comments = True
     show_planned = True
     add_expanded_styles = False
@@ -71,6 +74,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         super(CompareXLSXView, self).__init__( *args)
         self.comments_unit = Unit.objects.get(slug='freetext')
         self.points_unit = Unit.objects.get(slug='points')
+        self.target_by_unit = Unit.objects.get(slug='ends-at')
 
     @staticmethod
     def _get_consumption(element):
@@ -163,6 +167,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                                 'planned': cell.get('measured', '')})
         return self._by_paths
 
+
     def get_requested_accounts(self, grantee, aggregate_set=False):
         """
         All accounts which ``grantee`` has requested a scorecard from.
@@ -184,6 +189,11 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         if unit_id == default_unit_id:
             # if we have already resolve `measured` to text value
             # (ex: because the unit is an enum), let's use that.
+            if unit_id == self.target_by_unit.pk:
+                try:
+                    text = int(text)
+                except ValueError:
+                    pass
             account.update({'measured': text if text else measured})
         elif unit_id == self.points_unit.pk:
             account.update({'score': measured})
@@ -309,7 +319,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                     continue
                 val = account.get(orig_key)
                 if orig_val and val and (orig_val != val):
-                    LOGGER.warning("[%s] value for key '%s' differs (%s vs %s)",
+                    LOGGER.debug("[%s] value for key '%s' differs (%s vs %s)",
                         path, orig_key, orig_val, val)
                 if not orig_val and val:
                     orig_account[orig_key] = val
@@ -371,7 +381,11 @@ ORDER BY answers.path, answers.account_id
             'question_clause': question_clause
         }
             if self.campaign != self.verified_campaign:
-                # dealing verified samples
+                # When we are downloading the answers for a verification
+                # campaign, we run the same query as previously, except we
+                # add an indirection through `djaopsp_verifiedsample` to find
+                # the account the verification answers apply to (otherwise
+                # we would set the verifier account as a column label).
                 reporting_answers_sql = """
 WITH latest_samples AS (
     %(latest_assessments)s
@@ -543,7 +557,7 @@ class CompareScoresXLSXView(CompareXLSXView):
     Download a spreadsheet of scores with segments as rows and accounts
     as columns.
     """
-    basename = 'dashboard-scores'
+    basename = 'scores'
 
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals

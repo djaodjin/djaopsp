@@ -33,7 +33,9 @@ class CampaignContentMixin(CampaignMixin):
     """
     strip_segment_prefix = False
 
-    def get_questions(self, prefix):
+    def get_questions(self, prefix, campaign=None):
+        if not campaign:
+            campaign = self.campaign
         return [{
             'path': question.get('path'),
             'rank': question.get('enumeratedquestions__rank'),
@@ -47,7 +49,7 @@ class CampaignContentMixin(CampaignMixin):
             'extra': self._as_extra_dict(question.get('content__extra')),
         } for question in get_question_model().objects.filter(
             path__startswith=prefix,
-            enumeratedquestions__campaign=self.campaign
+            enumeratedquestions__campaign=campaign
         ).values('path', 'enumeratedquestions__rank', 'default_unit__slug',
             'default_unit__title', 'default_unit__system', 'content__title',
             'content__picture', 'content__extra').order_by(

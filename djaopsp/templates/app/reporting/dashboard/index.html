@@ -151,14 +151,21 @@ an Online Analytical Processing (OLAP) software.
              target="_blank">
             <i class="fa fa-download"></i> Answers (.xlsx)
           </a>
-        </div>
-        <div class="col-sm-4">
           <a id="download-long-format" class="btn btn-secondary mb-2"
              :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
              target="_blank">
             <i class="fa fa-download"></i> Long format (.csv)
           </a>
         </div>
+        {% if urls.download_verification %}
+        <div class="col-sm-4">
+          <a id="download-verification" class="btn btn-secondary mb-2"
+             :href="'{{urls.download_verification}}' + getQueryString(['page'])"
+             target="_blank">
+            <i class="fa fa-download"></i> Verification (.xlsx)
+          </a>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>

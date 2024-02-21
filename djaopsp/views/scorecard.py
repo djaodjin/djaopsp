@@ -156,7 +156,7 @@ class ScorecardIndexView(ReportMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ScorecardIndexView, self).get_context_data(**kwargs)
         context.update({
-            'verification_enabled': self.is_auditor,
+            'verification_enabled': self.account in self.verifier_accounts,
             'highlights': get_highlights(self.sample),
             'is_mandatory_segment_present': self.is_mandatory_segment_present,
             'summary_performance': get_summary_performance(

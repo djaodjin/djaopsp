@@ -346,6 +346,20 @@ var practicesListMixin = {
             }
             return practice.planned[0];
         },
+        getMeasured: function(answer) {
+            var vm = this;
+            if( vm.items.units && answer.unit ) {
+                var unit = vm.items.units[answer.unit];
+                if( typeof unit !== 'undefined' && unit.system == 'enum' ) {
+                    for( var idx = 0; idx < unit.choices.length; ++idx ) {
+                        if( answer.measured === unit.choices[idx].text ) {
+                            return unit.choices[idx].descr;
+                        }
+                    }
+                }
+            }
+            return answer.measured;
+        },
         getUnit: function(answer) {
             var vm = this;
             if( vm.items.units && answer.unit ) {
@@ -354,7 +368,7 @@ var practicesListMixin = {
                     return vm.items.units[answer.unit];
                 }
             }
-            return {title: "Not found"};
+            return {title: "Not found", system: ""};
         },
         getPrimaryUnit: function(practice) {
             var vm = this;
@@ -789,7 +803,7 @@ var practicesListMixin = {
     },
     mounted: function(){
         var vm = this;
-        if( vm.items.results.length === 0 ) {
+        if( !vm.itemsLoaded && vm.items.results.length === 0 ) {
             vm.get();
         } else {
             vm.itemsLoaded = true;
