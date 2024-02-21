@@ -49,7 +49,7 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
             if broker:
                 unlocked_brokers |= set([broker])
             accessibles = set([])
-            self._verifier_accounts = None
+            self._verifier_accounts = set([])
             for org in self.get_accessible_profiles(
                     self.request, roles=['manager', settings.AUDITOR_ROLE]):
                 org_slug = org['slug']
