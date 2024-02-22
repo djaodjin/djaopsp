@@ -463,7 +463,7 @@ Vue.component('djaopsp-compare-samples', {
     }
 });
 
-
+/*
 Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.extend({
     data: function() {
         return {
@@ -477,7 +477,7 @@ Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.ext
         },
     },
 }));
-
+*/
 
 Vue.component('reporting-organizations', {
     mixins: [
