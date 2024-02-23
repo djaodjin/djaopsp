@@ -207,9 +207,15 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                 if not (unit.slug in ('m3-year', 'gallons-year',
                     'kiloliters-year') and
                     default_unit.slug in ('tons-year')):
-                    equiv = UnitEquivalences.objects.get(
-                        source=unit, target=default_unit)
-                    account.update({'measured': equiv.as_target_unit(measured)})
+                    try:
+                        equiv = UnitEquivalences.objects.get(
+                            source=unit, target=default_unit)
+                        account.update({
+                            'measured': equiv.as_target_unit(measured)})
+                    except UnitEquivalences.DoesNotExist as err:
+                        account.update({'measured': ""})
+                        LOGGER.error("cannot convert '%s' to '%s' for %s:%s" % (
+                            unit, default_unit, row[1], row[0]))
 
 
     def as_account(self, key):

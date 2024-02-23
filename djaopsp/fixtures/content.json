@@ -217,40 +217,32 @@
 { "fields": {
     "unit": 14,
     "rank": 1,
-    "text": "no-response",
-    "descr": "No Response"
+    "text": "No Response",
+    "descr": ""
   },
   "model" : "survey.choice", "pk": 19
 },
 { "fields": {
     "unit": 14,
     "rank": 2,
-    "text": "no-verifiable",
-    "descr": "Self-reported No > Unverifiable"
+    "text": "Self-reported No",
+    "descr": ""
   },
   "model" : "survey.choice", "pk": 20
 },
 { "fields": {
     "unit": 14,
-    "rank": 3,
-    "text": "no-unverifiable",
-    "descr": "Self-reported No > Verifiable"
-  },
-  "model" : "survey.choice", "pk": 21
-},
-{ "fields": {
-    "unit": 14,
     "rank": 4,
-    "text": "yes-unverifiable",
-    "descr": "Self-reported Yes > Unverifiable"
+    "text": "Self-reported Yes > Unverifiable",
+    "descr": ""
   },
   "model" : "survey.choice", "pk": 22
 },
 { "fields": {
     "unit": 14,
     "rank": 5,
-    "text": "yes-verifiable",
-    "descr": "Self-reported Yes > Verifiable"
+    "text": "Self-reported Yes > Verifiable",
+    "descr": ""
   },
   "model" : "survey.choice", "pk": 23
 },

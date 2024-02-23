@@ -1082,7 +1082,7 @@ Vue.component('scorecard-requests', {
                 }
                 vm.byCampaigns[campaign].requests.push(item);
             }
-            if( profiles.length > 0 ) {
+            if( profiles.size > 0 ) {
                 let queryParams = "?q_f==slug&q=";
                 let sep = "";
                 for( const profile of profiles ) {
@@ -1151,7 +1151,7 @@ Vue.component('scorecard-history', {
                 }
             }
             // decorate profiles
-            if( profiles.length > 0 ) {
+            if( profiles.size > 0 ) {
                 let queryParams = "?q_f==slug&q=";
                 let sep = "";
                 for( const profile of profiles ) {

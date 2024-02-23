@@ -348,16 +348,9 @@ var practicesListMixin = {
         },
         getMeasured: function(answer) {
             var vm = this;
-            if( vm.items.units && answer.unit ) {
-                var unit = vm.items.units[answer.unit];
-                if( typeof unit !== 'undefined' && unit.system == 'enum' ) {
-                    for( var idx = 0; idx < unit.choices.length; ++idx ) {
-                        if( answer.measured === unit.choices[idx].text ) {
-                            return unit.choices[idx].descr;
-                        }
-                    }
-                }
-            }
+            // We rely on enum values to be Human-friendly. We cannot use
+            // the `descr` of an enum unit, because that field is used
+            // for contextual help.
             return answer.measured;
         },
         getUnit: function(answer) {
