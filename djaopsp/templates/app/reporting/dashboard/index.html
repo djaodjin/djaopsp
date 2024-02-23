@@ -146,16 +146,32 @@ an Online Analytical Processing (OLAP) software.
           </a>
         </div>
         <div class="col-sm-4">
-          <a id="download-assessment-details" class="btn btn-secondary mb-2"
-             :href="'{{urls.download_raw}}' + getQueryString(['page'])"
-             target="_blank">
-            <i class="fa fa-download"></i> Answers (.xlsx)
-          </a>
-          <a id="download-long-format" class="btn btn-secondary mb-2"
-             :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
-             target="_blank">
-            <i class="fa fa-download"></i> Long format (.csv)
-          </a>
+          <div class="row">
+            <div class="col-sm-6">
+              <a id="download-assessment-details" class="btn btn-secondary mb-2"
+                 :href="'{{urls.download_raw}}' + getQueryString(['page'])"
+                 target="_blank">
+                <i class="fa fa-download"></i> Answers (.xlsx)
+              </a>
+              <a id="download-long-format" class="btn btn-outline-secondary mb-2"
+                 :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
+                 target="_blank">
+                  <i class="fa fa-download"></i> Long format (.csv)
+              </a>
+            </div>
+            <div class="col-sm-6">
+              <a id="download-planned" class="btn btn-secondary mb-2"
+                 :href="'{{urls.download_raw}}' + getQueryString(['page']) + '&planned=1'"
+                 target="_blank">
+                <i class="fa fa-download"></i> Planned (.xlsx)
+              </a>
+              <a id="download-planned-long" class="btn btn-outline-secondary mb-2"
+                 :href="'{{urls.download_raw_long}}' + getQueryString(['page']) + '&planned=1'"
+                 target="_blank">
+                  <i class="fa fa-download"></i> Long format (.csv)
+              </a>
+            </div>
+          </div>
         </div>
         {% if urls.download_verification %}
         <div class="col-sm-4">

@@ -64,7 +64,6 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     """
     basename = 'answers'
     show_comments = True
-    show_planned = True
     add_expanded_styles = False
 
 #    ordering = ('full_name',)
@@ -75,6 +74,10 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         self.comments_unit = Unit.objects.get(slug='freetext')
         self.points_unit = Unit.objects.get(slug='points')
         self.target_by_unit = Unit.objects.get(slug='ends-at')
+
+    @property
+    def show_planned(self):
+        return self.get_query_param('planned', False)
 
     @staticmethod
     def _get_consumption(element):
@@ -324,7 +327,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                 if orig_key == 'score':
                     continue
                 val = account.get(orig_key)
-                if orig_val and val and (orig_val != val):
+                if False and orig_val and val and (orig_val != val):
                     LOGGER.debug("[%s] value for key '%s' differs (%s vs %s)",
                         path, orig_key, orig_val, val)
                 if not orig_val and val:
@@ -490,12 +493,13 @@ ORDER BY answers.path, answers.account_id
         self._start_time()
         queryset = self.get_queryset()
         self._report_queries("built list of questions")
-        self.write_sheet(title="Answers", key='measured', queryset=queryset)
-        if self.show_comments:
-            self.write_sheet(title="Comments", key='comments',
-                queryset=queryset)
         if self.show_planned:
             self.write_sheet(title="Planned", key='planned', queryset=queryset)
+        else:
+            self.write_sheet(title="Answers", key='measured', queryset=queryset)
+            if self.show_comments:
+                self.write_sheet(title="Comments", key='comments',
+                    queryset=queryset)
 
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \
