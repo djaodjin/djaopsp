@@ -346,6 +346,13 @@ var practicesListMixin = {
             }
             return practice.planned[0];
         },
+        getMeasured: function(answer) {
+            var vm = this;
+            // We rely on enum values to be Human-friendly. We cannot use
+            // the `descr` of an enum unit, because that field is used
+            // for contextual help.
+            return answer.measured;
+        },
         getUnit: function(answer) {
             var vm = this;
             if( vm.items.units && answer.unit ) {
@@ -354,7 +361,7 @@ var practicesListMixin = {
                     return vm.items.units[answer.unit];
                 }
             }
-            return {title: "Not found"};
+            return {title: "Not found", system: ""};
         },
         getPrimaryUnit: function(practice) {
             var vm = this;
@@ -789,7 +796,7 @@ var practicesListMixin = {
     },
     mounted: function(){
         var vm = this;
-        if( vm.items.results.length === 0 ) {
+        if( !vm.itemsLoaded && vm.items.results.length === 0 ) {
             vm.get();
         } else {
             vm.itemsLoaded = true;

@@ -6,10 +6,11 @@ import datetime, logging, re
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
-from django.db import connection
+from django.db import connection, models
 from django.http import HttpResponse
 from survey.helpers import get_extra
-from survey.models import Campaign, PortfolioDoubleOptIn, Unit
+from survey.models import Campaign, PortfolioDoubleOptIn, Unit, UnitEquivalences
+from survey.settings import DB_PATH_SEP
 from survey.views.matrix import CompareView as CompareBaseView
 from rest_framework.generics import get_object_or_404
 
@@ -37,6 +38,8 @@ class CompareView(UpdatedMenubarMixin, CompareBaseView):
         update_context_urls(context, {
             'api_version': site_url("/api"),
             'api_account_candidates': site_url("/api/accounts/profiles"),
+            'api_account_groups': reverse('survey_api_accounts_filter_list',
+                args=(self.account,)),
             'pages_index': reverse('pages_index')})
         url_kwargs = self.get_url_kwargs()
         if 'path' in self.kwargs:
@@ -59,9 +62,8 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     Download a spreadsheet of answers/comments with questions as rows
     and accounts as columns.
     """
-    basename = 'dashboard-answers'
+    basename = 'answers'
     show_comments = True
-    show_planned = True
     add_expanded_styles = False
 
 #    ordering = ('full_name',)
@@ -71,6 +73,11 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         super(CompareXLSXView, self).__init__( *args)
         self.comments_unit = Unit.objects.get(slug='freetext')
         self.points_unit = Unit.objects.get(slug='points')
+        self.target_by_unit = Unit.objects.get(slug='ends-at')
+
+    @property
+    def show_planned(self):
+        return self.get_query_param('planned', False)
 
     @staticmethod
     def _get_consumption(element):
@@ -82,7 +89,11 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
 
     @staticmethod
     def _get_title(element):
-        return element.get('title', "")
+        title = element.get('title', "")
+        default_unit = element.get('default_unit', {})
+        if default_unit and default_unit.get('system') in Unit.METRIC_SYSTEMS:
+            title += " (in %s)" % default_unit.get('title')
+        return title
 
     @property
     def verified_campaign(self):
@@ -159,6 +170,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                                 'planned': cell.get('measured', '')})
         return self._by_paths
 
+
     def get_requested_accounts(self, grantee, aggregate_set=False):
         """
         All accounts which ``grantee`` has requested a scorecard from.
@@ -170,6 +182,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
             start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
             search_terms=self.search_terms)
 
+
     def add_datapoint(self, account, row):
         # account_id = row[1]
         measured = row[2]
@@ -179,11 +192,34 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         if unit_id == default_unit_id:
             # if we have already resolve `measured` to text value
             # (ex: because the unit is an enum), let's use that.
+            if unit_id == self.target_by_unit.pk:
+                try:
+                    text = int(text)
+                except ValueError:
+                    pass
             account.update({'measured': text if text else measured})
         elif unit_id == self.points_unit.pk:
             account.update({'score': measured})
         elif unit_id == self.comments_unit.pk:
             account['comments'] += str(text) if text else ""
+        else:
+            unit = Unit.objects.get(pk=unit_id)
+            if unit.system in (Unit.SYSTEM_STANDARD, Unit.SYSTEM_IMPERIAL):
+                default_unit = Unit.objects.get(pk=default_unit_id)
+                # There is no equivalence btw weight and volume for waste
+                if not (unit.slug in ('m3-year', 'gallons-year',
+                    'kiloliters-year') and
+                    default_unit.slug in ('tons-year')):
+                    try:
+                        equiv = UnitEquivalences.objects.get(
+                            source=unit, target=default_unit)
+                        account.update({
+                            'measured': equiv.as_target_unit(measured)})
+                    except UnitEquivalences.DoesNotExist as err:
+                        account.update({'measured': ""})
+                        LOGGER.error("cannot convert '%s' to '%s' for %s:%s" % (
+                            unit, default_unit, row[1], row[0]))
+
 
     def as_account(self, key):
         """
@@ -291,8 +327,8 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                 if orig_key == 'score':
                     continue
                 val = account.get(orig_key)
-                if orig_val and val and (orig_val != val):
-                    LOGGER.warning("[%s] value for key '%s' differs (%s vs %s)",
+                if False and orig_val and val and (orig_val != val):
+                    LOGGER.debug("[%s] value for key '%s' differs (%s vs %s)",
                         path, orig_key, orig_val, val)
                 if not orig_val and val:
                     orig_account[orig_key] = val
@@ -354,7 +390,11 @@ ORDER BY answers.path, answers.account_id
             'question_clause': question_clause
         }
             if self.campaign != self.verified_campaign:
-                # dealing verified samples
+                # When we are downloading the answers for a verification
+                # campaign, we run the same query as previously, except we
+                # add an indirection through `djaopsp_verifiedsample` to find
+                # the account the verification answers apply to (otherwise
+                # we would set the verifier account as a column label).
                 reporting_answers_sql = """
 WITH latest_samples AS (
     %(latest_assessments)s
@@ -453,12 +493,13 @@ ORDER BY answers.path, answers.account_id
         self._start_time()
         queryset = self.get_queryset()
         self._report_queries("built list of questions")
-        self.write_sheet(title="Answers", key='measured', queryset=queryset)
-        if self.show_comments:
-            self.write_sheet(title="Comments", key='comments',
-                queryset=queryset)
         if self.show_planned:
             self.write_sheet(title="Planned", key='planned', queryset=queryset)
+        else:
+            self.write_sheet(title="Answers", key='measured', queryset=queryset)
+            if self.show_comments:
+                self.write_sheet(title="Comments", key='comments',
+                    queryset=queryset)
 
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \
@@ -526,7 +567,7 @@ class CompareScoresXLSXView(CompareXLSXView):
     Download a spreadsheet of scores with segments as rows and accounts
     as columns.
     """
-    basename = 'dashboard-scores'
+    basename = 'scores'
 
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals
@@ -547,22 +588,21 @@ class CompareScoresXLSXView(CompareXLSXView):
             row = [self._get_title(entry)]
             slug = entry.get('slug')
 
-            queryset = self.accounts_with_engagement
-            scores = ScorecardCache.objects.filter(sample__in={
-                val.sample_id for val in queryset}, path=entry['path'])
-            scores = {val.sample_id: val for val in scores}
+            scores = ScorecardCache.objects.filter(
+                sample__in=self.latest_assessments,
+                path=entry['path']).order_by('sample__account_id').values_list(
+                'pk', 'sample__account_id', 'normalized_score')
+            tab = self.tabularize([(val[0], val[1], val[2],
+                self.points_unit.pk, self.points_unit.pk, None, "")
+                for val in scores], self.accounts_with_engagement)
 
-            for reporting in self.accounts_with_engagement:
+            for item, reporting in zip(tab, self.accounts_with_engagement):
                 if (reporting.reporting_status not in
                     EngagementSerializer.REPORTING_ACCESSIBLE_ANSWERS):
                     row += [""]
                 else:
-                    scorecard_cache = scores.get(reporting.sample_id)
-                    if scorecard_cache:
-                        measured = scorecard_cache.normalized_score
-                    else:
-                        measured = ""
-                    row += [measured]
+                    row += [item.get('measured', "")]
+
             row += [slug]
             self.writerow(row)
         self._report_queries("written sheet 'Scores'")

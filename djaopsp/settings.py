@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 """
 Django settings for djaopsp project.
 """
@@ -396,7 +396,7 @@ DEPLOYUTILS = {
     # Hardcoded mockups here.
     'MOCKUP_SESSIONS': {
         'donny': {
-            'username': 'donny',   # Profile manager for TSP
+            'username': 'donny',   # Profile manager for site broker
             'roles': {
                 'manager': [{
                     'slug': APP_NAME,
@@ -416,7 +416,7 @@ DEPLOYUTILS = {
                     'printable_name': 'Alliance',
                     "subscriptions": [{
                         "plan": "managed",
-                        "ends_at": "2023-12-31T23:59:59Z"
+                        "ends_at": "2024-12-31T23:59:59Z"
                     }],
                 }]},
             'site': {
@@ -433,7 +433,7 @@ DEPLOYUTILS = {
                     'printable_name': 'Energy utility',
                     "subscriptions": [{
                         "plan": "tier1-members",
-                        "ends_at": "2023-12-31T23:59:59Z"
+                        "ends_at": "2024-12-31T23:59:59Z"
                     }],
                 }]},
             'site': {
@@ -450,7 +450,7 @@ DEPLOYUTILS = {
                     'printable_name': 'Janice Shop',
                     "subscriptions": [{
                         "plan": "tier2-members",
-                        "ends_at": "2023-12-31T23:59:59Z"
+                        "ends_at": "2024-12-31T23:59:59Z"
                     }],
                 }]},
             'site': {
@@ -461,7 +461,7 @@ DEPLOYUTILS = {
         },
         'steve': {
             'username': 'steve',   # Profile manager for registered organization
-            'last_visited': '2017-01-01T00:00:00.000Z',
+            'last_visited': '2024-01-01T00:00:00.000Z',
             'roles': {
                 'manager': [{
                     'slug': 'supplier-1',
@@ -489,6 +489,23 @@ DEPLOYUTILS = {
             'roles': {
                 'viewer': [{'slug': 'supplier-1',
                     'printable_name': 'Steve Shop'}]},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
+        'abby': {
+            'username': 'abby',   # Profile manager for verifier
+            'roles': {
+                'manager': [{
+                    'slug': 'desktop-reviewers',
+                    'printable_name': 'Desktop Reviewers',
+                    "subscriptions": [{
+                        "plan": "verification-partners",
+                        "ends_at": "2024-12-31T23:59:59Z"
+                    }],
+                }]},
             'site': {
                 'slug': APP_NAME,
                 'printable_name': APP_NAME,
@@ -578,5 +595,6 @@ SURVEY = {
     'ACCOUNT_LOOKUP_FIELD': 'slug',
     'ACCOUNT_MODEL': ACCOUNT_MODEL,
     'ACCOUNT_URL_KWARG': 'profile',
+    'BYPASS_SAMPLE_AVAILABLE': 'djaopsp.utils.is_portfolios_bypass',
     'CONTENT_MODEL': 'pages.PageElement',
 }

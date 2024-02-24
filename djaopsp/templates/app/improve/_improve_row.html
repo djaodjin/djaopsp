@@ -313,6 +313,7 @@
     <label :for="slugify(choice.text, practice.rank)"
          style="margin-bottom:0"
          data-bs-toggle="tooltip" data-bs-placement="bottom"
+         data-toggle="tooltip" data-placement="bottom"
          :title="getPrimaryCandidate(practice).measured === choice.text ? (getPrimaryCandidate(practice).collected_by + ', ' + humanizeTimeDelta(getPrimaryCandidate(practice).created_at)) : ''">
       <span style="font-size:10px;">[[choice.descr ? choice.descr : ""]]</span>
     </label>

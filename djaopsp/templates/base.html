@@ -14,6 +14,7 @@
     <meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
     {% endblock %}
     <link rel="stylesheet" media="screen, print" href="{{'/static/cache/app.css'|asset}}" />
+    <link rel="stylesheet" media="print" href="{{'/static/vendor/bootstrap-print.css'|asset}}" />
     <style media="screen">
       [v\:cloak], [v-cloak], [data-v-cloak], [x-v-cloak], .v-cloak, .x-v-cloak {
         display: none !important;
@@ -106,7 +107,7 @@
                         {% if request and request|is_authenticated %}
                         <a class="nav-link">{{request.user.username}}</a>
                         {% else %}
-                        <a id="login" class="nav-link btn btn-primary text-white mx-2" href="{{'/login/'|site_url}}">Sign In</a>
+                        <a id="login" class="btn btn-primary text-white mx-2" href="{{'/login/'|site_url}}">{% trans %}Sign In{% endtrans %}</a>
                         {% endif %}
                       </li>
                       {# end of replaced by _menubar.html #}

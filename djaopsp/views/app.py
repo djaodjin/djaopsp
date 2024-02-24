@@ -84,6 +84,8 @@ class AppView(AccountMixin, TemplateView):
                     self.account,)),
                 'portfolio_engage': reverse('portfolio_engage', args=(
                     self.account,)),
+                'portfolio_insights': reverse('portfolio_insights', args=(
+                    self.account,)),
             })
         if self.unlock_editors:
             update_context_urls(context, {

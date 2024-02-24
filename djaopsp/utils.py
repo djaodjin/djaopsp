@@ -87,6 +87,17 @@ def get_account_model():
 " that has not been installed" % settings.ACCOUNT_MODEL)
 
 
+def is_portfolios_bypass(account):
+    """
+    Returns `True` if the account can access samples regardless
+    of portfolio rules.
+
+    This function is used for example as an escape mechanism for platform
+    administrator to help with technical support.
+    """
+    return str(account) == settings.APP_NAME
+
+
 def _notified_recipients(notification_slug, context):
     """
     Returns the organization email or the managers email if the organization

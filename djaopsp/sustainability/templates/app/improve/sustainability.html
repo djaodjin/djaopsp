@@ -20,7 +20,8 @@
                       v-cloak>
                     <a class="nav-link icon-inner orange"
                        :href="'#tab-' + icon.slug"
-                       role="{{role}}" data-toggle="{{role}}"
+                       role="{{role}}"
+                       data-bs-toggle="{{role}}" data-toggle="{{role}}"
                        @click.prevent="toggleTile($event, icon)">
                        <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
                        <div class="icon-caption">[[icon.title]]</div>
@@ -69,7 +70,10 @@
                       {% trans %}Assessed{% endtrans %}
                     </div>
                   </th>
-                  <th class="sticky-cell sticky-cell-top text-center" data-toggle="tooltip" data-placement="top" title="Percentage of peer respondents that have implemented a best practice.">
+                  <th class="sticky-cell sticky-cell-top text-center"
+                      data-bs-toggle="tooltip" data-bs-placement="top"
+                      data-toggle="tooltip" data-placement="top"
+                      title="{% trans %}Percentage of peer respondents that have implemented a best practice.{% endtrans %}">
                     <div class="sticky-cell-content-container">
                       <div class="sticky-cell-content">
                         <button class="btn btn-link btn-sort" @click="sortBy('rate')">
@@ -79,7 +83,10 @@
                       </div>
                     </div>
                   </th>
-                  <th class="sticky-cell sticky-cell-top text-center" style="border-top:0;" data-toggle="tooltip" data-placement="top" title="Opportunity points by which your score could increase if this best practice is implemented. See FAQs for scoring methodology and calculations.">
+                  <th class="sticky-cell sticky-cell-top text-center" style="border-top:0;"
+                      data-bs-toggle="tooltip" data-bs-placement="top"
+                      data-toggle="tooltip" data-placement="top"
+                      title="{% trans %}Opportunity points by which your score could increase if this best practice is implemented. See FAQs for scoring methodology and calculations.{% endtrans %}">
                     <div class="sticky-cell-content-container">
                       <div class="sticky-cell-content">
                         <button class="btn btn-link btn-sort" @click="sortBy('opportunity')">
@@ -139,6 +146,7 @@
                 {% if not sample.is_frozen %}
                 <button id="reset-button"
                         class="btn btn-primary"
+                        data-bs-toggle="modal" data-bs-target="#reset-assessment"
                         data-toggle="modal" data-target="#reset-assessment"
                         v-show="!showVsPeers">
                   Reset

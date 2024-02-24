@@ -17,7 +17,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from survey.mixins import QuestionMixin
-from survey.models import EnumeratedQuestions
+from survey.models import EnumeratedQuestions, Unit
 from survey.utils import get_question_model, get_question_serializer
 from survey.settings import DB_PATH_SEP
 
@@ -33,19 +33,26 @@ class CampaignContentMixin(CampaignMixin):
     """
     strip_segment_prefix = False
 
-    def get_questions(self, prefix):
+    def get_questions(self, prefix, campaign=None):
+        if not campaign:
+            campaign = self.campaign
         return [{
             'path': question.get('path'),
             'rank': question.get('enumeratedquestions__rank'),
-            'default_unit': question.get('default_unit__slug'),
+            'default_unit': {
+                'slug': question.get('default_unit__slug'),
+                'title': question.get('default_unit__title'),
+                'system': question.get('default_unit__system'),
+            },
             'title': question.get('content__title'),
             'picture': question.get('content__picture'),
             'extra': self._as_extra_dict(question.get('content__extra')),
         } for question in get_question_model().objects.filter(
             path__startswith=prefix,
-            enumeratedquestions__campaign=self.campaign
+            enumeratedquestions__campaign=campaign
         ).values('path', 'enumeratedquestions__rank', 'default_unit__slug',
-            'content__title', 'content__picture', 'content__extra').order_by(
+            'default_unit__title', 'default_unit__system', 'content__title',
+            'content__picture', 'content__extra').order_by(
             'enumeratedquestions__rank')]
 
     @staticmethod
@@ -374,8 +381,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
 
         """
         #pylint:disable=useless-super-delegation
-        return super(CampaignEditableContentAPIView, self).post(
-            request, *args, **kwargs)
+        return self.create(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         #pylint:disable=too-many-locals
@@ -435,7 +441,8 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
                 path = DB_PATH_SEP + DB_PATH_SEP.join([
                     part.slug for part in prefix_parts] + [element.slug])
                 question = get_question_model().objects.create(
-                    path=path, content=element)
+                    path=path, content=element,
+                    default_unit=Unit.objects.get(slug='freetext'))
                 EnumeratedQuestions.objects.get_or_create(
                     campaign=campaign, question=question, rank=rank)
 

@@ -343,6 +343,7 @@ SELECT
   %(accounts_table)s.full_name AS printable_name,
   %(accounts_table)s.picture,
   %(accounts_table)s.extra,
+  engaged.id AS id,
   engaged.created_at AS requested_at,
   engaged.sample,
   engaged.sample_id,
@@ -418,7 +419,7 @@ SELECT
   MAX(engagement.requested_at) AS requested_at,
   MAX(engagement.reporting_status) AS reporting_status
 FROM (%(engagement_sql)s) AS engagement
-WHERE reporting_status > 1 -- REPORTING_UPDATED
+-- WHERE reporting_status > 1 -- REPORTING_UPDATED
 GROUP BY account_id, slug, printable_name, picture, extra
     """ % {
         'engagement_sql': _get_engagement_sql(

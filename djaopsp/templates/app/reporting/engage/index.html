@@ -232,8 +232,8 @@
             Invite [[params.q]] as a new profile ...
             <button id="create-reporting-profile-open"
                     class="btn btn-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#invite-reporting-entity"
+                    data-bs-toggle="modal" data-bs-target="#invite-reporting-entity"
+                    data-toggle="modal" data-target="#invite-reporting-entity"
                     @click="populateInvite({})">{% trans %}Add{% endtrans %}</button>
           </td>
         </tr>
@@ -261,8 +261,8 @@
               v-if="hasNoReportingStatus(entry)">
               <button id="invite-reporting-profile-open"
                       class="btn btn-primary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#invite-reporting-entity"
+                      data-bs-toggle="modal" data-bs-target="#invite-reporting-entity"
+                      data-toggle="modal" data-target="#invite-reporting-entity"
                       @click="populateInvite(entry)">{% trans %}Add{% endtrans %}</button>
           </td>
           <td class="text-center"
@@ -349,8 +349,8 @@
               v-if="!hasNoReportingStatus(entry)">
               <button id="invite-reporting-profile-open"
                       class="btn btn-secondary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#invite-reporting-entity"
+                      data-bs-toggle="modal" data-bs-target="#invite-reporting-entity"
+                      data-toggle="modal" data-target="#invite-reporting-entity"
                       @click="populateInvite(entry)"
                       v-if="!(entry.reporting_status === 'completed' || entry.reporting_status === 'verified')">{% trans %}(Re-)send{% endtrans %}</button>
           </td>

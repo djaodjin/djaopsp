@@ -1,54 +1,275 @@
 {% extends "app/reporting/base.html" %}
 
-{% block reporting_title %}Compare{% endblock %}
+{% block localheadermeta %}
+<title>{% trans campaign=campaign.title, profile=profile.printable_name %}{{campaign}} Compare - {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
+<meta property="og:title" content="{{campaign.title}} Compare - {{profile.printable_name}} | Practice Sharing Platform" />
+<meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
+<meta name="description" property="og:description" content="Compare reporting profiles with {{campaign.title}}" />
+{% endblock %}
+
+
+{% block reporting_title %}{% trans %}Compare{% endtrans %}{% endblock %}
 
 
 {% block reporting_content %}
 <djaopsp-compare-samples id="compare-dashboard" inline-template>
   <div>
-    <table class="table table-bordered table-assessment mt-4">
-      <thead>
-        <tr>
-          <th class="sticky-cell sticky-cell-top">
-            <div class="sticky-cell-content-container">
-              <div class="sticky-cell-content">
-                {% trans %}Organization/Profile{% endtrans %}
-              </div>
+    <div class="row">
+      <div class="col-md-3">
+        <label class="form-label">{% trans %}Add{% endtrans %} ...
+        <select class="form-select" v-model="queryType">
+          <option value="individual-account">{% trans %}Individual account{% endtrans %}</option>
+          <option value="group-accounts">{% trans %}Group of accounts{% endtrans %}</option>
+          <option value="accounts-by-affinity">{% trans %}Accounts by affinity{% endtrans %}</option>
+          <option value="accounts-by-answers">{% trans %}Accounts by answers{% endtrans %}</option>
+        </select>
+        <div v-show="queryType == 'individual-account'">
+          <query-individual-account inline-template
+                                    v-on:updatedataset="addDataset">
+            <div>
+              <form id="individual-account-search"
+                    class="mt-4"
+                    @submit.prevent="validate()">
+                <account-typeahead inline-template ref="account"
+                                   v-on:selectitem="selectAccount">
+                  <div class="input-group mb-3">
+                    <!-- optional indicators -->
+                    <span class="input-group-text">
+                    <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                    <template v-else>
+                      <i class="fa fa-search" v-show="isEmpty"></i>
+                      <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                    </template>
+                    </span>
+                    <!-- the input field -->
+                    <input class="form-control"
+                       type="text"
+                       placeholder="{% trans %}Enter profile name{% endtrans %}"
+                       autocomplete="off"
+                       v-model="query"
+                       @keydown.down="down"
+                       @keydown.up="up"
+                       @keydown.enter.prevent="hit"
+                       @blur="clear"
+                       @input="update" />
+                    <!-- the list -->
+                    {# Implementation note: If we use `d-block` instead of    #}
+                    {# `style="display: block;"` the dropdown shows even when #}
+                    {# `hasItems` is `False`.                                 #}
+                    <ul class="dropdown-menu nav-pills p-1 top-100"
+                        style="display: block;"
+                        v-show="hasItems">
+                      <li v-for="(item, $item) in items" class="nav-item"
+                          @mousedown="hit"
+                          @mousemove="setActive($item)">
+                        <a :class="'nav-link px-3 py-2' + activeClass($item)" v-text="item.printable_name"></a>
+                      </li>
+                    </ul>
+                  </div>
+                </account-typeahead>
+                <div v-show="hasAccount && !hasSamples">
+                  {% trans %}There is no data available for this profile.{% endtrans %}
+                </div>
+                <div v-show="hasAccount && hasSamples">
+                  <label class="form-label">{% trans %}Pick a response{% endtrans %}</label>
+                  <select class="form-control form-select"
+                          v-model="selectedSample">
+                    <option :value="rank" v-for="(sample, rank) in samples">[[sample.title]]</option>
+                  </select>
+                  <div class="form-actions mt-2"
+                       v-show="selectedSample >= 0">
+                      <button class="btn btn-secondary w-100"
+                              type="submit">
+                          {% trans %}Add{% endtrans %}
+                      </button>
+                  </div>
+                </div>
+              </form>{# /#individual-account-search #}
             </div>
-          </th>
-          <th class="sticky-cell sticky-cell-top"
-              v-for="label in items.labels"
-              v-show="itemsLoaded && items.results.length > 0" v-cloak>
-            <div class="sticky-cell-content-container">
-              <div class="sticky-cell-content">
-                  [[label]]
-              </div>
+          </query-individual-account>
+        </div>
+        <div  v-show="queryType == 'group-accounts'">
+          <query-group-accounts inline-template
+                                    v-on:updatedataset="addDataset">
+            <div>
+              <form id="group-accounts-search"
+                    class="mt-4"
+                    @submit.prevent="validate()" v-show="itemsLoaded" v-cloak>
+                <select class="form-select" v-model="selectedItem"
+                        @change="loadAccounts">
+                  <option :value="-1">{% trans %}New group ...{% endtrans %}</option>
+                  <option :value="idx"  v-for="(group, idx) in items.results">[[group.title]]</option>
+                </select>
+                <div v-show="selectedItem < 0">
+                    <label class="form-label mt-2">{% trans %}Group name{% endtrans %}</label>
+                    <div class="input-group">
+                    <input class="form-control" v-model="newItem.title"></input>
+                    <button class="btn btn-primary"
+                            type="button"
+                            @click.prevent="addItem"
+                            :disabled="newItem.title.length === 0">
+                        {% trans %}Create{% endtrans %}
+                    </button>
+                    </div>
+                </div>
+                <div v-show="selectedItem >= 0">
+                  <label class="control-label mt-2">{% trans %}List of profiles in group{% endtrans %}</label>
+                  <div class="row" v-show="!accountsLoaded()">
+                      <div class="col-12">
+                          <p class="text-center"><i class="fa fa-refresh fa-spin"></i></p>
+                      </div>
+                  </div>
+                  <div v-show="accountsLoaded()">
+                    <div class="row" v-show="accountsEmpty()">
+                      <div class="col-12">
+                        {% trans %}Group is empty. Add a profile in the group ...{% endtrans %}
+                      </div>
+                    </div>
+                    <div class="row"
+                         v-for="(account, idx) in getAccounts(items.results[selectedItem])"
+                         v-show="!accountsEmpty()">
+                      <div class="col-10">[[account.printable_name]]</div>
+                      <div class="col-2">
+                        <button class="btn btn-danger btn-sm"
+                                @click="removeAccount(idx)">
+                          <i class="fa fa-times"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-12">
+                        <a href=""
+                           @click.prevent="addAccountEnabled = !addAccountEnabled"
+                           v-show="!addAccountEnabled"
+                           >{% trans %}Add profile in group ...{% endtrans %}</a>
+                        <account-typeahead inline-template ref="account"
+                          v-on:selectitem="addAccount"
+                          v-show="addAccountEnabled">
+                          <div class="input-group mb-3">
+                            <!-- optional indicators -->
+                            <span class="input-group-text">
+                              <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                              <template v-else>
+                                <i class="fa fa-search" v-show="isEmpty"></i>
+                                <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                              </template>
+                            </span>
+                            <!-- the input field -->
+                            <input class="form-control"
+                                   type="text"
+                                   placeholder="{% trans %}Enter profile name{% endtrans %}"
+                                   autocomplete="off"
+                                   v-model="query"
+                                   @keydown.down="down"
+                                   @keydown.up="up"
+                                   @keydown.enter.prevent="hit"
+                                   @blur="clear"
+                                   @input="update" />
+                            <!-- the list -->
+                    {# Implementation note: If we use `d-block` instead of    #}
+                    {# `style="display: block;"` the dropdown shows even when #}
+                    {# `hasItems` is `False`.                                 #}
+                            <ul class="dropdown-menu nav-pills p-1 top-100"
+                                style="display: block;"
+                                v-show="hasItems">
+                              <li v-for="(item, $item) in items" class="nav-item"
+                                  @mousedown="hit"
+                                  @mousemove="setActive($item)">
+                                <a :class="'nav-link px-3 py-2' + activeClass($item)" v-text="item.printable_name"></a>
+                              </li>
+                            </ul>
+                          </div>
+                        </account-typeahead>
+                      </div>
+                    </div>{# /.row #}
+                    <div class="form-actions mt-2"
+                         v-show="!accountsEmpty() && !addAccountEnabled">
+                      <button class="btn btn-secondary w-100"
+                              type="submit">
+                          {% trans %}Add{% endtrans %}
+                      </button>
+                    </div>
+                  </div>
+                </div> {# /selectedItem >= 0 #}
+              </form>{# /#group-accounts-search #}
             </div>
-          </th>
-        </tr>
-        <tr>
-          <th>
-            {% trans %}Date{% endtrans %}
-          </th>
-          <th :colspan="items.labels.length">
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-show="!itemsLoaded">
-          <td colspan="7">
-            <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
-          </td>
-        </tr>
-        <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
-            <td colspan="7">{% trans %}No response to compare{% endtrans %}</td>
-        </tr>
-        <tr v-for="practice in items.results" v-cloak>
-          {% include "survey/matrix/_compare_row.html" %}
-        </tr>
-      </tbody>
-    </table>
-    {% include "_pagination.html" %}
+          </query-group-accounts>
+        </div>
+        <div  v-show="queryType == 'accounts-by-affinity'">
+          <query-accounts-by-extended-affinity inline-template
+                                               v-on:updatedataset="addDataset">
+            <div>
+              <form id="accounts-by-affinity"
+                    class="mt-4"
+                    @submit.prevent="validate()">
+                <select class="form-select" v-model="affinityType">
+                  <option value="engaged">{% trans %}Engaged{% endtrans %}</option>
+                  <option value="tracked">{% trans %}Tracked{% endtrans %}</option>
+                  <option :value="'subscribed-' + plan" v-for="plan in plans">{% trans plan='[[plan]]' %}Subscriber to {{plan}}{% endtrans %}</option>
+                  <option :value="'federated-' + alliance"  v-for="alliance in alliances">{% trans alliance='[[alliance]]' %}Federated through {{alliance}}{% endtrans %}</option>
+                  <option value="all">{% trans %}All{% endtrans %}</option>
+                </select>
+                <div v-show="affinityType" v-cloak>
+                  <div class="input-group mt-2">
+                    <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
+                    <input class="form-control" type="date" v-model="_start_at">
+                  </div>
+                  <div class="input-group mt-2">
+                    <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <input class="form-control" type="date" v-model="_ends_at">
+                  </div>
+                  <button class="btn btn-secondary mt-2 w-100"
+                          type="submit">{% trans %}Add{% endtrans %}</button>
+                </div>
+              </form>{# /#accounts-by-affinity #}
+            </div>
+          </query-accounts-by-extended-affinity>
+        </div>
+        <div  v-show="queryType == 'accounts-by-answers'">
+            <form>
+                XXX Accounts by answers
+            </form>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <table class="table table-bordered table-assessment mt-4">
+          <thead>
+            <tr>
+              <th class="sticky-cell sticky-cell-top">
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content">
+                      {% trans %}Dataset{% endtrans %}
+                  </div>
+                </div>
+              </th>
+              <th class="sticky-cell sticky-cell-top"
+                  v-for="dataset in datasets"
+                  v-show="itemsLoaded && items.results.length > 0" v-cloak>
+                <div class="sticky-cell-content-container">
+                  <div class="sticky-cell-content">
+                    [[dataset.title]]
+                  </div>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-show="!itemsLoaded">
+              <td colspan="7">
+                <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
+              </td>
+            </tr>
+            <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
+              <td colspan="7">{% trans %}No response to compare{% endtrans %}</td>
+            </tr>
+            <tr v-for="practice in items.results" v-cloak>
+              {% include "survey/matrix/_compare_row.html" %}
+            </tr>
+          </tbody>
+        </table>
+        {% include "_pagination.html" %}
+      </div>
+    </div>{# /.row #}
   </div>
 </djaopsp-compare-samples>
 {% endblock %}

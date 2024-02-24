@@ -188,9 +188,11 @@
                                   <button :id="'header-' + entry.slug" class="btn btn-link" @click.prevent="toggleAddBelow(entry, index)" v-if="!isPractice(entry)">
                                     <i class="fa fa-plus"></i> Add
                                   </button>
-                                  <button class="btn btn-link text-danger delete" href=""
-                                          @click="setActive(entry, index)"
-                                          data-bs-toggle="modal" data-bs-target="#confirm-delete">
+                                  <button class="btn btn-link text-danger delete"
+                                      href=""
+                                      @click="setActive(entry, index)"
+                                      data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                      data-toggle="modal" data-target="#confirm-delete">
                                     <i class="fa fa-trash-o"></i>
                                   </button>
                                 </div>
@@ -220,8 +222,8 @@
                                   <button
                                     class="btn btn-link text-danger delete"
                                     href=""
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#confirm-delete"
+                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                    data-toggle="modal" data-target="#confirm-delete"
                                     @click="setActive(entry, index)"
                                     v-if="entry.indent == 0">
                                     <i class="fa fa-trash-o"></i>
@@ -256,6 +258,7 @@
                             <td :colspan="segments.length + 2">
                               <h2>Add a practice together with a new tile or segment</h2>
                               <form @submit.prevent="addElementBelow()">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
                                 <div class="input-group">
                                   <div class="col-md-3">
                                     <label>Practice</label>
@@ -333,7 +336,8 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <h4 class="modal-title">Move under ...</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  <button type="button" class="btn-close"
+                          data-bs-dismiss="modal" data-dismiss="modal"
                           aria-label="Close">
                   </button>
                 </div>
@@ -367,17 +371,21 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <h4 class="modal-title">Delete ...</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  <button type="button" class="btn-close"
+                          data-bs-dismiss="modal" data-dismiss="modal"
+                          aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                   Please confirm you want to delete '[[activeEntry ? activeEntry.title : ""]]'.
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary"
-                          data-bs-dismiss="modal">Cancel</button>
+                  <button class="btn btn-secondary"
+                          data-bs-dismiss="modal" data-dismiss="modal"
+                          type="button">{% trans %}Cancel{% endtrans %}</button>
                   <button id="delete-action-btn"
-                          class="btn btn-danger btn-ok delete" data-bs-dismiss="modal"
-                          @click="deleteTree(activeEntry, activeIndex)">Delete</button>
+                          class="btn btn-danger btn-ok delete"
+                          data-bs-dismiss="modal" data-dismiss="modal"
+                          @click="deleteTree(activeEntry, activeIndex)">{% trans %}Delete{% endtrans %}</button>
                 </div>
               </div>
             </div>

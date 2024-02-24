@@ -1,0 +1,36 @@
+[
+{
+  "fields" : {
+      "slug": "factory-size",
+      "title": "Factory Size",
+      "text" : "Factory footprint area ..."
+  },
+  "model" : "pages.PageElement", "pk" : 800
+},
+{
+  "fields" : {
+    "path": "/sustainability/data-measured/factory-size",
+    "ui_hint" : "number",
+    "content": 800,
+    "default_unit": 2
+  },
+  "model" : "survey.Question", "pk" : 800
+},
+{
+  "fields": {
+    "slug": "factory-size",
+    "title": "Factory footprint area",
+    "account": 6,
+    "extra": "{\"path\":\"/sustainability/data-measured/factory-size\"}"
+  },
+  "model": "survey.EditableFilter", "pk": 800
+},
+{
+  "fields": {
+    "editable_filter": 800,
+    "account": 9,
+    "rank": 1
+  },
+  "model": "survey.EditableFilterEnumeratedAccounts", "pk": 800
+}
+]

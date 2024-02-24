@@ -22,7 +22,7 @@ ESCHECK       ?= eslint
 NPM           ?= npm
 PIP           ?= pip
 PYTHON        ?= python
-SASSC         ?= sassc
+SASSC         ?= sassc --source-map-urls absolute
 SQLITE        ?= sqlite3
 WEBPACK       ?= NODE_PATH=$(libDir)/node_modules webpack --stats-error-details
 #WEBPACK       ?= webpack --stats verbose
@@ -108,7 +108,8 @@ initdb:
 		djaopsp/fixtures/practices_custom_choices.json \
 		djaopsp/fixtures/matrices.json \
 		djaopsp/fixtures/samples.json \
-		djaopsp/fixtures/100-completed-notshared.json
+		djaopsp/fixtures/100-completed-notshared.json \
+		djaopsp/fixtures/800-data-series.json
 
 setup-livedemo: package-docker-initdb
 
@@ -124,7 +125,8 @@ package-docker-initdb:
 		djaopsp/fixtures/practices_custom_choices.json \
 		djaopsp/fixtures/matrices.json \
 		djaopsp/fixtures/samples.json \
-		djaopsp/fixtures/100-completed-notshared.json
+		djaopsp/fixtures/100-completed-notshared.json \
+		djaopsp/fixtures/800-data-series.json
 
 
 install:: install-conf
@@ -146,7 +148,7 @@ package-theme: build-assets
 	[ "$(abspath $(objDir))" != "$(abspath $(srcDir))" ] && rm -rf $(objDir)/$(APP_NAME)
 	cd $(srcDir) && DEBUG=0 FEATURES_REVERT_TO_DJANGO=0 \
 		$(MANAGE) package_theme \
-		--build_dir=$(objDir) --install_dir=htdocs/themes \
+		--build_dir=$(objDir) --install_dir=$(srcDir) \
 		--exclude='_form.html' --exclude='_form_fields.html' \
 		--exclude='_params_start_at_field.html' \
 		--exclude='_params_ends_at_field.html' --exclude='_filter.html' \
@@ -217,11 +219,11 @@ $(ASSETS_DIR)/cache/app.css: \
         $(wildcard $(srcDir)/djaopsp/static/scss/vendor/djaodjin/*.scss) \
         $(wildcard $(srcDir)/djaopsp/static/scss/vendor/*.scss) \
         $(wildcard $(srcDir)/djaopsp/static/scss/base/*.scss)
-	cd $(srcDir) && $(binDir)/sassc --source-map-urls absolute djaopsp/static/scss/base/base.scss $@
+	cd $(srcDir) && $(SASSC) djaopsp/static/scss/base/base.scss $@
 
 $(ASSETS_DIR)/cache/email.css: \
         $(wildcard $(srcDir)/djaopsp/static/scss/email/*.scss)
-	cd $(srcDir) && $(binDir)/sassc djaopsp/static/scss/email/email.scss $@
+	cd $(srcDir) && $(SASSC) djaopsp/static/scss/email/email.scss $@
 
 
 $(srcDir)/djaopsp/locale/fr/LC_MESSAGES/django.mo: \

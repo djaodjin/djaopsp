@@ -310,7 +310,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
                     calculator_answers,
                     extra_fields=extra_fields)
 
-        elif self.is_auditor:
+        elif self.verification_available:
             # Verification notes are only available to verifiers
             attach_answers(
                 units,

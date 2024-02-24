@@ -421,19 +421,63 @@ Vue.component('djaopsp-compare-samples', {
     ],
     data: function() {
         return {
-            url: this.$urls.survey_api_compare_samples,
-            params: {
-                o: '-created_at'
-            },
-            newItem: {
-                title: ''
-            }
+            url: null,
+            itemsLoaded: true,
+            queryType: 'individual-account',
+            datasets: [],
+            getCompleteCb: 'firstDatasetLoaded'
         }
     },
     methods: {
+        addDataset: function(dataset) {
+            var vm = this;
+            vm.datasets.push(dataset);
+            if( vm.datasets.length > 1 ) {
+                vm.reqGet(dataset.url, function(resp) {
+                    dataset.results = resp.results;
+                    vm.$forceUpdate();
+                });
+            } else {
+                vm.url = dataset.url;
+                vm.get();
+            }
+        },
+        firstDatasetLoaded: function() {
+            var vm = this;
+            vm.datasets[0].results = vm.items.results;
+        },
+        getCompareAnswerMeasured: function(dataset, practice) {
+            var vm = this;
+            if( typeof dataset.results != 'undefined' && dataset.results.length > 0 ) {
+                for( let idx = 0; idx < dataset.results.length; ++idx ) {
+                    if( dataset.results[idx].path === practice.path ) {
+                        return vm.getPrimaryAnswer(dataset.results[idx]).measured;
+                    }
+                }
+            }
+            return '-';
+        }
     },
+    mounted: function(){
+        // XXX Does not override `practicesListMixin.mounted`
+    }
 });
 
+/*
+Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.extend({
+    data: function() {
+        return {
+            plans: [],
+            alliances: []
+        }
+    },
+    methods: {
+        validate: function() {
+            var vm = this;
+        },
+    },
+}));
+*/
 
 Vue.component('reporting-organizations', {
     mixins: [
@@ -572,6 +616,9 @@ Vue.component('reporting-organizations', {
                     }
                 }
                 vm.$forceUpdate();
+            }, function() {
+                // Fail silently and run in degraded mode if we cannot load
+                // the profile information (picture, etc.)
             });
         },
         populateSummaryChart: function() {

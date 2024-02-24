@@ -388,6 +388,17 @@ class ReportingDashboardView(UpdatedMenubarMixin, DashboardMixin, TemplateView):
             'download_scores': reverse('download_compare_scores',
                 args=(self.account, self.campaign)),
         })
+
+        try:
+            verification_campaign = Campaign.objects.get(
+                slug="%s-verified" % self.campaign)
+            update_context_urls(context, {
+                'download_verification': reverse(
+                    'download_matrix_compare', args=(
+                        self.account, verification_campaign)),
+            })
+        except Campaign.DoesNotExist:
+            pass
         return context
 
 
