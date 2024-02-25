@@ -9,7 +9,7 @@ from survey.models import Answer, Choice, Sample, Unit
 from survey.queries import datetime_or_now
 
 from ..compat import import_string, six
-from ..models import ScorecardCache, CorrectAnswer
+from ..models import ScorecardCache
 from ..utils import get_score_weight
 
 
@@ -150,11 +150,7 @@ class ScoreCalculator(object):
         return scorecard_caches
 
 
-def QuizScoreCalculator(ScoreCalculator):
-
-    def __init__(self):
-        # self.points_unit_id=
-        pass
+class QuizScoreCalculator(ScoreCalculator):
 
     def get_scored_answers(self, campaign, includes=None,
                            excludes=None, prefix=None):
@@ -167,13 +163,13 @@ def QuizScoreCalculator(ScoreCalculator):
             sample__in=includes,
             question__default_unit_id=self.yes_no_unit_id,
             question__path__startswith=prefix,
-            measured=self.yes
+            measured__isnull=False
         ).distinct()
 
         for answer in queryset:
             correct_answer = answer.question.correct_answers.first()
 
-            if correct_answer and answer.measured == correct_answer.correct_answer.pk:
+            if correct_answer and answer.measured == correct_answer.correct_choice.pk:
                 answer.measured = correct_answer.points_per_answer
             # Not sure if this if/else statement is the best way for this logic. Might make more
             # sense to implement it within get_score_weight

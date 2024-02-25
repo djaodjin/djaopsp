@@ -117,9 +117,9 @@ class SurveyEvent(models.Model):
 
 class CorrectAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, 
-                                 related_name="correct_answers")
-    correct_answer = models.ForeignKey(Choice, on_delete=models.CASCADE,
-                                       related_name="correct_answers_on")
+        related_name="correct_answers")
+    correct_choice = models.ForeignKey(Choice, on_delete=models.CASCADE,
+        related_name="correct_answers_on")
     points_per_answer = models.IntegerField(default=1)
 
     def __str__(self):
