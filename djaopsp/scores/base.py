@@ -150,6 +150,42 @@ class ScoreCalculator(object):
         return scorecard_caches
 
 
+class QuizScoreCalculator(ScoreCalculator):
+
+    def get_scored_answers(self, campaign, includes=None,
+                           excludes=None, prefix=None):
+        """
+        Retuns answers with score computed based on the CorrectAnswer model.
+        """
+        results = []
+        queryset = Answer.objects.filter(
+            unit_id=F('question__default_unit_id'),
+            sample__in=includes,
+            question__default_unit_id=self.yes_no_unit_id,
+            question__path__startswith=prefix,
+            measured__isnull=False
+        ).distinct()
+
+        for answer in queryset:
+            correct_answer = answer.question.correct_answers.first()
+
+            if correct_answer and answer.measured == correct_answer.correct_choice.pk:
+                answer.measured = correct_answer.points_per_answer
+            # Not sure if this if/else statement is the best way for this logic. Might make more
+            # sense to implement it within get_score_weight
+            else:
+                answer.measured = get_score_weight(campaign, answer.question.path, default_value=0)
+
+            answer.numerator = answer.measured  # XXX for freeze_scores
+            answer.unit_id = self.points_unit_id
+            answer.answer_id = answer.pk # XXX for freeze_scores
+            answer.is_planned = includes[0].extra # XXX for freeze_scores
+            answer.id = answer.question_id # XXX for freeze_scores
+            results += [answer]
+
+        return results
+
+
 def freeze_scores(sample, excludes=None, collected_by=None, created_at=None,
                   segment_path=None, score_sample=None):
     """
