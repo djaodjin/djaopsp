@@ -7,6 +7,7 @@ from deployutils.apps.django.mixins.timers import TimersMixin
 from django.conf import settings
 from django.db.models import Q, F
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, TemplateView
 from openpyxl import Workbook
 from pptx import Presentation
@@ -193,7 +194,16 @@ class BenchmarkPPTXView(BenchmarkMixin, FullReportPPTXView):
     """
     basename = 'benchmarks'
 
+    @property
+    def question(self):
+        if not hasattr(self, '_question'):
+            self._question = get_object_or_404(
+                get_question_model(), path=self.db_path)
+        return self._question
+
     def get_template_names(self):
+        if self.question.default_unit.system == Unit.SYSTEM_DATETIME:
+            return [os.path.join('app', 'reporting', 'column.pptx')]
         return [os.path.join('app', 'reporting', 'doughnut.pptx')]
 
     @property
@@ -208,7 +218,10 @@ class BenchmarkPPTXView(BenchmarkMixin, FullReportPPTXView):
 
     def get_data(self, title=None):
         questions = self.get_questions(self.db_path)
-        return reversed(questions[0].get('benchmarks', []))
+        results = questions[0].get('benchmarks', [])
+        if self.question.default_unit.system != Unit.SYSTEM_DATETIME:
+            return reversed(results)
+        return results
 
 
 class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
