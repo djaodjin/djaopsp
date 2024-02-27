@@ -113,8 +113,8 @@ class ContentElementSerializer(BasePageElementSerializer):
     """
     Serializes a PageElement extended with intrinsic values
     """
-    results = serializers.ListField(required=False,
-        child=ContentNodeSerializer())
+    results = serializers.ListField(child=ContentNodeSerializer(),
+        required=False)
 
 
 class CreateParentSerializer(NoModelSerializer):
@@ -288,9 +288,10 @@ class CompareNodeSerializer(PRACTICE_SERIALIZER):
 class AssessmentContentSerializer(serializers.ListSerializer):
 
     count = serializers.IntegerField()
-    labels = serializers.ListField(serializers.CharField(), required=False)
-    units = serializers.DictField(UnitSerializer(), required=False)
-    results = serializers.ListField(AssessmentNodeSerializer())
+    labels = serializers.ListField(child=serializers.CharField(),
+        required=False)
+    units = serializers.DictField(child=UnitSerializer(), required=False)
+    results = serializers.ListField(child=AssessmentNodeSerializer())
 
     class Meta(object):
         model = BasePageElementSerializer.Meta.model
@@ -363,9 +364,8 @@ class ReportingSerializer(NoModelSerializer):
     nb_planned_improvements = serializers.IntegerField(required=False,
         allow_null=True,
         help_text=_("number of planned improvements"))
-    targets = serializers.ListField(required=False,
-        child=serializers.CharField(),
-        help_text=_("improvement targets"))
+    targets = serializers.ListField(child=serializers.CharField(),
+        required=False, help_text=_("improvement targets"))
     supplier_initiated = serializers.BooleanField(required=False,
         help_text=_("share was supplier initiated"))
     tags = serializers.SerializerMethodField(required=False,

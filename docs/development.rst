@@ -188,4 +188,4 @@ Run the following command
 
 .. _djaodjin-pages: https://github.com/djaodjin/djaodjin-pages/
 
-.. _djaodjin-survey: https://github.com/djaodjin/djaodjin-survey/
+.. _djaodjin-survey: https://djaodjin-survey.readthedocs.io/

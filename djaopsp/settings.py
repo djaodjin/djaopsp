@@ -69,7 +69,14 @@ if DEBUG:
 else:
     DEBUG_APPS = tuple([])
 
-INSTALLED_APPS = DEBUG_APPS + (
+if API_DEBUG:
+    ENV_INSTALLED_APPS = DEBUG_APPS + (
+        'drf_spectacular',
+    )
+else:
+    ENV_INSTALLED_APPS = DEBUG_APPS
+
+INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

@@ -16,6 +16,7 @@ Contents:
 
    runtime-config
    development
+   questionnaires
    models
    share
 

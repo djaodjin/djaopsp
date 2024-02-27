@@ -199,7 +199,8 @@ $(installTop)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 
 
 schema.yml:
-	cd $(srcDir) && DEBUG=0 API_DEBUG=1 $(MANAGE) generateschema > $@
+	cd $(srcDir) && DEBUG=0 API_DEBUG=1 OPENAPI_SPEC_COMPLIANT=1 \
+		$(MANAGE) spectacular --color --file schema.yml --validate
 	cd $(srcDir) && swagger-cli validate $@
 
 
