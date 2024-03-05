@@ -5,9 +5,10 @@ This file contains SQL statements as building blocks for benchmarking
 results in APIs, downloads, etc.
 """
 from django.db import connection
+from django.db.models import Max, OuterRef, Subquery
 from django.db.models.query import QuerySet, RawQuerySet
-from survey.models import PortfolioDoubleOptIn, Sample
-from survey.queries import as_sql_date_trunc, is_sqlite3
+from survey.models import PortfolioDoubleOptIn, Sample, Portfolio
+from survey.queries import as_sql_date_trunc, is_sqlite3, datetime_or_now
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
 
@@ -958,3 +959,66 @@ def segments_as_sql(segments):
                     'convert_to_text': ("" if is_sqlite3() else "::text")
                 }
     return segments_query
+
+def get_portfolios_frozen_assessments(grantees=None, 
+                                     campaign=None, 
+                                     start_at=None, 
+                                     ends_at=None):
+
+    ends_at = datetime_or_now(ends_at)
+
+    portfolio_filter_args = {'ends_at__lte': ends_at}
+    if grantees:
+        if isinstance(grantees, list):
+            portfolio_filter_args['grantee__slug__in'] = grantees
+        else:
+            portfolio_filter_args['grantee__slug'] = grantees
+    if campaign:
+        portfolio_filter_args['campaign__slug'] = campaign
+
+    portfolios = Portfolio.objects.filter(**portfolio_filter_args)
+    account_ids = portfolios.values_list('account', flat=True)
+
+    if not account_ids:
+        return portfolios, Sample.objects.none(), set()
+
+    sample_filter_args = {
+        'is_frozen': True,
+        'account_id__in': account_ids,
+        'created_at__lt': ends_at
+    }
+    if start_at:
+        sample_filter_args['created_at__gte'] = start_at
+    if campaign:
+        campaigns_in_latest_samples = {campaign}
+        sample_filter_args['campaign__slug'] = campaign
+
+    # Get the latest created_at for each account that has Samples
+    latest_created_at_per_account = Sample.objects.filter(
+        **sample_filter_args
+    ).values('account__slug').annotate(
+        latest_created_at=Max('created_at')
+    )
+
+    latest_sample_slugs = Sample.objects.filter(
+        account__slug=OuterRef('account__slug'), 
+        created_at=Subquery(
+            latest_created_at_per_account.filter(
+                account__slug=OuterRef('account__slug')
+            ).values('latest_created_at')[:1]
+        )
+    ).values('slug')
+
+    latest_samples = Sample.objects.filter(
+        slug__in=Subquery(latest_sample_slugs)
+    )
+    # Room for optimization above. 
+
+    if not campaign:
+        # Fetch all campaigns associated with the latest samples
+        latest_samples = latest_samples.select_related('campaign')
+        campaigns_in_latest_samples = set(
+            latest_samples.values_list('campaign__slug', flat=True)
+        )
+
+    return portfolios, latest_samples, campaigns_in_latest_samples
