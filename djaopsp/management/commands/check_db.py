@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # All rights reserved.
 
 """
@@ -15,11 +15,13 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 from django.db.models import Count
 from pages.models import PageElement
-from survey.models import Answer, Campaign, PortfolioDoubleOptIn
+from survey.models import Answer, Campaign, PortfolioDoubleOptIn, Sample, Unit
+from survey.queries import sql_frozen_answers
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_question_model
 
 from ...queries import get_engagement
+from ...utils import get_account_model
 
 
 LOGGER = logging.getLogger(__name__)
@@ -31,6 +33,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)
+        parser.add_argument('--exclude-units', action='append',
+            dest='exclude_units', default=[],
+            help='Exclude units from comparaison (ex: points)')
         parser.add_argument('--show-portfolios', action='store_true',
             dest='show_portfolios', default=False,
             help='Show portfolios that do not match optins')
@@ -40,6 +45,9 @@ class Command(BaseCommand):
         parser.add_argument('--show-completed-notshared', action='store_true',
             dest='show_completed_notshared', default=False,
             help='Show completed but not shared responses')
+        parser.add_argument('--show-duplicate-samples', action='store_true',
+            dest='show_duplicate_samples', default=False,
+            help='Show duplicate samples for an account')
         parser.add_argument('--show-questions', action='store_true',
             dest='show_questions', default=False,
             help='Show questions that do not match elements')
@@ -71,6 +79,10 @@ class Command(BaseCommand):
             self.check_answers(
                 show=options['show_answers'],
                 show_fix=options['show_answers_fix'])
+        for campaign in Campaign.objects.all():
+            self.check_duplicate_samples(campaign=campaign,
+                exclude_units=options['exclude_units'],
+                show=options['show_duplicate_samples'])
         end_time = datetime.datetime.utcnow()
         delta = relativedelta(end_time, start_time)
         LOGGER.info("completed in %d hours, %d minutes, %d.%d seconds",
@@ -346,3 +358,99 @@ ON portfolio_grantees.account_id = %(account_table)s.id
                     % ','.join(deletes))
         self.stderr.write(
             "%d answers with same unit in (sample, question) pair" % count)
+
+
+    def check_duplicate_samples(self, campaign, exclude_units=None,
+                                show=False):
+        """
+        Shows all frozen samples that have the same answers per account
+        """
+        #pylint:disable=too-many-locals
+        if exclude_units:
+            exclude_units = Unit.objects.filter(
+                slug__in=exclude_units).values_list('pk', flat=True)
+        if not isinstance(campaign, Campaign):
+            campaign = Campaign.objects.get(slug=str(campaign))
+        count = 0
+        for account in get_account_model().objects.all().order_by('slug'):
+            samples = Sample.objects.filter(
+                account=account, campaign=campaign,
+                is_frozen=True, extra__isnull=True).order_by(
+                'created_at')
+            samples_iter = iter(samples)
+            try:
+                first_sample = next(samples_iter)
+            except StopIteration:
+                first_sample = None
+            try:
+                second_sample = next(samples_iter)
+            except StopIteration:
+                second_sample = None
+
+            while first_sample and second_sample:
+                first_answers = Answer.objects.raw(sql_frozen_answers(
+                    campaign, [first_sample.pk]))
+                second_answers = Answer.objects.raw(sql_frozen_answers(
+                    campaign, [second_sample.pk]))
+                first_answers_count = len(first_answers)
+                second_answers_count = len(second_answers)
+                if first_answers_count != second_answers_count:
+                    LOGGER.debug("We have %d answers in sample %s"\
+                        " and %d answers in sample %s",
+                        first_answers_count, first_sample,
+                        second_answers_count, second_sample)
+                    try:
+                        first_sample = next(samples_iter)
+                    except StopIteration:
+                        first_sample = None
+                    try:
+                        second_sample = next(samples_iter)
+                    except StopIteration:
+                        second_sample = None
+                    continue
+
+                identical = True
+                for first_answer, second_answer in zip(first_answers,
+                                                       second_answers):
+                    if (exclude_units and
+                        first_answer.question_id == second_answer.question_id
+                        and first_answer.unit_id == second_answer.unit_id):
+                        if first_answer.unit_id in exclude_units:
+                            continue
+                    if (first_answer.question_id != second_answer.question_id or
+                        first_answer.unit_id != second_answer.unit_id or
+                        first_answer.measured != second_answer.measured):
+                        assert first_answer.question_id is not None
+                        assert first_answer.unit_id is not None
+                        assert first_answer.measured is not None
+                        assert second_answer.question_id is not None
+                        assert second_answer.unit_id is not None
+                        assert second_answer.measured is not None
+                        LOGGER.debug("Answer (%d, %d, %d) in sample %s"\
+                            " and answer (%d, %d, %d) in sample %s differ.",
+                            first_answer.question_id, first_answer.unit_id,
+                            first_answer.measured, first_sample,
+                            second_answer.question_id, second_answer.unit_id,
+                            second_answer.measured, second_sample)
+                        identical = False
+                        break
+                if identical:
+                    if show:
+                        self.stdout.write(
+                            "samples %s and %s for %s have identical answers."
+                            % (first_sample, second_sample, account))
+                    count += 1
+                    try:
+                        second_sample = next(samples_iter)
+                    except StopIteration:
+                        second_sample = None
+                else:
+                    try:
+                        first_sample = next(samples_iter)
+                    except StopIteration:
+                        first_sample = None
+                    try:
+                        second_sample = next(samples_iter)
+                    except StopIteration:
+                        second_sample = None
+        self.stderr.write("%d pair of samples with duplicate answers" % count)

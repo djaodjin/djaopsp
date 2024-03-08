@@ -1,10 +1,10 @@
 Django==3.2.24
 #djangorestframework==3.14.0
 djangorestframework==3.12.4
-djaodjin-deployutils==0.10.7
+djaodjin-deployutils==0.10.9
 djaodjin-extended-templates==0.4.5
 djaodjin-pages==0.7.1
-djaodjin-survey==0.10.1
+djaodjin-survey==0.10.2
 docutils==0.20.1          # Technically only needed for schema generation but
                           # djangorestframework will import regardless.
 gunicorn==20.1.0
