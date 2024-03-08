@@ -34,27 +34,25 @@ class AppView(AccountMixin, TemplateView):
 
     @property
     def unlock_editors(self):
-        is_broker = bool(self.account.slug in settings.UNLOCK_BROKERS)
-        accessible_plans = {plan['slug']
-            for plan in self.get_accessible_plans(self.request,
-                    profile=str(self.account) # if we don't convert to `str`,
-                                              # the equality will be `False`.
-            )}
-        unlock_editors = getattr(settings, 'UNLOCK_EDITORS', [])
-        return (is_broker or not unlock_editors or
-            accessible_plans & unlock_editors)
+        return self.get_unlocked(getattr(settings, 'UNLOCK_EDITORS', []))
 
     @property
     def unlock_portfolios(self):
-        is_broker = bool(self.account.slug in settings.UNLOCK_BROKERS)
+        return self.get_unlocked(getattr(settings, 'UNLOCK_PORTFOLIOS', []))
+
+
+    def get_unlocked(self, candidates):
+        is_broker = False
+        site = self.request.session.get('site')
+        if site:
+            is_broker = bool(self.account.slug == site.get('slug'))
         accessible_plans = {plan['slug']
             for plan in self.get_accessible_plans(self.request,
                     profile=str(self.account) # if we don't convert to `str`,
                                               # the equality will be `False`.
             )}
-        unlock_portfolios = getattr(settings, 'UNLOCK_PORTFOLIOS', [])
-        return (is_broker or not unlock_portfolios or
-            accessible_plans & unlock_portfolios)
+        return (is_broker or not candidates or accessible_plans & candidates)
+
 
     def get_template_names(self):
         candidates = ['app/%s.html' % self.account.slug]

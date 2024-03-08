@@ -6,7 +6,7 @@ from pages.views.sequences import (
     SequenceProgressView as BaseSequenceProgressView,
     SequencePageElementView as BaseSequencePageElementView)
 
-from ..mixins import AccountMixin, SequenceProgressMixin
+from ..mixins import AccountMixin, SequenceProgressMixin, VisibilityMixin
 
 
 class SequenceProgressView(SequenceProgressMixin, BaseSequenceProgressView):
@@ -44,7 +44,8 @@ class EditablesIndexView(AccountMixin, PageElementEditableView):
         return [self.account_url_kwarg, self.path_url_kwarg]
 
 
-class EditablesDetailView(AccountMixin, PageElementEditableView):
+class EditablesDetailView(VisibilityMixin, AccountMixin,
+                          PageElementEditableView):
     """
     View to display a single editable practice details
     """
@@ -64,4 +65,8 @@ class EditablesDetailView(AccountMixin, PageElementEditableView):
         # there seems to still be some issues with editors on
         # `.editable .edit-formatted`.
         context.update({'element': self.element})
+        context.update({
+            'edit_perm': (self.manages(self.element.account) or
+                self.manages_broker)
+        })
         return context
