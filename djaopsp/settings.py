@@ -583,7 +583,7 @@ SCORE_CALCULATORS = {
 }
 
 AUDITOR_ROLE = 'auditor'
-UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members'])
+UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members', 'verification-partners'])
 UNLOCK_EDITORS = set(['managed'])
 UNLOCK_BROKERS = set([APP_NAME])
 

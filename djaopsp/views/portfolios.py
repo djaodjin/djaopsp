@@ -31,15 +31,16 @@ from ..api.portfolios import (DashboardAggregateMixin,
 from ..api.rollups import GraphMixin
 from ..compat import reverse
 from ..helpers import as_valid_sheet_title
-from ..mixins import (AccountMixin, CampaignMixin,
-    AccountsAggregatedQuerysetMixin)
+from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
+    CampaignMixin, VisibilityMixin)
 from ..models import VerifiedSample
 from ..utils import get_scores_tree, get_alliances
 
 LOGGER = logging.getLogger(__name__)
 
 
-class DashboardRedirectView(AccountMixin, TemplateResponseMixin, ContextMixin,
+class DashboardRedirectView(VisibilityMixin, AccountMixin,
+                            TemplateResponseMixin, ContextMixin,
                             RedirectView):
     """
     Redirects to the latest scorecard page
@@ -65,21 +66,19 @@ class DashboardRedirectView(AccountMixin, TemplateResponseMixin, ContextMixin,
         return reverse(self.breadcrumb_url, kwargs=kwargs)
 
     def get_template_names(self):
-        if str(self.account) in settings.UNLOCK_BROKERS:
+        if self.account in self.verifier_accounts:
             # Dashboard looks quite different for the broker.
             return 'app/reporting/broker.html'
         return super(DashboardRedirectView, self).get_template_names()
 
     def get(self, request, *args, **kwargs):
-        if str(self.account) in settings.UNLOCK_BROKERS:
-            # Dashboard looks quite different for the broker.
+        if self.account in self.verifier_accounts:
+            # Dashboard looks quite different for broker
+            # and verification partners.
             context = self.get_context_data(**kwargs)
-            if str(self.account) in settings.UNLOCK_BROKERS:
-                update_context_urls(context, {
-                    'api_reporting_completion_rate': reverse(
-                        'api_verified_aggregate', args=(self.account,)),
-                })
             update_context_urls(context, {
+                'api_reporting_completion_rate': reverse(
+                    'api_verified_aggregate', args=(self.account,)),
                 'api_portfolio_responses': reverse(
                     'api_completed_assessments', args=(self.account,)),
                 'api_organizations': site_url("/api/profile"),

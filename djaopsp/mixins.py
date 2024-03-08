@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 import json
 
@@ -28,15 +28,6 @@ from .utils import (get_account_model, get_requested_accounts,
 
 
 class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
-
-    @property
-    def manages_broker(self):
-        if True:
-            # XXX Temporary override while `site.slug` is being introduced.
-            return self.accessible_profiles & settings.UNLOCK_BROKERS
-        broker = self.request.session.get('site', {}).get('slug')
-        return broker and broker in self.accessible_profiles
-
 
     @property
     def verifier_accounts(self):
