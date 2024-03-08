@@ -60,7 +60,6 @@ class ScorecardCache(models.Model):
 
     class Meta:
         unique_together = ('sample', 'path')
-        db_table = 'envconnect_scorecardcache'
 
 
 @python_2_unicode_compatible
