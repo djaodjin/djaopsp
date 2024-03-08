@@ -7,41 +7,6 @@
   "model" : "survey.unit", "pk": 1
 },
 { "fields": {
-    "slug": "points",
-    "title": "Points",
-    "system": 2
-  },
-  "model" : "survey.unit", "pk": 2
-},
-{ "fields": {
-    "slug": "freetext",
-    "title": "Free text",
-    "system": 4
-  },
-  "model" : "survey.unit", "pk": 3
-},
-{ "fields": {
-    "slug": "yes-no",
-    "title": "Yes/No",
-    "system": 3
-  },
-  "model" : "survey.unit", "pk": 4
-},
-{ "fields": {
-    "slug": "tons",
-    "title": "Metric Tons",
-    "system": 0
-  },
-  "model" : "survey.unit", "pk": 6
-},
-{ "fields": {
-    "slug": "lbs",
-    "title": "Pounds",
-    "system": 1
-  },
-  "model" : "survey.unit", "pk": 7
-},
-{ "fields": {
     "unit": 1,
     "rank": 1,
     "text": "Yes",
@@ -81,6 +46,29 @@
   },
   "model" : "survey.choice", "pk": 5
 },
+
+{ "fields": {
+    "slug": "points",
+    "title": "Points",
+    "system": 2
+  },
+  "model" : "survey.unit", "pk": 2
+},
+{ "fields": {
+    "slug": "freetext",
+    "title": "Free text",
+    "system": 4
+  },
+  "model" : "survey.unit", "pk": 3
+},
+
+{ "fields": {
+    "slug": "yes-no",
+    "title": "Yes/No",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk": 4
+},
 { "fields": {
     "unit": 4,
     "rank": 1,
@@ -98,6 +86,20 @@
   "model" : "survey.choice", "pk": 7
 },
 
+{ "fields": {
+    "slug": "tons",
+    "title": "Metric Tons",
+    "system": 0
+  },
+  "model" : "survey.unit", "pk": 6
+},
+{ "fields": {
+    "slug": "lbs",
+    "title": "Pounds",
+    "system": 1
+  },
+  "model" : "survey.unit", "pk": 7
+},
 { "fields": {
     "slug": "framework",
     "title": "Framework",
@@ -151,7 +153,7 @@
 
 {
   "fields": {
-    "slug": "profiles",
+    "slug": "person",
     "title": "Person",
     "system": 2
   },
@@ -550,11 +552,179 @@
 },
 {
   "fields": {
+    "slug": "naics",
+    "title": "NAICS code",
+    "system": 3
+  },
+  "model": "survey.unit", "pk": 144
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 1,
+    "text": "[11] Agriculture, Forestry, Fishing and Hunting",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 24
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 2,
+    "text": "[21] Mining, Quarrying, and Oil and Gas Extraction",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 25
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 3,
+    "text": "[22] Utilities",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 26
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 4,
+    "text": "[23] Construction",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 27
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 5,
+    "text": "[31-33] Manufacturing",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 28
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 6,
+    "text": "[42] Wholesale Trade",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 29
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 7,
+    "text": "[44-45] Retail Trade",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 30
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 8,
+    "text": "[48-49] Transportation and Warehousing",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 31
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 9,
+    "text": "[51] Information",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 32
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 10,
+    "text": "[52] Finance and Insurance",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 33
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 11,
+    "text": "[53] Real Estate and Rental and Leasing",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 34
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 12,
+    "text": "[54] Professional, Scientific, and Technical Services",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 35
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 13,
+    "text": "[55] Management of Companies and Enterprises",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 36
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 14,
+    "text": "[56] Administrative and Support and Waste Management and Remediation Services",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 37
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 15,
+    "text": "[61] Educational Services",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 38
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 16,
+    "text": "[62] Health Care and Social Assistance",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 39
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 17,
+    "text": "[71] Arts, Entertainment, and Recreation",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 40
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 18,
+    "text": "[72] Accommodation and Food Services",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 41
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 19,
+    "text": "[81] Other Services (except Public Administration)",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 42
+},
+{ "fields": {
+    "unit": 144,
+    "rank": 20,
+    "text": "[92] Public Administration",
+    "descr": ""
+  },
+  "model" : "survey.choice", "pk": 43
+},
+{
+  "fields": {
     "slug": "ai-audit",
     "title": "Information collected by the verifier AI",
     "system": 4
   },
-  "model": "survey.unit", "pk": 144
+  "model": "survey.unit", "pk": 145
 },
 
 {
@@ -1384,8 +1554,8 @@
 },
 {
   "fields": {
-    "title": "Strategy & Governance",
-    "slug": "governance",
+    "title": "Environmental/Social Strategy & Governance",
+    "slug": "esg-strategy-heading",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1399,21 +1569,7 @@
 },
 {
   "fields": {
-    "title": "Environment, Social & Governance (ESG) Strategy",
-    "slug": "esg-strategy-heading",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 3
-},
-{
-  "fields": {
-    "rank": 1, "orig_element": 2, "dest_element": 3
-  },
-  "model": "pages.RelationShip", "pk": 3
-},
-{
-  "fields": {
-    "title": "(3) Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
+    "title": "1.1 Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
     "slug": "formalized-esg-strategy",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1422,13 +1578,13 @@
 },
 {
   "fields": {
-    "rank": 1, "orig_element": 3, "dest_element": 4
+    "rank": 1, "orig_element": 2, "dest_element": 4
   },
   "model": "pages.RelationShip", "pk": 4
 },
 {
   "fields": {
-    "title": "(3a) Has your company assigned formal responsibility for directing and overseeing ESG performance to top/executive management, and designated a point person(s) responsible for implementing strategy and meeting targets?",
+    "title": "1.2 If yes, Has your company assigned formal responsibility for directing and overseeing ESG performance to top/executive management?",
     "slug": "assign-formal-authority",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1437,13 +1593,29 @@
 },
 {
   "fields": {
-    "orig_element": 3, "dest_element": 5
+    "orig_element": 2, "dest_element": 5
   },
   "model": "pages.RelationShip", "pk": 5
 },
 {
   "fields": {
-    "title": "(3b) Does your company report internally, including to top management, on strategy: key ESG issues (revealed by materiality analysis), resiliency, risk, business continuity, progress toward goals, and plans/needs to address gaps towards your targets?",
+    "title": "1.3 If yes, Has your company designated a point person(s) responsible for implementing strategy and meeting targets?",
+    "slug": "assign-point-person",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 134
+},
+{
+  "fields": {
+    "orig_element": 2, "dest_element": 134,
+    "rank": 2
+  },
+  "model": "pages.RelationShip", "pk": 134
+},
+{
+  "fields": {
+    "title": "1.4 If yes, Does your company report internally, including to top management, on strategy: key ESG issues (revealed by materiality analysis), resiliency, risk, business continuity, progress toward goals, and plans/needs to address gaps towards your targets?",
     "slug": "report-internally",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1452,13 +1624,13 @@
 },
 {
   "fields": {
-    "orig_element": 3, "dest_element": 6
+    "orig_element": 2, "dest_element": 6
   },
   "model": "pages.RelationShip", "pk": 6
 },
 {
   "fields": {
-    "title": "(3c) Does your company report externally on strategy: program elements, key ESG issues and goals, challenges, resiliency, and continual improvement efforts in accordance with a reputable reporting standard (e.g. GRI, SASB, TCFD)?",
+    "title": "1.5 If yes, Does your company report externally on strategy: program elements, key ESG issues and goals, challenges, resiliency, and continual improvement efforts in accordance with a reputable reporting standard (e.g. GRI, SASB, TCFD)?",
     "slug": "report-externally",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1467,13 +1639,13 @@
 },
 {
   "fields": {
-    "orig_element": 3, "dest_element": 7
+    "orig_element": 2, "dest_element": 7
   },
   "model": "pages.RelationShip", "pk": 7
 },
 {
   "fields": {
-    "title": "(3d) Does your company have ESG strategy and reports, targets, and Key Performance Indicators (KPIs) periodically (every 5 years or sooner) validated by an independent third party?",
+    "title": "1.6 If yes, Does your company have ESG strategy and reports, targets, and Key Performance Indicators (KPIs) periodically (every 5 years or sooner) validated by an independent third party?",
     "slug": "report-3rd-party-verified",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1482,10 +1654,72 @@
 },
 {
   "fields": {
-    "orig_element": 3, "dest_element": 8
+    "orig_element": 2, "dest_element": 8
   },
   "model": "pages.RelationShip", "pk": 8
 },
+{
+  "fields": {
+    "title": "1.7 Has your company conducted a systematic, rigorous assessment to identify and prioritize material ESG impacts, issues and opportunities?",
+    "slug": "systematic-rigorous-assessment",
+    "picture": "/static/img/management-basics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 10
+},
+{
+  "fields": {
+    "rank": 3, "orig_element": 2, "dest_element": 10
+  },
+  "model": "pages.RelationShip", "pk": 10
+},
+{
+  "fields": {
+    "title": "1.7a If your company conducted a systematic, rigorous assessment to identify and prioritize material ESG impacts, issues and opportunities, how was the ESG assessment done, and in what year?",
+    "slug": "how-was-the-assessment-done",
+    "picture": "/static/img/management-basics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 13
+},
+{
+  "fields": {
+    "orig_element": 2, "dest_element": 13
+  },
+  "model": "pages.RelationShip", "pk": 13
+},
+{
+  "fields": {
+    "title": "1.7b If your company conducted a systematic, rigorous assessment to identify and prioritize material ESG impacts, issues and opportunities, please describe the three most material ESG impacts, issues and opportunities identified for your company?",
+    "slug": "describe-the-three-most-material-esg-impacts",
+    "picture": "/static/img/management-basics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 14
+},
+{
+  "fields": {
+    "orig_element": 2, "dest_element": 14
+  },
+  "model": "pages.RelationShip", "pk": 14
+},
+{
+  "fields": {
+    "title": "1.7c Please describe your company's strategies, related goals and performance metrics related to each of these three material ESG issues.",
+    "slug": "describe-your-company-strategies-related-goals",
+    "picture": "/static/img/management-basics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 15
+},
+{
+  "fields": {
+    "orig_element": 2, "dest_element": 15
+  },
+  "model": "pages.RelationShip", "pk": 15
+},
+
+
 {
   "fields": {
     "title": "Environment, Social & Governance (ESG) Materiality Assessment",
@@ -1500,98 +1734,6 @@
   },
   "model": "pages.RelationShip", "pk": 9
 },
-{
-  "fields": {
-    "title": "(4) Has your company conducted a systematic, rigorous assessment to identify and prioritize material ESG impacts, issues and opportunities?",
-    "slug": "systematic-rigorous-assessment",
-    "picture": "/static/img/management-basics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 10
-},
-{
-  "fields": {
-    "rank": 3, "orig_element": 9, "dest_element": 10
-  },
-  "model": "pages.RelationShip", "pk": 10
-},
-
-{
-  "fields": {
-    "title": "Policies & management",
-    "slug": "policies",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 11
-},
-{
-  "fields": {
-    "rank": 2, "orig_element": 1, "dest_element": 11
-  },
-  "model": "pages.RelationShip", "pk": 11
-},
-
-{
-  "fields": {
-    "title": "Material ESG Impacts, Issues and Opportunities",
-    "slug": "systematic-rigorous-assessment-follow",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 12
-},
-{
-  "fields": {
-    "rank": 1, "orig_element": 11, "dest_element": 12
-  },
-  "model": "pages.RelationShip", "pk": 12
-},
-{
-  "fields": {
-    "title": "(4a) How was the ESG assessment done, and in what year?",
-    "slug": "how-was-the-assessment-done",
-    "picture": "/static/img/management-basics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 13
-},
-{
-  "fields": {
-    "orig_element": 12, "dest_element": 13
-  },
-  "model": "pages.RelationShip", "pk": 13
-},
-{
-  "fields": {
-    "title": "(4b) Please describe the three most material ESG impacts, issues and opportunities identified for your company?",
-    "slug": "describe-the-three-most-material-esg-impacts",
-    "picture": "/static/img/management-basics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 14
-},
-{
-  "fields": {
-    "orig_element": 12, "dest_element": 14
-  },
-  "model": "pages.RelationShip", "pk": 14
-},
-{
-  "fields": {
-    "title": "(4c) Please describe your company's strategies, related goals and performance metrics related to each of these three material ESG issues.",
-    "slug": "describe-your-company-strategies-related-goals",
-    "picture": "/static/img/management-basics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 15
-},
-{
-  "fields": {
-    "orig_element": 12, "dest_element": 15
-  },
-  "model": "pages.RelationShip", "pk": 15
-},
-
 
 {
   "fields": {
@@ -1603,7 +1745,7 @@
 },
 {
   "fields": {
-    "rank": 3, "orig_element": 2, "dest_element": 16
+    "rank": 15, "orig_element": 2, "dest_element": 16
   },
   "model": "pages.RelationShip", "pk": 16
 },
@@ -1611,7 +1753,7 @@
 
 {
   "fields": {
-    "title": "(5) Does your company have an Employee Code of Conduct?",
+    "title": "2.1 Does your company have an Employee Code of Conduct in place?",
     "slug": "employee-code-of-conduct",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1635,13 +1777,13 @@
 },
 {
   "fields": {
-    "rank": 3, "orig_element": 11, "dest_element": 18
+    "rank": 17, "orig_element": 16, "dest_element": 18
   },
   "model": "pages.RelationShip", "pk": 18
 },
 {
   "fields": {
-    "title": "(5a) ... Child and Forced Labor?",
+    "title": "2.1a ... Child and Forced Labor?",
     "slug": "employee-code-of-conduct-child-and-forced-labor",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1656,7 +1798,7 @@
 },
 {
   "fields": {
-    "title": "(5b) ... Corruption and bribery?",
+    "title": "2.1b ... Corruption and bribery?",
     "slug": "employee-code-of-conduct-corruption-and-bribery",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1671,7 +1813,7 @@
 },
 {
   "fields": {
-    "title": "(5c) ... Discrimination & harassment​?",
+    "title": "2.1c ... Discrimination & harassment​?",
     "slug": "employee-code-of-conduct-discrimination",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1687,7 +1829,7 @@
 
 {
   "fields": {
-    "title": "(5c) ... Diversity and inclusion?",
+    "title": "2.1d ... Diversity and inclusion?",
     "slug": "employee-code-of-conduct-diversity-inclusion",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1703,7 +1845,7 @@
 
 {
   "fields": {
-    "title": "(5c) ... Working hours?",
+    "title": "2.1e ... Working hours?",
     "slug": "employee-code-of-conduct-working-hours",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1720,7 +1862,7 @@
 
 {
   "fields": {
-    "title": "(5d) ... Confidentiality of information?",
+    "title": "2.1f ... Confidentiality of information?",
     "slug": "employee-code-of-conduct-confidentiality",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1735,7 +1877,7 @@
 },
 {
   "fields": {
-    "title": "(5e) ... Conflicts of interest?",
+    "title": "2.1g ... Conflicts of interest?",
     "slug": "employee-code-of-conduct-conflicts-of-interest",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1750,7 +1892,7 @@
 },
 {
   "fields": {
-    "title": "(5f) ... Antitrust/anti-competitive practices?",
+    "title": "2.1h ... Antitrust/anti-competitive practices?",
     "slug": "employee-code-of-conduct-antitrust",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1765,7 +1907,7 @@
 },
 {
   "fields": {
-    "title": "(5g) ... Money-laundering and/or insider trading/dealing?",
+    "title": "2.1i ... Money-laundering and/or insider trading/dealing?",
     "slug": "employee-code-of-conduct-money-laundering",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1780,7 +1922,7 @@
 },
 {
   "fields": {
-    "title": "(5h) ... Environment, health and safety?",
+    "title": "2.1j ... Environment, health and safety?",
     "slug": "employee-code-of-conduct-safety",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1795,7 +1937,7 @@
 },
 {
   "fields": {
-    "title": "(5i) ... Whistleblowing?",
+    "title": "2.1k ... Whistleblowing?",
     "slug": "employee-code-of-conduct-whistleblowing",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1810,7 +1952,7 @@
 },
 {
   "fields": {
-    "title": "(5i) ... Collective bargaining, labor unions?",
+    "title": "2.1l ... Collective bargaining, labor unions?",
     "slug": "employee-code-of-conduct-labor-unions",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1823,42 +1965,9 @@
   },
   "model": "pages.RelationShip", "pk": 30
 },
-
 {
   "fields": {
-    "title": "Management System Rigor",
-    "slug": "management-system-rigor",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 31
-},
-{
-  "fields": {
-    "rank": 2, "orig_element": 11, "dest_element": 31
-  },
-  "model": "pages.RelationShip", "pk": 31
-},
-
-{
-  "fields": {
-    "title": "(5j - Employee Code of Conduct) If yes - What monitoring or audit systems are in place to ensure compliance with the Employee Code of Conduct?",
-    "slug": "employee-code-of-conduct-monitoring-audit-systems",
-    "picture": "/static/img/management-basics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 32
-},
-{
-  "fields": {
-    "orig_element": 31, "dest_element": 32
-  },
-  "model": "pages.RelationShip", "pk": 32
-},
-
-
-{
-  "fields": {
-    "title": "(7) Does your company have a Supplier Code of Conduct and/or Human Rights Policy in place?",
+    "title": "2.2 Does your company have a Supplier Code of Conduct and/or Human Rights Policy in place?",
     "slug": "supplier-code-of-conduct",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1881,13 +1990,13 @@
 },
 {
   "fields": {
-    "rank": 4, "orig_element": 11, "dest_element": 34
+    "rank": 33, "orig_element": 16, "dest_element": 34
   },
   "model": "pages.RelationShip", "pk": 34
 },
 {
   "fields": {
-    "title": "(7a) ... Child and Forced Labor?",
+    "title": "2.2a ... Child and Forced Labor?",
     "slug": "supplier-code-of-conduct-child-and-forced-labor",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1902,7 +2011,7 @@
 },
 {
   "fields": {
-    "title": "(7b) ... Corruption and bribery?",
+    "title": "2.2b ... Corruption and bribery?",
     "slug": "supplier-code-of-conduct-corruption-and-bribery",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1917,7 +2026,7 @@
 },
 {
   "fields": {
-    "title": "(7c) ... Discrimination & harassment?",
+    "title": "2.2c ... Discrimination & harassment?",
     "slug": "supplier-code-of-conduct-discrimination",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1933,7 +2042,7 @@
 
 {
   "fields": {
-    "title": "(7d) ... Diversity and inclusion?",
+    "title": "2.2d ... Diversity and inclusion?",
     "slug": "supplier-code-of-conduct-diversity-inclusion",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1948,7 +2057,7 @@
 },
 {
   "fields": {
-    "title": "(7d) ... working hours?",
+    "title": "2.2e ... working hours?",
     "slug": "supplier-code-of-conduct-working-hours",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1965,7 +2074,7 @@
 
 {
   "fields": {
-    "title": "(7d) ... Confidentiality of information?",
+    "title": "2.2f ... Confidentiality of information?",
     "slug": "supplier-code-of-conduct-confidentiality",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1980,7 +2089,7 @@
 },
 {
   "fields": {
-    "title": "(7e) ... Conflicts of interest?",
+    "title": "2.2g ... Conflicts of interest?",
     "slug": "supplier-code-of-conduct-conflicts-of-interest",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -1995,7 +2104,7 @@
 },
 {
   "fields": {
-    "title": "(7f) ... Antitrust/anti-competitive practices?",
+    "title": "2.2h ... Antitrust/anti-competitive practices?",
     "slug": "supplier-code-of-conduct-antitrust",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2010,7 +2119,7 @@
 },
 {
   "fields": {
-    "title": "(7g) ... Money-laundering and/or insider trading/dealing?",
+    "title": "2.2i ... Money-laundering and/or insider trading/dealing?",
     "slug": "supplier-code-of-conduct-money-laundering",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2025,7 +2134,7 @@
 },
 {
   "fields": {
-    "title": "(7h) ... Environment, health and safety?",
+    "title": "2.2j ... Environment, health and safety?",
     "slug": "supplier-code-of-conduct-safety",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2040,7 +2149,7 @@
 },
 {
   "fields": {
-    "title": "(7i) ... Whistleblowing?",
+    "title": "2.2k ... Whistleblowing?",
     "slug": "supplier-code-of-conduct-whistleblowing",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2055,7 +2164,7 @@
 },
 {
   "fields": {
-    "title": "(7j) ... External stakeholder human rights?",
+    "title": "2.2l ... External stakeholder human rights?",
     "slug": "supplier-code-of-conduct-external-stakeholders",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2070,7 +2179,7 @@
 },
 {
   "fields": {
-    "title": "(7k - Supplier Code of Conduct) Percentage of targeted suppliers that have signed the Supplier Code of Conduct?",
+    "title": "4.7 Percentage of targeted suppliers that have signed the Supplier Code of Conduct?",
     "slug": "report-sustainable-procurement",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2079,13 +2188,13 @@
 },
 {
   "fields": {
-    "rank": 5, "orig_element": 31, "dest_element": 47
+    "rank": 5, "orig_element": 60, "dest_element": 47
   },
   "model": "pages.RelationShip", "pk": 47
 },
 {
   "fields": {
-    "title": "(7l - Supplier Code of Conduct) If yes what is the percentage of targeted suppliers with contracts that include clauses on environmental, labor, and human rights requirements?",
+    "title": "4.8 What is the percentage of targeted suppliers with contracts that include clauses on environmental, labor, and human rights requirements?",
     "slug": "report-sustainable-procurement-clauses",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2094,13 +2203,13 @@
 },
 {
   "fields": {
-    "rank": 6, "orig_element": 31, "dest_element": 48
+    "rank": 6, "orig_element": 60, "dest_element": 48
   },
   "model": "pages.RelationShip", "pk": 48
 },
 {
   "fields": {
-    "title": "(7m - Supplier Code of Conduct) If yes - What monitoring or audit systems are in place to ensure compliance with the Supplier Code of Conduct?",
+    "title": "4.9 If your organization has a Supplier Code of Conduct, what monitoring or audit systems are in place to ensure compliance with the Supplier Code of Conduct?",
     "slug": "supplier-code-of-conduct-monitoring-audit-systems",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2109,7 +2218,7 @@
 },
 {
   "fields": {
-    "orig_element": 31, "dest_element": 49
+    "orig_element": 60, "dest_element": 49
   },
   "model": "pages.RelationShip", "pk": 49
 },
@@ -2124,13 +2233,13 @@
 },
 {
   "fields": {
-    "rank": 32, "orig_element": 16, "dest_element": 50
+    "rank": 34, "orig_element": 2, "dest_element": 50
   },
   "model": "pages.RelationShip", "pk": 50
 },
 {
   "fields": {
-    "title": "(21) Are there any conflict minerals or additional minerals of concern (including: cobalt, tin, tantalum, tungsten, or gold) in the product(s) that your company manufactures, subcontracts, or sells?",
+    "title": "3.1 Are there any conflict minerals or additional minerals of concern (including: cobalt, tin, tantalum, tungsten, or gold) in the product(s) that your company manufactures, subcontracts, or sells?",
     "slug": "conflict-minerals-in-products",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2146,7 +2255,7 @@
 },
 {
   "fields": {
-    "title": "(21a) If yes - Has your company published a due diligence report on conflict minerals (including or not including cobalt)?",
+    "title": "3.2 If yes - Has your company published a due diligence report on conflict minerals (including or not including cobalt)?",
     "slug": "conflict-minerals-in-products-report",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2159,25 +2268,9 @@
   },
   "model": "pages.RelationShip", "pk": 52
 },
-
 {
   "fields": {
-    "title": "Sourcing policies and practices",
-    "slug": "sourcing-policies-and-practices",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 53
-},
-{
-  "fields": {
-    "rank": 49, "orig_element": 31, "dest_element": 53
-  },
-  "model": "pages.RelationShip", "pk": 53
-},
-
-{
-  "fields": {
-    "title": "(22) What are your company policies related to sourcing minerals of concern?",
+    "title": "3.3 Does your company have a policy related to sourcing minerals of concern?",
     "slug": "conflict-minerals-policy",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2186,13 +2279,13 @@
 },
 {
   "fields": {
-    "orig_element": 53, "dest_element": 54
+    "orig_element": 50, "dest_element": 54
   },
   "model": "pages.RelationShip", "pk": 54
 },
 {
   "fields": {
-    "title": "(23) Does your company source any of the specific materials, minerals, or products from the related countries listed on the Department of Labor \"List of Goods Produced by Child Labor or Forced Labor\" (available here https://www.dol.gov/agencies/ilab/reports/child-labor/list-of-goods)?",
+    "title": "3.4 Does your company source any of the specific materials, minerals, or products from the related countries listed on the Department of Labor \"List of Goods Produced by Child Labor or Forced Labor\" (available here https://www.dol.gov/agencies/ilab/reports/child-labor/list-of-goods)?",
     "slug": "high-risk-regions-sourcing-products",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2207,7 +2300,7 @@
 },
 {
   "fields": {
-    "title": "(23a) If yes - How is your company ensuring that there is no Child Labor or Forced Labor in your supply chain?",
+    "title": "3.6 If your company source materials from regions of concern, how is your company ensuring that there is no Child Labor or Forced Labor in your supply chain?",
     "slug": "high-risk-regions-sourcing-products-report",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2216,14 +2309,14 @@
 },
 {
   "fields": {
-    "orig_element": 53, "dest_element": 56,
+    "orig_element": 50, "dest_element": 56,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 56
 },
 {
   "fields": {
-    "title": "(24) What are your company policies related to sourcing materials from regions of concern?",
+    "title": "3.5 Does your company have a policy related to sourcing materials from regions of concern?",
     "slug": "high-risk-regions-sourcing-policy",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2232,42 +2325,10 @@
 },
 {
   "fields": {
-    "orig_element": 53, "dest_element": 57,
+    "orig_element": 50, "dest_element": 57,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 57
-},
-
-
-{
-  "fields": {
-    "title": "(8) Has your company had any significant code of conduct breaches including but not limited to breaches resulting in fines, class action lawsuits, or repeated breaches of Codes of Conduct in the past 36 months?",
-    "slug": "governance-fines",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 58
-},
-{
-  "fields": {
-    "orig_element": 79, "dest_element": 58
-  },
-  "model": "pages.RelationShip", "pk": 58
-},
-{
-  "fields": {
-    "title": "(9) Has your company received or been responsible for a Notice of Violation (NOV), Consent Order or fine over USD $10,000 from an environmental agency, or an environmental event that required reporting to an environmental agency in the past 36 months?",
-    "slug": "environmental-fines",
-    "picture": "/static/img/management-basics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 59
-},
-{
-  "fields": {
-    "rank": 9, "orig_element": 65, "dest_element": 59
-  },
-  "model": "pages.RelationShip", "pk": 59
 },
 
 {
@@ -2280,14 +2341,14 @@
 },
 {
   "fields": {
-    "rank": 10, "orig_element": 2, "dest_element": 60
+    "rank": 10, "orig_element": 1, "dest_element": 60
   },
   "model": "pages.RelationShip", "pk": 60
 },
 
 {
   "fields": {
-    "title": "(10) Has your company implemented an environmental management system that conforms with a recognized international (e.g. ISO 14001) or local standard?",
+    "title": "4.1 Has your company implemented an environmental management system that conforms with a recognized international (e.g. ISO 14001) or local standard?",
     "slug": "env-system-in-place",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2303,7 +2364,7 @@
 
 {
   "fields": {
-    "title": "(10b) Is the system certified to a recognized local or international standard?",
+    "title": "4.2 Is the system certified to a recognized local or international standard?",
     "slug": "env-system-certified",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2318,7 +2379,7 @@
 },
 {
   "fields": {
-    "title": "(10c) Is the system periodically (e.g. every 5 years)  audited internally and by an independent third party?",
+    "title": "4.3 Is the system periodically (e.g. every 5 years) audited internally and by an independent third party?",
     "slug": "env-system-audited",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2333,7 +2394,7 @@
 },
 {
   "fields": {
-    "title": "(10a) Please indicate the coverage of the environmental management system across your business and/or facilities (e.g. % of owned facilities with an ISO 14001 certificate)?",
+    "title": "4.5 Please indicate the coverage of the environmental management system across your business and/or facilities (e.g. % of owned facilities with an ISO 14001 certificate)?",
     "slug": "env-system-coverage",
     "picture": "/static/img/management-basics.png",
     "account": 2
@@ -2342,10 +2403,26 @@
 },
 {
   "fields": {
-    "orig_element": 31, "dest_element": 64
+    "orig_element": 60, "dest_element": 64
   },
   "model": "pages.RelationShip", "pk": 64
 },
+{
+  "fields": {
+    "title": "4.6 If your company has an Employee Code of Conduct, what monitoring or audit systems are in place to ensure compliance with the Employee Code of Conduct?",
+    "slug": "employee-code-of-conduct-monitoring-audit-systems",
+    "picture": "/static/img/management-basics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 32
+},
+{
+  "fields": {
+    "orig_element": 60, "dest_element": 32
+  },
+  "model": "pages.RelationShip", "pk": 32
+},
+
 
 {
   "fields": {
@@ -2361,10 +2438,24 @@
   },
   "model": "pages.RelationShip", "pk": 65
 },
-
 {
   "fields": {
-    "title": "GHG Emissions reporting",
+    "title": "5.1 Has your company received or been responsible for a Notice of Violation (NOV), Consent Order or fine over USD $10,000 from an environmental agency, or an environmental event that required reporting to an environmental agency in the past 36 months?",
+    "slug": "environmental-fines",
+    "picture": "/static/img/management-basics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 59
+},
+{
+  "fields": {
+    "rank": 9, "orig_element": 65, "dest_element": 59
+  },
+  "model": "pages.RelationShip", "pk": 59
+},
+{
+  "fields": {
+    "title": "Energy & GHG Emissions reporting",
     "slug": "ghg-emissions-reporting",
     "account": 2
   },
@@ -2372,13 +2463,13 @@
 },
 {
   "fields": {
-    "rank": 56, "orig_element": 65, "dest_element": 66
+    "rank": 57, "orig_element": 65, "dest_element": 66
   },
   "model": "pages.RelationShip", "pk": 66
 },
 {
   "fields": {
-    "title": "(14a) Does your company report total Scope 1 GHG emissions publicly?",
+    "title": "7.1 Does your company report total Scope 1 GHG emissions publicly?",
     "slug": "ghg-emissions-scope1-publicly-reported",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2387,14 +2478,13 @@
 },
 {
   "fields": {
-    "orig_element": 66, "dest_element": 67,
-    "rank": 2
+    "rank": 1, "orig_element": 66, "dest_element": 67
   },
   "model": "pages.RelationShip", "pk": 67
 },
 {
   "fields": {
-    "title": "(14b) Have Scope 1 GHG Emissions data been third-party verified within last 2 years?",
+    "title": "7.2 Have Scope 1 GHG Emissions data been third-party verified within last 2 years?",
     "slug": "ghg-emissions-scope1-3rd-party-verified",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2403,14 +2493,13 @@
 },
 {
   "fields": {
-    "orig_element": 66, "dest_element": 68,
-    "rank": 2
+    "rank": 4, "orig_element": 66, "dest_element": 68
   },
   "model": "pages.RelationShip", "pk": 68
 },
 {
   "fields": {
-    "title": "(15a) Does your company report total Scope 2 GHG emissions publicly?",
+    "title": "7.7 Does your company report total Scope 2 GHG emissions publicly?",
     "slug": "ghg-emissions-scope2-publicly-reported",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2419,14 +2508,13 @@
 },
 {
   "fields": {
-    "orig_element": 66, "dest_element": 69,
-    "rank": 2
+    "rank": 2, "orig_element": 66, "dest_element": 69
   },
   "model": "pages.RelationShip", "pk": 69
 },
 {
   "fields": {
-    "title": "(15b) Have Scope 2 GHG emissions data been third-party verified within last 2 years?",
+    "title": "7.8 Have Scope 2 GHG emissions data been third-party verified within last 2 years?",
     "slug": "ghg-emissions-scope2-3rd-party-verified",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2435,8 +2523,7 @@
 },
 {
   "fields": {
-    "orig_element": 66, "dest_element": 70,
-    "rank": 2
+    "rank": 5, "orig_element": 66, "dest_element": 70
   },
   "model": "pages.RelationShip", "pk": 70
 },
@@ -2451,8 +2538,7 @@
 },
 {
   "fields": {
-    "orig_element": 66, "dest_element": 71,
-    "rank": 2
+    "rank": 1, "orig_element": 90, "dest_element": 71
   },
   "model": "pages.RelationShip", "pk": 71
 },
@@ -2467,8 +2553,7 @@
 },
 {
   "fields": {
-    "orig_element": 66, "dest_element": 72,
-    "rank": 2
+    "rank": 2, "orig_element": 90, "dest_element": 72
   },
   "model": "pages.RelationShip", "pk": 72
 },
@@ -2482,13 +2567,13 @@
 },
 {
   "fields": {
-    "rank": 58, "orig_element": 66, "dest_element": 73
+    "rank": 59, "orig_element": 66, "dest_element": 73
   },
   "model": "pages.RelationShip", "pk": 73
 },
 {
   "fields": {
-    "title": "(20c) Does your company report waste generated and recycled publicly?",
+    "title": "9.1 Does your company report waste generated and recycled publicly?",
     "slug": "waste-publicly-reported",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2504,7 +2589,7 @@
 },
 {
   "fields": {
-    "title": "Has the waste measurement methodoly been third-party verified within the last 2 years?",
+    "title": "9.2 Has the waste measurement methodology been third-party verified within the last 2 years?",
     "slug": "waste-3rd-party-verified",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2527,13 +2612,13 @@
 },
 {
   "fields": {
-    "rank": 57, "orig_element": 66, "dest_element": 76
+    "rank": 58, "orig_element": 66, "dest_element": 76
   },
   "model": "pages.RelationShip", "pk": 76
 },
 {
   "fields": {
-    "title": "(11c) Does your company report water withdrawn, discharged and re-used publicy?",
+    "title": "8.1 Does your company report water withdrawn, discharged and re-used publicly?",
     "slug": "water-publicly-reported",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2548,24 +2633,24 @@
 },
 {
   "fields": {
-    "title": "(11d) Have water data been third-party verified within the last 2 years?",
+    "title": "8.2 Have water data been third-party verified within the last 2 years?",
     "slug": "water-3rd-party-verified",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 78
 },
-
-
 {
   "fields": {
     "orig_element": 76, "dest_element": 78
   },
   "model": "pages.RelationShip", "pk": 78
 },
+
+
 {
   "fields": {
-    "title": "Social & Governance reporting",
+    "title": "Social reporting",
     "slug": "social-reporting",
     "account": 2
   },
@@ -2577,10 +2662,24 @@
   },
   "model": "pages.RelationShip", "pk": 79
 },
-
 {
   "fields": {
-    "title": "Does your company report internally or externally Key Performance Indicators (KPIs) on ...",
+    "title": "11.1 Has your company had any significant code of conduct breaches including but not limited to breaches resulting in fines, class action lawsuits, or repeated breaches of Codes of Conduct in the past 36 months?",
+    "slug": "governance-fines",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 58
+},
+{
+  "fields": {
+    "orig_element": 79, "dest_element": 58
+  },
+  "model": "pages.RelationShip", "pk": 58
+},
+{
+  "fields": {
+    "title": "11.2 Does your company report internally or externally Key Performance Indicators (KPIs) on ...",
     "slug": "social-kpis",
     "account": 2
   },
@@ -2588,13 +2687,13 @@
 },
 {
   "fields": {
-    "rank": 108, "orig_element": 79, "dest_element": 80
+    "rank": 127, "orig_element": 79, "dest_element": 80
   },
   "model": "pages.RelationShip", "pk": 80
 },
 {
   "fields": {
-    "title": "(24a) ... Discrimination & Harassment?",
+    "title": "11.2a ... Discrimination & Harassment?",
     "slug": "kpi-diversity-discrimination-harassment",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2609,7 +2708,7 @@
 },
 {
   "fields": {
-    "title": "(24b) ... Diversity of Employees?",
+    "title": "11.2b ... Diversity of Employees?",
     "slug": "kpi-diversity-of-employees",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2624,7 +2723,7 @@
 },
 {
   "fields": {
-    "title": "(24b) ... Diversity of Executive Leadership and/or Board?",
+    "title": "11.2c ... Diversity of Executive Leadership and/or Board?",
     "slug": "kpi-diversity-of-board",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2639,7 +2738,7 @@
 },
 {
   "fields": {
-    "title": "(24e) ... Recordable Incident Rate?",
+    "title": "11.2d ... Recordable Incident Rate?",
     "slug": "kpi-recordable-incident-rate",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2654,7 +2753,7 @@
 },
 {
   "fields": {
-    "title": "(24f) ... Lost-time Case Rate?",
+    "title": "11.2e ... Lost-time Case Rate?",
     "slug": "kpi-lost-time-case-rate",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2669,7 +2768,7 @@
 },
 {
   "fields": {
-    "title": "(24g) ... Days Away, Restricted, and Transfer (DART) Rate?",
+    "title": "11.2f ... Days Away, Restricted, and Transfer (DART) Rate?",
     "slug": "kpi-dart-rate",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2684,7 +2783,7 @@
 },
 {
   "fields": {
-    "title": "(24h) ... Work-related Fatalities?",
+    "title": "11.2g ... Work-related Fatalities?",
     "slug": "kpi-work-related-fatalities",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2697,89 +2796,25 @@
   },
   "model": "pages.RelationShip", "pk": 87
 },
-{
-  "fields": {
-    "title": "(24c) ... Employee Turnover?",
-    "slug": "kpi-employee-turnover",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 88
-},
-{
-  "fields": {
-    "orig_element": 80, "dest_element": 88
-  },
-  "model": "pages.RelationShip", "pk": 88
-},
-{
-  "fields": {
-    "title": "(24c) ... Contributions to the economy (wages, taxes)?",
-    "slug": "kpi-contributions-economy",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 89
-},
-{
-  "fields": {
-    "orig_element": 80, "dest_element": 89
-  },
-  "model": "pages.RelationShip", "pk": 89
-},
-
 
 {
   "fields": {
-    "title": "Data & metrics",
-    "slug": "data-measured",
-    "picture": "/static/img/data-metrics.png",
-    "extra": "{\"tags\":[\"metrics\",\"tilebreak\"]}",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 100
-},
-{
-  "fields": {
-    "rank": 3, "orig_element": 1, "dest_element": 100
-  },
-  "model": "pages.RelationShip", "pk": 100
-},
-
-{
-  "fields": {
-    "title": "GHG Emissions measured and trended",
-    "slug": "ghg-emissions-measured",
+    "title": "Energy & GHG Emissions measured and trended",
+    "slug": "ghg-emissions-scope1-measured",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 101
 },
 {
   "fields": {
-    "rank": 2, "orig_element": 100, "dest_element": 101
+    "rank": 76, "orig_element": 66, "dest_element": 101
   },
   "model": "pages.RelationShip", "pk": 101
 },
 
 {
   "fields": {
-    "title": "GHG Emissions Totals",
-    "slug": "ghg-emissions-totals",
-    "account": 2,
-    "extra": "{\"tags\":[\"data-metrics-header\"]}"
-  },
-  "model": "pages.PageElement", "pk": 102
-},
-{
-  "fields": {
-    "orig_element": 101, "dest_element": 102,
-    "rank": 2
-  },
-  "model": "pages.RelationShip", "pk": 102
-},
-{
-  "fields": {
-    "title": "(14) Total Scope 1 GHG Emissions",
+    "title": "7.6 Total Scope 1 GHG Emissions",
     "slug": "ghg-emissions-scope1",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2788,7 +2823,7 @@
 },
 {
   "fields": {
-    "orig_element": 102, "dest_element": 103,
+    "orig_element": 101, "dest_element": 103,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 103
@@ -2796,7 +2831,7 @@
 
 {
   "fields": {
-    "title": "(15) Total scope 2 GHG Emissions",
+    "title": "7.12 Total Scope 2 GHG Emissions",
     "slug": "ghg-emissions-scope2",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2805,11 +2840,46 @@
 },
 {
   "fields": {
-    "orig_element": 102, "dest_element": 104,
+    "orig_element": 101, "dest_element": 104,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 104
 },
+
+
+{
+  "fields": {
+    "title": "Scope 3 reporting",
+    "slug": "ghg-emissions-scope3-details",
+    "account": 2,
+    "extra": "{\"tags\":[\"data-metrics-header\"]}"
+  },
+  "model": "pages.PageElement", "pk": 90
+},
+{
+  "fields": {
+    "rank": 82, "orig_element": 65, "dest_element": 90
+  },
+  "model": "pages.RelationShip", "pk": 90
+},
+
+{
+  "fields": {
+    "title": "Scope 3 measured and trended",
+    "slug": "ghg-emissions-scope3-measured",
+    "account": 2,
+    "extra": "{\"tags\":[\"data-metrics-header\"]}"
+  },
+  "model": "pages.PageElement", "pk": 106
+},
+{
+  "fields": {
+    "rank": 109, "orig_element": 90, "dest_element": 106
+  },
+  "model": "pages.RelationShip", "pk": 106
+},
+
+
 {
   "fields": {
     "title": "(16) Total Scope 3 GHG Emissions",
@@ -2821,47 +2891,29 @@
 },
 {
   "fields": {
-    "orig_element": 102, "dest_element": 105,
+    "orig_element": 106, "dest_element": 105,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 105
 },
-
 {
   "fields": {
-    "title": "GHG Emissions Scope 3 Breakdown",
-    "slug": "ghg-emissions-scope3-details",
-    "account": 2,
-    "extra": "{\"tags\":[\"data-metrics-header\"]}"
-  },
-  "model": "pages.PageElement", "pk": 106
-},
-{
-  "fields": {
-    "orig_element": 101, "dest_element": 106,
-    "rank": 3
-  },
-  "model": "pages.RelationShip", "pk": 106
-},
-{
-  "fields": {
-    "title": "(16c) Purchased good and services",
-    "slug": "purchased-good-and-services",
+    "title": "7.18a Business travel",
+    "slug": "business-travel",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 107
+  "model": "pages.PageElement", "pk": 112
 },
 {
   "fields": {
-    "orig_element": 106, "dest_element": 107,
-    "rank": 2
+    "rank": 7, "orig_element": 106, "dest_element": 112
   },
-  "model": "pages.RelationShip", "pk": 107
+  "model": "pages.RelationShip", "pk": 112
 },
 {
   "fields": {
-    "title": "(16d) Capital goods",
+    "title": "7.18b Capital goods",
     "slug": "capital-goods",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -2877,183 +2929,7 @@
 },
 {
   "fields": {
-    "title": "(16e) Fuel-and-energy-related activities",
-    "slug": "fuel-and-energy-related-activities",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 109
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 109,
-    "rank": 4
-  },
-  "model": "pages.RelationShip", "pk": 109
-},
-{
-  "fields": {
-    "title": "(16f) Upstream transportation and distribution",
-    "slug": "upstream-transportation-and-distribution",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 110
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 110,
-    "rank": 5
-  },
-  "model": "pages.RelationShip", "pk": 110
-},
-{
-  "fields": {
-    "title": "(16g) Waste generated in operations",
-    "slug": "waste-generated-in-operations",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 111
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 111,
-    "rank": 6
-  },
-  "model": "pages.RelationShip", "pk": 111
-},
-{
-  "fields": {
-    "title": "(16h) Business travel",
-    "slug": "business-travel",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 112
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 112,
-    "rank": 7
-  },
-  "model": "pages.RelationShip", "pk": 112
-},
-{
-  "fields": {
-    "title": "(16i) Employee commuting",
-    "slug": "employee-commuting",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 113
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 113,
-    "rank": 8
-  },
-  "model": "pages.RelationShip", "pk": 113
-},
-{
-  "fields": {
-    "title": "(16j) Upstream leased assets",
-    "slug": "upstream-leased-assets",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 114
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 114,
-    "rank": 9
-  },
-  "model": "pages.RelationShip", "pk": 114
-},
-{
-  "fields": {
-    "title": "(16k) Investments",
-    "slug": "investments",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 115
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 115,
-    "rank": 10
-  },
-  "model": "pages.RelationShip", "pk": 115
-},
-{
-  "fields": {
-    "title": "(16l) Downstream transportation and distribution",
-    "slug": "downstream-transportation-and-distribution",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 116
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 116,
-    "rank": 11
-  },
-  "model": "pages.RelationShip", "pk": 116
-},
-{
-  "fields": {
-    "title": "(16m) Processing of sold products",
-    "slug": "processing-of-sold-products",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 117
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 117,
-    "rank": 12
-  },
-  "model": "pages.RelationShip", "pk": 117
-},
-{
-  "fields": {
-    "title": "(16n) Use of sold products",
-    "slug": "use-of-sold-products",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 118
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 118,
-    "rank": 13
-  },
-  "model": "pages.RelationShip", "pk": 118
-},
-{
-  "fields": {
-    "title": "(16o) End of life treatment of sold products",
-    "slug": "end-of-life-treatment-of-sold-products",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 119
-},
-{
-  "fields": {
-    "orig_element": 106, "dest_element": 119,
-    "rank": 14
-  },
-  "model": "pages.RelationShip", "pk": 119
-},
-{
-  "fields": {
-    "title": "(16p) Downstream leased assets",
+    "title": "7.18c Downstream leased assets",
     "slug": "downstream-leased-assets",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3069,7 +2945,55 @@
 },
 {
   "fields": {
-    "title": "(16q) Franchise",
+    "title": "7.18d Downstream transportation and distribution",
+    "slug": "downstream-transportation-and-distribution",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 116
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 116,
+    "rank": 11
+  },
+  "model": "pages.RelationShip", "pk": 116
+},
+{
+  "fields": {
+    "title": "7.18e Employee commuting",
+    "slug": "employee-commuting",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 113
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 113,
+    "rank": 8
+  },
+  "model": "pages.RelationShip", "pk": 113
+},
+{
+  "fields": {
+    "title": "7.18f End of life treatment of sold products",
+    "slug": "end-of-life-treatment-of-sold-products",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 119
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 119,
+    "rank": 14
+  },
+  "model": "pages.RelationShip", "pk": 119
+},
+{
+  "fields": {
+    "title": "7.18g Franchise",
     "slug": "franchise",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3085,6 +3009,137 @@
 },
 {
   "fields": {
+    "title": "7.18h Fuel-and-energy-related activities",
+    "slug": "fuel-and-energy-related-activities",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 109
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 109,
+    "rank": 4
+  },
+  "model": "pages.RelationShip", "pk": 109
+},
+{
+  "fields": {
+    "title": "7.18i Investments",
+    "slug": "investments",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 115
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 115,
+    "rank": 10
+  },
+  "model": "pages.RelationShip", "pk": 115
+},
+{
+  "fields": {
+    "title": "7.18j Processing of sold products",
+    "slug": "processing-of-sold-products",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 117
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 117,
+    "rank": 12
+  },
+  "model": "pages.RelationShip", "pk": 117
+},
+
+{
+  "fields": {
+    "title": "7.18k Purchased good and services",
+    "slug": "purchased-good-and-services",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 107
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 107,
+    "rank": 2
+  },
+  "model": "pages.RelationShip", "pk": 107
+},
+{
+  "fields": {
+    "title": "7.18l Upstream leased assets",
+    "slug": "upstream-leased-assets",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 114
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 114,
+    "rank": 9
+  },
+  "model": "pages.RelationShip", "pk": 114
+},
+
+{
+  "fields": {
+    "title": "7.18m Upstream transportation and distribution",
+    "slug": "upstream-transportation-and-distribution",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 110
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 110,
+    "rank": 5
+  },
+  "model": "pages.RelationShip", "pk": 110
+},
+{
+  "fields": {
+    "title": "7.18n Use of sold products",
+    "slug": "use-of-sold-products",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 118
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 118,
+    "rank": 13
+  },
+  "model": "pages.RelationShip", "pk": 118
+},
+{
+  "fields": {
+    "title": "7.18o Waste generated in operations",
+    "slug": "waste-generated-in-operations",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 111
+},
+{
+  "fields": {
+    "orig_element": 106, "dest_element": 111,
+    "rank": 6
+  },
+  "model": "pages.RelationShip", "pk": 111
+},
+
+{
+  "fields": {
     "title": "Waste measured and trended",
     "slug": "waste-measured",
     "account": 2,
@@ -3094,13 +3149,13 @@
 },
 {
   "fields": {
-    "rank": 3, "orig_element": 100, "dest_element": 122
+    "rank": 115, "orig_element": 73, "dest_element": 122
   },
   "model": "pages.RelationShip", "pk": 122
 },
 {
   "fields": {
-    "title": "(18) Total Hazardous Waste Generated for Disposal",
+    "title": "9.5 Total Hazardous Waste",
     "slug": "hazardous-waste",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3116,7 +3171,7 @@
 },
 {
   "fields": {
-    "title": "(19) Total Non-Hazardous Waste Generated for Disposal",
+    "title": "9.6 Total Non-Hazardous Waste",
     "slug": "non-hazardous-waste",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3132,7 +3187,7 @@
 },
 {
   "fields": {
-    "title": "(20) Total Waste Recycled and Diverted (including source; e.g. composting,  etc.)",
+    "title": "9.7 Total Waste Recycled",
     "slug": "waste-recycled",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3157,13 +3212,13 @@
 },
 {
   "fields": {
-    "rank": 4, "orig_element": 100, "dest_element": 126
+    "rank": 122, "orig_element": 76, "dest_element": 126
   },
   "model": "pages.RelationShip", "pk": 126
 },
 {
   "fields": {
-    "title": "Total Water withdrawn",
+    "title": "8.5 Total Water withdrawn",
     "slug": "water-withdrawn",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3179,7 +3234,7 @@
 },
 {
   "fields": {
-    "title": "Total Water discharged",
+    "title": "8.6 Total Water discharged",
     "slug": "water-discharged",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3195,7 +3250,7 @@
 },
 {
   "fields": {
-    "title": "Total Water recycled and reused",
+    "title": "8.7 Total Water recycled and reused",
     "slug": "water-recycled",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3204,8 +3259,7 @@
 },
 {
   "fields": {
-    "orig_element": 126, "dest_element": 129,
-    "rank": 2
+    "rank": 2, "orig_element": 126, "dest_element": 129
   },
   "model": "pages.RelationShip", "pk": 129
 },
@@ -3219,13 +3273,29 @@
 },
 {
   "fields": {
-    "rank": 0, "orig_element": 100, "dest_element": 130
+    "rank": 56, "orig_element": 65, "dest_element": 130
   },
   "model": "pages.RelationShip", "pk": 130
 },
 {
   "fields": {
-    "title": "(1) Reporting company's Annual Gross Revenue",
+    "title": "6.1 North American Industry Classification (NAICS)",
+    "slug": "naics-code",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 133
+},
+{
+  "fields": {
+    "rank": 2, "orig_element": 130, "dest_element": 133
+  },
+  "model": "pages.RelationShip", "pk": 133
+},
+
+{
+  "fields": {
+    "title": "6.2 Reporting Organization's Annual Gross Revenue",
     "slug": "gross-revenue",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3240,7 +3310,7 @@
 },
 {
   "fields": {
-    "title": "(2) Reporting company's Full-time Employee Count",
+    "title": "6.3 Reporting organization's Full-time Employee Count",
     "slug": "fte-count",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3255,43 +3325,57 @@
   "model": "pages.RelationShip", "pk": 132
 },
 
-
 {
   "fields": {
-    "title": "Targets",
-    "slug": "targets",
+    "title": "10.1 Does your company report total Energy consumed publicly?",
+    "slug": "energy-publicly-reported",
     "picture": "/static/img/data-metrics.png",
-    "extra": "{\"tags\":[\"metrics\"]}",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 150
+  "model": "pages.PageElement", "pk": 135
 },
 {
   "fields": {
-    "rank": 3, "orig_element": 1, "dest_element": 150
+    "orig_element": 66, "dest_element": 135,
+    "rank": 3
   },
-  "model": "pages.RelationShip", "pk": 150
+  "model": "pages.RelationShip", "pk": 135
 },
 {
   "fields": {
-    "title": "Energy",
-    "slug": "energy-target",
-    "picture": "/static/img/lightning.png",
-    "extra": "{\"tags\":[\"metrics\"]}",
+    "title": "10.2 Have Energy data been third-party verified within last 2 years?",
+    "slug": "energy-3rd-party-verified",
+    "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 151
+  "model": "pages.PageElement", "pk": 136
 },
 {
   "fields": {
-    "orig_element": 150, "dest_element": 151,
-    "rank": 1
+    "orig_element": 66, "dest_element": 136,
+    "rank": 4
   },
-  "model": "pages.RelationShip", "pk": 151
+  "model": "pages.RelationShip", "pk": 136
 },
 {
   "fields": {
-    "title": "Energy Target By",
+    "title": "10.5 Energy consumed",
+    "slug": "energy-consumed",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 137
+},
+{
+  "fields": {
+    "orig_element": 101, "dest_element": 137,
+    "rank": 5
+  },
+  "model": "pages.RelationShip", "pk": 137
+},
+{
+  "fields": {
+    "title": "10.3 When do you expect to achieve your energy reduction target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "energy-target-by",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3300,61 +3384,14 @@
 },
 {
   "fields": {
-    "orig_element": 151, "dest_element": 152,
+    "orig_element": 65, "dest_element": 152,
     "rank": 1
   },
   "model": "pages.RelationShip", "pk": 152
 },
 {
   "fields": {
-    "title": "Energy Target Comments",
-    "slug": "energy-target-comments",
-    "picture": "/static/img/data-metrics.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 153
-},
-{
-  "fields": {
-    "orig_element": 151, "dest_element": 153,
-    "rank": 1
-  },
-  "model": "pages.RelationShip", "pk": 153
-},
-{
-  "fields": {
-    "title": "GHG Emissions Target",
-    "slug": "ghg-emissions-target",
-    "picture": "/static/img/fuel-pump.png",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 154
-},
-{
-  "fields": {
-    "orig_element": 150, "dest_element": 154,
-    "rank": 2
-  },
-  "model": "pages.RelationShip", "pk": 154
-},
-
-{
-  "fields": {
-    "title": "(17) Scope 1 GHG Emissions Target",
-    "slug": "ghg-emissions-scope1-target",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 155
-},
-{
-  "fields": {
-    "rank": 1, "orig_element": 154, "dest_element": 155
-  },
-  "model": "pages.RelationShip", "pk": 155
-},
-{
-  "fields": {
-    "title": "When do you expect to achieve your Scope 1 GHG Emissions target? (Please describe the target, or why you do not have a target, in comments)",
+    "title": "7.3 When do you expect to achieve your Scope 1 GHG Emissions target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "ghg-emissions-scope1-target-by",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3363,14 +3400,14 @@
 },
 {
   "fields": {
-    "orig_element": 155, "dest_element": 156,
+    "orig_element": 65, "dest_element": 156,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 156
 },
 {
   "fields": {
-    "title": "Is this a science-based target, net-zero target, or other?",
+    "title": "7.4 Is your Scope 1 GHG Emissions target a science-based target, net-zero target, or other?",
     "slug": "ghg-emissions-scope1-science-based-target",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3379,7 +3416,7 @@
 },
 {
   "fields": {
-    "orig_element": 155, "dest_element": 157,
+    "orig_element": 65, "dest_element": 157,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 157
@@ -3387,7 +3424,7 @@
 
 {
   "fields": {
-    "title": "If yes, What progress has been made on your target (%)?",
+    "title": "7.5 If you have a Scope 1 GHG Emissions target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "ghg-emissions-scope1-target-comments",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3396,7 +3433,7 @@
 },
 {
   "fields": {
-    "orig_element": 155, "dest_element": 158,
+    "orig_element": 65, "dest_element": 158,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 158
@@ -3404,22 +3441,7 @@
 
 {
   "fields": {
-    "title": "(18) Scope 2 GHG Emissions Target",
-    "slug": "ghg-emissions-scope2-target",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 159
-},
-{
-  "fields": {
-    "orig_element": 154, "dest_element": 159,
-    "rank": 1
-  },
-  "model": "pages.RelationShip", "pk": 159
-},
-{
-  "fields": {
-    "title": "When do you expect to achieve your Scope 2 GHG Emissions target? (Please describe the target, or why you do not have a target, in comments)",
+    "title": "7.9 When do you expect to achieve your Scope 2 GHG Emissions target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "ghg-emissions-scope2-target-by",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3428,14 +3450,14 @@
 },
 {
   "fields": {
-    "orig_element": 159, "dest_element": 160,
+    "orig_element": 65, "dest_element": 160,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 160
 },
 {
   "fields": {
-    "title": "Is this a science-based target, net-zero target, or other?",
+    "title": "7.10 Is your Scope 2 GHG Emissions target a science-based target, net-zero target, or other?",
     "slug": "ghg-emissions-scope2-science-based-target",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3444,14 +3466,30 @@
 },
 {
   "fields": {
-    "orig_element": 159, "dest_element": 161,
+    "orig_element": 65, "dest_element": 161,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 161
 },
+
 {
   "fields": {
-    "title": "If yes, What progress has been made on your target (%)?",
+    "title": "Energy & GHG Emissions improvement planning and execution",
+    "slug": "ghg-emissions-scope1-target",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 155
+},
+{
+  "fields": {
+    "rank": 79, "orig_element": 66, "dest_element": 155
+  },
+  "model": "pages.RelationShip", "pk": 155
+},
+
+{
+  "fields": {
+    "title": "7.11 If you have a Scope 2 GHG Emissions target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "ghg-emissions-scope2-target-comments",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3460,15 +3498,31 @@
 },
 {
   "fields": {
-    "orig_element": 159, "dest_element": 162,
+    "orig_element": 155, "dest_element": 162,
     "rank": 2
   },
   "model": "pages.RelationShip", "pk": 162
 },
+{
+  "fields": {
+    "title": "10.4 If you have an energy reduction target, please describe plans in place and progress made towards your target (ex: % completion)?",
+    "slug": "energy-improvement-target-comments",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 153
+},
+{
+  "fields": {
+    "orig_element": 155, "dest_element": 153,
+    "rank": 1
+  },
+  "model": "pages.RelationShip", "pk": 153
+},
 
 {
   "fields": {
-    "title": "(18) Scope 3 GHG Emissions Target",
+    "title": "Scope 3 improvement planning and execution",
     "slug": "ghg-emissions-scope3-target",
     "account": 2
   },
@@ -3476,8 +3530,7 @@
 },
 {
   "fields": {
-    "orig_element": 154, "dest_element": 163,
-    "rank": 1
+    "rank": 110, "orig_element": 90, "dest_element": 163
   },
   "model": "pages.RelationShip", "pk": 163
 },
@@ -3492,8 +3545,7 @@
 },
 {
   "fields": {
-    "orig_element": 163, "dest_element": 164,
-    "rank": 2
+    "rank": 2, "orig_element": 90, "dest_element": 164
   },
   "model": "pages.RelationShip", "pk": 164
 },
@@ -3508,8 +3560,7 @@
 },
 {
   "fields": {
-    "orig_element": 163, "dest_element": 165,
-    "rank": 2
+    "rank": 2, "orig_element": 90, "dest_element": 165
   },
   "model": "pages.RelationShip", "pk": 165
 },
@@ -3531,7 +3582,7 @@
 },
 {
   "fields": {
-    "title": "(21) Waste Reduction Target",
+    "title": "Waste improvement planning and execution",
     "slug": "waste-target",
     "picture": "/static/img/waste.png",
     "account": 2
@@ -3540,14 +3591,13 @@
 },
 {
   "fields": {
-    "orig_element": 150, "dest_element": 167,
-    "rank": 4
+    "rank": 116, "orig_element": 73, "dest_element": 167
   },
   "model": "pages.RelationShip", "pk": 167
 },
 {
   "fields": {
-    "title": "When do you expect to achieve your waste reduction target? (Please describe the target, or why you do not have a target, in comments)",
+    "title": "9.3 When do you expect to achieve your waste reduction target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "waste-target-by",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3556,14 +3606,14 @@
 },
 {
   "fields": {
-    "orig_element": 167, "dest_element": 168,
+    "orig_element": 73, "dest_element": 168,
     "rank": 4
   },
   "model": "pages.RelationShip", "pk": 168
 },
 {
   "fields": {
-    "title": "If yes, What progress has been made on your target (%)?",
+    "title": "9.4 If you have a waste reduction target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "waste-target-comments",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3579,7 +3629,7 @@
 },
 {
   "fields": {
-    "title": "(13) Water Use Target",
+    "title": "Water use improvement planning and execution",
     "slug": "water-target",
     "picture": "/static/img/water.png",
     "account": 2
@@ -3588,14 +3638,13 @@
 },
 {
   "fields": {
-    "orig_element": 150, "dest_element": 170,
-    "rank": 3
+    "rank": 123, "orig_element": 76, "dest_element": 170
   },
   "model": "pages.RelationShip", "pk": 170
 },
 {
   "fields": {
-    "title": "When do you expect to achieve your water use target? (Please describe the target, or why you do not have a target, in comments)",
+    "title": "8.3 When do you expect to achieve your water use target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "water-target-by",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3604,14 +3653,13 @@
 },
 {
   "fields": {
-    "orig_element": 170, "dest_element": 171,
-    "rank": 3
+    "rank": 3, "orig_element": 76, "dest_element": 171
   },
   "model": "pages.RelationShip", "pk": 171
 },
 {
   "fields": {
-    "title": "If yes, What progress has been made on your target (%)?",
+    "title": "8.4 If you have a water use target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "water-target-comments",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3629,7 +3677,7 @@
 
 {
   "fields": {
-    "title": "(25) Does your company have a target for diverse spend publicly communicated?",
+    "title": "11.3 Does your company have a target for diverse spend publicly communicated?",
     "slug": "diverse-spend",
     "picture": "/static/img/etc.png",
     "account": 2
@@ -3646,7 +3694,7 @@
 
 {
   "fields": {
-    "title": "Diverse spend and/or representation",
+    "title": "Diverse spend and/or representation improvement planning and execution",
     "slug": "diverse-target",
     "picture": "/static/img/etc.png",
     "account": 2
@@ -3655,14 +3703,13 @@
 },
 {
   "fields": {
-    "orig_element": 150, "dest_element": 174,
-    "rank": 4
+    "rank": 140, "orig_element": 79, "dest_element": 174
   },
   "model": "pages.RelationShip", "pk": 174
 },
 {
   "fields": {
-    "title": "(25c) When do you expect to achieve your diverse spend and/or representation target? (Please describe the target, or why you do not have a target, in comments)",
+    "title": "11.6 When do you expect to achieve your diverse spend and/or representation target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "diverse-target-by",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3671,14 +3718,13 @@
 },
 {
   "fields": {
-    "orig_element": 174, "dest_element": 175,
-    "rank": 4
+    "rank": 4, "orig_element": 79, "dest_element": 175
   },
   "model": "pages.RelationShip", "pk": 175
 },
 {
   "fields": {
-    "title": "If yes, What progress has been made on your target (%)?",
+    "title": "11.7 If you have a diverse spend and/or representation target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "diverse-target-comments",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3693,7 +3739,7 @@
 },
 {
   "fields": {
-    "title": "If yes - Does your company define as a diverse supplier ...?",
+    "title": "11.4 If your company has a target for diverse spend, does your company define diverse suppliers as ...",
     "slug": "diverse-target-definition",
     "picture": "/static/img/data-metrics.png",
     "account": 2
@@ -3702,14 +3748,14 @@
 },
 {
   "fields": {
-    "orig_element": 174, "dest_element": 177, "rank": 117
+    "rank": 136, "orig_element": 174, "dest_element": 177
   },
   "model": "pages.RelationShip", "pk": 177
 },
 {
   "fields": {
-    "title": "(25f) ... disability-owned bussinesses",
-    "slug": "diverse-definition-disability-owned",
+    "title": "11.4a ... disability-owned bussinesses?",
+    "slug": "diverse-target-definition-disability-owned",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3723,8 +3769,8 @@
 },
 {
   "fields": {
-    "title": "(25g) ... HUBZone businesses",
-    "slug": "diverse-definition-hubzone",
+    "title": "11.4b ... HUBZone businesses",
+    "slug": "diverse-target-definition-hubzone",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3738,8 +3784,8 @@
 },
 {
   "fields": {
-    "title": "(25h) ... LGBT-owned businesses",
-    "slug": "diverse-definition-lgbt-owned",
+    "title": "11.4c ... LGBT-owned businesses",
+    "slug": "diverse-target-definition-lgbt-owned",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3753,8 +3799,8 @@
 },
 {
   "fields": {
-    "title": "(25i) ... minority-owned businesses",
-    "slug": "diverse-definition-minority-owned",
+    "title": "11.4d ... minority-owned businesses",
+    "slug": "diverse-target-definition-minority-owned",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3768,8 +3814,8 @@
 },
 {
   "fields": {
-    "title": "(25j) ... service-disable veteran businesses",
-    "slug": "diverse-definition-service-disable-owned",
+    "title": "11.4e ... service-disable veteran businesses",
+    "slug": "diverse-target-definition-service-disable-veteran",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3783,8 +3829,8 @@
 },
 {
   "fields": {
-    "title": "(25k) ... small businesses (by revenue)",
-    "slug": "diverse-definition-small-revenue",
+    "title": "11.4f ... small businesses (by revenue)",
+    "slug": "diverse-target-definition-small-business-revenue",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3798,8 +3844,8 @@
 },
 {
   "fields": {
-    "title": "(25l) ... small businesses (by employees)",
-    "slug": "diverse-definition-small-employees",
+    "title": "11.4g ... small businesses (by employees)",
+    "slug": "diverse-target-definition-small-business-employee",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3813,8 +3859,8 @@
 },
 {
   "fields": {
-    "title": "(25m) ... small disadvantaged businesses",
-    "slug": "diverse-definition-small-disadvantaged",
+    "title": "11.4h ... small disadvantaged businesses",
+    "slug": "diverse-target-definition-small-disadvantaged",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3828,8 +3874,8 @@
 },
 {
   "fields": {
-    "title": "(25n) ...  veteran-owned businesses",
-    "slug": "diverse-definition-veteran-owned",
+    "title": "11.4i ...  veteran-owned businesses",
+    "slug": "diverse-target-definition-veteran-owned",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3843,8 +3889,8 @@
 },
 {
   "fields": {
-    "title": "(25o) ... woman-owned businesses",
-    "slug": "diverse-definition-woman-owned",
+    "title": "11.4j ... woman-owned businesses",
+    "slug": "diverse-target-definition-woman-owned",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3859,7 +3905,7 @@
 
 {
   "fields": {
-    "title": "(25p) If yes - Do you require third-party certification to verify a supplier diverse status?",
+    "title": "11.5 If your company has a target for diverse spend, does your company require third-party certification to verify a supplier diverse status?",
     "slug": "diverse-target-verification",
     "picture": "/static/img/data-metrics.png",
     "account": 2
