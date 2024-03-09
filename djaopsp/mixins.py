@@ -30,6 +30,25 @@ from .utils import (get_account_model, get_requested_accounts,
 class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
 
     @property
+    def is_auditor(self):
+        return bool(self.verifier_accounts)
+
+    @property
+    def manages_broker(self):
+        # XXX remove this method after djaodjin-deployutils has been upgraded.
+        broker = self.request.session.get('site', {}).get('slug')
+        return broker and broker in self.accessible_profiles
+
+    @property
+    def owners(self):
+        if not hasattr(self, '_owners'):
+            if self.manages_broker:
+                self._owners = None
+            else:
+                self._owners = self.accessible_profiles
+        return self._owners
+
+    @property
     def verifier_accounts(self):
         """
         Returns accounts for which the `request.user` is listed as a verifier.
@@ -56,10 +75,6 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
         return self._verifier_accounts
 
     @property
-    def is_auditor(self):
-        return bool(self.verifier_accounts)
-
-    @property
     def visibility(self):
         if not hasattr(self, '_visibility'):
             if self.manages_broker:
@@ -67,15 +82,6 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
             else:
                 self._visibility = set(['public']) | self.accessible_plans
         return self._visibility
-
-    @property
-    def owners(self):
-        if not hasattr(self, '_owners'):
-            if self.manages_broker:
-                self._owners = None
-            else:
-                self._owners = self.accessible_profiles
-        return self._owners
 
 
 class AccountMixin(deployutils_mixins.AccountMixin):
