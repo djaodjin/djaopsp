@@ -1,163 +1,114 @@
 [
-{ "fields": {
-    "slug": "assessment",
-    "title": "Assessment",
-    "system": 3
-  },
-  "model" : "survey.unit", "pk": 1
-},
-{ "fields": {
-    "unit": 1,
-    "rank": 1,
-    "text": "Yes",
-    "descr": "The practice is implemented across all activities/services/products/offices/ facilities to which it could apply."
-  },
-  "model" : "survey.choice", "pk": 1
-},
-{ "fields": {
-    "unit": 1,
-    "rank": 2,
-    "text": "Mostly yes",
-    "descr": "The practice is implemented across roughly 50% OR MORE of the activities/services/products/offices/ facilities to which it could apply."
-  },
-  "model" : "survey.choice", "pk": 2
-},
-{ "fields": {
-    "unit": 1,
-    "rank": 3,
-    "text": "Mostly no",
-    "descr": "The practice is implemented across roughly 50% OR LESS of the activities/services/products/offices/ facilities to which it could apply."
-  },
-  "model" : "survey.choice", "pk": 3
-},
-{ "fields": {
-    "unit": 1,
-    "rank": 4,
-    "text": "No",
-    "descr": "The practice is implemented across negligible to no activities/services/products/offices/ facilities to which it could apply."
-  },
-  "model" : "survey.choice", "pk": 4
-},
-{ "fields": {
-    "unit": 1,
-    "rank": 5,
-    "text": "Not applicable",
-    "descr": "The practice is not applicable to the organization, or the organization has no influence or control over its implementation."
-  },
-  "model" : "survey.choice", "pk": 5
-},
-
-{ "fields": {
-    "slug": "points",
-    "title": "Points",
-    "system": 2
-  },
-  "model" : "survey.unit", "pk": 2
-},
-{ "fields": {
-    "slug": "freetext",
-    "title": "Free text",
-    "system": 4
-  },
-  "model" : "survey.unit", "pk": 3
-},
-
-{ "fields": {
-    "slug": "yes-no",
-    "title": "Yes/No",
-    "system": 3
-  },
-  "model" : "survey.unit", "pk": 4
-},
-{ "fields": {
-    "unit": 4,
-    "rank": 1,
-    "text": "Yes",
-    "descr": "Yes"
-  },
-  "model" : "survey.choice", "pk": 6
-},
-{ "fields": {
-    "unit": 4,
-    "rank": 1,
-    "text": "No",
-    "descr": "No"
-  },
-  "model" : "survey.choice", "pk": 7
-},
-
-{ "fields": {
-    "slug": "tons",
-    "title": "Metric Tons",
-    "system": 0
-  },
-  "model" : "survey.unit", "pk": 6
-},
-{ "fields": {
-    "slug": "lbs",
-    "title": "Pounds",
-    "system": 1
-  },
-  "model" : "survey.unit", "pk": 7
-},
-{ "fields": {
-    "slug": "framework",
-    "title": "Framework",
-    "system": 3
-  },
-  "model" : "survey.unit", "pk": 8
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 0,
-    "text": "Not addressed",
-    "descr": "Not yet considered"
-  },
-  "model" : "survey.choice", "pk": 10
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 1,
-    "text": "Initiating"
-  },
-  "model" : "survey.choice", "pk": 11
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 2,
-    "text": "Progressing"
-  },
-  "model" : "survey.choice", "pk": 12
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 3,
-    "text": "Optimizing"
-  },
-  "model" : "survey.choice", "pk": 13
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 4,
-    "text": "Leading"
-  },
-  "model" : "survey.choice", "pk": 14
-},
-{ "fields": {
-    "unit": 8,
-    "rank": 5,
-    "text": "Transforming"
-  },
-  "model" : "survey.choice", "pk": 15
-},
-
 {
   "fields": {
-    "slug": "person",
-    "title": "Person",
+    "slug": "usd",
+    "title": "USD",
     "system": 2
   },
-  "model": "survey.unit", "pk": 9
+  "model": "survey.unit", "pk": 191
+},
+{
+  "fields": {
+    "slug": "million-usd",
+    "title": "Million USD",
+    "system": 2
+  },
+  "model": "survey.unit", "pk": 192
+},
+{
+  "fields": {
+    "slug": "eur",
+    "title": "EUR",
+    "system": 2
+  },
+  "model": "survey.unit", "pk": 193
+},
+{
+  "fields": {
+    "slug": "million-eur",
+    "title": "Million EUR",
+    "system": 2
+  },
+  "model": "survey.unit", "pk": 194
+},
+{
+  "fields": {
+    "source": 191,
+    "target": 192
+  },
+  "model": "survey.unitequivalences", "pk": 500
+},
+{
+  "fields": {
+    "source": 191,
+    "target": 193
+  },
+  "model": "survey.unitequivalences", "pk": 501
+},
+{
+  "fields": {
+    "source": 191,
+    "target": 194
+  },
+  "model": "survey.unitequivalences", "pk": 502
+},
+{
+  "fields": {
+    "source": 192,
+    "target": 193
+  },
+  "model": "survey.unitequivalences", "pk": 503
+},
+{
+  "fields": {
+    "source": 192,
+    "target": 194
+  },
+  "model": "survey.unitequivalences", "pk": 504
+},
+{
+  "fields": {
+    "source": 193,
+    "target": 192
+  },
+  "model": "survey.unitequivalences", "pk": 505
+},
+{
+  "fields": {
+    "source": 193,
+    "target": 194
+  },
+  "model": "survey.unitequivalences", "pk": 506
+},
+{
+  "fields": {
+    "source": 194,
+    "target": 192
+  },
+  "model": "survey.unitequivalences", "pk": 507
+},
+{
+  "fields": {
+    "source": 194,
+    "target": 193
+  },
+  "model": "survey.unitequivalences", "pk": 508
+},
+
+
+{ "fields": {
+    "slug": "starts-at",
+    "title": "Starts at",
+    "system": 5
+  },
+  "model" : "survey.unit", "pk": 195
+},
+{ "fields": {
+    "slug": "ends-at",
+    "title": "Ends at",
+    "system": 5
+  },
+  "model" : "survey.unit", "pk": 196
 },
 {
   "fields": {
@@ -165,59 +116,188 @@
     "title": "Percentage",
     "system": 2
   },
-  "model": "survey.unit", "pk": 10
+  "model": "survey.unit", "pk": 197
 },
+{
+  "fields": {
+    "slug": "person",
+    "title": "Person",
+    "system": 2
+  },
+  "model": "survey.unit", "pk": 198
+},
+{ "fields": {
+    "slug": "freetext",
+    "title": "Free text",
+    "system": 4
+  },
+  "model" : "survey.unit", "pk": 199
+},
+{ "fields": {
+    "slug": "assessment",
+    "title": "Assessment",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk": 200
+},
+{ "fields": {
+    "unit": 200,
+    "rank": 1,
+    "text": "Yes",
+    "descr": "The practice is implemented across all activities/services/products/offices/ facilities to which it could apply."
+  },
+  "model" : "survey.choice", "pk": 1
+},
+{ "fields": {
+    "unit": 200,
+    "rank": 2,
+    "text": "Mostly yes",
+    "descr": "The practice is implemented across roughly 50% OR MORE of the activities/services/products/offices/ facilities to which it could apply."
+  },
+  "model" : "survey.choice", "pk": 2
+},
+{ "fields": {
+    "unit": 200,
+    "rank": 3,
+    "text": "Mostly no",
+    "descr": "The practice is implemented across roughly 50% OR LESS of the activities/services/products/offices/ facilities to which it could apply."
+  },
+  "model" : "survey.choice", "pk": 3
+},
+{ "fields": {
+    "unit": 200,
+    "rank": 4,
+    "text": "No",
+    "descr": "The practice is implemented across negligible to no activities/services/products/offices/ facilities to which it could apply."
+  },
+  "model" : "survey.choice", "pk": 4
+},
+{ "fields": {
+    "unit": 200,
+    "rank": 5,
+    "text": "Not applicable",
+    "descr": "The practice is not applicable to the organization, or the organization has no influence or control over its implementation."
+  },
+  "model" : "survey.choice", "pk": 5
+},
+{ "fields": {
+    "slug": "points",
+    "title": "Points",
+    "system": 2
+  },
+  "model" : "survey.unit", "pk": 201
+},
+{ "fields": {
+    "slug": "yes-no",
+    "title": "Yes/No",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk": 202
+},
+{ "fields": {
+    "unit": 202,
+    "rank": 1,
+    "text": "Yes",
+    "descr": "Yes"
+  },
+  "model" : "survey.choice", "pk": 6
+},
+{ "fields": {
+    "unit": 202,
+    "rank": 1,
+    "text": "No",
+    "descr": "No"
+  },
+  "model" : "survey.choice", "pk": 7
+},
+{ "fields": {
+    "slug": "framework",
+    "title": "Framework",
+    "system": 3
+  },
+  "model" : "survey.unit", "pk": 203
+},
+{ "fields": {
+    "unit": 203,
+    "rank": 0,
+    "text": "Not addressed",
+    "descr": "Not yet considered"
+  },
+  "model" : "survey.choice", "pk": 10
+},
+{ "fields": {
+    "unit": 203,
+    "rank": 1,
+    "text": "Initiating"
+  },
+  "model" : "survey.choice", "pk": 11
+},
+{ "fields": {
+    "unit": 203,
+    "rank": 2,
+    "text": "Progressing"
+  },
+  "model" : "survey.choice", "pk": 12
+},
+{ "fields": {
+    "unit": 203,
+    "rank": 3,
+    "text": "Optimizing"
+  },
+  "model" : "survey.choice", "pk": 13
+},
+{ "fields": {
+    "unit": 203,
+    "rank": 4,
+    "text": "Leading"
+  },
+  "model" : "survey.choice", "pk": 14
+},
+{ "fields": {
+    "unit": 203,
+    "rank": 5,
+    "text": "Transforming"
+  },
+  "model" : "survey.choice", "pk": 15
+},
+
 { "fields": {
     "slug": "target-type",
     "title": "Target type",
     "system": 3
   },
-  "model" : "survey.unit", "pk": 11
+  "model" : "survey.unit", "pk": 204
 },
 { "fields": {
-    "unit": 11,
+    "unit": 204,
     "rank": 1,
     "text": "Science-based"
   },
   "model" : "survey.choice", "pk": 16
 },
 { "fields": {
-    "unit": 11,
+    "unit": 204,
     "rank": 2,
     "text": "Net Zero"
   },
   "model" : "survey.choice", "pk": 17
 },
 { "fields": {
-    "unit": 11,
+    "unit": 204,
     "rank": 3,
     "text": "Other"
   },
   "model" : "survey.choice", "pk": 18
 },
 { "fields": {
-    "slug": "starts-at",
-    "title": "Starts at",
-    "system": 5
-  },
-  "model" : "survey.unit", "pk": 12
-},
-{ "fields": {
-    "slug": "ends-at",
-    "title": "Ends at",
-    "system": 5
-  },
-  "model" : "survey.unit", "pk": 13
-},
-{ "fields": {
     "slug": "verifiability",
     "title": "Verifiability",
     "system": 3
   },
-  "model" : "survey.unit", "pk": 14
+  "model" : "survey.unit", "pk": 205
 },
 { "fields": {
-    "unit": 14,
+    "unit": 205,
     "rank": 1,
     "text": "No Response",
     "descr": ""
@@ -225,7 +305,7 @@
   "model" : "survey.choice", "pk": 19
 },
 { "fields": {
-    "unit": 14,
+    "unit": 205,
     "rank": 2,
     "text": "Self-reported No",
     "descr": ""
@@ -233,7 +313,7 @@
   "model" : "survey.choice", "pk": 20
 },
 { "fields": {
-    "unit": 14,
+    "unit": 205,
     "rank": 4,
     "text": "Self-reported Yes > Unverifiable",
     "descr": ""
@@ -241,7 +321,7 @@
   "model" : "survey.choice", "pk": 22
 },
 { "fields": {
-    "unit": 14,
+    "unit": 205,
     "rank": 5,
     "text": "Self-reported Yes > Verifiable",
     "descr": ""
@@ -250,316 +330,14 @@
 },
 {
   "fields": {
-    "slug": "usd",
-    "title": "USD",
-    "system": 2
-  },
-  "model": "survey.unit", "pk": 32
-},
-{
-  "fields": {
-    "slug": "million-usd",
-    "title": "Million USD",
-    "system": 2
-  },
-  "model": "survey.unit", "pk": 33
-},
-{
-  "fields": {
-    "slug": "eur",
-    "title": "EUR",
-    "system": 2
-  },
-  "model": "survey.unit", "pk": 34
-},
-{
-  "fields": {
-    "slug": "million-eur",
-    "title": "Million EUR",
-    "system": 2
-  },
-  "model": "survey.unit", "pk": 35
-},
-{
-  "fields": {
-    "source": 32,
-    "target": 33
-  },
-  "model": "survey.unitequivalences", "pk": 1
-},
-{
-  "fields": {
-    "source": 32,
-    "target": 34
-  },
-  "model": "survey.unitequivalences", "pk": 2
-},
-{
-  "fields": {
-    "source": 32,
-    "target": 35
-  },
-  "model": "survey.unitequivalences", "pk": 3
-},
-{
-  "fields": {
-    "source": 33,
-    "target": 34
-  },
-  "model": "survey.unitequivalences", "pk": 4
-},
-{
-  "fields": {
-    "source": 33,
-    "target": 35
-  },
-  "model": "survey.unitequivalences", "pk": 5
-},
-{
-  "fields": {
-    "source": 34,
-    "target": 33
-  },
-  "model": "survey.unitequivalences", "pk": 6
-},
-{
-  "fields": {
-    "source": 34,
-    "target": 35
-  },
-  "model": "survey.unitequivalences", "pk": 7
-},
-{
-  "fields": {
-    "source": 35,
-    "target": 33
-  },
-  "model": "survey.unitequivalences", "pk": 8
-},
-{
-  "fields": {
-    "source": 35,
-    "target": 34
-  },
-  "model": "survey.unitequivalences", "pk": 9
-},
-
-{
-  "fields": {
-    "slug": "btu",
-    "title": "Btu",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 36
-},
-{
-  "fields": {
-    "slug": "mmbtu",
-    "title": "mmBtu",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 37
-},
-{
-  "fields": {
-    "slug": "therm",
-    "title": "Therm",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 38
-},
-{ "fields": {
-    "slug": "kwh",
-    "title": "Kilowatt-hour (kWh)",
-    "system": 0
-  },
-  "model" : "survey.unit", "pk": 39
-},
-{
-  "fields": {
-    "slug": "mwh",
-    "title": "Megawatt-hour (MWh)",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 40
-},
-{
-  "fields": {
-    "slug": "kj",
-    "title": "Kilo Joules (kJ)",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 41
-},
-{
-  "fields": {
-    "slug": "mj",
-    "title": "Mega Joules (MJ)",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 42
-},
-{
-  "fields": {
-    "slug": "gj",
-    "title": "Giga Joules (GJ)",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 43
-},
-
-{
-  "fields": {
-    "slug": "m3",
-    "title": "Cubic meters",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 44
-},
-{
-  "fields": {
-    "slug": "kiloliters",
-    "title": "Kilo liters",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 45
-},
-{ "fields": {
-    "slug": "gallons",
-    "title": "US Gallons",
-    "system": 1
-  },
-  "model" : "survey.unit", "pk": 46
-},
-{
-  "fields": {
-    "slug": "ft3",
-    "title": "Cubic feets",
-    "system": 1
-  },
-  "model": "survey.unit", "pk": 47
-},
-
-
-{ "fields": {
-    "slug": "tons-year",
-    "title": "Metric Tons in Period",
-    "system": 0
-  },
-  "model" : "survey.unit", "pk": 106
-},
-{ "fields": {
-    "slug": "lbs-year",
-    "title": "Pounds in Period",
-    "system": 1
-  },
-  "model" : "survey.unit", "pk": 107
-},
-{
-  "fields": {
-    "slug": "m3-year",
-    "title": "Cubic meters in Period",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 144
-},
-{
-  "fields": {
-    "slug": "kiloliters-year",
-    "title": "Kilo liters in Period",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 145
-},
-{ "fields": {
-    "slug": "gallons-year",
-    "title": "US Gallons in Period",
-    "system": 1
-  },
-  "model" : "survey.unit", "pk": 146
-},
-{
-  "fields": {
-    "slug": "ft3-year",
-    "title": "Cubic feets in Period",
-    "system": 1
-  },
-  "model": "survey.unit", "pk": 147
-},
-
-{
-  "fields": {
-    "slug": "btu-year",
-    "title": "Btu in Period",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 136
-},
-{
-  "fields": {
-    "slug": "mmbtu-year",
-    "title": "mmBtu in Period",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 137
-},
-{
-  "fields": {
-    "slug": "therm-year",
-    "title": "Therm in Period",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 138
-},
-{ "fields": {
-    "slug": "kwh-year",
-    "title": "Kilowatt-hour (kWh) in Period",
-    "system": 0
-  },
-  "model" : "survey.unit", "pk": 139
-},
-{
-  "fields": {
-    "slug": "mwh-year",
-    "title": "Megawatt-hour (MWh) in Period",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 140
-},
-{
-  "fields": {
-    "slug": "kj-year",
-    "title": "Kilo Joules (kJ) in Period",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 141
-},
-{
-  "fields": {
-    "slug": "mj-year",
-    "title": "Mega Joules (MJ) in Period",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 142
-},
-{
-  "fields": {
-    "slug": "gj-year",
-    "title": "Giga Joules (GJ) in Period",
-    "system": 0
-  },
-  "model": "survey.unit", "pk": 143
-},
-{
-  "fields": {
     "slug": "naics",
     "title": "NAICS code",
     "system": 3
   },
-  "model": "survey.unit", "pk": 144
+  "model": "survey.unit", "pk": 206
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 1,
     "text": "[11] Agriculture, Forestry, Fishing and Hunting",
     "descr": ""
@@ -567,7 +345,7 @@
   "model" : "survey.choice", "pk": 24
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 2,
     "text": "[21] Mining, Quarrying, and Oil and Gas Extraction",
     "descr": ""
@@ -575,7 +353,7 @@
   "model" : "survey.choice", "pk": 25
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 3,
     "text": "[22] Utilities",
     "descr": ""
@@ -583,7 +361,7 @@
   "model" : "survey.choice", "pk": 26
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 4,
     "text": "[23] Construction",
     "descr": ""
@@ -591,7 +369,7 @@
   "model" : "survey.choice", "pk": 27
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 5,
     "text": "[31-33] Manufacturing",
     "descr": ""
@@ -599,7 +377,7 @@
   "model" : "survey.choice", "pk": 28
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 6,
     "text": "[42] Wholesale Trade",
     "descr": ""
@@ -607,7 +385,7 @@
   "model" : "survey.choice", "pk": 29
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 7,
     "text": "[44-45] Retail Trade",
     "descr": ""
@@ -615,7 +393,7 @@
   "model" : "survey.choice", "pk": 30
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 8,
     "text": "[48-49] Transportation and Warehousing",
     "descr": ""
@@ -623,7 +401,7 @@
   "model" : "survey.choice", "pk": 31
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 9,
     "text": "[51] Information",
     "descr": ""
@@ -631,7 +409,7 @@
   "model" : "survey.choice", "pk": 32
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 10,
     "text": "[52] Finance and Insurance",
     "descr": ""
@@ -639,7 +417,7 @@
   "model" : "survey.choice", "pk": 33
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 11,
     "text": "[53] Real Estate and Rental and Leasing",
     "descr": ""
@@ -647,7 +425,7 @@
   "model" : "survey.choice", "pk": 34
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 12,
     "text": "[54] Professional, Scientific, and Technical Services",
     "descr": ""
@@ -655,7 +433,7 @@
   "model" : "survey.choice", "pk": 35
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 13,
     "text": "[55] Management of Companies and Enterprises",
     "descr": ""
@@ -663,7 +441,7 @@
   "model" : "survey.choice", "pk": 36
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 14,
     "text": "[56] Administrative and Support and Waste Management and Remediation Services",
     "descr": ""
@@ -671,7 +449,7 @@
   "model" : "survey.choice", "pk": 37
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 15,
     "text": "[61] Educational Services",
     "descr": ""
@@ -679,7 +457,7 @@
   "model" : "survey.choice", "pk": 38
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 16,
     "text": "[62] Health Care and Social Assistance",
     "descr": ""
@@ -687,7 +465,7 @@
   "model" : "survey.choice", "pk": 39
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 17,
     "text": "[71] Arts, Entertainment, and Recreation",
     "descr": ""
@@ -695,7 +473,7 @@
   "model" : "survey.choice", "pk": 40
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 18,
     "text": "[72] Accommodation and Food Services",
     "descr": ""
@@ -703,7 +481,7 @@
   "model" : "survey.choice", "pk": 41
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 19,
     "text": "[81] Other Services (except Public Administration)",
     "descr": ""
@@ -711,7 +489,7 @@
   "model" : "survey.choice", "pk": 42
 },
 { "fields": {
-    "unit": 144,
+    "unit": 206,
     "rank": 20,
     "text": "[92] Public Administration",
     "descr": ""
@@ -724,792 +502,37 @@
     "title": "Information collected by the verifier AI",
     "system": 4
   },
-  "model": "survey.unit", "pk": 145
+  "model": "survey.unit", "pk": 207
 },
 
-{
-"fields": {
-"source": 6,
-"target": 7
-},
-"model": "survey.unitequivalences", "pk": 10
-},
-{
-"fields": {
-"source": 7,
-"target": 6
-},
-"model": "survey.unitequivalences", "pk": 11
-},
-{
-"fields": {
-"source": 44,
-"target": 45
-},
-"model": "survey.unitequivalences", "pk": 12
-},
-{
-"fields": {
-"source": 44,
-"target": 47
-},
-"model": "survey.unitequivalences", "pk": 13
-},
-{
-"fields": {
-"source": 44,
-"target": 46
-},
-"model": "survey.unitequivalences", "pk": 14
-},
-{
-"fields": {
-"source": 45,
-"target": 44
-},
-"model": "survey.unitequivalences", "pk": 15
-},
-{
-"fields": {
-"source": 45,
-"target": 47
-},
-"model": "survey.unitequivalences", "pk": 16
-},
-{
-"fields": {
-"source": 45,
-"target": 46
-},
-"model": "survey.unitequivalences", "pk": 17
-},
-{
-"fields": {
-"source": 47,
-"target": 44
-},
-"model": "survey.unitequivalences", "pk": 18
-},
-{
-"fields": {
-"source": 47,
-"target": 45
-},
-"model": "survey.unitequivalences", "pk": 19
-},
-{
-"fields": {
-"source": 47,
-"target": 46
-},
-"model": "survey.unitequivalences", "pk": 20
-},
-{
-"fields": {
-"source": 46,
-"target": 44
-},
-"model": "survey.unitequivalences", "pk": 21
-},
-{
-"fields": {
-"source": 46,
-"target": 45
-},
-"model": "survey.unitequivalences", "pk": 22
-},
-{
-"fields": {
-"source": 46,
-"target": 47
-},
-"model": "survey.unitequivalences", "pk": 23
-},
-{
-"fields": {
-"source": 36,
-"target": 37
-},
-"model": "survey.unitequivalences", "pk": 24
-},
-{
-"fields": {
-"source": 36,
-"target": 39
-},
-"model": "survey.unitequivalences", "pk": 25
-},
-{
-"fields": {
-"source": 36,
-"target": 40
-},
-"model": "survey.unitequivalences", "pk": 26
-},
-{
-"fields": {
-"source": 36,
-"target": 41
-},
-"model": "survey.unitequivalences", "pk": 27
-},
-{
-"fields": {
-"source": 36,
-"target": 42
-},
-"model": "survey.unitequivalences", "pk": 28
-},
-{
-"fields": {
-"source": 36,
-"target": 43
-},
-"model": "survey.unitequivalences", "pk": 29
-},
-{
-"fields": {
-"source": 37,
-"target": 36
-},
-"model": "survey.unitequivalences", "pk": 30
-},
-{
-"fields": {
-"source": 37,
-"target": 39
-},
-"model": "survey.unitequivalences", "pk": 31
-},
-{
-"fields": {
-"source": 37,
-"target": 40
-},
-"model": "survey.unitequivalences", "pk": 32
-},
-{
-"fields": {
-"source": 37,
-"target": 41
-},
-"model": "survey.unitequivalences", "pk": 33
-},
-{
-"fields": {
-"source": 37,
-"target": 42
-},
-"model": "survey.unitequivalences", "pk": 34
-},
-{
-"fields": {
-"source": 37,
-"target": 43
-},
-"model": "survey.unitequivalences", "pk": 35
-},
-{
-"fields": {
-"source": 39,
-"target": 36
-},
-"model": "survey.unitequivalences", "pk": 36
-},
-{
-"fields": {
-"source": 39,
-"target": 37
-},
-"model": "survey.unitequivalences", "pk": 37
-},
-{
-"fields": {
-"source": 39,
-"target": 40
-},
-"model": "survey.unitequivalences", "pk": 38
-},
-{
-"fields": {
-"source": 39,
-"target": 41
-},
-"model": "survey.unitequivalences", "pk": 39
-},
-{
-"fields": {
-"source": 39,
-"target": 42
-},
-"model": "survey.unitequivalences", "pk": 40
-},
-{
-"fields": {
-"source": 39,
-"target": 43
-},
-"model": "survey.unitequivalences", "pk": 41
-},
-{
-"fields": {
-"source": 40,
-"target": 36
-},
-"model": "survey.unitequivalences", "pk": 42
-},
-{
-"fields": {
-"source": 40,
-"target": 37
-},
-"model": "survey.unitequivalences", "pk": 43
-},
-{
-"fields": {
-"source": 40,
-"target": 39
-},
-"model": "survey.unitequivalences", "pk": 44
-},
-{
-"fields": {
-"source": 40,
-"target": 41
-},
-"model": "survey.unitequivalences", "pk": 45
-},
-{
-"fields": {
-"source": 40,
-"target": 42
-},
-"model": "survey.unitequivalences", "pk": 46
-},
-{
-"fields": {
-"source": 40,
-"target": 43
-},
-"model": "survey.unitequivalences", "pk": 47
-},
-{
-"fields": {
-"source": 41,
-"target": 36
-},
-"model": "survey.unitequivalences", "pk": 48
-},
-{
-"fields": {
-"source": 41,
-"target": 37
-},
-"model": "survey.unitequivalences", "pk": 49
-},
-{
-"fields": {
-"source": 41,
-"target": 39
-},
-"model": "survey.unitequivalences", "pk": 50
-},
-{
-"fields": {
-"source": 41,
-"target": 40
-},
-"model": "survey.unitequivalences", "pk": 51
-},
-{
-"fields": {
-"source": 41,
-"target": 42
-},
-"model": "survey.unitequivalences", "pk": 52
-},
-{
-"fields": {
-"source": 41,
-"target": 43
-},
-"model": "survey.unitequivalences", "pk": 53
-},
-{
-"fields": {
-"source": 42,
-"target": 36
-},
-"model": "survey.unitequivalences", "pk": 54
-},
-{
-"fields": {
-"source": 42,
-"target": 37
-},
-"model": "survey.unitequivalences", "pk": 55
-},
-{
-"fields": {
-"source": 42,
-"target": 39
-},
-"model": "survey.unitequivalences", "pk": 56
-},
-{
-"fields": {
-"source": 42,
-"target": 40
-},
-"model": "survey.unitequivalences", "pk": 57
-},
-{
-"fields": {
-"source": 42,
-"target": 41
-},
-"model": "survey.unitequivalences", "pk": 58
-},
-{
-"fields": {
-"source": 42,
-"target": 43
-},
-"model": "survey.unitequivalences", "pk": 59
-},
-{
-"fields": {
-"source": 43,
-"target": 36
-},
-"model": "survey.unitequivalences", "pk": 60
-},
-{
-"fields": {
-"source": 43,
-"target": 37
-},
-"model": "survey.unitequivalences", "pk": 61
-},
-{
-"fields": {
-"source": 43,
-"target": 39
-},
-"model": "survey.unitequivalences", "pk": 62
-},
-{
-"fields": {
-"source": 43,
-"target": 40
-},
-"model": "survey.unitequivalences", "pk": 63
-},
-{
-"fields": {
-"source": 43,
-"target": 41
-},
-"model": "survey.unitequivalences", "pk": 64
-},
-{
-"fields": {
-"source": 43,
-"target": 42
-},
-"model": "survey.unitequivalences", "pk": 65
-},
-{
-"fields": {
-"source": 106,
-"target": 107
-},
-"model": "survey.unitequivalences", "pk": 66
-},
-{
-"fields": {
-"source": 107,
-"target": 106
-},
-"model": "survey.unitequivalences", "pk": 67
-},
-{
-"fields": {
-"source": 144,
-"target": 145
-},
-"model": "survey.unitequivalences", "pk": 68
-},
-{
-"fields": {
-"source": 144,
-"target": 147
-},
-"model": "survey.unitequivalences", "pk": 69
-},
-{
-"fields": {
-"source": 144,
-"target": 146
-},
-"model": "survey.unitequivalences", "pk": 70
-},
-{
-"fields": {
-"source": 145,
-"target": 144
-},
-"model": "survey.unitequivalences", "pk": 71
-},
-{
-"fields": {
-"source": 145,
-"target": 147
-},
-"model": "survey.unitequivalences", "pk": 72
-},
-{
-"fields": {
-"source": 145,
-"target": 146
-},
-"model": "survey.unitequivalences", "pk": 73
-},
-{
-"fields": {
-"source": 147,
-"target": 144
-},
-"model": "survey.unitequivalences", "pk": 74
-},
-{
-"fields": {
-"source": 147,
-"target": 145
-},
-"model": "survey.unitequivalences", "pk": 75
-},
-{
-"fields": {
-"source": 147,
-"target": 146
-},
-"model": "survey.unitequivalences", "pk": 76
-},
-{
-"fields": {
-"source": 146,
-"target": 144
-},
-"model": "survey.unitequivalences", "pk": 77
-},
-{
-"fields": {
-"source": 146,
-"target": 145
-},
-"model": "survey.unitequivalences", "pk": 78
-},
-{
-"fields": {
-"source": 146,
-"target": 147
-},
-"model": "survey.unitequivalences", "pk": 79
-},
-{
-"fields": {
-"source": 136,
-"target": 137
-},
-"model": "survey.unitequivalences", "pk": 80
-},
-{
-"fields": {
-"source": 136,
-"target": 139
-},
-"model": "survey.unitequivalences", "pk": 81
-},
-{
-"fields": {
-"source": 136,
-"target": 140
-},
-"model": "survey.unitequivalences", "pk": 82
-},
-{
-"fields": {
-"source": 136,
-"target": 141
-},
-"model": "survey.unitequivalences", "pk": 83
-},
-{
-"fields": {
-"source": 136,
-"target": 142
-},
-"model": "survey.unitequivalences", "pk": 84
-},
-{
-"fields": {
-"source": 136,
-"target": 143
-},
-"model": "survey.unitequivalences", "pk": 85
-},
-{
-"fields": {
-"source": 137,
-"target": 136
-},
-"model": "survey.unitequivalences", "pk": 86
-},
-{
-"fields": {
-"source": 137,
-"target": 139
-},
-"model": "survey.unitequivalences", "pk": 87
-},
-{
-"fields": {
-"source": 137,
-"target": 140
-},
-"model": "survey.unitequivalences", "pk": 88
-},
-{
-"fields": {
-"source": 137,
-"target": 141
-},
-"model": "survey.unitequivalences", "pk": 89
-},
-{
-"fields": {
-"source": 137,
-"target": 142
-},
-"model": "survey.unitequivalences", "pk": 90
-},
-{
-"fields": {
-"source": 137,
-"target": 143
-},
-"model": "survey.unitequivalences", "pk": 91
-},
-{
-"fields": {
-"source": 139,
-"target": 136
-},
-"model": "survey.unitequivalences", "pk": 92
-},
-{
-"fields": {
-"source": 139,
-"target": 137
-},
-"model": "survey.unitequivalences", "pk": 93
-},
-{
-"fields": {
-"source": 139,
-"target": 140
-},
-"model": "survey.unitequivalences", "pk": 94
-},
-{
-"fields": {
-"source": 139,
-"target": 141
-},
-"model": "survey.unitequivalences", "pk": 95
-},
-{
-"fields": {
-"source": 139,
-"target": 142
-},
-"model": "survey.unitequivalences", "pk": 96
-},
-{
-"fields": {
-"source": 139,
-"target": 143
-},
-"model": "survey.unitequivalences", "pk": 97
-},
-{
-"fields": {
-"source": 140,
-"target": 136
-},
-"model": "survey.unitequivalences", "pk": 98
-},
-{
-"fields": {
-"source": 140,
-"target": 137
-},
-"model": "survey.unitequivalences", "pk": 99
-},
-{
-"fields": {
-"source": 140,
-"target": 139
-},
-"model": "survey.unitequivalences", "pk": 100
-},
-{
-"fields": {
-"source": 140,
-"target": 141
-},
-"model": "survey.unitequivalences", "pk": 101
-},
-{
-"fields": {
-"source": 140,
-"target": 142
-},
-"model": "survey.unitequivalences", "pk": 102
-},
-{
-"fields": {
-"source": 140,
-"target": 143
-},
-"model": "survey.unitequivalences", "pk": 103
-},
-{
-"fields": {
-"source": 141,
-"target": 136
-},
-"model": "survey.unitequivalences", "pk": 104
-},
-{
-"fields": {
-"source": 141,
-"target": 137
-},
-"model": "survey.unitequivalences", "pk": 105
-},
-{
-"fields": {
-"source": 141,
-"target": 139
-},
-"model": "survey.unitequivalences", "pk": 106
-},
-{
-"fields": {
-"source": 141,
-"target": 140
-},
-"model": "survey.unitequivalences", "pk": 107
-},
-{
-"fields": {
-"source": 141,
-"target": 142
-},
-"model": "survey.unitequivalences", "pk": 108
-},
-{
-"fields": {
-"source": 141,
-"target": 143
-},
-"model": "survey.unitequivalences", "pk": 109
-},
-{
-"fields": {
-"source": 142,
-"target": 136
-},
-"model": "survey.unitequivalences", "pk": 110
-},
-{
-"fields": {
-"source": 142,
-"target": 137
-},
-"model": "survey.unitequivalences", "pk": 111
-},
-{
-"fields": {
-"source": 142,
-"target": 139
-},
-"model": "survey.unitequivalences", "pk": 112
-},
-{
-"fields": {
-"source": 142,
-"target": 140
-},
-"model": "survey.unitequivalences", "pk": 113
-},
-{
-"fields": {
-"source": 142,
-"target": 141
-},
-"model": "survey.unitequivalences", "pk": 114
-},
-{
-"fields": {
-"source": 142,
-"target": 143
-},
-"model": "survey.unitequivalences", "pk": 115
-},
-{
-"fields": {
-"source": 143,
-"target": 136
-},
-"model": "survey.unitequivalences", "pk": 116
-},
-{
-"fields": {
-"source": 143,
-"target": 137
-},
-"model": "survey.unitequivalences", "pk": 117
-},
-{
-"fields": {
-"source": 143,
-"target": 139
-},
-"model": "survey.unitequivalences", "pk": 118
-},
-{
-"fields": {
-"source": 143,
-"target": 140
-},
-"model": "survey.unitequivalences", "pk": 119
-},
-{
-"fields": {
-"source": 143,
-"target": 141
-},
-"model": "survey.unitequivalences", "pk": 120
-},
-{
-"fields": {
-"source": 143,
-"target": 142
-},
-"model": "survey.unitequivalences", "pk": 121
+
+{ "fields": {
+    "slug": "tons-year",
+    "title": "Metric Tons in Period",
+    "system": 0
+  },
+  "model" : "survey.unit", "pk": 220
+},
+{ "fields": {
+    "slug": "lbs-year",
+    "title": "Pounds in Period",
+    "system": 1
+  },
+  "model" : "survey.unit", "pk": 221
+},
+{ "fields": {
+    "slug": "gallons-year",
+    "title": "US Gallons in Period",
+    "system": 1
+  },
+  "model" : "survey.unit", "pk": 222
+},
+{ "fields": {
+    "slug": "kwh-year",
+    "title": "Kilowatt-hour (kWh) in Period",
+    "system": 0
+  },
+  "model" : "survey.unit", "pk": 223
 },
 
 { "fields" : {
@@ -2852,7 +1875,7 @@
     "title": "Scope 3 reporting",
     "slug": "ghg-emissions-scope3-details",
     "account": 2,
-    "extra": "{\"tags\":[\"data-metrics-header\"]}"
+    "extra": ""
   },
   "model": "pages.PageElement", "pk": 90
 },

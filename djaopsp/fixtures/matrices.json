@@ -49,7 +49,7 @@
     "slug": "ghg-emissions",
     "title": "GHG Emissions",
     "account": 6,
-    "extra": "{\"path\":\"/sustainability/data-measured/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1\"}"
+    "extra": "{\"path\":\"/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-measured/ghg-emissions-scope1\"}"
   },
   "model": "survey.editablefilter", "pk": 15
 },

@@ -306,22 +306,22 @@ class TrackMetricsView(AccountMixin, TemplateView):
         metric = self.kwargs.get('metric')
         #pylint:disable=line-too-long
         if metric == 'energy-ghg-emissions':
-            self.get_editable_filter_context(context, '/sustainability/data-measured/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1',
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-measured/ghg-emissions-scope1',
                     title='Scope1 Stationary Combustion')
-            self.get_editable_filter_context(context, '/sustainability/data-measured/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1',
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-measured/ghg-emissions-scope1',
                     title='Scope1 Mobile Combustion')
-            self.get_editable_filter_context(context, '/sustainability/data-measured/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope1',
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-measured/ghg-emissions-scope1',
                     title='Scope1 Refrigerants')
-            self.get_editable_filter_context(context, '/sustainability/data-measured/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope2')
-            self.get_editable_filter_context(context, '/sustainability/data-measured/ghg-emissions-measured/ghg-emissions-totals/ghg-emissions-scope3')
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-measured/ghg-emissions-scope2')
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/ghg-emissions-scope3')
         elif metric == 'waste':
-            self.get_editable_filter_context(context, '/sustainability/data-measured/waste-measured/hazardous-waste')
-            self.get_editable_filter_context(context, '/sustainability/data-measured/waste-measured/non-hazardous-waste')
-            self.get_editable_filter_context(context, '/sustainability/data-measured/waste-measured/waste-recycled')
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/waste-reporting/waste-measured/hazardous-waste')
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/waste-reporting/waste-measured/non-hazardous-waste')
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/waste-reporting/waste-measured/waste-recycled')
         elif metric == 'water':
-            self.get_editable_filter_context(context, '/sustainability/data-measured/water-measured/water-withdrawn')
-            self.get_editable_filter_context(context, '/sustainability/data-measured/water-measured/water-discharged')
-            self.get_editable_filter_context(context, '/sustainability/data-measured/water-measured/water-recycled')
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/water-reporting/water-measured/water-withdrawn')
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/water-reporting/water-measured/water-discharged')
+            self.get_editable_filter_context(context, '/sustainability/environmental-reporting/water-reporting/water-measured/water-recycled')
         return context
 
 

@@ -87,7 +87,7 @@ def get_account_model():
 " that has not been installed" % settings.ACCOUNT_MODEL)
 
 
-def is_portfolios_bypass(account):
+def is_portfolios_bypass(account, request=None):
     """
     Returns `True` if the account can access samples regardless
     of portfolio rules.

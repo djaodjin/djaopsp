@@ -102,6 +102,8 @@ initdb:
 	$(installDirs) $(dir $(DB_FILENAME))
 	cd $(srcDir) && $(MANAGE) migrate $(RUNSYNCDB) --noinput
 	cd $(srcDir) && $(MANAGE) loadfixtures $(EMAIL_FIXTURE_OPT) \
+		djaopsp/fixtures/engineering-si-units.json \
+		djaopsp/fixtures/engineering-alt-units.json \
 		djaopsp/fixtures/accounts.json \
 		djaopsp/fixtures/content.json \
 		djaopsp/fixtures/practices.json \

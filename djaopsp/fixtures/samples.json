@@ -1,4 +1,16 @@
-[{
+[
+{
+  "fields": {
+    "slug": "4c6675a5d5af46c796b8033a7731a86e",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "campaign": 1,
+    "account": 6,
+    "is_frozen": false
+  },
+  "model": "survey.sample", "pk": 1
+},
+{
   "fields": {
     "slug": "dda134c8b4da487da9169e771794deed",
     "created_at": "2021-07-15T00:00:00Z",
@@ -13,7 +25,7 @@
   "fields": {
     "created_at": "2022-09-01T00:00:00Z",
     "question": 206,
-    "unit": 2,
+    "unit": 201,
     "sample": 4,
     "measured": 4,
     "denominator": 4,
@@ -25,7 +37,7 @@
   "fields": {
     "created_at": "2022-09-01T00:00:00Z",
     "question": 206,
-    "unit": 1,
+    "unit": 200,
     "sample": 4,
     "measured": 1,
     "collected_by": 8
@@ -68,7 +80,7 @@
   "fields": {
     "created_at": "2022-09-01T00:00:00Z",
     "question": 4,
-    "unit": 4,
+    "unit": 202,
     "sample": 6,
     "measured": 6,
     "collected_by": 8
@@ -79,7 +91,7 @@
   "fields": {
     "created_at": "2022-09-01T00:00:00Z",
     "question": 206,
-    "unit": 1,
+    "unit": 200,
     "sample": 6,
     "measured": 1,
     "collected_by": 8
