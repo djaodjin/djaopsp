@@ -11,7 +11,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000005,
     ar4_factor: 0.473987,
     ar5_factor: 0.473934,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "akms": {
@@ -21,7 +21,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000002,
     ar4_factor: 0.238986,
     ar5_factor: 0.238959,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "aznm": {
@@ -31,7 +31,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000005,
     ar4_factor: 0.466092,
     ar5_factor: 0.466033,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "camx": {
@@ -41,7 +41,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000002,
     ar4_factor: 0.226151,
     ar5_factor: 0.226138,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "erct": {
@@ -51,7 +51,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000004,
     ar4_factor: 0.424564,
     ar5_factor: 0.424519,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "frcc": {
@@ -61,7 +61,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000004,
     ar4_factor: 0.424641,
     ar5_factor: 0.424596,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "hims": {
@@ -71,7 +71,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000008,
     ar4_factor: 0.507571,
     ar5_factor: 0.507462,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "hioa": {
@@ -81,7 +81,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000012,
     ar4_factor: 0.763164,
     ar5_factor: 0.763005,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "mroe": {
@@ -91,7 +91,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000011,
     ar4_factor: 0.766431,
     ar5_factor: 0.766287,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "mrow": {
@@ -101,7 +101,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000009,
     ar4_factor: 0.566654,
     ar5_factor: 0.566542,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "newe": {
@@ -111,7 +111,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000005,
     ar4_factor: 0.239333,
     ar5_factor: 0.239280,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "nwpp": {
@@ -121,7 +121,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000004,
     ar4_factor: 0.291805,
     ar5_factor: 0.291757,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "nycw": {
@@ -131,7 +131,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000001,
     ar4_factor: 0.271184,
     ar5_factor: 0.271169,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "nyli": {
@@ -141,7 +141,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000008,
     ar4_factor: 0.541172,
     ar5_factor: 0.541092,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "nyup": {
@@ -151,7 +151,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000001,
     ar4_factor: 0.115284,
     ar5_factor: 0.115279,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "rfce": {
@@ -161,7 +161,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000004,
     ar4_factor: 0.326530,
     ar5_factor: 0.326493,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "rfcm": {
@@ -171,7 +171,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000008,
     ar4_factor: 0.599263,
     ar5_factor: 0.599169,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "rfcw": {
@@ -181,7 +181,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000008,
     ar4_factor: 0.532557,
     ar5_factor: 0.532462,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "rmpa": {
@@ -191,7 +191,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000008,
     ar4_factor: 0.581530,
     ar5_factor: 0.581428,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "spno": {
@@ -201,7 +201,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000008,
     ar4_factor: 0.531452,
     ar5_factor: 0.531351,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "spso": {
@@ -211,7 +211,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000006,
     ar4_factor: 0.531942,
     ar5_factor: 0.531871,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "srmv": {
@@ -221,7 +221,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000004,
     ar4_factor: 0.389366,
     ar5_factor: 0.389321,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "srmw": {
@@ -231,7 +231,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000012,
     ar4_factor: 0.760593,
     ar5_factor: 0.760441,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "srso": {
@@ -241,7 +241,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000005,
     ar4_factor: 0.468801,
     ar5_factor: 0.468731,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "srtv": {
@@ -251,7 +251,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000006,
     ar4_factor: 0.470890,
     ar5_factor: 0.470812,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "srvc": {
@@ -261,7 +261,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000004,
     ar4_factor: 0.339144,
     ar5_factor: 0.339101,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx"
   },
   "us": {
@@ -271,7 +271,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000005,
     ar4_factor: 0.432220,
     ar5_factor: 0.432157,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories,\" Table 6 Electricity, March 9, 2018. From EPA eGRID2016, February 2018. (https://www.epa.gov/sites/production/files/2020-01/egrid2018_summary_tables.xlsx)"
   },
   "ca": {
@@ -281,7 +281,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.130000,
     ar5_factor: 0.130000,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "newfoundland-and-labrador": {
@@ -291,7 +291,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000001,
     ar4_factor: 0.040313,
     ar5_factor: 0.040282,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "prince-edward-island": {
@@ -301,7 +301,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.014072,
     ar5_factor: 0.014067,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "nova-scotia": {
@@ -311,7 +311,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000010,
     ar4_factor: 0.673730,
     ar5_factor: 0.673490,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "new-brunswick": {
@@ -321,7 +321,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000004,
     ar4_factor: 0.311692,
     ar5_factor: 0.311620,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "quebec": {
@@ -331,7 +331,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.001230,
     ar5_factor: 0.001226,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "ontario": {
@@ -341,7 +341,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000001,
     ar4_factor: 0.017298,
     ar5_factor: 0.017265,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "manitoba": {
@@ -351,7 +351,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.001932,
     ar5_factor: 0.001929,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "saskatchewan": {
@@ -361,7 +361,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000020,
     ar4_factor: 0.657210,
     ar5_factor: 0.656700,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "alberta": {
@@ -371,7 +371,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000010,
     ar4_factor: 0.753980,
     ar5_factor: 0.753770,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "british-columbia": {
@@ -381,7 +381,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000001,
     ar4_factor: 0.009284,
     ar5_factor: 0.009269,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "yukon": {
@@ -391,7 +391,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000010,
     ar4_factor: 0.051080,
     ar5_factor: 0.050762,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "northwest-territories-and-nunavut": {
@@ -401,7 +401,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000020,
     ar4_factor: 0.176210,
     ar5_factor: 0.175580,
-    unit: "kwh",
+    unit: "kWh",
     source: "Canada NIR 2018 - https://unfccc.int/documents/65715 - (part 3, from various tables for each region)"
   },
   "new-south-wales-and-act": {
@@ -411,7 +411,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.810000,
     ar5_factor: 0.810000,
-    unit: "kwh",
+    unit: "kWh",
     source: "Department of the Environment and Energy, Australian National Greenhouse Accounts, National Greenhouse Accounts Factors, August 2019"
   },
   "victoria": {
@@ -421,7 +421,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 1.020000,
     ar5_factor: 1.020000,
-    unit: "kwh",
+    unit: "kWh",
     source: "Department of the Environment and Energy, Australian National Greenhouse Accounts, National Greenhouse Accounts Factors, August 2020"
   },
   "queensland": {
@@ -431,7 +431,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.810000,
     ar5_factor: 0.810000,
-    unit: "kwh",
+    unit: "kWh",
     source: "Department of the Environment and Energy, Australian National Greenhouse Accounts, National Greenhouse Accounts Factors, August 2021"
   },
   "south-australia": {
@@ -441,7 +441,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.440000,
     ar5_factor: 0.440000,
-    unit: "kwh",
+    unit: "kWh",
     source: "Department of the Environment and Energy, Australian National Greenhouse Accounts, National Greenhouse Accounts Factors, August 2022"
   },
   "swis-in-western-australia": {
@@ -451,7 +451,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.690000,
     ar5_factor: 0.690000,
-    unit: "kwh",
+    unit: "kWh",
     source: "Department of the Environment and Energy, Australian National Greenhouse Accounts, National Greenhouse Accounts Factors, August 2023"
   },
   "tasmania": {
@@ -461,7 +461,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.150000,
     ar5_factor: 0.150000,
-    unit: "kwh",
+    unit: "kWh",
     source: "Department of the Environment and Energy, Australian National Greenhouse Accounts, National Greenhouse Accounts Factors, August 2024"
   },
   "northern-territory": {
@@ -471,7 +471,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.630000,
     ar5_factor: 0.630000,
-    unit: "kwh",
+    unit: "kWh",
     source: "Department of the Environment and Energy, Australian National Greenhouse Accounts, National Greenhouse Accounts Factors, August 2025"
   },
   "north-china-grid": {
@@ -481,7 +481,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.968000,
     ar5_factor: 0.968000,
-    unit: "kwh",
+    unit: "kWh",
     source: ""
   },
   "china-northeast-grid": {
@@ -491,7 +491,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 1.108200,
     ar5_factor: 1.108200,
-    unit: "kwh",
+    unit: "kWh",
     source: ""
   },
   "east-china-grid": {
@@ -501,7 +501,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.804600,
     ar5_factor: 0.804600,
-    unit: "kwh",
+    unit: "kWh",
     source: ""
   },
   "central-china-grid": {
@@ -511,7 +511,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.901400,
     ar5_factor: 0.901400,
-    unit: "kwh",
+    unit: "kWh",
     source: ""
   },
   "china-northwest-grid": {
@@ -521,7 +521,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.915500,
     ar5_factor: 0.915500,
-    unit: "kwh",
+    unit: "kWh",
     source: ""
   },
   "china-southern-grid": {
@@ -531,7 +531,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.836700,
     ar5_factor: 0.836700,
-    unit: "kwh",
+    unit: "kWh",
     source: ""
   },
   "hainan-province-china-power-grid": {
@@ -541,7 +541,7 @@ Vue.prototype.$ef_grid_region_location_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.000000,
     ar5_factor: 0.000000,
-    unit: "kwh",
+    unit: "kWh",
     source: ""
   }
 };

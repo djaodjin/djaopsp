@@ -268,7 +268,7 @@ class GHGEmissionsRateAPIView(GHGEmissionsRateMixin, generics.RetrieveAPIView):
 class GHGEmissionsAmountMixin(DashboardAggregateMixin):
 
     title = "GHG emissions reported"
-    default_unit = 'tons'
+    default_unit = "t"
     valid_units = []
 
     def construct_yearly_periods(self, first_date=None, last_date=None,
@@ -399,7 +399,7 @@ class GHGEmissionsAmountAPIView(GHGEmissionsAmountMixin,
         {
           "title":  "GHG emissions reported",
           "scale": 1,
-          "unit": "tons",
+          "unit": "t",
           "results":[{
             "slug": "energy-utility",
             "printable_name": "Energy utility",

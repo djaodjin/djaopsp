@@ -14,7 +14,7 @@ Vue.prototype.$ef_mobile_combustion = {
     biogenic_co2_factor: 0.000000,
     ar4_factor: 0.000000,
     ar5_factor: 0.000000,
-    unit: "kwh",
+    unit: "kWh",
     source: "EPA, \"Emission Factors for Greenhouse Gas Inventories\", March 9, 2018 (https://www.epa.gov/climateleadership/center-corporate-climate-leadership-ghg-emission-factors-hub); WRI, GHG Protocol - Emission Factors from Cross-Sector Tools, April 2014"
   },
   "motor-gasoline-gasoline-passenger-cars": {

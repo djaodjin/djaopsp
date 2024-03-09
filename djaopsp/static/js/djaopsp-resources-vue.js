@@ -1,4 +1,4 @@
-// Copyright (c) 2023, DjaoDjin inc.
+// Copyright (c) 2024, DjaoDjin inc.
 // see LICENSE.
 
 // This file contains mixins to display formatted lists of questions.
@@ -519,25 +519,25 @@ var practicesListMixin = {
                 unit === 'gallons-year';
             } else if( default_unit === 'btu' ||
                 default_unit === 'mmbtu' ||
-                default_unit === 'kwh' ||
+                default_unit === 'kWh' ||
                 default_unit === 'mwh' ||
                 default_unit === 'kj' ||
                 default_unit === 'mj' ||
                 default_unit === 'gj' ) {
                 return unit === 'btu' ||
                     unit === 'mmbtu' ||
-                    unit === 'kwh' ||
+                    unit === 'kWh' ||
                     unit === 'mwh' ||
                     unit === 'kj' ||
                     unit === 'mj' ||
                     unit === 'gj';
-            } else if( default_unit === 'tons' ||
+            } else if( default_unit === 't' ||
                 default_unit === 'lbs' ||
                 default_unit === 'm3' ||
                 default_unit === 'kiloliters' ||
                 default_unit === 'ft3' ||
                 default_unit === 'gallons' ) {
-                return unit === 'tons' ||
+                return unit === 't' ||
                 unit === 'lbs' ||
                 unit === 'm3' ||
                 unit === 'kiloliters' ||

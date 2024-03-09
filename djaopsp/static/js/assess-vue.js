@@ -1,4 +1,4 @@
-// Copyright (c) 2023, DjaoDjin inc.
+// Copyright (c) 2024, DjaoDjin inc.
 // see LICENSE.
 
 // This file contains UI elements used during survey/assessment (data input).
@@ -1261,18 +1261,18 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
             // conversion of Mass units
             const unitEquivMass = {
                 'kg_to_lb': 2.20462262,
-                'kg_to_tons': 0.001,
+                'kg_to_t': 0.001,
 
                 'lb_to_g': 453.59237,
                 'lb_to_kg': 0.45359237,
-                'lb_to_tons': 0.00045359237,
+                'lb_to_t': 0.00045359237,
 
                 'short-tons_to_lb': 2000,
                 'short-tons_to_kg': 907.18474,
 
-                'tons_to_lb': 2204.62262,
-                'tons_to_kg': 1000,
-                'tons_to_short-tons': 1.10231131,
+                't_to_lb': 2204.62262,
+                't_to_kg': 1000,
+                't_to_short-tons': 1.10231131,
             };
             const massRatio = unitEquivMass[lookup];
             if( massRatio ) {
@@ -1315,43 +1315,43 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
 
             // conversion of Energy units
             const unitEquivEnergy = {
-                'btu_to_kwh': 0.00029307107,
+                'btu_to_kWh': 0.00029307107,
                 'btu_to_mmbtu': 0.000001,
                 'btu_to_mwh': 0.00000029307107,
                 'btu_to_therm': 0.00001,
 
-                'gj_to_kwh': 277.777778,
+                'gj_to_kWh': 277.777778,
                 'gj_to_mmbtu': 0.94781712,
                 'gj_to_mwh': 0.277777778,
                 'gj_to_therm': 9.4781712,
 
-                'kwh_to_btu': 3412.14163,
-                'kwh_to_gj': 0.0036,
-                'kwh_to_kj': 3600,
-                'kwh_to_mj': 3.6,
-                'kwh_to_mmbtu': 0.00341214163,
-                'kwh_to_mwh': 0.001,
-                'kwh_to_therm': 0.0341214163513308,
+                'kWh_to_btu': 3412.14163,
+                'kWh_to_gj': 0.0036,
+                'kWh_to_kj': 3600,
+                'kWh_to_mj': 3.6,
+                'kWh_to_mmbtu': 0.00341214163,
+                'kWh_to_mwh': 0.001,
+                'kWh_to_therm': 0.0341214163513308,
 
                 'mj_to_gj': 0.001,
-                'mj_to_kwh': 0.277777778,
+                'mj_to_kWh': 0.277777778,
                 'mj_to_mmbtu': 0.00094781712,
                 'mj_to_therm': 0.0094781712,
 
                 'mmbtu_to_btu': 1000000,
                 'mmbtu_to_gj': 1.05505585,
-                'mmbtu_to_kwh': 293.07107,
+                'mmbtu_to_kWh': 293.07107,
                 'mmbtu_to_mj': 1000,
                 'mmbtu_to_mwh': 0.29307107,
                 'mmbtu_to_therm': 10,
 
                 'mwh_to_mmbtu': 3.41214163,
-                'mwh_to_kwh': 1000,
+                'mwh_to_kWh': 1000,
                 'mwh_to_therm': 34.1214163513308,
 
                 'therm_to_btu': 100000,
                 'therm_to_gj': 0.105505585,
-                'therm_to_kwh': 29.307107,
+                'therm_to_kWh': 29.307107,
                 'therm_to_mmbtu': 0.1,
                 'therm_to_mwh': 0.029307107,
             };
@@ -1482,7 +1482,7 @@ Vue.component('waste-tracker', dataMetricTracker.extend({
             newItem: {
                 full_name: "",
                 extra: {},
-                unit: "tons",
+                unit: "t",
             },
         }
     },
@@ -1612,7 +1612,7 @@ var ghgEmissionsEstimator = Vue.component(
                items.push({
                    slug: vm.items.results[idx].slug,
                    measured: vm.estimateCO2e(vm.items.results[idx]),
-                   unit: 'tons'
+                   unit: "t"
                })
            }
             vm.reqPost(vm._safeUrl(vm.url, 'values'), {
@@ -1856,7 +1856,7 @@ Vue.component('scope1-refrigerants', ghgEmissionsEstimator.extend({
             if( typeof ef_factors == 'undefined' ) {
                 return NaN;
             }
-            const rowUnit = 'tons';
+            const rowUnit = "t";
             return ef_factors.ar5_factor
                 * vm.asUnit(refrigerantEmissions, ef_factors.unit, rowUnit) / 1000;
         },

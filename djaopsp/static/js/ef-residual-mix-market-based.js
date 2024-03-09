@@ -12,7 +12,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.490900,
     ar5_factor: 0.490900,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "akms": {
@@ -22,7 +22,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.228216,
     ar5_factor: 0.228216,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "aznm": {
@@ -32,7 +32,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.474108,
     ar5_factor: 0.474108,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "camx": {
@@ -42,7 +42,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.240141,
     ar5_factor: 0.240141,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "erct": {
@@ -52,7 +52,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.485453,
     ar5_factor: 0.485453,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "frcc": {
@@ -62,7 +62,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.461385,
     ar5_factor: 0.461385,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "hims": {
@@ -72,7 +72,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.522547,
     ar5_factor: 0.522547,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "hioa": {
@@ -82,7 +82,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.754274,
     ar5_factor: 0.754274,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "mroe": {
@@ -92,7 +92,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.756959,
     ar5_factor: 0.756959,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "mrow": {
@@ -102,7 +102,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.586749,
     ar5_factor: 0.586749,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "newe": {
@@ -112,7 +112,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.253191,
     ar5_factor: 0.253191,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "nwpp": {
@@ -122,7 +122,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.300636,
     ar5_factor: 0.300636,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "nycw": {
@@ -132,7 +132,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.288399,
     ar5_factor: 0.288399,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "nyli": {
@@ -142,7 +142,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.534477,
     ar5_factor: 0.534477,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "nyup": {
@@ -152,7 +152,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.133674,
     ar5_factor: 0.133674,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "rfce": {
@@ -162,7 +162,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.344032,
     ar5_factor: 0.344032,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "rfcm": {
@@ -172,7 +172,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.577332,
     ar5_factor: 0.577332,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "rfcw": {
@@ -182,7 +182,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.564251,
     ar5_factor: 0.564251,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "rmpa": {
@@ -192,7 +192,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.625654,
     ar5_factor: 0.625654,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "spno": {
@@ -202,7 +202,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.686861,
     ar5_factor: 0.686861,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "spso": {
@@ -212,7 +212,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.641797,
     ar5_factor: 0.641797,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "srmv": {
@@ -222,7 +222,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.381081,
     ar5_factor: 0.381081,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "srmw": {
@@ -232,7 +232,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.739174,
     ar5_factor: 0.739174,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "srso": {
@@ -242,7 +242,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.496534,
     ar5_factor: 0.496534,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "srtv": {
@@ -252,7 +252,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.537906,
     ar5_factor: 0.537906,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "srvc": {
@@ -262,7 +262,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.366199,
     ar5_factor: 0.366199,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "us-average": {
@@ -272,7 +272,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.460365,
     ar5_factor: 0.460365,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "newfoundland-and-labrador": {
@@ -282,7 +282,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.045064,
     ar5_factor: 0.045064,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "quebec": {
@@ -292,7 +292,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.045064,
     ar5_factor: 0.045064,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "ontario": {
@@ -302,7 +302,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.045064,
     ar5_factor: 0.045064,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "manitoba": {
@@ -312,7 +312,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.239946,
     ar5_factor: 0.239946,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "saskatchewan": {
@@ -322,7 +322,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.239946,
     ar5_factor: 0.239946,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "alberta": {
@@ -332,7 +332,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.381793,
     ar5_factor: 0.381793,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "british-columbia": {
@@ -342,7 +342,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.381793,
     ar5_factor: 0.381793,
-    unit: "kwh",
+    unit: "kWh",
     source: "Green-e Energy Residual Mix Emissions Rates (2018)"
   },
   "austria": {
@@ -352,7 +352,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.545870,
     ar5_factor: 0.545870,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "belgium": {
@@ -362,7 +362,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.189060,
     ar5_factor: 0.189060,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "bulgaria": {
@@ -372,7 +372,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.495430,
     ar5_factor: 0.495430,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "croatia": {
@@ -382,7 +382,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.561680,
     ar5_factor: 0.561680,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "cyprus": {
@@ -392,7 +392,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.770210,
     ar5_factor: 0.770210,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "czech-republic": {
@@ -402,7 +402,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.612300,
     ar5_factor: 0.612300,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "denmark": {
@@ -412,7 +412,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.509370,
     ar5_factor: 0.509370,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "estonia": {
@@ -422,7 +422,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 1.043290,
     ar5_factor: 1.043290,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "finland": {
@@ -432,7 +432,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.301640,
     ar5_factor: 0.301640,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "france": {
@@ -442,7 +442,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.053200,
     ar5_factor: 0.053200,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "germany": {
@@ -452,7 +452,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.728690,
     ar5_factor: 0.728690,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "united-kingdom": {
@@ -462,7 +462,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.380960,
     ar5_factor: 0.380960,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "greece": {
@@ -472,7 +472,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.695830,
     ar5_factor: 0.695830,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "hungary": {
@@ -482,7 +482,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.378980,
     ar5_factor: 0.378980,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "iceland": {
@@ -492,7 +492,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.482240,
     ar5_factor: 0.482240,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "ireland": {
@@ -502,7 +502,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.640350,
     ar5_factor: 0.640350,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "italy": {
@@ -512,7 +512,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.487230,
     ar5_factor: 0.487230,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "latvia": {
@@ -522,7 +522,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.322760,
     ar5_factor: 0.322760,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "lithuania": {
@@ -532,7 +532,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.380730,
     ar5_factor: 0.380730,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "luxembourg": {
@@ -542,7 +542,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.361210,
     ar5_factor: 0.361210,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "malta": {
@@ -552,7 +552,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.668920,
     ar5_factor: 0.668920,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "netherlands": {
@@ -562,7 +562,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.533390,
     ar5_factor: 0.533390,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "norway": {
@@ -572,7 +572,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.280490,
     ar5_factor: 0.280490,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "poland": {
@@ -582,7 +582,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.904620,
     ar5_factor: 0.904620,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "portugal": {
@@ -592,7 +592,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.315520,
     ar5_factor: 0.315520,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "romania": {
@@ -602,7 +602,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.402590,
     ar5_factor: 0.402590,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "slovakia": {
@@ -612,7 +612,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.193950,
     ar5_factor: 0.193950,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "slovenia": {
@@ -622,7 +622,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.502230,
     ar5_factor: 0.502230,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "spain": {
@@ -632,7 +632,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.450910,
     ar5_factor: 0.450910,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "sweden": {
@@ -642,7 +642,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.037420,
     ar5_factor: 0.037420,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   },
   "switzerland": {
@@ -652,7 +652,7 @@ Vue.prototype.$ef_residual_mix_market_based = {
     n2o_factor: 0.000000,
     ar4_factor: 0.034840,
     ar5_factor: 0.034840,
-    unit: "kwh",
+    unit: "kWh",
     source: "European Residual Mixes 2018 v1.2 (published July 2019) - Table 2, Direct GWP (gCO2/kWh)"
   }
 };

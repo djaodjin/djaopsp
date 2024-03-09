@@ -139,7 +139,7 @@
       <option value="gallon-of-crude-oil">Gallon of Crude oil</option>
       <option value="gallon-of-motor-diesel-fuel">Gallon of Motor diesel fuel</option>
       <option value="gallon-of-liquified-natural-gas-lng">Gallon of Liquified Natural Gas (LNG)</option>
-      <option value="kwh">Kilowatt-hour (kWh) of Electricity</option>
+      <option value="kWh">Kilowatt-hour (kWh) of Electricity</option>
       <option value="giga-joules">Giga Joules (GJ)</option>
       <option value="giga-joules-fte">Giga Joules (GJ) per full-time employee (FTE)</option>
     </select>
@@ -233,7 +233,7 @@
             v-model="getPrimaryPlanned(practice).unit"
             @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
-        <option value="tons">Metric tons</option>
+        <option value="t">Metric tons</option>
         <option value="lbs">Pounds</option>
         <option value="m3">Cubic meters (m<sup>3</sup>)</option>
         <option value="kiloliters">Kilo liters</option>
@@ -280,7 +280,7 @@
             v-model="getPrimaryPlanned(practice).unit"
             @blur="updatePlannedAnswer(practice)"
             {% if sample.is_frozen %} disabled{% endif %}>
-        <option value="tons">Metric Tons CO2e</<option>
+        <option value="t">Metric Tons CO2e</<option>
     </select>
   </div>
 </td>
