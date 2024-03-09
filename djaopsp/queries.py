@@ -341,7 +341,6 @@ ON requests.account_id = latest_completion.account_id
 SELECT
   %(accounts_table)s.slug,
   %(accounts_table)s.full_name AS printable_name,
-  %(accounts_table)s.picture,
   %(accounts_table)s.extra,
   engaged.id AS id,
   engaged.created_at AS requested_at,
@@ -414,7 +413,6 @@ SELECT
   engagement.account_id AS id,
   engagement.slug,
   engagement.printable_name AS full_name,
-  engagement.picture,
   engagement.extra,
   MAX(engagement.requested_at) AS requested_at,
   MAX(engagement.reporting_status) AS reporting_status
