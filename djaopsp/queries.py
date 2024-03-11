@@ -418,7 +418,7 @@ SELECT
   MAX(engagement.reporting_status) AS reporting_status
 FROM (%(engagement_sql)s) AS engagement
 -- WHERE reporting_status > 1 -- REPORTING_UPDATED
-GROUP BY account_id, slug, printable_name, picture, extra
+GROUP BY account_id, slug, printable_name, extra
     """ % {
         'engagement_sql': _get_engagement_sql(
         campaign, accounts, grantees=grantees,
