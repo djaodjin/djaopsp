@@ -408,6 +408,9 @@ def get_coalesce_engagement(campaign, accounts,
     This is done at the expanse of the `reporting_status` field which is
     coalesce to the highest value accross all {grantees}.
     """
+    account_model = get_account_model()
+    if not accounts:
+        return account_model.objects.none()
     sql_query = """
 SELECT
   engagement.account_id AS id,
@@ -423,7 +426,7 @@ GROUP BY account_id, slug, printable_name, extra
         'engagement_sql': _get_engagement_sql(
         campaign, accounts, grantees=grantees,
         start_at=start_at, ends_at=ends_at)}
-    return get_account_model().objects.raw(sql_query)
+    return account_model.objects.raw(sql_query)
 
 
 def get_engagement_by_reporting_status(campaign, accounts,

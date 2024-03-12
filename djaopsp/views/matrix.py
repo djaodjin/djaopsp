@@ -6,11 +6,10 @@ import datetime, logging, re
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
-from django.db import connection, models
+from django.db import connection
 from django.http import HttpResponse
 from survey.helpers import get_extra
-from survey.models import Campaign, PortfolioDoubleOptIn, Unit, UnitEquivalences
-from survey.settings import DB_PATH_SEP
+from survey.models import Campaign, Unit, UnitEquivalences
 from survey.views.matrix import CompareView as CompareBaseView
 from rest_framework.generics import get_object_or_404
 
@@ -135,10 +134,6 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     def accounts_with_engagement(self):
         #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_accounts_with_engagement'):
-            # See `PortfolioEngagementMixin.get_queryset`
-            if not self.requested_accounts:
-                self._accounts_with_engagement = \
-                    PortfolioDoubleOptIn.objects.none()
             self._accounts_with_engagement = get_coalesce_engagement(
                 self.verified_campaign, self.requested_accounts,
                 start_at=self.start_at, ends_at=self.ends_at,
@@ -458,31 +453,33 @@ ORDER BY answers.path, answers.account_id
                 for row in cursor:
                     # The SQL quesry is ordered by `path` so we can build
                     # the final result by chunks, path by path.
-                    path = row[0].split('/')[-1] # XXX slug
+                    path = row[0]
                     if prev_path and path != prev_path:
                         # flush
                         tab = self.tabularize(
                             chunk, self.accounts_with_engagement)
-                        if prev_path in answers_by_paths:
+                        prev_slug = prev_path.split('/')[-1] # XXX slug
+                        if prev_slug in answers_by_paths:
                             self.merge_tabularized(
-                                answers_by_paths[prev_path], tab,
-                                path=prev_path)
+                                answers_by_paths[prev_slug], tab,
+                                path=prev_slug)
                         else:
-                            answers_by_paths.update({prev_path: tab})
+                            answers_by_paths.update({prev_slug: tab})
                         chunk = []
-                        self._report_queries("tabularize %s" % path)
+                        self._report_queries("tabularized %s" % prev_path)
                     chunk += [row]
                     prev_path = path
                 if chunk:
                     tab = self.tabularize(
                         chunk, self.accounts_with_engagement)
-                    if prev_path in answers_by_paths:
+                    prev_slug = prev_path.split('/')[-1] # XXX slug
+                    if prev_slug in answers_by_paths:
                         self.merge_tabularized(
-                            answers_by_paths[prev_path], tab,
-                            path=prev_path)
+                            answers_by_paths[prev_slug], tab,
+                            path=prev_slug)
                     else:
-                        answers_by_paths.update({prev_path: tab})
-                    self._report_queries("tabularize %s" % path)
+                        answers_by_paths.update({prev_slug: tab})
+                    self._report_queries("tabularized %s" % prev_slug)
         return answers_by_paths
 
     def get(self, request, *args, **kwargs):
