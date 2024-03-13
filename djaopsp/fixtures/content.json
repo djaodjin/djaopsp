@@ -2641,7 +2641,7 @@
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-    "model": "pages.PageElement", "pk": 169
+  "model": "pages.PageElement", "pk": 169
 },
 {
   "fields": {
@@ -3266,106 +3266,260 @@
   },
   "model": "pages.PageElement", "pk": 600
 },
-  {
-    "fields": {
-      "title": "Text Content",
-      "slug": "text-content",
-      "text": "<p>Some text content here.</p>",
-      "account": 2
-    },
-    "model": "pages.PageElement", "pk": 700
+
+
+{
+  "fields": {
+    "title": "Webinar on Sustainability",
+    "slug": "sustainability-webinar",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
+    "account": 2,
+    "text": "<h2>Join our Webinar!</h2><p>Learn about sustainability practices.</p>"
   },
-  {
-    "fields": {
-      "title": "Survey Event",
-      "slug": "survey-event",
-      "text": "<p>Survey details here.</p>",
-      "account": 2
-    },
-    "model": "pages.PageElement", "pk": 701
+      "model": "pages.PageElement", "pk": 192
+},
+{
+  "fields": {
+    "title": "Certificate of Completion",
+    "slug": "certificate-of-completion",
+    "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
+    "account": 2,
+    "text": "<h2>Congratulations!</h2><p>You have completed the course.</p>"
   },
-  {
-    "fields": {
-      "title": "Live Webinar Event",
-      "slug": "live-webinar-event",
-      "text": "<p>Details about the webinar.</p>",
-      "account": 2
-    },
-    "model": "pages.PageElement", "pk": 702
+      "model": "pages.PageElement", "pk": 193
+},
+{
+  "fields": {
+    "title": "Sequence without Certificate",
+    "slug": "seq",
+    "account": 2,
+    "has_certificate": false,
+    "created_at": "2023-01-01T00:00:00Z"
   },
-  {
+  "model": "pages.Sequence", "pk": 101
+},
+{
     "fields": {
-      "title": "Certificate of Completion",
-      "slug": "certificate-completion",
-      "text": "<p>Certificate details here.</p>",
-      "account": 2
-    },
-    "model": "pages.PageElement", "pk": 703
-  },
-  {
-    "fields": {
-      "element": 701,
-      "created_at": "2024-03-20T12:00:00Z",
-      "campaign": 1,
-      "extra": "{\"questionnaire_id\":123, \"additional_info\":\"Survey extra data\"}"
-    },
-    "model": "djaopsp.SurveyEvent", "pk": 700
-  },
-  {
-    "fields": {
-      "element": 702,
-      "created_at": "2024-03-21T15:00:00Z",
-      "scheduled_at": "2024-04-15T15:00:00Z",
-      "location": "http://127.0.0.1:8000/webinar/live-event",
-      "max_attendees": 100,
-      "extra": "{}"
-    },
-    "model": "pages.LiveEvent", "pk": 701
-  },
-  {
-    "fields": {
-      "title": "Sequence with Various Elements",
-      "slug": "seq-various-elements",
-      "account": 2,
-      "has_certificate": true,
-      "created_at": "2024-01-04T00:00:00Z"
-    },
-    "model": "pages.Sequence", "pk": 104
-  },
-  {
-    "fields": {
-      "sequence": 104,
-      "content": 700,
+      "sequence": 101,
+      "content": 90,
       "rank": 1,
       "min_viewing_duration": "00:00:10"
     },
-    "model": "pages.EnumeratedElements", "pk": 111
-  },
-  {
+  "model": "pages.EnumeratedElements", "pk": 101
+},
+{
     "fields": {
-      "sequence": 104,
-      "content": 701,
+      "sequence": 101,
+      "content": 101,
       "rank": 2,
       "min_viewing_duration": "00:00:20"
     },
-    "model": "pages.EnumeratedElements", "pk": 112
-  },
-  {
+  "model": "pages.EnumeratedElements", "pk": 102
+},
+{
     "fields": {
-      "sequence": 104,
-      "content": 702,
+      "sequence": 101,
+      "content": 103,
       "rank": 3,
       "min_viewing_duration": "00:00:30"
     },
-    "model": "pages.EnumeratedElements", "pk": 113
+  "model": "pages.EnumeratedElements", "pk": 103
+},
+{
+  "fields": {
+    "title": "Sequence with Certificate",
+    "slug": "ghg-accounting-training",
+    "account": 2,
+    "has_certificate": true,
+    "created_at": "2023-01-02T00:00:00Z"
   },
-  {
+    "model": "pages.Sequence", "pk": 102
+},
+{
+  "fields": {
+    "sequence": 102,
+    "content": 90,
+    "rank": 1,
+    "min_viewing_duration": "00:00:10"
+  },
+    "model": "pages.EnumeratedElements", "pk": 104
+},
+{
+  "fields": {
+    "sequence": 102,
+    "content": 101,
+    "rank": 2,
+    "min_viewing_duration": "00:00:20"
+  },
+    "model": "pages.EnumeratedElements", "pk": 105
+},
+{
+  "fields": {
+    "sequence": 102,
+    "content": 193,
+    "rank": 3,
+    "min_viewing_duration": "00:00:30"
+  },
+    "model": "pages.EnumeratedElements",   "pk": 106
+},
+{
+  "fields": {
+    "title": "Sequence with Certificate And Live Event",
+    "slug": "seq-cert-live-event",
+    "account": 3,
+    "has_certificate": true,
+    "created_at": "2023-01-03T00:00:00Z"
+  },
+    "model": "pages.Sequence", "pk": 103
+},
+{
+  "fields": {
+    "sequence": 103,
+    "content": 90,
+    "rank": 1,
+    "min_viewing_duration": "00:00:10"
+  },
+    "model": "pages.EnumeratedElements", "pk": 107
+},
+{
     "fields": {
-      "sequence": 104,
-      "content": 703,
-      "rank": 4,
-      "min_viewing_duration": "00:00:00"
+      "element": 90,
+      "created_at": "2023-03-15T10:00:00Z",
+      "scheduled_at": "2023-04-10T15:00:00Z",
+      "location": "http://127.0.0.1:8000/webinar/sustainability",
+      "max_attendees": 100,
+      "extra": "{}"
     },
-    "model": "pages.EnumeratedElements", "pk": 114
-  }
-]
+    "model": "pages.LiveEvent", "pk": 200
+},
+{
+  "fields": {
+    "sequence": 103,
+    "content": 101,
+    "rank": 2,
+    "min_viewing_duration": "00:00:20"
+  },
+    "model": "pages.EnumeratedElements", "pk": 108
+},
+{
+  "fields": {
+    "sequence": 103,
+    "content": 192,
+    "rank": 3,
+    "min_viewing_duration": "00:00:30"
+  },
+    "model": "pages.EnumeratedElements",   "pk": 109
+},
+{
+  "fields": {
+    "sequence": 103,
+    "content": 193,
+    "rank": 4,
+    "min_viewing_duration": "00:00:00"
+  },
+    "model": "pages.EnumeratedElements",   "pk": 110
+},
+
+
+{
+  "fields": {
+    "title": "Text Content",
+    "slug": "text-content",
+    "text": "<p>Some text content here.</p>",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 700
+},
+{
+  "fields": {
+    "title": "Survey Event",
+    "slug": "survey-event",
+    "text": "<p>Survey details here.</p>",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 701
+},
+{
+  "fields": {
+    "title": "Live Webinar Event",
+    "slug": "live-webinar-event",
+    "text": "<p>Details about the webinar.</p>",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 702
+},
+{
+  "fields": {
+    "title": "Certificate of Completion",
+    "slug": "certificate-completion",
+    "text": "<p>Certificate details here.</p>",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 703
+},
+{
+  "fields": {
+    "element": 701,
+    "created_at": "2024-03-20T12:00:00Z",
+    "campaign": 1,
+    "extra": "{\"questionnaire_id\":123, \"additional_info\":\"Survey extra data\"}"
+  },
+  "model": "djaopsp.SurveyEvent", "pk": 700
+},
+{
+  "fields": {
+    "element": 702,
+    "created_at": "2024-03-21T15:00:00Z",
+    "scheduled_at": "2024-04-15T15:00:00Z",
+    "location": "http://127.0.0.1:8000/webinar/live-event",
+    "max_attendees": 100,
+    "extra": "{}"
+  },
+  "model": "pages.LiveEvent", "pk": 701
+},
+{
+  "fields": {
+    "title": "Sequence with Various Elements",
+    "slug": "seq-various-elements",
+    "account": 2,
+    "has_certificate": true,
+    "created_at": "2024-01-04T00:00:00Z"
+  },
+  "model": "pages.Sequence", "pk": 104
+},
+{
+  "fields": {
+    "sequence": 104,
+    "content": 700,
+    "rank": 1,
+    "min_viewing_duration": "00:00:10"
+  },
+  "model": "pages.EnumeratedElements", "pk": 111
+},
+{
+  "fields": {
+    "sequence": 104,
+    "content": 701,
+    "rank": 2,
+    "min_viewing_duration": "00:00:20"
+  },
+  "model": "pages.EnumeratedElements", "pk": 112
+},
+{
+  "fields": {
+    "sequence": 104,
+    "content": 702,
+    "rank": 3,
+    "min_viewing_duration": "00:00:30"
+  },
+  "model": "pages.EnumeratedElements", "pk": 113
+},
+{
+  "fields": {
+    "sequence": 104,
+    "content": 703,
+    "rank": 4,
+    "min_viewing_duration": "00:00:00"
+  },
+  "model": "pages.EnumeratedElements", "pk": 114
+}]

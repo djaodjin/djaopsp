@@ -34,7 +34,7 @@ urlpatterns = [
         name="pages_api_editables_index"),
     path('editables/<slug:profile>/',
          include('djaopsp.urls.api.editors')),
-    path('attendance/', include('pages.urls.api.sequences')),
+    path('attendance/<slug:profile>/', include('pages.urls.api.sequences')),
 
     path('progress/', include('pages.urls.api.progress')),
     path('content/', include('pages.urls.api.readers')),
