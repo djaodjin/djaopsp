@@ -21,7 +21,8 @@ def import_campaign(campaign, file_d):
     if not isinstance(campaign, Campaign):
         campaign = Campaign.objects.get(slug=campaign)
     content_model = get_content_model()
-    csv_file = csv.reader(file_d if file_d else StringIO())
+    csv_file = csv.reader(StringIO(file_d.read().decode(
+            'utf-8', 'ignore')) if file_d else StringIO())
     with transaction.atomic():
         cols = []
         row = next(csv_file)
