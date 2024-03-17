@@ -22,7 +22,7 @@ RUN /usr/local/bin/python3 -m venv --upgrade-deps /app --system-site-packages
 #    so we don't have to rebuild a container to investigate when something
 #    goes wrong.
 RUN /app/bin/pip install cairocffi==1.3.0 coverage==6.3.2 psycopg2-binary==2.9.3 setproctitle==1.2.3
-RUN /app/bin/pip install Django==3.2.20 djangorestframework==3.12.4 djaodjin-deployutils==0.10.6 djaodjin-extended-templates==0.3.4 djaodjin-pages==0.6.9 djaodjin-survey==0.9.11 gunicorn==20.1.0 jinja2==3.1.2 html5lib==1.1 monotonic==1.6 openpyxl==3.1.2 python-pptx==0.6.21 pytz==2023.3 django-debug-toolbar==3.5.0 django-extensions==3.2.0 Faker==2.0.0 sqlparse==0.4.4 docutils==0.18.1
+RUN /app/bin/pip install Django==3.2.24 djangorestframework==3.12.4 djaodjin-deployutils==0.10.9 djaodjin-extended-templates==0.4.5 djaodjin-pages==0.7.1 djaodjin-survey==0.10.2 docutils==0.20.1 gunicorn==20.1.0 jinja2==3.1.2 html5lib==1.1 monotonic==1.6 openpyxl==3.1.2 python-pptx==0.6.21 pytz==2023.3 django-debug-toolbar==3.5.0 django-extensions==3.2.0 Faker==2.0.0 sqlparse==0.4.4
 
 #    Bundle app source
 COPY . /app/reps/djaopsp
