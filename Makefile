@@ -142,7 +142,7 @@ makemessages:
 
 
 package-docker: build-assets package-docker-initdb
-	cd $(srcDir) && echo $(DOCKER) build .
+	cd $(srcDir) && $(DOCKER) build $(DOCKER_OPTS) .
 
 # we remove the build directory to make sure we don't have extra files remaining
 # when we excluded them in the package_theme command line. We also insures
