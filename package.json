@@ -11,7 +11,7 @@
     "font-awesome": "~4.4.0",
     "hallo": "https://github.com/bergie/hallo.git",
     "jquery": "1.11.1",
-    "jquery-ui": "1.12.1",
+    "jquery-ui": "1.13.2",
     "lodash": "~4.17.21",
     "moment": "~2.29.1",
     "moment-timezone": "~0.5.33",
@@ -19,7 +19,7 @@
   },
   "resolutions": {
     "jquery": "1.11.1",
-    "jquery-ui": "1.12.1"
+    "jquery-ui": "1.13.2"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
