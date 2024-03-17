@@ -119,8 +119,8 @@ setup-livedemo: package-docker-initdb
 # such that the container can be started without prior configuration.
 package-docker-initdb:
 	-[ -f $(DOCKER_DB_FILENAME) ] && rm -f $(DOCKER_DB_FILENAME)
-	cd $(srcDir) && DB_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) migrate $(RUNSYNCDB) --noinput
-	cd $(srcDir) && DB_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) loadfixtures \
+	cd $(srcDir) && DB_SECRET_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) migrate $(RUNSYNCDB) --noinput
+	cd $(srcDir) && DB_SECRET_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) loadfixtures \
 		djaopsp/fixtures/engineering-si-units.json \
 		djaopsp/fixtures/engineering-alt-units.json \
 		djaopsp/fixtures/accounts.json \

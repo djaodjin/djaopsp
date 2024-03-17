@@ -31,7 +31,7 @@ WORKDIR /app/reps/djaopsp
 # Create local configuration files
 RUN /bin/mkdir -p /etc/djaopsp /var/run/djaopsp
 RUN /bin/sed -e "s,\%(SECRET_KEY)s,`/app/bin/python -c 'import sys ; from random import choice ; sys.stdout.write("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^*-_=+") for i in range(50)]))'`," -e "s,\%(DJAODJIN_SECRET_KEY)s,`/app/bin/python -c 'import sys ; from random import choice ; sys.stdout.write("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^*-_=+") for i in range(50)]))'`," etc/credentials > /etc/djaopsp/credentials
-RUN /bin/sed -e "s,^DB_LOCATION *= *\".*\",DB_LOCATION = \"sqlite3:///app/reps/djaopsp/db.sqlite\"," -e 's,%(DB_NAME)s,db,g' \
+RUN /bin/sed -e "s,^DB_SECRET_LOCATION *= *\".*\",DB_SECRET_LOCATION = \"sqlite3:///app/reps/djaopsp/db.sqlite\"," -e "s,DB_NAME *= *\".*\.sqlite\",DB_NAME = \"/app/reps/djaopsp/db.sqlite\"," -e 's,%(DB_NAME)s,db,g' \
    -e 's,%(APP_NAME)s,djaopsp,g' -e 's,%(LOCALSTATEDIR)s,/var,g'\
    etc/site.conf > /etc/djaopsp/site.conf
 RUN /bin/sed -e 's,%(APP_NAME)s,djaopsp,g' -e 's,%(LOCALSTATEDIR)s,/var,g'\
