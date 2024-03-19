@@ -1,0 +1,45 @@
+{# Show non-primary answers #}
+<div class="row">
+  <div class="col-12" style="border-left:solid 2px lightgrey;">
+    <div v-for="answer in getSecondaryAnswers(practice)"
+         v-if="answer.measured && answer.unit !== 'points'">
+      <p @click.prevent="openLink($event)"
+         v-html="textAsHtml(answer.measured)"
+         v-if="answer.unit === 'freetext'">
+      </p>
+      <p v-if="answer.unit === 'percentage'">
+          [[answer.measured]]%
+      </p>
+      <p v-if="answer.unit === 'ends-at'">
+          {% trans %}On{% endtrans %} [[answer.measured]]
+      </p>
+      {# Attention! extra conditions for revenue #}
+      <p v-if="answer.unit === 'yes-no' && answer.measured === 'Yes'">
+          ({% trans %}not publicly disclosed{% endtrans %})
+      </p>
+      {% if verification_enabled %}
+      <div class="row verifier-notes" v-if="answer.unit === 'ai-audit'">
+        <div class="col-md-3">
+          <div class="mt-2">
+            <img class="rounded-circle" src="{{'/static/img/default-user.png'|asset}}" width="32" height="32">
+            <span>Chat GPT</span>
+          </div>
+        </div>
+        <div class="col-md-9">
+          <p class="mt-2" style="word-wrap:break-word;">
+            [[answer.measured]]
+          </p>
+        </div>
+      </div>
+      {% endif %}
+      <div v-if="!(answer.unit === 'freetext' || answer.unit === 'ai-audit' || answer.unit === 'percentage' || answer.unit === 'ends-at' || answer.unit === 'yes-no')">
+        <span v-if="getUnit(answer).system === 'enum'">
+          [[getUnit(answer).title]]: [[getMeasured(answer)]]
+        </span>
+        <span v-if="getUnit(answer).system !== 'enum'">
+          [[getMeasured(answer)]] [[getUnit(answer).title]]
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

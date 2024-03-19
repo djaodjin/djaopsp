@@ -1,0 +1,616 @@
+<div :id="practice.slug" :class="practiceStyle(practice)">
+<div class="col-6"
+    :class="isRequiredShown(practice) ? 'practice-required' : (isRequiredAnswered(practice) ? 'practice-required-answered' : '')">
+  <div style="display:inline-block;">
+    <div :class="indentHeader(practice)"
+         style="display:inline-block;">
+      <span class="title"
+            v-if="!isPractice(practice) && !isPagebreak(practice)">
+        [[practice.title]]
+      </span>
+      <a :href="practice.slug + '/'"
+         v-if="!isPractice(practice) && isPagebreak(practice)">
+        [[practice.title]]
+      </a>
+      <a class="title"
+         :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
+         target="_blank"
+         v-if="isPractice(practice)">
+        [[practice.title]]
+      </a>
+    </div>
+  </div>
+  <div class="bestpractice"
+       style="display:inline-block;float:right;"
+       v-if="isPractice(practice) && !isFreetextUIHint(practice)">
+    <a class="title" href=""
+       title="Got a comment? Click here."
+       @click.prevent="openComments(practice)">
+      <i class="fa fa-sticky-note-o"></i>
+    </a>
+  </div>
+</div>
+
+{# column headers #}
+{#   when enum choices are not shown in table header  #}
+<div class="text-center col-6"
+    v-if="!isPractice(practice) && !isEnumHeaderShown(icon)">
+</div>
+{#   when enum choices are shown in table header #}
+<div class="'text-center ' + 'col-' + 'getNbInputCols(practice)' "
+    v-for="choice in getChoices(practice, icon)"
+    v-if="!isPractice(practice) && isEnumHeaderShown(icon)">
+    <button class="btn btn-select-all" href=""
+            :disabled="practice.frozen"
+            @click.prevent="updateMultipleAssessmentAnswers(practice, choice.text)">
+      <i class="fa fa-circle"></i>
+    </button>
+</div>
+
+<div class="text-center col-6"
+    v-if="isNAICSUIHint(practice)">
+  <div class="input-group">
+    <select class="form-control form-select"
+            v-model="getPrimaryAnswer(practice).measured"
+            @blur="updateAssessmentAnswer(practice)"
+            :disabled="practice.frozen">
+      <option value="[11] Agriculture, Forestry, Fishing and Hunting">[11] Agriculture, Forestry, Fishing and Hunting</option>
+      <option value="[21] Mining, Quarrying, and Oil and Gas Extraction">[21] Mining, Quarrying, and Oil and Gas Extraction</option>
+      <option value="[22] Utilities">[22] Utilities</option>
+      <option value="[23] Construction">[23] Construction</option>
+      <option value="[31-33] Manufacturing">[31-33] Manufacturing</option>
+      <option value="[42] Wholesale Trade">[42] Wholesale Trade</option>
+      <option value="[44-45] Retail Trade">[44-45] Retail Trade</option>
+      <option value="[48-49] Transportation and Warehousing">[48-49] Transportation and Warehousing</option>
+      <option value="[51] Information">[51] Information</option>
+      <option value="[52] Finance and Insurance">[52] Finance and Insurance</option>
+      <option value="[53] Real Estate and Rental and Leasing">[53] Real Estate and Rental and Leasing</option>
+      <option value="[54] Professional, Scientific, and Technical Services">[54] Professional, Scientific, and Technical Services</option>
+      <option value="[55] Management of Companies and Enterprises">[55] Management of Companies and Enterprises</option>
+      <option value="[56] Administrative and Support and Waste Management and Remediation Services">[56] Administrative and Support and Waste Management and Remediation Services</option>
+      <option value="[61] Educational Services">[61] Educational Services</option>
+      <option value="[62] Health Care and Social Assistance">[62] Health Care and Social Assistance</option>
+      <option value="[71] Arts, Entertainment, and Recreation">[71] Arts, Entertainment, and Recreation</option>
+      <option value="[72] Accommodation and Food Services">[72] Accommodation and Food Services</option>
+      <option value="[81] Other Services (except Public Administration)">[81] Other Services (except Public Administration)</option>
+      <option value="[92] Public Administration">[92] Public Administration</option>
+    </select>
+  </div>
+</div>
+
+{# Presents questions based on its ui_hint and default unit #}
+<div class="text-center col-6"
+    v-if="isFreetextUIHint(practice)">
+    <textarea
+      class="form-control"
+      type="text" rows="10"
+      placeholder=""
+      v-model="getPrimaryAnswer(practice).measured"
+      @blur="updateAssessmentAnswer(practice)"
+      :disabled="practice.frozen"></textarea>
+</div>
+
+{# The unit is fixed. question.ui_hint === 'revenue' #}
+<div class="text-center col-6"
+    v-if="isRevenueUIHint(practice)">
+  <div class="input-group">
+    <input class="form-control text-end"
+           type="number"
+           placeholder=""
+           v-model="getPrimaryAnswer(practice).measured"
+           @blur="updateAssessmentAnswer(practice)"
+           :disabled="practice.frozen"></input>
+    <select class="form-control form-select input-group-suffix"
+            v-model="getPrimaryAnswer(practice).unit"
+            @blur="updateAssessmentAnswer(practice)"
+            :disabled="practice.frozen">
+      <option value="usd">US Dollars ($)</option>
+      <option value="million-usd">Millions US Dollars ($M)</option>
+      <option value="eur">Euros</option>
+      <option value="million-eur">Millions Euros</option>
+    </select>
+  </div>
+  <div class="text-end mt-1">
+    <input class="form-check-input"
+           type="checkbox"
+           :checked="getAnswerByUnit(practice, 'yes-no').measured === 'Yes'"
+           @click="toggleNotDisclosedPublicly(practice)">
+    <label class="form-check-label">not publicly disclosed</label>
+  </div>
+</div>
+
+<div class="text-center col-6"
+    v-if="isEmployeeCountUIHint(practice)">
+  <div class="input-group">
+    <select class="form-control form-select"
+            v-model="getPrimaryAnswer(practice).measured"
+            @blur="updateAssessmentAnswer(practice)"
+            :disabled="practice.frozen">
+      <option value="0">0-10 employees</option>
+      <option value="11">11-50 employees</option>
+      <option value="51">51-200 employees</option>
+      <option value="201">201-500 employees</option>
+      <option value="501">501-1,000 employees</option>
+      <option value="1001">1,001-5,000 employees</option>
+      <option value="5001">5,001-10,000 employees</option>
+      <option value="10001">10,001+ employees</option>
+    </select>
+  </div>
+</div>
+
+<div class="text-center col-3"
+     v-if="isPercentageUIHint(practice)">
+  <div class="input-group">
+    <label class="form-control input-group-prefix">
+      At
+    </label>
+    <input class="form-control"
+           type="date"
+           v-model="getAnswerEndsAt(practice).measured"
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
+           @blur="updateAssessmentAnswer(practice, getAnswerEndsAt(practice))"
+           {% endif %}></input>
+  </div>
+</div>
+<div class="text-center col-3"
+    v-if="isPercentageUIHint(practice)">
+  <div class="input-group">
+    <input class="form-control text-end"
+           type="number"
+           min="0"
+           max="100"
+           v-model="getPrimaryAnswer(practice).measured"
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
+           @blur="updateAssessmentAnswer(practice)"
+           {% endif %}></input>
+    <label class="form-control input-group-suffix">
+      %
+    </label>
+  </div>
+</div>
+
+{# Energy consumed #}
+{# - The unit is variable (out of an "energy units" drop down list) #}
+{# - question.ui_hint === 'energy' #}
+<div class="text-center col-2"
+    v-if="isEnergyUIHint(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getAnswerStartsAt(practice).measured"
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
+           @blur="updateStartsAt(practice)"
+           {% endif %}></input>
+</div>
+<div class="text-center col-2"
+    v-if="isEnergyUIHint(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getAnswerEndsAt(practice).measured"
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
+           @blur="updateEndsAt(practice)"
+           {% endif %}></input>
+</div>
+<div class="text-center col-2"
+    v-if="isEnergyUIHint(practice)">
+  <div class="input-group">
+    <input class="form-control text-end"
+           type="number"
+           placeholder=""
+           v-model="getPrimaryAnswer(practice).measured"
+           @blur="updateAssessmentAnswer(practice, practice.answers)"
+           :disabled="practice.frozen"></input>
+    <select class="form-control form-select input-group-suffix"
+            v-model="getPrimaryAnswer(practice).unit"
+            @blur="updateAssessmentAnswer(practice, practice.answers)"
+            :disabled="practice.frozen">
+      <option value="btu-year">Btu</option>
+      <option value="mmbtu-year">mmBtu</option>
+      <option value="kwh-year">Kilowatt-hour (kWh)</option>
+      <option value="mwh-year">Megawatt-hour (MWh)</option>
+      <option value="kj-year">Kilo Joules (KJ)</option>
+      <option value="mj-year">Mega Joules (MJ)</option>
+      <option value="gj-year">Giga Joules (GJ)</option>
+    </select>
+  </div>
+  <div class="text-start mt-1">
+    <button class="btn btn-sm btn-secondary"
+            @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
+  </div>
+</div>
+{# end of energy #}
+
+
+{# water #}
+{# - The unit is variable (out of an "water units" drop down list) #}
+{# - question.ui_hint === 'water' #}
+<div class="text-center col-2"
+    v-if="isWaterUIHint(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getAnswerStartsAt(practice).measured"
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
+           @blur="updateStartsAt(practice)"
+           {% endif %}></input>
+</div>
+<div class="text-center col-2"
+    v-if="isWaterUIHint(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getAnswerEndsAt(practice).measured"
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
+           @blur="updateEndsAt(practice)"
+           {% endif %}></input>
+</div>
+<div class="text-center col-2"
+    v-if="isWaterUIHint(practice)">
+  <div class="input-group">
+    <input class="form-control text-end"
+           type="text"
+           placeholder=""
+           v-model="getPrimaryAnswer(practice).measured"
+           @blur="updateAssessmentAnswer(practice, practice.answers)"
+           :disabled="practice.frozen"></input>
+    <select class="form-control form-select input-group-suffix"
+            v-model="getPrimaryAnswer(practice).unit"
+            @blur="updateAssessmentAnswer(practice, practice.answers)"
+            :disabled="practice.frozen">
+        <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
+        <option value="kiloliters-year">Kilo liters</option>
+        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>)</option>
+        <option value="gallons-year">US Gallon</option>
+    </select>
+  </div>
+  <div class="text-start mt-1">
+    <button class="btn btn-sm btn-secondary"
+            @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}water/">enter data in tracking tool &raquo;</a>
+  </div>
+</div>
+{# end of water #}
+
+{# waste #}
+{# - The unit is variable (out of an "waste units" drop down list) #}
+{# - question.ui_hint === 'waste' #}
+<div class="text-center col-2"
+    v-if="isWasteUIHint(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getAnswerStartsAt(practice).measured"
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
+           @blur="updateStartsAt(practice)"
+           {% endif %}></input>
+</div>
+<div class="text-center col-2"
+    v-if="isWasteUIHint(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getAnswerEndsAt(practice).measured"
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
+           @blur="updateEndsAt(practice)"
+           {% endif %}></input>
+</div>
+<div class="text-center col-2"
+    v-if="isWasteUIHint(practice)">
+  <div class="input-group">
+    <input class="form-control text-end"
+           type="text"
+           placeholder=""
+           v-model="getPrimaryAnswer(practice).measured"
+           @blur="updateAssessmentAnswer(practice, practice.answers)"
+           :disabled="practice.frozen"></input>
+    <select class="form-control form-select input-group-suffix"
+            v-model="getPrimaryAnswer(practice).unit"
+            @blur="updateAssessmentAnswer(practice, practice.answers)"
+            :disabled="practice.frozen">
+        <option value="tons-year">Metric tons</option>
+        <option value="lbs-year">Pounds</option>
+        <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
+        <option value="kiloliters-year">Kilo liters</option>
+        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>)</option>
+        <option value="gallons-year">US Gallon</option>
+    </select>
+  </div>
+  <div class="text-start mt-1">
+    <button class="btn btn-sm btn-secondary"
+            @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}waste/">enter data in tracking tool &raquo;</a>
+  </div>
+</div>
+{# end of waste #}
+
+{# GHG Emissions #}
+<div class="text-center col-2"
+    v-if="isGHGEmissions(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getAnswerStartsAt(practice).measured"
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
+           @blur="updateStartsAt(practice)"
+           {% endif %}></input>
+</div>
+<div class="text-center col-2"
+    v-if="isGHGEmissions(practice)">
+    <input class="form-control"
+           type="date"
+           v-model="getAnswerEndsAt(practice).measured"
+           :disabled="practice.frozen"
+           {% if not sample.is_frozen %}
+           @blur="updateEndsAt(practice)"
+           {% endif %}></input>
+</div>
+<div class="text-center col-2"
+    v-if="isGHGEmissions(practice)">
+  <div class="input-group">
+    <input class="form-control text-end"
+              type="number"
+              placeholder=""
+              v-model="getPrimaryAnswer(practice).measured"
+              @blur="updateAssessmentAnswer(practice, practice.answers)"
+           :disabled="practice.frozen"></input>
+    <select class="form-control form-select"
+            v-model="getPrimaryAnswer(practice).unit"
+            @blur="updateAssessmentAnswer(practice, practice.answers)"
+            :disabled="practice.frozen">
+        <option value="tons-year">Metric Tons CO2e</<option>
+    </select>
+  </div>
+  <div class="text-start mt-1" v-if="!isGHGEmissionsScope3(practice)">
+    <button class="btn btn-sm btn-secondary"
+            @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
+    <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
+  </div>
+</div>
+{# end of scope ghg emissions #}
+
+
+{# when question.unit is 'verifiability' #}
+<div class="text-center col-6"
+{# default value from `getNbInputCols` #}
+    v-if="isVerifiabilityUIHint(practice)">
+  <div class="input-group">
+    <select class="form-control form-select"
+            v-model="getPrimaryAnswer(practice).measured"
+            @blur="updateAssessmentAnswer(practice)"
+            :disabled="practice.frozen">
+      <option v-if="getAnswerByUnit(practice, 'completeness').measured == null" disabled :value="null">{% trans %}Select verifiability ...{% endtrans %}</option>
+      {% for option in units.verifiability %}
+      <option value="{{option.text}}">{{option.descr}}</option>
+      {% endfor %}
+    </select>
+    <a class="p-2"
+       href="{{'/docs/guides/verification/#verifiability'|site_url}}"
+       target="_blank">
+      <i class="fa fa-question-circle"></i>
+    </a>
+    <select class="form-control form-select"
+            v-model="getAnswerByUnit(practice, 'completeness').measured"
+            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'completeness'))"
+            :disabled="practice.frozen">
+      <option v-if="getAnswerByUnit(practice, 'completeness').measured == null" disabled :value="null">{% trans %}Select completeness ...{% endtrans %}</option>
+      {% for option in units.completeness %}
+      <option value="{{option.text}}">{{option.descr}}</option>
+      {% endfor %}
+    </select>
+    <a class="p-2"
+       href="{{'/docs/guides/verification/#completeness'|site_url}}"
+       target="_blank">
+      <i class="fa fa-question-circle"></i>
+    </a>
+  </div>
+  <div class="input-group">
+    <select class="form-control form-select"
+            v-model="getAnswerByUnit(practice, 'supporting-document').measured"
+            value=""
+            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'))"
+            :disabled="practice.frozen">
+      <option v-if="getAnswerByUnit(practice, 'supporting-document').measured == null" disabled :value="null">{% trans %}Select supporting document ...{% endtrans %}</option>
+      {% for option in units.supporting_document %}
+      <option value="{{option.text}}">{{option.descr}}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+{# when question.unit.system is 'enum' and UI hint computes to 'select' #}
+<div class="text-center col-6"
+{# default value from `getNbInputCols` #}
+    v-if="isEnumSelectUIHint(practice)">
+    <select class="form-control form-select"
+            v-model="getPrimaryAnswer(practice).measured"
+            @blur="updateAssessmentAnswer(practice)"
+            :disabled="practice.frozen">
+      <option value="">Select ...</option>
+      <option :value="choice.text"
+        v-for="(choice, idx) in getChoices(practice, icon)"
+        >[[choice.descr]]</option>
+    </select>
+</div>
+
+{# when question.unit.system is 'enum' and UI hint computes to 'radio' #}
+<div :class="'text-center' + (getPrimaryCandidate(practice).measured === choice.text ? ' candidate-answer' : '') + 'col-' + 'getNbInputCols(practice)'"
+    v-for="(choice, idx) in getChoices(practice, icon)"
+    v-if="isEnumRadioUIHint(practice)">
+  <div>{# form-check #}
+    <div class="radio-border">
+      <input :id="slugify(choice.text, practice.rank)"
+           type="radio"
+           :value="choice.text"
+           :name="'implemented-' + practice.rank"
+           :checked="getPrimaryAnswer(practice).measured === choice.text"
+           @change="updateAssessmentAnswer(practice, choice.text)"
+           v-model="getPrimaryAnswer(practice).measured"
+           :disabled="practice.frozen" />
+    </div>
+    <label :for="slugify(choice.text, practice.rank)"
+         style="margin-bottom:0"
+         data-bs-toggle="tooltip" data-bs-placement="bottom"
+         data-toggle="tooltip" data-placement="bottom"
+         :title="getPrimaryCandidate(practice).measured === choice.text ? (getPrimaryCandidate(practice).collected_by + ', ' + humanizeTimeDelta(getPrimaryCandidate(practice).created_at)) : ''">
+      <span style="font-size:10px;">[[choice.descr ? choice.descr : ""]]</span>
+    </label>
+  </div>
+</div>
+
+{# Targets #}
+<div class="text-center col-6"
+    v-if="isTargetByUIHint(practice)">
+  <div class="input-group">
+    <select class="form-control form-select"
+            v-model="getPrimaryAnswer(practice).measured"
+            :disabled="practice.frozen"
+            {% if not sample.is_frozen %}
+            @blur="updateAssessmentAnswer(practice)"
+            {% endif %}>
+      <option value="no-target">No target</option>
+      <option value="2024">2024</option>
+      <option value="2025">2025</option>
+      <option value="2026">2026</option>
+      <option value="2027">2027</option>
+      <option value="2028">2028</option>
+      <option value="2029">2029</option>
+      <option value="2030">2030</option>
+      <option value="2031">2031</option>
+      <option value="2032">2032</option>
+      <option value="2033">2033</option>
+      <option value="2034">2034</option>
+      <option value="2035">2035</option>
+      <option value="2036">2036</option>
+      <option value="2037">2037</option>
+      <option value="2038">2038</option>
+      <option value="2039">2039</option>
+      <option value="2040">2040</option>
+      <option value="2041">2041</option>
+      <option value="2042">2042</option>
+      <option value="2043">2043</option>
+      <option value="2044">2044</option>
+      <option value="2045">2045</option>
+      <option value="2046">2046</option>
+      <option value="2047">2047</option>
+      <option value="2048">2048</option>
+      <option value="2049">2049</option>
+      <option value="2050">2050</option>
+      <option value="2051">2051</option>
+      <option value="2052">2052</option>
+      <option value="2053">2053</option>
+      <option value="2054">2054</option>
+      <option value="2055">2055</option>
+      <option value="2056">2056</option>
+      <option value="2057">2057</option>
+      <option value="2058">2058</option>
+      <option value="2059">2059</option>
+      <option value="2060">2060</option>
+      <option value="2061">2061</option>
+      <option value="2062">2062</option>
+      <option value="2063">2063</option>
+      <option value="2064">2064</option>
+      <option value="2065">2065</option>
+    </select>
+  </div>
+</div>
+{# end target #}
+</div>
+
+{# optional comments #}
+<div v-if="isPractice(practice)"
+    :class="practiceStyle(practice)"
+    v-show="isActiveCommentsShown(practice)">
+<div class="col-6"
+    :class="isRequiredShown(practice) ? 'practice-required' : (isRequiredAnswered(practice) ? 'practice-required-answered' : '')">
+</div>
+<div class="col-6">
+  {# comments #}
+  <div class="mt-2">
+    <h5 class="my-0">{% trans %}Notes, Public URL Links, and/or Uploaded Documents{% endtrans %}</h5>
+    <p class="text-danger" v-if="isNotApplicable(practice)">
+      You selected <strong>&quot;Not Applicable&quot;</strong>, please explain.
+    </p>
+    <explainer inline-template
+               v-bind:callback-arg="practice"
+               v-bind:collected-by-picture="getPicture(getCommentsAnswer(practice).collected_by)"
+               v-bind:collected-by-printable-name="getPrintableName(getCommentsAnswer(practice).collected_by)"
+               v-bind:collected-at-time="getCommentsAnswer(practice).created_at"
+               v-bind:init-text="getCommentsAnswer(practice).measured"
+               v-on:update-text="updateComment"
+               :disabled="practice.frozen">
+      <div>
+        <div v-show="!editMode">
+          <button class="btn btn-link" style="padding:0;margin:0;"
+                  :disabled="disabled"
+                  @click.prevent="toggleEditMode">update</button>
+          <div class="row" v-if="textAsHtml">
+            <div class="col-md-3">
+              <div class="mt-2">
+                <img class="rounded-circle" :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+                <span>[[collectedByPrintableName]]</span>
+              </div>
+              <small>[[humanizeDate(collectedAtTime)]]</small><br />
+              <small>([[humanizeTimeDelta(collectedAtTime)]])</small>
+            </div>
+            <div class="border-start col-md-9">
+              <p class="mt-2" style="word-wrap:break-word;"
+                 v-html="textAsHtml"
+                 @click.prevent="openLink($event)">
+              </p>
+            </div>
+          </div>
+          <div class="row" v-if="!textAsHtml">
+            <div class="col-12">
+              <em>{% trans %}No notes were added.{% endtrans %}</em>
+            </div>
+          </div>
+        </div>
+        <form @submit.prevent="saveText" v-show="editMode">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+          <textarea class="form-control"
+              name="other-measures"
+              type="text" rows="10"
+              :placeholder="isTagged('verify') ? '{% trans %}If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you.{% endtrans %}' : '{% trans %}Please comment about the current and planned implementation of the practice at your organization; when available, include supporting links to CSR/Sustainability report, Annual report, etc. (You can also upload these reports by drag/drop to this box if necessary). If you think the practice does not apply to your organization, please explain why. Thank you.{% endtrans %}'"
+              v-model="text"
+              :disabled="disabled"
+              @keydown="fitToText"
+              @drop.prevent="dropFile" @dragenter.prevent @dragover.prevent
+              ></textarea>
+          <div class="progress upload-progress" v-show="uploadInProgress">
+            <div class="progress-bar" role="progressbar"
+                 aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                 style="width: 60%;">
+              <span class="progress-bar-info"></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <div class="mt-2 text-start text-left">
+                <button type="button" class="btn btn-secondary" :disabled="disabled">
+                  <label :for="callbackArg.slug + '-file'" style="margin-bottom:0;">
+                    {% trans %}Upload{% endtrans %}
+                  </label>
+                </button>
+                <input name="file" type="file" :id="callbackArg.slug + '-file'" style="display:none;" @change.prevent="uploadFile" :disabled="disabled" />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mt-2 text-end text-right">
+                <button class="btn btn-primary"
+                    type="submit" value="submit"
+                    :disabled="disabled">
+                  {% trans %}Submit{% endtrans %}
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </explainer>
+  </div>
+</div>
+</div>

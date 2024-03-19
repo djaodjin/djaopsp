@@ -1,0 +1,48 @@
+{% extends "app/new_assess/new_base.html" %}
+
+{% block content %}
+<div  id="app" class="backdrop mb-4">
+    {% block app_content %}
+    {% endblock %}
+</div>
+{% endblock %}
+
+{% block bodyscripts %}
+<script type="text/javascript" src="{{'/static/vendor/djaoapp-i18n.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/lodash.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/dropzone.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/moment.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/moment-timezone-with-data.js'|asset}}"></script>
+{% block app_bodyscripts %}{% endblock %}
+<script type="text/javascript">
+Vue.prototype.$globals = {
+    'humanizeDate': humanizeDate,
+    'humanizeMonthDay': humanizeMonthDay,
+    'humanizeNumber': humanizeNumber,
+    'humanizeTimeDelta': humanizeTimeDelta
+};
+Vue.prototype.$itemsPerPage =
+    {% if items_per_page %}{{items_per_page}}{% else %}25{% endif %};
+Vue.prototype.$urls = {% if urls %}{{urls|to_json}}{% else %}{}{% endif %};
+Vue.prototype.$prefix = {% if prefix %}"{{prefix}}"{% else %}""{% endif %};
+Vue.prototype.$summary_performance = {% if summary_performance %}{{summary_performance|to_json}}{% else %}[]{% endif %};
+{% if sample %}
+Vue.prototype.$sample = {
+ nbAnswers:{% if nb_answers %}{{nb_answers}}{% else %}0{% endif %},
+ nbQuestions:{% if nb_questions %}{{nb_questions}}{% else %}0{% endif %},
+{% if nb_required_answers %}
+    nbRequiredAnswers:  {{nb_required_answers}},
+{% endif %}
+{% if nb_required_questions %}
+    nbRequiredQuestions: {{nb_required_questions}},
+{% endif %}
+};
+{% endif %}
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ["[[","]]"],
+});
+</script>
+{% endblock %}
