@@ -182,7 +182,7 @@ $(installTop)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $^ $(libDir)
 	$(NPM) install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp --prefix $(libDir)
 	install -d $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.min.js $(ASSETS_DIR)/vendor
 	cp -rf $(libDir)/node_modules/chart.js $(srcDir)/djaopsp/static/vendor
 	$(installFiles) $(libDir)/node_modules/chartjs-plugin-annotation/dist/chartjs-plugin-annotation.js $(srcDir)/djaopsp/static/vendor
 	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor

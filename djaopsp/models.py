@@ -16,15 +16,15 @@ from .compat import python_2_unicode_compatible
 @python_2_unicode_compatible
 class Account(models.Model):
 
+    slug_field = 'slug'
+    slugify_field = 'full_name'
+
     slug = models.SlugField(unique=True, db_index=True)
     full_name = models.CharField(max_length=60, blank=True)
     email = models.EmailField()
     phone = models.CharField(max_length=11)
     extra = get_extra_field_class()(null=True, blank=True,
         help_text=_("Extra meta data (can be stringify JSON)"))
-
-    slug_field = 'slug'
-    slugify_field = 'full_name'
 
     def __str__(self):
         return str(self.slug)

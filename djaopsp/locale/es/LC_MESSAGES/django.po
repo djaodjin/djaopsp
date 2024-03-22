@@ -1,0 +1,1320 @@
+# Translations template for PROJECT.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-03-14 09:24-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.12.1\n"
+
+#: djaopsp/templates/404.html:7
+msgid "Uh-oh, we couldn't find that."
+msgstr ""
+
+#: djaopsp/templates/404.html:9
+msgid "404 Page Not Found"
+msgstr ""
+
+#: djaopsp/templates/404.html:12
+msgid "The page you were looking for could not be found."
+msgstr ""
+
+#: djaopsp/templates/404.html:15
+msgid ""
+"If you think there is a mistake, please <a href=\"/contact/\">contact "
+"us</a>."
+msgstr ""
+
+#: djaopsp/templates/404.html:15
+msgid "We do our best to reply within 24 hours. Thank you!"
+msgstr ""
+
+#: djaopsp/templates/_filter.html:16
+msgid "Match"
+msgstr ""
+
+#: djaopsp/templates/_filter.html:25
+#: djaopsp/templates/app/improve/redirects.html:13
+#: djaopsp/templates/app/index.html:40
+#: djaopsp/templates/app/reporting/accessibles/index.html:86
+#: djaopsp/templates/app/reporting/dashboard/index.html:35
+#: djaopsp/templates/app/reporting/engage/index.html:34
+#: djaopsp/templates/app/scorecard/history.html:55
+#: djaopsp/templates/app/scorecard/index.html:132
+msgid "Update"
+msgstr "Actualizar"
+
+#: djaopsp/templates/_filter.html:30
+msgid "Download"
+msgstr ""
+
+#: djaopsp/templates/_generic_navbar.html:3
+#: djaopsp/templates/pages/_breadcrumbs.html:11
+msgid "Home"
+msgstr "Casa"
+
+#: djaopsp/templates/_generic_navbar.html:9
+msgid "Help"
+msgstr "Ayudar"
+
+#: djaopsp/templates/_generic_navbar.html:11
+msgid "Faq"
+msgstr ""
+
+#: djaopsp/templates/_generic_navbar.html:12
+msgid "Tutorials"
+msgstr ""
+
+#: djaopsp/templates/_generic_navbar.html:13
+msgid "Contact us"
+msgstr ""
+
+#: djaopsp/templates/base.html:13 djaopsp/templates/pages/element.html:4
+msgid "Practices Sharing Platform"
+msgstr ""
+
+#: djaopsp/templates/base.html:70
+msgid "Powered by &copy; 2024 DjaoDjin. All rights reserved."
+msgstr ""
+
+#: djaopsp/templates/base.html:70 djaopsp/templates/base.html:168
+msgid "Legal"
+msgstr ""
+
+#: djaopsp/templates/base.html:110
+msgid "Sign In"
+msgstr ""
+
+#: djaopsp/templates/base.html:146
+msgid ""
+"We have been notified and have started on fixing the error. We apologize "
+"for the inconvenience."
+msgstr ""
+
+#: djaopsp/templates/base.html:169
+msgid "Contact"
+msgstr ""
+
+#: djaopsp/templates/base.html:176
+msgid "Powered by DjaoDjin. &copy; 2024 All rights reserved."
+msgstr ""
+
+#: djaopsp/templates/index.html:22
+msgid "Login as supplier"
+msgstr ""
+
+#: djaopsp/templates/index.html:43
+msgid "Login as procurement specialist"
+msgstr ""
+
+#: djaopsp/templates/index.html:64
+msgid "Login as an auditor"
+msgstr ""
+
+#: djaopsp/templates/index.html:85
+msgid "Login as an alliance"
+msgstr ""
+
+#: djaopsp/templates/index.html:106
+msgid "Login as a site owner"
+msgstr ""
+
+#: djaopsp/templates/app/_newsfeed.html:2
+msgid ""
+"\n"
+"There are no news at this point.\n"
+msgstr ""
+
+#: djaopsp/templates/app/_progress_bar.html:6
+#: djaopsp/templates/app/index.html:18
+msgid "Assess"
+msgstr ""
+
+#: djaopsp/templates/app/_progress_bar.html:15
+msgid "Planning"
+msgstr ""
+
+#: djaopsp/templates/app/_progress_bar.html:24
+msgid "Review"
+msgstr ""
+
+#: djaopsp/templates/app/_progress_bar.html:29
+msgid "Share"
+msgstr ""
+
+#: djaopsp/templates/app/_tile_chart.html:12
+#: djaopsp/templates/app/scorecard/index.html:157
+#: djaopsp/templates/app/scorecard/index.html:227
+msgid "There is not enough data available to benchmark with peers."
+msgstr "No hay suficientes datos disponibles para comparar con sus pares."
+
+#: djaopsp/templates/app/index.html:20
+msgid ""
+"\n"
+"If you were prompted to take, or update, an assessment,\n"
+"start here.\n"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:36
+msgid "Historical assessments"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:42
+msgid "Continue"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:42
+#: djaopsp/templates/app/scorecard/history.html:52
+msgid "Get started"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:49
+msgid "Data Reporting"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:51
+msgid ""
+"\n"
+"Record data metrics all year long so you can report quantifiable "
+"improvements.\n"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:60
+msgid "Dashboards"
+msgstr ""
+
+msgid "Dashboard"
+msgstr "Tablero"
+
+
+#: djaopsp/templates/app/index.html:62
+msgid ""
+"\n"
+"Manage invites sent to organizations, and their reporting status.\n"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:69
+#: djaopsp/templates/app/reporting/base.html:38
+#: djaopsp/templates/app/reporting/engage/index.html:10
+msgid "Engage"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:72
+#: djaopsp/templates/app/reporting/accessibles/index.html:11
+#: djaopsp/templates/app/reporting/base.html:44
+msgid "Track"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:75
+#: djaopsp/templates/app/reporting/base.html:56
+#: djaopsp/templates/app/reporting/dashboard/index.html:10
+msgid "Insights"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:95
+msgid "Newsfeed"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:101
+msgid "Learn"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:103
+msgid ""
+"\n"
+"Under this section, you will find industry-specific practices,\n"
+"and member-only content.\n"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:109
+msgid "Browse"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:115
+#: djaopsp/templates/app/scorecard/history.html:17
+#: djaopsp/templates/survey/campaigns/index.html:6
+msgid "Questionnaires"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:117
+msgid ""
+"\n"
+"Create practices and organize them in assessment campaigns.\n"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:125
+msgid "Edit assessments"
+msgstr ""
+
+#: djaopsp/templates/app/index.html:129
+msgid "Edit practices"
+msgstr ""
+
+#: djaopsp/templates/app/assess/_assess_row.html:405
+msgid "Select verifiability ..."
+msgstr ""
+
+#: djaopsp/templates/app/assess/_assess_row.html:419
+msgid "Select completeness ..."
+msgstr ""
+
+#: djaopsp/templates/app/assess/_assess_row.html:436
+msgid "Select supporting document ..."
+msgstr ""
+
+#: djaopsp/templates/app/assess/_assess_row.html:555
+msgid "Notes, Public URL Links, and/or Uploaded Documents"
+msgstr ""
+
+#: djaopsp/templates/app/assess/_assess_row.html:590
+msgid "No notes were added."
+msgstr ""
+
+#: djaopsp/templates/app/assess/_assess_row.html:599
+msgid ""
+"If you have any notes or comments with regards to verifiability or "
+"completeness, please add them here. Thank you."
+msgstr ""
+
+#: djaopsp/templates/app/assess/_assess_row.html:599
+msgid ""
+"Please comment about the current and planned implementation of the "
+"practice at your organization; when available, include supporting links "
+"to CSR/Sustainability report, Annual report, etc. (You can also upload "
+"these reports by drag/drop to this box if necessary). If you think the "
+"practice does not apply to your organization, please explain why. Thank "
+"you."
+msgstr ""
+
+#: djaopsp/templates/app/assess/_assess_row.html:617
+msgid "Upload"
+msgstr ""
+
+#: djaopsp/templates/app/assess/_assess_row.html:628
+#: djaopsp/templates/jinja2/_form.html:13
+msgid "Submit"
+msgstr ""
+
+#: djaopsp/templates/app/assess/_vs_peers_toggle.html:2
+msgid "self"
+msgstr ""
+
+#: djaopsp/templates/app/assess/_vs_peers_toggle.html:5
+msgid "vs. peers"
+msgstr ""
+
+#: djaopsp/templates/app/assess/index.html:10
+msgid "Click to expand each icon tile."
+msgstr "Haga clic para expandir cada icono."
+
+#: djaopsp/templates/app/assess/index.html:11
+msgid "If need be"
+msgstr "Si es necesario"
+
+#: djaopsp/templates/app/assess/index.html:12
+msgid "download"
+msgstr "descargar"
+
+#: djaopsp/templates/app/assess/index.html:13
+msgid "the questionnaire or"
+msgstr "el cuestionario o"
+
+#: djaopsp/templates/app/assess/index.html:14
+msgid "invite a contributor"
+msgstr "invitar a un colaborador"
+
+#: djaopsp/templates/app/assess/index.html:149
+#: djaopsp/templates/app/improve/index.html:159
+msgid "Reset"
+msgstr ""
+
+#: djaopsp/templates/app/assess/index.html:201
+#: djaopsp/templates/app/assess/index.html:206
+msgid "Update all reporting start dates"
+msgstr ""
+
+#: djaopsp/templates/app/assess/index.html:212
+msgid ""
+"Before going further, would you like to update all reporting start date "
+"to [[getAnswerStartsAt(activeElement).measured]]?"
+msgstr ""
+
+#: djaopsp/templates/app/assess/index.html:216
+#: djaopsp/templates/app/assess/index.html:243
+msgid "No"
+msgstr ""
+
+#: djaopsp/templates/app/assess/index.html:220
+#: djaopsp/templates/app/assess/index.html:247
+msgid "Yes"
+msgstr ""
+
+#: djaopsp/templates/app/assess/index.html:228
+#: djaopsp/templates/app/assess/index.html:233
+msgid "Update all reporting end dates"
+msgstr ""
+
+#: djaopsp/templates/app/assess/index.html:239
+msgid ""
+"Before going further, would you like to update all reporting end date to "
+"[[getAnswerEndsAt(activeElement).measured]]?"
+msgstr ""
+
+#: djaopsp/templates/app/assess/index.html:263
+msgid ""
+"Click to expand each icon tile, then answer each question or assess each "
+"practice under it. Each answer is automatically saved in a work-in-"
+"progress response."
+msgstr ""
+"Haga clic para expandir cada ícono y luego responda cada pregunta o evalúe "
+"cada práctica debajo de ella. Cada respuesta se guarda automáticamente en "
+"una respuesta de trabajo en progreso."
+
+#: djaopsp/templates/app/assess/index.html:271
+msgid ""
+"Once done, move to the next step in the workflow progress bar at the top "
+"of the page. On the REVIEW step, click the &quot;Complete&quot; button at"
+" the bottom of the page to submit an official dated response."
+msgstr ""
+"Una vez hecho esto, pase al siguiente paso en la barra de progreso del flujo "
+"de trabajo en la parte superior de la página. En el paso REVISAR, haga clic "
+"en el botón 'Completar' en la parte inferior de la página para enviar una "
+"respuesta oficial fechada."
+
+#: djaopsp/templates/app/assess/redirects.html:5
+msgid "Pick a section to update ..."
+msgstr ""
+
+#: djaopsp/templates/app/improve/_improve_row.html:330
+msgid "Achieve by"
+msgstr ""
+
+#: djaopsp/templates/app/improve/_improve_row.html:372
+msgid "Baseline"
+msgstr ""
+
+#: djaopsp/templates/app/improve/_sustainability_improve_row.html:28
+msgid "update"
+msgstr ""
+
+#: djaopsp/templates/app/improve/_vs_value_toggle.html:2
+msgid "planning"
+msgstr ""
+
+#: djaopsp/templates/app/improve/_vs_value_toggle.html:5
+msgid "vs. value"
+msgstr ""
+
+#: djaopsp/templates/app/improve/index.html:77
+msgid "Assessed"
+msgstr ""
+
+#: djaopsp/templates/app/improve/index.html:117
+msgid "Planned"
+msgstr ""
+
+#: djaopsp/templates/app/improve/index.html:177
+msgid "Click on each icon to expand it."
+msgstr ""
+
+#: djaopsp/templates/app/improve/redirects.html:5
+msgid "Improvement planning ..."
+msgstr ""
+
+#: djaopsp/templates/app/improve/redirects.html:19
+msgid ""
+"You cannot add an improvement plan to an assessment that has already\n"
+"been completed."
+msgstr ""
+
+#: djaopsp/templates/app/improve/redirects.html:24
+msgid ""
+"To create or complete an improvement plan towards your stated targets, we"
+" have indentified practices relevent and specific to each of the "
+"following industry segments."
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_edit_tags.html:9
+msgid "select tags ..."
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_edit_tags.html:19
+msgid "update choices"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_edit_tags.html:24
+msgid ""
+"type words separated by commas then click 'list choices' and select "
+"multiple tags."
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_edit_tags.html:28
+msgid "list choices"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_invite_reporting_profile.html:9
+msgid "Invite an organization/profile"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_invite_reporting_profile.html:17
+msgid ""
+"There are no records of this profile in the system. This is an "
+"opportunity to invite that organization/profile to respond to the "
+"questionnaire."
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_invite_reporting_profile.html:20
+msgid ""
+"There is already a record of this organization/profile in the system. "
+"Invite a specific person within the organization/profile to share their "
+"response with your account."
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_invite_reporting_profile.html:24
+msgid "Organization/profile name"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_invite_reporting_profile.html:33
+#: djaopsp/templates/app/reporting/accessibles/index.html:67
+#: djaopsp/templates/app/reporting/dashboard/index.html:28
+#: djaopsp/templates/app/reporting/engage/index.html:27
+#: djaopsp/templates/survey/matrix/compare.html:218
+msgid "To"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_invite_reporting_profile.html:42
+msgid ""
+"The following message will be sent (or modify the message by typing in "
+"the box below)."
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_invite_reporting_profile.html:59
+#: djaopsp/templates/pages/element.html:100
+#: djaopsp/templates/pages/index.html:70
+#: djaopsp/templates/survey/campaigns/campaign.html:384
+msgid "Cancel"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_invite_reporting_profile.html:61
+msgid "Request assessment"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_percentage_toggle.html:2
+msgid "percent (%)"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_percentage_toggle.html:5
+msgid "total count (Nb)"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_profile_card.html:2
+msgid "Contacts"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/_profile_card.html:6
+#: djaopsp/templates/app/reporting/engage/index.html:316
+#: djaopsp/templates/app/reporting/engage/index.html:339
+msgid "last login"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/base.html:50
+#: djaopsp/templates/survey/matrix/compare.html:11
+msgid "Compare"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/broker.html:3
+msgid "Completed assessments"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/broker.html:13
+msgid "Completed and verified week-by-week"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/broker.html:36
+msgid "completed questionnaires"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/broker.html:42
+msgid "Last completed"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:118
+#: djaopsp/templates/app/reporting/broker.html:47
+msgid "Organization/profile"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/broker.html:52
+msgid "Questionnaire"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/broker.html:57
+msgid "Priority to verify"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/broker.html:62
+msgid "Verified Status"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/broker.html:67
+msgid "Assigned verifier"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:59
+#: djaopsp/templates/app/reporting/dashboard/index.html:22
+#: djaopsp/templates/app/reporting/engage/index.html:21
+#: djaopsp/templates/survey/matrix/compare.html:214
+msgid "From"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:78
+msgid "Monthly"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:79
+msgid "Yearly"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:95
+msgid "accessible profiles"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:101
+#: djaopsp/templates/app/reporting/engage/index.html:90
+#: djaopsp/templates/app/scorecard/index.html:492
+msgid "Download (xlsx)"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:129
+#: djaopsp/templates/app/reporting/engage/index.html:122
+msgid "Tags"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:143
+#: djaopsp/templates/survey/matrix/compare.html:210
+msgid "All"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:170
+#: djaopsp/templates/app/reporting/engage/index.html:207
+msgid "Profile name or e-mail address ..."
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:174
+#: djaopsp/templates/app/reporting/engage/index.html:211
+#: djaopsp/templates/pages/index.html:29
+msgid "Search"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:191
+msgid ""
+"No scorecard available for the search query. Note that a profile will not"
+" show on this dashboard until someone shares a completed questionnaire "
+"with your organization. If you have requested a profile to complete a "
+"questionnaire, you can check their progress towards completion on the "
+"\"Engage\" dashboard."
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:198
+#, python-format
+msgid "%(profile_name)s would like to share their response with you."
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:203
+#: djaopsp/templates/app/share/index.html:59
+msgid "Ignore"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/accessibles/index.html:207
+#: djaopsp/templates/app/share/index.html:62
+msgid "Accept"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/dashboard/index.html:4
+#, python-format
+msgid "%(campaign)s Insights - %(profile)s"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/dashboard/index.html:4
+#: djaopsp/templates/app/reporting/engage/index.html:4
+#: djaopsp/templates/app/scorecard/history.html:4
+#: djaopsp/templates/app/scorecard/history.html:5
+#: djaopsp/templates/survey/matrix/compare.html:4
+msgid "Practice Sharing Platform"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/dashboard/index.html:50
+msgid "Download (pptx)"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/dashboard/index.html:86
+#: djaopsp/templates/app/reporting/engage/index.html:67
+msgid "outer to inner"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:4
+#, python-format
+msgid "%(campaign)s Engagement - %(profile)s"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:49
+msgid "Completed week-by-week"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:66
+#: djaopsp/templates/app/reporting/engage/index.html:133
+msgid "Status"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:85
+msgid "invited profiles"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:93
+msgid "Contacts (xlsx)"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:111
+msgid "Profile"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:132
+msgid "Declined to respond"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:134
+#: djaopsp/templates/app/reporting/engage/index.html:284
+msgid "Invited"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:135
+#: djaopsp/templates/app/reporting/engage/index.html:287
+msgid "Work in progress"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:136
+#: djaopsp/templates/app/reporting/engage/index.html:137
+#: djaopsp/templates/app/reporting/engage/index.html:138
+#: djaopsp/templates/app/reporting/engage/index.html:290
+#: djaopsp/templates/app/reporting/engage/index.html:294
+#: djaopsp/templates/app/reporting/engage/index.html:298
+msgid "Completed"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:136
+#: djaopsp/templates/app/reporting/engage/index.html:291
+#: djaopsp/templates/app/scorecard/index.html:90
+msgid "not yet shared"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:137
+#: djaopsp/templates/app/reporting/engage/index.html:295
+msgid "declined to share"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:139
+#: djaopsp/templates/app/reporting/engage/index.html:302
+msgid "Verified"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:152
+msgid "Last update"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:167
+msgid "Last reminder"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:189
+msgid "Added"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:229
+#, python-format
+msgid "No profile accessible for %(profile)s"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:237
+#: djaopsp/templates/app/reporting/engage/index.html:266
+#: djaopsp/templates/survey/matrix/compare.html:19
+#: djaopsp/templates/survey/matrix/compare.html:83
+#: djaopsp/templates/survey/matrix/compare.html:189
+#: djaopsp/templates/survey/matrix/compare.html:222
+msgid "Add"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:258
+msgid "no invite between"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:280
+msgid "Declined"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:281
+msgid "declined to respond"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:299
+#: djaopsp/templates/app/reporting/engage/index.html:303
+msgid "\"view\""
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:311
+#: djaopsp/templates/app/scorecard/index.html:293
+msgid "respondents"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:322
+msgid "No response will be provided"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:325
+msgid "No answer yet"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:335
+msgid "sent to"
+msgstr ""
+
+#: djaopsp/templates/app/reporting/engage/index.html:355
+msgid "(Re-)send"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/_secondary_answers.html:14
+msgid "On"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/_secondary_answers.html:18
+msgid "not publicly disclosed"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/history.html:4
+#, python-format
+msgid "Completed Questionnaires for %(profile)s"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/history.html:5
+#, python-format
+msgid "Completed Questionnaires History for %(profile)s"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/history.html:21
+msgid "Pending Requests"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/history.html:30
+msgid "No requests for"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/history.html:37
+msgid ""
+"The following organizations would like an updated assessment to the "
+"[[items.campaign.title ? items.campaign.title : items.campaign]] "
+"questionnaire."
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/history.html:58
+msgid ""
+"If you have recently completed this questionnaire and do not wish to make"
+" updates, you can share the latest assessment by clicking the share link "
+"in the <em>Previously Completed</em> section below."
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/history.html:70
+msgid "See questionnaires"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/history.html:74
+msgid "Previously Completed"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/history.html:83
+msgid "No previous assessments"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:11
+msgid "This report is a work in progress."
+msgstr "Este informe es un trabajo en progreso."
+
+#: djaopsp/templates/app/scorecard/index.html:12
+msgid ""
+"Once you are ready, please click the \"Complete\" button at the bottom of"
+" the page to create a frozen report. The report will then appear under "
+"\"Historical assessments\" and can be shared with customers and "
+"stakeholders."
+msgstr ""
+"Una vez que esté listo, haga clic en el botón \"Completar\" en la parte "
+"inferior de la página para crear un informe congelado. El informe aparecerá "
+"en \"Evaluaciones históricas\" y podrá compartirse con clientes y partes "
+"interesadas."
+
+#: djaopsp/templates/app/scorecard/index.html:84
+msgid "Not yet reviewed nor verified"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:85
+msgid "Under review"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:86
+msgid "Verification completed"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:87
+msgid "Found serious discrepancies between responses and supporting documents"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:88
+msgid ""
+"Responses are technically accurate but lacking consistency with the pool "
+"of suppliers reviews "
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:89
+msgid "Responses are consistent with average answers and supporting documents"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:90
+msgid ""
+"All questions have been answered positively with supporting documentation"
+" more rigorously detailed than the pool of suppliers reviewed."
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:108
+msgid ""
+"Click Assess in the horizontal progress bar at the top of the page to get"
+" started!"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:137
+msgid "Remove"
+msgstr "Eliminar"
+
+#: djaopsp/templates/app/scorecard/index.html:197
+msgid "Benchmarking is based on responses from"
+msgstr "La evaluación comparativa se basa en las respuestas de"
+
+#: djaopsp/templates/app/scorecard/index.html:198
+msgid "companies responding on practices in the industry segment."
+msgstr "empresas respondiendo sobre prácticas en el segmento de la industria."
+
+#: djaopsp/templates/app/scorecard/index.html:292
+msgid "Implementation rate"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:306
+msgid "Opportunity score"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:340
+msgid "planned"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:459
+msgid "Add industry-specific assessment"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:497
+msgid "Print (pdf)"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:506
+msgid "Share assessment"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:522
+msgid "Invite a contributor"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:536
+msgid "Complete"
+msgstr ""
+
+#: djaopsp/templates/app/scorecard/index.html:540
+msgid ""
+"You can only record a response once all sections have been answered. "
+"Required questions with missing answers are highlighted with a red "
+"vertical bar to the right."
+msgstr ""
+
+#: djaopsp/templates/app/share/redirects.html:5
+msgid "Pick a response to share ..."
+msgstr ""
+
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:22
+msgid "S1 - Stationary Combustion"
+msgstr ""
+
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:31
+msgid "S1 - Mobile Combustion"
+msgstr ""
+
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:40
+msgid "S1 - Refrigerants"
+msgstr ""
+
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:49
+msgid "S2 - Purchased Electricity"
+msgstr ""
+
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:58
+msgid "S3 - Transportation"
+msgstr ""
+
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:208
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:437
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:634
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:847
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:1093
+#: djaopsp/templates/app/track/waste.html:132
+#: djaopsp/templates/app/track/waste.html:220
+#: djaopsp/templates/app/track/waste.html:307
+#: djaopsp/templates/app/track/water.html:130
+#: djaopsp/templates/app/track/water.html:219
+#: djaopsp/templates/app/track/water.html:315
+msgid "Add row"
+msgstr ""
+
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:215
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:265
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:444
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:498
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:641
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:679
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:855
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:905
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:1100
+#: djaopsp/templates/app/track/energy-ghg-emissions.html:1156
+#: djaopsp/templates/app/track/waste.html:140
+#: djaopsp/templates/app/track/waste.html:227
+#: djaopsp/templates/app/track/waste.html:314
+#: djaopsp/templates/app/track/water.html:137
+#: djaopsp/templates/app/track/water.html:230
+#: djaopsp/templates/app/track/water.html:326
+msgid "Record"
+msgstr ""
+
+#: djaopsp/templates/app/track/index.html:23
+msgid "Recorded data points"
+msgstr ""
+
+#: djaopsp/templates/app/track/index.html:25
+msgid ""
+"\n"
+"Under this section, you can view the recorded data points that have been\n"
+"entered for your profile so far.\n"
+msgstr ""
+
+#: djaopsp/templates/app/track/index.html:31
+msgid "View"
+msgstr ""
+
+#: djaopsp/templates/app/track/index.html:39
+msgid "Energy &amp; GHG Emissions"
+msgstr ""
+
+#: djaopsp/templates/app/track/index.html:41
+msgid ""
+"\n"
+"Under this section, you can track energy consumption and estimate\n"
+"GHG Emissions.\n"
+msgstr ""
+
+#: djaopsp/templates/app/track/index.html:47
+#: djaopsp/templates/app/track/index.html:64
+#: djaopsp/templates/app/track/index.html:79
+msgid "Enter"
+msgstr ""
+
+#: djaopsp/templates/app/track/index.html:57
+msgid "Waste"
+msgstr ""
+
+#: djaopsp/templates/app/track/index.html:59
+msgid ""
+"\n"
+"Under this section, you can track waste generated.\n"
+msgstr ""
+
+#: djaopsp/templates/app/track/index.html:72
+msgid "Water"
+msgstr ""
+
+#: djaopsp/templates/app/track/index.html:74
+msgid ""
+"\n"
+"Under this section, you can track water usage.\n"
+msgstr ""
+
+#: djaopsp/templates/app/track/values.html:11
+msgid "Date"
+msgstr ""
+
+#: djaopsp/templates/app/track/values.html:17
+msgid "Measured"
+msgstr ""
+
+#: djaopsp/templates/app/track/values.html:23
+msgid "Description"
+msgstr ""
+
+#: djaopsp/templates/app/track/values.html:41
+msgid "No datapoints"
+msgstr ""
+
+#: djaopsp/templates/app/track/waste.html:22
+msgid "Hazardous Waste"
+msgstr ""
+
+#: djaopsp/templates/app/track/waste.html:31
+msgid "Non-Hazardous Waste"
+msgstr ""
+
+#: djaopsp/templates/app/track/waste.html:40
+msgid "Waste Recycled and Diverted"
+msgstr ""
+
+#: djaopsp/templates/app/track/water.html:22
+msgid "Water withdrawn"
+msgstr ""
+
+#: djaopsp/templates/app/track/water.html:31
+msgid "Water discharged"
+msgstr ""
+
+#: djaopsp/templates/app/track/water.html:40
+msgid "Water Recycled"
+msgstr ""
+
+#: djaopsp/templates/jinja2/_form_fields.html:38
+msgid "Never"
+msgstr ""
+
+#: djaopsp/templates/pages/_breadcrumbs.html:15
+#: djaopsp/templates/pages/index.html:7
+msgid "Knowledge Sharing"
+msgstr ""
+
+#: djaopsp/templates/pages/_comments.html:3
+msgid "Comments"
+msgstr ""
+
+#: djaopsp/templates/pages/_comments.html:24
+msgid "Comments/lessons learned to share on this page?"
+msgstr ""
+
+#: djaopsp/templates/pages/_comments.html:25
+msgid "Submit them via the comment box below."
+msgstr ""
+
+#: djaopsp/templates/pages/_comments.html:32
+msgid "ATTENTION!"
+msgstr ""
+
+#: djaopsp/templates/pages/_comments.html:33
+msgid ""
+"Comments you write here will be made public to all visiting this page. "
+"They should be meant to help others and/or improve the content of the "
+"page."
+msgstr ""
+
+#: djaopsp/templates/pages/_comments.html:38
+msgid ""
+"To add comments specific to your organization's assessment, please use "
+"the <em>sticky note</em> icon between the practice title and the multiple"
+" choices (See picture)."
+msgstr ""
+
+#: djaopsp/templates/pages/_comments.html:53
+msgid "Please"
+msgstr ""
+
+#: djaopsp/templates/pages/_comments.html:53
+msgid "log in"
+msgstr ""
+
+#: djaopsp/templates/pages/_comments.html:53
+msgid "to leave a comment."
+msgstr ""
+
+#: djaopsp/templates/pages/_follow_vote.html:4
+msgid "Unfollow"
+msgstr ""
+
+#: djaopsp/templates/pages/_follow_vote.html:6
+msgid "Follow"
+msgstr ""
+
+#: djaopsp/templates/pages/element.html:39
+msgid "add tags ..."
+msgstr ""
+
+#: djaopsp/templates/pages/element.html:49
+#: djaopsp/templates/pages/element.html:59
+msgid "This page is currently empty."
+msgstr ""
+
+#: djaopsp/templates/pages/element.html:72
+#: djaopsp/templates/pages/index.html:41
+msgid "New practice"
+msgstr ""
+
+#: djaopsp/templates/pages/element.html:83
+#: djaopsp/templates/pages/index.html:52
+msgid "Create a new practice ..."
+msgstr ""
+
+#: djaopsp/templates/pages/element.html:101
+#: djaopsp/templates/pages/index.html:71
+#: djaopsp/templates/survey/matrix/compare.html:111
+msgid "Create"
+msgstr ""
+
+#: djaopsp/templates/pages/element.html:110
+msgid "How was this practice identified and selected?"
+msgstr ""
+
+#: djaopsp/templates/pages/element.html:118
+msgid "This material is licensed as Creative Commons"
+msgstr ""
+
+#: djaopsp/templates/pages/element.html:119
+msgid ""
+"When using it for any project, you are required to give credit to The "
+"Sustainability Project (TSP). Please use the following attribution:"
+msgstr ""
+
+#: djaopsp/templates/pages/element.html:129
+msgid "This content is aliased through:"
+msgstr ""
+
+#: djaopsp/templates/pages/index.html:25
+msgid "Ex: GHG Emissions ..."
+msgstr ""
+
+#: djaopsp/templates/pages/index.html:62
+msgid "Title"
+msgstr ""
+
+#: djaopsp/templates/pages/index.html:85
+msgid "No entries for"
+msgstr ""
+
+#: djaopsp/templates/survey/campaigns/campaign.html:33
+msgid "Upload (.xlsx)"
+msgstr ""
+
+#: djaopsp/templates/survey/campaigns/campaign.html:388
+msgid "Delete"
+msgstr ""
+
+#: djaopsp/templates/survey/campaigns/campaign.html:413
+msgid "\"${filename}\" uploaded sucessfully"
+msgstr ""
+
+#: djaopsp/templates/survey/campaigns/index.html:21
+msgid "Questionnaire title"
+msgstr ""
+
+#: djaopsp/templates/survey/campaigns/index.html:26
+msgid "Create Questionnaire"
+msgstr ""
+
+#: djaopsp/templates/survey/campaigns/index.html:65
+msgid "No entries"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:4
+#, python-format
+msgid "%(campaign)s Compare - %(profile)s"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:21
+msgid "Individual account"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:22
+msgid "Group of accounts"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:23
+msgid "Accounts by affinity"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:24
+msgid "Accounts by answers"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:47
+#: djaopsp/templates/survey/matrix/compare.html:160
+msgid "Enter profile name"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:71
+msgid "There is no data available for this profile."
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:74
+msgid "Pick a response"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:100
+msgid "New group ..."
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:104
+msgid "Group name"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:116
+msgid "List of profiles in group"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:125
+msgid "Group is empty. Add a profile in the group ..."
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:144
+msgid "Add profile in group ..."
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:206
+msgid "Engaged"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:207
+msgid "Tracked"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:208
+#, python-format
+msgid "Subscriber to %(plan)s"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:209
+#, python-format
+msgid "Federated through %(alliance)s"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:241
+msgid "Dataset"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/compare.html:263
+msgid "No response to compare"
+msgstr ""
+
+#: djaopsp/templates/survey/matrix/matrix.html:11
+msgid "Compare scores"
+msgstr ""
+

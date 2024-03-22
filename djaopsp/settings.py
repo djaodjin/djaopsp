@@ -17,6 +17,7 @@ APP_NAME = os.path.basename(BASE_DIR)
 RUN_DIR = os.path.join(BASE_DIR, 'var', 'run', 'cache')
 
 DEBUG = True
+FEATURES_REVERT_TO_DJANGO = False
 FEATURES_USE_PORTFOLIOS = False
 TESTING_USERNAMES = []
 
@@ -324,6 +325,34 @@ TEMPLATES = [
             'loaders': TEMPLATES_LOADERS,
         }
     },
+]
+
+if FEATURES_REVERT_TO_DJANGO:
+    sys.stderr.write("Use Django templates engine.\n")
+    TEMPLATES += [
+    {
+        'NAME': 'html',
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': TEMPLATES_DIRS,
+        'OPTIONS': {
+            'context_processors': [
+    'django.contrib.auth.context_processors.auth', # because of admin/
+    'django.template.context_processors.request',
+    'django.template.context_processors.media',
+            ],
+            'loaders': TEMPLATES_LOADERS,
+            'libraries': {},
+            'builtins': [
+                'django.templatetags.i18n',# XXX Format incompatible with Jinja2
+                'deployutils.apps.django.templatetags.deployutils_extratags',
+                'deployutils.apps.django.templatetags.deployutils_prefixtags',
+                ]
+        }
+    }
+    ]
+else:
+    sys.stderr.write("Use Jinja2 templates engine.\n")
+    TEMPLATES += [
     {
         'NAME': 'html',
         'BACKEND': 'django.template.backends.jinja2.Jinja2',
@@ -331,8 +360,8 @@ TEMPLATES = [
         'OPTIONS': {
             'environment': 'djaopsp.jinja2.environment'
         }
-    }
-]
+    }]
+
 
 EXTENDED_TEMPLATES = {
     'ASSETS_MAP': ASSETS_MAP,

@@ -1,4 +1,4 @@
-Django==3.2.24
+Django==3.2.25
 #djangorestframework==3.14.0
 djangorestframework==3.12.4
 djaodjin-deployutils==0.10.9
@@ -25,6 +25,7 @@ setproctitle==1.2.3
 
 # Dev and Deploy
 # --------------
+Babel==2.12.1
 # To run with DEBUG=1
 django-debug-toolbar==3.5.0       # 3.4.0 requires Django>=3.2
                                   # 3.2.4 fails with SQLPanel is not scriptable

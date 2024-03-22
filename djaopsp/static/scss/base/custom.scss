@@ -6,9 +6,7 @@
 // footer at the bottom of the screen when a page is less that screen height.
 $navbar-height: max($nav-link-height, $navbar-brand-height) + $navbar-padding-y * 2;
 $footer-height: 150px;
-//$footer-height: 34px;
-$score-card-width: 300px;
-$green-level-4-color: #FFD700;
+$plan-footer-height: 70px;
 
 // variables specific to djaoapp used for code examples
 //$example-title-bg: rgb(62, 68, 88);
@@ -41,6 +39,23 @@ $jumbotron-shadow-end-color-dark: $jumbotron-shadow-start-color;
     --jumbotron-shadow-start-color: #{$jumbotron-shadow-start-color};
     --jumbotron-shadow-end-color: #{$jumbotron-shadow-end-color};
 }
+
+@if $enable-dark-mode {
+  @include color-mode(dark, true) {
+    color-scheme: dark;
+
+    --example-title-bg: #{$example-title-bg-dark};
+    --example-title-color: #{$example-title-color-dark};
+    --example-bg: #{$example-bg-dark};
+    --example-color: #{$example-color-dark};
+    --jumbotron-shadow-start-color: #{$jumbotron-shadow-start-color-dark};
+    --jumbotron-shadow-end-color: #{$jumbotron-shadow-end-color-dark};
+  }
+}
+// --
+
+$score-card-width: 300px;
+$green-level-4-color: #FFD700;
 
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
@@ -532,7 +547,12 @@ li.squared-tabs-li > ul > li:first-child{
       border: 1px solid #AAA;
       border-width: 0 0 1px 1px;
   }
+}
 
+@include media-breakpoint-down(sm) {
+  button.full-width {
+      width: 100%;
+  }
 }
 
 .nav-tabs.squared-tabs > li.squared-tabs-li.active .icon-inner:after {
