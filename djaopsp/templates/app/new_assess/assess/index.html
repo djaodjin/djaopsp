@@ -1,4 +1,4 @@
-{% extends "app/assess/base.html" %}
+{% extends "app/new_assess/assess/base.html" %}
 
 {% block dashboard_inner_container_classes %}dashboard-inner-container{% endblock %}
 {% block dashboard_inner_classes %} class="dashboard-inner-container"{% endblock %}
@@ -131,7 +131,7 @@
                   <div class="sticky-cell-content-container">
                     <div class="sticky-cell-content" style="padding-left:0.75rem;">
                       Practices
-                      {% include "app/assess/_vs_peers_toggle.html" %}
+                      {% include "app/new_assess/assess/_vs_peers_toggle.html" %}
                     </div>
                   </div>
                 </th>
@@ -150,7 +150,7 @@
             <tbody :data-id="getPath(practice)"
                    v-for="practice in getEntries(icon.slug)"
                    v-show="itemsLoaded && items.results.length">
-              {% include "app/assess/_assess_row.html" %}
+              {% include "app/new_assess/assess/_assess_row.html" %}
             </tbody>
           </table>
           {% if not sample.is_frozen %}
@@ -178,7 +178,7 @@
                 <div class="sticky-cell-content-container">
                   <div class="sticky-cell-content" style="padding-left:0.75rem;">
                     Practices
-                    {% include "app/assess/_vs_peers_toggle.html" %}
+                    {% include "app/new_assess/assess/_vs_peers_toggle.html" %}
                   </div>
                 </div>
               </th>
@@ -201,7 +201,7 @@
                    v-for="practice in getEntries(icon.slug)"
                    v-show="itemsLoaded && items.results.length">
               <tr>
-                {% include "app/assess/_assess_results_row.html" %}
+                {% include "app/new_assess/assess/_assess_results_row.html" %}
               </tr>
             </tbody>
           </table>

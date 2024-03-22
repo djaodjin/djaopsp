@@ -118,8 +118,6 @@ class NewAssessView(SectionReportMixin, TemplateView):
             'api_account_benchmark': reverse(
                 'survey_api_sample_benchmarks_index',
                 args=(self.account, self.sample)),
-            # These URLs can't be accessed by profiles the sample was shared
-            # with. They must use ``sample.account``.
             'assess_base': reverse('assess_practices',
                                    args=(self.sample.account, self.sample, '-'))[:-2],
             'api_assessment_freeze': reverse('survey_api_sample_freeze_index',
@@ -128,8 +126,6 @@ class NewAssessView(SectionReportMixin, TemplateView):
                                             args=(self.sample.account, self.sample)),
             'api_assessment_notes': reverse('api_verifier_notes_index',
                                             args=(self.sample.account, self.sample)),
-            # The Vue component will use the fully resolved URL to show
-            # if it is an external link or an uploaded document.
             'api_asset_upload_complete': self.request.build_absolute_uri(
                 reverse('pages_api_upload_asset', args=(self.sample.account,))),
             'track_metrics_index': reverse(
@@ -140,12 +136,9 @@ class NewAssessView(SectionReportMixin, TemplateView):
                                          self.full_path.lstrip(self.URL_PATH_SEP))),
             'api_assessment_sample': reverse('survey_api_sample',
                                              args=(self.account, self.sample)),
-            # 'api_asset_upload_complete': self.request.build_absolute_uri(
-            #     reverse('pages_api_upload_asset', args=(self.account,))),
             'api_aggregate_metric_base': reverse(
                 'survey_api_aggregate_metric_base', args=(self.account,)),
             'api_asset_upload_start': self.request.build_absolute_uri(
                 reverse('pages_api_upload_asset', args=(self.account,))),
-
         })
         return context

@@ -1,7 +1,7 @@
 <div style="text-align:center; margin-right:15px; font-size:10px;">
     <div>
         <input style="width:auto; vertical-align:middle;"
-               type="range" min="0" max="1" @input="assessScorecardToggle" value="0">
+               type="range" min="0" max="1" v-model="$parent.showScorecard" value="0">
     </div>
     <div style="display:flex; justify-content:space-between; margin-right:15px; margin-left: 15px;">
         <span>{% trans %}Assess{% endtrans %}</span>
