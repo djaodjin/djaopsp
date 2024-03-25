@@ -226,7 +226,7 @@ INNER JOIN survey_sample
         }
 
 
-class BenchmarkMixin(BenchmarkMixinBase):
+class BenchmarkMixin(TimersMixin, BenchmarkMixinBase):
 
     def attach_results(self, questions_by_key, account=None):
         if not account:
@@ -234,6 +234,8 @@ class BenchmarkMixin(BenchmarkMixinBase):
         accessible_accounts = self.get_accessible_accounts([account])
         self._attach_results(questions_by_key, accessible_accounts,
             account.printable_name, account.slug)
+        self._report_queries(
+            "BenchmarkMixin._attach_results(account=%s)" % str(account))
 
         alliances = get_alliances(account)
         for alliance in list(alliances):
@@ -241,6 +243,8 @@ class BenchmarkMixin(BenchmarkMixinBase):
                 [alliance], campaign=self.campaign, aggregate_set=True)
             self._attach_results(questions_by_key, accessible_accounts,
                 alliance.printable_name, alliance.slug)
+            self._report_queries(
+                "BenchmarkMixin._attach_results(account=%s)" % str(alliance))
 
 
 class BenchmarkAPIView(BenchmarkMixin, generics.ListAPIView):
@@ -252,7 +256,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.ListAPIView):
     .. code-block:: http
 
         GET /api/energy-utility/reporting/sustainability/benchmarks\
-/sustainability HTTP/1.1
+/sustainability/governance/environmental-reporting/environmental-fines HTTP/1.1
 
     responds
 
@@ -260,8 +264,41 @@ class BenchmarkAPIView(BenchmarkMixin, generics.ListAPIView):
 
 
         {
-          "count": 4,
-          "results": []
+          "count": 1,
+          "scale": 1,
+          "title": "Benchmarks",
+          "unit": "percentage"
+          "results": [
+            {
+              "path": "/sustainability/governance/environmental-reporting/environmental-fines",
+              "title": "5.1 Has your company received or been responsible for a Notice of Violation (NOV), Consent Order or fine over USD $10,000 from an environmental agency, or an environmental event that required reporting to an environmental agency in the past 36 months?",
+              "default_unit": {
+                  "slug": "yes-no",
+                  "title": "Yes/No",
+                  "system": "enum",
+                  "choices": []
+              },
+              "ui_hint": "none",
+              "benchmarks": [
+                {
+                  "slug": "energy-utility",
+                  "title": "Energy Utility (Demo)",
+                  "values": [
+                      [ "No", 80],
+                      [ "Yes", 20]
+                  ]
+                },
+                {
+                  "slug": "alliance",
+                  "title": "Alliance",
+                  "values": [
+                      [  "No", 95],
+                      [ "Yes", 5]
+                  ]
+                }
+              ]
+            }
+          ]
         }
     """
     serializer_class = SampleBenchmarksSerializer
@@ -276,6 +313,12 @@ class BenchmarkAPIView(BenchmarkMixin, generics.ListAPIView):
 
     def get_queryset(self):
         return self.get_questions(self.db_path)
+
+    def get(self, request, *args, **kwargs):
+        self._start_time()
+        resp = super(BenchmarkAPIView, self).get(request, *args, **kwargs)
+        self._report_queries("[BenchmarkAPIView.get] completed HTTP request")
+        return resp
 
 
 class BenchmarkIndexAPIView(BenchmarkAPIView):

@@ -873,7 +873,8 @@ var dashboardChart = Vue.component('dashboardChart', {
     data: function(){
         return {
             url: null,
-            getCb: 'chart'
+            getCb: 'chart',
+            loadError: null
         }
     },
     methods: {
@@ -884,7 +885,12 @@ var dashboardChart = Vue.component('dashboardChart', {
         },
         get: function(){
             var vm = this;
-            if( !vm.url ) return;
+            if( !vm.url ) {
+                vm.loadError = "No URL specified";
+                vm.itemLoaded = true;
+                return;
+            }
+            vm.loadError = null;
             vm.itemLoaded = false;
             var url = vm.url + vm.getQueryString();
             var cb = vm[vm.getCb];
@@ -894,7 +900,10 @@ var dashboardChart = Vue.component('dashboardChart', {
                     vm.itemLoaded = true;
                 }
             }
-            vm.reqGet(url, cb);
+            vm.reqGet(url, cb, function(resp) {
+                vm.loadError = "" + resp.status + " - " + resp.statusText;
+                vm.itemLoaded = true;
+            });
         },
     },
     computed: {
