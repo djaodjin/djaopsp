@@ -1,0 +1,928 @@
+<keep-alive>
+    <scorecard inline-template>
+        <div {% block dashboard_inner_container_classes %}
+            class="dashboard-inner-container"{% endblock %}>
+            {% block dashboard_nav %}
+                <div class="d-print-none dashboard-nav nav-main-frnt">
+                    <div class="dashboard-nav-inner-container">
+                        <div class="dashboard-nav-main dashboard-nav-color-theme">
+                            <div>
+                                <header>
+                                    <nav class="navbar
+                                                                {% block _navbar_extra_classes %}{% endblock %}">
+                                        <div class="navbar-header">
+                                            {% include "_navbarbrand.html" %}
+                                        </div>
+                                    </nav>
+                                </header>
+                                <div class="dashboard-nav-menu">
+                                    {% block sidebar %}
+                                        <ul class="nav flex-column py-1" id="sidebar-ul-1"
+                                            data-intro="Home"
+                                            data-position="right">
+                                            <li class="nav-item">
+                                                <a id="profile-app" class="nav-link"
+                                                   href="{{ '/app/'|site_url }}{{ organization }}/">
+                                                    {#                         XXX should use `product_url`? #}
+                                                    <span class="fa fa-2x fa-home align-middle"></span>
+                                                    <span class="ps-1">{% trans %}
+                                                        Home{% endtrans %}</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        <hr>
+                                        {% include "app/scorecard/_assess_scorecard_toggle.html" %}
+                                        <hr>
+                                        <ul class="nav flex-column py-1" id="sidebar-ul-primary"
+                                            data-intro="items"
+                                            data-position="right">
+                                            <li class="nav-item"
+                                                :class="{'active': $parent.activeSidebarItem === item.slug}"
+                                                v-for="item in $parent.items.results"
+                                                v-if="item.indent in [0]">
+                                                <a :href="`#${item.slug}`"
+                                                   :class="{'ms-0': item.indent === 0, 'ms-2': item.indent === 1}"
+                                                   class="nav-link" id="profile-app"
+                                                   @click="$parent.setActive(item.slug)"
+                                                   style="min-height: 38px; height: auto;">
+                                                                        <span>{% trans %}
+                                                                            [[item.title]]{% endtrans %}</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        <hr>
+                                        <ul class="nav flex-column py-1" data-intro="ExtraButtons"
+                                            data-position="right">
+                                            <li class="nav-item">
+                                                <a id="xlsx-download" class="nav-link"
+                                                   href="{{ urls.scorecard_download }}"
+                                                   target="_blank"
+                                                   v-show="itemsLoaded">
+                                                    <i class="fa fa-file-text"></i>&nbsp;&nbsp;
+                                                    {% trans %}
+                                                        Download
+                                                        (xlsx){% endtrans %}
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a id="pdf-print" class="nav-link"
+                                                   onClick="window.print()"
+                                                   v-show="itemsLoaded" style="cursor: pointer;">
+                                                    <i class="fa fa-print"></i>&nbsp;&nbsp;
+                                                    {% trans %}
+                                                        Print
+                                                        (pdf){% endtrans %}
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a id="invite-contributor"
+                                                   class="nav-link"
+                                                   href="{{ '/profile/'|site_url }}{{ sample.account.slug }}/roles/manager/">
+                                                    <i class="fa fa-user-plus"></i>
+                                                    {% trans %}Invite a contributor{% endtrans %}
+                                                </a>
+                                            </li>
+                                            <li class="nav-item active" v-cloak>
+                                                <form method="post" action="."
+                                                      @submit.prevent="freezeAssessment">
+                                                    <input type="hidden"
+                                                           name="csrfmiddlewaretoken"
+                                                           value="{{ csrf_token }}">
+                                                    <button id="complete-assessment-btn"
+                                                            class="mt-2 btn btn-primary w-100"
+                                                            href=""
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#complete-assessment"
+                                                            data-toggle="modal"
+                                                            data-target="#complete-assessment"
+                                                            :disabled="freezeAssessmentDisabled"
+                                                            v-show="itemsLoaded && items.results.length > 0">
+                                                        {% trans %}Complete{% endtrans %}
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    {% endblock %}
+                                </div>
+                            </div>
+
+                            <!-- Start Dashboard Footer -->
+                            {% block dashboard_footer %}
+                                <div class="dashboard-nav-footer dashboard-nav-color-theme">
+                                    <div class="footer-links">
+                                        <a href="https://github.com/djaodjin/" target="_blank"><i
+                                                class="fa fa-github fa-sm pe-2"></i></a>
+                                        <a href="https://www.linkedin.com/company/djaodjin/"
+                                           target="_blank"
+                                           rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
+                                    </div>
+
+                                    <div>
+                                        {% trans %}Powered by &copy; 2024 DjaoDjin. All rights
+                                            reserved.{% endtrans %} <a
+                                            href="/legal/" target="_blank">{% trans %}
+                                        Legal{% endtrans %}</a>.
+                                    </div>
+                                </div>
+                            {% endblock %}
+                            <!-- End Dashboard Footer -->
+
+                        </div>
+                    </div><!-- /.dashboard-nav-inner-container -->
+                </div>
+            {% endblock %}
+            <div class="dashboard-content">
+                <div class="d-print-none fullviewport">
+                    <header>
+                        <nav class="navbar navbar-expand-md border-bottom{% block navbar_extra_classes %} navbar-dark bg-secondary{% endblock %}">
+                            <div class="container-fluid">
+                                <a href=""
+                                   class="sidebar-toggle d-inline-block d-sm-none position-relative">
+                                    <div class="bar1 closed"></div>
+                                    <div class="bar2 closed"></div>
+                                    <div class="bar3 closed"></div>
+                                </a>
+                                {% block content_navbarbrand %}
+                                    <div class="navbar-brand-container">
+                                        {% include "_navbarbrand.html" %}
+                                    </div>
+                                {% endblock %}
+                                {% block header_navbar_large %}
+                                    <div class="navbar-collapse collapse navbar-right justify-content-end">
+                                        <ul class="nav navbar-nav ms-auto mt-lg-0 ml-auto">
+                                            {% include "_generic_navbar.html" %}
+                                        </ul>
+                                    </div>
+                                    <ul class="nav navbar-nav ms-auto mt-lg-0 header-menubar ml-auto">
+                                        {# The content here will be replaced by _menubar.html #}
+                                        <li class="nav-item">
+                                            {% if request and request|is_authenticated %}
+                                                <a class="nav-link">{{ request.user.username }}</a>
+                                            {% else %}
+                                                <a id="login"
+                                                   class="btn btn-primary text-white mx-2"
+                                                   href="{{ '/login/'|site_url }}">{% trans %}Sign
+                                                    In{% endtrans %}</a>
+                                            {% endif %}
+                                        </li>
+                                        {# end of replaced by _menubar.html #}
+                                    </ul>
+                                {% endblock %}
+                            </div>
+                        </nav>
+                    </header>
+                    {% block fullviewport %}
+                    {% endblock %}
+                </div><!-- /.fullviewport -->
+                <div{% block content_area_classes %}
+                    class="content-area-container p-0"{% endblock %}>
+                    <div id="messages">
+                        <div id="messages-content">
+                            {% if request %}
+                                {% for message in request|messages %}
+                                    <div class="alert alert-dismissible fade show{% if message.tags %} alert-{{ message.tags }}{% endif %}">
+                                        {% if 'safe' in message.tags %}
+                                            <div>{{ message|safe }}</div>
+                                        {% else %}
+                                            <div>{{ message }}</div>
+                                        {% endif %}
+                                        <button type="button" class="btn-close close"
+                                                data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            {% if form %}
+                                {% for message in form|messages %}
+                                    <div class="alert alert-dismissible fade show alert-danger">
+                                        <div>{{ message }}</div>
+                                        <button type="button" class="btn-close close"
+                                                data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            {#                        <script type="text/javascript">#}
+                            {#                            var _showErrorMessagesProviderNotified = "{% trans %}#}
+                            {#                                We have been notified and have started on fixing the error. We apologize for the inconvenience.{% endtrans %}";#}
+                            {#                        </script>#}
+                        </div>
+                    </div>
+                    <div class="backdrop mb-4">
+                        <div class="p-4 container pt-4">
+                            <div class="bg-white text-dark">
+                                <section id="summary">
+                                    {% if not sample.is_frozen %}
+                                        <div class="alert alert-warning">
+                                            <div>
+                                                <strong>{% trans %}This report is a work in
+                                                    progress.{% endtrans %}</strong>
+                                                {% trans %}Once you are ready, please click the "Complete"
+                                                    button at the
+                                                    bottom of the page to create a frozen report. The report
+                                                    will then
+                                                    appear under "Historical assessments" and can be shared
+                                                    with
+                                                    customers and stakeholders.{% endtrans %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <div class="row">
+                                                <div class="col-sm-4 text-center text-sm-end">
+                                                    <img class="my-4 img-fluid" style="max-height:100px;"
+                                                         src="{% if sample.account.picture %}{{ sample.account.picture }}{% else %}{{ '/static/img/default-organization.png'|asset }}{% endif %}">
+                                                </div>
+                                                <div class="col-sm-8 text-center text-sm-start">
+                                                    <h1 class="mt-4">{{ sample.account.printable_name }}</h1>
+                                                    <h2>{{ sample.campaign.title }}</h2>
+                                                    <div>{{ sample.created_at|date }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-8">
+                                                    <div class="row mx-2">
+                                                        {% for highlight in highlights %}
+                                                            <div class="col-6 col-sm-3 text-start text-left">
+                                                                <div class="mt-2 icon-inner{% if highlight.reporting %} orange{% else %} grey{% endif %}">
+                                                                    <img class="icon-equipment"
+                                                                         src="{{ highlight.picture|asset }}">
+                                                                    <div class="icon-caption text-white">{{ highlight.text }}</div>
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="row mx-2">
+                                                        <div class="col-sm-8 text-start text-left">
+                                                            <div class="mt-4">
+                                                                Contact Information
+                                                                <ul class="list-unstyled mb-0">
+                                                                    <li>{% if sample.account.email %}
+                                                                        {{ sample.account.email }}{% else %}
+                                                                        &nbsp;{% endif %}</li>
+                                                                    <li>{% if sample.account.phone %}
+                                                                        {{ sample.account.phone }}{% else %}
+                                                                        &nbsp;{% endif %}</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    {% if summary_performance %}
+                                                        <div class="text-center">
+                                                            <canvas id="summary-chart"></canvas>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {# /.col-sm-8 #}
+                                        <div class="col-sm-4 bordered-left">
+                                            <div class="h-100 d-flex flex-column justify-content-between"
+                                                 style="background-color: #e5e9dd;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;">
+                                                <div class="py-0">
+                                                </div>
+                                                <div class="text-center">
+                                                    {% include "app/_score_arcs.html" %}
+                                                </div>
+                                                <div class="text-center">
+                                                    <em>source: {{ request|site_url }}</em>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {# /.row #}
+                                    <div class="row mx-2">
+                                        <div class="col-sm-4">
+                                            {% if verification_enabled %}
+                                                <form class="d-print-none mt-2">
+                                                    <input type="hidden" name="csrfmiddlewaretoken"
+                                                           value="{{ csrf_token }}">
+                                                    <select class="form-control form-select"
+                                                            v-model="verificationStatus"
+                                                            @change="updateVerificationStatus()">
+                                                        <option value="no-review">(grey) {% trans %}Not yet
+                                                            reviewed nor
+                                                            verified{% endtrans %}</option>
+                                                        <option value="under-review">(grey) {% trans %}Under
+                                                            review{% endtrans %}</option>
+                                                        <option value="review-completed">(grey) {% trans %}
+                                                            Verification
+                                                            completed{% endtrans %}</option>
+                                                        <option value="discrepencies">(red) {% trans %}Found
+                                                            serious
+                                                            discrepancies between responses and supporting
+                                                            documents{% endtrans %}</option>
+                                                        <option value="lack-consistency">(orange)
+                                                            {% trans %}Responses
+                                                                are technically accurate but lacking
+                                                                consistency with the
+                                                                pool of suppliers
+                                                                reviews {% endtrans %}</option>
+                                                        <option value="meet-expectations">(green)
+                                                            {% trans %}Responses
+                                                                are consistent with average answers and
+                                                                supporting
+                                                                documents{% endtrans %}</option>
+                                                        <option value="rigorous">(gold) {% trans %}All
+                                                            questions have
+                                                            been answered positively with supporting
+                                                            documentation more
+                                                            rigorously detailed than the pool of suppliers
+                                                            reviewed.{% endtrans %} ({% trans %}not yet
+                                                            shared{% endtrans %})
+                                                        </option>
+                                                    </select>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {# /.row #}
+                                </section>
+                                {# /#summary #}
+                                <section id="details">
+                                    {% if not sample.is_frozen %}
+                                        {% if urls.assess_mandatory_segment and not is_mandatory_segment_present %}
+                                            <div class="text-center">
+                                                <hr/>
+                                                <p>
+                                                    {% if sample.campaign.description %}
+                                                        {{ sample.campaign.description }}
+                                                    {% endif %}
+                                                </p>
+                                                <p>
+                                                    {% trans %}Click Assess in the horizontal progress bar
+                                                        at the top of
+                                                        the page to get started!{% endtrans %}
+                                                </p>
+                                            </div>
+                                        {% endif %}{# /no answer on mandatory segment #}
+                                    {% endif %}{# /not sample.is_frozen #}
+                                    <div class="text-center mt-4" v-show="!itemsLoaded">
+                                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                                    </div>
+                                    <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+                                        <div :name="practice.slug"
+                                             v-for="(practice, practiceIdx) in getEntries('')">
+                                            <div class="mt-4" v-if="isChartHeading(practice)">
+                                                <hr v-if="practice.picture"/>
+
+                                                {# segment title #}
+                                                <div :class="practiceIdx > 0 ? 'pagebreak' : ''"
+                                                     v-if="practice.indent === 0">
+                                                    <div :class="indentHeader(practice)">
+                                                        <div class="d-inline-block" v-if="practice.picture">
+                                                            <img class="icon-heading"
+                                                                 :src="practice.picture"/>
+                                                        </div>
+                                                        <span class="title"
+                                                              :id="practice.slug">[[practice.title]]</span><a
+                                                            :href="'#' + practice.slug"
+                                                            class="header-anchor"><i
+                                                            class="fa fa-link"></i></a>
+                                                    </div>
+                                                    {% if not sample.is_frozen %}
+                                                        <div>
+                                                            <a id="reset-assessment-btn"
+                                                               class="ml-4" href=""
+                                                               data-bs-toggle="modal"
+                                                               data-bs-target="#reset-assessment-all"
+                                                               data-toggle="modal"
+                                                               data-target="#reset-assessment-all"
+                                                               @click="setActiveElement(practice)">
+                                                                {% trans %}
+                                                                    Remove{% endtrans %}</a>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    {# scorecard for segment #}
+                                                    <div class="row"
+                                                         v-if="containsTag(practice, 'scorecard')">
+                                                        <div class="col-sm-8">
+                                                            <div>
+                                                                {# XXX copy/pasted from _tile_chart.html? #}
+                                                                <div class="text-center d-flex align-items-center"
+                                                                     style="height:150px;max-width:300px;"
+                                                                     v-if="!chartsAvailable && !charts[practice.path]">
+                                                                    <div class="box">
+                                                                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="text-center d-flex align-items-center"
+                                                                     style="height:150px;max-width:300px;background:#eee;"
+                                                                     v-if="chartsAvailable && !charts[practice.path]">
+                                                                    <div class="box">{% trans %}There is not
+                                                                        enough data
+                                                                        available to benchmark with
+                                                                        peers.{% endtrans %}</div>
+                                                                </div>
+                                                                <canvas :data-id="practice.path"
+                                                                        v-show="isChartAvailable(practice)"></canvas>
+                                                            </div>
+                                                        </div>
+                                                        {# /.col-sm-8 #}
+                                                        <div class="col-sm-4">
+                                                            <div :class="indentHeader(practice)">
+                                                                [[asPercent(practice.normalized_score)]]
+                                                            </div>
+                                                        </div>
+                                                        {# /.col-sm-4 #}
+                                                    </div>
+                                                    {# /scorecard for segment #}
+
+                                                    {# summary of tile sections #}
+                                                    <div v-for="block in chunkBy(getEntries(practice.slug, 1, 'scorecard'), 3)">
+                                                        <div class="row">
+                                                            <div class="col-sm-4"
+                                                                 v-for="subheading in block">
+                                                                <div>
+                                                                    <div class="d-inline-block"
+                                                                         v-if="subheading.picture">
+                                                                        <img class="icon-heading"
+                                                                             :src="subheading.picture"/>
+                                                                    </div>
+                                                                    <span class="title">[[subheading.title]]</span>
+                                                                    <span>([[asPercent(subheading.normalized_score)]])</span>
+                                                                </div>
+                                                                <div class="text-center d-flex align-items-center"
+                                                                     style="height:150px;max-width:300px;"
+                                                                     v-if="!chartsAvailable && !charts[subheading.path]">
+                                                                    <div class="box">
+                                                                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="text-center d-flex align-items-center"
+                                                                     style="height:150px;max-width:300px;background:#eee;"
+                                                                     v-if="chartsAvailable && !charts[subheading.path]">
+                                                                    <div class="box">There is not enough
+                                                                        data available
+                                                                        to benchmark with peers.
+                                                                    </div>
+                                                                </div>
+                                                                <canvas :data-id="'/summary' + subheading.path"
+                                                                        v-show="charts[subheading.path]"></canvas>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p class="text-center">
+                                                        {% trans %}Benchmarking is based on responses
+                                                            from{% endtrans %}
+                                                        <span v-if="!chartsLoaded">?</span><span
+                                                            v-if="chartsLoaded"
+                                                            v-cloak>[[getNbRespondents(practice)]]</span>
+                                                        {% trans %}companies responding on practices in the
+                                                            industry
+                                                            segment.{% endtrans %}
+                                                    </p>
+                                                </div>
+                                                {# /practice.indent == 0 #}
+
+                                                <div v-if="practice.indent > 0">
+                                                    {# tile title #}
+                                                    <div :class="indentHeader(practice)">
+                                                        <div class="d-inline-block" v-if="practice.picture">
+                                                            <img class="icon-heading"
+                                                                 :src="practice.picture"/>
+                                                        </div>
+                                                        <span class="title">[[practice.title]]</span><a
+                                                            :href="'#' + practice.slug"
+                                                            class="header-anchor"><i
+                                                            class="fa fa-link"></i></a>
+                                                    </div>
+
+                                                    {# summary when no tile sections #}
+                                                    <div class="row"
+                                                         v-if="containsTag(practice, 'scorecard') && (getEntries(practice.slug, 1, 'scorecard').length == 0)">
+                                                        <div class="col-sm-8">
+                                                            <div>
+                                                                {# XXX copy/pasted from _tile_chart.html? #}
+                                                                <div class="text-center d-flex align-items-center"
+                                                                     style="height:150px;max-width:300px;"
+                                                                     v-if="!chartsAvailable && !charts[practice.path]">
+                                                                    <div class="box">
+                                                                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="text-center d-flex align-items-center"
+                                                                     style="height:150px;max-width:300px;background:#eee;"
+                                                                     v-if="chartsAvailable && !charts[practice.path]">
+                                                                    <div class="box">{% trans %}There is not
+                                                                        enough data
+                                                                        available to benchmark with
+                                                                        peers.{% endtrans %}</div>
+                                                                </div>
+                                                                <canvas :data-id="practice.path"
+                                                                        v-show="isChartAvailable(practice)"></canvas>
+                                                            </div>
+                                                        </div>
+                                                        {# /.col-sm-8 #}
+                                                        <div class="col-sm-4">
+                                                            <div :class="indentHeader(practice)">
+                                                                [[asPercent(practice.normalized_score)]]
+                                                            </div>
+                                                        </div>
+                                                        {# /.col-sm-4 #}
+                                                    </div>
+                                                </div>
+                                                {# /practice.indent > 0 #}
+
+                                            </div>
+                                            {# /.isChartHeading - i.e. heading with charts and score #}
+
+                                            {# Beginning of details section #}
+                                            <div :class="practiceStyle(practice) + ((practiceIdx > 0 && practice.indent == 0) || (practiceStyle(practice) == 'verifier-notes' && practice.indent == 1) ? ' pagebreak' : '')"
+                                                 v-if="!isChartHeading(practice) && !isPractice(practice)">
+                                                <hr v-if="isTilePicture(practice)"/>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <div :class="indentHeader(practice) + ' mt-2'">
+                                                            <div class="d-inline-block"
+                                                                 v-if="isTilePicture(practice)">
+                                                                <img class="icon-heading"
+                                                                     :src="practice.picture"/>
+                                                            </div>
+                                                            <span class="title"
+                                                                  :id="practice.slug">[[practice.title]]</span><a
+                                                                :href="'#' + practice.slug"
+                                                                class="header-anchor"><i
+                                                                class="fa fa-link"></i></a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {# /.row #}
+
+                                                {# different layout for differnt type of questions. #}
+                                                <div v-if="isDataMetricsHeader(practice)"
+                                                     :class="practiceStyle(practice)">
+                                                    <table class="table table-bordered table-striped">
+                                                        <tr class="text-end">
+                                                            <th></th>
+                                                            <th v-for="year in getColHeaders(practice)">
+                                                                [[year]]
+                                                            </th>
+                                                        </tr>
+                                                        <tr v-for="total in getEntries(practice.slug)">
+                                                            <th>[[total.title]]</th>
+                                                            <td class="text-end"
+                                                                v-for="year in getColHeaders(practice)">
+                                                                [[getColValue(total, year)]]
+                                                            </td>
+                                                        </tr>
+                                                        <caption class="text-center">
+                                                            [[getCaptionTitle(practice)]]
+                                                        </caption>
+                                                    </table>
+                                                </div>
+                                                {# /.isDataMetricsHeader #}
+                                            </div>
+                                            {# /!isChartHeading(practice) && !isPractice(practice) - i.e. regular heading #}
+
+                                            <div v-if="isEnumUnit(practice)"
+                                                 :class="practiceStyle(practice)">
+                                                <div class="row">
+                                                    <div class="col-sm-8">
+                                                        <div :class="indentHeader(practice) + ' mt-3'">
+                                                            [[practice.title]]
+                                                            <a :href="'#' + practice.slug"
+                                                               class="header-anchor"><i
+                                                                    class="fa fa-link"></i></a>
+                                                        </div>
+                                                        <div class="row" v-if="isAssessmentUnit(practice)">
+                                                            <div class="col-6 col-sm-4"
+                                                                 v-if="isAssessmentUnit(practice)">
+                                                                {% trans %}Implementation rate{% endtrans %}
+                                                                <br/>
+                                                                [[practice.nb_respondents]] {% trans %}
+                                                                respondents{% endtrans %}
+                                                                <div class="progress" style="margin:0">
+                                                                    <div :class="'progress-bar progress-bar-success green-level-' + getIntrinsicValue(practice, 'avg_value')"
+                                                                         role="progressbar"
+                                                                         :aria-valuenow="getRate(practice)"
+                                                                         aria-valuemin="0"
+                                                                         aria-valuemax="100"
+                                                                         :style="implementationRateStyle(getRate(practice))">
+                                                                        <span :class="{'text-muted': !getRate(practice) || getRate(practice) < 35}">[[asPercent(getRate(practice))]]</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 col-sm-4">
+                                                                {% trans %}Opportunity score{% endtrans %}
+                                                                <br/>
+                                                                [[getOpportunity(practice)]]
+                                                            </div>
+                                                        </div>
+                                                        {# XXX Temporarily disabled until we handle special 2-values case #}
+                                                        {# <div class="row" v-if="!isAssessmentUnit(practice)">           #}
+                                                        {#   <div class="col-6 col-sm-4">                              #}
+                                                        {#     <div v-for="benchmark in practice.benchmarks">             #}
+                                                        {#       <div class="progress mt-1"                               #}
+                                                        {#            v-for="value in benchmark.values">                  #}
+                                                        {#         <div class="progress-bar progress-bar-success green-level-2" #}
+                                                        {#              role="progressbar"                                #}
+                                                        {#              :aria-valuenow="value[1]"                         #}
+                                                        {#              aria-valuemin="0"                                 #}
+                                                        {#              aria-valuemax="100"                               #}
+                                                        {#              :style="implementationRateStyle(value[1])">       #}
+                                                        {#           <span>[[asPercent(value[1])]]</span>                 #}
+                                                        {#         </div>                                                 #}
+                                                        {#         <span>[[value[0] ]]</span>                             #}
+                                                        {#       </div>                                                   #}
+                                                        {#     </div>                                                     #}
+                                                        {#  </div>                                                        #}
+                                                        {# </div>                                                         #}
+                                                    </div>
+                                                    {# /practice-related information #}
+                                                    <div class="col-sm-4">
+                                                        <div :class="'bestpractice mt-3' + (isRequiredShown(practice) ? ' practice-required' : '')">
+                                                            <div class="row">
+                                                                <div class="col-6 justify-content-between">
+                                                                    <div>
+                                                                        <strong>[[getPrimaryAnswer(practice).measured
+                                                                            ?
+                                                                            getMeasured(getPrimaryAnswer(practice))
+                                                                            :
+                                                                            "-"]]</strong>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6"
+                                                                     v-if="getPrimaryPlanned(practice) && getPrimaryPlanned(practice).measured">
+                                                                    <div>
+                                                                        ({% trans %}planned{% endtrans %}:
+                                                                        <strong>[[getPrimaryPlanned(practice).measured]]</strong>)
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {# /.row assessment answer #}
+                                                {% include "app/scorecard/_secondary_answers.html" %}
+                                            </div>
+                                            {# /isEnumUnit(practice) #}
+
+                                            <div v-if="isFreetextUnit(practice)"
+                                                 :class="practiceStyle(practice)">
+                                                <div class="row">
+                                                    <div class="col-sm-8">
+                                                        <div :class="indentHeader(practice) + ' mt-3'">
+                                                            [[practice.title]]
+                                                            <a :href="'#' + practice.slug"
+                                                               class="header-anchor"><i
+                                                                    class="fa fa-link"></i></a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <div :class="isRequiredShown(practice) ? ' practice-required' : ''">
+                                                            <p @click.prevent="openLink($event)"
+                                                               v-html="textAsHtml(getPrimaryAnswer(practice).measured, practice.required)">
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {# /.row assessment answer #}
+                                                {% include "app/scorecard/_secondary_answers.html" %}
+                                            </div>
+                                            {# /isFreetextUnit(practice) #}
+
+                                            <div v-if="isEmployeeCountUIHint(practice)"
+                                                 :class="practiceStyle(practice)">
+                                                <div class="row">
+                                                    <div class="col-sm-8">
+                                                        <div :class="indentHeader(practice) + ' mt-3'">
+                                                            [[practice.title]]
+                                                            <a :href="'#' + practice.slug"
+                                                               class="header-anchor"><i
+                                                                    class="fa fa-link"></i></a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <div
+                                                                :class="isRequiredShown(practice) ? ' practice-required' : ''"
+                                                                v-if="practice.answers && practice.answers.length === 0">
+                                                            &dash;
+                                                        </div>
+                                                        <div v-if="practice.answers && practice.answers.length > 0">
+                                                            <span v-if="getPrimaryAnswer(practice).measured === '0'">0-10 employees</span>
+                                                            <span v-if="getPrimaryAnswer(practice).measured === '11'">11-50 employees</span>
+                                                            <span v-if="getPrimaryAnswer(practice).measured === '51'">51-200 employees</span>
+                                                            <span v-if="getPrimaryAnswer(practice).measured === '201'">201-500 employees</span>
+                                                            <span v-if="getPrimaryAnswer(practice).measured === '501'">501-1,000 employees</span>
+                                                            <span v-if="getPrimaryAnswer(practice).measured === '1001'">1,001-5,000 employees</span>
+                                                            <span v-if="getPrimaryAnswer(practice).measured === '5001'">5,001-10,000 employees</span>
+                                                            <span v-if="getPrimaryAnswer(practice).measured === '10001'">10,001+ employees</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {# /.row #}
+                                            </div>
+                                            {# /isEmployeeCountUIHint(practice) #}
+
+                                            <div v-if="isNumberUnit(practice)"
+                                                 :class="practiceStyle(practice)">
+                                                <div class="row">
+                                                    <div class="col-sm-8">
+                                                        <div :class="indentHeader(practice) + ' mt-3'">
+                                                            <a class="title"
+                                                               :href="'{{ urls.pages_index }}' + practice.slug + '/'">
+                                                                [[practice.title]]
+                                                            </a><a :href="'#' + practice.slug"
+                                                                   class="header-anchor"><i
+                                                                class="fa fa-link"></i></a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <div :class="isRequiredShown(practice) ? ' practice-required' : ''">
+                    <span v-if="getPrimaryAnswer(practice).measured !== null">
+                       [[getPrimaryAnswer(practice).measured]]
+                    </span>
+                                                            <span v-if="getPrimaryAnswer(practice).measured === null">
+                       &dash;
+                    </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {# /.row #}
+                                                {% include "app/scorecard/_secondary_answers.html" %}
+                                            </div>
+                                            {# /isNumberUnit(practice) #}
+
+                                            <div v-if="isDatetimeUnit(practice)"
+                                                 :class="practiceStyle(practice)">
+                                                <div class="row">
+                                                    <div class="col-sm-8">
+                                                        <div :class="indentHeader(practice) + ' mt-3'">
+                                                            [[practice.title]]
+                                                            <a :href="'#' + practice.slug"
+                                                               class="header-anchor"><i
+                                                                    class="fa fa-link"></i></a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <div :class="isRequiredShown(practice) ? ' practice-required' : ''">
+                    <span v-if="getPrimaryAnswer(practice).measured !== null">
+                       [[getPrimaryAnswer(practice).measured]]
+                    </span>
+                                                            <span v-if="getPrimaryAnswer(practice).measured === null">
+                       &dash;
+                    </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {# /.row #}
+                                                {% include "app/scorecard/_secondary_answers.html" %}
+                                            </div>
+                                            {# /isDatetimeUnit(practice) #}
+                                            {# End of details section #}
+
+                                        </div>
+                                        {# /v-for=getEntries() #}
+                                    </div>
+                                    {# /v-if=itemsLoaded && items.results.length > 0 #}
+
+                                    {% if not sample.is_frozen %}
+                                        <div id="add-segments-actions" class="d-print-none text-center"
+                                             v-show="itemsLoaded" v-cloak>
+                                            {% if segments_candidates and (not urls.assess_mandatory_segment or is_mandatory_segment_present) %}
+                                                <hr/>
+                                                <div class="dropdown">
+                                                    <button id="segment-selector"
+                                                            class="btn btn-primary btn-lg dropdown-toggle"
+                                                            type="button"
+                                                            data-bs-toggle="dropdown" data-bs-flip="false"
+                                                            data-toggle="dropdown" data-flip="false"
+                                                    >
+                                                        <span class="text">{% trans %}Add industry-specific
+                                                            assessment{% endtrans %}</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu"
+                                                        aria-labelledby="segment-selector">
+                                                        {% for segment in segments_candidates %}
+                                                            <li class="dropdown-item dropdown-item-indent-{{ segment.indent }}">
+                                                                <div>
+                                                                    {% if not segment.disabled %}
+                                                                        {% if segment.extra and segment.extra.pagebreak %}
+                                                                            <a id="{{ segment.slug }}-btn"
+                                                                               href="
+
+
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                                   
+                                                                       {{ urls.assess_base }}{{ segment.slug }}/"
+                                                                               role="menuitem"
+                                                                               tabindex="-1">{{ segment.title }}</a>
+                                                                        {% else %}
+                                                                            <button class="btn btn-link"
+                                                                                    disabled>{{ segment.title }}</button>
+                                                                        {% endif %}
+                                                                    {% else %}
+                                                                        <span class="disabled"
+                                                                              role="menuitem"
+                                                                              tabindex="-1">{{ segment.title }} <i
+                                                                                class="fa fa-wrench"></i></span>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+                                        </div> {# /#add-segments-actions #}
+                                    {% endif %}
+                                </section>
+                                {# /# details #}
+{#                                <section id="next-actions" class="d-print-none" v-show="itemsLoaded"#}
+{#                                         v-cloak>#}
+{#                                    <hr/>#}
+{##}
+{#                                    <div class="row mt-4">#}
+{#                                        <div class="col-sm-4 col-md-3">#}
+{#                                            <a id="xlsx-download-btn" class="mt-2 btn btn-secondary w-100"#}
+{#                                               href="{{ urls.scorecard_download }}"#}
+{#                                               target="_blank"#}
+{#                                               v-show="itemsLoaded">#}
+{#                                                <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}#}
+{#                                                Download#}
+{#                                                (xlsx){% endtrans %}#}
+{#                                            </a>#}
+{#                                            <button id="pdf-print-btn" class="mt-2 btn btn-secondary w-100"#}
+{#                                                    onClick="window.print()"#}
+{#                                                    v-show="itemsLoaded">#}
+{#                                                <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print#}
+{#                                                (pdf){% endtrans %}#}
+{#                                            </button>#}
+{#                                        </div>#}
+{#                                        {% if sample.is_frozen %}#}
+                                            {# actions only available when a scorecard is frozen #}
+{#                                            {% if urls.share %}#}
+{#                                                <div class="col-sm-4 col-md-3 offset-md-6">#}
+{#                                                    <a id="share-btn" class="mt-2 btn btn-secondary w-100"#}
+{#                                                       href="{{ urls.share }}">#}
+{#                                                        {% trans %}Share assessment{% endtrans %}#}
+{#                                                    </a>#}
+{#                                                </div>#}
+                                                {# XXX disabled until functionality is implemented          #}
+                                                {# <div class="col-sm-4 col-md-3">                          #}
+                                                {#   <a id="embed-btn" class="mt-2 btn btn-secondary w-100" #}
+                                                {#      href="">                                            #}
+                                                {#     Embed link                                           #}
+                                                {#   </a>                                                   #}
+                                                {# </div>                                                   #}
+{#                                            {% endif %}#}
+{#                                        {% else %}#}
+                                            {# actions only available when a scorecard is active #}
+{#                                            <div class="col-sm-4 col-md-3">#}
+{#                                                <a id="invite-contributor-btn"#}
+{#                                                   class="mt-2 btn btn-secondary w-100"#}
+{#                                                   href="{{ '/profile/'|site_url }}{{ sample.account.slug }}/roles/manager/">#}
+{#                                                    {% trans %}Invite a contributor{% endtrans %}#}
+{#                                                </a>#}
+{#                                            </div>#}
+{#                                            <div class="col-sm-4 col-md-3 offset-md-3">#}
+{#                                                {% if not urls.assess_mandatory_segment or is_mandatory_segment_present %}#}
+{#                                                    <form method="post" action="."#}
+{#                                                          @submit.prevent="freezeAssessment">#}
+{#                                                        <input type="hidden" name="csrfmiddlewaretoken"#}
+{#                                                               value="{{ csrf_token }}">#}
+{#                                                        <button id="complete-assessment-btn"#}
+{#                                                                class="mt-2 btn btn-primary w-100"#}
+{#                                                                href=""#}
+{#                                                                data-bs-toggle="modal"#}
+{#                                                                data-bs-target="#complete-assessment"#}
+{#                                                                data-toggle="modal"#}
+{#                                                                data-target="#complete-assessment"#}
+{#                                                                :disabled="freezeAssessmentDisabled"#}
+{#                                                                v-show="itemsLoaded && items.results.length > 0">#}
+{#                                                            {% trans %}Complete{% endtrans %}#}
+{#                                                        </button>#}
+{#                                                    </form>#}
+{#                                                    <p class="mt-2">#}
+{#                                                        {% trans %}You can only record a response once all#}
+{#                                                            sections have#}
+{#                                                            been answered. Required questions with missing#}
+{#                                                            answers are#}
+{#                                                            highlighted with a red vertical bar to the#}
+{#                                                            right.{% endtrans %}#}
+{#                                                    </p>#}
+{#                                                {% endif %}#}
+{#                                            </div>#}
+{#                                        {% endif %}#}
+{#                                    </div>#}
+{#                                </section>#}
+                                {# /#next-actions #}
+                            </div>
+                            <!-- modals -->
+                            {% include "app/new_assess/_new_reset_assessment.html" %}
+                            {% include "app/_complete_assessment.html" %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </scorecard>
+</keep-alive>

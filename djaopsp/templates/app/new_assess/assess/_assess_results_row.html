@@ -1,0 +1,41 @@
+<td :id="practice.slug"
+    :colspan="isPractice(practice) ? 6 : (6 + 6)">
+  <div class="d-inline-block">
+    <div :class="indentHeader(practice)"
+         style="display:inline-block;">
+      <span class="title"
+            v-if="!isPractice(practice) && !isPagebreak(practice)">
+        [[practice.title]]
+      </span>
+      <a :href="practice.slug + '/'"
+         v-if="!isPractice(practice) && isPagebreak(practice)">
+        [[practice.title]]
+      </a>
+      <div v-if="isPractice(practice) && !isEnumHeaderShown(icon)">
+        <span class="title">[[practice.title]]</span>
+        <span v-if="practice.text && practice.text.indexOf('.png', practice.text.length - 4) < 0" v-bind-html="practice.text"></span>
+      </div>
+      <a class="title"
+         :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
+         v-if="isPractice(practice) && isEnumHeaderShown(icon)">
+        [[practice.title]]
+      </a>
+    </div>
+  </div>
+</td>
+
+<td :class="'text-center' + ((getPrimaryAnswer(practice).measured !== practice.planned) && (practice.planned === choice.text) ? ' green-level-4' : '') + (getPrimaryAnswer(practice).measured === choice.text ? ' choice-selected' : '')"
+    :colspan="getNbInputCols(practice)"
+    v-for="choice in getChoices(icon)"
+    v-if="isPractice(practice)">
+  <div class="progress" style="margin:0">
+    <div class="progress-bar progress-bar-success green-level-1"
+         role="progressbar"
+         :aria-valuenow="getRate(practice, choice.text)"
+         aria-valuemin="0"
+         aria-valuemax="100"
+         :style="implementationRateStyle(getRate(practice, choice.text))">
+      <span :class="{'text-muted': !getRate(practice, choice.text) || getRate(practice, choice.text) < 35}">[[asPercent(getRate(practice, choice.text))]]</span>
+    </div>
+  </div>
+</td>

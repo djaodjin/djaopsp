@@ -24,10 +24,37 @@ Vue.component('campaign-questions-list', {
             nbRequiredAnswers: this.$sample ? this.$sample.nbRequiredAnswers : 0,
             nbRequiredQuestions: this.$sample ? this.$sample.nbRequiredQuestions : 0,
             api_profiles_url: this.$urls.api_profiles,
-            profilesBySlug: {}
+            profilesBySlug: {},
+            api_assessment_freeze: this.$urls.api_assessment_freeze ?
+                this.$urls.api_assessment_freeze : this._safeUrl(
+                    this.$urls.api_assessment_sample, '/freeze'),
         }
     },
     methods: {
+        freezeAssessment: function($event) {
+            var vm = this;
+            vm.freezeAssessmentDisabled = true;
+            vm.reqPost(vm.api_assessment_freeze, {is_frozen: true},
+            function success(resp) {
+                vm.freezeAssessmentDisabled = false;
+                vm.$nextTick(function() {
+                    var modalDialog = jQuery('#complete-assessment.modal');
+                    if( modalDialog ) modalDialog.modal('hide');
+                    if( resp.location ) {
+                        window.location = resp.location;
+                    }
+                });
+            },
+            function error(resp) {
+                vm.freezeAssessmentDisabled = false;
+                vm.$nextTick(function() {
+                    var modalDialog = jQuery('#complete-assessment.modal');
+                    if( modalDialog ) modalDialog.modal('hide');
+                    vm.showErrorMessages(resp);
+                });
+            });
+        },
+
         humanizeScoreWeight: function (value, percentage) {
             if( !value || value === 0 ) {
                 return "0.00";
@@ -773,7 +800,7 @@ Vue.component('scorecard', {
             activeTile: null,
             summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
             freezeAssessmentDisabled: false,
-            verificationStatus: ""
+            verificationStatus: "",
         }
     },
     methods: {
@@ -1036,6 +1063,28 @@ Vue.component('scorecard', {
     }
 });
 
+Vue.component('new-assess', {
+    mixins: [
+        itemListMixin
+    ],
+    data: function() {
+        return {
+            url: this.$urls.api_content,
+            showScorecard: 0,
+            activeSidebarItem: '',
+        }
+    },
+    methods: {
+        setActive(slug) {
+          var vm = this;
+          vm.activeSidebarItem = slug;
+        },
+    },
+    mounted() {
+        var vm = this;
+        vm.get();
+    },
+});
 
 /** Component used to display requested scorecards
 
