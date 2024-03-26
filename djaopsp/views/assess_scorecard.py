@@ -3,32 +3,26 @@ import logging
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
-from django import forms
-from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponseRedirect
-from django.views.generic.base import (RedirectView, TemplateResponseMixin,
-                                       TemplateView)
-from django.views.generic.edit import FormMixin
-from survey.models import Answer, Campaign, Sample
+from django.views.generic.base import TemplateView
+from survey.models import Answer
 from survey.settings import DB_PATH_SEP
-from survey.utils import get_account_model, get_question_model
+from survey.utils import get_question_model
 
 from ..compat import reverse
-from ..mixins import AccountMixin, SectionReportMixin, VisibilityMixin
-from ..utils import (get_highlights, get_summary_performance,
-                     get_latest_active_assessments)
+from ..mixins import SectionReportMixin
+from ..utils import get_highlights, get_summary_performance
 
 LOGGER = logging.getLogger(__name__)
 
 from survey.models import Choice
 
 
-class NewAssessView(SectionReportMixin, TemplateView):
+class AssessScorecardView(SectionReportMixin, TemplateView):
     """
     Profile scorecard page
     """
-    template_name = 'app/new_assess/scorecard/index.html'
+    template_name = 'app/assess_scorecard/index.html'
     URL_PATH_SEP = '/'
     breadcrumb_url = 'assess_practices'
 
@@ -72,11 +66,11 @@ class NewAssessView(SectionReportMixin, TemplateView):
 
     def get_template_names(self):
         candidates = ['app/scorecard/%s.html' % self.sample.campaign]
-        candidates += super(NewAssessView, self).get_template_names()
+        candidates += super(AssessScorecardView, self).get_template_names()
         return candidates
 
     def get_context_data(self, **kwargs):
-        context = super(NewAssessView, self).get_context_data(**kwargs)
+        context = super(AssessScorecardView, self).get_context_data(**kwargs)
         context.update({
             'prefix': self.full_path,
             'nb_answers': self.nb_answers,

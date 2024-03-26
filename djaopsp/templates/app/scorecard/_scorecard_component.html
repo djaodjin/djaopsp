@@ -22,8 +22,8 @@
                                             data-position="right">
                                             <li class="nav-item">
                                                 <a id="profile-app" class="nav-link"
-                                                   href="{{ '/app/'|site_url }}{{ organization }}/">
-                                                    {#                         XXX should use `product_url`? #}
+                                                   href="{{'/app/'|site_url}}{% if profile %}{{profile}}/{% endif %}">
+                                                    {##}
                                                     <span class="fa fa-2x fa-home align-middle"></span>
                                                     <span class="ps-1">{% trans %}
                                                         Home{% endtrans %}</span>
@@ -31,7 +31,7 @@
                                             </li>
                                         </ul>
                                         <hr>
-                                        {% include "app/scorecard/_assess_scorecard_toggle.html" %}
+                                        {% include "app/assess_scorecard/_assess_scorecard_toggle.html" %}
                                         <hr>
                                         <ul class="nav flex-column py-1" id="sidebar-ul-primary"
                                             data-intro="items"
@@ -44,9 +44,7 @@
                                                    :class="{'ms-0': item.indent === 0, 'ms-2': item.indent === 1}"
                                                    class="nav-link" id="profile-app"
                                                    @click="$parent.setActive(item.slug)"
-                                                   style="min-height: 38px; height: auto;">
-                                                                        <span>{% trans %}
-                                                                            [[item.title]]{% endtrans %}</span>
+                                                   style="min-height: 38px; height: auto;"><span>{% trans %}[[item.title]]{% endtrans %}</span>
                                                 </a>
                                             </li>
                                         </ul>
@@ -84,7 +82,7 @@
                                             </li>
                                             <li class="nav-item active" v-cloak>
                                                 <form method="post" action="."
-                                                      @submit.prevent="freezeAssessment">
+                                                      @submit.prevent="$parent.freezeAssessment">
                                                     <input type="hidden"
                                                            name="csrfmiddlewaretoken"
                                                            value="{{ csrf_token }}">
@@ -95,7 +93,7 @@
                                                             data-bs-target="#complete-assessment"
                                                             data-toggle="modal"
                                                             data-target="#complete-assessment"
-                                                            :disabled="freezeAssessmentDisabled"
+                                                            :disabled="$parent.freezeAssessmentDisabled"
                                                             v-show="itemsLoaded && items.results.length > 0">
                                                         {% trans %}Complete{% endtrans %}
                                                     </button>
@@ -232,7 +230,10 @@
                                             <div class="row">
                                                 <div class="col-sm-4 text-center text-sm-end">
                                                     <img class="my-4 img-fluid" style="max-height:100px;"
-                                                         src="{% if sample.account.picture %}{{ sample.account.picture }}{% else %}{{ '/static/img/default-organization.png'|asset }}{% endif %}">
+                                                         src="
+                                                        {% if sample.account.picture %}{{ sample.account.picture }}
+                                                        {% else %}{{ '/static/img/default-organization.png'|asset }}
+                                                        {% endif %}">
                                                 </div>
                                                 <div class="col-sm-8 text-center text-sm-start">
                                                     <h1 class="mt-4">{{ sample.account.printable_name }}</h1>
@@ -245,10 +246,12 @@
                                                     <div class="row mx-2">
                                                         {% for highlight in highlights %}
                                                             <div class="col-6 col-sm-3 text-start text-left">
-                                                                <div class="mt-2 icon-inner{% if highlight.reporting %} orange{% else %} grey{% endif %}">
+                                                                <div class="mt-2 icon-inner{% if highlight.reporting %}
+                                                                orange{% else %} grey{% endif %}">
                                                                     <img class="icon-equipment"
                                                                          src="{{ highlight.picture|asset }}">
-                                                                    <div class="icon-caption text-white">{{ highlight.text }}</div>
+                                                                    <div class="icon-caption text-white">
+                                                                        {{ highlight.text }}</div>
                                                                 </div>
                                                             </div>
                                                         {% endfor %}
@@ -365,7 +368,7 @@
                                     </div>
                                     <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
                                         <div :name="practice.slug"
-                                             v-for="(practice, practiceIdx) in getEntries('')">
+                                             v-for="(practice, practiceIdx) in getEntries()">
                                             <div class="mt-4" v-if="isChartHeading(practice)">
                                                 <hr v-if="practice.picture"/>
 
@@ -385,15 +388,16 @@
                                                     </div>
                                                     {% if not sample.is_frozen %}
                                                         <div>
+                                                            <a href="" @click.prevent="reload()">
+                                                                {% trans %}Refresh{% endtrans %}</a>
                                                             <a id="reset-assessment-btn"
                                                                class="ml-4" href=""
                                                                data-bs-toggle="modal"
-                                                               data-bs-target="#reset-assessment-all"
+                                                               data-bs-target="#reset-assessment"
                                                                data-toggle="modal"
-                                                               data-target="#reset-assessment-all"
+                                                               data-target="#reset-assessment"
                                                                @click="setActiveElement(practice)">
-                                                                {% trans %}
-                                                                    Remove{% endtrans %}</a>
+                                                                {% trans %}Remove{% endtrans %}</a>
                                                         </div>
                                                     {% endif %}
 
@@ -444,7 +448,8 @@
                                                                              :src="subheading.picture"/>
                                                                     </div>
                                                                     <span class="title">[[subheading.title]]</span>
-                                                                    <span>([[asPercent(subheading.normalized_score)]])</span>
+                                                                    <span>([[asPercent(subheading.normalized_score)]])
+                                                                    </span>
                                                                 </div>
                                                                 <div class="text-center d-flex align-items-center"
                                                                      style="height:150px;max-width:300px;"
@@ -807,12 +812,12 @@
                                                                                href="
 
 
-                                                                                    
-                                                                                    
-                                                                                    
-                                                                                    
-                                                                                    
-                                                                                                   
+
+
+
+
+
+
                                                                        {{ urls.assess_base }}{{ segment.slug }}/"
                                                                                role="menuitem"
                                                                                tabindex="-1">{{ segment.title }}</a>
@@ -836,88 +841,88 @@
                                     {% endif %}
                                 </section>
                                 {# /# details #}
-{#                                <section id="next-actions" class="d-print-none" v-show="itemsLoaded"#}
-{#                                         v-cloak>#}
-{#                                    <hr/>#}
-{##}
-{#                                    <div class="row mt-4">#}
-{#                                        <div class="col-sm-4 col-md-3">#}
-{#                                            <a id="xlsx-download-btn" class="mt-2 btn btn-secondary w-100"#}
-{#                                               href="{{ urls.scorecard_download }}"#}
-{#                                               target="_blank"#}
-{#                                               v-show="itemsLoaded">#}
-{#                                                <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}#}
-{#                                                Download#}
-{#                                                (xlsx){% endtrans %}#}
-{#                                            </a>#}
-{#                                            <button id="pdf-print-btn" class="mt-2 btn btn-secondary w-100"#}
-{#                                                    onClick="window.print()"#}
-{#                                                    v-show="itemsLoaded">#}
-{#                                                <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print#}
-{#                                                (pdf){% endtrans %}#}
-{#                                            </button>#}
-{#                                        </div>#}
-{#                                        {% if sample.is_frozen %}#}
-                                            {# actions only available when a scorecard is frozen #}
-{#                                            {% if urls.share %}#}
-{#                                                <div class="col-sm-4 col-md-3 offset-md-6">#}
-{#                                                    <a id="share-btn" class="mt-2 btn btn-secondary w-100"#}
-{#                                                       href="{{ urls.share }}">#}
-{#                                                        {% trans %}Share assessment{% endtrans %}#}
-{#                                                    </a>#}
-{#                                                </div>#}
-                                                {# XXX disabled until functionality is implemented          #}
-                                                {# <div class="col-sm-4 col-md-3">                          #}
-                                                {#   <a id="embed-btn" class="mt-2 btn btn-secondary w-100" #}
-                                                {#      href="">                                            #}
-                                                {#     Embed link                                           #}
-                                                {#   </a>                                                   #}
-                                                {# </div>                                                   #}
-{#                                            {% endif %}#}
-{#                                        {% else %}#}
-                                            {# actions only available when a scorecard is active #}
-{#                                            <div class="col-sm-4 col-md-3">#}
-{#                                                <a id="invite-contributor-btn"#}
-{#                                                   class="mt-2 btn btn-secondary w-100"#}
-{#                                                   href="{{ '/profile/'|site_url }}{{ sample.account.slug }}/roles/manager/">#}
-{#                                                    {% trans %}Invite a contributor{% endtrans %}#}
-{#                                                </a>#}
-{#                                            </div>#}
-{#                                            <div class="col-sm-4 col-md-3 offset-md-3">#}
-{#                                                {% if not urls.assess_mandatory_segment or is_mandatory_segment_present %}#}
-{#                                                    <form method="post" action="."#}
-{#                                                          @submit.prevent="freezeAssessment">#}
-{#                                                        <input type="hidden" name="csrfmiddlewaretoken"#}
-{#                                                               value="{{ csrf_token }}">#}
-{#                                                        <button id="complete-assessment-btn"#}
-{#                                                                class="mt-2 btn btn-primary w-100"#}
-{#                                                                href=""#}
-{#                                                                data-bs-toggle="modal"#}
-{#                                                                data-bs-target="#complete-assessment"#}
-{#                                                                data-toggle="modal"#}
-{#                                                                data-target="#complete-assessment"#}
-{#                                                                :disabled="freezeAssessmentDisabled"#}
-{#                                                                v-show="itemsLoaded && items.results.length > 0">#}
-{#                                                            {% trans %}Complete{% endtrans %}#}
-{#                                                        </button>#}
-{#                                                    </form>#}
-{#                                                    <p class="mt-2">#}
-{#                                                        {% trans %}You can only record a response once all#}
-{#                                                            sections have#}
-{#                                                            been answered. Required questions with missing#}
-{#                                                            answers are#}
-{#                                                            highlighted with a red vertical bar to the#}
-{#                                                            right.{% endtrans %}#}
-{#                                                    </p>#}
-{#                                                {% endif %}#}
-{#                                            </div>#}
-{#                                        {% endif %}#}
-{#                                    </div>#}
-{#                                </section>#}
+                                {#                                <section id="next-actions" class="d-print-none" v-show="itemsLoaded"#}
+                                {#                                         v-cloak>#}
+                                {#                                    <hr/>#}
+                                {##}
+                                {#                                    <div class="row mt-4">#}
+                                {#                                        <div class="col-sm-4 col-md-3">#}
+                                {#                                            <a id="xlsx-download-btn" class="mt-2 btn btn-secondary w-100"#}
+                                {#                                               href="{{ urls.scorecard_download }}"#}
+                                {#                                               target="_blank"#}
+                                {#                                               v-show="itemsLoaded">#}
+                                {#                                                <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}#}
+                                {#                                                Download#}
+                                {#                                                (xlsx){% endtrans %}#}
+                                {#                                            </a>#}
+                                {#                                            <button id="pdf-print-btn" class="mt-2 btn btn-secondary w-100"#}
+                                {#                                                    onClick="window.print()"#}
+                                {#                                                    v-show="itemsLoaded">#}
+                                {#                                                <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print#}
+                                {#                                                (pdf){% endtrans %}#}
+                                {#                                            </button>#}
+                                {#                                        </div>#}
+                                {#                                        {% if sample.is_frozen %}#}
+                                {# actions only available when a scorecard is frozen #}
+                                {#                                            {% if urls.share %}#}
+                                {#                                                <div class="col-sm-4 col-md-3 offset-md-6">#}
+                                {#                                                    <a id="share-btn" class="mt-2 btn btn-secondary w-100"#}
+                                {#                                                       href="{{ urls.share }}">#}
+                                {#                                                        {% trans %}Share assessment{% endtrans %}#}
+                                {#                                                    </a>#}
+                                {#                                                </div>#}
+                                {# XXX disabled until functionality is implemented          #}
+                                {# <div class="col-sm-4 col-md-3">                          #}
+                                {#   <a id="embed-btn" class="mt-2 btn btn-secondary w-100" #}
+                                {#      href="">                                            #}
+                                {#     Embed link                                           #}
+                                {#   </a>                                                   #}
+                                {# </div>                                                   #}
+                                {#                                            {% endif %}#}
+                                {#                                        {% else %}#}
+                                {# actions only available when a scorecard is active #}
+                                {#                                            <div class="col-sm-4 col-md-3">#}
+                                {#                                                <a id="invite-contributor-btn"#}
+                                {#                                                   class="mt-2 btn btn-secondary w-100"#}
+                                {#                                                   href="{{ '/profile/'|site_url }}{{ sample.account.slug }}/roles/manager/">#}
+                                {#                                                    {% trans %}Invite a contributor{% endtrans %}#}
+                                {#                                                </a>#}
+                                {#                                            </div>#}
+                                {#                                            <div class="col-sm-4 col-md-3 offset-md-3">#}
+                                {#                                                {% if not urls.assess_mandatory_segment or is_mandatory_segment_present %}#}
+                                {#                                                    <form method="post" action="."#}
+                                {#                                                          @submit.prevent="freezeAssessment">#}
+                                {#                                                        <input type="hidden" name="csrfmiddlewaretoken"#}
+                                {#                                                               value="{{ csrf_token }}">#}
+                                {#                                                        <button id="complete-assessment-btn"#}
+                                {#                                                                class="mt-2 btn btn-primary w-100"#}
+                                {#                                                                href=""#}
+                                {#                                                                data-bs-toggle="modal"#}
+                                {#                                                                data-bs-target="#complete-assessment"#}
+                                {#                                                                data-toggle="modal"#}
+                                {#                                                                data-target="#complete-assessment"#}
+                                {#                                                                :disabled="freezeAssessmentDisabled"#}
+                                {#                                                                v-show="itemsLoaded && items.results.length > 0">#}
+                                {#                                                            {% trans %}Complete{% endtrans %}#}
+                                {#                                                        </button>#}
+                                {#                                                    </form>#}
+                                {#                                                    <p class="mt-2">#}
+                                {#                                                        {% trans %}You can only record a response once all#}
+                                {#                                                            sections have#}
+                                {#                                                            been answered. Required questions with missing#}
+                                {#                                                            answers are#}
+                                {#                                                            highlighted with a red vertical bar to the#}
+                                {#                                                            right.{% endtrans %}#}
+                                {#                                                    </p>#}
+                                {#                                                {% endif %}#}
+                                {#                                            </div>#}
+                                {#                                        {% endif %}#}
+                                {#                                    </div>#}
+                                {#                                </section>#}
                                 {# /#next-actions #}
                             </div>
                             <!-- modals -->
-                            {% include "app/new_assess/_new_reset_assessment.html" %}
+                            {% include "app/_reset_assessment.html" %}
                             {% include "app/_complete_assessment.html" %}
                         </div>
                     </div>

@@ -25,36 +25,9 @@ Vue.component('campaign-questions-list', {
             nbRequiredQuestions: this.$sample ? this.$sample.nbRequiredQuestions : 0,
             api_profiles_url: this.$urls.api_profiles,
             profilesBySlug: {},
-            api_assessment_freeze: this.$urls.api_assessment_freeze ?
-                this.$urls.api_assessment_freeze : this._safeUrl(
-                    this.$urls.api_assessment_sample, '/freeze'),
         }
     },
     methods: {
-        freezeAssessment: function($event) {
-            var vm = this;
-            vm.freezeAssessmentDisabled = true;
-            vm.reqPost(vm.api_assessment_freeze, {is_frozen: true},
-            function success(resp) {
-                vm.freezeAssessmentDisabled = false;
-                vm.$nextTick(function() {
-                    var modalDialog = jQuery('#complete-assessment.modal');
-                    if( modalDialog ) modalDialog.modal('hide');
-                    if( resp.location ) {
-                        window.location = resp.location;
-                    }
-                });
-            },
-            function error(resp) {
-                vm.freezeAssessmentDisabled = false;
-                vm.$nextTick(function() {
-                    var modalDialog = jQuery('#complete-assessment.modal');
-                    if( modalDialog ) modalDialog.modal('hide');
-                    vm.showErrorMessages(resp);
-                });
-            });
-        },
-
         humanizeScoreWeight: function (value, percentage) {
             if( !value || value === 0 ) {
                 return "0.00";
@@ -728,8 +701,15 @@ Vue.component('campaign-questions-list', {
             return parseInt(this.vsPeersToggle) > 0;
         },
     },
+    watch: {
+      itemsLoaded: function() {
+        var vm = this;
+        vm.$parent.items = vm.items;
+      }
+    },
     mounted: function() {
         var vm = this;
+        vm.prefix = vm.$parent.$prefix;
         $("[id^='toggle-value-summary-']").change(function() {
             vm.valueSummaryToggle = $(this).prop('checked');
         });
@@ -785,9 +765,6 @@ Vue.component('scorecard', {
     data: function() {
         return {
             url: this.$urls.survey_api_sample_answers,
-            api_assessment_freeze: this.$urls.api_assessment_freeze ?
-                this.$urls.api_assessment_freeze : this._safeUrl(
-                    this.$urls.api_assessment_sample, '/freeze'),
             api_assessment_reset: this.$urls.api_assessment_reset ?
                 this.$urls.api_assessment_reset : this._safeUrl(
                     this.$urls.api_assessment_sample, '/reset'),
@@ -799,7 +776,6 @@ Vue.component('scorecard', {
             params: {o: ""},
             activeTile: null,
             summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
-            freezeAssessmentDisabled: false,
             verificationStatus: "",
         }
     },
@@ -958,29 +934,6 @@ Vue.component('scorecard', {
                 row.default_unit.system === 'imperial' ||
                 row.default_unit.system === 'rank');
         },
-        freezeAssessment: function($event) {
-            var vm = this;
-            vm.freezeAssessmentDisabled = true;
-            vm.reqPost(vm.api_assessment_freeze, {is_frozen: true},
-            function success(resp) {
-                vm.freezeAssessmentDisabled = false;
-                vm.$nextTick(function() {
-                    var modalDialog = jQuery('#complete-assessment.modal');
-                    if( modalDialog ) modalDialog.modal('hide');
-                    if( resp.location ) {
-                        window.location = resp.location;
-                    }
-                });
-            },
-            function error(resp) {
-                vm.freezeAssessmentDisabled = false;
-                vm.$nextTick(function() {
-                    var modalDialog = jQuery('#complete-assessment.modal');
-                    if( modalDialog ) modalDialog.modal('hide');
-                    vm.showErrorMessages(resp);
-                });
-            });
-        },
         openLink: function(event) {
             var vm = this;
             var href = event.target.getAttribute('href');
@@ -1010,6 +963,7 @@ Vue.component('scorecard', {
                 vm.items = {results: [], count: 0};
                 vm.itemsLoaded = false;
                 vm.get();
+                vm.$parent.$children[0].get();
             });
         },
         setActiveElement: function(practice) {
@@ -1060,29 +1014,64 @@ Vue.component('scorecard', {
             var vm = this;
             vm.verificationStatus = vm.items.verified_status;
         },
+    },
+    mounted() {
+        var vm = this;
+        vm.prefix = vm.$parent.$prefix;
     }
 });
 
 Vue.component('new-assess', {
-    mixins: [
-        itemListMixin
-    ],
     data: function() {
         return {
-            url: this.$urls.api_content,
-            showScorecard: 0,
+            showScorecardToggle: 0,
             activeSidebarItem: '',
+            prefixVal: null,
+            api_assessment_freeze: this.$urls.api_assessment_freeze ?
+            this.$urls.api_assessment_freeze : this._safeUrl(
+                this.$urls.api_assessment_sample, '/freeze'),
+            freezeAssessmentDisabled: false,
+            items: {}
         }
     },
     methods: {
         setActive(slug) {
-          var vm = this;
-          vm.activeSidebarItem = slug;
+            var vm = this;
+            vm.activeSidebarItem = slug;
         },
+        freezeAssessment: function($event) {
+            var vm = this;
+            vm.freezeAssessmentDisabled = true;
+            vm.reqPost(vm.api_assessment_freeze, {is_frozen: true},
+            function success(resp) {
+                vm.freezeAssessmentDisabled = false;
+                vm.$nextTick(function() {
+                    var modalDialog = jQuery('#complete-assessment.modal');
+                    if( modalDialog ) modalDialog.modal('hide');
+                    if( resp.location ) {
+                        window.location = resp.location;
+                    }
+                });
+            },
+            function error(resp) {
+                vm.freezeAssessmentDisabled = false;
+                vm.$nextTick(function() {
+                    var modalDialog = jQuery('#complete-assessment.modal');
+                    if( modalDialog ) modalDialog.modal('hide');
+                    vm.showErrorMessages(resp);
+                });
+            });
+        },
+    },
+    watch: {
+        showScorecardToggle: function(val) {
+            var vm = this;
+            (vm.showScorecardToggle == 1) ? vm.$prefix = '' : vm.$prefix = vm.prefixVal;
+        }
     },
     mounted() {
         var vm = this;
-        vm.get();
+        vm.prefixVal = vm.$prefix;
     },
 });
 

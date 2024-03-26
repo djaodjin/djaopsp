@@ -12,7 +12,7 @@ from ...views.assess import (AssessPracticesXLSXView, AssessPracticesView,
 from ...views.downloads import ImproveContentPDFView
 from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
     ScorecardRedirectView, DataValuesView)
-from ...views.new_assess import NewAssessView
+from ...views.assess_scorecard import AssessScorecardView
 from ...views.share import ShareView, ShareRedirectView
 
 
@@ -34,7 +34,8 @@ urlpatterns = [
          AssessPracticesView.as_view(), name='assess_practices'),
     path('assess/<slug:sample>/',
          AssessRedirectView.as_view(), name='assess_redirect'),
-    path('assess2/<slug:sample>/<path:path>/', NewAssessView.as_view()),
+    path('assess2/<slug:sample>/<path:path>/',
+         AssessScorecardView.as_view(), name='assess_scorecard'),
 
     # Target and improvement plan
     path('improve/<slug:sample>/print/',

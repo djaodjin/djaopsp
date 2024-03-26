@@ -1,8 +1,7 @@
 {% extends "app/base.html" %}
 
 {% block app_content %}
-{% include "app/_progress_bar.html" %}
-{% block assess_content %}
+{% block scorecard_content %}
 {% endblock %}
 {% endblock %}
 
@@ -17,5 +16,5 @@
 {% else %}
 <script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
 {% endif %}
-{% block assess_scripts %}{% endblock %}
+{% block assess_scorecard_scripts %}{% endblock %}
 {% endblock %}

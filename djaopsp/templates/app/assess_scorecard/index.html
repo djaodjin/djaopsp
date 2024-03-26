@@ -1,0 +1,18 @@
+{% extends "app/assess_scorecard/base.html" %}
+
+{% block supercontent %}
+    <div id="app">
+        <new-assess inline-template>
+            <div>
+                {% block app_content %}
+                    <div v-if="showScorecardToggle == &quot;0&quot;">
+                        {% include 'app/assess/_assess_component.html' %}
+                    </div>
+                    <div v-else-if="showScorecardToggle == &quot;1&quot;">
+                        {% include 'app/scorecard/_scorecard_component.html' %}
+                    </div>
+                {% endblock %}
+            </div>
+        </new-assess>
+    </div>
+{% endblock %}
