@@ -964,6 +964,7 @@ Vue.component('scorecard', {
                 vm.itemsLoaded = false;
                 vm.get();
                 vm.$parent.$children[0].get();
+                /// Do a .get() whenever all survey responses are deleted.
             });
         },
         setActiveElement: function(practice) {
@@ -1021,7 +1022,7 @@ Vue.component('scorecard', {
     }
 });
 
-Vue.component('new-assess', {
+Vue.component('assess-scorecard', {
     data: function() {
         return {
             showScorecardToggle: 0,

@@ -2,7 +2,7 @@
 
 {% block supercontent %}
     <div id="app">
-        <new-assess inline-template>
+        <assess-scorecard inline-template>
             <div>
                 {% block app_content %}
                     <div v-if="showScorecardToggle == &quot;0&quot;">
@@ -13,6 +13,6 @@
                     </div>
                 {% endblock %}
             </div>
-        </new-assess>
+        </assess-scorecard>
     </div>
 {% endblock %}
