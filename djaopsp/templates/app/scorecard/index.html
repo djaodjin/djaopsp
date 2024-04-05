@@ -289,16 +289,21 @@
                   <div class="row" v-if="isAssessmentUnit(practice)">
                     <div class="col-6 col-sm-4"
                          v-if="isAssessmentUnit(practice)">
-                      {% trans %}Implementation rate{% endtrans %}<br />
-                      [[practice.nb_respondents]] {% trans %}respondents{% endtrans %}
-                      <div class="progress" style="margin:0">
-                        <div :class="'progress-bar progress-bar-success green-level-' + getIntrinsicValue(practice, 'avg_value')"
-                             role="progressbar"
-                             :aria-valuenow="getRate(practice)"
-                             aria-valuemin="0"
-                             aria-valuemax="100"
-                             :style="implementationRateStyle(getRate(practice))">
-                          <span :class="{'text-muted': !getRate(practice) || getRate(practice) < 35}">[[asPercent(getRate(practice))]]</span>
+                      {% trans %}Implementation rate{% endtrans %}
+                      <div v-show="!chartsAvailable">
+                        <i class="fa fa-refresh fa-spin"></i>
+                      </div>
+                      <div v-show="chartsAvailable" v-cloak>
+                        [[practice.nb_respondents]] {% trans %}respondents{% endtrans %}
+                        <div class="progress">
+                          <div :class="'progress-bar progress-bar-success green-level-' + getIntrinsicValue(practice, 'avg_value')"
+                               role="progressbar"
+                               :aria-valuenow="getRate(practice)"
+                               aria-valuemin="0"
+                               aria-valuemax="100"
+                               :style="implementationRateStyle(getRate(practice))">
+                            <span :class="{'text-muted': !getRate(practice) || getRate(practice) < 35}">[[asPercent(getRate(practice))]]</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -307,25 +312,47 @@
                       [[getOpportunity(practice)]]
                     </div>
                   </div>
-                  {# XXX Temporarily disabled until we handle special 2-values case #}
-                  {# <div class="row" v-if="!isAssessmentUnit(practice)">           #}
-                  {#   <div class="col-6 col-sm-4">                              #}
-                  {#     <div v-for="benchmark in practice.benchmarks">             #}
-                  {#       <div class="progress mt-1"                               #}
-                  {#            v-for="value in benchmark.values">                  #}
-                  {#         <div class="progress-bar progress-bar-success green-level-2" #}
-                  {#              role="progressbar"                                #}
-                  {#              :aria-valuenow="value[1]"                         #}
-                  {#              aria-valuemin="0"                                 #}
-                  {#              aria-valuemax="100"                               #}
-                  {#              :style="implementationRateStyle(value[1])">       #}
-                  {#           <span>[[asPercent(value[1])]]</span>                 #}
-                  {#         </div>                                                 #}
-                  {#         <span>[[value[0] ]]</span>                             #}
-                  {#       </div>                                                   #}
-                  {#     </div>                                                     #}
-                  {#  </div>                                                        #}
-                  {# </div>                                                         #}
+                  {# Show benchmarks with special case for 2-values choices #}
+                  <div class="row" v-if="!isAssessmentUnit(practice)">
+                    <div class="col-6 col-sm-4">
+                      {% trans %}Implementation rate{% endtrans %}
+                      <div v-show="!chartsAvailable">
+                        <i class="fa fa-refresh fa-spin"></i>
+                      </div>
+                      <div v-show="chartsAvailable">
+{# XXX should get `nb_respondents` from benchmarks API call [[practice.nb_respondents]] {% trans %}respondents{% endtrans %} #}
+                        <div v-for="benchmark in practice.benchmarks">
+                          {# equals to 2 (Yes/No) #}
+                          <div class="progress"
+                               v-if="benchmark.values.length == 2">
+                            <div class="progress-bar progress-bar-success green-level-2"
+                                 role="progressbar"
+                                 :aria-valuenow="getRate(practice, benchmark.values[1][0])"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"
+                                 :style="implementationRateStyle(getRate(practice, benchmark.values[1][0]))">
+                              <span>[[asPercent(getRate(practice, benchmark.values[1][0]))]]</span>
+                            </div>
+                            <span>[[benchmark.values[1][0] ]]</span>
+                          </div>
+                          {# more than 2 #}
+                          <div class="progress mt-1"
+                               v-for="value in benchmark.values"
+                               v-if="benchmark.values.length > 2">
+                            <div class="progress-bar progress-bar-success green-level-2"
+                                 role="progressbar"
+                                 :aria-valuenow="getRate(benchmark, value[0])"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"
+                                 :style="implementationRateStyle(getRate(benchmark, value[0]))">
+                              <span>[[asPercent(getRate(benchmark, value[0]))]]</span>
+                            </div>
+                            <span>[[value[0] ]]</span>
+                          </div>{# /more than 2 #}
+                        </div>
+                      </div>
+                    </div>
+                  </div> {# /v-if="!isAssessmentUnit(practice)" #}
                 </div> {# /practice-related information #}
                 <div class="col-sm-4">
                   <div :class="'bestpractice mt-3' + (isRequiredShown(practice) ? ' practice-required' : '')">
@@ -347,7 +374,8 @@
               {% include "app/scorecard/_secondary_answers.html" %}
             </div>{# /isEnumUnit(practice) #}
 
-            <div v-if="isFreetextUnit(practice)" :class="practiceStyle(practice)">
+            <div v-if="isFreetextUnit(practice)"
+                 :class="practiceStyle(practice)">
               <div class="row">
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
@@ -356,17 +384,25 @@
                   </div>
                 </div>
                 <div class="col-sm-4">
-                  <div :class="isRequiredShown(practice) ? ' practice-required' : ''">
-                    <p @click.prevent="openLink($event)"
+                  <div :class="'bestpractice mt-3' + (isRequiredShown(practice) ? ' practice-required' : '')">
+                  </div>
+                </div>
+              </div>{# /.row assessment answer #}
+              <div class="row">
+                <div class="col-12" style="border-left:solid 2px lightgrey;">
+                  <div>
+                    <p class="mt-2"
+                       @click.prevent="openLink($event)"
                        v-html="textAsHtml(getPrimaryAnswer(practice).measured, practice.required)">
                     </p>
                   </div>
                 </div>
-              </div>{# /.row assessment answer #}
+              </div>
               {% include "app/scorecard/_secondary_answers.html" %}
             </div>{# /isFreetextUnit(practice) #}
 
-            <div v-if="isEmployeeCountUIHint(practice)" :class="practiceStyle(practice)">
+            <div v-if="isEmployeeCountUIHint(practice)"
+                 :class="practiceStyle(practice)">
               <div class="row">
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
@@ -375,26 +411,27 @@
                   </div>
                 </div>
                 <div class="col-sm-4">
-                  <div
-                    :class="isRequiredShown(practice) ? ' practice-required' : ''"
-                    v-if="practice.answers && practice.answers.length === 0">
-                    &dash;
-                  </div>
-                  <div v-if="practice.answers && practice.answers.length > 0">
-                    <span v-if="getPrimaryAnswer(practice).measured === '0'">0-10 employees</span>
-                    <span v-if="getPrimaryAnswer(practice).measured === '11'">11-50 employees</span>
-                    <span v-if="getPrimaryAnswer(practice).measured === '51'">51-200 employees</span>
-                    <span v-if="getPrimaryAnswer(practice).measured === '201'">201-500 employees</span>
-                    <span v-if="getPrimaryAnswer(practice).measured === '501'">501-1,000 employees</span>
-                    <span v-if="getPrimaryAnswer(practice).measured === '1001'">1,001-5,000 employees</span>
-                    <span v-if="getPrimaryAnswer(practice).measured === '5001'">5,001-10,000 employees</span>
-                    <span v-if="getPrimaryAnswer(practice).measured === '10001'">10,001+ employees</span>
+                  <div :class="'bestpractice mt-3' + (isRequiredShown(practice) ? ' practice-required' : '')">
+                    <div v-if="practice.answers && practice.answers.length === 0">
+                      <strong>&dash;</strong>
+                    </div>
+                    <div v-if="practice.answers && practice.answers.length > 0">
+                      <strong v-if="getPrimaryAnswer(practice).measured === '0'">0-10 employees</strong>
+                      <strong v-if="getPrimaryAnswer(practice).measured === '11'">11-50 employees</strong>
+                      <strong v-if="getPrimaryAnswer(practice).measured === '51'">51-200 employees</strong>
+                      <strong v-if="getPrimaryAnswer(practice).measured === '201'">201-500 employees</strong>
+                      <strong v-if="getPrimaryAnswer(practice).measured === '501'">501-1,000 employees</strong>
+                      <strong v-if="getPrimaryAnswer(practice).measured === '1001'">1,001-5,000 employees</strong>
+                      <strong v-if="getPrimaryAnswer(practice).measured === '5001'">5,001-10,000 employees</strong>
+                      <strong v-if="getPrimaryAnswer(practice).measured === '10001'">10,001+ employees</strong>
+                    </div>
                   </div>
                 </div>
               </div>{# /.row #}
             </div>{# /isEmployeeCountUIHint(practice) #}
 
-            <div v-if="isNumberUnit(practice)" :class="practiceStyle(practice)">
+            <div v-if="isNumberUnit(practice)"
+                 :class="practiceStyle(practice)">
               <div class="row">
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
@@ -405,20 +442,21 @@
                   </div>
                 </div>
                 <div class="col-sm-4">
-                  <div :class="isRequiredShown(practice) ? ' practice-required' : ''">
-                    <span v-if="getPrimaryAnswer(practice).measured !== null">
-                       [[getPrimaryAnswer(practice).measured]]
-                    </span>
-                    <span v-if="getPrimaryAnswer(practice).measured === null">
-                       &dash;
-                    </span>
+                  <div :class="'bestpractice mt-3' + (isRequiredShown(practice) ? ' practice-required' : '')">
+                    <div v-if="getPrimaryAnswer(practice).measured === null">
+                      <strong>&dash;</strong>
+                    </div>
+                    <div v-if="getPrimaryAnswer(practice).measured !== null">
+                      <strong>[[getPrimaryAnswer(practice).measured]] [[getPrimaryUnit(practice).title]]</strong>
+                    </div>
                   </div>
                 </div>
               </div>{# /.row #}
               {% include "app/scorecard/_secondary_answers.html" %}
             </div>{# /isNumberUnit(practice) #}
 
-            <div v-if="isDatetimeUnit(practice)" :class="practiceStyle(practice)">
+            <div v-if="isDatetimeUnit(practice)"
+                 :class="practiceStyle(practice)">
               <div class="row">
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
@@ -427,12 +465,12 @@
                   </div>
                 </div>
                 <div class="col-sm-4">
-                  <div :class="isRequiredShown(practice) ? ' practice-required' : ''">
+                  <div :class="'bestpractice mt-3' + (isRequiredShown(practice) ? ' practice-required' : '')">
+                    <div v-if="getPrimaryAnswer(practice).measured === null">
+                      <strong>&dash;</strong>
+                    </div>
                     <span v-if="getPrimaryAnswer(practice).measured !== null">
-                       [[getPrimaryAnswer(practice).measured]]
-                    </span>
-                    <span v-if="getPrimaryAnswer(practice).measured === null">
-                       &dash;
+                      <strong>[[getPrimaryAnswer(practice).measured]]</strong>
                     </span>
                   </div>
                 </div>

@@ -3,7 +3,7 @@
   <div class="col-12" style="border-left:solid 2px lightgrey;">
     <div v-for="answer in getSecondaryAnswers(practice)"
          v-if="answer.measured && answer.unit !== 'points'">
-      <p @click.prevent="openLink($event)"
+      <p class="mt-2" @click.prevent="openLink($event)"
          v-html="textAsHtml(answer.measured)"
          v-if="answer.unit === 'freetext'">
       </p>

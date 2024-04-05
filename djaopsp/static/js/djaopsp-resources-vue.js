@@ -370,7 +370,21 @@ var practicesListMixin = {
         },
         getRate: function(practice, key) {
             if( typeof practice.rate === 'undefined' ) {
-                return 0;
+                if( typeof practice.values === 'undefined' ) {
+                    return 0;
+                }
+                var total = 0;
+                var amount = 0;
+                for( var idx = 0; idx < practice.values.length; ++idx ) {
+                    total += practice.values[idx][1];
+                    if( practice.values[idx][0] === key ) {
+                        amount = practice.values[idx][1];
+                    }
+                }
+                if( total <= 0 ) {
+                    return 0;
+                }
+                return Math.round(amount * 100 / total);
             }
             if( typeof key !== 'undefined' ) {
                 return practice.rate[key];
