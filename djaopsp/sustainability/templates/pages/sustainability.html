@@ -57,12 +57,37 @@
         </div>
         {% block icons_actions %}
         <div class="row mb-4">
-          <div class="col-sm-6 text-left">
+          <div class="col-sm-6 text-start">
             <a id="download-assessment"
                class="btn btn-secondary"
                href="{{urls.download}}" target="_blank">
               <i class="fa fa-download"></i> {% trans %}Download{% endtrans %}
             </a>
+          </div>
+          <div class="col-sm-6 text-end">
+            {% if element and element.extra and element.extra.tags %}
+            {% if 'legend' in element.extra.tags %}
+            <a href="{{'/docs/legend/'|site_url}}">{% trans %}Legend{% endtrans %}</a>
+            {% elif 'legend-1' in element.extra.tags %}
+            <a href="{{'/docs/legend/'|site_url}}">{% trans %}Legend{% endtrans %}</a>
+            {% elif 'legend-2' in element.extra.tags %}
+            <a href="{{'/docs/legend/'|site_url}}">{% trans %}Legend{% endtrans %}</a>
+            {% elif 'legend-3' in element.extra.tags %}
+            <a href="{{'/docs/legend/'|site_url}}">{% trans %}Legend{% endtrans %}</a>
+            {% endif %}
+            {% endif %}
+            <span class="p-2 green-level-4 text-center">
+              {% trans %}Gold{% endtrans %}
+            </span>
+            <span class="p-2 green-level-3 text-center">
+              {% trans %}High{% endtrans %}
+            </span>
+            <span class="p-2 green-level-2 text-center">
+              {% trans %}Medium{% endtrans %}
+            </span>
+            <span class="p-2 green-level-1 text-center">
+              {% trans %}Low{% endtrans %}
+            </span>
           </div>
         </div>{# /.row #}
         {% endblock %}

@@ -1,6 +1,9 @@
 # Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
+from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+    site_url)
+from deployutils.helpers import update_context_urls
 from pages.views.elements import PageElementView, PageElementEditableView
 from pages.views.sequences import (
     SequenceProgressView as BaseSequenceProgressView,
@@ -29,6 +32,14 @@ class ContentDetailView(PageElementView):
     """
     account_url_kwarg = 'profile'
     direct_text_load = True
+
+    def get_context_data(self, **kwargs):
+        context = super(ContentDetailView, self).get_context_data(**kwargs)
+        context.update({'element': self.element})
+        update_context_urls(context, {
+            'api_accounts': site_url("/api/users"),
+        })
+        return context
 
 
 class EditablesIndexView(AccountMixin, PageElementEditableView):

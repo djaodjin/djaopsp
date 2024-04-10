@@ -194,9 +194,13 @@
                   </div>
                 </div>
                 <p class="text-center">
-{% trans %}Benchmarking is based on responses from{% endtrans %} <span v-if="!chartsLoaded">?</span><span v-if="chartsLoaded" v-cloak>[[getNbRespondents(practice)]]</span>
-{% trans %}companies responding on practices in the industry segment.{% endtrans %}
+{% trans %}Benchmarking is based on{% endtrans %} <span v-if="!chartsLoaded">?</span><span v-if="chartsLoaded" v-cloak>[[getNbRespondents(practice)]]</span>
+{% trans %}responses to the section{% endtrans %} <em>[[practice.title]]</em>.
                 </p>
+                <div class="text-center"
+                     v-if="practice.extra && practice.extra.layouts">
+                <a class="d-print-none" :href="'{{urls.pages_index}}' + practice.slug + '/'" target="_blank">{% trans %}Learn about these practices{% endtrans %}</a>
+                </div>
               </div>{# /practice.indent == 0 #}
 
               <div v-if="practice.indent > 0">

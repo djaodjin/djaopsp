@@ -28,12 +28,12 @@
                     <div class="p-2">
                       <h1 class="editable" data-key="title" v-cloak>{% if element %}{{element.title}}{% else %}[[item.title]]{% endif %}</h1>
                       <div data-key="tags" class="editable text-end text-right">
-                        {% if element.tags %}
-                        {% for tag in element.tags %}
-                        <span class="badge badge-pill badge-info">{{tag}}</span>
+                        {% if element.extra and element.extra.tags %}
+                        {% for tag in element.extra.tags %}
+                        <span class="badge rounded-pill bg-secondary">{{tag}}</span>
                         {% endfor %}
                         {% endif %}
-                        <span class="badge rounded-pill bg-info badge-pill badge-info"
+                        <span class="badge rounded-pill bg-info"
                               v-for="tag in tags"></span>
                         {% if edit_perm %}
                         <span id="lock">{% trans %}add tags ...{% endtrans %} <i class="fa fa-edit"></i></span>

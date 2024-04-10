@@ -2,11 +2,13 @@
 <div class="mt-2">
   <h5>[[comments.count]] {% trans %}Comments{% endtrans %}</h5>
   <div :id="'comment_from_'+ comment.user" class="d-flex" v-for="comment in comments.results">
-    <div class="col-sm-3 bg-light">
-      <p class="mt-2 bg-light">
-        [[comment.user]]<br />
-        <small>[[comment.created_at]]</small>
-      </p>
+    <div class="col-sm-3">
+      <div class="mt-2">
+        <img class="rounded-circle" :src="getAccountPicture(comment.user) ? getAccountPicture(comment.user) : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+        <span>[[getAccountPrintableName(comment.user)]]</span>
+      </div>
+      <small>[[$globals.humanizeDate(comment.created_at)]]</small><br />
+      <small>([[$globals.humanizeTimeDelta(comment.created_at)]])</small>
     </div>
     <div class="border-start bg-light col-sm-9">
       <p class="mt-2">
