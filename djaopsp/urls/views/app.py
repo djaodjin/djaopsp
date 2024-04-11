@@ -4,7 +4,7 @@
 """
 Views URLs
 """
-from django.urls import path
+from django.urls import path, re_path
 
 from ...views.app import AppView, GetStartedProfileView
 
@@ -19,5 +19,5 @@ urlpatterns = [
     path('getstarted/',
         GetStartedProfileView.as_view(),
         name='profile_getstarted'),
-    path('', AppView.as_view(), name='app'),
+    re_path(r'', AppView.as_view(), name='app'),
 ]

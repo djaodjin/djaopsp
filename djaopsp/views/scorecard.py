@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -19,9 +19,9 @@ from survey.utils import get_account_model, get_question_model
 
 from ..compat import reverse
 from ..mixins import AccountMixin, ReportMixin, VisibilityMixin
+from ..scores import get_score_calculator
 from ..utils import (get_highlights, get_summary_performance,
     get_latest_active_assessments)
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -155,10 +155,19 @@ class ScorecardIndexView(ReportMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ScorecardIndexView, self).get_context_data(**kwargs)
+
+        is_mandatory_segment_scored = False
+        for seg_path in self.campaign_mandatory_segments:
+            calculator = get_score_calculator(seg_path)
+            if calculator:
+                is_mandatory_segment_scored = True
+                break
+
         context.update({
             'verification_enabled': self.account in self.verifier_accounts,
             'highlights': get_highlights(self.sample),
             'is_mandatory_segment_present': self.is_mandatory_segment_present,
+            'is_mandatory_segment_scored': is_mandatory_segment_scored,
             'summary_performance': get_summary_performance(
                 self.improvement_sample)
         })

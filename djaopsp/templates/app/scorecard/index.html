@@ -64,9 +64,11 @@
                  style="background-color: #e5e9dd;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;">
               <div class="py-0">
               </div>
+              {% if is_mandatory_segment_scored %}
               <div class="text-center">
                 {% include "app/_score_arcs.html" %}
               </div>
+              {% endif %}
               <div class="text-center">
                   <em>source: {{request|site_url}}</em>
               </div>
