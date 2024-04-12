@@ -463,7 +463,7 @@ Vue.component('djaopsp-compare-samples', {
     }
 });
 
-/*
+
 Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.extend({
     data: function() {
         return {
@@ -474,10 +474,16 @@ Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.ext
     methods: {
         validate: function() {
             var vm = this;
+            if( vm.affinityType === 'engaged' ||
+                vm.affinityType === 'accessibles' ||
+                vm.affinityType === '') {
+                const dataset = vm._getAffinityBaseDataset();
+                vm.$emit('updatedataset', dataset);
+            }
         },
     },
 }));
-*/
+
 
 Vue.component('reporting-organizations', {
     mixins: [

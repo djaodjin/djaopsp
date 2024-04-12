@@ -37,9 +37,16 @@ class CompareView(UpdatedMenubarMixin, CompareBaseView):
         update_context_urls(context, {
             'api_version': site_url("/api"),
             'api_account_candidates': site_url("/api/accounts/profiles"),
+            'api_units': reverse('survey_api_units'),
             'api_account_groups': reverse('survey_api_accounts_filter_list',
                 args=(self.account,)),
-            'pages_index': reverse('pages_index')})
+            'api_question_typeahead': reverse(
+                'survey_api_campaign', args=(self.campaign,)),
+            'pages_index': reverse('pages_index'),
+            'api_benchmarks_index': reverse(
+                'survey_api_benchmarks_index', args=(
+                self.account,)),
+        })
         url_kwargs = self.get_url_kwargs()
         if 'path' in self.kwargs:
             url_kwargs.update({'path': self.kwargs.get('path')})

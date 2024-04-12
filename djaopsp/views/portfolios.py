@@ -341,7 +341,7 @@ class ReportingDashboardView(UpdatedMenubarMixin, DashboardMixin, TemplateView):
         context = super(ReportingDashboardView, self).get_context_data(**kwargs)
         update_context_urls(context, {
             'api_benchmarks_index': reverse(
-                'survey_api_benchmarks_index', args=(
+                'api_reporting_benchmarks_index', args=(
                 self.account, self.campaign)),
             'api_reporting_completion_rate': reverse(
                 'api_reporting_completion_rate', args=(

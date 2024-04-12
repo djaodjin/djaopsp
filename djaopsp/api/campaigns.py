@@ -14,7 +14,7 @@ from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip, flatten_content_tree
 from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.response import Response
 from survey.mixins import QuestionMixin
 from survey.models import EnumeratedQuestions, Unit
@@ -274,6 +274,73 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
         #pylint:disable=useless-super-delegation
         return super(CampaignEditableSegmentsAPIView, self).post(
             request, *args, **kwargs)
+
+
+class CampaignContentAPIView(CampaignContentMixin, ListAPIView):
+    """
+    List questions in a campaign
+
+    **Tags**: editors
+
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/editables/djaopsp/campaigns/sustainability HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "count": 5,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "path": null,
+                    "title": "Construction",
+                    "tags": ["public"],
+                    "indent": 0
+                },
+                {
+                  "path": null,
+                  "title": "Governance & management",
+                  "picture": "https://assets.tspproject.org/management.png",
+                  "indent": 1
+                },
+                {
+                    "path": "/construction/governance/the-assessment\
+-process-is-rigorous",
+                    "title": "The assessment process is rigorous",
+                    "indent": 2
+                },
+                {
+                  "path": null,
+                  "title": "Production",
+                  "picture": "https://assets.tspproject.org/production.png",
+                  "indent": 1
+                },
+                {
+                    "path": "/construction/production/adjust-air-fuel\
+-ratio",
+                    "title": "Adjust Air fuel ratio",
+                    "indent": 2
+                }
+            ]
+        }
+    """
+    serializer_class = ContentNodeSerializer
+
+    # Implementation Note:
+    # If we define `strip_segment_prefix = True` here, the path is no longer
+    # matching the question.path field of rows in the database. As a result,
+    # the creation of accounts-by-answers filters will fail (404 Not Found).
+
+    def get(self, request, *args, **kwargs):
+        results = self.get_queryset()
+        serializer = self.get_serializer(results, many=True)
+        return Response({'results': serializer.data})
 
 
 class CampaignEditableContentAPIView(CampaignContentMixin,
