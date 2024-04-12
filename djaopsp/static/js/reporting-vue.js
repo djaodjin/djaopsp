@@ -1469,3 +1469,24 @@ Vue.component('inactive-reporting-entities', {
         this.debouncedGet = _.debounce(this.get, 500)
     },
 });
+
+
+Vue.component('practice-typeahead', QuestionTypeahead.extend({
+  methods: {
+      indentHeader: function(practice) {
+          var vm = this;
+          var indentSpace = practice.indent > 0 ? (practice.indent - 1) : 0;
+          if( vm.isPractice(practice) ) {
+              return "bestpractice indent-header-" + indentSpace;
+          }
+          return "heading-" + indentSpace + " indent-header-" + indentSpace;
+      },
+      isPractice: function(practice) {
+          var vm = this;
+          if( typeof practice.default_unit !== "undefined" ) {
+              return practice.default_unit !== null;
+          }
+          return false;
+      },
+  }
+}));

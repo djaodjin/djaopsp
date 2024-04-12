@@ -41,7 +41,7 @@ class CompareView(UpdatedMenubarMixin, CompareBaseView):
             'api_account_groups': reverse('survey_api_accounts_filter_list',
                 args=(self.account,)),
             'api_question_typeahead': reverse(
-                'survey_api_campaign', args=(self.campaign,)),
+                'api_campaign_questions', args=(self.campaign,)),
             'pages_index': reverse('pages_index'),
             'api_benchmarks_index': reverse(
                 'survey_api_benchmarks_index', args=(

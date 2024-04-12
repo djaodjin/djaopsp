@@ -5,7 +5,8 @@
             v-if="!isPractice(practice) && !isPagebreak(practice)">
         [[practice.title]]
       </span>
-      <a :href="practice.slug + '/'"
+      <a class="title"
+         :href="practice.slug + '/'"
          v-if="!isPractice(practice) && isPagebreak(practice)">
         [[practice.title]]
       </a>

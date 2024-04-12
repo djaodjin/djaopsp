@@ -17,7 +17,7 @@
                     v-for="icon in getEntries('', 1)"
                     v-show="itemsLoaded && items.results.length"
                     v-cloak>
-                  <a class="nav-link icon-inner orange"
+                  <a :id="icon.slug" class="nav-link icon-inner orange"
                      :href="'#tab-' + icon.slug" role="{{role}}"
                      data-bs-toggle="{{role}}" data-toggle="{{role}}"
                      @click.prevent="toggleTile($event, icon)">

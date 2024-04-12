@@ -49,9 +49,10 @@ urlpatterns = [
     path('content',
          PageElementIndexAPIView.as_view(), name="api_content_index"),
     path('campaigns/<slug:campaign>', CampaignContentAPIView.as_view(),
-         name="survey_api_campaign"),
+         name='api_campaign_questions'),
     path('', include('survey.urls.api.noauth')),
 
+    path('<slug:profile>/', include('survey.urls.api.campaigns')),
     path('<slug:profile>/', include('djaopsp.urls.api.assess')),
     path('<slug:profile>/', include('djaopsp.urls.api.audit')),
     path('<slug:profile>/', include('djaopsp.urls.api.portfolios')),
