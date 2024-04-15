@@ -36,7 +36,7 @@ django-debug-toolbar==3.5.0       # 3.4.0 requires Django>=3.2
 # and django-extensions is installed.
 django-extensions==3.2.0          # required by Django==4.0
 Faker==2.0.0
-sqlparse==0.4.4                   # required by django-debug-toolbar
+sqlparse==0.5.0                   # required by django-debug-toolbar
                                   # without being a prerequisite
 
 # To run with API_DEBUG=1
