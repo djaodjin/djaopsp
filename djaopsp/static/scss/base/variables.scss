@@ -1,4 +1,8 @@
-$primary: #f0ad4e;
-$secondary: #3ca65b;
-$link-color: $secondary;
+$cta: #f0ad4e;
+$primary: #3ca65b;
+$secondary: #FFD700;
+//$link-color: $secondary;
 $breadcrumb-divider-color: white;
+
+$menubar-dropdown-bg:      var(--bs-dropdown-bg);
+$menubar-dropdown-color:   $primary;

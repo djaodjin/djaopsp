@@ -1,9 +1,217 @@
 {% extends "app/scorecard/base.html" %}
 
+{% block localheadermeta %}
+<title>{% trans profile=profile.printable_name %}Completed Questionnaire for {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
+<meta property="og:title" content="{% trans profile=profile.printable_name %}Completed Questionnaire for {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}" />
+<meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
+{% endblock %}
+
 {% block scorecard_content %}
-<scorecard inline-template  class="container pt-4">
-  <div class="pt-4">
-    <div class="bg-white text-dark">
+<scorecard inline-template>
+<div{% if FEATURES_DEBUG %} style="display:flex;"{% endif %}>
+  {% if FEATURES_DEBUG %}
+  <div id="app-toolbar-left" class="d-print-none bg-body text-body">
+    <div class="text-end">
+      <button href="" class="sidebar-toggle btn btn-primary d-inline-block d-sm-none" data-target="#app-toolbar-left">
+        <div class="bar1 opened"></div>
+        <div class="bar2 opened"></div>
+        <div class="bar3 opened"></div>
+      </button>
+    </div>
+    <h2>Left sidebar</h2>
+    <div>
+        {# toggle scorecard/assess #}
+        <div style="text-align:right;margin-right:15px;font-size:10px;">
+            <span>{% trans %}assess{% endtrans %}</span>
+            <input style="width:auto;vertical-align:middle;"
+                   type="range" min="0" max="1" v-model="scorecardToggle">
+            <span>{% trans %}review{% endtrans %}</span>
+        </div>
+    </div>
+    {# summary #}
+    <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+      <ul class="nav flex-column py-1">
+        <li class="nav-item"
+            v-for="tile in getEntries('', 1)">
+          <a class="nav-link" :href="'#' + tile.slug">[[tile.title]]</a>
+          <ul style="list-style:none;">
+              <li class="nav-item"
+                  v-for="practice in getEntries(tile.slug, 1)">
+                  <a class="nav-link" :href="'#' + practice.slug">[[practice.title]]</a>
+              </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    {# buttons #}
+    <div class="text-center toolbar-footer">
+      <hr />
+      <section>
+        <a id="xlsx-download-btn" class="btn btn-outline-primary w-100 mt-2"
+           href="{{urls.scorecard_download}}"
+           target="_blank">
+            <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Download (xlsx){% endtrans %}
+        </a>
+        <button id="pdf-print-btn" class="btn btn-outline-primary w-100 mt-2"
+                onClick="window.print()"
+                :disabled="!itemsLoaded">
+            <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
+        </button>
+        <a id="invite-contributor-btn" class="btn btn-outline-primary w-100 mt-2"
+           href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">
+          {% trans %}Invite a contributor{% endtrans %}
+        </a>
+        {% if sample.is_frozen %}
+        {# actions only available when a scorecard is frozen #}
+        {% if urls.share %}
+        <a id="share-btn" class="btn btn-primary w-100 mt-2"
+           href="{{urls.share}}">
+          {% trans %}Share assessment{% endtrans %}
+        </a>
+        {% endif %}
+        {% else %}
+        {% if not urls.assess_mandatory_segment or is_mandatory_segment_present %}
+        <form method="post" action="." @submit.prevent="freezeAssessment"
+              v-show="itemsLoaded && items.results.length > 0">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+            <button id="complete-assessment-btn"
+                  class="btn btn-primary w-100 mt-2"
+                  href=""
+                  data-bs-toggle="modal" data-bs-target="#complete-assessment"
+                  data-toggle="modal" data-target="#complete-assessment"
+                  :disabled="freezeAssessmentDisabled">
+              {% trans %}Complete{% endtrans %}
+            </button>
+        </form>
+        {% endif %}
+        {% endif %}
+      </section>
+      <div>
+        <div class="footer-links pt-2">
+          <a href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm pe-2"></i></a>
+          <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
+        </div>
+        <div>
+          {% trans %}Powered by &copy; 2024 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
+        </div>
+      </div>
+    </div>{# /.dashboard-nav-footer #}
+  </div>{# /#app-toolbar-left #}
+  {% endif %}
+
+  <div>
+    {% include "app/_progress_bar.html" %}
+
+    {% if FEATURES_DEBUG %}
+    {# assess #}
+    <div v-show="!showScorecardToggle">
+      <campaign-questions-list inline-template
+                               ref="assess"
+                               v-bind:preloaded-elements="items">
+        <div>
+          <div role="tabpanel"
+               class="tab-pane"
+               :id="'tab-' + icon.slug"
+               v-for="icon in getEntries('', 1)"
+               v-show="itemsLoaded && items.results.length">
+            <div :id="icon.slug">
+              <h2>[[icon.title]]</h2>
+              <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+              <table class="table table-bordered table-assessment">
+                <thead v-if="!isEnumHeaderShown(icon)">
+                  <tr>
+                    <th colspan="6" style="width:50%;">
+                    </th>
+                    <th colspan="6">
+                    </th>
+                  </tr>
+                </thead>
+                <thead v-if="isEnumHeaderShown(icon)">
+                  <tr>
+                    <th colspan="6" style="border-bottom:none;width:50%;">
+                    </th>
+                    <th class="text-center pb-0"
+                        colspan="6">
+{% trans %}Implemented as standard practice?{% endtrans %} <a style="cursor:pointer;" href=""><i class="fa fa-question-circle"></i></a>
+                      <div class="text-end text-right mt-2">
+                        <div style="display:inline-block;">
+                          <div class="text-start text-left m-0 p-0"
+                               style="line-height:1;">
+                            <small class="candidate-answer">
+                              <div class="radio-border mr-2">
+                                <div style="background-color:white;line-height:0;padding: 2px;border-radius:50%;">
+                                </div>
+                              </div>
+                              <label style="vertical-align:middle;">
+                                <span>{% trans %}previous completed assessment{% endtrans %}</span>
+                              </label>
+                            </small>
+                          </div>
+                          <div class="text-start text-left m-0 p-0"
+                               style="line-height:1;">
+                            <small>
+                              <span class="practice-required mr-2" style="border-top:1px solid #dee2e6;border-bottom:1px solid #dee2e6;">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                              {% trans %}required answer{% endtrans %}
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                    </th>
+                  </tr>
+                  <tr>
+                    <th class="sticky-cell sticky-cell-top" colspan="6">
+                      <div class="sticky-cell-content-container">
+                        <div class="sticky-cell-content" style="padding-left:0.75rem;">
+                            {% trans %}Practices{% endtrans %}
+                        </div>
+                      </div>
+                    </th>
+                    <th class="sticky-cell sticky-cell-top text-center"
+                        :colspan="getNbInputCols(icon)"
+                        v-for="choice in getChoices(icon)">
+                      <div class="sticky-cell-content-container"
+                           data-bs-toggle="tooltip" data-bs-placement="bottom"
+                           data-toggle="tooltip" data-placement="bottom"
+                           :title="choice.descr">
+                          <div class="sticky-cell-content">[[choice.text]]</div>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+              </table>
+              <div :data-id="getPath(practice)"
+                  v-for="practice in getEntries(icon.slug)"
+                  v-show="itemsLoaded && items.results.length">
+                    {% include "app/assess/_assess_row_flex.html" %}
+              </div>
+              {% if not sample.is_frozen %}
+              <div class="row">
+                <div class="offset-sm-6 col-sm-6 text-center">
+                  <div class="text-end text-right"
+                       style="display:inline-block;padding-left:10px;">
+                    <button id="reset-button"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#reset-assessment"
+                            data-toggle="modal" data-target="#reset-assessment"
+                            v-show="!showVsPeers">
+                        {% trans %}Reset{% endtrans %}
+                    </button>
+                  </div>
+                </div>
+              </div>{# /.row (action buttons) #}
+              <hr />
+              {% endif %}
+            </div>{# /!showVsPeers #}
+          </div>{# /expanded tab #}
+        </div>
+      </campaign-questions-list>
+    </div>
+    {% endif %}
+
+    {# scorecard #}
+    <div {% if FEATURES_DEBUG %} v-show="showScorecardToggle"{% endif %}>
+    <div class="bg-body text-body container">
       <section id="summary">
         {% if not sample.is_frozen %}
         <div class="alert alert-warning">
@@ -116,7 +324,7 @@
           <i class="fa fa-refresh fa-spin fa-2x"></i>
         </div>
         <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
-          <div :name="practice.slug" v-for="(practice, practiceIdx) in getEntries()">
+          <div :id="practice.slug" v-for="(practice, practiceIdx) in getEntries()">
             <div class="mt-4" v-if="isChartHeading(practice)">
               <hr v-if="practice.picture" />
 
@@ -529,13 +737,13 @@
 
         <div class="row mt-4">
           <div class="col-sm-4 col-md-3">
-            <a id="xlsx-download-btn" class="mt-2 btn btn-secondary w-100"
+            <a id="xlsx-download-btn" class="mt-2 btn btn-primary w-100"
                href="{{urls.scorecard_download}}"
                target="_blank"
                v-show="itemsLoaded">
               <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Download (xlsx){% endtrans %}
             </a>
-            <button id="pdf-print-btn" class="mt-2 btn btn-secondary w-100"
+            <button id="pdf-print-btn" class="mt-2 btn btn-primary w-100"
                onClick="window.print()"
                v-show="itemsLoaded">
               <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
@@ -545,14 +753,14 @@
           {# actions only available when a scorecard is frozen #}
           {% if urls.share %}
           <div class="col-sm-4 col-md-3 offset-md-6">
-            <a id="share-btn" class="mt-2 btn btn-secondary w-100"
+            <a id="share-btn" class="mt-2 btn btn-primary w-100"
                href="{{urls.share}}">
               {% trans %}Share assessment{% endtrans %}
             </a>
           </div>
           {# XXX disabled until functionality is implemented          #}
           {# <div class="col-sm-4 col-md-3">                          #}
-          {#   <a id="embed-btn" class="mt-2 btn btn-secondary w-100" #}
+          {#   <a id="embed-btn" class="mt-2 btn btn-primary w-100" #}
           {#      href="">                                            #}
           {#     Embed link                                           #}
           {#   </a>                                                   #}
@@ -561,7 +769,7 @@
           {% else %}
           {# actions only available when a scorecard is active #}
           <div class="col-sm-4 col-md-3">
-            <a id="invite-contributor-btn" class="mt-2 btn btn-secondary w-100"
+            <a id="invite-contributor-btn" class="mt-2 btn btn-primary w-100"
                href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">
               {% trans %}Invite a contributor{% endtrans %}
             </a>
@@ -593,5 +801,9 @@
     {% include "app/_reset_assessment.html" %}
     {% include "app/_complete_assessment.html" %}
   </div>
+
+  </div>
+</div>
+
 </scorecard>
 {% endblock %}

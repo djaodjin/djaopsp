@@ -56,7 +56,7 @@ Completed: A supplier has submitted both a complete assessment and improvement p
         </div>
         <div class="pe-3 mt-2">
           <div class="text-end">
-            <button class="btn btn-secondary btn-sm mb-2 w-100"
+            <button class="btn btn-primary btn-sm mb-2 w-100"
                     :disabled="!outdated"
                     @click.prevent="reload()">Update</button>
           </div>
@@ -202,12 +202,12 @@ user).</em>
     <div class="card-body">
       <div class="row" style="margin-top: 5px;">
         <div class="col-sm-6">
-          <a id="download-reporting" class="btn btn-secondary mb-2"
+          <a id="download-reporting" class="btn btn-primary mb-2"
              :href="'{{urls.download}}' + getQueryString(['page'])"
              target="_blank">
             <i class="fa fa-download"></i> Scores
           </a>
-          <a id="download-assessment-details" class="btn btn-secondary mb-2"
+          <a id="download-assessment-details" class="btn btn-primary mb-2"
              :href="'{{urls.download_raw}}' + getQueryString(['page'])"
              target="_blank">
             <i class="fa fa-download"></i> Assessment details
@@ -233,7 +233,7 @@ user).</em>
               </label>
             </div>
             <div>
-              <button class="btn btn-secondary">Save preferences</button>
+              <button class="btn btn-primary">Save preferences</button>
             </div>
           </form>
         </div>

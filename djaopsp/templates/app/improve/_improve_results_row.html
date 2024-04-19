@@ -11,15 +11,12 @@
          v-if="!isPractice(practice) && isPagebreak(practice)">
         [[practice.title]]
       </a>
-      <div v-if="isPractice(practice) && !isEnumHeaderShown(icon)">
-        <span class="title">[[practice.title]]</span>
-        <span v-if="practice.text && practice.text.indexOf('.png', practice.text.length - 4) < 0" v-bind-html="practice.text"></span>
-      </div>
-      <a class="title"
-         :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
-         v-if="isPractice(practice) && isEnumHeaderShown(icon)">
+      <span class="title"
+            v-if="isPractice(practice)">
         [[practice.title]]
-      </a>
+        <a :href="'{{urls.pages_index}}' + practice.slug + '/'"
+           target="_blank"><i class="fa fa-question-circle"></i></a>
+      </span>
     </div>
   </div>
 </td>

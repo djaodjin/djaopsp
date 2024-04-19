@@ -7,9 +7,17 @@ Vue.component('campaign-questions-list', {
     mixins: [
         practicesListMixin
     ],
+    props: [
+        'preloadedElements'
+    ],
     data: function() {
         return {
             url: this.$urls.api_content,
+            items: this.preloadedElements ? this.preloadedElements : {
+                results: [], count: 0
+            },
+            itemsLoaded: this.preloadedElements ? true : false,
+
             api_verification_sample: this.$urls.api_verification_sample || null,
             api_improvement_sample: this.$urls.api_improvement_sample,
             api_aggregate_metric_base: this.$urls.api_aggregate_metric_base,
@@ -99,7 +107,9 @@ Vue.component('campaign-questions-list', {
                                 }
                             }
                         }
-                        if( isIdentDescr ) {
+                        // using `isEnumHeaderShown(icon)` and `'d-md-none'`
+                        // to achieve the same result.
+                        if( false && isIdentDescr ) {
                             for( var idx = 0; idx < defaultUnit.choices.length;
                                  ++idx ) {
                                 row.choices_headers.push({
@@ -133,7 +143,7 @@ Vue.component('campaign-questions-list', {
                  practice.choices_headers.length > 0) ||
                 (practice.default_unit &&
                  practice.default_unit.system === 'enum') ) {
-                return 6 / vm.getChoices(practice).length;
+                return Math.floor(6 / vm.getChoices(practice).length);
             }
             return 6;
         },
@@ -771,6 +781,7 @@ Vue.component('scorecard', {
             upload_complete_url: this.$urls.api_asset_upload_complete,
             params: {o: ""},
             activeTile: null,
+            scorecardToggle: 1,
             summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
             freezeAssessmentDisabled: false,
             verificationStatus: ""
@@ -1024,6 +1035,11 @@ Vue.component('scorecard', {
             function success(resp) {
             });
         }
+    },
+    computed: {
+        showScorecardToggle: function() {
+            return parseInt(this.scorecardToggle) > 0;
+        },
     },
     watch: {
         itemsLoaded: function (val) {

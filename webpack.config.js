@@ -74,7 +74,12 @@ module.exports = {
           itemListMixin: ['js/djaodjin-resources-vue.js', 'itemListMixin'],
           paramsMixin: ['js/djaodjin-resources-vue.js', 'paramsMixin'],
           typeAheadMixin: ['js/djaodjin-resources-vue.js', 'typeAheadMixin'],
-          accountDetailMixin: ['js/djaodjin-resources-vue.js', 'accountDetailMixin'],
+          accountDetailMixin: [
+              'js/djaodjin-resources-vue.js', 'accountDetailMixin'],
+          QueryAccountsByAffinity: [
+              'js/djaodjin-survey-vue.js', 'QueryAccountsByAffinity'],
+          QueryAccountsByAnswers: [
+              'js/djaodjin-survey-vue.js', 'QueryAccountsByAnswers'],
           practicesListMixin: [
               'js/djaopsp-resources-vue.js', 'practicesListMixin'],
       })

@@ -13,7 +13,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.views.generic.base import (RedirectView, TemplateResponseMixin,
     TemplateView)
 from django.views.generic.edit import FormMixin
-from survey.models import Answer, Campaign, Sample
+from survey.models import Answer, Campaign, Choice, Sample
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_question_model
 
@@ -169,8 +169,15 @@ class ScorecardIndexView(ReportMixin, TemplateView):
             'is_mandatory_segment_present': self.is_mandatory_segment_present,
             'is_mandatory_segment_scored': is_mandatory_segment_scored,
             'summary_performance': get_summary_performance(
-                self.improvement_sample)
+                self.improvement_sample),
+            'units': {}
         })
+        for unit_slug in ('verifiability', 'supporting-document',
+                          'completeness'):
+            context['units'].update({
+                unit_slug.replace('-', '_'): Choice.objects.filter(
+                    unit__slug=unit_slug).order_by('rank')})
+
         if not self.segments_available:
             update_context_urls(context, {
                 'complete': "#"  # When there are no answers yet, we want
@@ -194,6 +201,7 @@ class ScorecardIndexView(ReportMixin, TemplateView):
             # with. They must use ``sample.account``.
             'assess_base': reverse('assess_practices',
                 args=(self.sample.account, self.sample, '-'))[:-2],
+            'api_profiles': site_url("/api/accounts/users"),
             'api_assessment_freeze': reverse('survey_api_sample_freeze_index',
                 args=(self.sample.account, self.sample)),
             'api_assessment_reset': reverse('survey_api_sample_reset_index',

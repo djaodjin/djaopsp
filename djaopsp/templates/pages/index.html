@@ -25,7 +25,7 @@
                              placeholder="{% trans %}Ex: GHG Emissions ...{% endtrans %}"
                              v-model="params.q" />
                       <div class="input-group-append">
-                        <button class="btn btn-secondary btn-sm"
+                        <button class="btn btn-primary btn-sm"
                                 type="submit">{% trans %}Search{% endtrans %}</button>
                       </div>
                     </div>
@@ -66,7 +66,7 @@
                                v-model="newItem.title">
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"
+                        <button type="button" class="btn btn-outline-primary"
                                 data-dismiss="modal">{% trans %}Cancel{% endtrans %}</button>
                         <button type="submit" class="btn btn-primary">{% trans %}Create{% endtrans %}</button>
                       </div>
@@ -89,7 +89,7 @@
                 <div class="row" v-for="idx in nbRows">
                   <div class="col-md-6 mt-2" v-for="item in items.results.slice((idx - 1) * nbItemsPerRow, ((idx - 1) * nbItemsPerRow + nbItemsPerRow) > items.results.length ? items.results.length : ((idx - 1) * nbItemsPerRow + nbItemsPerRow))">
                     <a class="pages-card-link" :id="item.slug" :href="'{{urls.pages_index}}' + item.path.substr(1) + '/'">
-                      <div class="card bg-white text-dark h-100">
+                      <div class="card bg-body text-body h-100">
                         <div class="card-body">
                           <div class="row">
                             <div class="col-4">

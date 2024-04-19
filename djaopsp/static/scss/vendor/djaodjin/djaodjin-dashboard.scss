@@ -1,23 +1,18 @@
 // CSS specific to layout the djaoapp dashboard pages
 // Colors are setup in djaoapp-dashboard-theme.scss
 
-// XXX `$navbar-height` used to be defined
-// in Bootstrap3 (it is not in Bootstrap4). We redefine it here use it stick the
-// footer at the bottom of the screen when a page is less that screen height.
-$navbar-height: max($nav-link-height, $navbar-brand-height) + $navbar-padding-y * 2;
-
 $dashboard-sidebar-width:      220px;
 $dashboard-sidebar-toggle:      20px;
-$dashboard-nav-footer-height:   94px;
+$dashboard-nav-footer-height:   134px;
 $dashboard-sidebar-logo-height: 72px;
 
 // CSS specific to color the djaoapp dashboard pages
-$dashboard-content-bg:          white;
-$dashboard-sidebar-bg:          map-get($theme-colors, "secondary");
+$dashboard-content-bg:          var(--bs-body-bg);
+$dashboard-sidebar-bg:          map-get($theme-colors, "primary");
 $dashboard-sidebar-color:       white;
 $dashboard-icon-color:          $dashboard-sidebar-color;
 $dashboard-icon-color-active:   $dashboard-sidebar-bg;
-$code-bg:                       #222527;
+$code-bg:                       var(--bs-body-bg);
 $code-color:                    #a3acb9;
 $box-shadow-color:              rgba(0, 0, 0, 0.05);
 
@@ -31,7 +26,6 @@ $box-shadow-color:              rgba(0, 0, 0, 0.05);
 .navbar .divider-vertical {
   border-right: 1px solid $dashboard-sidebar-bg;
 }
-
 
 // Profile and user pictures
 // -------------------------
@@ -52,6 +46,7 @@ $box-shadow-color:              rgba(0, 0, 0, 0.05);
   transform: translateX(-50%);
   display: block;
 }
+
 
 // Code snipset in theme and rules pages
 // -------------------------------------
@@ -180,6 +175,11 @@ pre.code{
     width: $dashboard-sidebar-width;
 }
 
+.dashboard-nav-main .navbar-header {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
 .dashboard-nav-menu {
   height: calc(100vh - (#{$dashboard-nav-footer-height} + #{$dashboard-sidebar-logo-height}));
   overflow-y: auto;
@@ -192,7 +192,6 @@ pre.code{
 .dashboard-nav-inner-container .navbar {
     padding-left: 4px;
     padding-right: 4px;
-    height: 4.33rem;
 }
 
 .dashboard-nav-footer {
@@ -227,8 +226,6 @@ pre.code{
 
 .dashboard-content {
     width: 100%;
-    background-color: $dashboard-content-bg;
-    color: $body-color;
 }
 
 .dashboard-inner-container .dashboard-content-body {
@@ -273,11 +270,6 @@ pre.code{
     padding: 20px;
 }
 
-
-header > .navbar {
-    height: $navbar-height; // See comment about $navbar-height
-}
-
 .no-results {
     text-align: center;
     padding: 20px 10px;
@@ -296,8 +288,6 @@ header > .navbar {
     padding: 9px 10px;
     border-radius: 3px;
     z-index: 1000;
-    color: $dashboard-sidebar-color;
-    background: $dashboard-sidebar-bg;
 }
 
 .sidebar-toggle > .bar1, .bar2, .bar3  {
@@ -555,20 +545,15 @@ input::-webkit-datetime-edit {
 @include media-breakpoint-down(sm) {
 
     .dashboard-content > .fullviewport {
-      padding-top: $navbar-height;
     }
 
     .dashboard-content > header,
     .dashboard-content > .fullviewport > header {
-      position: fixed;
-      height:  $navbar-height;
+      position: sticky;
       top: 0;
       z-index: 4;
       width: 100%;
       left: 0;
-    }
-
-    .dashboard-content > .fullviewport > header.scrolled {
       background-color: $dashboard-sidebar-bg;
     }
 
@@ -649,7 +634,7 @@ input::-webkit-datetime-edit {
     color: $dashboard-sidebar-color;
 }
 
-.dashboard-nav-color-theme .bg-secondary {
+.dashboard-nav-color-theme .bg-primary {
     background-color: $dashboard-sidebar-bg;
 }
 
@@ -661,11 +646,11 @@ input::-webkit-datetime-edit {
     color: $dashboard-sidebar-color;
 }
 
-.dashboard-nav .bg-secondary a.navbar-brand,
-.dashboard-nav .bg-secondary a.navbar-brand:active,
-.dashboard-nav .bg-secondary a.navbar-brand:hover,
-.dashboard-nav .bg-secondary a.navbar-brand:focus,
-.dashboard-nav .bg-secondary a.navbar-brand:visited {
+.dashboard-nav .bg-primary a.navbar-brand,
+.dashboard-nav .bg-primary a.navbar-brand:active,
+.dashboard-nav .bg-primary a.navbar-brand:hover,
+.dashboard-nav .bg-primary a.navbar-brand:focus,
+.dashboard-nav .bg-primary a.navbar-brand:visited {
     color: $dashboard-sidebar-color;
 }
 
@@ -704,17 +689,11 @@ input::-webkit-datetime-edit {
     color: $dashboard-sidebar-color;
 }
 
-.dashboard-inner-container .dashboard-nav-color-theme .sidebar-toggle {
-    border-color: $dashboard-sidebar-color;
-    background: $dashboard-sidebar-bg;
-}
-
-.dashboard-inner-container .dashboard-nav-color-theme .sidebar-toggle,
 .dashboard-inner-container .dashboard-nav-color-theme .sidebar-toggle:hover {
-    color: $dashboard-sidebar-color;
+    border-color: $dashboard-sidebar-color;
 }
 
-.dashboard-nav-color-theme.bg-secondary .navbar-nav .nav-link,
+.dashboard-nav-color-theme.bg-primary .navbar-nav .nav-link,
 .dashboard-nav-color-theme .dropdown-toggle {
     color: $dashboard-sidebar-color;
 }
@@ -760,6 +739,5 @@ input::-webkit-datetime-edit {
 /* upload themes */
 .dropzone-previews {
   border-color: map-get($theme-colors, "primary");
-  background: #ccc;
 }
 

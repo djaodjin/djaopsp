@@ -131,7 +131,7 @@
           <div class="row mb-4">
             <div class="col-sm-6 text-left">
               <a id="download-assessment"
-                 class="btn btn-secondary"
+                 class="btn btn-primary"
                  href="{{urls.download}}" target="_blank">
                 <i class="fa fa-download"></i> Planned actions (.xslx)
               </a>
@@ -164,17 +164,19 @@
     </div> {# .panel-body #}
 
     {% block panel_footer %}
-    <div class="card card-footer mt-4">
-      <div class="row">
-        <div class="offset-sm-3 col-sm-6 text-center">
-          <p>
+    <div class="card mt-4">
+      <div class="card-footer">
+        <div class="row">
+          <div class="offset-sm-3 col-sm-6 text-center">
+            <p>
 {% trans %}Click to expand each icon tile, then select practices you wish to add to your organization's improvement plan.{% endtrans %}
-          </p>
-          {% if sample.is_frozen %}
-          <p>
-          Completed on {{sample.created_at|date}}
-          </p>
-          {% endif %}
+            </p>
+            {% if sample.is_frozen %}
+            <p>
+              Completed on {{sample.created_at|date}}
+            </p>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>

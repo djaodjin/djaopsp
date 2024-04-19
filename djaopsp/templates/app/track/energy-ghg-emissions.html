@@ -204,7 +204,7 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary add-row"
+                          <button class="btn btn-primary add-row"
                               @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                       </tr>
@@ -433,7 +433,7 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary add-row"
+                          <button class="btn btn-primary add-row"
                                   @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                       </tr>
@@ -630,7 +630,7 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                         </td>
                         <td colspan="10">
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary add-row"
+                          <button class="btn btn-primary add-row"
                                   @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                       </tr>
@@ -843,7 +843,7 @@ Electricity and other sources of energy purchased from your local utility (that 
                        </td>
                        <td>
                          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                         <button class="btn btn-secondary add-row"
+                         <button class="btn btn-primary add-row"
                                  @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                        </td>
                      </tr>
@@ -1089,7 +1089,7 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                        </td>
                        <td>
                          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                         <button class="btn btn-secondary add-row"
+                         <button class="btn btn-primary add-row"
                                  @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                        </td>
                      </tr>
@@ -1164,7 +1164,9 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
         {% endblock %}
       </div> {# .panel-body #}
       {% block panel_footer %}
-      <div class="card card-footer mt-4" style="padding:0;">
+      <div class="card mt-4">
+        <div class="card-footer">
+        </div>
       </div>
       {% endblock %}
     </div>

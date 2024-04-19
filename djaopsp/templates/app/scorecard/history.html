@@ -8,7 +8,7 @@
 
 {% block app_content %}
 <div class="container pt-4">
-  <div class="bg-white text-dark p-4">
+  <div class="bg-body text-body p-4">
     <div class="row">
       <div class="col-sm-2 text-center text-sm-end">
         <img class="img-fluid" style="max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">

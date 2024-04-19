@@ -128,7 +128,7 @@
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary add-row"
+                          <button class="btn btn-primary add-row"
                               @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                       </tr>
@@ -216,7 +216,7 @@
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary add-row"
+                          <button class="btn btn-primary add-row"
                               @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                       </tr>
@@ -303,7 +303,7 @@
                         </td>
                         <td>
                           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                          <button class="btn btn-secondary add-row"
+                          <button class="btn btn-primary add-row"
                               @click.prevent="addItem">{% trans %}Add row{% endtrans %}</button>
                         </td>
                       </tr>
@@ -321,7 +321,9 @@
         {% endblock %}
       </div> {# .panel-body #}
       {% block panel_footer %}
-      <div class="card card-footer mt-4" style="padding:0;">
+      <div class="card mt-4">
+        <div class="card-footer">
+        </div>
       </div>
       {% endblock %}
     </div>

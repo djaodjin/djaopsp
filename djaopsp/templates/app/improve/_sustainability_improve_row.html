@@ -10,11 +10,12 @@
          v-if="!isPractice(practice) && isPagebreak(practice)">
         [[practice.title]]
       </a>
-      <a class="title"
-         :href="'{{urls.pages_index}}' + practice.slug + '/'"
-         v-if="isPractice(practice)">
+      <span class="title"
+            v-if="isPractice(practice)">
         [[practice.title]]
-      </a>
+        <a :href="'{{urls.pages_index}}' + practice.slug + '/'"
+           target="_blank"><i class="fa fa-question-circle"></i></a>
+      </span>
     </div>
   </div>
 </td>

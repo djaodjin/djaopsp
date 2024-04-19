@@ -29,7 +29,7 @@
             </div>
           </div>
           <div class="col-sm-4">
-            <button class="btn btn-secondary btn-sm"
+            <button class="btn btn-primary btn-sm"
                 :disabled="!outdated"
                 type="submit">{% trans %}Update{% endtrans %}</button>
           </div>
@@ -206,7 +206,7 @@
                        type="text"
                        placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
                        v-model="params.q" />
-                <button class="btn btn-secondary btn-sm"
+                <button class="btn btn-primary btn-sm"
                         type="submit"
                         :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
               </div>
@@ -348,7 +348,7 @@
           <td class="text-center"
               v-if="!hasNoReportingStatus(entry)">
               <button id="invite-reporting-profile-open"
-                      class="btn btn-secondary"
+                      class="btn btn-primary"
                       data-bs-toggle="modal" data-bs-target="#invite-reporting-entity"
                       data-toggle="modal" data-target="#invite-reporting-entity"
                       @click="populateInvite(entry)"

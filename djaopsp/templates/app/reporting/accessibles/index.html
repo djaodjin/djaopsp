@@ -81,7 +81,7 @@
             </div>
           </div>
           <div class="col-sm-4 text-end text-right">
-            <button class="btn btn-secondary btn-sm"
+            <button class="btn btn-primary btn-sm"
                   :disabled="!outdated"
                   type="submit">{% trans %}Update{% endtrans %}</button>
           </div>
@@ -169,7 +169,7 @@
                        type="text"
                        placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
                        v-model="params.q" />
-                <button class="btn btn-secondary btn-sm"
+                <button class="btn btn-primary btn-sm"
                         type="submit"
                         :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
               </div>
@@ -198,7 +198,7 @@
               <img class="img-fluid" style="max-height: 1rem;" :src="received.account.picture || '{{'/static/img/default-organization.png'|asset}}'"><em class="ps-1">{% trans profile_name="[[received.account.printable_name ? received.account.printable_name : received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}</em>
             </td>
             <td :colspan="items.labels.length + 1">
-                <button class="btn btn-secondary"
+                <button class="btn btn-outline-primary"
                         @click.prevent="ignore(received, index)">
                     {% trans %}Ignore{% endtrans %}
                 </button>

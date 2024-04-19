@@ -62,6 +62,33 @@ $green-level-4-color: #FFD700;
   display: none !important;
 }
 
+/* backdrop */
+.backdrop {
+  color: white;
+  background: map-get($theme-colors, "primary");
+  background: -webkit-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+  background:    -moz-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+  background:      -o-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+  background:         linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+}
+
+// customize top menubar
+.navbar.bg-primary {
+  border-bottom: var(--bs-border-width) var(--bs-border-style) $white !important;
+}
+
+// top menubar (requires `bg-primary` as background)
+.navbar.bg-primary .nav-link {
+  color: white;
+}
+
+.navbar.bg-primary .nav-link:hover,
+.navbar.bg-primary .nav-link:focus {
+  color: map-get($theme-colors, "primary");
+  background-color: white;
+}
+
+
 .password-toggle {
   position: absolute;
   top: 15%;
@@ -69,15 +96,12 @@ $green-level-4-color: #FFD700;
   cursor: pointer;
 }
 
-//.tick line {display: none;}
+
 header .nav-item {
   border-left: 1px solid $white;
   padding: 0 10px;
 }
 
-header .nav-item>.nav-link {
-  color: $white;
-}
 
 .navbar-top {
   border-top: 0;
@@ -92,6 +116,14 @@ header .nav-item>.nav-link {
   align-items: center;
   min-height: calc(100vh - (#{$navbar-height} + #{$footer-height}));
 }
+
+
+// special color for CTA
+.btn-cta {
+    @include button-variant($cta, $cta);
+}
+
+
 
 .table-assessment {
   $table-accent-bg: rgba(0, 0, 0, 0.05);
@@ -369,16 +401,6 @@ b, strong{
 #scroll-page .inner a:focus,
 #scroll-page .inner a:visited {
   color: #adc4b4;
-}
-
-/* backdrop */
-.backdrop {
-  color: white;
-  background: #3ca65b;
-  background: -webkit-linear-gradient(#3ca65b 0, #fff 300px);
-  background:    -moz-linear-gradient(#3ca65b 0, #fff 300px);
-  background:      -o-linear-gradient(#3ca65b 0, #fff 300px);
-  background:         linear-gradient(#3ca65b 0, #fff 300px);
 }
 
 .content-sponsors {
@@ -979,46 +1001,6 @@ a.text-grey{
   padding:20px;
 }
 
-.indent-header-0 {
-   display:inline-block;
-   margin:0;
-}
-
-.indent-header-1 {
-  display:inline-block;
-  margin-left: 20px;
-}
-
-.indent-header-2 {
-  display:inline-block;
-  margin-left: 40px;
-}
-
-.indent-header-3 {
-  display:inline-block;
-  margin-left: 60px;
-}
-
-.indent-header-4 {
-  display:inline-block;
-  margin-left: 80px;
-}
-
-.indent-header-5 {
-  display:inline-block;
-  margin-left: 100px;
-}
-
-.indent-header-6 {
-  display:inline-block;
-  margin-left: 120px;
-}
-
-.indent-header-7 {
-  display:inline-block;
-  margin-left: 140px;
-}
-
 .heading-tile {
    font-size: 54px;
    font-family: inherit;
@@ -1062,22 +1044,11 @@ a.text-grey{
 }
 
 .bestpractice>a {
+  color: var(--bs-body-color);
   text-decoration: none;
   &:hover {
     text-decoration: underline;
   }
-}
-
-.bestpractice>a.title,
-.bestpractice-0>a.title,
-.bestpractice-1>a.title,
-.bestpractice-2>a.title,
-.bestpractice-3>a.title,
-.bestpractice-4>a.title,
-.bestpractice-5>a.title,
-.bestpractice-6>a.title,
-.bestpractice-7>a.title {
-   color: $gray-900;
 }
 
 /* Remove Hyperlinks */
@@ -1165,7 +1136,7 @@ a.text-grey{
 }
 
 @include media-breakpoint-down(md) {
-.navbar-collapse .nav > .divider-vertical {
+  .navbar-collapse .nav > .divider-vertical {
     display: none;
   }
 }
@@ -1212,40 +1183,8 @@ a.text-grey{
   }
 }
 
+
 /************* Dropdown homepage custom ****************/
-
-.industry-select {
-  width: 100%;
-  line-height: 1em;
-}
-
-.dropdown-homepage .text-subtitle {
-  font-size: 0.6rem;
-  color: white;
-}
-
-.dropdown>.dropdown-menu {
-  color: #000;
-}
-
-.dropdown>.dropdown-menu>li {
-    margin-left: 5px;
-    font-size: 18px;
-    font-weight: 900;
-}
-
-.dropdown>.dropdown-menu>li>div {
-  display: block;
-  padding: 3px 20px;
-  clear: both;
-  font-weight: normal;
-  line-height: 1.42857143;
-  white-space: nowrap;
-}
-
-.dropdown>.dropdown-menu>li>div:hover {
-    background-color: #f5f5f5;
-}
 
 /*disabled are shown as buttons. */
 .dropdown>.dropdown-menu>li button {
@@ -1294,7 +1233,7 @@ a.text-grey{
     background-color: #f5f5f5;
 }
 
-.feature-index {
+.feature-index { // homepage and public questionnaire pages
   margin-top: 20px;
 }
 
@@ -1318,14 +1257,8 @@ a.text-grey{
   margin: 30px 0 0 0;
 }
 
-.panel-icons table {
-  background-color: #fff;
-}
-
 .panel-grey{
   margin: 0;
-  background: $body-bg;
-  color: $body-color;
   border-radius:10px;
   behavior: url(../vendor/PIE.htc);
 }
@@ -1697,7 +1630,8 @@ thead{
 }
 
 .table tr > th.sticky-cell {
-  background: white;  // without a background, the cell border show on scrolling
+  background: var(--bs-body-bg);  // without a background, the cell border
+                                  // show on scrolling
   padding: 0;
   // from bootstrap4 sticky-top
   position: sticky;
@@ -1717,7 +1651,8 @@ thead{
 }
 
 .table tr > th.sticky-cell > .sticky-cell-content-container {
-  background: white;  // without a background, the cell border show on scrolling
+  background: var(--bs-body-bg);  // without a background, the cell border
+                                  // show on scrolling
   display: block;
   overflow:auto;
   height:100%;
@@ -2182,6 +2117,46 @@ a.header-anchor:hover{
 
 @include media-breakpoint-up(md) {
 
+  .indent-header-0 {
+    display:inline-block;
+    margin:0;
+  }
+
+  .indent-header-1 {
+    display:inline-block;
+    margin-left: 20px;
+  }
+
+  .indent-header-2 {
+    display:inline-block;
+    margin-left: 40px;
+  }
+
+  .indent-header-3 {
+    display:inline-block;
+    margin-left: 60px;
+  }
+
+  .indent-header-4 {
+    display:inline-block;
+    margin-left: 80px;
+  }
+
+  .indent-header-5 {
+    display:inline-block;
+    margin-left: 100px;
+  }
+
+  .indent-header-6 {
+    display:inline-block;
+    margin-left: 120px;
+  }
+
+  .indent-header-7 {
+    display:inline-block;
+    margin-left: 140px;
+  }
+
   .col-example {
       color: var(--example-color);
       background-color: var(--example-bg);
@@ -2341,4 +2316,44 @@ pre.code{
   &:hover {
     text-decoration: underline;
   }
+}
+
+// App Toolbar (Left)
+#app-toolbar-left {
+  display: none;
+  width: 200px;
+  overflow: hidden;
+  -webkit-transition: right 0.25s ease-in-out;
+  -moz-transition: right 0.25s ease-in-out;
+  -ms-transition: right 0.25s ease-in-out;
+  -o-transition: right 0.25s ease-in-out;
+  transition: right 0.25s ease-in-out;
+  position: fixed;
+  top: 0;
+  z-index: 5;
+  height: 100vh;
+}
+
+#app-toolbar-left > .toolbar-footer {
+  position: absolute;
+  clear: both;
+  bottom: 0;
+  padding: 10px 30px 10px;
+  font-size: 11px;
+}
+
+@include media-breakpoint-up(md) {
+
+    #app-toolbar-left {
+        display: block;
+        width: 25%;
+        z-index: static;
+        position: sticky;
+        height: calc(100vh - #{$navbar-height});
+    }
+
+    #app-toolbar-left + div {
+        width: 75%;
+    }
+
 }

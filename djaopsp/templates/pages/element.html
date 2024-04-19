@@ -24,7 +24,7 @@
         <div class="col-12">
           <div class="tab-pane active in">
             <div class="tab-content">
-                <div class="panel-grey panel-cartitem over-radius">
+                <div class="panel-grey panel-cartitem over-radius bg-body text-body">
                     <div class="p-2">
                       <h1 class="editable" data-key="title" v-cloak>{% if element %}{{element.title}}{% else %}[[item.title]]{% endif %}</h1>
                       <div data-key="tags" class="editable text-end text-right">
@@ -95,7 +95,7 @@
                                          v-model="newItem.title">
                                 </div>
                                 <div class="modal-footer">
-                                  <button class="btn btn-secondary"
+                                  <button class="btn btn-outline-primary"
                                           data-bs-dismiss="modal" data-dismiss="modal"
                                           type="button">{% trans %}Cancel{% endtrans %}</button>
                                   <button type="submit" class="btn btn-primary">{% trans %}Create{% endtrans %}</button>

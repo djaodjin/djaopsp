@@ -42,7 +42,7 @@
   </div>
   <div class="row">
     <div class="col-12">
-      <div class="bg-white text-dark">
+      <div class="bg-body text-body">
         <div class="mx-3">
           <h1 class="d-inline my-0">{% block campaign_title %}{{campaign.title}}{% endblock %}</h1>
           <div class="d-inline">
@@ -95,16 +95,16 @@
                           <tr :id="entry.slug" v-for="(entry, index) in items.results" v-show="!entry.hide">
                             <td style="white-space: nowrap">
                               <div v-if="entry.indent > 0">
-                                <button class="btn btn-secondary btn-sm" @click="moveTreeUp(entry, index)">
+                                <button class="btn btn-primary btn-sm" @click="moveTreeUp(entry, index)">
                                   <i class="fa fa-angle-up"></i>
                                 </button>
-                                <button class="btn btn-secondary btn-sm" @click="moveTreeDown(entry, index)">
+                                <button class="btn btn-primary btn-sm" @click="moveTreeDown(entry, index)">
                                   <i class="fa fa-angle-down"></i>
                                 </button>
-                                <button class="btn btn-secondary btn-sm" @click="moveTreeLeft(entry, index)">
+                                <button class="btn btn-primary btn-sm" @click="moveTreeLeft(entry, index)">
                                   <i class="fa fa-angle-left"></i>
                                 </button>
-                                <button class="btn btn-secondary btn-sm" @click="moveTreeRightCandidates(entry, index)">
+                                <button class="btn btn-primary btn-sm" @click="moveTreeRightCandidates(entry, index)">
                                   <i class="fa fa-angle-right"></i>
                                 </button>
                               </div>
@@ -379,7 +379,7 @@
                   Please confirm you want to delete '[[activeEntry ? activeEntry.title : ""]]'.
                 </div>
                 <div class="modal-footer">
-                  <button class="btn btn-secondary"
+                  <button class="btn btn-primary"
                           data-bs-dismiss="modal" data-dismiss="modal"
                           type="button">{% trans %}Cancel{% endtrans %}</button>
                   <button id="delete-action-btn"
@@ -395,7 +395,7 @@
           {% endblock %}
 </div>
         </div>
-      </div>{# /.bg-white #}
+      </div>{# /.bg-body text-body #}
     </div>
   </div>{# /.row #}
 </div>

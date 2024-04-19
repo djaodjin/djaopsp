@@ -4,7 +4,7 @@
 <div class="container mb-4">
   <h1 class="text-center">Share {{campaign.title}}</h1>
   <h2 class="text-center">for {{profile.printable_name}}</h2>
-  <div class="bg-white text-dark px-2 py-4">
+  <div class="bg-body text-body px-2 py-4">
     <div class="row">
       <div class="col-8">
         {% if sample.is_frozen %}
@@ -55,7 +55,7 @@ No data will be shared until you click the <strong>accept</strong> button.
 [[received.grantee.printable_name ? received.grantee.printable_name : '@' + received.grantee]]
                       </div>
                       <div class="col-5 text-end">
-                        <button class="btn btn-secondary"
+                        <button class="btn btn-outline-primary"
                                 @click.prevent="ignore(received, index)">{% trans %}Ignore{% endtrans %}</button>
                         <button class="btn btn-primary"
                                 {% if not sample.is_frozen %} disabled{% endif %}

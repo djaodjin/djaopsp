@@ -17,7 +17,7 @@
     <div class="row">
 
       {% block app_toolbar_left %}
-      <div id="app-toolbar-left" class="float-start float-md-none col-md-3" style="height: 100vh;">
+      <div class="col-md-3">
         <label class="form-label">{% trans %}Add{% endtrans %} ...
         <select class="form-select" v-model="queryType">
           <option value="individual-account">{% trans %}Individual account{% endtrans %}</option>
@@ -80,7 +80,7 @@
                   </select>
                   <div class="form-actions mt-2"
                        v-show="selectedSample >= 0">
-                      <button class="btn btn-secondary w-100"
+                      <button class="btn btn-primary w-100"
                               type="submit">
                           {% trans %}Add{% endtrans %}
                       </button>
@@ -188,7 +188,7 @@
                     </div>{# /.row #}
                     <div class="form-actions mt-2"
                          v-show="!accountsEmpty() && !addAccountEnabled">
-                      <button class="btn btn-secondary w-100"
+                      <button class="btn btn-primary w-100"
                               type="submit">
                           {% trans %}Add{% endtrans %}
                       </button>
@@ -224,7 +224,7 @@
                     <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                     <input class="form-control" type="date" v-model="_ends_at">
                   </div>
-                  <button class="btn btn-secondary mt-2 w-100"
+                  <button class="btn btn-primary mt-2 w-100"
                           type="submit">{% trans %}Add{% endtrans %}</button>
                 </div>
               </form>{# /#accounts-by-affinity #}
@@ -357,7 +357,7 @@
                     </div>{# /.row #}
                     <div class="form-actions mt-2"
                          v-show="!predicatesEmpty() && !addPredicateEnabled">
-                      <button class="btn btn-secondary w-100"
+                      <button class="btn btn-primary w-100"
                               type="submit">
                           {% trans %}Add{% endtrans %}
                       </button>
@@ -379,12 +379,6 @@
               <th class="sticky-cell sticky-cell-top">
                 <div class="sticky-cell-content-container">
                   <div class="sticky-cell-content">
-                    <button id="app-toolbar-left-toggle"
-                            class="btn btn-primary">
-                      <div class="bar1 closed"></div>
-                      <div class="bar2 closed"></div>
-                      <div class="bar3 closed"></div>
-                    </button>
                     {% trans %}Dataset{% endtrans %}
                   </div>
                 </div>

@@ -12,12 +12,12 @@
          v-if="!isPractice(practice) && isPagebreak(practice)">
         [[practice.title]]
       </a>
-      <a class="title"
-         :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
-         target="_blank"
-         v-if="isPractice(practice)">
+      <span class="title"
+            v-if="isPractice(practice)">
         [[practice.title]]
-      </a>
+        <a :href="'{{urls.pages_index}}' + practice.slug + '/'"
+           target="_blank"><i class="fa fa-question-circle"></i></a>
+      </span>
     </div>
   </div>
   <div class="bestpractice"
@@ -228,7 +228,7 @@
     </select>
   </div>
   <div class="text-start mt-1">
-    <button class="btn btn-sm btn-secondary"
+    <button class="btn btn-sm btn-primary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
     <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
   </div>
@@ -282,7 +282,7 @@
     </select>
   </div>
   <div class="text-start mt-1">
-    <button class="btn btn-sm btn-secondary"
+    <button class="btn btn-sm btn-primary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
     <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}water/">enter data in tracking tool &raquo;</a>
   </div>
@@ -337,7 +337,7 @@
     </select>
   </div>
   <div class="text-start mt-1">
-    <button class="btn btn-sm btn-secondary"
+    <button class="btn btn-sm btn-primary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
     <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}waste/">enter data in tracking tool &raquo;</a>
   </div>
@@ -385,7 +385,7 @@
     </select>
   </div>
   <div class="text-start mt-1" v-if="!isGHGEmissionsScope3(practice)">
-    <button class="btn btn-sm btn-secondary"
+    <button class="btn btn-sm btn-primary"
             @click.prevent="importFromTrackingTool(practice)">import from tracking tool</button>
     <a class="btn-sm ms-2 text-center" href="{{urls.track_metrics_index}}energy-ghg-emissions/">enter data in tracking tool &raquo;</a>
   </div>
@@ -472,7 +472,8 @@
            v-model="getPrimaryAnswer(practice).measured"
            :disabled="practice.frozen" />
     </div>
-    <label :for="slugify(choice.text, practice.rank)"
+    <label :class="isEnumHeaderShown(icon) ? 'd-md-none' : ''"
+         :for="slugify(choice.text, practice.rank)"
          style="margin-bottom:0"
          data-bs-toggle="tooltip" data-bs-placement="bottom"
          data-toggle="tooltip" data-placement="bottom"
@@ -612,7 +613,7 @@
           <div class="row">
             <div class="col-6">
               <div class="mt-2 text-start text-left">
-                <button type="button" class="btn btn-secondary" :disabled="disabled">
+                <button type="button" class="btn btn-primary" :disabled="disabled">
                   <label :for="callbackArg.slug + '-file'" style="margin-bottom:0;">
                     {% trans %}Upload{% endtrans %}
                   </label>

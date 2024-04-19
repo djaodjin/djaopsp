@@ -14,26 +14,36 @@ $(document).ready(function(){
             e.preventDefault();
             var $t = $(this);
             var $icon = $t.children();
+            var targetId = $t.data('target');
+            var target = targetId ? $(targetId) : $('.dashboard-nav');
+            if( target.length === 0 ) {
+                target = $('.dashboard-nav');
+            }
             if($icon.hasClass('closed')){
-                $t.animate({left: 200}); // navbar has padding-left: 16px;
-                $('.navbar-brand-container').fadeOut();
-                $('.dashboard-nav').css('left', '-220px').show().animate({left: 0}, function(){
-                    $icon.removeClass('closed').addClass('opened');
-                });
+                if( target ) {
+                    target.css('left', '-220px').show().animate({left: 0},
+                    function(){
+                        // `style="display: block, left: 0"` is compatible
+                        // with a resize of the window.
+                        $('.sidebar-toggle').children().removeClass(
+                            'closed').addClass('opened');
+                    });
+                }
             } else {
-                $t.animate({left: 0});
-                $('.navbar-brand-container').fadeIn();
-                $('.dashboard-nav').animate({left: '-220px'}, function(){
-                    $(this).hide();
-                    $icon.removeClass('opened').addClass('closed');
-                });
+                if( target ) {
+                    target.animate({left: '-220px'}, function(){
+                        $(this).hide();
+                        $(this).attr('style', '');
+                        $('.sidebar-toggle').children().removeClass(
+                            'opened').addClass('closed');
+                    });
+                }
             }
         });
 
         $(window).resize(function(){
-            $('.dashboard-nav, .sidebar-toggle').attr('style', '');
-            $('.sidebar-toggle').children().removeClass('opened').addClass('closed');
-            $('.navbar-brand-container').attr('style', '');
+            $('.sidebar-toggle').children().removeClass(
+                'opened').addClass('closed');
         });
     })();
 });

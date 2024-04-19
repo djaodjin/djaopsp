@@ -152,7 +152,7 @@ package-theme: build-assets
 	[ "$(abspath $(objDir))" != "$(abspath $(srcDir))" ] && rm -rf $(objDir)/$(APP_NAME)
 	cd $(srcDir) && DEBUG=0 FEATURES_REVERT_TO_DJANGO=0 \
 		$(MANAGE) package_theme \
-		--build_dir=$(objDir) --install_dir=$(srcDir) \
+		--build_dir=$(objDir) --install_dir=$(srcDir)/dist \
 		--exclude='_form.html' --exclude='_form_fields.html' \
 		--exclude='_params_start_at_field.html' \
 		--exclude='_params_ends_at_field.html' --exclude='_filter.html' \

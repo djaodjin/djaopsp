@@ -34,7 +34,7 @@
                class="tile-link" role="{{role}}"
                data-bs-toggle="{{role}}" data-toggle="{{role}}"
                @click.prevent="toggleTile($event, icon)">
-              <div :class="'card h-100 text-dark ' + practiceStyle(icon)">
+              <div :class="'card h-100 ' + practiceStyle(icon)">
                 <div class="card-body">
                   <div class="row">
                     <div class="col-4">
@@ -64,7 +64,7 @@
 
       {# expanded tabs go here #}
       <div role="tabpanel"
-           :class="'tab-pane' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '')"
+           :class="'bg-body text-body tab-pane' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '')"
            :id="'tab-' + icon.slug">
         <div v-show="!showVsPeers">
           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
@@ -212,7 +212,7 @@
               {% trans %}Before going further, would you like to update all reporting start date to [[getAnswerStartsAt(activeElement).measured]]?{% endtrans %}
             </p>
             <div class="modal-footer">
-              <button class="btn btn-secondary"
+              <button class="btn btn-outline-primary"
                       data-dismiss="modal">{% trans %}No{% endtrans %}</button>
               <button type="submit"
                       class="btn btn-primary"
@@ -239,7 +239,7 @@
               {% trans %}Before going further, would you like to update all reporting end date to [[getAnswerEndsAt(activeElement).measured]]?{% endtrans %}
             </p>
             <div class="modal-footer">
-              <button class="btn btn-secondary"
+              <button class="btn btn-outline-primary"
                       data-dismiss="modal">{% trans %}No{% endtrans %}</button>
               <button type="submit"
                       class="btn btn-primary"
@@ -253,24 +253,26 @@
     {% include "app/_reset_assessment.html" %}
 
     {% block panel_footer %}
-    <div class="card card-footer mt-4">
-      <div class="row">
-        <div class="offset-md-3 col-md-6 text-center">
-          <p v-show="itemsLoaded" v-cloak>
+    <div class="card mt-4">
+      <div class="card-footer">
+        <div class="row">
+          <div class="offset-md-3 col-md-6 text-center">
+            <p v-show="itemsLoaded" v-cloak>
             {# [[nbAnswers]] out of [[nbQuestions]] questions answered. #}
-          </p>
-          <p>
+            </p>
+            <p>
 {% trans %}Click to expand each icon tile, then answer each question or assess each practice under it. Each answer is automatically saved in a work-in-progress response.{% endtrans %}
-          </p>
-          {% if sample.is_frozen %}
-          <p>
-          Completed on {{sample.created_at|date}}
-          </p>
-          {% else %}
-          <p>
+            </p>
+            {% if sample.is_frozen %}
+            <p>
+              Completed on {{sample.created_at|date}}
+            </p>
+            {% else %}
+            <p>
 {% trans %}Once done, move to the next step in the workflow progress bar at the top of the page. On the REVIEW step, click the &quot;Complete&quot; button at the bottom of the page to submit an official dated response.{% endtrans %}
-          </p>
-          {% endif %}
+            </p>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>

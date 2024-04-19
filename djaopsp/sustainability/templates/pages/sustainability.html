@@ -59,7 +59,7 @@
         <div class="row mb-4">
           <div class="col-sm-6 text-start">
             <a id="download-assessment"
-               class="btn btn-secondary"
+               class="btn btn-primary"
                href="{{urls.download}}" target="_blank">
               <i class="fa fa-download"></i> {% trans %}Download{% endtrans %}
             </a>
@@ -95,12 +95,14 @@
     </div>{# /content-tabs #}
 
     {% block panel_footer %}
-    <div class="card card-footer mt-4">
-      <div class="row">
-        <div class="offset-sm-3 col-sm-6 text-center">
-          <p>
+    <div class="card mt-4">
+      <div class="card-footer">
+        <div class="row">
+          <div class="offset-sm-3 col-sm-6 text-center">
+            <p>
 {% trans %}Click on each icon tile to expand it.{% endtrans %}
-          </p>
+            </p>
+          </div>
         </div>
       </div>
     </div>

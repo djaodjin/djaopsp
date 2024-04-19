@@ -3,8 +3,8 @@
 $menubar-link-active-color:             $nav-tabs-link-active-color;
 $menubar-link-active-bg:                $nav-tabs-link-active-bg;
 
-$menubar-dropdown-bg:                   $white;
-$menubar-dropdown-color:                map-get($theme-colors, "secondary");
+$menubar-dropdown-bg:                   #fff !default;
+$menubar-dropdown-color:                #111 !default;
 $menubar-dropdown-link-color:           $dropdown-link-color;
 $menubar-dropdown-link-hover-color:     $dropdown-link-hover-color;
 $menubar-dropdown-link-hover-bg:        $dropdown-link-hover-bg;
@@ -16,7 +16,6 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
     position: relative;
     align-self: center !important;
     color: $menubar-link-active-color;
-    background-color: $menubar-link-active-bg;
 
     &:hover,
     &:focus {
@@ -24,13 +23,19 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
     }
 }
 
-.bg-secondary .menubar,
-.bg-secondary a.menubar-label {
+.bg-primary .menubar,
+.bg-primary a.menubar-label {
     color: $white;
-    background-color: $menubar-dropdown-color;
+    //background-color: $menubar-link-active-bg;
 }
 
-.bg-secondary .menubar {
+.bg-primary a.menubar-label:hover,
+.bg-primary a.menubar-label:focus {
+    color: $primary;
+    background-color: $white;
+}
+
+.bg-primary .menubar {
     border-left: 1px solid $white;
     padding: 0 10px;
 }
@@ -38,7 +43,7 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
 .menubar-label {
     text-decoration: none;
     display:block;
-    padding: var(--#{$prefix}nav-link-padding-y) var(--#{$prefix}nav-link-padding-x);
+    padding: 0 var(--#{$prefix}nav-link-padding-x);
 }
 
 .menubar-label > div {
@@ -66,7 +71,6 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
 .menubar-label.menubar-label-dropdown-toggle {
   white-space: nowrap;
   text-decoration: none;
-  padding: 0;
   // Generate the caret automatically
   @include caret(down);
 }
@@ -166,7 +170,7 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
     height: 0;
     margin: 0.5rem 0;
     overflow: hidden;
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid $menubar-dropdown-link-color;
 }
 
 .menubar-sign-out {
