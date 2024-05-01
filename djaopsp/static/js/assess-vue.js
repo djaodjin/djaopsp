@@ -36,6 +36,29 @@ Vue.component('campaign-questions-list', {
         }
     },
     methods: {
+        addSegment: function(segment) {
+            var vm = this;
+            vm.reqGet(vm._safeUrl(vm.url, segment.path),
+            function(resp) {
+                vm.items.results.push(segment);
+                vm.items.count += resp.count + 1;
+                for( var idx = 0; idx < resp.results.length; ++idx ) {
+                    resp.results[idx].path = resp.path + resp.results[idx].path;
+                    resp.results[idx].indent += 1;
+                    vm.items.results.push(resp.results[idx]);
+                }
+                for( var key in resp.units ){
+                    if( resp.units.hasOwnProperty(key) ){
+                        vm.items.units[key] = resp.units[key];
+                    }
+                }
+            });
+        },
+
+        getPracticeId: function(practice) {
+            return (this.showVsPeers ? 'results-' : '') + practice.slug;
+        },
+
         humanizeScoreWeight: function (value, percentage) {
             if( !value || value === 0 ) {
                 return "0.00";
@@ -203,7 +226,8 @@ Vue.component('campaign-questions-list', {
         },
         isNAICSUIHint: function(row) {
             var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'naics';
+            return vm.isPractice(row) && (
+                row.default_unit && row.default_unit.slug == 'naics');
         },
         isRevenueUIHint: function(row) {
             var vm = this;
@@ -412,14 +436,17 @@ Vue.component('campaign-questions-list', {
         // on top of the primary answer (i.e. the one where
         // `answer.unit == question.default_unit`). Free form text comments
         // heavily rely on this feature for example.
-        _callUpdateAnswer: function(practice, measured,
+        _callUpdateAnswer: function(practice, measured, tag,
                                      successCallback, errorCallback) {
             var vm = this;
             const path = practice.path;
             const apiUrl = ( practice.extra &&
                              practice.extra.tags &&
                              practice.extra.tags.includes('verify') ) ?
-                  vm._safeUrl(vm.api_verification_sample, '/notes') :  vm._safeUrl(vm.api_assessment_sample, '/answers');
+                  vm._safeUrl(vm.api_verification_sample, '/notes') : (
+                             tag === 'planned' ) ?
+                  vm._safeUrl(vm.api_improvement_sample, '/answers') :
+                  vm._safeUrl(vm.api_assessment_sample, '/answers');
             var data = null;
             if( typeof measured === 'undefined' || measured === null ) return;
             if( vm._isArray(measured) ) {
@@ -457,12 +484,12 @@ Vue.component('campaign-questions-list', {
                  newValue === this.YES) ||
                 practice.ui_hint === 'yes-no-comments';
         },
-        updateAssessmentAnswer: function(practice, newValue) {
+        updateAssessmentAnswer: function(practice, newValue, tag) {
             var vm = this;
-            if( typeof newValue === 'undefined' ) {
-                newValue = vm.getPrimaryAnswer(practice);
+            if( newValue == null ) { // `undefined` or `null`
+                newValue = vm.getPrimaryAnswer(practice, tag);
             }
-            vm._callUpdateAnswer(practice, newValue,
+            vm._callUpdateAnswer(practice, newValue, tag,
             function success(resp) {
                 if( resp.length ) {
                     for( var idx = 0; idx < resp.length; ++resp ) {
@@ -509,7 +536,7 @@ Vue.component('campaign-questions-list', {
             });
         },
         // We update all `starts-at` in the UI and in the database.
-        updateAllStartsAt: function(practice) {
+        updateAllStartsAt: function(practice, tag) {
             var vm = this;
             const newValue = vm.getAnswerStartsAt(
                 practice ? practice : vm.activeElement)
@@ -520,12 +547,12 @@ Vue.component('campaign-questions-list', {
                 if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
                     vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ) {
                     vm.getAnswerStartsAt(row).measured = atTime;
-                    vm._callUpdateAnswer(row, newValue);
+                    vm._callUpdateAnswer(row, newValue, tag);
                 }
             }
         },
         // We update all `ends-at` in the UI and in the database.
-        updateAllEndsAt: function(practice) {
+        updateAllEndsAt: function(practice, tag) {
             var vm = this;
             var newValue = vm.getAnswerEndsAt(
                 practice ? practice : vm.activeElement)
@@ -536,7 +563,7 @@ Vue.component('campaign-questions-list', {
                 if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
                     vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ) {
                     vm.getAnswerEndsAt(row).measured = atTime;
-                    vm._callUpdateAnswer(row, newValue);
+                    vm._callUpdateAnswer(row, newValue, tag);
                 }
             }
         },
@@ -547,7 +574,7 @@ Vue.component('campaign-questions-list', {
             comment.measured = text;
             vm.updateAssessmentAnswer(practice, comment);
         },
-        updateMultipleAssessmentAnswers: function (heading, newValue) {
+        updateMultipleAssessmentAnswers: function (heading, newValue, tag) {
             var vm = this;
             if( newValue === vm.NOT_APPLICABLE ) {
                 var trip = new Trip([{
@@ -580,17 +607,18 @@ Vue.component('campaign-questions-list', {
                 }
                 var row = vm.items.results[idx];
                 if( vm.isPractice(row) ) {
-                    vm.getPrimaryAnswer(row).measured = newValue;
-                    vm._callUpdateAnswer(row, newValue);
+                    vm.getPrimaryAnswer(row, tag).measured = newValue;
+                    vm._callUpdateAnswer(row, newValue, tag);
                 }
             }
         },
 
         getPlannedChecked: function(practice) {
             var vm = this;
-            return Boolean(vm.getPrimaryPlanned(practice).measured)
+            return Boolean(vm.getPrimaryAnswer(practice, 'planned').measured)
         },
 
+        // deprecated
         updatePlannedAnswer: function(practice, newValue) {
             var vm = this;
             if( vm.isPractice(practice) ) {
@@ -640,6 +668,7 @@ Vue.component('campaign-questions-list', {
                 }
             }
         },
+        // deprecated
         updateMultiplePlannedAnswers: function (heading, newValue) {
             var vm = this;
             if( newValue === vm.NOT_APPLICABLE ) {
@@ -677,6 +706,7 @@ Vue.component('campaign-questions-list', {
                 }
             }
         },
+
         setActiveElement: function(practice) {
             this.activeElement = practice;
         },
@@ -902,6 +932,9 @@ Vue.component('scorecard', {
             }
             return "?";
         },
+        getPracticeId: function(practice) {
+            return practice.slug;
+        },
         indentHeader: function(practice) {
             var vm = this;
             if( vm.isPractice(practice) ) {
@@ -1071,6 +1104,26 @@ Vue.component('scorecard-requests', {
         }
     },
     methods: {
+        accept: function(portfolio, idx) {
+            var vm = this;
+            vm.reqPost(portfolio.api_accept,
+            function(resp) { // success
+                vm.items.results.splice(idx, 1);
+                vm.showMessages(
+                    ["You have accepted the request(s)."],
+                        "success");
+            });
+        },
+        ignore: function(portfolio, idx) {
+            var vm = this;
+            vm.reqDelete(portfolio.api_accept,
+            function(resp) { // success
+                vm.items.results.splice(idx, 1);
+                vm.showMessages(
+                    ["You have denied the request(s)."],
+                        "success");
+            });
+        },
         getCompleted: function(){
             var vm = this;
             vm.mergeResults = false;

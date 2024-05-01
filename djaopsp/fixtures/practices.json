@@ -4,7 +4,7 @@
     "path": "/sustainability/environmental-reporting/general-information/naics-code",
     "content": 133,
     "default_unit": 206,
-    "ui_hint": "naics"
+    "ui_hint": "select"
   },
   "model": "survey.question", "pk": 1
 },

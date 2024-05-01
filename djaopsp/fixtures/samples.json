@@ -24,6 +24,18 @@
 {
   "fields": {
     "created_at": "2022-09-01T00:00:00Z",
+    "question": 4,
+    "unit": 202,
+    "sample": 4,
+    "measured": 6,
+    "denominator": 1,
+    "collected_by": 8
+  },
+  "model": "survey.answer", "pk": 17
+},
+{
+  "fields": {
+    "created_at": "2022-09-01T00:00:00Z",
     "question": 206,
     "unit": 201,
     "sample": 4,

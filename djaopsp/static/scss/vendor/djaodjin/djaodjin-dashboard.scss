@@ -24,7 +24,9 @@ $box-shadow-color:              rgba(0, 0, 0, 0.05);
 }
 
 .navbar .divider-vertical {
-  border-right: 1px solid $dashboard-sidebar-bg;
+  border-right: 1px solid var(--bs-body-color);
+  padding-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 // Profile and user pictures
@@ -178,6 +180,8 @@ pre.code{
 .dashboard-nav-main .navbar-header {
     padding-top: 5px;
     padding-bottom: 5px;
+    overflow: visible;
+    display: inline-flex;
 }
 
 .dashboard-nav-menu {
@@ -542,10 +546,7 @@ input::-webkit-datetime-edit {
     padding: 0;
 }
 
-@include media-breakpoint-down(sm) {
-
-    .dashboard-content > .fullviewport {
-    }
+@include media-breakpoint-down(md) {
 
     .dashboard-content > header,
     .dashboard-content > .fullviewport > header {
@@ -554,7 +555,6 @@ input::-webkit-datetime-edit {
       z-index: 4;
       width: 100%;
       left: 0;
-      background-color: $dashboard-sidebar-bg;
     }
 
     .dashboard-nav,
@@ -601,7 +601,7 @@ input::-webkit-datetime-edit {
     }
 }
 
-@include media-breakpoint-up(sm) {
+@include media-breakpoint-up(md) {
   .dashboard-inner-container {
     position: inherit;
     left: 0;
@@ -631,6 +631,10 @@ input::-webkit-datetime-edit {
 
 .dashboard-nav-color-theme {
     background-color: $dashboard-sidebar-bg;
+    color: $dashboard-sidebar-color;
+}
+
+.dashboard-nav-color-theme .nav-link {
     color: $dashboard-sidebar-color;
 }
 
@@ -716,10 +720,6 @@ input::-webkit-datetime-edit {
 
 .card-organization .card-title a {
     color: black;
-}
-
-#recent-activity-container .item-name {
-    color: #333;
 }
 
 .icon {

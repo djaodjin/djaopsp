@@ -7,6 +7,7 @@
 $navbar-height: max($nav-link-height, $navbar-brand-height) + $navbar-padding-y * 2;
 $footer-height: 150px;
 $plan-footer-height: 70px;
+$app-toolbar-left-footer-height: 296px;
 
 // variables specific to djaoapp used for code examples
 //$example-title-bg: rgb(62, 68, 88);
@@ -78,14 +79,17 @@ $green-level-4-color: #FFD700;
 }
 
 // top menubar (requires `bg-primary` as background)
+.navbar.bg-primary .navbar-brand,
 .navbar.bg-primary .nav-link {
-  color: white;
+  color: $white;
 }
 
+.navbar.bg-primary .navbar-brand:hover,
+.navbar.bg-primary .navbar-brand:focus,
 .navbar.bg-primary .nav-link:hover,
 .navbar.bg-primary .nav-link:focus {
   color: map-get($theme-colors, "primary");
-  background-color: white;
+  background-color: $white;
 }
 
 
@@ -120,11 +124,27 @@ header .nav-item {
 
 // special color for CTA
 .btn-cta {
-    @include button-variant($cta, $cta);
+    @include button-variant($cta, $cta, $white);
+}
+
+.btn-cta:hover {
+    color: $white;
 }
 
 
+.practice-row {
+    border-bottom: 1px solid #{$table-border-color};
+    border-top: 1px solid #{$table-border-color};
+    padding-top: 0.5rem;
+    min-height: 100px;
+}
 
+.practice-row:nth-of-type(#{$table-striped-order}) {
+    color: #{$table-striped-color};
+    background-color: #{$table-striped-bg};
+}
+
+// deprecated
 .table-assessment {
   $table-accent-bg: rgba(0, 0, 0, 0.05);
   tbody:nth-of-type(#{$table-striped-order}) td {
@@ -141,7 +161,7 @@ header .nav-item {
 }
 
 .practice-required-answered {
-  border-right: 1px solid #000 !important;
+  border-right: 1px solid #{$table-border-color} !important;
 }
 
 .candidate-answer {
@@ -836,6 +856,13 @@ li.active .system-menus {
   margin: 0 10px 0 10px;
 }
 
+.highlighted-score {
+    color: #333;
+    background-color: #e5e9dd;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+}
+
 .green-level-0,
 .btn-green-level-0,
 .btn-green-level-0:hover{
@@ -1245,12 +1272,6 @@ a.text-grey{
        -moz-border-radius: 10px;
   border-radius:10px;
    behavior: url(../vendor/PIE.htc);
-}
-
-.panel-icons {
-  background-color: transparent;
-  color: $body-color;
-  behavior: url(../vendor/PIE.htc);
 }
 
 .panel-icons-no-benchmark {
@@ -2334,8 +2355,12 @@ pre.code{
   height: 100vh;
 }
 
+#app-toolbar-left > .toolbar-content {
+  overflow-y: auto;
+  height: calc(100vh - #{$navbar-height} - #{$app-toolbar-left-footer-height});
+}
+
 #app-toolbar-left > .toolbar-footer {
-  position: absolute;
   clear: both;
   bottom: 0;
   padding: 10px 30px 10px;
@@ -2347,9 +2372,9 @@ pre.code{
     #app-toolbar-left {
         display: block;
         width: 25%;
-        z-index: static;
         position: sticky;
-        height: calc(100vh - #{$navbar-height});
+        top: 0;
+        float: left;
     }
 
     #app-toolbar-left + div {

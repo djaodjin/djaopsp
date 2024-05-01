@@ -236,8 +236,23 @@ var practicesListMixin = {
         getCommentsAnswer: function(practice) {
             return this.getAnswerByUnit(practice, 'freetext', "");
         },
-        getPrimaryAnswer: function(practice) {
+        getPrimaryAnswer: function(practice, tag) {
             if( !practice ) return {};
+            if( tag && tag === 'planned' ) {
+                if( typeof practice.planned === 'undefined' ) {
+                    practice['planned'] = [];
+                }
+                if( practice.planned.length < 1 ||
+                    !this.isUnitEquivalent(
+                      practice.planned[0].unit, practice.default_unit.slug) ) {
+                    practice['planned'] = [{
+                        unit: practice.default_unit.slug,
+                        measured: null,
+                        created_at: null
+                    }].concat(practice['planned']);
+                }
+                return practice.planned[0];
+            }
             if( typeof practice.answers === 'undefined' ) {
                 practice['answers'] = [];
             }
@@ -334,7 +349,7 @@ var practicesListMixin = {
                 practice, 'opportunity_numerator');
             return opportunityNumerator.toFixed(2);
         },
-        // returns the planned improvement answer for a practice
+        // deprecated
         getPrimaryPlanned: function(practice) {
             if( (typeof practice.planned === 'undefined') ||
                 practice.planned.length < 1 ) {

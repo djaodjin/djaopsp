@@ -3,8 +3,10 @@
 $menubar-link-active-color:             $nav-tabs-link-active-color;
 $menubar-link-active-bg:                $nav-tabs-link-active-bg;
 
-$menubar-dropdown-bg:                   #fff !default;
-$menubar-dropdown-color:                #111 !default;
+$menubar-dropdown-bg:                   $white;
+$menubar-dropdown-color:                map-get($theme-colors, "primary");
+$menubar-dropdown-border-width:         var(--bs-dropdown-border-width);
+$menubar-dropdown-border-color:         var(--bs-dropdown-border-color);
 $menubar-dropdown-link-color:           $dropdown-link-color;
 $menubar-dropdown-link-hover-color:     $dropdown-link-hover-color;
 $menubar-dropdown-link-hover-bg:        $dropdown-link-hover-bg;
@@ -26,7 +28,6 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
 .bg-primary .menubar,
 .bg-primary a.menubar-label {
     color: $white;
-    //background-color: $menubar-link-active-bg;
 }
 
 .bg-primary a.menubar-label:hover,
@@ -49,6 +50,7 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
 .menubar-label > div {
     display: inline-block;
     line-height:1rem;
+    vertical-align: middle;
 }
 
 .menubar-label-title {
@@ -75,12 +77,15 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
   @include caret(down);
 }
 
+.menubar-label.menubar-label-dropdown-toggle:after {
+  vertical-align: middle;
+}
 
 .menubar-dropdown-menu
 {
     position: absolute;
     top: 100%;
-    left: 0;
+    right: 0;
     z-index: 1000;
     display: none;
     float: left;
@@ -170,7 +175,7 @@ $menubar-dropdown-link-disabled-color:  $dropdown-link-disabled-color;
     height: 0;
     margin: 0.5rem 0;
     overflow: hidden;
-    border-top: 1px solid $menubar-dropdown-link-color;
+    border-top: $menubar-dropdown-border-width solid $menubar-dropdown-border-color;
 }
 
 .menubar-sign-out {
