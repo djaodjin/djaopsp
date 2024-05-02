@@ -26,47 +26,51 @@ You first need to mark it complete before it can be shared.
         </div>
         {% endif %}
         <div class="text-start m-2">
-          <portfolios-received-list inline-template id="received">
+          <scorecard-requests inline-template class="pt-2">
             <div>
+              <!-- loading -->
               <div class="text-center mt-4" v-show="!itemsLoaded">
                 <i class="fa fa-refresh fa-spin fa-2x"></i>
               </div>
+              <!-- loaded, no data -->
               <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
                 <p>
-There are currently no pending requests for your {{campaign.title}}.
+{% trans campaign=campaign.title %}There are currently no pending requests for your {{campaign}}.{% endtrans %}
                 </p>
               </div>
-              <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+              <!-- loaded, items present -->
+              <div id="scorecard-requests" v-show="itemsLoaded && items.results.length > 0" v-cloak>
                 <p>
-The following organizations have requested a copy of the latest {{campaign.title}}.
+{% trans campaign=campaign.title %}The following organizations have requested a copy of the latest {{campaign}}.{% endtrans %}
                 </p>
                 <p>
 No data will be shared until you click the <strong>accept</strong> button.
                 </p>
-                <div :id="'request-' + (received.grantee.slug ? received.grantee.slug : received.grantee)" class="card mt-1"
-                     v-for="(received, index) in items.results"
-                     v-if="received.state === 'request-initiated'">
-                  <div class="card-body">
-                    <div class="row align-items-center">
-                      <div class="col-2">
+                <div v-for="byCampaign in byCampaigns">
+                  <div :id="'request-' + (received.grantee.slug ? received.grantee.slug : received.grantee)" class="card mt-1"
+                     v-for="(received, index) in byCampaign.requests">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-2">
 <img class="img-fluid" style="max-height:64px;" :src="received.grantee.picture || '{{'/static/img/default-organization.png'|asset}}'" >
-                      </div>
-                      <div class="col-5">
+                        </div>
+                        <div class="col-5">
 [[received.grantee.printable_name ? received.grantee.printable_name : '@' + received.grantee]]
-                      </div>
-                      <div class="col-5 text-end">
-                        <button class="btn btn-outline-primary"
-                                @click.prevent="ignore(received, index)">{% trans %}Ignore{% endtrans %}</button>
-                        <button class="btn btn-primary"
-                                {% if not sample.is_frozen %} disabled{% endif %}
-                                @click.prevent="accept(received, index)">{% trans %}Accept{% endtrans %}</button>
+                        </div>
+                        <div class="col-5 text-end">
+                          <button class="btn btn-outline-primary"
+                                  @click.prevent="ignore(received, index)">{% trans %}Ignore{% endtrans %}</button>
+                          <button class="btn btn-primary"
+                                  {% if not sample.is_frozen %} disabled{% endif %}
+                                  @click.prevent="accept(received, index)">{% trans %}Accept{% endtrans %}</button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>{# /.card #}
-              </div>{# /.itemsLoaded && items.results.length == 0 #}
+                  </div>{# /.card #}
+                </div>{# /byCampaigns #}
+              </div>
             </div>
-          </portfolios-received-list>
+          </scorecard-requests>
         </div>
 
         {% if sample.is_frozen %}
@@ -280,6 +284,8 @@ button.
 {% if ASSETS_DEBUG %}
 <script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaodjin-survey-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaopsp-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/assess-vue.js'|asset}}"></script>
 {% else %}
 <script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
 {% endif %}
