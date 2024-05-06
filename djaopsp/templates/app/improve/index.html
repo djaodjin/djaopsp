@@ -1,208 +1,67 @@
-{% extends "app/improve/base.html" %}
+{% extends "app/assess/index.html" %}
 
-{% block improve_content %}
-<campaign-questions-list class="panel-icons" id="panel-icons" inline-template>
-  <div>
-    <div class="panel-body">
-      <div class="row">
-        <div class="col-md-12 text-center" style="display:table-row;">
-          <div class="row-icons">
-            <div style="display:inline-block;float:left;flex:auto;">
-              <div class="header-tuple">
-                <ul class="nav nav-tabs squared-tabs">
-                  <li v-show="!itemsLoaded">
-                    <i class="fa fa-spinner fa-spin fa-2x"></i>
-                  </li>
-                  <li :data-id="icon.path"
-                      :class="'nav-item squared-tabs-li' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '') + (containsTag(icon, 'tilebreak') ?  ' bordered-left' : '')"
-                      v-for="icon in getEntries('', 1)"
-                      v-show="itemsLoaded && items.results.length"
-                      v-cloak>
-                    <a class="nav-link icon-inner orange"
-                       :href="'#tab-' + icon.slug" role="{{role}}"
-                       data-bs-toggle="{{role}}" data-toggle="{{role}}"
-                       @click.prevent="toggleTile($event, icon)">
-                      <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
-                      <div class="icon-caption">[[icon.title]]</div>
-                    </a>
-                  </li>
-                </ul>
-              </div> {# .header-tuple #}
-            </div>
-          </div> {# .row-icons #}
-        </div> {# .col-md-12 #}
-      </div> {# .row #}
-
-      {# expanded tabs go here #}
-      <div id="improve-tabs"
-           :class="'tab-content collapse' + (activeTile ? ' show' : '')">
-        <div role="tabpanel"
-             :class="'tab-pane' + ((activeTile && icon.slug == activeTile.slug) ? ' active': '')"
-             :id="'tab-' + icon.slug"
-             v-for="icon in getEntries('', 1)"
-             v-show="itemsLoaded && items.results.length"
-             v-cloak>
-          <div v-show="!showVsPeers">
-            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-            <table class="table table-striped table-bordered table-assessment">
-              <thead v-if="!isEnumHeaderShown(icon)">
-                <tr>
-                  <th colspan="6">
-                  </th>
-                  <th colspan="6">
-                  </th>
-                </tr>
-              </thead>
-              <thead v-if="isEnumHeaderShown(icon)">
-                <tr>
-                  <th colspan="6" style="border-bottom:none;">
-                  </th>
-                  <th></th>
-                  <th class="text-center pb-0"
-                      colspan="6">
-                    Select your target
-                  </th>
-                </tr>
-                <tr>
-                  <th class="sticky-cell sticky-cell-top" colspan="6">
-                    <div class="sticky-cell-content-container">
-                      <div class="sticky-cell-content" style="padding-left:0.75rem;">
-                        Practices
-                        {% include "app/improve/_vs_value_toggle.html" %}
-                      </div>
-                    </div>
-                  </th>
-                  <th class="sticky-cell sticky-cell-top text-center">
-                    <div class="sticky-cell-content-container">
-                      {% trans %}Assessed{% endtrans %}
-                    </div>
-                  </th>
-                  <th class="sticky-cell sticky-cell-top text-center"
-                      :colspan="getNbInputCols(icon)"
-                      v-for="choice in getChoices(icon)">
-                    <div class="sticky-cell-content-container"
-                         data-bs-toggle="tooltip" data-bs-placement="bottom"
-                         data-toggle="tooltip" data-placement="bottom"
-                         :title="choice.descr">
-                      <div class="sticky-cell-content">[[choice.text]]</div>
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr :data-id="getPath(practice)"
-                    :class="isRequiredShown(practice) ? 'practice-required' : ''"
-                    v-for="practice in getEntries(icon.slug)"
-                    v-show="itemsLoaded && items.results.length">
-                  {% include "app/improve/_improve_row.html" %}
-                </tr>
-              </tbody>
-            </table>
-          </div>{# /!showVsPeers #}
-          <div v-show="showVsPeers">
-            <table class="table table-striped table-bordered table-assessment">
-              <thead>
-                <th class="sticky-cell sticky-cell-top" colspan="6">
-                  <div class="sticky-cell-content-container">
-                    <div class="sticky-cell-content" style="padding-left:0.75rem;">
-                      Practices
-                      {% include "app/improve/_vs_value_toggle.html" %}
-                    </div>
-                  </div>
-                </th>
-                <th colspan="6" v-if="!isEnumHeaderShown(icon)">
-                </th>
-                <th class="sticky-cell sticky-cell-top text-center">
-                  <div class="sticky-cell-content-container">
-                    {% trans %}Planned{% endtrans %}
-                  </div>
-                </th>
-                <th class="sticky-cell sticky-cell-top text-center"
-                    :colspan="getNbInputCols(icon)"
-                    v-for="choice in getChoices(icon)"
-                    v-if="isEnumHeaderShown(icon)">
-                  <div class="sticky-cell-content-container"
-                       data-bs-toggle="tooltip" data-bs-placement="bottom"
-                       data-toggle="tooltip" data-placement="bottom"
-                       :title="choice.descr">
-                    <div class="sticky-cell-content">[[choice.text]]</div>
-                  </div>
-                </th>
-              </thead>
-              <tbody data-prefix="{{abs_prefix}}">
-                <tr :data-id="getPath(practice)"
-                    v-for="practice in getEntries(icon.slug)"
-                    v-show="itemsLoaded && items.results.length">
-                  {% include "app/improve/_improve_results_row.html" %}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          {% block icons_actions %}
-          <div class="row mb-4">
-            <div class="col-sm-6 text-start">
-              <a id="download-assessment"
-                 class="btn btn-primary"
-                 href="{{urls.download}}" target="_blank">
-                <i class="fa fa-download"></i>{% trans %}Download assessment{% endtrans %}
-              </a>
-            </div>
-            <div class="col-sm-6 text-end">
-              <div class="text-end"
-                   style="display:inline-block;padding-left:10px;">
-                {% if not sample.is_frozen %}
-                <button id="reset-button"
-                        class="btn btn-primary"
-                        data-bs-toggle="modal" data-bs-target="#reset-assessment"
-                        data-toggle="modal" data-target="#reset-assessment"
-                        v-show="!showVsPeers">
-                  {% trans %}Reset{% endtrans %}
-                </button>
-                {% endif %}
-              </div>
-            </div>
-          </div>{# /.row #}
-          {% endblock %}
-        </div>
-      </div>{# /assess-tabs #}
-
-      <!-- modals -->
-      {% include "app/_reset_assessment.html" %}
-    </div> {# .panel-body #}
-    {% block panel_footer %}
-    <div class="card mt-4">
-      <div class="card-footer mt-4">
-        <div class="row">
-          <div class="offset-sm-3 col-sm-6 text-center">
-            <p>
-{% trans %}Click on each icon to expand it.{% endtrans %}
-            </p>
-            {% if sample.is_frozen %}
-            <p>
-            Completed on {{sample.created_at|date}}
-            </p>
-            {% else %}
-            <p>
-Once you completed the assessment and set targets, please
-click the <em>COMPLETE</em> button at the bottom of
-the <strong>REVIEW</strong> step to create a final report.
-            </p>
-            <p>
-You will not be able to <strong>share</strong> the report with customers,
-investors and/or other stakeholders before you complete it.
-            </p>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-    {% endblock %}
-  </div>
-</campaign-questions-list> {# .panel-icons #}
+{% block app_left_sidebar %}
+{% include "app/improve/_improve_left_sidebar.html" %}
 {% endblock %}
 
-{% block improve_scripts %}
+{% block assess_no_questions %}
+<div>
+{% if sample.is_frozen %}
+<p>
+{% trans %}You cannot add an improvement plan to a response that has already
+been completed.{% endtrans %}
+</p>
+{% else %}
+<p>
+{% trans %}To create or complete an improvement plan towards your stated targets, you will first need to add an industry-specific segment, and assess your organization against industry-specific practices in the <strong>ASSESS</strong> step.{% endtrans %}
+</p>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block icons_actions %}
+{% endblock %}
+
+{% block panel_footer %}
+<div class="card mt-4">
+  <div class="card-footer">
+    <div class="row">
+      <div class="offset-md-3 col-md-6 text-center">
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="d-grid gap-2 d-md-block">
+              <a id="download-improvements"
+                 class="btn btn-md btn-outline-primary"
+                 href="{{urls.download}}"
+                 target="_blank">{% trans %}Print planned actions{% endtrans %}</a>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-grid gap-2 d-md-block">
+              <a id="print-actions-guidance"
+                 class="btn btn-md btn-outline-primary"
+                 href="{{urls.print}}"
+                 target="_blank">{% trans %}Print actions guidance{% endtrans %}</a>
+            </div>
+          </div>
+        </div>
+        {% if sample.is_frozen %}
+        <p>
+{% trans at_time=sample.created_at|date %}Completed on {{at_time}}{% endtrans %}
+        </p>
+        {% else %}
+        <p>
+{% trans %}Once you have created an improvement plan (optional), move to the <strong>Review</strong> step, then click the <strong>Complete</strong> button to submit an official dated response.{% endtrans %}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block assess_scripts %}
 <script type="text/javascript">
-Vue.prototype.$excludeQuestions = "assess";
+Vue.prototype.$excludeQuestions = "assess-only";
 </script>
 {% endblock %}

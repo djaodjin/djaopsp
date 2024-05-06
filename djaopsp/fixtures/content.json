@@ -570,7 +570,7 @@
   "fields": {
     "title": "Core Environment, Social and Governance (ESG) Assessment",
     "slug": "sustainability",
-    "extra": "{\"pagebreak\":true,\"tags\":[\"scorecard\"],\"visibility\":[\"public\"]}",
+    "extra": "{\"pagebreak\":true,\"tags\":[\"scorecard\",\"assess\"],\"visibility\":[\"public\"]}",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 1
@@ -1824,7 +1824,8 @@
   "fields": {
     "title": "Energy & GHG Emissions measured and trended",
     "slug": "ghg-emissions-scope1-measured",
-    "account": 2
+    "account": 2,
+    "extra": "{\"tags\":[\"data-metrics-header\"]}"
   },
   "model": "pages.PageElement", "pk": 101
 },
@@ -3102,7 +3103,8 @@
     "title": "Construction",
     "slug": "construction",
     "extra": "{\"layouts\":[\"sustainability\"],\"pagebreak\":true,\"searchable\":true,\"tags\":[\"scorecard\"],\"visibility\":[\"public\"]}",
-    "account": 2
+    "account": 2,
+    "text": "Organizations categorized under NAICS code 237 (Heavy and Civil Engineering Construction), 238 (Specialty Trade Contractors), 23620 (Commercial and Institutional Building Construction). Examples:\n\n- Building/facilities construction\n- Hard surface installation/repair\n- Overhead construction\n- Underground construction\n"
   },
   "model": "pages.PageElement", "pk": 210
 },

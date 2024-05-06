@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -42,6 +42,7 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
     """
     template_name = 'app/assess/index.html'
     breadcrumb_url = 'assess_practices'
+    breadcrumb_url_index = 'assess_redirect'
 
     def get_reverse_kwargs(self):
         """
@@ -79,23 +80,34 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
             'track_metrics_index': reverse(
                 'track_metrics_index', args=(self.account,)),
             'api_profiles': site_url("/api/accounts/users"),
-            'api_content': reverse('api_sample_content',
-                args=(self.account, self.sample,
-                      self.full_path.lstrip(URL_PATH_SEP))),
             'api_assessment_sample': reverse('survey_api_sample',
                 args=(self.account, self.sample)),
             'api_asset_upload_complete': self.request.build_absolute_uri(
                 reverse('pages_api_upload_asset', args=(self.account,))),
             'api_aggregate_metric_base': reverse(
                 'survey_api_aggregate_metric_base', args=(self.account,)),
+            # These URLs can't be accessed by profiles the sample was shared
+            # with. They must use ``sample.account``.
+            'assess_base': reverse('assess_practices',
+                args=(self.account, self.sample, '-'))[:-2],
+            # XXX should download PDF with actions guidance.
+            'print': reverse('assess_download_index', args=(
+                self.account, self.sample)),
         })
         if self.path:
             url_path = self.path.lstrip(URL_PATH_SEP)
+            api_path = self.full_path.lstrip(URL_PATH_SEP)
             update_context_urls(context, {
                 'download': reverse('assess_download_segment', args=(
                     self.account, self.sample, url_path)),
-                # XXX should download PDF with actions guidance.
-                'print': reverse('assess_download', args=(
+                'api_content': reverse('api_sample_content', args=(
+                    self.account, self.sample, api_path)),
+            })
+        else:
+            update_context_urls(context, {
+                'download': reverse('assess_download_index', args=(
+                    self.account, self.sample)),
+                'api_content': reverse('api_sample_content_index', args=(
                     self.account, self.sample)),
             })
         # Upload supporting documents
@@ -113,12 +125,18 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
         return context
 
 
+class AssessRedirectView(AssessPracticesView):
+    """
+    Redirects to an assess page for a segment
+    """
+
 class ImprovePracticesView(AssessPracticesView):
     """
     Improvement planning page
     """
     template_name = 'app/improve/index.html'
     breadcrumb_url = 'improve_practices'
+    breadcrumb_url_index = 'improve_redirect'
 
     def get_template_names(self):
         campaign_slug = self.sample.campaign.slug
@@ -128,69 +146,31 @@ class ImprovePracticesView(AssessPracticesView):
 
     def get_context_data(self, **kwargs):
         context = super(ImprovePracticesView, self).get_context_data(**kwargs)
+        context.update({'assess_type': 'planned'})
         update_context_urls(context, {
             'api_improvement_sample': reverse('survey_api_sample', args=(
                 self.account, self.improvement_sample)),
-            'api_account_benchmark': reverse(
-                'survey_api_sample_benchmarks',
-                args=(self.account, self.sample,
-                      self.full_path.lstrip(URL_PATH_SEP))),
             'print': reverse('improve_print', args=(
                 self.account, self.improvement_sample))
         })
+        if self.full_path:
+            update_context_urls(context, {
+                'api_account_benchmark': reverse('survey_api_sample_benchmarks',
+                    args=(self.account, self.sample,
+                          self.full_path.lstrip(URL_PATH_SEP))),
+            })
+        else:
+            update_context_urls(context, {
+                'api_account_benchmark': reverse(
+                    'survey_api_sample_benchmarks_index', args=(
+                    self.account, self.sample)),
+            })
         return context
 
 
-class AssessRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
-                         RedirectView):
-    """
-    Redirects to an assess page for a segment
-    """
-    breadcrumb_url = 'assess_practices'
-    template_name = 'app/assess/redirects.html'
-
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse(self.breadcrumb_url, kwargs=kwargs)
-
-    def get(self, request, *args, **kwargs):
-        campaign_slug = self.sample.campaign.slug
-        campaign_prefix = "%s%s%s" % (
-            DB_PATH_SEP, campaign_slug, DB_PATH_SEP)
-        has_mandatory_segment = get_question_model().objects.filter(
-            path__startswith=campaign_prefix).exists()
-        if has_mandatory_segment:
-            kwargs.update({'path': campaign_prefix.strip(URL_PATH_SEP)})
-            url = self.get_redirect_url(*args, **kwargs)
-            return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
-
-        candidates = self.segments_available
-        if not candidates:
-            return HttpResponseRedirect(
-                reverse('scorecard', args=(self.account, self.sample)))
-
-        redirects = []
-        for seg in candidates:
-            # We insured that all candidates are the prefixed
-            # content node at this point.
-            path = seg.get('path')
-            if path:
-                kwargs.update({'path': path.strip(URL_PATH_SEP)})
-                url = self.get_redirect_url(*args, **kwargs)
-                print_name = seg.get('title')
-                redirects += [(url, print_name)]
-
-        if len(redirects) > 1:
-            context = self.get_context_data(**kwargs)
-            context.update({
-                'redirects': redirects,
-            })
-            return self.render_to_response(context)
-
-        return super(AssessRedirectView, self).get(request, *args, **kwargs)
 
 
-class ImproveRedirectView(ReportMixin, TemplateResponseMixin, ContextMixin,
-                         RedirectView):
+class ImproveRedirectView(ImprovePracticesView):
     """
     Redirects to an improvement planning page for a segment
     """

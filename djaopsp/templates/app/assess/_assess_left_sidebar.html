@@ -1,0 +1,11 @@
+{% extends "app/_left_sidebar.html" %}
+
+{% block left_sidebar_header %}
+<div class="text-center py-4">
+  {% include "app/assess/_vs_peers_toggle.html" %}
+</div>
+{% endblock %}
+
+{% block left_sidebar_actions %}
+<a class="btn btn-primary w-100 mt-2" href="{{urls.improve}}">{% trans %}Planning{% endtrans %}</a>
+{% endblock %}

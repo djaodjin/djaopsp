@@ -41,13 +41,11 @@
                 <div class="dashboard-nav-main dashboard-nav-color-theme">
                   <div>
                     <header>
-                      <nav{% block navbar_sidebar_extra %} class="navbar navbar-expand-sm bg-primary"{% endblock %}>
-                        <div class="container-fluid">
-                          <div class="navbar-header">
-                            {% include "_navbarbrand.html" %}
-                          </div>
+                      <nav{% block navbar_sidebar_extra %} class="navbar navbar-expand-md bg-primary"{% endblock %}>
+                        <div class="navbar-header">
+                          {% include "_navbarbrand.html" %}
                           <div class="text-end">
-                            <button href="" class="sidebar-toggle btn btn-secondary d-inline-block d-sm-none">
+                            <button href="" class="sidebar-toggle btn btn-secondary d-inline-block d-md-none">
                               <div class="bar1 opened"></div>
                               <div class="bar2 opened"></div>
                               <div class="bar3 opened"></div>
@@ -114,44 +112,46 @@
           {% endblock %}
 
           <div class="dashboard-content">
-            <div class="d-print-none fullviewport">
-              <header>
-                {% block body_top_template %}{% endblock %}
-                <nav{% block navbar_expand_extra %} class="navbar navbar-expand-md bg-primary"{% endblock %}>
-                  <div class="container-fluid">
-                    <button class="sidebar-toggle btn btn-secondary d-inline-block d-sm-none position-relative" data-target="#app-toolbar-left">
-                      <div class="bar1 closed"></div>
-                      <div class="bar2 closed"></div>
-                      <div class="bar3 closed"></div>
-                    </button>
+            <header class="d-print-none">
+              {% block body_top_template %}{% endblock %}
+              <nav{% block navbar_expand_extra %} class="navbar navbar-expand-md bg-primary"{% endblock %}>
+                <div class="container-fluid">
+                  <button class="sidebar-toggle btn btn-secondary d-inline-block d-md-none position-relative" data-target="#app-toolbar-left">
+                    <div class="bar1 closed"></div>
+                    <div class="bar2 closed"></div>
+                    <div class="bar3 closed"></div>
+                  </button>
 
-                    {% block content_navbarbrand %}
-                    <div class="navbar-brand-container">
-                      {% include "_navbarbrand.html" %}
-                    </div>
-                    {% endblock %}
-
-                    {% block header_navbar_large %}
-                    <div class="collapse navbar-collapse navbar-right justify-content-end">
-                      <ul class="navbar-nav ms-auto mt-lg-0">
-                        {% include "_generic_navbar.html" %}
-                      </ul>
-                    </div>
-                    <ul class="navbar-nav ms-auto mt-lg-0 header-menubar ml-auto">
-                      {# The content here will be replaced by _menubar.html #}
-                      <li class="nav-item">
-                        {% if request and request|is_authenticated %}
-                        <a class="nav-link">{{request.user.username}}</a>
-                        {% else %}
-                        <a id="login" class="btn btn-primary text-white mx-2" href="{{'/login/'|site_url}}">{% trans %}Sign In{% endtrans %}</a>
-                        {% endif %}
-                      </li>
-                      {# end of replaced by _menubar.html #}
-                    </ul>
-                    {% endblock %}
+                  {% block content_navbarbrand %}
+                  <div class="navbar-brand-container">
+                    {% include "_navbarbrand.html" %}
                   </div>
-                </nav>
-              </header>
+                  {% endblock %}
+
+                  {% block header_navbar_large %}
+                  <div class="navbar-collapse collapse navbar-end justify-content-end">
+                    <ul class="navbar-nav ms-auto mt-lg-0">
+                      {% block header_generic_large %}
+                      {% include "_generic_navbar.html" %}
+                      {% endblock %}
+                    </ul>
+                  </div>
+                  <ul class="navbar-nav header-menubar ms-auto mt-lg-0 ml-auto">
+                    {# The content here will be replaced by _menubar.html #}
+                    <li class="nav-item">
+                      {% if request and request|is_authenticated %}
+                      <a class="nav-link">{{request.user.username}}</a>
+                      {% else %}
+                      <a id="login" class="btn btn-cta mx-2" href="{{'/login/'|site_url}}">{% trans %}Sign In{% endtrans %}</a>
+                      {% endif %}
+                    </li>
+                    {# end of replaced by _menubar.html #}
+                  </ul>
+                  {% endblock %}
+                </div>
+              </nav>
+            </header>
+            <div class="fullviewport">
               {% block fullviewport %}
               {% endblock %}
             </div><!-- /.fullviewport -->
@@ -159,24 +159,24 @@
               <div id="messages">
                 <div id="messages-content">
                   {% if request %}
-                    {% for message in request|messages %}
-                    <div class="alert alert-dismissible fade show{% if message.tags %} alert-{{message.tags}}{% endif %}">
-                      {% if 'safe' in message.tags %}
-                      <div>{{message|safe}}</div>
-                      {% else %}
-                      <div>{{message}}</div>
-                      {% endif %}
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    {% endfor %}
+                  {% for message in request|messages %}
+                  <div class="alert alert-dismissible fade show{% if message.tags %} alert-{{message.tags}}{% endif %}">
+                    {% if 'safe' in message.tags %}
+                    <div>{{message|safe}}</div>
+                    {% else %}
+                    <div>{{message}}</div>
+                    {% endif %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  {% endfor %}
                   {% endif %}
                   {% if form %}
-                    {% for message in form|messages %}
-                    <div class="alert alert-dismissible fade show alert-danger">
-                      <div>{{message}}</div>
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    {% endfor %}
+                  {% for message in form|messages %}
+                  <div class="alert alert-dismissible fade show alert-danger">
+                    <div>{{message}}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  {% endfor %}
                   {% endif %}
                   <div class="alert alert-dismissible fade" style="display:none;">
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

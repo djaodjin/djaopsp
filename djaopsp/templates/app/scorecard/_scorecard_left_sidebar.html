@@ -1,0 +1,33 @@
+{% extends "app/_left_sidebar.html" %}
+
+{% block left_sidebar_actions %}
+<button id="pdf-print-btn" class="btn btn-outline-primary w-100 mt-2"
+        onClick="window.print()"
+        :disabled="!itemsLoaded">
+    <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
+</button>
+{% if sample.is_frozen %}
+{# actions only available when a scorecard is frozen #}
+{% if urls.share %}
+<a id="share-btn" class="btn btn-primary w-100 mt-2"
+   href="{{urls.share}}">
+    {% trans %}Share assessment{% endtrans %}
+</a>
+{% endif %}
+{% else %}
+{% if not urls.assess_mandatory_segment or is_mandatory_segment_present %}
+<form method="post" action="." @submit.prevent="freezeAssessment"
+      v-show="itemsLoaded && items.results.length > 0">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+    <button id="complete-assessment-btn"
+            class="btn btn-primary w-100 mt-2"
+            href=""
+            data-bs-toggle="modal" data-bs-target="#complete-assessment"
+            data-toggle="modal" data-target="#complete-assessment"
+            :disabled="freezeAssessmentDisabled">
+        {% trans %}Complete{% endtrans %}
+    </button>
+</form>
+{% endif %}
+{% endif %}
+{% endblock %}

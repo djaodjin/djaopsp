@@ -1,7 +1,7 @@
 {% extends "pages/base.html" %}
 
 {% block pages_content %}
-<campaign-questions-list inline-template class="panel-icons" id="panel-icons">
+<campaign-questions-list inline-template id="panel-icons">
   <div class="panel-body panel-icons-no-benchmark">
     <div class="row">
       <div class="col-md-12 text-center" style="display:table-row;">
@@ -42,7 +42,7 @@
            v-show="itemsLoaded && items.results.length"
            v-cloak>
         <div>
-          <table class="table table-striped table-bordered table-assessment">
+          <table class="table table-striped table-bordered">
             <thead>
               {% include "app/_sustainability_value_header.html" %}
             </thead>

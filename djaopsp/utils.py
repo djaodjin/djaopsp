@@ -223,6 +223,8 @@ def get_requested_accounts(account, campaign=None, aggregate_set=False,
     All accounts which ``account`` has requested a scorecard from.
     """
     #pylint:disable=too-many-arguments
+    # XXX Replace the whole function by `survey.utils.get_engaged_accounts`
+    #     once a version of djaodjin-survey is greater than 0.11.
     queryset = None
     if aggregate_set:
         search_terms = None
@@ -460,11 +462,19 @@ def get_segments_available(sample, visibility=None, owners=None,
             sample.campaign, visibility=visibility, owners=owners)
     candidates = [seg for seg in segments_candidates
         if seg.get('extra', {}).get('pagebreak', False)]
+    campaign_slug = sample.campaign.slug
+    campaign_prefix = "%s%s%s" % (DB_PATH_SEP, campaign_slug, DB_PATH_SEP)
     results = []
     for seg in candidates:
         prefix = seg['path']
         is_active = get_question_model().objects.filter(
             path__startswith=prefix, answer__sample=sample).exists()
+        if (not is_active and not sample.is_frozen and
+            campaign_prefix == prefix + DB_PATH_SEP):
+            # When the response is a work-in-progress, we always return
+            # the mandatory segment.
+            is_active = get_question_model().objects.filter(
+                path__startswith=campaign_prefix).exists()
         if is_active:
             results += [seg]
     return results

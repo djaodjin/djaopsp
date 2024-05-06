@@ -221,7 +221,8 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
     @property
     def exclude_questions(self):
         if not hasattr(self, '_exclude_questions'):
-            self._exclude_questions = []
+            self._exclude_questions = [] # Why we are not using
+                 # `self.request.query_params.get(self.exclude_param)` here?
         return self._exclude_questions
 
 

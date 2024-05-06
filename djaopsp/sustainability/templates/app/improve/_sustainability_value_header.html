@@ -1,5 +1,80 @@
-{% extends "app/_sustainability_value_header.html" %}
+<div class="row sticky-top bg-body text-body border-bottom">
+  <div class="col-md-6">
+    <div>
+      <div>
+          {% trans %}Practices{% endtrans %}
+      </div>
+    </div>
+  </div>
+  {# environmental_value #}
+  <div class="d-none d-md-block text-center col-md-1">
+    <div>
+      <div>
+        <div class="btn btn-link btn-sort text-center"
+             @click="sortBy('environmental_value')">
+            <img src="{{'/static/img/green-leaf.png'|asset}}"
+                 width="32" hegiht="32"
+                 data-bs-toggle="tooltip" data-toggle="tooltip"
+                 title="Environmental value" />
+        </div>
+      </div>
+    </div>
+  </div>
+  {# business_value #}
+  <div class="d-none d-md-block text-center col-md-1">
+    <div>
+      <div>
+        <div class="btn btn-link btn-sort text-center"
+             @click="sortBy('business_value')">
+            <img src="{{'/static/img/cogs.png'|asset}}"
+                 width="32" hegiht="32"
+                 data-bs-toggle="tooltip" data-toggle="tooltip"
+                 title="Ops/Maintenance value" />
+        </div>
+      </div>
+    </div>
+  </div>
+  {# profitability #}
+  <div class="d-none d-md-block text-center col-md-1">
+    <div>
+      <div>
+        <div class="btn btn-link btn-sort text-center"
+             @click="sortBy('profitability')">
+          <img src="{{'/static/img/dollar-sign.png'|asset}}"
+               width="32" hegiht="32"
+               data-bs-toggle="tooltip" data-toggle="tooltip"
+               title="Financial value" />
+        </div>
+      </div>
+    </div>
+  </div>
+  {# implementation_ease #}
+  <div class="d-none d-md-block text-center col-md-1">
+    <div>
+      <div>
+        <div class="btn btn-link btn-sort text-center"
+             @click="sortBy('implementation_ease')">
+            <img src="{{'/static/img/shovel.png'|asset}}"
+                 width="32" hegiht="32" data-bs-toggle="tooltip"
+                 title="Implementation ease" />
+        </div>
+      </div>
+    </div>
+  </div>
+  {# avg_value #}
+  <div class="d-none d-md-block text-center total-sep col-md-1">
+    <div>
+      <div>
+        <div class="btn btn-link btn-sort text-center"
+             @click="sortBy('avg_value')">
+            <span style="cursor: default;"
+                  data-bs-toggle="tooltip" data-toggle="tooltip"
+                  title="Average Value">
+                {% trans %}Average Value{% endtrans %}
+            </span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-{% block toggle %}
-{% include "app/improve/_vs_value_toggle.html" %}
-{% endblock %}
+</div>

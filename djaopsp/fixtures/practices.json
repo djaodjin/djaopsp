@@ -4,7 +4,8 @@
     "path": "/sustainability/environmental-reporting/general-information/naics-code",
     "content": 133,
     "default_unit": 206,
-    "ui_hint": "select"
+    "ui_hint": "select",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 1
 },
@@ -23,7 +24,8 @@
     "path": "/sustainability/environmental-reporting/general-information/gross-revenue",
     "content": 131,
     "default_unit": 192,
-    "ui_hint": "revenue"
+    "ui_hint": "revenue",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 2
 },
@@ -42,7 +44,8 @@
     "path": "/sustainability/environmental-reporting/general-information/fte-count",
     "content": 132,
     "default_unit": 198,
-    "ui_hint": "employee-count"
+    "ui_hint": "employee-count",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 3
 },
@@ -61,7 +64,8 @@
     "path": "/sustainability/esg-strategy-heading/formalized-esg-strategy",
     "content": 4,
     "default_unit": 202,
-    "ui_hint": "yes-no-comments"
+    "ui_hint": "yes-no-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 4
 },
@@ -80,7 +84,8 @@
     "path": "/sustainability/esg-strategy-heading/assign-formal-authority",
     "content": 5,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 5
 },
@@ -99,7 +104,8 @@
     "path": "/sustainability/esg-strategy-heading/assign-point-person",
     "content": 134,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 6
 },
@@ -118,7 +124,8 @@
     "path": "/sustainability/esg-strategy-heading/report-internally",
     "content": 6,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 7
 },
@@ -137,7 +144,8 @@
     "path": "/sustainability/esg-strategy-heading/report-externally",
     "content": 7,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 8
 },
@@ -156,7 +164,8 @@
     "path": "/sustainability/esg-strategy-heading/report-3rd-party-verified",
     "content": 8,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 9
 },
@@ -175,7 +184,8 @@
     "path": "/sustainability/esg-strategy-heading/systematic-rigorous-assessment",
     "content": 10,
     "default_unit": 202,
-    "ui_hint": "yes-no-comments"
+    "ui_hint": "yes-no-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 10
 },
@@ -194,7 +204,8 @@
     "path": "/sustainability/esg-strategy-heading/how-was-the-assessment-done",
     "content": 13,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 11
 },
@@ -213,7 +224,8 @@
     "path": "/sustainability/esg-strategy-heading/describe-the-three-most-material-esg-impacts",
     "content": 14,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 12
 },
@@ -232,7 +244,8 @@
     "path": "/sustainability/esg-strategy-heading/describe-your-company-strategies-related-goals",
     "content": 15,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 13
 },
@@ -251,7 +264,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct",
     "content": 17,
     "default_unit": 202,
-    "ui_hint": "yes-no-comments"
+    "ui_hint": "yes-no-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 14
 },
@@ -270,7 +284,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-child-and-forced-labor",
     "content": 19,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 15
 },
@@ -289,7 +304,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-corruption-and-bribery",
     "content": 20,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 16
 },
@@ -308,7 +324,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-discrimination",
     "content": 21,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 17
 },
@@ -327,7 +344,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-diversity-inclusion",
     "content": 22,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 18
 },
@@ -346,7 +364,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-working-hours",
     "content": 23,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 19
 },
@@ -365,7 +384,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-confidentiality",
     "content": 24,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 20
 },
@@ -384,7 +404,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-conflicts-of-interest",
     "content": 25,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 21
 },
@@ -403,7 +424,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-antitrust",
     "content": 26,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 22
 },
@@ -422,7 +444,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-money-laundering",
     "content": 27,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 23
 },
@@ -441,7 +464,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-safety",
     "content": 28,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 24
 },
@@ -460,7 +484,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-whistleblowing",
     "content": 29,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 25
 },
@@ -479,7 +504,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-labor-unions",
     "content": 30,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 26
 },
@@ -498,7 +524,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct",
     "content": 33,
     "default_unit": 202,
-    "ui_hint": "yes-no-comments"
+    "ui_hint": "yes-no-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 27
 },
@@ -517,7 +544,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-child-and-forced-labor",
     "content": 35,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 28
 },
@@ -536,7 +564,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-corruption-and-bribery",
     "content": 36,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 29
 },
@@ -555,7 +584,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-discrimination",
     "content": 37,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 30
 },
@@ -574,7 +604,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-diversity-inclusion",
     "content": 38,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 31
 },
@@ -593,7 +624,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-working-hours",
     "content": 39,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 32
 },
@@ -612,7 +644,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-confidentiality",
     "content": 40,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 33
 },
@@ -631,7 +664,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-conflicts-of-interest",
     "content": 41,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 34
 },
@@ -650,7 +684,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-antitrust",
     "content": 42,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 35
 },
@@ -669,7 +704,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-money-laundering",
     "content": 43,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 36
 },
@@ -688,7 +724,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-safety",
     "content": 44,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 37
 },
@@ -707,7 +744,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-whistleblowing",
     "content": 45,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 38
 },
@@ -726,7 +764,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/supplier-code-of-conduct-follow/supplier-code-of-conduct-external-stakeholders",
     "content": 46,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 39
 },
@@ -745,7 +784,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/sourcing-practices/conflict-minerals-in-products",
     "content": 51,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 40
 },
@@ -764,7 +804,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/sourcing-practices/conflict-minerals-in-products-report",
     "content": 52,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 41
 },
@@ -783,7 +824,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/sourcing-practices/conflict-minerals-policy",
     "content": 54,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 42
 },
@@ -802,7 +844,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/sourcing-practices/high-risk-regions-sourcing-products",
     "content": 55,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 43
 },
@@ -821,7 +864,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/sourcing-practices/high-risk-regions-sourcing-policy",
     "content": 57,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 44
 },
@@ -840,7 +884,8 @@
     "path": "/sustainability/esg-strategy-heading/governance-policies/sourcing-practices/high-risk-regions-sourcing-products-report",
     "content": 56,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 45
 },
@@ -859,7 +904,8 @@
     "path": "/sustainability/social-reporting/governance-fines",
     "content": 58,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 46
 },
@@ -878,7 +924,8 @@
     "path": "/sustainability/environmental-reporting/environmental-fines",
     "content": 59,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 47
 },
@@ -897,7 +944,8 @@
     "path": "/sustainability/environmental-management-rigor/env-system-in-place",
     "content": 61,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 48
 },
@@ -916,7 +964,8 @@
     "path": "/sustainability/environmental-management-rigor/env-system-certified",
     "content": 62,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 49
 },
@@ -935,7 +984,8 @@
     "path": "/sustainability/environmental-management-rigor/env-system-audited",
     "content": 63,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 50
 },
@@ -954,7 +1004,8 @@
     "path": "/sustainability/environmental-management-rigor/env-system-coverage",
     "content": 64,
     "default_unit": 197,
-    "ui_hint": "percentage"
+    "ui_hint": "percentage",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 51
 },
@@ -973,7 +1024,8 @@
     "path": "/sustainability/environmental-management-rigor/employee-code-of-conduct-monitoring-audit-systems",
     "content": 32,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 52
 },
@@ -992,7 +1044,8 @@
     "path": "/sustainability/environmental-management-rigor/report-sustainable-procurement",
     "content": 47,
     "default_unit": 197,
-    "ui_hint": "percentage"
+    "ui_hint": "percentage",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 53
 },
@@ -1011,7 +1064,8 @@
     "path": "/sustainability/environmental-management-rigor/report-sustainable-procurement-clauses",
     "content": 48,
     "default_unit": 197,
-    "ui_hint": "percentage"
+    "ui_hint": "percentage",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 54
 },
@@ -1030,7 +1084,8 @@
     "path": "/sustainability/environmental-management-rigor/supplier-code-of-conduct-monitoring-audit-systems",
     "content": 49,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 55
 },
@@ -1049,7 +1104,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported",
     "content": 67,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 56
 },
@@ -1068,7 +1124,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported",
     "content": 69,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 57
 },
@@ -1087,7 +1144,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/energy-publicly-reported",
     "content": 135,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 58
 },
@@ -1106,7 +1164,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-3rd-party-verified",
     "content": 68,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 59
 },
@@ -1125,7 +1184,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-3rd-party-verified",
     "content": 70,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 60
 },
@@ -1144,7 +1204,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/energy-3rd-party-verified",
     "content": 136,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 61
 },
@@ -1163,7 +1224,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target-by",
     "content": 156,
     "default_unit": 196,
-    "ui_hint": "target-by"
+    "ui_hint": "target-by",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 62
 },
@@ -1182,7 +1244,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-target-by",
     "content": 160,
     "default_unit": 196,
-    "ui_hint": "target-by"
+    "ui_hint": "target-by",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 63
 },
@@ -1201,7 +1264,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/energy-target-by",
     "content": 152,
     "default_unit": 196,
-    "ui_hint": "target-by"
+    "ui_hint": "target-by",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 64
 },
@@ -1220,7 +1284,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-science-based-target",
     "content": 157,
     "default_unit": 204,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 65
 },
@@ -1239,7 +1304,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-science-based-target",
     "content": 161,
     "default_unit": 204,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 66
 },
@@ -1258,7 +1324,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-measured/ghg-emissions-scope1",
     "content": 103,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions"
+    "ui_hint": "ghg-emissions",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 67
 },
@@ -1277,7 +1344,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-measured/ghg-emissions-scope2",
     "content": 104,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions"
+    "ui_hint": "ghg-emissions",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 68
 },
@@ -1296,7 +1364,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-measured/energy-consumed",
     "content": 137,
     "default_unit": 223,
-    "ui_hint": "energy"
+    "ui_hint": "energy",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 69
 },
@@ -1315,7 +1384,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target/ghg-emissions-scope1-target-comments",
     "content": 158,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 70
 },
@@ -1334,7 +1404,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target/ghg-emissions-scope2-target-comments",
     "content": 162,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 71
 },
@@ -1353,7 +1424,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target//energy-improvement-target-comments",
     "content": 153,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 72
 },
@@ -1372,7 +1444,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/ghg-emissions-scope3",
     "content": 105,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 73
 },
@@ -1391,7 +1464,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-publicly-reported",
     "content": 71,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 74
 },
@@ -1410,7 +1484,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-3rd-party-verified",
     "content": 72,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 75
 },
@@ -1429,7 +1504,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/business-travel",
     "content": 112,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 76
 },
@@ -1448,7 +1524,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/capital-goods",
     "content": 108,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 77
 },
@@ -1467,7 +1544,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/downstream-leased-assets",
     "content": 120,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 78
 },
@@ -1486,7 +1564,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/downstream-transportation-and-distribution",
     "content": 116,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 79
 },
@@ -1505,7 +1584,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/employee-commuting",
     "content": 113,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 80
 },
@@ -1524,7 +1604,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/end-of-life-treatment-of-sold-products",
     "content": 119,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 81
 },
@@ -1543,7 +1624,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/franchise",
     "content": 121,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 82
 },
@@ -1562,7 +1644,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/fuel-and-energy-related-activities",
     "content": 109,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 83
 },
@@ -1581,7 +1664,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/investments",
     "content": 115,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 84
 },
@@ -1600,7 +1684,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/processing-of-sold-products",
     "content": 117,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 85
 },
@@ -1619,7 +1704,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/purchased-good-and-services",
     "content": 107,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 86
 },
@@ -1638,7 +1724,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/upstream-leased-assets",
     "content": 114,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 87
 },
@@ -1657,7 +1744,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/upstream-transportation-and-distribution",
     "content": 110,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 88
 },
@@ -1676,7 +1764,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/use-of-sold-products",
     "content": 118,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 89
 },
@@ -1695,7 +1784,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-measured/waste-generated-in-operations",
     "content": 111,
     "default_unit": 220,
-    "ui_hint": "ghg-emissions-scope3"
+    "ui_hint": "ghg-emissions-scope3",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 90
 },
@@ -1714,7 +1804,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target-by",
     "content": 164,
     "default_unit": 196,
-    "ui_hint": "target-by"
+    "ui_hint": "target-by",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 91
 },
@@ -1733,7 +1824,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-science-based-target",
     "content": 165,
     "default_unit": 204,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 92
 },
@@ -1752,7 +1844,8 @@
     "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target/ghg-emissions-scope3-target-comments",
     "content": 166,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 93
 },
@@ -1771,7 +1864,8 @@
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-measured/hazardous-waste",
     "content": 123,
     "default_unit": 220,
-    "ui_hint": "waste"
+    "ui_hint": "waste",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 94
 },
@@ -1790,7 +1884,8 @@
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-measured/non-hazardous-waste",
     "content": 124,
     "default_unit": 220,
-    "ui_hint": "waste"
+    "ui_hint": "waste",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 95
 },
@@ -1809,7 +1904,8 @@
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-measured/waste-recycled",
     "content": 125,
     "default_unit": 220,
-    "ui_hint": "waste"
+    "ui_hint": "waste",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 96
 },
@@ -1828,7 +1924,8 @@
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-publicly-reported",
     "content": 74,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 97
 },
@@ -1847,7 +1944,8 @@
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-3rd-party-verified",
     "content": 75,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 98
 },
@@ -1866,7 +1964,8 @@
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-target-by",
     "content": 168,
     "default_unit": 196,
-    "ui_hint": "target-by"
+    "ui_hint": "target-by",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 99
 },
@@ -1885,7 +1984,8 @@
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-target/waste-target-comments",
     "content": 169,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 100
 },
@@ -1904,7 +2004,8 @@
     "path": "/sustainability/environmental-reporting/water-reporting/water-measured/water-withdrawn",
     "content": 127,
     "default_unit": 222,
-    "ui_hint": "water"
+    "ui_hint": "water",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 101
 },
@@ -1923,7 +2024,8 @@
     "path": "/sustainability/environmental-reporting/water-reporting/water-measured/water-discharged",
     "content": 128,
     "default_unit": 222,
-    "ui_hint": "water"
+    "ui_hint": "water",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 102
 },
@@ -1942,7 +2044,8 @@
     "path": "/sustainability/environmental-reporting/water-reporting/water-measured/water-recycled",
     "content": 129,
     "default_unit": 222,
-    "ui_hint": "water"
+    "ui_hint": "water",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 103
 },
@@ -1961,7 +2064,8 @@
     "path": "/sustainability/environmental-reporting/water-reporting/water-publicly-reported",
     "content": 77,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 104
 },
@@ -1980,7 +2084,8 @@
     "path": "/sustainability/environmental-reporting/water-reporting/water-3rd-party-verified",
     "content": 78,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 105
 },
@@ -1999,7 +2104,8 @@
     "path": "/sustainability/environmental-reporting/water-reporting/water-target-by",
     "content": 171,
     "default_unit": 196,
-    "ui_hint": "target-by"
+    "ui_hint": "target-by",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 106
 },
@@ -2018,7 +2124,8 @@
     "path": "/sustainability/environmental-reporting/water-reporting/water-target/water-target-comments",
     "content": 172,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 107
 },
@@ -2037,7 +2144,8 @@
     "path": "/sustainability/social-reporting/diverse-spend",
     "content": 173,
     "default_unit": 202,
-    "ui_hint": "yes-comments"
+    "ui_hint": "yes-comments",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 108
 },
@@ -2056,7 +2164,8 @@
     "path": "/sustainability/social-reporting/diverse-target-verification",
     "content": 188,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 109
 },
@@ -2075,7 +2184,8 @@
     "path": "/sustainability/social-reporting/diverse-target-by",
     "content": 175,
     "default_unit": 196,
-    "ui_hint": "target-by"
+    "ui_hint": "target-by",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 110
 },
@@ -2094,7 +2204,8 @@
     "path": "/sustainability/social-reporting/social-kpis/kpi-diversity-discrimination-harassment",
     "content": 81,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 111
 },
@@ -2113,7 +2224,8 @@
     "path": "/sustainability/social-reporting/social-kpis/kpi-diversity-of-employees",
     "content": 82,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 112
 },
@@ -2132,7 +2244,8 @@
     "path": "/sustainability/social-reporting/social-kpis/kpi-diversity-of-board",
     "content": 83,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 113
 },
@@ -2151,7 +2264,8 @@
     "path": "/sustainability/social-reporting/social-kpis/kpi-recordable-incident-rate",
     "content": 84,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 114
 },
@@ -2170,7 +2284,8 @@
     "path": "/sustainability/social-reporting/social-kpis/kpi-lost-time-case-rate",
     "content": 85,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 115
 },
@@ -2189,7 +2304,8 @@
     "path": "/sustainability/social-reporting/social-kpis/kpi-dart-rate",
     "content": 86,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 116
 },
@@ -2208,7 +2324,8 @@
     "path": "/sustainability/social-reporting/social-kpis/kpi-work-related-fatalities",
     "content": 87,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 117
 },
@@ -2227,7 +2344,8 @@
     "path": "/sustainability/social-reporting/diverse-target/diverse-target-comments",
     "content": 176,
     "default_unit": 199,
-    "ui_hint": "textarea"
+    "ui_hint": "textarea",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 118
 },
@@ -2246,7 +2364,8 @@
     "path": "/sustainability/social-reporting/diverse-target-definition/diverse-target-definition-disability-owned",
     "content": 178,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 119
 },
@@ -2265,7 +2384,8 @@
     "path": "/sustainability/social-reporting/diverse-target-definition/diverse-target-definition-hubzone",
     "content": 179,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 120
 },
@@ -2284,7 +2404,8 @@
     "path": "/sustainability/social-reporting/diverse-target-definition/diverse-target-definition-lgbt-owned",
     "content": 180,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 121
 },
@@ -2303,7 +2424,8 @@
     "path": "/sustainability/social-reporting/diverse-target-definition/diverse-target-definition-minority-owned",
     "content": 181,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 122
 },
@@ -2322,7 +2444,8 @@
     "path": "/sustainability/social-reporting/diverse-target-definition/diverse-target-definition-service-disable-veteran",
     "content": 182,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 123
 },
@@ -2341,7 +2464,8 @@
     "path": "/sustainability/social-reporting/diverse-target-definition/diverse-target-definition-small-business-revenue",
     "content": 183,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 124
 },
@@ -2360,7 +2484,8 @@
     "path": "/sustainability/social-reporting/diverse-target-definition/diverse-target-definition-small-business-employee",
     "content": 184,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 125
 },
@@ -2379,7 +2504,8 @@
     "path": "/sustainability/social-reporting/diverse-target-definition/diverse-target-definition-small-disadvantaged",
     "content": 185,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 126
 },
@@ -2398,7 +2524,8 @@
     "path": "/sustainability/social-reporting/diverse-target-definition/diverse-target-definition-veteran-owned",
     "content": 186,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 127
 },
@@ -2417,7 +2544,8 @@
     "path": "/sustainability/social-reporting/diverse-target-definition/diverse-target-definition-woman-owned",
     "content": 187,
     "default_unit": 202,
-    "ui_hint": "radio"
+    "ui_hint": "radio",
+    "extra": "{\"tags\":[\"assess-only\"]}"
   },
   "model": "survey.question", "pk": 128
 },

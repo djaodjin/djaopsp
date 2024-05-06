@@ -131,19 +131,6 @@ header .nav-item {
     color: $white;
 }
 
-
-.practice-row {
-    border-bottom: 1px solid #{$table-border-color};
-    border-top: 1px solid #{$table-border-color};
-    padding-top: 0.5rem;
-    min-height: 100px;
-}
-
-.practice-row:nth-of-type(#{$table-striped-order}) {
-    color: #{$table-striped-color};
-    background-color: #{$table-striped-bg};
-}
-
 // deprecated
 .table-assessment {
   $table-accent-bg: rgba(0, 0, 0, 0.05);
@@ -156,11 +143,11 @@ header .nav-item {
     text-decoration: none;
 }
 
-.practice-required {
+.practice-required>div {
   border-right: 1px solid #FF2020 !important;
 }
 
-.practice-required-answered {
+.practice-required-answered>div {
   border-right: 1px solid #{$table-border-color} !important;
 }
 
@@ -863,6 +850,10 @@ li.active .system-menus {
     print-color-adjust:exact !important;
 }
 
+.editable-consumption {
+  min-height: 16px;
+}
+
 .green-level-0,
 .btn-green-level-0,
 .btn-green-level-0:hover{
@@ -1024,8 +1015,17 @@ a.text-grey{
    margin:0;
 }
 
-.padding_20{
-  padding:20px;
+.practice-row {
+    border-bottom: 1px solid #{$table-border-color};
+//    border-top: 1px solid #{$table-border-color};
+    margin-top: 0.5rem;
+    padding-bottom: 0.5rem;
+
+}
+
+.practice-row:nth-of-type(#{$table-striped-order}) {
+    color: #{$table-striped-color};
+    background-color: #{$table-striped-bg};
 }
 
 .heading-tile {
@@ -1042,21 +1042,17 @@ a.text-grey{
    line-height: 1.1;
 }
 
-.heading-1 {
+.heading-1,
+.heading-2,
+.heading-3,
+.heading-4,
+.heading-5,
+.heading-6,
+.heading-7 {
    font-size: 16px;
    font-family: inherit;
    font-weight: 500;
    line-height: 1.1;
-}
-
-.heading-2 {
-   font-size: 14px;
-   font-family: inherit;
-}
-
-.heading-3 {
-   font-size: 14px;
-   font-family: inherit;
 }
 
 .heading-0>.title,
@@ -2176,6 +2172,14 @@ a.header-anchor:hover{
   .indent-header-7 {
     display:inline-block;
     margin-left: 140px;
+  }
+
+  .practice-row .bestpractice {
+    min-height: 100px;
+  }
+
+  .radio-label {
+    font-size:10px;
   }
 
   .col-example {

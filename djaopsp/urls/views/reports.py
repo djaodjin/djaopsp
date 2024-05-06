@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -26,7 +26,7 @@ urlpatterns = [
     path('assess/<slug:sample>/download/<path:path>/',
          AssessPracticesXLSXView.as_view(), name='assess_download_segment'),
     path('assess/<slug:sample>/download/',
-         AssessPracticesXLSXView.as_view(), name='assess_download'),
+         AssessPracticesXLSXView.as_view(), name='assess_download_index'),
     path('assess/<slug:sample>/download/pptx/',
          AssessPracticesPPTXView.as_view(), name='assess_download_pptx'),
     path('assess/<slug:sample>/<path:path>/',

@@ -1,0 +1,104 @@
+<div id="app-toolbar-left" class="d-print-none bg-body text-body">
+  <header class="d-sm-none">
+    <nav{% block navbar_sidebar_extra %} class="navbar navbar-expand-sm bg-primary"{% endblock %}>
+      <div class="container-fluid">
+        <div class="navbar-header">
+          {% include "_navbarbrand.html" %}
+        </div>
+        <div class="text-end">
+          <button href="" class="sidebar-toggle btn btn-secondary d-inline-block d-sm-none" data-target="#app-toolbar-left">
+            <div class="bar1 opened"></div>
+            <div class="bar2 opened"></div>
+            <div class="bar3 opened"></div>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+    {% block left_sidebar_header %}
+    {% endblock %}
+
+  <div class="toolbar-content">
+
+    {# summary #}
+    {% if breadcrumbs|length > 1 %}
+    <ul class="nav flex-column py-1">
+      <li class="nav-item">
+        <a class="nav-link" href="{{breadcrumbs.0.2}}">{% trans %}Top{% endtrans %} <i class="fa fa-arrow-up"></i></a>
+      </li>
+    </ul>
+    {% endif %}
+    <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+      <ul class="nav flex-column py-1">
+        <li class="nav-item"
+            v-for="tile in getEntries('', 1)">
+          <a class="nav-link" :href="'#' + tile.slug">[[tile.title]]</a>
+          <ul style="list-style:none;">
+            <li class="nav-item"
+                v-for="practice in getEntries(tile.slug, 1)">
+              <a class="nav-link" :href="'#' + getPracticeId(practice)">[[practice.title]]</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  {# buttons #}
+  <footer class="text-center toolbar-footer">
+    <hr />
+    <section>
+      <a id="invite-contributor-btn" class="btn btn-outline-primary w-100 mt-2"
+         href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">
+          {% trans %}Invite a contributor{% endtrans %}
+      </a>
+      <a id="download" class="btn btn-outline-primary w-100 mt-2"
+         href="{{urls.download}}"
+         target="_blank">
+        <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Download (xlsx){% endtrans %}
+      </a>
+      {% block left_sidebar_actions %}
+      <button id="pdf-print-btn" class="btn btn-outline-primary w-100 mt-2"
+              onClick="window.print()"
+              :disabled="!itemsLoaded">
+        <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
+      </button>
+      {% if sample.is_frozen %}
+      {# actions only available when a scorecard is frozen #}
+      {% if urls.share %}
+      <a id="share-btn" class="btn btn-primary w-100 mt-2"
+         href="{{urls.share}}">
+          {% trans %}Share assessment{% endtrans %}
+      </a>
+      {% endif %}
+      {% else %}
+      {% if not urls.assess_mandatory_segment or is_mandatory_segment_present %}
+      <form method="post" action="." @submit.prevent="freezeAssessment"
+        v-show="itemsLoaded && items.results.length > 0">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+        <button id="complete-assessment-btn"
+                class="btn btn-primary w-100 mt-2"
+                href=""
+                data-bs-toggle="modal" data-bs-target="#complete-assessment"
+                data-toggle="modal" data-target="#complete-assessment"
+                :disabled="freezeAssessmentDisabled">
+            {% trans %}Complete{% endtrans %}
+        </button>
+        <!-- {% trans %}You can only record a response once all sections have been answered. Required questions with missing answers are highlighted with a red vertical bar to the right.{% endtrans %} -->
+      </form>
+      {% endif %}
+      {% endif %}
+      {% endblock %}
+    </section>
+    <div>
+      <div class="footer-links pt-2">
+        <a href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm pe-2"></i></a>
+        <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
+      </div>
+      <div>
+        {% trans %}Powered by &copy; 2024 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
+      </div>
+    </div>
+  </footer>{# /.toolbar-footer #}
+</div>{# /#app-toolbar-left #}

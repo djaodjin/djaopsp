@@ -1,0 +1,86 @@
+<div :id="'results-' + practice.slug" class="row">
+  <div :class="isPractice(practice) ? 'col-md-6' : 'col-md-12'">
+    <div style="display:inline-block;">
+      <div :class="'d-inline ' + indentHeader(practice)">
+        <span class="title"
+              v-if="!isPractice(practice) && !isPagebreak(practice)">
+          [[practice.title]]
+        </span>
+      <a class="title"
+         :href="practice.slug + '/'"
+         v-if="!isPractice(practice) && isPagebreak(practice)">
+        [[practice.title]]
+      </a>
+      <a class="title"
+         :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
+         v-if="isPractice(practice)">
+        [[practice.title]]
+      </a>
+      </div>
+    </div>
+  </div>
+
+  {# environmental_value #}
+  <div :class="'col-1 editable-consumption edit-range green-level-' + getIntrinsicValue(practice, 'environmental')"
+       {% if is_content_manager %}
+       :data-key="environmental_value"
+       data-range-step="1" data-range-min="0" data-range-max="4"
+       :data-range-value="getIntrinsicValue(practice, 'environmental')"
+       @click="editConsumption($event, practice)"
+       @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
+       {% endif %}
+       v-if="isPractice(practice)">
+  </div>
+  <div class="col-11 d-md-none" v-if="isPractice(practice)">
+    {% trans %}Environmental value{% endtrans %}
+  </div>
+  {# business_value #}
+  <div :class="'col-1 editable-consumption edit-range green-level-' + getIntrinsicValue(practice, 'business')"
+       {% if is_content_manager %}
+       :data-key="business_value"
+       data-range-step="1" data-range-min="0" data-range-max="4"
+       :data-range-value="getIntrinsicValue(practice, 'business')"
+       @click="editConsumption($event, practice)"
+       @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
+       {% endif %}
+       v-if="isPractice(practice)">
+  </div>
+  <div class="col-11 d-md-none" v-if="isPractice(practice)">
+    {% trans %}Ops/Maintenance value{% endtrans %}
+  </div>
+  {# profitability #}
+  <div :class="'col-1 editable-consumption edit-range green-level-' + getIntrinsicValue(practice, 'profitability')"
+       {% if is_content_manager %}
+       :data-key="profitability"
+       data-range-step="1" data-range-min="0" data-range-max="4"
+       :data-range-value="getIntrinsicValue(practice, 'profitability')"
+       @click="editConsumption($event, practice)"
+       @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
+       {% endif %}
+       v-if="isPractice(practice)">
+  </div>
+  <div class="col-11 d-md-none" v-if="isPractice(practice)">
+    {% trans %}Financial value{% endtrans %}
+  </div>
+  {# implementation_ease #}
+  <div :class="'col-1 editable-consumption edit-range green-level-' + getIntrinsicValue(practice, 'implementation_ease')"
+       {% if is_content_manager %}
+       :data-key="implementation_ease"
+       data-range-step="1" data-range-min="0" data-range-max="4"
+       :data-range-value="getIntrinsicValue(practice, 'implementation_ease')"
+       @click="editConsumption($event, practice)"
+       @keydown="($event.keyCode == 13 || $event.keyCode == 9) && nextCell($event, practice)"
+       {% endif %}
+       v-if="isPractice(practice)">
+  </div>
+  <div class="col-11 d-md-none" v-if="isPractice(practice)">
+    {% trans %}Implementation ease{% endtrans %}
+  </div>
+  {# avg_value #}
+  <div :class="'col-1 total-sep green-level-' + getIntrinsicValue(practice, 'avg_value')"
+       v-if="isPractice(practice)">
+  </div>
+  <div class="col-11 d-md-none" v-if="isPractice(practice)">
+    {% trans %}Avg value{% endtrans %}
+  </div>
+</div>
