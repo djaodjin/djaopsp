@@ -23,6 +23,7 @@ from ..compat import gettext_lazy as _, URLPattern, URLResolver, six
 from ..notifications import signals as notification_signals
 from ..notifications.serializers import (PortfolioGrantInitiatedSerializer,
     PortfolioNotificationSerializer)
+from ..pagination import BenchmarksPagination
 
 LOGGER = logging.getLogger(__name__)
 
@@ -237,9 +238,8 @@ def transform_links(line, api_base_url=""):
             if key == 'PAGE_SIZE':
                 value = '`page_size`'
             else:
-                value = str(settings.SAAS.get(key,
-                    settings.REST_FRAMEWORK.get(key,
-                    api_base_url if key == 'api_base_url' else key)))
+                value = str(settings.REST_FRAMEWORK.get(key,
+                    api_base_url if key == 'api_base_url' else key))
             line = line.replace(look.group(1), value)
     return line
 
@@ -383,7 +383,8 @@ class AutoSchema(BaseAutoSchema):
 
 
     def get_operation(self, path, path_regex, path_prefix, method, registry):
-        self.path = path
+        #pylint:disable=too-many-arguments
+        self.path = path       #pylint:disable=attribute-defined-outside-init
         extra_fields = {}
         method_obj = getattr(self.view, method.lower())
         docstring = method_obj.__doc__
@@ -394,6 +395,7 @@ class AutoSchema(BaseAutoSchema):
             api_base_url = getattr(settings, 'API_BASE_URL', '/api')
             func_tags, summary, description, examples = \
                 split_descr_and_examples(docstring, api_base_url=api_base_url)
+            #pylint:disable=attribute-defined-outside-init
             self.examples = format_examples(examples)
             extra_fields['summary'] = summary
             extra_fields['description'] = description
@@ -415,8 +417,15 @@ class AutoSchema(BaseAutoSchema):
         view = self.view
         many = many or (method == 'GET' and hasattr(view, 'list'))
         if many:
-            if False:
-                pass
+            if issubclass(view.pagination_class, BenchmarksPagination):
+                class BenchmarksPaginationAPISerializer(NoModelSerializer):
+                    highest_normalized_score = serializers.IntegerField(
+                        help_text=_("Highest score"))
+                    avg_normalized_score = serializers.IntegerField(
+                        help_text=_("Avergage score"))
+                    results = serializer_class(many=hasattr(view, 'list'),
+                        help_text=_("items in the queryset"))
+                serializer_class = BenchmarksPaginationAPISerializer
             else:
                 class APISerializer(NoModelSerializer):
                     count = serializers.IntegerField(
@@ -461,9 +470,12 @@ class AutoSchema(BaseAutoSchema):
                             '/')
                     else:
                         example_path_parts = example['path'].split('/')
-                    if len(example_path_parts) != len(path_parts):
-                        warnings.warn('%s has different parts from %s' % (
-                            example['path'], path))
+                    if (path_parts[-1] != '{path}' and
+                        len(example_path_parts) != len(path_parts)):
+                        warnings.warn("%s (%d parts) has a different number"\
+                            " of parts from %s (%d parts)" % (
+                            example['path'], len(example_path_parts),
+                            path, len(path_parts)))
                     for path_part, example_path_part in zip(
                             path_parts, example_path_parts):
                         if path_part.startswith('{'):
@@ -572,8 +584,6 @@ class AutoSchema(BaseAutoSchema):
 
         return serializer
 
-    def get_paginated_name(self, serializer_name):
-        return super(AutoSchema, self).get_paginated_name(serializer_name)
 
     def get_response_serializers(self):
         schema = {}
@@ -654,12 +664,14 @@ def get_notification_schema(notification_slug, api_base_url=None):
 
     generator = APIDocGenerator()
     inspector = AutoSchema()
+    #pylint:disable=attribute-defined-outside-init
     inspector.registry = generator.registry
     inspector.view = GenericAPIView()
     inspector.view.request = HttpRequest()
     inspector.method = 'GET'
     inspector.path = ''
     if serializer:
+        #pylint:disable=protected-access
         responses = inspector._get_response_for_code(
             serializer, '200', direction='response')
         schema = responses['content']['application/json']['schema']

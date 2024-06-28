@@ -44,16 +44,10 @@
             <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">{% trans %}Track{% endtrans %}</a>
           </li>
           {% endif %}
-          {% if FEATURES_DEBUG and urls.compare %}
-          <li class="divider-vertical"></li>
-          <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.compare %} active{% endif %}" id="compare-lnk" href="{{urls.compare}}">{% trans %}Compare{% endtrans %}</a>
-          </li>
-          {% endif %}
           {% if urls.highlights %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.highlights %} active{% endif %}" href="{{urls.highlights}}">{% trans %}Insights{% endtrans %}</a>
+            <a class="nav-link{% if request.path == urls.highlights or request.path == urls.compare %} active{% endif %}" href="{{urls.highlights}}">{% trans %}Insights{% endtrans %}</a>
           </li>
           {% endif %}
           {% endblock %}

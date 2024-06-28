@@ -1,15 +1,12 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
-import datetime
 
 from dateutil.relativedelta import relativedelta
-from deployutils.helpers import parse_tz
 from django.db import connection
 from django.db.models import Count, Q
 from rest_framework import generics
 from rest_framework.response import Response
-from survey.queries import datetime_or_now
-import pytz
+from survey.helpers import datetime_or_now, construct_yearly_periods
 
 from djaopsp.api.portfolios import DashboardAggregateMixin
 from djaopsp.helpers import as_percentage
@@ -85,7 +82,7 @@ class GoalsAPIView(GoalsMixin, generics.RetrieveAPIView):
         {
           "title":"Goals",
           "scale":1,
-          "unit":"profiles",
+          "unit":"percentage",
           "results":[{
             "slug":"energy-utility",
             "printable_name":"Energy utility",
@@ -161,7 +158,7 @@ class BySegmentsMixin(DashboardAggregateMixin):
 
 class BySegmentsAPIView(BySegmentsMixin, generics.RetrieveAPIView):
     """
-    Retrieves assessments completed by segments
+    Retrieves assessments completed by segments (XXX replace with generic select-by-answer?)
 
     Returns the number of reporting accounts aggregated by segments.
 
@@ -180,7 +177,7 @@ class BySegmentsAPIView(BySegmentsMixin, generics.RetrieveAPIView):
         {
           "title": "Assessments completed by segments",
           "scale": 1,
-          "unit": "profiles",
+          "unit": "percentage",
           "results": [{
             "slug": "energy-utility",
             "values": [
@@ -271,34 +268,13 @@ class GHGEmissionsAmountMixin(DashboardAggregateMixin):
     default_unit = "t"
     valid_units = []
 
-    def construct_yearly_periods(self, first_date=None, last_date=None,
-                                  timezone=None):
-        # XXX Use *years* to create comparative charts?
-        if not last_date:
-            last_date = datetime_or_now(self.ends_at)
-        if not first_date:
-            first_date = last_date - relativedelta(years=4)
-        at_time = first_date
-        tzinfo = parse_tz(timezone)
-        if not tzinfo:
-            tzinfo = pytz.utc
-        period_ends_at = []
-        while at_time <= last_date:
-            ends_at = datetime.datetime(year=at_time.year, month=1, day=1)
-            if tzinfo:
-                # we are interested in 00:00 local time, if we don't have
-                # local time zone, fall back to 00:00 utc time
-                # in case we have local timezone, replace utc with it
-                ends_at = tzinfo.localize(ends_at.replace(tzinfo=None))
-            period_ends_at += [ends_at]
-            at_time += relativedelta(years=1)
-        return period_ends_at
-
-
     def get_labels(self, aggregate=None):
         if aggregate:
             return super(GHGEmissionsAmountMixin, self).get_labels(aggregate)
-        return self.construct_yearly_periods()
+        last_date = datetime_or_now(self.ends_at)
+        first_date = last_date - relativedelta(years=4)
+        return construct_yearly_periods(first_date, last_date)
+
 
     @staticmethod
     def get_scope_query(path, accounts, ends_at):
@@ -342,7 +318,7 @@ WHERE survey_question.path LIKE '%%%(path)s'
         if not labels:
             raise ValueError("labels cannot be `None`")
         values = []
-        reporting_accounts = self.get_requested_accounts(
+        reporting_accounts = self.get_engaged_accounts(
             account, aggregate_set=aggregate_set)
         for label in labels:
             scope1_total = 0

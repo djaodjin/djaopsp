@@ -1,11 +1,51 @@
 <div class="row sticky-top bg-body text-body border-bottom">
   <div class="col-md-6">
     <div>
+      {% trans %}Practices{% endtrans %}
+    </div>
+    <div>
+      <span class="p-2 green-level-4 text-center">
+        {% trans %}Gold{% endtrans %}
+      </span>
+      <span class="p-2 green-level-3 text-center">
+        {% trans %}High{% endtrans %}
+      </span>
+      <span class="p-2 green-level-2 text-center">
+        {% trans %}Medium{% endtrans %}
+      </span>
+      <span class="p-2 green-level-1 text-center">
+        {% trans %}Low{% endtrans %}
+      </span>
+      <span v-if="icon && icon.extra && icon.extra.tags && (containsTag(icon, 'legend') || containsTag(icon, 'legend-1') || containsTag(icon, 'legend-2') || containsTag(icon, 'legend-3'))">
+        <a class="ms-2" href="{{'/docs/legend/'|site_url}}" target="_blank">{% trans %}Intrinsic value legend{% endtrans %} &raquo;</a>
+      </span>
+    </div>
+  </div>
+
+  {# opportunity #}
+  <div class="d-none d-md-block text-center col-md-1">
+    <div>
       <div>
-          {% trans %}Practices{% endtrans %}
+        <div class="btn btn-link btn-sort text-center"
+             @click="sortBy('opportunity')">
+          {% trans %}Opportunity{% endtrans %}
+          <a href="/docs/faq/#assessment-3"
+           target="_blank"><i class="fa fa-question-circle"></i></a>
+        </div>
       </div>
     </div>
   </div>
+  <div class="d-none d-md-block text-center col-md-1">
+    <div>
+      <div>
+        <div class="btn btn-link btn-sort text-center"
+             @click="sortBy('rate')">
+          {% trans %}Implemented by peers{% endtrans %}
+        </div>
+      </div>
+    </div>
+  </div>
+
   {# environmental_value #}
   <div class="d-none d-md-block text-center col-md-1">
     <div>
@@ -57,21 +97,6 @@
             <img src="{{'/static/img/shovel.png'|asset}}"
                  width="32" hegiht="32" data-bs-toggle="tooltip"
                  title="Implementation ease" />
-        </div>
-      </div>
-    </div>
-  </div>
-  {# avg_value #}
-  <div class="d-none d-md-block text-center total-sep col-md-1">
-    <div>
-      <div>
-        <div class="btn btn-link btn-sort text-center"
-             @click="sortBy('avg_value')">
-            <span style="cursor: default;"
-                  data-bs-toggle="tooltip" data-toggle="tooltip"
-                  title="Average Value">
-                {% trans %}Average Value{% endtrans %}
-            </span>
         </div>
       </div>
     </div>

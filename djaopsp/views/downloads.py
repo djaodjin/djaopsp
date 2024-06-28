@@ -13,8 +13,8 @@ from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from openpyxl.utils import get_column_letter
 from pages.models import PageElement
+from survey.helpers import datetime_or_now
 from survey.mixins import TimersMixin
-from survey.queries import datetime_or_now
 
 from ..api.samples import AssessmentContentMixin
 from ..helpers import as_valid_sheet_title
@@ -315,6 +315,7 @@ class ImproveContentPDFView(AssessmentContentMixin, ListView):
         self.table_of_content = []
 
     def get(self, request, *args, **kwargs):
+        #pylint:disable=attribute-defined-outside-init
         self.object_list = []
         for item in self.get_queryset():
             if 'default_unit' in item:

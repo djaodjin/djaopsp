@@ -17,6 +17,7 @@ Vue.component('campaign-questions-list', {
                 results: [], count: 0
             },
             itemsLoaded: this.preloadedElements ? true : false,
+            account_benchmark_url: this.$urls.api_account_benchmark,
 
             api_verification_sample: this.$urls.api_verification_sample || null,
             api_improvement_sample: this.$urls.api_improvement_sample,
@@ -83,17 +84,7 @@ Vue.component('campaign-questions-list', {
             }
             return dateTime.format('MMMM Do YYYY') + " (" + relative + ")";
         },
-        slugify: function (choiceText, rank) {
-            if( choiceText ) {
-                return choiceText.toLowerCase().replace(' ', '-') + '-' + rank;
-            }
-            return "";
-        },
-        sortBy: function(field){
-            var vm = this;
-            var oldDir = vm.sortDir(field);
-            vm.$set(vm.params, 'o', oldDir === 'asc' ? ('-' + field) : field);
-        },
+
         getChoices: function(row, icon) {
             var vm = this;
             if( !row.choices_headers ) {
@@ -290,6 +281,18 @@ Vue.component('campaign-questions-list', {
             return practice.path;
         },
 
+        slugify: function (choiceText, rank) {
+            if( choiceText ) {
+                return choiceText.toLowerCase().replace(' ', '-') + '-' + rank;
+            }
+            return "";
+        },
+        sortBy: function(field){
+            var vm = this;
+            var oldDir = vm.sortDir(field);
+            vm.$set(vm.params, 'o', oldDir === 'asc' ? ('-' + field) : field);
+        },
+
         // Planned improvements
         sortedBy: function(colHeader) {
             var vm = this;
@@ -373,7 +376,7 @@ Vue.component('campaign-questions-list', {
             var form = $($event.target);
             var modalDialog = form.parents('.modal');
             modalDialog.modal('hide');
-            var path = (prefix ? prefix : '') + '/' + vm.activeTile.slug;
+            var path = (prefix ? prefix : '') + '/' + vm.activeTile.path;
             var url = vm._safeUrl(vm.$urls.api_assessment_reset ?
                 vm.$urls.api_assessment_reset : vm._safeUrl(
                     vm.api_assessment_sample, '/reset'), path);
@@ -397,12 +400,8 @@ Vue.component('campaign-questions-list', {
                       }
                   }
               }
-              // update the number of answers
-              vm.nbAnswers = (resp.data && resp.data.nb_answers) ?
-                    resp.data.nb_answers : 0;
-              vm.nbRequiredAnswers = (
-                  resp.data && resp.data.nb_required_answers) ?
-                  resp.data.nb_required_answers : 0;
+              // reloads is simpler.
+              vm.get();
               vm.showMessages([
                   "Reset successful. Please continue with this assessment or an assessment in a different industry segment."],
                   "success");
@@ -763,25 +762,7 @@ Vue.component('planning-dashboard', {
     data: function() {
         return {
             url: this.$urls.api_account_benchmark,
-            normalizedScore: 0,
-            // benchmark charts
-            chartsLoaded: false,
-            chartsAvailable: false,
-            chartsAPIResp: null,
-            charts: {},
-            avgNormalizedScore: 0,
-            highestNormalizedScore: 0,
         }
-    },
-    methods: {
-        contentLoaded: function() {
-            var vm = this;
-            vm.avgNormalizedScore = vm.items.avg_normalized_score;
-            vm.highestNormalizedScore = vm.items.highest_normalized_score;
-            vm.chartsAPIResp = vm.items.results;
-            vm.buildCharts(vm.chartsAPIResp);
-            vm.chartsLoaded = true;
-        },
     },
 });
 
@@ -814,10 +795,16 @@ Vue.component('scorecard', {
             scorecardToggle: 1,
             summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
             freezeAssessmentDisabled: false,
-            verificationStatus: ""
+            verificationStatus: "",
+            getCompleteCb: 'scorecardLoaded'
         }
     },
     methods: {
+        scorecardLoaded: function() {
+            var vm = this;
+            vm.buildSummaryChart();
+            vm.contentLoaded();
+        },
         buildSummaryChart: function() {
             // Creates the top level summary polar chart
             var vm = this;

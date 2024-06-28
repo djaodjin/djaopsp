@@ -10,6 +10,7 @@ from django.db import connection
 from django.http import HttpResponse
 from survey.helpers import get_extra
 from survey.models import Campaign, Unit, UnitEquivalences
+from survey.utils import get_engaged_accounts
 from survey.views.matrix import CompareView as CompareBaseView
 from rest_framework.generics import get_object_or_404
 
@@ -19,7 +20,6 @@ from ..compat import force_str, gettext_lazy as _, reverse
 from ..mixins import AccountsNominativeQuerysetMixin
 from ..models import ScorecardCache
 from ..queries import get_completed_assessments_at_by, get_coalesce_engagement
-from ..utils import get_requested_accounts
 from .downloads import PracticesSpreadsheetView
 from .portfolios import UpdatedMenubarMixin
 
@@ -37,6 +37,11 @@ class CompareView(UpdatedMenubarMixin, CompareBaseView):
         update_context_urls(context, {
             'api_version': site_url("/api"),
             'api_account_candidates': site_url("/api/accounts/profiles"),
+            'api_plans': site_url("/api/profile/%(profile)s/plans" % {
+                'profile': self.account}),
+            'api_subscriptions': site_url(
+                "/api/profile/%(profile)s/subscriptions" % {
+                    'profile': self.account}),
             'api_units': reverse('survey_api_units'),
             'api_account_groups': reverse('survey_api_accounts_filter_list',
                 args=(self.account,)),
@@ -68,6 +73,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     Download a spreadsheet of answers/comments with questions as rows
     and accounts as columns.
     """
+    #pylint:disable=too-many-instance-attributes
     basename = 'answers'
     show_comments = True
     add_expanded_styles = False
@@ -173,13 +179,15 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         return self._by_paths
 
 
-    def get_requested_accounts(self, grantee, aggregate_set=False):
+    def get_engaged_accounts(self, grantee, aggregate_set=False):
         """
         All accounts which ``grantee`` has requested a scorecard from.
         """
+        # XXX Why do we override
+        # `AccountsAggregatedQuerysetMixin.get_engaged_accounts`?
         if not grantee:
             grantee = self.account
-        return get_requested_accounts(grantee,
+        return get_engaged_accounts([grantee],
             campaign=self.verified_campaign, aggregate_set=aggregate_set,
             start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
             search_terms=self.search_terms)
@@ -208,19 +216,15 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
             unit = Unit.objects.get(pk=unit_id)
             if unit.system in (Unit.SYSTEM_STANDARD, Unit.SYSTEM_IMPERIAL):
                 default_unit = Unit.objects.get(pk=default_unit_id)
-                # There is no equivalence btw weight and volume for waste
-                if not (unit.slug in ('m3-year', 'gallons-year',
-                    'kiloliters-year') and
-                    default_unit.slug in ('tons-year')):
-                    try:
-                        equiv = UnitEquivalences.objects.get(
-                            source=unit, target=default_unit)
-                        account.update({
-                            'measured': equiv.as_target_unit(measured)})
-                    except UnitEquivalences.DoesNotExist as err:
-                        account.update({'measured': ""})
-                        LOGGER.error("cannot convert '%s' to '%s' for %s:%s" % (
-                            unit, default_unit, row[1], row[0]))
+                try:
+                    equiv = UnitEquivalences.objects.get(
+                        source=unit, target=default_unit)
+                    account.update({
+                        'measured': equiv.as_target_unit(measured)})
+                except UnitEquivalences.DoesNotExist:
+                    account.update({'measured': ""})
+                    LOGGER.error("cannot convert '%s' to '%s' for %s:%s",
+                        unit, default_unit, row[1], row[0])
 
 
     def as_account(self, key):

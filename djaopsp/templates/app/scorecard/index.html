@@ -348,21 +348,21 @@
                         <div v-for="benchmark in practice.benchmarks">
                           {# equals to 2 (Yes/No) #}
                           <div class="progress"
-                               v-if="benchmark.values.length == 2">
+                               v-if="getRates(benchmark).length == 2">
                             <div class="progress-bar progress-bar-success green-level-2"
                                  role="progressbar"
-                                 :aria-valuenow="getRate(practice, benchmark.values[1][0])"
+                                 :aria-valuenow="getRate(benchmark, benchmark.values[1][0])"
                                  aria-valuemin="0"
                                  aria-valuemax="100"
-                                 :style="implementationRateStyle(getRate(practice, benchmark.values[1][0]))">
-                              <span>[[asPercent(getRate(practice, benchmark.values[1][0]))]]</span>
+                                 :style="implementationRateStyle(getRate(benchmark, benchmark.values[1][0]))">
+                              <span>[[asPercent(getRate(benchmark, benchmark.values[1][0]))]]</span>
                             </div>
                             <span>[[benchmark.values[1][0] ]]</span>
                           </div>
                           {# more than 2 #}
                           <div class="progress mt-1"
-                               v-for="value in benchmark.values"
-                               v-if="benchmark.values.length > 2">
+                               v-for="value in getRates(benchmark)"
+                               v-if="getRates(benchmark).length > 2">
                             <div class="progress-bar progress-bar-success green-level-2"
                                  role="progressbar"
                                  :aria-valuenow="getRate(benchmark, value[0])"

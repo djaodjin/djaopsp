@@ -16,6 +16,10 @@ from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.response import Response
+from survey.api.serializers import (QuestionCreateSerializer,
+    QuestionUpdateSerializer)
+from survey.filters import SearchFilter
+from survey.helpers import extra_as_internal
 from survey.mixins import QuestionMixin
 from survey.models import EnumeratedQuestions, Unit
 from survey.utils import get_question_model, get_question_serializer
@@ -27,41 +31,12 @@ from ..compat import six
 from ..mixins import CampaignMixin
 
 
-class CampaignContentMixin(CampaignMixin):
+class CampaignDecorateMixin(CampaignMixin):
     """
-    Queryset to present practices in 2d matrix of segments and tiles.
+    Inserts intermediate headings in a list of questions for each sections
+    available.
     """
     strip_segment_prefix = False
-
-    def get_questions(self, prefix, campaign=None):
-        if not campaign:
-            campaign = self.campaign
-        return [{
-            'path': question.get('path'),
-            'rank': question.get('enumeratedquestions__rank'),
-            'default_unit': {
-                'slug': question.get('default_unit__slug'),
-                'title': question.get('default_unit__title'),
-                'system': question.get('default_unit__system'),
-            },
-            'title': question.get('content__title'),
-            'picture': question.get('content__picture'),
-            'extra': self._as_extra_dict(question.get('content__extra')),
-        } for question in get_question_model().objects.filter(
-            path__startswith=prefix,
-            enumeratedquestions__campaign=campaign
-        ).values('path', 'enumeratedquestions__rank', 'default_unit__slug',
-            'default_unit__title', 'default_unit__system', 'content__title',
-            'content__picture', 'content__extra').order_by(
-            'enumeratedquestions__rank')]
-
-    @staticmethod
-    def _as_extra_dict(extra):
-        try:
-            extra = json.loads(extra)
-        except (TypeError, ValueError):
-            extra = {}
-        return extra
 
     def get_queryset(self):
         #pylint:disable=too-many-locals,too-many-statements
@@ -76,18 +51,17 @@ class CampaignContentMixin(CampaignMixin):
             extra = segment.get('extra', {})
             pagebreak = extra.get('pagebreak', False) if extra else False
             if segment_prefix and pagebreak:
-                queryset = self.get_questions(segment_prefix)
+                queryset = self.get_decorated_questions(segment_prefix)
                 for question in queryset:
                     path = question.get('path')
-                    path = path[len(segment_prefix):]
-                    parts = path.strip(DB_PATH_SEP).split(DB_PATH_SEP)
+                    path = path[len(segment_prefix):].strip(DB_PATH_SEP)
+                    parts = path.split(DB_PATH_SEP) if path else []
                     if strip_segment_prefix:
                         prefix = ''
                     else:
                         segment_prefix_parts = segment_prefix.strip(
                             DB_PATH_SEP).split(DB_PATH_SEP)
-                        prefix = DB_PATH_SEP.join(
-                            segment_prefix_parts[:-1])
+                        prefix = DB_PATH_SEP.join(segment_prefix_parts[:-1])
                         if prefix:
                             prefix = DB_PATH_SEP + prefix
                         parts = [segment_prefix_parts[-1]] + parts
@@ -120,8 +94,7 @@ class CampaignContentMixin(CampaignMixin):
                             question.update({
                                 'title': element.get('title'),
                                 'picture': element.get('picture'),
-                                'extra': self._as_extra_dict(
-                                    element.get('extra')),
+                                'extra': extra_as_internal(element),
                             })
                         question.update({
                             'slug': part,
@@ -160,7 +133,7 @@ class CampaignContentMixin(CampaignMixin):
                 'title': element['title'],
                 'picture': element['picture'],
                 'rank': element['rank'],
-                'extra': self._as_extra_dict(element['extra'])
+                'extra': extra_as_internal(element)
             } for element in headings_queryset}
         for element in elements:
             slug = element.get('slug')
@@ -177,6 +150,51 @@ class CampaignContentMixin(CampaignMixin):
                 break
         elements = flatten_content_tree(by_tiles)
         return elements
+
+
+class CampaignContentMixin(CampaignDecorateMixin):
+    """
+    Queryset to present practices in 2d matrix of segments and tiles.
+    """
+    search_fields = (
+        'content__title',
+    )
+
+    @staticmethod
+    def _as_extra_dict(extra): # not using extra_as_internal because of
+                               # `content__extra`
+        try:
+            extra = json.loads(extra)
+        except (TypeError, ValueError):
+            extra = {}
+        return extra
+
+    def get_decorated_questions(self, prefix=None):
+        """
+        Returns all questions in a campaign
+        """
+        queryset = get_question_model().objects.filter(
+            path__startswith=prefix,
+            enumeratedquestions__campaign=self.campaign)
+        search_filter = SearchFilter()
+        queryset = search_filter.filter_queryset(self.request, queryset, self)
+
+        return [{
+            'path': question.get('path'),
+            'rank': question.get('enumeratedquestions__rank'),
+            'default_unit': {
+                'slug': question.get('default_unit__slug'),
+                'title': question.get('default_unit__title'),
+                'system': question.get('default_unit__system'),
+            },
+            'title': question.get('content__title'),
+            'picture': question.get('content__picture'),
+            'extra': self._as_extra_dict(question.get('content__extra')),
+        } for question in queryset.values(
+            'path', 'enumeratedquestions__rank', 'default_unit__slug',
+            'default_unit__title', 'default_unit__system', 'content__title',
+            'content__picture', 'content__extra').order_by(
+            'enumeratedquestions__rank')]
 
 
 class CampaignEditableSegmentsAPIView(CampaignContentMixin,
@@ -253,8 +271,8 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
 
         .. code-block:: http
 
-            POST /api/editables/alliance/campaigns/sustainability\
-/segments HTTP/1.1
+            POST /api/editables/alliance/campaigns/sustainability/segments\
+ HTTP/1.1
 
         .. code-block:: json
 
@@ -267,7 +285,8 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
         .. code-block:: json
 
             {
-                "slug": "boxes-enclosures"
+                "slug": "boxes-enclosures",
+                "title": "Boxes enclosures"
             }
 
         """
@@ -286,7 +305,7 @@ class CampaignContentAPIView(CampaignContentMixin, ListAPIView):
 
     .. code-block:: http
 
-        GET /api/editables/djaopsp/campaigns/sustainability HTTP/1.1
+        GET /api/content/campaigns/sustainability HTTP/1.1
 
     responds
 
@@ -337,6 +356,7 @@ class CampaignContentAPIView(CampaignContentMixin, ListAPIView):
     # matching the question.path field of rows in the database. As a result,
     # the creation of accounts-by-answers filters will fail (404 Not Found).
 
+    @extend_schema(operation_id='content_campaign_index')
     def get(self, request, *args, **kwargs):
         results = self.get_queryset()
         serializer = self.get_serializer(results, many=True)
@@ -524,6 +544,9 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
 
 class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
                             generics.CreateAPIView):
+    # XXX might have to rethink API if we want to automatically generate
+    # schema.
+    schema = None
 
     serializer_class = ContentNodeSerializer
     strip_segment_prefix = True
@@ -547,8 +570,8 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
 
         .. code-block:: http
 
-            POST /api/editables/alliance/campaigns/sustainability\
-/upload HTTP/1.1
+            POST /api/editables/alliance/campaigns/sustainability/upload\
+ HTTP/1.1
 
             Content-Disposition: form-data; name="file"; filename="sustainability.csv"
             Content-Type: text/csv
@@ -559,8 +582,6 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
 
             {
                 "count": 5,
-                "next": null,
-                "previous": null,
                 "results": [
                     {
                         "path": null,
@@ -575,8 +596,7 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
                       "indent": 1
                     },
                     {
-                        "path": "/construction/governance/the-assessment\
-    -process-is-rigorous",
+         "path": "/construction/governance/the-assessment-process-is-rigorous",
                         "title": "The assessment process is rigorous",
                         "indent": 2
                     },
@@ -587,14 +607,12 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
                       "indent": 1
                     },
                     {
-                        "path": "/construction/production/adjust-air-fuel\
-    -ratio",
-                        "title": "Adjust Air fuel ratio",
-                        "indent": 2
+                       "path": "/construction/production/adjust-air-fuel-ratio",
+                       "title": "Adjust Air fuel ratio",
+                       "indent": 2
                     }
                 ]
             }
-
         """
         uploaded = request.FILES.get('file')
         try:
@@ -618,8 +636,8 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
     .. code-block:: http
 
-        GET /api/editables/djaopsp/campaigns/sustainability\
-/construction/governance/the-assessment-process-is-rigorous HTTP/1.1
+        GET /api/editables/djaopsp/campaigns/sustainability/construction\
+/governance/the-assessment-process-is-rigorous HTTP/1.1
 
     responds
 
@@ -633,6 +651,14 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
         }
     """
     serializer_class = get_question_serializer()
+
+    def get_serializer_class(self):
+        if self.request.method.lower() in ('post',):
+            return QuestionCreateSerializer
+        if self.request.method.lower() in ('put',):
+            return QuestionUpdateSerializer
+        return super(CampaignEditableQuestionAPIView,
+            self).get_serializer_class()
 
     def get_object(self):
         return self.question
@@ -649,8 +675,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
         .. code-block:: http
 
-            DELETE /api/editables/alliance/campaigns/sustainability \
- HTTP/1.1
+            DELETE /api/editables/alliance/campaigns/sustainability/construction HTTP/1.1
         """
         #pylint:disable=useless-super-delegation
         return super(CampaignEditableQuestionAPIView, self).delete(
@@ -668,13 +693,12 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
         .. code-block:: http
 
-            POST /api/editables/alliance/campaigns/sustainability \
- HTTP/1.1
+            POST /api/editables/alliance/campaigns/sustainability/construction/governance HTTP/1.1
 
         .. code-block:: json
 
             {
-              "title": "Adjust air/fuel ratio"
+              "title": "The assessment process is rigorous"
             }
 
         responds:
@@ -682,8 +706,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
         .. code-block:: json
 
             {
-                "path": "/construction/governance/the-assessment\
--process-is-rigorous",
+         "path": "/construction/governance/the-assessment-process-is-rigorous",
                 "title": "The assessment process is rigorous",
                 "default_unit": "assessment"
             }
@@ -705,7 +728,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
         .. code-block:: http
 
-            POST /api/editables/alliance/campaigns/sustainability \
+            PUT /api/editables/alliance/campaigns/sustainability \
  HTTP/1.1
 
         .. code-block:: json

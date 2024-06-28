@@ -35,23 +35,25 @@
                   type="submit">{% trans %}Update{% endtrans %}</button>
           </div>
         </form>{# /#period-update #}
-      </div>
-      <div class="col-md-6">
-        <div class="mt-4 text-end">
+        <div class="mt-2">
           {% include "app/reporting/_percentage_toggle.html" %}
         </div>
       </div>
-    </div>
-
-    {% if FEATURES_DEBUG and urls.download %}
-    <div class="row">
-      <div class="col-12 text-end">
-        <a class="mt-4 btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
-          <i class="fa fa-file-text"></i> {% trans %}Download (pptx){% endtrans %}
-        </a>
+      <div class="col-md-6">
+        <div class="mt-4 text-end">
+          <nav class="navbar">
+            <ul class="navbar-nav nav-pills ms-auto">
+            {% if FEATURES_DEBUG and urls.compare %}
+            <li class="divider-vertical"></li>
+            <li class="nav-item">
+              <a id="advancedChartLink" class="nav-link{% if request.path == urls.compare %} active{% endif %}" href="{{urls.compare}}">{% trans %}Advanced ...{% endtrans %}</a>
+            </li>
+            {% endif %}
+            </ul>
+          </nav>
+        </div>
       </div>
     </div>
-    {% endif %}
 
     <hr />
 
@@ -137,6 +139,16 @@ on your computer in a spreadsheet application.
 The long format download is better suited to upload the raw data into
 an Online Analytical Processing (OLAP) software.
       </p>
+    {% if FEATURES_DEBUG and urls.download %}
+    <div class="row">
+      <div class="col-12 text-end">
+        <a class="mt-4 btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
+          <i class="fa fa-file-text"></i> {% trans %}Download (pptx){% endtrans %}
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
       <div class="row text-center">
         <div class="col-sm-4">
           <a id="download-assessment-details" class="btn btn-primary mb-2"

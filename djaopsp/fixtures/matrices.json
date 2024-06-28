@@ -46,6 +46,23 @@
 },
 {
   "fields": {
+    "editable_filter": 14,
+    "account": 8,
+    "rank": 1
+  },
+  "model": "survey.EditableFilterEnumeratedAccounts", "pk": 1
+},
+{
+  "fields": {
+    "editable_filter": 14,
+    "question": 14,
+    "measured": 6,
+    "rank": 2
+  },
+  "model": "survey.EditableFilterEnumeratedAccounts", "pk": 2
+},
+{
+  "fields": {
     "slug": "ghg-emissions",
     "title": "GHG Emissions",
     "account": 6,
@@ -59,7 +76,7 @@
     "account": 9,
     "rank": 1
   },
-  "model": "survey.EditableFilterEnumeratedAccounts", "pk": 1
+  "model": "survey.EditableFilterEnumeratedAccounts", "pk": 3
 },
 {
   "fields": {
@@ -76,7 +93,7 @@
     "measured": 500,
     "rank": 1
   },
-  "model": "survey.EditableFilterEnumeratedAccounts", "pk": 3
+  "model": "survey.EditableFilterEnumeratedAccounts", "pk": 4
 },
 
 
@@ -98,7 +115,7 @@
     "state": 1,
     "initiated_by": 10,
     "created_at": "2023-01-01T00:00:00+00:00",
-    "ends_at": "2024-12-31T00:00:00+00:00",
+    "ends_at": "2023-12-31T00:00:00+00:00",
     "campaign_id": 1
   },
   "model": "survey.PortfolioDoubleOptIn", "pk": 1
@@ -111,7 +128,8 @@
     "initiated_by": 10,
     "verification_key": "0000000000000000000000000000000000000001",
     "created_at": "2024-01-01T00:00:00+00:00",
-    "ends_at": "2024-12-31T00:00:00+00:00"
+    "ends_at": "2024-12-31T00:00:00+00:00",
+    "campaign_id": 1
   },
   "model": "survey.PortfolioDoubleOptIn", "pk": 2
 },

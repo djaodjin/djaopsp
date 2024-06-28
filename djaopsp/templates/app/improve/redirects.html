@@ -1,69 +1,80 @@
-{% extends "app/improve/base.html" %}
+{% extends "app/assess/base.html" %}
 
-{% block improve_content %}
-<section id="redirects" class="container py-4">
-  <h1 class="text-center">{% trans %}Improvement planning ...{% endtrans %}</h1>
-  <div class="bg-body text-body" style="min-height:30rem;">
-    <div class="row">
-      <div class="col-12 offset-md-3 col-md-6 my-4 py-4">
-        {% if redirects %}
-        {% for redirect in redirects %}
-        <div class="text-center">
-          <a class="btn btn-primary w-100 mt-2"
-             href="{{redirect.0}}">{% trans %}Update{% endtrans %} {{redirect.1}} ...</a>
-        </div>
-        {% endfor %}
-        {% else %}
-        {% if sample.is_frozen %}
-        <p>
+{% block assess_content %}
+<section id="redirects">
+  <div>
+
+    {# left sidebar #}
+    {% block app_left_sidebar %}
+    {% endblock %}
+
+    <div>
+      {% include "app/_progress_bar.html" %}
+
+      <div class="container bg-body text-body">
+        <h1 class="text-center pt-4">{% trans %}Improvement planning ...{% endtrans %}</h1>
+        <div class="row">
+          <div class="col-12 offset-md-3 col-md-6 my-4 py-4">
+            {% if redirects %}
+            {% for redirect in redirects %}
+            <div class="text-center">
+              <a class="btn btn-primary w-100 mt-2"
+                 href="{{redirect.0}}">{% trans %}Update{% endtrans %} {{redirect.1}} ...</a>
+            </div>
+            {% endfor %}
+            {% else %}
+            {% if sample.is_frozen %}
+            <p>
 {% trans %}You cannot add an improvement plan to an assessment that has already
 been completed.{% endtrans %}
-        </p>
-        {% else %}
-        <p>
-{% trans %}To create or complete an improvement plan towards your stated targets, we have indentified practices relevent and specific to each of the following industry segments.{% endtrans %}
+            </p>
+            {% else %}
+            <p>
+{% trans %}XXX block assess_content in app/improve/redirects.html YYY - To create or complete an improvement plan towards your stated targets, we have indentified practices relevent and specific to each of the following industry segments.{% endtrans %}
 (<a target="_blank" href="{{'/docs/faq/#best-practices-1'|site_url}}">How were practices for each industry segment identified or selected?</a>)
-        </p>
-        <p>
-          <ol>
-            <li>Select an industry segment</li>
-            <li>Assess your organization against the identified practices</li>
-            <li>Select practices you want to focus on over the next year and create an improvement plan</li>
-          </ol>
-        </p>
-        {% for item in segments_candidates %}
-        {% if item.extra and item.extra.pagebreak %}
-        <div>
-          <a id="{{item.slug}}" class="tile-link"
-             href="{{urls.assess|rstrip_sep}}{{item.path}}/">
-            <div class="card bg-body text-body h-100">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-4">
-                    <div class="d-inline-block">
-                      {% if item.picture %}
-                      <img class="icon-inner"
-                           style="padding:5px; border: 1px #eee solid;"
-                           src="{{item.picture}}">
-                      {% else %}
-                      <img class="icon-inner"
-                           style="padding:5px; border: 1px #eee solid;"
-                           src="{{'/static/img/design.png'|asset}}">
-                      {% endif %}
+            </p>
+            <p>
+              <ol>
+                <li>{% trans %}Select an industry segment{% endtrans %}</li>
+                <li>{% trans %}Assess your organization against the identified practices{% endtrans %}</li>
+                <li>{% trans %}Select practices you want to focus on over the next year and create an improvement plan{% endtrans %}</li>
+              </ol>
+            </p>
+            {% for item in segments_candidates %}
+            {% if item.extra and item.extra.pagebreak %}
+            <div>
+              <a id="{{item.slug}}" class="tile-link"
+                 href="{{urls.assess|rstrip_sep}}{{item.path}}/">
+                <div class="card bg-body text-body h-100">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-4">
+                        <div class="d-inline-block">
+                          {% if item.picture %}
+                          <img class="icon-inner"
+                               style="padding:5px; border: 1px #eee solid;"
+                               src="{{item.picture}}">
+                          {% else %}
+                          <img class="icon-inner"
+                               style="padding:5px; border: 1px #eee solid;"
+                               src="{{'/static/img/design.png'|asset}}">
+                          {% endif %}
+                        </div>
+                      </div>
+                      <div class="col-8 text-start text-left">
+                        <h4>{{item.title}}</h4>
+                      </div>
                     </div>
                   </div>
-                  <div class="col-8 text-start text-left">
-                    <h4>{{item.title}}</h4>
-                  </div>
                 </div>
-              </div>
+              </a>
             </div>
-          </a>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            {% endif %}
+          </div>
         </div>
-        {% endif %}
-        {% endfor %}
-        {% endif %}
-        {% endif %}
       </div>
     </div>
   </div>

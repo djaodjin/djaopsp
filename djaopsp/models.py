@@ -75,7 +75,7 @@ class ScorecardCache(models.Model):
     Cache a scorecard results to speed up computations of reporting entities
     dashboards.
     """
-
+    #pylint:disable=too-many-instance-attributes
     path = models.CharField(max_length=1024, db_index=True,
         help_text="Unique identifier that can be used in URL")
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE,

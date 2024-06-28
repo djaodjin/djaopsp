@@ -1018,9 +1018,10 @@ a.text-grey{
 .practice-row {
     border-bottom: 1px solid #{$table-border-color};
 //    border-top: 1px solid #{$table-border-color};
-    margin-top: 0.5rem;
-    padding-bottom: 0.5rem;
-
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-right: 12px;
+    padding-left: 12px;
 }
 
 .practice-row:nth-of-type(#{$table-striped-order}) {
@@ -1652,7 +1653,6 @@ thead{
   padding: 0;
   // from bootstrap4 sticky-top
   position: sticky;
-  z-index: 1020;
 }
 
 .table tr > th.sticky-cell-top {

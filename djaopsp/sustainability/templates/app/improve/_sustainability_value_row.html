@@ -1,23 +1,46 @@
-<div :id="'results-' + practice.slug" class="row">
-  <div :class="isPractice(practice) ? 'col-md-6' : 'col-md-12'">
-    <div style="display:inline-block;">
-      <div :class="'d-inline ' + indentHeader(practice)">
-        <span class="title"
-              v-if="!isPractice(practice) && !isPagebreak(practice)">
-          [[practice.title]]
-        </span>
-      <a class="title"
-         :href="practice.slug + '/'"
+<div :id="'results-' + practice.slug" :class="'row ' + practiceStyle(practice)">
+  <div :class="(isPractice(practice) || isEnumHeaderShown(icon)) ? 'col-md-6' : 'col-md-12'">
+    <div :class="indentHeader(practice)">
+      <span class="title"
+            v-if="!isPractice(practice) && !isPagebreak(practice)">
+        [[practice.title]]
+      </span>
+      <a :href="practice.slug + '/'"
          v-if="!isPractice(practice) && isPagebreak(practice)">
         [[practice.title]]
       </a>
-      <a class="title"
-         :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
-         v-if="isPractice(practice)">
+      <span class="title"
+            v-if="isPractice(practice)">
         [[practice.title]]
-      </a>
+        <a :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
+           target="_blank"><i class="fa fa-question-circle"></i></a>
+      </span>
+    </div>
+  </div>
+
+  {# total opportunity #}
+  <div class="col-1 text-end opportunity" v-if="isPractice(practice)">
+    [[getOpportunity(practice)]]
+  </div>
+  <div class="col-11 d-md-none" v-if="isPractice(practice)">
+    {% trans %}Opportunity{% endtrans %}
+  </div>
+
+  {# peers based value #}
+  <div class="col-1" v-if="isPractice(practice)">
+    <div class="progress">
+      <div :class="'progress-bar progress-bar-success green-level-' + getIntrinsicValue(practice, 'avg_value')"
+           role="progressbar"
+           :aria-valuenow="getRate(practice)"
+           aria-valuemin="0"
+           aria-valuemax="100"
+           :style="implementationRateStyle(getRate(practice))">
+        <span :class="{'text-muted': !getRate(practice) || getRate(practice) < 35}">[[asPercent(getRate(practice))]]</span>
       </div>
     </div>
+  </div>
+  <div class="col-11 d-md-none" v-if="isPractice(practice)">
+    {% trans %}Implemented by peers{% endtrans %}
   </div>
 
   {# environmental_value #}
@@ -75,12 +98,5 @@
   </div>
   <div class="col-11 d-md-none" v-if="isPractice(practice)">
     {% trans %}Implementation ease{% endtrans %}
-  </div>
-  {# avg_value #}
-  <div :class="'col-1 total-sep green-level-' + getIntrinsicValue(practice, 'avg_value')"
-       v-if="isPractice(practice)">
-  </div>
-  <div class="col-11 d-md-none" v-if="isPractice(practice)">
-    {% trans %}Avg value{% endtrans %}
   </div>
 </div>

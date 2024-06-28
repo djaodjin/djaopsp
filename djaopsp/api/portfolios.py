@@ -12,7 +12,6 @@ from django.db.models import F, Q, Max, Min
 from django.template.defaultfilters import slugify
 from rest_framework import generics, status
 from rest_framework import response as http
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.settings import api_settings
 from pages.docs import extend_schema
 from pages.models import PageElement
@@ -21,24 +20,27 @@ from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
 from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
 from survey.filters import DateRangeFilter, OrderingFilter, SearchFilter
 from survey.helpers import (construct_monthly_periods,
-    construct_yearly_periods, construct_weekly_periods, period_less_than)
-from survey.api.matrix import BenchmarkMixin as BenchmarkMixinBase
+    construct_yearly_periods, construct_weekly_periods, datetime_or_now,
+    period_less_than)
+from survey.api.matrix import (BenchmarkMixin as BenchmarkMixinBase,
+    EngagedAccountsMixin, EngagedBenchmarkAPIView)
 from survey.mixins import TimersMixin
-from survey.models import (Answer, EditableFilter, Portfolio,
+from survey.models import (EditableFilter, Portfolio,
     PortfolioDoubleOptIn, Sample)
 from survey.pagination import MetricsPagination
-from survey.queries import as_sql_date_trunc, datetime_or_now
+from survey.queries import as_sql_date_trunc
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
-from survey.utils import get_accessible_accounts, get_account_model
+from survey.utils import (get_accessible_accounts, get_account_model,
+    get_engaged_accounts, get_benchmarks_enumerated)
 
-from .campaigns import CampaignContentMixin
+from .campaigns import CampaignDecorateMixin
 from ..compat import reverse, six
 from ..helpers import as_percentage
 from ..queries import (get_completed_assessments_at_by, get_engagement,
     get_engagement_by_reporting_status, get_requested_by_accounts_by_period,
     segments_as_sql)
-from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
-    AccountsNominativeQuerysetMixin, CampaignMixin)
+from ..mixins import (AccountMixin, AccountsDateRangeMixin,
+    AccountsAggregatedQuerysetMixin, AccountsNominativeQuerysetMixin)
 from ..models import ScorecardCache, VerifiedSample
 from ..utils import (TransparentCut, get_alliances, get_latest_reminders,
     get_segments_candidates)
@@ -49,86 +51,8 @@ from .serializers import (AccessiblesSerializer, CompareNodeSerializer,
 
 LOGGER = logging.getLogger(__name__)
 
-class CompletionSummaryPagination(PageNumberPagination):
-    """
-    Decorate the results of an API call with stats on completion of assessment
-    and improvement planning.
-    """
-    #pylint:disable=too-many-instance-attributes
 
-    def paginate_queryset(self, queryset, request, view=None):
-        #pylint:disable=attribute-defined-outside-init
-        self.nb_organizations = 0
-        self.reporting_publicly_count = 0
-        self.no_assessment = 0
-        self.abandoned = 0
-        self.expired = 0
-        self.assessment_phase = 0
-        self.improvement_phase = 0
-        self.completed = 0
-        accounts = {}
-        for sample in queryset:
-            slug = sample.account_slug
-            reporting_status = (sample.reporting_status
-                if sample.reporting_status is not None
-                else ReportingSerializer.REPORTING_NOT_STARTED)
-            if not slug in accounts:
-                accounts[slug] = {
-                    'reporting_status': reporting_status,
-                   'reporting_publicly': bool(sample.reporting_publicly),
-                    'reporting_fines': bool(sample.reporting_fines)
-                }
-                continue
-            if reporting_status > accounts[slug]['reporting_status']:
-                accounts[slug]['reporting_status'] = reporting_status
-            if sample.reporting_publicly:
-                accounts[slug]['reporting_publicly'] = True
-            if sample.reporting_fines:
-                accounts[slug]['reporting_fines'] = True
-
-        self.nb_organizations = len(accounts)
-        for account in six.itervalues(accounts):
-            reporting_status = account.get(
-                'reporting_status', ReportingSerializer.REPORTING_NOT_STARTED)
-            if reporting_status == ReportingSerializer.REPORTING_ABANDONED:
-                self.abandoned += 1
-            elif reporting_status == ReportingSerializer.REPORTING_EXPIRED:
-                self.expired += 1
-            elif (reporting_status
-                  == ReportingSerializer.REPORTING_ASSESSMENT_PHASE):
-                self.assessment_phase += 1
-            elif reporting_status == ReportingSerializer.REPORTING_PLANNING_PHASE:
-                self.improvement_phase += 1
-            elif reporting_status == ReportingSerializer.REPORTING_COMPLETED:
-                self.completed += 1
-            else:
-                self.no_assessment += 1
-            if account.get('reporting_publicly'):
-                self.reporting_publicly_count += 1
-
-        return super(CompletionSummaryPagination, self).paginate_queryset(
-            queryset, request, view=view)
-
-    def get_paginated_response(self, data):
-        return http.Response(OrderedDict([
-            ('summary', (
-                    ('Not started', self.no_assessment),
-                    ('Abandoned', self.abandoned),
-                    ('Expired', self.expired),
-                    ('Assessment phase', self.assessment_phase),
-                    ('Planning phase', self.improvement_phase),
-                    ('Completed', self.completed),
-            )),
-            ('reporting_profiles_count', self.nb_organizations),
-            ('reporting_publicly_count', self.reporting_publicly_count),
-            ('count', self.page.paginator.count),
-            ('next', self.get_next_link()),
-            ('previous', self.get_previous_link()),
-            ('results', data)
-        ]))
-
-
-class DashboardAggregateMixin(CampaignMixin, AccountsAggregatedQuerysetMixin):
+class DashboardAggregateMixin(AccountsAggregatedQuerysetMixin):
     """
     Builds aggregated reporting
     """
@@ -147,7 +71,7 @@ class DashboardAggregateMixin(CampaignMixin, AccountsAggregatedQuerysetMixin):
         filter_params.update({
             'sample__created_at__lt': datetime_or_now(ends_at)})
 
-        reporting_accounts = self.get_requested_accounts(
+        reporting_accounts = self.get_engaged_accounts(
             account, aggregate_set=aggregate_set)
         if not reporting_accounts:
             return ScorecardCache.objects.none()
@@ -226,30 +150,70 @@ INNER JOIN survey_sample
         }
 
 
-class BenchmarkMixin(TimersMixin, BenchmarkMixinBase):
+class BenchmarkMixin(TimersMixin, AccountsDateRangeMixin,
+                     EngagedAccountsMixin, BenchmarkMixinBase):
 
-    def attach_results(self, questions_by_key, account=None):
-        if not account:
-            account = self.account
-        accessible_accounts = self.get_accessible_accounts([account])
-        self._attach_results(questions_by_key, accessible_accounts,
-            account.printable_name, account.slug)
+    def _attach_results(self, questions_by_key, accessible_accounts,
+                        title, slug):
+        samples = []
+        if accessible_accounts:
+            # Calling `get_completed_assessments_at_by` with an `accounts`
+            # arguments evaluating to `False` will return all the latest
+            # frozen samples.
+            samples = Sample.objects.get_completed_assessments_at_by(
+                self.campaign,
+                start_at=self.start_at, ends_at=self.ends_at,
+                accounts=accessible_accounts)
+
+        # samples that will be counted in the benchmark
+        if samples:
+            questions_by_key = get_benchmarks_enumerated(
+                samples, questions_by_key.keys(), questions_by_key)
+            for question in six.itervalues(questions_by_key):
+                if not 'benchmarks' in question:
+                    question['benchmarks'] = []
+                account_benchmark = {
+                    'slug': slug,
+                    'title': title,
+                    'values': []
+                }
+                dkey = 'rate' if self.unit == 'percentage' else 'counts'
+                for key, val in six.iteritems(question.get(dkey, {})):
+                    account_benchmark['values'] += [(key, int(val))]
+                question['benchmarks'] += [account_benchmark]
+        else:
+            # We need a 'benchamrks' key, otherwise the serializer
+            # will raise a `KeyError` exception leading to a 500 error.
+            for question in six.itervalues(questions_by_key):
+                if not 'benchmarks' in question:
+                    question['benchmarks'] = []
+
+
+    def get_questions_by_key(self, prefix=None, initial=None):
+        questions_by_key = super(BenchmarkMixin, self).get_questions_by_key(
+            prefix=prefix, initial=initial)
+
+        account = self.account
         self._report_queries(
             "BenchmarkMixin._attach_results(account=%s)" % str(account))
 
         alliances = get_alliances(account)
         for alliance in list(alliances):
-            accessible_accounts = get_accessible_accounts(
-                [alliance], campaign=self.campaign, aggregate_set=True)
+            accessible_accounts = get_engaged_accounts([alliance],
+                campaign=self.campaign,
+                start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
+                aggregate_set=True)
             self._attach_results(questions_by_key, accessible_accounts,
                 alliance.printable_name, alliance.slug)
             self._report_queries(
                 "BenchmarkMixin._attach_results(account=%s)" % str(alliance))
 
+        return questions_by_key
 
-class BenchmarkAPIView(BenchmarkMixin, generics.ListAPIView):
+
+class BenchmarkAPIView(BenchmarkMixin, EngagedBenchmarkAPIView):
     """
-    Aggregated benchmark for requested accounts
+    XXX deprecated API - Aggregated benchmark for requested accounts
 
     **Examples**:
 
@@ -267,7 +231,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.ListAPIView):
           "count": 1,
           "scale": 1,
           "title": "Benchmarks",
-          "unit": "percentage"
+          "unit": "percentage",
           "results": [
             {
               "path": "/sustainability/governance/environmental-reporting/environmental-fines",
@@ -278,7 +242,7 @@ class BenchmarkAPIView(BenchmarkMixin, generics.ListAPIView):
                   "system": "enum",
                   "choices": []
               },
-              "ui_hint": "none",
+              "ui_hint": "radio",
               "benchmarks": [
                 {
                   "slug": "energy-utility",
@@ -311,8 +275,6 @@ class BenchmarkAPIView(BenchmarkMixin, generics.ListAPIView):
         })
         return context
 
-    def get_queryset(self):
-        return self.get_questions(self.db_path)
 
     def get(self, request, *args, **kwargs):
         self._start_time()
@@ -481,7 +443,7 @@ class TotalScoreBySubsectorAPIView(RollupMixin, GraphMixin, SupplierListMixin,
            "slug": "totals",
            "title": "Average scores by supplier industry sub-sector",
            "cohorts": [{
-               "slug": "/portfolio-a",
+               "slug": "portfolio-a",
                "title": "Portfolio A",
                 "tags": null,
                 "predicates": [],
@@ -815,10 +777,10 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
         return http.Response(serializer.data)
 
 
-class CompareAPIView(CampaignContentMixin, AccountsNominativeQuerysetMixin,
+class CompareAPIView(CampaignDecorateMixin, AccountsNominativeQuerysetMixin,
                      CompareAPIBaseView):
     """
-    Compares answers matching prefix
+    Compares answers matching prefix (XXX same as download?)
 
     **Tags**: reporting
 
@@ -979,22 +941,6 @@ class CompareAPIView(CampaignContentMixin, AccountsNominativeQuerysetMixin,
                 self._samples = Sample.objects.none()
         return self._samples
 
-    def get_questions(self, prefix):
-        """
-        Overrides CampaignContentMixin.get_questions to return a list
-        of questions based on the answers available in the compared samples.
-        """
-        if not prefix.endswith(DB_PATH_SEP):
-            prefix = prefix + DB_PATH_SEP
-
-        questions_by_key = {}
-        if self.samples:
-            self.attach_results(
-                questions_by_key,
-                Answer.objects.get_frozen_answers(
-                    self.campaign, self.samples, prefix=prefix))
-
-        return list(six.itervalues(questions_by_key))
 
     def get_serializer_context(self):
         context = super(CompareAPIView, self).get_serializer_context()
@@ -1006,7 +952,7 @@ class CompareAPIView(CampaignContentMixin, AccountsNominativeQuerysetMixin,
 
 class CompareIndexAPIView(CompareAPIView):
     """
-    Compares answers
+    Compares answers (XXX same as download?)
 
     **Tags**: reporting
 
@@ -1143,7 +1089,7 @@ class CompareIndexAPIView(CompareAPIView):
             request, *args, **kwargs)
 
 
-class PortfolioAccessibleSamplesMixin(TimersMixin, CampaignMixin,
+class PortfolioAccessibleSamplesMixin(TimersMixin,
                                       AccountsNominativeQuerysetMixin):
 
     search_fields = (
@@ -1258,7 +1204,7 @@ ORDER BY completed_by_date.account_id, completed_by_date.created_at
        'accounts_query': accounts_query,
        'grantees': ",".join([str(self.account.pk)]),
        'as_period': as_sql_date_trunc(
-           'survey_sample.created_at', period=period),
+           'survey_sample.created_at', period_type=period),
        'date_range_clause': date_range_clause}
         return Sample.objects.raw(sql_query)
 
@@ -1347,12 +1293,12 @@ ORDER BY completed_by_date.account_id, completed_by_date.created_at
             try:
                 while sample and key:
                     if period_less_than(
-                            sample[0], key[0], period=self.period):
+                            sample[0], key[0], period_type=self.period):
                         values += [sample]
                         sample = None
                         sample = next(samples_iterator)
                     elif period_less_than(
-                            key[0], sample[0], period=self.period):
+                            key[0], sample[0], period_type=self.period):
                         values += [key]
                         key = None
                         key = self.as_sample(next(keys_iterator),
@@ -1396,11 +1342,12 @@ ORDER BY completed_by_date.account_id, completed_by_date.created_at
 class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
                                         generics.ListAPIView):
     """
-    Lists accessible samples by year
+    Lists accessible samples for reporting profiles
 
-    Lists year-by-year accessible responses for reporting profiles
+    Lists accessible samples for reporting profiles by period (either yearly
+    or monthly)
 
-    **Tags**: reporting
+    **Tags**: sharing
 
     **Examples
 
@@ -1445,10 +1392,8 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
         }
     """
     title = "Accessibles"
-    scale = 1
-    unit = None
+    #XXX remove pagination_class = MetricsPagination
     serializer_class = AccessiblesSerializer
-    pagination_class = MetricsPagination
 
     def get(self, request, *args, **kwargs):
         self._start_time()
@@ -1461,9 +1406,9 @@ class PortfolioAccessiblesDeleteAPIView(generics.GenericAPIView):
 
     def delete(self, request, *args, **kwargs):
         """
-        Removes access to profile data
+        Removes access to a profile samples
 
-        **Tags**: reporting
+        **Tags**: sharing
 
         **Examples
 
@@ -1490,7 +1435,7 @@ class PortfolioAccessiblesDeleteAPIView(generics.GenericAPIView):
         return http.Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class PortfolioEngagementMixin(CampaignMixin, AccountsNominativeQuerysetMixin):
+class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
 
     ordering_param = api_settings.ORDERING_PARAM
 
@@ -1610,7 +1555,7 @@ class PortfolioEngagementAPIView(PortfolioEngagementMixin,
 
     .. code-block:: http
 
-        GET /api/energy-utility/reporting/sustainability/engagement HTTP/1.1
+        GET /api/energy-utility/reporting/sustainability/engaged HTTP/1.1
 
     responds
 
@@ -1676,7 +1621,7 @@ class CompletionRateMixin(DashboardAggregateMixin):
 
         values = []
         account_model = get_account_model()
-        requested_accounts = self.get_requested_accounts(
+        requested_accounts = self.get_engaged_accounts(
             account, aggregate_set=aggregate_set)
         nb_requested_accounts = len(requested_accounts)
         start_at = weekends_at[0]
@@ -1723,7 +1668,7 @@ class CompletionRateMixin(DashboardAggregateMixin):
 
 class CompletionRateAPIView(CompletionRateMixin, generics.RetrieveAPIView):
     """
-    Retrieves the completion rate
+    Retrieves week-by-week completion rate
 
     Returns the week-by-week percentage of requested accounts
     that have completed a scorecard.
@@ -1821,9 +1766,20 @@ class EngagementStatsMixin(DashboardAggregateMixin):
 
     title = "Engagement"
 
+    COLLAPSED_REPORTING_STATUSES = {
+        EngagementSerializer.REPORTING_INVITED_DENIED: "Invited",
+        EngagementSerializer.REPORTING_INVITED: "Invited",
+        EngagementSerializer.REPORTING_UPDATED: "Work-in-progress",
+        EngagementSerializer.REPORTING_COMPLETED_DENIED: "Completed",
+        EngagementSerializer.REPORTING_COMPLETED_NOTSHARED: "Completed",
+        EngagementSerializer.REPORTING_COMPLETED: "Completed",
+        EngagementSerializer.REPORTING_VERIFIED: "Completed",
+    }
+
     def get_aggregate(self, account=None, labels=None,
                       aggregate_set=False):
-        requested_accounts = self.get_requested_accounts(
+        #pylint:disable=too-many-locals
+        requested_accounts = self.get_engaged_accounts(
             account, aggregate_set=aggregate_set)
         grantees = None # XXX should be all members for alliances but no more
         if account == self.account:
@@ -1841,18 +1797,10 @@ class EngagementStatsMixin(DashboardAggregateMixin):
             self.campaign, requested_accounts,
             grantees=grantees, start_at=weekends_at[0], ends_at=weekends_at[-1])
 
-        COLLAPSED_REPORTING_STATUSES = {
-            EngagementSerializer.REPORTING_INVITED_DENIED: "Invited",
-            EngagementSerializer.REPORTING_INVITED: "Invited",
-            EngagementSerializer.REPORTING_UPDATED: "Work-in-progress",
-            EngagementSerializer.REPORTING_COMPLETED_DENIED: "Completed",
-            EngagementSerializer.REPORTING_COMPLETED_NOTSHARED: "Completed",
-            EngagementSerializer.REPORTING_COMPLETED: "Completed",
-            EngagementSerializer.REPORTING_VERIFIED: "Completed",
-        }
-        stats = {key: 0 for key in COLLAPSED_REPORTING_STATUSES.values()}
+        stats = {key: 0 for key in self.COLLAPSED_REPORTING_STATUSES.values()}
         for reporting_status, val in six.iteritems(engagement):
-            humanized_status = COLLAPSED_REPORTING_STATUSES[reporting_status]
+            humanized_status = \
+                self.COLLAPSED_REPORTING_STATUSES[reporting_status]
             stats[humanized_status] += val
 
         if self.unit == 'percentage':
@@ -1869,7 +1817,7 @@ class EngagementStatsMixin(DashboardAggregateMixin):
 
 class EngagementStatsAPIView(EngagementStatsMixin, generics.RetrieveAPIView):
     """
-    Retrieves engagement statistics
+    Retrieves up-to-date engagement rate
 
     Returns the engagement as of Today
 
@@ -1879,8 +1827,7 @@ class EngagementStatsAPIView(EngagementStatsMixin, generics.RetrieveAPIView):
 
     .. code-block:: http
 
-        GET /api/energy-utility/reporting/sustainability/engagement/stats\
- HTTP/1.1
+        GET /api/energy-utility/reporting/sustainability/engaged/stats HTTP/1.1
 
     responds
 

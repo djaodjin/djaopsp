@@ -257,19 +257,12 @@ class GraphMixin(object):
                         ["50-75%", 0],
                         ["75-100%", 0]
                     ]
-                    organization_rate = ""
                 if normalized_score < 25:
                     distribution[0][1] += 1
-                    if is_view_account:
-                        organization_rate = distribution[0][0]
                 elif normalized_score < 50:
                     distribution[1][1] += 1
-                    if is_view_account:
-                        organization_rate = distribution[1][0]
                 elif normalized_score < 75:
                     distribution[2][1] += 1
-                    if is_view_account:
-                        organization_rate = distribution[2][0]
                 else:
                     assert normalized_score <= 100
                     if normalized_score > 100:
@@ -278,8 +271,6 @@ class GraphMixin(object):
                             account_id_str, normalized_score)
                         continue
                     distribution[3][1] += 1
-                    if is_view_account:
-                        organization_rate = distribution[3][0]
 
             self.create_distributions(node[1], view_account_id=view_account_id)
 
@@ -298,7 +289,6 @@ class GraphMixin(object):
                     'opportunity': denominator,
                     'highest_normalized_score': highest_normalized_score,
                     'avg_normalized_score': avg_normalized_score,
-                    'organization_rate': organization_rate,
                     'benchmarks': [{
                         'slug': "all",
                         'title': "All",

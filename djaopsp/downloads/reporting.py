@@ -17,9 +17,8 @@ from pptx.shapes.graphfrm import GraphicFrame
 from rest_framework.request import Request
 from survey.compat import force_str, six
 from survey.filters import DateRangeFilter
-from survey.helpers import get_extra
+from survey.helpers import datetime_or_now, get_extra
 from survey.models import Answer, Choice, Unit
-from survey.queries import datetime_or_now
 from survey.utils import get_question_model
 
 from ..api.serializers import EngagementSerializer
@@ -197,6 +196,7 @@ class BenchmarkPPTXView(BenchmarkMixin, FullReportPPTXView):
     @property
     def question(self):
         if not hasattr(self, '_question'):
+            #pylint:disable=attribute-defined-outside-init
             self._question = get_object_or_404(
                 get_question_model(), path=self.db_path)
         return self._question
@@ -216,8 +216,12 @@ class BenchmarkPPTXView(BenchmarkMixin, FullReportPPTXView):
                 self._title = question.title
         return self._title
 
+    def get_decorated_questions(self, prefix=None):
+        return list(six.itervalues(self.get_questions_by_key(
+            prefix=prefix if prefix else settings.DB_PATH_SEP)))
+
     def get_data(self, title=None):
-        questions = self.get_questions(self.db_path)
+        questions = self.get_decorated_questions(self.db_path)
         results = questions[0].get('benchmarks', [])
         if self.question.default_unit.system != Unit.SYSTEM_DATETIME:
             return reversed(results)
@@ -247,6 +251,9 @@ class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
         for backend in list(self.filter_backends):
             queryset = backend().filter_queryset(self.request, queryset, self)
         return queryset
+
+    def get_descr(self):
+        return ""
 
     def get_filename(self):
         return datetime_or_now().strftime(
@@ -278,6 +285,9 @@ class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
         queryset = self.filter_queryset(self.get_queryset())
         self.decorate_queryset(queryset)
 
+        descr = self.get_descr()
+        if descr:
+            self.wsheet.append([descr])
         self.wsheet.append(self.get_headings())
         for account in queryset:
             self.writerow(account)
@@ -347,8 +357,7 @@ class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):
         self.wsheet.append(row)
 
 
-class LongFormatCSVView(CampaignMixin, AccountsNominativeQuerysetMixin,
-                        CSVDownloadView):
+class LongFormatCSVView(AccountsNominativeQuerysetMixin, CSVDownloadView):
     """
     Download raw data in format suitable for OLAP Software
     """

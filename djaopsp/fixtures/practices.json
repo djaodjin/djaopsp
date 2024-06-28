@@ -1421,7 +1421,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target//energy-improvement-target-comments",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target/energy-improvement-target-comments",
     "content": 153,
     "default_unit": 199,
     "ui_hint": "textarea",
@@ -1863,7 +1863,7 @@
   "fields": {
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-measured/hazardous-waste",
     "content": 123,
-    "default_unit": 220,
+    "default_unit": 2,
     "ui_hint": "waste",
     "extra": "{\"tags\":[\"assess-only\"]}"
   },
@@ -1883,7 +1883,7 @@
   "fields": {
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-measured/non-hazardous-waste",
     "content": 124,
-    "default_unit": 220,
+    "default_unit": 2,
     "ui_hint": "waste",
     "extra": "{\"tags\":[\"assess-only\"]}"
   },
@@ -1903,7 +1903,7 @@
   "fields": {
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-measured/waste-recycled",
     "content": 125,
-    "default_unit": 220,
+    "default_unit": 2,
     "ui_hint": "waste",
     "extra": "{\"tags\":[\"assess-only\"]}"
   },

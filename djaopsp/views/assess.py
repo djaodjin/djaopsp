@@ -10,19 +10,17 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
 from deployutils.helpers import update_context_urls
 from django.core.files.storage import get_storage_class
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView
-from django.views.generic.base import (ContextMixin, RedirectView,
-    TemplateResponseMixin, TemplateView)
+from django.views.generic.base import TemplateView
 from django.template.defaultfilters import slugify
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.util import Inches, Pt
 
-from survey.helpers import get_extra
+from survey.helpers import datetime_or_now, get_extra
 from survey.models import Choice, EditableFilter
-from survey.queries import datetime_or_now
 from survey.settings import DB_PATH_SEP, URL_PATH_SEP
 from survey.utils import get_question_model
 
@@ -30,7 +28,7 @@ from .downloads import PracticesSpreadsheetView
 from ..scores import get_score_calculator
 from ..api.samples import AssessmentContentMixin
 from ..compat import reverse, six
-from ..mixins import AccountMixin, ReportMixin, SectionReportMixin
+from ..mixins import AccountMixin, SectionReportMixin
 
 
 LOGGER = logging.getLogger(__name__)
@@ -102,6 +100,10 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
                     self.account, self.sample, url_path)),
                 'api_content': reverse('api_sample_content', args=(
                     self.account, self.sample, api_path)),
+                'api_account_benchmark': reverse(
+                    'survey_api_sample_benchmarks',
+                    args=(self.account, self.sample, api_path)),
+
             })
         else:
             update_context_urls(context, {
@@ -109,6 +111,9 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
                     self.account, self.sample)),
                 'api_content': reverse('api_sample_content_index', args=(
                     self.account, self.sample)),
+                'api_account_benchmark': reverse(
+                    'survey_api_sample_benchmarks_index',
+                    args=(self.account, self.sample)),
             })
         # Upload supporting documents
         storage_class = get_storage_class()
@@ -168,57 +173,31 @@ class ImprovePracticesView(AssessPracticesView):
         return context
 
 
-
-
 class ImproveRedirectView(ImprovePracticesView):
     """
-    Redirects to an improvement planning page for a segment
+    Index page for improvement planning
     """
-    breadcrumb_url = 'improve_practices'
-    template_name = 'app/improve/redirects.html'
-
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse(self.breadcrumb_url, kwargs=kwargs)
-
-    def get(self, request, *args, **kwargs):
-        campaign_slug = self.sample.campaign.slug
-        campaign_prefix = "%s%s%s" % (
-            DB_PATH_SEP, campaign_slug, DB_PATH_SEP)
-
-        redirects = []
-        for seg in self.segments_available:
-            # We insured that all segments available are the prefixed
-            # content node at this point.
-            extra = seg.get('extra')
-            if extra and extra.get('visibility'):
-                # Prevents sections that do not lend themselves
-                # to improvement planning.
-                path = seg.get('path')
-                if path:
-                    kwargs.update({'path': path.strip(URL_PATH_SEP)})
-                    url = self.get_redirect_url(*args, **kwargs)
-                    print_name = seg.get('title')
-                    redirects += [(url, print_name)]
-
-        if len(redirects) == 1:
-            return super(ImproveRedirectView, self).get(
-                request, *args, **kwargs)
-
-        if not self.segments_candidates:
-            kwargs.update({'path': self.sample.campaign.slug})
-            return super(ImproveRedirectView, self).get(
-                request, *args, **kwargs)
-
-        context = self.get_context_data(**kwargs)
-        context.update({
-            'redirects': redirects,
-        })
-        return self.render_to_response(context)
 
 
 class TrackMetricsView(AccountMixin, TemplateView):
     """
     Profile metrics page
+
+    This page includes Energy tracking & GHG emissions estimator, Water use,
+    and Waste tracking.
+
+    In the Energy tracking & GHG emissions estimator case,
+    the page calls `Lists profiles in a group _http://localhost:8040/djaopsp/api/supplier-1/filters/accounts/scope1-stationary-combustion?ends_at=2023-12-31&timezone=local&page=1` for group 'scope1-stationary-combustion',
+    'scope1-mobile-combustion', 'scope1-refrigerants',
+    '712-total-scope-2-ghg-emissions', and '16-total-scope-3-ghg-emissions'.
+
+    The groups are selected based on the metric tracker page URL path that
+    maps to a set of question paths encoded in the `EditableFilter.extra` field.
+    To differentiate path prefixes, a slug is also encoded
+    in `EditableFilter.extra['tags']`.
+    `EditableFilter.account` is always used in queries.
+
+
     """
     template_name = 'app/track/index.html'
 
@@ -312,6 +291,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
     @property
     def intrinsic_value_headers(self):
         if not hasattr(self, '_intrinsic_value_headers'):
+            #pylint:disable=attribute-defined-outside-init
             self._intrinsic_value_headers = []
             for seg in self.segments_available:
                 prefix = seg.get('path')
@@ -326,6 +306,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
 
     def get_headings(self):
         if not hasattr(self, 'units'):
+            #pylint:disable=attribute-defined-outside-init
             self.units = {}
         self.peer_value_headers = []
         for unit in six.itervalues(self.units):
@@ -444,6 +425,7 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
     """
     Allows downloading an assessment as a PPTX
     """
+    #pylint:disable=too-many-instance-attributes
 
     def __init__(self):
         super().__init__()
@@ -462,7 +444,8 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
         }
         self.update_template_settings()
         self.current_slide = None
-        self.title_hierarchy = {0: None, 1: None, 2: None, 3: None, 4: None, 5: None}
+        self.title_hierarchy = {
+            0: None, 1: None, 2: None, 3: None, 4: None, 5: None}
         self.basename = 'practices'
 
     def update_template_settings(self):
@@ -487,6 +470,7 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
             *self.template_config["title_font_color"])
 
     def format_entry_content(self, entry):
+        #pylint:disable=too-many-locals
         content = []
         try:
             default_unit_slug = entry['default_unit'].slug
@@ -567,6 +551,7 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
 
 
     def add_new_slide(self, presentation, title):
+        #pylint:disable=attribute-defined-outside-init
         self.top = Inches(self.template_config["top"])
         slide_layout = presentation.slide_layouts[5]
         slide = presentation.slides.add_slide(slide_layout)
@@ -583,15 +568,15 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
         content = self.format_entry_content(entry)
 
         for line in content.split("\n"):
-            p = text_frame.add_paragraph()
+            para = text_frame.add_paragraph()
 
             if ": " in line:
                 prefix, rest = line.split(": ", 1)
-                self.add_text_run(p, prefix + ":", bold=True)
+                self.add_text_run(para, prefix + ":", bold=True)
             else:
                 rest = line
 
-            self.add_text_run(p, rest)
+            self.add_text_run(para, rest)
 
     def add_text_run(self, paragraph, text, bold=False):
         run = paragraph.add_run()
@@ -602,14 +587,15 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
 
     def add_extra_content_to_title_slide(self, slide, extra_values):
         for key, value in extra_values.items():
-            textbox = slide.shapes.add_textbox(self.left, self.top, self.width, self.height)
+            textbox = slide.shapes.add_textbox(
+                self.left, self.top, self.width, self.height)
             text_frame = textbox.text_frame
             text_frame.word_wrap = True
 
             if key and value:
-                p = text_frame.add_paragraph()
-                p.text = f"{key}: {value}"
-                for run in p.runs:
+                para = text_frame.add_paragraph()
+                para.text = f"{key}: {value}"
+                for run in para.runs:
                     run.font.name = self.template_config["body_font"]
                     run.font.size = Pt(self.template_config["body_font_size"])
 
@@ -629,9 +615,12 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
                     self.title_hierarchy[higher_level] = None
 
                 if 'answers' in entry:
-                    title_parts = [self.title_hierarchy[level] for level in range(1, indent_level) if self.title_hierarchy[level] is not None]
+                    title_parts = [self.title_hierarchy[level]
+                        for level in range(1, indent_level)
+                        if self.title_hierarchy[level] is not None]
                     composed_title = ' - '.join(title_parts)
-                    self.current_slide = self.add_new_slide(self.prs, composed_title)
+                    self.current_slide = self.add_new_slide(
+                        self.prs, composed_title)
                     self.add_content_to_slide(self.current_slide, entry)
 
             elif indent_level == 0:
@@ -642,7 +631,8 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
                     'Campaign Creator': self.sample.account.full_name,
                     'Normalized score': entry.get('normalized_score'),
                 }
-                self.add_extra_content_to_title_slide(self.current_slide, extra_values)
+                self.add_extra_content_to_title_slide(
+                    self.current_slide, extra_values)
 
             elif indent_level == 1:
                 self.current_slide = self.add_new_slide(self.prs, title)

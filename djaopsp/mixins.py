@@ -13,18 +13,17 @@ from django.utils.translation import ugettext_lazy as _
 from pages.mixins import (TrailMixin,
     SequenceProgressMixin as SequenceProgressMixinBase)
 from pages.models import PageElement
-from survey.helpers import get_extra
+from survey.helpers import datetime_or_now, get_extra
 from survey.mixins import (CampaignMixin as CampaignMixinBase,
     DateRangeContextMixin, SampleMixin)
 from survey.models import Answer, Campaign, Sample
-from survey.queries import datetime_or_now
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
-from survey.utils import get_question_model
+from survey.utils import get_question_model, get_engaged_accounts
 
 from .compat import reverse
 from .models import VerifiedSample, SurveyEvent
-from .utils import (get_account_model, get_requested_accounts,
-    get_segments_available, get_segments_candidates)
+from .utils import (get_account_model, get_segments_available,
+    get_segments_candidates)
 
 
 class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
@@ -32,12 +31,6 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
     @property
     def is_auditor(self):
         return bool(self.verifier_accounts)
-
-    @property
-    def manages_broker(self):
-        # XXX remove this method after djaodjin-deployutils has been upgraded.
-        broker = self.request.session.get('site', {}).get('slug')
-        return broker and broker in self.accessible_profiles
 
     @property
     def owners(self):
@@ -482,8 +475,10 @@ class SectionReportMixin(ReportMixin):
                             'visibility': visibility,
                             'owners': owners
                         })
+                    extra = {'pagebreak': True}
                     try:
                         element.extra = json.loads(element.extra)
+                        extra.update(element.extra)
                     except (TypeError, ValueError):
                         pass
                     self._sections_available = [{
@@ -491,7 +486,7 @@ class SectionReportMixin(ReportMixin):
                         'path': self.db_path,
                         'slug': element.slug,
                         'title': element.title,
-                        'extra': element.extra,
+                        'extra': extra,
                     }]
         return self._sections_available
 
@@ -576,33 +571,21 @@ class SectionReportMixin(ReportMixin):
         return self._nb_required_questions
 
 
-class AccountsAggregatedQuerysetMixin(DateRangeContextMixin, AccountMixin):
+class AccountsDateRangeMixin(DateRangeContextMixin,
+                             CampaignMixin, AccountMixin):
     """
-    A set of accounts used to select requested responses
+    An [accounts_start_at, accounts_ends_at[ date range to select accounts
     """
-    default_unit = 'profiles'
-    valid_units = ('percentage',)
-
-    @property
-    def unit(self):
-        if not hasattr(self, '_unit'):
-            self._unit = self.default_unit
-            param_unit = self.get_query_param('unit')
-            if param_unit is not None and param_unit in self.valid_units:
-                self._unit = param_unit
-        return self._unit
-
-    @property
-    def is_percentage(self):
-        return self.unit == 'percentage'
-
     @property
     def accounts_ends_at(self):
         """
         End of the period when requested accounts were suppossed to respond
         """
         if not hasattr(self, '_accounts_ends_at'):
-            _accounts_ends_at = get_extra(self.account, 'ends_at', None)
+            try:
+                _accounts_ends_at = get_extra(self.account, 'ends_at', None)
+            except AttributeError:
+                _accounts_ends_at = None
             at_time = datetime_or_now()
             if _accounts_ends_at:
                 _accounts_ends_at = datetime_or_now(_accounts_ends_at)
@@ -624,7 +607,11 @@ class AccountsAggregatedQuerysetMixin(DateRangeContextMixin, AccountMixin):
         Start of the period when requested accounts were invited
         """
         if not hasattr(self, '_accounts_start_at'):
-            self._accounts_start_at = get_extra(self.account, 'start_at', None)
+            try:
+                self._accounts_start_at = get_extra(
+                    self.account, 'start_at', None)
+            except AttributeError:
+                self._accounts_start_at = None
             if self._accounts_start_at:
                 self._accounts_start_at = datetime_or_now(
                     self._accounts_start_at)
@@ -648,19 +635,40 @@ class AccountsAggregatedQuerysetMixin(DateRangeContextMixin, AccountMixin):
                     self._accounts_start_at = accounts_ends_at
         return self._accounts_start_at
 
+
+class AccountsAggregatedQuerysetMixin(AccountsDateRangeMixin):
+    """
+    A set of accounts used to select requested responses
+    """
+    default_unit = 'profiles'
+    valid_units = ('percentage',)
+
+    @property
+    def unit(self):
+        if not hasattr(self, '_unit'):
+            self._unit = self.default_unit
+            param_unit = self.get_query_param('unit')
+            if param_unit is not None and param_unit in self.valid_units:
+                self._unit = param_unit
+        return self._unit
+
+    @property
+    def is_percentage(self):
+        return self.unit == 'percentage'
+
     @property
     def search_terms(self):
         if not hasattr(self, '_search_terms'):
             self._search_terms = self.get_query_param('q', None)
         return self._search_terms
 
-    def get_requested_accounts(self, grantee, aggregate_set=False):
+    def get_engaged_accounts(self, grantee, aggregate_set=False):
         """
         All accounts which ``grantee`` has requested a scorecard from.
         """
         if not grantee:
             grantee = self.account
-        return get_requested_accounts(grantee,
+        return get_engaged_accounts([grantee],
             campaign=self.campaign, aggregate_set=aggregate_set,
             start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
             search_terms=self.search_terms)
@@ -675,11 +683,13 @@ class AccountsNominativeQuerysetMixin(AccountsAggregatedQuerysetMixin):
     @property
     def requested_accounts(self):
         if not hasattr(self, '_requested_accounts'):
-            self._requested_accounts = self.get_requested_accounts(self.account)
+            self._requested_accounts = self.get_engaged_accounts(self.account)
         return self._requested_accounts
+
 
 class SequenceProgressMixin(SequenceProgressMixinBase):
 
     def update_element(self, obj):
         super(SequenceProgressMixin, self).update_element(obj)
-        obj.is_survey_event = SurveyEvent.objects.filter(element=obj.page_element).exists()
+        obj.is_survey_event = SurveyEvent.objects.filter(
+            element=obj.page_element).exists()

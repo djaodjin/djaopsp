@@ -26,31 +26,58 @@
 
       <div class="container bg-body text-body"
            v-show="itemsLoaded && items.results.length > 0" v-cloak>
+<div class="row">
+        <div class="col-md-6 pt-4">
+<div class="row">
+              <div class="col-sm-4 text-center text-sm-end">
+                <img class="my-4 img-fluid" style="max-height:100px;" src="{% if sample.account.picture %}{{sample.account.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+              </div>
+              <div class="col-sm-8 text-center text-sm-start">
+                <h1 class="mt-4">{{sample.account.printable_name}}</h1>
+                <h2>{{sample.campaign.title}}</h2>
+              </div>
+            </div>
+        </div>
 
-        <div class="offset-md-8 col-md-4 pt-4">
+        <div class="col-md-6 pt-4">
           <div class="card">
             <div class="card-footer">
-              <ul>
-                <li>
-                  <small>
-                  {% trans %}Each answer is automatically saved in a work-in-progress response.{% endtrans %}
-                  </small>
-                </li>
-                <li>
-                  <small class="candidate-answer">
-                    {% trans %}If a previous answer to a similar question exists, a blue circle hint will be displayed.{% endtrans %} (
-                    <div class="radio-border" style="vertical-align:text-top;">
-                      <div style="background-color:white;line-height:0;padding: 2px;border-radius:50%;">
-                      </div>
-                    </div> )
-                  </small>
-                </li>
-                <li>
-                  <small>
-                    {% trans %}Questions with required answers are marked with a red vertical bar.{% endtrans %} - <span class="practice-required mr-2" style="border-top:1px solid #dee2e6;border-bottom:1px solid #dee2e6;">&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                  </small>
-                </li>
-              </ul>
+              <div class="row">
+                <div class="col-sm-6">
+                  <ul>
+                    <li>
+                      <small>
+                        {% trans %}Each answer is automatically saved in a work-in-progress response.{% endtrans %}
+                      </small>
+                    </li>
+                    <li>
+                      <small>
+                        {% trans %}Questions with required answers are marked with a red vertical bar.{% endtrans %} - <span class="practice-required mr-2" style="border-top:1px solid #dee2e6;border-bottom:1px solid #dee2e6;"><div class="d-inline-block">&nbsp;&nbsp;&nbsp;&nbsp;</div></span>
+                      </small>
+                    </li>
+                  </ul>
+                </div>
+               <div class="col-sm-6">
+                 <ul>
+                   <li>
+                     <small>
+        {% trans %}Current assessment is shown with a highlighted background.{% endtrans %} (
+        <div class="d-inline-block green-level-4" style="vertical-align:middle;width:15px;height:16px;">
+        </div> )
+                     </small>
+                   </li>
+                   <li>
+                     <small class="candidate-answer">
+                       {% trans %}If a previous answer to a similar question exists, a blue circle hint will be displayed.{% endtrans %} (
+                       <div class="radio-border" style="vertical-align:text-top;">
+                         <div style="background-color:white;line-height:0;padding: 2px;border-radius:50%;">
+                         </div>
+                       </div> )
+                     </small>
+                   </li>
+                 </ul>
+               </div>
+              </div>
             </div>
           </div>
         </div>
@@ -105,7 +132,7 @@
           {% if not sample.is_frozen %}
           {% block icons_actions %}
           {% if segments_candidates %}
-          <div id="add-segments-actions" class="d-print-none"
+          <div id="segment-selector" class="d-print-none"
                v-show="itemsLoaded" v-cloak>
             <h2 class="mt-4">Industry-specific practices (optional)</h2>
             <p>
@@ -120,7 +147,7 @@
             {% for segment in segments_candidates %}
             {% if segment.extra and segment.extra.pagebreak %}
             <div>
-              <a id="{{segment.slug}}" class="tile-link"
+              <a id="{{segment.slug}}-btn" class="tile-link"
                  href="{{urls.assess|rstrip_sep}}{{segment.path}}/"
                  @click.prevent="addSegment({slug: '{{segment.path}}', path: '{{segment.path}}', title: '{{segment.title}}', indent: 0})">
                 <div class="card bg-body text-body h-100 mt-2">
@@ -142,7 +169,7 @@
                       <div class="col-8 text-start">
                         <h4>{{segment.title}}</h4>
                         {% if segment.text %}
-                        <p>{{segment.text}}</p>
+                        <p>{{segment.text|md}}</p>
                         {% endif %}
                       </div>
                     </div>
@@ -223,8 +250,7 @@
           </div>
         </div>
         {% endblock %}
-
-      </div> {# /.container #}
+        </div>{# /.container > .row #}
 
       <!-- modals -->
       <div id="syncBaselineAt" class="modal fade"
@@ -283,7 +309,8 @@
         </form>
       </div>{# /#syncEndsAt  #}
       {% include "app/_reset_assessment.html" %}
-
+      <!-- / modals -->
+      </div> {# /.bg-body #}
     </div>
   </div> {# /.d-flex #}
 </campaign-questions-list>

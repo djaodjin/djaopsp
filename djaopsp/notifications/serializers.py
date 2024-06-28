@@ -3,7 +3,8 @@
 
 from rest_framework import serializers
 from survey.api.serializers import (NoModelSerializer,
-    InviteeSerializer as ProfileSerializer, CampaignSerializer, SampleSerializer)
+    InviteeSerializer as ProfileSerializer, CampaignSerializer,
+    SampleSerializer)
 
 from ..compat import gettext_lazy as _
 

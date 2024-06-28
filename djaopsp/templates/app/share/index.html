@@ -59,6 +59,7 @@ No data will be shared until you click the <strong>accept</strong> button.
                         </div>
                         <div class="col-5 text-end">
                           <button class="btn btn-outline-primary"
+                                  {% if not sample.is_frozen %} disabled{% endif %}
                                   @click.prevent="ignore(received, index)">{% trans %}Ignore{% endtrans %}</button>
                           <button class="btn btn-primary"
                                   {% if not sample.is_frozen %} disabled{% endif %}

@@ -16,13 +16,12 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models import Min, Case, When, Q, F
+from django.db.models import Q, F
 from django.utils import translation
 from extended_templates.backends import get_email_backend
 from pages.helpers import ContentCut
 from pages.models import PageElement, build_content_tree, flatten_content_tree
-from survey.models import (Answer, Campaign, Choice, PortfolioDoubleOptIn,
-    Sample, Unit)
+from survey.models import Answer, Campaign, Choice, Sample, Unit
 from survey.helpers import get_extra
 from survey.queries import get_question_model
 
@@ -215,61 +214,6 @@ def get_alliances(account):
         settings.ALLIANCES_CALLABLE):
         return import_string(settings.ALLIANCES_CALLABLE)(account)
     return []
-
-
-def get_requested_accounts(account, campaign=None, aggregate_set=False,
-                           start_at=None, ends_at=None, search_terms=None):
-    """
-    All accounts which ``account`` has requested a scorecard from.
-    """
-    #pylint:disable=too-many-arguments
-    # XXX Replace the whole function by `survey.utils.get_engaged_accounts`
-    #     once a version of djaodjin-survey is greater than 0.11.
-    queryset = None
-    if aggregate_set:
-        search_terms = None
-    if (hasattr(settings, 'REQUESTED_ACCOUNTS_CALLABLE') and
-        settings.REQUESTED_ACCOUNTS_CALLABLE):
-        queryset = import_string(settings.REQUESTED_ACCOUNTS_CALLABLE)(
-            account, campaign=campaign, aggregate_set=aggregate_set,
-            start_at=start_at, ends_at=ends_at, search_terms=search_terms)
-
-    if queryset is None:
-        filter_params = {}
-        if start_at:
-            filter_params.update({
-                'portfolio_double_optin_accounts__created_at__gte': start_at})
-        if ends_at:
-            filter_params.update({
-                'portfolio_double_optin_accounts__created_at__lt': ends_at})
-        if campaign:
-            filter_params.update({
-                'portfolio_double_optin_accounts__campaign': campaign})
-        if search_terms:
-            if '@' in search_terms:
-                domain = search_terms.split('@')[-1]
-                filter_params.update({
-                    'email__endswith': domain
-                })
-            else:
-                filter_params.update({
-                    'full_name__icontains': search_terms
-                })
-        queryset = get_account_model().objects.filter(
-            portfolio_double_optin_accounts__grantee=account,
-            portfolio_double_optin_accounts__state__in=(
-                PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
-                PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED,
-                PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED,
-                PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED),
-                **filter_params).annotate(
-                requested_at=Min('portfolio_double_optin_accounts__created_at'),
-                grant_key=Case(
-                When(portfolio_double_optin_accounts__state=0, then=True),
-                output_field=models.BooleanField())
-        ).distinct()
-
-    return queryset
 
 
 def get_highlights(sample):

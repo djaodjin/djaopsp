@@ -161,14 +161,12 @@ def portfolio_request_accepted_notice(sender, portfolio, request, **kwargs):
         context=PortfolioNotificationSerializer().to_representation(context))
 
 
-@receiver(sample_frozen,
-    dispatch_uid="sample_frozen_notice")
+@receiver(sample_frozen, dispatch_uid="sample_frozen_notice")
 def send_sample_frozen_notification(sender, sample, request, **kwargs):
-
+    #pylint:disable=unused-argument
     back_url = request.build_absolute_uri(reverse('scorecard',
         args=(sample.account, sample)))
 
-    #pylint:disable=unused-argument
     LOGGER.debug("[signal] send_sample_frozen_notification(sample=%s)", sample)
 
     broker = request.session.get('site', {})

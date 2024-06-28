@@ -431,26 +431,45 @@ Vue.component('djaopsp-compare-samples', {
             itemsLoaded: true,
             queryType: 'individual-account',
             datasets: [],
-            getCompleteCb: 'firstDatasetLoaded'
+            getCompleteCb: 'firstDatasetLoaded',
+            periodType: '',
+            displayMetric: {
+                path: null,
+                unit: null
+            },
+            visualize: 'chart', //'table',
+            percentToggle: true,
         }
     },
     methods: {
         addDataset: function(dataset) {
             var vm = this;
-            vm.datasets.push(dataset);
-            if( vm.datasets.length > 1 ) {
-                vm.reqGet(dataset.url, function(resp) {
-                    dataset.results = resp.results;
-                    vm.$forceUpdate();
-                });
-            } else {
-                vm.url = dataset.url;
-                vm.get();
-            }
+            vm.itemsLoaded = false;
+            vm.reqGet(dataset.url, function(resp) {
+                dataset.results = resp.results;
+                if( vm.datasets.length == 0 ) {
+                    vm.items = resp;
+                }
+                vm.datasets.push(dataset);
+                vm.itemsLoaded = true;
+                vm.updateChart();
+            });
         },
         firstDatasetLoaded: function() {
             var vm = this;
             vm.datasets[0].results = vm.items.results;
+            vm.updateChart();
+        },
+        getBenchmarks: function(dataset, practice) {
+            var vm = this;
+            if( dataset.results && dataset.results.length > 0 ) {
+                for( let idx = 0; idx < dataset.results.length; ++idx ) {
+                    if( dataset.results[idx].path === practice.path ) {
+                        return dataset.results[idx].benchmarks;
+                    }
+                }
+            }
+            return [];
         },
         getCompareAnswerMeasured: function(dataset, practice) {
             var vm = this;
@@ -462,6 +481,232 @@ Vue.component('djaopsp-compare-samples', {
                 }
             }
             return '-';
+        },
+        selectMetric: function(dataset, question) {
+            var vm = this;
+            vm.displayMetric = question;
+        },
+        activateSelectAccounts: function() {
+            var vm = this;
+            vm.$refs.accountsTab.click();
+        },
+        updateChart: function() {
+            var vm = this;
+            const entries = vm.getEntries(vm.displayMetric.path);
+            for( var entIdx = 0; entIdx < entries.length; ++entIdx ) {
+                const practice = entries[entIdx];
+                var labels = [];      // labels on x-axis
+                var choices = [];     // choices shown in each stack
+                var datasets = [];
+                var colors = ['#ff5555', '#9CD76B', '#69B02B'];
+                for( var datIdx = 0; datIdx < vm.datasets.length; ++datIdx ) {
+                    const dataset = vm.datasets[datIdx];
+                    const benchmarks = vm.getBenchmarks(dataset, practice);
+                    for( var benchIdx = 0; benchIdx < benchmarks.length; ++benchIdx ) {
+                        for( var valIdx = 0;
+                             valIdx < benchmarks[benchIdx].values.length;
+                             ++valIdx ) {
+                            // Add all labels first
+                            var found = false;
+                            for( var idx = 0; idx < labels.length; ++idx ) {
+                                if( labels[idx] === benchmarks[benchIdx].values[valIdx][0] ) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if( !found ) {
+                                labels.push(benchmarks[benchIdx].values[valIdx][0]);
+                            }
+                            // Add choices
+                            const valChoices
+                                  = benchmarks[benchIdx].values[valIdx][1];
+                            if( valChoices.length ) {
+                                for( var chIdx = 0; chIdx < valChoices.length;
+                                     ++chIdx ) {
+                                    var found = false;
+                                    const valKey = valChoices[chIdx][0];
+                                    for( var idx = 0;
+                                         idx < choices.length; ++idx ) {
+                                        if( choices[idx] === valKey ) {
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if( !found ) {
+                                        choices.push(valKey);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Build chart's datasets
+                for( var datIdx = 0; datIdx < vm.datasets.length; ++datIdx ) {
+                    const dataset = vm.datasets[datIdx];
+                    const benchmarks = vm.getBenchmarks(dataset, practice);
+                    for( var benchIdx = 0; benchIdx < benchmarks.length;
+                         ++benchIdx ) {
+                        const values = benchmarks[benchIdx].values;
+                        if( choices.length ) {
+                            // We are dealing with choices per period
+                            for( var choiceIdx = 0; choiceIdx < choices.length;
+                                 ++choiceIdx ) {
+                                const choiceKey = choices[choiceIdx];
+                                var data = [];
+                                for( var lblIdx = 0; lblIdx < labels.length;
+                                     ++lblIdx ) {
+                                    var found = false;
+                                    for( var valIdx = 0; valIdx < values.length;
+                                         ++valIdx ) {
+                                        if( labels[lblIdx] ===
+                                            values[valIdx][0] ) {
+                                            found = true;
+                                            const valChoices =
+                                                  values[valIdx][1];
+                                            var foundChoice = false;
+                                            for( var idx = 0;
+                                                 idx < valChoices.length;
+                                                 ++idx ) {
+                                                if( valChoices[idx][0]
+                                                    === choiceKey ) {
+                                                    data.push(
+                                                        valChoices[idx][1]);
+                                                    foundChoice = true;
+                                                    break;
+                                                }
+                                            }
+                                            if( !foundChoice ) {
+                                                data.push(0);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                    if( !found ) {
+                                        data.push(0);
+                                    }
+                                }
+                                console.assert(data.length === labels.length)
+                                datasets.push({
+                                    label: choices[choiceIdx], // choice
+                                    backgroundColor: colors[choiceIdx],
+                                    data: data,  // by account + by choice
+                                    stack: benchmarks[benchIdx].slug // account title
+                                });
+                            }
+                        } else { // if( choices.length )
+                            var data = [];
+                            for( var lblIdx = 0; lblIdx < labels.length;
+                                 ++lblIdx ) {
+                                var found = false;
+                                for( var valIdx = 0; valIdx < values.length;
+                                     ++valIdx ) {
+                                    if( labels[lblIdx] === values[valIdx][0] ) {
+                                        found = true;
+                                        data.push(values[valIdx][1]);
+                                        break;
+                                    }
+                                }
+                                if( !found ) {
+                                    data.push(0);
+                                }
+                            }
+                            console.assert(data.length === labels.length)
+                            datasets.push({
+                                label: benchmarks[benchIdx].title, // label
+                                backgroundColor: colors,
+                                data: data,  // by account + by label
+                            });
+                        }  // if( choices.length )
+                    } // benchIdx
+                } // vm.datasets
+
+                if( vm.compareChart ) {
+                    vm.compareChart.destroy();
+                }
+                if( choices.length ) {
+                    vm.compareChart = new Chart(
+                        document.getElementById('summaryChart'), {
+                            type: 'bar',
+                            borderWidth: 0,
+                            data: {
+                                labels: labels,
+                                datasets: datasets
+                            },
+                            options: {
+                                borderWidth: 1,
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'right',
+                                        labels: {
+                                            boxWidth: 20,
+                                            padding: 2,
+                                            fontSize: 8,
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        stacked: true,
+                                    },
+                                    y: {
+                                        stacked: true
+                                    }
+                                }
+                            }
+                        }
+                    );
+                } else {
+                    vm.compareChart = new Chart(
+                        document.getElementById('summaryChart'), {
+                            type: 'doughnut',
+                            borderWidth: 0,
+                            data: {
+                                labels: labels,
+                                datasets: datasets
+                            },
+                            options: {
+                                borderWidth: 1,
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'right',
+                                        labels: {
+                                            boxWidth: 20,
+                                            padding: 2,
+                                            fontSize: 8,
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    );
+                } // /type of chart
+            } // /entries
+        },
+    },
+    computed: {
+        datasetLoading: function() {
+            return this.datasets.length > 0 && !this.itemsLoaded;
+        },
+        circleLabels: function() {
+            const vm = this;
+            let text = "";
+            let sep = "";
+            for( var datIdx = 0; datIdx < vm.datasets.length; ++datIdx ) {
+                const dataset = vm.datasets[datIdx];
+                const benchmarks = vm.getBenchmarks(dataset, vm.displayMetric);
+                for( let idx = 0; idx  < benchmarks.length; ++idx ) {
+                    text += (sep + benchmarks[idx].title);
+                    sep = ", ";
+                }
+            }
+            return text;
         }
     },
     mounted: function(){
@@ -473,6 +718,8 @@ Vue.component('djaopsp-compare-samples', {
 Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.extend({
     data: function() {
         return {
+            plans_url: this.$urls.api_plans,
+            subscriptions_url: this.$urls.api_subscriptions,
             plans: [],
             alliances: []
         }
@@ -482,12 +729,27 @@ Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.ext
             var vm = this;
             if( vm.affinityType === 'engaged' ||
                 vm.affinityType === 'accessibles' ||
-                vm.affinityType === '') {
+                vm.affinityType === 'all') {
                 const dataset = vm._getAffinityBaseDataset();
+                vm.$emit('updatedataset', dataset);
+            } else {
+                console.log("XXX use affinityType=", vm.affinityType);
+                const dataset = vm._getAffinityBaseDataset('all'); // XXX use plan
                 vm.$emit('updatedataset', dataset);
             }
         },
     },
+    mounted: function() {
+        var vm = this;
+        vm.reqGet(vm.plans_url, function(resp) {
+            vm.plans = resp.results;
+        });
+        vm.reqGet(vm.subscriptions_url, function(resp) {
+            for( var idx = 0; idx < resp.results.length; ++idx ) {
+                vm.alliances.push(resp.results[idx].plan);
+            }
+        });
+    }
 }));
 
 
@@ -877,42 +1139,47 @@ Vue.component('reporting-practices', {
  */
 var dashboardChart = Vue.component('dashboardChart', {
     mixins: [
-        itemMixin
+        httpRequestMixin
     ],
     props: [
         'params',
     ],
     data: function(){
         return {
-            url: null,
-            getCb: 'chart',
-            loadError: null
+            datasets: [],
+            itemLoaded: false,
+            loadError: null,
         }
     },
     methods: {
         chart: function(resp) {
-            var vm = this;
-            vm.item = resp;
-            vm.itemLoaded = true;
+            // override in subclasses
         },
         get: function(){
             var vm = this;
-            if( !vm.url ) {
+            if( !vm.datasets.length ) {
                 vm.loadError = "No URL specified";
                 vm.itemLoaded = true;
                 return;
             }
-            vm.loadError = null;
-            vm.itemLoaded = false;
-            var url = vm.url + vm.getQueryString();
-            var cb = vm[vm.getCb];
-            if( !cb ) {
-                cb = function(res){
-                    vm.item = res
-                    vm.itemLoaded = true;
+            var queryArray = [];
+            for( let idx = 0; idx < vm.datasets.length; ++idx ) {
+                if( vm.datasets[idx].url ) {
+                    queryArray.push({
+                        method: 'GET',
+                        url: vm.datasets[idx].url + vm.getQueryString(),
+                        data: null
+                    });
                 }
             }
-            vm.reqGet(url, cb, function(resp) {
+
+            vm.loadError = null;
+            vm.itemLoaded = false;
+            vm.reqMultiple(queryArray, function(resp) {
+                vm.datasets[0].results = resp.results;
+                vm.chart(resp);
+                vm.itemLoaded = true;
+            }, function(resp) {
                 vm.loadError = "" + resp.status + " - " + resp.statusText;
                 vm.itemLoaded = true;
             });
@@ -938,6 +1205,20 @@ var dashboardChart = Vue.component('dashboardChart', {
         _unit: function() {
             return this.params.unit;
         },
+        circleLabels: function() {
+            const vm = this;
+            let text = "";
+            let sep = "";
+            for( var datIdx = 0; datIdx < vm.datasets.length; ++datIdx ) {
+                const dataset = vm.datasets[datIdx];
+                const benchmarks = dataset.results ? dataset.results[0].benchmarks : [];
+                for( let idx = 0; idx  < benchmarks.length; ++idx ) {
+                    text += (sep + benchmarks[idx].title);
+                    sep = ", ";
+                }
+            }
+            return text;
+        }
     },
     watch: {
         _unit: function(newVal, oldVal) {
@@ -946,7 +1227,12 @@ var dashboardChart = Vue.component('dashboardChart', {
     },
     mounted: function(){
         if( this.$el.dataset && this.$el.dataset.url ) {
-            this.url = this.$el.dataset.url;
+            this.datasets.push({
+                url: this.$el.dataset.url,
+                slug: null,
+                title: null,
+                results: null
+            });
         }
         this.get()
     },
@@ -963,11 +1249,21 @@ var dashboardChart = Vue.component('dashboardChart', {
 Vue.component('reporting-benchmarks', dashboardChart.extend({
     data: function(){
         return {
-            url: null,
             charts: {},
         }
     },
     methods: {
+        getRates: function(benchmark) {
+            var vm = this;
+            var results = [];
+            if( typeof benchmark.values !== 'undefined' ) {
+                if( vm._isArray(benchmark.values[0][1]) ) {
+                    return benchmark.values[0][1];
+                }
+                return benchmark.values;
+            }
+            return results;
+        },
         chart: function(resp) {
             var vm = this;
             vm.item = resp;
@@ -981,12 +1277,12 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                 const benchmarks = resp.results[idx].benchmarks;
                 for( var benchIdx = 0; benchIdx < benchmarks.length; ++benchIdx ) {
                     var data = [];
-                    for( var valIdx = 0; valIdx < benchmarks[benchIdx].values.length;
-                         ++valIdx ) {
+                    const rates = vm.getRates(benchmarks[benchIdx]);
+                    for( var valIdx = 0; valIdx < rates.length; ++valIdx ) {
                         if( benchIdx == 0 ) {
-                            labels.push(benchmarks[benchIdx].values[valIdx][0]);
+                            labels.push(rates[valIdx][0]);
                         }
-                        data.push(benchmarks[benchIdx].values[valIdx][1]);
+                        data.push(rates[valIdx][1]);
                     }
                     datasets.push({
                         label: benchmarks[benchIdx].slug,
@@ -999,7 +1295,7 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                 if( chart ) {
                     chart.destroy();
                 }
-                var element = document.getElementById(chartKey);
+                var element = vm.$refs.canvas;
                 if( element ) {
                     if( resp.results[idx].default_unit &&
                         resp.results[idx].default_unit.system == "datetime" ) {
@@ -1036,19 +1332,6 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
             }
         },
     },
-    computed: {
-        circleLabels: function() {
-            const vm = this;
-            let text = "";
-            if( vm.item && vm.item.results && vm.item.results.length > 0 ) {
-                const benchmarks = vm.item.results[0].benchmarks;
-                for( let idx = 1; idx  < benchmarks.length; ++idx ) {
-                    text += ', ' + benchmarks[idx].title
-                }
-            }
-            return text;
-        }
-    }
 }));
 
 
@@ -1057,7 +1340,9 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
 Vue.component('reporting-completion-rate', dashboardChart.extend({
     data: function(){
         return {
-            url: this.$urls.api_reporting_completion_rate,
+            datasets: [{
+                url: this.$urls.api_reporting_completion_rate
+            }]
         }
     },
     methods: {
@@ -1109,7 +1394,9 @@ Vue.component('reporting-completion-rate', dashboardChart.extend({
 Vue.component('reporting-completion-total', dashboardChart.extend({
     data: function(){
         return {
-            url: this.$urls.api_portfolio_engagement_stats,
+            datasets: [{
+                url: this.$urls.api_portfolio_engagement_stats
+            }]
         }
     },
     methods: {
@@ -1184,7 +1471,9 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
 Vue.component('reporting-goals', dashboardChart.extend({
     data: function(){
         return {
-            url: this.$urls.api_reporting_goals,
+            datasets: [{
+                url: this.$urls.api_reporting_goals
+            }]
         }
     },
     methods: {
@@ -1246,7 +1535,9 @@ Vue.component('reporting-goals', dashboardChart.extend({
 Vue.component('reporting-by-segments', dashboardChart.extend({
     data: function(){
         return {
-            url: this.$urls.api_reporting_by_segments,
+            datasets: [{
+                url: this.$urls.api_reporting_by_segments,
+            }]
         }
     },
     methods: {
@@ -1317,7 +1608,9 @@ Vue.component('reporting-by-segments', dashboardChart.extend({
 Vue.component('reporting-ghg-emissions-rate', dashboardChart.extend({
     data: function(){
         return {
-            url: this.$urls.api_reporting_ghg_emissions_rate,
+            datasets: [{
+                url: this.$urls.api_reporting_ghg_emissions_rate,
+            }]
         }
     },
     methods: {
@@ -1369,7 +1662,9 @@ Vue.component('reporting-ghg-emissions-rate', dashboardChart.extend({
 Vue.component('reporting-ghg-emissions-amount', dashboardChart.extend({
     data: function(){
         return {
-            url: this.$urls.api_reporting_ghg_emissions_amount,
+            datasets: [{
+                url: this.$urls.api_reporting_ghg_emissions_amount,
+            }]
         }
     },
     methods: {

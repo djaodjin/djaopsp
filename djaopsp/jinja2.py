@@ -11,6 +11,7 @@ from deployutils.apps.django.templatetags import (deployutils_extratags,
     deployutils_prefixtags)
 from jinja2.ext import i18n
 from jinja2.sandbox import SandboxedEnvironment as Jinja2Environment
+from pages.templatetags import pages_tags
 
 from .compat import import_string, reverse
 from .templatetags import djaopsp_tags
@@ -37,6 +38,7 @@ def environment(**options):
     env.filters['host'] = deployutils_extratags.host
     env.filters['is_authenticated'] = deployutils_extratags.is_authenticated
     env.filters['date'] = djaopsp_tags.date
+    env.filters['md'] = pages_tags.md
     env.filters['messages'] = djaopsp_tags.messages
     env.filters['no_cache'] = djaopsp_tags.no_cache
     env.filters['pluralize'] = djaopsp_tags.pluralize

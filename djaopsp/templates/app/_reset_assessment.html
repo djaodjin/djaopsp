@@ -3,7 +3,7 @@
      aria-labelledby="Reset assessment" aria-hidden="true">
     <div class="modal-dialog">
         <form class="modal-content"
-              @submit.prevent="resetAssessment($event, '{{prefix}}')">
+              @submit.prevent="resetAssessment($event)">
             <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
             <div class="modal-header">
                 <h4 class="modal-title">Reset the answers under [[activeTile ? activeTile.title : '']] ...</h4>

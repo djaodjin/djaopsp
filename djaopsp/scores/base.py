@@ -1,12 +1,12 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 import datetime, logging
 
 from django.conf import settings
 from django.db.models import F
+from survey.helpers import datetime_or_now
 from survey.models import Answer, Choice, Sample, Unit
-from survey.queries import datetime_or_now
 
 from ..compat import import_string, six
 from ..models import ScorecardCache

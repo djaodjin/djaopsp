@@ -29,6 +29,7 @@ class APIDocView(TemplateView):
         context = super(APIDocView, self).get_context_data(**kwargs)
         request = HttpRequest(self.request)
         api_end_points = []
+        #pylint:disable=unused-variable
         api_base_url = getattr(settings, 'API_BASE_URL',
             request.build_absolute_uri(location='/').strip('/'))
         schema = self.generator.get_schema(request=request, public=True)
@@ -64,10 +65,8 @@ class APIDocView(TemplateView):
                         'examples': examples
                     })
                     if 'tags' in func_details and func_details['tags']:
-                        if ('content' not in func_details['tags'] and
-                            'editors' not in func_details['tags']):
-                            tags |= set(func_details['tags'])
-                            api_end_points += [func_details]
+                        tags |= set(func_details['tags'])
+                        api_end_points += [func_details]
                 except AttributeError:
 #                    raise
                     pass
@@ -77,7 +76,8 @@ class APIDocView(TemplateView):
             'assessments': "Assessments",
             'portfolios': "Portfolios",
             'reporting': "Reporting",
-            'benchmarks': "Benchmarks"
+            'benchmarks': "Benchmarks",
+            'cohorts': "Cohorts"
         })
         for tag in sorted(tags):
             if not tag in expanded_tags:

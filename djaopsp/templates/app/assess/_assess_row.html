@@ -431,13 +431,14 @@
   </div>
 
   {# when question.unit.system is 'enum' and UI hint computes to 'radio' #}
-  <div :class="'text-start text-md-center' + (getPrimaryCandidate(practice).measured === choice.text ? ' candidate-answer' : '') + ' col-md-' + getNbInputCols(practice)"
+  <div :class="'text-start text-md-center' + ' col-md-' + getNbInputCols(practice) + {% if assess_type == 'planned' %}(getPrimaryAnswer(practice).measured === choice.text ? ' green-level-4' : ''){% else %}(getPrimaryCandidate(practice).measured === choice.text ? ' candidate-answer' : ''){% endif %}"
        v-for="(choice, idx) in getChoices(practice, icon)"
        v-if="isEnumRadioUIHint(practice)">
     <div class="row">
       <div class="col-1 col-md-12">
-        <div class="d-md-block radio-border">
-          <input :id="slugify(choice.text, practice.rank)"
+        <div class="d-inline-block d-md-block">
+          <div class="radio-border">
+            <input :id="slugify(choice.text, practice.rank)"
              type="radio"
              :value="choice.text"
              :name="'implemented-' + practice.rank"
@@ -445,6 +446,7 @@
              @change="updateAssessmentAnswer(practice, choice.text, '{{assess_type}}')"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
              :disabled="practice.frozen" />
+          </div>
         </div>
       </div>
       <div class="col-11 col-md-12">

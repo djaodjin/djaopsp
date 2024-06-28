@@ -5,17 +5,30 @@
 {% endblock %}
 
 {% block assess_no_questions %}
-<div>
-{% if sample.is_frozen %}
-<p>
+<div class="container bg-body text-body">
+  <h1 class="text-center pt-4">{% trans %}Improvement planning ...{% endtrans %}</h1>
+  <div class="row">
+    <div class="col-12 offset-md-3 col-md-6 my-4 py-4">
+      {% if sample.is_frozen %}
+      <p>
 {% trans %}You cannot add an improvement plan to a response that has already
 been completed.{% endtrans %}
-</p>
-{% else %}
-<p>
-{% trans %}To create or complete an improvement plan towards your stated targets, you will first need to add an industry-specific segment, and assess your organization against industry-specific practices in the <strong>ASSESS</strong> step.{% endtrans %}
-</p>
-{% endif %}
+      </p>
+      {% else %}
+      <p>
+{% trans %}To create or complete an improvement plan towards your stated targets, we have indentified practices relevent and specific to each of the following industry segments.{% endtrans %}
+(<a target="_blank" href="{{'/docs/faq/#best-practices-1'|site_url}}">How were practices for each industry segment identified or selected?</a>)
+      </p>
+      <p>
+        <ol>
+          <li>{% trans %}Select an industry segment{% endtrans %}</li>
+          <li>{% trans %}Assess your organization against the identified practices{% endtrans %}</li>
+          <li>{% trans %}Select practices you want to focus on over the next year and create an improvement plan{% endtrans %}</li>
+        </ol>
+      </p>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}
 

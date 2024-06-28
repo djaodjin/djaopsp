@@ -19,11 +19,10 @@ from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.shapes.autoshape import Shape
 from pptx.shapes.graphfrm import GraphicFrame
-from survey.helpers import extra_as_internal, get_extra
+from survey.helpers import datetime_or_now, extra_as_internal, get_extra
 from survey.models import Campaign, Matrix
-from survey.queries import datetime_or_now
-from survey.views.matrix import MatrixDetailView
 from survey.settings import URL_PATH_SEP
+from survey.views.matrix import MatrixDetailView
 
 from ..api.portfolios import (DashboardAggregateMixin,
     CompletedAssessmentsMixin, CompletionRateMixin,
@@ -32,7 +31,7 @@ from ..api.rollups import GraphMixin
 from ..compat import reverse
 from ..helpers import as_valid_sheet_title
 from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
-    CampaignMixin, VisibilityMixin)
+    VisibilityMixin)
 from ..models import VerifiedSample
 from ..utils import get_scores_tree, get_alliances
 
@@ -109,8 +108,7 @@ class DashboardRedirectView(VisibilityMixin, AccountMixin,
         return super(DashboardRedirectView, self).get(request, *args, **kwargs)
 
 
-class DashboardMixin(TrailMixin, CampaignMixin,
-                     AccountsAggregatedQuerysetMixin):
+class DashboardMixin(TrailMixin, AccountsAggregatedQuerysetMixin):
 
     def get_context_data(self, **kwargs):
         context = super(DashboardMixin, self).get_context_data(**kwargs)
@@ -295,6 +293,7 @@ class CompletedAssessmentsRawXLSXView(CompletedAssessmentsMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         # Populate the worksheet
         wbook = Workbook()
+        #pylint:disable=attribute-defined-outside-init
         self.wsheet = wbook.active
         self.wsheet.title = as_valid_sheet_title("Completed")
         headings = ['Completed at', 'Name', 'Domain', 'Campaign',

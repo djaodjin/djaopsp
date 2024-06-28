@@ -252,7 +252,8 @@ LEFT OUTER JOIN portfolios
 ON survey_sample.account_id = portfolios.account_id AND
    requests.grantee_id = portfolios.grantee_id        -- avoids 'completed' and
                                       -- 'completed-notshared' in same queryset
-WHERE (requests.ends_at IS NULL OR
+WHERE survey_sample.extra IS NULL AND
+    (requests.ends_at IS NULL OR
        last_valid_completed.last_updated_at < requests.ends_at) AND
     (last_valid_completed.last_updated_at > requests.created_at OR
     portfolios.ends_at > requests.created_at)
@@ -408,6 +409,7 @@ def get_coalesce_engagement(campaign, accounts,
     This is done at the expanse of the `reporting_status` field which is
     coalesce to the highest value accross all {grantees}.
     """
+    #pylint:disable=too-many-arguments
     account_model = get_account_model()
     if not accounts:
         return account_model.objects.none()
@@ -512,7 +514,7 @@ ORDER BY account_id, created_at
        'accounts_query': accounts_query,
        'grantees': ",".join([str(grantee.pk)]),
        'as_period': as_sql_date_trunc(
-           'survey_portfoliodoubleoptin.created_at', period=period),
+           'survey_portfoliodoubleoptin.created_at', period_type=period),
        'date_range_clause': date_range_clause,
        'optin_request_states': ",".join([
            str(PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED),

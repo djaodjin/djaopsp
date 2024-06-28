@@ -69,6 +69,9 @@
           <a class="nav-link" href="#benchmarks">Benchmarks</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="#cohorts">Cohorts</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="#content">Content readers</a>
         </li>
         <li class="nav-item">
@@ -195,7 +198,27 @@ This section contains APIs related to reporting
         </div>
         <div class="col-md-6">
           <p>
-This section contains APIs related to anonymized aggregated benchmarks
+This section contains APIs related to anonymized aggregated benchmarks.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div id="cohorts">
+      <a name="cohorts"></a>
+      <h3>Cohorts <a href="#cohorts" class="header-anchor"><i class="fa fa-link"></i></a></h3>
+      <div class="row">
+        <div class="col-md-6">
+          <ul>
+            {% for summary_end_point in api_end_points_by_summary %}
+            {% if 'cohorts' in summary_end_point.tags %}
+            <li><a href="#{{summary_end_point.operationId}}">{{summary_end_point.summary}}</a></li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <p>
+This section contains APIs related to creating cohorts for anonymized aggregated benchmarks.
           </p>
         </div>
       </div>

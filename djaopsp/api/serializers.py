@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 from django.utils.translation import ugettext_lazy as _
@@ -8,7 +8,7 @@ from pages.serializers import (
     PageElementSerializer as BasePageElementSerializer)
 from survey.models import PortfolioDoubleOptIn
 from survey.api.serializers import (EnumField, AccountSerializer,
-    AnswerSerializer, SampleSerializer as SampleBaseSerializer,
+    AnswerSerializer, SampleSerializer,
     TableSerializer, UnitSerializer)
 from survey.utils import get_account_model
 
@@ -160,18 +160,16 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
 
     # assessment results
     normalized_score = serializers.SerializerMethodField(required=False)
-    nb_respondents = serializers.SerializerMethodField(required=False)
-    rate = serializers.SerializerMethodField(required=False) # XXX to deprecate
     opportunity = serializers.SerializerMethodField(required=False)
 
     class Meta(ContentNodeSerializer.Meta):
         fields = ContentNodeSerializer.Meta.fields + ('ui_hint', 'text',
             'answers', 'candidates', 'planned', 'notes',
-            'normalized_score', 'nb_respondents', 'rate', 'opportunity')
+            'normalized_score', 'opportunity')
         read_only_fields = ContentNodeSerializer.Meta.read_only_fields + (
             'ui_hint', 'text',
             'answers', 'candidates', 'planned', 'notes',
-            'normalized_score', 'nb_respondents', 'rate', 'opportunity')
+            'normalized_score', 'opportunity')
 
     def get_default_unit(self, obj):
         default_unit = None
@@ -198,16 +196,6 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
         return None
 
     @staticmethod
-    def get_nb_respondents(obj):
-        if hasattr(obj, 'nb_respondents'):
-            return obj.nb_respondents
-        try:
-            return obj['nb_respondents']
-        except (TypeError, KeyError):
-            pass
-        return 0
-
-    @staticmethod
     def get_opportunity(obj):
         if hasattr(obj, 'opportunity'):
             return obj.opportunity
@@ -216,16 +204,6 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
         except (TypeError, KeyError):
             pass
         return None
-
-    @staticmethod
-    def get_rate(obj):
-        if hasattr(obj, 'rate'):
-            return obj.rate
-        try:
-            return obj['rate']
-        except (TypeError, KeyError):
-            pass
-        return {}
 
     @staticmethod
     def get_ui_hint(obj):
@@ -238,22 +216,20 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
         return None
 
 
-class SampleBenchmarksSerializer(ContentNodeSerializer):
+class ExtendedSampleBenchmarksSerializer(ContentNodeSerializer):
 
     avg_normalized_score = serializers.IntegerField(required=False)
     highest_normalized_score = serializers.IntegerField(required=False)
     nb_respondents = serializers.IntegerField(required=False)
     benchmarks = serializers.ListField(child=TableSerializer(), required=False)
-    organization_rate = serializers.CharField(required=False) # XXX should move
-    # to AssessmentNodeSerializer.
 
     class Meta(ContentNodeSerializer.Meta):
         fields = ContentNodeSerializer.Meta.fields + (
             'avg_normalized_score', 'highest_normalized_score',
-            'nb_respondents', 'organization_rate', 'benchmarks',)
+            'nb_respondents', 'benchmarks',)
         read_only_fields = ContentNodeSerializer.Meta.read_only_fields + (
             'avg_normalized_score', 'highest_normalized_score',
-            'nb_respondents', 'organization_rate', 'benchmarks',)
+            'nb_respondents', 'benchmarks',)
 
 
 class CompareNodeSerializer(PRACTICE_SERIALIZER):
@@ -516,11 +492,10 @@ class RespondentAccountSerializer(serializers.ModelSerializer):
         return None
 
 
-class SampleSerializer(SampleBaseSerializer):
-    """
-    """
-    verified_status = EnumField(choices=VerifiedSample.STATUSES,
-        help_text=_("verification status"))
+class ExtendedSampleSerializer(SampleSerializer):
 
-    class Meta(SampleBaseSerializer.Meta):
-        fields = SampleBaseSerializer.Meta.fields + ('verified_status',)
+    verified_status = EnumField(choices=VerifiedSample.STATUSES,
+        help_text=_("verification status"), required=False)
+
+    class Meta(SampleSerializer.Meta):
+        fields = SampleSerializer.Meta.fields + ('verified_status',)

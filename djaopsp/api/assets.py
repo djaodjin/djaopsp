@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -6,8 +6,8 @@ import logging
 from django.http import Http404
 from django.db.models import Q
 from pages.api.assets import AssetAPIView as AssetBaseAPIView
+from survey.helpers import datetime_or_now
 from survey.models import Portfolio
-from survey.queries import datetime_or_now
 
 from ..mixins import VisibilityMixin
 

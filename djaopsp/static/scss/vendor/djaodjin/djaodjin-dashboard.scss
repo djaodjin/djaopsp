@@ -178,8 +178,7 @@ pre.code{
 }
 
 .dashboard-nav-main .navbar-header {
-    padding-top: 5px;
-    padding-bottom: 5px;
+    // no padding top/bottom so menubar align with sidebar top corner.
     overflow: visible;
     display: inline-flex;
 }
@@ -708,14 +707,6 @@ input::-webkit-datetime-edit {
 
 .pending-users-container h4 {
     color: #333;
-}
-
-.card-inactive {
-    background-color: #ddd;
-}
-
-.card-inactive .list-group-item {
-    background-color: #ddd;
 }
 
 .card-organization .card-title a {

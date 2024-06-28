@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE
 
 from deployutils.apps.django.compat import (
@@ -8,7 +8,7 @@ from django.contrib.messages.api import get_messages
 from django.forms import widgets, BaseForm
 from django.template.defaultfilters import capfirst
 from django.utils.encoding import force_text
-from survey.queries import datetime_or_now
+from survey.helpers import datetime_or_now
 
 from ..compat import reverse, six
 

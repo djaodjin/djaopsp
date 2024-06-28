@@ -11,16 +11,15 @@ from rest_framework import generics
 from rest_framework import response as http
 from rest_framework.mixins import UpdateModelMixin
 from survey.api.sample import SampleAnswersAPIView
-from survey.helpers import construct_weekly_periods
+from survey.helpers import construct_weekly_periods, datetime_or_now
 from survey.models import Sample
-from survey.queries import datetime_or_now
+from survey.utils import get_engaged_accounts
 
 from ..mixins import ReportMixin
 from ..models import VerifiedSample
 from ..helpers import as_percentage
 from .portfolios import CompletionRateMixin
-from .serializers import VerifiedSampleSerializer
-from ..utils import get_requested_accounts
+from .serializers import AssessmentNodeSerializer, VerifiedSampleSerializer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -49,7 +48,7 @@ class VerifierNotesAPIView(ReportMixin, SampleAnswersAPIView):
 
     .. code-block:: http
 
-         GET /api/supplier-1/sample/46f66f70f5ad41b29c4df08f683a9a7a/answers\
+         GET /api/supplier-1/sample/46f66f70f5ad41b29c4df08f683a9a7a/notes\
 /construction HTTP/1.1
 
     responds
@@ -182,6 +181,7 @@ class VerifierNotesAPIView(ReportMixin, SampleAnswersAPIView):
     }
     """
     schema = None # XXX temporarily disable API doc
+    serializer_class = AssessmentNodeSerializer
 
     def post(self, request, *args, **kwargs):
         """
@@ -328,7 +328,7 @@ class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
 
 class VerifiedStatsAPIView(CompletionRateMixin, generics.RetrieveAPIView):
     """
-    Retrieves verification completed
+    Retrieves week-by-week verification rate
 
     Returns the verification completed week-by-week.
 
@@ -338,8 +338,7 @@ class VerifiedStatsAPIView(CompletionRateMixin, generics.RetrieveAPIView):
 
     .. code-block:: http
 
-        GET /api/energy-utility/reporting/sustainability/engagement/stats\
- HTTP/1.1
+        GET /api/energy-utility/reporting/notes HTTP/1.1
 
     responds
 
@@ -452,6 +451,7 @@ def completed_verified_by_week(grantee, campaign=None,
     """
     Returns two lists with completed and verified samples per week.
     """
+    #pylint:disable=too-many-arguments,too-many-locals
     last_date = datetime_or_now(ends_at)
     if start_at:
         first_date = start_at
@@ -470,7 +470,7 @@ def completed_verified_by_week(grantee, campaign=None,
     if campaign:
         frozen_samples_kwargs.update({'campaign': campaign})
     if str(grantee) not in settings.UNLOCK_BROKERS:
-        requested_accounts = get_requested_accounts(grantee,
+        requested_accounts = get_engaged_accounts([grantee],
             campaign=campaign, aggregate_set=False,
             start_at=start_at, ends_at=ends_at,
             search_terms=search_terms)

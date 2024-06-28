@@ -17,9 +17,9 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from survey.api.sample import update_or_create_answer
+from survey.helpers import datetime_or_now
 from survey.models import Sample, Unit
-from survey.queries import get_question_model
-from survey.utils import datetime_or_now
+from survey.utils import get_question_model
 
 from ...compat import urlsplit
 from ...utils import get_supporting_documents

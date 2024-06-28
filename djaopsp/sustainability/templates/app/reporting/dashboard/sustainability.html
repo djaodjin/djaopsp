@@ -2,6 +2,7 @@
 
 {% block reporting_activity_summary %}
 <div>
+
   <div class="row">
     <div class="col-sm-8">
       <reporting-completion-rate ref="completionRate" :params="params" inline-template>
@@ -99,10 +100,10 @@
       <h3 class="text-center">Environmental violation</h3>
       <reporting-benchmarks inline-template
                             ref="environmental-fines" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/governance/environmental-reporting/environmental-fines">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/environmental-fines">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
-          <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h4>
+          <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: [[circleLabels]]</h4>
           <div class="p-4">
             <div class="card-body" v-if="!itemLoaded">
               <p>
@@ -116,23 +117,24 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/governance/environmental-reporting/environmental-fines"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-environmental-fines" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/governance/environmental-reporting/environmental-fines' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-environmental-fines" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/environmental-reporting/environmental-fines' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>
     </div>
+
     <div class="col-sm-4">
       <h3 class="text-center">Code of conduct breach</h3>
       <reporting-benchmarks inline-template
                             ref="governance-fines" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/governance/social-reporting/governance-fines">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/social-reporting/governance-fines">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
-          <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h4>
+          <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: [[circleLabels]]</h4>
           <div class="p-4">
             <div class="card-body" v-if="!itemLoaded">
               <p>
@@ -146,11 +148,11 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/governance/social-reporting/governance-fines"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-governance-fines" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}/sustainability/governance/social-reporting/governance-fines' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-governance-fines" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/social-reporting/governance-fines' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>
@@ -165,7 +167,7 @@
       <h3 class="text-center">Scope 1</h3>
       <reporting-benchmarks inline-template
                             ref="ghgEmissionsRateScope1" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h4>
@@ -182,11 +184,11 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-ghg-emissions-scope1-publicly-reported" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-ghg-emissions-scope1-publicly-reported" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>
@@ -196,7 +198,7 @@
       <h3 class="text-center">Scope 2</h3>
       <reporting-benchmarks inline-template
                             ref="ghgEmissionsRateScope2" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h4>
@@ -213,11 +215,11 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-ghg-emissions-scope2-publicly-reported" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-ghg-emissions-scope2-publicly-reported" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>
@@ -227,7 +229,7 @@
       <h3 class="text-center">Scope 3</h3>
       <reporting-benchmarks inline-template
                             ref="ghgEmissionsRateScope3" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-publicly-reported">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-publicly-reported">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <h4 class="text-center">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h4>
@@ -244,11 +246,11 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-publicly-reported"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-ghg-emissions-scope3-publicly-reported" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/governance/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-publicly-reported' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-ghg-emissions-scope3-publicly-reported" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-publicly-reported' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>
@@ -261,7 +263,7 @@
       <h3 class="text-center">Scope 1</h3>
       <reporting-benchmarks inline-template
                             ref="ghgEmissionsTargetScope1" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/ghg-emissions-target/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target-by">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
@@ -277,11 +279,11 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/targets/ghg-emissions-target/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-ghg-emissions-scope1-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/ghg-emissions-target/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-ghg-emissions-scope1-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>
@@ -291,7 +293,7 @@
       <h3 class="text-center">Scope 2</h3>
       <reporting-benchmarks inline-template
                             ref="ghgEmissionsTargetScope2" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/ghg-emissions-target/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-target-by">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
@@ -307,11 +309,11 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/targets/ghg-emissions-target/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-ghg-emissions-scope2-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/ghg-emissions-target/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-ghg-emissions-scope2-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>
@@ -321,7 +323,7 @@
       <h3 class="text-center">Scope 3</h3>
       <reporting-benchmarks inline-template
                             ref="ghgEmissionsTargetScope3" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/ghg-emissions-target/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target-by">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
@@ -337,11 +339,11 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/targets/ghg-emissions-target/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-ghg-emissions-scope3-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/ghg-emissions-target/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-ghg-emissions-scope3-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>
@@ -356,7 +358,7 @@
       <h3 class="text-center">Water use target</h3>
       <reporting-benchmarks inline-template
                             ref="water-target-by" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/water-target/water-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/water-reporting/water-target-by">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
@@ -372,11 +374,11 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/targets/water-target/water-target-by"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-water-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/water-target/water-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-water-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/environmental-reporting/water-reporting/water-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>
@@ -386,7 +388,7 @@
       <h3 class="text-center">Waste reduction target</h3>
       <reporting-benchmarks inline-template
                             ref="waste-target-by" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/waste-target/waste-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/waste-reporting/waste-target-by">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
@@ -402,11 +404,11 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/targets/waste-target/waste-target-by"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-waste-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/waste-target/waste-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-waste-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/environmental-reporting/waste-reporting/waste-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>
@@ -416,7 +418,7 @@
       <h3 class="text-center">Energy reduction target</h3>
       <reporting-benchmarks inline-template
                             ref="energy-target-by" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/targets/energy-target/energy-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/energy-target-by">
         <div>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
@@ -432,11 +434,11 @@
               <button class="btn btn-outline-danger" @click.prevent="debouncedGet">{% trans %}reload{% endtrans %}</button>
             </div>
             <div class="card-body" v-show="itemLoaded && !loadError">
-              <canvas id="/sustainability/targets/energy-target/energy-target-by"></canvas>
+              <canvas ref="canvas"></canvas>
             </div>
           </div>
           <div class="text-center">
-            <a id="download-energy-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/targets/energy-target/energy-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
+            <a id="download-energy-target-by" class="btn btn-primary btn-sm mb-2" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/energy-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i> Download (.pptx)</a>
           </div>
         </div>
       </reporting-benchmarks>

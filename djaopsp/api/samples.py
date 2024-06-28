@@ -1,28 +1,29 @@
 # Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
-import copy, logging
+import logging
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
-from django.db.models import F, Q
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from pages.docs import extend_schema
 from pages.models import PageElement, flatten_content_tree
 from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
-from survey.api.sample import (SampleCandidatesMixin, SampleAnswersMixin,
-    SampleFreezeAPIView)
-from survey.api.sample import (
+from survey.api.base import QuestionListAPIView
+from survey.api.sample import (attach_answers,
+    SampleCandidatesMixin, SampleAnswersMixin, SampleFreezeAPIView,
     SampleRecentCreateAPIView as SampleRecentCreateBaseAPIView)
-from survey.api.matrix import SampleBenchmarkMixin
+from survey.api.matrix import (
+    SampleBenchmarksAPIView as SampleBenchmarksBaseAPIView)
 from survey.filters import OrderingFilter, SearchFilter
+from survey.helpers import datetime_or_now
 from survey.mixins import SampleMixin, TimersMixin
-from survey.models import Choice, Sample, Unit, UnitEquivalences
-from survey.queries import datetime_or_now
+from survey.models import Sample
 from survey.settings import DB_PATH_SEP
-from survey.utils import get_account_model, get_benchmarks_enumerated
+from survey.utils import get_account_model
 
 from ..compat import reverse, six
 from ..mixins import SectionReportMixin
@@ -33,10 +34,11 @@ from ..scores import (freeze_scores, get_score_calculator,
     populate_scorecard_cache)
 from ..signals import sample_frozen
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
-from .campaigns import CampaignContentMixin
+from .campaigns import CampaignDecorateMixin
 from .rollups import GraphMixin, RollupMixin
 from .serializers import (AssessmentNodeSerializer, RespondentAccountSerializer,
-    SampleSerializer, SampleBenchmarksSerializer, UnitSerializer)
+    ExtendedSampleSerializer, ExtendedSampleBenchmarksSerializer,
+    UnitSerializer)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -102,18 +104,28 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
             request, *args, **kwargs)
 
 
+    def get_prefixes(self):
+        return [seg.get('path') for seg in self.segments_available
+            if seg.get('path')]
+
+
     def create(self, request, *args, **kwargs):
+        #pylint:disable=too-many-locals
         self._start_time()
         created_at = datetime_or_now()
 
         if self.sample.is_frozen:
             raise ValidationError({'detail': _("sample is already frozen")})
 
-        if not self.segments_available:
+        prefixes = self.get_prefixes()
+        if not prefixes:
             raise ValidationError({'detail':
                 _("You cannot freeze a sample with no answers")})
 
-        if self.nb_required_answers < self.nb_required_questions:
+        # All questions with required answers for which no answer is present.
+        required_unanswered_questions = self.get_required_unanswered_questions(
+            prefixes=prefixes)
+        if required_unanswered_questions.exists():
             raise ValidationError({'detail': _("You have only answered"\
 " %(nb_required_answers)d of the %(nb_required_questions)d required"\
 " practices. Locate practices with a red vertical bar on the right side"\
@@ -121,8 +133,20 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
 " the section title. Assess the missing practices, then come back"\
 " to the 'REVIEW' step.") % {
     'nb_required_answers': self.nb_required_answers,
-    'nb_required_questions': self.nb_required_questions}})
+    'nb_required_questions': self.nb_required_questions},
+                'results': list(required_unanswered_questions)})
 
+        if not self.force:
+            latest_completed = Sample.objects.filter(
+                is_frozen=True,
+                campaign=self.sample.campaign,
+                extra=self.sample.extra).order_by('created_at').first()
+            if latest_completed:
+                if self.sample.has_identical_answers(latest_completed):
+                    raise ValidationError({'detail': _("This sample contains"\
+                    " the same answers has the previously frozen sample.")})
+
+        # freeze sample
         frozen_assessment_sample = None
         frozen_improvement_sample = None
         with transaction.atomic():
@@ -212,7 +236,7 @@ class AssessmentCompleteIndexAPIView(AssessmentCompleteAPIView):
             request, *args, **kwargs)
 
 
-class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
+class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
                              SampleNotesMixin, SampleCandidatesMixin,
                              SampleAnswersMixin):
 
@@ -224,6 +248,12 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
             self._exclude_questions = [] # Why we are not using
                  # `self.request.query_params.get(self.exclude_param)` here?
         return self._exclude_questions
+
+
+    def get_decorated_questions(self, prefix=None):
+        # XXX Because we do not derive from `QuestionListAPIView`.
+        return list(six.itervalues(self.get_questions_by_key(
+            prefix=prefix if prefix else DB_PATH_SEP)))
 
 
     def attach_results(self, questions_by_key, prefix):
@@ -241,11 +271,6 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
         last_frozen_assessments = \
             Sample.objects.get_latest_frozen_by_accounts(
                 self.sample.campaign, ends_at=ends_at, tags=[])
-
-        # populate nb_respondents and response rate for question
-        # with enumerated choices.
-        questions_by_key = get_benchmarks_enumerated(
-            last_frozen_assessments, questions_by_key.keys(), questions_by_key)
 
         # opportunity to improve score
         score_calculator = get_score_calculator(prefix)
@@ -272,18 +297,16 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
             prefix=prefix, sample=self.improvement_sample,
             excludes=self.exclude_questions)
 
-    def get_questions(self, prefix):
+    def get_questions_by_key(self, prefix=None, initial=None):
         """
         Overrides CampaignContentMixin.get_questions to return a list
         of questions based on the answers available in the sample.
         """
-        if not prefix.endswith(DB_PATH_SEP):
-            prefix = prefix + DB_PATH_SEP
+        questions_by_key = initial if isinstance(initial, dict) else {}
 
         extra_fields = getattr(
             self.practice_serializer_class.Meta, 'extra_fields', [])
         units = {}
-        questions_by_key = {}
         attach_answers(
             units,
             questions_by_key,
@@ -338,7 +361,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
             self.units = {}
         self.units.update(units)
 
-        return list(six.itervalues(questions_by_key))
+        return questions_by_key
 
 
     def get_queryset(self):
@@ -369,7 +392,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignContentMixin,
         return queryset
 
 
-class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
+class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
     """
     Formats answers matching prefix
 
@@ -539,6 +562,7 @@ class AssessmentContentAPIView(AssessmentContentMixin, generics.ListAPIView):
 
     def get_paginated_response(self, data):
         if not hasattr(self, 'units'):
+            #pylint:disable=attribute-defined-outside-init
             self.units = {}
 
         normalized_score = data[0].get('normalized_score') if data else None
@@ -707,11 +731,10 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
 
 
 class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
-                              SampleBenchmarkMixin,
-                              SectionReportMixin, CampaignContentMixin,
-                              generics.ListAPIView):
+                              SectionReportMixin, CampaignDecorateMixin,
+                              SampleBenchmarksBaseAPIView):
     """
-    Retrieves benchmarks matching prefix
+    Benchmarks against all peers for a subset of questions
 
     XXX change `resp` to a {count:, results:} format.
 
@@ -746,13 +769,11 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
                 "normalized_score": 46,
                 "improvement_score": 30,
                 "score_weight": 1.0,
-                "highest_normalized_score": 88,
                 "avg_normalized_score": 67,
                 "created_at":"2017-08-02T20:18:19.089",
                 "distribution": {
                     "y": [0, 1, 0, 1],
-                    "x": ["0-25%", "25-50%", "50-75%", "75-100%"],
-                    "organization_rate":"25-50%"
+                    "x": ["0-25%", "25-50%", "50-75%", "75-100%"]
                 }
              },
              {
@@ -774,21 +795,22 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
                 "denominator": 26.0,
                 "normalized_score": 46,
                 "improvement_score": 12,
-                "highest_normalized_score": 88,
                 "avg_normalized_score": 67,
                 "created_at": "2017-08-02T20:18:19.089",
                 "distribution": {
                     "y": [0, 1, 0, 1],
-                    "x": [ "0-25%", "25-50%", "50-75%", "75-100%"],
-                    "organization_rate": "25-50%"
+                    "x": [ "0-25%", "25-50%", "50-75%", "75-100%"]
                 },
                 "score_weight": 1.0
              }]
         }
     """
+    # XXX This class should inherit from
+    # `survey.api.matrix.SampleBenchmarksIndexAPIView`, and add benchmarks
+    # for scores.
     pagination_class = BenchmarksPagination
     account_model = get_account_model()
-    serializer_class = SampleBenchmarksSerializer
+    serializer_class = ExtendedSampleBenchmarksSerializer
 
     @property
     def scores_tree(self):
@@ -868,16 +890,10 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
 
         for question in queryset:
             question_path = question.get('path')
-            default_unit = question.get('default_unit')
-            if default_unit:
-                question.update({
-                    'default_unit': Unit.objects.get(slug=default_unit),
-                })
             for chart in charts:
                 chart_path = chart.get('path')
                 if question_path == chart_path:
                     question.update({
-                        'organization_rate': chart.get('organization_rate'),
                         'benchmarks': chart.get('benchmarks'),
                         'nb_respondents': chart.get('nb_respondents'),
                         'avg_normalized_score':
@@ -892,7 +908,7 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
 
 class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
     """
-    Retrieves benchmarks
+    Benchmarks against all peers
 
     Returns a list of graphs with anonymized performance of peers
     for paths marked as visible (see ::ref::`api_score`).
@@ -911,8 +927,8 @@ class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
     .. code-block:: json
 
         {
-            "avg_normalized_score": 50,
             "highest_normalized_score": 100,
+            "avg_normalized_score": 50,
             "results": [{
                 "slug":"totals",
                 "title":"Total Score",
@@ -925,13 +941,11 @@ class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
                 "normalized_score": 46,
                 "improvement_score": 30,
                 "score_weight": 1.0,
-                "highest_normalized_score": 88,
                 "avg_normalized_score": 67,
                 "created_at":"2017-08-02T20:18:19.089",
                 "distribution": {
                     "y": [0, 1, 0, 1],
-                    "x": ["0-25%", "25-50%", "50-75%", "75-100%"],
-                    "organization_rate":"25-50%"
+                    "x": ["0-25%", "25-50%", "50-75%", "75-100%"]
                 }
              },
              {
@@ -951,13 +965,11 @@ class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
                 "denominator": 26.0,
                 "normalized_score": 46,
                 "improvement_score": 12,
-                "highest_normalized_score": 88,
                 "avg_normalized_score": 67,
                 "created_at": "2017-08-02T20:18:19.089",
                 "distribution": {
                     "y": [0, 1, 0, 1],
-                    "x": [ "0-25%", "25-50%", "50-75%", "75-100%"],
-                    "organization_rate": "25-50%"
+                    "x": [ "0-25%", "25-50%", "50-75%", "75-100%"]
                 },
                 "score_weight": 1.0
              }]
@@ -970,121 +982,11 @@ class SampleBenchmarksIndexAPIView(SampleBenchmarksAPIView):
             request, *args, **kwargs)
 
 
-def attach_answers(units, questions_by_key, queryset,
-                   extra_fields=None, key='answers'):
-    """
-    Populates `units` and `questions_by_key` from a `queryset` of answers.
-    """
-    #pylint:disable=too-many-locals
-    if extra_fields is None:
-        extra_fields = []
-    enum_units = {}
-    for resp in queryset:
-        # First we gather all information required
-        # to display the question properly.
-        question = resp.question
-        path = question.path
-        question_pk = question.pk
-        value = questions_by_key.get(question_pk)
-        if not value:
-            default_unit = question.default_unit
-            units.update({default_unit.slug: default_unit})
-            if default_unit.system == Unit.SYSTEM_ENUMERATED:
-                # Enum units might have a per-question choice description.
-                # We try to reduce the number of database queries by
-                # loading the unit choices here and the per-question choices
-                # in a single pass later on.
-                default_unit_dict = enum_units.get(default_unit.pk)
-                if not default_unit_dict:
-                    default_unit_dict = {
-                        'slug': default_unit.slug,
-                        'title': default_unit.title,
-                    'system': default_unit.system,
-                        'choices':[{
-                            'pk': choice.pk,
-                            'text': choice.text,
-                    'descr': choice.descr if choice.descr else choice.text
-                        } for choice in default_unit.choices]}
-                    enum_units[default_unit.pk] = default_unit_dict
-                default_unit = copy.deepcopy(default_unit_dict)
-            value = {
-                'path': path,
-                'rank': resp.rank,
-                'frozen': bool(getattr(resp, 'frozen', False)),
-                'required': (
-                    resp.required if hasattr(resp, 'required') else True),
-                'default_unit': default_unit,
-                'ui_hint': question.ui_hint,
-            }
-            for field_name in extra_fields:
-                value.update({field_name: getattr(question, field_name)})
-            questions_by_key.update({question_pk: value})
-        if resp.pk:
-            # We have an actual answer to the question,
-            # so let's populate it.
-            answers = value.get(key, [])
-            answers += [{
-                'measured': resp.measured_text,
-                'unit': resp.unit,
-                'created_at': resp.created_at,
-                'collected_by': resp.collected_by,
-            }]
-            units.update({resp.unit.slug: resp.unit})
-            if key not in value:
-                value.update({key: answers})
-    # We re-order the answers so the default_unit (i.e. primary)
-    # is first.
-    for question in six.itervalues(questions_by_key):
-        default_unit = question.get('default_unit')
-        if isinstance(default_unit, Unit):
-            default_units = [default_unit.slug]
-            if default_unit.system in Unit.NUMERICAL_SYSTEMS:
-                equiv_qs = UnitEquivalences.objects.filter(
-                    source__slug=default_unit.slug).values_list(
-                    'target__slug', flat=True)
-                default_units += list(equiv_qs)
-        else:
-            default_units = [default_unit.get('slug')]
-        primary = []
-        remainders = []
-        for answer in question.get(key, []):
-            if str(answer.get('unit')) in default_units:
-                primary = [answer]
-            else:
-                remainders += [answer]
-        question.update({key: primary + remainders})
-
-    # Let's populate the per-question choices as necessary.
-    # This is done in a single pass to reduce the number of db queries.
-    for choice in Choice.objects.filter(
-            question__in=questions_by_key,
-            unit=F('question__default_unit')).order_by(
-                'question', 'unit', 'rank'):
-        default_unit = questions_by_key[choice.question_id].get(
-            'default_unit')
-        for default_unit_choice in default_unit.get('choices'):
-            if choice.text == default_unit_choice.get('text'):
-                default_unit_choice.update({'descr': choice.descr})
-                break
-
-
 class RespondentsAPIView(generics.ListAPIView):
     """
-    Formats answers matching prefix
+    Lists profiles with a frozen response
 
-    The list returned contains at least one measurement for each question
-    in the campaign. If there are no measurement yet on a question, ``measured``
-    will be null.
-
-    There might be more than one measurement per question as long as there are
-    no duplicated ``unit`` per question. For example, to the question
-    ``adjust-air-fuel-ratio``, there could be a measurement with unit
-    ``assessment`` (Mostly Yes/ Yes / No / Mostly No) and a measurement with
-    unit ``freetext`` (i.e. a comment).
-
-    The {sample} must belong to {organization}.
-
-    {path} can be used to filter the tree of questions by a prefix.
+    Returns {{PAGE_SIZE}} profiles with a frozen response
 
     **Tags**: assessments
 
@@ -1259,12 +1161,13 @@ class SampleRecentCreateAPIView(SampleRecentCreateBaseAPIView):
                 "created_at": "2018-01-24T17:03:34.926193Z",
                 "campaign": "sustainability",
                 "is_frozen": false,
-                "extra": null
+                "extra": null,
+                "verified_status": "no-review"
             }
             ]
         }
     """
-    serializer_class = SampleSerializer
+    serializer_class = ExtendedSampleSerializer
 
     def decorate_queryset(self, queryset):
         verified_samples = {verified_sample.sample_id: verified_sample

@@ -40,7 +40,6 @@ var practicesListMixin = {
             // benchmark charts
             chartsLoaded: false,
             chartsAvailable: false,
-            chartsAPIResp: null,
             charts: {},
             avgNormalizedScore: 0,
             highestNormalizedScore: 0,
@@ -51,15 +50,49 @@ var practicesListMixin = {
         contentLoaded: function() {
             var vm = this;
             vm.normalizedScore = vm.items.normalized_score;
+            if( vm.account_benchmark_url ) {
+                vm.reqGet(vm.account_benchmark_url, vm.lastGetParams,
+                function(resp) {
+                    var byPaths = {};
+                    for( var idx = 0; idx < resp.results.length; ++idx ) {
+                        byPaths[resp.results[idx].path] = resp.results[idx];
+                    }
+                    for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                        const path = vm.items.results[idx].path;
+                        const benchmarks = byPaths[path];
+                        if( benchmarks ) {
+                            vm.items.results[idx]['nb_respondents'] =
+                                benchmarks.nb_respondents;
+                            vm.items.results[idx]['benchmarks'] =
+                                benchmarks.benchmarks;
+                            vm.buildChart(vm.items.results[idx]);
+                        }
+                    }
+                    // top-level scores
+                    vm.avgNormalizedScore = resp.avg_normalized_score;
+                    vm.highestNormalizedScore = resp.highest_normalized_score;
+                    vm.chartsLoaded = true;
+                    vm.chartsAvailable = true;
+                    vm.$forceUpdate();
+                });
+            }
         },
+
         getEntries: function(prefix, indent, includeTag) {
             var vm = this;
             var results = [];
             var absIndent = -1;
             var idx = 0;
-            if( typeof prefix !== 'undefined' && prefix.length > 0 ) {
+            if( prefix && prefix.length > 0 ) {
                 for( ; idx < vm.items.results.length; ++idx ) {
-                    if( vm.items.results[idx].slug == prefix ) {
+                    if( vm.items.results[idx].slug == prefix ||
+                        vm.items.results[idx].path == prefix ) {
+                        if( vm.items.results[idx].default_unit ) {
+                            // If we are looking for a leaf questions, then
+                            // let's add it, otherwise we skip the matching
+                            // heading.
+                            results.push(vm.items.results[idx]);
+                        }
                         absIndent = vm.items.results[idx].indent;
                         ++idx;
                         break;
@@ -67,7 +100,8 @@ var practicesListMixin = {
                 }
             }
             for( ; idx < vm.items.results.length; ++idx ) {
-                if( vm.items.results[idx].indent <= absIndent ) {
+                if( isNaN(vm.items.results[idx].indent) ||
+                    vm.items.results[idx].indent <= absIndent ) {
                     break;
                 }
                 if( typeof indent !== 'undefined' ) {
@@ -383,23 +417,40 @@ var practicesListMixin = {
             var answer = vm.getPrimaryAnswer(practice);
             return vm.getUnit(answer);
         },
+        getRateLength: function(rate) {
+            return Object.keys(rate).length;
+        },
+        getRates: function(benchmark) {
+            var results = [];
+            if( typeof benchmark.values !== 'undefined' ) {
+                return benchmark.values;
+            }
+            return results;
+        },
+        // `getRate` is either passed a practice or benchmark dictionnary.
         getRate: function(practice, key) {
+            const vm = this;
             if( typeof practice.rate === 'undefined' ) {
+                if( typeof practice.benchmarks !== 'undefined' &&
+                    typeof practice.benchmarks[0] !== 'undefined' ) {
+                    return vm.getRate(practice.benchmarks[0], key);
+                }
                 if( typeof practice.values === 'undefined' ) {
                     return 0;
                 }
                 var total = 0;
-                var amount = 0;
-                for( var idx = 0; idx < practice.values.length; ++idx ) {
-                    total += practice.values[idx][1];
-                    if( practice.values[idx][0] === key ) {
-                        amount = practice.values[idx][1];
-                    }
+                const rates = vm.getRates(practice);
+                for( var idx = 0; idx < rates.length; ++idx ) {
+                    total += rates[idx][1];
                 }
                 if( total <= 0 ) {
                     return 0;
                 }
-                return Math.round(amount * 100 / total);
+                practice.rate = {};
+                for( var idx = 0; idx < rates.length; ++idx ) {
+                    practice.rate[rates[idx][0]] =
+                        Math.round(rates[idx][1] * 100 / total);
+                }
             }
             if( typeof key !== 'undefined' ) {
                 return practice.rate[key];
@@ -607,12 +658,25 @@ var practicesListMixin = {
                   data.benchmarks[0].values : [];
             if( benchmarkValues.length === 0 ) return;
 
+            var organizationRate = "";
+            const normalizedScore = data.normalized_score;
+            if( !isNaN(normalizedScore) ) {
+                if( normalizedScore < 25 ) {
+                    organizationRate = '0-25%';
+                } else if( normalizedScore < 50 ) {
+                    organizationRate = '25-50%';
+                } else if( normalizedScore < 75 ) {
+                    organizationRate = '50-75%';
+                } else if( normalizedScore <= 100 ) {
+                    organizationRate = '75-100%';
+                }
+            }
             for( var idx = 0; idx < benchmarkValues.length; ++idx ) {
                 const label = benchmarkValues[idx][0];
                 labels.push(label);
                 const val = benchmarkValues[idx][1];
                 values.push(val);
-                if( data.organization_rate == label ) {
+                if( organizationRate == label ) {
                     organizationX = idx;
                 }
             }
@@ -682,40 +746,6 @@ var practicesListMixin = {
         },
         isChartAvailable: function (practice) {
             return practice.path in this.charts;
-        },
-        buildCharts: function(resp) {
-            var vm = this;
-            if( resp ) {
-                for( var idx = 0; idx < resp.length; ++idx ) {
-                    for( var jdx = 0; jdx < vm.items.results.length; ++jdx ) {
-                        if( vm.items.results[jdx].slug === resp[idx].slug ) {
-                            if( !(isNaN(resp[idx].normalized_score) ||
-                                  resp[idx].normalized_score == null) ) {
-                                vm.items.results[jdx].normalized_score =
-                                    resp[idx].normalized_score;
-                            }
-                            if( !(isNaN(resp[idx].highest_normalized_score) ||
-                                 resp[idx].highest_normalized_score == null) ) {
-                                vm.items.results[jdx].highest_normalized_score =
-                                    resp[idx].highest_normalized_score;
-                            }
-                            if( !(isNaN(resp[idx].avg_normalized_score) ||
-                                 resp[idx].avg_normalized_score == null) ) {
-                                vm.items.results[jdx].avg_normalized_score =
-                                    resp[idx].avg_normalized_score;
-                            }
-                            if( resp[idx].hasOwnProperty('benchmarks') ) {
-                                vm.items.results[jdx].benchmarks =
-                                    resp[idx].benchmarks;
-                            }
-                            vm.buildChart(resp[idx]);
-                            break;
-                        }
-                    }
-                }
-            }
-            vm.chartsAvailable = true;
-            vm.$forceUpdate();
         },
         describeArc: function(x, y, radius, startAngle, endAngle) {
             var innerRadius = radius - this.baseWidth;
@@ -805,24 +835,6 @@ var practicesListMixin = {
                 (this.arcWidth -  this.baseWidth * 2 * 3) + ' 0';
         },
     },
-    watch: {
-        itemsLoaded: function (val) {
-            var vm = this;
-            if( vm.chartsLoaded ) {
-                setTimeout(function() {
-                    vm.buildCharts(vm.chartsAPIResp);
-                }, 5000);
-            }
-        },
-        chartsLoaded: function (val) {
-            var vm = this;
-            if( vm.itemsLoaded ) {
-                setTimeout(function() {
-                    vm.buildCharts(vm.chartsAPIResp);
-                }, 5000);
-            }
-        },
-    },
     mounted: function(){
         var vm = this;
         if( !vm.itemsLoaded && vm.items.results.length === 0 ) {
@@ -831,14 +843,6 @@ var practicesListMixin = {
             vm.itemsLoaded = true;
         }
         if( vm.account_benchmark_url ) {
-            vm.reqGet(vm.account_benchmark_url,
-            function(resp) {
-                vm.avgNormalizedScore = resp.avg_normalized_score;
-                vm.highestNormalizedScore = resp.highest_normalized_score;
-                vm.chartsAPIResp = resp.results;
-                vm.chartsLoaded = true;
-            });
-            vm.buildSummaryChart();
         } else {
             vm.chartsLoaded = true;
         }

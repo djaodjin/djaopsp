@@ -14,8 +14,8 @@ from django.contrib.auth import get_user_model
 from django.template.defaultfilters import slugify
 from faker import Faker
 from survey.api.sample import update_or_create_answer
+from survey.helpers import datetime_or_now
 from survey.models import Campaign, Choice, Sample, Unit
-from survey.queries import datetime_or_now
 from survey.utils import get_account_model, get_question_model
 
 from ...scores import (freeze_scores, get_score_calculator,
