@@ -275,7 +275,7 @@ $(DESTDIR)$(CONFIG_DIR)/gunicorn.conf: $(srcDir)/etc/gunicorn.conf
 	[ -e $@ ] || sed \
 		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' \
 		-e 's,%(APP_NAME)s,$(APP_NAME),' \
-		-e 's,%(APP_PORT)s,$(APP_PORT),' $< > $@
+		-e 's,%(APP_PORT)s,$(APP_PORT),g' $< > $@
 
 $(DESTDIR)$(SYSCONFDIR)/systemd/system/%.service: \
 			   $(srcDir)/etc/service.conf
