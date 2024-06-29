@@ -149,7 +149,7 @@
             <div>
               <a id="{{segment.slug}}-btn" class="tile-link"
                  href="{{urls.assess|rstrip_sep}}{{segment.path}}/"
-                 @click.prevent="addSegment({slug: '{{segment.path}}', path: '{{segment.path}}', title: '{{segment.title}}', indent: 0})">
+                 @click.prevent="addSegment({slug: '{{segment.slug}}', path: '{{segment.path}}', title: '{{segment.title}}', indent: 0})">
                 <div class="card bg-body text-body h-100 mt-2">
                   <div class="card-body">
                     <div class="row">

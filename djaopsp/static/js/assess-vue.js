@@ -53,6 +53,17 @@ Vue.component('campaign-questions-list', {
                         vm.items.units[key] = resp.units[key];
                     }
                 }
+                vm.$nextTick(function() {
+                    elem = vm.$el.querySelector(
+                        '[href="#' + segment.slug + '"]');
+                    if( elem ) {
+                        elem.parentElement.scrollIntoView({behavior: 'instant'});
+                    }
+                    elem = vm.$el.querySelector('#' + segment.slug);
+                    if( elem ) {
+                        elem.scrollIntoView(true);
+                    }
+                });
             });
         },
 
