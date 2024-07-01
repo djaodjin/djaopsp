@@ -1392,7 +1392,7 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
         }
     """
     title = "Accessibles"
-    #XXX remove pagination_class = MetricsPagination
+    pagination_class = MetricsPagination
     serializer_class = AccessiblesSerializer
 
     def get(self, request, *args, **kwargs):

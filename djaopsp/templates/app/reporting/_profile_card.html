@@ -1,7 +1,7 @@
-<img class="img-fluid" style="max-height: 1rem;" :src="entry.picture || '{{'/static/img/default-organization.png'|asset}}'"> [[entry.printable_name ? entry.printable_name : entry.account]]<br />
+<img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(entry) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(entry) || entry.account]]<br />
 <small><a href="" class="btn-link" @click.prevent="toggleContacts(index)"><i class="fa fa-envelope"></i> {% trans %}Contacts{% endtrans %}</a></small>
 <div v-for="contact in entry.contacts" v-show="index === showContacts">
-  <img class="img-fluid" style="max-height: 1rem;" :src="contact.picture || '{{'/static/img/default-user.png'|asset}}'"> [[contact.user.printable_name]] &lt;[[contact.user.email]]&gt;<br />
+  <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(contact) || '{{'/static/img/default-user.png'|asset}}'"> [[getAccountPrintableName(contact.user) || contact.user.username]] &lt;[[contact.user.email]]&gt;<br />
   <small>
     <span class="badge bg-secondary">[[contact.role_description.title]]</span> [[contact.user.last_login ? ("{% trans %}last login{% endtrans %}: " + $globals.humanizeDate(contact.user.last_login)) : ""]]
   </small>

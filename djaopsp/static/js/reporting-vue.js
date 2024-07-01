@@ -114,7 +114,8 @@ Vue.component('engage-profiles', {
     mixins: [
         itemListMixin,
         percentToggleMixin,
-        portfolioTagsMixin
+        portfolioTagsMixin,
+        accountDetailMixin
     ],
     data: function() {
         return {
@@ -307,6 +308,7 @@ Vue.component('engage-profiles', {
                 }
                 vm.items.results.push(item);
             }
+            vm.populateAccounts(vm.items.results);
             vm.itemsLoaded = true;
         },
         toggleContacts: function(toggledIdx) {
@@ -756,7 +758,8 @@ Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.ext
 Vue.component('reporting-organizations', {
     mixins: [
         itemListMixin,
-        portfolioTagsMixin
+        portfolioTagsMixin,
+        accountDetailMixin
     ],
     data: function() {
         var data = {
@@ -831,69 +834,15 @@ Vue.component('reporting-organizations', {
         loadComplete: function(resp, grantsResp) {
             var vm = this;
             if( vm.mergeResults ) {
-                vm.populateProfiles(resp);
+                vm.populateAccounts(resp.results);
                 vm.items.results = vm.items.results.concat(resp.results);
             } else {
                 vm.items = resp;
-                vm.populateProfiles(vm.items);
+                vm.populateAccounts(vm.items.results);
             }
             vm.grants = grantsResp;
-            vm.populateProfiles(vm.grants);
+            vm.populateAccounts(vm.grants.results, 'account');
             vm.itemsLoaded = true;
-        },
-        populateProfiles: function(portfolios) {
-            if( typeof portfolios === 'undefined' ) return;
-            var vm = this;
-            const profiles = new Set();
-            for( let idx =0; idx < portfolios.results.length; ++idx ) {
-                const item = portfolios.results[idx];
-                profiles.add(item.account ? item.account : item.slug);
-            }
-            let queryParams = "?q_f=slug&q=";
-            let sep = "";
-            for( const profile of profiles ) {
-                queryParams += sep + profile;
-                sep = ",";
-            }
-            vm.reqGet(vm.api_profiles_base_url + queryParams,
-            function(resp) {
-                let profiles = {}
-                for( let idx = 0; idx < resp.results.length; ++idx ) {
-                    const item = resp.results[idx];
-                    profiles[item.slug] = item;
-                }
-                for( let idx =0; idx < portfolios.results.length; ++idx ) {
-                    const item = portfolios.results[idx];
-                    if( item.account in profiles ) {
-                        item.account = profiles[item.account];
-                    } else if ( item.slug in profiles ) {
-                        const profile = profiles[item.slug];
-                        for( let key in profile ) {
-                            if( profile.hasOwnProperty(key) ) {
-                                item[key] = profile[key];
-                                if( key == 'extra' ) {
-                                    // We need a 'tags' key in `extra` dict
-                                    // to display tags.
-                                    if( item.extra ) {
-                                        if( typeof item.extra === 'string') {
-                                            item.extra = JSON.parse(item.extra);
-                                        }
-                                    } else {
-                                        item.extra = {}
-                                    }
-                                    if( !item.extra.tags ) {
-                                        item.extra.tags = []
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                vm.$forceUpdate();
-            }, function() {
-                // Fail silently and run in degraded mode if we cannot load
-                // the profile information (picture, etc.)
-            });
         },
         populateSummaryChart: function() {
             var vm = this;
