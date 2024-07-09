@@ -1160,7 +1160,9 @@ var dashboardChart = Vue.component('dashboardChart', {
             let sep = "";
             for( var datIdx = 0; datIdx < vm.datasets.length; ++datIdx ) {
                 const dataset = vm.datasets[datIdx];
-                const benchmarks = dataset.results ? dataset.results[0].benchmarks : [];
+                const benchmarks = (dataset.results &&
+                    dataset.results.length > 0) ? dataset.results[0].benchmarks
+                    : [];
                 for( let idx = 0; idx  < benchmarks.length; ++idx ) {
                     text += (sep + benchmarks[idx].title);
                     sep = ", ";
@@ -1217,6 +1219,14 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
             var vm = this;
             vm.item = resp;
             vm.itemLoaded = true;
+            // Recover memory for previous charts, and prevent cached data
+            // to show up when it shouldn't.
+            for( var key in vm.charts ){
+                if( vm.charts.hasOwnProperty(key) ){
+                    vm.charts[key].destroy();
+                    delete vm.charts[key];
+                }
+            }
             var labels = [];
             var datasets = [];
             var colors = [

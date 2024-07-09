@@ -9,7 +9,7 @@ from deployutils.helpers import update_context_urls
 from django.db import connection
 from django.http import HttpResponse
 from survey.helpers import get_extra
-from survey.models import Campaign, Unit, UnitEquivalences
+from survey.models import Campaign, Sample, Unit, UnitEquivalences
 from survey.utils import get_engaged_accounts
 from survey.views.matrix import CompareView as CompareBaseView
 from rest_framework.generics import get_object_or_404
@@ -122,12 +122,15 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     def latest_assessments(self):
         if not hasattr(self, '_latest_assessments'):
             #pylint:disable=attribute-defined-outside-init
-            self._latest_assessments = get_completed_assessments_at_by(
-                self.verified_campaign,
-                ends_at=self.ends_at, prefix=self.db_path,
-                # create a list to prevent RawQuerySet if-condition later on
-                accounts=[account.pk for account
-                    in self.accounts_with_engagement])
+            if self.accounts_with_engagement:
+                self._latest_assessments = get_completed_assessments_at_by(
+                    self.verified_campaign,
+                    ends_at=self.ends_at, prefix=self.db_path,
+                    # create a list to prevent RawQuerySet if-condition later on
+                    accounts=[account.pk for account
+                        in self.accounts_with_engagement])
+            else:
+                self._latest_assessments = Sample.objects.none()
         return self._latest_assessments
 
     @property
