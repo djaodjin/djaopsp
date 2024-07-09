@@ -399,11 +399,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # API settings
 # ------------
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-        # We are using Jinja2 templates so there are no templates
-        # for `rest_framework.renderers.BrowsableAPIRenderer`.
-    ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'deployutils.apps.django.authentication.JWTAuthentication',
         # `rest_framework.authentication.SessionAuthentication` is the last
@@ -415,10 +410,25 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
     'DEFAULT_SCHEMA_CLASS': 'djaopsp.api_docs.schemas.AutoSchema',
     'EXCEPTION_HANDLER': 'djaopsp.views.errors.drf_exception_handler',
-    'SEARCH_PARAM': 'q',
+    'NON_FIELD_ERRORS_KEY': 'detail',
+    'ORDERING_PARAM': 'o',
     'PAGE_SIZE': 25,
-    'ORDERING_PARAM': 'o'
+    'SEARCH_PARAM': 'q',
 }
+
+SPECTACULAR_SETTINGS = {
+    'ENUM_GENERATE_CHOICE_DESCRIPTION': False,
+    'AUTHENTICATION_WHITELIST': []
+}
+
+if not DEBUG:
+    # We are using Jinja2 templates so there are no templates
+    # for `rest_framework.renderers.BrowsableAPIRenderer`.
+    REST_FRAMEWORK.update({
+        'DEFAULT_RENDERER_CLASSES': (
+            'rest_framework.renderers.JSONRenderer',
+        )
+    })
 
 
 # Session settings

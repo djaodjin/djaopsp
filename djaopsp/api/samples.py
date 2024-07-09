@@ -736,8 +736,6 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
     """
     Benchmarks against all peers for a subset of questions
 
-    XXX change `resp` to a {count:, results:} format.
-
     Returns a list of graphs with anonymized performance of peers
     for paths marked as visible (see ::ref::`api_score`).
 

@@ -137,8 +137,10 @@ def request_body_parameters(api_endpoint, defs):
                     key = first_enum['$ref'].split('/')[-1]
                     prop.update(defs[(key, 'schemas')].schema)
             prop.update({'name': prop_name})
-            if 'type' not in prop and 'enum' in prop:
-                prop.update({'type': "String"}) # XXX Country enum
+            if 'type' not in prop:
+                prop.update({'type': "object"})
+                if 'enum' in prop:
+                    prop.update({'type': "String"})
             results += [prop]
     return results
 
@@ -164,8 +166,10 @@ def responses_parameters(api_endpoint, defs):
                             key = first_enum['$ref'].split('/')[-1]
                             prop.update(defs[(key, 'schemas')].schema)
                     prop.update({'name': prop_name})
-                    if 'type' not in prop and 'enum' in prop:
-                        prop.update({'type': "String"}) # XXX Country enum
+                    if 'type' not in prop:
+                        prop.update({'type': "object"})
+                        if 'enum' in prop:
+                            prop.update({'type': "String"})
                     params += [prop]
         results.update({resp_code: params})
     return results
@@ -193,8 +197,10 @@ def schema_properties(schema, defs):
                     key = first_enum['$ref'].split('/')[-1]
                     prop.update(defs[(key, 'schemas')].schema)
             prop.update({'name': prop_name})
-            if 'type' not in prop and 'enum' in prop:
-                prop.update({'type': "String"}) # XXX Country enum
+            if 'type' not in prop:
+                prop.update({'type': "object"})
+                if 'enum' in prop:
+                    prop.update({'type': "String"})
             params += [prop]
     return params
 

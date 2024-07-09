@@ -189,6 +189,8 @@ class BySegmentsAPIView(BySegmentsMixin, generics.RetrieveAPIView):
           }]
         }
     """
+    schema = None
+
     def retrieve(self, request, *args, **kwargs):
         return Response(self.get_response_data(request, *args, **kwargs))
 

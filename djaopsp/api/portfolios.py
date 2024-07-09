@@ -911,6 +911,7 @@ class CompareAPIView(CampaignDecorateMixin, AccountsNominativeQuerysetMixin,
           ]
         }
     """
+    schema = None
     title = "Compare"
     scale = 1
     unit = None
@@ -1091,7 +1092,7 @@ class CompareIndexAPIView(CompareAPIView):
 
 class PortfolioAccessibleSamplesMixin(TimersMixin,
                                       AccountsNominativeQuerysetMixin):
-
+    schema = None
     search_fields = (
         'slug',
         'full_name',
