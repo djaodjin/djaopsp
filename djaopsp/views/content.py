@@ -9,15 +9,18 @@ from pages.views.sequences import (
     SequenceProgressView as BaseSequenceProgressView,
     SequencePageElementView as BaseSequencePageElementView)
 
+from ..compat import gettext_lazy as _, reverse
 from ..mixins import AccountMixin, SequenceProgressMixin, VisibilityMixin
 
 
 class SequenceProgressView(SequenceProgressMixin, BaseSequenceProgressView):
     pass
 
+
 class SequencePageElementView(SequenceProgressMixin,
                               BaseSequencePageElementView):
     pass
+
 
 class ContentIndexView(PageElementView):
     """
@@ -38,6 +41,8 @@ class ContentDetailView(PageElementView):
         context.update({'element': self.element})
         update_context_urls(context, {
             'api_accounts': site_url("/api/users"),
+            'download': reverse('pages_element_download', kwargs={
+                'path': self.kwargs.get('path')})
         })
         return context
 

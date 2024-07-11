@@ -8,7 +8,8 @@ from django.urls import path, re_path
 from pages.views.sequences import CertificateDownloadView
 
 from ...views.content import (ContentDetailView, ContentIndexView,
-     SequenceProgressView, SequencePageElementView)
+    SequenceProgressView, SequencePageElementView)
+from ...downloads.content import ContentDetailDownloadView
 
 
 urlpatterns = [
@@ -20,6 +21,8 @@ urlpatterns = [
     path('sequences/<slug:sequence>/certificate/',
          CertificateDownloadView.as_view(),
          name='certificate_download'),
+    path('download/<path:path>/',
+         ContentDetailDownloadView.as_view(), name='pages_element_download'),
     path('<path:path>/',
          ContentDetailView.as_view(), name='pages_element'),
     path('',

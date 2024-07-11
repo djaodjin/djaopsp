@@ -363,6 +363,8 @@ class AutoSchema(BaseAutoSchema):
 #            getattr(self, 'content_types', []))
 
     def get_operation_id_base(self, path, method, action):
+        # pylint:disable=unused-argument
+
         # rest framework implementation will try to deduce the  name
         # from the model, serializer before using the view name. That
         # leads to duplicate `operationId`.
@@ -445,7 +447,7 @@ class AutoSchema(BaseAutoSchema):
     @staticmethod
     def _validate_against_schema(data, schema):
         errs = []
-        for key, value in six.iteritems(data):
+        for key in six.iterkeys(data):
             if key not in schema.get('properties', []):
                 errs += [exceptions.ValidationError({key: "unexpected field"})]
         if errs:
@@ -615,7 +617,7 @@ class AutoSchema(BaseAutoSchema):
                     self.examples if hasattr(self, 'examples') else [],
                     path, method,
                     serializer_class=serializer.__class__, schema=schema)
-            except exceptions.APIException as err:
+            except exceptions.APIException:
                 serializer = None
                 warnings.warn('{}: serializer_class() raised an exception'
                     ' during '
