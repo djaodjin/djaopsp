@@ -21,22 +21,21 @@ from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
 from survey.filters import DateRangeFilter, OrderingFilter, SearchFilter
 from survey.helpers import (construct_monthly_periods,
     construct_yearly_periods, construct_weekly_periods, datetime_or_now,
-    period_less_than)
+    extra_as_internal, period_less_than)
 from survey.api.matrix import (BenchmarkMixin as BenchmarkMixinBase,
     EngagedAccountsMixin, EngagedBenchmarkAPIView)
 from survey.mixins import TimersMixin
 from survey.models import (EditableFilter, Portfolio,
     PortfolioDoubleOptIn, Sample)
 from survey.pagination import MetricsPagination
-from survey.queries import as_sql_date_trunc
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import (get_accessible_accounts, get_account_model,
     get_engaged_accounts, get_benchmarks_enumerated)
 
 from .campaigns import CampaignDecorateMixin
-from ..compat import reverse, six
+from ..compat import gettext_lazy as _, reverse, six
 from ..helpers import as_percentage
-from ..queries import (get_completed_assessments_at_by, get_engagement,
+from ..queries import (get_latest_frozen_by_portfolio_by_period, get_engagement,
     get_engagement_by_reporting_status, get_requested_by_accounts_by_period,
     segments_as_sql)
 from ..mixins import (AccountMixin, AccountsDateRangeMixin,
@@ -161,9 +160,8 @@ class BenchmarkMixin(TimersMixin, AccountsDateRangeMixin,
             # arguments evaluating to `False` will return all the latest
             # frozen samples.
             samples = Sample.objects.get_completed_assessments_at_by(
-                self.campaign,
-                start_at=self.start_at, ends_at=self.ends_at,
-                accounts=accessible_accounts)
+                self.campaign, accounts=accessible_accounts,
+                start_at=self.start_at, ends_at=self.ends_at)
 
         # samples that will be counted in the benchmark
         if samples:
@@ -234,8 +232,12 @@ class BenchmarkAPIView(BenchmarkMixin, EngagedBenchmarkAPIView):
           "unit": "percentage",
           "results": [
             {
-              "path": "/sustainability/governance/environmental-reporting/environmental-fines",
-              "title": "5.1 Has your company received or been responsible for a Notice of Violation (NOV), Consent Order or fine over USD $10,000 from an environmental agency, or an environmental event that required reporting to an environmental agency in the past 36 months?",
+              "path": "/sustainability/governance/environmental-reporting\
+/environmental-fines",
+              "title": "5.1 Has your company received or been responsible\
+ for a Notice of Violation (NOV), Consent Order or fine over USD $10,000 from\
+ an environmental agency, or an environmental event that required reporting\
+ to an environmental agency in the past 36 months?",
               "default_unit": {
                   "slug": "yes-no",
                   "title": "Yes/No",
@@ -267,6 +269,9 @@ class BenchmarkAPIView(BenchmarkMixin, EngagedBenchmarkAPIView):
     """
     serializer_class = SampleBenchmarksSerializer
     pagination_class = MetricsPagination
+
+    def get_title(self):
+        return self.account.printable_name
 
     def get_serializer_context(self):
         context = super(BenchmarkAPIView, self).get_serializer_context()
@@ -935,9 +940,9 @@ class CompareAPIView(CampaignDecorateMixin, AccountsNominativeQuerysetMixin,
                 # Calling `get_completed_assessments_at_by` with an `accounts`
                 # arguments evaluating to `False` will return all the latest
                 # frozen samples.
-                self._samples = get_completed_assessments_at_by(self.campaign,
-                    start_at=self.start_at, ends_at=self.ends_at,
-                    accounts=reporting_accounts)
+                self._samples = Sample.objects.get_completed_assessments_at_by(
+                    self.campaign, accounts=reporting_accounts,
+                    start_at=self.start_at, ends_at=self.ends_at)
             else:
                 self._samples = Sample.objects.none()
         return self._samples
@@ -1119,95 +1124,11 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
             self._period = self.get_query_param('period', 'monthly')
         return self._period
 
-    def get_latest_frozen_by_accounts_by_period(self, campaign, includes,
-        start_at=None, ends_at=None, period='yearly'):
-        """
-        Returns the most recent frozen assessment for each year between
-        starts_at and ends_at for each account.
-        """
-        #pylint:disable=too-many-arguments
-        date_range_clause = ""
-        if start_at:
-            date_range_clause = (" AND survey_sample.created_at >= '%s'" %
-                start_at.isoformat())
-        if ends_at:
-            date_range_clause += (" AND survey_sample.created_at < '%s'" %
-                ends_at.isoformat())
-        # We cannot use `self.requested_accounts.query` because `params` are
-        # not quoted. don't ask.
-        # https://code.djangoproject.com/ticket/25416
-        account_ids = [str(account.pk) for account in includes]
-        if not account_ids:
-            return Sample.objects.none()
-
-        accounts_query = "SELECT id, slug FROM %(accounts_table)s"\
-            " WHERE id IN (%(account_ids)s)" % {
-                'accounts_table': get_account_model()._meta.db_table,
-                'account_ids': ','.join(account_ids)
-            }
-        sql_query = """
-WITH accounts AS (
-%(accounts_query)s
-),
-last_updates AS (
-SELECT
-  account_id,
-  %(as_period)s AS period,
-  MAX(survey_sample.created_at) AS last_updated_at
-FROM survey_sample
-INNER JOIN accounts ON
-  survey_sample.account_id = accounts.id
-WHERE survey_sample.campaign_id = %(campaign_id)d AND
-  survey_sample.is_frozen AND
-  survey_sample.extra IS NULL
-  %(date_range_clause)s
-GROUP BY account_id, period
-),
-completed_by_date AS (
-SELECT
-    accounts.slug AS account_slug,
-    survey_sample.account_id AS account_id,
-    survey_sample.id AS id,
-    survey_sample.created_at AS created_at,
-    CASE WHEN survey_sample.created_at < MAX(survey_portfolio.ends_at)
-       THEN 'completed'
-       ELSE 'responded' END AS state
-FROM survey_sample
-INNER JOIN last_updates ON
-   survey_sample.account_id = last_updates.account_id AND
-   survey_sample.created_at = last_updates.last_updated_at
-INNER JOIN accounts ON
-   survey_sample.account_id = accounts.id
-INNER JOIN survey_portfolio ON
-   survey_portfolio.account_id = accounts.id
-WHERE
-   survey_portfolio.grantee_id IN (%(grantees)s) AND
-   (survey_portfolio.campaign_id = %(campaign_id)s OR
-    survey_portfolio.campaign_id IS NULL) AND
-   survey_sample.is_frozen AND
-   survey_sample.extra IS NULL
-GROUP BY accounts.slug, survey_sample.account_id,
-   survey_sample.id, survey_sample.created_at
-)
-SELECT
-  completed_by_date.account_slug,
-  completed_by_date.account_id,
-  completed_by_date.id,
-  completed_by_date.created_at,
-  CASE WHEN COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1
-    THEN 'verified' ELSE completed_by_date.state
-    END AS state
-FROM completed_by_date
-LEFT OUTER JOIN djaopsp_verifiedsample
-ON completed_by_date.id = djaopsp_verifiedsample.sample_id
-ORDER BY completed_by_date.account_id, completed_by_date.created_at
-""" % {'campaign_id': campaign.pk,
-       'accounts_query': accounts_query,
-       'grantees': ",".join([str(self.account.pk)]),
-       'as_period': as_sql_date_trunc(
-           'survey_sample.created_at', period_type=period),
-       'date_range_clause': date_range_clause}
-        return Sample.objects.raw(sql_query)
+    def get_serializer_context(self):
+        context = super(
+            PortfolioAccessibleSamplesMixin, self).get_serializer_context()
+        context.update({'account': self.account})
+        return context
 
     def get_queryset(self):
         queryset = get_accessible_accounts(
@@ -1222,22 +1143,24 @@ ORDER BY completed_by_date.account_id, completed_by_date.created_at
         """
         state = (self.REPORTING_DECLINED
             if key in requested_by_keys else self.REPORTING_NO_DATA)
-        return (key, state, None, None)
+        sample = Sample(created_at=key)
+        sample.state = state
+        return sample
 
     def decorate_queryset(self, page):
         #pylint:disable=too-many-locals
         samples_by_account_ids = {}
-        samples = self.get_latest_frozen_by_accounts_by_period(
-            self.campaign, page, start_at=self.start_at, ends_at=self.ends_at,
-            period=self.period)
+        samples = []
+        if page:
+            samples = get_latest_frozen_by_portfolio_by_period(self.campaign,
+                [self.account], period=self.period, accounts=page,
+                start_at=self.start_at, ends_at=self.ends_at).prefetch_related(
+            'scorecard_cache')
 
         for sample in samples:
             if sample.account_id not in samples_by_account_ids:
                 samples_by_account_ids[sample.account_id] = []
-            samples_by_account_ids[sample.account_id] += [
-                (sample.created_at, sample.state,
-                 self.request.build_absolute_uri(reverse('scorecard',
-                    args=(self.account, sample.slug))), 0)]
+            samples_by_account_ids[sample.account_id] += [sample]
 
         # We want the range of years consistent between different pages
         # returned. As a result we use `self.get_queryset()` here to compute
@@ -1293,13 +1216,13 @@ ORDER BY completed_by_date.account_id, completed_by_date.created_at
                 pass
             try:
                 while sample and key:
-                    if period_less_than(
-                            sample[0], key[0], period_type=self.period):
+                    if period_less_than(sample.created_at, key.created_at,
+                                        period_type=self.period):
                         values += [sample]
                         sample = None
                         sample = next(samples_iterator)
-                    elif period_less_than(
-                            key[0], sample[0], period_type=self.period):
+                    elif period_less_than(key.created_at, sample.created_at,
+                                          period_type=self.period):
                         values += [key]
                         key = None
                         key = self.as_sample(next(keys_iterator),
@@ -1330,6 +1253,13 @@ ORDER BY completed_by_date.account_id, completed_by_date.created_at
                         requested_by_accounts.get(account.pk, []))
             except StopIteration:
                 pass
+
+            # Merge portfolio extra field into account extra field.
+            extra = {}
+            for val in values:
+                extra.update(extra_as_internal(val))
+            account.extra = extra_as_internal(account)
+            account.extra.update(extra)
             account.values = values
 
         return page
@@ -1491,8 +1421,8 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
             param_states = [param.strip() for param in params]
         # validate states
         states = []
-        valid_states = set([status[1]
-            for status in EngagementSerializer.REPORTING_STATUSES])
+        valid_states = {status[1]
+            for status in EngagementSerializer.REPORTING_STATUSES}
         inverted_valid_states = {slugify(val): key
             for key, val in EngagementSerializer.REPORTING_STATUSES}
         for state in param_states:
@@ -1607,7 +1537,7 @@ class CompletionRateMixin(DashboardAggregateMixin):
 
     def get_aggregate(self, account=None, labels=None,
                       aggregate_set=False, years=0):
-        #pylint:disable=too-many-locals
+        #pylint:disable=unused-argument,too-many-locals
         # XXX Use the *labels* instead of recomputing weekly periods?
         last_date = datetime_or_now(self.accounts_ends_at)
         if self.accounts_start_at:
@@ -1779,7 +1709,7 @@ class EngagementStatsMixin(DashboardAggregateMixin):
 
     def get_aggregate(self, account=None, labels=None,
                       aggregate_set=False):
-        #pylint:disable=too-many-locals
+        #pylint:disable=unused-argument,too-many-locals
         requested_accounts = self.get_engaged_accounts(
             account, aggregate_set=aggregate_set)
         grantees = None # XXX should be all members for alliances but no more

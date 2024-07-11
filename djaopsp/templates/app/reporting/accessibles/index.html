@@ -225,18 +225,18 @@
         <td class="text-center"
             v-for="val in entry.values.slice().reverse()">
           <i class="fa fa-certificate" style="color: green;"
-             v-if="val[1] === 'verified'"></i>
+             v-if="val.state === 'verified'"></i>
           <i class="fa fa-circle" style="color: green;"
-             v-if="val[1] === 'completed'"></i>
+             v-if="val.state === 'completed'"></i>
           <i class="fa fa-circle" style="color: yellow;"
-             v-if="val[1] === 'responded'"></i>
+             v-if="val.state === 'responded'"></i>
           <i class="fa fa-circle" style="color: red;"
-             v-if="val[1] === 'declined'"></i>
+             v-if="val.state === 'declined'"></i>
           <i class="fa fa-circle" style="color: grey;"
-             v-if="val[1] === 'no-data'"></i>
+             v-if="val.state === 'no-data'"></i>
           <br />
-          <a :href="val[2]" v-if="val[1] === 'verified' || val[1] === 'completed'" class="btn-link">
-              <small>[[$globals.humanizeMonthDay(val[0])]]</small>
+          <a :href="val.url" v-if="val.state === 'verified' || val.state === 'completed'" class="btn-link">
+              <small>[[$globals.humanizeMonthDay(val.created_at)]]</small>
           </a>
         </td>
         <td>

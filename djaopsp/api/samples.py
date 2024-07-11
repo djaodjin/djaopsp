@@ -46,7 +46,7 @@ LOGGER = logging.getLogger(__name__)
 
 class SampleNotesMixin(SampleMixin):
 
-    def get_notes(self, prefix=None, sample=None, excludes=None):
+    def get_notes(self, prefix=None, excludes=None):
         """
         Returns verifier notes on a sample.
 
@@ -61,7 +61,8 @@ class SampleNotesMixin(SampleMixin):
         if not verification:
             return []
         return self.get_answers(
-            prefix=prefix, sample=verification.verifier_notes)
+            prefix=prefix, sample=verification.verifier_notes,
+            excludes=excludes)
 
 
 class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
@@ -325,7 +326,6 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
             # Attach scores
             calculator = get_score_calculator(prefix)
             if False and calculator:
-                score_answers = []
                 calculator_answers = calculator.get_scored_answers(
                     self.sample.campaign, includes=[self.sample], prefix=prefix)
                 attach_answers(

@@ -6,8 +6,8 @@ from rest_framework import serializers
 from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementSerializer as BasePageElementSerializer)
-from survey.models import PortfolioDoubleOptIn
-from survey.api.serializers import (EnumField, AccountSerializer,
+from survey.models import PortfolioDoubleOptIn, Sample
+from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
     AnswerSerializer, SampleSerializer,
     TableSerializer, UnitSerializer)
 from survey.utils import get_account_model
@@ -369,15 +369,55 @@ class ReportingSerializer(NoModelSerializer):
         return []
 
 
-class AccessiblesSerializer(TableSerializer):
+class AccessiblePeriodReportSerializer(serializers.ModelSerializer):
 
+    url = serializers.SerializerMethodField(required=False,
+        help_text=_("URL to access report card"))
+    state = serializers.SerializerMethodField(required=False,
+        help_text=_("URL to access report card"))
+    normalized_score = serializers.SerializerMethodField(required=False,
+        help_text=_("URL to access report card"))
+
+    class Meta:
+        model = Sample
+        fields = ('created_at', 'state', 'url', 'normalized_score')
+        read_only_fields = ('created_at', 'state', 'url', 'normalized_score')
+
+    @staticmethod
+    def get_normalized_score(obj):
+        scorecard = obj.scorecard_cache.filter(path='/sustainability').first() #XXX
+        if scorecard:
+            return scorecard.normalized_score
+        return None
+
+    @staticmethod
+    def get_state(obj):
+        return obj.state
+
+    def get_url(self, obj):
+        request = self.context.get('request')
+        account = self.context.get('account')
+        if obj.slug:
+            return request.build_absolute_uri(reverse('scorecard',
+                args=(account, obj.slug)))
+        return None
+
+
+class AccessiblesSerializer(NoModelSerializer): # similar to TableSerializer
+
+    slug = serializers.SlugField(
+        help_text=_("Unique key in the table for the data series"))
+    title = serializers.CharField(required=False, read_only=True,
+        help_text=_("Title of data serie that can be safely used for display"\
+        " in HTML pages"))
     printable_name = serializers.CharField(required=False, read_only=True,
         help_text=_("Title of data serie that can be safely used for display"\
         " in HTML pages"))
-    title = serializers.CharField(source='printable_name',
-        required=False, read_only=True,
-        help_text=_("Title of data serie that can be safely used for display"\
-        " in HTML pages"))
+    extra = ExtraField(required=False,
+        help_text=_("Extra meta data (can be stringify JSON)"))
+    values = serializers.ListField(
+        child=AccessiblePeriodReportSerializer(),
+        help_text="Datapoints in the serie")
 
 
 class EngagementSerializer(AccountSerializer):

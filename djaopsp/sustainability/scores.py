@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 from __future__ import unicode_literals
@@ -11,8 +11,7 @@ from pages.models import PageElement, flatten_content_tree
 from survey.models import Unit
 
 from ..compat import six
-from ..queries import get_completed_assessments_at_by
-from ..models import ScorecardCache
+from ..models import Sample, ScorecardCache
 from ..scores.base import (ScoreCalculator as ScoreCalculatorBase,
     populate_rollup)
 from ..utils import (get_highlights, get_scores_tree, get_leafs)
@@ -68,8 +67,9 @@ class ScoreCalculator(ScoreCalculatorBase):
         # and filtering them out through the `survey_enumeratedquestions`
         # table in `get_expected_opportunities`.
         if not last_frozen_assessments:
-            last_frozen_assessments = get_completed_assessments_at_by(
-                campaign, exclude_accounts=excludes)
+            last_frozen_assessments = \
+                Sample.objects.get_completed_assessments_at_by(
+                    campaign, exclude_accounts=excludes)
         results = []
         scored_answers = _get_scored_answers(
             last_frozen_assessments, self.assessment_unit_id,
@@ -120,7 +120,7 @@ class ScoreCalculator(ScoreCalculatorBase):
         #pylint:disable=too-many-arguments
         with connection.cursor() as cursor:
             scored_answers = _get_scored_answers(
-                get_completed_assessments_at_by(
+                Sample.objects.get_completed_assessments_at_by(
                     campaign, exclude_accounts=excludes),
                 self.assessment_unit_id, includes=includes, prefix=prefix)
             cursor.execute(scored_answers, params=None)

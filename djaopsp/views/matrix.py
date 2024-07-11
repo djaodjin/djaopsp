@@ -18,8 +18,8 @@ from ..api.campaigns import CampaignContentMixin
 from ..api.serializers import EngagementSerializer
 from ..compat import force_str, gettext_lazy as _, reverse
 from ..mixins import AccountsNominativeQuerysetMixin
-from ..models import ScorecardCache
-from ..queries import get_completed_assessments_at_by, get_coalesce_engagement
+from ..models import Sample, ScorecardCache
+from ..queries import get_coalesce_engagement
 from .downloads import PracticesSpreadsheetView
 from .portfolios import UpdatedMenubarMixin
 
@@ -123,12 +123,13 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
         if not hasattr(self, '_latest_assessments'):
             #pylint:disable=attribute-defined-outside-init
             if self.accounts_with_engagement:
-                self._latest_assessments = get_completed_assessments_at_by(
-                    self.verified_campaign,
-                    ends_at=self.ends_at, prefix=self.db_path,
+                self._latest_assessments = \
+                    Sample.objects.get_completed_assessments_at_by(
+                        self.verified_campaign,
                     # create a list to prevent RawQuerySet if-condition later on
-                    accounts=[account.pk for account
-                        in self.accounts_with_engagement])
+                        accounts=[account.pk for account
+                            in self.accounts_with_engagement],
+                        ends_at=self.ends_at, prefix=self.db_path)
             else:
                 self._latest_assessments = Sample.objects.none()
         return self._latest_assessments
@@ -137,13 +138,17 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     def latest_improvements(self):
         if not hasattr(self, '_improvements'):
             #pylint:disable=attribute-defined-outside-init
-            self._improvements = get_completed_assessments_at_by(
-                self.verified_campaign,
-                ends_at=self.ends_at, prefix=self.db_path,
-                extra='is_planned',
+            if self.accounts_with_engagement:
+                self._improvements = \
+                    Sample.objects.get_completed_assessments_at_by(
+                        self.verified_campaign,
                 # create a list to prevent RawQuerySet if-condition later on
-                accounts=[account.pk for account
-                    in self.accounts_with_engagement])
+                        accounts=[account.pk for account
+                            in self.accounts_with_engagement],
+                        ends_at=self.ends_at, prefix=self.db_path,
+                        extra='is_planned')
+            else:
+                self._improvements = Sample.objects.none()
         return self._improvements
 
     @property

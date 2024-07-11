@@ -18,16 +18,16 @@ from rest_framework.request import Request
 from survey.compat import force_str, six
 from survey.filters import DateRangeFilter
 from survey.helpers import datetime_or_now, get_extra
-from survey.models import Answer, Choice, Unit
+from survey.models import Answer, Choice, Sample, Unit
 from survey.utils import get_question_model
 
 from ..api.serializers import EngagementSerializer
 from ..api.portfolios import (BenchmarkMixin, PortfolioAccessibleSamplesMixin,
     PortfolioEngagementMixin)
+from ..compat import gettext_lazy as _
 from ..helpers import as_valid_sheet_title
 from ..mixins import (AccountMixin, CampaignMixin,
     AccountsNominativeQuerysetMixin)
-from ..queries import get_completed_assessments_at_by
 from ..utils import get_alliances
 
 LOGGER = logging.getLogger(__name__)
@@ -110,6 +110,10 @@ class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
         return datetime_or_now().strftime(
             self.account.slug + '-' + self.basename + '-%Y%m%d.pptx')
 
+    def get_questions_by_key(self, prefix=None, initial=None):
+        #pylint:disable=unused-argument
+        return initial if isinstance(initial, dict) else {}
+
     def get_template_names(self):
         candidates = [
             os.path.join('app', 'reporting', '%s.pptx' % self.campaign),
@@ -161,18 +165,29 @@ class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
                             else:
                                 data = self.get_data()
                             chart_data = CategoryChartData()
-                            labels = False
+                            # Series might not have exactly the same labels.
+                            # Thus we need to gather all defined labels first.
+                            labels = set([])
                             for serie in data:
-                                if not labels:
-                                    for point in serie.get('values'):
-                                        label = point[0]
-                                        if isinstance(label, datetime.datetime):
-                                            label = label.date()
-                                        chart_data.add_category(label)
-                                    labels = True
+                                for point in serie.get('values'):
+                                    label = point[0]
+                                    if isinstance(label, datetime.datetime):
+                                        label = label.date()
+                                    labels |= {label}
+                            labels = sorted(labels)
+                            for label in labels:
+                                chart_data.add_category(label)
+                            # Make sure we have a value for each label before
+                            # adding serie.
+                            for serie in data:
+                                dataset = {point[0]:point[1]
+                                    for point in serie.get('values')}
+                                values = []
+                                for label in labels:
+                                    val = dataset.get(label)
+                                    values += [val if val else 0]
                                 chart_data.add_series(
-                                serie.get('slug'),
-                                    [point[1] for point in serie.get('values')])
+                                    serie.get('title'), values)
 
                             chart.replace_data(chart_data)
                         except ValueError:
@@ -215,6 +230,19 @@ class BenchmarkPPTXView(BenchmarkMixin, FullReportPPTXView):
             if question:
                 self._title = question.title
         return self._title
+
+    def get_title(self):
+        # To label benchmark data set (engaged suppliers)
+        return self.account.printable_name
+
+    def get_query_param(self, key, default_value=None):
+        # XXX Workaround until overridden method in djaodjin-survey supports
+        # Django HTTPRequest.
+        try:
+            return self.request.query_params.get(key, default_value)
+        except AttributeError:
+            pass
+        return self.request.GET.get(key, default_value)
 
     def get_decorated_questions(self, prefix=None):
         return list(six.itervalues(self.get_questions_by_key(
@@ -313,20 +341,61 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
     title = "Accessibles responses"
 
     def get_headings(self):
-        return ['Supplier name', 'Tags'] + list(reversed(self.labels))
+        labels = [str(_("Supplier No.")), str(_("Supplier name")), str(_("Tags"))]
+        for label in list(reversed(self.labels)):
+            labels += ["%s Score" % label]
+        for label in list(reversed(self.labels)):
+            labels += ["%s Score Range" % label]
+        for label in list(reversed(self.labels)):
+            labels += ["%s Status" % label]
+        return labels
 
     def writerow(self, rec):
-        row = [rec.printable_name, ", ".join(get_extra(rec, 'tags', []))]
+        supplier_key = get_extra(rec, 'supplier_key')
+        row = [supplier_key, rec.printable_name,
+            ", ".join(get_extra(rec, 'tags', []))]
+
+        # Write period-over-period normalized scores
+        segment_path = '/sustainability'  #XXX
         for val in reversed(rec.values):
-            if val[1] in (self.REPORTING_COMPLETED, self.REPORTING_RESPONDED):
-                # WORKAROUND:
-                # "Excel does not support timezones in datetimes. The tzinfo
-                #  in the datetime/time object must be set to None."
-                row += [val[0].date()]
-            elif val[1] in (self.REPORTING_DECLINED,):
+            state = val.state
+            if state in (self.REPORTING_COMPLETED, self.REPORTING_VERIFIED):
+                scorecard = val.scorecard_cache.filter(
+                    path=segment_path).first()
+                row += [scorecard.normalized_score if scorecard else ""]
+            else:
+                row += [""]
+
+        # Write period-over-period score buckets
+        for val in reversed(rec.values):
+            state = val.state
+            if state in (self.REPORTING_COMPLETED, self.REPORTING_VERIFIED):
+                scorecard = val.scorecard_cache.filter(
+                    path=segment_path).first()
+                normalized_score = (
+                    scorecard.normalized_score if scorecard else None)
+                bucket = "0-20"
+                if normalized_score:
+                    if normalized_score > 20.5:
+                        bucket = "21-40"
+                    if normalized_score > 40.5:
+                        bucket = "41-60"
+                    if normalized_score > 60.5:
+                        bucket = "61-80"
+                    if normalized_score > 80.5:
+                        bucket = "81-100"
+                row += [bucket]
+            else:
+                row += [""]
+
+        # Write period-over-period status
+        for val in reversed(rec.values):
+            state = val.state
+            if state in (self.REPORTING_DECLINED,):
                 row += ['no-response']
             else:
-                row += [val[1]]
+                row += [state]
+
         self.wsheet.append(row)
 
 
@@ -374,9 +443,10 @@ class LongFormatCSVView(AccountsNominativeQuerysetMixin, CSVDownloadView):
         queryset = Answer.objects.filter(
             Q(unit_id=F('question__default_unit_id')) |
         Q(unit_id=F('question__default_unit__source_equivalences__target_id')),
-            sample__in=get_completed_assessments_at_by(
-                self.campaign, start_at=self.start_at, ends_at=self.ends_at,
-                accounts=requested_accounts)).distinct().select_related(
+            sample__in=Sample.objects.get_completed_assessments_at_by(
+                self.campaign, accounts=requested_accounts,
+                start_at=self.start_at, ends_at=self.ends_at
+            )).distinct().select_related(
                 'sample__account', 'question', 'question__content', 'unit')
         return queryset
 

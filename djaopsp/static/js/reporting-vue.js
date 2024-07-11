@@ -1227,21 +1227,40 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                     delete vm.charts[key];
                 }
             }
-            var labels = [];
+            var labelset = new Set();
             var datasets = [];
             var colors = [
                 [UTILITY_COLOR, UTILITY_COLOR_LAST],
                 [EUISSCA_COLOR, EUISSCA_COLOR_LAST]];
             for( var idx = 0; idx < resp.results.length; ++idx ) {
                 const benchmarks = resp.results[idx].benchmarks;
-                for( var benchIdx = 0; benchIdx < benchmarks.length; ++benchIdx ) {
-                    var data = [];
+                // Series might not have exactly the same labels. Thus we need
+                // to gather all defined labels first.
+                for( var benchIdx = 0;
+                     benchIdx < benchmarks.length; ++benchIdx ) {
                     const rates = vm.getRates(benchmarks[benchIdx]);
                     for( var valIdx = 0; valIdx < rates.length; ++valIdx ) {
-                        if( benchIdx == 0 ) {
-                            labels.push(rates[valIdx][0]);
+                        labelset.add(rates[valIdx][0]);
+                    }
+                }
+                const labels = Array.from(labelset).sort();
+                // Make sure we have a value for each label before
+                // adding serie.
+                for( var benchIdx = 0;
+                     benchIdx < benchmarks.length; ++benchIdx ) {
+                    var dict = {};
+                    const rates = vm.getRates(benchmarks[benchIdx]);
+                    for( var valIdx = 0; valIdx < rates.length; ++valIdx ) {
+                        dict[rates[valIdx][0]] = rates[valIdx][1];
+                    }
+                    var data = [];
+                    for( var lblIdx = 0; lblIdx < labels.length; ++lblIdx ) {
+                        const val = dict[labels[lblIdx]];
+                        if( val ) {
+                            data.push(val);
+                        } else {
+                            data.push(0);
                         }
-                        data.push(rates[valIdx][1]);
                     }
                     datasets.push({
                         label: benchmarks[benchIdx].slug,

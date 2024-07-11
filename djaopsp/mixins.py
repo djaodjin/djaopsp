@@ -98,10 +98,10 @@ class AccountMixin(deployutils_mixins.AccountMixin):
         if not hasattr(self, '_campaign_candidates'):
             filtered_in = None
             #pylint:disable=superfluous-parens
-            for visible in (set(['public']) | set([plan['slug']
+            for visible in (set(['public']) | {plan['slug']
                     for plan in self.get_accessible_plans(
                             self.request, profile=self.kwargs.get(
-                            self.account_url_kwarg))])):
+                            self.account_url_kwarg))}):
                 visibility_q = Q(extra__contains=visible)
                 if filtered_in:
                     filtered_in |= visibility_q

@@ -186,9 +186,12 @@ class TrackMetricsView(AccountMixin, TemplateView):
     and Waste tracking.
 
     In the Energy tracking & GHG emissions estimator case,
-    the page calls `Lists profiles in a group _http://localhost:8040/djaopsp/api/supplier-1/filters/accounts/scope1-stationary-combustion?ends_at=2023-12-31&timezone=local&page=1` for group 'scope1-stationary-combustion',
-    'scope1-mobile-combustion', 'scope1-refrigerants',
-    '712-total-scope-2-ghg-emissions', and '16-total-scope-3-ghg-emissions'.
+    the page calls `Lists profiles in a group _http://localhost:8040/djaopsp\
+/api/supplier-1/filters/accounts/scope1-stationary-combustion?\
+ends_at=2023-12-31&timezone=local&page=1` for group
+    'scope1-stationary-combustion', 'scope1-mobile-combustion',
+    'scope1-refrigerants', '712-total-scope-2-ghg-emissions',
+    and '16-total-scope-3-ghg-emissions'.
 
     The groups are selected based on the metric tracker page URL path that
     maps to a set of question paths encoded in the `EditableFilter.extra` field.

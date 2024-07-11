@@ -6,7 +6,7 @@ results in APIs, downloads, etc.
 """
 from django.db import connection
 from django.db.models.query import QuerySet, RawQuerySet
-from survey.models import PortfolioDoubleOptIn, Sample
+from survey.models import Campaign, PortfolioDoubleOptIn, Sample
 from survey.queries import as_sql_date_trunc, is_sqlite3
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
@@ -16,51 +16,69 @@ from .models import ScorecardCache
 from .scores import get_score_calculator
 
 
-def get_completed_assessments_at_by(campaign, start_at=None, ends_at=None,
-                            prefix=None, title="",
-                            accounts=None, exclude_accounts=None,
-                            extra=None):
+def sql_latest_frozen_by_portfolio_by_period(campaign, grantees,
+                                             period='yearly',
+                                             accounts=None,
+                                             start_at=None, ends_at=None,
+                                             prefix=None, title="",
+                                             exclude_accounts=None,
+                                             extra=None):
     """
-    Returns the most recent frozen assessment before an optionally specified
-    date, indexed by account. Furthermore the query can be restricted to answers
-    on a specific segment using `prefix` and matching text in the `extra` field.
+    Returns the latest frozen sample for each `period` between
+    `starts_at` and `ends_at` for each account in `accounts`.
 
-    All accounts in ``excludes`` are not added to the index. This is
-    typically used to filter out 'testing' accounts
+    To get only the latest sample,
+    see `Sample.objects.get_completed_assessments_at_by`.
     """
     #pylint:disable=too-many-arguments,too-many-locals
-    sep = "AND "
-    additional_filters = ""
+    assert isinstance(campaign, Campaign)
+    assert bool(grantees)
+
+    sep = " WHERE "
+    accounts_query = "SELECT id, slug FROM %(accounts_table)s" % {
+        'accounts_table': get_account_model()._meta.db_table}
     if accounts:
         if isinstance(accounts, list):
-            account_ids = "(%s)" % ','.join([
+            account_ids = ','.join([
                 str(account_id) for account_id in accounts])
         elif isinstance(accounts, QuerySet):
-            account_ids = "(%s)" % ','.join([
+            account_ids = ','.join([
                 str(account.pk) for account in accounts])
         elif isinstance(accounts, RawQuerySet):
-            account_ids = "(%s)" % accounts.query.sql
-        additional_filters += (
-            "%(sep)ssurvey_sample.account_id IN %(account_ids)s" % {
-                'sep': sep, 'account_ids': account_ids})
-        sep = "AND "
+            # We cannot use `accounts.query.sql` because `params` are
+            # not quoted. don't ask.
+            # https://code.djangoproject.com/ticket/25416
+            account_ids = ','.join([
+                str(account.pk) for account in accounts])
+        accounts_query += "%(sep)sid IN (%(account_ids)s)" % {
+            'sep': sep, 'account_ids': account_ids}
+        sep = " AND "
     if exclude_accounts:
         if isinstance(exclude_accounts, list):
             account_ids = "(%s)" % ','.join([
                 str(account_id) for account_id in exclude_accounts])
-        additional_filters += (
-            "%(sep)ssurvey_sample.account_id NOT IN %(account_ids)s" % {
-                'sep': sep, 'account_ids': account_ids})
-        sep = "AND "
+        elif isinstance(exclude_accounts, QuerySet):
+            account_ids = "(%s)" % ','.join([
+                str(account.pk) for account in accounts])
+        elif isinstance(exclude_accounts, RawQuerySet):
+            # We cannot use `accounts.query.sql` because `params` are
+            # not quoted. don't ask.
+            # https://code.djangoproject.com/ticket/25416
+            account_ids = "(%s)" % ','.join([
+                str(account.pk) for account in accounts])
+        accounts_query += " %(sep)sid NOT IN (%(account_ids)s)" % {
+            'sep': sep, 'account_ids': ','.join(account_ids)}
+        sep = " AND "
 
+    sep = " AND "
+    additional_filters = ""
     if start_at:
-        additional_filters += "%ssurvey_sample.created_at >= '%s'" % (
-            sep, start_at.isoformat())
-        sep = "AND "
+        additional_filters += ("%ssurvey_sample.created_at >= '%s'" % (
+            sep, start_at.isoformat()))
+        sep = " AND "
     if ends_at:
-        additional_filters += "%ssurvey_sample.created_at < '%s'" % (
-            sep, ends_at.isoformat())
-        sep = "AND "
+        additional_filters += ("%ssurvey_sample.created_at < '%s'" % (
+            sep, ends_at.isoformat()))
 
     if prefix:
         prefix_fields = """,
@@ -75,7 +93,7 @@ def get_completed_assessments_at_by(campaign, start_at=None, ends_at=None,
 INNER JOIN survey_question ON survey_answer.question_id = survey_question.id""")
         additional_filters += "%ssurvey_question.path LIKE '%s%%%%'" % (
             sep, prefix)
-        sep = "AND "
+        sep = " AND "
     else:
         prefix_fields = ""
         prefix_join = ""
@@ -83,37 +101,93 @@ INNER JOIN survey_question ON survey_answer.question_id = survey_question.id""")
     extra_clause = sep + ("survey_sample.extra IS NULL" if not extra
         else "survey_sample.extra like '%%%%%s%%%%'" % extra)
 
-    sql_query = """SELECT
-    survey_sample.id AS id,
-    survey_sample.slug AS slug,
-    survey_sample.created_at AS created_at,
-    survey_sample.campaign_id AS campaign_id,
-    survey_sample.account_id AS account_id,
-    survey_sample.updated_at AS updated_at,
-    survey_sample.is_frozen AS is_frozen,
-    survey_sample.extra AS extra%(prefix_fields)s
+    sql_query = """
+WITH accounts AS (
+%(accounts_query)s
+),
+last_updates AS (
+SELECT
+  account_id,
+  %(as_period)s AS period,
+  MAX(survey_sample.created_at) AS last_updated_at
 FROM survey_sample
-INNER JOIN (
-    SELECT
-        account_id,
-        MAX(survey_sample.created_at) AS last_updated_at
-    FROM survey_sample
-    %(prefix_join)s
-    WHERE survey_sample.campaign_id = %(campaign_id)d AND
-          survey_sample.is_frozen
-          %(extra_clause)s
-          %(additional_filters)s
-    GROUP BY account_id) AS last_updates
-ON survey_sample.account_id = last_updates.account_id AND
-   survey_sample.created_at = last_updates.last_updated_at
+INNER JOIN accounts ON
+  survey_sample.account_id = accounts.id
+%(prefix_join)s
 WHERE survey_sample.is_frozen
-      %(extra_clause)s
+  AND survey_sample.campaign_id = %(campaign_id)d
+  %(extra_clause)s
+  %(additional_filters)s
+GROUP BY account_id, period
+),
+completed_by_date AS (
+SELECT
+    accounts.slug AS account_slug,
+    survey_sample.account_id AS account_id,
+    survey_sample.id AS id,
+    survey_sample.created_at AS created_at,
+    survey_portfolio.extra AS extra,
+    CASE WHEN survey_sample.created_at < MAX(survey_portfolio.ends_at)
+       THEN 'completed'
+       ELSE 'responded' END AS state
+FROM survey_sample
+INNER JOIN last_updates ON
+   survey_sample.account_id = last_updates.account_id AND
+   survey_sample.created_at = last_updates.last_updated_at
+INNER JOIN accounts ON
+   survey_sample.account_id = accounts.id
+INNER JOIN survey_portfolio ON
+   survey_portfolio.account_id = accounts.id
+WHERE survey_sample.is_frozen
+   AND survey_portfolio.grantee_id IN (%(grantees)s)
+   AND (survey_portfolio.campaign_id = %(campaign_id)s OR
+        survey_portfolio.campaign_id IS NULL)
+   %(extra_clause)s
+GROUP BY accounts.slug, survey_sample.account_id,
+   survey_sample.id, survey_sample.created_at,
+   survey_portfolio.extra
+)
+SELECT
+  completed_by_date.account_slug,
+  completed_by_date.account_id,
+  completed_by_date.id,
+  completed_by_date.created_at,
+  completed_by_date.extra,
+  CASE WHEN COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1
+    THEN 'verified' ELSE completed_by_date.state
+    END AS state%(prefix_fields)s
+FROM completed_by_date
+LEFT OUTER JOIN djaopsp_verifiedsample
+ON completed_by_date.id = djaopsp_verifiedsample.sample_id
+ORDER BY completed_by_date.account_id, completed_by_date.created_at
 """ % {'campaign_id': campaign.pk,
+       'accounts_query': accounts_query,
+       'grantees': ",".join([str(grantee.pk) for grantee in grantees]),
+       'as_period': as_sql_date_trunc(
+           'survey_sample.created_at', period_type=period),
+       'additional_filters': additional_filters,
        'extra_clause': extra_clause,
        'prefix_fields': prefix_fields,
-       'prefix_join': prefix_join,
-       'additional_filters': additional_filters}
-    return Sample.objects.raw(sql_query)
+       'prefix_join': prefix_join}
+    return sql_query
+
+
+def get_latest_frozen_by_portfolio_by_period(campaign, grantees,
+                                             period='yearly',
+                                             accounts=None,
+                                             start_at=None, ends_at=None,
+                                             prefix=None, title="",
+                                             exclude_accounts=None,
+                                             extra=None):
+    #pylint:disable=too-many-arguments
+    return Sample.objects.raw(sql_latest_frozen_by_portfolio_by_period(
+        campaign, grantees,
+        period=period,
+        accounts=accounts,
+        start_at=start_at, ends_at=ends_at,
+        prefix=prefix, title=title,
+        exclude_accounts=exclude_accounts,
+        extra=extra))
 
 
 def _get_engagement_sql(campaign, accounts,
@@ -531,7 +605,7 @@ def _get_frozen_query_sql(campaign, segments, ends_at, expired_at=None):
 
     for segment in segments:
         prefix = segment['path']
-        segment_query = get_completed_assessments_at_by(
+        segment_query = Sample.objects.get_completed_assessments_at_by(
             campaign, ends_at=ends_at,
             prefix=prefix, title=segment['title']).query.sql
         if not frozen_assessments_query:
@@ -544,7 +618,7 @@ def _get_frozen_query_sql(campaign, segments, ends_at, expired_at=None):
             else:
                 frozen_assessments_query = "(%s) UNION (%s)" % (
                     frozen_assessments_query, segment_query)
-        segment_query = get_completed_assessments_at_by(
+        segment_query = Sample.objects.get_completed_assessments_at_by(
             campaign, ends_at=ends_at,
             prefix=prefix, title=segment['title'],
             extra='is_planned').query.sql
