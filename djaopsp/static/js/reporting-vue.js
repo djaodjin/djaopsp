@@ -318,7 +318,7 @@ Vue.component('engage-profiles', {
             if( vm.showContacts >= 0 ) {
                 const api_roles_url = vm._safeUrl(vm.api_profiles_base_url,
                     [entry.slug, 'roles']);
-                vm.reqGet(api_roles_url, function(resp) {
+                vm.reqGet(api_roles_url + "?role_status=active", function(resp) {
                     entry.contacts = resp.results;
                     entry.contacts.sort(function(a, b) {
                         if( a.user.last_login ) {

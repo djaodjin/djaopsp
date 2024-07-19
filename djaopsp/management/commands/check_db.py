@@ -36,6 +36,9 @@ class Command(BaseCommand):
         parser.add_argument('--exclude-units', action='append',
             dest='exclude_units', default=[],
             help='Exclude units from comparaison (ex: points)')
+        parser.add_argument('--show-active', action='store_true',
+            dest='show_active', default=False,
+            help='Show active sample with question not in campaign')
         parser.add_argument('--show-portfolios', action='store_true',
             dest='show_portfolios', default=False,
             help='Show portfolios that do not match optins')
@@ -67,6 +70,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         #pylint:disable=too-many-locals,too-many-statements
         start_time = datetime.datetime.utcnow()
+        self.check_active_samples(show=options['show_active'])
         self.check_portfolios(
             show=options['show_portfolios'],
             show_fix=options['show_portfolios_fix'])
@@ -89,6 +93,24 @@ class Command(BaseCommand):
             delta.hours, delta.minutes, delta.seconds, delta.microseconds)
         self.stderr.write("completed in %d hours, %d minutes, %d.%d seconds\n"
             % (delta.hours, delta.minutes, delta.seconds, delta.microseconds))
+
+
+    def check_active_samples(self, show=False):
+        count = 0
+        for sample in Sample.objects.filter(is_frozen=False).select_related(
+                'campaign'):
+            unexpected_answers = Answer.objects.filter(
+                sample=sample).exclude(
+                question__in=sample.campaign.questions.all()).select_related(
+                'question', 'unit')
+            if unexpected_answers.exists():
+                count += 1
+                if show:
+                    for answer in unexpected_answers:
+                        self.stdout.write('%d,%s,"%s","%s"' % (
+                            sample.pk, answer.created_at.date(),
+                            answer.unit, answer.question.path))
+        self.stderr.write("%d active samples with unexpected answers" % count)
 
 
     def check_completed_notshared(self, show=False):
