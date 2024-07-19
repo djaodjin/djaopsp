@@ -199,6 +199,9 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
                 args=(self.account, self.campaign)),
             'download': reverse('reporting_profile_accessibles_download',
                 args=(self.account, self.campaign)),
+            'download_long': reverse(
+                'reporting_profile_accessibles_download_long',
+                args=(self.account, self.campaign)),
             'download_raw': reverse('download_matrix_compare',
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/accessibles/")

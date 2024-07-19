@@ -38,6 +38,7 @@ def environment(**options):
     env.filters['host'] = deployutils_extratags.host
     env.filters['is_authenticated'] = deployutils_extratags.is_authenticated
     env.filters['date'] = djaopsp_tags.date
+    env.filters['humanizeTimeDelta'] = djaopsp_tags.humanizeTimeDelta
     env.filters['md'] = pages_tags.md
     env.filters['messages'] = djaopsp_tags.messages
     env.filters['no_cache'] = djaopsp_tags.no_cache

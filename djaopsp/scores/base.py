@@ -4,13 +4,13 @@
 import datetime, logging
 
 from django.conf import settings
-from django.db.models import F
+from django.db.models import F, Max
 from survey.helpers import datetime_or_now
 from survey.models import Answer, Choice, Sample, Unit
 
 from ..compat import import_string, six
 from ..models import ScorecardCache
-from ..utils import get_score_weight
+from ..utils import get_score_weight, get_segments_candidates
 
 
 LOGGER = logging.getLogger(__name__)
@@ -250,6 +250,29 @@ def get_score_calculator(segment_path):
         if segment_path.startswith(root_path):
             return import_string(calculator_class)()
     return None
+
+
+def get_top_normalized_score(sample, segments_candidates=None):
+    """
+    Derive a single score for per-segment scores.
+    """
+    if not segments_candidates:
+        segments_candidates = get_segments_candidates(sample.campaign)
+    resp = sample.scorecard_cache.filter(
+        path__in=[seg.get('path')
+            for seg in segments_candidates
+            if seg.get('path') and seg.get('mandatory')]).aggregate(
+        Max('normalized_score'))
+    top_normalized_score = resp.get('normalized_score__max')
+
+    if not top_normalized_score:
+        resp = sample.scorecard_cache.filter(
+            path__in=[seg.get('path')
+                for seg in segments_candidates if seg.get('path')]).aggregate(
+            Max('normalized_score'))
+        top_normalized_score = resp.get('normalized_score__max')
+
+    return top_normalized_score
 
 
 def _normalize(scores, normalize_to_one=False, force_score=False):

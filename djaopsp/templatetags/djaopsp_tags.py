@@ -10,7 +10,7 @@ from django.template.defaultfilters import capfirst
 from django.utils.encoding import force_text
 from survey.helpers import datetime_or_now
 
-from ..compat import reverse, six
+from ..compat import reverse, six, gettext_lazy as _
 
 
 register = template.Library()
@@ -30,6 +30,19 @@ def capitalize(text):
 @register.filter()
 def date(at_time):
     return datetime_or_now(at_time).strftime('%Y-%m-%d')
+
+
+@register.filter()
+def humanizeTimeDelta(arg_at):
+    arg_at = datetime_or_now(arg_at)
+    at_time = datetime_or_now()
+    if arg_at < at_time:
+        stmt = _("%(duration)s ago")
+        duration = at_time - arg_at
+    else:
+        stmt = _("%(duration)s left")
+        duration = arg_at - at_time
+    return stmt % {'duration': duration}
 
 
 @register.filter()

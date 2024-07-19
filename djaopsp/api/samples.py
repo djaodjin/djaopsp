@@ -565,7 +565,24 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
             #pylint:disable=attribute-defined-outside-init
             self.units = {}
 
-        normalized_score = data[0].get('normalized_score') if data else None
+        # Pick a top normalized_score:
+        # If present, use the score for the mandatory segment,
+        # otherwise take the maxium of segment scores.
+        top_normalized_score = None
+        for entry in data:
+            path = entry.get('path')
+            indent = entry.get('indent')
+            normalized_score = entry.get('normalized_score')
+            if indent == 0:
+                if normalized_score is not None:
+                    if path and path in self.campaign_mandatory_segments:
+                        top_normalized_score = normalized_score
+                        break
+                    if top_normalized_score is None:
+                        top_normalized_score = normalized_score
+                    else:
+                        top_normalized_score = max(
+                            top_normalized_score, normalized_score)
 
         verified_sample = VerifiedSample.objects.filter(
             sample=self.sample).first()
@@ -573,7 +590,7 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
         return http.Response(OrderedDict([
             ('count', len(data)),
             ('path', self.path),
-            ('normalized_score', normalized_score),
+            ('normalized_score', top_normalized_score),
             ('verified_status', VerifiedSample.STATUSES[
                 verified_sample.verified_status if verified_sample
                 else VerifiedSample.STATUS_NO_REVIEW][1]),

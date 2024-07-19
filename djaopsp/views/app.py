@@ -149,7 +149,7 @@ class GetStartedProfileView(AccountMixin, FormMixin, TemplateResponseMixin,
         if path:
             reverse_kwargs.update({'path': path})
             return reverse('assess_practices', kwargs=reverse_kwargs)
-        return reverse('assess_redirect', kwargs=reverse_kwargs)
+        return reverse('assess_index', kwargs=reverse_kwargs)
 
     def get(self, request, *args, **kwargs):
         campaign = kwargs.get('campaign')

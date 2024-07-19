@@ -28,9 +28,31 @@ from ..compat import gettext_lazy as _
 from ..helpers import as_valid_sheet_title
 from ..mixins import (AccountMixin, CampaignMixin,
     AccountsNominativeQuerysetMixin)
-from ..utils import get_alliances
+from ..scores.base import get_top_normalized_score
+from ..utils import get_alliances, get_segments_candidates
 
 LOGGER = logging.getLogger(__name__)
+
+STAGE_BY_BUCKET = {
+    '0-20': _("Adopting"),
+    '21-40': _("Beginning/ Initiating/ Developing"),
+    '41-60': _("Growing/ Progressing"),
+    '61-80': _("Leading"),
+    '81-100': _("Pioneering"),
+}
+
+def get_bucket(normalized_score):
+    bucket = "0-20"
+    if normalized_score:
+        if normalized_score > 20.5:
+            bucket = "21-40"
+        if normalized_score > 40.5:
+            bucket = "41-60"
+        if normalized_score > 60.5:
+            bucket = "61-80"
+        if normalized_score > 80.5:
+            bucket = "81-100"
+    return bucket
 
 
 class CSVDownloadView(AccountMixin, ListView):
@@ -60,6 +82,9 @@ class CSVDownloadView(AccountMixin, ListView):
             queryset = backend().filter_queryset(request, queryset, self)
         return queryset
 
+    def writerecord(self, csv_writer, record):
+        csv_writer.writerow(self.queryrow_to_columns(record))
+
     def get(self, *args, **kwargs): #pylint: disable=unused-argument
         if six.PY2:
             content = io.BytesIO()
@@ -70,7 +95,7 @@ class CSVDownloadView(AccountMixin, ListView):
             for head in self.get_headings()])
         qs = self.decorate_queryset(self.filter_queryset(self.get_queryset()))
         for record in qs:
-            csv_writer.writerow(self.queryrow_to_columns(record))
+            self.writerecord(csv_writer, record)
         content.seek(0)
         resp = HttpResponse(content, content_type=self.content_type)
         resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
@@ -360,9 +385,10 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
         for val in reversed(rec.values):
             state = val.state
             if state in (self.REPORTING_COMPLETED, self.REPORTING_VERIFIED):
-                scorecard = val.scorecard_cache.filter(
-                    path=segment_path).first()
-                row += [scorecard.normalized_score if scorecard else ""]
+                normalized_score = get_top_normalized_score(
+                    val, segments_candidates=self.segments_candidates)
+                row += [
+                    normalized_score if normalized_score is not None else ""]
             else:
                 row += [""]
 
@@ -374,16 +400,7 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
                     path=segment_path).first()
                 normalized_score = (
                     scorecard.normalized_score if scorecard else None)
-                bucket = "0-20"
-                if normalized_score:
-                    if normalized_score > 20.5:
-                        bucket = "21-40"
-                    if normalized_score > 40.5:
-                        bucket = "41-60"
-                    if normalized_score > 60.5:
-                        bucket = "61-80"
-                    if normalized_score > 80.5:
-                        bucket = "81-100"
+                bucket = get_bucket(normalized_score)
                 row += [bucket]
             else:
                 row += [""]
@@ -397,6 +414,58 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
                 row += [state]
 
         self.wsheet.append(row)
+
+
+class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
+                                      CSVDownloadView):
+    """
+    """
+    base_headings = ['Supplier No.', 'Supplier Name',
+        'TSP Score', 'Score Range', 'Score Stage']
+
+    def get_headings(self):
+        headings = self.base_headings
+        if self.period == 'monthly':
+            headings += ['Month']
+        else:
+            headings += ['Year']
+        return headings
+
+    def writerecord(self, csv_writer, record):
+        for val in reversed(record.values):
+            bucket = None
+            stage = None
+            # Write 'Supplier No.' and 'Supplier Name'
+            supplier_key = get_extra(record, 'supplier_key')
+            row = [supplier_key, record.printable_name]
+            state = val.state
+            # Write 'TSP Score'
+            if state in (self.REPORTING_COMPLETED, self.REPORTING_VERIFIED):
+                normalized_score = get_top_normalized_score(
+                    val, segments_candidates=self.segments_candidates)
+                bucket = get_bucket(normalized_score)
+                stage = STAGE_BY_BUCKET.get(bucket)
+                row += [
+                    normalized_score if normalized_score is not None else ""]
+            else:
+                status = state
+                if state in (self.REPORTING_DECLINED,):
+                    status = 'no-response'
+                bucket = status
+                stage = status
+                row += [status]
+
+            # Write 'Score Range'
+            row += [bucket]
+            # Write 'Score Stage'
+            row += [stage]
+            # Write Period ('Year' or 'Month')
+            if self.period == 'monthly':
+                row += [val.created_at.strftime("%b %Y")]
+            else:
+                row += [val.created_at.year]
+
+            csv_writer.writerow(row)
 
 
 class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):

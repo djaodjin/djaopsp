@@ -32,7 +32,10 @@ urlpatterns = [
     path('assess/<slug:sample>/<path:path>/',
          AssessPracticesView.as_view(), name='assess_practices'),
     path('assess/<slug:sample>/',
+         AssessPracticesView.as_view(), name='assess_index'),
+    path('assess/',
          AssessRedirectView.as_view(), name='assess_redirect'),
+
     # Target and improvement plan
     path('improve/<slug:sample>/print/',
          ImproveContentPDFView.as_view(), name='improve_print'),

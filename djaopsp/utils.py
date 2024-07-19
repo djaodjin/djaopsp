@@ -439,7 +439,15 @@ def get_segments_candidates(campaign, visibility=None, owners=None):
             slug__in=candidates).order_by('title')
         content_tree = build_content_tree(roots=roots, prefix=DB_PATH_SEP,
             cut=ContentCut(), visibility=visibility, accounts=owners)
-        return flatten_content_tree(content_tree)
+        segments_candidates = flatten_content_tree(content_tree)
+        # decorate candidate with 'mandatory' status.
+        campaign_prefix = "%s%s" % (DB_PATH_SEP, campaign.slug)
+        campaign_mandatory_segments = [campaign_prefix]
+        for candidate in segments_candidates:
+            path = candidate.get('path')
+            if path in campaign_mandatory_segments:
+                candidate.update({'mandatory': True}) # 'required' key instead?
+        return segments_candidates
     return []
 
 

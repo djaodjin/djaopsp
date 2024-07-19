@@ -119,19 +119,6 @@ class ScorecardIndexView(ReportMixin, TemplateView):
     URL_PATH_SEP = '/'
 
     @property
-    def campaign_mandatory_segments(self):
-        #pylint:disable=attribute-defined-outside-init
-        if not hasattr(self, '_campaign_mandatory_segments'):
-            self._campaign_mandatory_segments = []
-            campaign_slug = self.sample.campaign.slug
-            campaign_prefix = "%s%s%s" % (
-                DB_PATH_SEP, campaign_slug, DB_PATH_SEP)
-            if get_question_model().objects.filter(
-                    path__startswith=campaign_prefix).exists():
-                self._campaign_mandatory_segments = [campaign_prefix]
-        return self._campaign_mandatory_segments
-
-    @property
     def is_mandatory_segment_present(self):
         #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_is_mandatory_segment_present'):

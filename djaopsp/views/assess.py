@@ -3,32 +3,37 @@
 from __future__ import unicode_literals
 
 import datetime, json, logging
+from collections import OrderedDict
 from io import BytesIO
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
+from django import forms
 from django.core.files.storage import get_storage_class
-from django.db.models import Q
-from django.http import Http404, HttpResponse
+from django.db import models, transaction
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormMixin
 from django.template.defaultfilters import slugify
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.util import Inches, Pt
 
 from survey.helpers import datetime_or_now, get_extra
-from survey.models import Choice, EditableFilter
+from survey.models import (Campaign, Choice, EditableFilter,
+    PortfolioDoubleOptIn, Sample)
 from survey.settings import DB_PATH_SEP, URL_PATH_SEP
-from survey.utils import get_question_model
+from survey.utils import get_account_model, get_question_model
 
 from .downloads import PracticesSpreadsheetView
 from ..scores import get_score_calculator
 from ..api.samples import AssessmentContentMixin
-from ..compat import reverse, six
+from ..compat import reverse, six, gettext_lazy as _
 from ..mixins import AccountMixin, SectionReportMixin
-
+from ..utils import (get_latest_active_assessments,
+    get_latest_completed_assessment)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -39,7 +44,7 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
     """
     template_name = 'app/assess/index.html'
     breadcrumb_url = 'assess_practices'
-    breadcrumb_url_index = 'assess_redirect'
+    breadcrumb_url_index = 'assess_index'
 
     def get_reverse_kwargs(self):
         """
@@ -129,10 +134,151 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
         return context
 
 
-class AssessRedirectView(AssessPracticesView):
+class AssessRedirectForm(forms.Form):
+
+    campaign = forms.CharField()
+
+
+class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
     """
-    Redirects to an assess page for a segment
+    Shows a list of assessment requested or in progress decorated
+    with grantees whenever available.
     """
+    # XXX This code was copy/pasted from ScorecardRedirectView and mixed
+    # with SourcingAssessRedirectView.
+    template_name = 'app/assess/redirects.html'
+    form_class = AssessRedirectForm
+
+    def create_sample(self, campaign):
+        account_model = get_account_model()
+        with transaction.atomic():
+            #pylint:disable=unused-variable
+            if isinstance(self.account, account_model):
+                account = self.account
+            else:
+                account, unused = account_model.objects.get_or_create(
+                    slug=str(self.account))
+            # XXX Whenever Sample.campaign_id is null, the survey APIs
+            # will not behave properly.
+            sample, created = Sample.objects.get_or_create(
+                account=account, campaign=campaign, is_frozen=False,
+                extra__isnull=True)
+        return sample
+
+    def form_valid(self, form):
+        try:
+            campaign = self.campaign_candidates.get(
+                slug=form.cleaned_data['campaign'])
+        except Campaign.DoesNotExist:
+            raise Http404('No candidate campaign matches %(campaign)s.' % {
+                'campaign': form.cleaned_data['campaign']})
+        sample = self.create_sample(campaign)
+        kwargs = {
+            self.account_url_kwarg: self.account,
+            'sample': sample
+        }
+        return HttpResponseRedirect(self.get_redirect_url(**kwargs))
+
+    def get_redirect_url(self, *args, **kwargs):
+        reverse_kwargs = {
+            self.account_url_kwarg: kwargs.get(self.account_url_kwarg),
+            'sample': kwargs.get('sample')
+        }
+        path = kwargs.get('path')
+        if path:
+            reverse_kwargs.update({'path': path})
+            return reverse('assess_practices', kwargs=reverse_kwargs)
+        return reverse('assess_index', kwargs=reverse_kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AssessRedirectView, self).get_context_data(**kwargs)
+
+        at_time = datetime_or_now()
+        by_campaigns = OrderedDict()
+
+        # XXX `pending_for` will also include grants pending acceptance.
+        requests = PortfolioDoubleOptIn.objects.pending_for(
+            self.account, at_time=at_time).exclude(
+                models.Q(grantee=self.account) &
+                models.Q(state=PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED)
+        ).order_by('campaign__title')
+        for optin in requests:
+            if not optin.campaign in by_campaigns:
+                by_campaigns[optin.campaign] = {
+                    'slug': optin.campaign.slug,
+                    'title': optin.campaign.title,
+                    'last_completed_at': None,
+                    'share_url': None,
+                    'update_url': None,
+                    'grantees': []}
+            by_campaigns[optin.campaign]['grantees'] += [optin]
+
+        candidates = get_latest_active_assessments(self.account).exclude(
+                campaign__slug__endswith='-verified') # XXX Ad-hoc exclude
+                                                    # of verification campaigns.
+        for sample in candidates:
+            if not sample.campaign in by_campaigns:
+                by_campaigns[sample.campaign] = {
+                    'slug': sample.campaign.slug,
+                    'title': sample.campaign.title,
+                    'last_completed_at': None,
+                    'share_url': None,
+                    'update_url': None,
+                    'grantees': []}
+            by_campaigns[sample.campaign]['update_url'] = reverse(
+                'assess_index', args=(self.account, sample))
+            latest_completed = get_latest_completed_assessment(self.account,
+                campaign=sample.campaign)
+            if latest_completed:
+                by_campaigns[sample.campaign]['last_completed_at'] = \
+                    latest_completed.created_at
+                by_campaigns[sample.campaign]['share_url'] = reverse(
+                    'share', args=(self.account, latest_completed))
+
+        for campaign in self.campaign_candidates:
+            if not campaign in by_campaigns:
+                by_campaigns[campaign] = {
+                    'slug': campaign.slug,
+                    'title': campaign.title,
+                    'last_completed_at': None,
+                    'share_url': None,
+                    'update_url': None,
+                    'grantees': []}
+
+        # We have a data structure here that looks like
+        # by_campaiagns = {
+        #   'Slug': {
+        #     'title': String,
+        #     'assess_url': URL,
+        #     'last_completed_at': Datetime,
+        #     'share_url': URL,
+        #     'grantees': [{
+        #         'slug': Slug,
+        #         'created_at': Datetime
+        #     }]
+        #   }
+        # }
+
+        context.update({
+            'candidates': by_campaigns.values()
+        })
+        return context
+
+#    def get(self, request, *args, **kwargs):
+#        """
+#        Shows a list of assessment requested or in progress decorated
+#        with grantees whenever available.
+#        """
+#        return self.render_to_response(context)
+
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        return self.form_invalid(form)
+
+
 
 class ImprovePracticesView(AssessPracticesView):
     """
@@ -226,13 +372,13 @@ ends_at=2023-12-31&timezone=local&page=1` for group
         if not question:
             raise Http404("Cannot find one of %s" % str(candidate_paths))
 
-        filter_args = Q(extra__contains=path)
+        filter_args = models.Q(extra__contains=path)
         tag = None
         if not title:
             title = question.title
         else:
             tag = slugify(title)
-            filter_args &= Q(extra__contains=tag)
+            filter_args &= models.Q(extra__contains=tag)
         try:
             editable_filter = None
             for row in EditableFilter.objects.filter(

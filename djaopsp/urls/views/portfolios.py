@@ -14,7 +14,8 @@ from ...views.portfolios import (
     PortfolioResponsesView,
     PortfoliosDetailView, ReportingDashboardView)
 from ...downloads.reporting import (BenchmarkPPTXView, FullReportPPTXView,
-    LongFormatCSVView, PortfolioAccessiblesXLSXView,
+    LongFormatCSVView,
+    PortfolioAccessiblesXLSXView, PortfolioAccessiblesLongCSVView,
     PortfolioEngagementXLSXView)
 
 urlpatterns = [
@@ -69,6 +70,9 @@ urlpatterns = [
     path('reporting/<slug:campaign>/engage/download/',
         PortfolioEngagementXLSXView.as_view(),
         name='reporting_profile_engage_download'),
+    path('reporting/<slug:campaign>/accessibles/download/long/',
+        PortfolioAccessiblesLongCSVView.as_view(),
+        name='reporting_profile_accessibles_download_long'),
     path('reporting/<slug:campaign>/accessibles/download/',
         PortfolioAccessiblesXLSXView.as_view(),
         name='reporting_profile_accessibles_download'),

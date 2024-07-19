@@ -160,6 +160,19 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
     Loads assessment and improvement for a profile
     """
     @property
+    def campaign_mandatory_segments(self):
+        #pylint:disable=attribute-defined-outside-init
+        if not hasattr(self, '_campaign_mandatory_segments'):
+            self._campaign_mandatory_segments = []
+            campaign_slug = self.sample.campaign.slug
+            campaign_prefix = "%s%s%s" % (
+                DB_PATH_SEP, campaign_slug, DB_PATH_SEP)
+            if get_question_model().objects.filter(
+                    path__startswith=campaign_prefix).exists():
+                self._campaign_mandatory_segments = [campaign_prefix]
+        return self._campaign_mandatory_segments
+
+    @property
     def db_path(self):
         # We use the tree of `pages.PageElement` to infer the missing elements
         # from the db_path used to retrieve `survey.Question`.
@@ -334,7 +347,7 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         improve_url = None
         # Allows grantee to access assess and improve pages (read-only).
         account = self.account
-        assess_url = reverse('assess_redirect',
+        assess_url = reverse('assess_index',
             args=(account, self.sample,))
         improve_url = reverse('improve_redirect',
             args=(account, self.sample,))

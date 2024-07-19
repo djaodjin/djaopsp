@@ -383,12 +383,12 @@
                     <div class="row">
                       <div class="col-6">
                         <div>
-                          <strong>[[getPrimaryAnswer(practice).measured ? getMeasured(getPrimaryAnswer(practice)) : "-"]]</strong>
+                          <strong>[[getMeasured(getPrimaryAnswer(practice)) ? getMeasured(getPrimaryAnswer(practice)) : "-"]]</strong>
                         </div>
                       </div>
-                      <div class="col-6" v-if="getPrimaryAnswer(practice, 'planned') && getPrimaryAnswer(practice, 'planned').measured">
+                      <div class="col-6" v-if="getPrimaryAnswer(practice, 'planned') && getMeasured(getPrimaryAnswer(practice, 'planned'))">
                         <div>
-                          ({% trans %}planned{% endtrans %}: <strong>[[getPrimaryAnswer(practice, 'planned').measured]]</strong>)
+                          ({% trans %}planned{% endtrans %}: <strong>[[getMeasured(getPrimaryAnswer(practice, 'planned'))]]</strong>)
                         </div>
                       </div>
                     </div>

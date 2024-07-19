@@ -1124,6 +1124,17 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
             self._period = self.get_query_param('period', 'monthly')
         return self._period
 
+    @property
+    def segments_candidates(self):
+        """
+        Returns a list of top-level segments that can have a ScorecardCache
+        associated.
+        """
+        if not hasattr(self, '_segments_candidates'):
+            self._segments_candidates = get_segments_candidates(self.campaign)
+        return self._segments_candidates
+
+
     def get_serializer_context(self):
         context = super(
             PortfolioAccessibleSamplesMixin, self).get_serializer_context()
@@ -1133,6 +1144,10 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
     def get_queryset(self):
         queryset = get_accessible_accounts(
             [self.account], campaign=self.campaign)
+        # XXX Add missing suppliers that are invited but no response yet.
+        #     This could be done by creating "dummy" survey_portfolio
+        #     where survey_portfolio.ends_at = account.created_at
+        #     (query set is `django.db.models.query.QuerySet`)
         return queryset
 
     def as_sample(self, key, requested_by_keys):

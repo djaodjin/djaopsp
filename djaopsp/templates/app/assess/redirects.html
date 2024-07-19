@@ -2,18 +2,62 @@
 
 {% block assess_content %}
 <section id="redirects" class="container py-4">
-  <h1 class="text-center">{% trans %}Pick a section to update ...{% endtrans %}</h1>
+  <h1 class="text-center">{% trans %}Select an assessment ...{% endtrans %}</h1>
   <div class="bg-body text-body" style="min-height:30rem;">
     <div class="row">
       <div class="col-12 offset-md-3 col-md-6 my-4 py-4">
-        {% if redirects %}
-        {% for redirect in redirects %}
-        <div class="text-center">
-          <a class="btn btn-primary w-100 mt-2"
-             href="{{redirect.0}}">Update {{redirect.1}} ...</a>
+        {% for assessment in candidates %}
+        <div class="card">
+          <div class="card-header">
+            <h5>{{assessment.title}}
+          </div>
+          <div class="card-body">
+            {% if assessment.last_completed_at %}
+            <p>
+{{profile.printable_name}} last completed {{assessment.title}} questionnaire on {{assessment.last_completed_at|date}}{% if assessment.author %} by <span class="author">{{assessment.author}}</span>{% endif %}
+            </p>
+            {% endif %}
+            <p>
+{% trans profile=profile.printable_name %}The following organizations would like a copy of your response.{% endtrans %}
+            </p>
+            {% for request in assessment.grantees %}
+            <div>
+              <div class="row align-items-center">
+                <div class="col-2">
+                  <img class="img-fluid" style="max-height:64px;" src="{{'/static/img/default-organization.png'|asset}}" >
+                </div>
+                <div class="col-5">
+                  {{request.grantee.slug}}
+                </div>
+              </div>
+              <small> - on {{request.created_at|date}}
+                ({{request.created_at|humanizeTimeDelta}})</small>
+            </div>
+            {% endfor %}
+          </div>{# /.card-body #}
+          <div class="card-footer">
+            <div class="row">
+              <div class="col-md-6 text-center">
+                {% if assessment.share_url %}
+                <a class="btn btn-primary my-2"
+                   href="{{assessment.share_url}}">{% trans %}Share{% endtrans %}</a>
+                {% endif %}
+              </div>
+              <div class="col-md-6 text-center">
+                {% if assessment.update_url %}
+                <a class="btn btn-primary my-2"
+                   href="{{assessment.update_url}}">{% if assessment.share_url %}{% trans %}Update{% endtrans %}{% else %}{% trans %}Continue{% endtrans %}{% endif %}</a>
+                {% else %}
+                <form action="." method="post">
+                  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                  <button type="submit" class="btn" name="campaign" value="{{campaign.slug}}" role="menuitem" tabindex="-1">{% trans %}Get started{% endtrans %}</button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>{# /.card-footer #}
         </div>
         {% endfor %}
-        {% endif %}
       </div>
     </div>
   </div>
