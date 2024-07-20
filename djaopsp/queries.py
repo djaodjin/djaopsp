@@ -153,7 +153,8 @@ SELECT
   completed_by_date.id,
   completed_by_date.created_at,
   completed_by_date.extra,
-  CASE WHEN COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1
+  CASE WHEN (COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1 AND
+    completed_by_date.state = 'completed')
     THEN 'verified' ELSE completed_by_date.state
     END AS state%(prefix_fields)s
 FROM completed_by_date
