@@ -12,6 +12,7 @@ class ContentDetailDownloadView(PageElementAPIView):
     """
     Download the practices as a spreadsheet
     """
+    schema = None
     base_headers = ['']
     intrinsic_value_headers = ['Environmental', 'Ops/maintenance',
         'Financial', 'Implementation ease', 'AVERAGE VALUE']
