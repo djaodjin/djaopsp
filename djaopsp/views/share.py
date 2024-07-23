@@ -66,9 +66,14 @@ class ShareView(ReportMixin, PortfoliosView):
             'latest_completed_assessment': latest_completed_assessment,
         })
         update_context_urls(context, {
+            'api_accounts': site_url("/api/accounts/profiles"),
             'api_organizations': site_url("/api/accounts/profiles"),
             'api_account_candidates': site_url("/api/accounts/profiles"),
             'api_requests': reverse('survey_api_portfolios_received',
+                    args=(self.account,)),
+            'api_sample_list': reverse('survey_api_sample_list',
+                    args=(self.account,)),
+            'api_portfolios_grants': reverse('survey_api_portfolios_grants',
                     args=(self.account,)),
         })
         if latest_completed_assessment:

@@ -14,39 +14,49 @@
           <div class="card-body">
             {% if assessment.last_completed_at %}
             <p>
-{{profile.printable_name}} last completed {{assessment.title}} questionnaire on {{assessment.last_completed_at|date}}{% if assessment.author %} by <span class="author">{{assessment.author}}</span>{% endif %}
+{{profile.printable_name}} last completed {{assessment.title}} questionnaire on {{assessment.last_completed_at|date}}{% if assessment.respondents %} by{% for user in assessment.respondents %} <span class="author">{{user.get_full_name()}}</span>{{ ", " if not loop.last else "" }}{% endfor %}{% endif %}
             </p>
             {% endif %}
             <p>
+            {% if profile.ends_at %}
+{% trans profile=profile.printable_name, ends_at=profile.ends_at|humanizeDate %}The following organizations would like a copy of your response before {{ends_at}}.{% endtrans %}
+            {% else %}
 {% trans profile=profile.printable_name %}The following organizations would like a copy of your response.{% endtrans %}
+            {% endif %}
             </p>
-            {% for request in assessment.grantees %}
-            <div>
-              <div class="row align-items-center">
-                <div class="col-2">
-                  <img class="img-fluid" style="max-height:64px;" src="{{'/static/img/default-organization.png'|asset}}" >
+            <decorate-profiles data-elements='{{assessment.requests|to_json}}' inline-template>
+              <div>
+                {% for request in assessment.requests %}
+                <div>
+                  <div class="row align-items-center">
+                    <div class="col-2">
+                      <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture('{{request.grantee}}') ? getAccountPicture('{{request.grantee}}') : '{{'/static/img/default-organization.png'|asset}}'" >
+                    </div>
+                    <div class="col-5">
+                      [[getAccountPrintableName('{{request.grantee}}')]]
+                      <div>
+                        <small>on {{request.created_at|date}}
+                          ({{request.created_at|humanizeTimeDelta}})</small>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-5">
-                  {{request.grantee.slug}}
-                </div>
+                {% endfor %}
               </div>
-              <small> - on {{request.created_at|date}}
-                ({{request.created_at|humanizeTimeDelta}})</small>
-            </div>
-            {% endfor %}
+            </decorate-profiles>
           </div>{# /.card-body #}
           <div class="card-footer">
             <div class="row">
               <div class="col-md-6 text-center">
                 {% if assessment.share_url %}
                 <a class="btn btn-primary my-2"
-                   href="{{assessment.share_url}}">{% trans %}Share{% endtrans %}</a>
+                   href="{{assessment.share_url}}">{% trans created_at=assessment.last_completed_at|date %}Share {{created_at}} assessment{% endtrans %}</a>
                 {% endif %}
               </div>
               <div class="col-md-6 text-center">
                 {% if assessment.update_url %}
                 <a class="btn btn-primary my-2"
-                   href="{{assessment.update_url}}">{% if assessment.share_url %}{% trans %}Update{% endtrans %}{% else %}{% trans %}Continue{% endtrans %}{% endif %}</a>
+                   href="{{assessment.update_url}}">{% if assessment.share_url %}{% trans %}Update with new information{% endtrans %}{% else %}{% trans %}Continue{% endtrans %}{% endif %}</a>
                 {% else %}
                 <form action="." method="post">
                   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
@@ -58,6 +68,12 @@
           </div>{# /.card-footer #}
         </div>
         {% endfor %}
+        <hr />
+        <p class="mt-4">
+{% trans %}This Website provides additional questionnaires on which to assess
+your organizations performance on a variety of qualitative and quantitative
+metrics.{% endtrans %} <a href="{{'docs/guides/'|site_url}}">{% trans %}See questionnaires{% endtrans %} &raquo;</a>
+        </p>
       </div>
     </div>
   </div>

@@ -1,5 +1,6 @@
 # Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE
+from dateutil.relativedelta import relativedelta
 
 from deployutils.apps.django.compat import (
     is_authenticated as base_is_authenticated)
@@ -33,15 +34,31 @@ def date(at_time):
 
 
 @register.filter()
+def humanizeDate(at_time):
+    return datetime_or_now(at_time).strftime('%b %d, %Y')
+
+
+@register.filter()
 def humanizeTimeDelta(arg_at):
     arg_at = datetime_or_now(arg_at)
     at_time = datetime_or_now()
     if arg_at < at_time:
         stmt = _("%(duration)s ago")
-        duration = at_time - arg_at
+        duration = relativedelta(at_time, arg_at)
     else:
         stmt = _("%(duration)s left")
-        duration = arg_at - at_time
+        duration = relativedelta(arg_at, at_time)
+    duration = duration.normalized()
+    if duration.years:
+        duration = "%d years" % duration.years
+    elif duration.months:
+        duration = "%d months" % duration.months
+    elif duration.days:
+        duration = "%d days" % duration.days
+    elif duration.hours:
+        duration = "%d hours" % duration.hours
+    else:
+        duration = "%d min" % duration.minutes
     return stmt % {'duration': duration}
 
 

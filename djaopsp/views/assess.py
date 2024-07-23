@@ -10,6 +10,7 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
 from django import forms
+from django.contrib.auth import get_user_model
 from django.core.files.storage import get_storage_class
 from django.db import models, transaction
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -209,9 +210,13 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                     'title': optin.campaign.title,
                     'last_completed_at': None,
                     'share_url': None,
+                    'respondents': [],
                     'update_url': None,
-                    'grantees': []}
-            by_campaigns[optin.campaign]['grantees'] += [optin]
+                    'requests': []}
+            by_campaigns[optin.campaign]['requests'] += [{
+                'created_at': optin.created_at.isoformat(),
+                'grantee': optin.grantee.slug
+            }]
 
         candidates = get_latest_active_assessments(self.account).exclude(
                 campaign__slug__endswith='-verified') # XXX Ad-hoc exclude
@@ -223,8 +228,9 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                     'title': sample.campaign.title,
                     'last_completed_at': None,
                     'share_url': None,
+                    'respondents': [],
                     'update_url': None,
-                    'grantees': []}
+                    'requests': []}
             by_campaigns[sample.campaign]['update_url'] = reverse(
                 'assess_index', args=(self.account, sample))
             latest_completed = get_latest_completed_assessment(self.account,
@@ -234,6 +240,9 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                     latest_completed.created_at
                 by_campaigns[sample.campaign]['share_url'] = reverse(
                     'share', args=(self.account, latest_completed))
+                by_campaigns[sample.campaign]['respondents'] = \
+                    get_user_model().objects.filter(
+                        answer__sample=sample).distinct()
 
         for campaign in self.campaign_candidates:
             if not campaign in by_campaigns:
@@ -242,8 +251,9 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                     'title': campaign.title,
                     'last_completed_at': None,
                     'share_url': None,
+                    'respondents': [],
                     'update_url': None,
-                    'grantees': []}
+                    'requests': []}
 
         # We have a data structure here that looks like
         # by_campaiagns = {
@@ -262,6 +272,8 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
         context.update({
             'candidates': by_campaigns.values()
         })
+        update_context_urls(context, {
+            'api_accounts': site_url("/api/profile")})
         return context
 
 #    def get(self, request, *args, **kwargs):

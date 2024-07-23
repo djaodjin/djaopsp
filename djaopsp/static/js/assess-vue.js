@@ -1090,13 +1090,16 @@ Vue.component('scorecard', {
  */
 Vue.component('scorecard-requests', {
     mixins: [
-        itemListMixin
+        itemListMixin,
+        accountDetailMixin
     ],
     data: function() {
         return {
             url: this.$urls.api_requests,
             params: {state: "request-initiated"},
-            api_profiles_url: this.$urls.api_organizations,
+            api_accounts_url: this.$urls.api_organizations,
+            api_sample_list_url: this.$urls.api_sample_list,
+            api_portfolios_grants_url: this.$urls.survey_api_portfolios_grants,
             getCompleteCb: 'getCompleted',
             byCampaigns: {}
         }
@@ -1106,10 +1109,8 @@ Vue.component('scorecard-requests', {
             var vm = this;
             vm.reqPost(portfolio.api_accept,
             function(resp) { // success
-                vm.items.results.splice(idx, 1);
-                vm.showMessages(
-                    ["You have accepted the request(s)."],
-                        "success");
+                portfolio.done = true;
+                vm.$forceUpdate();
             });
         },
         ignore: function(portfolio, idx) {
@@ -1117,27 +1118,23 @@ Vue.component('scorecard-requests', {
             vm.reqDelete(portfolio.api_accept,
             function(resp) { // success
                 vm.items.results.splice(idx, 1);
-                vm.showMessages(
-                    ["You have denied the request(s)."],
-                        "success");
             });
         },
         getCompleted: function(){
             var vm = this;
             vm.mergeResults = false;
-            const profiles = new Set();
             vm.byCampaigns = {};
             for( let idx =0; idx < vm.items.results.length; ++idx ) {
                 const item = vm.items.results[idx];
-                profiles.add(item.grantee);
                 const campaign =
                       item.campaign.slug ? item.campaign.slug : item.campaign;
                 if( !(campaign in vm.byCampaigns) ) {
-                    vm.byCampaigns[campaign] = {
+                    vm.$set(vm.byCampaigns, campaign, {
                         campaign: item.campaign,
                         expected_behavior: 'share',//'share', 'update', 'create'
-                        requests: []
-                    };
+                        requests: [],
+                        grantCandidates: []
+                    });
                 }
                 if( item.expected_behavior === 'update' &&
                   vm.byCampaigns[campaign].expected_behavior === 'share' ) {
@@ -1149,33 +1146,66 @@ Vue.component('scorecard-requests', {
                 }
                 vm.byCampaigns[campaign].requests.push(item);
             }
-            if( profiles.size > 0 ) {
-                let queryParams = "?q_f==slug&q=";
-                let sep = "";
-                for( const profile of profiles ) {
-                    queryParams += sep + profile;
-                    sep = ",";
-                }
-                vm.reqGet(vm.api_profiles_url + queryParams,
+            if( vm.api_sample_list_url ) {
+                vm.reqGet(vm.api_sample_list_url,{state: 'completed'},
                 function(resp) {
-                  let profiles = {}
-                  for( let idx = 0; idx < resp.results.length; ++idx ) {
-                      const item = resp.results[idx];
-                      profiles[item.slug] = item;
-                  }
-                    for( let idx =0; idx < vm.items.results.length; ++idx ) {
-                        const item = vm.items.results[idx];
-                        if( item.grantee in profiles ) {
-                            item.grantee = profiles[item.grantee];
+                    for( let idx = 0; idx < resp.results.length; ++idx ) {
+                        const item = resp.results[idx];
+                        const campaign = item.campaign.slug ?
+                            item.campaign.slug : item.campaign;
+                        if( !(campaign in vm.byCampaigns) ) {
+                            vm.$set(vm.byCampaigns, campaign, {
+                                campaign: item.campaign,
+                                last_completed_at: item.created_at,
+                                expected_behavior: 'share',
+                                requests: [],
+                                grantCandidates: []
+                            });
+                        }
+                        if( !vm.byCampaigns[campaign].last_completed_at ||
+                          vm.byCampaigns[campaign].last_completed_at
+                            < item.created_at) {
+                            vm.byCampaigns[campaign].last_completed_at =
+                                item.created_at;
+                        }
+                        for( let gdx = 0; gdx < item.grantees.length;
+                             ++gdx ) {
+                            // Implementation Note: We rely on the API
+                            // returning a list sorted by `created_at` here.
+                            if( item.created_at <
+                                vm.byCampaigns[campaign].last_completed_at ) {
+                                vm.byCampaigns[campaign].grantCandidates.push({
+                                    grantee: item.grantees[gdx],
+                                    last_shared_at: item.created_at
+                                });
+                            }
                         }
                     }
-                    vm.$forceUpdate();
-                }, function() {
-                    // Fail silently and run in degraded mode if we cannot load
-                    // the profile information (picture, etc.)
+                    for(fieldName in vm.byCampaigns) {
+                        if( vm.byCampaigns.hasOwnProperty(fieldName) ) {
+                            const campaign = vm.byCampaigns[fieldName];
+                            vm.populateAccounts(
+                                campaign.grantCandidates, 'grantee');
+                        }
+                    }
                 });
             }
+            vm.populateAccounts(vm.items.results, 'grantee');
         },
+        submitGrant: function(candidate, campaign) {
+            var vm = this;
+            vm.reqPost(vm.api_portfolios_grants_url, {
+                grantee: {slug: candidate.grantee}, campaign:campaign.slug},
+            function(resp) { // success
+                candidate.done = true;
+                vm.$forceUpdate();
+            });
+        },
+    },
+    computed: {
+        hasPendingRequests: function() {
+            return Object.keys(this.byCampaigns).length > 0;
+        }
     },
     mounted: function(){
         this.get();
@@ -2119,5 +2149,24 @@ Vue.component('respondents-list', {
 
     mounted: function(){
         this.get()
+    }
+});
+
+
+Vue.component('decorate-profiles', {
+    mixins: [
+        httpRequestMixin,
+        accountDetailMixin
+    ],
+    data: function() {
+        return {
+            api_accounts_url: this.$urls.api_accounts,
+        }
+    },
+    mounted: function(){
+        var vm = this;
+        if( vm.$el.dataset && vm.$el.dataset.elements ) {
+            vm.populateAccounts(JSON.parse(vm.$el.dataset.elements), 'grantee');
+        }
     }
 });
