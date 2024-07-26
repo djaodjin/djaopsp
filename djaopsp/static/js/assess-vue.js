@@ -1170,14 +1170,27 @@ Vue.component('scorecard-requests', {
                         }
                         for( let gdx = 0; gdx < item.grantees.length;
                              ++gdx ) {
-                            // Implementation Note: We rely on the API
-                            // returning a list sorted by `created_at` here.
-                            if( item.created_at <
-                                vm.byCampaigns[campaign].last_completed_at ) {
-                                vm.byCampaigns[campaign].grantCandidates.push({
-                                    grantee: item.grantees[gdx],
-                                    last_shared_at: item.created_at
-                                });
+                            let found = false;
+                            for( let rdx = 0;
+                                 rdx < vm.byCampaigns[campaign].requests.length;
+                                 ++rdx ) {
+                                const request =
+                                      vm.byCampaigns[campaign].requests[rdx];
+                                if( request.grantee ===  item.grantees[gdx] ) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if( !found ) {
+                                // Implementation Note: We rely on the API
+                                // returning a list sorted by `created_at` here.
+                                if( item.created_at <
+                                  vm.byCampaigns[campaign].last_completed_at ) {
+                                 vm.byCampaigns[campaign].grantCandidates.push({
+                                     grantee: item.grantees[gdx],
+                                     last_shared_at: item.created_at
+                                 });
+                                }
                             }
                         }
                     }

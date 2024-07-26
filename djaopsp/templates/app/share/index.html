@@ -6,7 +6,7 @@
   <h2 class="text-center">for {{profile.printable_name}}</h2>
   <div class="bg-body text-body px-2 py-4">
     <div class="row">
-      <div class="col-8">
+      <div class="col-md-8">
         {% if not sample.is_frozen %}
         <div class="alert alert-warning">
           <div>
@@ -324,7 +324,7 @@ assessment(s) with <em>[[grant.grantee.email ? grant.grantee.email : getAccountP
             </div>
           </portfolios-grant-list>
         </div>{# /.grants #}
-      </div>{# /.col-8 #}
+      </div>{# /.col-md-8 #}
       {% endif %}
     </div>
   </div>
