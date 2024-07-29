@@ -14,6 +14,7 @@ from survey.utils import get_account_model
 
 from ..compat import reverse
 from ..models import VerifiedSample
+from ..scores import get_top_normalized_score
 from ..utils import get_practice_serializer
 
 
@@ -383,12 +384,12 @@ class AccessiblePeriodReportSerializer(serializers.ModelSerializer):
         fields = ('created_at', 'state', 'url', 'normalized_score')
         read_only_fields = ('created_at', 'state', 'url', 'normalized_score')
 
-    @staticmethod
-    def get_normalized_score(obj):
-        scorecard = obj.scorecard_cache.filter(path='/sustainability').first() #XXX
-        if scorecard:
-            return scorecard.normalized_score
+    def get_normalized_score(self, obj):
+        if obj.pk and obj.campaign:
+            return get_top_normalized_score(obj,
+                segments_candidates=self.context.get('segments_candidates'))
         return None
+
 
     @staticmethod
     def get_state(obj):

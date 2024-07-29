@@ -31,7 +31,7 @@ from ..models import VerifiedSample
 from ..pagination import BenchmarksPagination
 from ..queries import get_scored_assessments
 from ..scores import (freeze_scores, get_score_calculator,
-    populate_scorecard_cache)
+    get_top_normalized_score, populate_scorecard_cache)
 from ..signals import sample_frozen
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignDecorateMixin
@@ -568,21 +568,7 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
         # Pick a top normalized_score:
         # If present, use the score for the mandatory segment,
         # otherwise take the maxium of segment scores.
-        top_normalized_score = None
-        for entry in data:
-            path = entry.get('path')
-            indent = entry.get('indent')
-            normalized_score = entry.get('normalized_score')
-            if indent == 0:
-                if normalized_score is not None:
-                    if path and path in self.campaign_mandatory_segments:
-                        top_normalized_score = normalized_score
-                        break
-                    if top_normalized_score is None:
-                        top_normalized_score = normalized_score
-                    else:
-                        top_normalized_score = max(
-                            top_normalized_score, normalized_score)
+        top_normalized_score = get_top_normalized_score(self.sample)
 
         verified_sample = VerifiedSample.objects.filter(
             sample=self.sample).first()

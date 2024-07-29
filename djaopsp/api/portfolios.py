@@ -1138,7 +1138,10 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
     def get_serializer_context(self):
         context = super(
             PortfolioAccessibleSamplesMixin, self).get_serializer_context()
-        context.update({'account': self.account})
+        context.update({
+            'account': self.account,
+            'segments_candidates': self.segments_candidates
+        })
         return context
 
     def get_queryset(self):
