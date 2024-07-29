@@ -15,7 +15,6 @@
 </a>
 {% endif %}
 {% else %}
-{% if not urls.assess_mandatory_segment or is_mandatory_segment_present %}
 <form method="post" action="." @submit.prevent="freezeAssessment"
       v-show="itemsLoaded && items.results.length > 0">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
@@ -28,6 +27,5 @@
         {% trans %}Complete{% endtrans %}
     </button>
 </form>
-{% endif %}
 {% endif %}
 {% endblock %}

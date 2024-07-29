@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -9,6 +9,7 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
 from deployutils.helpers import update_context_urls
 from django import forms
 from django.conf import settings
+from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.db import transaction
 from django.http import HttpResponseRedirect, Http404
 from django.views.generic.base import (RedirectView, TemplateResponseMixin,
@@ -22,6 +23,8 @@ from ..compat import is_authenticated, reverse
 from ..mixins import AccountMixin
 from ..utils import (get_latest_active_assessments,
     get_latest_completed_assessment)
+from .assess import AssessRedirectView
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -100,94 +103,14 @@ class ScorecardRedirectForm(forms.Form):
     campaign = forms.CharField()
 
 
-class GetStartedProfileView(AccountMixin, FormMixin, TemplateResponseMixin,
-                            RedirectView):
+class GetStartedProfileView(AssessRedirectView):
     """
-    Redirects to the latest scorecard page
+    Shows a list of assessment requested or in progress decorated
+    with grantees whenever available.
+
+    The list is filtered by `campaign` and section `path` whenever available
+    on the URL path.
     """
-    # XXX This code was copy/pasted from ScorecardRedirectView and mixed
-    # with SourcingAssessRedirectView.
-    template_name = 'app/scorecard/redirects.html'
-    form_class = ScorecardRedirectForm
-
-    def create_sample(self, campaign):
-        account_model = get_account_model()
-        with transaction.atomic():
-            #pylint:disable=unused-variable
-            if isinstance(self.account, account_model):
-                account = self.account
-            else:
-                account, unused = account_model.objects.get_or_create(
-                    slug=str(self.account))
-            # XXX Whenever Sample.campaign_id is null, the survey APIs
-            # will not behave properly.
-            sample, created = Sample.objects.get_or_create(
-                account=account, campaign=campaign, is_frozen=False,
-                extra__isnull=True)
-        return sample
-
-    def form_valid(self, form):
-        try:
-            campaign = self.campaign_candidates.get(
-                slug=form.cleaned_data['campaign'])
-        except Campaign.DoesNotExist:
-            raise Http404('No candidate campaign matches %(campaign)s.' % {
-                'campaign': form.cleaned_data['campaign']})
-        sample = self.create_sample(campaign)
-        kwargs = {
-            self.account_url_kwarg: self.account,
-            'sample': sample
-        }
-        return HttpResponseRedirect(self.get_redirect_url(**kwargs))
-
-    def get_redirect_url(self, *args, **kwargs):
-        reverse_kwargs = {
-            self.account_url_kwarg: kwargs.get(self.account_url_kwarg),
-            'sample': kwargs.get('sample')
-        }
-        path = kwargs.get('path')
-        if path:
-            reverse_kwargs.update({'path': path})
-            return reverse('assess_practices', kwargs=reverse_kwargs)
-        return reverse('assess_index', kwargs=reverse_kwargs)
-
-    def get(self, request, *args, **kwargs):
-        campaign = kwargs.get('campaign')
-        candidates = get_latest_active_assessments(
-            self.account, campaign=campaign).exclude(
-                campaign__slug__endswith='-verified')
-
-        redirects = []
-        for sample in candidates:
-            # We insured that all candidates are the prefixed
-            # content node at this point.
-            kwargs.update({'sample': sample})
-            url = self.get_redirect_url(*args, **kwargs)
-            print_name = sample.campaign.title
-            redirects += [(url, print_name)]
-
-        if len(redirects) > 1 or len(self.campaign_candidates) > 1:
-            context = self.get_context_data(**kwargs)
-            context.update({
-                'redirects': redirects,
-                'campaigns': self.campaign_candidates
-            })
-            return self.render_to_response(context)
-
-        if not redirects:
-            if not self.campaign_candidates:
-                raise Http404(
-                    "No campaigns available for %(account)s" % {
-                    'account': self.account})
-            sample = self.create_sample(self.campaign_candidates[0])
-            kwargs.update({'sample': sample})
-        return super(GetStartedProfileView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        return self.form_invalid(form)
 
 
 class GetStartedView(AccountRedirectView):
@@ -223,6 +146,6 @@ class GetStartedView(AccountRedirectView):
 
     def get(self, request, *args, **kwargs):
         if not is_authenticated(self.request):
-            return HttpResponseRedirect(
-                site_url('/activate/?next=') + self.request.path)
+            return HttpResponseRedirect(site_url(
+                '/activate/?%s=' % REDIRECT_FIELD_NAME) + self.request.path)
         return super(GetStartedView, self).get(request, *args, **kwargs)

@@ -12,17 +12,21 @@
             <h5>{{assessment.title}}
           </div>
           <div class="card-body">
+            <p>
+{{assessment.descr}}
+            </p>
             {% if assessment.last_completed_at %}
             <p>
 {{profile.printable_name}} last completed {{assessment.title}} questionnaire on {{assessment.last_completed_at|date}}{% if assessment.respondents %} by{% for user in assessment.respondents %} <span class="author">{{user.get_full_name()}}</span>{{ ", " if not loop.last else "" }}{% endfor %}{% endif %}
             </p>
             {% endif %}
-            <p>
             {% if profile.ends_at %}
+            <p>
 {% trans profile=profile.printable_name, ends_at=profile.ends_at|humanizeDate %}The following organizations would like a copy of your response before {{ends_at}}.{% endtrans %}
-            {% else %}
+            </p>
+            {% elif assessment.requests %}
+            <p>
 {% trans profile=profile.printable_name %}The following organizations would like a copy of your response.{% endtrans %}
-            {% endif %}
             </p>
             <decorate-profiles data-elements='{{assessment.requests|to_json}}' inline-template>
               <div>
@@ -44,6 +48,7 @@
                 {% endfor %}
               </div>
             </decorate-profiles>
+            {% endif %}
           </div>{# /.card-body #}
           <div class="card-footer">
             <div class="row">
@@ -60,7 +65,7 @@
                 {% else %}
                 <form action="." method="post">
                   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                  <button type="submit" class="btn" name="campaign" value="{{campaign.slug}}" role="menuitem" tabindex="-1">{% trans %}Get started{% endtrans %}</button>
+                  <button type="submit" class="btn btn-primary" name="campaign" value="{{assessment.slug}}" role="menuitem" tabindex="-1">{% trans %}Get started{% endtrans %} &raquo;</button>
                 </form>
                 {% endif %}
               </div>
@@ -68,7 +73,7 @@
           </div>{# /.card-footer #}
         </div>
         {% endfor %}
-        <hr />
+        <hr class="mt-4" />
         <p class="mt-4">
 {% trans %}This Website provides additional questionnaires on which to assess
 your organizations performance on a variety of qualitative and quantitative

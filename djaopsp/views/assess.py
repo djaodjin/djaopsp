@@ -145,6 +145,9 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
     Shows a list of assessment requested or in progress decorated
     with grantees whenever available.
     """
+    campaign_url_kwarg = 'campaign'
+    path_url_kwarg = 'path'
+
     # XXX This code was copy/pasted from ScorecardRedirectView and mixed
     # with SourcingAssessRedirectView.
     template_name = 'app/assess/redirects.html'
@@ -185,9 +188,9 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
             self.account_url_kwarg: kwargs.get(self.account_url_kwarg),
             'sample': kwargs.get('sample')
         }
-        path = kwargs.get('path')
+        path = kwargs.get(self.path_url_kwarg)
         if path:
-            reverse_kwargs.update({'path': path})
+            reverse_kwargs.update({self.path_url_kwarg: path})
             return reverse('assess_practices', kwargs=reverse_kwargs)
         return reverse('assess_index', kwargs=reverse_kwargs)
 
@@ -195,11 +198,13 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
         context = super(AssessRedirectView, self).get_context_data(**kwargs)
 
         at_time = datetime_or_now()
+        campaign_filtered = self.kwargs.get(self.campaign_url_kwarg)
+        path_filtered = self.kwargs.get(self.path_url_kwarg)
         by_campaigns = OrderedDict()
 
         # XXX `pending_for` will also include grants pending acceptance.
         requests = PortfolioDoubleOptIn.objects.pending_for(
-            self.account, at_time=at_time).exclude(
+            self.account, at_time=at_time, campaign=campaign_filtered).exclude(
                 models.Q(grantee=self.account) &
                 models.Q(state=PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED)
         ).order_by('campaign__title')
@@ -208,6 +213,7 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                 by_campaigns[optin.campaign] = {
                     'slug': optin.campaign.slug,
                     'title': optin.campaign.title,
+                    'descr': optin.campaign.description,
                     'last_completed_at': None,
                     'share_url': None,
                     'respondents': [],
@@ -218,7 +224,8 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                 'grantee': optin.grantee.slug
             }]
 
-        candidates = get_latest_active_assessments(self.account).exclude(
+        candidates = get_latest_active_assessments(
+            self.account, campaign=campaign_filtered).exclude(
                 campaign__slug__endswith='-verified') # XXX Ad-hoc exclude
                                                     # of verification campaigns.
         for sample in candidates:
@@ -226,13 +233,20 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                 by_campaigns[sample.campaign] = {
                     'slug': sample.campaign.slug,
                     'title': sample.campaign.title,
+                    'descr': sample.campaign.description,
                     'last_completed_at': None,
                     'share_url': None,
                     'respondents': [],
                     'update_url': None,
                     'requests': []}
-            by_campaigns[sample.campaign]['update_url'] = reverse(
-                'assess_index', args=(self.account, sample))
+            reverse_kwargs = {
+                self.account_url_kwarg: self.account,
+                'sample': sample,
+            }
+            if path_filtered:
+                reverse_kwargs.update({self.path_url_kwarg: path_filtered})
+            by_campaigns[sample.campaign]['update_url'] = self.get_redirect_url(
+                **reverse_kwargs)
             latest_completed = get_latest_completed_assessment(self.account,
                 campaign=sample.campaign)
             if latest_completed:
@@ -244,16 +258,18 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                     get_user_model().objects.filter(
                         answer__sample=sample).distinct()
 
-        for campaign in self.campaign_candidates:
-            if not campaign in by_campaigns:
-                by_campaigns[campaign] = {
-                    'slug': campaign.slug,
-                    'title': campaign.title,
-                    'last_completed_at': None,
-                    'share_url': None,
-                    'respondents': [],
-                    'update_url': None,
-                    'requests': []}
+        if not campaign_filtered:
+            for campaign in self.campaign_candidates:
+                if not campaign in by_campaigns:
+                    by_campaigns[campaign] = {
+                        'slug': campaign.slug,
+                        'title': campaign.title,
+                        'descr': campaign.description,
+                        'last_completed_at': None,
+                        'share_url': None,
+                        'respondents': [],
+                        'update_url': None,
+                        'requests': []}
 
         # We have a data structure here that looks like
         # by_campaiagns = {
@@ -275,13 +291,6 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
         update_context_urls(context, {
             'api_accounts': site_url("/api/profile")})
         return context
-
-#    def get(self, request, *args, **kwargs):
-#        """
-#        Shows a list of assessment requested or in progress decorated
-#        with grantees whenever available.
-#        """
-#        return self.render_to_response(context)
 
 
     def post(self, request, *args, **kwargs):
