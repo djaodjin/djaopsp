@@ -14,6 +14,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.storage import get_storage_class
 from django.db import models, transaction
 from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin
@@ -198,7 +199,9 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
         context = super(AssessRedirectView, self).get_context_data(**kwargs)
 
         at_time = datetime_or_now()
-        campaign_filtered = self.kwargs.get(self.campaign_url_kwarg)
+        campaign_slug = self.kwargs.get(self.campaign_url_kwarg)
+        campaign_filtered = (get_object_or_404(Campaign, slug=campaign_slug)
+            if campaign_slug else None)
         path_filtered = self.kwargs.get(self.path_url_kwarg)
         by_campaigns = OrderedDict()
 
@@ -209,20 +212,24 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                 models.Q(state=PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED)
         ).order_by('campaign__title')
         for optin in requests:
-            if not optin.campaign in by_campaigns:
-                by_campaigns[optin.campaign] = {
-                    'slug': optin.campaign.slug,
-                    'title': optin.campaign.title,
-                    'descr': optin.campaign.description,
-                    'last_completed_at': None,
-                    'share_url': None,
-                    'respondents': [],
-                    'update_url': None,
-                    'requests': []}
-            by_campaigns[optin.campaign]['requests'] += [{
-                'created_at': optin.created_at.isoformat(),
-                'grantee': optin.grantee.slug
-            }]
+            campaign = optin.campaign
+            if campaign:
+                # XXX It is possible the request isn't limited
+                #     to a single campaign.
+                if not campaign in by_campaigns:
+                    by_campaigns[optin.campaign] = {
+                        'slug': campaign.slug,
+                        'title': campaign.title,
+                        'descr': campaign.description,
+                        'last_completed_at': None,
+                        'share_url': None,
+                        'respondents': [],
+                        'update_url': None,
+                        'requests': []}
+                by_campaigns[campaign]['requests'] += [{
+                    'created_at': optin.created_at.isoformat(),
+                    'grantee': optin.grantee.slug
+                }]
 
         candidates = get_latest_active_assessments(
             self.account, campaign=campaign_filtered).exclude(

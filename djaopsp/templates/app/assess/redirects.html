@@ -17,7 +17,7 @@
             </p>
             {% if assessment.last_completed_at %}
             <p>
-{{profile.printable_name}} last completed {{assessment.title}} questionnaire on {{assessment.last_completed_at|date}}{% if assessment.respondents %} by{% for user in assessment.respondents %} <span class="author">{{user.get_full_name()}}</span>{{ ", " if not loop.last else "" }}{% endfor %}{% endif %}
+{{profile.printable_name}} last completed {{assessment.title}} questionnaire on {{assessment.last_completed_at|humanizeDate}}{% if assessment.respondents %} by{% for user in assessment.respondents %} <span class="author">{{user.get_full_name()}}</span>{{ ", " if not loop.last else "" }}{% endfor %}{% endif %}
             </p>
             {% endif %}
             {% if profile.ends_at %}
@@ -37,9 +37,9 @@
                       <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture('{{request.grantee}}') ? getAccountPicture('{{request.grantee}}') : '{{'/static/img/default-organization.png'|asset}}'" >
                     </div>
                     <div class="col-5">
-                      [[getAccountPrintableName('{{request.grantee}}')]]
+                      [[getAccountPrintableName('{{request.grantee}}') ? getAccountPrintableName('{{request.grantee}}') : '{{request.grantee}}']]
                       <div>
-                        <small>on {{request.created_at|date}}
+                        <small>on {{request.created_at|humanizeDate}}
                           ({{request.created_at|humanizeTimeDelta}})</small>
                       </div>
                     </div>
@@ -55,17 +55,17 @@
               <div class="col-md-6 text-center">
                 {% if assessment.share_url %}
                 <a class="btn btn-primary my-2"
-                   href="{{assessment.share_url}}">{% trans created_at=assessment.last_completed_at|date %}Share {{created_at}} assessment{% endtrans %}</a>
+                   href="{{assessment.share_url}}">{% trans created_at=assessment.last_completed_at|humanizeDate %}Share {{created_at}} assessment{% endtrans %}</a>
                 {% endif %}
               </div>
               <div class="col-md-6 text-center">
                 {% if assessment.update_url %}
-                <a class="btn btn-primary my-2"
+                <a id="{{assessment.slug}}" class="btn btn-primary my-2"
                    href="{{assessment.update_url}}">{% if assessment.share_url %}{% trans %}Update with new information{% endtrans %}{% else %}{% trans %}Continue{% endtrans %}{% endif %}</a>
                 {% else %}
                 <form action="." method="post">
                   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                  <button type="submit" class="btn btn-primary" name="campaign" value="{{assessment.slug}}" role="menuitem" tabindex="-1">{% trans %}Get started{% endtrans %} &raquo;</button>
+                  <button id="{{assessment.slug}}" type="submit" class="btn btn-primary" name="campaign" value="{{assessment.slug}}" role="menuitem" tabindex="-1">{% trans %}Get started{% endtrans %} &raquo;</button>
                 </form>
                 {% endif %}
               </div>
