@@ -14,8 +14,8 @@ from survey.utils import get_engaged_accounts
 from survey.views.matrix import CompareView as CompareBaseView
 from rest_framework.generics import get_object_or_404
 
+from .. import humanize
 from ..api.campaigns import CampaignContentMixin
-from ..api.serializers import EngagementSerializer
 from ..compat import force_str, gettext_lazy as _, reverse
 from ..mixins import AccountsNominativeQuerysetMixin
 from ..models import Sample, ScorecardCache
@@ -309,7 +309,7 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
                     # equals
                     account = results[-1]
                     if (key.get('reporting_status') in
-                        EngagementSerializer.REPORTING_ACCESSIBLE_ANSWERS):
+                        humanize.REPORTING_ACCESSIBLE_ANSWERS):
                         self.add_datapoint(account, datapoint)
                     try:
                         datapoint = next(datapoints_iterator)
@@ -559,12 +559,12 @@ ORDER BY answers.path, answers.account_id
             last_activity_at_by_accounts.update({
                 sample.account_id: sample.created_at})
         headings = [force_str(_("Last completed at"))]
-        reporting_status_strings = dict(EngagementSerializer.REPORTING_STATUSES)
+        reporting_status_strings = dict(humanize.REPORTING_STATUSES)
         for reporting in self.accounts_with_engagement:
             account_id = reporting.pk
             last_activity_at = last_activity_at_by_accounts.get(account_id)
             if (reporting.reporting_status not in
-                EngagementSerializer.REPORTING_ACCESSIBLE_ANSWERS):
+                humanize.REPORTING_ACCESSIBLE_ANSWERS):
                 headings += [
                     reporting_status_strings[reporting.reporting_status]
                 ]
@@ -614,7 +614,7 @@ class CompareScoresXLSXView(CompareXLSXView):
 
             for item, reporting in zip(tab, self.accounts_with_engagement):
                 if (reporting.reporting_status not in
-                    EngagementSerializer.REPORTING_ACCESSIBLE_ANSWERS):
+                    humanize.REPORTING_ACCESSIBLE_ANSWERS):
                     row += [""]
                 else:
                     row += [item.get('measured', "")]

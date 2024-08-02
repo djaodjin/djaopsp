@@ -12,6 +12,7 @@ from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
     TableSerializer, UnitSerializer)
 from survey.utils import get_account_model
 
+from .. import humanize
 from ..compat import reverse
 from ..models import VerifiedSample
 from ..scores import get_top_normalized_score
@@ -281,7 +282,7 @@ class ReportingSerializer(NoModelSerializer):
     """
     Used to list accessible suppliers
     """
-    REPORTING_NOT_STARTED = 0
+    REPORTING_NOT_STARTED = humanize.REPORTING_INVITED
     REPORTING_ABANDONED = 1
     REPORTING_EXPIRED = 2
     REPORTING_ASSESSMENT_PHASE = 3
@@ -373,11 +374,11 @@ class ReportingSerializer(NoModelSerializer):
 class AccessiblePeriodReportSerializer(serializers.ModelSerializer):
 
     url = serializers.SerializerMethodField(required=False,
-        help_text=_("URL to access report card"))
-    state = serializers.SerializerMethodField(required=False,
-        help_text=_("URL to access report card"))
+        help_text=_("URL to access response"))
+    state = EnumField(choices=humanize.REPORTING_STATUSES, required=False,
+        help_text=_("state of response"))
     normalized_score = serializers.SerializerMethodField(required=False,
-        help_text=_("URL to access report card"))
+        help_text=_("score on the response"))
 
     class Meta:
         model = Sample
@@ -389,11 +390,6 @@ class AccessiblePeriodReportSerializer(serializers.ModelSerializer):
             return get_top_normalized_score(obj,
                 segments_candidates=self.context.get('segments_candidates'))
         return None
-
-
-    @staticmethod
-    def get_state(obj):
-        return obj.state
 
     def get_url(self, obj):
         request = self.context.get('request')
@@ -427,30 +423,15 @@ class EngagementSerializer(AccountSerializer):
     # reporting_status definition in `get_engagement_by_reporting_status`
     # to collapse reporting_status to a single value when an account's response
     # has been requested by multiple grantees.
-    REPORTING_INVITED_DENIED = -1
-    REPORTING_INVITED = 0
-    REPORTING_UPDATED = 1
-    REPORTING_COMPLETED_DENIED = 2
-    REPORTING_COMPLETED_NOTSHARED = 3
-    REPORTING_COMPLETED = 4
-    REPORTING_VERIFIED = 5
+    REPORTING_INVITED_DENIED = humanize.REPORTING_INVITED_DENIED
+    REPORTING_INVITED = humanize.REPORTING_INVITED
+    REPORTING_UPDATED = humanize.REPORTING_UPDATED
+    REPORTING_COMPLETED_DENIED = humanize.REPORTING_COMPLETED_DENIED
+    REPORTING_COMPLETED_NOTSHARED = humanize.REPORTING_COMPLETED_NOTSHARED
+    REPORTING_COMPLETED = humanize.REPORTING_COMPLETED
+    REPORTING_VERIFIED = humanize.REPORTING_VERIFIED
 
-    REPORTING_STATUSES = (
-        (REPORTING_INVITED_DENIED, 'invited-denied'),
-        (REPORTING_INVITED, 'invited'),
-        (REPORTING_UPDATED, 'updated'),
-        (REPORTING_COMPLETED_DENIED, 'completed-denied'),
-        (REPORTING_COMPLETED_NOTSHARED, 'completed-notshared'),
-        (REPORTING_COMPLETED, 'completed'),
-        (REPORTING_VERIFIED, 'verified'),
-    )
-
-    REPORTING_ACCESSIBLE_ANSWERS = (
-        REPORTING_COMPLETED_DENIED,
-        REPORTING_COMPLETED_NOTSHARED,
-        REPORTING_COMPLETED,
-        REPORTING_VERIFIED
-    )
+    REPORTING_STATUSES = humanize.REPORTING_STATUSES
 
     sample = serializers.SlugField(required=False)
     score_url = serializers.SerializerMethodField(

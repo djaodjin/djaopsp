@@ -109,7 +109,7 @@
               <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
             </a>
             <a class="dropdown-item" :href="'{{urls.download_long}}' + getQueryString(['page'])">
-              <i class="fa fa-file-text"></i> {% trans %}Long Format (csv){% endtrans %}
+              <i class="fa fa-file-text"></i> {% trans %}Long Format (xlsx){% endtrans %}
             </a>
           </ul>
         </div>{# /.btn-group #}
@@ -157,7 +157,7 @@
                       <option value="verified"><i class="fa fa-certificate" style="color: green;"></i> verified</option>
                       <option value="completed"><i class="fa fa-circle" style="color: green;"></i> completed</option>
                       <option value="responded"><i class="fa fa-circle" style="color: yellow;"></i> responded</option>
-                      <option value="declined"><i class="fa fa-circle" style="color: red;"></i> no-response</option>
+                      <option value="no-response"><i class="fa fa-circle" style="color: red;"></i> no-response</option>
                       <option value="no-data"><i class="fa fa-circle" style="color: red;"></i> no-data</option>
                   </select>
                   -->
@@ -244,7 +244,7 @@
           <i class="fa fa-circle" style="color: yellow;"
              v-if="val.state === 'responded'"></i>
           <i class="fa fa-circle" style="color: red;"
-             v-if="val.state === 'declined'"></i>
+             v-if="val.state === 'no-response'"></i>
           <i class="fa fa-circle" style="color: grey;"
              v-if="val.state === 'no-data'"></i>
           <br />

@@ -11,7 +11,8 @@ from survey.queries import as_sql_date_trunc, is_sqlite3
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
 
-from .api.serializers import EngagementSerializer, ReportingSerializer
+from . import humanize
+from .api.serializers import ReportingSerializer
 from .models import ScorecardCache
 from .scores import get_score_calculator
 
@@ -128,8 +129,8 @@ SELECT
     survey_sample.created_at AS created_at,
     survey_portfolio.extra AS extra,
     CASE WHEN survey_sample.created_at < MAX(survey_portfolio.ends_at)
-       THEN 'completed'
-       ELSE 'responded' END AS state
+       THEN %(REPORTING_COMPLETED)s
+       ELSE %(REPORTING_RESPONDED)s END AS state
 FROM survey_sample
 INNER JOIN last_updates ON
    survey_sample.account_id = last_updates.account_id AND
@@ -154,8 +155,8 @@ SELECT
   completed_by_date.created_at,
   completed_by_date.extra,
   CASE WHEN (COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1 AND
-    completed_by_date.state = 'completed')
-    THEN 'verified' ELSE completed_by_date.state
+    completed_by_date.state = %(REPORTING_COMPLETED)s)
+    THEN %(REPORTING_VERIFIED)s ELSE completed_by_date.state
     END AS state%(prefix_fields)s
 FROM completed_by_date
 LEFT OUTER JOIN djaopsp_verifiedsample
@@ -169,7 +170,10 @@ ORDER BY completed_by_date.account_id, completed_by_date.created_at
        'additional_filters': additional_filters,
        'extra_clause': extra_clause,
        'prefix_fields': prefix_fields,
-       'prefix_join': prefix_join}
+       'prefix_join': prefix_join,
+       'REPORTING_RESPONDED': humanize.REPORTING_RESPONDED,
+       'REPORTING_COMPLETED': humanize.REPORTING_COMPLETED,
+       'REPORTING_VERIFIED': humanize.REPORTING_VERIFIED}
     return sql_query
 
 
@@ -451,15 +455,15 @@ ON engaged.account_id = %(accounts_table)s.id
     'optin_request_expired': PortfolioDoubleOptIn.OPTIN_REQUEST_EXPIRED,
     'optin_request_denied': PortfolioDoubleOptIn.OPTIN_REQUEST_DENIED,
     'accounts_table': get_account_model()._meta.db_table,
-    'REPORTING_INVITED_DENIED': EngagementSerializer.REPORTING_INVITED_DENIED,
-    'REPORTING_INVITED': EngagementSerializer.REPORTING_INVITED,
-    'REPORTING_UPDATED': EngagementSerializer.REPORTING_UPDATED,
+    'REPORTING_INVITED_DENIED': humanize.REPORTING_INVITED_DENIED,
+    'REPORTING_INVITED': humanize.REPORTING_INVITED,
+    'REPORTING_UPDATED': humanize.REPORTING_UPDATED,
     'REPORTING_COMPLETED_DENIED': \
-        EngagementSerializer.REPORTING_COMPLETED_DENIED,
+        humanize.REPORTING_COMPLETED_DENIED,
     'REPORTING_COMPLETED_NOTSHARED': \
-        EngagementSerializer.REPORTING_COMPLETED_NOTSHARED,
-    'REPORTING_COMPLETED': EngagementSerializer.REPORTING_COMPLETED,
-    'REPORTING_VERIFIED': EngagementSerializer.REPORTING_VERIFIED,
+        humanize.REPORTING_COMPLETED_NOTSHARED,
+    'REPORTING_COMPLETED': humanize.REPORTING_COMPLETED,
+    'REPORTING_VERIFIED': humanize.REPORTING_VERIFIED,
     }
     return sql_query
 
@@ -509,7 +513,7 @@ GROUP BY account_id, slug, printable_name, extra
 def get_engagement_by_reporting_status(campaign, accounts,
                                 grantees=None, start_at=None, ends_at=None):
     # Implementation note: We use the order defined in
-    # `EngagementSerializer.REPORTING_STATUSES` to collapse to a single
+    # `humanize.REPORTING_STATUSES` to collapse to a single
     # reporting_status when an account managed reporting to multiple grantees
     # differently.
     sql_query = """
@@ -989,7 +993,7 @@ ON %(accounts_table)s.id = assessments.account_id
 #XXX    'join_clause': "INNER" if self.db_path else "LEFT OUTER",
     'join_clause': "LEFT OUTER",
     'accounts_table': account_model._meta.db_table,
-    'reporting_status': ReportingSerializer.REPORTING_NOT_STARTED,
+    'reporting_status': humanize.REPORTING_INVITED,
     'accounts_clause': accounts_clause,
     'order_clause': order_clause}
 

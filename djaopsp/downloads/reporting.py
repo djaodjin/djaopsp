@@ -21,6 +21,7 @@ from survey.helpers import datetime_or_now, get_extra
 from survey.models import Answer, Choice, Sample, Unit
 from survey.utils import get_question_model
 
+from .. import humanize
 from ..api.serializers import EngagementSerializer
 from ..api.portfolios import (BenchmarkMixin, PortfolioAccessibleSamplesMixin,
     PortfolioEngagementMixin)
@@ -34,8 +35,8 @@ from ..utils import get_alliances, get_segments_candidates
 LOGGER = logging.getLogger(__name__)
 
 STAGE_BY_BUCKET = {
-    '0-20': _("Adopting"),
-    '21-40': _("Beginning/ Initiating/ Developing"),
+    '0-20': _("Adopting/ Initiating"),
+    '21-40': _("Adopting/ Initiating"),
     '41-60': _("Growing/ Progressing"),
     '61-80': _("Leading"),
     '81-100': _("Pioneering"),
@@ -82,20 +83,17 @@ class CSVDownloadView(AccountMixin, ListView):
             queryset = backend().filter_queryset(request, queryset, self)
         return queryset
 
-    def writerecord(self, csv_writer, record):
-        csv_writer.writerow(self.queryrow_to_columns(record))
-
     def get(self, *args, **kwargs): #pylint: disable=unused-argument
         if six.PY2:
             content = io.BytesIO()
         else:
             content = io.StringIO()
-        csv_writer = csv.writer(content)
-        csv_writer.writerow([self.encode(head)
+        self.csv_writer = csv.writer(content)
+        self.csv_writer.writerow([self.encode(head)
             for head in self.get_headings()])
         qs = self.decorate_queryset(self.filter_queryset(self.get_queryset()))
         for record in qs:
-            self.writerecord(csv_writer, record)
+            self.writerecord(record)
         content.seek(0)
         resp = HttpResponse(content, content_type=self.content_type)
         resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
@@ -115,6 +113,15 @@ class CSVDownloadView(AccountMixin, ListView):
 
     def queryrow_to_columns(self, record):
         raise NotImplementedError
+
+    def writerecord(self, record):
+        table = self.queryrow_to_columns(record)
+        if table:
+            if isinstance(table[0], list):
+                for row in table:
+                    self.csv_writer.writerow(row)
+            else:
+                self.csv_writer.writerow(table)
 
 
 class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
@@ -323,9 +330,6 @@ class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
     def get_indent_heading(depth=0):
         return "  " * depth
 
-    def writerow(self, rec):
-        pass
-
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument
         self._start_time()
@@ -342,8 +346,8 @@ class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
         if descr:
             self.wsheet.append([descr])
         self.wsheet.append(self.get_headings())
-        for account in queryset:
-            self.writerow(account)
+        for record in queryset:
+            self.writerecord(record)
 
         # Prepares the result file
         content = io.BytesIO()
@@ -355,6 +359,18 @@ class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
             self.get_filename())
         self._report_queries("http response created")
         return resp
+
+    def writerecord(self, record):
+        table = self.queryrow_to_columns(record)
+        if table:
+            if isinstance(table[0], list):
+                for row in table:
+                    self.wsheet.append(row)
+            else:
+                self.wsheet.append(table)
+
+    def queryrow_to_columns(self, record):
+        raise NotImplementedError
 
 
 class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
@@ -375,16 +391,16 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
             labels += ["%s Status" % label]
         return labels
 
-    def writerow(self, rec):
-        supplier_key = get_extra(rec, 'supplier_key')
-        row = [supplier_key, rec.printable_name,
-            ", ".join(get_extra(rec, 'tags', []))]
+    def queryrow_to_columns(self, record):
+        supplier_key = get_extra(record, 'supplier_key')
+        row = [supplier_key, record.printable_name,
+            ", ".join(get_extra(record, 'tags', []))]
 
         # Write period-over-period normalized scores
-        segment_path = '/sustainability'  #XXX
-        for val in reversed(rec.values):
+        for val in reversed(record.values):
             state = val.state
-            if state in (self.REPORTING_COMPLETED, self.REPORTING_VERIFIED):
+            if state in (humanize.REPORTING_COMPLETED,
+                         humanize.REPORTING_VERIFIED):
                 normalized_score = get_top_normalized_score(
                     val, segments_candidates=self.segments_candidates)
                 row += [
@@ -393,35 +409,32 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
                 row += [""]
 
         # Write period-over-period score buckets
-        for val in reversed(rec.values):
+        for val in reversed(record.values):
             state = val.state
-            if state in (self.REPORTING_COMPLETED, self.REPORTING_VERIFIED):
-                scorecard = val.scorecard_cache.filter(
-                    path=segment_path).first()
-                normalized_score = (
-                    scorecard.normalized_score if scorecard else None)
+            if state in (humanize.REPORTING_COMPLETED,
+                         humanize.REPORTING_VERIFIED):
+                normalized_score = get_top_normalized_score(
+                    val, segments_candidates=self.segments_candidates)
                 bucket = get_bucket(normalized_score)
                 row += [bucket]
             else:
                 row += [""]
 
         # Write period-over-period status
-        for val in reversed(rec.values):
+        for val in reversed(record.values):
             state = val.state
-            if state in (self.REPORTING_DECLINED,):
-                row += ['no-response']
-            else:
-                row += [state]
+            row += [state]
 
-        self.wsheet.append(row)
+        return row
 
 
 class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
-                                      CSVDownloadView):
+                                      TemplateXLSXView):
     """
     """
     base_headings = ['Supplier No.', 'Supplier Name',
         'TSP Score', 'Score Range', 'Score Stage']
+    title = "Responses"
 
     def get_headings(self):
         headings = self.base_headings
@@ -431,7 +444,19 @@ class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
             headings += ['Year']
         return headings
 
-    def writerecord(self, csv_writer, record):
+    def get_filename(self):
+        basename = "%s-suppliers" % self.account
+        return datetime_or_now().strftime(basename + '-%m_%d_%Y.xlsx')
+
+    def queryrow_to_columns(self, record):
+        COLLAPSED_REPORTING_STATUSES = {
+            humanize.REPORTING_NO_RESPONSE: _("Invited"),
+            humanize.REPORTING_NO_DATA: _("Not Completed"),
+            humanize.REPORTING_NO_PROFILE: _("N/A"),
+            humanize.REPORTING_RESPONDED: _("Not Shared"),
+        }
+        REPORTING_STATUSES = dict(humanize.REPORTING_STATUSES)
+        table = []
         for val in reversed(record.values):
             bucket = None
             stage = None
@@ -440,7 +465,8 @@ class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
             row = [supplier_key, record.printable_name]
             state = val.state
             # Write 'TSP Score'
-            if state in (self.REPORTING_COMPLETED, self.REPORTING_VERIFIED):
+            if state in (humanize.REPORTING_COMPLETED,
+                         humanize.REPORTING_VERIFIED):
                 normalized_score = get_top_normalized_score(
                     val, segments_candidates=self.segments_candidates)
                 bucket = get_bucket(normalized_score)
@@ -448,24 +474,26 @@ class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
                 row += [
                     normalized_score if normalized_score is not None else ""]
             else:
-                status = state
-                if state in (self.REPORTING_DECLINED,):
-                    status = 'no-response'
+                status = REPORTING_STATUSES[state]
+                if state in COLLAPSED_REPORTING_STATUSES:
+                    status = COLLAPSED_REPORTING_STATUSES[state]
                 bucket = status
                 stage = status
-                row += [status]
+                row += [str(status)]
 
             # Write 'Score Range'
-            row += [bucket]
+            row += [str(bucket)]
             # Write 'Score Stage'
-            row += [stage]
+            row += [str(stage)]
             # Write Period ('Year' or 'Month')
             if self.period == 'monthly':
                 row += [val.created_at.strftime("%b %Y")]
             else:
                 row += [val.created_at.year]
 
-            csv_writer.writerow(row)
+            table += [row]
+
+        return table
 
 
 class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):
@@ -484,15 +512,15 @@ class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):
             'Last reminder',
             'Added']
 
-    def writerow(self, rec):
+    def queryrow_to_columns(self, record):
         reporting_statuses = dict(EngagementSerializer.REPORTING_STATUSES)
-        row = [rec.printable_name,
-               ", ".join(get_extra(rec, 'tags', [])),
-               reporting_statuses[rec.reporting_status],
-               rec.last_activity_at.date() if rec.last_activity_at else "",
-               "",
-               rec.requested_at.date() if rec.requested_at else ""]
-        self.wsheet.append(row)
+        row = [record.printable_name,
+            ", ".join(get_extra(record, 'tags', [])),
+            reporting_statuses[record.reporting_status],
+            record.last_activity_at.date() if record.last_activity_at else "",
+            "",
+            record.requested_at.date() if record.requested_at else ""]
+        return row
 
 
 class LongFormatCSVView(AccountsNominativeQuerysetMixin, CSVDownloadView):

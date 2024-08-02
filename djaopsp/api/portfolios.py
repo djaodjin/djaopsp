@@ -33,6 +33,7 @@ from survey.utils import (get_accessible_accounts, get_account_model,
     get_engaged_accounts, get_benchmarks_enumerated)
 
 from .campaigns import CampaignDecorateMixin
+from .. import humanize
 from ..compat import gettext_lazy as _, reverse, six
 from ..helpers import as_percentage
 from ..queries import (get_latest_frozen_by_portfolio_by_period, get_engagement,
@@ -1112,12 +1113,6 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
 
     filter_backends = (SearchFilter, OrderingFilter)
 
-    REPORTING_NO_DATA = 'no-data'
-    REPORTING_RESPONDED = 'responded'
-    REPORTING_COMPLETED = 'completed'
-    REPORTING_VERIFIED = 'verified'
-    REPORTING_DECLINED = 'declined'
-
     @property
     def period(self):
         if not hasattr(self, '_period'):
@@ -1153,14 +1148,17 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         #     (query set is `django.db.models.query.QuerySet`)
         return queryset
 
-    def as_sample(self, key, requested_by_keys):
+    def as_sample(self, key, requested_by_keys, created_at=None):
         """
         Fills a cell for column `key` with generated content since we do not
         have a completed sample. `state` could either be 'declined' when the
         profile has been invited, or 'no-data' in all cases.
         """
-        state = (self.REPORTING_DECLINED
-            if key in requested_by_keys else self.REPORTING_NO_DATA)
+        state = humanize.REPORTING_NO_DATA
+        if key in requested_by_keys:
+            state = humanize.REPORTING_NO_RESPONSE
+        elif created_at and created_at > key:
+            state = humanize.REPORTING_NO_PROFILE
         sample = Sample(created_at=key)
         sample.state = state
         return sample
@@ -1218,6 +1216,7 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
             if hasattr(account, '_extra'):
                 #pylint:disable=protected-access
                 account.extra = account._extra
+            account_created_at = account.created_at
             values = []
             key = None
             sample = None
@@ -1229,7 +1228,8 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
                 pass
             try:
                 key = self.as_sample(next(keys_iterator),
-                    requested_by_accounts.get(account.pk, []))
+                    requested_by_accounts.get(account.pk, []),
+                    account_created_at)
             except StopIteration:
                 pass
             try:
@@ -1244,7 +1244,8 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
                         values += [key]
                         key = None
                         key = self.as_sample(next(keys_iterator),
-                            requested_by_accounts.get(account.pk, []))
+                            requested_by_accounts.get(account.pk, []),
+                            account_created_at)
                     else:
                         values += [sample]
                         try:
@@ -1253,7 +1254,8 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
                             sample = None
                         try:
                             key = self.as_sample(next(keys_iterator),
-                                requested_by_accounts.get(account.pk, []))
+                                requested_by_accounts.get(account.pk, []),
+                                account_created_at)
                         except StopIteration:
                             key = None
             except StopIteration:
@@ -1268,7 +1270,8 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
                 while key:
                     values += [key]
                     key = self.as_sample(next(keys_iterator),
-                        requested_by_accounts.get(account.pk, []))
+                        requested_by_accounts.get(account.pk, []),
+                        account_created_at)
             except StopIteration:
                 pass
 
@@ -1440,9 +1443,9 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
         # validate states
         states = []
         valid_states = {status[1]
-            for status in EngagementSerializer.REPORTING_STATUSES}
+            for status in humanize.REPORTING_STATUSES}
         inverted_valid_states = {slugify(val): key
-            for key, val in EngagementSerializer.REPORTING_STATUSES}
+            for key, val in humanize.REPORTING_STATUSES}
         for state in param_states:
             if state in valid_states:
                 states += [inverted_valid_states[state]]
@@ -1715,16 +1718,6 @@ class EngagementStatsMixin(DashboardAggregateMixin):
 
     title = "Engagement"
 
-    COLLAPSED_REPORTING_STATUSES = {
-        EngagementSerializer.REPORTING_INVITED_DENIED: "Invited",
-        EngagementSerializer.REPORTING_INVITED: "Invited",
-        EngagementSerializer.REPORTING_UPDATED: "Work-in-progress",
-        EngagementSerializer.REPORTING_COMPLETED_DENIED: "Completed",
-        EngagementSerializer.REPORTING_COMPLETED_NOTSHARED: "Completed",
-        EngagementSerializer.REPORTING_COMPLETED: "Completed",
-        EngagementSerializer.REPORTING_VERIFIED: "Completed",
-    }
-
     def get_aggregate(self, account=None, labels=None,
                       aggregate_set=False):
         #pylint:disable=unused-argument,too-many-locals
@@ -1746,10 +1739,11 @@ class EngagementStatsMixin(DashboardAggregateMixin):
             self.campaign, requested_accounts,
             grantees=grantees, start_at=weekends_at[0], ends_at=weekends_at[-1])
 
-        stats = {key: 0 for key in self.COLLAPSED_REPORTING_STATUSES.values()}
+        stats = {
+            key: 0 for key in humanize.COLLAPSED_REPORTING_STATUSES.values()}
         for reporting_status, val in six.iteritems(engagement):
             humanized_status = \
-                self.COLLAPSED_REPORTING_STATUSES[reporting_status]
+                humanize.COLLAPSED_REPORTING_STATUSES[reporting_status]
             stats[humanized_status] += val
 
         if self.unit == 'percentage':
