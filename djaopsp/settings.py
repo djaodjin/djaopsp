@@ -614,8 +614,6 @@ USE_TZ = True
 # djaopsp app
 # -----------
 ACCOUNT_MODEL = 'djaopsp.Account'
-REPORTING_ACCOUNTS_CALLABLE = None
-REQUESTED_ACCOUNTS_CALLABLE = None
 SEND_NOTIFICATION_CALLABLE = None
 SCORE_CALCULATORS = {
     '/sustainability': 'djaopsp.scores.ScoreCalculator',

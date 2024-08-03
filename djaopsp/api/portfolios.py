@@ -1739,8 +1739,8 @@ class EngagementStatsMixin(DashboardAggregateMixin):
             self.campaign, requested_accounts,
             grantees=grantees, start_at=weekends_at[0], ends_at=weekends_at[-1])
 
-        stats = {
-            key: 0 for key in humanize.COLLAPSED_REPORTING_STATUSES.values()}
+        stats = {key: 0
+            for key in humanize.COLLAPSED_REPORTING_ENGAGE_STATUSES.values()}
         for reporting_status, val in six.iteritems(engagement):
             humanized_status = \
                 humanize.COLLAPSED_REPORTING_STATUSES[reporting_status]

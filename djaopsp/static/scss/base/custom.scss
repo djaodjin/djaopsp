@@ -155,12 +155,15 @@ header .nav-item {
 //  background-color: #eafcd4;
 }
 
+.radio-border {
+  padding: 5px;
+}
+
 .candidate-answer .radio-border {
-    display: inline-block;
-    line-height: 0;
-    padding: 5px;
-    border-radius: 50%;
-    background: color.scale(#0275ff, $lightness: 50%);
+  display: inline-block;
+  line-height: 0;
+  border-radius: 50%;
+  background: color.scale(#0275ff, $lightness: 50%);
 }
 
 .progressbar-container {

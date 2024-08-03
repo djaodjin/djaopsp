@@ -568,7 +568,11 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
         # Pick a top normalized_score:
         # If present, use the score for the mandatory segment,
         # otherwise take the maxium of segment scores.
-        top_normalized_score = get_top_normalized_score(self.sample)
+        top_normalized_score = None
+        if self.sample.is_frozen:
+            top_normalized_score = get_top_normalized_score(self.sample)
+        elif data:
+            top_normalized_score = data[0].get('normalized_score')
 
         verified_sample = VerifiedSample.objects.filter(
             sample=self.sample).first()

@@ -23,14 +23,6 @@ start here.
 {% endtrans %}
           </p>
           <div>
-            {% if latest_completed_assessment %}
-            <p>
-Last completed on <span class="date">{{latest_completed_assessment.created_at|date}}</span>{% if latest_completed_assessment.author %} by <span class="author">{{latest_completed_assessment.author}}</span>{% endif %}.
-            </p>
-            {% else %}
-            <p>
-            </p>
-            {% endif %}
             <div class="row">
               <div class="col-sm-6 col-md-4 text-center">
                 <a style="display: inline-block;text-align: center;vertical-align: middle;padding: 0.375rem 0;font-size: 1rem;line-height: 1.5;" id="scorecard-history" href="{{urls.scorecard_history}}">{% trans %}Historical assessments{% endtrans %}</a>

@@ -61,8 +61,7 @@
                       </div>
                       <div class="row">
                         <div class="offset-2 col-10">
-                          <small><em>{% trans created_at='[[$globals.humanizeDate(received.created_at)]]' %}requested on {{created_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(received.created_at)]])</em></small>
-                          <small v-if="received.ends_at"><em>, {% trans ends_at='[[$globals.humanizeDate(received.ends_at)]]' %}to be completed before {{ends_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(received.ends_at)]])</em></small>
+                          <small><em>{% trans created_at='[[$globals.humanizeDate(received.created_at)]]' %}requested on {{created_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(received.created_at)]])</em><em v-if="received.ends_at"><br />{% trans ends_at='[[$globals.humanizeDate(received.ends_at)]]' %}to be completed before {{ends_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(received.ends_at)]])</em></small>
                         </div>
                       </div>
                     </div>

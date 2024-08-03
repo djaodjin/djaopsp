@@ -346,8 +346,7 @@ class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
         if descr:
             self.wsheet.append([descr])
         self.wsheet.append(self.get_headings())
-        for record in queryset:
-            self.writerecord(record)
+        self.write_queryset(queryset)
 
         # Prepares the result file
         content = io.BytesIO()
@@ -359,6 +358,10 @@ class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
             self.get_filename())
         self._report_queries("http response created")
         return resp
+
+    def write_queryset(self, queryset):
+        for record in queryset:
+            self.writerecord(record)
 
     def writerecord(self, record):
         table = self.queryrow_to_columns(record)
@@ -386,12 +389,15 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
         for label in list(reversed(self.labels)):
             labels += ["%s Score" % label]
         for label in list(reversed(self.labels)):
-            labels += ["%s Score Range" % label]
-        for label in list(reversed(self.labels)):
             labels += ["%s Status" % label]
+        for label in list(reversed(self.labels)):
+            labels += ["%s Completed at" % label]
+        for label in list(reversed(self.labels)):
+            labels += ["%s Score Range" % label]
         return labels
 
     def queryrow_to_columns(self, record):
+        REPORTING_STATUSES = dict(humanize.REPORTING_STATUSES)
         supplier_key = get_extra(record, 'supplier_key')
         row = [supplier_key, record.printable_name,
             ", ".join(get_extra(record, 'tags', []))]
@@ -408,6 +414,16 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
             else:
                 row += [""]
 
+        # Write period-over-period status
+        for val in reversed(record.values):
+            state = val.state
+            row += [REPORTING_STATUSES[state]]
+
+        # Write period-over-period completed at
+        for val in reversed(record.values):
+            completed_at = val.created_at if val.pk else None
+            row += [completed_at.strftime('%Y-%m-%d') if completed_at else ""]
+
         # Write period-over-period score buckets
         for val in reversed(record.values):
             state = val.state
@@ -419,11 +435,6 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
                 row += [bucket]
             else:
                 row += [""]
-
-        # Write period-over-period status
-        for val in reversed(record.values):
-            state = val.state
-            row += [state]
 
         return row
 
@@ -446,7 +457,7 @@ class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
 
     def get_filename(self):
         basename = "%s-suppliers" % self.account
-        return datetime_or_now().strftime(basename + '-%m_%d_%Y.xlsx')
+        return datetime_or_now().strftime(basename + '-%Y%m%d.xlsx')
 
     def queryrow_to_columns(self, record):
         COLLAPSED_REPORTING_STATUSES = {

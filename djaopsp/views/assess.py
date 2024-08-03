@@ -221,11 +221,14 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                         'slug': campaign.slug,
                         'title': campaign.title,
                         'descr': campaign.description,
+                        'ends_at': None,
                         'last_completed_at': None,
                         'share_url': None,
                         'respondents': [],
                         'update_url': None,
                         'requests': []}
+                if optin.ends_at:
+                    by_campaigns[campaign]['ends_at'] = (optin.ends_at if not by_campaigns[campaign]['ends_at'] else min(date_time_or_now(by_campaigns[campaign]['ends_at']), optin.ends_at)).isoformat()
                 by_campaigns[campaign]['requests'] += [{
                     'created_at': optin.created_at.isoformat(),
                     'grantee': optin.grantee.slug
@@ -241,6 +244,7 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                     'slug': sample.campaign.slug,
                     'title': sample.campaign.title,
                     'descr': sample.campaign.description,
+                    'ends_at': None,
                     'last_completed_at': None,
                     'share_url': None,
                     'respondents': [],
@@ -272,6 +276,7 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                         'slug': campaign.slug,
                         'title': campaign.title,
                         'descr': campaign.description,
+                        'ends_at': None,
                         'last_completed_at': None,
                         'share_url': None,
                         'respondents': [],
