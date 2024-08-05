@@ -35,7 +35,8 @@
 {% trans campaign='[[byCampaign.campaign.title]]', latest_at=latest_completed_assessment.created_at|humanizeDate, relative_ago=latest_completed_assessment.created_at|humanizeTimeDelta %}Thank you for completing the {{campaign}} assessment on {{latest_at}} ({{relative_ago}})!{% endtrans %}
                   </p>
                   <p v-show="byCampaign.requests.length > 0">
-{% trans %}The following organizations would like to receive a copy. No data will be shared until you click the "Accept" button.{% endtrans %}
+{% trans %}The following organizations would like to receive a copy.{% endtrans %}
+<strong>{% trans %}No data will be shared until you click the "Accept" button.{% endtrans %}</strong>
                   </p>
                   <div :id="'request-' + (received.grantee.slug ? received.grantee.slug : received.grantee)" class="card mt-1"
                      v-for="(received, index) in byCampaign.requests">
@@ -66,8 +67,10 @@
                       </div>
                     </div>
                   </div>{# /.card #}
+                  <hr />
                   <p class="mt-2" v-show="byCampaign.grantCandidates.length > 0">
-{% trans %}You have shared a copy with the following organizations in the past. Click "Send" to pro-actively share a copy of the most recent assessment with them.{% endtrans %}
+{% trans %}You have shared a copy with the following organizations in the past. Pro-actively notify them of an updated response.{% endtrans %}
+<strong>{% trans %}No data will be shared until you click the "Send updates" button.{% endtrans %}</strong>
                   </p>
                   <div :id="'candidate-' + (candidate.grantee.slug ? candidate.grantee.slug : candidate.grantee)" class="card mt-1"
                      v-for="(candidate, index) in byCampaign.grantCandidates">
@@ -82,7 +85,7 @@
                         <div class="col-5 text-end" v-show="!candidate.done">
                           <button class="btn btn-primary"
                                   {% if not sample.is_frozen %} disabled{% endif %}
-                                  @click.prevent="submitGrant(candidate, byCampaign.campaign)">{% trans %}Send{% endtrans %}</button>
+                                  @click.prevent="submitGrant(candidate, byCampaign.campaign)">{% trans %}Send updates{% endtrans %}</button>
                         </div>
                         <div class="col-5 text-end" v-show="candidate.done">
                           <span>{% trans %}Sent{% endtrans %}</span>
@@ -102,7 +105,6 @@
         </div>
 
         {% if sample.is_frozen %}
-        <hr />
         <div id="grants" class="text-start m-2">
           <label>Send a copy pro-actively to ...</label>
           <portfolios-grant-list inline-template

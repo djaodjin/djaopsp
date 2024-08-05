@@ -63,7 +63,7 @@ A response from <em>{{profile.printable_name}}</em> to this questionnaire was la
               <div class="col-md-6 text-center">
                 {% if assessment.update_url %}
                 <a id="{{assessment.slug}}" class="btn btn-primary my-2"
-                   href="{{assessment.update_url}}">{% if assessment.share_url %}{% trans %}Update with new information{% endtrans %}{% else %}{% trans %}Continue{% endtrans %}{% endif %}</a>
+                   href="{{assessment.update_url}}">{% if assessment.share_url %}{% trans %}Create new response{% endtrans %}{% else %}{% trans %}Continue{% endtrans %}{% endif %}</a>
                 {% else %}
                 <form action="." method="post">
                   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
