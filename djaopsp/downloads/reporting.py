@@ -35,18 +35,15 @@ from ..utils import get_alliances, get_segments_candidates
 LOGGER = logging.getLogger(__name__)
 
 STAGE_BY_BUCKET = {
-    '0-20': _("Adopting/ Initiating"),
-    '21-40': _("Adopting/ Initiating"),
+    '1-40': _("Adopting/ Initiating"),
     '41-60': _("Growing/ Progressing"),
     '61-80': _("Leading"),
     '81-100': _("Pioneering"),
 }
 
 def get_bucket(normalized_score):
-    bucket = "0-20"
+    bucket = "1-40"
     if normalized_score:
-        if normalized_score > 20.5:
-            bucket = "21-40"
         if normalized_score > 40.5:
             bucket = "41-60"
         if normalized_score > 60.5:
