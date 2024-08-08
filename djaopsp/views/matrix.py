@@ -37,6 +37,7 @@ class CompareView(UpdatedMenubarMixin, CompareBaseView):
         update_context_urls(context, {
             'api_version': site_url("/api"),
             'api_account_candidates': site_url("/api/accounts/profiles"),
+            'api_accounts': site_url("/api/profile"),
             'api_plans': site_url("/api/profile/%(profile)s/plans" % {
                 'profile': self.account}),
             'api_subscriptions': site_url(

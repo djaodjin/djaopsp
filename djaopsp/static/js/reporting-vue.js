@@ -425,7 +425,8 @@ Vue.component('engage-profiles', {
 
 Vue.component('djaopsp-compare-samples', {
     mixins: [
-        practicesListMixin
+        practicesListMixin,
+        accountDetailMixin
     ],
     data: function() {
         return {
@@ -441,6 +442,10 @@ Vue.component('djaopsp-compare-samples', {
             },
             visualize: 'chart', //'table',
             percentToggle: true,
+
+            // when clicking on Chart
+            selectedDatapoint: "",
+            selectedAccounts: []
         }
     },
     methods: {
@@ -491,6 +496,29 @@ Vue.component('djaopsp-compare-samples', {
         activateSelectAccounts: function() {
             var vm = this;
             vm.$refs.accountsTab.click();
+        },
+        humanizePeriods: function(labels) {
+            var vm = this;
+            var results = [];
+            const dateFormat = new Intl.DateTimeFormat(
+                'en-US', {
+                    //                            day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                });
+            for( let lblIdx = 0; lblIdx < labels.length; ++lblIdx ) {
+                const dtime = new Date(labels[lblIdx]);
+                results.push(
+                    vm.periodType == 'yearly' ? dtime.getUTCFullYear() : (
+                    vm.periodType == 'monthly' ? dateFormat.format(dtime) : dtime));
+            }
+            return results;
+        },
+        onDatasetSelected: function() {
+            // This method is called when the component needs to show
+            // the list of accounts participating to a specific dataset.
+            var vm = this;
+            vm.populateAccounts(vm.selectedAccounts);
         },
         updateChart: function() {
             var vm = this;
@@ -626,6 +654,7 @@ Vue.component('djaopsp-compare-samples', {
                 if( vm.compareChart ) {
                     vm.compareChart.destroy();
                 }
+                labels = vm.humanizePeriods(labels);
                 if( choices.length ) {
                     vm.compareChart = new Chart(
                         document.getElementById('summaryChart'), {

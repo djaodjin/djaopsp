@@ -556,11 +556,13 @@
               {% include "app/reporting/_percentage_toggle.html" %}
             </div>
             <div class="col-md-4">
+<!-- XXX
               <select class="form-select"
                     v-model="visualize">
                 <option value="table">{% trans %}Table{% endtrans %}</option>
                 <option value="chart">{% trans %}Chart{% endtrans %}</option>
               </select>
+-->
             </div>
             <div class="col-md-4 text-end">
               <div class="d-inline-block">
@@ -585,6 +587,27 @@
           </div>
 
         </div>{# /datasets.length > 0 #}
+
+        <!-- items in query set -->
+        <div>
+          <p>
+              [[selectedDatapoint]]
+          </p>
+          <table class="table table-striped">
+            <tr>
+              <th class="col-1">{% trans %}Supplier ID{% endtrans %}</th>
+              <th class="col-11">{% trans %}Profile name{% endtrans %}</th>
+            </tr>
+            <tr v-for="(entry, index) in selectedAccounts">
+              <td class="col-1">
+                <span>[[index + 1 + (params.page ? (params.page - 1) * itemsPerPage : 0)]]</span><br />
+              </td>
+              <td class="col-11">
+                <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(entry) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(entry) || entry.slug]]
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>{# /.col-md-9 #}
     </div>{# /.row #}
   </div>
