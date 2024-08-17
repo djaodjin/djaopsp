@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE
 import logging
 
@@ -10,8 +10,8 @@ from survey.signals import (portfolios_grant_initiated,
 from ..compat import reverse
 from ..signals import sample_frozen
 from ..utils import send_notification, get_latest_completed_assessment
-from .serializers import (PortfolioGrantInitiatedSerializer,
-    PortfolioNotificationSerializer, SampleFrozenNotificationSerializer)
+from .serializers import (PortfolioNotificationSerializer,
+    SampleFrozenNotificationSerializer)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -38,28 +38,43 @@ def portfolios_grant_initiated_notice(sender, portfolios, invitee, message,
         }
     """
     #pylint:disable=unused-argument
-    LOGGER.debug("[signal] portfolios_grant_initiated_notice(portfolios=%s,"\
+    LOGGER.info("[signal] portfolios_grant_initiated_notice(portfolios=%s,"\
         "invitee=%s)", portfolios, invitee)
-    if False:
-        # XXX figure out which back_url to use, as well as structure
-        # of `context`.
-        for portfolio in portfolios:
-            back_url = request.build_absolute_uri(
-                reverse('portfolios_grant_accept',
-                    args=(portfolio.grantee, portfolio.verification_key)))
-            context = {
-                'back_url': back_url,
-                'invitee': invitee,
-                'created_at': portfolio.created_at,
-                'account': portfolio.account,
-                'campaign': portfolio.campaign,
-                'ends_at': portfolio.ends_at,
-                'state': portfolio.state,
-                'initiated_by': portfolio.initiated_by,
-            }
-            send_notification('portfolios_grant_initiated',
-                context=PortfolioGrantInitiatedSerializer().to_representation(
-                context))
+    broker = request.session.get('site', {})
+    for portfolio in portfolios:
+        back_url = request.build_absolute_uri(
+            reverse('portfolios_grant_accept',
+                args=(portfolio.grantee, portfolio.verification_key)))
+
+        latest_completed_assessment = get_latest_completed_assessment(
+            portfolio.account, portfolio.campaign)
+        if not latest_completed_assessment:
+            # We are granting access to data that does not exist (yet).
+            # Let's not confuse anyone.
+            continue
+        back_url = back_url + '?next=' + request.build_absolute_uri(
+            reverse('scorecard', args=(portfolio.grantee,
+                latest_completed_assessment)))
+
+        context = {
+            'broker': {
+                'slug': settings.APP_NAME,
+                'full_name': broker.get('printable_name'),
+                'printable_name': broker.get('printable_name'),
+                'email': broker.get('email')
+            },
+            'back_url': back_url,
+            'grantee': portfolio.grantee,
+            'created_at': portfolio.created_at,
+            'account': portfolio.account,
+            'campaign': portfolio.campaign,
+            'ends_at': portfolio.ends_at,
+            'state': portfolio.state,
+            'originated_by': portfolio.initiated_by,
+        }
+        send_notification('portfolios_grant_initiated',
+            context=PortfolioNotificationSerializer().to_representation(
+            context))
 
 
 # We insure the method is only bounded once no matter how many times

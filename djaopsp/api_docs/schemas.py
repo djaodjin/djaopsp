@@ -656,7 +656,7 @@ def get_notification_schema(notification_slug, api_base_url=None):
     serializer = None
     docstring = None
     if notification_slug == 'portfolios_grant_initiated':
-        serializer = PortfolioGrantInitiatedSerializer()
+        serializer = PortfolioNotificationSerializer()
         docstring = \
             notification_signals.portfolios_grant_initiated_notice.__doc__
     elif notification_slug == 'portfolios_request_initiated':
