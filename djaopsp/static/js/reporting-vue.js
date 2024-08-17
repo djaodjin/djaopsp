@@ -27,7 +27,9 @@ var portfolioTagsMixin = {
         var initialData = {
             api_profile: this.$urls.api_profile,
             api_profiles_base_url: this.$urls.api_organizations,
+            api_portfolio_metadata: this.$urls.api_portfolio_metadata,
             typeaheadUrl: this.$urls.api_account_candidates,
+            showEditProfileKey: -1,
             showEditTags: -1,
             showPreferences: -1,
             preferenceTagsAsText: "",
@@ -53,16 +55,47 @@ var portfolioTagsMixin = {
             vm.reqPatch(vm.$urls.api_profile, {
                 extra: JSON.stringify(vm.accountExtra)});
         },
+        getProfileKey: function(item, index) {
+            var vm = this;
+            if( item.extra && item.extra.supplier_key ) {
+                return item.extra.supplier_key;
+            }
+            return index + 1 + (vm.params.page ? (vm.params.page - 1) * vm.itemsPerPage : 0);
+        },
+        saveProfileKey: function(item) {
+            var vm = this;
+            vm.reqPatch(vm._safeUrl(vm.api_portfolio_metadata, item.slug), {
+                extra: item.extra});
+            vm.showEditProfileKey = -1;
+        },
         saveTags: function(item) {
             var vm = this;
             if( !item.extra ) {
                 item.extra = {}
             }
             //XXXitem.extra.tags = item.tagsAsText.split(',');
-            vm.reqPatch(vm._safeUrl(vm.$urls.api_accessibles, [
-                'metadata', item.slug]), {extra: {tags: item.extra.tags}});
+            vm.reqPatch(vm._safeUrl(vm.api_portfolio_metadata, item.slug), {
+                extra: item.extra});
             vm.showEditTags = -1;
             vm.showPreferences = -1;
+        },
+        toggleEditProfileKey: function(toggledIdx) {
+            var vm = this;
+            var entry = vm.items.results[toggledIdx];
+            if( vm.showEditProfileKey === toggledIdx ) {
+                vm.saveProfileKey(entry);
+            } else {
+                if( !vm.items.results[toggledIdx].extra ) {
+                    vm.items.results[toggledIdx].extra = {};
+                }
+                if( typeof vm.items.results[toggledIdx].extra === 'string' ) {
+                    vm.items.results[toggledIdx].extra = JSON.parse(vm.items.results[toggledIdx].extra);
+                }
+                if( !vm.items.results[toggledIdx].extra.supplier_key ) {
+                    vm.items.results[toggledIdx].extra.supplier_key = "";
+                }
+                vm.showEditProfileKey = toggledIdx;
+            }
         },
         toggleEditTags: function(toggledIdx) {
             var vm = this;

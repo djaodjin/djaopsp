@@ -40,8 +40,13 @@ def sql_latest_frozen_by_portfolio_by_period(campaign, grantees,
         'accounts_table': get_account_model()._meta.db_table}
     if accounts:
         if isinstance(accounts, list):
-            account_ids = ','.join([
-                str(account_id) for account_id in accounts])
+            account_ids = []
+            for account in accounts:
+                try:
+                    account_ids += [str(account.pk)]
+                except AttributeError:
+                    account_ids += [str(account)]
+            account_ids = ','.join(account_ids)
         elif isinstance(accounts, QuerySet):
             account_ids = ','.join([
                 str(account.pk) for account in accounts])
@@ -203,8 +208,13 @@ def _get_engagement_sql(campaign, accounts,
     if accounts:
         account_ids = ""
         if isinstance(accounts, list):
-            account_ids = "(%s)" % ','.join([
-                str(account_id) for account_id in accounts])
+            account_ids = []
+            for account in accounts:
+                try:
+                    account_ids += [str(account.pk)]
+                except AttributeError:
+                    account_ids += [str(account)]
+            account_ids = "(%s)" % ','.join(account_ids)
         elif isinstance(accounts, QuerySet):
             account_ids = "(%s)" % ','.join([
                 str(account.pk) for account in accounts])

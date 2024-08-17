@@ -227,7 +227,10 @@
             v-show="itemsLoaded && items.results.length > 0" v-cloak>
         <!-- profile whose report was requested at some point. -->
         <td>
-          <span>[[index + 1 + (params.page ? (params.page - 1) * itemsPerPage : 0)]]</span><br />
+          <span :class="entry.extra && entry.extra.supplier_key ? '' : 'default-supplier-id'"
+                @click.prevent="toggleEditProfileKey(index)"
+                v-show="showEditProfileKey !== index">[[getProfileKey(entry, index)]]</span>
+          <input type="text" v-model="entry.extra.supplier_key" @blur="saveProfileKey(entry, index)" v-if="showEditProfileKey === index"></input>
         </td>
         <td>
           {% include "app/reporting/_profile_card.html" %}
@@ -249,7 +252,10 @@
              v-if="val.state === 'no-data'"></i>
           <br />
           <a :href="val.url" v-if="val.state === 'verified' || val.state === 'completed'" class="btn-link">
-              <small>[[$globals.humanizeMonthDay(val.created_at)]]</small>
+              <div v-if="val.normalized_score">
+                <small>[[val.normalized_score]]%</small>
+              </div>
+              <small>([[$globals.humanizeMonthDay(val.created_at)]])</small>
           </a>
         </td>
         <td>

@@ -192,6 +192,8 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
             'api_organizations': site_url("/api/profile"),
             'api_organization_profile': site_url(
                 "/api/profile/%(account)s" % {'account': self.account}),
+            'api_portfolio_metadata': reverse(
+                'survey_api_portfolio_metadata_index', args=(self.account,)),
             'api_portfolios_received': reverse(
                 'survey_api_portfolios_received', args=(self.account,)),
             'api_portfolio_responses': reverse(

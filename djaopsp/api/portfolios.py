@@ -22,12 +22,12 @@ from survey.filters import DateRangeFilter, OrderingFilter, SearchFilter
 from survey.helpers import (construct_monthly_periods,
     construct_yearly_periods, construct_weekly_periods, datetime_or_now,
     extra_as_internal, period_less_than)
+from survey.pagination import MetricsPagination
 from survey.api.matrix import (BenchmarkMixin as BenchmarkMixinBase,
     EngagedAccountsMixin, EngagedBenchmarkAPIView)
 from survey.mixins import TimersMixin
 from survey.models import (EditableFilter, Portfolio,
     PortfolioDoubleOptIn, Sample)
-from survey.pagination import MetricsPagination
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import (get_accessible_accounts, get_account_model,
     get_engaged_accounts, get_benchmarks_enumerated)
@@ -42,6 +42,7 @@ from ..queries import (get_latest_frozen_by_portfolio_by_period, get_engagement,
 from ..mixins import (AccountMixin, AccountsDateRangeMixin,
     AccountsAggregatedQuerysetMixin, AccountsNominativeQuerysetMixin)
 from ..models import ScorecardCache, VerifiedSample
+from ..pagination import AccessiblesPagination
 from ..utils import (TransparentCut, get_alliances, get_latest_reminders,
     get_segments_candidates)
 from .rollups import GraphMixin, RollupMixin, ScoresMixin
@@ -1280,7 +1281,10 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
             for val in values:
                 extra.update(extra_as_internal(val))
             account.extra = extra_as_internal(account)
-            account.extra.update(extra)
+            try:
+                account.extra.update(extra)
+            except AttributeError:
+                pass
             account.values = values
 
         return page
@@ -1344,7 +1348,7 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
         }
     """
     title = "Accessibles"
-    pagination_class = MetricsPagination
+    pagination_class = AccessiblesPagination
     serializer_class = AccessiblesSerializer
 
     def get(self, request, *args, **kwargs):

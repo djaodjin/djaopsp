@@ -396,7 +396,7 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
     def queryrow_to_columns(self, record):
         REPORTING_STATUSES = dict(humanize.REPORTING_STATUSES)
         supplier_key = get_extra(record, 'supplier_key')
-        row = [supplier_key, record.printable_name,
+        row = [str(supplier_key), record.printable_name,
             ", ".join(get_extra(record, 'tags', []))]
 
         # Write period-over-period normalized scores
@@ -470,7 +470,7 @@ class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
             stage = None
             # Write 'Supplier No.' and 'Supplier Name'
             supplier_key = get_extra(record, 'supplier_key')
-            row = [supplier_key, record.printable_name]
+            row = [str(supplier_key), record.printable_name]
             state = val.state
             # Write 'TSP Score'
             if state in (humanize.REPORTING_COMPLETED,

@@ -3,8 +3,10 @@
 
 from collections import OrderedDict
 
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from survey.pagination import MetricsPagination
+
 
 class BenchmarksPagination(MetricsPagination):
     """
@@ -50,3 +52,77 @@ class BenchmarksPagination(MetricsPagination):
                 }
         })
         return resp
+
+
+class AccessiblesPagination(PageNumberPagination):
+    """
+    Decorate the results of the accessibles API call.
+    """
+    def paginate_queryset(self, queryset, request, view=None):
+        self.view = view
+        return super(AccessiblesPagination, self).paginate_queryset(
+            queryset, request, view=view)
+
+
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('title', getattr(self.view, 'title', "")),
+            ('scale', getattr(self.view, 'scale', 1)),
+            ('unit', getattr(self.view, 'unit', None)),
+            ('nb_accounts', getattr(self.view, 'nb_accounts', None)),
+            ('labels', getattr(self.view, 'labels', None)),
+            ('count', self.page.paginator.count),
+            ('next', self.get_next_link()),
+            ('previous', self.get_previous_link()),
+            ('results', data)
+        ]))
+
+    def get_paginated_response_schema(self, schema):
+        if 'description' not in schema:
+            schema.update({'description': "Items in the queryset"})
+        return {
+            'type': 'object',
+            'properties': {
+                'title': {
+                    'type': 'integer',
+                    'description': "Title for the results table"
+                },
+                'scale': {
+                    'type': 'integer',
+                    'description': "The scale of the number reported"\
+                    " in the tables (ex: 1000 when numbers are reported"\
+                    " in thousands)"
+                },
+                'unit': {
+                    'type': 'integer',
+                    'description': "Unit the measured field is in"
+                },
+                'nb_accounts': {
+                    'type': 'integer',
+                    'description': "Total number of accounts evaluated"
+                },
+                'labels': {
+                    'type': 'array',
+                    'description': "Labels for the x-axis when present"
+                },
+                'count': {
+                    'type': 'integer',
+                    'description': "The number of records"
+                },
+                'next': {
+                    'type': 'string',
+                    'description': "API end point to get the next page"\
+                        "of results matching the query",
+                    'nullable': True,
+                    'format': 'uri',
+                },
+                'previous': {
+                    'type': 'string',
+                    'description': "API end point to get the previous page"\
+                        "of results matching the query",
+                    'nullable': True,
+                    'format': 'uri',
+                },
+                'results': schema,
+            },
+        }

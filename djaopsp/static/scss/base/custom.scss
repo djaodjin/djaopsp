@@ -2334,6 +2334,10 @@ pre.code{
   --#{$prefix}btn-hover-color: var(--bs-white);
 }
 
+.default-supplier-id {
+    font-style: italic;
+}
+
 .navbar-nav .nav-link {
   --#{$prefix}nav-link-padding-x: 1.5rem;
 }
