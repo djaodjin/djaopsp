@@ -1007,115 +1007,23 @@ class RespondentsAPIView(generics.ListAPIView):
 
         {
           "count": 4,
-          "results": [
-            {
-              "count": 1,
-              "slug": "sustainability",
-              "path": "/sustainability",
-              "indent": 0,
-              "title": "Core Environment, Social and Governance (ESG) Assessment",
-              "picture": null,
-              "extra": {
-                "pagebreak": true,
-                "tags": [
-                  "scorecard"
-                ],
-                "visibility": [
-                  "public"
-                ],
-                "segments": [
-                  "/sustainability"
-                ]
-              },
-              "rank": -1,
-              "required": false,
-              "default_unit": null,
-              "ui_hint": null,
-              "nb_respondents": 0,
-              "rate": {},
-              "opportunity": null
-            },
-            {
-              "count": 1,
-              "slug": "governance",
-              "path": "/sustainability/governance",
-              "indent": 1,
-              "title": "Strategy & Governance",
-              "picture": "/tspproject/static/img/management-basics.png",
-              "extra": {
-                "segments": [
-                  "/sustainability"
-                ]
-              },
-              "count": 1,
-              "rank": 1,
-              "required": false,
-              "default_unit": null,
-              "ui_hint": null,
-              "nb_respondents": 0,
-              "rate": {},
-              "opportunity": null
-            },
-            {
-              "count": 1,
-              "slug": "esg-strategy-heading",
-              "path": "/sustainability/governance/esg-strategy-heading",
-              "indent": 2,
-              "title": "Environment, Social & Governance (ESG) Strategy",
-              "picture": null,
-              "extra": {
-                "segments": [
-                  "/sustainability"
-                ]
-              },
-              "rank": 1,
-              "required": false,
-              "default_unit": null,
-              "ui_hint": null,
-              "nb_respondents": 0,
-              "rate": {},
-              "opportunity": null
-            },
-            {
-              "count": 1,
-              "slug": "formalized-esg-strategy",
-              "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
-              "indent": 3,
-              "title": "(3) Does your company have a formalized ESG strategy?",
-              "picture": "/tspproject/static/img/management-basics.png",
-              "extra": {
-                "segments": [
-                  "/sustainability"
-                ]
-              },
-              "rank": 4,
-              "required": true,
-              "default_unit": {
-                "slug": "yes-no",
-                "title": "Yes/No",
-                "system": "enum",
-                "choices": [
-                  {
-                    "text": "Yes",
-                    "descr": "Yes"
-                  },
-                  {
-                    "text": "No",
-                    "descr": "No"
-                  }
-                ]
-              },
-              "ui_hint": "yes-no-comments",
-              "answers": [],
-              "candidates": [],
-              "planned": [],
-              "nb_respondents": 0,
-              "rate": {},
-              "opportunity": null
-            }
-          ]
+          "results": [{
+            "picture": null,
+            "printable_name": "S1"
+          }, {
+            "picture": null,
+            "printable_name": "S2"
+          }, {
+            "picture": null,
+            "printable_name": "S3"
+          }, {
+            "picture": null,
+            "printable_name": "S4"
+          }]
         }
     """
+    authentication_classes = []
+
     search_fields = (
         'full_name',
         'email'
@@ -1135,7 +1043,6 @@ class RespondentsAPIView(generics.ListAPIView):
             samples__is_frozen=True).exclude(
             Q(email__isnull=True)|Q(email="")).distinct()
         return queryset
-
 
 
 class SampleRecentCreateAPIView(SampleRecentCreateBaseAPIView):
