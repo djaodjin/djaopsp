@@ -316,6 +316,67 @@ ON portfolio_grantees.account_id = %(account_table)s.id
             self.stdout.write("COMMIT;")
         self.stderr.write("%d inaccurate portfolios" % count)
 
+        # requests for which there are no portfolio yet
+        request_no_portfolios_query = """
+WITH request_no_portfolios AS (
+SELECT %(account_table)s.slug AS account_slug,
+       survey_portfoliodoubleoptin.grantee_id,
+       survey_portfoliodoubleoptin.campaign_id,
+       MIN(survey_portfoliodoubleoptin.created_at) AS created_at
+FROM survey_portfoliodoubleoptin
+LEFT OUTER JOIN survey_portfolio
+ON survey_portfoliodoubleoptin.account_id = survey_portfolio.account_id AND
+   survey_portfoliodoubleoptin.grantee_id = survey_portfolio.grantee_id
+INNER JOIN %(account_table)s
+ON survey_portfoliodoubleoptin.account_id = %(account_table)s.id
+WHERE survey_portfoliodoubleoptin.state IN (0, 3, 1, 5) AND
+      survey_portfolio.id IS NULL
+GROUP BY (
+    %(account_table)s.slug,
+    survey_portfoliodoubleoptin.grantee_id,
+    survey_portfoliodoubleoptin.campaign_id))
+SELECT
+  %(account_table)s.slug AS grantee_slug,
+  request_no_portfolios.account_slug,
+  request_no_portfolios.campaign_id,
+  request_no_portfolios.created_at
+FROM request_no_portfolios
+INNER JOIN %(account_table)s
+ON %(account_table)s.id = request_no_portfolios.grantee_id""" % {
+    'account_table': self.account_model._meta.db_table
+}
+        count = 0
+        sep = ""
+        with connection.cursor() as cursor:
+            cursor.execute(request_no_portfolios_query, params=None)
+            for optin in cursor.fetchall():
+                if show:
+                    if not sep:
+                        if show_fix:
+                            self.stdout.write("BEGIN;")
+                        else:
+                            self.stdout.write("grantee_slug,account_slug,"\
+                            "campaign_id,ends_at")
+                        sep = ",\n"
+                    grantee_slug = optin[0]
+                    account_slug = optin[1]
+                    campaign_id = optin[2]
+                    ends_at = optin[3]
+                    if show_fix:
+                        self.stdout.write("INSERT INTO survey_portfolio (grantee_id, account_id, campaign_id, ends_at) VALUES ((SELECT id FROM %(account_table)s WHERE slug='%(grantee_slug)s'), (SELECT id FROM %(account_table)s WHERE slug='%(account_slug)s'), %(campaign_id)s, '%(ends_at)s');" % {
+                        'account_table': self.account_model._meta.db_table,
+                        'grantee_slug': grantee_slug,
+                        'account_slug': account_slug,
+                        'campaign_id': campaign_id,
+                        'ends_at': ends_at})
+                    else:
+                        self.stdout.write("%s,%s,%s,%s" % (
+                            grantee_slug, account_slug, campaign_id, ends_at))
+                count += 1
+        if sep and show_fix:
+            self.stdout.write("COMMIT;")
+        self.stderr.write("%d requests without an existing portfolio" % count)
+
 
     def check_questions(self, show=False, show_fix=False):
         count = 0
