@@ -23,14 +23,15 @@ from survey.utils import get_question_model
 
 from .. import humanize
 from ..api.serializers import EngagementSerializer
-from ..api.portfolios import (BenchmarkMixin, PortfolioAccessibleSamplesMixin,
-    PortfolioEngagementMixin)
+from ..api.portfolios import (BenchmarkMixin, CompletionRateMixin,
+    DashboardAggregateMixin, EngagementStatsMixin,
+    PortfolioAccessibleSamplesMixin, PortfolioEngagementMixin)
 from ..compat import gettext_lazy as _
 from ..helpers import as_valid_sheet_title
 from ..mixins import (AccountMixin, CampaignMixin,
     AccountsNominativeQuerysetMixin)
 from ..scores.base import get_top_normalized_score
-from ..utils import get_alliances, get_segments_candidates
+from ..utils import get_alliances
 
 LOGGER = logging.getLogger(__name__)
 
@@ -151,6 +152,13 @@ class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks
+        context = {
+            'title': self.title,
+            'accounts': ', '.join([self.account.printable_name] + [
+                alliance.printable_name for alliance
+                in get_alliances(self.account)]),
+            'unit': "%" if self.is_percentage else "nb"
+        }
 
         # Prepares the result file
         content = io.BytesIO()
@@ -163,8 +171,8 @@ class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
                     break
             if candidate:
                 break
+        LOGGER.debug("use template '%s'", candidate)
         if candidate:
-            data = {}
             with open(candidate, 'rb') as reporting_file:
                 prs = Presentation(reporting_file)
             for slide in prs.slides:
@@ -173,26 +181,22 @@ class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
                     LOGGER.debug("\tshape=%s", shape)
                     if isinstance(shape, Shape):
                         LOGGER.debug("\t- text=%s", shape.text)
-                        if '{{title}}' in shape.text:
-                            shape.text = shape.text.replace(
-                                '{{title}}', self.title)
-                        if '{{accounts}}' in shape.text:
-                            shape.text = shape.text.replace(
-                                '{{accounts}}', ', '.join([
-                                self.account.printable_name] + [
-                                alliance.printable_name for alliance
-                                    in get_alliances(self.account)]))
-                        if (self.is_percentage and
-                            shape.text == "(nb suppliers)"):
-                            shape.text = "(% of suppliers)"
+                        for key, val in context.items():
+                            key_text = '{{%s}}' % key
+                            if key_text in shape.text:
+                                for para in shape.text_frame.paragraphs:
+                                    LOGGER.debug("\t- replace %s in %s",
+                                        key_text, para)
+                                    para.text = para.text.replace(key_text, val)
                     elif isinstance(shape, GraphicFrame):
                         # We found the chart's container
                         try:
                             chart = shape.chart
                             if chart.has_title:
-                                data = self.get_data(chart.chart_title)
+                                data = list(self.get_data(chart.chart_title))
                             else:
-                                data = self.get_data()
+                                data = list(self.get_data())
+                            LOGGER.debug("use data %s", data)
                             chart_data = CategoryChartData()
                             # Series might not have exactly the same labels.
                             # Thus we need to gather all defined labels first.
@@ -204,10 +208,12 @@ class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
                                         label = label.date()
                                     labels |= {label}
                             labels = sorted(labels)
+                            LOGGER.debug("\tlabels=%s", labels)
                             for label in labels:
                                 chart_data.add_category(label)
                             # Make sure we have a value for each label before
                             # adding serie.
+                            LOGGER.debug("\tseries=%s", list(data))
                             for serie in data:
                                 dataset = {point[0]:point[1]
                                     for point in serie.get('values')}
@@ -215,6 +221,8 @@ class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
                                 for label in labels:
                                     val = dataset.get(label)
                                     values += [val if val else 0]
+                                LOGGER.debug("\tadd serie '%s' with values %s",
+                                    serie.get('title'), values)
                                 chart_data.add_series(
                                     serie.get('title'), values)
 
@@ -283,6 +291,53 @@ class BenchmarkPPTXView(BenchmarkMixin, FullReportPPTXView):
         if self.question.default_unit.system != Unit.SYSTEM_DATETIME:
             return reversed(results)
         return results
+
+
+class ReportingDashboardPPTXView(DashboardAggregateMixin, FullReportPPTXView):
+    """
+    Download reporting dashboard as an .pptx spreadsheet.
+    """
+    basename = 'doughnut'
+
+    def get_template_names(self):
+        return [os.path.join('app', 'reporting', '%s.pptx' % self.basename)]
+
+    def get_filename(self):
+        return datetime_or_now().strftime(
+            self.account.slug + '-' + self.basename + '-%Y%m%d.pptx')
+
+    def get_data(self, title=None):
+        data = self.get_response_data(self.request, **self.kwargs)
+        return data['results']
+
+    @property
+    def title(self):
+        #pylint:disable=attribute-defined-outside-init
+        if not hasattr(self, '_title'):
+            data = self.get_response_data(self.request, **self.kwargs)
+            self._title = data['title']
+        return self._title
+
+
+class CompletionRatePPTXView(CompletionRateMixin, ReportingDashboardPPTXView):
+    """
+    Download completion rate as a .pptx presentation
+    """
+    basename = 'completion-rate'
+
+
+class EngagementStatsPPTXView(EngagementStatsMixin, ReportingDashboardPPTXView):
+    """
+    Download engagement statistics as a .pptx presentation
+    """
+
+    def get_response_data(self, request, *args, **kwargs):
+        resp = super(EngagementStatsPPTXView, self).get_response_data(
+            request, *args, **kwargs)
+        # We have to reverse the results to keep charts consistent with
+        # HTML version.
+        resp.update({'results': reversed(resp.get('results'))})
+        return resp
 
 
 class TemplateXLSXView(AccountMixin, TimersMixin, ListView):
@@ -394,7 +449,7 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
         return labels
 
     def queryrow_to_columns(self, record):
-        REPORTING_STATUSES = dict(humanize.REPORTING_STATUSES)
+        reporting_statuses = dict(humanize.REPORTING_STATUSES)
         supplier_key = get_extra(record, 'supplier_key')
         row = [str(supplier_key), record.printable_name,
             ", ".join(get_extra(record, 'tags', []))]
@@ -414,7 +469,7 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
         # Write period-over-period status
         for val in reversed(record.values):
             state = val.state
-            row += [REPORTING_STATUSES[state]]
+            row += [reporting_statuses[state]]
 
         # Write period-over-period completed at
         for val in reversed(record.values):
@@ -439,6 +494,7 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
 class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
                                       TemplateXLSXView):
     """
+    Downloads year-over-year scores in long format
     """
     base_headings = ['Supplier No.', 'Supplier Name',
         'TSP Score', 'Score Range', 'Score Stage']
@@ -457,13 +513,13 @@ class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
         return datetime_or_now().strftime(basename + '-%Y%m%d.xlsx')
 
     def queryrow_to_columns(self, record):
-        COLLAPSED_REPORTING_STATUSES = {
+        collapsed_reporting_statuses = {
             humanize.REPORTING_NO_RESPONSE: _("Invited"),
             humanize.REPORTING_NO_DATA: _("Not Completed"),
             humanize.REPORTING_NO_PROFILE: _("N/A"),
             humanize.REPORTING_RESPONDED: _("Not Shared"),
         }
-        REPORTING_STATUSES = dict(humanize.REPORTING_STATUSES)
+        reporting_statuses = dict(humanize.REPORTING_STATUSES)
         table = []
         for val in reversed(record.values):
             bucket = None
@@ -482,9 +538,8 @@ class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
                 row += [
                     normalized_score if normalized_score is not None else ""]
             else:
-                status = REPORTING_STATUSES[state]
-                if state in COLLAPSED_REPORTING_STATUSES:
-                    status = COLLAPSED_REPORTING_STATUSES[state]
+                status = collapsed_reporting_statuses.get(
+                    state, reporting_statuses[state])
                 bucket = status
                 stage = status
                 row += [str(status)]

@@ -1,12 +1,11 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
-import datetime, io, json, logging, os, re
+import io, json, logging, re
 
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
-from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -15,25 +14,19 @@ from django.views.generic.base import (ContextMixin, RedirectView,
 from openpyxl import Workbook
 from pages.mixins import TrailMixin
 from pages.models import PageElement
-from pptx import Presentation
-from pptx.chart.data import CategoryChartData
-from pptx.shapes.autoshape import Shape
-from pptx.shapes.graphfrm import GraphicFrame
 from survey.helpers import datetime_or_now, extra_as_internal, get_extra
 from survey.models import Campaign, Matrix
 from survey.settings import URL_PATH_SEP
 from survey.views.matrix import MatrixDetailView
 
-from ..api.portfolios import (DashboardAggregateMixin,
-    CompletedAssessmentsMixin, CompletionRateMixin,
-    EngagementStatsMixin)
+from ..api.portfolios import CompletedAssessmentsMixin
 from ..api.rollups import GraphMixin
 from ..compat import reverse
 from ..helpers import as_valid_sheet_title
 from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
     VisibilityMixin)
 from ..models import VerifiedSample
-from ..utils import get_scores_tree, get_alliances
+from ..utils import get_scores_tree
 
 LOGGER = logging.getLogger(__name__)
 
@@ -491,98 +484,3 @@ class PortfoliosDetailView(GraphMixin, MenubarMixin, DashboardMixin,
             'charts': charts
         })
         return context
-
-
-class ReportingDashboardPPTXView(DashboardAggregateMixin, TemplateView):
-    """
-    Download reporting dashboard as an .pptx spreadsheet.
-    """
-    content_type = \
-     'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-    basename = 'dashboard'
-
-    def get_filename(self):
-        return datetime_or_now().strftime(
-            self.account.slug + '-' + self.basename + '-%Y%m%d.pptx')
-
-    def get(self, request, *args, **kwargs):
-        #pylint: disable=unused-argument,too-many-locals,too-many-nested-blocks
-
-        # Prepares the result file
-        content = io.BytesIO()
-        candidate = None
-        for template_dir in settings.TEMPLATES_DIRS:
-            candidate = os.path.join(template_dir,
-                'app', 'reporting', '%s.pptx' % self.basename)
-            if os.path.exists(candidate):
-                break
-        if candidate:
-            data = self.get_response_data(request, *args, **kwargs)
-            with open(candidate, 'rb') as reporting_file:
-                prs = Presentation(reporting_file)
-            for slide in prs.slides:
-                for shape in slide.shapes:
-                    if isinstance(shape, Shape):
-                        if '{{title}}' in shape.text:
-                            shape.text = shape.text.replace(
-                                '{{title}}', self.title)
-                        if '{{accounts}}' in shape.text:
-                            shape.text = shape.text.replace(
-                                '{{accounts}}', ', '.join([
-                                self.account.printable_name] + [
-                                alliance.printable_name for alliance
-                                    in get_alliances(self.account)]))
-                        if (self.is_percentage and
-                            shape.text == "(nb suppliers)"):
-                            shape.text = "(% of suppliers)"
-                    elif isinstance(shape, GraphicFrame):
-                        # We found the chart's container
-                        try:
-                            chart = shape.chart
-                            chart_data = CategoryChartData()
-                            labels = False
-                            for serie in data.get('results', []):
-                                if not labels:
-                                    for point in serie.get('values'):
-                                        label = point[0]
-                                        if isinstance(label, datetime.datetime):
-                                            label = label.date()
-                                        chart_data.add_category(label)
-                                    labels = True
-                                chart_data.add_series(
-                                serie.get('slug'),
-                                    [point[1] for point in serie.get('values')])
-
-                            chart.replace_data(chart_data)
-                        except ValueError:
-                            pass
-            prs.save(content)
-        content.seek(0)
-
-        resp = HttpResponse(content, content_type=self.content_type)
-        resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
-            self.get_filename())
-
-        return resp
-
-
-class CompletionRatePPTXView(CompletionRateMixin, ReportingDashboardPPTXView):
-    """
-    Download completion rate as a .pptx presentation
-    """
-    basename = 'completion-rate'
-
-
-class EngagementStatsPPTXView(EngagementStatsMixin, ReportingDashboardPPTXView):
-    """
-    Download engagement statistics as a .pptx presentation
-    """
-    basename = 'doughnut'
-
-    def get_response_data(self, request, *args, **kwargs):
-        resp = super(EngagementStatsPPTXView, self).get_response_data(
-            request, *args, **kwargs)
-        # We have to reverse the results to keep charts consistent with
-        # HTML version.
-        resp.update({'results': reversed(resp.get('results'))})
-        return resp

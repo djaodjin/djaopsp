@@ -14,8 +14,7 @@ from django.views.generic.base import (RedirectView, TemplateResponseMixin,
     TemplateView)
 from django.views.generic.edit import FormMixin
 from survey.models import Answer, Campaign, Choice, Sample
-from survey.settings import DB_PATH_SEP
-from survey.utils import get_account_model, get_question_model
+from survey.utils import get_account_model
 
 from ..compat import reverse
 from ..mixins import AccountMixin, ReportMixin, VisibilityMixin

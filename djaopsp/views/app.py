@@ -10,14 +10,9 @@ from deployutils.helpers import update_context_urls
 from django import forms
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.db import transaction
-from django.http import HttpResponseRedirect, Http404
-from django.views.generic.base import (RedirectView, TemplateResponseMixin,
-    TemplateView)
-from django.views.generic.edit import FormMixin
-from survey.models import Answer, Campaign, Sample
-from survey.utils import get_account_model
-
+from django.http import HttpResponseRedirect
+from django.views.generic.base import TemplateView
+from survey.models import Answer
 
 from ..compat import is_authenticated, reverse
 from ..mixins import AccountMixin

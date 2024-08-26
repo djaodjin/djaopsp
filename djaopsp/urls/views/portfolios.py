@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -8,13 +8,13 @@ from django.urls import include, path
 
 from ...views.matrix import CompareView, CompareXLSXView, CompareScoresXLSXView
 from ...views.portfolios import (
-    CompletedAssessmentsRawXLSXView, CompletionRatePPTXView,
-    DashboardRedirectView, EngagementStatsPPTXView,
+    CompletedAssessmentsRawXLSXView,
+    DashboardRedirectView,
     PortfolioAccessiblesView, PortfolioEngagementView,
     PortfolioResponsesView,
     PortfoliosDetailView, ReportingDashboardView)
-from ...downloads.reporting import (BenchmarkPPTXView, FullReportPPTXView,
-    LongFormatCSVView,
+from ...downloads.reporting import (BenchmarkPPTXView, CompletionRatePPTXView,
+    EngagementStatsPPTXView, FullReportPPTXView, LongFormatCSVView,
     PortfolioAccessiblesXLSXView, PortfolioAccessiblesLongCSVView,
     PortfolioEngagementXLSXView)
 

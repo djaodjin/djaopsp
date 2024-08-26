@@ -3,7 +3,7 @@
 
 import logging
 
-from djaopsp.views.portfolios import ReportingDashboardPPTXView
+from djaopsp.downloads.reporting import ReportingDashboardPPTXView
 
 from ..api.portfolios import (BySegmentsMixin,
     GoalsMixin, GHGEmissionsRateMixin, GHGEmissionsAmountMixin)

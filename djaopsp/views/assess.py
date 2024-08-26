@@ -228,7 +228,11 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                         'update_url': None,
                         'requests': []}
                 if optin.ends_at:
-                    by_campaigns[campaign]['ends_at'] = (optin.ends_at if not by_campaigns[campaign]['ends_at'] else min(date_time_or_now(by_campaigns[campaign]['ends_at']), optin.ends_at)).isoformat()
+                    by_campaigns[campaign]['ends_at'] = (
+                        optin.ends_at if not by_campaigns[campaign]['ends_at']
+                        else min(datetime_or_now(
+                            by_campaigns[campaign]['ends_at']), optin.ends_at
+                    )).isoformat()
                 by_campaigns[campaign]['requests'] += [{
                     'created_at': optin.created_at.isoformat(),
                     'grantee': optin.grantee.slug
