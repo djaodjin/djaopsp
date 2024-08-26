@@ -86,9 +86,41 @@
       </div>
       {% if urls.download %}
       <div class="col-sm-6 text-end">
-        <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
-          <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
-        </a>
+
+        <div class="btn-group" role="group">
+          <a class="btn btn-primary" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
+            <i class="fa fa-download"></i> {% trans %}Download (xlsx){% endtrans %}
+          </a>
+          <button type="button"
+                  class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-start">
+            <a class="dropdown-item"
+               :href="'{{urls.download}}' + getQueryString(['page'])"
+               target="_blank">
+              {% trans %}Download (.xlsx){% endtrans %}
+            </a>
+            <a id="xlsx-download-contacts" class="dropdown-item"
+               :href="'{{urls.download}}invites/' + getQueryString(['page'])"
+               target="_blank">
+              {% trans %}Contacts (.xlsx){% endtrans %}
+            </a>
+            <a id="download-detailed-answers" class="dropdown-item"
+               :href="'{{urls.download_raw}}' + getQueryString(['page'])"
+               target="_blank">
+                {% trans %}Detailed answers (.xlsx){% endtrans %}
+            </a>
+            <a id="download-detailed-answers-long" class="dropdown-item"
+               :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
+               target="_blank">
+                {% trans %}Detailed answers (pivotable .csv){% endtrans %}
+            </a>
+          </ul>
+        </div>{# /.btn-group #}
+
         <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-contacts" :href="'{{urls.download}}invites/' + getQueryString(['page'])">
           <i class="fa fa-file-text"></i> {% trans %}Contacts (xlsx){% endtrans %}
         </a>

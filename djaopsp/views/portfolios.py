@@ -241,6 +241,10 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
             'download_engagement_stats': reverse(
                 'reporting_download_engagement_stats', args=(
                 self.account, self.campaign)),
+            'download_raw': reverse('download_matrix_compare',
+                args=(self.account, self.campaign)),
+            'download_raw_long': reverse('download_raw_long',
+                args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/engage/")
         })
         return context
