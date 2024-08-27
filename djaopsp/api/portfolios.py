@@ -1406,7 +1406,7 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
         # XXX We cannot sort by `last_reminder_at` as these are added
         # in `decorate_queryset`.
         # ('last_reminder_at', 'last_reminder_at'),
-        ('created_at', 'requested_at'),
+        ('requested_at', 'requested_at'),
     )
 
     ordering = ('full_name',)
