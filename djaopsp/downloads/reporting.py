@@ -496,7 +496,7 @@ class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
     """
     Downloads year-over-year scores in long format
     """
-    base_headings = ['Supplier No.', 'Supplier Name',
+    base_headings = ['Supplier no.', 'Supplier name',
         'TSP Score', 'Score Range', 'Score Stage']
     title = "Responses"
 
@@ -590,7 +590,8 @@ class LongFormatCSVView(AccountsNominativeQuerysetMixin, CSVDownloadView):
     """
     Download raw data in format suitable for OLAP Software
     """
-    headings = ['profile', 'created_at', 'unit', 'measured', 'path', 'title']
+    headings = ['Created at', 'Supplier name', 'Supplier slug',
+        'Measured', 'Unit', 'Question title', 'Question path']
     filter_backends = [DateRangeFilter]
 
     def __init__(self, **kwargs):
@@ -606,8 +607,7 @@ class LongFormatCSVView(AccountsNominativeQuerysetMixin, CSVDownloadView):
             sample__in=Sample.objects.get_completed_assessments_at_by(
                 self.campaign, accounts=requested_accounts,
                 start_at=self.start_at, ends_at=self.ends_at
-            )).distinct().select_related(
-                'sample__account', 'question', 'question__content', 'unit')
+            )).distinct().select_related('sample__account', 'question', 'unit')
         return queryset
 
     def queryrow_to_columns(self, record):
@@ -626,11 +626,12 @@ class LongFormatCSVView(AccountsNominativeQuerysetMixin, CSVDownloadView):
             measured = self.encode(
                 Choice.objects.get(pk=measured).text)
         row = [
-            record.sample.account.slug,
             record.created_at.date(),
-            record.unit.slug,
+            record.sample.account.printable_name,
+            record.sample.account.slug,
             measured,
-            record.question.path,
-            self.encode(record.question.title)
+            record.unit.slug,
+            self.encode(record.question.title),
+            record.question.path
         ]
         return row
