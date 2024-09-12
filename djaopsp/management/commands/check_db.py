@@ -536,4 +536,5 @@ ON %(account_table)s.id = request_no_portfolios.grantee_id""" % {
                         second_sample = next(samples_iter)
                     except StopIteration:
                         second_sample = None
-        self.stderr.write("%d pair of samples with duplicate answers" % count)
+        self.stderr.write("%d pair of samples with duplicate answers"\
+            " for campaign '%s'" % (count, campaign))

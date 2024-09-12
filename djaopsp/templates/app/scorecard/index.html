@@ -111,26 +111,98 @@
             {% endif %}
           </div>
         </div>{# /.row #}
-      </section> {# /#summary #}
-      <section id="details">
-        {% if not sample.is_frozen and urls.assess_mandatory_segment and not is_mandatory_segment_present %}
-        <div class="text-center">
-          <hr />
-          <p>
-            {% if sample.campaign.description %}
-            {{sample.campaign.description}}
-            {% endif %}
-          </p>
-          <p>
-            {% trans %}Click Assess in the horizontal progress bar at the top of the page to get started!{% endtrans %}
-          </p>
+
+        {# summary of sections #}
+        <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+          <div v-for="(practice, practiceIdx) in getEntries()">
+            <div class="mt-4" v-if="isChartHeading(practice) && practice.indent === 0">
+              <hr v-if="practice.picture" />
+
+              {# segment title #}
+              <div v-if="practice.indent === 0">
+                <div :class="indentHeader(practice)">
+                  <div class="d-inline-block" v-if="practice.picture">
+                    <img class="icon-heading" :src="practice.picture" />
+                  </div>
+                  <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                </div>
+
+                {# scorecard for segment #}
+                <div class="row"
+                     v-if="containsTag(practice, 'scorecard')">
+                  <div class="col-sm-8">
+                    <div>
+                      {# XXX copy/pasted from _tile_chart.html? #}
+                      <div class="text-center d-flex align-items-center"
+                           style="height:150px;max-width:300px;"
+                           v-if="!chartsAvailable && !isChartAvailable('/summary' + practice.path)">
+                        <div class="box">
+                          <i class="fa fa-refresh fa-spin fa-2x"></i>
+                        </div>
+                      </div>
+                      <div class="text-center d-flex align-items-center"
+                           style="height:150px;max-width:300px;background:#eee;"
+                           v-if="chartsAvailable && !isChartAvailable('/summary' + practice.path)">
+                        <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
+                      </div>
+                      <canvas :data-id="'/summary' + practice.path" v-show="isChartAvailable('/summary' + practice.path)"></canvas>
+                    </div>
+                  </div>{# /.col-sm-8 #}
+                  <div class="col-sm-4">
+                    <div :class="indentHeader(practice)">
+                      [[asPercent(practice.normalized_score)]]
+                    </div>
+                  </div>{# /.col-sm-4 #}
+                </div>{# /scorecard for segment #}
+
+                {# summary of tile sections #}
+                <div v-for="block in chunkBy(getEntries(practice.slug, 1, 'scorecard'), 3)">
+                  <div class="row">
+                    <div class="col-sm-4" v-for="subheading in block">
+                      <div>
+                        <div class="d-inline-block" v-if="subheading.picture">
+                          <img class="icon-heading" :src="subheading.picture" />
+                        </div>
+                        <span class="title">[[subheading.title]]</span>
+                        <span>([[asPercent(subheading.normalized_score)]])</span>
+                      </div>
+                      <div class="text-center d-flex align-items-center"
+                           style="height:150px;max-width:300px;"
+                           v-if="!chartsAvailable && !isChartAvailable('/summary/sub' + subheading.path)">
+                        <div class="box">
+                          <i class="fa fa-refresh fa-spin fa-2x"></i>
+                        </div>
+                      </div>
+                      <div class="text-center d-flex align-items-center"
+                           style="height:150px;max-width:300px;background:#eee;"
+                           v-if="chartsAvailable && !isChartAvailable('/summary/sub' + subheading.path)">
+                        <div class="box">There is not enough data available to benchmark with peers.</div>
+                      </div>
+                      <canvas :data-id="'/summary/sub' + subheading.path" v-show="isChartAvailable('/summary/sub' + subheading.path)"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-center">
+{% trans %}Benchmarking is based on{% endtrans %} <span v-if="!chartsLoaded">?</span><span v-if="chartsLoaded" v-cloak>[[getNbRespondents(practice)]]</span>
+{% trans %}responses to the section{% endtrans %} <em>[[practice.title]]</em>.
+                </p>
+              </div>{# /practice.indent == 0 #}
+
+            </div>{# /.isChartHeading - i.e. heading with charts and score #}
+          </div>
         </div>
-        {% else %}
+      </section> {# /#summary #}
+
+      <div class="pagebreak"></div>
+
+
+      <section id="details">
         <div class="text-center mt-4" v-show="!itemsLoaded">
           <i class="fa fa-refresh fa-spin fa-2x"></i>
         </div>
         <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
-          <div :id="practice.slug" v-for="(practice, practiceIdx) in getEntries()">
+          <div :id="practice.slug"
+               v-for="(practice, practiceIdx) in getEntries()">
             <div class="mt-4" v-if="isChartHeading(practice)">
               <hr v-if="practice.picture" />
 
@@ -166,17 +238,17 @@
                       {# XXX copy/pasted from _tile_chart.html? #}
                       <div class="text-center d-flex align-items-center"
                            style="height:150px;max-width:300px;"
-                           v-if="!chartsAvailable && !charts[practice.path]">
+                           v-if="!chartsAvailable && !isChartAvailable('/details' + practice.path)">
                         <div class="box">
                           <i class="fa fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
                       <div class="text-center d-flex align-items-center"
                            style="height:150px;max-width:300px;background:#eee;"
-                           v-if="chartsAvailable && !charts[practice.path]">
+                           v-if="chartsAvailable && !isChartAvailable('/details' + practice.path)">
                         <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
                       </div>
-                      <canvas :data-id="practice.path" v-show="isChartAvailable(practice)"></canvas>
+                      <canvas :data-id="'/details' + practice.path" v-show="isChartAvailable('/details' + practice.path)"></canvas>
                     </div>
                   </div>{# /.col-sm-8 #}
                   <div class="col-sm-4">
@@ -199,17 +271,17 @@
                       </div>
                       <div class="text-center d-flex align-items-center"
                            style="height:150px;max-width:300px;"
-                           v-if="!chartsAvailable && !charts[subheading.path]">
+                           v-if="!chartsAvailable && !isChartAvailable('/summary/sub' + subheading.path)">
                         <div class="box">
                           <i class="fa fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
                       <div class="text-center d-flex align-items-center"
                            style="height:150px;max-width:300px;background:#eee;"
-                           v-if="chartsAvailable && !charts[subheading.path]">
+                           v-if="chartsAvailable && !isChartAvailable('/summary/sub' + subheading.path)">
                         <div class="box">There is not enough data available to benchmark with peers.</div>
                       </div>
-                      <canvas :data-id="'/summary' + subheading.path" v-show="charts[subheading.path]"></canvas>
+                      <canvas :data-id="'/details/sub' + subheading.path" v-show="isChartAvailable('/summary/sub' + subheading.path)"></canvas>
                     </div>
                   </div>
                 </div>
@@ -240,17 +312,17 @@
                       {# XXX copy/pasted from _tile_chart.html? #}
                       <div class="text-center d-flex align-items-center"
                            style="height:150px;max-width:300px;"
-                           v-if="!chartsAvailable && !charts[practice.path]">
+                           v-if="!chartsAvailable && !isChartAvailable(practice.path)">
                         <div class="box">
                           <i class="fa fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
                       <div class="text-center d-flex align-items-center"
                            style="height:150px;max-width:300px;background:#eee;"
-                           v-if="chartsAvailable && !charts[practice.path]">
+                           v-if="chartsAvailable && !isChartAvailable(practice.path)">
                         <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
                       </div>
-                      <canvas :data-id="practice.path" v-show="isChartAvailable(practice)"></canvas>
+                      <canvas :data-id="practice.path" v-show="isChartAvailable(practice.path)"></canvas>
                     </div>
                   </div>{# /.col-sm-8 #}
                   <div class="col-sm-4">
@@ -505,7 +577,6 @@
 
           </div>{# /v-for=getEntries() #}
         </div>{# /v-if=itemsLoaded && items.results.length > 0 #}
-        {% endif %}{# /not sample.is_frozen and urls.assess_mandatory_segment and not is_mandatory_segment_present #}
 
       </section> {# /# details #}
 

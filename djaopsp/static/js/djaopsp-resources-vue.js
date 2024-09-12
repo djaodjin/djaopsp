@@ -691,10 +691,11 @@ var practicesListMixin = {
                 data: values
             });
 
-            var chartKeys = [data.path, '/summary' + data.path];
-            for( var idx = 0; idx < chartKeys.length; ++idx ) {
-                var chartKey = chartKeys[idx];
-                var element = vm.$el.querySelector('[data-id="' + chartKey + '"]');
+            const elements = vm.$el.querySelectorAll(
+                '[data-id$="' + data.path + '"]');
+            for( var idx = 0; idx < elements.length; ++idx ) {
+                const element = elements[idx];
+                const chartKey = element.getAttribute('data-id');
                 if( element ) {
                     if( vm.charts[chartKey] ) {
                         vm.charts[chartKey].destroy();
@@ -744,8 +745,8 @@ var practicesListMixin = {
                 }
             }
         },
-        isChartAvailable: function (practice) {
-            return practice.path in this.charts;
+        isChartAvailable: function (practicePath) {
+            return practicePath in this.charts;
         },
         describeArc: function(x, y, radius, startAngle, endAngle) {
             var innerRadius = radius - this.baseWidth;
