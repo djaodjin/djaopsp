@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE
 
 -include $(buildTop)/share/dws/prefix.mk
@@ -167,7 +167,7 @@ run-coverage: initdb
 
 # Download prerequisites specified in package.json and install relevant files
 # in the directory assets are served from.
-vendor-assets-prerequisites: $(installTop)/.npm/$(APP_NAME)-packages
+vendor-assets-prerequisites: $(libDir)/.npm/$(APP_NAME)-packages
 
 
 # --------- intermediate targets
@@ -178,9 +178,9 @@ clean-dbs:
 # The chart.js in node_modules/chart.js/dist/chart.js does not pass
 # `es-check es5`. The webpack.config.js file rules loader excludes
 # `node_modules` from babel, so we install chart.js in $srcDir here.
-$(installTop)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
+$(libDir)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $^ $(libDir)
-	$(NPM) install --loglevel verbose --cache $(installTop)/.npm --tmp $(installTop)/tmp --prefix $(libDir)
+	$(NPM) install --loglevel verbose --cache $(libDir)/.npm --tmp $(libDir)/tmp --prefix $(libDir)
 	install -d $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.min.js $(ASSETS_DIR)/vendor
 	cp -rf $(libDir)/node_modules/chart.js $(srcDir)/djaopsp/static/vendor
@@ -210,7 +210,7 @@ schema.yml:
 
 $(ASSETS_DIR)/cache/assess.js: $(srcDir)/webpack.config.js \
                                webpack-conf-paths.json \
-                               $(installTop)/.npm/$(APP_NAME)-packages \
+                               $(libDir)/.npm/$(APP_NAME)-packages \
                                $(wildcard $(srcDir)/djaopsp/static/js/*.js)
 	cd $(srcDir) && $(WEBPACK) -c $<
 
