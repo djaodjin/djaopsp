@@ -17,8 +17,8 @@ from pptx.shapes.graphfrm import GraphicFrame
 from rest_framework.request import Request
 from survey.compat import force_str, six
 from survey.filters import DateRangeFilter
-from survey.helpers import datetime_or_now, get_extra
-from survey.models import Answer, Choice, Sample, Unit
+from survey.helpers import datetime_or_now, get_extra, extra_as_internal
+from survey.models import Answer, Choice, Portfolio, Sample, Unit
 from survey.utils import get_question_model
 
 from .. import humanize
@@ -515,7 +515,7 @@ class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
     def queryrow_to_columns(self, record):
         collapsed_reporting_statuses = {
             humanize.REPORTING_NO_RESPONSE: _("Invited"),
-            humanize.REPORTING_NO_DATA: _("Not Completed"),
+            humanize.REPORTING_NO_DATA: _("No Data"),
             humanize.REPORTING_NO_PROFILE: _("N/A"),
             humanize.REPORTING_RESPONDED: _("Not Shared"),
         }
@@ -568,7 +568,8 @@ class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):
 
     def get_headings(self):
         return [
-            'Supplier name',
+            'SupplierID',
+            'Profile name',
             'Tags',
             'Status',
             'Last update',
@@ -577,7 +578,10 @@ class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):
 
     def queryrow_to_columns(self, record):
         reporting_statuses = dict(EngagementSerializer.REPORTING_STATUSES)
-        row = [record.printable_name,
+        supplier_key = get_extra(record, 'supplier_key')
+        row = [
+            supplier_key,
+            record.printable_name,
             ", ".join(get_extra(record, 'tags', [])),
             reporting_statuses[record.reporting_status],
             record.last_activity_at.date() if record.last_activity_at else "",
@@ -590,13 +594,25 @@ class LongFormatCSVView(AccountsNominativeQuerysetMixin, CSVDownloadView):
     """
     Download raw data in format suitable for OLAP Software
     """
-    headings = ['Created at', 'Supplier name', 'Supplier slug',
+    headings = ['Created at', 'SupplierID', 'Profile name',
         'Measured', 'Unit', 'Question title', 'Question path']
     filter_backends = [DateRangeFilter]
 
     def __init__(self, **kwargs):
         super(LongFormatCSVView, self).__init__(**kwargs)
         self._choices = {}
+
+    def get_supplier_key(self, account):
+        if not hasattr(self, '_portfolio_extras'):
+            extras_queryset = Portfolio.objects.filter(
+                grantee=self.account,
+                account_id__in=[val.pk for val in self.requested_accounts])
+            self._portfolio_extras = {
+                (val.grantee_id, val.account_id): extra_as_internal(val)
+                for val in extras_queryset}
+        return self._portfolio_extras.get(
+            (self.account.pk, account.pk), {}).get('supplier_key', "")
+
 
     def get_queryset(self):
         requested_accounts = self.requested_accounts.filter(
@@ -625,10 +641,11 @@ class LongFormatCSVView(AccountsNominativeQuerysetMixin, CSVDownloadView):
         elif record.unit.system not in Unit.NUMERICAL_SYSTEMS:
             measured = self.encode(
                 Choice.objects.get(pk=measured).text)
+        supplier_key = self.get_supplier_key(record.sample.account)
         row = [
             record.created_at.date(),
+            supplier_key,
             record.sample.account.printable_name,
-            record.sample.account.slug,
             measured,
             record.unit.slug,
             self.encode(record.question.title),

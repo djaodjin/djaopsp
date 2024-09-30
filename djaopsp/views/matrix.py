@@ -8,8 +8,8 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
 from deployutils.helpers import update_context_urls
 from django.db import connection
 from django.http import HttpResponse
-from survey.helpers import get_extra
-from survey.models import Campaign, Sample, Unit, UnitEquivalences
+from survey.helpers import extra_as_internal, get_extra
+from survey.models import Campaign, Portfolio, Sample, Unit, UnitEquivalences
 from survey.utils import get_engaged_accounts
 from survey.views.matrix import CompareView as CompareBaseView
 from rest_framework.generics import get_object_or_404
@@ -156,11 +156,27 @@ class CompareXLSXView(AccountsNominativeQuerysetMixin, CampaignContentMixin,
     def accounts_with_engagement(self):
         #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_accounts_with_engagement'):
-            self._accounts_with_engagement = get_coalesce_engagement(
+            queryset = list(get_coalesce_engagement(
                 self.verified_campaign, self.requested_accounts,
                 start_at=self.start_at, ends_at=self.ends_at,
                 order_by=self.ordering,
-                grantees=[self.account]) # XXX forces a single grantee
+                grantees=[self.account])) # XXX forces a single grantee
+
+            extras_queryset = Portfolio.objects.filter(
+                grantee=self.account, # XXX forces a single grantee
+                account_id__in=[val.pk for val in queryset])
+            extras = {
+                (val.grantee_id, val.account_id): extra_as_internal(val)
+                for val in extras_queryset}
+            # adds meta information not found in main queryset.
+            for account in queryset:
+                # Merge portfolio extra field into account extra field.
+                extra = extras.get((self.account.pk, account.pk))
+                if extra:
+                    account.extra = extra_as_internal(account)
+                    account.extra.update(extra)
+
+            self._accounts_with_engagement = queryset
         return self._accounts_with_engagement
 
     @property
@@ -537,12 +553,12 @@ ORDER BY answers.path, answers.account_id
             start_at = self.start_at.date()
             self.writerow(["Organization/profiles engaged from %s to %s (%s)" %
                 (start_at.isoformat(), ends_at.isoformat(), source)])
-        headings = [force_str(_("Organization/profile name"))] + [
+        headings = [force_str(_("Profile name"))] + [
             reporting.printable_name
             for reporting in self.accounts_with_engagement]
         self.writerow(headings)
-        headings = [force_str(_("Organization/profile uniqueID"))] + [
-            reporting.slug
+        headings = [force_str(_("SupplierID"))] + [
+            get_extra(reporting, 'supplier_key')
             for reporting in self.accounts_with_engagement]
         self.writerow(headings)
         headings = [force_str(_("Tags"))]

@@ -902,8 +902,10 @@ Vue.component('reporting-organizations', {
                 vm.items = resp;
                 vm.populateAccounts(vm.items.results);
             }
-            vm.grants = grantsResp;
-            vm.populateAccounts(vm.grants.results, 'account');
+            if( grantsResp ) {
+                vm.grants = grantsResp;
+                vm.populateAccounts(vm.grants.results, 'account');
+            }
             vm.itemsLoaded = true;
         },
         populateSummaryChart: function() {

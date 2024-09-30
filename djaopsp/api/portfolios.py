@@ -1428,13 +1428,26 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
             val.sample_id for val in queryset}, path__in=[
             seg['path'] for seg in self.segments_available]).order_by('path')
         scores = {val.sample_id: val for val in scores}
-        for portfolio in queryset:
-            scorecard_cache = scores.get(portfolio.sample_id)
+
+        extras_queryset = Portfolio.objects.filter(
+            grantee_id__in=[val.grantee_id for val in queryset],
+            account_id__in=[val.account_id for val in queryset])
+        extras = {(val.grantee_id, val.account_id): extra_as_internal(val)
+            for val in extras_queryset}
+
+        # adds meta information not found in main queryset.
+        for account in queryset:
+            scorecard_cache = scores.get(account.sample_id)
             if scorecard_cache:
-                portfolio.normalized_score = scorecard_cache.normalized_score
-            reminder = latest_reminders.get(portfolio.account_id)
+                account.normalized_score = scorecard_cache.normalized_score
+            reminder = latest_reminders.get(account.account_id)
             if reminder:
-                portfolio.last_reminder_at = reminder.last_reminder_at
+                account.last_reminder_at = reminder.last_reminder_at
+            # Merge portfolio extra field into account extra field.
+            extra = extras.get((account.grantee_id, account.account_id))
+            if extra:
+                account.extra = extra_as_internal(account)
+                account.extra.update(extra)
         return queryset
 
     def get_filtering(self):
