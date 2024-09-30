@@ -10,10 +10,10 @@ srcDir        ?= .
 installTop    ?= $(VIRTUAL_ENV)
 binDir        ?= $(installTop)/bin
 libDir        ?= $(installTop)/lib
-SYSCONFDIR    := $(installTop)/etc
-LOCALSTATEDIR := $(installTop)/var
-CONFIG_DIR    := $(SYSCONFDIR)/$(APP_NAME)
-ASSETS_DIR    := $(srcDir)/htdocs/static
+SYSCONFDIR    ?= $(installTop)/etc
+LOCALSTATEDIR ?= $(installTop)/var
+CONFIG_DIR    ?= $(SYSCONFDIR)/$(APP_NAME)
+ASSETS_DIR    ?= $(srcDir)/htdocs/static
 
 installDirs   ?= /usr/bin/install -d
 installFiles  ?= /usr/bin/install -p -m 644
