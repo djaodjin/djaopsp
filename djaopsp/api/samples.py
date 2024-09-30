@@ -7,7 +7,6 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
 from pages.docs import extend_schema
 from pages.models import PageElement, flatten_content_tree
 from rest_framework import generics, response as http, status as http_status
@@ -25,7 +24,7 @@ from survey.models import Sample
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
 
-from ..compat import reverse, six
+from ..compat import gettext_lazy as _, reverse, six
 from ..mixins import SectionReportMixin
 from ..models import VerifiedSample
 from ..pagination import BenchmarksPagination

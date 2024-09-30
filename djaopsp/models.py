@@ -5,12 +5,11 @@ import random
 from django.conf import settings as django_settings
 from django.db import models, transaction, IntegrityError
 from django.template.defaultfilters import slugify
-from django.utils.translation import ugettext_lazy as _
 from rest_framework.exceptions import ValidationError
 from pages.models import PageElement
 from survey.models import Sample, get_extra_field_class, Campaign
 
-from .compat import python_2_unicode_compatible
+from .compat import gettext_lazy as _, python_2_unicode_compatible
 
 
 @python_2_unicode_compatible

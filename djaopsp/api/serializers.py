@@ -1,7 +1,6 @@
 # Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
-from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
@@ -13,7 +12,7 @@ from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
 from survey.utils import get_account_model
 
 from .. import humanize
-from ..compat import reverse
+from ..compat import gettext_lazy as _, reverse
 from ..models import VerifiedSample
 from ..scores import get_top_normalized_score
 from ..utils import get_practice_serializer

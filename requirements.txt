@@ -1,3 +1,4 @@
+# Requirements running on Python3.7
 Django==3.2.25
 #djangorestframework==3.14.0
 djangorestframework==3.12.4
@@ -49,7 +50,7 @@ coreapi==2.3.3
 drf-spectacular==0.27.2
 Pygments==2.16.1
 pyyaml==6.0
-Sphinx==7.2.6
+Sphinx==5.3.0
 sphinx_rtd_theme==2.0.0
 sphinxcontrib-httpdomain==1.8.1
 sphinxcontrib-websupport==1.2.4

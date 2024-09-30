@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -6,7 +6,6 @@ import logging
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.db import transaction
-from django.utils.translation import ugettext_lazy as _
 from rest_framework import generics
 from rest_framework import response as http
 from rest_framework.mixins import UpdateModelMixin
@@ -15,6 +14,7 @@ from survey.helpers import construct_weekly_periods, datetime_or_now
 from survey.models import Sample
 from survey.utils import get_engaged_accounts
 
+from ..compat import gettext_lazy as _
 from ..mixins import ReportMixin
 from ..models import VerifiedSample
 from ..helpers import as_percentage

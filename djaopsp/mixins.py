@@ -9,7 +9,6 @@ from django.conf import settings
 from django.db import transaction
 from django.db.models import Q, F
 from django.http import Http404
-from django.utils.translation import ugettext_lazy as _
 from pages.mixins import (TrailMixin,
     SequenceProgressMixin as SequenceProgressMixinBase)
 from pages.models import PageElement
@@ -20,7 +19,7 @@ from survey.models import Answer, Campaign, Sample
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import get_question_model, get_engaged_accounts
 
-from .compat import reverse
+from .compat import gettext_lazy as _, reverse
 from .models import VerifiedSample, SurveyEvent
 from .utils import (get_account_model, get_segments_available,
     get_segments_candidates)
